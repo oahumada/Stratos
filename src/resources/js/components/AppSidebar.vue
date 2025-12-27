@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Star, User } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -23,18 +23,63 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Skills',
+        href: dashboard(),
+        icon: Star,
+    },
+    {
+        title: 'Roles',
+        href: dashboard(),
+        icon: BookOpen,
+    },
+        {
+        title: 'Personas',
+        href: dashboard(),
+        icon: User,
+    },
+        {
+        title: 'Paths de desarrollo',
+        href: dashboard(),
+        icon: Star,
+    },
+    {
+        title: 'Market place interno',
+        href: dashboard(),
+        icon: Star,
+    },
+    {
+        title: 'Brechas de skills',
+        href: dashboard(),
+        icon: Star,
+    },
+    {
+        title: 'Reskilling/Upskilling',
+        href: dashboard(),
+        icon: Star,
+    },
+    {
+        title: 'Talento 360°',
+        href: dashboard(),
+        icon: Star,
+    },
+    {
+        title: 'People Analytics & HR Tech Advisory',
+        href: dashboard(),
+        icon: Star,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Github Repo',
+        title: 'Documentación',
         href: 'https://github.com/laravel/vue-starter-kit',
         icon: Folder,
     },
     {
-        title: 'Documentation',
+        title: 'Mesa de ayuda',
         href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
+        icon: Star,
     },
 ];
 </script>
