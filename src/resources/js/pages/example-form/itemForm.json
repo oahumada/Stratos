@@ -1,0 +1,14 @@
+{
+  "fields": [
+    { "type": "number", "key": "idpgp", "label": "IDGP" },
+    { "type": "date", "key": "fecha_control", "label": "Fecha Control" },
+    { "type": "date", "key": "fecha_prox_control", "label": "Fecha Prox Control" },
+    { "type": "date", "key": "fecha_ult_control", "label": "Fecha Ult Control" },
+    { "type": "date", "key": "fecha_vencimiento", "label": "Fecha Vencimiento" },
+    { "type": "text", "key": "item", "label": "Item" },
+    { "type": "text", "key": "test_drogas", "label": "Test Drogas" },
+    { "type": "select", "key": "estado_examen_id", "label": "Estado Examen" },
+    { "type": "text", "key": "comentario", "label": "Comentario" }
+  ],
+  "catalogs": ["estado_examen"]
+}

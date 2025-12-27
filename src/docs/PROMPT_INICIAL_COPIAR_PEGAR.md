@@ -96,6 +96,36 @@ Antes de responder cualquier pregunta sobre desarrollo, consulta estos archivos 
 - ¿Cómo nombro clases y métodos?
 - ¿Cómo estructuro un controller o service?
 
+### 6. **ANÁLISIS DÍA 6 (Frontend)** - Si estamos en Día 6+
+
+```
+/workspaces/talentia/src/docs/DIA6_ANALISIS_ARQUITECTURA_FRONTEND.md
+```
+
+**¿Qué contiene?** Análisis detallado de apiHelper.ts, FormSchema, FormData, patrón config-driven
+**¿Cuándo consultarlo?** Si vas a trabajar en frontend CRUD o crear nuevos módulos
+**¿Qué preguntas responde?**
+
+- ¿Cómo está estructurado el sistema CRUD frontend?
+- ¿Cómo funciona apiHelper.ts (autenticación, reintentos, etc)?
+- ¿Qué patrones debo seguir para crear nuevo módulo CRUD?
+- ¿Qué hay que mejorar en la arquitectura?
+
+### 7. **PLAN DÍA 6** - Si estamos en Día 6+
+
+```
+/workspaces/talentia/src/docs/DIA6_PLAN_ACCION.md
+```
+
+**¿Qué contiene?** Tasks específicos del Día 6, checkpoints horarios, criterios de éxito
+**¿Cuándo consultarlo?** Si estamos ejecutando Día 6
+**¿Qué preguntas responde?**
+
+- ¿Qué tareas debo completar hoy?
+- ¿Cuál es el checkpoint a las 11:45 y 15:45?
+- ¿Cómo pruebo que CRUD funciona?
+- ¿Cuál es el criterio para considerar Día 6 COMPLETO?
+
 ---
 
 ## 🔄 FLUJO DE TRABAJO CUANDO INICIO CHAT

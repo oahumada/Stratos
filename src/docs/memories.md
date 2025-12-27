@@ -1,5 +1,29 @@
 # TalentIA – Memoria de Contexto para GitHub Copilot
 
+**Última actualización:** 27 Diciembre 2025  
+**Status:** MVP Backend ✅ COMPLETADO (Días 1-5), Frontend en Progreso (Día 6+)  
+**Documentación Operativa:** ✅ ECHADA_DE_ANDAR, VALIDACION_ESTADO, TEMPLATE_DIA_N, QUICK_START
+
+---
+
+## STATUS ACTUAL (Día 6)
+
+### ✅ Completado (Días 1-5)
+
+- **Backend 100% funcional:** 17 endpoints API (personas, skills, roles, brechas, rutas, vacantes, postulaciones, matching)
+- **BD migraciones + seeders:** 15+ tablas, datos de demo TechCorp (20 empleados, 8 roles, 30 skills)
+- **Tests:** 5/5 PASS
+- **Documentación:** API endpoints, lecciones aprendidas, guía de desarrollo
+
+### ⏳ En Progreso (Día 6+)
+
+- **Frontend CRUD Base:** apiHelper.ts (CRUD centralizado), FormSchema.vue (lógica), FormData.vue (form), patrón config-driven
+- **Arquitetura:** Extensible para multiplicar módulos sin duplicar código
+- **Tests:** Falta completar tests de apiHelper
+- **Documentación:** Análisis arquitectura, plan acción, comentarios código
+
+---
+
 ## Índice
 
 1. [Contexto del Producto](#1-contexto-del-producto)
@@ -227,6 +251,47 @@ organizations (tabla maestra)
 4. **Lazy Loading:** Rutas y componentes pesados con `defineAsyncComponent`
 5. **Tipado estricto:** Interfaces TypeScript para todos los modelos
 
+#### Frontend CRUD Architecture (Día 6+)
+
+**Patrón Config-Driven:** Cada módulo CRUD se define por 3 archivos JSON:
+
+1. **apiHelper.ts:** Abstracción centralizada de operaciones HTTP
+    - POST, PUT, DELETE, GET con manejo robusto de Sanctum (CSRF)
+    - Interceptores para manejar 419 (CSRF mismatch), 401 (Unauthorized)
+    - Queue inteligente de requests en caso de refresh simultáneo
+    - fetchCatalogs() para cargar múltiples selectores en 1 request
+
+2. **FormSchema.vue:** Componente maestro CRUD (lógica)
+    - Carga items (GET), crea (POST), actualiza (PUT), elimina (DELETE)
+    - Diálogos para crear/editar con confirmación de eliminación
+    - Manejo de errores 422 (validación)
+    - Conversión automática de fechas (DD/MM/YYYY ↔ YYYY-MM-DD)
+    - Notificaciones de éxito/error
+
+3. **FormData.vue:** Componente de formulario (presentación)
+    - Genera campos dinámicos según config (text, select, date, number, textarea)
+    - Mapeo automático de catálogos (ej: `estado_examen_id` → busca catálogo `estado_examen`)
+    - Watch reactivo para sincronización con initialData
+    - Expose methods: validate(), reset(), formData
+
+4. **Configuración JSON (3 archivos por módulo):**
+
+    ```json
+    // config.json
+    { "titulo": "Módulo X", "endpoints": { "apiUrl": "/api/..." }, "permisos": {...} }
+
+    // tableConfig.json
+    { "headers": [...], "options": {...} }
+
+    // itemForm.json
+    { "fields": [...], "catalogs": [...] }
+    ```
+
+5. **Patrón:** ExampleForm.vue simplemente orquesta: carga configs JSON → pasa a FormSchema
+    - Permite crear 10+ módulos CRUD sin duplicar código
+    - Cambiar comportamiento = cambiar JSON (no código)
+    - Típico: nuevo CRUD en 30 min (solo JSONs + Controller backend)
+
 #### Seguridad
 
 1. **CORS:** Configurado para subdominios `*.talentia.app`
@@ -382,15 +447,8 @@ organizations (tabla maestra)
     - Departamento
     - Fecha límite
 3. Submit → Backend crea `job_opening` con `status: open`
-
-#### Flujo: Matching Automático
-
-1. Backend (trigger al crear vacante):
-    - Obtiene skills requeridas del rol
-    - Busca personas con match >60%
-    - Ordena por % match descendente
     - Marca top 5 como "candidatos sugeridos"
-2. Frontend en `/job-openings/{id}`:
+4. Frontend en `/job-openings/{id}`:
     - Tabla con candidatos internos rankeados
     - Columnas: Nombre, Cargo Actual, % Match, Skills Faltantes
     - Botón "Invitar a Postular"
@@ -481,10 +539,6 @@ organizations (tabla maestra)
 ```php
 function calculateGap(Person $person, Role $role): array
 {
-    $gaps = [];
-    $totalSkills = $role->skills->count();
-    $skillsOk = 0;
-
     foreach ($role->skills as $roleSkill) {
         $personSkill = $person->skills->firstWhere('id', $roleSkill->id);
         $currentLevel = $personSkill?->pivot->level ?? 0;
@@ -509,12 +563,6 @@ function calculateGap(Person $person, Role $role): array
             'gap' => $gap,
             'status' => $status,
         ];
-    }
-
-    $matchPercentage = ($skillsOk / $totalSkills) * 100;
-
-    return [
-        'match_percentage' => round($matchPercentage, 2),
         'gaps' => $gaps,
     ];
 }
