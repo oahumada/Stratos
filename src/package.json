@@ -8,7 +8,11 @@
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
-        "lint": "eslint . --fix"
+        "lint": "eslint . --fix",
+        "release": "cd .. && ./scripts/release.sh",
+        "release:patch": "cd .. && ./scripts/release.sh patch",
+        "release:minor": "cd .. && ./scripts/release.sh minor",
+        "release:major": "cd .. && ./scripts/release.sh major"
     },
     "devDependencies": {
         "@commitlint/config-conventional": "^20.2.0",
@@ -27,6 +31,7 @@
         "prettier": "^3.4.2",
         "prettier-plugin-organize-imports": "^4.1.0",
         "prettier-plugin-tailwindcss": "^0.6.11",
+        "standard-version": "^9.5.0",
         "typescript": "^5.2.2",
         "typescript-eslint": "^8.23.0",
         "vite": "^7.0.4",

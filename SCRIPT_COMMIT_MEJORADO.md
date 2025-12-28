@@ -1,6 +1,7 @@
 # Cómo Funciona el Script Mejorado
 
 ## Antes (Sin cambios)
+
 ```
 ./scripts/commit.sh
 
@@ -64,24 +65,28 @@ Subject: mejorar script de commits con análisis automático de cambios
 ## ✨ Lo Que Hace Ahora
 
 ### 1️⃣ **Muestra Git Diff Automáticamente**
-   - Ve TODOS tus cambios preparados
-   - Entiende qué archivos tocaste
+
+- Ve TODOS tus cambios preparados
+- Entiende qué archivos tocaste
 
 ### 2️⃣ **Sugiere Tipo Automáticamente**
-   - ¿Modificaste tests? → `test`
-   - ¿Modificaste dependencias? → `chore`
-   - ¿Modificaste docs? → `docs`
-   - ¿Otro? → `feat` (default)
-   - Presiona Enter para aceptar la sugerencia
+
+- ¿Modificaste tests? → `test`
+- ¿Modificaste dependencias? → `chore`
+- ¿Modificaste docs? → `docs`
+- ¿Otro? → `feat` (default)
+- Presiona Enter para aceptar la sugerencia
 
 ### 3️⃣ **Sugiere Scope Automáticamente**
-   - Detecta qué archivos fueron modificados
-   - Sugiere scopes relevantes (forms, api, etc.)
+
+- Detecta qué archivos fueron modificados
+- Sugiere scopes relevantes (forms, api, etc.)
 
 ### 4️⃣ **Muestra Contexto**
-   - Archivos afectados
-   - Cantidad de cambios
-   - Preview de lo modificado
+
+- Archivos afectados
+- Cantidad de cambios
+- Preview de lo modificado
 
 ---
 
