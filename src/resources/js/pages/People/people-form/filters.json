@@ -1,0 +1,14 @@
+[
+  {
+    "field": "department",
+    "type": "select",
+    "label": "Department",
+    "placeholder": "Select department"
+  },
+  {
+    "field": "role_id",
+    "type": "select",
+    "label": "Role",
+    "placeholder": "Select role"
+  }
+]

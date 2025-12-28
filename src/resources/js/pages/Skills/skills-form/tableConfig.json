@@ -1,0 +1,39 @@
+{
+  "headers": [
+    {
+      "text": "Name",
+      "value": "name",
+      "sortable": true
+    },
+    {
+      "text": "Category",
+      "value": "category",
+      "sortable": true
+    },
+    {
+      "text": "Description",
+      "value": "description",
+      "sortable": false
+    },
+    {
+      "text": "Roles",
+      "value": "roles_count",
+      "sortable": true
+    },
+    {
+      "text": "Employees",
+      "value": "people_count",
+      "sortable": true
+    },
+    {
+      "text": "Actions",
+      "value": "actions",
+      "sortable": false
+    }
+  ],
+  "options": {
+    "dense": false,
+    "itemsPerPage": 10,
+    "showSelect": false
+  }
+}

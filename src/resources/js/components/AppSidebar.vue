@@ -20,52 +20,52 @@ import AppLogo from './AppLogo.vue';
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: '/dashboard',
         icon: LayoutGrid,
     },
     {
-        title: 'Skills',
-        href: dashboard(),
-        icon: Star,
+        title: 'Personas',
+        href: '/people',
+        icon: User,
     },
     {
         title: 'Roles',
-        href: dashboard(),
+        href: '/roles',
         icon: BookOpen,
     },
-        {
-        title: 'Personas',
-        href: dashboard(),
-        icon: User,
+    {
+        title: 'Skills',
+        href: '/skills',
+        icon: Star,
     },
-        {
-        title: 'Paths de desarrollo',
-        href: dashboard(),
+    {
+        title: 'Learning Paths',
+        href: '/dashboard',
         icon: Star,
     },
     {
         title: 'Market place interno',
-        href: dashboard(),
+        href: '/dashboard',
         icon: Star,
     },
     {
         title: 'Brechas de skills',
-        href: dashboard(),
+        href: '/dashboard',
         icon: Star,
     },
     {
         title: 'Reskilling/Upskilling',
-        href: dashboard(),
+        href: '/dashboard',
         icon: Star,
     },
     {
         title: 'Talento 360°',
-        href: dashboard(),
+        href: '/dashboard',
         icon: Star,
     },
     {
         title: 'People Analytics & HR Tech Advisory',
-        href: dashboard(),
+        href: '/dashboard',
         icon: Star,
     },
 ];
@@ -90,7 +90,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
+                        <Link href="/dashboard">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>

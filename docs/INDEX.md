@@ -12,6 +12,26 @@
 
 ---
 
+## 🎯 Patrones y Arquitectura Frontend (NUEVO)
+
+- **[PATRON_JSON_DRIVEN_CRUD.md](PATRON_JSON_DRIVEN_CRUD.md)** - ⭐⭐⭐ Patrón JSON-Driven CRUD (LEE ESTO)
+  - Cómo crear formularios CRUD completos en 15 minutos
+  - Explicación detallada de config.json, tableConfig.json, itemForm.json, filters.json
+  - Estructura FormSchema.vue + FormData.vue
+- **[CHECKLIST_NUEVO_CRUD.md](CHECKLIST_NUEVO_CRUD.md)** - Checklist paso-a-paso para agregar nuevo CRUD
+  - Verificación previa (endpoints funcionando)
+  - Llenar 4 JSON files
+  - Crear Index.vue mínimo
+  - Agregar ruta y navlink
+  - Verificación final
+- **[PROGRESO_PRIORITY1_COMPLETO.md](PROGRESO_PRIORITY1_COMPLETO.md)** - ✅ Status Priority 1
+  - People/Index.vue ✅
+  - Roles/Index.vue ✅
+  - Skills/Index.vue ✅
+  - 0 código duplicado, 100% reutilización
+
+---
+
 ## 🛠️ Setup y Configuración
 
 ### Desarrollo

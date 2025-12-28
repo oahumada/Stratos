@@ -1,0 +1,13 @@
+{
+  "endpoints": {
+    "index": "/api/skills",
+    "apiUrl": "/api/skills"
+  },
+  "titulo": "Skills Management",
+  "descripcion": "View and manage company skills",
+  "permisos": {
+    "crear": true,
+    "editar": true,
+    "eliminar": true
+  }
+}

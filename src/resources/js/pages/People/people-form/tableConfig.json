@@ -1,0 +1,45 @@
+{
+  "headers": [
+    {
+      "text": "Name",
+      "value": "name",
+      "sortable": true
+    },
+    {
+      "text": "Email",
+      "value": "email",
+      "sortable": true
+    },
+    {
+      "text": "Department",
+      "value": "department",
+      "sortable": true
+    },
+    {
+      "text": "Role",
+      "value": "role",
+      "sortable": false
+    },
+    {
+      "text": "Skills",
+      "value": "skills_count",
+      "sortable": true
+    },
+    {
+      "text": "Hired",
+      "value": "hired_at",
+      "type": "date",
+      "sortable": true
+    },
+    {
+      "text": "Actions",
+      "value": "actions",
+      "sortable": false
+    }
+  ],
+  "options": {
+    "dense": false,
+    "itemsPerPage": 10,
+    "showSelect": false
+  }
+}

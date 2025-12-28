@@ -1,0 +1,39 @@
+{
+  "fields": [
+    {
+      "key": "name",
+      "label": "Full Name",
+      "type": "text",
+      "placeholder": "Enter full name",
+      "rules": ["required", "min:3"]
+    },
+    {
+      "key": "email",
+      "label": "Email",
+      "type": "email",
+      "placeholder": "Enter email address",
+      "rules": ["required", "email"]
+    },
+    {
+      "key": "department",
+      "label": "Department",
+      "type": "text",
+      "placeholder": "Enter department",
+      "rules": ["required"]
+    },
+    {
+      "key": "role_id",
+      "label": "Role",
+      "type": "select",
+      "placeholder": "Select a role",
+      "rules": []
+    },
+    {
+      "key": "hired_at",
+      "label": "Hired Date",
+      "type": "date",
+      "rules": []
+    }
+  ],
+  "catalogs": ["role"]
+}

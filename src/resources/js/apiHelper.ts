@@ -95,17 +95,8 @@ axios.interceptors.response.use(
                 processQueue(refreshError, null);
 
                 // Si falla el refresh, puede ser que la sesión expiró
-                try {
-                    const { useAuthStore } = await import("@/stores/authStore");
-                    const authStore = useAuthStore();
-                    authStore.logout();
-
-                    // Opcional: redirigir al login
-                    if (typeof window !== "undefined") {
-                        window.location.href = "/login";
-                    }
-                } catch (importError) {
-                    console.error("Error importing auth store:", importError);
+                if (typeof window !== "undefined") {
+                    window.location.href = "/login";
                 }
 
                 return Promise.reject(refreshError);
@@ -116,21 +107,9 @@ axios.interceptors.response.use(
 
         // Manejar error 401 (Unauthorized)
         if (error.response?.status === 401) {
-            console.warn("Unauthorized request (401), clearing auth state");
-            try {
-                const { useAuthStore } = await import("@/stores/authStore");
-                const authStore = useAuthStore();
-                authStore.logout();
-
-                // Redirigir al login si estamos en el browser
-                if (
-                    typeof window !== "undefined" &&
-                    window.location.pathname !== "/login"
-                ) {
-                    window.location.href = "/login";
-                }
-            } catch (importError) {
-                console.error("Error importing auth store:", importError);
+            console.warn("Unauthorized request (401), redirecting to login");
+            if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+                window.location.href = "/login";
             }
         }
 

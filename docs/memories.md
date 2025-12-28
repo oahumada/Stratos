@@ -257,49 +257,140 @@ organizations (tabla maestra)
 4. **Lazy Loading:** Rutas y componentes pesados con `defineAsyncComponent`
 5. **Tipado estricto:** Interfaces TypeScript para todos los modelos
 
-#### Frontend CRUD Architecture (Día 6+)
+#### Frontend CRUD Architecture (Día 6+) - PATRON JSON-DRIVEN
 
-**Patrón Config-Driven:** Cada módulo CRUD se define por 3 archivos JSON:
+**Objetivo**: Crear formularios CRUD completos (con búsqueda, filtrado, create, edit, delete) en 15 minutos por módulo.
 
-1. **apiHelper.ts:** Abstracción centralizada de operaciones HTTP
+**Componentes Reutilizables:**
 
-   - POST, PUT, DELETE, GET con manejo robusto de Sanctum (CSRF)
-   - Interceptores para manejar 419 (CSRF mismatch), 401 (Unauthorized)
-   - Queue inteligente de requests en caso de refresh simultáneo
-   - fetchCatalogs() para cargar múltiples selectores en 1 request
+1. **apiHelper.ts** (`/resources/js/apiHelper.ts`)
 
-2. **FormSchema.vue:** Componente maestro CRUD (lógica)
+   - Abstracción centralizada HTTP (GET, POST, PUT, DELETE)
+   - Manejo automático de Sanctum CSRF tokens
+   - Interceptores para 419 (CSRF) y 401 (Unauthorized)
+   - Queue inteligente para refresh simultáneo de requests
 
+2. **FormSchema.vue** (`/resources/js/pages/form-template/FormSchema.vue`)
+
+   - Componente maestro CRUD (lógica)
    - Carga items (GET), crea (POST), actualiza (PUT), elimina (DELETE)
-   - Diálogos para crear/editar con confirmación de eliminación
+   - Tabla con búsqueda + filtros personalizados
+   - Diálogos create/edit, confirmación delete
    - Manejo de errores 422 (validación)
-   - Conversión automática de fechas (DD/MM/YYYY ↔ YYYY-MM-DD)
-   - Notificaciones de éxito/error
+   - Conversión automática de fechas
 
-3. **FormData.vue:** Componente de formulario (presentación)
+3. **FormData.vue** (`/resources/js/pages/form-template/FormData.vue`)
+   - Componente de formulario dinámico
+   - 10 tipos de campos: text, email, number, password, textarea, select, date, time, checkbox, switch
+   - Mapeo automático catálogos (ej: `role_id` busca `/api/roles`)
+   - Watch reactivo para sincronización con datos iniciales
+   - Methods: validate(), reset(), acceso a formData
 
-   - Genera campos dinámicos según config (text, select, date, number, textarea)
-   - Mapeo automático de catálogos (ej: `estado_examen_id` → busca catálogo `estado_examen`)
-   - Watch reactivo para sincronización con initialData
-   - Expose methods: validate(), reset(), formData
+**Estructura JSON (por módulo):**
 
-4. **Configuración JSON (3 archivos por módulo):**
+```
+/resources/js/pages/[Module]/
+├── Index.vue (121 líneas - mínimo)
+└── [module]-form/
+    ├── config.json       ← Endpoints, permisos, títulos
+    ├── tableConfig.json  ← Columnas de tabla
+    ├── itemForm.json     ← Campos del formulario
+    └── filters.json      ← Filtros de búsqueda
+```
 
-   ```json
-   // config.json
-   { "titulo": "Módulo X", "endpoints": { "apiUrl": "/api/..." }, "permisos": {...} }
+**config.json** - Endpoints y permisos:
 
-   // tableConfig.json
-   { "headers": [...], "options": {...} }
+```json
+{
+  "endpoints": {
+    "index": "/api/people",
+    "apiUrl": "/api/people"
+  },
+  "titulo": "People Management",
+  "descripcion": "Manage employees",
+  "permisos": { "crear": true, "editar": true, "eliminar": true }
+}
+```
 
-   // itemForm.json
-   { "fields": [...], "catalogs": [...] }
-   ```
+**tableConfig.json** - Estructura tabla:
 
-5. **Patrón:** ExampleForm.vue simplemente orquesta: carga configs JSON → pasa a FormSchema
-   - Permite crear 10+ módulos CRUD sin duplicar código
-   - Cambiar comportamiento = cambiar JSON (no código)
-   - Típico: nuevo CRUD en 30 min (solo JSONs + Controller backend)
+```json
+{
+  "headers": [
+    { "text": "Name", "value": "name", "sortable": true },
+    { "text": "Email", "value": "email", "sortable": true },
+    { "text": "Actions", "value": "actions", "sortable": false }
+  ],
+  "options": { "dense": false, "itemsPerPage": 10 }
+}
+```
+
+**itemForm.json** - Campos formulario:
+
+```json
+{
+  "fields": [
+    {
+      "key": "name",
+      "label": "Name",
+      "type": "text",
+      "rules": ["required", "min:3"]
+    },
+    {
+      "key": "email",
+      "label": "Email",
+      "type": "email",
+      "rules": ["required"]
+    },
+    { "key": "role_id", "label": "Role", "type": "select", "rules": [] }
+  ],
+  "catalogs": ["role"]
+}
+```
+
+**filters.json** - Filtros búsqueda:
+
+```json
+[
+  { "field": "department", "type": "select", "label": "Department" },
+  { "field": "role_id", "type": "select", "label": "Role" }
+]
+```
+
+**Index.vue** - Orquestador mínimo (sin lógica Vue):
+
+```typescript
+import configJson from "./people-form/config.json";
+import tableConfigJson from "./people-form/tableConfig.json";
+import itemFormJson from "./people-form/itemForm.json";
+import filtersJson from "./people-form/filters.json";
+
+const config = configJson as Config;
+const tableConfig = tableConfigJson as TableConfig;
+const itemForm = itemFormJson as ItemForm;
+const filters = computed(() => filtersJson.map(/* populate dinámico */));
+
+// Cargar catálogos dinámicos (roles, departamentos, etc)
+const loadRoles = async () => {
+  /* */
+};
+onMounted(() => loadRoles());
+```
+
+**Beneficio**: Agregar nuevo módulo CRUD completo en 15 minutos:
+
+- [ ] Crear carpeta [module]-form/
+- [ ] Copiar 4 JSONs y adaptar
+- [ ] Copiar Index.vue template y modificar imports
+- [ ] Agregar ruta en web.php
+- [ ] Agregar link en AppSidebar.vue
+
+**Ejemplo implementado:**
+
+- `/resources/js/pages/People/` - 121 líneas Index.vue
+- Soporta búsqueda completa, 2 filtros (department, role), CRUD completo
+  - Cambiar comportamiento = cambiar JSON (no código)
+  - Típico: nuevo CRUD en 30 min (solo JSONs + Controller backend)
 
 #### Seguridad
 

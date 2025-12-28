@@ -363,7 +363,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { usePage, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import Layout from '@/layouts/AppLayout.vue'
 
@@ -394,8 +394,8 @@ interface Role {
   name: string
 }
 
-const route = useRoute()
-const router = useRouter()
+const page = usePage()
+const personId = computed(() => parseInt((page.props as any).personId || '0'))
 
 // State
 const person = ref<Person | null>(null)
@@ -438,16 +438,15 @@ const availableSkills = computed(() => {
 
 // Methods
 const goBack = () => {
-  router.back()
+  window.history.back()
 }
 
 const fetchPerson = async () => {
-  const personId = route.params.id
   loading.value = true
   error.value = null
 
   try {
-    const response = await axios.get(`/api/people/${personId}`)
+    const response = await axios.get(`/api/people/${personId.value}`)
     person.value = response.data.data || response.data
 
     // Load form data
@@ -468,9 +467,8 @@ const fetchPerson = async () => {
 }
 
 const fetchPersonSkills = async () => {
-  const personId = route.params.id
   try {
-    const response = await axios.get(`/api/people/${personId}/skills`)
+    const response = await axios.get(`/api/people/${personId.value}/skills`)
     personSkills.value = response.data.data || response.data
   } catch (err) {
     console.error('Failed to load skills', err)
@@ -570,7 +568,7 @@ const deletePerson = async () => {
 
   try {
     await axios.delete(`/api/people/${person.value?.id}`)
-    router.push('/people')
+    router.visit('/people')
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Failed to delete person'
   } finally {
@@ -579,11 +577,11 @@ const deletePerson = async () => {
 }
 
 const viewGapAnalysis = () => {
-  router.push(`/gap-analysis/${person.value?.id}`)
+  router.visit(`/gap-analysis/${person.value?.id}`)
 }
 
 const viewLearningPath = () => {
-  router.push(`/learning-paths?person_id=${person.value?.id}`)
+  router.visit(`/learning-paths?person_id=${person.value?.id}`)
 }
 
 const formatDate = (date?: string) => {

@@ -4,10 +4,12 @@ import moment from "moment";
 
 interface FormField {
     key: string;
-    type: 'text' | 'select' | 'date' | 'time' | 'switch' | 'checkbox' | 'number';
+    type: 'text' | 'email' | 'password' | 'select' | 'date' | 'time' | 'switch' | 'checkbox' | 'number' | 'textarea';
     label: string;
+    placeholder?: string;
     required?: boolean;
-    rules?: Array<any>;
+    rules?: Array<(v: any) => boolean | string>;
+    items?: any[];
 }
 
 interface CatalogItem {
@@ -31,58 +33,35 @@ const props = withDefaults(
 // Refs
 const form = ref<{ validate: () => boolean; reset: () => void } | null>(null);
 const valid = ref(false);
-const formData = reactive({ ...props.initialData });
-const datePickerMenus = ref<Record<string, boolean>>({});
+const formData = reactive<Record<string, any>>({ ...props.initialData });
 
 // Watch for initialData changes
 watch(
     () => props.initialData,
     (newVal) => {
-        console.log("FormData recibiendo initialData:", newVal);
-        Object.assign(formData, newVal);
-        console.log("FormData después de assign:", formData);
+        if (newVal) {
+            Object.assign(formData, newVal);
+        }
     },
-    { deep: true },
+    { deep: true }
 );
 
 // Methods
-const validate = () => {
-    return form.value?.validate();
+const validate = (): boolean => {
+    return form.value?.validate() ?? false;
 };
 
-const reset = () => {
+const reset = (): void => {
     form.value?.reset();
 };
 
-const getSelectItems = (fieldKey: string) => {
-    // Mapeo automático: remover '_id' del final del fieldKey para obtener el nombre del catálogo
-    // Ejemplo: 'accidente_id' -> 'accidente', 'tipo_atencion_id' -> 'tipo_atencion'
+const getSelectItems = (fieldKey: string): CatalogItem[] => {
     const catalogName = fieldKey.endsWith("_id")
-        ? fieldKey.slice(0, -3) // Remover '_id' del final
-        : fieldKey; // Si no termina en '_id', usar el fieldKey tal como está
+        ? fieldKey.slice(0, -3)
+        : fieldKey;
 
-    // Buscar el catálogo en props.catalogs
-    if (props.catalogs && props.catalogs[catalogName]) {
-        return props.catalogs[catalogName];
-    }
-
-    // Si no se encuentra, devolver array vacío
-    return [];
+    return (props.catalogs && props.catalogs[catalogName]) || [];
 };
-
-// Función para formatear fecha para mostrar
-const formatDateForDisplay = (dateValue: string | null | undefined) => {
-    if (!dateValue) return "";
-    const momentDate = moment(dateValue, "YYYY-MM-DD");
-    return momentDate.isValid() ? momentDate.format("DD/MM/YYYY") : "";
-};
-
-// Función para parsear fecha del display
-/* const parseDateFromDisplay = (displayValue) => {
-    if (!displayValue) return null;
-    const momentDate = moment(displayValue, "DD/MM/YYYY");
-    return momentDate.isValid() ? momentDate.format("YYYY-MM-DD") : null;
-}; */
 
 // Expose methods to parent component
 defineExpose({
@@ -95,94 +74,145 @@ defineExpose({
 <template>
     <v-form ref="form" v-model="valid">
         <v-container fluid>
-            <v-row>
+            <v-row dense>
                 <v-col
                     v-for="field in fields"
                     :key="field.key"
                     cols="12"
-                    sm="6"
+                    :sm="fields.length === 1 ? 12 : 6"
                     :md="fields.length === 1 ? 12 : fields.length === 2 ? 6 : 4"
                 >
+                    <!-- Text Input -->
                     <v-text-field
                         v-if="field.type === 'text'"
                         v-model="formData[field.key]"
                         :label="field.label"
+                        :placeholder="field.placeholder"
                         :rules="field.rules"
                         :required="field.required"
+                        variant="outlined"
+                        density="compact"
                     />
+
+                    <!-- Email Input -->
+                    <v-text-field
+                        v-else-if="field.type === 'email'"
+                        v-model="formData[field.key]"
+                        :label="field.label"
+                        :placeholder="field.placeholder"
+                        type="email"
+                        :rules="field.rules"
+                        :required="field.required"
+                        variant="outlined"
+                        density="compact"
+                    />
+
+                    <!-- Password Input -->
+                    <v-text-field
+                        v-else-if="field.type === 'password'"
+                        v-model="formData[field.key]"
+                        :label="field.label"
+                        type="password"
+                        :rules="field.rules"
+                        :required="field.required"
+                        variant="outlined"
+                        density="compact"
+                    />
+
+                    <!-- Number Input -->
+                    <v-text-field
+                        v-else-if="field.type === 'number'"
+                        v-model.number="formData[field.key]"
+                        :label="field.label"
+                        type="number"
+                        :rules="field.rules"
+                        :required="field.required"
+                        variant="outlined"
+                        density="compact"
+                    />
+
+                    <!-- Textarea -->
+                    <v-textarea
+                        v-else-if="field.type === 'textarea'"
+                        v-model="formData[field.key]"
+                        :label="field.label"
+                        :placeholder="field.placeholder"
+                        :rules="field.rules"
+                        :required="field.required"
+                        variant="outlined"
+                        density="compact"
+                        rows="3"
+                    />
+
+                    <!-- Select -->
                     <v-select
                         v-else-if="field.type === 'select'"
                         v-model="formData[field.key]"
-                        :items="getSelectItems(field.key)"
+                        :items="field.items || getSelectItems(field.key)"
                         :label="field.label"
+                        :placeholder="field.placeholder"
                         item-title="descripcion"
                         item-value="id"
-                        :loading="
-                            !catalogs || Object.keys(catalogs).length === 0
-                        "
+                        :rules="field.rules"
+                        :required="field.required"
+                        variant="outlined"
+                        density="compact"
+                        clearable
                     />
-                    <v-menu
+
+                    <!-- Date Picker -->
+                    <v-text-field
                         v-else-if="field.type === 'date'"
-                        v-model="datePickerMenus[field.key]"
-                        :close-on-content-click="false"
-                        transition="scale-transition"
-                        offset-y
-                        max-width="290px"
-                        min-width="auto"
-                    >
-                        <template v-slot:activator="{ props }">
-                            <v-text-field
-                                :model-value="
-                                    formatDateForDisplay(formData[field.key])
-                                "
-                                :label="field.label"
-                                prepend-icon="mdi-calendar"
-                                readonly
-                                v-bind="props"
-                                placeholder="dd/mm/yyyy"
-                                clearable
-                                @click:clear="formData[field.key] = null"
-                            />
-                        </template>
-                        <v-date-picker
-                            :model-value="formData[field.key]"
-                            @update:model-value="
-                                formData[field.key] = $event;
-                                datePickerMenus[field.key] = false;
-                            "
-                            no-title
-                            scrollable
-                            locale="es-ES"
-                            :first-day-of-week="1"
-                        />
-                    </v-menu>
+                        v-model="formData[field.key]"
+                        :label="field.label"
+                        type="date"
+                        :rules="field.rules"
+                        :required="field.required"
+                        variant="outlined"
+                        density="compact"
+                    />
+
+                    <!-- Time Picker -->
                     <v-text-field
                         v-else-if="field.type === 'time'"
                         v-model="formData[field.key]"
                         :label="field.label"
                         type="time"
+                        :rules="field.rules"
+                        :required="field.required"
+                        variant="outlined"
+                        density="compact"
                     />
-                    <v-switch
-                        v-else-if="field.type === 'switch'"
-                        v-model="formData[field.key]"
-                        :label="field.label"
-                        variant="underlined"
-                        color="green-darken-3"
-                        inset
-                    />
-                    <v-checkbox
-                        v-else-if="field.type === 'checkbox'"
-                        v-model="formData[field.key]"
-                        :label="field.label"
-                    />
-                    <v-text-field
-                        v-else-if="field.type === 'number'"
-                        v-model="formData[field.key]"
-                        :label="field.label"
-                        type="number"
-                    />
+
+                    <!-- Checkbox -->
+                    <div v-else-if="field.type === 'checkbox'" class="pt-2">
+                        <v-checkbox
+                            v-model="formData[field.key]"
+                            :label="field.label"
+                            :rules="field.rules"
+                        />
+                    </div>
+
+                    <!-- Switch -->
+                    <div v-else-if="field.type === 'switch'" class="pt-2">
+                        <v-switch
+                            v-model="formData[field.key]"
+                            :label="field.label"
+                            :rules="field.rules"
+                        />
+                    </div>
                 </v-col>
             </v-row>
         </v-container>
     </v-form>
 </template>
+
+<style scoped>
+:deep(.v-form) {
+    padding: 0;
+}
+
+:deep(.v-container) {
+    padding: 0;
+}
+</style>
