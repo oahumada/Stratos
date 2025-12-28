@@ -170,18 +170,21 @@ FIN DEL DÍA:
 ## 🚨 Si Algo Falla Mañana
 
 **Error: "Module not found: @/layouts/AppLayout.vue"**
+
 ```bash
 # Verifica que el import sea correcto
 # Debería ser: import Layout from '@/layouts/AppLayout.vue'
 ```
 
 **Error: "Cannot GET /people"**
+
 ```bash
 # Verifica que las rutas estén registradas en router
 # Revisa: src/resources/js/routes/mvp-routes.ts
 ```
 
 **API devuelve 401 (No autorizado)**
+
 ```bash
 # Verifica que estés loguado
 # Ve a http://localhost:5173/login
@@ -189,6 +192,7 @@ FIN DEL DÍA:
 ```
 
 **npm error: Missing dependencies**
+
 ```bash
 cd src && npm install
 npm run dev
@@ -202,7 +206,8 @@ npm run dev
 
 **Mañana:** Gap Analysis (el diferenciador de TalentIA) 🎯
 
-**Cómo empezar:** 
+**Cómo empezar:**
+
 ```bash
 cd /workspaces/talentia
 git status              # Verifica que MVP esté limpio
@@ -215,13 +220,13 @@ cd src && npm run dev   # Servidor corriendo
 
 ## 📞 Referencias Rápidas
 
-| Necesidad | Dónde | Qué hacer |
-|-----------|-------|----------|
-| Ver plan completo | docs/MVP_FRONTEND_ROADMAP.md | Ir a FASE 2 |
-| Ver código de referencia | src/resources/js/pages/People/ | Copiar estructura |
-| API disponible | Backend ya está ✅ | GET /api/gap-analysis |
-| Commit semántico | ./scripts/commit.sh | Correr script |
-| Componentes Vuetify | Google "Vuetify 3 components" | Usar v-table, v-chip, v-btn |
+| Necesidad                | Dónde                          | Qué hacer                   |
+| ------------------------ | ------------------------------ | --------------------------- |
+| Ver plan completo        | docs/MVP_FRONTEND_ROADMAP.md   | Ir a FASE 2                 |
+| Ver código de referencia | src/resources/js/pages/People/ | Copiar estructura           |
+| API disponible           | Backend ya está ✅             | GET /api/gap-analysis       |
+| Commit semántico         | ./scripts/commit.sh            | Correr script               |
+| Componentes Vuetify      | Google "Vuetify 3 components"  | Usar v-table, v-chip, v-btn |
 
 ---
 
@@ -231,5 +236,5 @@ cd src && npm run dev   # Servidor corriendo
 
 ---
 
-*Documento creado: 28 de Diciembre, 2025*  
-*Para leer mañana al comenzar sesión*
+_Documento creado: 28 de Diciembre, 2025_  
+_Para leer mañana al comenzar sesión_
