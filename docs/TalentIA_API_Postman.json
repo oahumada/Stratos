@@ -1,0 +1,283 @@
+{
+  "info": {
+    "name": "TalentIA API - MVP",
+    "description": "Endpoints for TalentIA MVP - Talent Management System",
+    "version": "1.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Services Core",
+      "item": [
+        {
+          "name": "Gap Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"person_id\": 1,\n  \"role_name\": \"Senior Developer\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/gap-analysis",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gap-analysis"]
+            }
+          }
+        },
+        {
+          "name": "Generate Development Path",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"person_id\": 1,\n  \"role_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/development-paths/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "development-paths", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Candidates for Job Opening",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/job-openings/1/candidates",
+              "host": ["{{base_url}}"],
+              "path": ["api", "job-openings", "1", "candidates"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "People",
+      "item": [
+        {
+          "name": "List People",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/people",
+              "host": ["{{base_url}}"],
+              "path": ["api", "people"]
+            }
+          }
+        },
+        {
+          "name": "Get Person",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/people/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "people", "1"]
+            }
+          }
+        },
+        {
+          "name": "Person Marketplace",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/people/1/marketplace",
+              "host": ["{{base_url}}"],
+              "path": ["api", "people", "1", "marketplace"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/roles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "roles"]
+            }
+          }
+        },
+        {
+          "name": "Get Role",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/roles/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "roles", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skills",
+      "item": [
+        {
+          "name": "List Skills",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/skills",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skills"]
+            }
+          }
+        },
+        {
+          "name": "Get Skill",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/skills/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "skills", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Job Openings",
+      "item": [
+        {
+          "name": "List Job Openings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/job-openings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "job-openings"]
+            }
+          }
+        },
+        {
+          "name": "Get Job Opening",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/job-openings/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "job-openings", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "List Applications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/applications",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications"]
+            }
+          }
+        },
+        {
+          "name": "Get Application",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/applications/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"person_id\": 1,\n  \"job_opening_id\": 1,\n  \"message\": \"Muy interesado en esta posición\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/applications",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications"]
+            }
+          }
+        },
+        {
+          "name": "Update Application Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/applications/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "applications", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Metrics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/dashboard/metrics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "dashboard", "metrics"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ]
+}
