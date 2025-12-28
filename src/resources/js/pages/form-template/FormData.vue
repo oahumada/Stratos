@@ -1,28 +1,38 @@
-<script setup>
-import { ref, reactive, watch, defineProps, defineExpose } from "vue";
+<script setup lang="ts">
+import { ref, reactive, watch } from "vue";
 import moment from "moment";
 
+interface FormField {
+    key: string;
+    type: 'text' | 'select' | 'date' | 'time' | 'switch' | 'checkbox' | 'number';
+    label: string;
+    required?: boolean;
+    rules?: Array<any>;
+}
+
+interface CatalogItem {
+    id: number | string;
+    descripcion: string;
+}
+
 // Props
-const props = defineProps({
-    fields: {
-        type: Array,
-        required: true,
-    },
-    initialData: {
-        type: Object,
-        default: () => ({}),
-    },
-    catalogs: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+const props = withDefaults(
+    defineProps<{
+        fields: FormField[];
+        initialData?: Record<string, any>;
+        catalogs?: Record<string, CatalogItem[]>;
+    }>(),
+    {
+        initialData: () => ({}),
+        catalogs: () => ({}),
+    }
+);
 
 // Refs
-const form = ref(null);
+const form = ref<{ validate: () => boolean; reset: () => void } | null>(null);
 const valid = ref(false);
 const formData = reactive({ ...props.initialData });
-const datePickerMenus = ref({});
+const datePickerMenus = ref<Record<string, boolean>>({});
 
 // Watch for initialData changes
 watch(
@@ -44,7 +54,7 @@ const reset = () => {
     form.value?.reset();
 };
 
-const getSelectItems = (fieldKey) => {
+const getSelectItems = (fieldKey: string) => {
     // Mapeo automático: remover '_id' del final del fieldKey para obtener el nombre del catálogo
     // Ejemplo: 'accidente_id' -> 'accidente', 'tipo_atencion_id' -> 'tipo_atencion'
     const catalogName = fieldKey.endsWith("_id")
@@ -61,18 +71,18 @@ const getSelectItems = (fieldKey) => {
 };
 
 // Función para formatear fecha para mostrar
-const formatDateForDisplay = (dateValue) => {
+const formatDateForDisplay = (dateValue: string | null | undefined) => {
     if (!dateValue) return "";
     const momentDate = moment(dateValue, "YYYY-MM-DD");
     return momentDate.isValid() ? momentDate.format("DD/MM/YYYY") : "";
 };
 
 // Función para parsear fecha del display
-const parseDateFromDisplay = (displayValue) => {
+/* const parseDateFromDisplay = (displayValue) => {
     if (!displayValue) return null;
     const momentDate = moment(displayValue, "DD/MM/YYYY");
     return momentDate.isValid() ? momentDate.format("YYYY-MM-DD") : null;
-};
+}; */
 
 // Expose methods to parent component
 defineExpose({

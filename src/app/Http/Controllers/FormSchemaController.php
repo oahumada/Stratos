@@ -43,12 +43,12 @@ class FormSchemaController extends Controller
     public function index(string $modelName)
     {
         $this->initializeForModel($modelName);
-        
+
         // Mapeo de modelos a sus vistas correspondientes
         $viewMap = $this->getViewMap();
-        
+
         $viewName = $viewMap[$modelName] ?? "subpages/{$modelName}";
-        
+
         return Inertia::render($viewName);
     }
 
@@ -58,10 +58,10 @@ class FormSchemaController extends Controller
     public function consulta(string $modelName)
     {
         $this->initializeForModel($modelName);
-        
+
         $consultaViewMap = $this->getConsultaViewMap();
         $viewName = $consultaViewMap[$modelName] ?? "Consultas/Consulta{$modelName}";
-        
+
         return Inertia::render($viewName);
     }
 
@@ -141,7 +141,7 @@ class FormSchemaController extends Controller
     public function search(Request $request, string $modelName)
     {
         try {
-            
+
             $this->initializeForModel($modelName);
             return $this->repository->search($request);
         } catch (\Exception $e) {
@@ -156,20 +156,20 @@ class FormSchemaController extends Controller
     /**
      * Buscar registros con joins (para consultas complejas)
      */
-    public function searchWithPaciente(Request $request, string $modelName)
+    public function searchWithPeople(Request $request, string $modelName)
     {
         try {
             $this->initializeForModel($modelName);
-            return $this->repository->searchWithPaciente($request);
+            return $this->repository->searchWithPeople($request);
         } catch (\Exception $e) {
-            Log::error("Error in FormSchemaController::searchWithPaciente for {$modelName}: " . $e->getMessage());
+            Log::error("Error in FormSchemaController::searchWithPeople for {$modelName}: " . $e->getMessage());
             return response()->json([
                 'message' => 'Error en la búsqueda con joins',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
- 
+
     /**
      * Búsqueda personalizada (si el repositorio la implementa)
      */

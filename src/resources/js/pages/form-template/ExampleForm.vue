@@ -1,16 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import FormSchema from '@/components/FormSchema.vue';
+import FormSchema from './FormSchema.vue';
 import config from '@/components/Alergia/config.json';
 import tableConfig from '@/components/Alergia/tableConfig.json';
 import itemForm from '@/components/Alergia/itemForm.json';
-import { useDataStore } from '@/store.js';
+import { useDataStore } from '@/store';
 
 defineOptions({ layout: AppLayout });
 const store = useDataStore();
 
 // Manejar el caso cuando pacienteSelected es un array o está vacío
-const pacienteId = store.getPacienteSelected.id;
+const pacienteId: number = store.getPacienteSelected.id;
 
 </script>
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repository;
 
 use Illuminate\Http\Request;
@@ -15,5 +16,5 @@ interface RepositoryInterface
     public function destroy($id);
     public function show(Request $request, $id);
     public function search(Request $request);
-    public function searchWithPaciente(Request $request);
+    public function searchWithPeople(Request $request);
 }

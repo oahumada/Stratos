@@ -1,0 +1,32 @@
+# Formato de Commit Semántico
+# <type>(<scope>): <subject>
+#
+# <body>
+#
+# <footer>
+
+# TYPES (Tipos de cambios):
+# feat     - Nueva funcionalidad
+# fix      - Corrección de bugs
+# docs     - Cambios en documentación
+# style    - Cambios de estilo (sin afectar lógica)
+# refactor - Refactoring de código
+# perf     - Mejora de rendimiento
+# test     - Agregar o actualizar tests
+# chore    - Cambios en build, dependencias, etc
+# ci       - Cambios en CI/CD
+# revert   - Revertir un commit anterior
+
+# EJEMPLOS VÁLIDOS:
+# feat(auth): agregar autenticación de dos factores
+# fix(search): corregir filtro de búsqueda en pacientes
+# docs(readme): actualizar instrucciones de instalación
+# refactor(models): simplificar lógica del repositorio
+# perf(api): optimizar queries de base de datos
+# test(forms): agregar tests para validación de formularios
+
+# REGLAS:
+# - Usar minúsculas para type y subject
+# - Máximo 100 caracteres en la primera línea
+# - No terminar subject con punto
+# - Usar imperativo en la descripción ("agregar" no "agregado")

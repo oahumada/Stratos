@@ -20,13 +20,13 @@ use Illuminate\Support\Facades\Log;
 $formSchemaModels = [
     // Tablas hijas principales
     'AntecedenteFamiliar' => 'antecedente-familiar',
-    'AtencionDiaria' => 'atencion-diaria', 
+    'AtencionDiaria' => 'atencion-diaria',
     'Alergia' => 'alergia',
     'Cirugia' => 'cirugia',
     'Diat' => 'diat',
     'Diep' => 'diep',
     'Enfermedad' => 'enfermedad',
-    
+
     // Exámenes médicos
     'ExAlcohol' => 'ex-alcohol',
     'ExAldehido' => 'ex-aldehido',
@@ -43,7 +43,7 @@ $formSchemaModels = [
     'ExSilice' => 'ex-silice',
     'ExSolvente' => 'ex-solvente',
     'ExSomnolencia' => 'ex-somnolencia',
-    
+
     // Otros modelos FormSchema
     'Ges' => 'ges',
     'Certificacion' => 'certificacion',
@@ -55,59 +55,58 @@ $formSchemaModels = [
 
 // Envolver todas las rutas FormSchema en middleware de autenticación
 Route::middleware(['auth:sanctum'])->group(function () use ($formSchemaModels) {
-    
+
     // Generar rutas API para cada modelo
     foreach ($formSchemaModels as $modelName => $routeName) {
-        
+
         // GET /api/{route-name} - Listar/Index
-        Route::get($routeName, function(Request $request) use ($modelName) {
+        Route::get($routeName, function (Request $request) use ($modelName) {
             $controller = new FormSchemaController();
             return $controller->search($request, $modelName);
         })->name("api.{$routeName}.index");
-        
+
         // POST /api/{route-name} - Crear (store)
-        Route::post($routeName, function(Request $request) use ($modelName) {
+        Route::post($routeName, function (Request $request) use ($modelName) {
             $controller = new FormSchemaController();
             return $controller->store($request, $modelName);
         })->name("api.{$routeName}.store");
-        
+
         // GET /api/{route-name}/{id} - Mostrar (show)
-        Route::get("{$routeName}/{id}", function(Request $request, $id) use ($modelName) {
+        Route::get("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
             $controller = new FormSchemaController();
             return $controller->show($request, $modelName, $id);
         })->name("api.{$routeName}.show");
-        
+
         // PUT /api/{route-name}/{id} - Actualizar (update)
-        Route::put("{$routeName}/{id}", function(Request $request, $id) use ($modelName) {
+        Route::put("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
             $controller = new FormSchemaController();
             return $controller->update($request, $modelName);
         })->name("api.{$routeName}.update");
-        
+
         // PATCH /api/{route-name}/{id} - Actualizar parcial
-        Route::patch("{$routeName}/{id}", function(Request $request, $id) use ($modelName) {
+        Route::patch("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
             $controller = new FormSchemaController();
             return $controller->update($request, $modelName);
         })->name("api.{$routeName}.patch");
-        
+
         // DELETE /api/{route-name}/{id} - Eliminar (destroy)
-        Route::delete("{$routeName}/{id}", function(Request $request, $id) use ($modelName) {
+        Route::delete("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
             $controller = new FormSchemaController();
             return $controller->destroy($modelName, $id);
         })->name("api.{$routeName}.destroy");
-        
+
         // POST /api/{route-name}/search - Búsqueda con filtros
-        Route::post("{$routeName}/search", function(Request $request) use ($modelName) {
+        Route::post("{$routeName}/search", function (Request $request) use ($modelName) {
             $controller = new FormSchemaController();
             return $controller->search($request, $modelName);
         })->name("api.{$routeName}.search");
-        
+
         // POST /api/{route-name}/search-with-paciente - Búsqueda con joins
-        Route::post("{$routeName}/search-with-paciente", function(Request $request) use ($modelName) {
+        Route::post("{$routeName}/search-with-paciente", function (Request $request) use ($modelName) {
             $controller = new FormSchemaController();
-            return $controller->searchWithPaciente($request, $modelName);
+            return $controller->searchWithPeople($request, $modelName);
         })->name("api.{$routeName}.search-with-paciente");
     }
-    
 });
 
 /*

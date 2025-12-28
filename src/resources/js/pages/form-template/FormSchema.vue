@@ -1,77 +1,149 @@
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed, onMounted } from "vue";
-import { post, put, remove, show, fetchCatalogs } from "@/apiHelper.ts";
+import { post, put, remove, show, fetchCatalogs } from "@/apiHelper";
 import { useNotification } from "@kyvg/vue3-notification";
 import FormData from "./FormData.vue";
 import moment from "moment";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import { usePage } from "@inertiajs/vue3";
+
+interface TableHeader {
+    text: string;
+    value: string;
+    type?: 'date' | 'text' | 'number';
+    sortable?: boolean;
+    filterable?: boolean;
+}
+
+interface FormField {
+    key: string;
+    type: 'text' | 'select' | 'date' | 'time' | 'switch' | 'checkbox' | 'number';
+    label: string;
+    required?: boolean;
+    rules?: Array<any>;
+}
+
+interface CatalogItem {
+    id: number | string;
+    descripcion: string;
+}
+
+interface Config {
+    endpoints: {
+        index: string;
+        apiUrl: string;
+    };
+    titulo: string;
+    permisos?: {
+        crear: boolean;
+        editar: boolean;
+        eliminar: boolean;
+    };
+}
+
+interface TableConfig {
+    headers: TableHeader[];
+    options?: Record<string, any>;
+}
+
+interface ItemForm {
+    fields: FormField[];
+    catalogs?: string[];
+    layout?: string;
+}
+
 const page = usePage();
-const user = computed(() => page.props.auth.user);
+const user = computed(() => (page.props.auth.user as any));
 
 const { notify } = useNotification();
 
-const isDevelopment = import.meta.env.MODE === "development";
-
-const props = defineProps({
-    pacienteId: {
-        type: Number,
-        required: true,
-    },
-    config: {
-        type: Object,
-        default: () => ({}),
-    },
-    tableConfig: {
-        type: Object,
-        default: () => ({}),
-    },
-    itemForm: {
-        type: Object,
-        default: () => ({}),
-    },
-});
+const props = withDefaults(
+    defineProps<{
+        pacienteId: number;
+        config?: Config;
+        tableConfig?: TableConfig;
+        itemForm?: ItemForm;
+    }>(),
+    {
+        config: () => ({
+            endpoints: { index: "", apiUrl: "" },
+            titulo: "Registros",
+            permisos: { crear: true, editar: true, eliminar: true },
+        }),
+        tableConfig: () => ({
+            headers: [],
+            options: { pagination: true, search: true },
+        }),
+        itemForm: () => ({
+            fields: [],
+            catalogs: [],
+            layout: "single-column",
+        }),
+    }
+);
 
 // Use computed properties for config handling
-const mergedConfig = computed(() => ({
-    // Default configuration
-    endpoints: {
-        index: "",
-        apiUrl: "",
-    },
-    titulo: "Registros",
-    permisos: { crear: true, editar: true, eliminar: true },
-    ...props.config,
-}));
+const mergedConfig = computed<Config>(() => {
+    const baseConfig: Config = {
+        endpoints: {
+            index: "",
+            apiUrl: "",
+        },
+        titulo: "Registros",
+        permisos: { crear: true, editar: true, eliminar: true },
+    };
+    return { ...baseConfig, ...(props.config || {}) };
+});
 
-const mergedTableConfig = computed(() => ({
-    // Default table config
-    headers: [],
-    options: { pagination: true, search: true },
-    // Merge with props
-    ...props.tableConfig,
-}));
+const mergedTableConfig = computed<TableConfig>(() => {
+    const baseTableConfig: TableConfig = {
+        headers: [],
+        options: { pagination: true, search: true },
+    };
+    return { ...baseTableConfig, ...(props.tableConfig || {}) };
+});
 
-const mergedItemForm = computed(() => ({
-    // Default form config
-    fields: [],
-    catalogs: [],
-    layout: "single-column",
-    // Merge with props
-    ...props.itemForm,
-}));
+const mergedItemForm = computed<ItemForm>(() => {
+    const baseItemForm: ItemForm = {
+        fields: [],
+        catalogs: [],
+        layout: "single-column",
+    };
+    return { ...baseItemForm, ...(props.itemForm || {}) };
+});
 
 // Destructure from computed properties
-const { endpoints, titulo, permisos } = mergedConfig.value;
+const { endpoints, titulo } = mergedConfig.value;
 const headers = mergedTableConfig.value.headers;
 const formFields = mergedItemForm.value.fields;
 const catalogs = mergedItemForm.value.catalogs;
 console.log(catalogs);
 
 // Referencia al componente FormData
-const form = ref(null);
+const form = ref<InstanceType<typeof FormData> | null>(null);
 
-const state = reactive({
+interface StateType {
+    tableItems: Record<string, any>[];
+    dialogForm: boolean;
+    editedItem: Record<string, any>;
+    editedIndex: number;
+    formTitle: string;
+    loading: boolean;
+    saving: boolean;
+    deleting: boolean;
+    errors: Record<string, any>;
+    catalogs: string[];
+    dialogDelete: boolean;
+    itemToDelete: Record<string, any> | null;
+    list?: Record<string, CatalogItem[]>;
+    defaultItem?: Record<string, any>;
+    formCrear?: string;
+    formEdit?: string;
+    options?: Record<string, any>;
+    totalItems?: number;
+}
+
+const state = reactive<StateType>({
     tableItems: [],
     dialogForm: false,
     editedItem: {},
@@ -87,17 +159,13 @@ const state = reactive({
 });
 
 // Métodos CRUD básicos (bosquejo)
-const editedItemTitle = computed(() =>
-    state.editedIndex === -1 ? state.formCrear : state.formEdit,
-);
-
 function openFormCreate() {
     state.editedItem = { ...state.defaultItem };
     state.errors = {};
     state.dialogForm = true;
     state.formTitle = "Nuevo registro de " + titulo;
 }
-function openFormEdit(item) {
+function openFormEdit(item: Record<string, any>) {
     const editedItem = { ...item };
 
     // Identificar campos de fecha en la configuración
@@ -108,8 +176,8 @@ function openFormEdit(item) {
     // Filtrar solo los campos que están definidos en la configuración
     const definedFields = props.itemForm.fields.map((field) => field.key);
 
-    // CORREGIDO: Crear objeto limpio pero SIEMPRE incluir el ID
-    const cleanedItem = {};
+    // CRÍTICO: Crear objeto limpio pero SIEMPRE incluir el ID
+    const cleanedItem: Record<string, any> = {};
 
     // CRÍTICO: Siempre preservar el ID para updates
     if (editedItem.id) {
@@ -196,9 +264,8 @@ function openFormEdit(item) {
     state.dialogForm = true;
 }
 
-// TODO: trabajar en la validaciones en el frontend
 async function guardarItem() {
-    const formData = form.value?.formData || {};
+    const formData = form.value?.formData || {} as Record<string, any>;
 
     // Identificar campos de fecha y convertirlos al formato correcto para el servidor
     const dateFields = props.itemForm.fields
@@ -212,7 +279,7 @@ async function guardarItem() {
     console.log("Campos de fecha detectados:", dateFields);
 
     // Convertir fechas del formato yyyy-mm-dd (input) al formato que espera el servidor
-    const processedData = { ...formData };
+    const processedData: Record<string, any> = { ...formData };
     dateFields.forEach((field) => {
         console.log(`Procesando campo fecha: ${field}`);
         console.log(`Valor original de ${field}:`, processedData[field]);
@@ -235,7 +302,7 @@ async function guardarItem() {
         }
     });
 
-    const data = {
+    const data: Record<string, any> = {
         ...processedData,
         paciente_id: props.pacienteId,
     };
@@ -288,13 +355,14 @@ async function guardarItem() {
         state.dialogForm = false;
         await cargarItems();
     } catch (e) {
+        const error = e as any;
         if (
-            e.response &&
-            e.response.status === 422 &&
-            e.response.data &&
-            e.response.data.errors
+            error.response &&
+            error.response.status === 422 &&
+            error.response.data &&
+            error.response.data.errors
         ) {
-            state.errors = e.response.data.errors;
+            state.errors = error.response.data.errors;
             notify({
                 title: "Error de validación",
                 text: "Corrige los campos marcados en el formulario.",
@@ -303,7 +371,7 @@ async function guardarItem() {
         } else {
             notify({
                 title: "Error",
-                text: e.message || "No se pudo guardar el paciente",
+                text: error.message || "No se pudo guardar el paciente",
                 type: "error",
             });
         }
@@ -312,7 +380,7 @@ async function guardarItem() {
     }
 }
 
-async function eliminarItem(item) {
+async function eliminarItem(item: Record<string, any>) {
     state.itemToDelete = item;
     state.dialogDelete = true;
 }
@@ -352,11 +420,11 @@ async function cargarItems() {
         console.log("dataTable =>", dataTable);
 
         // Identificar campos de fecha desde la configuración de headers
-        const dateFields = props.tableConfig.headers
-            .filter((header) => header.type === "date")
-            .map((header) => header.key);
+        const dateFields = props.tableConfig?.headers
+            ?.filter((header) => header.type === "date")
+            .map((header) => header.value as string) ?? [];
 
-        const formatDateFields = (item) => {
+        const formatDateFields = (item: Record<string, any>) => {
             const newItem = { ...item };
             dateFields.forEach((field) => {
                 if (newItem[field]) {
@@ -390,8 +458,8 @@ async function cargarItems() {
 const loadCatalogs = async () => {
     state.loading = true;
     try {
-        state.list = await fetchCatalogs(state.catalogs);
-    } catch (e) {
+        state.list = await fetchCatalogs(catalogs as never[]);
+    } catch {
         notify({
             title: "Error",
             text: "No se pudieron cargar los catálogos",
@@ -404,6 +472,11 @@ const loadCatalogs = async () => {
 
 function closeForm() {
     state.dialogForm = false;
+}
+
+function closeDelete() {
+    state.dialogDelete = false;
+    state.itemToDelete = null;
 }
 
 // Call loadCatalogs on component mount
@@ -423,8 +496,6 @@ onMounted(async () => {
             <v-data-table
                 :headers="headers"
                 :items="state.tableItems"
-                :options.sync="state.options"
-                :server-items-length="state.totalItems"
                 :loading="state.loading"
                 class="elevation-1"
             >
@@ -447,11 +518,11 @@ onMounted(async () => {
                             class="ma-4"
                             color="#662d91"
                             @click="openFormCreate"
-                            v-if="user.rol != 'admin-ext'"
+                            v-if="(user as any).rol != 'admin-ext'"
                         />
                     </v-toolbar>
                 </template>
-                <template v-slot:item.actions="{ item }">
+                <template #item="{ item }">
                     <slot name="actions" :item="item">
                         <v-icon
                             color="#662d91"
@@ -465,7 +536,7 @@ onMounted(async () => {
                             color="#662d91"
                             small
                             @click="eliminarItem(item)"
-                            v-if="user.rol != 'admin-ext'"
+                            v-if="(user as any).rol != 'admin-ext'"
                         >
                             mdi-delete
                         </v-icon>
@@ -510,7 +581,7 @@ onMounted(async () => {
                         :disabled="state.saving"
                         variant="tonal"
                         color="#009AA4"
-                        v-if="user.rol != 'admin-ext'"
+                        v-if="(user as any).rol != 'admin-ext'"
                     >
                         <v-spacer></v-spacer>
                         <v-progress-circular

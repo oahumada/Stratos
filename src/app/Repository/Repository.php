@@ -46,7 +46,7 @@ abstract class Repository implements RepositoryInterface
     {
         // Extract the 'id' from the incoming request data
         $id = $request->input('data.id');
-        Log::info( $request->all());
+        Log::info($request->all());
 
         // Retrieve the data to update and log it
         $dataToUpdate = $request->input('data');
@@ -68,7 +68,7 @@ abstract class Repository implements RepositoryInterface
             $model->fill($dataToUpdate);
             $model->save();
 
-           // Log::info('Model updated successfully with ID: ' . $id);
+            // Log::info('Model updated successfully with ID: ' . $id);
 
             return response()->json(['message' => 'Model updated successfully.'], 200);
         } catch (ModelNotFoundException $e) {
@@ -105,30 +105,30 @@ abstract class Repository implements RepositoryInterface
      * Búsqueda con joins para consultas que requieren datos de múltiples modelos
      * Usa getSearchQuery() que debe ser sobrescrito en repositorios específicos
      */
-    public function searchWithPaciente(Request $request)
+    public function searchWithPeople(Request $request)
     {
         // Verificar configuración de logging
         $logConfig = config('logging.default');
         $logLevel = config('logging.level');
-        
+
         // Múltiples métodos de log para asegurar que funcione
-        file_put_contents(storage_path('logs/debug-manual.log'), "=== INICIO searchWithPaciente ===\n", FILE_APPEND);
+        file_put_contents(storage_path('logs/debug-manual.log'), "=== INICIO searchWithPeople ===\n", FILE_APPEND);
         file_put_contents(storage_path('logs/debug-manual.log'), "Log config: $logConfig, Level: $logLevel\n", FILE_APPEND);
-        
-        error_log('=== INICIO searchWithPaciente ===');
-        \Log::info('=== INICIO searchWithPaciente ===');
-        
+
+        error_log('=== INICIO searchWithPeople ===');
+        Log::info('=== INICIO searchWithPeople ===');
+
         try {
             $filters = $request->input('data', []);
-            
+
             file_put_contents(storage_path('logs/debug-manual.log'), 'Filters: ' . json_encode($filters) . "\n", FILE_APPEND);
-            
+
             $query = $this->getSearchQuery();
-            
+
             file_put_contents(storage_path('logs/debug-manual.log'), 'Modelo: ' . get_class($this->model) . "\n", FILE_APPEND);
-            
+
             $result = Tools::filterData($filters, $query);
-            
+
             // Agregar detalles del resultado
             if (is_array($result)) {
                 file_put_contents(storage_path('logs/debug-manual.log'), 'Resultado - Tipo: array, Cantidad: ' . count($result) . "\n", FILE_APPEND);
@@ -137,7 +137,7 @@ abstract class Repository implements RepositoryInterface
                 file_put_contents(storage_path('logs/debug-manual.log'), 'Resultado - Tipo: ' . gettype($result) . "\n", FILE_APPEND);
                 file_put_contents(storage_path('logs/debug-manual.log'), 'Resultado completo: ' . json_encode($result) . "\n", FILE_APPEND);
             }
-            
+
             return response()->json([
                 'result' => 'success',
                 'data' => $result,
@@ -146,7 +146,7 @@ abstract class Repository implements RepositoryInterface
         } catch (\Exception $e) {
             file_put_contents(storage_path('logs/debug-manual.log'), 'ERROR: ' . $e->getMessage() . "\n", FILE_APPEND);
             file_put_contents(storage_path('logs/debug-manual.log'), 'Stack trace: ' . $e->getTraceAsString() . "\n", FILE_APPEND);
-            
+
             return response()->json([
                 'result' => 'error',
                 'message' => 'An unexpected error occurred.',
@@ -165,7 +165,7 @@ abstract class Repository implements RepositoryInterface
         if (!$this->model) {
             throw new \Exception('Model not initialized in repository');
         }
-        
+
         // Para consultas simples, usar select * es seguro
         // Para joins, los repositorios hijos deben sobrescribir este método
         return $this->model->query()->select('*');
@@ -197,12 +197,12 @@ abstract class Repository implements RepositoryInterface
                 Log::info('Current Model: ' . get_class($this->model));
                 $withRelations = $request->input('withRelations', []);
                 Log::info($withRelations);
-                
+
                 // Add eager loading with error handling
                 if (!empty($withRelations)) {
                     $validRelations = [];
                     $modelInstance = new $this->model;
-                    
+
                     foreach ($withRelations as $relation) {
                         if (method_exists($modelInstance, $relation)) {
                             $validRelations[] = $relation;
@@ -210,7 +210,7 @@ abstract class Repository implements RepositoryInterface
                             Log::warning("Invalid relation attempted: $relation");
                         }
                     }
-                    
+
                     try {
                         $query->with($validRelations);
                     } catch (\Exception $e) {
@@ -218,24 +218,23 @@ abstract class Repository implements RepositoryInterface
                         Log::error('Failed relations: ' . json_encode($withRelations));
                     }
                 }
-                
+
                 // Filter by paciente_id
                 $query->where('paciente_id', $paciente_id);
-                
+
                 // MOVE LOGGING HERE - AFTER ALL QUERY CONDITIONS
                 Log::info('Final Query: ' . $query->toSql());
                 Log::info('Query Bindings: ' . json_encode($query->getBindings()));
-                
+
                 $results = $query->get();
                 Log::info($results);
-                
+
                 return response()->json([
                     'result' => 'success',
                     'data' => $results,
                     'message' => 'Registros cargados exitosamente'
                 ]);
             }
-            
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener el registro',
