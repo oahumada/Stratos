@@ -8,6 +8,7 @@
 
 - **[QUICK_START.md](QUICK_START.md)** - Cómo empezar (5 minutos)
 - **[CHEATSHEET_COMANDOS.md](CHEATSHEET_COMANDOS.md)** - Comandos útiles
+- **[DIA6_INICIO_RESUMEN.md](DIA6_INICIO_RESUMEN.md)** - ⭐ Resumen de Día 6 (leer hoy)
 
 ---
 
@@ -40,6 +41,8 @@
 - **[DIA6_GUIA_INICIO_FRONTEND.md](DIA6_GUIA_INICIO_FRONTEND.md)** - Inicio con frontend
 - **[DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md](DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md)** - Arquitectura full-stack
 - **[DIA6_ANALISIS_ARQUITECTURA_FRONTEND.md](DIA6_ANALISIS_ARQUITECTURA_FRONTEND.md)** - Análisis detallado frontend
+- **[DIA6_PLAN_ACCION.md](DIA6_PLAN_ACCION.md)** - Plan de acción Día 6 (actualizado)
+- **[ACCION_DIA_6.md](ACCION_DIA_6.md)** - Checklist diario Día 6 (actualizado)
 
 ### Database
 
@@ -75,6 +78,15 @@
 - **[INDICE_DOCUMENTACION_ARQUITECTURA.md](INDICE_DOCUMENTACION_ARQUITECTURA.md)** - Índice de arquitectura
 - **[INDICE_FINAL_ENTREGABLES.md](INDICE_FINAL_ENTREGABLES.md)** - Índice de entregables
 - **[DIA6_TABLA_REFERENCIA_RAPIDA.md](DIA6_TABLA_REFERENCIA_RAPIDA.md)** - Tabla de referencia rápida
+
+---
+
+## 🆕 Módulos Nuevos (Día 6+)
+
+### Workforce Planning - Planificación Dotacional Estratégica
+
+- **[MODULE_TASKFORCE.md](MODULE_TASKFORCE.md)** - Análisis completo del módulo (referencia)
+- **[WORKFORCE_PLANNING_GUIA.md](WORKFORCE_PLANNING_GUIA.md)** - Guía rápida de implementación ⭐ COMIENZA AQUÍ
 
 ---
 

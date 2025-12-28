@@ -15,25 +15,31 @@
 - **Tests:** 5/5 PASS
 - **Documentación:** API endpoints, lecciones aprendidas, guía de desarrollo
 
-### ⏳ En Progreso (Día 6+)
+### ⏳ En Progreso (Día 6)
 
 - **Frontend CRUD Base:** apiHelper.ts (CRUD centralizado), FormSchema.vue (lógica), FormData.vue (form), patrón config-driven
-- **Arquitetura:** Extensible para multiplicar módulos sin duplicar código
-- **Tests:** Falta completar tests de apiHelper
-- **Documentación:** Análisis arquitectura, plan acción, comentarios código
+- **Arquitectura:** Extensible para multiplicar módulos sin duplicar código
+- **Frontend Pages (Prioridad 1-2):** 10 páginas Vue para consumir endpoints
+- **Workforce Planning (Prioridad 3):** Nuevo módulo para planificación dotacional (si tiempo permite)
+
+### 🔄 Próximo (Día 7)
+
+- Componentes especializados
+- Tests
+- Pulido y documentación final
 
 ---
 
 ## Índice
 
 1. [Contexto del Producto](#1-contexto-del-producto)
-    - [Objetivo](#11-objetivo)
-    - [Público Objetivo](#12-público-objetivo)
-    - [Propuesta de Valor](#13-propuesta-de-valor)
+   - [Objetivo](#11-objetivo)
+   - [Público Objetivo](#12-público-objetivo)
+   - [Propuesta de Valor](#13-propuesta-de-valor)
 2. [Alcance y Prioridades](#2-alcance-y-prioridades)
-    - [MVP (2 semanas)](#21-mvp-2-semanas--14-días-intensivos)
-    - [Fuera del MVP](#22-fuera-del-mvp-inicial)
-    - [Prioridades de Desarrollo](#23-prioridades-de-desarrollo)
+   - [MVP (2 semanas)](#21-mvp-2-semanas--14-días-intensivos)
+   - [Fuera del MVP](#22-fuera-del-mvp-inicial)
+   - [Prioridades de Desarrollo](#23-prioridades-de-desarrollo)
 3. [Arquitectura y Stack Técnico](#3-arquitectura-y-stack-técnico)
 4. [Flujos Principales](#4-flujos-principales)
 5. [Reglas de Negocio](#5-reglas-de-negocio)
@@ -68,11 +74,11 @@
 
 - **Segmentos principales:** Empresas medianas y grandes (100-5000+ empleados) en sectores tech, banca, retail, salud
 - **Usuarios finales:**
-    - **CHRO/Directores de RRHH:** Dashboards estratégicos, decisiones de inversión en talento
-    - **Gerentes de Talento/Desarrollo:** Gestión de rutas de desarrollo, análisis de brechas
-    - **Reclutadores internos:** Selección por skills, comparación interno vs externo
-    - **Empleados:** Consulta de perfil de skills, oportunidades internas, rutas de carrera
-    - **Consultores TalentIA:** Configuración de modelos de talento, acompañamiento estratégico
+  - **CHRO/Directores de RRHH:** Dashboards estratégicos, decisiones de inversión en talento
+  - **Gerentes de Talento/Desarrollo:** Gestión de rutas de desarrollo, análisis de brechas
+  - **Reclutadores internos:** Selección por skills, comparación interno vs externo
+  - **Empleados:** Consulta de perfil de skills, oportunidades internas, rutas de carrera
+  - **Consultores TalentIA:** Configuración de modelos de talento, acompañamiento estratégico
 
 ### 1.3 Propuesta de Valor
 
@@ -211,8 +217,8 @@ Para el MVP, se creará una empresa ficticia **"TechCorp"** con los siguientes d
 
 - **Modelo:** Single Database, Shared Schema con `organization_id`
 - **Identificación de tenant:**
-    - **Opción 1 (MVP):** Subdomain (`techcorp.talentia.app`)
-    - **Opción 2 (Alternativa):** JWT con claim `organization_id`
+  - **Opción 1 (MVP):** Subdomain (`techcorp.talentia.app`)
+  - **Opción 2 (Alternativa):** JWT con claim `organization_id`
 - **Middleware:** `EnsureTenantContext` en todas las rutas protegidas
 - **Scopes globales:** Eloquent Global Scope en todos los modelos multi-tenant
 
@@ -256,41 +262,44 @@ organizations (tabla maestra)
 **Patrón Config-Driven:** Cada módulo CRUD se define por 3 archivos JSON:
 
 1. **apiHelper.ts:** Abstracción centralizada de operaciones HTTP
-    - POST, PUT, DELETE, GET con manejo robusto de Sanctum (CSRF)
-    - Interceptores para manejar 419 (CSRF mismatch), 401 (Unauthorized)
-    - Queue inteligente de requests en caso de refresh simultáneo
-    - fetchCatalogs() para cargar múltiples selectores en 1 request
+
+   - POST, PUT, DELETE, GET con manejo robusto de Sanctum (CSRF)
+   - Interceptores para manejar 419 (CSRF mismatch), 401 (Unauthorized)
+   - Queue inteligente de requests en caso de refresh simultáneo
+   - fetchCatalogs() para cargar múltiples selectores en 1 request
 
 2. **FormSchema.vue:** Componente maestro CRUD (lógica)
-    - Carga items (GET), crea (POST), actualiza (PUT), elimina (DELETE)
-    - Diálogos para crear/editar con confirmación de eliminación
-    - Manejo de errores 422 (validación)
-    - Conversión automática de fechas (DD/MM/YYYY ↔ YYYY-MM-DD)
-    - Notificaciones de éxito/error
+
+   - Carga items (GET), crea (POST), actualiza (PUT), elimina (DELETE)
+   - Diálogos para crear/editar con confirmación de eliminación
+   - Manejo de errores 422 (validación)
+   - Conversión automática de fechas (DD/MM/YYYY ↔ YYYY-MM-DD)
+   - Notificaciones de éxito/error
 
 3. **FormData.vue:** Componente de formulario (presentación)
-    - Genera campos dinámicos según config (text, select, date, number, textarea)
-    - Mapeo automático de catálogos (ej: `estado_examen_id` → busca catálogo `estado_examen`)
-    - Watch reactivo para sincronización con initialData
-    - Expose methods: validate(), reset(), formData
+
+   - Genera campos dinámicos según config (text, select, date, number, textarea)
+   - Mapeo automático de catálogos (ej: `estado_examen_id` → busca catálogo `estado_examen`)
+   - Watch reactivo para sincronización con initialData
+   - Expose methods: validate(), reset(), formData
 
 4. **Configuración JSON (3 archivos por módulo):**
 
-    ```json
-    // config.json
-    { "titulo": "Módulo X", "endpoints": { "apiUrl": "/api/..." }, "permisos": {...} }
+   ```json
+   // config.json
+   { "titulo": "Módulo X", "endpoints": { "apiUrl": "/api/..." }, "permisos": {...} }
 
-    // tableConfig.json
-    { "headers": [...], "options": {...} }
+   // tableConfig.json
+   { "headers": [...], "options": {...} }
 
-    // itemForm.json
-    { "fields": [...], "catalogs": [...] }
-    ```
+   // itemForm.json
+   { "fields": [...], "catalogs": [...] }
+   ```
 
 5. **Patrón:** ExampleForm.vue simplemente orquesta: carga configs JSON → pasa a FormSchema
-    - Permite crear 10+ módulos CRUD sin duplicar código
-    - Cambiar comportamiento = cambiar JSON (no código)
-    - Típico: nuevo CRUD en 30 min (solo JSONs + Controller backend)
+   - Permite crear 10+ módulos CRUD sin duplicar código
+   - Cambiar comportamiento = cambiar JSON (no código)
+   - Típico: nuevo CRUD en 30 min (solo JSONs + Controller backend)
 
 #### Seguridad
 
@@ -330,12 +339,12 @@ organizations (tabla maestra)
 1. **Registro:** Formulario con datos de empresa (nombre, industria, tamaño)
 2. **Creación de tenant:** Insert en `organizations`, genera subdomain
 3. **Setup inicial:**
-    - Importar catálogo de skills (plantilla por industria o custom)
-    - Definir roles clave (ej: "Software Engineer", "Product Manager")
-    - Cargar empleados (CSV import o manual)
+   - Importar catálogo de skills (plantilla por industria o custom)
+   - Definir roles clave (ej: "Software Engineer", "Product Manager")
+   - Cargar empleados (CSV import o manual)
 4. **Configuración de consultoría:**
-    - Asignar consultor TalentIA
-    - Agendar sesiones de mapeo de talento
+   - Asignar consultor TalentIA
+   - Agendar sesiones de mapeo de talento
 5. **Activación:** Envío de invitaciones a usuarios
 
 ### 4.3 Dashboard Ejecutivo
@@ -344,16 +353,16 @@ organizations (tabla maestra)
 
 1. Usuario (CHRO) accede a `/dashboard`
 2. Backend calcula métricas en tiempo real:
-    - **Cobertura de skills críticas:** % de roles con skills cubiertas al 80%+
-    - **Roles en riesgo:** Roles con <50% de cobertura
-    - **Brechas totales:** Suma de gaps en skills críticas
-    - **Talento listo para promoción:** Personas con match >90% a roles superiores
-    - **ROI de formación:** Reducción de brechas post-capacitación (roadmap)
+   - **Cobertura de skills críticas:** % de roles con skills cubiertas al 80%+
+   - **Roles en riesgo:** Roles con <50% de cobertura
+   - **Brechas totales:** Suma de gaps en skills críticas
+   - **Talento listo para promoción:** Personas con match >90% a roles superiores
+   - **ROI de formación:** Reducción de brechas post-capacitación (roadmap)
 3. Frontend renderiza:
-    - Cards con KPIs principales
-    - Gráfico de barras: Top 10 skills con mayor brecha
-    - Tabla: Roles en riesgo con acciones sugeridas
-    - Heatmap: Cobertura de skills por departamento
+   - Cards con KPIs principales
+   - Gráfico de barras: Top 10 skills con mayor brecha
+   - Tabla: Roles en riesgo con acciones sugeridas
+   - Heatmap: Cobertura de skills por departamento
 
 #### Endpoints
 
@@ -367,31 +376,31 @@ organizations (tabla maestra)
 
 1. Usuario accede a `/people/{id}`
 2. Backend retorna:
-    - Datos personales (nombre, cargo actual, departamento)
-    - Skills actuales con niveles (1-5)
-    - Roles sugeridos (match >70%)
-    - Rutas de desarrollo activas
-    - Historial de evaluaciones (roadmap)
+   - Datos personales (nombre, cargo actual, departamento)
+   - Skills actuales con niveles (1-5)
+   - Roles sugeridos (match >70%)
+   - Rutas de desarrollo activas
+   - Historial de evaluaciones (roadmap)
 3. Frontend muestra:
-    - Card con foto y datos básicos
-    - Radar chart con skills principales
-    - Lista de skills con progress bars
-    - Tabla de roles sugeridos con % match
-    - Timeline de rutas de desarrollo
+   - Card con foto y datos básicos
+   - Radar chart con skills principales
+   - Lista de skills con progress bars
+   - Tabla de roles sugeridos con % match
+   - Timeline de rutas de desarrollo
 
 #### Flujo: Calcular Brecha Persona ↔ Rol
 
 1. Usuario selecciona persona y rol objetivo
 2. Click en "Calcular Brecha"
 3. Backend (`GapAnalysisService`):
-    - Obtiene skills de persona con niveles actuales
-    - Obtiene skills requeridas del rol con niveles mínimos
-    - Calcula gaps: `gap = max(0, required_level - current_level)`
-    - Calcula % match: `(skills_ok / total_skills) * 100`
+   - Obtiene skills de persona con niveles actuales
+   - Obtiene skills requeridas del rol con niveles mínimos
+   - Calcula gaps: `gap = max(0, required_level - current_level)`
+   - Calcula % match: `(skills_ok / total_skills) * 100`
 4. Frontend muestra:
-    - % match general
-    - Lista de skills OK (verde), en desarrollo (amarillo), faltantes (rojo)
-    - Botón "Generar Ruta de Desarrollo"
+   - % match general
+   - Lista de skills OK (verde), en desarrollo (amarillo), faltantes (rojo)
+   - Botón "Generar Ruta de Desarrollo"
 
 #### Endpoints
 
@@ -405,30 +414,30 @@ organizations (tabla maestra)
 
 1. Usuario en vista de brecha → Click "Generar Ruta"
 2. Backend (`DevelopmentPathService`):
-    - Identifica skills con gap > 0
-    - Busca cursos/recursos en catálogo que cubran esas skills
-    - Prioriza por impacto (skills críticas primero)
-    - Estima duración total (suma de horas de cursos)
+   - Identifica skills con gap > 0
+   - Busca cursos/recursos en catálogo que cubran esas skills
+   - Prioriza por impacto (skills críticas primero)
+   - Estima duración total (suma de horas de cursos)
 3. Crea registro en `development_paths` con:
-    - `person_id`, `target_role_id`
-    - `status: draft`
-    - JSON con pasos: `[{skill_id, action_type, resource_id, duration}]`
+   - `person_id`, `target_role_id`
+   - `status: draft`
+   - JSON con pasos: `[{skill_id, action_type, resource_id, duration}]`
 4. Frontend muestra:
-    - Timeline visual con pasos
-    - Duración estimada total
-    - Botones: "Aprobar", "Editar", "Rechazar"
+   - Timeline visual con pasos
+   - Duración estimada total
+   - Botones: "Aprobar", "Editar", "Rechazar"
 
 #### Flujo: Seguimiento de Ruta
 
 1. Usuario accede a `/development-paths/{id}`
 2. Backend retorna ruta con progreso:
-    - Pasos completados vs pendientes
-    - Skills mejoradas (comparación pre/post)
-    - Próximas acciones
+   - Pasos completados vs pendientes
+   - Skills mejoradas (comparación pre/post)
+   - Próximas acciones
 3. Frontend muestra:
-    - Progress bar general
-    - Checklist de pasos con estados
-    - Botón "Marcar Paso como Completado"
+   - Progress bar general
+   - Checklist de pasos con estados
+   - Botón "Marcar Paso como Completado"
 
 #### Endpoints
 
@@ -442,29 +451,29 @@ organizations (tabla maestra)
 
 1. Usuario (Recruiter) accede a `/job-openings/new`
 2. Formulario:
-    - Título de vacante
-    - Rol asociado (dropdown de roles existentes)
-    - Departamento
-    - Fecha límite
+   - Título de vacante
+   - Rol asociado (dropdown de roles existentes)
+   - Departamento
+   - Fecha límite
 3. Submit → Backend crea `job_opening` con `status: open`
-    - Marca top 5 como "candidatos sugeridos"
+   - Marca top 5 como "candidatos sugeridos"
 4. Frontend en `/job-openings/{id}`:
-    - Tabla con candidatos internos rankeados
-    - Columnas: Nombre, Cargo Actual, % Match, Skills Faltantes
-    - Botón "Invitar a Postular"
+   - Tabla con candidatos internos rankeados
+   - Columnas: Nombre, Cargo Actual, % Match, Skills Faltantes
+   - Botón "Invitar a Postular"
 
 #### Flujo: Comparación Interno vs Externo
 
 1. Usuario en vista de vacante → Tab "Comparar Candidatos"
 2. Selecciona candidato interno + sube CV de candidato externo (roadmap: parsing con IA)
 3. Backend:
-    - Extrae skills del CV externo (simulado en MVP)
-    - Calcula match de ambos vs rol
-    - Genera reporte comparativo
+   - Extrae skills del CV externo (simulado en MVP)
+   - Calcula match de ambos vs rol
+   - Genera reporte comparativo
 4. Frontend muestra:
-    - Tabla lado a lado: Interno vs Externo
-    - Métricas: Match%, Time to Productivity, Costo, Riesgo
-    - Recomendación: "Candidato interno preferido" o "Buscar externo"
+   - Tabla lado a lado: Interno vs Externo
+   - Métricas: Match%, Time to Productivity, Costo, Riesgo
+   - Recomendación: "Candidato interno preferido" o "Buscar externo"
 
 #### Endpoints
 
@@ -478,20 +487,20 @@ organizations (tabla maestra)
 
 1. Empleado accede a `/marketplace`
 2. Backend retorna vacantes abiertas con match personal:
-    - Filtra `job_openings` con `status: open`
-    - Calcula match del empleado vs cada vacante
-    - Ordena por match descendente
+   - Filtra `job_openings` con `status: open`
+   - Calcula match del empleado vs cada vacante
+   - Ordena por match descendente
 3. Frontend muestra:
-    - Cards de vacantes con % match
-    - Filtros: Departamento, Nivel, Match mínimo
-    - Botón "Postular" en cada card
+   - Cards de vacantes con % match
+   - Filtros: Departamento, Nivel, Match mínimo
+   - Botón "Postular" en cada card
 
 #### Flujo: Postular a Oportunidad
 
 1. Empleado click "Postular" en vacante
 2. Modal con:
-    - Mensaje opcional al manager
-    - Confirmación de interés
+   - Mensaje opcional al manager
+   - Confirmación de interés
 3. Submit → Backend crea `application` con `status: pending`
 4. Notificación al manager de la vacante (roadmap)
 
@@ -500,9 +509,9 @@ organizations (tabla maestra)
 1. Manager accede a `/job-openings/{id}/applications`
 2. Backend retorna postulaciones con datos de candidatos
 3. Frontend muestra:
-    - Tabla con postulantes
-    - Columnas: Nombre, % Match, Mensaje, Fecha
-    - Acciones: "Aceptar", "Rechazar", "Ver Perfil"
+   - Tabla con postulantes
+   - Columnas: Nombre, % Match, Mensaje, Fecha
+   - Acciones: "Aceptar", "Rechazar", "Ver Perfil"
 
 #### Endpoints
 
@@ -1168,11 +1177,11 @@ CREATE INDEX idx_skills_name_fulltext ON skills USING gin(to_tsvector('spanish',
 - **Tipografía:** Inter (sans-serif) para UI, Roboto Mono para código/datos
 - **Espaciado:** Sistema de 8px (múltiplos: 8, 16, 24, 32, 48, 64)
 - **Breakpoints:**
-    - xs: <600px (mobile)
-    - sm: 600-960px (tablet)
-    - md: 960-1264px (laptop)
-    - lg: 1264-1904px (desktop)
-    - xl: >1904px (large desktop)
+  - xs: <600px (mobile)
+  - sm: 600-960px (tablet)
+  - md: 960-1264px (laptop)
+  - lg: 1264-1904px (desktop)
+  - xl: >1904px (large desktop)
 
 #### Paleta de Colores
 
@@ -1219,34 +1228,34 @@ $text-secondary: #6b7280; // Gris medio (texto secundario)
 
 - **Uso:** Páginas públicas (landing, login - post-MVP)
 - **Estructura:**
-    - Header: Logo + navegación simple
-    - Main: Contenido centrado, max-width 1200px
-    - Footer: Links legales + redes sociales
+  - Header: Logo + navegación simple
+  - Main: Contenido centrado, max-width 1200px
+  - Footer: Links legales + redes sociales
 
 #### DashboardLayout
 
 - **Uso:** Toda la aplicación autenticada
 - **Estructura:**
-    - App Bar (top):
-        - Logo TalentIA (link a dashboard)
-        - Breadcrumbs
-        - Buscador global (roadmap)
-        - Notificaciones (roadmap)
-        - Avatar + menú de usuario
-    - Navigation Drawer (left, collapsible):
-        - Dashboard
-        - Personas
-        - Roles
-        - Skills
-        - Vacantes
-        - Marketplace
-        - Rutas de Desarrollo
-        - Analítica (roadmap)
-        - Configuración (roadmap)
-    - Main Content:
-        - Padding: 24px
-        - Background: $background
-    - Footer (opcional): Copyright + versión
+  - App Bar (top):
+    - Logo TalentIA (link a dashboard)
+    - Breadcrumbs
+    - Buscador global (roadmap)
+    - Notificaciones (roadmap)
+    - Avatar + menú de usuario
+  - Navigation Drawer (left, collapsible):
+    - Dashboard
+    - Personas
+    - Roles
+    - Skills
+    - Vacantes
+    - Marketplace
+    - Rutas de Desarrollo
+    - Analítica (roadmap)
+    - Configuración (roadmap)
+  - Main Content:
+    - Padding: 24px
+    - Background: $background
+  - Footer (opcional): Copyright + versión
 
 ### 8.3 Vistas Principales (Wireframes Textuales)
 
@@ -1360,14 +1369,14 @@ $text-secondary: #6b7280; // Gris medio (texto secundario)
 #### Tipografía
 
 - **Headings:**
-    - H1: 32px, bold, $text-primary
-    - H2: 24px, semibold, $text-primary
-    - H3: 20px, semibold, $text-primary
-    - H4: 18px, medium, $text-primary
+  - H1: 32px, bold, $text-primary
+  - H2: 24px, semibold, $text-primary
+  - H3: 20px, semibold, $text-primary
+  - H4: 18px, medium, $text-primary
 - **Body:**
-    - Large: 16px, regular, $text-primary
-    - Regular: 14px, regular, $text-primary
-    - Small: 12px, regular, $text-secondary
+  - Large: 16px, regular, $text-primary
+  - Regular: 14px, regular, $text-primary
+  - Small: 12px, regular, $text-secondary
 - **Captions:** 11px, regular, $text-secondary
 
 #### Iconografía
@@ -1375,12 +1384,12 @@ $text-secondary: #6b7280; // Gris medio (texto secundario)
 - **Librería:** Material Design Icons (mdi)
 - **Tamaño:** 20px (small), 24px (default), 32px (large)
 - **Uso:**
-    - Skills: `mdi-star` (nivel), `mdi-brain` (skill)
-    - Roles: `mdi-account-tie`
-    - Brechas: `mdi-chart-line` (análisis), `mdi-alert-circle` (crítico)
-    - Desarrollo: `mdi-road-variant` (ruta), `mdi-school` (curso)
-    - Vacantes: `mdi-briefcase-outline`
-    - Marketplace: `mdi-store`
+  - Skills: `mdi-star` (nivel), `mdi-brain` (skill)
+  - Roles: `mdi-account-tie`
+  - Brechas: `mdi-chart-line` (análisis), `mdi-alert-circle` (crítico)
+  - Desarrollo: `mdi-road-variant` (ruta), `mdi-school` (curso)
+  - Vacantes: `mdi-briefcase-outline`
+  - Marketplace: `mdi-store`
 
 #### Animaciones
 
@@ -1538,17 +1547,17 @@ VITE_APP_ENV=production
 - **Frecuencia:** Diarios (automático en Digital Ocean Managed DB)
 - **Retención:** 7 días (rolling)
 - **Backup manual:**
-    ```bash
-    pg_dump -h db.talentia.app -U talentia_user talentia_prod > backup_$(date +%Y%m%d).sql
-    ```
+  ```bash
+  pg_dump -h db.talentia.app -U talentia_user talentia_prod > backup_$(date +%Y%m%d).sql
+  ```
 
 #### Código
 
 - **Repositorio:** GitHub (privado)
 - **Branches:**
-    - `main`: Producción
-    - `develop`: Desarrollo
-    - `feature/*`: Features en progreso
+  - `main`: Producción
+  - `develop`: Desarrollo
+  - `feature/*`: Features en progreso
 
 #### Archivos (Roadmap)
 
@@ -1644,48 +1653,55 @@ VITE_APP_ENV=production
 #### Técnicos
 
 1. **Performance con multi-tenant:**
-    - **Riesgo:** Queries lentas al escalar a 100+ organizaciones
-    - **Mitigación:** Índices en `organization_id`, caching con Redis (roadmap)
+
+   - **Riesgo:** Queries lentas al escalar a 100+ organizaciones
+   - **Mitigación:** Índices en `organization_id`, caching con Redis (roadmap)
 
 2. **Cálculo de brechas en tiempo real:**
-    - **Riesgo:** Timeout en organizaciones con 1000+ empleados
-    - **Mitigación:** Jobs asíncronos, pre-cálculo nocturno, caching
+
+   - **Riesgo:** Timeout en organizaciones con 1000+ empleados
+   - **Mitigación:** Jobs asíncronos, pre-cálculo nocturno, caching
 
 3. **Escalabilidad de IA:**
-    - **Riesgo:** Costos de OpenAI API al escalar
-    - **Mitigación:** Modelo local (sentence-transformers), rate limiting
+
+   - **Riesgo:** Costos de OpenAI API al escalar
+   - **Mitigación:** Modelo local (sentence-transformers), rate limiting
 
 4. **Integridad de datos:**
-    - **Riesgo:** Skills/roles huérfanos al eliminar registros
-    - **Mitigación:** Soft deletes, foreign keys con `ON DELETE RESTRICT`
+   - **Riesgo:** Skills/roles huérfanos al eliminar registros
+   - **Mitigación:** Soft deletes, foreign keys con `ON DELETE RESTRICT`
 
 #### Negocio
 
 1. **Adopción de usuarios:**
-    - **Riesgo:** Curva de aprendizaje alta, resistencia al cambio
-    - **Mitigación:** Onboarding guiado, consultoría incluida, demos interactivas
+
+   - **Riesgo:** Curva de aprendizaje alta, resistencia al cambio
+   - **Mitigación:** Onboarding guiado, consultoría incluida, demos interactivas
 
 2. **Competencia:**
-    - **Riesgo:** Workday, SAP SuccessFactors con módulos similares
-    - **Mitigación:** Diferenciación en consultoría + SSI, nicho en empresas medianas
+
+   - **Riesgo:** Workday, SAP SuccessFactors con módulos similares
+   - **Mitigación:** Diferenciación en consultoría + SSI, nicho en empresas medianas
 
 3. **Dependencia de consultoría:**
-    - **Riesgo:** Software solo no genera valor sin acompañamiento
-    - **Mitigación:** Plantillas por industria, wizards de configuración, contenido educativo
+   - **Riesgo:** Software solo no genera valor sin acompañamiento
+   - **Mitigación:** Plantillas por industria, wizards de configuración, contenido educativo
 
 #### Operacionales
 
 1. **Deploy manual:**
-    - **Riesgo:** Errores humanos, downtime
-    - **Mitigación:** CI/CD con GitHub Actions (roadmap), rollback automático
+
+   - **Riesgo:** Errores humanos, downtime
+   - **Mitigación:** CI/CD con GitHub Actions (roadmap), rollback automático
 
 2. **Backups:**
-    - **Riesgo:** Pérdida de datos por fallo de DB
-    - **Mitigación:** Backups diarios automáticos, réplicas en standby (roadmap)
+
+   - **Riesgo:** Pérdida de datos por fallo de DB
+   - **Mitigación:** Backups diarios automáticos, réplicas en standby (roadmap)
 
 3. **Monitoreo:**
-    - **Riesgo:** Downtime no detectado a tiempo
-    - **Mitigación:** UptimeRobot, Sentry, alertas a Slack
+   - **Riesgo:** Downtime no detectado a tiempo
+   - **Mitigación:** UptimeRobot, Sentry, alertas a Slack
 
 ### 10.4 Roadmap Post-MVP (3-6 meses)
 
@@ -1764,20 +1780,22 @@ VITE_APP_ENV=production
 #### Departamentos
 
 1. **Engineering (12 personas)**
-    - Frontend Team (4)
-    - Backend Team (4)
-    - DevOps (2)
-    - QA (2)
+
+   - Frontend Team (4)
+   - Backend Team (4)
+   - DevOps (2)
+   - QA (2)
 
 2. **Product (3 personas)**
-    - Product Manager (1)
-    - Product Designer (2)
+
+   - Product Manager (1)
+   - Product Designer (2)
 
 3. **Operations (5 personas)**
-    - CEO (1)
-    - HR Manager (1)
-    - Sales (2)
-    - Customer Success (1)
+   - CEO (1)
+   - HR Manager (1)
+   - Sales (2)
+   - Customer Success (1)
 
 ### 11.3 Catálogo de Skills (30 skills)
 
@@ -1942,14 +1960,14 @@ VITE_APP_ENV=production
 - **Hire Date:** 2021-03-15
 - **Email:** ana.garcia@techcorp.com
 - **Skills:**
-    - JavaScript: 4
-    - TypeScript: 3
-    - React: 4
-    - Vue.js: 2
-    - Testing/QA: 3
-    - Communication: 4
-    - Problem Solving: 4
-    - Mentoring: 2
+  - JavaScript: 4
+  - TypeScript: 3
+  - React: 4
+  - Vue.js: 2
+  - Testing/QA: 3
+  - Communication: 4
+  - Problem Solving: 4
+  - Mentoring: 2
 - **Potencial:** Senior Frontend Developer (88% match)
 
 **2. Carlos López**
@@ -1959,13 +1977,13 @@ VITE_APP_ENV=production
 - **Hire Date:** 2022-01-10
 - **Email:** carlos.lopez@techcorp.com
 - **Skills:**
-    - JavaScript: 3
-    - TypeScript: 3
-    - React: 3
-    - Testing/QA: 2
-    - Communication: 3
-    - Problem Solving: 3
-    - Collaboration: 4
+  - JavaScript: 3
+  - TypeScript: 3
+  - React: 3
+  - Testing/QA: 2
+  - Communication: 3
+  - Problem Solving: 3
+  - Collaboration: 4
 - **Potencial:** Senior Frontend Developer (65% match, necesita desarrollo)
 
 **3. María Rodríguez**
@@ -1975,11 +1993,11 @@ VITE_APP_ENV=production
 - **Hire Date:** 2023-06-01
 - **Email:** maria.rodriguez@techcorp.com
 - **Skills:**
-    - JavaScript: 2
-    - React: 2
-    - Communication: 3
-    - Collaboration: 3
-    - Adaptability: 4
+  - JavaScript: 2
+  - React: 2
+  - Communication: 3
+  - Collaboration: 3
+  - Adaptability: 4
 - **Potencial:** Frontend Developer (70% match)
 
 **4. Diego Fernández**
@@ -1989,11 +2007,11 @@ VITE_APP_ENV=production
 - **Hire Date:** 2023-09-15
 - **Email:** diego.fernandez@techcorp.com
 - **Skills:**
-    - JavaScript: 2
-    - Vue.js: 2
-    - Communication: 2
-    - Collaboration: 3
-    - Problem Solving: 2
+  - JavaScript: 2
+  - Vue.js: 2
+  - Communication: 2
+  - Collaboration: 3
+  - Problem Solving: 2
 - **Potencial:** Frontend Developer (55% match, necesita más tiempo)
 
 **5. Luis Martínez**
@@ -2003,14 +2021,14 @@ VITE_APP_ENV=production
 - **Hire Date:** 2021-07-20
 - **Email:** luis.martinez@techcorp.com
 - **Skills:**
-    - Node.js: 4
-    - Python: 3
-    - PostgreSQL: 4
-    - API Design: 4
-    - System Design: 3
-    - Testing/QA: 3
-    - Problem Solving: 4
-    - Mentoring: 2
+  - Node.js: 4
+  - Python: 3
+  - PostgreSQL: 4
+  - API Design: 4
+  - System Design: 3
+  - Testing/QA: 3
+  - Problem Solving: 4
+  - Mentoring: 2
 - **Potencial:** Senior Backend Developer (85% match)
 
 **6. Sofía Ramírez**
@@ -2020,12 +2038,12 @@ VITE_APP_ENV=production
 - **Hire Date:** 2022-03-10
 - **Email:** sofia.ramirez@techcorp.com
 - **Skills:**
-    - Node.js: 3
-    - PostgreSQL: 3
-    - API Design: 3
-    - Testing/QA: 2
-    - Problem Solving: 3
-    - Communication: 3
+  - Node.js: 3
+  - PostgreSQL: 3
+  - API Design: 3
+  - Testing/QA: 2
+  - Problem Solving: 3
+  - Communication: 3
 - **Potencial:** Senior Backend Developer (60% match)
 
 **7. Javier Torres**
@@ -2035,12 +2053,12 @@ VITE_APP_ENV=production
 - **Hire Date:** 2022-08-01
 - **Email:** javier.torres@techcorp.com
 - **Skills:**
-    - Python: 3
-    - PostgreSQL: 3
-    - MongoDB: 3
-    - API Design: 2
-    - Problem Solving: 3
-    - Collaboration: 4
+  - Python: 3
+  - PostgreSQL: 3
+  - MongoDB: 3
+  - API Design: 2
+  - Problem Solving: 3
+  - Collaboration: 4
 - **Potencial:** Senior Backend Developer (55% match)
 
 **8. Valentina Silva**
@@ -2050,12 +2068,12 @@ VITE_APP_ENV=production
 - **Hire Date:** 2023-02-15
 - **Email:** valentina.silva@techcorp.com
 - **Skills:**
-    - Node.js: 2
-    - PostgreSQL: 2
-    - API Design: 2
-    - Testing/QA: 3
-    - Communication: 3
-    - Adaptability: 4
+  - Node.js: 2
+  - PostgreSQL: 2
+  - API Design: 2
+  - Testing/QA: 3
+  - Communication: 3
+  - Adaptability: 4
 - **Potencial:** Mid Backend Developer (en desarrollo)
 
 **9. Roberto Morales**
@@ -2065,14 +2083,14 @@ VITE_APP_ENV=production
 - **Hire Date:** 2021-05-10
 - **Email:** roberto.morales@techcorp.com
 - **Skills:**
-    - Docker: 5
-    - Kubernetes: 4
-    - AWS: 5
-    - CI/CD: 5
-    - System Design: 4
-    - Problem Solving: 5
-    - Leadership: 3
-    - Mentoring: 3
+  - Docker: 5
+  - Kubernetes: 4
+  - AWS: 5
+  - CI/CD: 5
+  - System Design: 4
+  - Problem Solving: 5
+  - Leadership: 3
+  - Mentoring: 3
 - **Potencial:** Tech Lead (75% match, necesita más soft skills)
 
 **10. Camila Vargas**
@@ -2082,12 +2100,12 @@ VITE_APP_ENV=production
 - **Hire Date:** 2022-11-01
 - **Email:** camila.vargas@techcorp.com
 - **Skills:**
-    - Docker: 3
-    - Kubernetes: 2
-    - AWS: 3
-    - CI/CD: 3
-    - Problem Solving: 3
-    - Collaboration: 4
+  - Docker: 3
+  - Kubernetes: 2
+  - AWS: 3
+  - CI/CD: 3
+  - Problem Solving: 3
+  - Collaboration: 4
 - **Potencial:** Senior DevOps (en desarrollo)
 
 **11. Andrés Muñoz**
@@ -2097,12 +2115,12 @@ VITE_APP_ENV=production
 - **Hire Date:** 2022-04-15
 - **Email:** andres.munoz@techcorp.com
 - **Skills:**
-    - Testing/QA: 4
-    - JavaScript: 2
-    - Problem Solving: 4
-    - Critical Thinking: 4
-    - Communication: 3
-    - Collaboration: 4
+  - Testing/QA: 4
+  - JavaScript: 2
+  - Problem Solving: 4
+  - Critical Thinking: 4
+  - Communication: 3
+  - Collaboration: 4
 - **Potencial:** Senior QA / Test Automation Engineer
 
 **12. Daniela Castro**
@@ -2112,11 +2130,11 @@ VITE_APP_ENV=production
 - **Hire Date:** 2023-01-10
 - **Email:** daniela.castro@techcorp.com
 - **Skills:**
-    - Testing/QA: 3
-    - Problem Solving: 3
-    - Critical Thinking: 3
-    - Communication: 3
-    - Adaptability: 4
+  - Testing/QA: 3
+  - Problem Solving: 3
+  - Critical Thinking: 3
+  - Communication: 3
+  - Adaptability: 4
 - **Potencial:** Mid QA Engineer
 
 #### Product Team
@@ -2128,14 +2146,14 @@ VITE_APP_ENV=production
 - **Hire Date:** 2020-08-01
 - **Email:** patricia.herrera@techcorp.com
 - **Skills:**
-    - Product Strategy: 4
-    - Data Analysis: 4
-    - Agile/Scrum: 5
-    - Stakeholder Management: 4
-    - Customer Empathy: 5
-    - Communication: 5
-    - Leadership: 4
-    - Problem Solving: 4
+  - Product Strategy: 4
+  - Data Analysis: 4
+  - Agile/Scrum: 5
+  - Stakeholder Management: 4
+  - Customer Empathy: 5
+  - Communication: 5
+  - Leadership: 4
+  - Problem Solving: 4
 - **Potencial:** Senior Product Manager / Head of Product
 
 **14. Ignacio Rojas**
@@ -2145,12 +2163,12 @@ VITE_APP_ENV=production
 - **Hire Date:** 2021-10-15
 - **Email:** ignacio.rojas@techcorp.com
 - **Skills:**
-    - (Design skills no en catálogo para simplificar)
-    - Customer Empathy: 4
-    - Communication: 4
-    - Collaboration: 5
-    - Problem Solving: 3
-    - Critical Thinking: 4
+  - (Design skills no en catálogo para simplificar)
+  - Customer Empathy: 4
+  - Communication: 4
+  - Collaboration: 5
+  - Problem Solving: 3
+  - Critical Thinking: 4
 - **Potencial:** Senior Product Designer
 
 **15. Francisca Núñez**
@@ -2160,11 +2178,11 @@ VITE_APP_ENV=production
 - **Hire Date:** 2022-09-01
 - **Email:** francisca.nunez@techcorp.com
 - **Skills:**
-    - Customer Empathy: 3
-    - Communication: 3
-    - Collaboration: 4
-    - Adaptability: 4
-    - Critical Thinking: 3
+  - Customer Empathy: 3
+  - Communication: 3
+  - Collaboration: 4
+  - Adaptability: 4
+  - Critical Thinking: 3
 - **Potencial:** Mid Product Designer
 
 #### Operations Team
@@ -2176,13 +2194,13 @@ VITE_APP_ENV=production
 - **Hire Date:** 2020-01-01
 - **Email:** ricardo.soto@techcorp.com
 - **Skills:**
-    - Leadership: 5
-    - Product Strategy: 4
-    - Stakeholder Management: 5
-    - Communication: 5
-    - Problem Solving: 5
-    - Emotional Intelligence: 5
-    - Data Analysis: 3
+  - Leadership: 5
+  - Product Strategy: 4
+  - Stakeholder Management: 5
+  - Communication: 5
+  - Problem Solving: 5
+  - Emotional Intelligence: 5
+  - Data Analysis: 3
 - **Potencial:** N/A (fundador)
 
 **17. Lorena Guzmán**
@@ -2192,13 +2210,13 @@ VITE_APP_ENV=production
 - **Hire Date:** 2021-02-01
 - **Email:** lorena.guzman@techcorp.com
 - **Skills:**
-    - Leadership: 3
-    - Communication: 5
-    - Emotional Intelligence: 5
-    - Conflict Resolution: 4
-    - Stakeholder Management: 3
-    - Collaboration: 5
-    - Data Analysis: 2
+  - Leadership: 3
+  - Communication: 5
+  - Emotional Intelligence: 5
+  - Conflict Resolution: 4
+  - Stakeholder Management: 3
+  - Collaboration: 5
+  - Data Analysis: 2
 - **Potencial:** Head of People
 
 **18. Sebastián Parra**
@@ -2208,11 +2226,11 @@ VITE_APP_ENV=production
 - **Hire Date:** 2021-11-01
 - **Email:** sebastian.parra@techcorp.com
 - **Skills:**
-    - Communication: 4
-    - Stakeholder Management: 3
-    - Customer Empathy: 4
-    - Problem Solving: 3
-    - Adaptability: 4
+  - Communication: 4
+  - Stakeholder Management: 3
+  - Customer Empathy: 4
+  - Problem Solving: 3
+  - Adaptability: 4
 - **Potencial:** Senior Sales / Sales Manager
 
 **19. Catalina Bravo**
@@ -2222,10 +2240,10 @@ VITE_APP_ENV=production
 - **Hire Date:** 2022-12-01
 - **Email:** catalina.bravo@techcorp.com
 - **Skills:**
-    - Communication: 3
-    - Customer Empathy: 3
-    - Adaptability: 4
-    - Collaboration: 3
+  - Communication: 3
+  - Customer Empathy: 3
+  - Adaptability: 4
+  - Collaboration: 3
 - **Potencial:** Mid Sales
 
 **20. Tomás Vega**
@@ -2235,12 +2253,12 @@ VITE_APP_ENV=production
 - **Hire Date:** 2022-05-15
 - **Email:** tomas.vega@techcorp.com
 - **Skills:**
-    - Customer Empathy: 5
-    - Communication: 4
-    - Problem Solving: 4
-    - Collaboration: 4
-    - Emotional Intelligence: 4
-    - Data Analysis: 2
+  - Customer Empathy: 5
+  - Communication: 4
+  - Problem Solving: 4
+  - Collaboration: 4
+  - Emotional Intelligence: 4
+  - Data Analysis: 2
 - **Potencial:** Head of Customer Success
 
 ### 11.6 Vacantes Abiertas (3 vacantes)
@@ -2253,8 +2271,8 @@ VITE_APP_ENV=production
 - **Publicada:** Hace 5 días
 - **Deadline:** 30 días
 - **Candidatos Internos Sugeridos:**
-    1. Ana García (88% match) - **RECOMENDADA**
-    2. Carlos López (65% match) - Necesita 6 meses de desarrollo
+  1. Ana García (88% match) - **RECOMENDADA**
+  2. Carlos López (65% match) - Necesita 6 meses de desarrollo
 - **Decisión Esperada:** Promoción interna de Ana García
 
 #### Vacante 2: Tech Lead
@@ -2265,8 +2283,8 @@ VITE_APP_ENV=production
 - **Publicada:** Hace 10 días
 - **Deadline:** 45 días
 - **Candidatos Internos Sugeridos:**
-    1. Roberto Morales (75% match) - Necesita desarrollo en soft skills
-    2. Luis Martínez (68% match) - Necesita desarrollo en liderazgo y system design
+  1. Roberto Morales (75% match) - Necesita desarrollo en soft skills
+  2. Luis Martínez (68% match) - Necesita desarrollo en liderazgo y system design
 - **Decisión Esperada:** Desarrollo de Roberto + búsqueda externa paralela
 
 #### Vacante 3: Backend Developer (Mid)
@@ -2277,7 +2295,7 @@ VITE_APP_ENV=production
 - **Publicada:** Hace 3 días
 - **Deadline:** 30 días
 - **Candidatos Internos Sugeridos:**
-    1. Valentina Silva (80% match) - En desarrollo, lista en 2-3 meses
+  1. Valentina Silva (80% match) - En desarrollo, lista en 2-3 meses
 - **Decisión Esperada:** Esperar desarrollo de Valentina vs contratar externo
 
 ### 11.7 Rutas de Desarrollo Activas (5 rutas)
@@ -2287,57 +2305,57 @@ VITE_APP_ENV=production
 - **Estado:** Active (65% completado)
 - **Duración Estimada:** 4 meses (1 mes restante)
 - **Pasos:**
-    1. ✅ Curso: "Advanced React Patterns" (40h) - Completado
-    2. ✅ Proyecto: Liderar refactor de componentes core - Completado
-    3. 🔄 Mentoría: Mentorar a María Rodríguez (2 meses) - En progreso
-    4. ⏳ Curso: "System Design Fundamentals" (30h) - Pendiente
-    5. ⏳ Certificación: "AWS Solutions Architect Associate" - Pendiente
+  1. ✅ Curso: "Advanced React Patterns" (40h) - Completado
+  2. ✅ Proyecto: Liderar refactor de componentes core - Completado
+  3. 🔄 Mentoría: Mentorar a María Rodríguez (2 meses) - En progreso
+  4. ⏳ Curso: "System Design Fundamentals" (30h) - Pendiente
+  5. ⏳ Certificación: "AWS Solutions Architect Associate" - Pendiente
 
 #### Ruta 2: Luis Martínez → Senior Backend Developer
 
 - **Estado:** Active (50% completado)
 - **Duración Estimada:** 6 meses (3 meses restantes)
 - **Pasos:**
-    1. ✅ Curso: "Advanced PostgreSQL" (25h) - Completado
-    2. ✅ Curso: "Microservices Architecture" (35h) - Completado
-    3. 🔄 Proyecto: Diseñar nueva API de notificaciones - En progreso
-    4. ⏳ Mentoría: Mentorar a Valentina Silva (3 meses) - Pendiente
-    5. ⏳ Curso: "Leadership for Engineers" (20h) - Pendiente
+  1. ✅ Curso: "Advanced PostgreSQL" (25h) - Completado
+  2. ✅ Curso: "Microservices Architecture" (35h) - Completado
+  3. 🔄 Proyecto: Diseñar nueva API de notificaciones - En progreso
+  4. ⏳ Mentoría: Mentorar a Valentina Silva (3 meses) - Pendiente
+  5. ⏳ Curso: "Leadership for Engineers" (20h) - Pendiente
 
 #### Ruta 3: Roberto Morales → Tech Lead
 
 - **Estado:** Active (30% completado)
 - **Duración Estimada:** 8 meses (5.5 meses restantes)
 - **Pasos:**
-    1. ✅ Curso: "Effective Communication for Tech Leaders" (15h) - Completado
-    2. ✅ Curso: "Advanced System Design" (40h) - Completado
-    3. 🔄 Mentoría: Recibir mentoría de CTO externo (6 meses) - En progreso
-    4. ⏳ Proyecto: Liderar migración a Kubernetes - Pendiente
-    5. ⏳ Curso: "Engineering Management" (25h) - Pendiente
-    6. ⏳ Práctica: Facilitar reuniones de arquitectura (3 meses) - Pendiente
+  1. ✅ Curso: "Effective Communication for Tech Leaders" (15h) - Completado
+  2. ✅ Curso: "Advanced System Design" (40h) - Completado
+  3. 🔄 Mentoría: Recibir mentoría de CTO externo (6 meses) - En progreso
+  4. ⏳ Proyecto: Liderar migración a Kubernetes - Pendiente
+  5. ⏳ Curso: "Engineering Management" (25h) - Pendiente
+  6. ⏳ Práctica: Facilitar reuniones de arquitectura (3 meses) - Pendiente
 
 #### Ruta 4: Carlos López → Senior Frontend Developer
 
 - **Estado:** Draft (pendiente aprobación)
 - **Duración Estimada:** 10 meses
 - **Pasos:**
-    1. Curso: "TypeScript Advanced" (30h)
-    2. Curso: "System Design for Frontend" (35h)
-    3. Proyecto: Liderar implementación de nueva feature compleja
-    4. Mentoría: Recibir mentoría de Ana García (4 meses)
-    5. Mentoría: Mentorar a Diego Fernández (3 meses)
-    6. Curso: "Leadership Essentials" (20h)
+  1. Curso: "TypeScript Advanced" (30h)
+  2. Curso: "System Design for Frontend" (35h)
+  3. Proyecto: Liderar implementación de nueva feature compleja
+  4. Mentoría: Recibir mentoría de Ana García (4 meses)
+  5. Mentoría: Mentorar a Diego Fernández (3 meses)
+  6. Curso: "Leadership Essentials" (20h)
 
 #### Ruta 5: Valentina Silva → Backend Developer (consolidación)
 
 - **Estado:** Active (40% completado)
 - **Duración Estimada:** 5 meses (3 meses restantes)
 - **Pasos:**
-    1. ✅ Curso: "Node.js Best Practices" (25h) - Completado
-    2. ✅ Curso: "PostgreSQL Performance Tuning" (20h) - Completado
-    3. 🔄 Proyecto: Implementar módulo de reportes - En progreso
-    4. ⏳ Mentoría: Recibir mentoría de Luis Martínez (3 meses) - Pendiente
-    5. ⏳ Curso: "API Design Patterns" (30h) - Pendiente
+  1. ✅ Curso: "Node.js Best Practices" (25h) - Completado
+  2. ✅ Curso: "PostgreSQL Performance Tuning" (20h) - Completado
+  3. 🔄 Proyecto: Implementar módulo de reportes - En progreso
+  4. ⏳ Mentoría: Recibir mentoría de Luis Martínez (3 meses) - Pendiente
+  5. ⏳ Curso: "API Design Patterns" (30h) - Pendiente
 
 ### 11.8 Postulaciones al Marketplace (4 postulaciones)
 
@@ -2378,22 +2396,25 @@ VITE_APP_ENV=production
 #### KPIs Principales
 
 - **Cobertura de Skills Críticas:** 78%
-    - 14 de 18 skills críticas cubiertas al 80%+
-    - Skills en riesgo: Kubernetes (60%), System Design (65%), Leadership (70%), Mentoring (68%)
+
+  - 14 de 18 skills críticas cubiertas al 80%+
+  - Skills en riesgo: Kubernetes (60%), System Design (65%), Leadership (70%), Mentoring (68%)
 
 - **Roles en Riesgo:** 2
-    - Tech Lead: 0 personas listas (2 en desarrollo)
-    - Senior Backend Developer: 1 persona casi lista (85% match)
+
+  - Tech Lead: 0 personas listas (2 en desarrollo)
+  - Senior Backend Developer: 1 persona casi lista (85% match)
 
 - **Brechas Totales:** 127 niveles
-    - Críticas (gap >2): 23 niveles
-    - Moderadas (gap 1-2): 68 niveles
-    - Menores (gap <1): 36 niveles
+
+  - Críticas (gap >2): 23 niveles
+  - Moderadas (gap 1-2): 68 niveles
+  - Menores (gap <1): 36 niveles
 
 - **Talento Listo para Promoción:** 3 personas
-    - Ana García → Senior Frontend (88% match)
-    - Luis Martínez → Senior Backend (85% match)
-    - Patricia Herrera → Head of Product (92% match)
+  - Ana García → Senior Frontend (88% match)
+  - Luis Martínez → Senior Backend (85% match)
+  - Patricia Herrera → Head of Product (92% match)
 
 #### Top 10 Skills con Mayor Brecha
 

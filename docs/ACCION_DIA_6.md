@@ -70,23 +70,48 @@ curl http://localhost:8000/api/skills
 
 ---
 
+## 🆕 Módulo: Workforce Planning (Nuevo en MVP)
+
+### ¿Qué es?
+Herramienta estratégica para planificación de dotación basada en escenarios de demanda, gap analysis y recomendaciones automáticas (BUILD → BUY → BORROW → BOT).
+
+Ver: [MODULE_TASKFORCE.md](docs/MODULE_TASKFORCE.md)
+
+### Integración en Día 6-7
+- **Prioridad:** Secundaria (después de las 10 páginas CRUD/análisis)
+- **Backend:** 3 migraciones + 1 servicio + 2-3 endpoints
+- **Frontend:** 1 página `/workforce-planning` con escenarios + recomendaciones
+- **Tiempo:** ~2 horas si la prioridad lo permite
+
+---
+
 ## 📅 Plan para Día 6
 
-### Objetivo: Crear 9 páginas Vue que consuman los endpoints
+### Objetivo: Crear Frontend + Integrar Workforce Planning
 
-**Páginas a Crear (por orden recomendado):**
+**Páginas Vue a Crear (Prioridad 1 - CRUD Básico):**
 
 1. `/people` - Lista de personas (GET /api/people)
 2. `/people/{id}` - Detalle de persona (GET /api/people/{id})
 3. `/roles` - Lista de roles (GET /api/roles)
 4. `/roles/{id}` - Detalle de rol (GET /api/roles/{id})
-5. `/gap-analysis` - Análisis de brecha (POST /api/gap-analysis)
-6. `/development-paths` - Rutas de desarrollo (POST /api/development-paths/generate)
-7. `/job-openings` - Vacantes (GET /api/job-openings)
-8. `/applications` - Postulaciones (GET/POST /api/applications)
-9. `/marketplace` - Oportunidades internas (GET /api/people/{id}/marketplace)
+5. `/skills` - Catálogo de skills (GET /api/skills)
 
-**Estimado:** 8-10 horas
+**Páginas Vue a Crear (Prioridad 2 - Con Lógica):**
+
+6. `/gap-analysis` - Análisis de brecha (POST /api/gap-analysis)
+7. `/development-paths` - Rutas de desarrollo (POST /api/development-paths/generate)
+8. `/job-openings` - Vacantes (GET /api/job-openings)
+9. `/applications` - Postulaciones (GET/POST /api/applications)
+10. `/marketplace` - Oportunidades internas (GET /api/people/{id}/marketplace)
+
+**Nuevo: Workforce Planning (Prioridad 3 - Si hay tiempo):**
+
+11. `/workforce-planning` - Planificación dotacional estratégica
+
+**Estimado:**
+- Prioridad 1+2: 8-10 horas
+- Prioridad 3: +2 horas (si cabe en Día 6, sino Día 7)
 
 ---
 

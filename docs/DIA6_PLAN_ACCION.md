@@ -1,6 +1,6 @@
-# 🛠️ PLAN DE ACCIÓN - Completar Día 6 Frontend
+# 🛠️ PLAN DE ACCIÓN - Completar Día 6 Frontend + Workforce Planning
 
-**Basado en análisis de apiHelper.ts + form-template**
+**Basado en análisis de arquitectura existente + nuevo módulo de planificación dotacional**
 
 ---
 
@@ -8,25 +8,31 @@
 
 ✅ **Hecho:**
 
+- Backend 100% completado (17 endpoints)
 - apiHelper.ts con CRUD + Sanctum
 - FormSchema.vue con lógica CRUD completa
 - FormData.vue estructura base
 - Configs JSON (example-form)
 
-⏳ **Falta completar:**
+⏳ **Falta completar (Prioridades):**
 
-- [ ] FormData.vue template completo
-- [ ] config.json en example-form
-- [ ] Prueba funcional CRUD
-- [ ] Documentación "Cómo crear nuevo módulo CRUD"
+**Prioridad 1 (Crítica):**
+
+- [ ] 5 páginas CRUD básicas (people, roles, skills + detalles)
+
+**Prioridad 2 (Alta):**
+
+- [ ] 5 páginas con lógica (gap-analysis, development-paths, job-openings, applications, marketplace)
+
+**Prioridad 3 (Media - Si hay tiempo):**
+
+- [ ] Módulo Workforce Planning (escenarios + recomendaciones)
 
 ---
 
 ## 🎯 TAREAS DEL DÍA 6
 
-### BLOQUE 1 (09:30-12:00): Completar FormData.vue
-
-#### Tarea 1.1: Agregar campos de formulario (45 min)
+### BLOQUE 1 (09:30-12:00): Páginas CRUD Básicas (Prioridad 1)
 
 **Archivo:** `/workspaces/talentia/src/resources/js/pages/form-template/FormData.vue`
 
@@ -36,28 +42,28 @@ Necesitas agregar el template `<template v-if="field.type === ...">` para:
 
 ```vue
 <template v-if="field.type === 'text'">
-    <v-text-field
-        v-model="formData[field.key]"
-        :label="field.label"
-        :rules="field.rules || []"
-        :error-messages="errors[field.key]"
-        density="compact"
-        variant="outlined"
-        clearable
-        @blur="validate"
-    />
+  <v-text-field
+    v-model="formData[field.key]"
+    :label="field.label"
+    :rules="field.rules || []"
+    :error-messages="errors[field.key]"
+    density="compact"
+    variant="outlined"
+    clearable
+    @blur="validate"
+  />
 </template>
 
 <template v-if="field.type === 'textarea'">
-    <v-textarea
-        v-model="formData[field.key]"
-        :label="field.label"
-        :rules="field.rules || []"
-        :error-messages="errors[field.key]"
-        density="compact"
-        variant="outlined"
-        rows="4"
-    />
+  <v-textarea
+    v-model="formData[field.key]"
+    :label="field.label"
+    :rules="field.rules || []"
+    :error-messages="errors[field.key]"
+    density="compact"
+    variant="outlined"
+    rows="4"
+  />
 </template>
 ```
 
@@ -65,18 +71,18 @@ Necesitas agregar el template `<template v-if="field.type === ...">` para:
 
 ```vue
 <template v-if="field.type === 'select'">
-    <v-select
-        v-model="formData[field.key]"
-        :items="getSelectItems(field.key)"
-        :item-title="'descripcion'"
-        :item-value="'id'"
-        :label="field.label"
-        :rules="field.rules || []"
-        :error-messages="errors[field.key]"
-        density="compact"
-        variant="outlined"
-        clearable
-    />
+  <v-select
+    v-model="formData[field.key]"
+    :items="getSelectItems(field.key)"
+    :item-title="'descripcion'"
+    :item-value="'id'"
+    :label="field.label"
+    :rules="field.rules || []"
+    :error-messages="errors[field.key]"
+    density="compact"
+    variant="outlined"
+    clearable
+  />
 </template>
 ```
 
@@ -84,15 +90,15 @@ Necesitas agregar el template `<template v-if="field.type === ...">` para:
 
 ```vue
 <template v-if="field.type === 'date'">
-    <v-text-field
-        v-model="formData[field.key]"
-        type="date"
-        :label="field.label"
-        :rules="field.rules || []"
-        :error-messages="errors[field.key]"
-        density="compact"
-        variant="outlined"
-    />
+  <v-text-field
+    v-model="formData[field.key]"
+    type="date"
+    :label="field.label"
+    :rules="field.rules || []"
+    :error-messages="errors[field.key]"
+    density="compact"
+    variant="outlined"
+  />
 </template>
 ```
 
@@ -100,15 +106,15 @@ Necesitas agregar el template `<template v-if="field.type === ...">` para:
 
 ```vue
 <template v-if="field.type === 'number'">
-    <v-text-field
-        v-model.number="formData[field.key]"
-        type="number"
-        :label="field.label"
-        :rules="field.rules || []"
-        :error-messages="errors[field.key]"
-        density="compact"
-        variant="outlined"
-    />
+  <v-text-field
+    v-model.number="formData[field.key]"
+    type="number"
+    :label="field.label"
+    :rules="field.rules || []"
+    :error-messages="errors[field.key]"
+    density="compact"
+    variant="outlined"
+  />
 </template>
 ```
 
@@ -127,10 +133,10 @@ En `<script setup>`:
 
 ```typescript
 const props = defineProps({
-    fields: { type: Array, required: true },
-    initialData: { type: Object, default: () => ({}) },
-    catalogs: { type: Object, default: () => ({}) },
-    errors: { type: Object, default: () => ({}) }, // 👈 NUEVO
+  fields: { type: Array, required: true },
+  initialData: { type: Object, default: () => ({}) },
+  catalogs: { type: Object, default: () => ({}) },
+  errors: { type: Object, default: () => ({}) }, // 👈 NUEVO
 });
 ```
 
@@ -148,29 +154,29 @@ En script:
 
 ```typescript
 const props = defineProps({
-    fields: { type: Array, required: true },
-    initialData: { type: Object, default: () => ({}) },
-    catalogs: { type: Object, default: () => ({}) },
-    errors: { type: Object, default: () => ({}) },
+  fields: { type: Array, required: true },
+  initialData: { type: Object, default: () => ({}) },
+  catalogs: { type: Object, default: () => ({}) },
+  errors: { type: Object, default: () => ({}) },
 });
 
 // Agregar campos requeridos
 const requiredFields = computed(() => {
-    return props.fields
-        .filter((f) => f.rules?.some((r) => r.toString().includes('Requerido')))
-        .map((f) => f.key);
+  return props.fields
+    .filter((f) => f.rules?.some((r) => r.toString().includes("Requerido")))
+    .map((f) => f.key);
 });
 
 // Mostrar indicador visual
 const isFieldRequired = (fieldKey) => {
-    return requiredFields.value.includes(fieldKey);
+  return requiredFields.value.includes(fieldKey);
 };
 
 // Helper para get color del campo
 const getFieldColor = (fieldKey) => {
-    if (errors[fieldKey]) return 'error';
-    if (formData[fieldKey]) return 'success';
-    return 'default';
+  if (errors[fieldKey]) return "error";
+  if (formData[fieldKey]) return "success";
+  return "default";
 };
 ```
 
@@ -178,15 +184,15 @@ Template:
 
 ```vue
 <template v-if="field.type === 'text'">
-    <v-text-field
-        v-model="formData[field.key]"
-        :label="`${field.label}${isFieldRequired(field.key) ? ' *' : ''}`"
-        :color="getFieldColor(field.key)"
-        :error="!!errors[field.key]"
-        :error-messages="errors[field.key]"
-        density="compact"
-        variant="outlined"
-    />
+  <v-text-field
+    v-model="formData[field.key]"
+    :label="`${field.label}${isFieldRequired(field.key) ? ' *' : ''}`"
+    :color="getFieldColor(field.key)"
+    :error="!!errors[field.key]"
+    :error-messages="errors[field.key]"
+    density="compact"
+    variant="outlined"
+  />
 </template>
 ```
 
@@ -201,15 +207,15 @@ Template:
 1. Ir a http://localhost:8000/example-form
 2. Hacer click "Crear nuevo" (botón +)
 3. Llenar formulario:
-    - IDGP: 123
-    - Fecha Control: 2025-12-27
-    - Test Drogas: "Positivo"
-    - Estado: (seleccionar de dropdown)
+   - IDGP: 123
+   - Fecha Control: 2025-12-27
+   - Test Drogas: "Positivo"
+   - Estado: (seleccionar de dropdown)
 4. Click "Guardar"
 5. Verificar:
-    - ✅ Notificación "Éxito"
-    - ✅ Registro aparece en tabla
-    - ✅ Check en DevTools Network: POST /api/... (200)
+   - ✅ Notificación "Éxito"
+   - ✅ Registro aparece en tabla
+   - ✅ Check en DevTools Network: POST /api/... (200)
 
 **Escenario 2: Editar registro**
 
@@ -217,18 +223,18 @@ Template:
 2. Cambiar un campo (ej: Comentario)
 3. Click "Guardar"
 4. Verificar:
-    - ✅ Notificación "Éxito"
-    - ✅ Cambio visible en tabla
-    - ✅ Check en DevTools Network: PUT /api/.../[id] (200)
+   - ✅ Notificación "Éxito"
+   - ✅ Cambio visible en tabla
+   - ✅ Check en DevTools Network: PUT /api/.../[id] (200)
 
 **Escenario 3: Eliminar registro**
 
 1. Click en ícono delete (papelera)
 2. Confirmar en dialog
 3. Verificar:
-    - ✅ Notificación "Éxito"
-    - ✅ Registro desaparece de tabla
-    - ✅ Check en DevTools Network: DELETE /api/.../[id] (200)
+   - ✅ Notificación "Éxito"
+   - ✅ Registro desaparece de tabla
+   - ✅ Check en DevTools Network: DELETE /api/.../[id] (200)
 
 **Checklist de Validación:**
 
@@ -260,15 +266,15 @@ php artisan test  # ✅ Tests pass
 
 ```json
 {
-    "titulo": "Examen de Control",
-    "endpoints": {
-        "apiUrl": "/api/patient-exams"
-    },
-    "permisos": {
-        "crear": true,
-        "editar": true,
-        "eliminar": false
-    }
+  "titulo": "Examen de Control",
+  "endpoints": {
+    "apiUrl": "/api/patient-exams"
+  },
+  "permisos": {
+    "crear": true,
+    "editar": true,
+    "eliminar": false
+  }
 }
 ```
 

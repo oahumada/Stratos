@@ -16,8 +16,8 @@
 | 3 (29 Dic) | Servicios            | ✅ Completo  | 3 servicios, 3 comandos Artisan, 2 tests PASS  |
 | 4 (30 Dic) | API Parte 1          | ✅ Completo  | 8 controllers, 10 endpoints                    |
 | 5 (31 Dic) | API Parte 2          | ✅ Completo  | 3 controllers, 7 endpoints, documentación      |
-| 6 (1 Ene)  | Frontend Core        | ⏳ Pendiente | 9 páginas Vue                                  |
-| 7 (2 Ene)  | Componentes + Pulido | ⏳ Pendiente | 7 componentes, Testing                         |
+| 6 (1 Ene)  | Frontend Core        | ⏳ Pendiente | 10 páginas Vue + Workforce Planning            |
+| 7 (2 Ene)  | Componentes + Pulido | ⏳ Pendiente | 7 componentes, Testing, documentación final    |
 
 ---
 
@@ -78,23 +78,37 @@ Marketplace:
 - ✅ [TalentIA_API_Postman.json](docs/TalentIA_API_Postman.json) - Colección Postman completa
 - ✅ [CHECKLIST_MVP_COMPLETION.md](docs/CHECKLIST_MVP_COMPLETION.md) - Verificación
 - ✅ [DIA6_GUIA_INICIO_FRONTEND.md](docs/DIA6_GUIA_INICIO_FRONTEND.md) - Cómo empezar frontend
+- ✅ [MODULE_TASKFORCE.md](docs/MODULE_TASKFORCE.md) - Nuevo módulo Workforce Planning
 
 ---
 
 ## 🚀 Lo Que Falta (Días 6-7)
 
-### Frontend Pages (Día 6)
+### Frontend Pages - Prioridad 1 (CRUD Básico)
 
-| Página             | Endpoint(s)                                       | Status          |
-| ------------------ | ------------------------------------------------- | --------------- |
-| /people            | GET /api/people, GET /api/people/{id}             | ⏳              |
-| /roles             | GET /api/roles, GET /api/roles/{id}               | ⏳              |
-| /gap-analysis      | POST /api/gap-analysis                            | ⏳              |
-| /development-paths | POST /api/development-paths/generate              | ⏳              |
-| /job-openings      | GET /api/job-openings, GET /api/job-openings/{id} | ⏳              |
-| /applications      | GET/POST /api/applications                        | ⏳              |
-| /marketplace       | GET /api/people/{id}/marketplace                  | ⏳              |
-| /dashboard         | GET /api/dashboard/metrics                        | ⏳ (Actualizar) |
+| Página  | Endpoint(s)                           | Prioridad | Status |
+| ------- | ------------------------------------- | --------- | ------ |
+| /people | GET /api/people, GET /api/people/{id} | P1        | ⏳     |
+| /roles  | GET /api/roles, GET /api/roles/{id}   | P1        | ⏳     |
+| /skills | GET /api/skills, GET /api/skills/{id} | P1        | ⏳     |
+
+### Frontend Pages - Prioridad 2 (Con Lógica)
+
+| Página             | Endpoint(s)                                       | Prioridad | Status          |
+| ------------------ | ------------------------------------------------- | --------- | --------------- |
+| /gap-analysis      | POST /api/gap-analysis                            | P2        | ⏳              |
+| /development-paths | POST /api/development-paths/generate              | P2        | ⏳              |
+| /job-openings      | GET /api/job-openings, GET /api/job-openings/{id} | P2        | ⏳              |
+| /applications      | GET/POST /api/applications                        | P2        | ⏳              |
+| /marketplace       | GET /api/people/{id}/marketplace                  | P2        | ⏳              |
+| /dashboard         | GET /api/dashboard/metrics                        | P2        | ⏳ (Actualizar) |
+
+### 🆕 Workforce Planning (Prioridad 3 - Si hay tiempo)
+
+| Página              | Descripción                                   | Prioridad | Status |
+| ------------------- | --------------------------------------------- | --------- | ------ |
+| /workforce-planning | Escenarios + recomendaciones BUILD/BUY/BORROW | P3        | ⏳     |
+| Dashboard (extend.) | KPIs de planificación dotacional              | P3        | ⏳     |
 
 ### Componentes Especializados (Día 7)
 
