@@ -3,6 +3,7 @@
 ## ¿Qué son los Commits Semánticos?
 
 Los commits semánticos son mensajes estructurados que permiten:
+
 - Identificar rápidamente el tipo de cambio
 - Automatizar la generación de changelogs
 - Facilitar el entendimiento del historial
@@ -21,6 +22,7 @@ Los commits semánticos son mensajes estructurados que permiten:
 ### Components:
 
 #### 1. **Type** (Tipo) - REQUERIDO
+
 - `feat`: Nueva funcionalidad
 - `fix`: Corrección de bugs
 - `docs`: Cambios en documentación
@@ -33,7 +35,9 @@ Los commits semánticos son mensajes estructurados que permiten:
 - `revert`: Revertir un commit anterior
 
 #### 2. **Scope** (Alcance) - OPCIONAL
+
 Área del proyecto afectada. Ejemplos:
+
 - `auth`: Sistema de autenticación
 - `forms`: Componentes de formularios
 - `models`: Modelos de datos
@@ -44,24 +48,28 @@ Los commits semánticos son mensajes estructurados que permiten:
 - `database`: Base de datos
 
 #### 3. **Subject** (Asunto) - REQUERIDO
+
 - Máximo 100 caracteres
 - Usar minúsculas
 - Usar modo imperativo ("agregar" no "agregado")
 - No terminar con punto
 
 #### 4. **Body** (Cuerpo) - OPCIONAL
+
 - Explicar **qué** y **por qué**, no solo **cómo**
 - Separado del subject por línea en blanco
 - Máximo 100 caracteres por línea
 - Incluir cambios significativos
 
 #### 5. **Footer** (Pie) - OPCIONAL
+
 - Referencia a issues: `Fixes #123` o `Closes #456`
 - Breaking changes: `BREAKING CHANGE: descripción`
 
 ## Ejemplos
 
 ### ✅ Commit Válido - Nueva Funcionalidad
+
 ```
 feat(forms): agregar validación de email en tiempo real
 
@@ -73,6 +81,7 @@ Closes #152
 ```
 
 ### ✅ Commit Válido - Bug Fix
+
 ```
 fix(search): corregir filtro de búsqueda por rango de fechas
 
@@ -83,6 +92,7 @@ Fixes #234
 ```
 
 ### ✅ Commit Válido - Refactoring
+
 ```
 refactor(models): simplificar lógica del repositorio
 
@@ -91,6 +101,7 @@ para mejorar la legibilidad y reutilización.
 ```
 
 ### ✅ Commit Válido - Documentación
+
 ```
 docs(readme): actualizar instrucciones de instalación y setup
 
@@ -99,6 +110,7 @@ tanto del frontend como del backend.
 ```
 
 ### ✅ Commit Válido - Chore
+
 ```
 chore(deps): actualizar dependencias de desarrollo
 
@@ -119,17 +131,20 @@ added new feature for user            # Sin type ni estructura
 ## Usar desde Git
 
 ### 1. Commitear con validación
+
 ```bash
 git commit -m "feat(auth): agregar login de dos factores"
 ```
 
 ### 2. Usar editor interactivo (recomendado)
+
 ```bash
 git commit
 # Se abrirá tu editor con el template
 ```
 
 ### 3. Ver historial de commits
+
 ```bash
 git log --oneline
 ```
@@ -140,6 +155,7 @@ CommitLint automáticamente validará tus mensajes y rechazará
 los que no cumplan con el formato.
 
 Si recibís un error:
+
 ```
 ⧗ input: "updated code"
 ✖ type must be one of [feat, fix, docs, style, refactor, perf, test, chore, ci, revert]
