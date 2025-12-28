@@ -14,6 +14,7 @@
 **Accede a toda la documentación en:** [`docs/INDEX.md`](docs/INDEX.md)
 
 ### Inicio Rápido
+
 - **5 minutos?** → [`QUICK_START.md`](docs/QUICK_START.md)
 - **¿Primer día?** → [`memories.md`](docs/memories.md)
 - **¿Estado actual?** → [`estado_actual_mvp.md`](docs/estado_actual_mvp.md)
@@ -57,12 +58,14 @@ Frontend:
 ## 🏗️ Stack Técnico
 
 ### Backend
+
 - **Framework:** Laravel 11
 - **Database:** PostgreSQL
 - **API:** RESTful (17 endpoints)
 - **Testing:** Pest/PHPUnit
 
 ### Frontend
+
 - **Framework:** Vue 3
 - **TypeScript:** ✅ Configurado
 - **UI:** Vuetify 3
@@ -70,6 +73,7 @@ Frontend:
 - **Build:** Vite
 
 ### DevOps
+
 - **VCS:** Git + GitHub
 - **Commits:** Conventional Commits (commitlint)
 - **Versioning:** Semantic Versioning (standard-version)
@@ -80,6 +84,7 @@ Frontend:
 ## 🚀 Cómo Comenzar
 
 ### Opción 1: Rápido (5 minutos)
+
 ```bash
 # Lee la guía rápida
 cat docs/QUICK_START.md
@@ -90,6 +95,7 @@ git tag
 ```
 
 ### Opción 2: Completo (30 minutos)
+
 ```bash
 # Entiende el proyecto
 cat docs/memories.md
@@ -159,6 +165,7 @@ talentia/
 ## 📊 Comandos Útiles
 
 ### Commits (Semánticos)
+
 ```bash
 # Interactivo con análisis de cambios
 ./scripts/commit.sh
@@ -171,6 +178,7 @@ git log --oneline
 ```
 
 ### Releases
+
 ```bash
 # Interactivo
 ./scripts/release.sh
@@ -185,6 +193,7 @@ npm run release:minor
 ```
 
 ### Backend (Laravel)
+
 ```bash
 cd src
 
@@ -200,6 +209,7 @@ php artisan serve
 ```
 
 ### Frontend (Vue 3)
+
 ```bash
 cd src
 
@@ -218,12 +228,14 @@ npm run lint
 ## 🎯 Próximas Prioridades
 
 ### Inmediato (Días 8-14)
+
 - [ ] FormSchema.vue - CRUD genérico
 - [ ] Dashboard ejecutivo
 - [ ] Vistas por rol (4 perspectivas)
 - [ ] Integración API ↔️ Frontend
 
 ### Post-MVP (Semana 3+)
+
 - [ ] Tests frontend
 - [ ] Roles y permisos reales
 - [ ] Autenticación completa
@@ -234,16 +246,19 @@ npm run lint
 ## 📖 Documentación Especial
 
 ### Para Desarrolladores
+
 - [`GUIA_COMMITS_SEMANTICOS.md`](docs/GUIA_COMMITS_SEMANTICOS.md) - Cómo commitear
 - [`GUIA_VERSIONADO_CHANGELOG.md`](docs/GUIA_VERSIONADO_CHANGELOG.md) - Cómo hacer releases
 - [`CHEATSHEET_COMANDOS.md`](docs/CHEATSHEET_COMANDOS.md) - Comandos útiles
 
 ### Para Entender el Proyecto
+
 - [`memories.md`](docs/memories.md) - Contexto completo del proyecto
 - [`DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md`](docs/DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md) - Arquitectura full-stack
 - [`DIAGRAMA_FLUJO.md`](docs/DIAGRAMA_FLUJO.md) - Flujos principales
 
 ### Para Troubleshooting
+
 - [`TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) - Problemas comunes
 - [`ULTRA_RESUMEN.md`](docs/ULTRA_RESUMEN.md) - Resumen de 2 minutos
 
@@ -251,11 +266,11 @@ npm run lint
 
 ## 🔐 Status de Releases
 
-| Versión | Fecha | Status | Features |
-|---------|-------|--------|----------|
-| v0.2.0 | 28 Dec 2025 | ✅ Released | Backend + DevOps |
-| v0.3.0 | TBD | 🚀 In Progress | Frontend base |
-| v1.0.0 | TBD | 📋 Planned | MVP Completo |
+| Versión | Fecha       | Status         | Features         |
+| ------- | ----------- | -------------- | ---------------- |
+| v0.2.0  | 28 Dec 2025 | ✅ Released    | Backend + DevOps |
+| v0.3.0  | TBD         | 🚀 In Progress | Frontend base    |
+| v1.0.0  | TBD         | 📋 Planned     | MVP Completo     |
 
 Ver todos: [`CHANGELOG.md`](CHANGELOG.md)
 
@@ -286,6 +301,7 @@ MIT
 ## 🎬 Storytelling - TechCorp Demo
 
 El MVP incluye datos demo de **TechCorp**, una startup tech ficticia con:
+
 - 20 empleados
 - 8 roles
 - 30 skills

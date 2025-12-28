@@ -14,11 +14,13 @@
 ## 🛠️ Setup y Configuración
 
 ### Desarrollo
+
 - **[COMMITS_SETUP.md](COMMITS_SETUP.md)** - Setup de commits semánticos
 - **[GUIA_COMMITS_SEMANTICOS.md](GUIA_COMMITS_SEMANTICOS.md)** - Guía completa de commits
 - **[SCRIPT_COMMIT_MEJORADO.md](SCRIPT_COMMIT_MEJORADO.md)** - Explicación del script mejorado
 
 ### Versionado y Releases
+
 - **[VERSIONADO_SETUP.md](VERSIONADO_SETUP.md)** - Setup de versionado
 - **[GUIA_VERSIONADO_CHANGELOG.md](GUIA_VERSIONADO_CHANGELOG.md)** - Guía completa de versionado
 
@@ -27,17 +29,20 @@
 ## 📖 Documentación Técnica
 
 ### Backend
+
 - **[dia5_api_endpoints.md](dia5_api_endpoints.md)** - 17 endpoints del MVP
 - **[dia3_services_logica_negocio.md](dia3_services_logica_negocio.md)** - Lógica de negocio
 - **[DIAGRAMA_FLUJO.md](DIAGRAMA_FLUJO.md)** - Diagramas de flujo
 - **[FormSchemaController-Complete-Documentation.md](FormSchemaController-Complete-Documentation.md)** - Controller CRUD
 
 ### Frontend
+
 - **[DIA6_GUIA_INICIO_FRONTEND.md](DIA6_GUIA_INICIO_FRONTEND.md)** - Inicio con frontend
 - **[DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md](DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md)** - Arquitectura full-stack
 - **[DIA6_ANALISIS_ARQUITECTURA_FRONTEND.md](DIA6_ANALISIS_ARQUITECTURA_FRONTEND.md)** - Análisis detallado frontend
 
 ### Database
+
 - **[dia1_migraciones_modelos_completados.md](dia1_migraciones_modelos_completados.md)** - Migraciones completadas
 - **[dia2_seeders_completados.md](dia2_seeders_completados.md)** - Seeders de datos
 
@@ -46,11 +51,13 @@
 ## 📊 Estado y Tracking
 
 ### MVP
+
 - **[memories.md](memories.md)** - Memoria de contexto (actualizada)
 - **[estado_actual_mvp.md](estado_actual_mvp.md)** - Estado actual del MVP
 - **[CHECKLIST_MVP_COMPLETION.md](CHECKLIST_MVP_COMPLETION.md)** - Checklist de completitud
 
 ### Releases
+
 - **[CHANGELOG_SISTEMA_OPERACION.md](CHANGELOG_SISTEMA_OPERACION.md)** - Cambios del sistema
 
 ---
@@ -58,11 +65,13 @@
 ## 🎯 Guías Especializadas
 
 ### Arquitectura
+
 - **[GUIA_NAVEGACION_ARQUITECTURA.md](GUIA_NAVEGACION_ARQUITECTURA.md)** - Navegación de la arquitectura
 - **[GUIA_DESARROLLO_ESTRUCTURADO.md](GUIA_DESARROLLO_ESTRUCTURADO.md)** - Guía de desarrollo estructurado
 - **[PANORAMA_COMPLETO_ARQUITECTURA.md](PANORAMA_COMPLETO_ARQUITECTURA.md)** - Visión completa
 
 ### Índices y Referencias
+
 - **[INDICE_DOCUMENTACION_ARQUITECTURA.md](INDICE_DOCUMENTACION_ARQUITECTURA.md)** - Índice de arquitectura
 - **[INDICE_FINAL_ENTREGABLES.md](INDICE_FINAL_ENTREGABLES.md)** - Índice de entregables
 - **[DIA6_TABLA_REFERENCIA_RAPIDA.md](DIA6_TABLA_REFERENCIA_RAPIDA.md)** - Tabla de referencia rápida
@@ -107,17 +116,21 @@
 
 ## 🚀 Cómo Usar Esta Documentación
 
-1. **Si es tu primer día:** 
+1. **Si es tu primer día:**
+
    - Lee [QUICK_START.md](QUICK_START.md)
    - Luego [memories.md](memories.md)
 
 2. **Si necesitas hacer un commit:**
+
    - [GUIA_COMMITS_SEMANTICOS.md](GUIA_COMMITS_SEMANTICOS.md)
 
 3. **Si necesitas hacer un release:**
+
    - [GUIA_VERSIONADO_CHANGELOG.md](GUIA_VERSIONADO_CHANGELOG.md)
 
 4. **Si necesitas entender la arquitectura:**
+
    - [DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md](DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md)
 
 5. **Si algo no funciona:**

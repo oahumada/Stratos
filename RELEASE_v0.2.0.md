@@ -3,23 +3,26 @@
 **Fecha:** 28 de Diciembre, 2025  
 **Versión:** v0.2.0  
 **Tag:** `v0.2.0`  
-**Estado:** ✅ Pushed a GitHub  
+**Estado:** ✅ Pushed a GitHub
 
 ---
 
 ## 📊 Resumen del Release
 
 ### Versión Anterior
+
 ```
 v0.1.0 (28 Dec 2025)
 ```
 
 ### Nueva Versión
+
 ```
 v0.2.0 (28 Dec 2025) 🚀
 ```
 
 ### Cambios
+
 ```
 - 0.1.0 → 0.2.0 (Minor release)
 - Commits analizados y documentados automáticamente
@@ -31,6 +34,7 @@ v0.2.0 (28 Dec 2025) 🚀
 ## 🏗️ Lo Que Incluye v0.2.0
 
 ### ✨ Nuevas Funcionalidades
+
 - Sistema de versionado automático basado en commits semánticos
 - Generación automática de changelog desde commits convencionales
 - Script de releases interactivo (`scripts/release.sh`)
@@ -41,18 +45,21 @@ v0.2.0 (28 Dec 2025) 🚀
 - Algoritmos de cálculo de brechas, rutas de desarrollo, matching
 
 ### ♻️ Refactorización
+
 - Mejora del script de commits con análisis automático de cambios desde `git diff`
 - Detección automática de tipos de commit basado en archivos modificados
 - Sugerencias de scope automáticas
 - Integración de commitlint y husky
 
 ### 📚 Documentación
+
 - Guía completa de commits semánticos
 - Documentación de versionado y changelog
 - Setup inicial de herramientas de desarrollo
 - Ejemplos de flujos completos
 
 ### 🔧 Mantenimiento
+
 - Instalación de commitlint para validación de commits
 - Instalación de husky para git hooks
 - Instalación de standard-version para versionado automático
@@ -76,11 +83,13 @@ Pushed a GitHub: ✅
 ## 🔗 Referencias
 
 ### En GitHub
+
 ```
 https://github.com/oahumada/TalentIA/releases/tag/v0.2.0
 ```
 
 ### Commits Incluidos
+
 ```
 - feat(release): agregar sistema de versionado
 - refactor(scripts): mejorar script de commits
@@ -90,6 +99,7 @@ https://github.com/oahumada/TalentIA/releases/tag/v0.2.0
 ```
 
 ### Cambios
+
 - `CHANGELOG.md` - Actualizado automáticamente
 - `package.json` - Version bumped: 0.1.0 → 0.2.0
 
@@ -98,6 +108,7 @@ https://github.com/oahumada/TalentIA/releases/tag/v0.2.0
 ## 🚀 Próximos Pasos
 
 ### Inmediato (Días 8-14)
+
 ```
 1. Comenzar desarrollo frontend
 2. FormSchema.vue para CRUD base
@@ -107,6 +118,7 @@ https://github.com/oahumada/TalentIA/releases/tag/v0.2.0
 ```
 
 ### Release Siguiente
+
 ```
 Cuando frontend esté listo:
 ./scripts/release.sh
@@ -119,6 +131,7 @@ Cuando frontend esté listo:
 ## 📋 Cómo Se Generó Esto
 
 ### Comando Ejecutado
+
 ```bash
 ./scripts/release.sh
 # → Detectó: minor (múltiples feat)
@@ -129,6 +142,7 @@ Cuando frontend esté listo:
 ```
 
 ### Automatización Utilizada
+
 1. **commitlint** - Valida formato de commits
 2. **standard-version** - Calcula versión y genera changelog
 3. **husky** - Git hooks para validación
@@ -155,6 +169,7 @@ Cuando frontend esté listo:
 Este release documenta todo el trabajo del backend en una versión estable.
 
 **Si algo sale mal en frontend**, puedes siempre:
+
 ```bash
 git checkout v0.2.0     # Volver a esta versión
 git checkout v0.2.0 -b backup-0.2.0  # Crear rama de backup
