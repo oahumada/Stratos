@@ -63,6 +63,7 @@ API ENDPOINTS A USAR:
 ```
 
 **Tareas específicas:**
+
 - [ ] Crear estructura de carpetas `src/resources/views/People/`
 - [ ] Implementar PeopleList.vue (tabla completa)
 - [ ] Implementar PeopleForm.vue (reutilizable)
@@ -71,6 +72,7 @@ API ENDPOINTS A USAR:
 - [ ] Tests básicos (tabla renderiza, CRUD funciona)
 
 **Métricas de éxito:**
+
 - ✅ Tabla muestra 17 empleados de seeder
 - ✅ Crear nuevo empleado funciona
 - ✅ Editar empleado funciona
@@ -104,6 +106,7 @@ API ENDPOINTS A USAR:
 ```
 
 **Tareas:**
+
 - [ ] SkillsList.vue (tabla con 30 skills)
 - [ ] SkillForm.vue
 - [ ] Pinia store para Skills
@@ -139,6 +142,7 @@ API ENDPOINTS A USAR:
 ```
 
 **Tareas:**
+
 - [ ] RolesList.vue
 - [ ] RoleDetail.vue
 - [ ] Pinia store
@@ -180,6 +184,7 @@ API ENDPOINTS A USAR:
 ```
 
 **Tareas:**
+
 - [ ] GapAnalysisList.vue (tabla de brechas)
 - [ ] GapAnalysisDetail.vue (tabla comparativa + visual)
 - [ ] Implementar radar chart o heatmap (ApexCharts o Chart.js)
@@ -190,6 +195,7 @@ API ENDPOINTS A USAR:
 **Tiempo:** 2-3 días (la mayor parte del MVP)
 
 **Visualización recomendada:**
+
 ```
 ┌─────────────────────────────────────────────────┐
 │ GAP ANALYSIS: Juan Pérez → Tech Lead            │
@@ -244,6 +250,7 @@ API ENDPOINTS A USAR:
 ```
 
 **Tareas:**
+
 - [ ] LearningPathsList.vue
 - [ ] LearningPathDetail.vue
 - [ ] Timeline visual component (reutilizable)
@@ -290,6 +297,7 @@ API ENDPOINTS A USAR:
 ```
 
 **Tareas:**
+
 - [ ] DashboardCHRO.vue
 - [ ] KPI cards components
 - [ ] Chart components (ApexCharts)
@@ -324,17 +332,17 @@ TIEMPO: 1.5-2 días
 
 ## 🎯 Hitos Principales
 
-| Fecha | Hito | Status | Entregable |
-|-------|------|--------|-----------|
-| **28 Dic** | Kick-off Frontend | 🟢 Ready | Roadmap finalizado |
-| **29-30 Dic** | People + Skills MVP | 🚀 In Progress | CRUD funcional |
-| **31 Dic** | Roles + polish | 🚀 In Progress | Módulo read-only |
-| **1-2 Ene** | Gap Analysis | 🚀 Priority | Dashboard de brechas |
-| **3-4 Ene** | Learning Paths | ⏳ Next | Rutas visuales |
-| **5 Ene** | Dashboard CHRO | ⏳ Next | KPIs ejecutivos |
-| **6-7 Ene** | Testing + Polish | ⏳ Next | Tests completos |
-| **8 Ene** | Release v0.3.0-beta | ⏳ Next | Primera beta |
-| **9-14 Ene** | Refinement + Demo | ⏳ Next | Demo lista |
+| Fecha         | Hito                | Status         | Entregable           |
+| ------------- | ------------------- | -------------- | -------------------- |
+| **28 Dic**    | Kick-off Frontend   | 🟢 Ready       | Roadmap finalizado   |
+| **29-30 Dic** | People + Skills MVP | 🚀 In Progress | CRUD funcional       |
+| **31 Dic**    | Roles + polish      | 🚀 In Progress | Módulo read-only     |
+| **1-2 Ene**   | Gap Analysis        | 🚀 Priority    | Dashboard de brechas |
+| **3-4 Ene**   | Learning Paths      | ⏳ Next        | Rutas visuales       |
+| **5 Ene**     | Dashboard CHRO      | ⏳ Next        | KPIs ejecutivos      |
+| **6-7 Ene**   | Testing + Polish    | ⏳ Next        | Tests completos      |
+| **8 Ene**     | Release v0.3.0-beta | ⏳ Next        | Primera beta         |
+| **9-14 Ene**  | Refinement + Demo   | ⏳ Next        | Demo lista           |
 
 ---
 
@@ -426,6 +434,7 @@ src/resources/
 ## ✅ Criterios de Aceptación (Por Módulo)
 
 ### **People Module**
+
 - [ ] Tabla renderiza 17 empleados
 - [ ] Crear empleado nuevo funciona
 - [ ] Editar empleado funciona
@@ -434,17 +443,20 @@ src/resources/
 - [ ] Búsqueda/filtros funcionales
 
 ### **Skills Module**
+
 - [ ] Tabla renderiza 30 skills
 - [ ] CRUD completo funciona
 - [ ] Asignación a personas funciona
 
 ### **Roles Module**
+
 - [ ] Tabla renderiza 8 roles
 - [ ] Ver detalle del rol funciona
 - [ ] Skills requeridos visibles
 - [ ] Vacantes asociadas visibles
 
 ### **Gap Analysis** ⭐
+
 - [ ] Lista de brechas funciona
 - [ ] Detalle comparativo funciona
 - [ ] Visualización (radar/heatmap) funciona
@@ -452,18 +464,21 @@ src/resources/
 - [ ] Timeline estimado aparece
 
 ### **Learning Paths**
+
 - [ ] Lista de rutas funciona
 - [ ] Detalle de ruta funciona
 - [ ] Timeline visual funciona
 - [ ] Progress tracker funciona
 
 ### **Dashboard CHRO**
+
 - [ ] KPIs se calculan correctamente
 - [ ] Gráficos se renderizan
 - [ ] Heatmap funciona
 - [ ] Tablas son navegables
 
 ### **General**
+
 - [ ] Tests pasen 80%+
 - [ ] Responsive (mobile/tablet)
 - [ ] Validaciones frontend funcionen
@@ -474,6 +489,7 @@ src/resources/
 ## 🚀 Cómo Iniciar
 
 ### **Día 1 - Setup Inicial**
+
 ```bash
 cd src
 
@@ -495,6 +511,7 @@ npm install axios pinia
 ```
 
 ### **Commits Semánticos**
+
 ```bash
 # Cada módulo es un feature
 ./scripts/commit.sh
@@ -504,7 +521,9 @@ npm install axios pinia
 ```
 
 ### **Control de Progreso**
+
 Usar esto para trackear:
+
 ```
 Día 1-2: People CRUD ✅
 Día 2.5: Skills CRUD ⏳
