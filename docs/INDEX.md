@@ -94,8 +94,16 @@
 
 ---
 
-## 📋 Planes y Reportes
+## 📋 Planes y Roadmaps
 
+### 🚀 **Roadmap Frontend MVP** ⭐ ACTUAL
+- **[MVP_FRONTEND_ROADMAP.md](MVP_FRONTEND_ROADMAP.md)** - Plan detallado de Frontend para últimas 2 semanas (8-14 días)
+  - Módulos: People, Skills, Roles, Gap Analysis, Learning Paths, Dashboard
+  - Timeline por fase
+  - Criterios de aceptación
+  - **👉 COMIENZA AQUÍ para saber qué construir**
+
+### 📅 Planes Pasados
 - **[DIA6_PLAN_ACCION.md](DIA6_PLAN_ACCION.md)** - Plan de acción del día 6
 - **[ACCION_DIA_6.md](ACCION_DIA_6.md)** - Acciones completadas día 6
 - **[DIA6_EVALUACION_INTEGRAL.md](DIA6_EVALUACION_INTEGRAL.md)** - Evaluación integral
