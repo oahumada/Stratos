@@ -37,7 +37,7 @@ class Role extends Model
             ->withTimestamps();
     }
 
-    public function people(): HasMany
+    public function Person(): HasMany
     {
         return $this->hasMany(Person::class, 'current_role_id');
     }

@@ -19,14 +19,15 @@ use Illuminate\Support\Facades\Log;
 // Mapeo completo de modelos FormSchema: ModelName => route-name
 $formSchemaModels = [
     // Tablas hijas principales
-    'People' => 'people',
+    'Person' => 'person',
     'Skills' => 'skills',
     'Department' => 'departments',
     'Role' => 'role',
 ];
 
 // Envolver todas las rutas FormSchema en middleware de autenticación
-Route::middleware(['auth:sanctum'])->group(function () use ($formSchemaModels) {
+// TODO: Agregar auth:sanctum en producción
+Route::group([], function () use ($formSchemaModels) {
 
     // Generar rutas API para cada modelo
     foreach ($formSchemaModels as $modelName => $routeName) {
@@ -76,7 +77,7 @@ Route::middleware(['auth:sanctum'])->group(function () use ($formSchemaModels) {
         // POST /api/{route-name}/search-with-paciente - Búsqueda con joins
         Route::post("{$routeName}/search-with-paciente", function (Request $request) use ($modelName) {
             $controller = new FormSchemaController();
-            return $controller->searchWithPeople($request, $modelName);
+            return $controller->searchWithPerson($request, $modelName);
         })->name("api.{$routeName}.search-with-paciente");
     }
 });

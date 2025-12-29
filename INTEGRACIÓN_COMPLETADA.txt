@@ -79,10 +79,10 @@ PRIORIDAD 1️⃣  (09:30-12:00, ~3 horas) - CRÍTICA
 ════════════════════════════════════════════════════════════════
 Objetivo: Interface básica funcionando
 
-1. /people
+1. /Person
    ├─ Tabla con lista de personas
    ├─ Detalle al clickear
-   └─ Consumir GET /api/people + /api/people/{id}
+   └─ Consumir GET /api/Person + /api/Person/{id}
 
 2. /roles
    ├─ Tabla con lista de roles
@@ -128,7 +128,7 @@ Objetivo: Sistema funcional end-to-end
 
 8. /marketplace
    ├─ Oportunidades internas para una persona
-   └─ Consumir GET /api/people/{id}/marketplace
+   └─ Consumir GET /api/Person/{id}/marketplace
 
 ✓ Tiempo: 4-5 horas
 ✓ Criterio de éxito: Los servicios devuelven datos, tablas se llenan
@@ -253,7 +253,7 @@ Para contexto detallado:
 
 3. Prueba un endpoint:
    
-   curl http://localhost:8000/api/people
+   curl http://localhost:8000/api/Person
    
    Deberías recibir JSON con lista de personas
 
@@ -267,7 +267,7 @@ Para contexto detallado:
 
 6. ¡Empieza con Prioridad 1! 
    
-   Crea la primera página: /people
+   Crea la primera página: /Person
 
 
 ✅ VALIDACIÓN FINAL

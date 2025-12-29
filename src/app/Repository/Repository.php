@@ -105,18 +105,18 @@ abstract class Repository implements RepositoryInterface
      * Búsqueda con joins para consultas que requieren datos de múltiples modelos
      * Usa getSearchQuery() que debe ser sobrescrito en repositorios específicos
      */
-    public function searchWithPeople(Request $request)
+    public function searchWithPerson(Request $request)
     {
         // Verificar configuración de logging
         $logConfig = config('logging.default');
         $logLevel = config('logging.level');
 
         // Múltiples métodos de log para asegurar que funcione
-        file_put_contents(storage_path('logs/debug-manual.log'), "=== INICIO searchWithPeople ===\n", FILE_APPEND);
+        file_put_contents(storage_path('logs/debug-manual.log'), "=== INICIO searchWithPerson ===\n", FILE_APPEND);
         file_put_contents(storage_path('logs/debug-manual.log'), "Log config: $logConfig, Level: $logLevel\n", FILE_APPEND);
 
-        error_log('=== INICIO searchWithPeople ===');
-        Log::info('=== INICIO searchWithPeople ===');
+        error_log('=== INICIO searchWithPerson ===');
+        Log::info('=== INICIO searchWithPerson ===');
 
         try {
             $filters = $request->input('data', []);

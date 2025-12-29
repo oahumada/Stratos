@@ -18,7 +18,7 @@
 
 **Prioridad 1 (Crítica):**
 
-- [ ] 5 páginas CRUD básicas (people, roles, skills + detalles)
+- [ ] 5 páginas CRUD básicas (Person, roles, skills + detalles)
 
 **Prioridad 2 (Alta):**
 

@@ -156,13 +156,13 @@ class FormSchemaController extends Controller
     /**
      * Buscar registros con joins (para consultas complejas)
      */
-    public function searchWithPeople(Request $request, string $modelName)
+    public function searchWithPerson(Request $request, string $modelName)
     {
         try {
             $this->initializeForModel($modelName);
-            return $this->repository->searchWithPeople($request);
+            return $this->repository->searchWithPerson($request);
         } catch (\Exception $e) {
-            Log::error("Error in FormSchemaController::searchWithPeople for {$modelName}: " . $e->getMessage());
+            Log::error("Error in FormSchemaController::searchWithPerson for {$modelName}: " . $e->getMessage());
             return response()->json([
                 'message' => 'Error en la búsqueda con joins',
                 'error' => $e->getMessage()

@@ -1,9 +1,9 @@
 {
   "endpoints": {
-    "index": "/api/people",
-    "apiUrl": "/api/people"
+    "index": "/api/person",
+    "apiUrl": "/api/person"
   },
-  "titulo": "People Management",
+  "titulo": "Person Management",
   "descripcion": "Manage employees and their skills",
   "permisos": {
     "crear": true,

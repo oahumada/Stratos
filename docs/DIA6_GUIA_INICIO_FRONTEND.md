@@ -31,9 +31,9 @@ php artisan tinker
 ```
 resources/js/
 ├── pages/
-│   ├── people/
-│   │   ├── PeopleList.vue       ← NEW (GET /api/people)
-│   │   ├── PersonDetail.vue     ← NEW (GET /api/people/{id})
+│   ├── Person/
+│   │   ├── PersonList.vue       ← NEW (GET /api/Person)
+│   │   ├── PersonDetail.vue     ← NEW (GET /api/Person/{id})
 │   │   └── PersonSkills.vue     ← Component
 │   ├── roles/
 │   │   ├── RolesList.vue        ← NEW (GET /api/roles)
@@ -50,7 +50,7 @@ resources/js/
 │   ├── applications/
 │   │   └── Applications.vue     ← NEW (GET /api/applications)
 │   └── marketplace/
-│       └── Marketplace.vue      ← NEW (GET /api/people/{id}/marketplace)
+│       └── Marketplace.vue      ← NEW (GET /api/Person/{id}/marketplace)
 ├── components/
 │   ├── SkillsTable.vue          ← NEW (reusable)
 │   ├── SkillsRadarChart.vue     ← NEW (chart component)
@@ -137,9 +137,9 @@ export function useApi() {
 
 ## 📄 Page Template Example
 
-### People List Page
+### Person List Page
 
-**`resources/js/pages/people/PeopleList.vue`:**
+**`resources/js/pages/Person/PersonList.vue`:**
 
 ```vue
 <template>
@@ -153,9 +153,9 @@ export function useApi() {
         <v-alert v-if="error" type="error" class="mb-4">{{ error }}</v-alert>
 
         <!-- Table -->
-        <v-data-table :items="people" :headers="headers">
+        <v-data-table :items="Person" :headers="headers">
             <template #item.actions="{ item }">
-                <v-btn small color="primary" :to="`/people/${item.id}`">
+                <v-btn small color="primary" :to="`/Person/${item.id}`">
                     Ver Detalle
                 </v-btn>
             </template>
@@ -176,7 +176,7 @@ interface Person {
 }
 
 const { get, loading, error } = useApi();
-const people = ref<Person[]>([]);
+const Person = ref<Person[]>([]);
 
 const headers = [
     { title: 'Nombre', value: 'first_name' },
@@ -187,9 +187,9 @@ const headers = [
 
 onMounted(async () => {
     try {
-        people.value = await get('/people');
+        Person.value = await get('/Person');
     } catch (err) {
-        console.error('Failed to load people:', err);
+        console.error('Failed to load Person:', err);
     }
 });
 </script>
@@ -204,13 +204,13 @@ Add routes to `resources/js/routes/` (or wherever your router is configured):
 ```typescript
 // Example routes
 {
-  path: '/people',
-  component: () => import('@/pages/people/PeopleList.vue'),
+  path: '/Person',
+  component: () => import('@/pages/Person/PersonList.vue'),
   meta: { title: 'Personas' }
 },
 {
-  path: '/people/:id',
-  component: () => import('@/pages/people/PersonDetail.vue'),
+  path: '/Person/:id',
+  component: () => import('@/pages/Person/PersonDetail.vue'),
   meta: { title: 'Detalle de Persona' }
 },
 {
@@ -366,8 +366,8 @@ http://localhost:5173
 
 | Method | Endpoint                          | Purpose                |
 | ------ | --------------------------------- | ---------------------- |
-| GET    | `/api/people`                     | Lista de personas      |
-| GET    | `/api/people/{id}`                | Detalle de persona     |
+| GET    | `/api/Person`                     | Lista de personas      |
+| GET    | `/api/Person/{id}`                | Detalle de persona     |
 | GET    | `/api/roles`                      | Lista de roles         |
 | GET    | `/api/roles/{id}`                 | Detalle de rol         |
 | GET    | `/api/skills`                     | Lista de skills        |
@@ -375,13 +375,13 @@ http://localhost:5173
 | POST   | `/api/development-paths/generate` | Generar ruta           |
 | GET    | `/api/job-openings`               | Vacantes               |
 | POST   | `/api/applications`               | Crear postulación      |
-| GET    | `/api/people/{id}/marketplace`    | Oportunidades internas |
+| GET    | `/api/Person/{id}/marketplace`    | Oportunidades internas |
 
 ---
 
 ## ✅ Checklist for Día 6
 
-- [ ] Create PeopleList.vue with data-table
+- [ ] Create PersonList.vue with data-table
 - [ ] Create PersonDetail.vue with skills display
 - [ ] Create RolesList.vue
 - [ ] Create GapAnalysis.vue with form

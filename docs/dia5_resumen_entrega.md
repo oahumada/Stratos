@@ -21,7 +21,7 @@
 - ✅ `index()` - GET /api/applications → Lista todas las postulaciones
 - ✅ `show(int $id)` - GET /api/applications/{id} → Detalle de postulación
 - ✅ `store(Request $request)` - POST /api/applications → Crear nueva postulación
-    - Validación: person_id exists:people, job_opening_id exists:job_openings
+    - Validación: person_id exists:Person, job_opening_id exists:job_openings
     - Validación: org_id match entre person y job_opening
     - Validación: Previene postulaciones duplicadas (mismo person + job_opening)
     - Response: 201 Created
@@ -31,7 +31,7 @@
 
 #### MarketplaceController ✅ (Nuevo)
 
-- ✅ `opportunities(int $personId)` - GET /api/people/{person_id}/marketplace → Oportunidades internas
+- ✅ `opportunities(int $personId)` - GET /api/Person/{person_id}/marketplace → Oportunidades internas
     - Utiliza GapAnalysisService para calcular match_percentage
     - Retorna vacantes de la misma org, ordenadas por match % desc
     - Response: Lista de opportunities con title, role, department, deadline, match_percentage, category, missing_skills_count
@@ -59,9 +59,9 @@ Route::prefix('api')->group(function () {
     POST      api/applications
     PATCH     api/applications/{id}
 
-    // People
-    GET       api/people
-    GET       api/people/{id}
+    // Person
+    GET       api/Person
+    GET       api/Person/{id}
 
     // Roles
     GET       api/roles
@@ -75,7 +75,7 @@ Route::prefix('api')->group(function () {
     GET       api/dashboard/metrics
 
     // Marketplace
-    GET       api/people/{person_id}/marketplace
+    GET       api/Person/{person_id}/marketplace
 });
 ```
 
@@ -164,7 +164,7 @@ Día 7 (2 Ene): Frontend - Componentes + Pulido ⏳ PENDIENTE
 
 - [ ] Crear páginas Vue para consumir endpoints
 - [ ] Implementar navegación
-- [ ] Conectar People, Roles, Skills, Dashboard con datos reales
+- [ ] Conectar Person, Roles, Skills, Dashboard con datos reales
 
 ### Día 7: Frontend - Componentes + Pulido
 
@@ -185,14 +185,14 @@ Día 7 (2 Ene): Frontend - Componentes + Pulido ⏳ PENDIENTE
 
     ```
     GET /api/dashboard/metrics
-    → total_people, total_skills, total_roles, average_match_percentage
+    → total_Person, total_skills, total_roles, average_match_percentage
     ```
 
-2. **People Management**
+2. **Person Management**
 
     ```
-    GET /api/people → List
-    GET /api/people/{id} → Detail con skills
+    GET /api/Person → List
+    GET /api/Person/{id} → Detail con skills
     ```
 
 3. **Roles & Skills**
@@ -207,7 +207,7 @@ Día 7 (2 Ene): Frontend - Componentes + Pulido ⏳ PENDIENTE
     ```
     POST /api/gap-analysis → Calcular brecha
     POST /api/development-paths/generate → Generar ruta
-    GET /api/people/{id}/marketplace → Ver oportunidades
+    GET /api/Person/{id}/marketplace → Ver oportunidades
     ```
 
 5. **Job Management**

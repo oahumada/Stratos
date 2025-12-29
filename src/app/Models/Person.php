@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,7 +12,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Person extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'person';
 
     protected $fillable = [
         'organization_id',
@@ -34,7 +37,7 @@ class Person extends Model
     {
         static::addGlobalScope('organization', function (Builder $builder) {
             if (auth()->check() && auth()->user()->organization_id) {
-                $builder->where('people.organization_id', auth()->user()->organization_id);
+                $builder->where('Person.organization_id', auth()->user()->organization_id);
             }
         });
     }

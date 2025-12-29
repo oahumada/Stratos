@@ -72,10 +72,10 @@ php artisan candidates:rank 2
 
 ```bash
 # GET - Lista de personas
-curl http://localhost:8000/api/people
+curl http://localhost:8000/api/Person
 
 # GET - Detalle de persona
-curl http://localhost:8000/api/people/1
+curl http://localhost:8000/api/Person/1
 
 # POST - Analizar brecha
 curl -X POST http://localhost:8000/api/gap-analysis \
@@ -100,7 +100,7 @@ curl -X PATCH http://localhost:8000/api/applications/1 \
   -d '{"status": "accepted"}'
 
 # GET - Marketplace de oportunidades
-curl http://localhost:8000/api/people/1/marketplace
+curl http://localhost:8000/api/Person/1/marketplace
 
 # GET - Candidatos para vacante
 curl http://localhost:8000/api/job-openings/1/candidates
@@ -238,14 +238,14 @@ Routes List:    php artisan route:list
 | ------ | ------------------------------- | ----------------------- |
 | POST   | /api/gap-analysis               | Brecha de competencias  |
 | POST   | /api/development-paths/generate | Generar ruta desarrollo |
-| GET    | /api/people                     | Lista personas          |
-| GET    | /api/people/{id}                | Detalle persona         |
+| GET    | /api/Person                     | Lista personas          |
+| GET    | /api/Person/{id}                | Detalle persona         |
 | GET    | /api/roles                      | Lista roles             |
 | GET    | /api/skills                     | Lista skills            |
 | GET    | /api/job-openings               | Lista vacantes          |
 | POST   | /api/applications               | Crear postulación       |
 | PATCH  | /api/applications/{id}          | Actualizar postulación  |
-| GET    | /api/people/{id}/marketplace    | Oportunidades internas  |
+| GET    | /api/Person/{id}/marketplace    | Oportunidades internas  |
 | GET    | /api/dashboard/metrics          | Métricas dashboard      |
 
 ---

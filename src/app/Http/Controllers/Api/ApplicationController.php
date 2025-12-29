@@ -53,7 +53,7 @@ class ApplicationController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'person_id' => ['required', 'integer', 'exists:people,id'],
+            'person_id' => ['required', 'integer', 'exists:Person,id'],
             'job_opening_id' => ['required', 'integer', 'exists:job_openings,id'],
             'message' => ['nullable', 'string'],
         ]);

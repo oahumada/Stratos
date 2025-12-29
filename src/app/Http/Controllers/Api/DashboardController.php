@@ -13,17 +13,17 @@ class DashboardController extends Controller
 {
     public function metrics(): JsonResponse
     {
-        $totalPeople = Person::count();
+        $totalPerson = Person::count();
         $totalSkills = Skill::count();
         $totalRoles = Role::count();
 
         // Brechas promedio por persona
         $gapService = new GapAnalysisService();
-        $people = Person::with('skills')->get();
+        $Person = Person::with('skills')->get();
         $gaps = [];
         $matchPercentages = [];
 
-        foreach ($people as $person) {
+        foreach ($Person as $person) {
             $roles = Role::get();
             foreach ($roles as $role) {
                 $analysis = $gapService->calculate($person, $role);
@@ -36,7 +36,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'summary' => [
-                'total_people' => $totalPeople,
+                'total_Person' => $totalPerson,
                 'total_skills' => $totalSkills,
                 'total_roles' => $totalRoles,
                 'average_match_percentage' => round($avgMatch, 2),

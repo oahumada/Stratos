@@ -58,8 +58,8 @@ CRUD:
   PATCH  /api/applications/{id}
 
 Lectura:
-  GET    /api/people
-  GET    /api/people/{id}
+  GET    /api/Person
+  GET    /api/Person/{id}
   GET    /api/roles
   GET    /api/roles/{id}
   GET    /api/skills
@@ -69,7 +69,7 @@ Dashboard:
   GET    /api/dashboard/metrics
 
 Marketplace:
-  GET    /api/people/{person_id}/marketplace
+  GET    /api/Person/{person_id}/marketplace
 ```
 
 #### Documentación Completa ✅
@@ -88,7 +88,7 @@ Marketplace:
 
 | Página  | Endpoint(s)                           | Prioridad | Status |
 | ------- | ------------------------------------- | --------- | ------ |
-| /people | GET /api/people, GET /api/people/{id} | P1        | ⏳     |
+| /Person | GET /api/Person, GET /api/Person/{id} | P1        | ⏳     |
 | /roles  | GET /api/roles, GET /api/roles/{id}   | P1        | ⏳     |
 | /skills | GET /api/skills, GET /api/skills/{id} | P1        | ⏳     |
 
@@ -100,7 +100,7 @@ Marketplace:
 | /development-paths | POST /api/development-paths/generate              | P2        | ⏳              |
 | /job-openings      | GET /api/job-openings, GET /api/job-openings/{id} | P2        | ⏳              |
 | /applications      | GET/POST /api/applications                        | P2        | ⏳              |
-| /marketplace       | GET /api/people/{id}/marketplace                  | P2        | ⏳              |
+| /marketplace       | GET /api/Person/{id}/marketplace                  | P2        | ⏳              |
 | /dashboard         | GET /api/dashboard/metrics                        | P2        | ⏳ (Actualizar) |
 
 ### 🆕 Workforce Planning (Prioridad 3 - Si hay tiempo)
@@ -161,7 +161,7 @@ php artisan serve --port=8000
 
 ```bash
 # Ver personas
-curl http://localhost:8000/api/people
+curl http://localhost:8000/api/Person
 
 # Analizar brecha
 curl -X POST http://localhost:8000/api/gap-analysis \

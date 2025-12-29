@@ -18,6 +18,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+                        $table->foreignId('organization_id')->nullable()->after('id')->constrained();
+            $table->string('role')->default('employee')->after('email');
             $table->timestamps();
         });
 

@@ -18,11 +18,11 @@ class MatchingService
         $gapService = new GapAnalysisService();
 
         // Obtener personas de la misma organización
-        $people = Person::where('organization_id', $jobOpening->organization_id)->get();
+        $Person = Person::where('organization_id', $jobOpening->organization_id)->get();
 
         $results = collect();
 
-        foreach ($people as $person) {
+        foreach ($Person as $person) {
             $analysis = $gapService->calculate($person, $role);
 
             $gaps = collect($analysis['gaps']);

@@ -143,11 +143,11 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
           <!-- Employees in Role -->
           <div>
             <h3 class="text-subtitle2 font-weight-bold mb-3">
-              Employees ({{ selectedRolePeople.length }})
+              Employees ({{ selectedRolePerson.length }})
             </h3>
-            <v-list v-if="selectedRolePeople.length > 0" class="bg-transparent">
+            <v-list v-if="selectedRolePerson.length > 0" class="bg-transparent">
               <v-list-item
-                v-for="person in selectedRolePeople"
+                v-for="person in selectedRolePerson"
                 :key="person.id"
                 :title="person.name"
                 :subtitle="person.email"
@@ -190,7 +190,7 @@ interface Role {
   name: string
   description?: string
   skills_count?: number
-  people_count?: number
+  Person_count?: number
 }
 
 interface RoleSkill {
@@ -211,7 +211,7 @@ const search = ref('')
 const detailDialogOpen = ref(false)
 const selectedRole = ref<Role | null>(null)
 const selectedRoleSkills = ref<RoleSkill[]>([])
-const selectedRolePeople = ref<Person[]>([])
+const selectedRolePerson = ref<Person[]>([])
 
 const headers = [
   { title: 'Role Name', key: 'name', width: '300px' },
@@ -245,9 +245,9 @@ const fetchRoleDetails = async (roleId: number) => {
     const skillsResponse = await axios.get(`/api/roles/${roleId}/skills`)
     selectedRoleSkills.value = skillsResponse.data.data || skillsResponse.data
 
-    // Fetch people in role
-    const peopleResponse = await axios.get(`/api/roles/${roleId}/people`)
-    selectedRolePeople.value = peopleResponse.data.data || peopleResponse.data
+    // Fetch Person in role
+    const PersonResponse = await axios.get(`/api/roles/${roleId}/Person`)
+    selectedRolePerson.value = PersonResponse.data.data || PersonResponse.data
   } catch (err) {
     console.error('Failed to load role details', err)
   }

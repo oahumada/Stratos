@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('people', function (Blueprint $table) {
+        Schema::create('person', function (Blueprint $table) {
             $table->id();
             $table->foreignId('organization_id')->constrained();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('email');
             $table->foreignId('current_role_id')->nullable()->constrained('roles')->nullOnDelete();
-            $table->string('department')->nullable();
+            $table->foreignId('department_id')->nullable()->after('current_role_id')->constrained('departments')->nullOnDelete();
             $table->date('hire_date')->nullable();
             $table->string('photo_url')->nullable();
             $table->softDeletes();
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('people');
+        Schema::dropIfExists('person');
     }
 };

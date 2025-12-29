@@ -172,7 +172,7 @@ class DemoSeeder extends Seeder
         $firstNames = ['Carlos', 'María', 'Juan', 'Ana', 'Pedro', 'Laura', 'Miguel', 'Sandra', 'Roberto', 'Elena', 'Fernando', 'Patricia', 'Diego', 'Beatriz', 'Andrés', 'Gabriela', 'Javier', 'Claudia', 'Ricardo', 'Verónica'];
         $lastNames = ['García', 'López', 'Martínez', 'Rodríguez', 'Pérez', 'Sánchez', 'González', 'Fernández', 'Torres', 'Ramírez'];
 
-        $people = [];
+        $Person = [];
         $departments = ['Engineering', 'Quality Assurance', 'Product', 'Infrastructure', 'Business'];
 
         for ($i = 0; $i < 20; $i++) {
@@ -218,7 +218,7 @@ class DemoSeeder extends Seeder
             }
 
             $person->skills()->attach($skillsForPerson);
-            $people[] = $person;
+            $Person[] = $person;
         }
 
         // 6. Crear 5 vacantes internas
@@ -250,7 +250,7 @@ class DemoSeeder extends Seeder
 
         foreach ($jobOpenings as $jobOpening) {
             // Cada vacante tiene 2 postulantes
-            $candidates = collect($people)->random(2);
+            $candidates = collect($Person)->random(2);
 
             foreach ($candidates as $candidate) {
                 if ($applicationsCreated < 10) {
@@ -267,7 +267,7 @@ class DemoSeeder extends Seeder
         }
 
         // 8. Crear una ruta de desarrollo de ejemplo
-        $person = $people[0];
+        $person = $Person[0];
         $targetRole = $roles->where('name', 'Senior Full Stack Developer')->first();
 
         DevelopmentPath::create([

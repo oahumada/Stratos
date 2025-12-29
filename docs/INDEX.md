@@ -25,7 +25,7 @@
   - Agregar ruta y navlink
   - Verificación final
 - **[PROGRESO_PRIORITY1_COMPLETO.md](PROGRESO_PRIORITY1_COMPLETO.md)** - ✅ Status Priority 1
-  - People/Index.vue ✅
+  - Person/Index.vue ✅
   - Roles/Index.vue ✅
   - Skills/Index.vue ✅
   - 0 código duplicado, 100% reutilización
@@ -140,7 +140,7 @@
 ### 🚀 **Roadmap Frontend MVP** ⭐ ACTUAL
 
 - **[MVP_FRONTEND_ROADMAP.md](MVP_FRONTEND_ROADMAP.md)** - Plan detallado de Frontend para últimas 2 semanas (8-14 días)
-  - Módulos: People, Skills, Roles, Gap Analysis, Learning Paths, Dashboard
+  - Módulos: Person, Skills, Roles, Gap Analysis, Learning Paths, Dashboard
   - Timeline por fase
   - Criterios de aceptación
   - **👉 COMIENZA AQUÍ para saber qué construir**

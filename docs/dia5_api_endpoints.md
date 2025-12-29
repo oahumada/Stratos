@@ -9,7 +9,7 @@ Completamos todos los endpoints necesarios para la gestión integral de talento:
 
 - **4 endpoints de servicios core** (gap-analysis, development-paths, candidates ranking, marketplace)
 - **6 endpoints de CRUD completo** (job-openings, applications)
-- **6 endpoints de lectura** (people, roles, skills)
+- **6 endpoints de lectura** (Person, roles, skills)
 - **1 endpoint de dashboard** (métricas)
 
 ## Endpoints por Categoría
@@ -123,12 +123,12 @@ curl http://localhost:8000/api/job-openings/1/candidates
 
 ---
 
-#### GET /api/people/{person_id}/marketplace
+#### GET /api/Person/{person_id}/marketplace
 
 Oportunidades internas disponibles para una persona.
 
 ```bash
-curl http://localhost:8000/api/people/1/marketplace
+curl http://localhost:8000/api/Person/1/marketplace
 ```
 
 **Response (200):**
@@ -298,7 +298,7 @@ curl -X POST http://localhost:8000/api/applications \
 
 **Validaciones:**
 
-- `person_id`: Debe existir en la tabla people
+- `person_id`: Debe existir en la tabla Person
 - `job_opening_id`: Debe existir en la tabla job_openings
 - La persona y vacante deben estar en la misma organización
 - No puede haber postulación duplicada (mismo person_id + job_opening_id)
@@ -338,14 +338,14 @@ curl -X PATCH http://localhost:8000/api/applications/1 \
 
 ---
 
-### 4. People - Lectura (2 Endpoints)
+### 4. Person - Lectura (2 Endpoints)
 
-#### GET /api/people
+#### GET /api/Person
 
 Lista de personas.
 
 ```bash
-curl http://localhost:8000/api/people
+curl http://localhost:8000/api/Person
 ```
 
 **Response (200):**
@@ -364,12 +364,12 @@ curl http://localhost:8000/api/people
 
 ---
 
-#### GET /api/people/{id}
+#### GET /api/Person/{id}
 
 Detalle de persona con competencias.
 
 ```bash
-curl http://localhost:8000/api/people/1
+curl http://localhost:8000/api/Person/1
 ```
 
 **Response (200):**
@@ -503,7 +503,7 @@ curl http://localhost:8000/api/dashboard/metrics
 
 ```json
 {
-    "total_people": 20,
+    "total_Person": 20,
     "total_skills": 30,
     "total_roles": 8,
     "average_match_percentage": 72.5,
@@ -552,7 +552,7 @@ curl -X POST http://localhost:8000/api/applications \
   }'
 
 # Ver marketplace de oportunidades
-curl http://localhost:8000/api/people/1/marketplace
+curl http://localhost:8000/api/Person/1/marketplace
 
 # Actualizar status de postulación
 curl -X PATCH http://localhost:8000/api/applications/1 \

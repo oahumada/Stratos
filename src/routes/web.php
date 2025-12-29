@@ -14,9 +14,9 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/people', function () {
-    return Inertia::render('People/Index');
-})->middleware(['auth', 'verified'])->name('people.index');
+Route::get('/Person', function () {
+    return Inertia::render('Person/Index');
+})->middleware(['auth', 'verified'])->name('Person.index');
 
 Route::get('/roles', function () {
     return Inertia::render('Roles/Index');

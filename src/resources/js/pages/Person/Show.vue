@@ -446,7 +446,7 @@ const fetchPerson = async () => {
   error.value = null
 
   try {
-    const response = await axios.get(`/api/people/${personId.value}`)
+    const response = await axios.get(`/api/Person/${personId.value}`)
     person.value = response.data.data || response.data
 
     // Load form data
@@ -468,7 +468,7 @@ const fetchPerson = async () => {
 
 const fetchPersonSkills = async () => {
   try {
-    const response = await axios.get(`/api/people/${personId.value}/skills`)
+    const response = await axios.get(`/api/Person/${personId.value}/skills`)
     personSkills.value = response.data.data || response.data
   } catch (err) {
     console.error('Failed to load skills', err)
@@ -504,7 +504,7 @@ const savePerson = async () => {
   error.value = null
 
   try {
-    await axios.put(`/api/people/${person.value?.id}`, formData.value)
+    await axios.put(`/api/Person/${person.value?.id}`, formData.value)
     editDialogOpen.value = false
     fetchPerson()
   } catch (err: any) {
@@ -529,7 +529,7 @@ const addSkill = async () => {
   error.value = null
 
   try {
-    await axios.post(`/api/people/${person.value?.id}/skills`, {
+    await axios.post(`/api/Person/${person.value?.id}/skills`, {
       skill_id: skillFormData.value.skill_id,
       level: skillFormData.value.level,
     })
@@ -549,7 +549,7 @@ const removeSkill = async (skillId: number) => {
   error.value = null
 
   try {
-    await axios.delete(`/api/people/${person.value?.id}/skills/${skillId}`)
+    await axios.delete(`/api/Person/${person.value?.id}/skills/${skillId}`)
     fetchPersonSkills()
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Failed to remove skill'
@@ -567,8 +567,8 @@ const deletePerson = async () => {
   error.value = null
 
   try {
-    await axios.delete(`/api/people/${person.value?.id}`)
-    router.visit('/people')
+    await axios.delete(`/api/Person/${person.value?.id}`)
+    router.visit('/Person')
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Failed to delete person'
   } finally {

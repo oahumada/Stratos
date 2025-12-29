@@ -5,10 +5,10 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 // Import JSON configs
-import configJson from './people-form/config.json';
-import tableConfigJson from './people-form/tableConfig.json';
-import itemFormJson from './people-form/itemForm.json';
-import filtersJson from './people-form/filters.json';
+import configJson from './Person-form/config.json';
+import tableConfigJson from './Person-form/tableConfig.json';
+import itemFormJson from './Person-form/itemForm.json';
+import filtersJson from './Person-form/filters.json';
 
 defineOptions({ layout: AppLayout });
 
@@ -70,11 +70,22 @@ interface Role {
 // State
 const roles = ref<Role[]>([]);
 
-// Load configs from JSON files
-const config: Config = configJson as Config;
-const tableConfig: TableConfig = tableConfigJson as TableConfig;
-const itemForm: ItemForm = itemFormJson as ItemForm;
-const filtersBase: FilterConfig[] = filtersJson as FilterConfig[];
+// Load configs from JSON files with null checks
+const config: Config = (configJson || {
+  endpoints: { index: '/api/Person', apiUrl: '/api/Person' },
+  titulo: 'Person Management'
+}) as Config;
+
+const tableConfig: TableConfig = (tableConfigJson || {
+  headers: []
+}) as TableConfig;
+
+const itemForm: ItemForm = (itemFormJson || {
+  fields: [],
+  catalogs: []
+}) as ItemForm;
+
+const filtersBase: FilterConfig[] = (filtersJson || []) as FilterConfig[];
 
 // Filters configuration with dynamic items
 const filters = computed<FilterConfig[]>(() => {

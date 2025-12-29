@@ -477,10 +477,10 @@ Controllers:    [Resource]Controller (SkillController, PersonController)
 Services:       [Action]Service (GapAnalysisService, MatchingService)
 Commands:       kebab-case (gap:analyze, devpath:generate)
 Tests:          [Feature]Test.php (GapAnalysisServiceTest.php)
-Routes:         kebab-case (/api/gap-analysis, /api/people)
+Routes:         kebab-case (/api/gap-analysis, /api/Person)
 Composables:    use[Purpose] (useApi, useAuth)
 Components:     PascalCase.vue (SkillsTable.vue, GapAnalysisCard.vue)
-Pages:          PascalCase.vue (PeopleList.vue, RoleDetail.vue)
+Pages:          PascalCase.vue (PersonList.vue, RoleDetail.vue)
 ```
 
 ### 6.2 Estructura de Archivos

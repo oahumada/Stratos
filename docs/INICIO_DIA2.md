@@ -5,7 +5,7 @@
 ```
 Branch: MVP ✅
 Commits hoy: 4
-Componentes creados: 9 (People, Skills, Roles + stubs)
+Componentes creados: 9 (Person, Skills, Roles + stubs)
 API Endpoints integrados: 14
 Status: Ready para FASE 2
 ```
@@ -63,7 +63,7 @@ npm run dev
 ### 5. **Verifica que no hay errores (2 minutos)**
 
 - Ve a http://localhost:5173/
-- Haz clic en "People" (debería cargar sin errores)
+- Haz clic en "Person" (debería cargar sin errores)
 - Abre Developer Tools (F12) → Console → No debería haber errores rojos
 
 ---
@@ -132,8 +132,8 @@ git push origin MVP
 └─ docs/DIA6_ARQUITECTURA_...md         (Arquitectura)
 
 💻 Código Existente:
-├─ src/resources/js/pages/People/Index.vue   (Referencia CRUD)
-├─ src/resources/js/pages/People/Show.vue    (Referencia Detail)
+├─ src/resources/js/pages/Person/Index.vue   (Referencia CRUD)
+├─ src/resources/js/pages/Person/Show.vue    (Referencia Detail)
 └─ src/resources/js/pages/Skills/Index.vue   (Referencia simple)
 
 🔧 Scripts:
@@ -150,7 +150,7 @@ ANTES DE EMPEZAR:
 ☐ git status (verificar que estés en MVP)
 ☐ npm run dev (servidor corriendo)
 ☐ No hay errores en console
-☐ Visitaste /people (funciona?)
+☐ Visitaste /Person (funciona?)
 
 DURANTE EL DESARROLLO:
 ☐ Crear src/resources/js/pages/GapAnalysis/Index.vue
@@ -176,7 +176,7 @@ FIN DEL DÍA:
 # Debería ser: import Layout from '@/layouts/AppLayout.vue'
 ```
 
-**Error: "Cannot GET /people"**
+**Error: "Cannot GET /Person"**
 
 ```bash
 # Verifica que las rutas estén registradas en router
@@ -202,7 +202,7 @@ npm run dev
 
 ## 🎯 Resumen Rápido (30 segundos)
 
-**Hoy hicimos:** People, Skills, Roles (CRUD base) ✅
+**Hoy hicimos:** Person, Skills, Roles (CRUD base) ✅
 
 **Mañana:** Gap Analysis (el diferenciador de TalentIA) 🎯
 
@@ -223,7 +223,7 @@ cd src && npm run dev   # Servidor corriendo
 | Necesidad                | Dónde                          | Qué hacer                   |
 | ------------------------ | ------------------------------ | --------------------------- |
 | Ver plan completo        | docs/MVP_FRONTEND_ROADMAP.md   | Ir a FASE 2                 |
-| Ver código de referencia | src/resources/js/pages/People/ | Copiar estructura           |
+| Ver código de referencia | src/resources/js/pages/Person/ | Copiar estructura           |
 | API disponible           | Backend ya está ✅             | GET /api/gap-analysis       |
 | Commit semántico         | ./scripts/commit.sh            | Correr script               |
 | Componentes Vuetify      | Google "Vuetify 3 components"  | Usar v-table, v-chip, v-btn |

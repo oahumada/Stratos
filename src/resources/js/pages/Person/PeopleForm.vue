@@ -74,10 +74,10 @@ const roles = ref<Role[]>([]);
 
 const config: Config = {
   endpoints: {
-    index: '/api/people',
-    apiUrl: '/api/people',
+    index: '/api/Person',
+    apiUrl: '/api/Person',
   },
-  titulo: 'People Management',
+  titulo: 'Person Management',
   descripcion: 'Manage employees and their skills',
   permisos: {
     crear: true,
@@ -144,7 +144,7 @@ const itemForm: ItemForm = {
   catalogs: ['role'],
 };
 
-// Computed for departments (from people data)
+// Computed for departments (from Person data)
 const departments = computed(() => {
   // This will be computed dynamically from the data
   return [];

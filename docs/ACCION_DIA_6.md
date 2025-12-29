@@ -58,7 +58,7 @@
 **O usar cURL:**
 
 ```bash
-curl http://localhost:8000/api/people
+curl http://localhost:8000/api/Person
 curl http://localhost:8000/api/roles
 curl http://localhost:8000/api/skills
 ```
@@ -91,8 +91,8 @@ Ver: [MODULE_TASKFORCE.md](docs/MODULE_TASKFORCE.md)
 
 **Páginas Vue a Crear (Prioridad 1 - CRUD Básico):**
 
-1. `/people` - Lista de personas (GET /api/people)
-2. `/people/{id}` - Detalle de persona (GET /api/people/{id})
+1. `/Person` - Lista de personas (GET /api/Person)
+2. `/Person/{id}` - Detalle de persona (GET /api/Person/{id})
 3. `/roles` - Lista de roles (GET /api/roles)
 4. `/roles/{id}` - Detalle de rol (GET /api/roles/{id})
 5. `/skills` - Catálogo de skills (GET /api/skills)
@@ -103,7 +103,7 @@ Ver: [MODULE_TASKFORCE.md](docs/MODULE_TASKFORCE.md)
 7. `/development-paths` - Rutas de desarrollo (POST /api/development-paths/generate)
 8. `/job-openings` - Vacantes (GET /api/job-openings)
 9. `/applications` - Postulaciones (GET/POST /api/applications)
-10. `/marketplace` - Oportunidades internas (GET /api/people/{id}/marketplace)
+10. `/marketplace` - Oportunidades internas (GET /api/Person/{id}/marketplace)
 
 **Nuevo: Workforce Planning (Prioridad 3 - Si hay tiempo):**
 
@@ -136,7 +136,7 @@ php artisan tinker
 ### Paso 3: Testear un Endpoint
 
 ```bash
-curl http://localhost:8000/api/people
+curl http://localhost:8000/api/Person
 # Debería retornar JSON array con personas
 ```
 
@@ -151,7 +151,7 @@ Sigue exactamente lo descrito en:
 
 | Método | Endpoint                        | Descripción            |
 | ------ | ------------------------------- | ---------------------- |
-| GET    | /api/people                     | Personas               |
+| GET    | /api/Person                     | Personas               |
 | GET    | /api/roles                      | Roles                  |
 | GET    | /api/skills                     | Skills                 |
 | GET    | /api/job-openings               | Vacantes               |
@@ -159,7 +159,7 @@ Sigue exactamente lo descrito en:
 | PATCH  | /api/applications/{id}          | Actualizar postulación |
 | POST   | /api/gap-analysis               | Analizar brecha        |
 | POST   | /api/development-paths/generate | Generar ruta           |
-| GET    | /api/people/{id}/marketplace    | Oportunidades          |
+| GET    | /api/Person/{id}/marketplace    | Oportunidades          |
 | GET    | /api/dashboard/metrics          | Métricas               |
 
 **Más detalles en:** [dia5_api_endpoints.md](docs/dia5_api_endpoints.md)
@@ -174,13 +174,13 @@ Sigue exactamente lo descrito en:
 import { useApi } from '@/composables/useApi';
 
 const { get, post, patch, loading, error } = useApi();
-const data = await get('/people');
+const data = await get('/Person');
 ```
 
 ### Estructura de Datos Esperada
 
 ```json
-// GET /api/people
+// GET /api/Person
 [
   {
     "id": 1,
@@ -191,7 +191,7 @@ const data = await get('/people');
   }
 ]
 
-// GET /api/people/{id}
+// GET /api/Person/{id}
 {
   "id": 1,
   "first_name": "Ana",
@@ -260,7 +260,7 @@ php artisan tinker
 
 ```typescript
 // Verifica en console browser (F12)
-// Debería ver request HTTP a /api/people
+// Debería ver request HTTP a /api/Person
 // Si no, verifica useApi() composable está importado
 
 // Si ves error 404, verifica ruta en web.php

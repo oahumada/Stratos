@@ -40,9 +40,9 @@ Route::get('/applications/{id}', [\App\Http\Controllers\Api\ApplicationControlle
 Route::post('/applications', [\App\Http\Controllers\Api\ApplicationController::class, 'store']);
 Route::patch('/applications/{id}', [\App\Http\Controllers\Api\ApplicationController::class, 'update']);
 
-// Lectura: People
-Route::get('/people', [\App\Http\Controllers\Api\PeopleController::class, 'index']);
-Route::get('/people/{id}', [\App\Http\Controllers\Api\PeopleController::class, 'show']);
+// Lectura: Person
+Route::get('/person', [\App\Http\Controllers\Api\PersonController::class, 'index']);
+Route::get('/person/{id}', [\App\Http\Controllers\Api\PersonController::class, 'show']);
 
 // Lectura: Roles
 Route::get('/roles', [\App\Http\Controllers\Api\RolesController::class, 'index']);
@@ -56,6 +56,6 @@ Route::get('/skills/{id}', [\App\Http\Controllers\Api\SkillsController::class, '
 Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController::class, 'metrics']);
 
 // Marketplace (Día 5 - Internal opportunities)
-Route::get('/people/{person_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']);
+Route::get('/person/{person_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']);
 
 require __DIR__ . '/form-schema-complete.php';

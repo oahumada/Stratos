@@ -30,12 +30,12 @@ Este patrón permite crear formularios CRUD completos (Create, Read, Update, Del
     └── filters.json            ← Filtros de búsqueda
 ```
 
-### Ejemplo: People Module
+### Ejemplo: Person Module
 
 ```
-/resources/js/pages/People/
+/resources/js/pages/Person/
 ├── Index.vue (121 líneas)
-└── people-form/
+└── Person-form/
     ├── config.json
     ├── tableConfig.json
     ├── itemForm.json
@@ -51,10 +51,10 @@ Este patrón permite crear formularios CRUD completos (Create, Read, Update, Del
 ```json
 {
   "endpoints": {
-    "index": "/api/people",
-    "apiUrl": "/api/people"
+    "index": "/api/Person",
+    "apiUrl": "/api/Person"
   },
-  "titulo": "People Management",
+  "titulo": "Person Management",
   "descripcion": "Manage employees and their skills",
   "permisos": {
     "crear": true,
@@ -225,10 +225,10 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 // Import JSON configs
-import configJson from './people-form/config.json';
-import tableConfigJson from './people-form/tableConfig.json';
-import itemFormJson from './people-form/itemForm.json';
-import filtersJson from './people-form/filters.json';
+import configJson from './Person-form/config.json';
+import tableConfigJson from './Person-form/tableConfig.json';
+import itemFormJson from './Person-form/itemForm.json';
+import filtersJson from './Person-form/filters.json';
 
 defineOptions({ layout: AppLayout });
 
@@ -308,7 +308,7 @@ touch src/resources/js/pages/[Module]/[module]-form/{config,tableConfig,itemForm
 
 ### Paso 2: Definir Configs (3 min)
 
-Copiar template de `people-form/` y adaptar:
+Copiar template de `Person-form/` y adaptar:
 
 **config.json**
 
@@ -332,7 +332,7 @@ Copiar template de `people-form/` y adaptar:
 
 ### Paso 3: Copiar Index.vue Template (5 min)
 
-Copiar People/Index.vue y cambiar:
+Copiar Person/Index.vue y cambiar:
 
 ```typescript
 import configJson from "./[module]-form/config.json";
@@ -488,5 +488,5 @@ FormData.vue renderiza automáticamente según `type`:
 
 - **FormSchema.vue**: `/resources/js/pages/form-template/FormSchema.vue`
 - **FormData.vue**: `/resources/js/pages/form-template/FormData.vue`
-- **Ejemplo implementado**: `/resources/js/pages/People/`
+- **Ejemplo implementado**: `/resources/js/pages/Person/`
 - **API spec**: `/docs/dia5_api_endpoints.md`

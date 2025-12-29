@@ -55,7 +55,7 @@ resources/js/
 - ❌ `skills` (catálogo de competencias)
 - ❌ `roles` (perfiles de cargo)
 - ❌ `role_skills` (pivot: skills requeridas por rol)
-- ❌ `people` (empleados/talento)
+- ❌ `Person` (empleados/talento)
 - ❌ `person_skills` (pivot: skills de cada persona con niveles)
 - ❌ `development_paths` (rutas de desarrollo)
 - ❌ `job_openings` (vacantes internas)
@@ -117,8 +117,8 @@ resources/js/
 **CRÍTICOS (✅ en memories.md 6.2):**
 
 - ❌ `DashboardController` → `/api/dashboard/metrics`, `/skills-gaps`, `/roles-at-risk`
-- ❌ `PeopleController` → `GET /api/people`, `GET /api/people/{id}`, `GET /api/people/{id}/skills`
-- ❌ `RolesController` → `GET /api/roles`, `GET /api/roles/{id}`, `GET /api/roles/{id}/people`
+- ❌ `PersonController` → `GET /api/Person`, `GET /api/Person/{id}`, `GET /api/Person/{id}/skills`
+- ❌ `RolesController` → `GET /api/roles`, `GET /api/roles/{id}`, `GET /api/roles/{id}/Person`
 - ❌ `SkillsController` → `GET /api/skills`, `GET /api/skills/{id}`
 - ❌ `GapAnalysisController` → `POST /api/gap-analysis`, `GET /api/gap-analysis/person/{id}`
 - ❌ `DevelopmentPathController` → `POST /api/development-paths/generate`, `GET /api/development-paths`
@@ -137,8 +137,8 @@ resources/js/
 
 **Páginas de Negocio (faltan todas):**
 
-- ❌ `/people` → Lista de empleados con búsqueda
-- ❌ `/people/{id}` → Perfil de empleado con skills, radar chart
+- ❌ `/Person` → Lista de empleados con búsqueda
+- ❌ `/Person/{id}` → Perfil de empleado con skills, radar chart
 - ❌ `/roles` → Catálogo de roles
 - ❌ `/roles/{id}` → Detalle de rol con skills requeridas
 - ❌ `/gap-analysis` → Vista de cálculo de brechas
@@ -212,7 +212,7 @@ resources/js/
 
 **Objetivo:** Endpoints de lectura + Gap Analysis
 
-- ✅ 09:00-11:00: PeopleController + Resource
+- ✅ 09:00-11:00: PersonController + Resource
 - ✅ 11:00-13:00: RolesController + SkillsController
 - ✅ 14:00-16:00: GapAnalysisController
 - ✅ 16:00-18:00: DashboardController (métricas)
@@ -243,7 +243,7 @@ resources/js/
 
 **Objetivo:** Páginas principales funcionando
 
-- [ ] 09:00-11:00: People (lista + detalle) con Vuetify
+- [ ] 09:00-11:00: Person (lista + detalle) con Vuetify
 - [ ] 11:00-13:00: Roles (lista + detalle)
 - [ ] 14:00-16:00: Gap Analysis (formulario + resultado)
 - [ ] 16:00-18:00: Dashboard (conectado a API real)
@@ -354,7 +354,7 @@ php artisan make:migration create_organizations_table
 php artisan make:migration create_skills_table
 php artisan make:migration create_roles_table
 php artisan make:migration create_role_skills_table
-php artisan make:migration create_people_table
+php artisan make:migration create_Person_table
 php artisan make:migration create_person_skills_table
 php artisan make:migration create_development_paths_table
 php artisan make:migration create_job_openings_table
@@ -378,7 +378,7 @@ mkdir app/Services
 
 # 5. Crear controllers API
 php artisan make:controller Api/DashboardController
-php artisan make:controller Api/PeopleController --api
+php artisan make:controller Api/PersonController --api
 php artisan make:controller Api/RolesController --api
 php artisan make:controller Api/SkillsController --api
 php artisan make:controller Api/GapAnalysisController

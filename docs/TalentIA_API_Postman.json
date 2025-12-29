@@ -26,8 +26,13 @@
             },
             "url": {
               "raw": "{{base_url}}/api/gap-analysis",
-              "host": ["{{base_url}}"],
-              "path": ["api", "gap-analysis"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "gap-analysis"
+              ]
             }
           }
         },
@@ -48,8 +53,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/development-paths/generate",
-              "host": ["{{base_url}}"],
-              "path": ["api", "development-paths", "generate"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "development-paths",
+                "generate"
+              ]
             }
           }
         },
@@ -59,24 +70,36 @@
             "method": "GET",
             "url": {
               "raw": "{{base_url}}/api/job-openings/1/candidates",
-              "host": ["{{base_url}}"],
-              "path": ["api", "job-openings", "1", "candidates"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "job-openings",
+                "1",
+                "candidates"
+              ]
             }
           }
         }
       ]
     },
     {
-      "name": "People",
+      "name": "Person",
       "item": [
         {
-          "name": "List People",
+          "name": "List Person",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/people",
-              "host": ["{{base_url}}"],
-              "path": ["api", "people"]
+              "raw": "{{base_url}}/api/Person",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "Person"
+              ]
             }
           }
         },
@@ -85,9 +108,15 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/people/1",
-              "host": ["{{base_url}}"],
-              "path": ["api", "people", "1"]
+              "raw": "{{base_url}}/api/Person/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "Person",
+                "1"
+              ]
             }
           }
         },
@@ -96,9 +125,16 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/people/1/marketplace",
-              "host": ["{{base_url}}"],
-              "path": ["api", "people", "1", "marketplace"]
+              "raw": "{{base_url}}/api/Person/1/marketplace",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "Person",
+                "1",
+                "marketplace"
+              ]
             }
           }
         }
@@ -113,8 +149,13 @@
             "method": "GET",
             "url": {
               "raw": "{{base_url}}/api/roles",
-              "host": ["{{base_url}}"],
-              "path": ["api", "roles"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles"
+              ]
             }
           }
         },
@@ -124,8 +165,14 @@
             "method": "GET",
             "url": {
               "raw": "{{base_url}}/api/roles/1",
-              "host": ["{{base_url}}"],
-              "path": ["api", "roles", "1"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "1"
+              ]
             }
           }
         }
@@ -140,8 +187,13 @@
             "method": "GET",
             "url": {
               "raw": "{{base_url}}/api/skills",
-              "host": ["{{base_url}}"],
-              "path": ["api", "skills"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "skills"
+              ]
             }
           }
         },
@@ -151,8 +203,14 @@
             "method": "GET",
             "url": {
               "raw": "{{base_url}}/api/skills/1",
-              "host": ["{{base_url}}"],
-              "path": ["api", "skills", "1"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "skills",
+                "1"
+              ]
             }
           }
         }
@@ -167,8 +225,13 @@
             "method": "GET",
             "url": {
               "raw": "{{base_url}}/api/job-openings",
-              "host": ["{{base_url}}"],
-              "path": ["api", "job-openings"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "job-openings"
+              ]
             }
           }
         },
@@ -178,8 +241,14 @@
             "method": "GET",
             "url": {
               "raw": "{{base_url}}/api/job-openings/1",
-              "host": ["{{base_url}}"],
-              "path": ["api", "job-openings", "1"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "job-openings",
+                "1"
+              ]
             }
           }
         }
@@ -194,8 +263,13 @@
             "method": "GET",
             "url": {
               "raw": "{{base_url}}/api/applications",
-              "host": ["{{base_url}}"],
-              "path": ["api", "applications"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications"
+              ]
             }
           }
         },
@@ -205,8 +279,14 @@
             "method": "GET",
             "url": {
               "raw": "{{base_url}}/api/applications/1",
-              "host": ["{{base_url}}"],
-              "path": ["api", "applications", "1"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "1"
+              ]
             }
           }
         },
@@ -227,8 +307,13 @@
             },
             "url": {
               "raw": "{{base_url}}/api/applications",
-              "host": ["{{base_url}}"],
-              "path": ["api", "applications"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications"
+              ]
             }
           }
         },
@@ -249,8 +334,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/applications/1",
-              "host": ["{{base_url}}"],
-              "path": ["api", "applications", "1"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "1"
+              ]
             }
           }
         }
@@ -265,8 +356,14 @@
             "method": "GET",
             "url": {
               "raw": "{{base_url}}/api/dashboard/metrics",
-              "host": ["{{base_url}}"],
-              "path": ["api", "dashboard", "metrics"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "metrics"
+              ]
             }
           }
         }

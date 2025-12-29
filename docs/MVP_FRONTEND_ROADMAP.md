@@ -10,7 +10,7 @@
 
 ```
 MÓDULOS A IMPLEMENTAR (Priorizados):
-├── 1. People (CRUD base)           → 2 días
+├── 1. Person (CRUD base)           → 2 días
 ├── 2. Skills (CRUD simple)          → 0.5 días
 ├── 3. Roles (Read-only)             → 0.5 días
 ├── 4. Gap Analysis ⭐ (Diferenciador)→ 2-3 días
@@ -25,27 +25,27 @@ TOTAL ESTIMADO: 8-10 días ✅
 
 ## 📅 Plan Detallado por Fase
 
-### **FASE 1: MVP Base (Días 1-3) - People, Skills, Roles**
+### **FASE 1: MVP Base (Días 1-3) - Person, Skills, Roles**
 
-#### **Día 1-2: People Module** 🟢 Prioridad MÁXIMA
+#### **Día 1-2: Person Module** 🟢 Prioridad MÁXIMA
 
 **Objetivo:** CRUD de empleados funcional + integración API
 
 ```
 COMPONENTES A CREAR:
-├── PeopleList.vue
+├── PersonList.vue
 │   ├── Tabla de empleados (17 del seeder)
 │   ├── Búsqueda/filtros
 │   ├── Acciones: Crear, Editar, Eliminar, Ver detalle
-│   └── Integración: GET /people, DELETE /people/:id
+│   └── Integración: GET /Person, DELETE /Person/:id
 │
-├── PeopleForm.vue
+├── PersonForm.vue
 │   ├── FormSchema.vue reutilizable
 │   ├── Campos: name, email, department, role_id, hired_at
 │   ├── Validaciones
-│   └── Integración: POST /people, PUT /people/:id
+│   └── Integración: POST /Person, PUT /Person/:id
 │
-└── PeopleDetail.vue
+└── PersonDetail.vue
     ├── Vista completa del empleado
     ├── Skills actuales (tabla)
     ├── Botón "Assign Skills"
@@ -53,22 +53,22 @@ COMPONENTES A CREAR:
     └── Información de rol actual
 
 API ENDPOINTS A USAR:
-✅ GET    /people              (listado completo)
-✅ GET    /people/:id          (detalle)
-✅ POST   /people              (crear)
-✅ PUT    /people/:id          (editar)
-✅ DELETE /people/:id          (eliminar)
-✅ GET    /people/:id/skills   (skills del empleado)
-✅ POST   /people/:id/skills   (asignar skill)
+✅ GET    /Person              (listado completo)
+✅ GET    /Person/:id          (detalle)
+✅ POST   /Person              (crear)
+✅ PUT    /Person/:id          (editar)
+✅ DELETE /Person/:id          (eliminar)
+✅ GET    /Person/:id/skills   (skills del empleado)
+✅ POST   /Person/:id/skills   (asignar skill)
 ```
 
 **Tareas específicas:**
 
-- [ ] Crear estructura de carpetas `src/resources/views/People/`
-- [ ] Implementar PeopleList.vue (tabla completa)
-- [ ] Implementar PeopleForm.vue (reutilizable)
-- [ ] Implementar PeopleDetail.vue
-- [ ] Setup de Pinia store para People
+- [ ] Crear estructura de carpetas `src/resources/views/Person/`
+- [ ] Implementar PersonList.vue (tabla completa)
+- [ ] Implementar PersonForm.vue (reutilizable)
+- [ ] Implementar PersonDetail.vue
+- [ ] Setup de Pinia store para Person
 - [ ] Tests básicos (tabla renderiza, CRUD funciona)
 
 **Métricas de éxito:**
@@ -83,7 +83,7 @@ API ENDPOINTS A USAR:
 
 #### **Día 2.5: Skills Module** 🟢 Prioridad ALTA
 
-**Objetivo:** CRUD simple de skills + asignación a people
+**Objetivo:** CRUD simple de skills + asignación a Person
 
 ```
 COMPONENTES A CREAR:
@@ -335,7 +335,7 @@ TIEMPO: 1.5-2 días
 | Fecha         | Hito                | Status         | Entregable           |
 | ------------- | ------------------- | -------------- | -------------------- |
 | **28 Dic**    | Kick-off Frontend   | 🟢 Ready       | Roadmap finalizado   |
-| **29-30 Dic** | People + Skills MVP | 🚀 In Progress | CRUD funcional       |
+| **29-30 Dic** | Person + Skills MVP | 🚀 In Progress | CRUD funcional       |
 | **31 Dic**    | Roles + polish      | 🚀 In Progress | Módulo read-only     |
 | **1-2 Ene**   | Gap Analysis        | 🚀 Priority    | Dashboard de brechas |
 | **3-4 Ene**   | Learning Paths      | ⏳ Next        | Rutas visuales       |
@@ -367,10 +367,10 @@ src/resources/
 ├── views/
 │   ├── layouts/
 │   │   └── MainLayout.vue
-│   ├── People/
-│   │   ├── PeopleList.vue
-│   │   ├── PeopleForm.vue
-│   │   └── PeopleDetail.vue
+│   ├── Person/
+│   │   ├── PersonList.vue
+│   │   ├── PersonForm.vue
+│   │   └── PersonDetail.vue
 │   ├── Skills/
 │   │   ├── SkillsList.vue
 │   │   └── SkillForm.vue
@@ -392,7 +392,7 @@ src/resources/
 │   ├── TimelineComponent.vue
 │   └── KpiCard.vue
 ├── stores/
-│   ├── people.ts
+│   ├── Person.ts
 │   ├── skills.ts
 │   ├── roles.ts
 │   ├── gapAnalysis.ts
@@ -408,10 +408,10 @@ src/resources/
 ## 🔗 Rutas Principales
 
 ```
-/people
-  /people/:id
-  /people/:id/skills
-  /people/:id/gap-analysis
+/Person
+  /Person/:id
+  /Person/:id/skills
+  /Person/:id/gap-analysis
 
 /skills
   /skills/:id
@@ -433,7 +433,7 @@ src/resources/
 
 ## ✅ Criterios de Aceptación (Por Módulo)
 
-### **People Module**
+### **Person Module**
 
 - [ ] Tabla renderiza 17 empleados
 - [ ] Crear empleado nuevo funciona
@@ -497,7 +497,7 @@ cd src
 npm run dev
 
 # Crear estructura base
-mkdir -p resources/views/{People,Skills,Roles,GapAnalysis,LearningPaths,Dashboard}
+mkdir -p resources/views/{Person,Skills,Roles,GapAnalysis,LearningPaths,Dashboard}
 mkdir -p resources/components
 mkdir -p resources/stores
 mkdir -p resources/services
@@ -506,7 +506,7 @@ mkdir -p resources/types
 # Instalar dependencias (si faltan)
 npm install axios pinia
 
-# Crear primer componente People
+# Crear primer componente Person
 # → Continúa en FASE 1
 ```
 
@@ -516,8 +516,8 @@ npm install axios pinia
 # Cada módulo es un feature
 ./scripts/commit.sh
 # Tipo: feat
-# Scope: people|skills|roles|gap-analysis|learning-paths|dashboard
-# Message: "agregar CRUD de People con integración API"
+# Scope: Person|skills|roles|gap-analysis|learning-paths|dashboard
+# Message: "agregar CRUD de Person con integración API"
 ```
 
 ### **Control de Progreso**
@@ -525,7 +525,7 @@ npm install axios pinia
 Usar esto para trackear:
 
 ```
-Día 1-2: People CRUD ✅
+Día 1-2: Person CRUD ✅
 Día 2.5: Skills CRUD ⏳
 Día 3: Roles Read-only 🟢
 Día 4-5: Gap Analysis ⭐

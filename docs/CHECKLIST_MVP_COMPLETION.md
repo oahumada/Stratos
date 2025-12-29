@@ -16,7 +16,7 @@
     - ✅ skills
     - ✅ roles
     - ✅ role_skills (pivot)
-    - ✅ people
+    - ✅ Person
     - ✅ person_skills (pivot with levels)
     - ✅ development_paths
     - ✅ job_openings
@@ -41,7 +41,7 @@
     - ✅ 1 Organization (TechCorp)
     - ✅ 30 Skills categorized
     - ✅ 8 Roles with required skills
-    - ✅ 20 People with skills and levels
+    - ✅ 20 Person with skills and levels
     - ✅ 5 Job Openings
     - ✅ 10 Applications
 - ✅ Execute `php artisan db:seed`
@@ -76,7 +76,7 @@
 - ✅ Create 8 Controllers
     - ✅ GapAnalysisController
     - ✅ DevelopmentPathController
-    - ✅ PeopleController
+    - ✅ PersonController
     - ✅ RolesController
     - ✅ SkillsController
     - ✅ DashboardController
@@ -85,8 +85,8 @@
 - ✅ Implement API endpoints
     - ✅ POST /api/gap-analysis
     - ✅ POST /api/development-paths/generate
-    - ✅ GET /api/people
-    - ✅ GET /api/people/{id}
+    - ✅ GET /api/Person
+    - ✅ GET /api/Person/{id}
     - ✅ GET /api/roles
     - ✅ GET /api/roles/{id}
     - ✅ GET /api/skills
@@ -108,7 +108,7 @@
     - ✅ `store(Request)` - POST /api/applications (with validation)
     - ✅ `update(int $id, Request)` - PATCH /api/applications/{id}
 - ✅ Create MarketplaceController
-    - ✅ `opportunities(int $personId)` - GET /api/people/{person_id}/marketplace
+    - ✅ `opportunities(int $personId)` - GET /api/Person/{person_id}/marketplace
 - ✅ Register all routes
     - ✅ 17 total API endpoints
 - ✅ Create documentation
@@ -125,7 +125,7 @@
 ### Día 6: Frontend Pages - Core
 
 - [ ] Create Vue pages (using Vuetify)
-    - [ ] Pages: /people (list + detail)
+    - [ ] Pages: /Person (list + detail)
     - [ ] Pages: /roles (list + detail)
     - [ ] Pages: /gap-analysis
     - [ ] Pages: /development-paths

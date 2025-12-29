@@ -37,7 +37,7 @@ class Skill extends Model
             ->withTimestamps();
     }
 
-    public function people(): BelongsToMany
+    public function Person(): BelongsToMany
     {
         return $this->belongsToMany(Person::class, 'person_skills')
             ->withPivot('level', 'last_evaluated_at', 'evaluated_by')

@@ -25,7 +25,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Personas',
-        href: '/people',
+        href: '/Person',
         icon: User,
     },
     {
@@ -64,7 +64,7 @@ const mainNavItems: NavItem[] = [
         icon: Star,
     },
     {
-        title: 'People Analytics & HR Tech Advisory',
+        title: 'Person Analytics & HR Tech Advisory',
         href: '/dashboard',
         icon: Star,
     },

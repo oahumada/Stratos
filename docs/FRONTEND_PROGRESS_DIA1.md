@@ -1,7 +1,7 @@
 # 📊 MVP Frontend Progress - Día 1
 
 > **Fecha:** 28 Diciembre 2025  
-> **Status:** 🚀 FASE 1 INICIADA - People Module Completado  
+> **Status:** 🚀 FASE 1 INICIADA - Person Module Completado  
 > **Commits:** 6 (desde inicio de frontend)
 
 ---
@@ -12,7 +12,7 @@
 
 ```
 src/resources/js/pages/
-├── People/          ✅ People CRUD
+├── Person/          ✅ Person CRUD
 │   ├── Index.vue    (List + Create/Edit/Delete dialogs)
 │   └── Show.vue     (Detail + Skills management)
 ├── Skills/          ✅ Skills CRUD stub
@@ -29,9 +29,9 @@ src/resources/js/pages/
     └── CHRO.vue
 ```
 
-### 🎯 **People Module** ✅ COMPLETADO
+### 🎯 **Person Module** ✅ COMPLETADO
 
-**PeopleList (Index.vue):**
+**PersonList (Index.vue):**
 
 - ✅ Tabla de empleados con 7 columnas (Name, Email, Department, Role, Skills, Hired, Actions)
 - ✅ Búsqueda full-text
@@ -42,13 +42,13 @@ src/resources/js/pages/
 - ✅ Loading states
 - ✅ Error handling
 - ✅ Integración con API endpoints:
-  - `GET /api/people`
-  - `POST /api/people`
-  - `PUT /api/people/:id`
-  - `DELETE /api/people/:id`
+  - `GET /api/Person`
+  - `POST /api/Person`
+  - `PUT /api/Person/:id`
+  - `DELETE /api/Person/:id`
   - `GET /api/roles`
 
-**PeopleDetail (Show.vue):**
+**PersonDetail (Show.vue):**
 
 - ✅ Vista de detalle del empleado
 - ✅ Información personal (Name, Email, Department, Role, Hired Date)
@@ -62,11 +62,11 @@ src/resources/js/pages/
   - Edit Person
   - Delete Person
 - ✅ Integración con API endpoints:
-  - `GET /api/people/:id`
-  - `PUT /api/people/:id`
-  - `GET /api/people/:id/skills`
-  - `POST /api/people/:id/skills`
-  - `DELETE /api/people/:id/skills/:skillId`
+  - `GET /api/Person/:id`
+  - `PUT /api/Person/:id`
+  - `GET /api/Person/:id/skills`
+  - `POST /api/Person/:id/skills`
+  - `DELETE /api/Person/:id/skills/:skillId`
   - `GET /api/roles`
   - `GET /api/skills`
 
@@ -112,7 +112,7 @@ src/resources/js/pages/
 - ✅ Integración con:
   - `GET /api/roles`
   - `GET /api/roles/:id/skills`
-  - `GET /api/roles/:id/people`
+  - `GET /api/roles/:id/Person`
 
 ---
 
@@ -138,7 +138,7 @@ src/resources/js/pages/
 | --------------------- | ---------------------------------- |
 | Componentes creados   | 9                                  |
 | Líneas de código      | ~1,836                             |
-| Módulos completados   | 2 (People, Skills, Roles - básico) |
+| Módulos completados   | 2 (Person, Skills, Roles - básico) |
 | Endpoints integrados  | 14                                 |
 | API calls funcionando | ✅                                 |
 | Tests                 | 0 (próxima fase)                   |
@@ -151,12 +151,12 @@ src/resources/js/pages/
 
 1. **Verificar Layout Base** - Asegurar que `AppLayout.vue` existe y es compatible
 2. **Probar en desarrollo** - `npm run dev` + verificar que las páginas cargan
-3. **Tests básicos** - Crear pruebas para PeopleList y PeopleDetail
+3. **Tests básicos** - Crear pruebas para PersonList y PersonDetail
 4. **Refinar UI** - Polish de formularios y tablas
 
 ### Día 2-3: Completar FASE 1
 
-- [ ] Terminar tests de People module
+- [ ] Terminar tests de Person module
 - [ ] Completar Skills module (sin cambios mayores, solo tests)
 - [ ] Completar Roles module (sin cambios mayores, solo tests)
 - [ ] Crear component reutilizable `FormSchema.vue`
@@ -216,8 +216,8 @@ Las rutas están en `src/resources/js/routes/mvp-routes.ts`
 ## 📈 Checklist de Verificación
 
 - [ ] `npm run dev` funciona sin errores
-- [ ] PeopleList.vue renderiza tabla
-- [ ] API calls funcionan (`GET /api/people`)
+- [ ] PersonList.vue renderiza tabla
+- [ ] API calls funcionan (`GET /api/Person`)
 - [ ] Create dialog abre/cierra
 - [ ] Edit funciona
 - [ ] Delete funciona

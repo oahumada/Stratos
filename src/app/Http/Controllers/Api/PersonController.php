@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Person;
 use Illuminate\Http\JsonResponse;
 
-class PeopleController extends Controller
+class PersonController extends Controller
 {
     public function index(): JsonResponse
     {
-        $people = Person::with('skills')->get()->map(fn($p) => [
+        $Person = Person::with('skills')->get()->map(fn($p) => [
             'id' => $p->id,
             'name' => $p->full_name ?? ($p->first_name . ' ' . $p->last_name),
             'email' => $p->email,
@@ -20,7 +20,7 @@ class PeopleController extends Controller
             'skills_count' => $p->skills()->count(),
         ]);
 
-        return response()->json(['data' => $people]);
+        return response()->json(['data' => $Person]);
     }
 
     public function show(int $id): JsonResponse

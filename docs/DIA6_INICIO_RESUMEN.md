@@ -33,7 +33,7 @@
 
 5 páginas CRUD básicas
 
-- `/people` - Lista + detalle
+- `/Person` - Lista + detalle
 - `/roles` - Lista + detalle
 - `/skills` - Catálogo
 - **Tiempo:** 2-3 horas
@@ -188,7 +188,7 @@ Encontrarás todo lo que necesitas en:
 2. **Verifica que backend está corriendo**
 
    ```bash
-   curl http://localhost:8000/api/people
+   curl http://localhost:8000/api/Person
    ```
 
 3. **Lee la documentación de inicio:**
@@ -199,7 +199,7 @@ Encontrarás todo lo que necesitas en:
 4. **Estructura de carpetas para Día 6:**
    ```
    resources/js/pages/
-   ├── people/          ← Crear (P1)
+   ├── Person/          ← Crear (P1)
    ├── roles/           ← Crear (P1)
    ├── skills/          ← Crear (P1)
    ├── gap-analysis/    ← Crear (P2)

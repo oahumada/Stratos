@@ -354,7 +354,7 @@ development_paths table:
 
     // Crear postulaciones (2 por vacante)
     foreach ($jobOpenings as $jobOpening) {
-        $candidates = collect($people)->random(2);
+        $candidates = collect($Person)->random(2);
         foreach ($candidates as $candidate) {
             Application::create([
                 'job_opening_id' => $jobOpening->id,

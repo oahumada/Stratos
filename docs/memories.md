@@ -229,7 +229,7 @@ organizations (tabla maestra)
 ├── users (usuarios por org)
 ├── skills (catálogo por org)
 ├── roles (perfiles de cargo por org)
-├── people (empleados por org)
+├── Person (empleados por org)
 ├── person_skills (skills de cada persona)
 ├── role_skills (skills requeridas por rol)
 ├── development_paths (rutas de desarrollo)
@@ -303,10 +303,10 @@ organizations (tabla maestra)
 ```json
 {
   "endpoints": {
-    "index": "/api/people",
-    "apiUrl": "/api/people"
+    "index": "/api/Person",
+    "apiUrl": "/api/Person"
   },
-  "titulo": "People Management",
+  "titulo": "Person Management",
   "descripcion": "Manage employees",
   "permisos": { "crear": true, "editar": true, "eliminar": true }
 }
@@ -360,10 +360,10 @@ organizations (tabla maestra)
 **Index.vue** - Orquestador mínimo (sin lógica Vue):
 
 ```typescript
-import configJson from "./people-form/config.json";
-import tableConfigJson from "./people-form/tableConfig.json";
-import itemFormJson from "./people-form/itemForm.json";
-import filtersJson from "./people-form/filters.json";
+import configJson from "./Person-form/config.json";
+import tableConfigJson from "./Person-form/tableConfig.json";
+import itemFormJson from "./Person-form/itemForm.json";
+import filtersJson from "./Person-form/filters.json";
 
 const config = configJson as Config;
 const tableConfig = tableConfigJson as TableConfig;
@@ -387,7 +387,7 @@ onMounted(() => loadRoles());
 
 **Ejemplo implementado:**
 
-- `/resources/js/pages/People/` - 121 líneas Index.vue
+- `/resources/js/pages/Person/` - 121 líneas Index.vue
 - Soporta búsqueda completa, 2 filtros (department, role), CRUD completo
   - Cambiar comportamiento = cambiar JSON (no código)
   - Típico: nuevo CRUD en 30 min (solo JSONs + Controller backend)
@@ -465,7 +465,7 @@ onMounted(() => loadRoles());
 
 #### Flujo: Ver Perfil de Empleado
 
-1. Usuario accede a `/people/{id}`
+1. Usuario accede a `/Person/{id}`
 2. Backend retorna:
    - Datos personales (nombre, cargo actual, departamento)
    - Skills actuales con niveles (1-5)
@@ -495,8 +495,8 @@ onMounted(() => loadRoles());
 
 #### Endpoints
 
-- `GET /api/people/{id}` → Perfil completo
-- `GET /api/people/{id}/skills` → Skills con niveles
+- `GET /api/Person/{id}` → Perfil completo
+- `GET /api/Person/{id}/skills` → Skills con niveles
 - `POST /api/gap-analysis` → Body: `{person_id, role_id}` → Response: gaps + match%
 
 ### 4.5 Rutas de Desarrollo
@@ -816,7 +816,7 @@ GET    /dashboard/metrics
 
 GET    /dashboard/skills-gaps
        Query: ?limit=10
-       Response: [{ skill_id, skill_name, total_gap, people_affected }]
+       Response: [{ skill_id, skill_name, total_gap, Person_affected }]
 
 GET    /dashboard/roles-at-risk
        Response: [{ role_id, role_name, coverage_percentage, critical_skills_missing }]
@@ -825,25 +825,25 @@ GET    /dashboard/roles-at-risk
 #### Personas ✅ LECTURA MVP / 🔴 CRUD POST-MVP
 
 ```
-GET    /people                                    ✅ MVP
+GET    /Person                                    ✅ MVP
        Query: ?search=john&department=engineering&page=1
        Response: Paginado de personas
 
-GET    /people/{id}                               ✅ MVP
+GET    /Person/{id}                               ✅ MVP
        Response: Perfil completo con skills
 
-GET    /people/{id}/skills                        ✅ MVP
+GET    /Person/{id}/skills                        ✅ MVP
        Response: [{ skill_id, skill_name, level, last_evaluated_at }]
 
-POST   /people/{id}/skills                        🔴 POST-MVP
+POST   /Person/{id}/skills                        🔴 POST-MVP
        Body: { skill_id, level }
        Response: Skill agregada
 
-PATCH  /people/{id}/skills/{skill_id}             🔴 POST-MVP
+PATCH  /Person/{id}/skills/{skill_id}             🔴 POST-MVP
        Body: { level }
        Response: Nivel actualizado
 
-DELETE /people/{id}/skills/{skill_id}             🔴 POST-MVP
+DELETE /Person/{id}/skills/{skill_id}             🔴 POST-MVP
        Response: Skill removida
 ```
 
@@ -867,7 +867,7 @@ GET    /roles                                     ✅ MVP
 GET    /roles/{id}                                ✅ MVP
        Response: Detalle con skills requeridas y niveles
 
-GET    /roles/{id}/people                         ✅ MVP
+GET    /roles/{id}/Person                         ✅ MVP
        Query: ?min_match=70
        Response: Personas con match a este rol
 ```
@@ -1116,7 +1116,7 @@ role_skills (pivot)
 ├── required_level (1-5)
 └── is_critical (boolean)
 
-people
+Person
 ├── id (PK)
 ├── organization_id (FK)
 ├── user_id (FK, nullable)
@@ -1205,7 +1205,7 @@ analytics_snapshots (roadmap)
 - Composite unique: (role_id, skill_id)
 - `required_level`: Check constraint (1-5)
 
-#### people
+#### Person
 
 - `email`: Unique per organization
 - `current_role_id`: Nullable (puede no tener rol asignado aún)
@@ -1239,11 +1239,11 @@ analytics_snapshots (roadmap)
 CREATE INDEX idx_org_id ON users(organization_id);
 CREATE INDEX idx_org_id ON skills(organization_id);
 CREATE INDEX idx_org_id ON roles(organization_id);
-CREATE INDEX idx_org_id ON people(organization_id);
+CREATE INDEX idx_org_id ON Person(organization_id);
 
 -- Búsquedas frecuentes
 CREATE INDEX idx_skills_category ON skills(category);
-CREATE INDEX idx_people_department ON people(department);
+CREATE INDEX idx_Person_department ON Person(department);
 CREATE INDEX idx_job_openings_status ON job_openings(status);
 CREATE INDEX idx_applications_status ON applications(status);
 
@@ -1375,7 +1375,7 @@ $text-secondary: #6b7280; // Gris medio (texto secundario)
 └─────────────────────────────────────────────────────────┘
 ```
 
-#### Perfil de Persona (`/people/{id}`)
+#### Perfil de Persona (`/Person/{id}`)
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -2308,7 +2308,7 @@ VITE_APP_ENV=production
   - Stakeholder Management: 3
   - Collaboration: 5
   - Data Analysis: 2
-- **Potencial:** Head of People
+- **Potencial:** Head of Person
 
 **18. Sebastián Parra**
 
@@ -2573,7 +2573,7 @@ En la tabla de roles en riesgo, vemos que Tech Lead tiene solo 45% de cobertura.
 
 #### Paso 2: Perfil de Talento (3 minutos)
 
-**Pantalla:** `/people/1` (Ana García)
+**Pantalla:** `/Person/1` (Ana García)
 
 **Narrativa:**
 "Vamos al perfil de Ana García, una de nuestras Frontend Developers. Aquí vemos:
@@ -2751,7 +2751,7 @@ talentia-api/
 │ │ ├── Controllers/
 │ │ │ ├── Api/
 │ │ │ │ ├── DashboardController.php
-│ │ │ │ ├── PeopleController.php
+│ │ │ │ ├── PersonController.php
 │ │ │ │ ├── SkillsController.php
 │ │ │ │ ├── RolesController.php
 │ │ │ │ ├── GapAnalysisController.php
@@ -2803,7 +2803,7 @@ talentia-api/
 │ │ ├── 2024_01_01_000003_create_skills_table.php
 │ │ ├── 2024_01_01_000004_create_roles_table.php
 │ │ ├── 2024_01_01_000005_create_role_skills_table.php
-│ │ ├── 2024_01_01_000006_create_people_table.php
+│ │ ├── 2024_01_01_000006_create_Person_table.php
 │ │ ├── 2024_01_01_000007_create_person_skills_table.php
 │ │ ├── 2024_01_01_000008_create_development_paths_table.php
 │ │ ├── 2024_01_01_000009_create_job_openings_table.php
@@ -2885,7 +2885,7 @@ talentia-frontend/
 │ ├── stores/
 │ │ ├── auth.ts (roadmap)
 │ │ ├── organization.ts
-│ │ ├── people.ts
+│ │ ├── Person.ts
 │ │ └── skills.ts
 │ ├── types/
 │ │ ├── models.ts
@@ -2897,8 +2897,8 @@ talentia-frontend/
 │ │ └── constants.ts
 │ ├── views/
 │ │ ├── Dashboard.vue
-│ │ ├── People/
-│ │ │ ├── PeopleList.vue
+│ │ ├── Person/
+│ │ │ ├── PersonList.vue
 │ │ │ └── PersonProfile.vue
 │ │ ├── Skills/
 │ │ │ └── SkillsCatalog.vue
@@ -3181,10 +3181,10 @@ Rankear candidatos internos para una vacante basándose en % match y otros facto
 ```
 FUNCIÓN matchCandidatesForJobOpening(jobOpening):
     role = jobOpening.role
-    allPeople = OBTENER_PERSONAS(organization_id = jobOpening.organization_id)
+    allPerson = OBTENER_PERSONAS(organization_id = jobOpening.organization_id)
     candidates = []
 
-    PARA CADA person EN allPeople:
+    PARA CADA person EN allPerson:
         // Excluir personas que ya están en ese rol
         SI person.current_role_id == role.id:
             CONTINUAR

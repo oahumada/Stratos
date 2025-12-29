@@ -40,7 +40,7 @@ Mantén `docs/memories.md` abierto en un tab de VS Code.
 **Búsqueda rápida con Ctrl+F:**
 
 - Nombres de modelos: `Person`, `Role`, `Skill`
-- Endpoints: `/gap-analysis`, `/people`
+- Endpoints: `/gap-analysis`, `/Person`
 - Validaciones: `level (1-5)`, `organization_id`
 - Algoritmos: `calculateGap`, `generateDevelopmentPath`
 
@@ -294,7 +294,7 @@ git commit -m "test: gap analysis with TechCorp data (memories.md 16.1)"
 1. **Migraciones** (sección 7) - Día 1-2
 2. **Modelos + Scopes multi-tenant** - Día 2-3
 3. **Seeder TechCorp** (sección 11) - Día 3-4
-4. **Endpoints de lectura** (People, Skills, Roles) - Día 4-5
+4. **Endpoints de lectura** (Person, Skills, Roles) - Día 4-5
 5. **Gap Analysis** (algoritmo 16.1 + endpoint 6.2) - Día 5-7
 6. **Development Paths** (algoritmo 16.2) - Día 8-10
 7. **Marketplace + Matching** (algoritmo 16.3) - Día 11-12
@@ -407,7 +407,7 @@ según memories.md sección 3.2"
 **Solución:**
 
 ```
-"El endpoint GET /people devuelve [estructura actual].
+"El endpoint GET /Person devuelve [estructura actual].
 Según memories.md sección 6.2 debería retornar [estructura esperada].
 Corrige el Resource"
 ```
@@ -463,7 +463,7 @@ Corrige el FormRequest"
 
 ```
 "Empecemos con las migraciones según memories.md sección 7.
-Crea migrations para organizations, users, skills, roles, people,
+Crea migrations para organizations, users, skills, roles, Person,
 con todos los constraints e índices documentados"
 ```
 

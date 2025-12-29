@@ -68,7 +68,7 @@ Agregados a tabla existente:
 - UNIQUE: (role_id, skill_id)
 ```
 
-### Tabla `people` ✅
+### Tabla `Person` ✅
 
 ```
 - id (PK)
@@ -91,7 +91,7 @@ Agregados a tabla existente:
 
 ```
 - id (PK)
-- person_id (FK → people)
+- person_id (FK → Person)
 - skill_id (FK → skills)
 - level (TINYINT, default: 1)
 - last_evaluated_at (timestamp)
@@ -105,7 +105,7 @@ Agregados a tabla existente:
 ```
 - id (PK)
 - organization_id (FK)
-- person_id (FK → people)
+- person_id (FK → Person)
 - target_role_id (FK → roles)
 - status (ENUM: draft, active, completed, cancelled)
 - estimated_duration_months
@@ -136,7 +136,7 @@ Agregados a tabla existente:
 ```
 - id (PK)
 - job_opening_id (FK → job_openings)
-- person_id (FK → people)
+- person_id (FK → Person)
 - status (ENUM: pending, under_review, accepted, rejected)
 - message (TEXT)
 - applied_at (timestamp)
@@ -156,7 +156,7 @@ Agregados a tabla existente:
 - `users()` → HasMany
 - `skills()` → HasMany
 - `roles()` → HasMany
-- `people()` → HasMany
+- `Person()` → HasMany
 - `developmentPaths()` → HasMany
 - `jobOpenings()` → HasMany
 
@@ -178,7 +178,7 @@ Agregados a tabla existente:
 
 - `organization()` → BelongsTo
 - `roles()` → BelongsToMany (with pivot: required_level, is_critical)
-- `people()` → BelongsToMany (with pivot: level, last_evaluated_at, evaluated_by)
+- `Person()` → BelongsToMany (with pivot: level, last_evaluated_at, evaluated_by)
 
 **Global Scope:** `organization` - Filtra por organization_id del usuario autenticado
 
@@ -188,7 +188,7 @@ Agregados a tabla existente:
 
 - `organization()` → BelongsTo
 - `skills()` → BelongsToMany (with pivot: required_level, is_critical)
-- `people()` → HasMany (currentRole)
+- `Person()` → HasMany (currentRole)
 - `jobOpenings()` → HasMany
 - `developmentPaths()` → HasMany (target role)
 
@@ -294,7 +294,7 @@ php artisan db:seed --class=DemoSeeder
 | `database/migrations/2025_12_27_162333_create_skills_table.php`                | ✅ Creada      |
 | `database/migrations/2025_12_27_162333_create_roles_table.php`                 | ✅ Creada      |
 | `database/migrations/2025_12_27_162333_create_role_skills_table.php`           | ✅ Creada      |
-| `database/migrations/2025_12_27_162333_create_people_table.php`                | ✅ Creada      |
+| `database/migrations/2025_12_27_162333_create_Person_table.php`                | ✅ Creada      |
 | `database/migrations/2025_12_27_162333_create_person_skills_table.php`         | ✅ Creada      |
 | `database/migrations/2025_12_27_162334_create_development_paths_table.php`     | ✅ Creada      |
 | `database/migrations/2025_12_27_162334_create_job_openings_table.php`          | ✅ Creada      |

@@ -17,7 +17,7 @@
     },
     {
       "text": "Employees",
-      "value": "people_count",
+      "value": "Person_count",
       "sortable": true
     },
     {
