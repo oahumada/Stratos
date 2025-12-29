@@ -20,6 +20,7 @@ class Person extends Model
         'last_name',
         'email',
         'current_role_id',
+        'department_id',
         'department',
         'hire_date',
         'photo_url',
@@ -51,6 +52,11 @@ class Person extends Model
     public function currentRole(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'current_role_id');
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 
     public function skills(): BelongsToMany

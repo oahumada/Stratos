@@ -40,6 +40,15 @@
 - **[GUIA_COMMITS_SEMANTICOS.md](GUIA_COMMITS_SEMANTICOS.md)** - Guía completa de commits
 - **[SCRIPT_COMMIT_MEJORADO.md](SCRIPT_COMMIT_MEJORADO.md)** - Explicación del script mejorado
 
+### Autenticación (Sanctum)
+
+- **[AUTH_SANCTUM_COMPLETA.md](AUTH_SANCTUM_COMPLETA.md)** - ⭐ Guía completa Sanctum en TalentIA
+  - Estado actual de la configuración
+  - Cómo funciona el flujo de autenticación
+  - Solución de problemas
+- **[auth_sanctum_api.md](auth_sanctum_api.md)** - Explicación técnica de `auth:sanctum`
+- **[auth_sanctum_laravel12.md](auth_sanctum_laravel12.md)** - Configuración específica en Laravel 12
+
 ### Versionado y Releases
 
 - **[VERSIONADO_SETUP.md](VERSIONADO_SETUP.md)** - Setup de versionado

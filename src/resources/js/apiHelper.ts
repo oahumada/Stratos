@@ -4,8 +4,8 @@ import axios from "axios";
 const getBaseUrl = () => {
     if (typeof window !== "undefined") {
         const hostname = window.location.hostname;
-        if (hostname === "talentia.appchain.cl") {
-            return "https://talentia.appchain.cl";
+        if (hostname === "esalud.appchain.cl") {
+            return "https://esalud.appchain.cl";
         }
     }
     return ""; // Para desarrollo local usa rutas relativas
@@ -95,8 +95,17 @@ axios.interceptors.response.use(
                 processQueue(refreshError, null);
 
                 // Si falla el refresh, puede ser que la sesión expiró
-                if (typeof window !== "undefined") {
-                    window.location.href = "/login";
+                try {
+                    const { useAuthStore } = await import("@/stores/authStore");
+                    const authStore = useAuthStore();
+                    authStore.logout();
+
+                    // Opcional: redirigir al login
+                    if (typeof window !== "undefined") {
+                        window.location.href = "/login";
+                    }
+                } catch (importError) {
+                    console.error("Error importing auth store:", importError);
                 }
 
                 return Promise.reject(refreshError);
@@ -107,9 +116,21 @@ axios.interceptors.response.use(
 
         // Manejar error 401 (Unauthorized)
         if (error.response?.status === 401) {
-            console.warn("Unauthorized request (401), redirecting to login");
-            if (typeof window !== "undefined" && window.location.pathname !== "/login") {
-                window.location.href = "/login";
+            console.warn("Unauthorized request (401), clearing auth state");
+            try {
+                const { useAuthStore } = await import("@/stores/authStore");
+                const authStore = useAuthStore();
+                authStore.logout();
+
+                // Redirigir al login si estamos en el browser
+                if (
+                    typeof window !== "undefined" &&
+                    window.location.pathname !== "/login"
+                ) {
+                    window.location.href = "/login";
+                }
+            } catch (importError) {
+                console.error("Error importing auth store:", importError);
             }
         }
 
@@ -120,31 +141,13 @@ axios.interceptors.response.use(
 // Función para inicializar Sanctum (obtener CSRF cookie)
 export const initSanctum = async () => {
     try {
-        await axios.get(`${BASE_URL}/sanctum/csrf-cookie`);
-
-        // NUEVO: Forzar actualización del meta tag CSRF
-        // Hacer una pequeña request para obtener el nuevo token
-        try {
-            const response = await axios.get(`${BASE_URL}/api/csrf-token`);
-            if (response.data.csrf_token) {
-                // Actualizar el meta tag con el nuevo token
-                let metaTag = document.querySelector('meta[name="csrf-token"]');
-                if (metaTag) {
-                    metaTag.setAttribute("content", response.data.csrf_token);
-                } else {
-                    // Crear meta tag si no existe
-                    metaTag = document.createElement("meta");
-                    metaTag.setAttribute("name", "csrf-token");
-                    metaTag.setAttribute("content", response.data.csrf_token);
-                    document
-                        .getElementsByTagName("head")[0]
-                        .appendChild(metaTag);
-                }
-                console.log("CSRF token updated in meta tag");
+        // Obtener CSRF cookie de Sanctum
+        await axios.get(`${BASE_URL}/sanctum/csrf-cookie`, {
+            headers: {
+                'Accept': 'application/json',
             }
-        } catch (tokenError) {
-            console.warn("Could not update CSRF token from API:", tokenError);
-        }
+        });
+        console.log("Sanctum initialized successfully");
     } catch (error) {
         console.error("Error al inicializar Sanctum:", error);
     }

@@ -19,38 +19,10 @@ use Illuminate\Support\Facades\Log;
 // Mapeo completo de modelos FormSchema: ModelName => route-name
 $formSchemaModels = [
     // Tablas hijas principales
-    'AntecedenteFamiliar' => 'antecedente-familiar',
-    'AtencionDiaria' => 'atencion-diaria',
-    'Alergia' => 'alergia',
-    'Cirugia' => 'cirugia',
-    'Diat' => 'diat',
-    'Diep' => 'diep',
-    'Enfermedad' => 'enfermedad',
-
-    // Exámenes médicos
-    'ExAlcohol' => 'ex-alcohol',
-    'ExAldehido' => 'ex-aldehido',
-    'ExAsma' => 'ex-asma',
-    'ExEpo' => 'ex-epo',
-    'ExEquilibrio' => 'ex-equilibrio',
-    'ExHumoNegro' => 'ex-humo-negro',
-    'ExMetal' => 'ex-metal',
-    'ExPsico' => 'ex-psico',
-    'ExPVTMERT' => 'ex-pvtmert',
-    'ExRespirador' => 'ex-respirador',
-    'ExRuido' => 'ex-ruido',
-    'ExSalud' => 'ex-salud',
-    'ExSilice' => 'ex-silice',
-    'ExSolvente' => 'ex-solvente',
-    'ExSomnolencia' => 'ex-somnolencia',
-
-    // Otros modelos FormSchema
-    'Ges' => 'ges',
-    'Certificacion' => 'certificacion',
-    'FactorRiesgo' => 'factor-riesgo',
-    'LicenciaMedica' => 'licencia-medica',
-    'Medicamento' => 'medicamento',
-    'Vacuna' => 'vacuna',
+    'People' => 'people',
+    'Skills' => 'skills',
+    'Department' => 'departments',
+    'Role' => 'role',
 ];
 
 // Envolver todas las rutas FormSchema en middleware de autenticación
