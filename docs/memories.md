@@ -1,12 +1,48 @@
 # TalentIA – Memoria de Contexto para GitHub Copilot
 
-**Última actualización:** 27 Diciembre 2025  
-**Status:** MVP Backend ✅ COMPLETADO (Días 1-5), Frontend en Progreso (Día 6+)  
-**Documentación Operativa:** ✅ ECHADA_DE_ANDAR, VALIDACION_ESTADO, TEMPLATE_DIA_N, QUICK_START
+**Última actualización:** 31 Diciembre 2025  
+**Status:** MVP Backend ✅ COMPLETADO (Días 1-5), Frontend ✅ COMPLETADO (Días 6-7)  
+**Patrón CRUD:** ✅ Consolidado en FormSchemaController + form-schema-complete.php
 
 ---
 
-## STATUS ACTUAL (Día 6)
+## 🎯 PATRÓN CRUD CONSOLIDADO (31 Diciembre 2025)
+
+### SIN Duplicación de Rutas
+
+**Antes (Problema):**
+- Rutas API definidas manualmente en `/routes/api.php`
+- Rutas CRUD generadas en `/routes/form-schema-complete.php`
+- Mismo endpoint `/api/person` registrado DOS VECES → conflicto
+
+**Ahora (Solución):**
+- Todas las rutas CRUD en `/routes/form-schema-complete.php` (única fuente de verdad)
+- Registro automático de modelos en `$formSchemaModels` mapping
+- FormSchemaController maneja todos los CRUD genéricamente
+- Rutas específicas (Dashboard, GapAnalysis, etc.) en `/routes/api.php` solamente
+
+### Flujo para Nuevos CRUDs
+
+1. **Registrar modelo** en form-schema-complete.php: `'YourModel' => 'route-name'`
+2. **Crear carpeta** `/pages/YourModel/your-model-form/` con 4 JSONs
+3. **Copiar Index.vue** de Person y cambiar imports JSON
+4. **Agregar ruta web** en `/routes/web.php`
+5. **Agregar navlink** en AppSidebar.vue
+6. **Limpiar caché:** `php artisan route:clear && php artisan route:cache`
+
+**Tiempo:** 10-15 minutos por módulo | **Complejidad:** Baja (solo configuración)
+
+### Guías Operativas
+
+- 📖 [GUIA_CREAR_NUEVO_CRUD_GENERICO.md](GUIA_CREAR_NUEVO_CRUD_GENERICO.md) - LEER PRIMERO (paso-a-paso con ejemplo)
+- ✅ [CHECKLIST_NUEVO_CRUD.md](CHECKLIST_NUEVO_CRUD.md) - Checklist con verificaciones
+- 🎯 [PATRON_JSON_DRIVEN_CRUD.md](PATRON_JSON_DRIVEN_CRUD.md) - Guía técnica completa
+
+---
+
+## STATUS ACTUAL (Día 7 - 31 Diciembre 2025)
+
+### ✅ Completado
 
 ### ✅ Completado (Días 1-5)
 

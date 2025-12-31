@@ -3,8 +3,8 @@
     "index": "/api/person",
     "apiUrl": "/api/person"
   },
-  "titulo": "Person Management",
-  "descripcion": "Manage employees and their skills",
+  "titulo": "Gestión de Personas",
+  "descripcion": "Gestionar personas y sus habilidades",
   "permisos": {
     "crear": true,
     "editar": true,

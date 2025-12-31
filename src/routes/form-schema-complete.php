@@ -22,7 +22,7 @@ $formSchemaModels = [
     'Person' => 'person',
     'Skills' => 'skills',
     'Department' => 'departments',
-    'Role' => 'role',
+    'Role' => 'roles',  // Plural para consistencia con API
 ];
 
 // Envolver todas las rutas FormSchema en middleware de autenticación

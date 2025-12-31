@@ -1,22 +1,66 @@
 # ✅ Checklist: Implementar Nuevo CRUD con Patrón JSON-Driven
 
 **Tiempo estimado**: 15-20 minutos por módulo  
-**Referencia**: `/docs/PATRON_JSON_DRIVEN_CRUD.md`
+**Referencia**: `/docs/PATRON_JSON_DRIVEN_CRUD.md`  
+**Patrón de Rutas**: `form-schema-complete.php` (FormSchemaController automático)
 
 ---
 
 ## 📋 Pre-Requisitos
 
-- [ ] Endpoint GET `/api/[plural-module]` implementado y funcional
-- [ ] Endpoint POST `/api/[plural-module]` funcional
-- [ ] Endpoint PUT `/api/[plural-module]/{id}` funcional
-- [ ] Endpoint DELETE `/api/[plural-module]/{id}` funcional
-- [ ] Modelo Eloquent creado
-- [ ] Migraciones ejecutadas
+- [ ] Modelo Eloquent creado con todas las propiedades
+- [ ] Migraciones ejecutadas (tabla en base de datos)
+- [ ] **IMPORTANTE**: NO crear endpoints API individual
+  - Las rutas CRUD se generan automáticamente desde `form-schema-complete.php`
+  - Solo registrar modelo en `$formSchemaModels` mapping
 
 ---
 
-## 🏗️ Paso 1: Crear Estructura (2 min)
+## 🔧 Paso 0: Registrar Modelo en FormSchema (1 min)
+
+**⚠️ NUEVO PASO IMPORTANTE ⚠️**
+
+**Archivo**: `/src/routes/form-schema-complete.php` (línea ~18)
+
+**Agregar tu modelo al mapeo:**
+
+```php
+$formSchemaModels = [
+    'Person' => 'person',
+    'Skills' => 'skills',
+    'Department' => 'departments',
+    'Role' => 'roles',
+    '[YourModel]' => '[route-name-plural]',  // ← AGREGAR AQUÍ
+];
+```
+
+**Ejemplo:** Si quieres un CRUD para "Certifications":
+
+```php
+$formSchemaModels = [
+    // ... modelos existentes
+    'Certification' => 'certifications',  // ← Agregar esta línea
+];
+```
+
+**Resultado automático:** FormSchemaController generará todos estos endpoints:
+- `GET /api/certifications` - Listar
+- `POST /api/certifications` - Crear
+- `GET /api/certifications/{id}` - Mostrar
+- `PUT /api/certifications/{id}` - Actualizar
+- `PATCH /api/certifications/{id}` - Actualizar parcial
+- `DELETE /api/certifications/{id}` - Eliminar
+- `POST /api/certifications/search` - Búsqueda
+- `POST /api/certifications/search-with-paciente` - Búsqueda avanzada
+
+**Verificar:**
+
+- [ ] Modelo agregado a `$formSchemaModels`
+- [ ] Nombre del modelo es exacto (Certifications, NO certifications)
+- [ ] Route-name es plural en minúsculas (certifications)
+- [ ] PHP sintaxis correcta
+
+---
 
 ```bash
 # En /src/resources/js/pages
@@ -44,8 +88,8 @@ touch config.json tableConfig.json itemForm.json filters.json
 ```json
 {
   "endpoints": {
-    "index": "/api/[PLURAL-MODULE]",      ← Cambiar según API
-    "apiUrl": "/api/[PLURAL-MODULE]"      ← Cambiar según API
+    "index": "/api/[route-name-plural]",      ← Debe coincidir con form-schema-complete.php
+    "apiUrl": "/api/[route-name-plural]"      ← Debe coincidir con form-schema-complete.php
   },
   "titulo": "[Module] Management",         ← Cambiar título
   "descripcion": "Manage [modules]",       ← Cambiar descripción
@@ -57,9 +101,14 @@ touch config.json tableConfig.json itemForm.json filters.json
 }
 ```
 
+**Importante:**
+- Los endpoints `/api/[route-name]` se generan automáticamente
+- Solo necesitas coincidir el nombre con el registro en `$formSchemaModels`
+- Ejemplo: Si registraste `'Certification' => 'certifications'`, usa `/api/certifications`
+
 **Verificar:**
 
-- [ ] Endpoints son correctos (copiar de `/docs/dia5_api_endpoints.md`)
+- [ ] Endpoints coinciden con route-name en form-schema-complete.php
 - [ ] Título y descripción son descriptivos
 - [ ] JSON válido (probar en https://jsonlint.com/)
 
@@ -299,35 +348,32 @@ onMounted(() => {
 
 **Archivo**: `/src/routes/web.php`
 
-**Agregar antes de cierre de middleware:**
+**Agregar ruta web para tu página (NO API):**
 
 ```php
 Route::get('/[plural-module]', function () {
     return Inertia::render('[Module]/Index');
-})->middleware('auth:sanctum');
+})->middleware(['auth', 'verified'])->name('[module].index');
 ```
 
 **Ejemplo:**
 
 ```php
-Route::get('/Person', function () {
-    return Inertia::render('Person/Index');
-})->middleware('auth:sanctum');
-
-Route::get('/roles', function () {
-    return Inertia::render('Roles/Index');
-})->middleware('auth:sanctum');
-
-Route::get('/skills', function () {
-    return Inertia::render('Skills/Index');
-})->middleware('auth:sanctum');
+Route::get('/certifications', function () {
+    return Inertia::render('Certifications/Index');
+})->middleware(['auth', 'verified'])->name('certifications.index');
 ```
+
+**Importante:**
+- Esta es la ruta **WEB** (renderiza la página Vue)
+- Las rutas **API** CRUD se generan automáticamente en `form-schema-complete.php`
+- NO repetir rutas API aquí
 
 **Verificar:**
 
-- [ ] Ruta agregada después del último CRUD
+- [ ] Ruta web agregada (no API)
 - [ ] Path coincide con carpeta del componente
-- [ ] Incluye middleware `auth:sanctum`
+- [ ] Incluye middleware `auth` y `verified`
 - [ ] Sintaxis de Laravel Inertia correcta
 
 ---
@@ -347,18 +393,14 @@ Route::get('/skills', function () {
 **Ejemplo:**
 
 ```vue
-<Link href="/Person" class="nav-link">
-  <span class="icon">👥</span> Person
-</Link>
-
-<Link href="/roles" class="nav-link">
-  <span class="icon">🎯</span> Roles
-</Link>
-
-<Link href="/skills" class="nav-link">
-  <span class="icon">⚡</span> Skills
+<Link href="/certifications" class="nav-link">
+  <span class="icon">🎓</span> Certifications
 </Link>
 ```
+
+**Importante:**
+- El `href` debe coincidir con la ruta web (paso anterior)
+- NO el endpoint API
 
 **Verificar:**
 
@@ -371,35 +413,43 @@ Route::get('/skills', function () {
 
 ## 🧪 Paso 9: Verificación Final (3 min)
 
+**En terminal (antes de ir al navegador):**
+
+```bash
+cd /src
+php artisan route:clear
+php artisan route:cache
+```
+
 **En navegador:**
 
 1. Ir a http://localhost/[plural-module]
 2. Verificar que tabla carga datos:
 
    - [ ] Encabezado correcto (del config.json)
-   - [ ] Columnas visibles
-   - [ ] Datos cargan desde API
+   - [ ] Columnas visibles (del tableConfig.json)
+   - [ ] Datos cargan desde API automática (FormSchemaController)
    - [ ] Paginación funciona
    - [ ] Buscar funciona
 
 3. Crear nuevo registro:
 
    - [ ] Click "New [Module]" abre dialog
-   - [ ] Campos son los correctos
+   - [ ] Campos son los correctos (itemForm.json)
    - [ ] Dropdowns cargan catálogos
-   - [ ] Submit funciona (POST a API)
+   - [ ] Submit funciona (POST a `/api/[route]` automático)
    - [ ] Notificación de éxito
 
 4. Editar registro:
 
    - [ ] Click en fila abre dialog edit
    - [ ] Datos se populan correctamente
-   - [ ] Cambios guardan (PUT a API)
+   - [ ] Cambios guardan (PUT a `/api/[route]/{id}` automático)
 
 5. Eliminar registro:
 
    - [ ] Click eliminar muestra confirmación
-   - [ ] Confirmación elimina (DELETE a API)
+   - [ ] Confirmación elimina (DELETE a `/api/[route]/{id}` automático)
 
 6. Filtros y búsqueda:
    - [ ] Búsqueda por texto funciona
@@ -410,7 +460,7 @@ Route::get('/skills', function () {
 **Verificar errores:**
 
 - [ ] Console sin errores JavaScript
-- [ ] Network tab muestra requests exitosos (200/201/204)
+- [ ] Network tab muestra requests exitosos a `/api/[route]` (FormSchemaController)
 - [ ] No hay CORS errors
 - [ ] CSRF tokens inyectados correctamente
 

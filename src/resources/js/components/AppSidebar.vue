@@ -25,7 +25,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Personas',
-        href: '/Person',
+        href: '/person',
         icon: User,
     },
     {
@@ -39,33 +39,18 @@ const mainNavItems: NavItem[] = [
         icon: Star,
     },
     {
+        title: 'Gap Analysis',
+        href: '/gap-analysis',
+        icon: Star,
+    },
+    {
         title: 'Learning Paths',
-        href: '/dashboard',
+        href: '/learning-paths',
         icon: Star,
     },
     {
-        title: 'Market place interno',
-        href: '/dashboard',
-        icon: Star,
-    },
-    {
-        title: 'Brechas de skills',
-        href: '/dashboard',
-        icon: Star,
-    },
-    {
-        title: 'Reskilling/Upskilling',
-        href: '/dashboard',
-        icon: Star,
-    },
-    {
-        title: 'Talento 360°',
-        href: '/dashboard',
-        icon: Star,
-    },
-    {
-        title: 'Person Analytics & HR Tech Advisory',
-        href: '/dashboard',
+        title: 'Marketplace',
+        href: '/marketplace',
         icon: Star,
     },
 ];

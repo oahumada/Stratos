@@ -14,21 +14,26 @@
 
 ## 🎯 Patrones y Arquitectura Frontend (NUEVO)
 
-- **[PATRON_JSON_DRIVEN_CRUD.md](PATRON_JSON_DRIVEN_CRUD.md)** - ⭐⭐⭐ Patrón JSON-Driven CRUD (LEE ESTO)
-  - Cómo crear formularios CRUD completos en 15 minutos
-  - Explicación detallada de config.json, tableConfig.json, itemForm.json, filters.json
-  - Estructura FormSchema.vue + FormData.vue
-- **[CHECKLIST_NUEVO_CRUD.md](CHECKLIST_NUEVO_CRUD.md)** - Checklist paso-a-paso para agregar nuevo CRUD
-  - Verificación previa (endpoints funcionando)
-  - Llenar 4 JSON files
-  - Crear Index.vue mínimo
-  - Agregar ruta y navlink
-  - Verificación final
-- **[PROGRESO_PRIORITY1_COMPLETO.md](PROGRESO_PRIORITY1_COMPLETO.md)** - ✅ Status Priority 1
-  - Person/Index.vue ✅
-  - Roles/Index.vue ✅
-  - Skills/Index.vue ✅
-  - 0 código duplicado, 100% reutilización
+- **[GUIA_RAPIDA_CRUD_GENERICO.md](GUIA_RAPIDA_CRUD_GENERICO.md)** - ⭐⭐ LEER PRIMERO - Guía rápida en 2 minutos
+  - 5 pasos simples para crear nuevo CRUD
+  - Sin escribir controladores
+  - Sin duplicar rutas
+- **[PATRON_JSON_DRIVEN_CRUD.md](PATRON_JSON_DRIVEN_CRUD.md)** - ⭐⭐⭐ Patrón JSON-Driven CRUD completo
+  - Explicación de FormSchemaController automático
+  - Cómo form-schema-complete.php genera rutas sin duplicación
+  - Arquitectura técnica completa
+- **[GUIA_CREAR_NUEVO_CRUD_GENERICO.md](GUIA_CREAR_NUEVO_CRUD_GENERICO.md)** - 📖 Guía paso-a-paso detallada
+  - 6 pasos con ejemplos concretos
+  - Ejemplo con "Certifications"
+  - Checklist completo
+- **[CHECKLIST_NUEVO_CRUD.md](CHECKLIST_NUEVO_CRUD.md)** - ✅ Checklist operativo con verificaciones
+  - Paso 0: Registrar en form-schema-complete.php (IMPORTANTE)
+  - Pasos 1-9: Llenar archivos, verificar
+  - Troubleshooting
+- **[PROGRESO_PRIORITY1_COMPLETO.md](PROGRESO_PRIORITY1_COMPLETO.md)** - ✅ Status Priority 1 - COMPLETADO
+  - Person/Index.vue ✅, Roles/Index.vue ✅, Skills/Index.vue ✅
+  - Dashboard ✅, Marketplace ✅, GapAnalysis ✅, LearningPaths ✅
+  - 100% reutilización, sin duplicación
 
 ---
 

@@ -40,17 +40,8 @@ Route::get('/applications/{id}', [\App\Http\Controllers\Api\ApplicationControlle
 Route::post('/applications', [\App\Http\Controllers\Api\ApplicationController::class, 'store']);
 Route::patch('/applications/{id}', [\App\Http\Controllers\Api\ApplicationController::class, 'update']);
 
-// Lectura: Person
-Route::get('/person', [\App\Http\Controllers\Api\PersonController::class, 'index']);
-Route::get('/person/{id}', [\App\Http\Controllers\Api\PersonController::class, 'show']);
-
-// Lectura: Roles
-Route::get('/roles', [\App\Http\Controllers\Api\RolesController::class, 'index']);
-Route::get('/roles/{id}', [\App\Http\Controllers\Api\RolesController::class, 'show']);
-
-// Lectura: Skills
-Route::get('/skills', [\App\Http\Controllers\Api\SkillsController::class, 'index']);
-Route::get('/skills/{id}', [\App\Http\Controllers\Api\SkillsController::class, 'show']);
+// CRUD genérico: Person, Skills, Roles, Departments
+// Gestionado por form-schema-complete.php con FormSchemaController
 
 // Dashboard
 Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController::class, 'metrics']);
