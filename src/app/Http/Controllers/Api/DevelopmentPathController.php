@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Person;
+use App\Models\People;
 use App\Models\Role;
 use App\Services\DevelopmentPathService;
 use Illuminate\Http\Request;
@@ -14,14 +14,14 @@ class DevelopmentPathController extends Controller
     public function generate(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'person_id' => ['required', 'integer'],
+            'people_id' => ['required', 'integer'],
             'role_id' => ['nullable', 'integer'],
             'role_name' => ['nullable', 'string'],
         ]);
 
-        $person = Person::find($data['person_id']);
-        if (! $person) {
-            return response()->json(['error' => 'Persona no encontrada'], 404);
+        $people = People::find($data['people_id']);
+        if (! $people) {
+            return response()->json(['error' => 'Peoplea no encontrada'], 404);
         }
 
         $role = null;
@@ -36,16 +36,16 @@ class DevelopmentPathController extends Controller
         }
 
         $service = new DevelopmentPathService();
-        $path = $service->generate($person, $role);
+        $path = $service->generate($people, $role);
 
         return response()->json([
             'id' => $path->id,
             'status' => $path->status,
             'estimated_duration_months' => $path->estimated_duration_months,
             'steps' => $path->steps,
-            'person' => [
-                'id' => $person->id,
-                'name' => $person->full_name ?? ($person->first_name . ' ' . $person->last_name),
+            'people' => [
+                'id' => $people->id,
+                'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
             ],
             'target_role' => [
                 'id' => $role->id,

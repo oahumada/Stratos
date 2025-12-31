@@ -55,8 +55,8 @@ resources/js/
 - ❌ `skills` (catálogo de competencias)
 - ❌ `roles` (perfiles de cargo)
 - ❌ `role_skills` (pivot: skills requeridas por rol)
-- ❌ `Person` (empleados/talento)
-- ❌ `person_skills` (pivot: skills de cada persona con niveles)
+- ❌ `People` (empleados/talento)
+- ❌ `people_skills` (pivot: skills de cada peoplea con niveles)
 - ❌ `development_paths` (rutas de desarrollo)
 - ❌ `job_openings` (vacantes internas)
 - ❌ `applications` (postulaciones a vacantes)
@@ -72,7 +72,7 @@ resources/js/
 - ❌ `Organization` (con relaciones hasMany)
 - ❌ `Skill` (con scope multi-tenant)
 - ❌ `Role` (con relación skills via pivot)
-- ❌ `Person` (empleado con skills y rol actual)
+- ❌ `People` (empleado con skills y rol actual)
 - ❌ `DevelopmentPath` (rutas con JSON de pasos)
 - ❌ `JobOpening` (vacantes)
 - ❌ `Application` (postulaciones)
@@ -90,7 +90,7 @@ resources/js/
 **Datos de Demo:**
 
 - ❌ Seeder de TechCorp (20 empleados, 8 roles, 30 skills)
-- ❌ Relaciones person_skills con niveles (según casos de uso)
+- ❌ Relaciones people_skills con niveles (según casos de uso)
 - ❌ 5 vacantes internas pre-configuradas
 - ❌ 10 postulaciones de ejemplo
 
@@ -102,7 +102,7 @@ resources/js/
 
 **Services (Core del MVP):**
 
-- ❌ `GapAnalysisService` → Cálculo de brechas persona ↔ rol
+- ❌ `GapAnalysisService` → Cálculo de brechas peoplea ↔ rol
 - ❌ `DevelopmentPathService` → Generación de rutas
 - ❌ `MatchingService` → Ranking de candidatos para vacantes
 
@@ -117,17 +117,17 @@ resources/js/
 **CRÍTICOS (✅ en memories.md 6.2):**
 
 - ❌ `DashboardController` → `/api/dashboard/metrics`, `/skills-gaps`, `/roles-at-risk`
-- ❌ `PersonController` → `GET /api/Person`, `GET /api/Person/{id}`, `GET /api/Person/{id}/skills`
-- ❌ `RolesController` → `GET /api/roles`, `GET /api/roles/{id}`, `GET /api/roles/{id}/Person`
+- ❌ `PeopleController` → `GET /api/People`, `GET /api/People/{id}`, `GET /api/People/{id}/skills`
+- ❌ `RolesController` → `GET /api/roles`, `GET /api/roles/{id}`, `GET /api/roles/{id}/People`
 - ❌ `SkillsController` → `GET /api/skills`, `GET /api/skills/{id}`
-- ❌ `GapAnalysisController` → `POST /api/gap-analysis`, `GET /api/gap-analysis/person/{id}`
+- ❌ `GapAnalysisController` → `POST /api/gap-analysis`, `GET /api/gap-analysis/people/{id}`
 - ❌ `DevelopmentPathController` → `POST /api/development-paths/generate`, `GET /api/development-paths`
 - ❌ `JobOpeningController` → `GET /api/job-openings`, `GET /api/job-openings/{id}/candidates`
 - ❌ `ApplicationController` → `POST /api/applications` (marketplace)
 
 **API Resources:**
 
-- ❌ PersonResource, SkillResource, RoleResource, GapAnalysisResource, etc.
+- ❌ PeopleResource, SkillResource, RoleResource, GapAnalysisResource, etc.
 
 **Acción:** Crear 8 controllers + 8 resources
 
@@ -137,8 +137,8 @@ resources/js/
 
 **Páginas de Negocio (faltan todas):**
 
-- ❌ `/Person` → Lista de empleados con búsqueda
-- ❌ `/Person/{id}` → Perfil de empleado con skills, radar chart
+- ❌ `/People` → Lista de empleados con búsqueda
+- ❌ `/People/{id}` → Perfil de empleado con skills, radar chart
 - ❌ `/roles` → Catálogo de roles
 - ❌ `/roles/{id}` → Detalle de rol con skills requeridas
 - ❌ `/gap-analysis` → Vista de cálculo de brechas
@@ -157,7 +157,7 @@ resources/js/
 
 - ❌ `SkillsTable.vue` → Tabla de skills con niveles y progress bars
 - ❌ `SkillsRadarChart.vue` → Radar chart de competencias
-- ❌ `GapAnalysisCard.vue` → Card de brecha persona ↔ rol
+- ❌ `GapAnalysisCard.vue` → Card de brecha peoplea ↔ rol
 - ❌ `RoleCard.vue` → Card de rol con match %
 - ❌ `DevelopmentPathTimeline.vue` → Timeline de ruta de desarrollo
 - ❌ `CandidateRankingTable.vue` → Tabla de candidatos rankeados
@@ -190,7 +190,7 @@ resources/js/
 - ✅ 15:00-18:00: Crear vacantes y postulaciones
 - ✅ **Entregable:** `php artisan db:seed` crea TechCorp completo
 
-**Completado:** DemoSeeder creado con 30 skills, 8 roles, 20 personas, 5 vacantes, 10 postulaciones, 1 ruta de desarrollo  
+**Completado:** DemoSeeder creado con 30 skills, 8 roles, 20 peopleas, 5 vacantes, 10 postulaciones, 1 ruta de desarrollo  
 [Ver detalles en dia2_seeders_completados.md](dia2_seeders_completados.md)
 
 ### Día 3 (29 Dic): Lógica de Negocio ✅ COMPLETADO
@@ -212,7 +212,7 @@ resources/js/
 
 **Objetivo:** Endpoints de lectura + Gap Analysis
 
-- ✅ 09:00-11:00: PersonController + Resource
+- ✅ 09:00-11:00: PeopleController + Resource
 - ✅ 11:00-13:00: RolesController + SkillsController
 - ✅ 14:00-16:00: GapAnalysisController
 - ✅ 16:00-18:00: DashboardController (métricas)
@@ -234,7 +234,7 @@ resources/js/
 
 - ✅ JobOpeningController: index(), show(), candidates()
 - ✅ ApplicationController: index(), show(), store(), update()
-- ✅ MarketplaceController: opportunities(person_id)
+- ✅ MarketplaceController: opportunities(people_id)
 - ✅ 17 endpoints registrados (GET, POST, PATCH)
 - ✅ Documentación en [dia5_api_endpoints.md](dia5_api_endpoints.md)
 - ✅ Rutas verificadas con `php artisan route:list`
@@ -243,7 +243,7 @@ resources/js/
 
 **Objetivo:** Páginas principales funcionando
 
-- [ ] 09:00-11:00: Person (lista + detalle) con Vuetify
+- [ ] 09:00-11:00: People (lista + detalle) con Vuetify
 - [ ] 11:00-13:00: Roles (lista + detalle)
 - [ ] 14:00-16:00: Gap Analysis (formulario + resultado)
 - [ ] 16:00-18:00: Dashboard (conectado a API real)
@@ -269,7 +269,7 @@ resources/js/
 
 1. ✅ Gap Analysis completo (backend + frontend)
 2. ✅ Dashboard con métricas reales
-3. ✅ Perfiles de personas con skills
+3. ✅ Perfiles de peopleas con skills
 4. ✅ Roles con skills requeridas
 5. ✅ Datos de TechCorp funcionando
 
@@ -354,8 +354,8 @@ php artisan make:migration create_organizations_table
 php artisan make:migration create_skills_table
 php artisan make:migration create_roles_table
 php artisan make:migration create_role_skills_table
-php artisan make:migration create_Person_table
-php artisan make:migration create_person_skills_table
+php artisan make:migration create_People_table
+php artisan make:migration create_people_skills_table
 php artisan make:migration create_development_paths_table
 php artisan make:migration create_job_openings_table
 php artisan make:migration create_applications_table
@@ -364,7 +364,7 @@ php artisan make:migration create_applications_table
 php artisan make:model Organization
 php artisan make:model Skill
 php artisan make:model Role
-php artisan make:model Person
+php artisan make:model People
 php artisan make:model DevelopmentPath
 php artisan make:model JobOpening
 php artisan make:model Application
@@ -378,7 +378,7 @@ mkdir app/Services
 
 # 5. Crear controllers API
 php artisan make:controller Api/DashboardController
-php artisan make:controller Api/PersonController --api
+php artisan make:controller Api/PeopleController --api
 php artisan make:controller Api/RolesController --api
 php artisan make:controller Api/SkillsController --api
 php artisan make:controller Api/GapAnalysisController
@@ -387,7 +387,7 @@ php artisan make:controller Api/JobOpeningController
 php artisan make:controller Api/ApplicationController
 
 # 6. Crear resources
-php artisan make:resource PersonResource
+php artisan make:resource PeopleResource
 php artisan make:resource RoleResource
 php artisan make:resource SkillResource
 # etc.

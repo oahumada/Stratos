@@ -1,7 +1,7 @@
 {
   "endpoints": {
-    "index": "/api/person",
-    "apiUrl": "/api/person"
+    "index": "/api/people",
+    "apiUrl": "/api/people"
   },
   "titulo": "Gestión de Personas",
   "descripcion": "Gestionar personas y sus habilidades",

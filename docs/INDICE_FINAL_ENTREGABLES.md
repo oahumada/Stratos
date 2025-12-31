@@ -39,7 +39,7 @@
 
 - **Propósito:** Template reutilizable para plan diario
 - **Tamaño:** 420+ líneas
-- **Tiempo:** 15 minutos para personalizar
+- **Tiempo:** 15 minutos para peoplealizar
 - **Frecuencia:** Cada día (copia como PLAN*DIA*[N].md)
 - **Contenido:**
     - Responsabilidad única del día
@@ -279,8 +279,8 @@ docs/
 │  └─ [otros archivos históricos]
 │
 └─ 📅 DINÁMICOS (Se crean con cada módulo):
-   ├─ PLAN_DIA_1.md ................................... Tu plan personalizado
-   ├─ PLAN_DIA_2.md ................................... Tu plan personalizado
+   ├─ PLAN_DIA_1.md ................................... Tu plan peoplealizado
+   ├─ PLAN_DIA_2.md ................................... Tu plan peoplealizado
    ├─ DIA_1.md ........................................ Resumen del día
    ├─ DIA_2.md ........................................ Resumen del día
    └─ [continúa...]

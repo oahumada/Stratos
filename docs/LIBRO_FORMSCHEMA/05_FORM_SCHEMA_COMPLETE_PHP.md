@@ -13,13 +13,13 @@ Si el `FormSchemaController` es dinámico en **tiempo de ejecución**, `form-sch
 ```
                     Tradicional
                     
-Route::get('/api/person', [FormSchemaController::class, 'index']);
-Route::post('/api/person', [FormSchemaController::class, 'store']);
-Route::get('/api/person/{id}', [FormSchemaController::class, 'show']);
-Route::put('/api/person/{id}', [FormSchemaController::class, 'update']);
-Route::patch('/api/person/{id}', [FormSchemaController::class, 'update']);
-Route::delete('/api/person/{id}', [FormSchemaController::class, 'destroy']);
-Route::post('/api/person/search', [FormSchemaController::class, 'search']);
+Route::get('/api/people', [FormSchemaController::class, 'index']);
+Route::post('/api/people', [FormSchemaController::class, 'store']);
+Route::get('/api/people/{id}', [FormSchemaController::class, 'show']);
+Route::put('/api/people/{id}', [FormSchemaController::class, 'update']);
+Route::patch('/api/people/{id}', [FormSchemaController::class, 'update']);
+Route::delete('/api/people/{id}', [FormSchemaController::class, 'destroy']);
+Route::post('/api/people/search', [FormSchemaController::class, 'search']);
 
 Route::get('/api/certification', [FormSchemaController::class, 'index']);
 Route::post('/api/certification', [FormSchemaController::class, 'store']);
@@ -28,7 +28,7 @@ Route::post('/api/certification', [FormSchemaController::class, 'store']);
                     Con FormSchema
                     
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     'Certification' => 'certifications',
 ];
 
@@ -63,7 +63,7 @@ use App\Http\Controllers\FormSchemaController;
  *   'NombreModelo' => 'ruta-plural'
  * 
  * Ejemplos:
- *   'Person' => 'person'           → /api/person
+ *   'People' => 'people'           → /api/people
  *   'Certification' => 'certifications' → /api/certifications
  *   'Role' => 'roles'              → /api/roles
  * 
@@ -72,12 +72,43 @@ use App\Http\Controllers\FormSchemaController;
  *   - Valor: Ruta de la API (minúscula, usualmente plural)
  */
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     'Certification' => 'certifications',
     'Role' => 'roles',
     'Skill' => 'skills',
     'Department' => 'departments',
 ];
+
+---
+
+## 2. Integración con Repository Pattern
+
+La arquitectura es:
+
+```
+form-schema-complete.php (registra rutas)
+    ↓ apunta a
+FormSchemaController::index() / store() / etc. (orquestación)
+    ↓ delega a
+{Model}Repository (lógica de persistencia)
+    ↓ usa
+{Model} Eloquent (mapeo a BD)
+```
+
+**Responsabilidades**:
+
+| Capa | Responsabilidad |
+|------|-----------------|
+| `form-schema-complete.php` | Registrar rutas dinámicamente |
+| `FormSchemaController` | Recibir HTTP, inicializar modelo/repo, retornar respuesta |
+| `{Model}Repository` | Ejecutar queries, filtros, validaciones BD-específicas |
+| `{Model}` Model | Mapear a tabla, relaciones, mutadores |
+
+**Ventaja**: Cambios en BD (filtros, validaciones, eager loading) van en Repository, **no en form-schema-complete.php ni FormSchemaController**.
+
+---
+
+## 3. Generación de Rutas
 
 /**
  * GENERACIÓN: Loop que crea rutas
@@ -201,12 +232,12 @@ Route::prefix('api')->group(function () use ($formSchemaModels) {
  * RUTAS NO GENERADAS (Endpoints especializados)
  * 
  * Estos NO están en form-schema-complete.php
- * porque requieren lógica personalizada:
+ * porque requieren lógica peoplealizada:
  */
 
 Route::prefix('api')->group(function () {
     
-    // Dashboard - Estadísticas personalizadas
+    // Dashboard - Estadísticas peoplealizadas
     Route::get('dashboard', [DashboardController::class, 'index']);
     
     // GapAnalysis - Cálculo de brechas
@@ -228,14 +259,14 @@ Route::prefix('api')->group(function () {
 ### Desglose Detallado
 
 ```php
-Route::post('person/search', function (Request $request) use ($modelName) {
+Route::post('people/search', function (Request $request) use ($modelName) {
     return (new FormSchemaController())
         ->search($request, $modelName);
-})->name("api.person.search");
+})->name("api.people.search");
 
 //   │      │        │          │       │         │            └─ Nombre para generar URLs
 //   │      │        │          │       │         └─ Closure que ejecuta la lógica
-//   │      │        │          │       └─ Modelo 'Person' disponible en closure
+//   │      │        │          │       └─ Modelo 'People' disponible en closure
 //   │      │        │          └─ Request inyectada automáticamente
 //   │      │        └─ Subruta (dentro de prefix 'api')
 //   │      └─ Verbo HTTP
@@ -246,20 +277,20 @@ Route::post('person/search', function (Request $request) use ($modelName) {
 
 ```
 Paso 1: Usuario en frontend
-   axios.post('/api/person/search', { query: 'aws' })
+   axios.post('/api/people/search', { query: 'aws' })
 
 Paso 2: Laravel enrutador
    Busca coincidencia en rutas registradas
-   Encuentra: Route::post('person/search', ...)
+   Encuentra: Route::post('people/search', ...)
    
 Paso 3: Ejecuta closure
    new FormSchemaController()
-   ->search($request, 'Person')  ← Parámetro modelName
+   ->search($request, 'People')  ← Parámetro modelName
 
 Paso 4: Controller lógica
-   initializeForModel('Person')
-   // Carga App\Models\Person
-   // Carga PersonRepository
+   initializeForModel('People')
+   // Carga App\Models\People
+   // Carga PeopleRepository
    
    $results = $this->repository->search('aws')
    
@@ -281,19 +312,19 @@ Paso 5: Respuesta al frontend
 ```php
 // OPCIÓN 1: Singular (actual)
 $formSchemaModels = [
-    'Person' => 'person',           // /api/person
+    'People' => 'people',           // /api/people
     'Certification' => 'certification',  // /api/certification
 ];
 
 // OPCIÓN 2: Plural (alternativa)
 $formSchemaModels = [
-    'Person' => 'people',           // /api/people
+    'People' => 'people',           // /api/people
     'Certification' => 'certifications',  // /api/certifications
 ];
 
 // OPCIÓN 3: Mixto (inconsistente ❌)
 $formSchemaModels = [
-    'Person' => 'person',           // /api/person
+    'People' => 'people',           // /api/people
     'Certification' => 'certifications',  // /api/certifications
 ];
 ```
@@ -302,13 +333,13 @@ $formSchemaModels = [
 
 ```php
 // ANTES (Problema)
-'Person' => 'person',           // singular
+'People' => 'people',           // singular
 'Certification' => 'certifications',  // plural
 'Role' => 'role',               // singular ❌
 'Skill' => 'skills',            // plural
 
 // DESPUÉS (Consolidado)
-'Person' => 'person',           // singular, pero consistente
+'People' => 'people',           // singular, pero consistente
 'Certification' => 'certifications',  // plural, pero consistente
 'Role' => 'roles',              // plural ✅
 'Skill' => 'skills',            // plural ✅
@@ -319,7 +350,7 @@ $formSchemaModels = [
 ```php
 // OPCIÓN A: Plural (REST puro)
 $formSchemaModels = [
-    'Person' => 'people',
+    'People' => 'people',
     'Certification' => 'certifications',
     'Role' => 'roles',
     'Skill' => 'skills',
@@ -329,7 +360,7 @@ $formSchemaModels = [
 
 // OPCIÓN B: Singular (más simple)
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     'Certification' => 'certification',
     'Role' => 'role',
     'Skill' => 'skill',
@@ -346,12 +377,12 @@ $formSchemaModels = [
 
 ```php
 // routes/web.php (Inertia.js, página completa)
-Route::get('/person', [PersonController::class, 'index'])->name('person.index');
-Route::get('/person/{id}', [PersonController::class, 'show'])->name('person.show');
+Route::get('/people', [PeopleController::class, 'index'])->name('people.index');
+Route::get('/people/{id}', [PeopleController::class, 'show'])->name('people.show');
 
 // routes/form-schema-complete.php (API endpoints)
-Route::get('api/person', [FormSchemaController::class, 'index']);
-Route::post('api/person/search', [FormSchemaController::class, 'search']);
+Route::get('api/people', [FormSchemaController::class, 'index']);
+Route::post('api/people/search', [FormSchemaController::class, 'search']);
 
 // routes/api.php (Endpoints especiales, sin CRUD)
 Route::get('api/dashboard', [DashboardController::class, 'index']);
@@ -361,13 +392,13 @@ Route::get('api/dashboard', [DashboardController::class, 'index']);
 
 ```
 Usuario navegación
-    ├─ GET /person
+    ├─ GET /people
     │  ▼
     │  Route en web.php
     │  ▼
-    │  PersonController::index()
+    │  PeopleController::index()
     │  ▼
-    │  Renderiza Inertia.js → Vue → PersonIndex.vue
+    │  Renderiza Inertia.js → Vue → PeopleIndex.vue
     │  ▼
     │  Carga en navegador
     │
@@ -375,11 +406,11 @@ Usuario navegación
        ▼
        FormSchema.vue llama
        ▼
-       axios.post('/api/person/search', {...})
+       axios.post('/api/people/search', {...})
        ▼
        Route en form-schema-complete.php
        ▼
-       FormSchemaController::search('Person')
+       FormSchemaController::search('People')
        ▼
        Retorna JSON
        ▼
@@ -390,23 +421,23 @@ Usuario navegación
 
 ## 5. Casos Especiales y Extensiones
 
-### Agregar Rutas Personalizadas
+### Agregar Rutas Peoplealizadas
 
 ```php
 // form-schema-complete.php
 
 // ... mapeo y loop de generación ...
 
-// DESPUÉS del loop: Rutas personalizadas
+// DESPUÉS del loop: Rutas peoplealizadas
 
 Route::prefix('api')->group(function () {
     
-    // Endpoint específico para Person: Asignar habilidades
-    Route::post('person/{id}/skills', function (Request $request, $id) {
-        $person = Person::findOrFail($id);
-        $person->skills()->sync($request->get('skill_ids'));
+    // Endpoint específico para People: Asignar habilidades
+    Route::post('people/{id}/skills', function (Request $request, $id) {
+        $people = People::findOrFail($id);
+        $people->skills()->sync($request->get('skill_ids'));
         return response()->json(['message' => 'Skills assigned']);
-    })->name('api.person.assign-skills');
+    })->name('api.people.assign-skills');
     
     // Endpoint específico para Certification: Renovar
     Route::post('certifications/{id}/renew', function (Request $request, $id) {
@@ -466,20 +497,20 @@ Route::prefix('api')->group(function () use ($formSchemaModels) {
 php artisan route:list
 
 # Salida esperada:
-# GET|HEAD   /api/person ........................ api.person.index
-# POST       /api/person ........................ api.person.store
-# GET|HEAD   /api/person/{id} .................. api.person.show
-# PUT        /api/person/{id} .................. api.person.update
-# PATCH      /api/person/{id} .................. api.person.update
-# DELETE     /api/person/{id} .................. api.person.destroy
-# POST       /api/person/search ................ api.person.search
+# GET|HEAD   /api/people ........................ api.people.index
+# POST       /api/people ........................ api.people.store
+# GET|HEAD   /api/people/{id} .................. api.people.show
+# PUT        /api/people/{id} .................. api.people.update
+# PATCH      /api/people/{id} .................. api.people.update
+# DELETE     /api/people/{id} .................. api.people.destroy
+# POST       /api/people/search ................ api.people.search
 #
 # POST       /api/certifications .............. api.certifications.store
 # GET|HEAD   /api/certifications .............. api.certifications.index
 # ...
 
 # Filtrar por modelo específico
-php artisan route:list | grep person
+php artisan route:list | grep people
 
 # Filtrar por método HTTP
 php artisan route:list --method=POST
@@ -491,12 +522,12 @@ php artisan route:list --method=POST
 // En controller o test:
 
 // Generar URL completa
-route('api.person.index')     // /api/person
-route('api.person.show', ['id' => 42])  // /api/person/42
-route('api.person.search')    // /api/person/search
+route('api.people.index')     // /api/people
+route('api.people.show', ['id' => 42])  // /api/people/42
+route('api.people.search')    // /api/people/search
 
 // En Vue (si inyectado):
-{{ route('api.person.store') }}  // /api/person
+{{ route('api.people.store') }}  // /api/people
 ```
 
 ### Comprobar Duplicados
@@ -517,9 +548,9 @@ php artisan route:list | sort | uniq -d
 ```php
 // routes/api.php - 100 líneas de rutas duplicadas
 
-Route::get('person', [FormSchemaController::class, 'index']);
-Route::post('person', [FormSchemaController::class, 'store']);
-Route::get('person/{id}', [FormSchemaController::class, 'show']);
+Route::get('people', [FormSchemaController::class, 'index']);
+Route::post('people', [FormSchemaController::class, 'store']);
+Route::get('people/{id}', [FormSchemaController::class, 'show']);
 // ... 5 rutas más ...
 
 Route::get('certifications', [FormSchemaController::class, 'index']);

@@ -86,12 +86,12 @@
 ### PARTE IV: Aplicación Práctica (Capítulos 8-10)
 
 ✅ **Capítulo 08:** Casos de Uso y Patrones
-- Caso 1: CRUD simple (Personas)
-- Caso 2: Many-to-many (Persona + Habilidades)
+- Caso 1: CRUD simple (Peopleas)
+- Caso 2: Many-to-many (Peoplea + Habilidades)
 - Caso 3: Validaciones complejas
 - Caso 4: Búsqueda avanzada
 - Caso 5: Exportar a CSV
-- Caso 6: Campos personalizados
+- Caso 6: Campos peoplealizados
 - Matriz: Cuándo usar vs no usar
 
 ✅ **Capítulo 09:** Anti-Patrones y Limitaciones
@@ -164,12 +164,12 @@ Frontend Pages Implementadas:
   ✅ GapAnalysis/Index.vue
   ✅ LearningPaths/Index.vue
   ✅ Marketplace/Index.vue
-  ✅ Person/Index.vue + Show.vue
+  ✅ People/Index.vue + Show.vue
   ✅ Roles/Index.vue + Show.vue
   ✅ Skills/Index.vue
 
 Backend CRUDs Generados:
-  ✅ Person (8 rutas)
+  ✅ People (8 rutas)
   ✅ Certification (8 rutas)
   ✅ Role (8 rutas)
   ✅ Skill (8 rutas)

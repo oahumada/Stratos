@@ -31,7 +31,7 @@
   - Pasos 1-9: Llenar archivos, verificar
   - Troubleshooting
 - **[PROGRESO_PRIORITY1_COMPLETO.md](PROGRESO_PRIORITY1_COMPLETO.md)** - ✅ Status Priority 1 - COMPLETADO
-  - Person/Index.vue ✅, Roles/Index.vue ✅, Skills/Index.vue ✅
+  - People/Index.vue ✅, Roles/Index.vue ✅, Skills/Index.vue ✅
   - Dashboard ✅, Marketplace ✅, GapAnalysis ✅, LearningPaths ✅
   - 100% reutilización, sin duplicación
 
@@ -145,7 +145,7 @@
 ### 🚀 **Roadmap Frontend MVP** ⭐ ACTUAL
 
 - **[MVP_FRONTEND_ROADMAP.md](MVP_FRONTEND_ROADMAP.md)** - Plan detallado de Frontend para últimas 2 semanas (8-14 días)
-  - Módulos: Person, Skills, Roles, Gap Analysis, Learning Paths, Dashboard
+  - Módulos: People, Skills, Roles, Gap Analysis, Learning Paths, Dashboard
   - Timeline por fase
   - Criterios de aceptación
   - **👉 COMIENZA AQUÍ para saber qué construir**

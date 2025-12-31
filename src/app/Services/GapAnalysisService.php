@@ -2,20 +2,20 @@
 
 namespace App\Services;
 
-use App\Models\Person;
+use App\Models\People;
 use App\Models\Role;
 
 class GapAnalysisService
 {
     /**
-     * Calcula la brecha entre las competencias de una persona y las requeridas por un rol.
+     * Calcula la brecha entre las competencias de una peoplea y las requeridas por un rol.
      *
      * Retorna un arreglo con:
      * - match_percentage (0-100)
      * - summary: categoría general y conteos
      * - gaps: lista de brechas por skill
      */
-    public function calculate(Person $person, Role $role): array
+    public function calculate(People $people, Role $role): array
     {
         // Cargar skills del rol con datos de pivot (required_level, is_critical)
         $roleSkills = $role->skills()->withPivot(['required_level', 'is_critical'])->get();
@@ -25,12 +25,12 @@ class GapAnalysisService
         $gaps = [];
 
         foreach ($roleSkills as $roleSkill) {
-            // Buscar el nivel actual de la persona para esta skill
-            $personSkill = $person->skills()
+            // Buscar el nivel actual de la peoplea para esta skill
+            $peopleSkill = $people->skills()
                 ->where('skill_id', $roleSkill->id)
                 ->first();
 
-            $currentLevel = $personSkill ? (int) ($personSkill->pivot->level ?? 0) : 0;
+            $currentLevel = $peopleSkill ? (int) ($peopleSkill->pivot->level ?? 0) : 0;
             $requiredLevel = (int) ($roleSkill->pivot->required_level ?? 0);
             $gap = max(0, $requiredLevel - $currentLevel);
 

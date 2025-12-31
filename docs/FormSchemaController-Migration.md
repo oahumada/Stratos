@@ -39,7 +39,7 @@ FormSchemaController -> [Cualquier]Repository -> Repository (base)
 
 - Inicialización dinámica de modelos y repositorios
 - Manejo de errores centralizado
-- Soporte para vistas personalizadas
+- Soporte para vistas peoplealizadas
 - Métodos CRUD completos
 - Compatibilidad con métodos específicos de repositorios
 
@@ -122,7 +122,7 @@ mv app/Http/Controllers/AtencionDiariaController.php backup/controllers/
 
 ## Configuración de Vistas
 
-El controlador incluye mapeos para vistas personalizadas:
+El controlador incluye mapeos para vistas peoplealizadas:
 
 ```php
 private function getViewMap(): array
@@ -138,12 +138,12 @@ private function getViewMap(): array
 
 ## Manejo de Casos Especiales
 
-### Repositorios con Métodos Personalizados
+### Repositorios con Métodos Peoplealizados
 
 El controlador genérico detecta automáticamente si un repositorio tiene métodos específicos:
 
 ```php
-// Si ExEquilibrioRepository tiene un método search() personalizado
+// Si ExEquilibrioRepository tiene un método search() peoplealizado
 if (method_exists($this->repository, 'search')) {
     return $this->repository->search($request);
 }

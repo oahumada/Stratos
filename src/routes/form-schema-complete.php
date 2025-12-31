@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 // Mapeo completo de modelos FormSchema: ModelName => route-name
 $formSchemaModels = [
     // Tablas hijas principales
-    'Person' => 'person',
+    'People' => 'people',
     'Skills' => 'skills',
     'Department' => 'departments',
     'Role' => 'roles',  // Plural para consistencia con API
@@ -77,7 +77,7 @@ Route::group([], function () use ($formSchemaModels) {
         // POST /api/{route-name}/search-with-paciente - Búsqueda con joins
         Route::post("{$routeName}/search-with-paciente", function (Request $request) use ($modelName) {
             $controller = new FormSchemaController();
-            return $controller->searchWithPerson($request, $modelName);
+            return $controller->searchWithPeople($request, $modelName);
         })->name("api.{$routeName}.search-with-paciente");
     }
 });

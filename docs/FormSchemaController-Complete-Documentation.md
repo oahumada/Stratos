@@ -81,8 +81,8 @@ Se implementó exitosamente un sistema genérico que unifica todos los controlad
 - **Inicialización dinámica**: Carga modelos y repositorios en tiempo de ejecución
 - **Métodos CRUD completos**: store, update, destroy, show, search
 - **Manejo de errores centralizado**: Logging y respuestas consistentes
-- **Compatibilidad con métodos específicos**: Detecta métodos personalizados en repositorios
-- **Soporte para vistas Inertia**: Mapeo de vistas personalizadas
+- **Compatibilidad con métodos específicos**: Detecta métodos peoplealizados en repositorios
+- **Soporte para vistas Inertia**: Mapeo de vistas peoplealizadas
 
 **Métodos principales**:
 
@@ -324,7 +324,7 @@ php artisan route:list --name=api | grep -E "(alergia|atencion-diaria|ex-equilib
     php artisan route:clear
     ```
 
-#### Personalizar Comportamiento
+#### Peoplealizar Comportamiento
 
 Si un modelo necesita lógica específica:
 
@@ -332,13 +332,13 @@ Si un modelo necesita lógica específica:
 2. **El controlador genérico lo detectará automáticamente**:
 
     ```php
-    // FormSchemaController detecta métodos personalizados
+    // FormSchemaController detecta métodos peoplealizados
     if (method_exists($this->repository, 'search')) {
         return $this->repository->search($request);
     }
     ```
 
-#### Agregar Vista Personalizada
+#### Agregar Vista Peoplealizada
 
 ```php
 // En FormSchemaController::getViewMap()

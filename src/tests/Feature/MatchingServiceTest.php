@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Organization;
-use App\Models\Person;
+use App\Models\People;
 use App\Models\Role;
 use App\Models\Skill;
 use App\Models\User;
@@ -44,8 +44,8 @@ it('ordena candidatos por mayor porcentaje de match', function () {
         $skillC->id => ['required_level' => 4, 'is_critical' => true],
     ]);
 
-    // Personas con diferentes niveles
-    $p1 = Person::create([
+    // Peopleas con diferentes niveles
+    $p1 = People::create([
         'organization_id' => $org->id,
         'first_name' => 'Ana',
         'last_name' => 'Alta',
@@ -57,7 +57,7 @@ it('ordena candidatos por mayor porcentaje de match', function () {
         $skillC->id => ['level' => 2], // gap 2
     ]);
 
-    $p2 = Person::create([
+    $p2 = People::create([
         'organization_id' => $org->id,
         'first_name' => 'Beto',
         'last_name' => 'Bajo',

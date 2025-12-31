@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Person;
+use App\Models\People;
 use App\Models\Role;
 use App\Services\GapAnalysisService;
 use Illuminate\Http\Request;
@@ -14,14 +14,14 @@ class GapAnalysisController extends Controller
     public function analyze(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'person_id' => ['required', 'integer'],
+            'people_id' => ['required', 'integer'],
             'role_id' => ['nullable', 'integer'],
             'role_name' => ['nullable', 'string'],
         ]);
 
-        $person = Person::find($data['person_id']);
-        if (! $person) {
-            return response()->json(['error' => 'Persona no encontrada'], 404);
+        $people = People::find($data['people_id']);
+        if (! $people) {
+            return response()->json(['error' => 'Peoplea no encontrada'], 404);
         }
 
         $role = null;
@@ -36,12 +36,12 @@ class GapAnalysisController extends Controller
         }
 
         $service = new GapAnalysisService();
-        $analysis = $service->calculate($person, $role);
+        $analysis = $service->calculate($people, $role);
 
         return response()->json([
-            'person' => [
-                'id' => $person->id,
-                'name' => $person->full_name ?? ($person->first_name . ' ' . $person->last_name),
+            'people' => [
+                'id' => $people->id,
+                'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
             ],
             'role' => [
                 'id' => $role->id,

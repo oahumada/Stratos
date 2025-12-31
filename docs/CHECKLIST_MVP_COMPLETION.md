@@ -16,8 +16,8 @@
     - ✅ skills
     - ✅ roles
     - ✅ role_skills (pivot)
-    - ✅ Person
-    - ✅ person_skills (pivot with levels)
+    - ✅ People
+    - ✅ people_skills (pivot with levels)
     - ✅ development_paths
     - ✅ job_openings
     - ✅ applications
@@ -31,7 +31,7 @@
     - ✅ Organization
     - ✅ Skill
     - ✅ Role (with belongsToMany Skill)
-    - ✅ Person (with skills, role, development_paths, applications)
+    - ✅ People (with skills, role, development_paths, applications)
     - ✅ DevelopmentPath
     - ✅ JobOpening
     - ✅ Application
@@ -41,7 +41,7 @@
     - ✅ 1 Organization (TechCorp)
     - ✅ 30 Skills categorized
     - ✅ 8 Roles with required skills
-    - ✅ 20 Person with skills and levels
+    - ✅ 20 People with skills and levels
     - ✅ 5 Job Openings
     - ✅ 10 Applications
 - ✅ Execute `php artisan db:seed`
@@ -49,12 +49,12 @@
 ### Día 3: Business Logic Services
 
 - ✅ Create GapAnalysisService
-    - ✅ `calculate(Person, Role): array` method
+    - ✅ `calculate(People, Role): array` method
     - ✅ Returns match_percentage (0-100)
     - ✅ Returns gaps array with skill details
     - ✅ Status classification (ok/developing/critical)
 - ✅ Create DevelopmentPathService
-    - ✅ `generate(Person, Role): DevelopmentPath` method
+    - ✅ `generate(People, Role): DevelopmentPath` method
     - ✅ Generates steps with action types
     - ✅ Prioritizes critical skills first
     - ✅ Estimates duration
@@ -64,8 +64,8 @@
     - ✅ Returns sorted DESC by match %
     - ✅ Includes risk_factor and time_to_productivity
 - ✅ Create 3 Artisan commands
-    - ✅ `gap:analyze {person_id} {role_name}`
-    - ✅ `devpath:generate {person_id} {role_name}`
+    - ✅ `gap:analyze {people_id} {role_name}`
+    - ✅ `devpath:generate {people_id} {role_name}`
     - ✅ `candidates:rank {job_opening_id}`
 - ✅ Create unit tests
     - ✅ GapAnalysisServiceTest (PASS)
@@ -73,20 +73,21 @@
 
 ### Día 4: API REST - Part 1
 
-- ✅ Create 8 Controllers
+- ✅ Create 5 Controllers + FormSchemaController (genérico)
+    - ✅ FormSchemaController (genérico para CRUD)
     - ✅ GapAnalysisController
     - ✅ DevelopmentPathController
-    - ✅ PersonController
-    - ✅ RolesController
-    - ✅ SkillsController
     - ✅ DashboardController
     - ✅ JobOpeningController (partial)
     - ✅ ApplicationController (partial)
+    - ❌ PeopleController (eliminado - duplicaba FormSchemaController)
+    - ❌ RolesController (eliminado - duplicaba FormSchemaController)
+    - ❌ SkillsController (eliminado - duplicaba FormSchemaController)
 - ✅ Implement API endpoints
     - ✅ POST /api/gap-analysis
     - ✅ POST /api/development-paths/generate
-    - ✅ GET /api/Person
-    - ✅ GET /api/Person/{id}
+    - ✅ GET /api/People
+    - ✅ GET /api/People/{id}
     - ✅ GET /api/roles
     - ✅ GET /api/roles/{id}
     - ✅ GET /api/skills
@@ -108,7 +109,7 @@
     - ✅ `store(Request)` - POST /api/applications (with validation)
     - ✅ `update(int $id, Request)` - PATCH /api/applications/{id}
 - ✅ Create MarketplaceController
-    - ✅ `opportunities(int $personId)` - GET /api/Person/{person_id}/marketplace
+    - ✅ `opportunities(int $peopleId)` - GET /api/People/{people_id}/marketplace
 - ✅ Register all routes
     - ✅ 17 total API endpoints
 - ✅ Create documentation
@@ -125,7 +126,7 @@
 ### Día 6: Frontend Pages - Core
 
 - [ ] Create Vue pages (using Vuetify)
-    - [ ] Pages: /Person (list + detail)
+    - [ ] Pages: /People (list + detail)
     - [ ] Pages: /roles (list + detail)
     - [ ] Pages: /gap-analysis
     - [ ] Pages: /development-paths
@@ -150,7 +151,7 @@
     - [ ] DashboardMetricsCard.vue
 - [ ] Implement Marketplace feature
     - [ ] Page: /marketplace
-    - [ ] Shows opportunities for current person
+    - [ ] Shows opportunities for current people
     - [ ] Uses MarketplaceController endpoint
 - [ ] Forms and interactions
     - [ ] Create Application form (POST /api/applications)

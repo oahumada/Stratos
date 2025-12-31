@@ -15,10 +15,10 @@ Un único componente Vue renderiza **tablas y formularios** para **cualquier mod
 ```vue
 <!-- Mismo componente, resultados diferentes -->
 
-<!-- Renderiza tabla de Personas -->
+<!-- Renderiza tabla de Peopleas -->
 <FormSchema 
-  :config="personConfig"
-  @save="savePerson"
+  :config="peopleConfig"
+  @save="savePeople"
 />
 
 <!-- Renderiza tabla de Certificaciones -->
@@ -148,9 +148,9 @@ import Notifications from '@/components/Notifications.vue';
  * PROPS: Configuración del modelo
  * 
  * config: {
- *   apiEndpoint: '/api/person',
- *   title: 'Personas',
- *   singularName: 'Persona',
+ *   apiEndpoint: '/api/people',
+ *   title: 'Peopleas',
+ *   singularName: 'Peoplea',
  *   filters: { ... },
  *   tableConfig: { columns: [...] },
  *   itemForm: { fields: [...] }
@@ -668,11 +668,11 @@ function submitForm() {
 
 ## 3. Integración en Página Index
 
-### Uso en Person/Index.vue
+### Uso en People/Index.vue
 
 ```vue
 <template>
-  <AppLayout title="Personas">
+  <AppLayout title="Peopleas">
     <FormSchema :config="config" />
   </AppLayout>
 </template>
@@ -682,12 +682,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import FormSchema from '@/components/FormSchema.vue';
 
 // Importar configuración específica del modelo
-import configJson from './person-form/config.json';
+import configJson from './people-form/config.json';
 
 // Ref reactiva con la configuración
 const config = reactive({
   ...configJson,
-  apiEndpoint: '/api/person', // Override endpoint
+  apiEndpoint: '/api/people', // Override endpoint
 });
 
 </script>
@@ -701,10 +701,10 @@ const config = reactive({
 
 ```json
 {
-  "apiEndpoint": "/api/person",
-  "title": "Personas",
-  "singularName": "Persona",
-  "pluralName": "Personas",
+  "apiEndpoint": "/api/people",
+  "title": "Peopleas",
+  "singularName": "Peoplea",
+  "pluralName": "Peopleas",
   
   "tableConfig": {
     "columns": [

@@ -12,7 +12,7 @@
 | Día        | Objetivo             | Estado       | Entregables                                    |
 | ---------- | -------------------- | ------------ | ---------------------------------------------- |
 | 1 (27 Dic) | Base de datos        | ✅ Completo  | 10 migraciones, 7 modelos, global scopes       |
-| 2 (28 Dic) | Seeders              | ✅ Completo  | DemoSeeder con 20 personas, 8 roles, 30 skills |
+| 2 (28 Dic) | Seeders              | ✅ Completo  | DemoSeeder con 20 peopleas, 8 roles, 30 skills |
 | 3 (29 Dic) | Servicios            | ✅ Completo  | 3 servicios, 3 comandos Artisan, 2 tests PASS  |
 | 4 (30 Dic) | API Parte 1          | ✅ Completo  | 8 controllers, 10 endpoints                    |
 | 5 (31 Dic) | API Parte 2          | ✅ Completo  | 3 controllers, 7 endpoints, documentación      |
@@ -30,12 +30,12 @@
 - 10 migraciones implementadas
 - 7 modelos Eloquent con relaciones
 - Multi-tenant con global scopes
-- Demo data seeded: 1 org, 20 personas, 30 skills, 8 roles, 5 vacantes
+- Demo data seeded: 1 org, 20 peopleas, 30 skills, 8 roles, 5 vacantes
 
 #### Servicios de Negocio ✅
 
 - **GapAnalysisService**: Calcula brecha de competencias (match %)
-- **DevelopmentPathService**: Genera rutas personalizadas de desarrollo
+- **DevelopmentPathService**: Genera rutas peoplealizadas de desarrollo
 - **MatchingService**: Ranking de candidatos por match %
 - Todos con algoritmos testados y funcionando
 
@@ -58,8 +58,8 @@ CRUD:
   PATCH  /api/applications/{id}
 
 Lectura:
-  GET    /api/Person
-  GET    /api/Person/{id}
+  GET    /api/People
+  GET    /api/People/{id}
   GET    /api/roles
   GET    /api/roles/{id}
   GET    /api/skills
@@ -69,7 +69,7 @@ Dashboard:
   GET    /api/dashboard/metrics
 
 Marketplace:
-  GET    /api/Person/{person_id}/marketplace
+  GET    /api/People/{people_id}/marketplace
 ```
 
 #### Documentación Completa ✅
@@ -88,7 +88,7 @@ Marketplace:
 
 | Página  | Endpoint(s)                           | Prioridad | Status |
 | ------- | ------------------------------------- | --------- | ------ |
-| /Person | GET /api/Person, GET /api/Person/{id} | P1        | ⏳     |
+| /People | GET /api/People, GET /api/People/{id} | P1        | ⏳     |
 | /roles  | GET /api/roles, GET /api/roles/{id}   | P1        | ⏳     |
 | /skills | GET /api/skills, GET /api/skills/{id} | P1        | ⏳     |
 
@@ -100,7 +100,7 @@ Marketplace:
 | /development-paths | POST /api/development-paths/generate              | P2        | ⏳              |
 | /job-openings      | GET /api/job-openings, GET /api/job-openings/{id} | P2        | ⏳              |
 | /applications      | GET/POST /api/applications                        | P2        | ⏳              |
-| /marketplace       | GET /api/Person/{id}/marketplace                  | P2        | ⏳              |
+| /marketplace       | GET /api/People/{id}/marketplace                  | P2        | ⏳              |
 | /dashboard         | GET /api/dashboard/metrics                        | P2        | ⏳ (Actualizar) |
 
 ### 🆕 Workforce Planning (Prioridad 3 - Si hay tiempo)
@@ -160,13 +160,13 @@ php artisan serve --port=8000
 **Opción B - cURL:**
 
 ```bash
-# Ver personas
-curl http://localhost:8000/api/Person
+# Ver peopleas
+curl http://localhost:8000/api/People
 
 # Analizar brecha
 curl -X POST http://localhost:8000/api/gap-analysis \
   -H "Content-Type: application/json" \
-  -d '{"person_id": 1, "role_name": "Backend Developer"}'
+  -d '{"people_id": 1, "role_name": "Backend Developer"}'
 ```
 
 **Opción C - Artisan Commands:**

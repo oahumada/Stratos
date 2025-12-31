@@ -35,7 +35,7 @@ routes/form-schema-complete.php
 
 ```php
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     'Skills' => 'skills',
     'Role' => 'roles',
     'YourModel' => 'your-models',  // ← AGREGAR
@@ -104,13 +104,13 @@ touch /resources/js/pages/YourModel/your-model-form/{
 ]
 ```
 
-**Copiar templates de:** `/resources/js/pages/Person/[model]-form/`
+**Copiar templates de:** `/resources/js/pages/People/[model]-form/`
 
 ---
 
 ### 4️⃣ Index.vue (3 min)
 
-**Copiar:** `/resources/js/pages/Person/Index.vue` (completo)
+**Copiar:** `/resources/js/pages/People/Index.vue` (completo)
 
 **Cambiar SOLO líneas 7-10:**
 ```typescript
@@ -230,7 +230,7 @@ php artisan route:cache
 
 ## 💡 Tips
 
-1. **Copiar siempre desde Person:** Es el template más completo y probado
+1. **Copiar siempre desde People:** Es el template más completo y probado
 2. **Validar JSONs:** Usar https://jsonlint.com/ para evitar errores
 3. **Caché de rutas:** Siempre ejecutar `php artisan route:cache` después de agregar modelo
 4. **Revisar Network tab:** Cuando tabla vacía, buscar errores en requests API

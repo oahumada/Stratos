@@ -10,7 +10,7 @@ class Application extends Model
 {
     protected $fillable = [
         'job_opening_id',
-        'person_id',
+        'people_id',
         'status',
         'message',
         'applied_at',
@@ -23,7 +23,7 @@ class Application extends Model
 
     protected static function booted()
     {
-        static::addGlobalScope('person_org', function (Builder $builder) {
+        static::addGlobalScope('people_org', function (Builder $builder) {
             if (auth()->check() && auth()->user()->organization_id) {
                 $builder->whereHas('jobOpening', function (Builder $q) {
                     $q->where('organization_id', auth()->user()->organization_id);
@@ -37,8 +37,8 @@ class Application extends Model
         return $this->belongsTo(JobOpening::class);
     }
 
-    public function person(): BelongsTo
+    public function people(): BelongsTo
     {
-        return $this->belongsTo(Person::class);
+        return $this->belongsTo(People::class);
     }
 }

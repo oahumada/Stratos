@@ -10,8 +10,8 @@
 
 Sanctum permite dos modos de autenticación para APIs:
 
-### 1. Autenticación por Token Personal (Bearer Token)
-- El usuario obtiene un token personal (por ejemplo, usando un endpoint como `/login` o `/api/token`).
+### 1. Autenticación por Token Peopleal (Bearer Token)
+- El usuario obtiene un token peopleal (por ejemplo, usando un endpoint como `/login` o `/api/token`).
 - El frontend debe enviar ese token en el header de cada request:
   ```
   Authorization: Bearer TU_TOKEN
@@ -92,7 +92,7 @@ Esto significa que solo los usuarios autenticados podrán acceder a esas rutas. 
 - El frontend debe enviar las cookies en cada request (con `withCredentials: true`).
 - Las rutas protegidas con `auth:sanctum` funcionarán mientras la sesión esté activa.
 
-### b) Por token personal
+### b) Por token peopleal
 - El usuario obtiene un token (por ejemplo, llamando a un endpoint que use `$user->createToken('nombre')->plainTextToken`).
 - El frontend guarda el token y lo envía en cada request en el header `Authorization`.
 

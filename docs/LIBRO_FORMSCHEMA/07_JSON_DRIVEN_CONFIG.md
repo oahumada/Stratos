@@ -79,7 +79,7 @@ DECLARATIVO (JSON):
 ### Ventaja 2: No-Code Configuration
 
 ```
-Personas sin programación pueden cambiar:
+Peopleas sin programación pueden cambiar:
   - Nombres de columnas en tabla
   - Campos en formularios
   - Validaciones
@@ -92,7 +92,7 @@ Solo necesitan editar JSON (o interfaz en admin)
 
 ```
 Crear nuevo CRUD es:
-  1. Copiar folder person-form/ → certifications-form/
+  1. Copiar folder people-form/ → certifications-form/
   2. Editar JSON files (config.json, tableConfig.json, etc.)
   3. Cambiar 4 imports en Index.vue
   4. Registrar en form-schema-complete.php
@@ -125,10 +125,10 @@ Si fuera hardcoded en .vue:
   "defaultOrder": "desc"
 }
 
-// person-config.json (Extiende base)
+// people-config.json (Extiende base)
 {
   "$extends": "base-config.json",
-  "title": "Personas",
+  "title": "Peopleas",
   "filters": { ... }
 }
 ```
@@ -141,10 +141,10 @@ Si fuera hardcoded en .vue:
 
 ```
 resources/js/pages/
-├── Person/
+├── People/
 │   ├── Index.vue           (Componente, importa config)
 │   ├── Show.vue            (Detalle, importa config)
-│   └── person-form/        (Carpeta de configuración)
+│   └── people-form/        (Carpeta de configuración)
 │       ├── config.json          (Configuración principal)
 │       ├── tableConfig.json     (Definición de tabla)
 │       ├── itemForm.json        (Definición de formulario)
@@ -166,11 +166,11 @@ resources/js/pages/
 
 ```json
 {
-  "model": "Person",
-  "apiEndpoint": "/api/person",
-  "title": "Personas",
-  "singularName": "Persona",
-  "pluralName": "Personas",
+  "model": "People",
+  "apiEndpoint": "/api/people",
+  "title": "Peopleas",
+  "singularName": "Peoplea",
+  "pluralName": "Peopleas",
   
   "features": {
     "search": true,
@@ -182,16 +182,16 @@ resources/js/pages/
   },
   
   "permissions": {
-    "canCreate": "user.can('create', 'Person')",
-    "canEdit": "user.can('edit', 'Person')",
-    "canDelete": "user.can('delete', 'Person')"
+    "canCreate": "user.can('create', 'People')",
+    "canEdit": "user.can('edit', 'People')",
+    "canDelete": "user.can('delete', 'People')"
   },
   
   "metadata": {
     "version": "1.0",
     "author": "Omar",
     "lastUpdated": "2025-12-31",
-    "description": "Gestión de personas en sistema TalentIA"
+    "description": "Gestión de peopleas en sistema TalentIA"
   }
 }
 ```
@@ -518,7 +518,7 @@ const schema = JSON.parse(
 );
 
 const configFiles = [
-  "./resources/js/pages/Person/person-form/config.json",
+  "./resources/js/pages/People/people-form/config.json",
   "./resources/js/pages/Certification/certifications-form/config.json",
 ];
 
@@ -553,7 +553,7 @@ Ejecutar antes de build:
 
 ## 4. Extensibilidad: Agregar Nuevas Capacidades
 
-### Agregar Tipo de Campo Personalizado
+### Agregar Tipo de Campo Peoplealizado
 
 ```json
 // itemForm.json
@@ -562,7 +562,7 @@ Ejecutar antes de build:
     {
       "key": "custom_rating",
       "label": "Calificación Custom",
-      "type": "custom:star-rating",  // ← Tipo personalizado
+      "type": "custom:star-rating",  // ← Tipo peoplealizado
       "stars": 5,
       "color": "amber",
       "customComponent": "StarRating"
@@ -671,7 +671,7 @@ const formFields = [
 ```vue
 <!-- DESPUÉS (Limpio y reutilizable) -->
 <script setup>
-import config from './person-form/config.json';
+import config from './people-form/config.json';
 
 const tableHeaders = computed(() => 
   config.tableConfig.columns.map(col => ({

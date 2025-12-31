@@ -1,7 +1,7 @@
 # 📊 MVP Frontend Progress - Día 1
 
 > **Fecha:** 28 Diciembre 2025  
-> **Status:** 🚀 FASE 1 INICIADA - Person Module Completado  
+> **Status:** 🚀 FASE 1 INICIADA - People Module Completado  
 > **Commits:** 6 (desde inicio de frontend)
 
 ---
@@ -12,7 +12,7 @@
 
 ```
 src/resources/js/pages/
-├── Person/          ✅ Person CRUD
+├── People/          ✅ People CRUD
 │   ├── Index.vue    (List + Create/Edit/Delete dialogs)
 │   └── Show.vue     (Detail + Skills management)
 ├── Skills/          ✅ Skills CRUD stub
@@ -29,29 +29,29 @@ src/resources/js/pages/
     └── CHRO.vue
 ```
 
-### 🎯 **Person Module** ✅ COMPLETADO
+### 🎯 **People Module** ✅ COMPLETADO
 
-**PersonList (Index.vue):**
+**PeopleList (Index.vue):**
 
 - ✅ Tabla de empleados con 7 columnas (Name, Email, Department, Role, Skills, Hired, Actions)
 - ✅ Búsqueda full-text
 - ✅ Filtros por Department, Role
-- ✅ Botón "New Person"
+- ✅ Botón "New People"
 - ✅ CRUD completo: Create, Edit, Delete
 - ✅ Dialog forms con validación
 - ✅ Loading states
 - ✅ Error handling
 - ✅ Integración con API endpoints:
-  - `GET /api/Person`
-  - `POST /api/Person`
-  - `PUT /api/Person/:id`
-  - `DELETE /api/Person/:id`
+  - `GET /api/People`
+  - `POST /api/People`
+  - `PUT /api/People/:id`
+  - `DELETE /api/People/:id`
   - `GET /api/roles`
 
-**PersonDetail (Show.vue):**
+**PeopleDetail (Show.vue):**
 
 - ✅ Vista de detalle del empleado
-- ✅ Información personal (Name, Email, Department, Role, Hired Date)
+- ✅ Información peopleal (Name, Email, Department, Role, Hired Date)
 - ✅ Tabla de skills asignados con niveles (1-5)
 - ✅ Formulario para editar empleado
 - ✅ Dialog para asignar skills
@@ -59,14 +59,14 @@ src/resources/js/pages/
 - ✅ Botones de acción:
   - View Gap Analysis (ready for future)
   - View Learning Path (ready for future)
-  - Edit Person
-  - Delete Person
+  - Edit People
+  - Delete People
 - ✅ Integración con API endpoints:
-  - `GET /api/Person/:id`
-  - `PUT /api/Person/:id`
-  - `GET /api/Person/:id/skills`
-  - `POST /api/Person/:id/skills`
-  - `DELETE /api/Person/:id/skills/:skillId`
+  - `GET /api/People/:id`
+  - `PUT /api/People/:id`
+  - `GET /api/People/:id/skills`
+  - `POST /api/People/:id/skills`
+  - `DELETE /api/People/:id/skills/:skillId`
   - `GET /api/roles`
   - `GET /api/skills`
 
@@ -112,7 +112,7 @@ src/resources/js/pages/
 - ✅ Integración con:
   - `GET /api/roles`
   - `GET /api/roles/:id/skills`
-  - `GET /api/roles/:id/Person`
+  - `GET /api/roles/:id/People`
 
 ---
 
@@ -138,7 +138,7 @@ src/resources/js/pages/
 | --------------------- | ---------------------------------- |
 | Componentes creados   | 9                                  |
 | Líneas de código      | ~1,836                             |
-| Módulos completados   | 2 (Person, Skills, Roles - básico) |
+| Módulos completados   | 2 (People, Skills, Roles - básico) |
 | Endpoints integrados  | 14                                 |
 | API calls funcionando | ✅                                 |
 | Tests                 | 0 (próxima fase)                   |
@@ -151,12 +151,12 @@ src/resources/js/pages/
 
 1. **Verificar Layout Base** - Asegurar que `AppLayout.vue` existe y es compatible
 2. **Probar en desarrollo** - `npm run dev` + verificar que las páginas cargan
-3. **Tests básicos** - Crear pruebas para PersonList y PersonDetail
+3. **Tests básicos** - Crear pruebas para PeopleList y PeopleDetail
 4. **Refinar UI** - Polish de formularios y tablas
 
 ### Día 2-3: Completar FASE 1
 
-- [ ] Terminar tests de Person module
+- [ ] Terminar tests de People module
 - [ ] Completar Skills module (sin cambios mayores, solo tests)
 - [ ] Completar Roles module (sin cambios mayores, solo tests)
 - [ ] Crear component reutilizable `FormSchema.vue`
@@ -216,8 +216,8 @@ Las rutas están en `src/resources/js/routes/mvp-routes.ts`
 ## 📈 Checklist de Verificación
 
 - [ ] `npm run dev` funciona sin errores
-- [ ] PersonList.vue renderiza tabla
-- [ ] API calls funcionan (`GET /api/Person`)
+- [ ] PeopleList.vue renderiza tabla
+- [ ] API calls funcionan (`GET /api/People`)
 - [ ] Create dialog abre/cierra
 - [ ] Edit funciona
 - [ ] Delete funciona
@@ -231,7 +231,7 @@ Las rutas están en `src/resources/js/routes/mvp-routes.ts`
 ## 💡 Decisiones de Diseño Tomadas
 
 1. **Single File Components (SFC)** - Vue 3 <script setup> syntax
-2. **TypeScript** - Interfaces para Person, Skill, Role, etc.
+2. **TypeScript** - Interfaces para People, Skill, Role, etc.
 3. **Vuetify Data Tables** - Para consistencia con backend
 4. **Dialog-based Forms** - En lugar de separate pages (más rápido)
 5. **Color Coding** - Departamentos y niveles de skills

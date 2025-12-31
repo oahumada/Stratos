@@ -56,8 +56,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // 17 endpoints CRUD
-    Route::get('/Person', [PersonController::class, 'index']);
-    Route::post('/Person', [PersonController::class, 'store']);
+    Route::get('/People', [PeopleController::class, 'index']);
+    Route::post('/People', [PeopleController::class, 'store']);
     // ... más rutas
 });
 ```
@@ -70,8 +70,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return Inertia::render('Dashboard');
     });
 
-    Route::get('/Person', function () {
-        return Inertia::render('Person/Index');
+    Route::get('/People', function () {
+        return Inertia::render('People/Index');
     });
     // ... más rutas
 });
@@ -154,7 +154,7 @@ Frontend recibe cookie
 ```
 Frontend                  Backend (Laravel 12)
 
-GET /api/Person     └─→ Middleware auth:sanctum verifica:
+GET /api/People     └─→ Middleware auth:sanctum verifica:
   ├─ Cookie                • ¿Hay cookie de sesión válida?
   ├─ X-CSRF-TOKEN          • ¿CSRF token es válido?
   └─ withCredentials: true └─→ Si SÍ: retorna datos (200)
@@ -164,12 +164,12 @@ Si 401: apiHelper.ts interceptor
 └─→ Redirige a /login
 ```
 
-### 3️⃣ Usuario No Autenticado Intenta Acceder a /Person
+### 3️⃣ Usuario No Autenticado Intenta Acceder a /People
 
 ```
 Frontend                  Backend (Laravel 12)
 
-GET /Person          └─→ Middleware auth:sanctum verifica
+GET /People          └─→ Middleware auth:sanctum verifica
   (sin cookie)           • ¿Hay sesión válida? NO
                          • ¿Hay token Bearer? NO
                          └─→ Redirige a /login (303)
@@ -210,10 +210,10 @@ Frontend:
 # Desde la terminal en el contenedor:
 
 # 1. Sin autenticación (debe fallar con 401 o redirigir)
-curl -X GET http://localhost:8000/api/Person
+curl -X GET http://localhost:8000/api/People
 
 # 2. Con autenticación por sesión
-curl -X GET http://localhost:8000/api/Person \
+curl -X GET http://localhost:8000/api/People \
   -H "Accept: application/json" \
   -c cookies.txt -b cookies.txt
 
@@ -223,7 +223,7 @@ curl -X POST http://localhost:8000/login \
   -c cookies.txt
 
 # 4. Luego request protegida
-curl -X GET http://localhost:8000/api/Person \
+curl -X GET http://localhost:8000/api/People \
   -b cookies.txt
 ```
 
@@ -285,7 +285,7 @@ config.headers["X-CSRF-TOKEN"] = token;
 
 ### Problema: 401 (Unauthorized) en requests
 
-**Síntoma**: GET /api/Person retorna 401 aunque estés "logueado"
+**Síntoma**: GET /api/People retorna 401 aunque estés "logueado"
 
 **Solución**:
 
@@ -335,10 +335,10 @@ window.location.href = "/login";
 - [ ] Frontend: Abrir /login → ingresar credentials
 - [ ] Verificar: Cookie `XSRF-TOKEN` en DevTools (Application > Cookies)
 - [ ] API: GET /api/user debe retornar usuario actual
-- [ ] Tabla: GET /api/Person debe cargar datos
-- [ ] Crear: POST /api/Person con nuevo item
+- [ ] Tabla: GET /api/People debe cargar datos
+- [ ] Crear: POST /api/People con nuevo item
 - [ ] Logout: Sesión debe limpiar cookies
-- [ ] Logout: GET /api/Person debe retornar 401
+- [ ] Logout: GET /api/People debe retornar 401
 
 ---
 

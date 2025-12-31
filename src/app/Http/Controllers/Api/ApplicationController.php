@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\JobOpening;
-use App\Models\Person;
+use App\Models\People;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -13,11 +13,11 @@ class ApplicationController extends Controller
 {
     public function index(): JsonResponse
     {
-        $applications = Application::with('jobOpening', 'person')
+        $applications = Application::with('jobOpening', 'people')
             ->get()
             ->map(fn($a) => [
                 'id' => $a->id,
-                'person' => $a->person?->full_name ?? ($a->person?->first_name . ' ' . $a->person?->last_name),
+                'people' => $a->people?->full_name ?? ($a->people?->first_name . ' ' . $a->people?->last_name),
                 'job_opening' => $a->jobOpening?->title,
                 'status' => $a->status,
                 'applied_at' => $a->applied_at,
@@ -29,16 +29,16 @@ class ApplicationController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $application = Application::with('jobOpening', 'person')->find($id);
+        $application = Application::with('jobOpening', 'people')->find($id);
         if (! $application) {
             return response()->json(['error' => 'Postulación no encontrada'], 404);
         }
 
         return response()->json([
             'id' => $application->id,
-            'person' => [
-                'id' => $application->person?->id,
-                'name' => $application->person?->full_name ?? ($application->person?->first_name . ' ' . $application->person?->last_name),
+            'people' => [
+                'id' => $application->people?->id,
+                'name' => $application->people?->full_name ?? ($application->people?->first_name . ' ' . $application->people?->last_name),
             ],
             'job_opening' => [
                 'id' => $application->jobOpening?->id,
@@ -53,21 +53,21 @@ class ApplicationController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'person_id' => ['required', 'integer', 'exists:Person,id'],
+            'people_id' => ['required', 'integer', 'exists:People,id'],
             'job_opening_id' => ['required', 'integer', 'exists:job_openings,id'],
             'message' => ['nullable', 'string'],
         ]);
 
-        $person = Person::find($data['person_id']);
+        $people = People::find($data['people_id']);
         $opening = JobOpening::find($data['job_opening_id']);
 
-        // Validar que la persona y vacante estén en la misma organización
-        if ($person->organization_id !== $opening->organization_id) {
-            return response()->json(['error' => 'Persona y vacante deben estar en la misma organización'], 422);
+        // Validar que la peoplea y vacante estén en la misma organización
+        if ($people->organization_id !== $opening->organization_id) {
+            return response()->json(['error' => 'Peoplea y vacante deben estar en la misma organización'], 422);
         }
 
         // Validar que no exista postulación duplicada
-        $existing = Application::where('person_id', $person->id)
+        $existing = Application::where('people_id', $people->id)
             ->where('job_opening_id', $opening->id)
             ->first();
 
@@ -76,7 +76,7 @@ class ApplicationController extends Controller
         }
 
         $application = Application::create([
-            'person_id' => $person->id,
+            'people_id' => $people->id,
             'job_opening_id' => $opening->id,
             'status' => 'pending',
             'message' => $data['message'] ?? null,

@@ -18,14 +18,14 @@
 - ✅ Configurado SQLite en `/home/omar/TalentIA/src/database/database.sqlite`
 - ✅ Ejecutadas migraciones: `php artisan migrate:fresh --seed`
 
-### 3. **Renombrado de Módulo: People → Person**
-- ✅ Carpeta `/resources/js/pages/People` → `/resources/js/pages/Person`
-- ✅ Carpeta `/people-form` → `/Person-form`
-- ✅ Rutas API actualizadas: `/api/people` → `/api/person` (en form-schema-complete.php)
+### 3. **Renombrado de Módulo: People → People**
+- ✅ Carpeta `/resources/js/pages/People` → `/resources/js/pages/People`
+- ✅ Carpeta `/people-form` → `/People-form`
+- ✅ Rutas API actualizadas: `/api/people` → `/api/people` (en form-schema-complete.php)
 - ✅ Endpoints en `routes/api.php` actualizados
-- ✅ Modelo `Person` con `protected $table = 'person'`
-- ✅ Factory `PersonFactory` creada y configurada
-- ✅ Migración de tabla renombrada: `create_person_table`
+- ✅ Modelo `People` con `protected $table = 'people'`
+- ✅ Factory `PeopleFactory` creada y configurada
+- ✅ Migración de tabla renombrada: `create_people_table`
 
 ### 4. **Problemas Resueltos**
 
@@ -43,7 +43,7 @@
 - **Problema:** Tabla `people` no se creaba, Laravel buscaba automáticamente
 - **Causa:** Convención de Laravel pluraliza nombres de modelos
 - **Solución:** 
-  - Opción 1: `protected $table = 'person'` en modelo ✅ (ELEGIDA)
+  - Opción 1: `protected $table = 'people'` en modelo ✅ (ELEGIDA)
   - Opción 2: Cambiar migración a `people`
 
 #### 4.4 Database.sqlite no existe
@@ -56,7 +56,7 @@
 
 ### 5. **Datos de Prueba**
 - ✅ Creada `Organization`: `default` / `default`
-- ✅ Creados 5 registros de `Person` con factory
+- ✅ Creados 5 registros de `People` con factory
 - ✅ API devuelve JSON correctamente
 
 ---
@@ -64,22 +64,22 @@
 ## 📊 ESTADO ACTUAL
 
 ### Frontend ✅
-- Página `/person` carga correctamente
+- Página `/people` carga correctamente
 - Tabla visible con soporte de filtros y paginación
 - Componente `FormSchema.vue` funcional
 
 ### Backend ✅
-- API `/api/person` devuelve datos en JSON
+- API `/api/people` devuelve datos en JSON
 - Rutas CRUD operacionales
 - Base de datos SQLite con datos de prueba
 
 ### Base de Datos ✅
 ```
-Tabla: person
+Tabla: people
 Campos: id, organization_id, first_name, last_name, email, 
         current_role_id, department_id, hire_date, photo_url, 
         deleted_at, created_at, updated_at
-Registros: 5 (personas de prueba)
+Registros: 5 (peopleas de prueba)
 ```
 
 ---
@@ -95,7 +95,7 @@ npm run dev  # Inicia Vite + Laravel + Queue + Pail
 ### Crear Datos de Prueba
 ```bash
 php artisan tinker
->>> App\Models\Person::factory()->count(10)->create()
+>>> App\Models\People::factory()->count(10)->create()
 >>> exit
 ```
 
@@ -113,7 +113,7 @@ php artisan migrate                      # Ejecutar pendientes
 
 ### API de Prueba
 ```bash
-curl -s http://127.0.0.1:8000/api/person
+curl -s http://127.0.0.1:8000/api/people
 ```
 
 ---
@@ -129,10 +129,10 @@ curl -s http://127.0.0.1:8000/api/person
 - [ ] Implementar `RoleSeeder` con datos reales
 - [ ] Implementar `DepartmentSeeder`
 - [ ] Implementar `SkillSeeder`
-- [ ] Implementar `PersonSeeder` con relaciones
+- [ ] Implementar `PeopleSeeder` con relaciones
 
 ### 3. **Validación de Modelos**
-- [ ] Verificar relaciones en `Person` model
+- [ ] Verificar relaciones en `People` model
 - [ ] Agregar validaciones en factories
 - [ ] Crear `OrganizationFactory` si falta
 
@@ -151,7 +151,7 @@ curl -s http://127.0.0.1:8000/api/person
 ## 📝 NOTAS
 
 - ✅ Entorno 100% funcional para desarrollo
-- ✅ API de Person devuelve datos correctamente
+- ✅ API de People devuelve datos correctamente
 - ⚠️ Autenticación deshabilitada temporalmente (development mode)
 - ⚠️ Base de datos en modo SQLite (ideal para desarrollo)
 - 📌 Próximo paso: Implementar autenticación real

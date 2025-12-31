@@ -16,5 +16,5 @@ interface RepositoryInterface
     public function destroy($id);
     public function show(Request $request, $id);
     public function search(Request $request);
-    public function searchWithPerson(Request $request);
+    public function searchWithPeople(Request $request);
 }

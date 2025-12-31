@@ -127,7 +127,7 @@ import itemFormJson from './[model]-form/itemForm.json';
 import filtersJson from './[model]-form/filters.json';
 
 // Lógica genérica que funciona para CUALQUIER modelo
-// (copiada desde Person/Index.vue sin cambios)
+// (copiada desde People/Index.vue sin cambios)
 </script>
 ```
 
@@ -226,7 +226,7 @@ Respuesta → Re-renderizar tabla
 
 // Mapeo de modelos a rutas
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     'Certification' => 'certifications',
     'Role' => 'roles',
     'Skill' => 'skills',
@@ -262,13 +262,13 @@ Route::group([], function () use ($formSchemaModels) {
 **Lo que genera automáticamente:**
 
 ```
-GET    /api/person
-POST   /api/person
-GET    /api/person/{id}
-PUT    /api/person/{id}
-PATCH  /api/person/{id}
-DELETE /api/person/{id}
-POST   /api/person/search
+GET    /api/people
+POST   /api/people
+GET    /api/people/{id}
+PUT    /api/people/{id}
+PATCH  /api/people/{id}
+DELETE /api/people/{id}
+POST   /api/people/search
 ...
 
 GET    /api/certifications
@@ -295,14 +295,14 @@ class FormSchemaController extends Controller
     /**
      * Inicializa el controller para un modelo específico
      * 
-     * Ejemplo: initializeForModel('Person')
-     * - Carga clase App\Models\Person
-     * - Crea instancia de PersonRepository (o genérico)
-     * - Selecciona validaciones para Person
+     * Ejemplo: initializeForModel('People')
+     * - Carga clase App\Models\People
+     * - Crea instancia de PeopleRepository (o genérico)
+     * - Selecciona validaciones para People
      */
     private function initializeForModel(string $modelName): void
     {
-        // Reflexión dinámica: convierte 'Person' → App\Models\Person
+        // Reflexión dinámica: convierte 'People' → App\Models\People
         $class = "App\\Models\\" . $modelName;
         $this->modelClass = $class;
         
@@ -409,7 +409,7 @@ class FormSchemaController extends Controller
 ```
 
 **Flujo:**
-1. Ruta entra con `$modelName` (ej: "Person")
+1. Ruta entra con `$modelName` (ej: "People")
 2. `initializeForModel()` carga el modelo, repositorio, validador
 3. Método ejecuta operación genérica
 4. Retorna JSON
@@ -428,14 +428,14 @@ FormSchemaController (pide datos)
         ▼
 Repository Interface (abstracción)
         │
-        ├─→ PersonRepository (específico)
+        ├─→ PeopleRepository (específico)
         ├─→ CertificationRepository (específico)
         └─→ GenericRepository (fallback)
         │
         ▼
 Eloquent Models
         │
-        ├─→ Person
+        ├─→ People
         ├─→ Certification
         └─→ Role
         │

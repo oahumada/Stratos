@@ -39,24 +39,36 @@
    - Patrón Strategy para modelos dinámicos
    - Reflexión y métodos dinámicos
    - Inicialización inteligente de modelos
+   - **NUEVO: Repository Pattern integrado**
    - Manejo de excepciones centralizado
 
 5. **[05_FORM_SCHEMA_COMPLETE_PHP.md](05_FORM_SCHEMA_COMPLETE_PHP.md)** ✅ (20 min)
    - Generación dinámica de rutas
    - Loop inteligente de mapeo
+   - **NUEVO: Integración con Repository**
    - Evitar duplicación de endpoints
    - Namespacing y convenciones
 
+### **PARTE II-B: Persistencia**
+
+5.1. **[11_REPOSITORY_PATTERN_ARQUITECTURA.md](11_REPOSITORY_PATTERN_ARQUITECTURA.md)** 🆕 (25 min)
+   - Qué es Repository Pattern
+   - Jerarquía de repositorios
+   - Abstracción de BD
+   - Strategy Pattern aplicado
+   - Cuándo override métodos
+   - Testabilidad y reutilización
+
 ### **PARTE III: Frontend**
 
-6. **[06_FORMSCHEMA_VUE.md](06_FORMSCHEMA_VUE.md)** (25 min)
+6. **[06_FORMSCHEMA_VUE.md](06_FORMSCHEMA_VUE.md)** ✅ (25 min)
    - Componente reutilizable
    - Composición de subcomponentes
    - Manejo de estado dinámico
    - Lifecycle hooks optimizados
    - Reactividad avanzada
 
-7. **[07_JSON_DRIVEN_CONFIG.md](07_JSON_DRIVEN_CONFIG.md)** (20 min)
+7. **[07_JSON_DRIVEN_CONFIG.md](07_JSON_DRIVEN_CONFIG.md)** ✅ (20 min)
    - Por qué JSON y no código Vue
    - Validación de esquemas
    - Extensibilidad sin código
@@ -64,14 +76,14 @@
 
 ### **PARTE IV: Práctica**
 
-8. **[08_CASOS_DE_USO_PATRONES.md](08_CASOS_DE_USO_PATRONES.md)** (30 min)
-   - CRUD simple (Person, Skills, Roles)
+8. **[08_CASOS_DE_USO_PATRONES.md](08_CASOS_DE_USO_PATRONES.md)** ✅ (30 min)
+   - CRUD simple (People, Skills, Roles)
    - Con búsqueda avanzada
    - Con relaciones complejas
-   - Con validaciones personalizadas
+   - Con validaciones peoplealizadas
    - Paso-a-paso de implementación
 
-9. **[09_ANTI_PATRONES_LIMITACIONES.md](09_ANTI_PATRONES_LIMITACIONES.md)** (20 min)
+9. **[09_ANTI_PATRONES_LIMITACIONES.md](09_ANTI_PATRONES_LIMITACIONES.md)** ✅ (20 min)
    - Cuándo NO usar este patrón
    - Limitaciones conocidas
    - Pitfalls comunes
@@ -80,7 +92,7 @@
 
 ### **PARTE V: Escalabilidad**
 
-10. **[10_ESCALABILIDAD_MANTENIMIENTO.md](10_ESCALABILIDAD_MANTENIMIENTO.md)** (25 min)
+10. **[10_ESCALABILIDAD_MANTENIMIENTO.md](10_ESCALABILIDAD_MANTENIMIENTO.md)** ✅ (20 min)
     - Agregando nuevos modelos
     - Testing estrategia
     - CI/CD considerations
@@ -199,7 +211,7 @@ Leer en orden: 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10
 4. Código fuente en `/src`:
    - `/app/Http/Controllers/FormSchemaController.php`
    - `/routes/form-schema-complete.php`
-   - `/resources/js/pages/Person/Index.vue`
+   - `/resources/js/pages/People/Index.vue`
    - `/resources/js/components/form-template/FormSchema.vue`
 
 ---

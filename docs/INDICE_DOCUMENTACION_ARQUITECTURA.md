@@ -104,7 +104,7 @@
 - Response flow (vuelta)
 - Flujo detallado por operación CRUD (READ, UPDATE, DELETE, SEARCH)
 - Ventajas del flujo genérico
-- Puntos de personalización
+- Puntos de peoplealización
 - Métricas de rendimiento (12-22ms típico)
 - Troubleshooting
 

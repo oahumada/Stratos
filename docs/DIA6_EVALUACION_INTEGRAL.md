@@ -166,7 +166,7 @@ Promedio Routes      █████████░ 9/10
    • Soporte para búsqueda y filtrado
    • Manejo de arrays en multi-select
    • Procesamiento de datos uniforme
-   • Personalización via override cuando sea necesario
+   • Peoplealización via override cuando sea necesario
 ```
 
 #### Debilidades

@@ -20,7 +20,7 @@ Software + consultoría integrados para:
 
 1. Administración y seguridad
 2. Modelo de talento (skills, roles, rutas)
-3. Personas y perfiles de talento
+3. Peopleas y perfiles de talento
 4. Evaluación de skills y brechas
 5. Rutas de desarrollo y formación e-learning
 6. Selección por skills (interno y externo)
@@ -45,7 +45,7 @@ Software + consultoría integrados para:
 
 ### Semana 1:
 - Setup, modelo de datos, perfiles de empleados.
-- Cálculo de brechas persona ↔ rol.
+- Cálculo de brechas peoplea ↔ rol.
 - Rutas de desarrollo sugeridas.
 
 ### Semana 2:
@@ -57,10 +57,10 @@ Software + consultoría integrados para:
 ## 🧠 Funcionalidades del MVP (2 semanas)
 
 - Perfiles de talento con skills y niveles.
-- Cálculo de brechas persona ↔ rol.
+- Cálculo de brechas peoplea ↔ rol.
 - Recomendaciones de rutas de desarrollo.
 - Comparación de candidatos internos vs externos para vacantes.
-- Marketplace interno básico (matching de personas a oportunidades).
+- Marketplace interno básico (matching de peopleas a oportunidades).
 - Dashboard con KPIs clave:
   - Cobertura de skills.
   - Roles en riesgo.
@@ -97,7 +97,7 @@ Dar soporte a la toma de decisiones estratégicas de dotación basadas en:
 ### Funcionalidades clave
 
 - Definición de escenarios de demanda futura (base, conservador, agresivo).
-- Análisis de oferta interna (skills por persona, marketplace interno).
+- Análisis de oferta interna (skills por peoplea, marketplace interno).
 - Gap & surplus analysis (brechas de FTE y skills).
 - Recomendaciones de estrategias:
   - Build (desarrollo interno).
@@ -182,10 +182,10 @@ CREATE TABLE talentia.strategy_executions (
 
 🧭 Flujo de decisiones integrado en el sistema
 Usuario define escenario de demanda futura (ej. crecimiento del 20% en ventas → necesito 5 nuevos analistas de datos).
-Sistema compara con oferta interna (¿tenemos personas con skills de analista de datos?).
+Sistema compara con oferta interna (¿tenemos peopleas con skills de analista de datos?).
 Sistema recomienda estrategia:
 Si hay 2 internos con buen ajuste → sugerir movilidad interna.
-Si hay 1 persona con potencial → sugerir ruta de desarrollo + plan de transición.
+Si hay 1 peoplea con potencial → sugerir ruta de desarrollo + plan de transición.
 Si faltan 3 FTE → sugerir contratación externa con fuentes e instrumentos.
 Usuario aprueba estrategia → se registra en talent_strategies.
 Sistema muestra avance en dashboard:
@@ -196,7 +196,7 @@ Alertas de riesgo (ej. rol crítico sin sucesor).
 Escenario base: crecimiento del 15% en ventas en 12 meses.
 Rol afectado: Analista de Datos (nuevo rol).
 Demanda: 5 FTE adicionales.
-Oferta interna: 2 personas con skills parciales.
+Oferta interna: 2 peopleas con skills parciales.
 Decisión sugerida:
 2 FTE por movilidad interna.
 1 FTE por reconversión (ruta de desarrollo de 3 meses).

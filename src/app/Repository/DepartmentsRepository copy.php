@@ -2,21 +2,21 @@
 
 namespace App\Repository;
 
-use App\Models\ExEpo;
+use App\Models\Departments;
 use Illuminate\Http\Request;
 use App\Helpers\Tools;
 
-class ExEpoRepository extends Repository
+class DepartmentsRepository extends Repository
 {
     public function __construct()
     {
-        parent::__construct(new ExEpo());
+        parent::__construct(new Departments());
     }
 
     /**
      * Query con joins específicos para ExEpo usando relaciones Eloquent
      */
-    protected function getSearchQuery()
+   /*  protected function getSearchQuery()
     {
         $query = $this->model->join(
                 'paciente',
@@ -46,7 +46,7 @@ class ExEpoRepository extends Repository
             
         \Log::info('ExEpo Query SQL: ' . $query->toSql());
         return $query;
-    }
+    } */
 
     // Remover el método searchWithPaciente - ya no es necesario
     // El Repository padre manejará los filtros automáticamente usando Tools::filterData()

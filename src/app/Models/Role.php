@@ -37,9 +37,9 @@ class Role extends Model
             ->withTimestamps();
     }
 
-    public function Person(): HasMany
+    public function People(): HasMany
     {
-        return $this->hasMany(Person::class, 'current_role_id');
+        return $this->hasMany(People::class, 'current_role_id');
     }
 
     public function jobOpenings(): HasMany

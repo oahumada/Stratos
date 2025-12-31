@@ -77,10 +77,10 @@ class Certification extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
     
-    // Relation con Person (many-to-many)
+    // Relation con People (many-to-many)
     public function people()
     {
-        return $this->belongsToMany(Person::class, 'person_certification');
+        return $this->belongsToMany(People::class, 'people_certification');
     }
 }
 ```
@@ -91,7 +91,7 @@ class Certification extends Model
 // routes/form-schema-complete.php
 
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     'Certification' => 'certifications',  // ← Agregar aquí
     'Role' => 'roles',
     'Skill' => 'skills',
@@ -451,7 +451,7 @@ describe('Certification CRUD', () => {
 // Check N+1 queries
 php artisan tinker
 >>> DB::enableQueryLog();
->>> $people = Person::with('department', 'skills')->get();
+>>> $people = People::with('department', 'skills')->get();
 >>> dd(DB::getQueryLog());
 
 // Agregar índices según usage

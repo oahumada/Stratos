@@ -241,7 +241,7 @@ curl http://127.0.0.1:8000  # ¿Servidor?
 
 # Lees 3 secciones de memories.md del módulo
 # Respondes: "¿Qué hago hoy?"
-# Abres PLAN_DIA_1.md (ya personalizado)
+# Abres PLAN_DIA_1.md (ya peoplealizado)
 
 # Resultado: Contexto total. Listo para codificar.
 ```

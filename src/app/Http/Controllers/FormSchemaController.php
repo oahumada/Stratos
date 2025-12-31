@@ -156,13 +156,13 @@ class FormSchemaController extends Controller
     /**
      * Buscar registros con joins (para consultas complejas)
      */
-    public function searchWithPerson(Request $request, string $modelName)
+    public function searchWithPeople(Request $request, string $modelName)
     {
         try {
             $this->initializeForModel($modelName);
-            return $this->repository->searchWithPerson($request);
+            return $this->repository->searchWithPeople($request);
         } catch (\Exception $e) {
-            Log::error("Error in FormSchemaController::searchWithPerson for {$modelName}: " . $e->getMessage());
+            Log::error("Error in FormSchemaController::searchWithPeople for {$modelName}: " . $e->getMessage());
             return response()->json([
                 'message' => 'Error en la búsqueda con joins',
                 'error' => $e->getMessage()
@@ -171,7 +171,7 @@ class FormSchemaController extends Controller
     }
 
     /**
-     * Búsqueda personalizada (si el repositorio la implementa)
+     * Búsqueda peoplealizada (si el repositorio la implementa)
      */
     /*public function search(Request $request, string $modelName, $id = null)
     {
@@ -196,7 +196,7 @@ class FormSchemaController extends Controller
 
     /**
      * Mapeo de modelos a sus vistas principales
-     * Puedes personalizar esto según tus necesidades
+     * Puedes peoplealizar esto según tus necesidades
      */
     private function getViewMap(): array
     {

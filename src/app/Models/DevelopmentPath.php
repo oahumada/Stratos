@@ -10,7 +10,7 @@ class DevelopmentPath extends Model
 {
     protected $fillable = [
         'organization_id',
-        'person_id',
+        'people_id',
         'target_role_id',
         'status',
         'estimated_duration_months',
@@ -40,9 +40,9 @@ class DevelopmentPath extends Model
         return $this->belongsTo(Organization::class);
     }
 
-    public function person(): BelongsTo
+    public function people(): BelongsTo
     {
-        return $this->belongsTo(Person::class);
+        return $this->belongsTo(People::class);
     }
 
     public function targetRole(): BelongsTo

@@ -129,7 +129,7 @@ Commit con doc actualizado
 
 ### 6. Documentación Multi-Formato
 
-**Resultado:** Cada persona encontraba lo que necesitaba
+**Resultado:** Cada peoplea encontraba lo que necesitaba
 
 ```
 Técnicos:        dia3_services_logica_negocio.md (especificación)
@@ -156,9 +156,9 @@ Testers:         TalentIA_API_Postman.json (collection)
 
 ```
 Día 1: Commit "Migraciones + Modelos (10+7 archivos)"
-Día 2: Commit "DemoSeeder con TechCorp (20 personas)"
+Día 2: Commit "DemoSeeder con TechCorp (20 peopleas)"
 Día 3: Commit "Services: GapAnalysis, DevelopmentPath, Matching"
-Día 4: Commit "API Lectura: Person, Roles, Skills, Dashboard"
+Día 4: Commit "API Lectura: People, Roles, Skills, Dashboard"
 Día 5: Commit "API CRUD: JobOpenings, Applications, Marketplace"
 ```
 
@@ -237,7 +237,7 @@ Para Día 6+ (Frontend):
 const { get, post, patch, loading, error } = useApi();
 
 // Usado en todos los componentes
-const data = await get('/api/Person');
+const data = await get('/api/People');
 ```
 
 **Ventaja:** Consistencia, error handling centralizado, loading global

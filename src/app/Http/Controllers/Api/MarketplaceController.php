@@ -4,27 +4,27 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\JobOpening;
-use App\Models\Person;
+use App\Models\People;
 use App\Services\GapAnalysisService;
 use Illuminate\Http\JsonResponse;
 
 class MarketplaceController extends Controller
 {
-    public function opportunities(int $personId): JsonResponse
+    public function opportunities(int $peopleId): JsonResponse
     {
-        $person = Person::find($personId);
-        if (! $person) {
-            return response()->json(['error' => 'Persona no encontrada'], 404);
+        $people = People::find($peopleId);
+        if (! $people) {
+            return response()->json(['error' => 'Peoplea no encontrada'], 404);
         }
 
-        $openings = JobOpening::where('organization_id', $person->organization_id)
+        $openings = JobOpening::where('organization_id', $people->organization_id)
             ->where('status', 'open')
             ->with('role')
             ->get();
 
         $gapService = new GapAnalysisService();
-        $opportunities = $openings->map(function ($opening) use ($person, $gapService) {
-            $analysis = $gapService->calculate($person, $opening->role);
+        $opportunities = $openings->map(function ($opening) use ($people, $gapService) {
+            $analysis = $gapService->calculate($people, $opening->role);
 
             return [
                 'id' => $opening->id,
@@ -39,9 +39,9 @@ class MarketplaceController extends Controller
         })->sortByDesc('match_percentage')->values();
 
         return response()->json([
-            'person' => [
-                'id' => $person->id,
-                'name' => $person->full_name ?? ($person->first_name . ' ' . $person->last_name),
+            'people' => [
+                'id' => $people->id,
+                'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
             ],
             'opportunities' => $opportunities,
         ]);

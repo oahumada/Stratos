@@ -45,7 +45,7 @@ const currentUserId = computed(() => {
   return (page.props as any).auth?.user?.id;
 });
 
-// Load opportunities for current person
+// Load opportunities for current people
 const loadOpportunities = async () => {
   if (!currentUserId.value) {
     notify({
@@ -57,7 +57,7 @@ const loadOpportunities = async () => {
 
   loading.value = true;
   try {
-    const response = await axios.get(`/api/person/${currentUserId.value}/marketplace`);
+    const response = await axios.get(`/api/people/${currentUserId.value}/marketplace`);
     opportunities.value = response.data.data || response.data;
   } catch (err) {
     console.error('Failed to load opportunities', err);
@@ -96,7 +96,7 @@ const applyForPosition = async (jobOpeningId: number) => {
   try {
     await axios.post('/api/applications', {
       job_opening_id: jobOpeningId,
-      person_id: currentUserId.value
+      people_id: currentUserId.value
     });
     notify({
       type: 'success',

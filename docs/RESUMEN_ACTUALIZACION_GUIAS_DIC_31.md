@@ -7,7 +7,7 @@
 ## ✅ Cambios Realizados en el Código
 
 ### `/src/routes/api.php`
-- ❌ Eliminadas rutas GET duplicadas para `/person`, `/roles`, `/skills`
+- ❌ Eliminadas rutas GET duplicadas para `/people`, `/roles`, `/skills`
 - ✅ Agregado comentario explicativo: "CRUD genérico gestionado por form-schema-complete.php"
 - **Razón:** Evitar conflicto con rutas generadas automáticamente en form-schema-complete.php
 
@@ -17,14 +17,14 @@
 
 ### Resultado de Cambios
 ```bash
-✅ php artisan route:list | grep -E "person|roles|skills|departments"
+✅ php artisan route:list | grep -E "people|roles|skills|departments"
 
-GET|HEAD  api/person ............................ api.person.index
-POST      api/person ............................ api.person.store
-GET|HEAD  api/person/{id} ........................ api.person.show
-PUT       api/person/{id} ....................... api.person.update
-PATCH     api/person/{id} ....................... api.person.patch
-DELETE    api/person/{id} ....................... api.person.destroy
+GET|HEAD  api/people ............................ api.people.index
+POST      api/people ............................ api.people.store
+GET|HEAD  api/people/{id} ........................ api.people.show
+PUT       api/people/{id} ....................... api.people.update
+PATCH     api/people/{id} ....................... api.people.patch
+DELETE    api/people/{id} ....................... api.people.destroy
 ...
 GET|HEAD  api/roles ............................ api.roles.index
 POST      api/roles ............................ api.roles.store
@@ -108,7 +108,7 @@ GET|HEAD  api/roles/{id} ........................ api.roles.show
 ### Para Entender la Arquitectura (15 min)
 1. Leer [GUIA_RAPIDA_CRUD_GENERICO.md](GUIA_RAPIDA_CRUD_GENERICO.md) (2 min)
 2. Leer [PATRON_JSON_DRIVEN_CRUD.md](PATRON_JSON_DRIVEN_CRUD.md) (10 min)
-3. Ver ejemplo en `/resources/js/pages/Person/` (3 min)
+3. Ver ejemplo en `/resources/js/pages/People/` (3 min)
 
 ### Para Crear Nuevo CRUD (15 min)
 1. Abrir [GUIA_CREAR_NUEVO_CRUD_GENERICO.md](GUIA_CREAR_NUEVO_CRUD_GENERICO.md)

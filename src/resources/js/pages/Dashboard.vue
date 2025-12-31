@@ -17,7 +17,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const { notify } = useNotification();
 
 interface DashboardMetrics {
-  total_persons: number;
+  total_peoples: number;
   total_roles: number;
   total_skills: number;
   avg_match_percentage: number;
@@ -72,14 +72,14 @@ onMounted(() => {
 
             <!-- Metrics Grid -->
             <v-row v-if="metrics && !loading" no-gutters class="gap-4">
-                <!-- Total Persons -->
+                <!-- Total Peoples -->
                 <v-col cols="12" sm="6" md="4">
                     <v-card class="h-100" elevation="0" border>
                         <v-card-text class="pa-4">
                             <div class="d-flex justify-space-between align-center">
                                 <div>
-                                    <p class="text-caption text-grey mb-2">Total Persons</p>
-                                    <p class="text-h4 font-weight-bold">{{ metrics.total_persons }}</p>
+                                    <p class="text-caption text-grey mb-2">Total Peoples</p>
+                                    <p class="text-h4 font-weight-bold">{{ metrics.total_peoples }}</p>
                                 </div>
                                 <v-icon size="48" color="info">mdi-account-multiple</v-icon>
                             </div>

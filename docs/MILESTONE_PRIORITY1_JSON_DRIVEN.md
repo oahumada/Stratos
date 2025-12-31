@@ -12,14 +12,14 @@
 
 ```
 ANTES (Forma Antigua):
-├── Person/Index.vue      (260 líneas de código)
+├── People/Index.vue      (260 líneas de código)
 ├── Roles/Index.vue       (260 líneas de código)
 ├── Skills/Index.vue      (260 líneas de código)
 └── [10 módulos más]      (2,600+ líneas duplicadas)
 
 AHORA (Patrón JSON-Driven):
-├── Person/Index.vue      (121 líneas - solo imports)
-├── Person-form/
+├── People/Index.vue      (121 líneas - solo imports)
+├── People-form/
 │   ├── config.json       (9 líneas)
 │   ├── tableConfig.json  (24 líneas)
 │   ├── itemForm.json     (29 líneas)
@@ -56,10 +56,10 @@ AHORA (Patrón JSON-Driven):
 
 ## 📋 Qué Implementamos HOY
 
-### 1️⃣ **Person Module** ✅
+### 1️⃣ **People Module** ✅
 
 ```
-Endpoint:  /api/Person
+Endpoint:  /api/People
 Tabla:     7 columnas (Name, Email, Dept, Role, Skills, Hired, Actions)
 Formulario: 5 campos (name, email, department, role_id, hired_at)
 Filtros:   2 (department, role_id)
@@ -96,7 +96,7 @@ Estado:    FUNCIONAL
 
 - Maneja: GET, POST, PUT, DELETE
 - Búsqueda por texto libre en todas las columnas
-- Filtros personalizables (text, select, date)
+- Filtros peoplealizables (text, select, date)
 - Diálogos create/edit
 - Confirmación delete
 - Notificaciones de éxito/error
@@ -210,12 +210,12 @@ Aplicar el MISMO patrón a:
 
 ## ✅ Checklist Final
 
-- ✅ Person/Index.vue funcional con JSONs
+- ✅ People/Index.vue funcional con JSONs
 - ✅ Roles/Index.vue funcional con JSONs
 - ✅ Skills/Index.vue funcional con JSONs
 - ✅ FormSchema.vue reutilizable en 3 módulos
 - ✅ FormData.vue soporta 10 tipos de campos
-- ✅ Rutas `/Person`, `/roles`, `/skills` configuradas
+- ✅ Rutas `/People`, `/roles`, `/skills` configuradas
 - ✅ NavLinks en AppSidebar.vue
 - ✅ Documentación completa del patrón
 - ✅ Checklist paso-a-paso para nuevos módulos

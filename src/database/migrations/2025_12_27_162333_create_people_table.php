@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('person', function (Blueprint $table) {
+        Schema::create('people', function (Blueprint $table) {
             $table->id();
             $table->foreignId('organization_id')->constrained();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('person');
+        Schema::dropIfExists('people');
     }
 };

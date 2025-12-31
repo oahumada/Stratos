@@ -3,8 +3,9 @@
 **Fecha**: 28 Diciembre 2025 (Actualizado 31 Diciembre 2025)  
 **Estado**: ✅ Implementado con FormSchemaController y form-schema-complete.php  
 **Aplicable a**: Todos los módulos CRUD con búsqueda y filtrado  
-**Controlador automático**: `FormSchemaController` (sin controladores individuales)  
-**Rutas automáticas**: `form-schema-complete.php` (sin definir rutas API manualmente)
+**Controlador genérico**: `FormSchemaController` (**único controlador** para todos los CRUD)  
+**Rutas automáticas**: `form-schema-complete.php` (**genera todas las rutas automáticamente**)  
+**Nota**: No existen controladores individuales para CRUD (`PeopleController`, `RolesController`, `SkillsController` eliminados para evitar duplicación)
 
 ---
 
@@ -22,7 +23,125 @@ Este patrón permite crear formularios CRUD completos (Create, Read, Update, Del
 
 ---
 
-## 🔧 Arquitectura: FormSchemaController + Rutas Automáticas
+## 🏗️ Arquitectura en Capas: FormSchema + Repository Pattern
+
+### Diagrama Completo
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  CLIENTE (Vue.js / Frontend)                                 │
+│  GET /api/people?page=1&per_page=15                          │
+└────────────────────┬─────────────────────────────────────────┘
+                     │
+┌────────────────────▼─────────────────────────────────────────┐
+│  RUTAS (form-schema-complete.php)                            │
+│  Route::get('/people', [FormSchemaController::class, ...])   │
+│  Route::post('/people', [FormSchemaController::class, ...])  │
+│  Route::get('/people/{id}', [FormSchemaController::class...])
+│  Route::put('/people/{id}', [FormSchemaController::class...])
+│  Route::delete('/people/{id}', [FormSchemaController::class])
+│  Route::post('/people/search', [FormSchemaController::class])
+└────────────────────┬─────────────────────────────────────────┘
+                     │
+┌────────────────────▼─────────────────────────────────────────┐
+│  CONTROLLER (FormSchemaController)                           │
+│  ├─ index(Request $req, 'People')                            │
+│  │  └─ initializeForModel('People')                          │
+│  │     ├─ $this->modelClass = "App\Models\People"           │
+│  │     └─ $this->repository = new PeopleRepository()         │
+│  └─ return $this->repository->index($req)                    │
+│                                                              │
+│  Responsabilidades:                                          │
+│  ├─ Recibir HTTP Request                                    │
+│  ├─ Validar parámetros básicos                              │
+│  ├─ Inicializar modelo y repositorio dinámicamente           │
+│  └─ Retornar respuesta JSON                                 │
+└────────────────────┬─────────────────────────────────────────┘
+                     │
+┌────────────────────▼─────────────────────────────────────────┐
+│  REPOSITORY (PeopleRepository)                               │
+│  ├─ Hereda de Repository (clase base)                        │
+│  ├─ store(Request $request) ← CREATE                         │
+│  ├─ show(Request $request, $id) ← READ                       │
+│  ├─ update(Request $request) ← UPDATE                        │
+│  ├─ destroy($id) ← DELETE                                    │
+│  └─ search(Request $request) ← SEARCH/FILTER                 │
+│                                                              │
+│  Responsabilidades:                                          │
+│  ├─ Ejecutar queries con Eloquent                            │
+│  ├─ Aplicar filtros y búsquedas                              │
+│  ├─ Eager load relaciones                                    │
+│  ├─ Manejar excepciones de BD                                │
+│  └─ Retornar JSON response                                  │
+└────────────────────┬─────────────────────────────────────────┘
+                     │
+┌────────────────────▼─────────────────────────────────────────┐
+│  MODEL (People Eloquent)                                     │
+│  ├─ protected $table = 'people'                              │
+│  ├─ protected $fillable = ['name', 'email', ...]             │
+│  ├─ public function skills() { ... }                         │
+│  └─ public function currentRole() { ... }                    │
+│                                                              │
+│  Responsabilidades:                                          │
+│  ├─ Mapear tabla a clase PHP                                 │
+│  ├─ Definir relaciones con otras tablas                      │
+│  └─ Mutadores y acceadores de datos                          │
+└────────────────────┬─────────────────────────────────────────┘
+                     │
+┌────────────────────▼─────────────────────────────────────────┐
+│  DATABASE (SQLite / PostgreSQL)                              │
+│  SELECT * FROM people WHERE ...                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Flujo de Datos: GET /api/people
+
+```
+1. HTTP Request llega a form-schema-complete.php
+   GET /api/people?page=1&per_page=15
+
+2. Ruta resuelve a FormSchemaController
+   Route::get('/people', [FormSchemaController::class, 'index']);
+
+3. FormSchemaController::index(Request, 'People')
+   - initializeForModel('People')
+     - Resolve App\Models\People
+     - Resolve App\Repository\PeopleRepository
+     - Instancia: $this->repository = new PeopleRepository()
+
+4. Delega a PeopleRepository::index($request)
+   - $this->model->query()->select("*")->paginate(15)
+   - Eager load relaciones si está configurado
+   - Retorna JSON response
+
+5. Response regresa al cliente
+   {
+     "data": [...15 people...],
+     "meta": { "total": 150, "page": 1, "last_page": 10 }
+   }
+```
+
+### Polimorfismo Dinámico
+
+```php
+// MISMO FormSchemaController funciona para 3 modelos diferentes:
+
+GET /api/people    → FormSchemaController::index(Request, 'People')
+                     → PeopleRepository::index()
+                     → SELECT * FROM people
+
+GET /api/roles     → FormSchemaController::index(Request, 'Role')
+                     → RoleRepository::index()
+                     → SELECT * FROM roles
+
+GET /api/skills    → FormSchemaController::index(Request, 'Skill')
+                     → SkillRepository::index()
+                     → SELECT * FROM skills
+```
+
+FormSchemaController **NO hardcodea** ningún modelo. El parámetro `$modelName` lo hace polimórfico.
+
+---
 
 ### Cómo Funciona
 
@@ -74,12 +193,12 @@ Este patrón permite crear formularios CRUD completos (Create, Read, Update, Del
     └── filters.json            ← Filtros de búsqueda
 ```
 
-### Ejemplo: Person Module
+### Ejemplo: People Module
 
 ```
-/resources/js/pages/Person/
+/resources/js/pages/People/
 ├── Index.vue (121 líneas)
-└── Person-form/
+└── People-form/
     ├── config.json
     ├── tableConfig.json
     ├── itemForm.json
@@ -95,10 +214,10 @@ Este patrón permite crear formularios CRUD completos (Create, Read, Update, Del
 ```json
 {
   "endpoints": {
-    "index": "/api/Person",
-    "apiUrl": "/api/Person"
+    "index": "/api/People",
+    "apiUrl": "/api/People"
   },
-  "titulo": "Person Management",
+  "titulo": "People Management",
   "descripcion": "Manage employees and their skills",
   "permisos": {
     "crear": true,
@@ -269,10 +388,10 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 // Import JSON configs
-import configJson from './Person-form/config.json';
-import tableConfigJson from './Person-form/tableConfig.json';
-import itemFormJson from './Person-form/itemForm.json';
-import filtersJson from './Person-form/filters.json';
+import configJson from './People-form/config.json';
+import tableConfigJson from './People-form/tableConfig.json';
+import itemFormJson from './People-form/itemForm.json';
+import filtersJson from './People-form/filters.json';
 
 defineOptions({ layout: AppLayout });
 
@@ -352,7 +471,7 @@ touch src/resources/js/pages/[Module]/[module]-form/{config,tableConfig,itemForm
 
 ### Paso 2: Definir Configs (3 min)
 
-Copiar template de `Person-form/` y adaptar:
+Copiar template de `People-form/` y adaptar:
 
 **config.json**
 
@@ -376,7 +495,7 @@ Copiar template de `Person-form/` y adaptar:
 
 ### Paso 3: Copiar Index.vue Template (5 min)
 
-Copiar Person/Index.vue y cambiar:
+Copiar People/Index.vue y cambiar:
 
 ```typescript
 import configJson from "./[module]-form/config.json";
@@ -523,7 +642,7 @@ FormData.vue renderiza automáticamente según `type`:
 ### Day 7+
 
 - [ ] Custom templates para columnas especiales (chips, badges)
-- [ ] Validación personalizada avanzada
+- [ ] Validación peoplealizada avanzada
 - [ ] Exportar a CSV/Excel desde tabla
 
 ---
@@ -532,5 +651,5 @@ FormData.vue renderiza automáticamente según `type`:
 
 - **FormSchema.vue**: `/resources/js/pages/form-template/FormSchema.vue`
 - **FormData.vue**: `/resources/js/pages/form-template/FormData.vue`
-- **Ejemplo implementado**: `/resources/js/pages/Person/`
+- **Ejemplo implementado**: `/resources/js/pages/People/`
 - **API spec**: `/docs/dia5_api_endpoints.md`

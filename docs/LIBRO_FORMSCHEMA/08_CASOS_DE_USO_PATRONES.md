@@ -12,16 +12,16 @@ Los capítulos anteriores explicaban **cómo** funciona FormSchema Pattern. Este
 
 ---
 
-## Caso 1: CRUD Simple - Personas
+## Caso 1: CRUD Simple - Peopleas
 
 ### Requisitos
 
 ```
-Listar todas las personas
+Listar todas las peopleas
 Buscar por nombre/email
-Crear nueva persona
-Editar persona existente
-Eliminar persona
+Crear nueva peoplea
+Editar peoplea existente
+Eliminar peoplea
 ```
 
 ### Paso 1: Crear Migraci\u00f3n
@@ -43,8 +43,8 @@ Schema::create('people', function (Blueprint $table) {
 ### Paso 2: Crear Modelo
 
 ```php
-// app/Models/Person.php
-class Person extends Model
+// app/Models/People.php
+class People extends Model
 {
     use SoftDeletes;
     
@@ -68,7 +68,7 @@ class Person extends Model
 ```php
 // routes/form-schema-complete.php
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     // ... otros modelos ...
 ];
 ```
@@ -78,18 +78,18 @@ $formSchemaModels = [
 ### Paso 4: Crear Configuración JSON
 
 ```json
-// resources/js/pages/Person/person-form/config.json
+// resources/js/pages/People/people-form/config.json
 {
-  "model": "Person",
-  "apiEndpoint": "/api/person",
-  "title": "Personas",
-  "singularName": "Persona",
-  "pluralName": "Personas"
+  "model": "People",
+  "apiEndpoint": "/api/people",
+  "title": "Peopleas",
+  "singularName": "Peoplea",
+  "pluralName": "Peopleas"
 }
 ```
 
 ```json
-// resources/js/pages/Person/person-form/tableConfig.json
+// resources/js/pages/People/people-form/tableConfig.json
 {
   "columns": [
     { "key": "id", "label": "ID", "type": "number", "width": "80px" },
@@ -109,7 +109,7 @@ $formSchemaModels = [
 ```
 
 ```json
-// resources/js/pages/Person/person-form/itemForm.json
+// resources/js/pages/People/people-form/itemForm.json
 {
   "fields": [
     {
@@ -156,7 +156,7 @@ $formSchemaModels = [
 ```
 
 ```json
-// resources/js/pages/Person/person-form/filters.json
+// resources/js/pages/People/people-form/filters.json
 {
   "fields": [
     {
@@ -189,9 +189,9 @@ $formSchemaModels = [
 ### Paso 5: Crear Componente Index
 
 ```vue
-<!-- resources/js/pages/Person/Index.vue -->
+<!-- resources/js/pages/People/Index.vue -->
 <template>
-  <AppLayout title="Personas">
+  <AppLayout title="Peopleas">
     <FormSchema :config="config" />
   </AppLayout>
 </template>
@@ -199,7 +199,7 @@ $formSchemaModels = [
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import FormSchema from '@/components/FormSchema.vue';
-import configJson from './person-form/config.json';
+import configJson from './people-form/config.json';
 
 const config = ref(configJson);
 </script>
@@ -209,14 +209,14 @@ const config = ref(configJson);
 
 ```php
 // routes/web.php
-Route::get('/person', [PersonController::class, 'index'])->name('person.index');
+Route::get('/people', [PeopleController::class, 'index'])->name('people.index');
 
-// PersonController retorna Inertia page
-class PersonController extends Controller
+// PeopleController retorna Inertia page
+class PeopleController extends Controller
 {
     public function index()
     {
-        return inertia('Person/Index');
+        return inertia('People/Index');
     }
 }
 ```
@@ -226,8 +226,8 @@ class PersonController extends Controller
 ```vue
 <!-- resources/js/components/AppSidebar.vue -->
 <v-list-item 
-  to="/person" 
-  title="Personas"
+  to="/people" 
+  title="Peopleas"
   prepend-icon="mdi-account"
 />
 ```
@@ -236,18 +236,18 @@ class PersonController extends Controller
 
 ---
 
-## Caso 2: Relaciones Many-to-Many - Persona + Habilidades
+## Caso 2: Relaciones Many-to-Many - Peoplea + Habilidades
 
 ### Modelo Actualizado
 
 ```php
-// app/Models/Person.php
-class Person extends Model
+// app/Models/People.php
+class People extends Model
 {
     // Relación many-to-many
     public function skills()
     {
-        return $this->belongsToMany(Skill::class, 'person_skill');
+        return $this->belongsToMany(Skill::class, 'people_skill');
     }
 }
 ```
@@ -255,7 +255,7 @@ class Person extends Model
 ### Configuración para Many-to-Many
 
 ```json
-// person-form/itemForm.json - Campo actualizado
+// people-form/itemForm.json - Campo actualizado
 {
   "key": "skills",
   "label": "Habilidades",
@@ -267,29 +267,29 @@ class Person extends Model
 }
 ```
 
-### Controller Personalizado (si es necesario)
+### Controller Peoplealizado (si es necesario)
 
 ```php
-// app/Repository/PersonRepository.php
-class PersonRepository extends GenericRepository
+// app/Repository/PeopleRepository.php
+class PeopleRepository extends GenericRepository
 {
     public function update($id, array $data): Model
     {
-        $person = $this->model->findOrFail($id);
+        $people = $this->model->findOrFail($id);
         
         // Extraer habilidades
         $skills = $data['skills'] ?? [];
         unset($data['skills']);
         
-        // Actualizar datos personales
-        $person->update($data);
+        // Actualizar datos peopleales
+        $people->update($data);
         
         // Sincronizar relación many-to-many
         if (!empty($skills)) {
-            $person->skills()->sync($skills);
+            $people->skills()->sync($skills);
         }
         
-        return $person->fresh(['skills']);
+        return $people->fresh(['skills']);
     }
     
     public function create(array $data): Model
@@ -297,13 +297,13 @@ class PersonRepository extends GenericRepository
         $skills = $data['skills'] ?? [];
         unset($data['skills']);
         
-        $person = $this->model->create($data);
+        $people = $this->model->create($data);
         
         if (!empty($skills)) {
-            $person->skills()->sync($skills);
+            $people->skills()->sync($skills);
         }
         
-        return $person->fresh(['skills']);
+        return $people->fresh(['skills']);
     }
 }
 ```
@@ -312,7 +312,7 @@ class PersonRepository extends GenericRepository
 
 ```php
 // routes/form-schema-complete.php - FormSchemaController
-// Automáticamente busca PersonRepository si existe
+// Automáticamente busca PeopleRepository si existe
 // Si no existe, usa GenericRepository
 ```
 
@@ -325,8 +325,8 @@ class PersonRepository extends GenericRepository
 ### Validador Específico
 
 ```php
-// app/Validators/PersonValidator.php
-class PersonValidator extends FormValidator
+// app/Validators/PeopleValidator.php
+class PeopleValidator extends FormValidator
 {
     public function rules(): array
     {
@@ -349,7 +349,7 @@ class PersonValidator extends FormValidator
     }
     
     /**
-     * Validación personalizada compleja
+     * Validación peoplealizada compleja
      */
     public function validateCustomRules(array $data): bool
     {
@@ -373,7 +373,7 @@ class PersonValidator extends FormValidator
 // app/Http/Controllers/FormSchemaController.php
 // Ya lo hace automáticamente:
 // $this->validator = new FormValidator($modelName);
-// Busca AppValidators\PersonValidator si existe
+// Busca AppValidators\PeopleValidator si existe
 ```
 
 ---
@@ -420,7 +420,7 @@ async function performSearch() {
 ### Backend Search Avanzado
 
 ```php
-// app/Repository/PersonRepository.php
+// app/Repository/PeopleRepository.php
 public function advancedSearch(
     string $query = '',
     array $filters = [],
@@ -522,7 +522,7 @@ function exportData() {
 
 ---
 
-## Caso 6: Campos Personalizados Dinámicos
+## Caso 6: Campos Peoplealizados Dinámicos
 
 ### Configuración JSON con Custom Field
 

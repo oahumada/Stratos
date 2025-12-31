@@ -10,14 +10,14 @@
         >
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
-        <h1 class="text-h4 font-weight-bold">{{ person?.name }}</h1>
+        <h1 class="text-h4 font-weight-bold">{{ people?.name }}</h1>
       </div>
 
       <!-- Loading State -->
       <v-card v-if="loading" class="mb-4">
         <v-card-text class="text-center py-8">
           <v-progress-circular indeterminate color="primary" />
-          <p class="mt-4">Loading person details...</p>
+          <p class="mt-4">Loading people details...</p>
         </v-card-text>
       </v-card>
 
@@ -32,23 +32,23 @@
         {{ error }}
       </v-alert>
 
-      <div v-if="!loading && person" class="space-y-4">
+      <div v-if="!loading && people" class="space-y-4">
         <!-- Basic Info -->
         <v-card>
-          <v-card-title>Personal Information</v-card-title>
+          <v-card-title>Peopleal Information</v-card-title>
           <v-card-text>
             <v-row dense>
               <v-col cols="12" sm="6">
                 <div class="mb-4">
                   <span class="text-caption text-grey">Full Name</span>
-                  <p class="text-body2 font-weight-medium">{{ person.name }}</p>
+                  <p class="text-body2 font-weight-medium">{{ people.name }}</p>
                 </div>
               </v-col>
               <v-col cols="12" sm="6">
                 <div class="mb-4">
                   <span class="text-caption text-grey">Email</span>
                   <p class="text-body2 font-weight-medium">
-                    <a :href="`mailto:${person.email}`">{{ person.email }}</a>
+                    <a :href="`mailto:${people.email}`">{{ people.email }}</a>
                   </p>
                 </div>
               </v-col>
@@ -56,11 +56,11 @@
                 <div class="mb-4">
                   <span class="text-caption text-grey">Department</span>
                   <v-chip
-                    :color="getDepartmentColor(person.department)"
+                    :color="getDepartmentColor(people.department)"
                     size="small"
                     class="mt-2"
                   >
-                    {{ person.department }}
+                    {{ people.department }}
                   </v-chip>
                 </div>
               </v-col>
@@ -68,7 +68,7 @@
                 <div class="mb-4">
                   <span class="text-caption text-grey">Hired Date</span>
                   <p class="text-body2 font-weight-medium">
-                    {{ formatDate(person.hired_at) }}
+                    {{ formatDate(people.hired_at) }}
                   </p>
                 </div>
               </v-col>
@@ -76,12 +76,12 @@
                 <div>
                   <span class="text-caption text-grey">Current Role</span>
                   <v-chip
-                    v-if="person.role"
+                    v-if="people.role"
                     color="primary"
                     size="small"
                     class="mt-2"
                   >
-                    {{ person.role.name }}
+                    {{ people.role.name }}
                   </v-chip>
                   <p v-else class="text-body2 text-grey mt-2">No role assigned</p>
                 </div>
@@ -98,7 +98,7 @@
                   variant="outlined"
                   block
                   prepend-icon="mdi-pencil"
-                  @click="editPerson"
+                  @click="editPeople"
                 >
                   Edit
                 </v-btn>
@@ -122,7 +122,7 @@
         <v-card>
           <v-card-title>
             <div class="d-flex justify-space-between align-center w-100">
-              <span>Skills ({{ personSkills.length }})</span>
+              <span>Skills ({{ peopleSkills.length }})</span>
               <v-btn
                 color="primary"
                 size="small"
@@ -136,9 +136,9 @@
 
           <v-card-text>
             <v-data-table
-              v-if="personSkills.length > 0"
+              v-if="peopleSkills.length > 0"
               :headers="skillHeaders"
-              :items="personSkills"
+              :items="peopleSkills"
               class="elevation-0"
             >
               <!-- Level Badge -->
@@ -208,9 +208,9 @@
       persistent
     >
       <v-card>
-        <v-card-title>Edit Person</v-card-title>
+        <v-card-title>Edit People</v-card-title>
         <v-card-text>
-          <v-form ref="editForm" @submit.prevent="savePerson">
+          <v-form ref="editForm" @submit.prevent="savePeople">
             <v-text-field
               v-model="formData.name"
               label="Full Name"
@@ -267,7 +267,7 @@
           </v-btn>
           <v-btn
             color="primary"
-            @click="savePerson"
+            @click="savePeople"
             :loading="saving"
           >
             Update
@@ -335,7 +335,7 @@
       <v-card>
         <v-card-title>Confirm Delete</v-card-title>
         <v-card-text>
-          Are you sure you want to delete <strong>{{ person?.name }}</strong>?
+          Are you sure you want to delete <strong>{{ people?.name }}</strong>?
           <br>
           <small class="text-error">This action cannot be undone.</small>
         </v-card-text>
@@ -350,7 +350,7 @@
           </v-btn>
           <v-btn
             color="error"
-            @click="deletePerson"
+            @click="deletePeople"
             :loading="saving"
           >
             Delete
@@ -367,7 +367,7 @@ import { usePage, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import Layout from '@/layouts/AppLayout.vue'
 
-interface Person {
+interface People {
   id: number
   name: string
   email: string
@@ -382,7 +382,7 @@ interface Skill {
   name: string
 }
 
-interface PersonSkill {
+interface PeopleSkill {
   id: number
   skill_id: number
   name: string
@@ -395,11 +395,11 @@ interface Role {
 }
 
 const page = usePage()
-const personId = computed(() => parseInt((page.props as any).personId || '0'))
+const peopleId = computed(() => parseInt((page.props as any).peopleId || '0'))
 
 // State
-const person = ref<Person | null>(null)
-const personSkills = ref<PersonSkill[]>([])
+const people = ref<People | null>(null)
+const peopleSkills = ref<PeopleSkill[]>([])
 const roles = ref<Role[]>([])
 const allSkills = ref<Skill[]>([])
 const loading = ref(false)
@@ -432,7 +432,7 @@ const skillHeaders = [
 ]
 
 const availableSkills = computed(() => {
-  const assignedIds = new Set(personSkills.value.map(s => s.skill_id))
+  const assignedIds = new Set(peopleSkills.value.map(s => s.skill_id))
   return allSkills.value.filter(s => !assignedIds.has(s.id))
 })
 
@@ -441,35 +441,35 @@ const goBack = () => {
   window.history.back()
 }
 
-const fetchPerson = async () => {
+const fetchPeople = async () => {
   loading.value = true
   error.value = null
 
   try {
-    const response = await axios.get(`/api/Person/${personId.value}`)
-    person.value = response.data.data || response.data
+    const response = await axios.get(`/api/People/${peopleId.value}`)
+    people.value = response.data.data || response.data
 
     // Load form data
-    if (person.value) {
+    if (people.value) {
       formData.value = {
-        name: person.value.name,
-        email: person.value.email,
-        department: person.value.department,
-        role_id: person.value.role_id || null,
-        hired_at: person.value.hired_at || '',
+        name: people.value.name,
+        email: people.value.email,
+        department: people.value.department,
+        role_id: people.value.role_id || null,
+        hired_at: people.value.hired_at || '',
       }
     }
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Failed to load person'
+    error.value = err.response?.data?.message || 'Failed to load people'
   } finally {
     loading.value = false
   }
 }
 
-const fetchPersonSkills = async () => {
+const fetchPeopleSkills = async () => {
   try {
-    const response = await axios.get(`/api/Person/${personId.value}/skills`)
-    personSkills.value = response.data.data || response.data
+    const response = await axios.get(`/api/People/${peopleId.value}/skills`)
+    peopleSkills.value = response.data.data || response.data
   } catch (err) {
     console.error('Failed to load skills', err)
   }
@@ -493,22 +493,22 @@ const fetchSkills = async () => {
   }
 }
 
-const editPerson = () => {
+const editPeople = () => {
   editDialogOpen.value = true
 }
 
-const savePerson = async () => {
+const savePeople = async () => {
   if (!editForm.value?.validate()) return
 
   saving.value = true
   error.value = null
 
   try {
-    await axios.put(`/api/Person/${person.value?.id}`, formData.value)
+    await axios.put(`/api/People/${people.value?.id}`, formData.value)
     editDialogOpen.value = false
-    fetchPerson()
+    fetchPeople()
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Failed to save person'
+    error.value = err.response?.data?.message || 'Failed to save people'
   } finally {
     saving.value = false
   }
@@ -529,12 +529,12 @@ const addSkill = async () => {
   error.value = null
 
   try {
-    await axios.post(`/api/Person/${person.value?.id}/skills`, {
+    await axios.post(`/api/People/${people.value?.id}/skills`, {
       skill_id: skillFormData.value.skill_id,
       level: skillFormData.value.level,
     })
     skillDialogOpen.value = false
-    fetchPersonSkills()
+    fetchPeopleSkills()
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Failed to add skill'
   } finally {
@@ -549,8 +549,8 @@ const removeSkill = async (skillId: number) => {
   error.value = null
 
   try {
-    await axios.delete(`/api/Person/${person.value?.id}/skills/${skillId}`)
-    fetchPersonSkills()
+    await axios.delete(`/api/People/${people.value?.id}/skills/${skillId}`)
+    fetchPeopleSkills()
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Failed to remove skill'
   } finally {
@@ -562,26 +562,26 @@ const openDeleteDialog = () => {
   deleteDialogOpen.value = true
 }
 
-const deletePerson = async () => {
+const deletePeople = async () => {
   saving.value = true
   error.value = null
 
   try {
-    await axios.delete(`/api/Person/${person.value?.id}`)
-    router.visit('/Person')
+    await axios.delete(`/api/People/${people.value?.id}`)
+    router.visit('/People')
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Failed to delete person'
+    error.value = err.response?.data?.message || 'Failed to delete people'
   } finally {
     saving.value = false
   }
 }
 
 const viewGapAnalysis = () => {
-  router.visit(`/gap-analysis/${person.value?.id}`)
+  router.visit(`/gap-analysis/${people.value?.id}`)
 }
 
 const viewLearningPath = () => {
-  router.visit(`/learning-paths?person_id=${person.value?.id}`)
+  router.visit(`/learning-paths?people_id=${people.value?.id}`)
 }
 
 const formatDate = (date?: string) => {
@@ -619,8 +619,8 @@ const isEmail = (value: any) =>
 
 // Lifecycle
 onMounted(() => {
-  fetchPerson()
-  fetchPersonSkills()
+  fetchPeople()
+  fetchPeopleSkills()
   fetchRoles()
   fetchSkills()
 })

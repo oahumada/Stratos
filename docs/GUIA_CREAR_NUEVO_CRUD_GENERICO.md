@@ -38,7 +38,7 @@ Crear un CRUD completo (Create, Read, Update, Delete, Search) con:
 
 ```php
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     'Skills' => 'skills',
     'Department' => 'departments',
     'Role' => 'roles',
@@ -102,7 +102,7 @@ touch Certifications/certifications-form/filters.json
 
 #### 3.1 config.json
 
-**Copiar:** `/resources/js/pages/Person/Person-form/config.json`  
+**Copiar:** `/resources/js/pages/People/People-form/config.json`  
 **Modificar:**
 
 ```json
@@ -132,7 +132,7 @@ touch Certifications/certifications-form/filters.json
 
 #### 3.2 tableConfig.json
 
-**Copiar:** `/resources/js/pages/Person/Person-form/tableConfig.json`  
+**Copiar:** `/resources/js/pages/People/People-form/tableConfig.json`  
 **Modificar:**
 
 ```json
@@ -183,7 +183,7 @@ touch Certifications/certifications-form/filters.json
 
 #### 3.3 itemForm.json
 
-**Copiar:** `/resources/js/pages/Person/Person-form/itemForm.json`  
+**Copiar:** `/resources/js/pages/People/People-form/itemForm.json`  
 **Modificar:**
 
 ```json
@@ -252,7 +252,7 @@ touch Certifications/certifications-form/filters.json
 
 #### 3.4 filters.json
 
-**Copiar:** `/resources/js/pages/Person/Person-form/filters.json`  
+**Copiar:** `/resources/js/pages/People/People-form/filters.json`  
 **Modificar:**
 
 ```json
@@ -283,7 +283,7 @@ touch Certifications/certifications-form/filters.json
 
 ### PASO 4: Crear Index.vue (3 min)
 
-**Copiar completamente:** `/resources/js/pages/Person/Index.vue`
+**Copiar completamente:** `/resources/js/pages/People/Index.vue`
 
 **Cambiar SOLO estas 4 líneas:**
 
@@ -449,7 +449,7 @@ curl -X DELETE http://localhost:8000/api/certifications/1
 
 - [PATRON_JSON_DRIVEN_CRUD.md](PATRON_JSON_DRIVEN_CRUD.md) - Guía completa del patrón
 - [CHECKLIST_NUEVO_CRUD.md](CHECKLIST_NUEVO_CRUD.md) - Checklist detallado
-- [Ejemplo implementado](/resources/js/pages/Person/) - Copiar de Person
+- [Ejemplo implementado](/resources/js/pages/People/) - Copiar de People
 - [API endpoints](/docs/dia5_api_endpoints.md) - Listado de todos los endpoints
 
 ---
@@ -470,7 +470,7 @@ curl -X DELETE http://localhost:8000/api/certifications/1
 
 En futuras versiones puedes agregar:
 - Componentes especializados en lugar de Index.vue genérico
-- Validaciones personalizadas por modelo
+- Validaciones peoplealizadas por modelo
 - Cálculos dinámicos en tablas
 - Exportar a CSV/PDF
 - Bulk operations (editar múltiples registros)

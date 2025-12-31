@@ -5,10 +5,10 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 // Import JSON configs
-import configJson from './Person-form/config.json';
-import tableConfigJson from './Person-form/tableConfig.json';
-import itemFormJson from './Person-form/itemForm.json';
-import filtersJson from './Person-form/filters.json';
+import configJson from './People-form/config.json';
+import tableConfigJson from './People-form/tableConfig.json';
+import itemFormJson from './People-form/itemForm.json';
+import filtersJson from './People-form/filters.json';
 
 defineOptions({ layout: AppLayout });
 
@@ -72,8 +72,8 @@ const roles = ref<Role[]>([]);
 
 // Load configs from JSON files with null checks
 const config: Config = (configJson || {
-  endpoints: { index: '/api/Person', apiUrl: '/api/Person' },
-  titulo: 'Person Management'
+  endpoints: { index: '/api/People', apiUrl: '/api/People' },
+  titulo: 'People Management'
 }) as Config;
 
 const tableConfig: TableConfig = (tableConfigJson || {

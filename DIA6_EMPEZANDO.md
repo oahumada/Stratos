@@ -1,7 +1,7 @@
 # 🚀 EMPEZANDO DÍA 6 - PASO A PASO
 
 **Hora:** 09:30-12:00 (Prioridad 1)  
-**Objetivo:** 3 páginas CRUD funcionando (/Person, /roles, /skills)
+**Objetivo:** 3 páginas CRUD funcionando (/People, /roles, /skills)
 
 ---
 
@@ -59,14 +59,14 @@ Ahora los cambios en Vue se verán automáticamente.
 
 1. Abre: http://127.0.0.1:8000
 2. Inicia sesión (si hay un usuario de demo)
-3. Navega a `/Person`
-4. Deberías ver la tabla de personas
+3. Navega a `/People`
+4. Deberías ver la tabla de peopleas
 
 ---
 
 ## 🔍 Si No Funciona
 
-### Error: "Cannot GET /Person"
+### Error: "Cannot GET /People"
 
 - ✅ Verifica que Backend está corriendo
 - ✅ Verifica que npm run dev está corriendo
@@ -74,7 +74,7 @@ Ahora los cambios en Vue se verán automáticamente.
 
 ### Error: "API call failed"
 
-- ✅ Verifica que `curl http://localhost:8000/api/Person` funciona
+- ✅ Verifica que `curl http://localhost:8000/api/People` funciona
 - ✅ Revisa headers en axios (Authorization header)
 
 ### Errores de compilación
@@ -88,9 +88,9 @@ Ahora los cambios en Vue se verán automáticamente.
 
 ```
 src/resources/js/pages/
-├── Person/
-│   ├── Index.vue  ✅ Lista de personas
-│   └── Show.vue   ✅ Detalle de persona
+├── People/
+│   ├── Index.vue  ✅ Lista de peopleas
+│   └── Show.vue   ✅ Detalle de peoplea
 ├── Roles/
 │   └── Index.vue  ✅ Lista de roles
 ├── Skills/
@@ -110,8 +110,8 @@ src/resources/js/pages/
 ## 🧪 Testing Rápido de Endpoints
 
 ```bash
-# Prueba /api/Person
-curl http://localhost:8000/api/Person | jq
+# Prueba /api/People
+curl http://localhost:8000/api/People | jq
 
 # Prueba /api/roles
 curl http://localhost:8000/api/roles | jq
@@ -122,7 +122,7 @@ curl http://localhost:8000/api/skills | jq
 # Prueba /api/gap-analysis
 curl -X POST http://localhost:8000/api/gap-analysis \
   -H "Content-Type: application/json" \
-  -d '{"person_id": 1, "role_id": 1}' | jq
+  -d '{"people_id": 1, "role_id": 1}' | jq
 ```
 
 ---
@@ -133,11 +133,11 @@ curl -X POST http://localhost:8000/api/gap-analysis \
 - [ ] php artisan serve corriendo
 - [ ] npm run dev corriendo
 - [ ] http://127.0.0.1:8000 accesible
-- [ ] `/Person` muestra tabla de personas
-- [ ] Click en persona abre detalle
+- [ ] `/People` muestra tabla de peopleas
+- [ ] Click en peoplea abre detalle
 - [ ] `/roles` muestra tabla de roles
 - [ ] `/skills` muestra catálogo de skills
-- [ ] Filtros funcionan en /Person
+- [ ] Filtros funcionan en /People
 
 ---
 
@@ -145,7 +145,7 @@ curl -X POST http://localhost:8000/api/gap-analysis \
 
 ```
 09:30-09:35  Build + Servidor
-09:35-10:30  Verificar/arreglar /Person
+09:35-10:30  Verificar/arreglar /People
 10:30-11:15  Verificar /roles + /skills
 11:15-11:45  Buffer/ajustes
 11:45        ✅ Checkpoint: P1 completa
@@ -164,7 +164,7 @@ curl -X POST http://localhost:8000/api/gap-analysis \
 
 ## 🚀 Próximo Paso (después de P1)
 
-Una vez que `/Person`, `/roles` y `/skills` funcionen:
+Una vez que `/People`, `/roles` y `/skills` funcionen:
 
 1. Empezar `/gap-analysis` (13:00)
 2. Crear `/development-paths`

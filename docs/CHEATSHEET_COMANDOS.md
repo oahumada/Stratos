@@ -34,15 +34,15 @@ http://localhost:5173
 ```bash
 # Contar registros
 php artisan tinker
->>> App\Models\Person::count()          # 20
+>>> App\Models\People::count()          # 20
 >>> App\Models\Role::count()            # 8
 >>> App\Models\Skill::count()           # 30
 >>> App\Models\JobOpening::count()      # 5
 >>> App\Models\Application::count()     # 10
 
-# Ver una persona con skills
->>> $person = App\Models\Person::first();
->>> $person->skills->pluck('name');
+# Ver una peoplea con skills
+>>> $people = App\Models\People::first();
+>>> $people->skills->pluck('name');
 
 # Ver un rol con skills requeridas
 >>> $role = App\Models\Role::first();
@@ -71,17 +71,17 @@ php artisan candidates:rank 2
 ### cURL Requests
 
 ```bash
-# GET - Lista de personas
-curl http://localhost:8000/api/Person
+# GET - Lista de peopleas
+curl http://localhost:8000/api/People
 
-# GET - Detalle de persona
-curl http://localhost:8000/api/Person/1
+# GET - Detalle de peoplea
+curl http://localhost:8000/api/People/1
 
 # POST - Analizar brecha
 curl -X POST http://localhost:8000/api/gap-analysis \
   -H "Content-Type: application/json" \
   -d '{
-    "person_id": 1,
+    "people_id": 1,
     "role_name": "Backend Developer"
   }'
 
@@ -89,7 +89,7 @@ curl -X POST http://localhost:8000/api/gap-analysis \
 curl -X POST http://localhost:8000/api/applications \
   -H "Content-Type: application/json" \
   -d '{
-    "person_id": 1,
+    "people_id": 1,
     "job_opening_id": 1,
     "message": "Me interesa"
   }'
@@ -100,7 +100,7 @@ curl -X PATCH http://localhost:8000/api/applications/1 \
   -d '{"status": "accepted"}'
 
 # GET - Marketplace de oportunidades
-curl http://localhost:8000/api/Person/1/marketplace
+curl http://localhost:8000/api/People/1/marketplace
 
 # GET - Candidatos para vacante
 curl http://localhost:8000/api/job-openings/1/candidates
@@ -238,14 +238,14 @@ Routes List:    php artisan route:list
 | ------ | ------------------------------- | ----------------------- |
 | POST   | /api/gap-analysis               | Brecha de competencias  |
 | POST   | /api/development-paths/generate | Generar ruta desarrollo |
-| GET    | /api/Person                     | Lista personas          |
-| GET    | /api/Person/{id}                | Detalle persona         |
+| GET    | /api/People                     | Lista peopleas          |
+| GET    | /api/People/{id}                | Detalle peoplea         |
 | GET    | /api/roles                      | Lista roles             |
 | GET    | /api/skills                     | Lista skills            |
 | GET    | /api/job-openings               | Lista vacantes          |
 | POST   | /api/applications               | Crear postulación       |
 | PATCH  | /api/applications/{id}          | Actualizar postulación  |
-| GET    | /api/Person/{id}/marketplace    | Oportunidades internas  |
+| GET    | /api/People/{id}/marketplace    | Oportunidades internas  |
 | GET    | /api/dashboard/metrics          | Métricas dashboard      |
 
 ---
@@ -268,7 +268,7 @@ Routes List:    php artisan route:list
     ```bash
     php artisan tinker
     >>> \App\Services\GapAnalysisService::class
-    >>> (new \App\Services\GapAnalysisService())->calculate($person, $role)
+    >>> (new \App\Services\GapAnalysisService())->calculate($people, $role)
     ```
 
 4. **Postman Tips:**

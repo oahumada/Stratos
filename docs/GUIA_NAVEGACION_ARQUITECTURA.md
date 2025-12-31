@@ -183,7 +183,7 @@ Tiempo: 10 minutos para entender flujo completo
 Tema: "Los cambios no se guardan en la BD"
 Documentos:
   1. FormSchemaController-Flow-Diagram.md
-     └─ "Puntos de Personalización" (dónde puede fallar)
+     └─ "Puntos de Peoplealización" (dónde puede fallar)
 
   2. DIA6_COMENTARIOS_CODIGO.md
      └─ Buscar "debugging" y patrones de error

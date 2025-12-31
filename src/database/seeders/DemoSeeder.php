@@ -6,7 +6,7 @@ use App\Models\Application;
 use App\Models\DevelopmentPath;
 use App\Models\JobOpening;
 use App\Models\Organization;
-use App\Models\Person;
+use App\Models\People;
 use App\Models\Role;
 use App\Models\Skill;
 use App\Models\User;
@@ -168,11 +168,11 @@ class DemoSeeder extends Seeder
             return $role;
         });
 
-        // 5. Crear 20 personas (empleados) con sus skills
+        // 5. Crear 20 peopleas (empleados) con sus skills
         $firstNames = ['Carlos', 'María', 'Juan', 'Ana', 'Pedro', 'Laura', 'Miguel', 'Sandra', 'Roberto', 'Elena', 'Fernando', 'Patricia', 'Diego', 'Beatriz', 'Andrés', 'Gabriela', 'Javier', 'Claudia', 'Ricardo', 'Verónica'];
         $lastNames = ['García', 'López', 'Martínez', 'Rodríguez', 'Pérez', 'Sánchez', 'González', 'Fernández', 'Torres', 'Ramírez'];
 
-        $Person = [];
+        $People = [];
         $departments = ['Engineering', 'Quality Assurance', 'Product', 'Infrastructure', 'Business'];
 
         for ($i = 0; $i < 20; $i++) {
@@ -180,10 +180,10 @@ class DemoSeeder extends Seeder
             $lastName = $lastNames[rand(0, count($lastNames) - 1)];
             $email = strtolower($firstName . '.' . $lastName . '@techcorp.com');
 
-            // Cada persona tiene un rol actual
+            // Cada peoplea tiene un rol actual
             $currentRole = $roles[rand(0, count($roles) - 1)];
 
-            $person = Person::create([
+            $people = People::create([
                 'organization_id' => $org->id,
                 'first_name' => $firstName,
                 'last_name' => $lastName,
@@ -194,13 +194,13 @@ class DemoSeeder extends Seeder
                 'photo_url' => "https://api.dicebear.com/7.x/avataaars/svg?seed={$email}",
             ]);
 
-            // Asignar skills a la persona (subconjunto del rol + algunas adicionales)
-            $skillsForPerson = [];
+            // Asignar skills a la peoplea (subconjunto del rol + algunas adicionales)
+            $skillsForPeople = [];
 
             // Primero agregar algunas skills del rol actual con niveles realistas
             $roleSkills = $currentRole->skills()->take(4)->get();
             foreach ($roleSkills as $skill) {
-                $skillsForPerson[$skill->id] = [
+                $skillsForPeople[$skill->id] = [
                     'level' => rand(2, 5),
                     'last_evaluated_at' => now()->subMonths(rand(1, 12)),
                 ];
@@ -209,16 +209,16 @@ class DemoSeeder extends Seeder
             // Agregar algunas skills adicionales aleatorias (para crear brechas interesantes)
             $additionalSkills = $skills->random(3);
             foreach ($additionalSkills as $skill) {
-                if (!isset($skillsForPerson[$skill->id])) {
-                    $skillsForPerson[$skill->id] = [
+                if (!isset($skillsForPeople[$skill->id])) {
+                    $skillsForPeople[$skill->id] = [
                         'level' => rand(1, 3),
                         'last_evaluated_at' => now()->subMonths(rand(1, 12)),
                     ];
                 }
             }
 
-            $person->skills()->attach($skillsForPerson);
-            $Person[] = $person;
+            $people->skills()->attach($skillsForPeople);
+            $People[] = $people;
         }
 
         // 6. Crear 5 vacantes internas
@@ -250,13 +250,13 @@ class DemoSeeder extends Seeder
 
         foreach ($jobOpenings as $jobOpening) {
             // Cada vacante tiene 2 postulantes
-            $candidates = collect($Person)->random(2);
+            $candidates = collect($People)->random(2);
 
             foreach ($candidates as $candidate) {
                 if ($applicationsCreated < 10) {
                     Application::create([
                         'job_opening_id' => $jobOpening->id,
-                        'person_id' => $candidate->id,
+                        'people_id' => $candidate->id,
                         'status' => $applicationStatuses[rand(0, count($applicationStatuses) - 1)],
                         'message' => "Interested in this opportunity. I believe my skills align well with the role requirements.",
                         'applied_at' => now()->subDays(rand(1, 30)),
@@ -267,12 +267,12 @@ class DemoSeeder extends Seeder
         }
 
         // 8. Crear una ruta de desarrollo de ejemplo
-        $person = $Person[0];
+        $people = $People[0];
         $targetRole = $roles->where('name', 'Senior Full Stack Developer')->first();
 
         DevelopmentPath::create([
             'organization_id' => $org->id,
-            'person_id' => $person->id,
+            'people_id' => $people->id,
             'target_role_id' => $targetRole->id,
             'status' => 'draft',
             'estimated_duration_months' => 6,
@@ -312,7 +312,7 @@ class DemoSeeder extends Seeder
         echo "   • 1 Usuario admin\n";
         echo "   • 30 Skills\n";
         echo "   • 8 Roles\n";
-        echo "   • 20 Personas\n";
+        echo "   • 20 Peopleas\n";
         echo "   • 5 Vacantes\n";
         echo "   • 10 Postulaciones\n";
         echo "   • 1 Ruta de desarrollo\n";

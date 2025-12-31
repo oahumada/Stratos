@@ -101,12 +101,12 @@ Cada capítulo está diseñado para múltiples niveles:
 
 El Capítulo 08 incluye 6 casos de uso completos:
 
-1. **CRUD Simple** - Personas (básico)
-2. **Many-to-Many** - Persona + Habilidades (relaciones)
+1. **CRUD Simple** - Peopleas (básico)
+2. **Many-to-Many** - Peoplea + Habilidades (relaciones)
 3. **Validaciones Complejas** - Lógica de negocio
 4. **Búsqueda Avanzada** - Con filtros
 5. **Exportar a CSV** - Descarga de datos
-6. **Campos Personalizados** - JSON Editor
+6. **Campos Peoplealizados** - JSON Editor
 
 Cada caso incluye:
 - Código HTML/CSS/JS completo

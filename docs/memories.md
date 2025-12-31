@@ -13,7 +13,7 @@
 **Antes (Problema):**
 - Rutas API definidas manualmente en `/routes/api.php`
 - Rutas CRUD generadas en `/routes/form-schema-complete.php`
-- Mismo endpoint `/api/person` registrado DOS VECES → conflicto
+- Mismo endpoint `/api/people` registrado DOS VECES → conflicto
 
 **Ahora (Solución):**
 - Todas las rutas CRUD en `/routes/form-schema-complete.php` (única fuente de verdad)
@@ -25,7 +25,7 @@
 
 1. **Registrar modelo** en form-schema-complete.php: `'YourModel' => 'route-name'`
 2. **Crear carpeta** `/pages/YourModel/your-model-form/` con 4 JSONs
-3. **Copiar Index.vue** de Person y cambiar imports JSON
+3. **Copiar Index.vue** de People y cambiar imports JSON
 4. **Agregar ruta web** en `/routes/web.php`
 5. **Agregar navlink** en AppSidebar.vue
 6. **Limpiar caché:** `php artisan route:clear && php artisan route:cache`
@@ -46,7 +46,7 @@
 
 ### ✅ Completado (Días 1-5)
 
-- **Backend 100% funcional:** 17 endpoints API (personas, skills, roles, brechas, rutas, vacantes, postulaciones, matching)
+- **Backend 100% funcional:** 17 endpoints API (peopleas, skills, roles, brechas, rutas, vacantes, postulaciones, matching)
 - **BD migraciones + seeders:** 15+ tablas, datos de demo TechCorp (20 empleados, 8 roles, 30 skills)
 - **Tests:** 5/5 PASS
 - **Documentación:** API endpoints, lecciones aprendidas, guía de desarrollo
@@ -101,7 +101,7 @@
 
 - Mapear el talento interno por competencias (skills) y niveles de dominio
 - Identificar brechas entre perfiles actuales y roles objetivo
-- Diseñar rutas de desarrollo personalizadas con e-learning integrado
+- Diseñar rutas de desarrollo peoplealizadas con e-learning integrado
 - Tomar decisiones de selección basadas en datos (candidatos internos vs externos)
 - Facilitar movilidad interna mediante marketplace de oportunidades
 - Visualizar métricas estratégicas de talento en dashboards ejecutivos
@@ -134,14 +134,14 @@
 
 - **Setup inicial:** Laravel + PostgreSQL + Vue 3 + TypeScript + Vuetify
 - **Modelo de datos multi-tenant:** Tablas core con `organization_id`
-- **Perfiles de empleados:** CRUD básico de personas con skills y niveles
-- **Cálculo de brechas:** Algoritmo persona ↔ rol (gap analysis)
+- **Perfiles de empleados:** CRUD básico de peopleas con skills y niveles
+- **Cálculo de brechas:** Algoritmo peoplea ↔ rol (gap analysis)
 - **Rutas de desarrollo:** Recomendaciones de cursos/acciones para cerrar brechas
 
 #### Semana 2 (Días 8-14)
 
 - **Selección por skills:** Comparación candidatos internos vs externos para vacantes
-- **Marketplace interno:** Matching de personas a oportunidades abiertas
+- **Marketplace interno:** Matching de peopleas a oportunidades abiertas
 - **Dashboard estratégico:** KPIs clave (cobertura de skills, roles en riesgo, brechas críticas)
 - **Datos de demo:** Seed con empresa ficticia "TechCorp" (20 empleados, 8 roles, 30 skills)
 - **Pulido y guion de demo:** Flujo completo para presentación comercial
@@ -149,9 +149,9 @@
 #### Funcionalidades MVP
 
 1. **Perfiles de talento** con skills y niveles de dominio (1-5)
-2. **Catálogo de skills** por organización (taxonomía personalizable)
+2. **Catálogo de skills** por organización (taxonomía peoplealizable)
 3. **Roles y perfiles de cargo** con skills requeridas
-4. **Cálculo de brechas** persona ↔ rol (% match, skills faltantes)
+4. **Cálculo de brechas** peoplea ↔ rol (% match, skills faltantes)
 5. **Rutas de desarrollo** sugeridas (cursos, mentorías, proyectos)
 6. **Vacantes internas** con matching automático de candidatos
 7. **Comparación interno vs externo** para decisiones de selección
@@ -185,7 +185,7 @@ Para el MVP, se creará una empresa ficticia **"TechCorp"** con los siguientes d
 #### Entidades Principales
 
 - **1 Organización:** TechCorp (startup tech, 20 empleados)
-- **20 Personas:** Distribuidas en Engineering (12), Product (3), Operations (5)
+- **20 Peopleas:** Distribuidas en Engineering (12), Product (3), Operations (5)
 - **8 Roles:** Junior/Mid/Senior Frontend, Backend, Full-Stack, Product Manager, DevOps, QA
 - **30 Skills:** 15 técnicas (React, Node.js, Python, etc.), 10 soft skills (Leadership, Communication, etc.), 5 business/otras
 - **5 Vacantes Internas:** Senior Frontend, Tech Lead, Product Manager, DevOps Engineer, QA Lead
@@ -265,8 +265,8 @@ organizations (tabla maestra)
 ├── users (usuarios por org)
 ├── skills (catálogo por org)
 ├── roles (perfiles de cargo por org)
-├── Person (empleados por org)
-├── person_skills (skills de cada persona)
+├── People (empleados por org)
+├── people_skills (skills de cada peoplea)
 ├── role_skills (skills requeridas por rol)
 ├── development_paths (rutas de desarrollo)
 ├── job_openings (vacantes internas)
@@ -310,7 +310,7 @@ organizations (tabla maestra)
 
    - Componente maestro CRUD (lógica)
    - Carga items (GET), crea (POST), actualiza (PUT), elimina (DELETE)
-   - Tabla con búsqueda + filtros personalizados
+   - Tabla con búsqueda + filtros peoplealizados
    - Diálogos create/edit, confirmación delete
    - Manejo de errores 422 (validación)
    - Conversión automática de fechas
@@ -339,10 +339,10 @@ organizations (tabla maestra)
 ```json
 {
   "endpoints": {
-    "index": "/api/Person",
-    "apiUrl": "/api/Person"
+    "index": "/api/People",
+    "apiUrl": "/api/People"
   },
-  "titulo": "Person Management",
+  "titulo": "People Management",
   "descripcion": "Manage employees",
   "permisos": { "crear": true, "editar": true, "eliminar": true }
 }
@@ -396,10 +396,10 @@ organizations (tabla maestra)
 **Index.vue** - Orquestador mínimo (sin lógica Vue):
 
 ```typescript
-import configJson from "./Person-form/config.json";
-import tableConfigJson from "./Person-form/tableConfig.json";
-import itemFormJson from "./Person-form/itemForm.json";
-import filtersJson from "./Person-form/filters.json";
+import configJson from "./People-form/config.json";
+import tableConfigJson from "./People-form/tableConfig.json";
+import itemFormJson from "./People-form/itemForm.json";
+import filtersJson from "./People-form/filters.json";
 
 const config = configJson as Config;
 const tableConfig = tableConfigJson as TableConfig;
@@ -423,7 +423,7 @@ onMounted(() => loadRoles());
 
 **Ejemplo implementado:**
 
-- `/resources/js/pages/Person/` - 121 líneas Index.vue
+- `/resources/js/pages/People/` - 121 líneas Index.vue
 - Soporta búsqueda completa, 2 filtros (department, role), CRUD completo
   - Cambiar comportamiento = cambiar JSON (no código)
   - Típico: nuevo CRUD en 30 min (solo JSONs + Controller backend)
@@ -483,7 +483,7 @@ onMounted(() => loadRoles());
    - **Cobertura de skills críticas:** % de roles con skills cubiertas al 80%+
    - **Roles en riesgo:** Roles con <50% de cobertura
    - **Brechas totales:** Suma de gaps en skills críticas
-   - **Talento listo para promoción:** Personas con match >90% a roles superiores
+   - **Talento listo para promoción:** Peopleas con match >90% a roles superiores
    - **ROI de formación:** Reducción de brechas post-capacitación (roadmap)
 3. Frontend renderiza:
    - Cards con KPIs principales
@@ -501,9 +501,9 @@ onMounted(() => loadRoles());
 
 #### Flujo: Ver Perfil de Empleado
 
-1. Usuario accede a `/Person/{id}`
+1. Usuario accede a `/People/{id}`
 2. Backend retorna:
-   - Datos personales (nombre, cargo actual, departamento)
+   - Datos peopleales (nombre, cargo actual, departamento)
    - Skills actuales con niveles (1-5)
    - Roles sugeridos (match >70%)
    - Rutas de desarrollo activas
@@ -515,12 +515,12 @@ onMounted(() => loadRoles());
    - Tabla de roles sugeridos con % match
    - Timeline de rutas de desarrollo
 
-#### Flujo: Calcular Brecha Persona ↔ Rol
+#### Flujo: Calcular Brecha Peoplea ↔ Rol
 
-1. Usuario selecciona persona y rol objetivo
+1. Usuario selecciona peoplea y rol objetivo
 2. Click en "Calcular Brecha"
 3. Backend (`GapAnalysisService`):
-   - Obtiene skills de persona con niveles actuales
+   - Obtiene skills de peoplea con niveles actuales
    - Obtiene skills requeridas del rol con niveles mínimos
    - Calcula gaps: `gap = max(0, required_level - current_level)`
    - Calcula % match: `(skills_ok / total_skills) * 100`
@@ -531,9 +531,9 @@ onMounted(() => loadRoles());
 
 #### Endpoints
 
-- `GET /api/Person/{id}` → Perfil completo
-- `GET /api/Person/{id}/skills` → Skills con niveles
-- `POST /api/gap-analysis` → Body: `{person_id, role_id}` → Response: gaps + match%
+- `GET /api/People/{id}` → Perfil completo
+- `GET /api/People/{id}/skills` → Skills con niveles
+- `POST /api/gap-analysis` → Body: `{people_id, role_id}` → Response: gaps + match%
 
 ### 4.5 Rutas de Desarrollo
 
@@ -546,7 +546,7 @@ onMounted(() => loadRoles());
    - Prioriza por impacto (skills críticas primero)
    - Estima duración total (suma de horas de cursos)
 3. Crea registro en `development_paths` con:
-   - `person_id`, `target_role_id`
+   - `people_id`, `target_role_id`
    - `status: draft`
    - JSON con pasos: `[{skill_id, action_type, resource_id, duration}]`
 4. Frontend muestra:
@@ -568,7 +568,7 @@ onMounted(() => loadRoles());
 
 #### Endpoints
 
-- `POST /api/development-paths/generate` → Body: `{person_id, role_id}` → Response: ruta generada
+- `POST /api/development-paths/generate` → Body: `{people_id, role_id}` → Response: ruta generada
 - `GET /api/development-paths/{id}` → Detalle de ruta
 - `PATCH /api/development-paths/{id}/steps/{step_id}` → Actualizar estado de paso
 
@@ -606,14 +606,14 @@ onMounted(() => loadRoles());
 
 - `POST /api/job-openings` → Crear vacante
 - `GET /api/job-openings/{id}/candidates` → Candidatos internos rankeados
-- `POST /api/job-openings/{id}/compare` → Body: `{internal_person_id, external_cv_file}` → Response: comparación
+- `POST /api/job-openings/{id}/compare` → Body: `{internal_people_id, external_cv_file}` → Response: comparación
 
 ### 4.7 Marketplace Interno
 
 #### Flujo: Explorar Oportunidades (Empleado)
 
 1. Empleado accede a `/marketplace`
-2. Backend retorna vacantes abiertas con match personal:
+2. Backend retorna vacantes abiertas con match peopleal:
    - Filtra `job_openings` con `status: open`
    - Calcula match del empleado vs cada vacante
    - Ordena por match descendente
@@ -642,7 +642,7 @@ onMounted(() => loadRoles());
 
 #### Endpoints
 
-- `GET /api/marketplace` → Oportunidades con match personal
+- `GET /api/marketplace` → Oportunidades con match peopleal
 - `POST /api/applications` → Body: `{job_opening_id, message}` → Crear postulación
 - `GET /api/job-openings/{id}/applications` → Postulaciones de una vacante
 - `PATCH /api/applications/{id}` → Actualizar estado (accept/reject)
@@ -664,7 +664,7 @@ onMounted(() => loadRoles());
 #### Validaciones
 
 - Nivel mínimo: 1, máximo: 5
-- Una persona no puede tener la misma skill duplicada
+- Una peoplea no puede tener la misma skill duplicada
 - Al actualizar nivel, registrar fecha de última evaluación (roadmap)
 - Skills obsoletas: marcar como `deprecated` en lugar de eliminar
 
@@ -673,11 +673,11 @@ onMounted(() => loadRoles());
 #### Algoritmo
 
 ```php
-function calculateGap(Person $person, Role $role): array
+function calculateGap(People $people, Role $role): array
 {
     foreach ($role->skills as $roleSkill) {
-        $personSkill = $person->skills->firstWhere('id', $roleSkill->id);
-        $currentLevel = $personSkill?->pivot->level ?? 0;
+        $peopleSkill = $people->skills->firstWhere('id', $roleSkill->id);
+        $currentLevel = $peopleSkill?->pivot->level ?? 0;
         $requiredLevel = $roleSkill->pivot->required_level;
 
         $gap = max(0, $requiredLevel - $currentLevel);
@@ -729,7 +729,7 @@ function calculateGap(Person $person, Role $role): array
 
 #### Validaciones
 
-- Una persona puede tener máximo 3 rutas activas simultáneas
+- Una peoplea puede tener máximo 3 rutas activas simultáneas
 - Duración total de ruta no debe exceder 12 meses (warning, no bloqueante)
 - Al completar ruta, actualizar niveles de skills automáticamente (roadmap)
 
@@ -751,7 +751,7 @@ function calculateGap(Person $person, Role $role): array
 
 #### Reglas
 
-- Una persona puede postular máximo 1 vez a la misma vacante
+- Una peoplea puede postular máximo 1 vez a la misma vacante
 - Al aceptar una postulación, rechazar automáticamente las demás de esa vacante
 - Vacantes abiertas por más de 90 días: alerta al recruiter (roadmap)
 - Candidatos internos tienen prioridad visual en listados (badge "Interno")
@@ -762,7 +762,7 @@ function calculateGap(Person $person, Role $role): array
 
 1. **Super Admin:** Acceso total, gestiona organizaciones (fuera de MVP)
 2. **Org Admin:** Administrador de la organización, configura catálogos
-3. **HR Manager:** Gestiona personas, vacantes, rutas de desarrollo
+3. **HR Manager:** Gestiona peopleas, vacantes, rutas de desarrollo
 4. **Recruiter:** Gestiona vacantes y postulaciones
 5. **Manager:** Ve equipo, aprueba rutas de desarrollo
 6. **Employee:** Ve su perfil, postula a oportunidades
@@ -852,34 +852,34 @@ GET    /dashboard/metrics
 
 GET    /dashboard/skills-gaps
        Query: ?limit=10
-       Response: [{ skill_id, skill_name, total_gap, Person_affected }]
+       Response: [{ skill_id, skill_name, total_gap, People_affected }]
 
 GET    /dashboard/roles-at-risk
        Response: [{ role_id, role_name, coverage_percentage, critical_skills_missing }]
 ```
 
-#### Personas ✅ LECTURA MVP / 🔴 CRUD POST-MVP
+#### Peopleas ✅ LECTURA MVP / 🔴 CRUD POST-MVP
 
 ```
-GET    /Person                                    ✅ MVP
+GET    /People                                    ✅ MVP
        Query: ?search=john&department=engineering&page=1
-       Response: Paginado de personas
+       Response: Paginado de peopleas
 
-GET    /Person/{id}                               ✅ MVP
+GET    /People/{id}                               ✅ MVP
        Response: Perfil completo con skills
 
-GET    /Person/{id}/skills                        ✅ MVP
+GET    /People/{id}/skills                        ✅ MVP
        Response: [{ skill_id, skill_name, level, last_evaluated_at }]
 
-POST   /Person/{id}/skills                        🔴 POST-MVP
+POST   /People/{id}/skills                        🔴 POST-MVP
        Body: { skill_id, level }
        Response: Skill agregada
 
-PATCH  /Person/{id}/skills/{skill_id}             🔴 POST-MVP
+PATCH  /People/{id}/skills/{skill_id}             🔴 POST-MVP
        Body: { level }
        Response: Nivel actualizado
 
-DELETE /Person/{id}/skills/{skill_id}             🔴 POST-MVP
+DELETE /People/{id}/skills/{skill_id}             🔴 POST-MVP
        Response: Skill removida
 ```
 
@@ -891,7 +891,7 @@ GET    /skills                                    ✅ MVP
        Response: [{ id, name, category, description }]
 
 GET    /skills/{id}                               ✅ MVP
-       Response: Detalle de skill con personas que la tienen
+       Response: Detalle de skill con peopleas que la tienen
 ```
 
 #### Roles ✅ MVP - LECTURA
@@ -903,34 +903,34 @@ GET    /roles                                     ✅ MVP
 GET    /roles/{id}                                ✅ MVP
        Response: Detalle con skills requeridas y niveles
 
-GET    /roles/{id}/Person                         ✅ MVP
+GET    /roles/{id}/People                         ✅ MVP
        Query: ?min_match=70
-       Response: Personas con match a este rol
+       Response: Peopleas con match a este rol
 ```
 
 #### Análisis de Brechas ✅ MVP - IMPLEMENTADO
 
 ```
 POST   /gap-analysis                              ✅ MVP
-       Body: { person_id, role_id }
+       Body: { people_id, role_id }
        Response: {
          match_percentage,
          gaps: [{ skill_id, skill_name, current_level, required_level, gap, status }]
        }
 
-GET    /gap-analysis/person/{person_id}           ✅ MVP
-       Response: Brechas de persona vs todos los roles (top 5)
+GET    /gap-analysis/people/{people_id}           ✅ MVP
+       Response: Brechas de peoplea vs todos los roles (top 5)
 ```
 
 #### Rutas de Desarrollo ✅ MVP LECTURA / 🟡 GENERACIÓN SIMULADA
 
 ```
 POST   /development-paths/generate                🟡 MVP - SIMULADO (lógica simplificada)
-       Body: { person_id, role_id }
+       Body: { people_id, role_id }
        Response: Ruta generada con pasos
 
 GET    /development-paths                         ✅ MVP
-       Query: ?person_id=5&status=active
+       Query: ?people_id=5&status=active
        Response: Rutas filtradas
 
 GET    /development-paths/{id}                    ✅ MVP
@@ -964,11 +964,11 @@ GET    /job-openings/{id}/candidates              ✅ MVP - MATCHING AUTOMÁTICO
        Response: Candidatos internos rankeados por match
 
 POST   /job-openings/{id}/compare                 🟡 MVP - SIMULADO (CV parsing mock)
-       Body: { internal_person_id, external_cv_text }
+       Body: { internal_people_id, external_cv_text }
        Response: Comparación interno vs externo
 ```
 
-       Body: { internal_person_id, external_cv_file }
+       Body: { internal_people_id, external_cv_file }
        Response: Comparación interno vs externo
 
 PATCH /job-openings/{id}
@@ -982,8 +982,8 @@ Response: Vacante actualizada
 ```
 
 GET /marketplace
-Query: ?person_id=5 (opcional, si no se envía usa usuario autenticado)
-Response: Vacantes abiertas con match personal
+Query: ?people_id=5 (opcional, si no se envía usa usuario autenticado)
+Response: Vacantes abiertas con match peopleal
 
 ```
 
@@ -996,7 +996,7 @@ Body: { job_opening_id, message }
 Response: Postulación creada
 
 GET /applications
-Query: ?person_id=5&status=pending
+Query: ?people_id=5&status=pending
 Response: Postulaciones filtradas
 
 GET /job-openings/{id}/applications
@@ -1018,7 +1018,7 @@ curl -X POST https://api.talentia.app/v1/gap-analysis \
   -H "Authorization: Bearer {token}" \
   -H "Content-Type: application/json" \
   -d '{
-    "person_id": 5,
+    "people_id": 5,
     "role_id": 3
   }'
 
@@ -1046,7 +1046,7 @@ curl -X POST https://api.talentia.app/v1/development-paths/generate \
   -H "Authorization: Bearer {token}" \
   -H "Content-Type: application/json" \
   -d '{
-    "person_id": 5,
+    "people_id": 5,
     "role_id": 3
   }'
 
@@ -1055,7 +1055,7 @@ curl -X POST https://api.talentia.app/v1/development-paths/generate \
   "success": true,
   "data": {
     "id": 42,
-    "person_id": 5,
+    "people_id": 5,
     "target_role_id": 3,
     "status": "draft",
     "estimated_duration_months": 6,
@@ -1085,7 +1085,7 @@ curl -X GET "https://api.talentia.app/v1/job-openings/15/candidates?min_match=70
   "success": true,
   "data": [
     {
-      "person_id": 8,
+      "people_id": 8,
       "name": "Ana García",
       "current_role": "Software Engineer",
       "match_percentage": 88.5,
@@ -1093,7 +1093,7 @@ curl -X GET "https://api.talentia.app/v1/job-openings/15/candidates?min_match=70
       "ready_in_months": 3
     },
     {
-      "person_id": 12,
+      "people_id": 12,
       "name": "Carlos López",
       "current_role": "Frontend Developer",
       "match_percentage": 75.0,
@@ -1152,7 +1152,7 @@ role_skills (pivot)
 ├── required_level (1-5)
 └── is_critical (boolean)
 
-Person
+People
 ├── id (PK)
 ├── organization_id (FK)
 ├── user_id (FK, nullable)
@@ -1165,9 +1165,9 @@ Person
 ├── photo_url
 └── timestamps
 
-person_skills (pivot)
+people_skills (pivot)
 ├── id (PK)
-├── person_id (FK)
+├── people_id (FK)
 ├── skill_id (FK)
 ├── level (1-5)
 ├── last_evaluated_at
@@ -1177,7 +1177,7 @@ person_skills (pivot)
 development_paths
 ├── id (PK)
 ├── organization_id (FK)
-├── person_id (FK)
+├── people_id (FK)
 ├── target_role_id (FK)
 ├── status (enum: draft, active, completed, cancelled)
 ├── estimated_duration_months
@@ -1200,7 +1200,7 @@ job_openings
 applications
 ├── id (PK)
 ├── job_opening_id (FK)
-├── person_id (FK)
+├── people_id (FK)
 ├── status (enum: pending, under_review, accepted, rejected)
 ├── message (text)
 ├── applied_at
@@ -1241,22 +1241,22 @@ analytics_snapshots (roadmap)
 - Composite unique: (role_id, skill_id)
 - `required_level`: Check constraint (1-5)
 
-#### Person
+#### People
 
 - `email`: Unique per organization
 - `current_role_id`: Nullable (puede no tener rol asignado aún)
 - Soft deletes enabled
 
-#### person_skills
+#### people_skills
 
-- Composite unique: (person_id, skill_id)
+- Composite unique: (people_id, skill_id)
 - `level`: Check constraint (1-5)
 - `last_evaluated_at`: Default current timestamp
 
 #### development_paths
 
 - `steps`: JSON validado con schema (roadmap: migrar a tabla separada)
-- Index en (person_id, status)
+- Index en (people_id, status)
 
 #### job_openings
 
@@ -1265,7 +1265,7 @@ analytics_snapshots (roadmap)
 
 #### applications
 
-- Composite unique: (job_opening_id, person_id) - una postulación por persona por vacante
+- Composite unique: (job_opening_id, people_id) - una postulación por peoplea por vacante
 - `applied_at`: Default current timestamp
 
 ### 7.3 Índices Recomendados
@@ -1275,17 +1275,17 @@ analytics_snapshots (roadmap)
 CREATE INDEX idx_org_id ON users(organization_id);
 CREATE INDEX idx_org_id ON skills(organization_id);
 CREATE INDEX idx_org_id ON roles(organization_id);
-CREATE INDEX idx_org_id ON Person(organization_id);
+CREATE INDEX idx_org_id ON People(organization_id);
 
 -- Búsquedas frecuentes
 CREATE INDEX idx_skills_category ON skills(category);
-CREATE INDEX idx_Person_department ON Person(department);
+CREATE INDEX idx_People_department ON People(department);
 CREATE INDEX idx_job_openings_status ON job_openings(status);
 CREATE INDEX idx_applications_status ON applications(status);
 
 -- Joins comunes
-CREATE INDEX idx_person_skills_person ON person_skills(person_id);
-CREATE INDEX idx_person_skills_skill ON person_skills(skill_id);
+CREATE INDEX idx_people_skills_people ON people_skills(people_id);
+CREATE INDEX idx_people_skills_skill ON people_skills(skill_id);
 CREATE INDEX idx_role_skills_role ON role_skills(role_id);
 
 -- Full-text search (roadmap)
@@ -1300,7 +1300,7 @@ CREATE INDEX idx_skills_name_fulltext ON skills USING gin(to_tsvector('spanish',
 
 #### Sistema de Diseño Base: Vuetify 3
 
-- **Tema:** Personalizado con colores corporativos TalentIA
+- **Tema:** Peoplealizado con colores corporativos TalentIA
 - **Tipografía:** Inter (sans-serif) para UI, Roboto Mono para código/datos
 - **Espaciado:** Sistema de 8px (múltiplos: 8, 16, 24, 32, 48, 64)
 - **Breakpoints:**
@@ -1371,7 +1371,7 @@ $text-secondary: #6b7280; // Gris medio (texto secundario)
     - Avatar + menú de usuario
   - Navigation Drawer (left, collapsible):
     - Dashboard
-    - Personas
+    - Peopleas
     - Roles
     - Skills
     - Vacantes
@@ -1411,11 +1411,11 @@ $text-secondary: #6b7280; // Gris medio (texto secundario)
 └─────────────────────────────────────────────────────────┘
 ```
 
-#### Perfil de Persona (`/Person/{id}`)
+#### Perfil de Peoplea (`/People/{id}`)
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ ← Personas                                               │
+│ ← Peopleas                                               │
 ├─────────────────────────────────────────────────────────┤
 │ ┌────┐ Ana García                                       │
 │ │ AG │ Software Engineer · Engineering                  │
@@ -1448,7 +1448,7 @@ $text-secondary: #6b7280; // Gris medio (texto secundario)
 ┌─────────────────────────────────────────────────────────┐
 │ Análisis de Brecha                                       │
 ├─────────────────────────────────────────────────────────┤
-│ Persona: [Ana García ▼]  Rol Objetivo: [Tech Lead ▼]   │
+│ Peoplea: [Ana García ▼]  Rol Objetivo: [Tech Lead ▼]   │
 │                                    [Calcular Brecha]    │
 │                                                          │
 │ Match General: 72%  [████████████████░░░░░░]            │
@@ -1722,11 +1722,11 @@ VITE_APP_ENV=production
 - [ ] Setup inicial: Laravel + PostgreSQL + Vue 3 + Vuetify
 - [ ] Modelo de datos completo con migraciones
 - [ ] Seeders con datos de demo (TechCorp)
-- [ ] API de personas con skills (CRUD básico)
+- [ ] API de peopleas con skills (CRUD básico)
 - [ ] Algoritmo de cálculo de brechas (`GapAnalysisService`)
 - [ ] API de rutas de desarrollo (generación automática)
 - [ ] Frontend: Layout principal + navegación
-- [ ] Frontend: Vista de perfil de persona
+- [ ] Frontend: Vista de perfil de peoplea
 - [ ] Frontend: Vista de análisis de brecha
 - [ ] Frontend: Vista de ruta de desarrollo
 
@@ -1750,7 +1750,7 @@ VITE_APP_ENV=production
 - **Multi-tenant real:** Implementar middleware de tenant + subdomain routing (MVP usa org_id hardcoded)
 - **Autenticación:** Laravel Sanctum con login real (MVP sin auth)
 - **Permisos:** Middleware de roles y permisos (MVP todos admin)
-- **Queues:** Mover cálculos pesados a jobs (ej: matching de 1000+ personas)
+- **Queues:** Mover cálculos pesados a jobs (ej: matching de 1000+ peopleas)
 
 #### Backend
 
@@ -1836,7 +1836,7 @@ VITE_APP_ENV=production
 
 - Autenticación real con Sanctum
 - Roles y permisos completos
-- CRUD completo de skills, roles, personas
+- CRUD completo de skills, roles, peopleas
 - Testing exhaustivo (backend + frontend)
 - CI/CD con GitHub Actions
 - Monitoreo con Sentry + New Relic
@@ -1866,7 +1866,7 @@ VITE_APP_ENV=production
 #### Técnicas
 
 - [ ] Tiempo de carga de dashboard <2s
-- [ ] Cálculo de brecha persona-rol <500ms
+- [ ] Cálculo de brecha peoplea-rol <500ms
 - [ ] API response time p95 <300ms
 - [ ] Zero errores críticos en demo
 - [ ] Responsive en mobile (>90% usabilidad)
@@ -1881,7 +1881,7 @@ VITE_APP_ENV=production
 
 #### Producto
 
-- [ ] Flujo completo persona → brecha → ruta → vacante funcional
+- [ ] Flujo completo peoplea → brecha → ruta → vacante funcional
 - [ ] Dashboard con 6+ KPIs relevantes
 - [ ] Datos de demo realistas y convincentes
 - [ ] UI pulida y profesional (sin bugs visuales)
@@ -1906,19 +1906,19 @@ VITE_APP_ENV=production
 
 #### Departamentos
 
-1. **Engineering (12 personas)**
+1. **Engineering (12 peopleas)**
 
    - Frontend Team (4)
    - Backend Team (4)
    - DevOps (2)
    - QA (2)
 
-2. **Product (3 personas)**
+2. **Product (3 peopleas)**
 
    - Product Manager (1)
    - Product Designer (2)
 
-3. **Operations (5 personas)**
+3. **Operations (5 peopleas)**
    - CEO (1)
    - HR Manager (1)
    - Sales (2)
@@ -2076,7 +2076,7 @@ VITE_APP_ENV=production
 - Agile/Scrum: 3
 - (Plus: JavaScript 4 o Node.js 4)
 
-### 11.5 Perfiles de Empleados (20 personas)
+### 11.5 Perfiles de Empleados (20 peopleas)
 
 #### Engineering Team
 
@@ -2344,7 +2344,7 @@ VITE_APP_ENV=production
   - Stakeholder Management: 3
   - Collaboration: 5
   - Data Analysis: 2
-- **Potencial:** Head of Person
+- **Potencial:** Head of People
 
 **18. Sebastián Parra**
 
@@ -2529,8 +2529,8 @@ VITE_APP_ENV=production
 
 - **Roles en Riesgo:** 2
 
-  - Tech Lead: 0 personas listas (2 en desarrollo)
-  - Senior Backend Developer: 1 persona casi lista (85% match)
+  - Tech Lead: 0 peopleas listas (2 en desarrollo)
+  - Senior Backend Developer: 1 peoplea casi lista (85% match)
 
 - **Brechas Totales:** 127 niveles
 
@@ -2538,37 +2538,37 @@ VITE_APP_ENV=production
   - Moderadas (gap 1-2): 68 niveles
   - Menores (gap <1): 36 niveles
 
-- **Talento Listo para Promoción:** 3 personas
+- **Talento Listo para Promoción:** 3 peopleas
   - Ana García → Senior Frontend (88% match)
   - Luis Martínez → Senior Backend (85% match)
   - Patricia Herrera → Head of Product (92% match)
 
 #### Top 10 Skills con Mayor Brecha
 
-1. **System Design:** 18 niveles de brecha (6 personas necesitan desarrollo)
-2. **Leadership:** 15 niveles de brecha (8 personas)
-3. **Kubernetes:** 14 niveles de brecha (5 personas)
-4. **Mentoring:** 12 niveles de brecha (7 personas)
-5. **TypeScript:** 11 niveles de brecha (6 personas)
-6. **API Design:** 10 niveles de brecha (5 personas)
-7. **Data Analysis:** 9 niveles de brecha (4 personas)
-8. **AWS:** 8 niveles de brecha (3 personas)
-9. **Product Strategy:** 7 niveles de brecha (2 personas)
-10. **Stakeholder Management:** 6 niveles de brecha (4 personas)
+1. **System Design:** 18 niveles de brecha (6 peopleas necesitan desarrollo)
+2. **Leadership:** 15 niveles de brecha (8 peopleas)
+3. **Kubernetes:** 14 niveles de brecha (5 peopleas)
+4. **Mentoring:** 12 niveles de brecha (7 peopleas)
+5. **TypeScript:** 11 niveles de brecha (6 peopleas)
+6. **API Design:** 10 niveles de brecha (5 peopleas)
+7. **Data Analysis:** 9 niveles de brecha (4 peopleas)
+8. **AWS:** 8 niveles de brecha (3 peopleas)
+9. **Product Strategy:** 7 niveles de brecha (2 peopleas)
+10. **Stakeholder Management:** 6 niveles de brecha (4 peopleas)
 
 #### Distribución de Talento por Nivel
 
-- **Junior:** 4 personas (20%)
-- **Mid:** 11 personas (55%)
-- **Senior:** 3 personas (15%)
-- **Lead/Principal:** 2 personas (10%)
+- **Junior:** 4 peopleas (20%)
+- **Mid:** 11 peopleas (55%)
+- **Senior:** 3 peopleas (15%)
+- **Lead/Principal:** 2 peopleas (10%)
 
 #### Tiempo Promedio en Rol
 
-- **<1 año:** 6 personas (30%)
-- **1-2 años:** 8 personas (40%)
-- **2-3 años:** 4 personas (20%)
-- **3+ años:** 2 personas (10%)
+- **<1 año:** 6 peopleas (30%)
+- **1-2 años:** 8 peopleas (40%)
+- **2-3 años:** 4 peopleas (20%)
+- **3+ años:** 2 peopleas (10%)
 
 ---
 
@@ -2577,7 +2577,7 @@ VITE_APP_ENV=production
 ### 12.1 Contexto de la Demo (5 minutos)
 
 **Narrativa:**
-"Hoy les voy a mostrar TalentIA, nuestra plataforma de gestión estratégica de talento basada en skills. Vamos a usar el caso de TechCorp, una startup tecnológica de 20 personas que está creciendo rápidamente y necesita estructurar su talento.
+"Hoy les voy a mostrar TalentIA, nuestra plataforma de gestión estratégica de talento basada en skills. Vamos a usar el caso de TechCorp, una startup tecnológica de 20 peopleas que está creciendo rápidamente y necesita estructurar su talento.
 
 El desafío de TechCorp es típico: tienen vacantes críticas abiertas (Tech Lead, Senior Frontend), no saben si tienen talento interno listo o deben contratar externamente, y necesitan planificar el desarrollo de su equipo de forma estratégica.
 
@@ -2595,7 +2595,7 @@ Con TalentIA, vamos a resolver estos tres problemas en menos de 15 minutos."
 - **Cobertura de skills críticas: 78%** - Bueno, pero hay margen de mejora
 - **2 roles en riesgo** - Tech Lead y Senior Backend sin cobertura completa
 - **127 niveles de brecha total** - Necesitamos un plan de desarrollo
-- **3 personas listas para promoción** - ¡Buenas noticias! Tenemos talento interno
+- **3 peopleas listas para promoción** - ¡Buenas noticias! Tenemos talento interno
 
 Bajamos y vemos el gráfico de skills con mayor brecha. System Design lidera con 18 niveles - esto es crítico porque necesitamos un Tech Lead.
 
@@ -2609,7 +2609,7 @@ En la tabla de roles en riesgo, vemos que Tech Lead tiene solo 45% de cobertura.
 
 #### Paso 2: Perfil de Talento (3 minutos)
 
-**Pantalla:** `/Person/1` (Ana García)
+**Pantalla:** `/People/1` (Ana García)
 
 **Narrativa:**
 "Vamos al perfil de Ana García, una de nuestras Frontend Developers. Aquí vemos:
@@ -2713,7 +2713,7 @@ La decisión es clara: promoción interna."
 **Narrativa:**
 "Ahora cambiamos de perspectiva. Esto es lo que ve un empleado en el Marketplace Interno:
 
-- Vacantes abiertas con su % de match personal
+- Vacantes abiertas con su % de match peopleal
 - Senior Frontend: 88% match (Ana vería esto)
 - Tech Lead: 75% match (Roberto vería esto)
 - Backend Mid: 80% match (Valentina vería esto)
@@ -2758,7 +2758,7 @@ Esto es solo el MVP. En nuestro roadmap tenemos:
 
 #### P: "¿Funciona para empresas grandes (1000+ empleados)?"
 
-**R:** "Sí, la arquitectura es multi-tenant y escalable. Para cálculos pesados (matching de 1000+ personas), usamos jobs asíncronos. Tenemos clientes piloto de 500 empleados con excelente performance."
+**R:** "Sí, la arquitectura es multi-tenant y escalable. Para cálculos pesados (matching de 1000+ peopleas), usamos jobs asíncronos. Tenemos clientes piloto de 500 empleados con excelente performance."
 
 #### P: "¿Se integra con nuestro ATS/HRIS actual?"
 
@@ -2787,9 +2787,6 @@ talentia-api/
 │ │ ├── Controllers/
 │ │ │ ├── Api/
 │ │ │ │ ├── DashboardController.php
-│ │ │ │ ├── PersonController.php
-│ │ │ │ ├── SkillsController.php
-│ │ │ │ ├── RolesController.php
 │ │ │ │ ├── GapAnalysisController.php
 │ │ │ │ ├── DevelopmentPathsController.php
 │ │ │ │ ├── JobOpeningsController.php
@@ -2800,12 +2797,12 @@ talentia-api/
 │ │ │ ├── EnsureTenantContext.php
 │ │ │ └── CheckRole.php (roadmap)
 │ │ ├── Requests/
-│ │ │ ├── StorePersonRequest.php
-│ │ │ ├── UpdatePersonSkillRequest.php
+│ │ │ ├── StorePeopleRequest.php
+│ │ │ ├── UpdatePeopleSkillRequest.php
 │ │ │ ├── GapAnalysisRequest.php
 │ │ │ └── ...
 │ │ └── Resources/
-│ │ ├── PersonResource.php
+│ │ ├── PeopleResource.php
 │ │ ├── SkillResource.php
 │ │ ├── RoleResource.php
 │ │ └── ...
@@ -2814,8 +2811,8 @@ talentia-api/
 │ │ ├── User.php
 │ │ ├── Skill.php
 │ │ ├── Role.php
-│ │ ├── Person.php
-│ │ ├── PersonSkill.php (pivot model)
+│ │ ├── People.php
+│ │ ├── PeopleSkill.php (pivot model)
 │ │ ├── RoleSkill.php (pivot model)
 │ │ ├── DevelopmentPath.php
 │ │ ├── JobOpening.php
@@ -2839,8 +2836,8 @@ talentia-api/
 │ │ ├── 2024_01_01_000003_create_skills_table.php
 │ │ ├── 2024_01_01_000004_create_roles_table.php
 │ │ ├── 2024_01_01_000005_create_role_skills_table.php
-│ │ ├── 2024_01_01_000006_create_Person_table.php
-│ │ ├── 2024_01_01_000007_create_person_skills_table.php
+│ │ ├── 2024_01_01_000006_create_People_table.php
+│ │ ├── 2024_01_01_000007_create_people_skills_table.php
 │ │ ├── 2024_01_01_000008_create_development_paths_table.php
 │ │ ├── 2024_01_01_000009_create_job_openings_table.php
 │ │ └── 2024_01_01_000010_create_applications_table.php
@@ -2850,7 +2847,7 @@ talentia-api/
 │ ├── OrganizationSeeder.php
 │ ├── SkillSeeder.php
 │ ├── RoleSeeder.php
-│ └── PersonSeeder.php
+│ └── PeopleSeeder.php
 ├── public/
 ├── resources/
 ├── routes/
@@ -2921,7 +2918,7 @@ talentia-frontend/
 │ ├── stores/
 │ │ ├── auth.ts (roadmap)
 │ │ ├── organization.ts
-│ │ ├── Person.ts
+│ │ ├── People.ts
 │ │ └── skills.ts
 │ ├── types/
 │ │ ├── models.ts
@@ -2933,9 +2930,9 @@ talentia-frontend/
 │ │ └── constants.ts
 │ ├── views/
 │ │ ├── Dashboard.vue
-│ │ ├── Person/
-│ │ │ ├── PersonList.vue
-│ │ │ └── PersonProfile.vue
+│ │ ├── People/
+│ │ │ ├── PeopleList.vue
+│ │ │ └── PeopleProfile.vue
 │ │ ├── Skills/
 │ │ │ └── SkillsCatalog.vue
 │ │ ├── Roles/
@@ -3055,22 +3052,22 @@ docker-compose exec app php artisan migrate
 
 #### Objetivo
 
-Calcular el % de match entre las skills actuales de una persona y las skills requeridas por un rol objetivo.
+Calcular el % de match entre las skills actuales de una peoplea y las skills requeridas por un rol objetivo.
 
 #### Pseudocódigo
 
 ```
-FUNCIÓN calculateGap(person, role):
+FUNCIÓN calculateGap(people, role):
     gaps = []
     totalSkills = COUNT(role.required_skills)
     skillsOk = 0
     totalGap = 0
 
     PARA CADA requiredSkill EN role.required_skills:
-        personSkill = BUSCAR(person.skills, skill_id = requiredSkill.id)
+        peopleSkill = BUSCAR(people.skills, skill_id = requiredSkill.id)
 
-        SI personSkill EXISTE:
-            currentLevel = personSkill.level
+        SI peopleSkill EXISTE:
+            currentLevel = peopleSkill.level
         SINO:
             currentLevel = 0
         FIN SI
@@ -3111,7 +3108,7 @@ FIN FUNCIÓN
 
 #### Criterios de Estado
 
-- **OK (Verde):** `gap = 0` - Persona cumple o supera el nivel requerido
+- **OK (Verde):** `gap = 0` - Peoplea cumple o supera el nivel requerido
 - **En Desarrollo (Amarillo):** `gap = 1` - Falta 1 nivel, brecha menor
 - **Crítico (Rojo):** `gap >= 2` - Brecha significativa, requiere intervención
 
@@ -3134,8 +3131,8 @@ Proponer una secuencia ordenada de acciones (cursos, proyectos, mentorías) para
 #### Pseudocódigo
 
 ```
-FUNCIÓN generateDevelopmentPath(person, role):
-    gaps = calculateGap(person, role)
+FUNCIÓN generateDevelopmentPath(people, role):
+    gaps = calculateGap(people, role)
     steps = []
     totalDuration = 0
 
@@ -3179,7 +3176,7 @@ FUNCIÓN generateDevelopmentPath(person, role):
 
     // 5. Crear registro de ruta
     path = CREAR_DEVELOPMENT_PATH({
-        person_id,
+        people_id,
         target_role_id,
         status: "draft",
         estimated_duration_months: estimatedMonths,
@@ -3217,17 +3214,17 @@ Rankear candidatos internos para una vacante basándose en % match y otros facto
 ```
 FUNCIÓN matchCandidatesForJobOpening(jobOpening):
     role = jobOpening.role
-    allPerson = OBTENER_PERSONAS(organization_id = jobOpening.organization_id)
+    allPeople = OBTENER_peopleAS(organization_id = jobOpening.organization_id)
     candidates = []
 
-    PARA CADA person EN allPerson:
-        // Excluir personas que ya están en ese rol
-        SI person.current_role_id == role.id:
+    PARA CADA people EN allPeople:
+        // Excluir peopleas que ya están en ese rol
+        SI people.current_role_id == role.id:
             CONTINUAR
         FIN SI
 
         // Calcular match
-        gapResult = calculateGap(person, role)
+        gapResult = calculateGap(people, role)
         matchPercentage = gapResult.match_percentage
 
         // Filtrar solo candidatos con match mínimo (ej: >50%)
@@ -3236,13 +3233,13 @@ FUNCIÓN matchCandidatesForJobOpening(jobOpening):
         FIN SI
 
         // Calcular factores adicionales (roadmap)
-        timeInCurrentRole = MESES_DESDE(person.hire_date, HOY())
+        timeInCurrentRole = MESES_DESDE(people.hire_date, HOY())
         readinessScore = matchPercentage + (MIN(timeInCurrentRole, 24) / 24 * 10)
 
         AGREGAR A candidates: {
-            person_id: person.id,
-            name: person.full_name,
-            current_role: person.current_role.name,
+            people_id: people.id,
+            name: people.full_name,
+            current_role: people.current_role.name,
             match_percentage: matchPercentage,
             missing_skills: FILTRAR(gapResult.gaps, gap > 0),
             readiness_score: readinessScore,
@@ -3275,12 +3272,12 @@ Ayudar a recruiters a decidir entre candidato interno y externo basándose en m�
 #### Pseudocódigo (MVP Simplificado)
 
 ```
-FUNCIÓN compareInternalVsExternal(internalPersonId, externalCvText, roleId):
+FUNCIÓN compareInternalVsExternal(internalPeopleId, externalCvText, roleId):
     role = OBTENER_ROL(roleId)
-    internalPerson = OBTENER_PERSONA(internalPersonId)
+    internalPeople = OBTENER_peopleA(internalPeopleId)
 
     // 1. Match de candidato interno
-    internalGap = calculateGap(internalPerson, role)
+    internalGap = calculateGap(internalPeople, role)
     internalMatch = internalGap.match_percentage
 
     // 2. Extraer skills de CV externo (SIMULADO en MVP, IA en post-MVP)
@@ -3338,11 +3335,11 @@ FIN FUNCIÓN
 
 ## 15. Glosario de Términos
 
-- **Skill (Competencia):** Capacidad o conocimiento específico que una persona posee (ej: React, Leadership)
+- **Skill (Competencia):** Capacidad o conocimiento específico que una peoplea posee (ej: React, Leadership)
 - **Nivel de Dominio:** Escala 1-5 que indica el grado de maestría en una skill
 - **Rol (Perfil de Cargo):** Conjunto de skills requeridas para un puesto (ej: Senior Frontend Developer)
 - **Brecha (Gap):** Diferencia entre el nivel actual de una skill y el nivel requerido por un rol
-- **Match Percentage:** Porcentaje de alineación entre las skills de una persona y las requeridas por un rol
+- **Match Percentage:** Porcentaje de alineación entre las skills de una peoplea y las requeridas por un rol
 - **Ruta de Desarrollo:** Plan estructurado de acciones (cursos, proyectos, mentorías) para cerrar brechas
 - **Marketplace Interno:** Plataforma donde empleados descubren y postulan a oportunidades internas
 - **Multi-Tenant:** Arquitectura donde múltiples organizaciones comparten la misma instancia de software con aislamiento de datos

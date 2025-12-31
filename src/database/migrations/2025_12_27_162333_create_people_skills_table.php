@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('person_skills', function (Blueprint $table) {
+        Schema::create('people_skills', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('person_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('people_id')->constrained()->cascadeOnDelete();
             $table->foreignId('skill_id')->constrained()->cascadeOnDelete();
             $table->unsignedTinyInteger('level')->default(1);
             $table->timestamp('last_evaluated_at')->useCurrent();
             $table->foreignId('evaluated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
-            $table->unique(['person_id', 'skill_id']);
+            $table->unique(['people_id', 'skill_id']);
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('person_skills');
+        Schema::dropIfExists('people_skills');
     }
 };

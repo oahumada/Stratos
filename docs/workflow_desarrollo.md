@@ -39,8 +39,8 @@ Mantén `docs/memories.md` abierto en un tab de VS Code.
 
 **Búsqueda rápida con Ctrl+F:**
 
-- Nombres de modelos: `Person`, `Role`, `Skill`
-- Endpoints: `/gap-analysis`, `/Person`
+- Nombres de modelos: `People`, `Role`, `Skill`
+- Endpoints: `/gap-analysis`, `/People`
 - Validaciones: `level (1-5)`, `organization_id`
 - Algoritmos: `calculateGap`, `generateDevelopmentPath`
 
@@ -74,7 +74,7 @@ Copilot hará el update inmediatamente para mantener sincronía.
 
 "Dame el algoritmo de calculateGap de la sección 16.1"
 
-"¿Qué campos tiene la tabla person_skills según el modelo de datos?"
+"¿Qué campos tiene la tabla people_skills según el modelo de datos?"
 
 "¿Cuáles son los datos de demo de TechCorp (sección 11)?"
 ```
@@ -141,7 +141,7 @@ php artisan migrate
 
 ```bash
 php artisan db:seed --class=DemoSeeder
-# Verificar 20 personas, 8 roles, 30 skills en DB
+# Verificar 20 peopleas, 8 roles, 30 skills en DB
 ```
 
 ### Día 5-7: Gap Analysis (Core Business Logic)
@@ -166,7 +166,7 @@ php artisan db:seed --class=DemoSeeder
 # Test con Postman/Insomnia usando datos de TechCorp
 POST /api/gap-analysis
 Body: {
-  "person_id": 8,  // Ana García
+  "people_id": 8,  // Ana García
   "role_id": 2     // Senior Frontend Developer
 }
 
@@ -294,7 +294,7 @@ git commit -m "test: gap analysis with TechCorp data (memories.md 16.1)"
 1. **Migraciones** (sección 7) - Día 1-2
 2. **Modelos + Scopes multi-tenant** - Día 2-3
 3. **Seeder TechCorp** (sección 11) - Día 3-4
-4. **Endpoints de lectura** (Person, Skills, Roles) - Día 4-5
+4. **Endpoints de lectura** (People, Skills, Roles) - Día 4-5
 5. **Gap Analysis** (algoritmo 16.1 + endpoint 6.2) - Día 5-7
 6. **Development Paths** (algoritmo 16.2) - Día 8-10
 7. **Marketplace + Matching** (algoritmo 16.3) - Día 11-12
@@ -307,7 +307,7 @@ git commit -m "test: gap analysis with TechCorp data (memories.md 16.1)"
 **Pasos:**
 
 1. **Setup básico** (migrations + models mínimos) - Día 1
-2. **Seeder reducido** (3 personas + 1 rol) - Día 2
+2. **Seeder reducido** (3 peopleas + 1 rol) - Día 2
 3. **Gap Analysis completo** (backend + frontend) - Día 3-5
 4. **Demo visual + validación** - Día 5
 5. **Iterar con Development Paths** - Día 6-8
@@ -354,7 +354,7 @@ Antes de marcar una feature como "done", validar:
 
 ```bash
 POST /api/gap-analysis
-Body: { person_id: 8, role_id: 2 }
+Body: { people_id: 8, role_id: 2 }
 # Expected: ~88.5% match, gaps en Kubernetes/GraphQL
 ```
 
@@ -362,7 +362,7 @@ Body: { person_id: 8, role_id: 2 }
 
 ```bash
 POST /api/gap-analysis
-Body: { person_id: 12, role_id: 2 }
+Body: { people_id: 12, role_id: 2 }
 # Expected: ~75% match, gaps en System Design/Microservices/Docker
 ```
 
@@ -370,7 +370,7 @@ Body: { person_id: 12, role_id: 2 }
 
 ```bash
 POST /api/gap-analysis
-Body: { person_id: 5, role_id: 7 }
+Body: { people_id: 5, role_id: 7 }
 # Expected: ~95% match, candidata ideal para Tech Lead
 ```
 
@@ -407,7 +407,7 @@ según memories.md sección 3.2"
 **Solución:**
 
 ```
-"El endpoint GET /Person devuelve [estructura actual].
+"El endpoint GET /People devuelve [estructura actual].
 Según memories.md sección 6.2 debería retornar [estructura esperada].
 Corrige el Resource"
 ```
@@ -419,7 +419,7 @@ Corrige el Resource"
 **Solución:**
 
 ```
-"La validación de person_skills.level rechaza nivel 3.
+"La validación de people_skills.level rechaza nivel 3.
 Según memories.md sección 5.1, niveles válidos son 1-5.
 Corrige el FormRequest"
 ```
@@ -448,7 +448,7 @@ Corrige el FormRequest"
 - **Nivel:** Escala 1-5 de maestría
 - **Rol:** Perfil de cargo con skills requeridas
 - **Brecha (Gap):** Diferencia entre nivel actual y requerido
-- **Match %:** Alineación persona ↔ rol
+- **Match %:** Alineación peoplea ↔ rol
 - **Ruta de Desarrollo:** Plan para cerrar brechas
 
 ---
@@ -463,7 +463,7 @@ Corrige el FormRequest"
 
 ```
 "Empecemos con las migraciones según memories.md sección 7.
-Crea migrations para organizations, users, skills, roles, Person,
+Crea migrations para organizations, users, skills, roles, People,
 con todos los constraints e índices documentados"
 ```
 

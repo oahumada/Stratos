@@ -468,19 +468,79 @@ git commit -m "Día [N] completado: [Resumen]"
 
 ## 6. Convenciones de Código
 
+### 6.1 Arquitectura de Capas (FormSchema Pattern + Repository)
+
+**Patrón: Request → Controller → Repository → Model → Database**
+
+```
+┌─────────────────────────────────────────────────┐
+│  HTTP Request (form-schema-complete.php)       │
+│  GET /api/people → FormSchemaController        │
+└────────────────┬────────────────────────────────┘
+                 │
+┌────────────────▼────────────────────────────────┐
+│  FormSchemaController (Orquestación)            │
+│  ├─ Recibir Request HTTP                       │
+│  ├─ Inicializar modelo/repositorio             │
+│  ├─ Delegar lógica a repository                │
+│  └─ Retornar Response JSON                     │
+│                                                 │
+│  public function index(Request $req, $model) {  │
+│      $this->initializeForModel($model);        │
+│      return $this->repository->index($req);    │
+│  }                                              │
+└────────────────┬────────────────────────────────┘
+                 │
+┌────────────────▼────────────────────────────────┐
+│  {Model}Repository (Persistencia)               │
+│  ├─ PeopleRepository extends Repository        │
+│  ├─ RoleRepository extends Repository          │
+│  ├─ SkillRepository extends Repository         │
+│                                                 │
+│  Métodos CRUD heredados:                       │
+│  ├─ public function store($request) { ... }    │
+│  ├─ public function show($request, $id) { ... }
+│  ├─ public function update($request) { ... }   │
+│  ├─ public function destroy($id) { ... }       │
+│  └─ public function search($request) { ... }   │
+│                                                 │
+│  Puede overridear métodos para lógica custom   │
+└────────────────┬────────────────────────────────┘
+                 │
+┌────────────────▼────────────────────────────────┐
+│  {Model} Eloquent (Mapeo a BD)                  │
+│  ├─ People Model                               │
+│  ├─ Role Model                                 │
+│  ├─ Skill Model                                │
+│  └─ SELECT * FROM [tabla]                      │
+└─────────────────────────────────────────────────┘
+```
+
+**¿Por qué esta arquitectura?**
+
+| Ventaja | Motivo |
+|---------|--------|
+| **Testeable** | Mock Repository sin tocar BD |
+| **Reutilizable** | 1 FormSchemaController para 10+ modelos |
+| **Extensible** | Agregar lógica custom en {Model}Repository |
+| **Mantenible** | Lógica BD en Repository, no dispersa |
+| **Escalable** | Agregar modelo: solo 1 Repository, sin controlador |
+
+### 6.2 Creación de Nuevo Modelo CRUD (10 minutos)
+
 ### 6.1 Nomenclatura
 
 ```
-Modelos:        PascalCase (Skill, Person, Role)
+Modelos:        PascalCase (Skill, People, Role)
 Migrations:     snake_case_timestamp (2025_12_27_100000_create_skills_table.php)
-Controllers:    [Resource]Controller (SkillController, PersonController)
+Controllers:    [Resource]Controller (SkillController, PeopleController)
 Services:       [Action]Service (GapAnalysisService, MatchingService)
 Commands:       kebab-case (gap:analyze, devpath:generate)
 Tests:          [Feature]Test.php (GapAnalysisServiceTest.php)
-Routes:         kebab-case (/api/gap-analysis, /api/Person)
+Routes:         kebab-case (/api/gap-analysis, /api/People)
 Composables:    use[Purpose] (useApi, useAuth)
 Components:     PascalCase.vue (SkillsTable.vue, GapAnalysisCard.vue)
-Pages:          PascalCase.vue (PersonList.vue, RoleDetail.vue)
+Pages:          PascalCase.vue (PeopleList.vue, RoleDetail.vue)
 ```
 
 ### 6.2 Estructura de Archivos

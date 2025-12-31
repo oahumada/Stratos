@@ -467,7 +467,7 @@ const response = await apiHelper.ts.delete("/api/alergia/456");
 
 ---
 
-## 🔧 Puntos de Personalización
+## 🔧 Puntos de Peoplealización
 
 ### 1. **Repository Específico**
 

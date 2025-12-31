@@ -2,15 +2,15 @@
 
 namespace App\Repository;
 
-use App\Models\Person;
+use App\Models\Skills;
 use Illuminate\Http\Request;
 use App\Helpers\Tools;
 
-class PersonRepository extends Repository
+class SkillsRepository extends Repository
 {
     public function __construct()
     {
-        parent::__construct(new Person());
+        parent::__construct(new Skills());
     }
 
     /**

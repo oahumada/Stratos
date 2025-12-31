@@ -28,9 +28,9 @@ class Organization extends Model
         return $this->hasMany(Role::class);
     }
 
-    public function Person(): HasMany
+    public function People(): HasMany
     {
-        return $this->hasMany(Person::class);
+        return $this->hasMany(People::class);
     }
 
     public function developmentPaths(): HasMany

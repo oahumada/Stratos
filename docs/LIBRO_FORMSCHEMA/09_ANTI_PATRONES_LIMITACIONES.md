@@ -65,7 +65,7 @@ const total = computed(() =>
 
 ## Anti-Patrón 2: Sobrecargar FormSchemaController
 
-### ❌ MALO: Agregar métodos personalizados al controller genérico
+### ❌ MALO: Agregar métodos peoplealizados al controller genérico
 
 ```php
 // ❌ NO HAGAS ESTO
@@ -78,7 +78,7 @@ class FormSchemaController extends Controller
     
     public function generateReport(Request $request, $modelName)
     {
-        // Reporte personalizado
+        // Reporte peoplealizado
     }
 }
 ```
@@ -277,7 +277,7 @@ public function index(Request $request, string $modelName)
 ### ✅ BUENO: Configuración centralizada
 
 ```json
-// person-form/_field-definitions.json
+// people-form/_field-definitions.json
 {
   "email": {
     "label": "Email",
@@ -441,7 +441,7 @@ public function show(Request $request, string $modelName, $id)
 }
 
 // O en Model:
-class Person extends Model
+class People extends Model
 {
     protected $hidden = [
         'password_hash',
@@ -458,8 +458,8 @@ class Person extends Model
 ### ❌ MALO: Editar después de otro cambio
 
 ```
-User A: Lee Person (updated_at: 2025-12-31 10:00)
-User B: Edita Person (updated_at: 2025-12-31 10:05)
+User A: Lee People (updated_at: 2025-12-31 10:00)
+User B: Edita People (updated_at: 2025-12-31 10:05)
 User A: Intenta editar con datos viejos
         ↓
         Sobrescribe cambios de User B ❌

@@ -19,7 +19,7 @@ php artisan route:list | grep api
 
 # 3. Verificar datos en BD
 php artisan tinker
->>> App\Models\Person::count()  # Debe retornar 20
+>>> App\Models\People::count()  # Debe retornar 20
 >>> App\Models\Role::count()    # Debe retornar 8
 >>> App\Models\Skill::count()   # Debe retornar 30
 ```
@@ -31,10 +31,10 @@ php artisan tinker
 ```
 resources/js/
 ├── pages/
-│   ├── Person/
-│   │   ├── PersonList.vue       ← NEW (GET /api/Person)
-│   │   ├── PersonDetail.vue     ← NEW (GET /api/Person/{id})
-│   │   └── PersonSkills.vue     ← Component
+│   ├── People/
+│   │   ├── PeopleList.vue       ← NEW (GET /api/People)
+│   │   ├── PeopleDetail.vue     ← NEW (GET /api/People/{id})
+│   │   └── PeopleSkills.vue     ← Component
 │   ├── roles/
 │   │   ├── RolesList.vue        ← NEW (GET /api/roles)
 │   │   └── RoleDetail.vue       ← NEW (GET /api/roles/{id})
@@ -50,7 +50,7 @@ resources/js/
 │   ├── applications/
 │   │   └── Applications.vue     ← NEW (GET /api/applications)
 │   └── marketplace/
-│       └── Marketplace.vue      ← NEW (GET /api/Person/{id}/marketplace)
+│       └── Marketplace.vue      ← NEW (GET /api/People/{id}/marketplace)
 ├── components/
 │   ├── SkillsTable.vue          ← NEW (reusable)
 │   ├── SkillsRadarChart.vue     ← NEW (chart component)
@@ -137,14 +137,14 @@ export function useApi() {
 
 ## 📄 Page Template Example
 
-### Person List Page
+### People List Page
 
-**`resources/js/pages/Person/PersonList.vue`:**
+**`resources/js/pages/People/PeopleList.vue`:**
 
 ```vue
 <template>
     <div>
-        <h1 class="text-h4 mb-6">Personas</h1>
+        <h1 class="text-h4 mb-6">Peopleas</h1>
 
         <!-- Loading -->
         <v-progress-linear v-if="loading" indeterminate></v-progress-linear>
@@ -153,9 +153,9 @@ export function useApi() {
         <v-alert v-if="error" type="error" class="mb-4">{{ error }}</v-alert>
 
         <!-- Table -->
-        <v-data-table :items="Person" :headers="headers">
+        <v-data-table :items="People" :headers="headers">
             <template #item.actions="{ item }">
-                <v-btn small color="primary" :to="`/Person/${item.id}`">
+                <v-btn small color="primary" :to="`/People/${item.id}`">
                     Ver Detalle
                 </v-btn>
             </template>
@@ -167,7 +167,7 @@ export function useApi() {
 import { ref, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';
 
-interface Person {
+interface People {
     id: number;
     first_name: string;
     last_name: string;
@@ -176,7 +176,7 @@ interface Person {
 }
 
 const { get, loading, error } = useApi();
-const Person = ref<Person[]>([]);
+const People = ref<People[]>([]);
 
 const headers = [
     { title: 'Nombre', value: 'first_name' },
@@ -187,9 +187,9 @@ const headers = [
 
 onMounted(async () => {
     try {
-        Person.value = await get('/Person');
+        People.value = await get('/People');
     } catch (err) {
-        console.error('Failed to load Person:', err);
+        console.error('Failed to load People:', err);
     }
 });
 </script>
@@ -204,14 +204,14 @@ Add routes to `resources/js/routes/` (or wherever your router is configured):
 ```typescript
 // Example routes
 {
-  path: '/Person',
-  component: () => import('@/pages/Person/PersonList.vue'),
-  meta: { title: 'Personas' }
+  path: '/People',
+  component: () => import('@/pages/People/PeopleList.vue'),
+  meta: { title: 'Peopleas' }
 },
 {
-  path: '/Person/:id',
-  component: () => import('@/pages/Person/PersonDetail.vue'),
-  meta: { title: 'Detalle de Persona' }
+  path: '/People/:id',
+  component: () => import('@/pages/People/PeopleDetail.vue'),
+  meta: { title: 'Detalle de Peoplea' }
 },
 {
   path: '/roles',
@@ -366,8 +366,8 @@ http://localhost:5173
 
 | Method | Endpoint                          | Purpose                |
 | ------ | --------------------------------- | ---------------------- |
-| GET    | `/api/Person`                     | Lista de personas      |
-| GET    | `/api/Person/{id}`                | Detalle de persona     |
+| GET    | `/api/People`                     | Lista de peopleas      |
+| GET    | `/api/People/{id}`                | Detalle de peoplea     |
 | GET    | `/api/roles`                      | Lista de roles         |
 | GET    | `/api/roles/{id}`                 | Detalle de rol         |
 | GET    | `/api/skills`                     | Lista de skills        |
@@ -375,14 +375,14 @@ http://localhost:5173
 | POST   | `/api/development-paths/generate` | Generar ruta           |
 | GET    | `/api/job-openings`               | Vacantes               |
 | POST   | `/api/applications`               | Crear postulación      |
-| GET    | `/api/Person/{id}/marketplace`    | Oportunidades internas |
+| GET    | `/api/People/{id}/marketplace`    | Oportunidades internas |
 
 ---
 
 ## ✅ Checklist for Día 6
 
-- [ ] Create PersonList.vue with data-table
-- [ ] Create PersonDetail.vue with skills display
+- [ ] Create PeopleList.vue with data-table
+- [ ] Create PeopleDetail.vue with skills display
 - [ ] Create RolesList.vue
 - [ ] Create GapAnalysis.vue with form
 - [ ] Create DevelopmentPaths.vue

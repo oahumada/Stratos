@@ -1,13 +1,13 @@
 <?php
 
 use App\Models\Organization;
-use App\Models\Person;
+use App\Models\People;
 use App\Models\Role;
 use App\Models\Skill;
 use App\Services\GapAnalysisService;
 
 it('calcula brechas y porcentaje de match correctamente con datos deterministas', function () {
-    // Arrange: crear organización, skills, rol y persona con relaciones deterministas
+    // Arrange: crear organización, skills, rol y peoplea con relaciones deterministas
     $org = Organization::create([
         'name' => 'TestOrg',
         'subdomain' => 'testorg',
@@ -33,15 +33,15 @@ it('calcula brechas y porcentaje de match correctamente con datos deterministas'
         $skillC->id => ['required_level' => 4, 'is_critical' => true],
     ]);
 
-    $person = Person::create([
+    $people = People::create([
         'organization_id' => $org->id,
         'first_name' => 'Alice',
         'last_name' => 'Tester',
         'email' => 'alice@testorg.com',
     ]);
 
-    // Niveles de persona: A=3 (ok), B=1 (gap=1 → developing), C=0 (gap=4 → critical)
-    $person->skills()->attach([
+    // Niveles de peoplea: A=3 (ok), B=1 (gap=1 → developing), C=0 (gap=4 → critical)
+    $people->skills()->attach([
         $skillA->id => ['level' => 3],
         $skillB->id => ['level' => 1],
         // C sin nivel (0)
@@ -49,7 +49,7 @@ it('calcula brechas y porcentaje de match correctamente con datos deterministas'
 
     // Act
     $service = new GapAnalysisService();
-    $result = $service->calculate($person, $role);
+    $result = $service->calculate($people, $role);
 
     // Assert: porcentaje, conteos y estatus
     expect($result)

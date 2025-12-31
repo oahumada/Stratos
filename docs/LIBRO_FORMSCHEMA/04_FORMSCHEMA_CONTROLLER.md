@@ -13,7 +13,7 @@ El `FormSchemaController` es el componente más sofisticado de FormSchema Patter
 ```php
 // Un ÚNICO controller para MÚLTIPLES modelos:
 
-FormSchemaController::index(Person)        → Retorna Personas
+FormSchemaController::index(People)        → Retorna Peopleas
 FormSchemaController::index(Certification) → Retorna Certificaciones
 FormSchemaController::index(Role)          → Retorna Roles
 FormSchemaController::index(Skill)         → Retorna Habilidades
@@ -69,12 +69,12 @@ class FormSchemaController extends Controller
     /**
      * Reflexión: Convierte string a clase
      * 
-     * Entrada: "Person"
+     * Entrada: "People"
      * Proceso: 
-     *   1. Agrega namespace: "App\Models\Person"
+     *   1. Agrega namespace: "App\Models\People"
      *   2. Verifica que clase existe
      *   3. Verifica que hereda de Model
-     * Salida: App\Models\Person (clase)
+     * Salida: App\Models\People (clase)
      */
     private function resolveModelClass(string $modelName): string
     {
@@ -109,7 +109,7 @@ class FormSchemaController extends Controller
      * Strategy Pattern: Selecciona repository más específico disponible
      * 
      * Estrategia 1: Repositorio específico del modelo
-     *   ├─ App\Repository\PersonRepository
+     *   ├─ App\Repository\PeopleRepository
      *   └─ Si existe, usar
      * 
      * Estrategia 2: Repositorio genérico
@@ -137,7 +137,210 @@ class FormSchemaController extends Controller
 
 ---
 
-## 2. Operaciones CRUD
+## 2. Repository Pattern: La Capa de Persistencia
+
+### 2.1 ¿Por qué Repository Pattern?
+
+FormSchemaController **NO contiene lógica de BD**. En su lugar, delega en **Repository Pattern**:
+
+```php
+// ❌ INCORRECTO: Lógica BD en Controller
+public function index($modelName) {
+    return $modelName::with('relations')->get(); // ← BD en Controller
+}
+
+// ✅ CORRECTO: Delegado a Repository
+public function index($modelName) {
+    $this->initializeForModel($modelName);
+    return $this->repository->index(); // ← Lógica centralizada
+}
+```
+
+**Beneficios:**
+- Controller enfocado en **orquestación HTTP**, no en SQL
+- Repository enfocado en **persistencia de datos**
+- Testeable: mock Repository sin tocar BD
+- Extensible: override métodos por modelo sin afectar otros
+
+### 2.2 Arquitectura en Capas con Repository
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  HTTP Requests (form-schema-complete.php)                 │
+│  GET /api/people → FormSchemaController@index('People')   │
+└─────────────────────┬──────────────────────────────────────┘
+                      │
+┌─────────────────────▼──────────────────────────────────────┐
+│  FormSchemaController (Orquestación)                       │
+│  ├─ Inicializa modelo                                     │
+│  ├─ Crea repositorio dinámicamente                        │
+│  └─ Delega lógica a repository                            │
+│                                                            │
+│  public function index(Request $req, string $modelName) {  │
+│      $this->initializeForModel($modelName);               │
+│      return $this->repository->index($req);               │
+│  }                                                         │
+└─────────────────────┬──────────────────────────────────────┘
+                      │
+┌─────────────────────▼──────────────────────────────────────┐
+│  {Model}Repository (Lógica de Persistencia)                │
+│  ├─ PeopleRepository extends Repository                   │
+│  ├─ RoleRepository extends Repository                     │
+│  └─ SkillRepository extends Repository                    │
+│                                                            │
+│  Hereda métodos CRUD genéricos:                           │
+│  ├─ store(Request $request)                              │
+│  ├─ update(Request $request)                             │
+│  ├─ destroy($id)                                         │
+│  ├─ show(Request $request, $id)                          │
+│  └─ search(Request $request)                             │
+│                                                            │
+│  Puede overridear para lógica custom:                     │
+│  public function search($request) { ... }                │
+└─────────────────────┬──────────────────────────────────────┘
+                      │
+┌─────────────────────▼──────────────────────────────────────┐
+│  {Model} Eloquent (Mapeo a BD)                             │
+│  ├─ People                                                │
+│  ├─ Role                                                  │
+│  └─ Skill                                                 │
+│                                                            │
+│  SELECT * FROM people WHERE ...                           │
+└────────────────────────────────────────────────────────────┘
+```
+
+### 2.3 Polimorfismo Dinámico en Acción
+
+La magia está en `initializeForModel()`:
+
+```php
+private function initializeForModel(string $modelName): void
+{
+    // Convierte string a clase dinámicamente
+    $this->modelClass = "App\\Models\\{$modelName}";
+    $this->repositoryClass = "App\\Repository\\{$modelName}Repository";
+    
+    // Ejemplos en runtime:
+    // 'People'    → App\Models\People, App\Repository\PeopleRepository
+    // 'Role'      → App\Models\Role, App\Repository\RoleRepository
+    // 'Skill'     → App\Models\Skill, App\Repository\SkillRepository
+    
+    // Instancia el repositorio dinámicamente
+    $model = app($this->modelClass);
+    $this->repository = new $this->repositoryClass($model);
+}
+```
+
+**FormSchemaController NO CONOCE** el tipo de modelo en tiempo de compilación. Pero funciona porque:
+
+1. Cada `{Model}Repository` implementa `RepositoryInterface`
+2. El controller llama métodos definidos en la interfaz
+3. Laravel resuelve la clase dinámica en runtime
+
+### 2.4 Strategy Pattern: Repository Base + Especializaciones
+
+```php
+// Repository.php (Base - CRUD genérico)
+abstract class Repository implements RepositoryInterface {
+    protected $model;
+    
+    public function store(Request $request) { ... }
+    public function update(Request $request) { ... }
+    public function destroy($id) { ... }
+    public function show(Request $request, $id) { ... }
+    public function search(Request $request) { ... }
+}
+
+// PeopleRepository.php (Especializado)
+class PeopleRepository extends Repository {
+    public function __construct() {
+        parent::__construct(new People());
+    }
+    
+    // Hereda 5 métodos genéricos
+    // Puede overridear si necesita lógica custom
+    
+    // Ejemplo: Search custom solo para People
+    public function search(Request $request) {
+        $filters = $request->input('data', []);
+        $query = $this->model
+            ->with('skills', 'roles')  // Eager loading
+            ->where('status', 'active');
+        return Tools::filterData($filters, $query);
+    }
+}
+```
+
+### 2.5 Flujo Completo: GET /api/people
+
+```
+1️⃣  HTTP Request
+    GET /api/people?page=1&per_page=15
+
+2️⃣  form-schema-complete.php resuelve ruta
+    Route::get('/people', [FormSchemaController::class, 'index']);
+    
+3️⃣  FormSchemaController::index('People')
+    └─ initializeForModel('People')
+       ├─ $this->modelClass = "App\Models\People"
+       ├─ $this->repositoryClass = "App\Repository\PeopleRepository"
+       └─ $this->repository = new PeopleRepository(new People())
+
+4️⃣  FormSchemaController delega a repository
+    return $this->repository->index($request);
+
+5️⃣  PeopleRepository::index() (heredado de Repository base)
+    └─ $this->model->query()->select("*")->paginate(15)
+       └─ SELECT * FROM people LIMIT 15;
+
+6️⃣  Eloquent ejecuta SQL y retorna Collection
+
+7️⃣  Repository retorna JSON
+    {
+      "data": [...],
+      "meta": { "page": 1, "total": 150, ... }
+    }
+```
+
+### 2.6 Extensibilidad: Agregar Lógica Custom por Modelo
+
+Sin modificar FormSchemaController, puedes personalizar cualquier modelo:
+
+```php
+// Caso 1: Search custom para People
+class PeopleRepository extends Repository {
+    public function search(Request $request) {
+        // Búsqueda especial: eager load relaciones
+        $filters = $request->input('data', []);
+        $query = $this->model->with('skills', 'currentRole');
+        return Tools::filterData($filters, $query);
+    }
+}
+
+// Caso 2: Store custom para Role (validaciones específicas)
+class RoleRepository extends Repository {
+    public function store(Request $request) {
+        // Validar permisos antes de crear
+        if (!auth()->user()->can('create_role')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        return parent::store($request);
+    }
+}
+
+// Caso 3: Destroy custom para Skill (soft delete)
+class SkillRepository extends Repository {
+    public function destroy($id) {
+        $skill = $this->model->findOrFail($id);
+        $skill->update(['deleted_at' => now()]); // Soft delete
+        return response()->json(['message' => 'Soft deleted']);
+    }
+}
+```
+
+---
+
+## 3. Operaciones CRUD
 
 ### GET - Listar (Index)
 
@@ -680,12 +883,12 @@ public function show(Request $request, string $modelName, int $id)
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use App\Models\Person;
+use App\Models\People;
 
 class FormSchemaControllerTest extends TestCase
 {
     /** @test */
-    public function it_creates_a_person()
+    public function it_creates_a_people()
     {
         // Arrange
         $data = [
@@ -695,7 +898,7 @@ class FormSchemaControllerTest extends TestCase
         ];
         
         // Act
-        $response = $this->postJson('/api/person', $data);
+        $response = $this->postJson('/api/people', $data);
         
         // Assert
         $response->assertStatus(201)
@@ -713,7 +916,7 @@ class FormSchemaControllerTest extends TestCase
     public function it_validates_required_fields()
     {
         // Act
-        $response = $this->postJson('/api/person', [
+        $response = $this->postJson('/api/people', [
             'name' => 'Juan'
             // Falta email y dni
         ]);
@@ -727,11 +930,11 @@ class FormSchemaControllerTest extends TestCase
     public function it_searches_by_query()
     {
         // Arrange
-        Person::factory()->create(['name' => 'AWS Expert']);
-        Person::factory()->create(['name' => 'Java Developer']);
+        People::factory()->create(['name' => 'AWS Expert']);
+        People::factory()->create(['name' => 'Java Developer']);
         
         // Act
-        $response = $this->postJson('/api/person/search', [
+        $response = $this->postJson('/api/people/search', [
             'query' => 'aws'
         ]);
         

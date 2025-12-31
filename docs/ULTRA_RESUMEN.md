@@ -81,7 +81,7 @@ Creé **9 documentos** que forman un **sistema operativo completo**.
        ↓ Resultado: Contexto claro + Plan
 
 09:30  Copia TEMPLATE_DIA_N.md → PLAN_DIA_[1]
-       Personaliza (15 min)
+       Peoplealiza (15 min)
        ↓ Resultado: Plan claro
 
 10:00  EMPIEZA A CODIFICAR
@@ -140,7 +140,7 @@ Crea DIA\_[N].md mientras trabajas.
 
 09:00
   Copia TEMPLATE_DIA_N.md → PLAN_DIA_1.md
-  Personalizo (15 min)
+  Peoplealizo (15 min)
   ✅ Plan claro
 
 09:30-12:00
@@ -183,7 +183,7 @@ MAÑANA:
   → QUICK_START.md (si necesitas referencia rápida)
 
 DURANTE DÍA:
-  → PLAN_DIA_[N].md (tu plan personalizado)
+  → PLAN_DIA_[N].md (tu plan peoplealizado)
   → TROUBLESHOOTING.md (si algo falla)
 
 NOCHE:
@@ -263,7 +263,7 @@ ORIENTACIÓN:
 ## 🚀 SIGUIENTES PASOS
 
 1. **Abre ECHO_DE_ANDAR.md** → Sigue instrucciones
-2. **Copia TEMPLATE_DIA_N.md** → Personaliza como PLAN_DIA_1.md
+2. **Copia TEMPLATE_DIA_N.md** → Peoplealiza como PLAN_DIA_1.md
 3. **Empieza a trabajar** → Sigue plan con checkpoints
 4. **Viernes:** VALIDACION_ESTADO.md
 5. **Próximo módulo:** Repite patrón (sistema probado)

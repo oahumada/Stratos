@@ -90,7 +90,7 @@ DOCUMENTACIÓN ✅ 60 archivos
 DÍA 6 (09:30-17:30, ~8-10 horas)
 
 09:30-12:00  BLOQUE 1: Prioridad 1 (CRUD Básico)
-             ├─ /Person (lista + detalle)
+             ├─ /People (lista + detalle)
              ├─ /roles (lista + detalle)
              └─ /skills (catálogo)
              ✓ Tiempo: 2.5-3 horas
@@ -127,7 +127,7 @@ DÍA 7 (Pulido + Si falta Workforce Planning)
 
 | Página  | Endpoint                      | Complejidad | Status |
 | ------- | ----------------------------- | ----------- | ------ |
-| /Person | GET /api/Person, /Person/{id} | ⭐ Baja     | ⏳     |
+| /People | GET /api/People, /People/{id} | ⭐ Baja     | ⏳     |
 | /roles  | GET /api/roles, /roles/{id}   | ⭐ Baja     | ⏳     |
 | /skills | GET /api/skills, /skills/{id} | ⭐ Baja     | ⏳     |
 
@@ -144,7 +144,7 @@ DÍA 7 (Pulido + Si falta Workforce Planning)
 | /development-paths | POST /api/development-paths/generate | ⭐⭐ Media  | ⏳     |
 | /job-openings      | GET /api/job-openings, /{id}         | ⭐ Baja     | ⏳     |
 | /applications      | GET/POST /api/applications           | ⭐⭐ Media  | ⏳     |
-| /marketplace       | GET /api/Person/{id}/marketplace     | ⭐⭐ Media  | ⏳     |
+| /marketplace       | GET /api/People/{id}/marketplace     | ⭐⭐ Media  | ⏳     |
 
 **Estimado:** 4-5 horas  
 **Criterio de Éxito:** Los servicios devuelven datos, las tablas se llenan
@@ -209,7 +209,7 @@ cd /workspaces/talentia/src
 php artisan serve --port=8000
 
 # 2. Prueba un endpoint
-curl http://localhost:8000/api/Person
+curl http://localhost:8000/api/People
 
 # 3. Lee la documentación inicial (ver sección anterior)
 ```
@@ -217,7 +217,7 @@ curl http://localhost:8000/api/Person
 ### Primeras 2 horas (Prioridad 1)
 
 ```
-✓ Crear página /Person con lista + detalle
+✓ Crear página /People con lista + detalle
 ✓ Crear página /roles con lista + detalle
 ✓ Crear página /skills como catálogo
 ```
@@ -299,7 +299,7 @@ Listo para:    ✅ EMPEZAR HOY
 
 1. Lee [DIA6_INICIO_RESUMEN.md](docs/DIA6_INICIO_RESUMEN.md) (~5 min)
 2. Lee [DIA6_GUIA_INICIO_FRONTEND.md](docs/DIA6_GUIA_INICIO_FRONTEND.md) (~15 min)
-3. Empieza con Prioridad 1 (Página `/Person`)
+3. Empieza con Prioridad 1 (Página `/People`)
 
 **¿Preguntas?** Revisa:
 

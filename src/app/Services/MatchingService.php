@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\JobOpening;
-use App\Models\Person;
+use App\Models\People;
 use Illuminate\Support\Collection;
 
 class MatchingService
@@ -17,13 +17,13 @@ class MatchingService
         $role = $jobOpening->role; // Relación a Role
         $gapService = new GapAnalysisService();
 
-        // Obtener personas de la misma organización
-        $Person = Person::where('organization_id', $jobOpening->organization_id)->get();
+        // Obtener peopleas de la misma organización
+        $People = People::where('organization_id', $jobOpening->organization_id)->get();
 
         $results = collect();
 
-        foreach ($Person as $person) {
-            $analysis = $gapService->calculate($person, $role);
+        foreach ($People as $people) {
+            $analysis = $gapService->calculate($people, $role);
 
             $gaps = collect($analysis['gaps']);
             $gapCount = (int) $gaps->where('gap', '>', 0)->count();
@@ -40,9 +40,9 @@ class MatchingService
             $risk = min(100, ($criticalCount * 25) + ($mediumCount * 10));
 
             $results->push([
-                'person_id' => $person->id,
-                'name' => $person->full_name ?? ($person->first_name . ' ' . $person->last_name),
-                'current_role_id' => $person->current_role_id,
+                'people_id' => $people->id,
+                'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
+                'current_role_id' => $people->current_role_id,
                 'match_percentage' => round($match, 2),
                 'missing_skills' => $missingSkills,
                 'time_to_productivity_months' => round($timeToProductivity, 1),

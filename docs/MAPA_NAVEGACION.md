@@ -113,7 +113,7 @@ DIA6_GUIA_INICIO_FRONTEND.md → Frontend start
 
 2. Crea PLAN_DIA_1.md (15 min)
    └─ Copia TEMPLATE_DIA_N.md
-   └─ Personaliza con tareas de Día 1
+   └─ Peoplealiza con tareas de Día 1
 
 3. Llena VALIDACION_ESTADO.md PARTE 1 (10 min)
    └─ ¿Entiendo requisitos?
@@ -296,7 +296,7 @@ Tiempo: 20-25 minutos
    └─ Contexto + ambiente + plan
 
 2. Copia TEMPLATE_DIA_N.md → PLAN_DIA_[N].md (5 min)
-   └─ Personaliza
+   └─ Peoplealiza
 
 3. Empieza a codificar siguiendo plan
 

@@ -47,7 +47,7 @@ Conocimiento centralizado:
                     │ usado por
         ┌───────────┴───────────┐
         │                       │
-   Person CRUD         Certification CRUD
+   People CRUD         Certification CRUD
    Skills CRUD         Role CRUD
    ... 100+ modelos
 ```
@@ -137,7 +137,7 @@ class FormSchemaController
 ```php
 // Si queremos agregar nuevo tipo de búsqueda:
 // → Modificamos CertificationController (cambio existente)
-// → Modificamos PersonController (cambio existente)
+// → Modificamos PeopleController (cambio existente)
 // → ... 10 archivos más
 
 // NO es extensible sin modificar código existente
@@ -154,7 +154,7 @@ class FormSchemaController
 
 $formSchemaModels = [
     'Certification' => 'certifications',  // NUEVO
-    'Person' => 'person',                 // EXISTENTE (sin cambios)
+    'People' => 'people',                 // EXISTENTE (sin cambios)
 ];
 ```
 
@@ -177,8 +177,8 @@ class FormSchemaController
 {
     public function index(Request $request, string $modelName)
     {
-        // Funciona con Person, Certification, Role, cualquier modelo
-        // LSP garantiza que Certification "se comporta" como Person
+        // Funciona con People, Certification, Role, cualquier modelo
+        // LSP garantiza que Certification "se comporta" como People
     }
 }
 
@@ -293,7 +293,7 @@ Solución: Strategy Pattern
            │
       ┌────┴─────┬──────────┬──────────┐
       │           │          │          │
-   Person    Certification  Role      Skill
+   People    Certification  Role      Skill
    Strategy   Strategy      Strategy  Strategy
 ```
 
@@ -369,7 +369,7 @@ class GenericRepository implements RepositoryInterface
 ```php
 // Factory genera rutas dinámicamente
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     'Certification' => 'certifications',
 ];
 
@@ -489,7 +489,7 @@ public function getCertification($id): ?Certification
 
 **Antes:**
 ```
-PersonController.php → Copy-Paste → CertificationController.php
+PeopleController.php → Copy-Paste → CertificationController.php
 CertificationController.php → Copy-Paste → RoleController.php
 ... 10+ veces
 ```
@@ -539,9 +539,9 @@ class FormSchemaController
 **Antes:**
 ```php
 // Controladores viejos no se usan pero se mantienen
-PersonController v1.0 (viejo)
-PersonController v2.0 (viejo)
-PersonController v3.0 (actual)
+PeopleController v1.0 (viejo)
+PeopleController v2.0 (viejo)
+PeopleController v3.0 (actual)
 // Qué versión es "correcta"?
 ```
 
@@ -572,19 +572,19 @@ FormSchema Pattern FUNCIONA porque:
 **Pregunta:** Identifica qué principio VIOLADO encontrarías en este código:
 
 ```php
-class PersonController extends Controller
+class PeopleController extends Controller
 {
     public function index() {
-        $people = Person::all();
-        foreach ($people as $person) {
+        $people = People::all();
+        foreach ($people as $people) {
             // Validar
-            if (!$person->email) return error();
+            if (!$people->email) return error();
             
             // Calcular algo
-            $person->age = now()->diff($person->born_at);
+            $people->age = now()->diff($people->born_at);
             
             // Formatear
-            $person->full_name = $person->first_name . ' ' . $person->last_name;
+            $people->full_name = $people->first_name . ' ' . $people->last_name;
         }
         return response()->json($people);
     }

@@ -9,7 +9,7 @@ Completamos todos los endpoints necesarios para la gestión integral de talento:
 
 - **4 endpoints de servicios core** (gap-analysis, development-paths, candidates ranking, marketplace)
 - **6 endpoints de CRUD completo** (job-openings, applications)
-- **6 endpoints de lectura** (Person, roles, skills)
+- **6 endpoints de lectura** (People, roles, skills)
 - **1 endpoint de dashboard** (métricas)
 
 ## Endpoints por Categoría
@@ -18,13 +18,13 @@ Completamos todos los endpoints necesarios para la gestión integral de talento:
 
 #### POST /api/gap-analysis
 
-Analiza brecha de competencias entre persona y rol.
+Analiza brecha de competencias entre peoplea y rol.
 
 ```bash
 curl -X POST http://localhost:8000/api/gap-analysis \
   -H "Content-Type: application/json" \
   -d '{
-    "person_id": 1,
+    "people_id": 1,
     "role_name": "Senior Developer"
   }'
 ```
@@ -63,7 +63,7 @@ Genera plan de desarrollo para alcanzar un rol.
 curl -X POST http://localhost:8000/api/development-paths/generate \
   -H "Content-Type: application/json" \
   -d '{
-    "person_id": 1,
+    "people_id": 1,
     "role_id": 2
   }'
 ```
@@ -73,7 +73,7 @@ curl -X POST http://localhost:8000/api/development-paths/generate \
 ```json
 {
     "id": 1,
-    "person_id": 1,
+    "people_id": 1,
     "role_id": 2,
     "status": "draft",
     "estimated_duration_months": 6,
@@ -110,7 +110,7 @@ curl http://localhost:8000/api/job-openings/1/candidates
     },
     "candidates": [
         {
-            "person_id": 1,
+            "people_id": 1,
             "name": "Ana García",
             "match_percentage": 85,
             "missing_skills": ["Cloud Architecture"],
@@ -123,19 +123,19 @@ curl http://localhost:8000/api/job-openings/1/candidates
 
 ---
 
-#### GET /api/Person/{person_id}/marketplace
+#### GET /api/People/{people_id}/marketplace
 
-Oportunidades internas disponibles para una persona.
+Oportunidades internas disponibles para una peoplea.
 
 ```bash
-curl http://localhost:8000/api/Person/1/marketplace
+curl http://localhost:8000/api/People/1/marketplace
 ```
 
 **Response (200):**
 
 ```json
 {
-    "person": {
+    "people": {
         "id": 1,
         "name": "Ana García"
     },
@@ -225,12 +225,12 @@ curl http://localhost:8000/api/applications
 [
     {
         "id": 1,
-        "person_id": 1,
+        "people_id": 1,
         "job_opening_id": 1,
         "status": "pending",
         "message": "Interesado en esta posición",
         "applied_at": "2025-12-31T10:00:00Z",
-        "person": {
+        "people": {
             "id": 1,
             "full_name": "Ana García"
         },
@@ -257,12 +257,12 @@ curl http://localhost:8000/api/applications/1
 ```json
 {
   "id": 1,
-  "person_id": 1,
+  "people_id": 1,
   "job_opening_id": 1,
   "status": "pending",
   "message": "Interesado en esta posición",
   "applied_at": "2025-12-31T10:00:00Z",
-  "person": { ... },
+  "people": { ... },
   "job_opening": { ... }
 }
 ```
@@ -277,7 +277,7 @@ Crear nueva postulación.
 curl -X POST http://localhost:8000/api/applications \
   -H "Content-Type: application/json" \
   -d '{
-    "person_id": 1,
+    "people_id": 1,
     "job_opening_id": 1,
     "message": "Muy interesado en esta posición"
   }'
@@ -288,7 +288,7 @@ curl -X POST http://localhost:8000/api/applications \
 ```json
 {
     "id": 1,
-    "person_id": 1,
+    "people_id": 1,
     "job_opening_id": 1,
     "status": "pending",
     "message": "Muy interesado en esta posición",
@@ -298,10 +298,10 @@ curl -X POST http://localhost:8000/api/applications \
 
 **Validaciones:**
 
-- `person_id`: Debe existir en la tabla Person
+- `people_id`: Debe existir en la tabla People
 - `job_opening_id`: Debe existir en la tabla job_openings
-- La persona y vacante deben estar en la misma organización
-- No puede haber postulación duplicada (mismo person_id + job_opening_id)
+- La peoplea y vacante deben estar en la misma organización
+- No puede haber postulación duplicada (mismo people_id + job_opening_id)
 
 **Errores:**
 
@@ -326,7 +326,7 @@ curl -X PATCH http://localhost:8000/api/applications/1 \
 ```json
 {
     "id": 1,
-    "person_id": 1,
+    "people_id": 1,
     "job_opening_id": 1,
     "status": "accepted",
     "message": "...",
@@ -338,14 +338,14 @@ curl -X PATCH http://localhost:8000/api/applications/1 \
 
 ---
 
-### 4. Person - Lectura (2 Endpoints)
+### 4. People - Lectura (2 Endpoints)
 
-#### GET /api/Person
+#### GET /api/People
 
-Lista de personas.
+Lista de peopleas.
 
 ```bash
-curl http://localhost:8000/api/Person
+curl http://localhost:8000/api/People
 ```
 
 **Response (200):**
@@ -364,12 +364,12 @@ curl http://localhost:8000/api/Person
 
 ---
 
-#### GET /api/Person/{id}
+#### GET /api/People/{id}
 
-Detalle de persona con competencias.
+Detalle de peoplea con competencias.
 
 ```bash
-curl http://localhost:8000/api/Person/1
+curl http://localhost:8000/api/People/1
 ```
 
 **Response (200):**
@@ -503,7 +503,7 @@ curl http://localhost:8000/api/dashboard/metrics
 
 ```json
 {
-    "total_Person": 20,
+    "total_People": 20,
     "total_skills": 30,
     "total_roles": 8,
     "average_match_percentage": 72.5,
@@ -546,13 +546,13 @@ php artisan candidates:rank 1
 curl -X POST http://localhost:8000/api/applications \
   -H "Content-Type: application/json" \
   -d '{
-    "person_id": 1,
+    "people_id": 1,
     "job_opening_id": 1,
     "message": "Me interesa esta posición"
   }'
 
 # Ver marketplace de oportunidades
-curl http://localhost:8000/api/Person/1/marketplace
+curl http://localhost:8000/api/People/1/marketplace
 
 # Actualizar status de postulación
 curl -X PATCH http://localhost:8000/api/applications/1 \

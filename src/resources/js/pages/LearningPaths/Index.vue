@@ -18,8 +18,8 @@ interface DevelopmentStep {
 
 interface DevelopmentPath {
   id: number;
-  person_id: number;
-  person_name: string;
+  people_id: number;
+  people_name: string;
   target_role_id: number;
   target_role_name: string;
   steps: DevelopmentStep[];
@@ -121,7 +121,7 @@ onMounted(() => {
         >
           <div class="d-flex align-center justify-space-between w-100">
             <div class="flex-grow-1">
-              <div class="font-weight-bold">{{ path.person_name }}</div>
+              <div class="font-weight-bold">{{ path.people_name }}</div>
               <div class="text-body2 text-grey">
                 → {{ path.target_role_name }}
               </div>

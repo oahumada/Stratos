@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Person;
+use App\Models\People;
 use App\Models\Role;
 use App\Models\Skill;
 use App\Services\GapAnalysisService;
@@ -13,20 +13,20 @@ class DashboardController extends Controller
 {
     public function metrics(): JsonResponse
     {
-        $totalPerson = Person::count();
+        $totalPeople = People::count();
         $totalSkills = Skill::count();
         $totalRoles = Role::count();
 
-        // Brechas promedio por persona
+        // Brechas promedio por peoplea
         $gapService = new GapAnalysisService();
-        $Person = Person::with('skills')->get();
+        $People = People::with('skills')->get();
         $gaps = [];
         $matchPercentages = [];
 
-        foreach ($Person as $person) {
+        foreach ($People as $people) {
             $roles = Role::get();
             foreach ($roles as $role) {
-                $analysis = $gapService->calculate($person, $role);
+                $analysis = $gapService->calculate($people, $role);
                 $gaps[] = $analysis['gaps'];
                 $matchPercentages[] = $analysis['match_percentage'];
             }
@@ -36,7 +36,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'summary' => [
-                'total_Person' => $totalPerson,
+                'total_People' => $totalPeople,
                 'total_skills' => $totalSkills,
                 'total_roles' => $totalRoles,
                 'average_match_percentage' => round($avgMatch, 2),

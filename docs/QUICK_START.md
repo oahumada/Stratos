@@ -38,7 +38,7 @@ grep -E "^##|^###" memories.md | head -20  # Ver estructura
 
 # 4. Crea primer PLAN_DIA_1.md:
 cp docs/TEMPLATE_DIA_N.md docs/PLAN_DIA_1.md
-# Edita y personaliza
+# Edita y peoplealiza
 ```
 
 **Resultado:** ✅ memories.md completo + Plan de todos los días
@@ -192,7 +192,7 @@ nano docs/VALIDACION_ESTADO.md
 
 # 5. Planifica semana siguiente:
 # Days: [ ] BD [ ] Services [ ] API [ ] Frontend [ ] Polish
-# Recursos: [ ] Personas [ ] Equipos [ ] Bloqueadores resueltos
+# Recursos: [ ] Peopleas [ ] Equipos [ ] Bloqueadores resueltos
 
 # 6. Documenta resumen:
 echo "=== RESUMEN SEMANA ===" && \

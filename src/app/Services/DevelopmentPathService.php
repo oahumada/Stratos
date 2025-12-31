@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\DevelopmentPath;
-use App\Models\Person;
+use App\Models\People;
 use App\Models\Role;
 
 class DevelopmentPathService
@@ -11,10 +11,10 @@ class DevelopmentPathService
     /**
      * Genera una ruta de desarrollo basada en las brechas del GapAnalysisService.
      */
-    public function generate(Person $person, Role $targetRole): DevelopmentPath
+    public function generate(People $people, Role $targetRole): DevelopmentPath
     {
         $gapService = new GapAnalysisService();
-        $analysis = $gapService->calculate($person, $targetRole);
+        $analysis = $gapService->calculate($people, $targetRole);
 
         $gaps = collect($analysis['gaps'])
             ->filter(fn($g) => ($g['gap'] ?? 0) > 0)
@@ -61,8 +61,8 @@ class DevelopmentPathService
         $estimatedMonths = max(1, (int) ceil($totalHours / 160));
 
         return DevelopmentPath::create([
-            'organization_id' => $person->organization_id,
-            'person_id' => $person->id,
+            'organization_id' => $people->organization_id,
+            'people_id' => $people->id,
             'target_role_id' => $targetRole->id,
             'status' => 'draft',
             'estimated_duration_months' => $estimatedMonths,

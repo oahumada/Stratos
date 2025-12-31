@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Person extends Model
+class People extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'person';
+    protected $table = 'people';
 
     protected $fillable = [
         'organization_id',
@@ -37,7 +37,7 @@ class Person extends Model
     {
         static::addGlobalScope('organization', function (Builder $builder) {
             if (auth()->check() && auth()->user()->organization_id) {
-                $builder->where('Person.organization_id', auth()->user()->organization_id);
+                $builder->where('People.organization_id', auth()->user()->organization_id);
             }
         });
     }
@@ -64,7 +64,7 @@ class Person extends Model
 
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skill::class, 'person_skills')
+        return $this->belongsToMany(Skill::class, 'people_skills')
             ->withPivot('level', 'last_evaluated_at', 'evaluated_by')
             ->withTimestamps();
     }

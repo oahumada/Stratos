@@ -26,7 +26,7 @@
 
 ```php
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     'Skills' => 'skills',
     'Department' => 'departments',
     'Role' => 'roles',
@@ -81,7 +81,7 @@ touch config.json tableConfig.json itemForm.json filters.json
 
 ## 📄 Paso 2: Llenar config.json (2 min)
 
-**Copiar de**: `/resources/js/pages/Person/Person-form/config.json`
+**Copiar de**: `/resources/js/pages/People/People-form/config.json`
 
 **Cambiar:**
 
@@ -116,7 +116,7 @@ touch config.json tableConfig.json itemForm.json filters.json
 
 ## 📋 Paso 3: Llenar tableConfig.json (3 min)
 
-**Copiar de**: `/resources/js/pages/Person/Person-form/tableConfig.json`
+**Copiar de**: `/resources/js/pages/People/People-form/tableConfig.json`
 
 **Adaptar columnas:**
 
@@ -156,7 +156,7 @@ Listar qué campos quieres mostrar en la tabla:
 
 ## 📝 Paso 4: Llenar itemForm.json (4 min)
 
-**Copiar de**: `/resources/js/pages/Person/Person-form/itemForm.json`
+**Copiar de**: `/resources/js/pages/People/People-form/itemForm.json`
 
 **Listar todos los campos editables:**
 
@@ -234,7 +234,7 @@ Listar qué campos quieres mostrar en la tabla:
 
 ## 🔍 Paso 5: Llenar filters.json (2 min)
 
-**Copiar de**: `/resources/js/pages/Person/Person-form/filters.json`
+**Copiar de**: `/resources/js/pages/People/People-form/filters.json`
 
 **Definir qué campos filtrar:**
 
@@ -277,7 +277,7 @@ Listar qué campos quieres mostrar en la tabla:
 ## 📝 Paso 6: Crear Index.vue (5 min)
 
 **Copiar archivo completo de:**  
-`/resources/js/pages/Person/Index.vue`
+`/resources/js/pages/People/Index.vue`
 
 **Cambiar SOLO estos 4 imports:**
 
@@ -288,7 +288,7 @@ import itemFormJson from "./[module]-form/itemForm.json";
 import filtersJson from "./[module]-form/filters.json";
 ```
 
-**Cambiar interfaces si tienes catálogos personalizados:**
+**Cambiar interfaces si tienes catálogos peoplealizados:**
 
 Por ejemplo, si necesitas cargar catálogos adicionales:
 
@@ -504,5 +504,5 @@ Si tienes problemas comunes:
 
 - **Guía completa**: `/docs/PATRON_JSON_DRIVEN_CRUD.md`
 - **Memoria técnica**: `/docs/memories.md` (Sección 3.3)
-- **Ejemplo implementado**: `/resources/js/pages/Person/`
+- **Ejemplo implementado**: `/resources/js/pages/People/`
 - **API endpoints**: `/docs/dia5_api_endpoints.md`

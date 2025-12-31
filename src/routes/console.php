@@ -7,15 +7,15 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('gap:analyze {person_id} {role_name}', function () {
-    $personId = (string) $this->argument('person_id');
+Artisan::command('gap:analyze {people_id} {role_name}', function () {
+    $peopleId = (string) $this->argument('people_id');
     $roleName = (string) $this->argument('role_name');
 
-    $person = \App\Models\Person::find($personId);
+    $people = \App\Models\People::find($peopleId);
     $role = \App\Models\Role::where('name', $roleName)->first();
 
-    if (! $person) {
-        $this->error('Persona no encontrada: ' . $personId);
+    if (! $people) {
+        $this->error('Peoplea no encontrada: ' . $peopleId);
         return 1;
     }
 
@@ -25,7 +25,7 @@ Artisan::command('gap:analyze {person_id} {role_name}', function () {
     }
 
     $service = new \App\Services\GapAnalysisService();
-    $analysis = $service->calculate($person, $role);
+    $analysis = $service->calculate($people, $role);
 
     // Mostrar salida formateada
     $this->info('Match: ' . $analysis['match_percentage'] . '% (' . $analysis['summary']['category'] . ')');
@@ -44,17 +44,17 @@ Artisan::command('gap:analyze {person_id} {role_name}', function () {
     }
 
     return 0;
-})->purpose('Analiza brechas de una persona contra un rol por nombre');
+})->purpose('Analiza brechas de una peoplea contra un rol por nombre');
 
-Artisan::command('devpath:generate {person_id} {role_name}', function () {
-    $personId = (string) $this->argument('person_id');
+Artisan::command('devpath:generate {people_id} {role_name}', function () {
+    $peopleId = (string) $this->argument('people_id');
     $roleName = (string) $this->argument('role_name');
 
-    $person = \App\Models\Person::find($personId);
+    $people = \App\Models\People::find($peopleId);
     $role = \App\Models\Role::where('name', $roleName)->first();
 
-    if (! $person) {
-        $this->error('Persona no encontrada: ' . $personId);
+    if (! $people) {
+        $this->error('Peoplea no encontrada: ' . $peopleId);
         return 1;
     }
 
@@ -64,7 +64,7 @@ Artisan::command('devpath:generate {person_id} {role_name}', function () {
     }
 
     $service = new \App\Services\DevelopmentPathService();
-    $path = $service->generate($person, $role);
+    $path = $service->generate($people, $role);
 
     $this->info('DevelopmentPath generado: #' . $path->id . ' (status=' . $path->status . ')');
     $this->line('Duración estimada (meses): ' . $path->estimated_duration_months);
@@ -80,7 +80,7 @@ Artisan::command('devpath:generate {person_id} {role_name}', function () {
     }
 
     return 0;
-})->purpose('Genera una ruta de desarrollo para una persona hacia un rol objetivo');
+})->purpose('Genera una ruta de desarrollo para una peoplea hacia un rol objetivo');
 
 Artisan::command('candidates:rank {job_opening_id}', function () {
     $openingId = (string) $this->argument('job_opening_id');

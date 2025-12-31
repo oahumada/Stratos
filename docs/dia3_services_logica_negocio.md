@@ -12,13 +12,13 @@
 
 **Ubicación:** `app/Services/GapAnalysisService.php`
 
-**Función:** Calcular brecha entre competencias de una persona y las requeridas por un rol
+**Función:** Calcular brecha entre competencias de una peoplea y las requeridas por un rol
 
 **Algoritmo (memories.md 5.2):**
 
 ```
 Para cada skill requerida en el rol:
-  - Obtener nivel actual de la persona (default 0 si no tiene)
+  - Obtener nivel actual de la peoplea (default 0 si no tiene)
   - Obtener nivel requerido del rol
   - Calcular gap = max(0, required - current)
   - Clasificar como: ok (gap=0), developing (gap≤1), critical (gap>1)
@@ -41,14 +41,14 @@ Retornar:
 **Método:**
 
 ```php
-public function calculate(Person $person, Role $role): array
+public function calculate(People $people, Role $role): array
 ```
 
 **Uso:**
 
 ```php
 $service = new GapAnalysisService();
-$analysis = $service->calculate($person, $role);
+$analysis = $service->calculate($people, $role);
 // {match_percentage: 72.5, gaps: [...]}
 ```
 
@@ -79,7 +79,7 @@ $analysis = $service->calculate($person, $role);
 **Método:**
 
 ```php
-public function generate(Person $person, Role $targetRole): DevelopmentPath
+public function generate(People $people, Role $targetRole): DevelopmentPath
 ```
 
 **Retorna:** DevelopmentPath creado con status='draft' y steps JSON
@@ -95,7 +95,7 @@ public function generate(Person $person, Role $targetRole): DevelopmentPath
 **Algoritmo:**
 
 ```
-Para cada person en la organización:
+Para cada people en la organización:
   1. Calcular gap analysis vs job_opening.role
   2. Calcular match_percentage
   3. Estimar "time_to_productivity" en meses
@@ -109,7 +109,7 @@ Para cada person en la organización:
 Retornar array ordenado por match_percentage DESC:
   [
     {
-      person_id, name, current_role,
+      people_id, name, current_role,
       match_percentage, missing_skills[],
       time_to_productivity_months, risk_factor
     }
@@ -152,26 +152,26 @@ app/Services/
 
 namespace App\Services;
 
-use App\Models\Person;
+use App\Models\People;
 use App\Models\Role;
 
 class GapAnalysisService
 {
     /**
-     * Calcular brecha entre competencias de persona y rol
+     * Calcular brecha entre competencias de peoplea y rol
      */
-    public function calculate(Person $person, Role $role): array
+    public function calculate(People $people, Role $role): array
     {
         $gaps = [];
         $skillsOk = 0;
         $totalSkills = $role->skills()->count();
 
         foreach ($role->skills as $roleSkill) {
-            $personSkill = $person->skills()
+            $peopleSkill = $people->skills()
                 ->where('skill_id', $roleSkill->id)
                 ->first();
 
-            $currentLevel = $personSkill?->pivot->level ?? 0;
+            $currentLevel = $peopleSkill?->pivot->level ?? 0;
             $requiredLevel = $roleSkill->pivot->required_level;
             $gap = max(0, $requiredLevel - $currentLevel);
 
@@ -213,11 +213,11 @@ class GapAnalysisService
 Después de implementar, probar con Tinker:
 
 ```php
-$person = Person::first();
+$people = People::first();
 $role = Role::where('name', 'Senior Full Stack Developer')->first();
 
 $gapService = new GapAnalysisService();
-$analysis = $gapService->calculate($person, $role);
+$analysis = $gapService->calculate($people, $role);
 dd($analysis);
 // Debe mostrar: match_percentage, gaps con skill details
 ```
@@ -228,7 +228,7 @@ dd($analysis);
 
 - [ ] Crear `app/Services/GapAnalysisService.php`
     - [ ] Implementar método `calculate()`
-    - [ ] Manejar personas sin skills
+    - [ ] Manejar peopleas sin skills
     - [ ] Calcular correctamente gap y status
 - [ ] Crear `app/Services/DevelopmentPathService.php`
     - [ ] Implementar método `generate()`

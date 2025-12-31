@@ -70,7 +70,7 @@ CREATE TABLE strategy_executions (
 class WorkforcePlanningService {
     public function getRecommendations(Scenario $scenario): Collection {
         // Por cada rol en demanda, analiza:
-        // - Personas internas con skills
+        // - Peopleas internas con skills
         // - Gap vs demanda
         // - Recomendación BUILD/BUY/BORROW/BOT
     }
@@ -152,8 +152,8 @@ GET    /api/workforce-planning/strategies
 
 **Oferta Interna:**
 
-- 2 personas con skills parciales
-- 1 persona con potencial (ruta de 3 meses)
+- 2 peopleas con skills parciales
+- 1 peoplea con potencial (ruta de 3 meses)
 
 **Recomendación del Sistema:**
 

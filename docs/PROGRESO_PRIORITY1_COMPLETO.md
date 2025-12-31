@@ -7,12 +7,12 @@
 
 ## 📊 Módulos Completados
 
-### ✅ 1. Person Management
-**Ubicación**: `/resources/js/pages/Person/`
+### ✅ 1. People Management
+**Ubicación**: `/resources/js/pages/People/`
 
 ```
-Person-form/
-├── config.json          ✅ Endpoints: /api/Person
+People-form/
+├── config.json          ✅ Endpoints: /api/People
 ├── tableConfig.json     ✅ 7 columnas (Name, Email, Dept, Role, Skills, Hired, Actions)
 ├── itemForm.json        ✅ 5 campos (name, email, department, role_id, hired_at)
 └── filters.json         ✅ 2 filtros (department, role_id)
@@ -21,10 +21,10 @@ Index.vue               ✅ 121 líneas (importa 4 JSONs)
 ```
 
 **Funcionalidades**:
-- ✅ Listar personas con búsqueda completa
-- ✅ Crear persona (form dialog)
-- ✅ Editar persona
-- ✅ Eliminar persona con confirmación
+- ✅ Listar peopleas con búsqueda completa
+- ✅ Crear peoplea (form dialog)
+- ✅ Editar peoplea
+- ✅ Eliminar peoplea con confirmación
 - ✅ Filtrar por departamento
 - ✅ Filtrar por rol
 - ✅ Cargar roles dinámicamente desde /api/roles
@@ -87,7 +87,7 @@ Implementa la lógica CRUD completa:
 - ✅ PUT /api/[endpoint]/{id} para editar
 - ✅ DELETE /api/[endpoint]/{id} para eliminar
 - ✅ Búsqueda por texto libre
-- ✅ Filtros personalizados (texto, select, date)
+- ✅ Filtros peoplealizados (texto, select, date)
 - ✅ Diálogos create/edit
 - ✅ Confirmación delete
 - ✅ Notificaciones de éxito/error
@@ -118,7 +118,7 @@ Renderiza campos dinámicos:
 │    ┌──────────────┐         ┌──────────────────┐   │
 │    │  AppSidebar  │         │     Content      │   │
 │    │              │         │                  │   │
-│    │ • /Person    │         │  [Module]/Index  │   │
+│    │ • /People    │         │  [Module]/Index  │   │
 │    │ • /roles     │         │                  │   │
 │    │ • /skills    │         │  imports:        │   │
 │    │ • /...       │         │  • config.json   │   │
@@ -189,7 +189,7 @@ npm run build  # ✅ Should pass
 npm run dev    # ✅ Should start
 
 # En navegador:
-http://localhost/Person    # ✅ Funciona
+http://localhost/People    # ✅ Funciona
 http://localhost/roles     # ✅ Funciona
 http://localhost/skills    # ✅ Funciona
 ```

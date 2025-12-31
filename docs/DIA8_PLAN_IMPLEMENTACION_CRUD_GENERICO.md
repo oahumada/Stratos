@@ -19,7 +19,7 @@
 ```php
 // /routes/form-schema-complete.php
 $formSchemaModels = [
-    'Person' => 'person',
+    'People' => 'people',
     'Skills' => 'skills',
     'Department' => 'departments',
     'Role' => 'roles',  // Antes era 'role', ahora plural para consistencia
@@ -79,7 +79,7 @@ $formSchemaModels = [
 
 ⚠️ **Problemas identificados:**
 1. **Prefijo `/api/` faltante** - Las rutas se registran sin `/api/` explícito
-   - Se genera: `person` en lugar de `api/person`
+   - Se genera: `people` en lugar de `api/people`
    - Solución: Envolver con `Route::prefix('api')`
 
 2. **Parámetros inconsistentes** - Algunos métodos faltan `$id`
@@ -91,11 +91,11 @@ $formSchemaModels = [
    - Debería ser: `Route::middleware(['auth:sanctum'])->group(...)`
 
 4. **Métodos duplicados** - Rutas POST conflictivas
-   - POST `/person` para store
-   - POST `/person/search` también espera POST
+   - POST `/people` para store
+   - POST `/people/search` también espera POST
    - Patrón incorrecto: búsqueda debería ser GET con query params
 
-5. **searchWithPerson incompleto** - Línea 77+ truncada
+5. **searchWithPeople incompleto** - Línea 77+ truncada
    - Falta implementación completa del método
 
 ### 1.2 FormSchemaController (`/app/Http/Controllers/FormSchemaController.php`)
@@ -112,13 +112,13 @@ $formSchemaModels = [
 1. `show()` - GET por ID
 2. `destroy()` - DELETE con soft deletes
 3. `search()` - Búsqueda con filtros
-4. `searchWithPerson()` - Búsqueda con joins
+4. `searchWithPeople()` - Búsqueda con joins
 5. `getViewMap()` - Mapeo completo de vistas
 6. `getConsultaViewMap()` - Para vistas de consulta
 7. **Validación** - No hay validación de requests
 8. **Repositorio fallback** - Si no existe repository, usar model directo
 
-### 1.3 Módulo Person - Bugs Pendientes
+### 1.3 Módulo People - Bugs Pendientes
 **Errores vistos en logs:**
 ```
 TypeError in app/Repository/Repository.php:28
@@ -135,7 +135,7 @@ array_map(): Argument #2 ($array) must be of type array, null given
 
 ## 2. Tareas Secuenciales para DÍA 8
 
-### TAREA 1: Depurar Módulo Person (1-2 horas)
+### TAREA 1: Depurar Módulo People (1-2 horas)
 **Prioridad:** 🔴 CRÍTICA
 
 **Pasos:**
@@ -143,7 +143,7 @@ array_map(): Argument #2 ($array) must be of type array, null given
    - Validar que `$filters` no sea null antes de `array_map()`
    - Agregar guards: `if (empty($filters)) return $this;`
 
-2. Validar relaciones Person
+2. Validar relaciones People
    - Verificar que Organization FK existe
    - Cargar relación con `with('organization')`
    - Probar factory genera datos válidos
@@ -151,23 +151,23 @@ array_map(): Argument #2 ($array) must be of type array, null given
 3. Probar CRUD completo vía curl/API
    ```bash
    # GET todos
-   curl http://localhost:8000/api/person
+   curl http://localhost:8000/api/people
    
    # GET por ID
-   curl http://localhost:8000/api/person/1
+   curl http://localhost:8000/api/people/1
    
    # POST crear
-   curl -X POST http://localhost:8000/api/person \
+   curl -X POST http://localhost:8000/api/people \
      -H "Content-Type: application/json" \
      -d '{"first_name":"Test","last_name":"User","email":"test@test.com","organization_id":1}'
    
    # PUT actualizar
-   curl -X PUT http://localhost:8000/api/person/1 \
+   curl -X PUT http://localhost:8000/api/people/1 \
      -H "Content-Type: application/json" \
      -d '{"first_name":"Updated"}'
    
    # DELETE
-   curl -X DELETE http://localhost:8000/api/person/1
+   curl -X DELETE http://localhost:8000/api/people/1
    ```
 
 4. Validar respuestas JSON
@@ -272,7 +272,7 @@ public function search(Request $request, string $modelName)
    Route::middleware(['auth:sanctum'])->group(function() {
    ```
 
-5. **Completar método searchWithPerson**
+5. **Completar método searchWithPeople**
    - Línea 77+ está truncada
    - Implementar joins con múltiples modelos
 
@@ -289,7 +289,7 @@ private function getValidationRules(string $modelName): array
     return [
         'first_name' => 'required|string|max:255',
         'last_name' => 'required|string|max:255',
-        'email' => 'required|email|unique:person',
+        'email' => 'required|email|unique:people',
         'organization_id' => 'required|exists:organization,id',
     ];
 }
@@ -298,7 +298,7 @@ private function getValidationRules(string $modelName): array
 private function loadRelations($query, string $modelName)
 {
     $relations = [
-        'Person' => ['organization', 'skills', 'roles'],
+        'People' => ['organization', 'skills', 'roles'],
         'Skills' => ['organization'],
         'Department' => ['organization'],
     ];
@@ -311,7 +311,7 @@ private function loadRelations($query, string $modelName)
 
 ## 3. Checklist de Pruebas
 
-### Por cada modelo (Person, Skills, Department, Role):
+### Por cada modelo (People, Skills, Department, Role):
 - [ ] GET /api/{model} - retorna lista con paginación
 - [ ] GET /api/{model}/{id} - retorna registro específico
 - [ ] POST /api/{model} - crea registro con validación
@@ -322,7 +322,7 @@ private function loadRelations($query, string $modelName)
 - [ ] Respuestas JSON válidas
 
 ### Frontend:
-- [ ] Página /person carga sin errores
+- [ ] Página /people carga sin errores
 - [ ] Tabla muestra datos
 - [ ] Botones CRUD funcionan
 - [ ] Filtros trabajan
@@ -333,7 +333,7 @@ private function loadRelations($query, string $modelName)
 ## 4. Orden de Ejecución Recomendado
 
 ```
-8:00 - 9:30  → TAREA 1: Depurar Person
+8:00 - 9:30  → TAREA 1: Depurar People
 9:30 - 11:00 → TAREA 2: FormSchemaController métodos faltantes
 11:00- 12:00 → TAREA 3: FormSchema Routes arreglos
 12:00- 13:00 → TAREA 4: Validación y relaciones
@@ -354,10 +354,10 @@ private function loadRelations($query, string $modelName)
 
 **Repositories:**
 - `/src/app/Repository/Repository.php` (base con bug en array_map)
-- `/src/app/Repository/PersonRepository.php` (validar implementación)
+- `/src/app/Repository/PeopleRepository.php` (validar implementación)
 
 **Models:**
-- `/src/app/Models/Person.php` (relaciones)
+- `/src/app/Models/People.php` (relaciones)
 - `/src/app/Models/Skills.php`, etc.
 
 **Migrations:**
@@ -418,7 +418,7 @@ El objetivo es que al agregar un modelo nuevo, solo necesites:
 **Bloqueadores principales resueltos:**
 - ✅ SQLite configurado
 - ✅ Dependencias instaladas
-- ✅ Modelo Person funcional
+- ✅ Modelo People funcional
 - 🔴 FormSchemaController incompleto
 - 🔴 Rutas con bugs de parámetros
 - 🔴 Repository error en array_map

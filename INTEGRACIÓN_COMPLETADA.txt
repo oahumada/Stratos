@@ -79,10 +79,10 @@ PRIORIDAD 1️⃣  (09:30-12:00, ~3 horas) - CRÍTICA
 ════════════════════════════════════════════════════════════════
 Objetivo: Interface básica funcionando
 
-1. /Person
-   ├─ Tabla con lista de personas
+1. /People
+   ├─ Tabla con lista de peopleas
    ├─ Detalle al clickear
-   └─ Consumir GET /api/Person + /api/Person/{id}
+   └─ Consumir GET /api/People + /api/People/{id}
 
 2. /roles
    ├─ Tabla con lista de roles
@@ -107,12 +107,12 @@ PRIORIDAD 2️⃣  (13:00-17:00, ~4-5 horas) - ALTA
 Objetivo: Sistema funcional end-to-end
 
 4. /gap-analysis
-   ├─ Formulario: persona + rol destino
+   ├─ Formulario: peoplea + rol destino
    ├─ Consumir POST /api/gap-analysis
    └─ Mostrar % match, skills faltantes
 
 5. /development-paths
-   ├─ Formulario: persona + objetivo
+   ├─ Formulario: peoplea + objetivo
    ├─ Consumir POST /api/development-paths/generate
    └─ Mostrar ruta sugerida (pasos, timeline)
 
@@ -127,8 +127,8 @@ Objetivo: Sistema funcional end-to-end
    └─ Consumir GET/POST /api/applications
 
 8. /marketplace
-   ├─ Oportunidades internas para una persona
-   └─ Consumir GET /api/Person/{id}/marketplace
+   ├─ Oportunidades internas para una peoplea
+   └─ Consumir GET /api/People/{id}/marketplace
 
 ✓ Tiempo: 4-5 horas
 ✓ Criterio de éxito: Los servicios devuelven datos, tablas se llenan
@@ -253,9 +253,9 @@ Para contexto detallado:
 
 3. Prueba un endpoint:
    
-   curl http://localhost:8000/api/Person
+   curl http://localhost:8000/api/People
    
-   Deberías recibir JSON con lista de personas
+   Deberías recibir JSON con lista de peopleas
 
 4. Abre Postman y carga la colección:
    
@@ -267,7 +267,7 @@ Para contexto detallado:
 
 6. ¡Empieza con Prioridad 1! 
    
-   Crea la primera página: /Person
+   Crea la primera página: /People
 
 
 ✅ VALIDACIÓN FINAL

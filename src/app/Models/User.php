@@ -60,8 +60,8 @@ class User extends Authenticatable
         return $this->belongsTo(Organization::class);
     }
 
-    public function person(): HasOne
+    public function people(): HasOne
     {
-        return $this->hasOne(Person::class);
+        return $this->hasOne(People::class);
     }
 }

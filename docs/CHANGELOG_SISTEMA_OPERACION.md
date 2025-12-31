@@ -129,7 +129,7 @@ Crear un sistema de documentación y operación que permita:
 
 **Tipo:** Operacional - Template Copiable  
 **Frecuencia:** Cada día, copia como PLAN*DIA*[N].md
-**Tiempo:** 15 minutos para personalizar
+**Tiempo:** 15 minutos para peoplealizar
 
 **Propósito:**
 

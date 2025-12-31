@@ -68,7 +68,7 @@ Agregados a tabla existente:
 - UNIQUE: (role_id, skill_id)
 ```
 
-### Tabla `Person` ✅
+### Tabla `People` ✅
 
 ```
 - id (PK)
@@ -87,17 +87,17 @@ Agregados a tabla existente:
 - UNIQUE: (organization_id, email)
 ```
 
-### Tabla `person_skills` (PIVOT) ✅
+### Tabla `people_skills` (PIVOT) ✅
 
 ```
 - id (PK)
-- person_id (FK → Person)
+- people_id (FK → People)
 - skill_id (FK → skills)
 - level (TINYINT, default: 1)
 - last_evaluated_at (timestamp)
 - evaluated_by (FK → users, NULLABLE)
 - timestamps
-- UNIQUE: (person_id, skill_id)
+- UNIQUE: (people_id, skill_id)
 ```
 
 ### Tabla `development_paths` ✅
@@ -105,7 +105,7 @@ Agregados a tabla existente:
 ```
 - id (PK)
 - organization_id (FK)
-- person_id (FK → Person)
+- people_id (FK → People)
 - target_role_id (FK → roles)
 - status (ENUM: draft, active, completed, cancelled)
 - estimated_duration_months
@@ -113,7 +113,7 @@ Agregados a tabla existente:
 - completed_at
 - steps (JSON)
 - timestamps
-- INDEX: (person_id, status)
+- INDEX: (people_id, status)
 ```
 
 ### Tabla `job_openings` ✅
@@ -136,13 +136,13 @@ Agregados a tabla existente:
 ```
 - id (PK)
 - job_opening_id (FK → job_openings)
-- person_id (FK → Person)
+- people_id (FK → People)
 - status (ENUM: pending, under_review, accepted, rejected)
 - message (TEXT)
 - applied_at (timestamp)
 - timestamps
 - INDEX: status
-- UNIQUE: (job_opening_id, person_id)
+- UNIQUE: (job_opening_id, people_id)
 ```
 
 ---
@@ -156,7 +156,7 @@ Agregados a tabla existente:
 - `users()` → HasMany
 - `skills()` → HasMany
 - `roles()` → HasMany
-- `Person()` → HasMany
+- `People()` → HasMany
 - `developmentPaths()` → HasMany
 - `jobOpenings()` → HasMany
 
@@ -170,7 +170,7 @@ Agregados a tabla existente:
 **Nuevas relaciones:**
 
 - `organization()` → BelongsTo
-- `person()` → HasOne
+- `people()` → HasOne
 
 ### 3. Skill ✅
 
@@ -178,7 +178,7 @@ Agregados a tabla existente:
 
 - `organization()` → BelongsTo
 - `roles()` → BelongsToMany (with pivot: required_level, is_critical)
-- `Person()` → BelongsToMany (with pivot: level, last_evaluated_at, evaluated_by)
+- `People()` → BelongsToMany (with pivot: level, last_evaluated_at, evaluated_by)
 
 **Global Scope:** `organization` - Filtra por organization_id del usuario autenticado
 
@@ -188,13 +188,13 @@ Agregados a tabla existente:
 
 - `organization()` → BelongsTo
 - `skills()` → BelongsToMany (with pivot: required_level, is_critical)
-- `Person()` → HasMany (currentRole)
+- `People()` → HasMany (currentRole)
 - `jobOpenings()` → HasMany
 - `developmentPaths()` → HasMany (target role)
 
 **Global Scope:** `organization` - Filtra por organization_id del usuario autenticado
 
-### 5. Person ✅
+### 5. People ✅
 
 **Atributos:**
 
@@ -223,7 +223,7 @@ Agregados a tabla existente:
 **Relaciones:**
 
 - `organization()` → BelongsTo
-- `person()` → BelongsTo
+- `people()` → BelongsTo
 - `targetRole()` → BelongsTo (Role)
 
 **Global Scope:** `organization` - Filtra por organization_id del usuario autenticado
@@ -244,9 +244,9 @@ Agregados a tabla existente:
 **Relaciones:**
 
 - `jobOpening()` → BelongsTo
-- `person()` → BelongsTo
+- `people()` → BelongsTo
 
-**Global Scope:** `person_org` - Filtra por organization_id mediante jobOpening
+**Global Scope:** `people_org` - Filtra por organization_id mediante jobOpening
 
 ---
 
@@ -272,8 +272,8 @@ Agregados a tabla existente:
 3. Agregar 8 roles (Backend Dev, Frontend Dev, QA, Product Manager, etc.)
 4. Agregar 30 skills (técnicas, soft, business)
 5. Configurar rol_skills (relaciones skills requeridas por rol)
-6. Crear 20 personas (empleados de TechCorp)
-7. Configurar person_skills (competencias de cada persona)
+6. Crear 20 peopleas (empleados de TechCorp)
+7. Configurar people_skills (competencias de cada peoplea)
 8. Crear 5 vacantes internas
 9. Crear 10 postulaciones de ejemplo
 
@@ -294,8 +294,8 @@ php artisan db:seed --class=DemoSeeder
 | `database/migrations/2025_12_27_162333_create_skills_table.php`                | ✅ Creada      |
 | `database/migrations/2025_12_27_162333_create_roles_table.php`                 | ✅ Creada      |
 | `database/migrations/2025_12_27_162333_create_role_skills_table.php`           | ✅ Creada      |
-| `database/migrations/2025_12_27_162333_create_Person_table.php`                | ✅ Creada      |
-| `database/migrations/2025_12_27_162333_create_person_skills_table.php`         | ✅ Creada      |
+| `database/migrations/2025_12_27_162333_create_People_table.php`                | ✅ Creada      |
+| `database/migrations/2025_12_27_162333_create_people_skills_table.php`         | ✅ Creada      |
 | `database/migrations/2025_12_27_162334_create_development_paths_table.php`     | ✅ Creada      |
 | `database/migrations/2025_12_27_162334_create_job_openings_table.php`          | ✅ Creada      |
 | `database/migrations/2025_12_27_162334_create_applications_table.php`          | ✅ Creada      |
@@ -303,7 +303,7 @@ php artisan db:seed --class=DemoSeeder
 | `app/Models/Organization.php`                                                  | ✅ Creado      |
 | `app/Models/Skill.php`                                                         | ✅ Creado      |
 | `app/Models/Role.php`                                                          | ✅ Creado      |
-| `app/Models/Person.php`                                                        | ✅ Creado      |
+| `app/Models/People.php`                                                        | ✅ Creado      |
 | `app/Models/DevelopmentPath.php`                                               | ✅ Creado      |
 | `app/Models/JobOpening.php`                                                    | ✅ Creado      |
 | `app/Models/Application.php`                                                   | ✅ Creado      |

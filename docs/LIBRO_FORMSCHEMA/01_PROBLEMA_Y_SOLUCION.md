@@ -243,7 +243,7 @@ onMounted(() => {
 ### 1️⃣ **Duplicación Masiva de Código**
 
 **El mismo patrón CRUD se repite:**
-- `CertificationController` tiene métodos prácticamente idénticos a `PersonController`, `RoleController`, `SkillController`
+- `CertificationController` tiene métodos prácticamente idénticos a `PeopleController`, `RoleController`, `SkillController`
 - Cada método tiene validación similar, error handling similar, respuesta JSON similar
 - El componente Vue es 95% copiar-pegar de otro componente
 
@@ -269,7 +269,7 @@ Nuestro código VIOLA esto:
 ### 3️⃣ **Mantenimiento Insostenible**
 
 Si queremos agregar una funcionalidad a TODOS los CRUDs:
-- ✅ Agregar paginación personalizada → 10+ cambios
+- ✅ Agregar paginación peoplealizada → 10+ cambios
 - ✅ Agregar soft deletes → 10+ cambios
 - ✅ Agregar auditoría → 10+ cambios
 - ✅ Cambiar formato de respuesta → 10+ cambios

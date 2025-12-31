@@ -22,15 +22,15 @@ php artisan db:seed --class=DemoSeeder
 
 ## Comando 1: gap:analyze
 
-Analiza la brecha de competencias entre una persona y un rol.
+Analiza la brecha de competencias entre una peoplea y un rol.
 
 - Ubicación: [routes/console.php](routes/console.php)
 - Servicio: [app/Services/GapAnalysisService.php](app/Services/GapAnalysisService.php)
-- Firma: `gap:analyze {person_id} {role_name}`
+- Firma: `gap:analyze {people_id} {role_name}`
 
 Parámetros:
 
-- `person_id`: ID de la persona (entero).
+- `people_id`: ID de la peoplea (entero).
 - `role_name`: Nombre exacto del rol (usar comillas si tiene espacios).
 
 Ejemplos:
@@ -58,11 +58,11 @@ Genera una ruta de desarrollo desde las brechas para un rol objetivo.
 
 - Ubicación: [routes/console.php](routes/console.php)
 - Servicio: [app/Services/DevelopmentPathService.php](app/Services/DevelopmentPathService.php)
-- Firma: `devpath:generate {person_id} {role_name}`
+- Firma: `devpath:generate {people_id} {role_name}`
 
 Parámetros:
 
-- `person_id`: ID de la persona (entero).
+- `people_id`: ID de la peoplea (entero).
 - `role_name`: Nombre exacto del rol.
 
 Ejemplos:
@@ -137,7 +137,7 @@ php artisan candidates:rank 1
 
 ## ¿Dónde encuentro IDs y nombres?
 
-- Personas: pobladas por `DemoSeeder` (IDs típicamente del 1 al 20).
+- Peopleas: pobladas por `DemoSeeder` (IDs típicamente del 1 al 20).
 - Vacantes: `DemoSeeder` crea 5 vacantes (IDs típicamente 1 a 5).
 - Roles: usa el `name` exacto del rol; en el demo existen (ejemplos):
     - "Senior Full Stack Developer"
@@ -151,7 +151,7 @@ php artisan candidates:rank 1
 - Error `UNIQUE constraint failed: organizations.subdomain` al seedear:
     - Solución: `php artisan migrate:fresh --force` y luego `php artisan db:seed --class=DemoSeeder`.
 - `Rol no encontrado por nombre`: verifica el nombre exacto y usa comillas.
-- `Persona/Vacante no encontrada`: confirma el ID tras un `migrate:fresh` (IDs se reinician).
+- `Peoplea/Vacante no encontrada`: confirma el ID tras un `migrate:fresh` (IDs se reinician).
 - Si usas Windows/WSL, asegúrate de estar dentro de `src` al ejecutar comandos.
 
 ---

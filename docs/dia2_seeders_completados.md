@@ -107,21 +107,21 @@ role_skills (pivot):
 
 ---
 
-### 5. Personas (20)
+### 5. Peopleas (20)
 
 **Estructura:**
 
 - Nombres realistas: Carlos, María, Juan, Ana, Pedro, Laura, etc.
 - Email: firstname.lastname@techcorp.com
-- Cada persona tiene un rol actual asignado
-- 4-7 skills por persona (algunas del rol, otras para crear gaps)
+- Cada peoplea tiene un rol actual asignado
+- 4-7 skills por peoplea (algunas del rol, otras para crear gaps)
 - Hire dates: 3-60 meses atrás
 - Avatar: generado con DiceBear API (por email)
 
 **Ejemplo:**
 
 ```
-Person {
+People {
   first_name: "Carlos",
   last_name: "García",
   email: "carlos.garcia@techcorp.com",
@@ -143,12 +143,12 @@ Person {
 **Relaciones:**
 
 ```
-person_skills (pivot):
-├── person_id (FK)
+people_skills (pivot):
+├── people_id (FK)
 ├── skill_id (FK)
 ├── level (1-5, default: 1-3)
 ├── last_evaluated_at (fecha aleatoria)
-└── unique(person_id, skill_id)
+└── unique(people_id, skill_id)
 ```
 
 ---
@@ -194,11 +194,11 @@ job_openings table:
 applications table:
 ├── id (PK)
 ├── job_opening_id (FK)
-├── person_id (FK)
+├── people_id (FK)
 ├── status (pending|under_review|accepted|rejected)
 ├── message (motivo de postulación)
 ├── applied_at (timestamp)
-├── unique(job_opening_id, person_id)
+├── unique(job_opening_id, people_id)
 └── timestamps
 ```
 
@@ -207,7 +207,7 @@ applications table:
 ```
 Application {
   job_opening_id: 1,
-  person_id: 5,
+  people_id: 5,
   status: "pending",
   message: "Interested in this opportunity. I believe...",
   applied_at: "2025-12-20 14:30:00"
@@ -218,7 +218,7 @@ Application {
 
 ### 8. Ruta de Desarrollo (1 de ejemplo)
 
-**Persona objetivo:** Carlos García (primer empleado)  
+**Peoplea objetivo:** Carlos García (primer empleado)  
 **Rol objetivo:** Senior Full Stack Developer
 
 **Steps:**
@@ -239,7 +239,7 @@ Application {
 ```
 development_paths table:
 ├── id (PK)
-├── person_id (FK)
+├── people_id (FK)
 ├── target_role_id (FK)
 ├── status: "draft"
 ├── estimated_duration_months: 6
@@ -265,7 +265,7 @@ development_paths table:
    ↓
 4. Crear 8 Roles + role_skills (pivot)
    ↓
-5. Crear 20 Personas + person_skills (pivot)
+5. Crear 20 Peopleas + people_skills (pivot)
    ↓
 6. Crear 5 Job Openings
    ↓
@@ -325,11 +325,11 @@ development_paths table:
     $role->skills()->attach($skillsToAttach);
     ```
 
-4. **Crear Personas con Skills variadas:**
+4. **Crear Peopleas con Skills variadas:**
 
     ```php
     for ($i = 0; $i < 20; $i++) {
-        $person = Person::create([
+        $people = People::create([
             'organization_id' => $org->id,
             'first_name' => $firstName,
             'last_name' => $lastName,
@@ -339,7 +339,7 @@ development_paths table:
         ]);
 
         // Asignar skills (subconjunto del rol + adicionales)
-        $person->skills()->attach($skillsForPerson);
+        $people->skills()->attach($skillsForPeople);
     }
     ```
 
@@ -354,11 +354,11 @@ development_paths table:
 
     // Crear postulaciones (2 por vacante)
     foreach ($jobOpenings as $jobOpening) {
-        $candidates = collect($Person)->random(2);
+        $candidates = collect($People)->random(2);
         foreach ($candidates as $candidate) {
             Application::create([
                 'job_opening_id' => $jobOpening->id,
-                'person_id' => $candidate->id,
+                'people_id' => $candidate->id,
                 'status' => $applicationStatuses[rand(0, 2)],
                 // ...
             ]);
@@ -370,7 +370,7 @@ development_paths table:
     ```php
     DevelopmentPath::create([
         'organization_id' => $org->id,
-        'person_id' => $person->id,
+        'people_id' => $people->id,
         'target_role_id' => $targetRole->id,
         'status' => 'draft',
         'estimated_duration_months' => 6,
@@ -408,7 +408,7 @@ php artisan db:seed --class=DemoSeeder
    • 1 Usuario admin
    • 30 Skills
    • 8 Roles
-   • 20 Personas
+   • 20 Peopleas
    • 5 Vacantes
    • 10 Postulaciones
    • 1 Ruta de desarrollo
@@ -422,14 +422,14 @@ Organization::count()        // 1
 User::count()               // 1
 Skill::count()              // 30
 Role::count()               // 8
-Person::count()             // 20
+People::count()             // 20
 JobOpening::count()         // 5
 Application::count()        // 10
 DevelopmentPath::count()    // 1
 
 // Verificar relaciones
 Role::first()->skills()->count()      // ~7-13
-Person::first()->skills()->count()    // ~4-7
+People::first()->skills()->count()    // ~4-7
 JobOpening::first()->applications()   // 2 per opening
 ```
 
@@ -463,7 +463,7 @@ Todos los datos están bajo `organization_id` de TechCorp:
 ```php
 // Global scopes funcionando
 Skill::count()          // 30 (filtrados por org)
-Person::count()         // 20 (filtrados por org)
+People::count()         // 20 (filtrados por org)
 Role::count()           // 8 (filtrados por org)
 DevelopmentPath::count() // 1 (filtrados por org)
 
@@ -488,7 +488,7 @@ Skill::first()->organization_id // 1
 Los servicios de Día 3 usarán estos datos:
 
 1. **GapAnalysisService**
-    - Comparará personas vs roles
+    - Comparará peopleas vs roles
     - Ejemplo: Carlos García vs Senior Full Stack Developer
     - Output: match_percentage, gaps array
 
@@ -497,11 +497,11 @@ Los servicios de Día 3 usarán estos datos:
     - Ejemplo: crear ruta para Carlos basada en brechas
 
 3. **MatchingService**
-    - Rankeará personas para vacantes
+    - Rankeará peopleas para vacantes
     - Ejemplo: ranking de candidatos para "Senior Backend Developer"
 
 ---
 
 **Estado:** ✅ DÍA 2 COMPLETADO  
-**Base de datos:** Lista con 30 skills, 8 roles, 20 personas, datos de prueba  
+**Base de datos:** Lista con 30 skills, 8 roles, 20 peopleas, datos de prueba  
 **Próximo:** Día 3 - Services (GapAnalysisService, DevelopmentPathService, MatchingService)

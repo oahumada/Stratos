@@ -228,7 +228,7 @@ Contiene:
 9. **[dia2_seeders_completados.md](dia2_seeders_completados.md)**
     - Estructura de DemoSeeder
     - 1 organización TechCorp
-    - 20 personas con skills
+    - 20 peopleas con skills
     - 8 roles con requirements
     - 5 vacantes internas
     - 10 postulaciones de ejemplo

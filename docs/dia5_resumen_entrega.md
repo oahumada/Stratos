@@ -21,9 +21,9 @@
 - ✅ `index()` - GET /api/applications → Lista todas las postulaciones
 - ✅ `show(int $id)` - GET /api/applications/{id} → Detalle de postulación
 - ✅ `store(Request $request)` - POST /api/applications → Crear nueva postulación
-    - Validación: person_id exists:Person, job_opening_id exists:job_openings
-    - Validación: org_id match entre person y job_opening
-    - Validación: Previene postulaciones duplicadas (mismo person + job_opening)
+    - Validación: people_id exists:People, job_opening_id exists:job_openings
+    - Validación: org_id match entre people y job_opening
+    - Validación: Previene postulaciones duplicadas (mismo people + job_opening)
     - Response: 201 Created
 - ✅ `update(int $id, Request $request)` - PATCH /api/applications/{id} → Cambiar estado
     - Estados válidos: pending, under_review, accepted, rejected
@@ -31,7 +31,7 @@
 
 #### MarketplaceController ✅ (Nuevo)
 
-- ✅ `opportunities(int $personId)` - GET /api/Person/{person_id}/marketplace → Oportunidades internas
+- ✅ `opportunities(int $peopleId)` - GET /api/People/{people_id}/marketplace → Oportunidades internas
     - Utiliza GapAnalysisService para calcular match_percentage
     - Retorna vacantes de la misma org, ordenadas por match % desc
     - Response: Lista de opportunities con title, role, department, deadline, match_percentage, category, missing_skills_count
@@ -59,9 +59,9 @@ Route::prefix('api')->group(function () {
     POST      api/applications
     PATCH     api/applications/{id}
 
-    // Person
-    GET       api/Person
-    GET       api/Person/{id}
+    // People
+    GET       api/People
+    GET       api/People/{id}
 
     // Roles
     GET       api/roles
@@ -75,7 +75,7 @@ Route::prefix('api')->group(function () {
     GET       api/dashboard/metrics
 
     // Marketplace
-    GET       api/Person/{person_id}/marketplace
+    GET       api/People/{people_id}/marketplace
 });
 ```
 
@@ -164,7 +164,7 @@ Día 7 (2 Ene): Frontend - Componentes + Pulido ⏳ PENDIENTE
 
 - [ ] Crear páginas Vue para consumir endpoints
 - [ ] Implementar navegación
-- [ ] Conectar Person, Roles, Skills, Dashboard con datos reales
+- [ ] Conectar People, Roles, Skills, Dashboard con datos reales
 
 ### Día 7: Frontend - Componentes + Pulido
 
@@ -185,14 +185,14 @@ Día 7 (2 Ene): Frontend - Componentes + Pulido ⏳ PENDIENTE
 
     ```
     GET /api/dashboard/metrics
-    → total_Person, total_skills, total_roles, average_match_percentage
+    → total_People, total_skills, total_roles, average_match_percentage
     ```
 
-2. **Person Management**
+2. **People Management**
 
     ```
-    GET /api/Person → List
-    GET /api/Person/{id} → Detail con skills
+    GET /api/People → List
+    GET /api/People/{id} → Detail con skills
     ```
 
 3. **Roles & Skills**
@@ -207,7 +207,7 @@ Día 7 (2 Ene): Frontend - Componentes + Pulido ⏳ PENDIENTE
     ```
     POST /api/gap-analysis → Calcular brecha
     POST /api/development-paths/generate → Generar ruta
-    GET /api/Person/{id}/marketplace → Ver oportunidades
+    GET /api/People/{id}/marketplace → Ver oportunidades
     ```
 
 5. **Job Management**

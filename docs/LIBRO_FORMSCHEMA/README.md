@@ -43,13 +43,54 @@ Verás cómo se equilibran **principios SOLID**, **separación de responsabilida
 | 01 | [Problema y Solución](01_PROBLEMA_Y_SOLUCION.md) | 15 min | ¿Qué problema resuelve? |
 | 02 | [Principios Arquitectónicos](02_PRINCIPIOS_ARQUITECTONICOS.md) | 20 min | SOLID, Design Patterns |
 | 03 | [Arquitectura General](03_ARQUITECTURA_GENERAL.md) | 25 min | Diagrama de capas y flujos |
-| 04 | [FormSchemaController](04_FORMSCHEMA_CONTROLLER.md) | 30 min | El corazón dinámico |
-| 05 | [form-schema-complete.php](05_FORM_SCHEMA_COMPLETE_PHP.md) | 20 min | Generador de rutas |
+| 04 | [FormSchemaController](04_FORMSCHEMA_CONTROLLER.md) | 30 min | El corazón dinámico + Repository |
+| 05 | [form-schema-complete.php](05_FORM_SCHEMA_COMPLETE_PHP.md) | 20 min | Generador de rutas + Repository |
 | 06 | [FormSchema.vue](06_FORMSCHEMA_VUE.md) | 25 min | Componente reutilizable |
 | 07 | [JSON-Driven Configuration](07_JSON_DRIVEN_CONFIG.md) | 20 min | Declarativo vs Imperativo |
+| 11 | [Repository Pattern 🆕](11_REPOSITORY_PATTERN_ARQUITECTURA.md) | 25 min | Capa de persistencia |
 | 08 | [Casos de Uso Reales](08_CASOS_DE_USO_PATRONES.md) | 30 min | 6 ejemplos implementados |
 | 09 | [Anti-Patrones y Límites](09_ANTI_PATRONES_LIMITACIONES.md) | 20 min | Gotchas y limitaciones |
 | 10 | [Escalabilidad y DevOps](10_ESCALABILIDAD_MANTENIMIENTO.md) | 25 min | Mantener en producción |
+
+---
+
+## ✨ Cambios Recientes (31 Diciembre 2025)
+
+### Refactorización de Arquitectura
+
+Se identificó y corrigió una **duplicación crítica** en la capa de controladores:
+
+```
+❌ ANTES (3 capas innecesarias):
+PeopleController → FormSchemaController → PeopleRepository → Model
+
+✅ AHORA (2 capas, más limpio):
+FormSchemaController → PeopleRepository → Model
+```
+
+**Cambios implementados:**
+1. ✅ Eliminado `PeopleController.php` (duplicado)
+2. ✅ Eliminado `RolesController.php` (duplicado)
+3. ✅ Eliminado `SkillsController.php` (duplicado)
+4. ✅ **Capítulo 4** actualizado: Agregada sección completa sobre Repository Pattern
+5. ✅ **Capítulo 5** actualizado: Aclarada integración con Repository
+6. ✅ **Nuevo Capítulo 11** 🆕: "Repository Pattern - Capa de Persistencia"
+7. ✅ **PATRON_JSON_DRIVEN_CRUD.md** actualizado: Diagrama de arquitectura en capas
+8. ✅ **GUIA_DESARROLLO_ESTRUCTURADO.md** actualizado: Sección sobre arquitectura
+
+### Por Qué Esto Importa
+
+El patrón ahora es **genuinamente limpio**:
+- FormSchemaController es verdaderamente **agnóstico de modelo**
+- Repository Pattern es el **encargado de persistencia**
+- Sin capas innecesarias ni duplicación
+
+### Lectura Recomendada
+
+Para entender los cambios, lee:
+1. [Capítulo 4: FormSchemaController](04_FORMSCHEMA_CONTROLLER.md) - nueva sección 2
+2. **[Capítulo 11: Repository Pattern 🆕](11_REPOSITORY_PATTERN_ARQUITECTURA.md)** - completo
+3. [PATRON_JSON_DRIVEN_CRUD.md](../PATRON_JSON_DRIVEN_CRUD.md) - diagrama actualizado
 
 ---
 
@@ -137,7 +178,7 @@ Este patrón fue **probado en el mundo real** con:
 
 📊 Resultados:
   8 páginas de UI    (Dashboard, GapAnalysis, LearningPaths, etc.)
-  4 modelos CRUD     (Person, Certification, Role, Skill)
+  4 modelos CRUD     (People, Certification, Role, Skill)
   32 endpoints API   (8 por modelo)
   0 código duplicado (todo reutilizable)
 
@@ -226,7 +267,7 @@ Para entender este libro necesitas:
 ### P: ¿Puedo usar FormSchema en proyectos existentes?
 **R:** Sí, puedes agregarlo incrementalmente para nuevos modelos.
 
-### P: ¿Qué pasa si necesito lógica personalizada?
+### P: ¿Qué pasa si necesito lógica peoplealizada?
 **R:** Crea un controller específico para esos casos. FormSchema y custom controllers coexisten bien.
 
 ### P: ¿Se puede usar con GraphQL?

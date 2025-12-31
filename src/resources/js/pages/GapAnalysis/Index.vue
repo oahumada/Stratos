@@ -8,7 +8,7 @@ defineOptions({ layout: AppLayout });
 
 const { notify } = useNotification();
 
-interface Person {
+interface People {
   id: number;
   name: string;
 }
@@ -28,36 +28,36 @@ interface Gap {
 }
 
 interface GapAnalysisResult {
-  person_id: number;
+  people_id: number;
   role_id: number;
   match_percentage: number;
   gaps: Gap[];
 }
 
 // State
-const persons = ref<Person[]>([]);
+const peoples = ref<People[]>([]);
 const roles = ref<Role[]>([]);
-const selectedPersonId = ref<number | null>(null);
+const selectedPeopleId = ref<number | null>(null);
 const selectedRoleId = ref<number | null>(null);
 const loading = ref(false);
 const analyzing = ref(false);
 const result = ref<GapAnalysisResult | null>(null);
 
 // Load initial data
-const loadPersonsAndRoles = async () => {
+const loadPeoplesAndRoles = async () => {
   loading.value = true;
   try {
-    const [personsRes, rolesRes] = await Promise.all([
-      axios.get('/api/person'),
+    const [peoplesRes, rolesRes] = await Promise.all([
+      axios.get('/api/people'),
       axios.get('/api/roles')
     ]);
-    persons.value = personsRes.data.data || personsRes.data;
+    peoples.value = peoplesRes.data.data || peoplesRes.data;
     roles.value = rolesRes.data.data || rolesRes.data;
   } catch (err) {
     console.error('Failed to load data', err);
     notify({
       type: 'error',
-      text: 'Error loading persons and roles'
+      text: 'Error loading peoples and roles'
     });
   } finally {
     loading.value = false;
@@ -66,10 +66,10 @@ const loadPersonsAndRoles = async () => {
 
 // Analyze gap
 const analyzeGap = async () => {
-  if (!selectedPersonId.value || !selectedRoleId.value) {
+  if (!selectedPeopleId.value || !selectedRoleId.value) {
     notify({
       type: 'warning',
-      text: 'Please select both person and role'
+      text: 'Please select both people and role'
     });
     return;
   }
@@ -77,7 +77,7 @@ const analyzeGap = async () => {
   analyzing.value = true;
   try {
     const response = await axios.post('/api/gap-analysis', {
-      person_id: selectedPersonId.value,
+      people_id: selectedPeopleId.value,
       role_id: selectedRoleId.value
     });
     result.value = response.data.data || response.data;
@@ -114,7 +114,7 @@ const getMatchColor = (percentage: number): string => {
 };
 
 onMounted(() => {
-  loadPersonsAndRoles();
+  loadPeoplesAndRoles();
 });
 </script>
 
@@ -122,21 +122,21 @@ onMounted(() => {
   <div class="pa-4">
     <div class="mb-6">
       <h1 class="text-h4 font-weight-bold mb-2">Gap Analysis</h1>
-      <p class="text-body2 text-grey">Analyze skill gaps between a person and a role</p>
+      <p class="text-body2 text-grey">Analyze skill gaps between a people and a role</p>
     </div>
 
     <!-- Form Section -->
     <v-card class="mb-6">
-      <v-card-title>Select Person and Role</v-card-title>
+      <v-card-title>Select People and Role</v-card-title>
       <v-card-text>
         <v-row>
           <v-col cols="12" sm="6">
             <v-select
-              v-model="selectedPersonId"
-              :items="persons"
+              v-model="selectedPeopleId"
+              :items="peoples"
               item-title="name"
               item-value="id"
-              label="Select Person"
+              label="Select People"
               :loading="loading"
               outlined
             />
@@ -159,7 +159,7 @@ onMounted(() => {
               color="primary"
               @click="analyzeGap"
               :loading="analyzing"
-              :disabled="!selectedPersonId || !selectedRoleId"
+              :disabled="!selectedPeopleId || !selectedRoleId"
             >
               <v-icon left>mdi-analysis</v-icon>
               Analyze Gap
@@ -235,7 +235,7 @@ onMounted(() => {
     <!-- Empty State -->
     <div v-if="!result" class="text-center py-12">
       <v-icon size="64" class="mb-4 text-grey">mdi-chart-box-outline</v-icon>
-      <p class="text-body1 text-grey">Select a person and role to analyze gaps</p>
+      <p class="text-body1 text-grey">Select a people and role to analyze gaps</p>
     </div>
   </div>
 </template>

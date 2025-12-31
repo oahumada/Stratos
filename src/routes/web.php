@@ -14,13 +14,13 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/person', function () {
-    return Inertia::render('Person/Index');
-})->middleware(['auth', 'verified'])->name('person.index');
+Route::get('/people', function () {
+    return Inertia::render('People/Index');
+})->middleware(['auth', 'verified'])->name('people.index');
 
-Route::get('/person/{id}', function ($id) {
-    return Inertia::render('Person/Show', ['id' => $id]);
-})->middleware(['auth', 'verified'])->name('person.show');
+Route::get('/people/{id}', function ($id) {
+    return Inertia::render('People/Show', ['id' => $id]);
+})->middleware(['auth', 'verified'])->name('people.show');
 
 Route::get('/roles', function () {
     return Inertia::render('Roles/Index');

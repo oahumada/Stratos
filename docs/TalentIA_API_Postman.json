@@ -22,7 +22,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"person_id\": 1,\n  \"role_name\": \"Senior Developer\"\n}"
+              "raw": "{\n  \"people_id\": 1,\n  \"role_name\": \"Senior Developer\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/gap-analysis",
@@ -49,7 +49,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"person_id\": 1,\n  \"role_id\": 2\n}"
+              "raw": "{\n  \"people_id\": 1,\n  \"role_id\": 2\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/development-paths/generate",
@@ -85,53 +85,53 @@
       ]
     },
     {
-      "name": "Person",
+      "name": "People",
       "item": [
         {
-          "name": "List Person",
+          "name": "List People",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/Person",
+              "raw": "{{base_url}}/api/People",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
-                "Person"
+                "People"
               ]
             }
           }
         },
         {
-          "name": "Get Person",
+          "name": "Get People",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/Person/1",
+              "raw": "{{base_url}}/api/People/1",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
-                "Person",
+                "People",
                 "1"
               ]
             }
           }
         },
         {
-          "name": "Person Marketplace",
+          "name": "People Marketplace",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/Person/1/marketplace",
+              "raw": "{{base_url}}/api/People/1/marketplace",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
-                "Person",
+                "People",
                 "1",
                 "marketplace"
               ]
@@ -303,7 +303,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"person_id\": 1,\n  \"job_opening_id\": 1,\n  \"message\": \"Muy interesado en esta posición\"\n}"
+              "raw": "{\n  \"people_id\": 1,\n  \"job_opening_id\": 1,\n  \"message\": \"Muy interesado en esta posición\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/applications",

@@ -40,13 +40,13 @@ Route::get('/applications/{id}', [\App\Http\Controllers\Api\ApplicationControlle
 Route::post('/applications', [\App\Http\Controllers\Api\ApplicationController::class, 'store']);
 Route::patch('/applications/{id}', [\App\Http\Controllers\Api\ApplicationController::class, 'update']);
 
-// CRUD genérico: Person, Skills, Roles, Departments
+// CRUD genérico: People, Skills, Roles, Departments
 // Gestionado por form-schema-complete.php con FormSchemaController
 
 // Dashboard
 Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController::class, 'metrics']);
 
 // Marketplace (Día 5 - Internal opportunities)
-Route::get('/person/{person_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']);
+Route::get('/people/{people_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']);
 
 require __DIR__ . '/form-schema-complete.php';

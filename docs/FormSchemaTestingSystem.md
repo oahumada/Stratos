@@ -166,7 +166,7 @@ Los archivos ya existen en `resources/js/components/TablaHija/AtencionesDiarias/
 php artisan make:form-schema-test AtencionesDiarias --model
 ```
 
-### Paso 3: Personalizar Test
+### Paso 3: Peoplealizar Test
 
 Editar `tests/Feature/AtencionesDiariasTest.php` para agregar tests específicos:
 
@@ -206,7 +206,7 @@ php artisan test --filter=AtencionesDiariasTest
 ### 3. Datos de Prueba
 
 - **Seeders**: Asegurar que existan datos base para foreign keys
-- **Factories**: Personalizar factories con estados específicos
+- **Factories**: Peoplealizar factories con estados específicos
 - **Limpieza**: Usar RefreshDatabase para tests aislados
 
 ## Comandos Útiles
@@ -257,7 +257,7 @@ done
 2. Actualizar `generateFactoryFields()` en FormSchemaTestGenerator.php
 3. Agregar validación en `test_form_fields_have_required_properties()`
 
-### Personalizar Generación de Modelos
+### Peoplealizar Generación de Modelos
 
 Editar métodos en FormSchemaTestGenerator.php:
 
