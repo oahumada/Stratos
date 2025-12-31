@@ -7,7 +7,7 @@ use App\Models\DevelopmentPath;
 use App\Models\JobOpening;
 use App\Models\Organization;
 use App\Models\People;
-use App\Models\Role;
+use App\Models\Roles;
 use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -144,7 +144,7 @@ class DemoSeeder extends Seeder
         ];
 
         $roles = collect($rolesData)->map(function ($roleData) use ($org, $skills) {
-            $role = Role::create([
+            $role = Roles::create([
                 'organization_id' => $org->id,
                 'name' => $roleData['name'],
                 'department' => $roleData['department'],

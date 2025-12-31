@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Role extends Model
+class Roles extends Model
 {
+    protected $table = 'roles';
+    
     protected $fillable = ['organization_id', 'name', 'department', 'level', 'description'];
 
     protected $casts = [

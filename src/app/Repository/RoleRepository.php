@@ -6,7 +6,7 @@ use App\Models\Roles;
 use Illuminate\Http\Request;
 use App\Helpers\Tools;
 
-class RolesRepository extends Repository
+class RoleRepository extends Repository
 {
     public function __construct()
     {

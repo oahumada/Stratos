@@ -3,14 +3,14 @@
 use Illuminate\Support\Facades\Route;
 
 // Catálogos dinámicos para selectores
-Route::get('/catalogs', function (Illuminate\Http\Request $request) {
+/* Route::get('/catalogs', function (Illuminate\Http\Request $request) {
     $endpoints = $request->query('endpoints', []);
     $result = [];
 
     foreach ((array) $endpoints as $endpoint) {
         try {
             $result[$endpoint] = match ($endpoint) {
-                'role' => \App\Models\Role::select('id', 'name')->get(),
+                'role' => \App\Models\Roles::select('id', 'name')->get(),
                 'skill' => \App\Models\Skill::select('id', 'name', 'category')->get(),
                 'department' => \App\Models\Department::select('id', 'name')->get(),
                 'departments' => \App\Models\Department::select('id', 'name')->get(),
@@ -23,7 +23,7 @@ Route::get('/catalogs', function (Illuminate\Http\Request $request) {
     }
 
     return response()->json($result);
-});
+}); */
 
 // Core services
 Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::class, 'analyze']);

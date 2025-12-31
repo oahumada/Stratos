@@ -2,7 +2,7 @@
 
 use App\Models\Organization;
 use App\Models\People;
-use App\Models\Role;
+use App\Models\Roles;
 use App\Models\Skill;
 use App\Services\GapAnalysisService;
 
@@ -19,7 +19,7 @@ it('calcula brechas y porcentaje de match correctamente con datos deterministas'
     $skillB = Skill::create(['organization_id' => $org->id, 'name' => 'Skill B', 'category' => 'technical']);
     $skillC = Skill::create(['organization_id' => $org->id, 'name' => 'Skill C', 'category' => 'soft']);
 
-    $role = Role::create([
+    $role = Roles::create([
         'organization_id' => $org->id,
         'name' => 'Role Test',
         'department' => 'QA',

@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\People;
-use App\Models\Role;
+use App\Models\Roles;
 
 class GapAnalysisService
 {
@@ -15,7 +15,7 @@ class GapAnalysisService
      * - summary: categoría general y conteos
      * - gaps: lista de brechas por skill
      */
-    public function calculate(People $people, Role $role): array
+    public function calculate(People $people, Roles $role): array
     {
         // Cargar skills del rol con datos de pivot (required_level, is_critical)
         $roleSkills = $role->skills()->withPivot(['required_level', 'is_critical'])->get();

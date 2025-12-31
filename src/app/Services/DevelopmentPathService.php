@@ -4,14 +4,14 @@ namespace App\Services;
 
 use App\Models\DevelopmentPath;
 use App\Models\People;
-use App\Models\Role;
+use App\Models\Roles;
 
 class DevelopmentPathService
 {
     /**
      * Genera una ruta de desarrollo basada en las brechas del GapAnalysisService.
      */
-    public function generate(People $people, Role $targetRole): DevelopmentPath
+    public function generate(People $people, Roles $targetRole): DevelopmentPath
     {
         $gapService = new GapAnalysisService();
         $analysis = $gapService->calculate($people, $targetRole);

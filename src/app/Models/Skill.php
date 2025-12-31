@@ -32,7 +32,7 @@ class Skill extends Model
 
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'role_skills')
+        return $this->belongsToMany(Roles::class, 'role_skills')
             ->withPivot('required_level', 'is_critical')
             ->withTimestamps();
     }

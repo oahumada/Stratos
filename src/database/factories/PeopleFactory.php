@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\People;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PeopleFactory extends Factory
 {
+    protected $model = People::class;
     /**
      * Define the model's default state.
      *
@@ -20,7 +22,8 @@ class PeopleFactory extends Factory
             'organization_id' => 1,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'organization_id' => 1,
+            'department_id' => \App\Models\Department::inRandomOrder()->first()?->id,
+            'current_role_id' => \App\Models\Roles::inRandomOrder()->first()?->id,
             'email' => $this->faker->unique()->safeEmail(),
             'hire_date' => $this->faker->date(),
             'photo_url' => null,

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\People;
-use App\Models\Role;
+use App\Models\Roles;
 use App\Services\DevelopmentPathService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -26,9 +26,9 @@ class DevelopmentPathController extends Controller
 
         $role = null;
         if (!empty($data['role_id'])) {
-            $role = Role::find($data['role_id']);
+            $role = Roles::find($data['role_id']);
         } elseif (!empty($data['role_name'])) {
-            $role = Role::where('name', $data['role_name'])->first();
+            $role = Roles::where('name', $data['role_name'])->first();
         }
 
         if (! $role) {

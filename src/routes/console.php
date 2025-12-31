@@ -12,7 +12,7 @@ Artisan::command('gap:analyze {people_id} {role_name}', function () {
     $roleName = (string) $this->argument('role_name');
 
     $people = \App\Models\People::find($peopleId);
-    $role = \App\Models\Role::where('name', $roleName)->first();
+    $role = \App\Models\Roles::where('name', $roleName)->first();
 
     if (! $people) {
         $this->error('Peoplea no encontrada: ' . $peopleId);
@@ -51,7 +51,7 @@ Artisan::command('devpath:generate {people_id} {role_name}', function () {
     $roleName = (string) $this->argument('role_name');
 
     $people = \App\Models\People::find($peopleId);
-    $role = \App\Models\Role::where('name', $roleName)->first();
+    $role = \App\Models\Roles::where('name', $roleName)->first();
 
     if (! $people) {
         $this->error('Peoplea no encontrada: ' . $peopleId);

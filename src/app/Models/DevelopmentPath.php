@@ -47,6 +47,6 @@ class DevelopmentPath extends Model
 
     public function targetRole(): BelongsTo
     {
-        return $this->belongsTo(Role::class, 'target_role_id');
+        return $this->belongsTo(Roles::class, 'target_role_id');
     }
 }

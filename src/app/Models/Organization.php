@@ -25,7 +25,7 @@ class Organization extends Model
 
     public function roles(): HasMany
     {
-        return $this->hasMany(Role::class);
+        return $this->hasMany(Roles::class);
     }
 
     public function People(): HasMany

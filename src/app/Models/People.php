@@ -18,6 +18,7 @@ class People extends Model
 
     protected $fillable = [
         'organization_id',
+        'role_id',
         'user_id',
         'first_name',
         'last_name',
@@ -54,7 +55,7 @@ class People extends Model
 
     public function currentRole(): BelongsTo
     {
-        return $this->belongsTo(Role::class, 'current_role_id');
+        return $this->belongsTo(Roles::class, 'current_role_id');
     }
 
     public function department(): BelongsTo
