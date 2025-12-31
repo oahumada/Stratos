@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DevelopmentPath extends Model
 {
+    
     protected $fillable = [
         'organization_id',
         'people_id',

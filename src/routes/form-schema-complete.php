@@ -21,8 +21,8 @@ $formSchemaModels = [
     // Tablas hijas principales
     'People' => 'people',
     'Skills' => 'skills',
-    'Department' => 'departments',
-    'Role' => 'role',  // Plural para consistencia con API
+    'Departments' => 'departments',
+    'Roles' => 'roles',  // Plural para consistencia con API
 ];
 
 // Envolver todas las rutas FormSchema en middleware de autenticación

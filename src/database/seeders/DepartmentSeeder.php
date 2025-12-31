@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Department;
+use App\Models\Departments;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -14,19 +14,20 @@ class DepartmentSeeder extends Seeder
     public function run(): void
     {
         $departments = [
-            ['name' => 'Engineering', 'description' => 'Software and product development'],
-            ['name' => 'Sales', 'description' => 'Sales and business development'],
-            ['name' => 'Marketing', 'description' => 'Marketing and communications'],
-            ['name' => 'Human Resources', 'description' => 'HR and recruitment'],
-            ['name' => 'Finance', 'description' => 'Finance and accounting'],
-            ['name' => 'Operations', 'description' => 'Operations and logistics'],
-            ['name' => 'Support', 'description' => 'Customer support and success'],
-            ['name' => 'Product', 'description' => 'Product management and design'],
+            ['name' => 'Engineering', 'description' => 'Software and product development', 'organization_id' => 1],
+            ['name' => 'Sales', 'description' => 'Sales and business development', 'organization_id' => 1],
+            ['name' => 'Marketing', 'description' => 'Marketing and communications', 'organization_id' => 1],
+            ['name' => 'Human Resources', 'description' => 'HR and recruitment', 'organization_id' => 1],
+            ['name' => 'Finance', 'description' => 'Finance and accounting', 'organization_id' => 1],
+            ['name' => 'Operations', 'description' => 'Operations and logistics', 'organization_id' => 1],
+            ['name' => 'Support', 'description' => 'Customer support and success', 'organization_id' => 1],
+            ['name' => 'Product', 'description' => 'Product management and design', 'organization_id' => 1],
         ];
 
         foreach ($departments as $department) {
-            Department::firstOrCreate(
-                ['name' => $department['name']],
+            Departments::firstOrCreate(
+                ['name' => $department['name']
+            ],
                 $department
             );
         }

@@ -42,5 +42,5 @@
       "rules": []
     }
   ],
-  "catalogs": ["role", "departments"]
+  "catalogs": ["roles", "departments"]
 }

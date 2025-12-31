@@ -1,6 +1,6 @@
 [
   {
-    "field": "department",
+    "field": "department_id",
     "type": "select",
     "label": "Department",
     "placeholder": "Select department"

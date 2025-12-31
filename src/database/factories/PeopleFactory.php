@@ -22,7 +22,7 @@ class PeopleFactory extends Factory
             'organization_id' => 1,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'department_id' => \App\Models\Department::inRandomOrder()->first()?->id,
+            'department_id' => \App\Models\Departments::inRandomOrder()->first()?->id,
             'current_role_id' => \App\Models\Roles::inRandomOrder()->first()?->id,
             'email' => $this->faker->unique()->safeEmail(),
             'hire_date' => $this->faker->date(),

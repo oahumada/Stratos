@@ -12,7 +12,7 @@ class Roles extends Model
 {
     protected $table = 'roles';
     
-    protected $fillable = ['organization_id', 'name', 'department', 'level', 'description'];
+    protected $fillable = ['organization_id', 'name', 'department_id', 'level', 'description'];
 
     protected $casts = [
         'level' => 'string',
@@ -34,7 +34,7 @@ class Roles extends Model
 
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skill::class, 'role_skills')
+        return $this->belongsToMany(Skill::class, 'role_skills', 'role_id', 'skill_id')
             ->withPivot('required_level', 'is_critical')
             ->withTimestamps();
     }

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Skill;
+use App\Models\Skills;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -59,7 +59,7 @@ class SkillSeeder extends Seeder
         ];
 
         foreach ($skills as $skill) {
-            Skill::create($skill);
+            Skills::create($skill);
         }
     }
 }

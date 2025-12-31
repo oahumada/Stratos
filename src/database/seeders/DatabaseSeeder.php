@@ -4,10 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\People;
-use App\Models\Department;
+use App\Models\Departments;
 use App\Models\Roles;
-use App\Models\Skill;
-use App\Models\Organization;
+use App\Models\Skills;
+use App\Models\Organizations;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -21,14 +21,14 @@ class DatabaseSeeder extends Seeder
     {
         // Limpiar tablas involucradas
         People::truncate();
-        Department::truncate();
+        Departments::truncate();
         Roles::truncate();
-        Skill::truncate();
+        Skills::truncate();
         User::truncate();
-        Organization::truncate();
+        Organizations::truncate();
 
         // Crear organización por defecto
-        $org = Organization::create([
+        $org = Organizations::create([
             'name' => 'Default Organization',
             'subdomain' => 'default',
         ]);

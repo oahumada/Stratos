@@ -25,7 +25,6 @@ class People extends Model
         'email',
         'current_role_id',
         'department_id',
-        'department',
         'hire_date',
         'photo_url',
     ];
@@ -45,7 +44,7 @@ class People extends Model
 
     public function organization(): BelongsTo
     {
-        return $this->belongsTo(Organization::class);
+        return $this->belongsTo(Organizations::class);
     }
 
     public function user(): BelongsTo
@@ -60,12 +59,12 @@ class People extends Model
 
     public function department(): BelongsTo
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Departments::class);
     }
 
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skill::class, 'people_skills')
+        return $this->belongsToMany(Skills::class, 'people_skills')
             ->withPivot('level', 'last_evaluated_at', 'evaluated_by')
             ->withTimestamps();
     }

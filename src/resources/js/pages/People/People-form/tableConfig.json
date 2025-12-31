@@ -1,8 +1,13 @@
 {
   "headers": [
     {
-      "text": "Name",
-      "value": "name",
+      "text": "Lastname",
+      "value": "last_name",
+      "sortable": true
+    },
+        {
+      "text": "Firstname",
+      "value": "first_name",
       "sortable": true
     },
     {
@@ -12,13 +17,15 @@
     },
     {
       "text": "Department",
-      "value": "department",
-      "sortable": true
+      "value": "departments",
+      "sortable": true,
+      "key": "departments.name"
     },
     {
       "text": "Role",
-      "value": "role",
-      "sortable": false
+      "value": "roles",
+      "sortable": false,
+      "key": "roles.name"
     },
     {
       "text": "Skills",

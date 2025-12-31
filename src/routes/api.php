@@ -1,19 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\CatalogsController;
 
-// Catálogos dinámicos para selectores
-/* Route::get('/catalogs', function (Illuminate\Http\Request $request) {
+/* // Catálogos dinámicos para selectores
+Route::get('/catalogs', function (Illuminate\Http\Request $request) {
     $endpoints = $request->query('endpoints', []);
     $result = [];
 
     foreach ((array) $endpoints as $endpoint) {
         try {
             $result[$endpoint] = match ($endpoint) {
-                'role' => \App\Models\Roles::select('id', 'name')->get(),
-                'skill' => \App\Models\Skill::select('id', 'name', 'category')->get(),
-                'department' => \App\Models\Department::select('id', 'name')->get(),
-                'departments' => \App\Models\Department::select('id', 'name')->get(),
+                'role', 'roles' => \App\Models\Roles::select('id', 'name')->get(),
+                'skill', 'skills' => \App\Models\Skill::select('id', 'name', 'category')->get(),
+                'department', 'departments' => \App\Models\Department::select('id', 'name')->get(),
                 default => [],
             };
         } catch (\Exception $e) {
@@ -49,4 +49,6 @@ Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController:
 // Marketplace (Día 5 - Internal opportunities)
 Route::get('/people/{people_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']);
 
+// Catálogos dinámicos para selectores
+Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');
 require __DIR__ . '/form-schema-complete.php';

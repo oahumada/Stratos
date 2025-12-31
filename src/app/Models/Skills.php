@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Skill extends Model
+class Skills extends Model
 {
     protected $fillable = ['organization_id', 'name', 'category', 'description', 'is_critical'];
 
@@ -32,7 +32,7 @@ class Skill extends Model
 
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Roles::class, 'role_skills')
+        return $this->belongsToMany(Roles::class, 'role_skills', 'skill_id', 'role_id')
             ->withPivot('required_level', 'is_critical')
             ->withTimestamps();
     }
