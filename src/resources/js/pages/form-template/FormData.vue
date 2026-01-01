@@ -167,15 +167,14 @@ defineExpose({
 
 <template>
     <v-form ref="form" v-model="valid">
-        <v-container fluid>
-            
-            <v-row dense>
+        <v-container class="form-container">
+            <v-row class="form-row">
                 <v-col
                     v-for="field in enrichedFields"
                     :key="field.key"
                     cols="12"
-                    :sm="enrichedFields.length === 1 ? 12 : 6"
-                    :md="enrichedFields.length === 1 ? 12 : enrichedFields.length === 2 ? 6 : 4"
+                    sm="6"
+                    class="form-col"
                 >
                     <!-- Text Input -->
                     <v-text-field
@@ -186,8 +185,10 @@ defineExpose({
                         :rules="field.rules"
                         :required="field.required"
                         variant="outlined"
-                        density="compact"
+                        density="comfortable"
                         validate-on="blur"
+                        prepend-inner-icon="mdi-format-text"
+                        class="form-field"
                     />
 
                     <!-- Email Input -->
@@ -200,8 +201,10 @@ defineExpose({
                         :rules="field.rules"
                         :required="field.required"
                         variant="outlined"
-                        density="compact"
+                        density="comfortable"
                         validate-on="blur"
+                        prepend-inner-icon="mdi-email"
+                        class="form-field"
                     />
 
                     <!-- Password Input -->
@@ -213,8 +216,10 @@ defineExpose({
                         :rules="field.rules"
                         :required="field.required"
                         variant="outlined"
-                        density="compact"
+                        density="comfortable"
                         validate-on="blur"
+                        prepend-inner-icon="mdi-lock"
+                        class="form-field"
                     />
 
                     <!-- Number Input -->
@@ -226,8 +231,10 @@ defineExpose({
                         :rules="field.rules"
                         :required="field.required"
                         variant="outlined"
-                        density="compact"
+                        density="comfortable"
                         validate-on="blur"
+                        prepend-inner-icon="mdi-numeric"
+                        class="form-field"
                     />
 
                     <!-- Textarea -->
@@ -239,9 +246,11 @@ defineExpose({
                         :rules="field.rules"
                         :required="field.required"
                         variant="outlined"
-                        density="compact"
+                        density="comfortable"
                         rows="3"
                         validate-on="blur"
+                        prepend-inner-icon="mdi-text-box"
+                        class="form-field"
                     />
 
                     <!-- Select -->
@@ -256,9 +265,11 @@ defineExpose({
                         :rules="field.rules"
                         :required="field.required"
                         variant="outlined"
-                        density="compact"
+                        density="comfortable"
                         clearable
                         validate-on="blur"
+                        prepend-inner-icon="mdi-list-box"
+                        class="form-field"
                     />
 
                     <!-- Date Picker -->
@@ -270,8 +281,10 @@ defineExpose({
                         :rules="field.rules"
                         :required="field.required"
                         variant="outlined"
-                        density="compact"
+                        density="comfortable"
                         validate-on="blur"
+                        prepend-inner-icon="mdi-calendar"
+                        class="form-field"
                     />
 
                     <!-- Time Picker -->
@@ -283,25 +296,29 @@ defineExpose({
                         :rules="field.rules"
                         :required="field.required"
                         variant="outlined"
-                        density="compact"
+                        density="comfortable"
                         validate-on="blur"
+                        prepend-inner-icon="mdi-clock"
+                        class="form-field"
                     />
 
                     <!-- Checkbox -->
-                    <div v-else-if="field.type === 'checkbox'" class="pt-2">
+                    <div v-else-if="field.type === 'checkbox'" class="checkbox-wrapper">
                         <v-checkbox
                             v-model="formData[field.key]"
                             :label="field.label"
                             :rules="field.rules"
+                            class="form-checkbox"
                         />
                     </div>
 
                     <!-- Switch -->
-                    <div v-else-if="field.type === 'switch'" class="pt-2">
+                    <div v-else-if="field.type === 'switch'" class="switch-wrapper">
                         <v-switch
                             v-model="formData[field.key]"
                             :label="field.label"
                             :rules="field.rules"
+                            class="form-switch"
                         />
                     </div>
                 </v-col>
@@ -311,11 +328,111 @@ defineExpose({
 </template>
 
 <style scoped>
-:deep(.v-form) {
-    padding: 0;
+/* Form Container Styles */
+.form-container {
+    padding: 0 !important;
+    max-width: 100%;
 }
 
-:deep(.v-container) {
-    padding: 0;
+.form-row {
+    margin: 0 !important;
+}
+
+.form-col {
+    padding: 0.5rem !important;
+}
+
+/* Input Field Styles */
+:deep(.form-field .v-field) {
+    background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.6) 100%);
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+:deep(.form-field:focus-within .v-field) {
+    background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 100%);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+:deep(.form-field .v-field__outline) {
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+:deep(.form-field:focus-within .v-field__outline) {
+    border-color: var(--v-primary) !important;
+    border-width: 2px !important;
+}
+
+:deep(.form-field .v-label) {
+    color: rgba(0, 0, 0, 0.7) !important;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+
+:deep(.form-field:focus-within .v-label) {
+    color: var(--v-primary) !important;
+}
+
+:deep(.form-field .v-field__prepend-inner .v-icon) {
+    color: rgba(0, 0, 0, 0.5);
+    transition: color 0.2s ease;
+    margin-right: 0.5rem;
+}
+
+:deep(.form-field:focus-within .v-field__prepend-inner .v-icon) {
+    color: var(--v-primary);
+}
+
+:deep(.form-field .v-field__input) {
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 0.95rem;
+}
+
+:deep(.form-field .v-field__input::placeholder) {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+/* Error State */
+:deep(.form-field.error .v-field) {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
+}
+
+:deep(.form-field.error .v-field__outline) {
+    border-color: var(--v-error) !important;
+}
+
+:deep(.form-field .v-messages) {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    color: var(--v-error);
+}
+
+/* Checkbox and Switch Styles */
+.checkbox-wrapper,
+.switch-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+:deep(.form-checkbox .v-label) {
+    color: #424242;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+:deep(.form-switch .v-label) {
+    color: #424242;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 960px) {
+    .form-row {
+        gap: 1rem;
+    }
 }
 </style>

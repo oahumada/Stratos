@@ -2,10 +2,12 @@
 import { ref, reactive, computed, onMounted } from "vue";
 import { post, put, remove, fetchCatalogs } from "@/apiHelper";
 import { useNotification } from "@kyvg/vue3-notification";
+import { useTheme as useVuetifyTheme } from 'vuetify';
 import FormData from "./FormData.vue";
 import { usePage } from "@inertiajs/vue3";
 
 interface TableHeader {
+    key: string;
     text: string;
     value: string;
     type?: 'date' | 'text' | 'number';
@@ -69,6 +71,33 @@ interface TableItem {
 const page = usePage();
 const user = computed(() => (page.props.auth.user as any));
 const { notify } = useNotification();
+const vuetifyTheme = useVuetifyTheme();
+
+// Get theme colors reactively
+const headerGradient = computed(() => {
+    const theme = vuetifyTheme.global.current.value;
+    return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
+});
+
+const createBtnGradient = computed(() => {
+    const theme = vuetifyTheme.global.current.value;
+    return `linear-gradient(135deg, ${theme.colors.accent} 0%, ${theme.colors.error} 100%)`;
+});
+
+const tableHeaderGradient = computed(() => {
+    const theme = vuetifyTheme.global.current.value;
+    return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
+});
+
+const dialogHeaderGradient = computed(() => {
+    const theme = vuetifyTheme.global.current.value;
+    return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
+});
+
+const dialogWarningGradient = computed(() => {
+    const theme = vuetifyTheme.global.current.value;
+    return `linear-gradient(135deg, ${theme.colors.accent} 0%, ${theme.colors.error} 100%)`;
+});
 
 const props = withDefaults(
     defineProps<{
@@ -172,7 +201,7 @@ const loadCatalogs = async () => {
         return;
     }
     console.log('Loading catalogs:', mergedItemForm.value.catalogs);
-    const data_form: string[] = mergedItemForm.value.catalogs || [];
+    var data_form = mergedItemForm.value.catalogs || [];
 
     try {
         const response = await fetchCatalogs(data_form);
@@ -269,8 +298,7 @@ const saveItem = async () => {
     error.value = null;
 
     try {
-        const formDataValue = { ...formDataRef.value.formData };
-        const payload = { data: formDataValue };
+        const payload = { ...formDataRef.value.formData };
 
         if (editingItem.value && editingItem.value.id) {
             await put(`${mergedConfig.value.endpoints.apiUrl}/${editingItem.value.id}`, payload);
@@ -369,18 +397,20 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="pa-4">
+    <div class="pa-4" :style="{ '--table-gradient': tableHeaderGradient } as any">
         <!-- Header -->
-        <div class="d-flex justify-space-between align-center mb-4">
+        <div class="d-flex justify-space-between align-center mb-4" :style="{ background: headerGradient }" style="padding: 1.5rem; border-radius: 8px;">
             <div>
-                <h1 class="text-h4 font-weight-bold mb-2">{{ mergedConfig.titulo }}</h1>
-                <p class="text-subtitle2 text-grey">{{ mergedConfig.descripcion }}</p>
+                <h1 class="text-h4 font-weight-bold mb-2" style="color: white;">{{ mergedConfig.titulo }}</h1>
+                <p class="text-subtitle2" style="color: rgba(255,255,255,0.85);">{{ mergedConfig.descripcion }}</p>
             </div>
             <v-btn
                 v-if="mergedConfig.permisos?.crear"
-                color="primary"
                 prepend-icon="mdi-plus"
                 @click="openCreateDialog"
+                size="large"
+                variant="tonal"
+                :style="{ background: createBtnGradient, color: 'white' }"
             >
                 New Record
             </v-btn>
@@ -491,6 +521,10 @@ onMounted(() => {
                 :headers="displayHeaders"
                 :items="filteredItems"
                 class="elevation-0"
+                density="comfortable"
+                hover
+                mobile-breakpoint="md"
+                :style="{ '--table-gradient': tableHeaderGradient } as any"
             >
                 <!-- Custom rendering for relationship columns -->
                 <template v-for="header in mergedTableConfig.headers.filter(h => h.key && h.key.includes('.'))" :key="header.value" #[`item.${header.value}`]="{ item }">
@@ -504,22 +538,22 @@ onMounted(() => {
 
                 <!-- Actions Column -->
                 <template #item.actions="{ item }">
-                    <div class="d-flex gap-1">
+                    <div class="d-flex gap-2">
                         <v-btn
                             v-if="mergedConfig.permisos?.editar"
                             icon="mdi-pencil"
-                            size="small"
+                            size="large"
                             color="warning"
-                            variant="text"
+                            variant="tonal"
                             @click="openEditDialog(item)"
                             title="Edit"
                         />
                         <v-btn
                             v-if="mergedConfig.permisos?.eliminar"
                             icon="mdi-trash-can"
-                            size="small"
+                            size="large"
                             color="error"
-                            variant="text"
+                            variant="tonal"
                             @click="openDeleteDialog(item)"
                             title="Delete"
                         />
@@ -540,15 +574,20 @@ onMounted(() => {
     <!-- Form Dialog -->
     <v-dialog
         v-model="dialogOpen"
-        max-width="700px"
+        max-width="960px"
         persistent
+        transition="dialog-transition"
     >
-        <v-card>
-            <v-card-title>
-                {{ editingItem ? 'Edit Record' : 'New Record' }}
-            </v-card-title>
+        <v-card class="form-dialog" elevation="24">
+            <!-- Header with gradient -->
+            <div class="dialog-header-gradient" :style="{ background: dialogHeaderGradient }">
+                <v-card-title class="text-white text-h5 font-weight-bold">
+                    <v-icon class="mr-2">{{ editingItem ? 'mdi-pencil' : 'mdi-plus-circle' }}</v-icon>
+                    {{ editingItem ? 'Edit Record' : 'New Record' }}
+                </v-card-title>
+            </div>
 
-            <v-card-text class="py-4">
+            <v-card-text class="py-6">
                 <FormData
                     ref="formDataRef"
                     :fields="mergedItemForm.fields"
@@ -557,20 +596,27 @@ onMounted(() => {
                 />
             </v-card-text>
 
-            <v-card-actions>
+            <v-divider />
+
+            <v-card-actions class="pa-4">
                 <v-spacer />
                 <v-btn
                     color="secondary"
-                    variant="text"
+                    variant="outlined"
                     @click="closeDialog"
+                    size="large"
                 >
+                    <v-icon left>mdi-close</v-icon>
                     Cancel
                 </v-btn>
                 <v-btn
-                    color="primary"
                     @click="saveItem"
                     :loading="saving"
+                    size="large"
+                    variant="tonal"
+                    :style="{ background: createBtnGradient, color: 'white' }"
                 >
+                    <v-icon left>{{ editingItem ? 'mdi-check-circle' : 'mdi-plus-circle' }}</v-icon>
                     {{ editingItem ? 'Update' : 'Create' }}
                 </v-btn>
             </v-card-actions>
@@ -611,7 +657,103 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* Form Dialog Styles */
+.form-dialog {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+}
+
+.dialog-header-gradient {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.dialog-header-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    z-index: 0;
+}
+
+.dialog-header-gradient :deep(.v-card-title) {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+}
+
 :deep(.v-data-table) {
     background: transparent;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 960px) {
+    :deep(.v-data-table__mobile-row) {
+        display: grid;
+        gap: 1rem;
+        padding: 1.5rem 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        background: white;
+    }
+
+    :deep(.v-data-table__mobile-row__header) {
+        display: contents;
+    }
+
+    :deep(.v-data-table__mobile-row__cell) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.875rem;
+    }
+
+    :deep(.v-data-table__mobile-row__cell::before) {
+        content: attr(data-header);
+        font-weight: 600;
+        color: #424242;
+        grid-column: 1;
+    }
+
+    :deep(.v-data-table__mobile-row__cell > *) {
+        grid-column: 2;
+    }
+
+    /* Button styling in mobile */
+    :deep(.v-data-table__mobile-row__cell .d-flex) {
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    :deep(.v-btn--small) {
+        min-width: auto;
+        padding: 0.5rem;
+    }
+}
+
+/* Desktop styles */
+:deep(.v-data-table thead tr) {
+    background: var(--table-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+}
+
+:deep(.v-data-table thead th) {
+    font-weight: 700;
+    color: white !important;
+}
+
+:deep(.v-data-table tbody tr:hover) {
+    background-color: #f5f5f5 !important;
 }
 </style>

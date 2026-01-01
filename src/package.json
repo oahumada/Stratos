@@ -40,6 +40,7 @@
     "dependencies": {
         "@inertiajs/vue3": "^2.1.0",
         "@kyvg/vue3-notification": "^3.4.2",
+        "@mdi/font": "^7.4.47",
         "@mdi/js": "^7.4.47",
         "@vueuse/core": "^12.8.2",
         "class-variance-authority": "^0.7.1",
