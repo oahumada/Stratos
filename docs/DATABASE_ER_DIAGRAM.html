@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentIA - Diagrama Entidad-Relación (ER)</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .diagram-section {
+            margin: 30px 0;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .mermaid {
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 20px;
+            background: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+
+        table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        table th,
+        table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table tbody tr:hover {
+            background: #f5f5f5;
+        }
+
+        .code-block {
+            background: #f4f4f4;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 3px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 3px;
+            color: #1565c0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .relationships {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .relationship-box {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+
+        .relationship-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .relationship-box p {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="#" class="back-link">← Volver</a>
+
+        <header>
+            <h1>📊 TalentIA - Diagrama Entidad-Relación</h1>
+            <p>Modelo de Base de Datos SQLite - Plataforma de Gestión de Talento</p>
+            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">Actualizado: 1 Enero 2026</p>
+        </header>
+
+        <!-- Estadísticas -->
+        <div class="diagram-section">
+            <h2 class="section-title">📈 Estadísticas de Datos</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>8</h3>
+                    <p>Roles</p>
+                </div>
+                <div class="stat-card">
+                    <h3>30</h3>
+                    <p>Skills</p>
+                </div>
+                <div class="stat-card">
+                    <h3>48</h3>
+                    <p>Relaciones Role-Skill</p>
+                </div>
+                <div class="stat-card">
+                    <h3>20</h3>
+                    <p>Personas</p>
+                </div>
+                <div class="stat-card">
+                    <h3>129</h3>
+                    <p>Habilidades por Persona</p>
+                </div>
+                <div class="stat-card">
+                    <h3>5</h3>
+                    <p>Ofertas de Trabajo</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagrama ER Principal -->
+        <div class="diagram-section">
+            <h2 class="section-title">🔗 Diagrama Entidad-Relación (ER)</h2>
+            <div class="mermaid">
+                erDiagram
+                ORGANIZATIONS ||--o{ ROLES : has
+                ORGANIZATIONS ||--o{ SKILLS : has
+                ORGANIZATIONS ||--o{ PEOPLE : has
+
+                ROLES ||--o{ ROLE_SKILLS : defines
+                SKILLS ||--o{ ROLE_SKILLS : requires
+
+                PEOPLE ||--o{ PEOPLE_SKILLS : possesses
+                SKILLS ||--o{ PEOPLE_SKILLS : evaluates
+
+                ROLES ||--o{ JOB_OPENINGS : advertises
+                PEOPLE ||--o{ APPLICATIONS : applies
+                JOB_OPENINGS ||--o{ APPLICATIONS : receives
+
+                ROLES ||--o{ DEVELOPMENT_PATHS : source
+                ROLES ||--o{ DEVELOPMENT_PATHS : target
+
+                ORGANIZATIONS {
+                int id PK
+                string name
+                string description
+                }
+
+                ROLES {
+                int id PK
+                int organization_id FK
+                string name
+                string level
+                text description
+                timestamp created_at
+                timestamp updated_at
+                }
+
+                SKILLS {
+                int id PK
+                int organization_id FK
+                string name
+                string category
+                boolean is_critical
+                text description
+                timestamp created_at
+                timestamp updated_at
+                }
+
+                ROLE_SKILLS {
+                int id PK
+                int role_id FK
+                int skill_id FK
+                int required_level
+                boolean is_critical
+                timestamp created_at
+                timestamp updated_at
+                }
+
+                PEOPLE {
+                int id PK
+                int organization_id FK
+                string name
+                string email
+                int role_id FK
+                timestamp created_at
+                timestamp updated_at
+                }
+
+                PEOPLE_SKILLS {
+                int id PK
+                int people_id FK
+                int skill_id FK
+                int level
+                timestamp last_evaluated_at
+                int evaluated_by FK
+                timestamp created_at
+                timestamp updated_at
+                }
+
+                JOB_OPENINGS {
+                int id PK
+                int role_id FK
+                string title
+                text description
+                timestamp created_at
+                timestamp updated_at
+                }
+
+                APPLICATIONS {
+                int id PK
+                int job_opening_id FK
+                int people_id FK
+                string status
+                timestamp created_at
+                timestamp updated_at
+                }
+
+                DEVELOPMENT_PATHS {
+                int id PK
+                int source_role_id FK
+                int target_role_id FK
+                int estimated_duration
+                timestamp created_at
+                timestamp updated_at
+                }
+            </div>
+        </div>
+
+        <!-- Tabla de Roles -->
+        <div class="diagram-section">
+            <h2 class="section-title">👔 Roles Disponibles</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Nivel</th>
+                        <th>Skills Asignadas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Backend Developer</td>
+                        <td>mid</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Frontend Developer</td>
+                        <td>mid</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Senior Full Stack Developer</td>
+                        <td>senior</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>QA Engineer</td>
+                        <td>mid</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Product Manager</td>
+                        <td>senior</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>DevOps Engineer</td>
+                        <td>senior</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Technical Lead</td>
+                        <td>lead</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Business Analyst</td>
+                        <td>mid</td>
+                        <td>6</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Skills por Categoría -->
+        <div class="diagram-section">
+            <h2 class="section-title">🎯 Skills por Categoría</h2>
+            <div class="relationships">
+                <div class="relationship-box">
+                    <h4>💻 Technical (12)</h4>
+                    <p>PHP, Laravel, Vue.js, TypeScript, React, Angular, Node.js, Python, Docker, Kubernetes, Database
+                        Design, REST APIs</p>
+                </div>
+                <div class="relationship-box">
+                    <h4>🤝 Soft Skills (9)</h4>
+                    <p>Communication, Problem Solving, Leadership, Team Work, Critical Thinking, Adaptability, Time
+                        Management, Creativity, Customer Service</p>
+                </div>
+                <div class="relationship-box">
+                    <h4>💼 Business (9)</h4>
+                    <p>Budget Management, Strategic Planning, Project Management, Business Analysis, Market Research,
+                        Financial Acumen, Negotiation, Change Management, Vendor Management</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relaciones FK -->
+        <div class="diagram-section">
+            <h2 class="section-title">🔗 Relaciones y Constraints</h2>
+            <div class="relationships">
+                <div class="relationship-box">
+                    <h4>ROLE_SKILLS</h4>
+                    <p><strong>role_id</strong> → ROLES.id (CASCADE)</p>
+                    <p><strong>skill_id</strong> → SKILLS.id (CASCADE)</p>
+                    <p>Mapeo N:M entre Roles y Skills con atributos: required_level, is_critical</p>
+                </div>
+                <div class="relationship-box">
+                    <h4>PEOPLE_SKILLS</h4>
+                    <p><strong>people_id</strong> → PEOPLE.id (CASCADE)</p>
+                    <p><strong>skill_id</strong> → SKILLS.id (CASCADE)</p>
+                    <p>Evaluación de habilidades por persona (nivel 1-5)</p>
+                </div>
+                <div class="relationship-box">
+                    <h4>JOB_OPENINGS</h4>
+                    <p><strong>role_id</strong> → ROLES.id (CASCADE)</p>
+                    <p>Ofertas de trabajo asociadas a un rol específico</p>
+                </div>
+                <div class="relationship-box">
+                    <h4>APPLICATIONS</h4>
+                    <p><strong>job_opening_id</strong> → JOB_OPENINGS.id (CASCADE)</p>
+                    <p><strong>people_id</strong> → PEOPLE.id (CASCADE)</p>
+                    <p>Postulaciones de personas a ofertas de trabajo</p>
+                </div>
+                <div class="relationship-box">
+                    <h4>DEVELOPMENT_PATHS</h4>
+                    <p><strong>source_role_id</strong> → ROLES.id (CASCADE)</p>
+                    <p><strong>target_role_id</strong> → ROLES.id (CASCADE)</p>
+                    <p>Rutas de desarrollo de carrera entre roles</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Queries Ejemplo -->
+        <div class="diagram-section">
+            <h2 class="section-title">🔍 Consultas Ejemplo</h2>
+
+            <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">Ver todas las skills de un rol:</h3>
+            <div class="code-block">
+                SELECT
+                r.name AS role,
+                s.name AS skill,
+                rs.required_level,
+                rs.is_critical
+                FROM role_skills rs
+                LEFT JOIN roles r ON rs.role_id = r.id
+                LEFT JOIN skills s ON rs.skill_id = s.id
+                WHERE r.name = 'Backend Developer'
+                ORDER BY rs.is_critical DESC, rs.required_level DESC;
+            </div>
+
+            <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">Encontrar skills faltantes de una persona
+                para un rol:</h3>
+            <div class="code-block">
+                SELECT
+                s.name AS skill,
+                rs.required_level AS required,
+                COALESCE(ps.level, 0) AS current_level,
+                (rs.required_level - COALESCE(ps.level, 0)) AS gap
+                FROM role_skills rs
+                LEFT JOIN skills s ON rs.skill_id = s.id
+                LEFT JOIN people_skills ps ON s.id = ps.skill_id AND ps.people_id = 1
+                WHERE rs.role_id = 3
+                AND (COALESCE(ps.level, 0) &lt; rs.required_level OR ps.id IS NULL)
+                ORDER BY gap DESC;
+            </div>
+
+            <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">Habilidades críticas por rol:</h3>
+            <div class="code-block">
+                SELECT
+                r.name AS role,
+                GROUP_CONCAT(s.name, ', ') AS critical_skills
+                FROM role_skills rs
+                LEFT JOIN roles r ON rs.role_id = r.id
+                LEFT JOIN skills s ON rs.skill_id = s.id
+                WHERE rs.is_critical = 1
+                GROUP BY r.id
+                ORDER BY r.name;
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="diagram-section">
+            <div class="info-box">
+                <strong>💡 Nota técnica:</strong> La tabla ROLE_SKILLS es una tabla pivot que implementa una relación
+                N:M entre ROLES y SKILLS. Cada rol tiene exactamente 6 skills asignadas con niveles de requerimiento
+                específicos y un indicador de criticidad para determinar cuáles son habilidades esenciales vs deseables.
+            </div>
+        </div>
+
+        <!-- Ubicación BD -->
+        <div class="diagram-section">
+            <h2 class="section-title">📁 Ubicación y Acceso</h2>
+            <p style="margin-bottom: 10px;"><strong>Archivo:</strong></p>
+            <div class="code-block">
+                /home/omar/TalentIA/src/database/database.sqlite
+            </div>
+
+            <p style="margin-top: 20px; margin-bottom: 10px;"><strong>Acceso via CLI:</strong></p>
+            <div class="code-block">
+                sqlite3 /home/omar/TalentIA/src/database/database.sqlite
+            </div>
+
+            <p style="margin-top: 20px; margin-bottom: 10px;"><strong>Ver tablas:</strong></p>
+            <div class="code-block">
+                sqlite3 /home/omar/TalentIA/src/database/database.sqlite ".tables"
+            </div>
+        </div>
+
+        <footer>
+            <p>TalentIA Database Schema - Documentación Automática</p>
+            <p>Generado: 1 Enero 2026 | Backend: Laravel 12 | Frontend: Vue 3 | DB: SQLite 3</p>
+        </footer>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+        mermaid.contentLoaded();
+    </script>
+</body>
+
+</html>
