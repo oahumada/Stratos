@@ -36,6 +36,7 @@ interface FilterConfig {
     label: string;
     items?: any[];
     placeholder?: string;
+    catalogKey?: string;
 }
 
 interface Config {
@@ -50,6 +51,7 @@ interface Config {
         editar: boolean;
         eliminar: boolean;
     };
+    detail?: boolean;
 }
 
 interface TableConfig {
@@ -105,6 +107,8 @@ const dialogWarningGradient = computed(() => {
     return `linear-gradient(135deg, ${theme.colors.accent} 0%, ${theme.colors.error} 100%)`;
 });
 
+const emit = defineEmits(['sync-role']);
+
 const props = withDefaults(
     defineProps<{
         peopleId?: number;
@@ -112,6 +116,7 @@ const props = withDefaults(
         tableConfig?: TableConfig;
         itemForm?: ItemForm;
         filters?: FilterConfig[];
+        enableRowDetail?: boolean;
     }>(),
     {
         config: () => ({
@@ -130,6 +135,7 @@ const props = withDefaults(
             layout: "single-column",
         }),
         filters: () => [],
+        enableRowDetail: false,
     }
 );
 
@@ -140,6 +146,7 @@ const mergedConfig = computed<Config>(() => {
         titulo: "Registros",
         descripcion: "Manage your records",
         permisos: { crear: true, editar: true, eliminar: true },
+        detail: false,
     };
     return { ...baseConfig, ...(props.config || {}) };
 });
@@ -174,6 +181,13 @@ const itemToDelete = ref<TableItem | null>(null);
 const catalogs = ref<Record<string, CatalogItem[]>>({});
 const searchQuery = ref("");
 const filterValues = reactive<Record<string, any>>({});
+const detailOpen = ref(false);
+const detailItem = ref<TableItem | null>(null);
+const detailTab = ref<'active' | 'history'>("active");
+const detailEnabled = computed(() => props.enableRowDetail || mergedConfig.value.detail === true);
+const setDetailTab = (value: 'active' | 'history') => {
+    detailTab.value = value;
+};
 
 // Initialize filter values
 const initializeFilters = () => {
@@ -245,22 +259,12 @@ const loadCatalogs = async () => {
 
 // Map filters with their catalog data
 const enrichedFilters = computed(() => {
-    const pluralMap: Record<string, string> = {
-        'department_id': 'departments',
-        'role_id': 'roles',
-        'skill_id': 'skills',
-        'department': 'departments',
-        'role': 'roles',
-        'skill': 'skills',
-    };
-
     return props.filters?.map(filter => {
-        const catalogName = pluralMap[filter.field];
-        const items = catalogName ? catalogs.value[catalogName] || [] : [];
-        console.log(`Filter field: ${filter.field}, Catalog: ${catalogName}, Items count: ${items.length}`);
+        const catalogName = filter.catalogKey;
+        const resolvedItems = filter.items ?? (catalogName ? catalogs.value[catalogName] || [] : []);
         return {
             ...filter,
-            items: items
+            items: resolvedItems,
         };
     }) || [];
 });
@@ -328,6 +332,7 @@ const openCreateDialog = () => {
 
 const openEditDialog = (item: TableItem) => {
     editingItem.value = { ...item };
+    detailOpen.value = false;
     dialogOpen.value = true;
 };
 
@@ -374,6 +379,7 @@ const saveItem = async () => {
 };
 
 const openDeleteDialog = (item: TableItem) => {
+    detailOpen.value = false;
     itemToDelete.value = item;
     deleteDialogOpen.value = true;
 };
@@ -404,6 +410,25 @@ const resetFilters = () => {
         filterValues[key] = null;
     });
 };
+
+const onRowClick = (_event: any, row: any) => {
+    if (!detailEnabled.value) return;
+    const raw = row?.item?.raw ?? row?.item ?? row;
+    openDetail(raw as TableItem);
+};
+
+const syncWithRole = () => {
+    if (!detailItem.value) return;
+    emit('sync-role', detailItem.value.id);
+};
+
+const openDetail = (item: TableItem) => {
+    detailItem.value = item;
+    detailTab.value = 'active';
+    detailOpen.value = true;
+};
+
+defineExpose({ openDetail });
 
 const displayHeaders = computed(() => {
     return mergedTableConfig.value.headers.map((header: any) => ({
@@ -579,6 +604,7 @@ onMounted(() => {
                 hover
                 mobile-breakpoint="md"
                 :style="{ '--table-gradient': tableHeaderGradient } as any"
+                @click:row="onRowClick"
             >
                 <!-- Custom rendering for relationship columns -->
                 <template v-for="header in mergedTableConfig.headers.filter(h => h.key && h.key.includes('.'))" :key="header.value" #[`item.${header.value}`]="{ item }">
@@ -600,7 +626,7 @@ onMounted(() => {
                             size="large"
                             color="primary"
                             variant="tonal"
-                            @click="openEditDialog(item)"
+                            @click.stop="openEditDialog(item)"
                             title="Editar"
                         />
                         <v-btn
@@ -610,7 +636,7 @@ onMounted(() => {
                             size="large"
                             color="error"
                             variant="tonal"
-                            @click="openDeleteDialog(item)"
+                            @click.stop="openDeleteDialog(item)"
                             title="Borrar"
                         />
                     </div>
@@ -708,6 +734,49 @@ onMounted(() => {
                     Delete
                 </v-btn>
             </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <!-- Detail Drawer (row click) using dialog to avoid layout injection requirement -->
+    <v-dialog
+        v-if="detailEnabled"
+        v-model="detailOpen"
+        width="480"
+        persistent
+        scrim="transparent"
+        transition="dialog-right-transition"
+    >
+        <v-card class="pa-4" height="100%" style="min-height: 100vh; border-left: 1px solid var(--v-theme-surface-variant);">
+            <div class="d-flex align-center justify-space-between mb-3">
+                <div>
+                    <div class="text-subtitle-1 font-weight-medium">Detalle</div>
+                    <div class="text-body-2 text-secondary">Registro seleccionado</div>
+                </div>
+                <v-btn icon="mdi-close" variant="text" @click="detailOpen = false" />
+            </div>
+
+            <div v-if="detailItem" class="d-flex flex-column gap-4">
+                <slot
+                    name="detail"
+                    :item="detailItem"
+                    :tab="detailTab"
+                    :set-tab="setDetailTab"
+                    :sync="syncWithRole"
+                    :close="() => { detailOpen.value = false; }"
+                >
+                    <v-card flat border class="pa-3">
+                        <div class="text-subtitle-2 mb-2">Detalle del registro</div>
+                        <div class="text-body-2 text-secondary mb-2">Personaliza este contenido usando el slot "detail".</div>
+                        <div class="d-flex flex-column gap-1" style="max-height: 320px; overflow: auto;">
+                            <div v-for="(value, key) in detailItem" :key="key" class="text-body-2">
+                                <strong>{{ key }}:</strong> {{ value }}
+                            </div>
+                        </div>
+                    </v-card>
+                </slot>
+            </div>
+
+            <div v-else class="text-center text-secondary mt-6">Selecciona una fila para ver detalle.</div>
         </v-card>
     </v-dialog>
 </template>

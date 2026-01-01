@@ -2,13 +2,15 @@
   {
     "field": "department_id",
     "type": "select",
-    "label": "Department",
-    "placeholder": "Select department"
+    "label": "Departmento",
+    "placeholder": "Seleccione el departamento",
+    "catalogKey": "departments"
   },
   {
     "field": "role_id",
     "type": "select",
-    "label": "Role",
-    "placeholder": "Select role"
+    "label": "Rol",
+    "placeholder": "Seleccione el rol",
+    "catalogKey": "roles"
   }
 ]

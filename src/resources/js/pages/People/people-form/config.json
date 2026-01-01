@@ -3,6 +3,7 @@
     "index": "/api/people",
     "apiUrl": "/api/people"
   },
+  "detail": true,
   "titulo": "Gestión de Personas",
   "descripcion": "Gestionar personas y sus habilidades",
   "permisos": {
