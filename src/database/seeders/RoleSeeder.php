@@ -2,62 +2,72 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use App\Models\Organizations;
 use App\Models\Roles;
+use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $roles = [
+        $org = Organizations::first();
+
+        $rolesData = [
             [
-                'name' => 'Senior Developer',
-                'description' => 'Lead development team with 5+ years of experience',
-                'organization_id' => 1,
-            ],
-            [
-                'name' => 'Junior Developer',
-                'description' => 'Entry-level developer with mentorship',
-                'organization_id' => 1,
-            ],
-            [
-                'name' => 'Full Stack Developer',
-                'description' => 'Developer proficient in frontend and backend',
-                'organization_id' => 1,
+                'name' => 'Backend Developer',
+                'department' => 'Engineering',
+                'level' => 'mid',
+                'description' => 'Desarrollador de backend con experiencia en Laravel y bases de datos',
             ],
             [
                 'name' => 'Frontend Developer',
-                'description' => 'Specialized in user interface development',
-                'organization_id' => 1,
+                'department' => 'Engineering',
+                'level' => 'mid',
+                'description' => 'Desarrollador frontend con experiencia en Vue.js y TypeScript',
             ],
             [
-                'name' => 'Backend Developer',
-                'description' => 'Specialized in server-side development',
-                'organization_id' => 1,
-            ],
-            [
-                'name' => 'DevOps Engineer',
-                'description' => 'Infrastructure and deployment specialist',
-                'organization_id' => 1,
+                'name' => 'Senior Full Stack Developer',
+                'department' => 'Engineering',
+                'level' => 'senior',
+                'description' => 'Desarrollador full stack senior con experiencia integral',
             ],
             [
                 'name' => 'QA Engineer',
-                'description' => 'Quality assurance and testing specialist',
-                'organization_id' => 1,
+                'department' => 'Quality Assurance',
+                'level' => 'mid',
+                'description' => 'Ingeniero QA enfocado en testing y calidad',
             ],
             [
                 'name' => 'Product Manager',
-                'description' => 'Product strategy and roadmap management',
-                'organization_id' => 1,
+                'department' => 'Product',
+                'level' => 'senior',
+                'description' => 'Gestor de productos encargado de estrategia y roadmap',
+            ],
+            [
+                'name' => 'DevOps Engineer',
+                'department' => 'Infrastructure',
+                'level' => 'senior',
+                'description' => 'Ingeniero DevOps con experiencia en deployment e infraestructura',
+            ],
+            [
+                'name' => 'Technical Lead',
+                'department' => 'Engineering',
+                'level' => 'lead',
+                'description' => 'Líder técnico responsable de arquitectura y equipo',
+            ],
+            [
+                'name' => 'Business Analyst',
+                'department' => 'Business',
+                'level' => 'mid',
+                'description' => 'Analista de negocio enfocado en requerimientos y análisis',
             ],
         ];
 
-        foreach ($roles as $role) {
-            Roles::create($role);
+        foreach ($rolesData as $roleData) {
+            Roles::create([
+                'organization_id' => $org->id,
+                ...$roleData,
+            ]);
         }
     }
 }
