@@ -65,8 +65,18 @@ class People extends Model
 
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skills::class, 'people_skills', 'people_id', 'skill_id')
-            ->withPivot('level', 'last_evaluated_at', 'evaluated_by')
+        return $this->belongsToMany(Skills::class, 'people_role_skills', 'people_id', 'skill_id')
+            ->wherePivot('is_active', true)
+            ->withPivot(
+                'role_id',
+                'current_level',
+                'required_level',
+                'is_active',
+                'evaluated_at',
+                'expires_at',
+                'evaluated_by',
+                'notes'
+            )
             ->withTimestamps();
     }
 
@@ -85,7 +95,7 @@ class People extends Model
      */
     public function roleSkills(): HasMany
     {
-        return $this->hasMany(PeopleRoleSkill::class, 'people_id');
+        return $this->hasMany(PeopleRoleSkills::class, 'people_id');
     }
 
     /**
@@ -93,7 +103,7 @@ class People extends Model
      */
     public function activeSkills(): HasMany
     {
-        return $this->hasMany(PeopleRoleSkill::class, 'people_id')
+        return $this->hasMany(PeopleRoleSkills::class, 'people_id')
             ->where('is_active', true);
     }
 
@@ -102,7 +112,7 @@ class People extends Model
      */
     public function expiredSkills(): HasMany
     {
-        return $this->hasMany(PeopleRoleSkill::class, 'people_id')
+        return $this->hasMany(PeopleRoleSkills::class, 'people_id')
             ->where('is_active', true)
             ->where('expires_at', '<', now());
     }

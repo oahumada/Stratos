@@ -42,6 +42,12 @@ Sistema que vincula las **skills de una persona con su rol**, manteniendo **hist
 - ⚠️ 74 skills expiradas (requieren reevaluación)
 - ⚠️ 75 skills por debajo del nivel requerido (gaps)
 
+### Cambios recientes (enero 2026)
+
+- Relaciones de modelos `People::skills` y `Skills::People` ahora usan el pivote `people_role_skills` (con filtro `is_active=true`).
+- Seeder `PeopleRoleSkillsSeeder` ignora la tabla legacy `people_skills` si no existe.
+- Frontend `FormSchema` consume `/api/people` ya en contexto `people_role_skills` (pivote legacy deprecado).
+
 ## Comandos
 
 ```bash
@@ -50,12 +56,12 @@ Sistema que vincula las **skills de una persona con su rol**, manteniendo **hist
 
 # Ver stats de una persona
 php artisan tinker
->>> $repo = app(\App\Repository\PeopleRoleSkillRepository::class);
+>>> $repo = app(\App\Repository\PeopleRoleSkillsRepository::class);
 >>> $stats = $repo->getStatsForPerson(1);
 >>> print_r($stats);
 
 # Ver gaps
->>> $gaps = \App\Models\PeopleRoleSkill::whereColumn('current_level', '<', 'required_level')->get();
+>>> $gaps = \App\Models\PeopleRoleSkills::whereColumn('current_level', '<', 'required_level')->get();
 ```
 
 ## Próximos Pasos
@@ -68,9 +74,9 @@ php artisan tinker
 ## Archivos Clave
 
 - **Migración:** `2026_01_01_171617_create_people_role_skills_table.php`
-- **Modelo:** `app/Models/PeopleRoleSkill.php`
-- **Repository:** `app/Repository/PeopleRoleSkillRepository.php`
-- **Seeder:** `database/seeders/PeopleRoleSkillSeeder.php`
+- **Modelo:** `app/Models/PeopleRoleSkills.php`
+- **Repository:** `app/Repository/PeopleRoleSkillsRepository.php`
+- **Seeder:** `database/seeders/PeopleRoleSkillsSeeder.php`
 
 ## Documentación Completa
 

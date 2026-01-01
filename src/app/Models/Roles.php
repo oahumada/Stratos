@@ -61,6 +61,6 @@ class Roles extends Model
 
     public function peopleRoleSkills(): HasMany
     {
-        return $this->hasMany(PeopleRoleSkill::class, 'role_id');
+        return $this->hasMany(PeopleRoleSkills::class, 'role_id');
     }
 }

@@ -31,7 +31,7 @@ Se implementó el sistema **People Role Skills** que soluciona la inconsistencia
 - ✅ 3 índices optimizados
 - ✅ 4 foreign keys con cascade
 
-#### B. Modelo: `PeopleRoleSkill.php`
+#### B. Modelo: `PeopleRoleSkills.php`
 
 **Relaciones:**
 - `person()` → BelongsTo People
@@ -52,7 +52,7 @@ Se implementó el sistema **People Role Skills** que soluciona la inconsistencia
 - `meetsRequirement()` - current ≥ required
 - `getLevelGap()` - Gap entre niveles
 
-#### C. Repository: `PeopleRoleSkillRepository.php`
+#### C. Repository: `PeopleRoleSkillsRepository.php`
 
 **10+ métodos:**
 - `getActiveSkillsForPerson($personId)` - Skills del rol actual
@@ -64,7 +64,7 @@ Se implementó el sistema **People Role Skills** que soluciona la inconsistencia
 - `syncSkillsFromRole($personId, $roleId, $evaluatedBy)` - **Método clave**
 - `deactivateSkillsForPerson($personId, $exceptRoleId)` - Marcar inactivas
 
-#### D. Seeder: `PeopleRoleSkillSeeder.php`
+#### D. Seeder: `PeopleRoleSkillsSeeder.php`
 
 **Migración de datos:**
 - ✅ 129 skills migradas desde `people_skills`
@@ -284,7 +284,7 @@ peopleRoleSkills() → HasMany
 3. **FormSchema** - CRUD genérico
    ```json
    {
-     "model": "PeopleRoleSkill",
+     "model": "PeopleRoleSkills",
      "actions": ["reevaluate", "deactivate"]
    }
    ```

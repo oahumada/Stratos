@@ -5,11 +5,12 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Models\People;
-use App\Models\PeopleRoleSkill;
+use App\Models\PeopleRoleSkills;
 use Carbon\Carbon;
 
-class PeopleRoleSkillSeeder extends Seeder
+class PeopleRoleSkillssSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -20,6 +21,11 @@ class PeopleRoleSkillSeeder extends Seeder
      */
     public function run(): void
     {
+        if (!Schema::hasTable('people_skills')) {
+            $this->command->warn('Tabla people_skills no existe, se omite migración a people_role_skills.');
+            return;
+        }
+
         $this->command->info('Migrando datos de people_skills a people_role_skills...');
         
         // Obtener todas las personas con sus skills actuales
@@ -62,7 +68,7 @@ class PeopleRoleSkillSeeder extends Seeder
             $expiresAt = (clone $evaluatedAt)->addMonths(6);
             
             // Crear registro en people_role_skills
-            PeopleRoleSkill::create([
+            PeopleRoleSkills::create([
                 'people_id' => $peopleSkill->people_id,
                 'role_id' => $peopleSkill->role_id,
                 'skill_id' => $peopleSkill->skill_id,

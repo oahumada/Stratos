@@ -86,6 +86,7 @@
 - **[DATABASE_ER_DIAGRAM.md](DATABASE_ER_DIAGRAM.md)** - Diagrama ER (Markdown + ASCII)
 - **[DATABASE_VISUALIZATION_GUIDE.md](DATABASE_VISUALIZATION_GUIDE.md)** - Guía de visualización (8 métodos)
 - **[DATABASE_DIAGRAM_README.md](DATABASE_DIAGRAM_README.md)** - Cómo acceder a diagramas
+- Nota: `people_skills` quedó como tabla legacy; usar `people_role_skills` para cualquier relación People–Skills.
 
 ### People Role Skills (Sistema de Skills con Historial) 🆕
 

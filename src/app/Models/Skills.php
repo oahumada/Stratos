@@ -40,8 +40,18 @@ class Skills extends Model
 
     public function People(): BelongsToMany
     {
-        return $this->belongsToMany(People::class, 'people_skills')
-            ->withPivot('level', 'last_evaluated_at', 'evaluated_by')
+        return $this->belongsToMany(People::class, 'people_role_skills', 'skill_id', 'people_id')
+            ->wherePivot('is_active', true)
+            ->withPivot(
+                'role_id',
+                'current_level',
+                'required_level',
+                'is_active',
+                'evaluated_at',
+                'expires_at',
+                'evaluated_by',
+                'notes'
+            )
             ->withTimestamps();
     }
 
@@ -52,6 +62,6 @@ class Skills extends Model
 
     public function peopleRoleSkills(): HasMany
     {
-        return $this->hasMany(PeopleRoleSkill::class, 'skill_id');
+        return $this->hasMany(PeopleRoleSkills::class, 'skill_id');
     }
 }

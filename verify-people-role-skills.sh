@@ -39,11 +39,11 @@ echo "📈 2. Estadísticas de datos..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 php artisan tinker --execute="
-    \$total = \App\Models\PeopleRoleSkill::count();
-    \$active = \App\Models\PeopleRoleSkill::where('is_active', true)->count();
-    \$inactive = \App\Models\PeopleRoleSkill::where('is_active', false)->count();
-    \$expired = \App\Models\PeopleRoleSkill::where('expires_at', '<', now())->where('is_active', true)->count();
-    \$expiringSoon = \App\Models\PeopleRoleSkill::whereBetween('expires_at', [now(), now()->addDays(30)])->where('is_active', true)->count();
+    \$total = \App\Models\PeopleRoleSkills::count();
+    \$active = \App\Models\PeopleRoleSkills::where('is_active', true)->count();
+    \$inactive = \App\Models\PeopleRoleSkills::where('is_active', false)->count();
+    \$expired = \App\Models\PeopleRoleSkills::where('expires_at', '<', now())->where('is_active', true)->count();
+    \$expiringSoon = \App\Models\PeopleRoleSkills::whereBetween('expires_at', [now(), now()->addDays(30)])->where('is_active', true)->count();
     
     echo '  Total registros:              ' . str_pad(\$total, 5, ' ', STR_PAD_LEFT) . '\n';
     echo '  Skills activas (is_active=1): ' . str_pad(\$active, 5, ' ', STR_PAD_LEFT) . '\n';
@@ -61,11 +61,11 @@ echo "🔗 3. Verificando modelo y relaciones..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 php artisan tinker --execute="
-    \$model = new \App\Models\PeopleRoleSkill();
-    echo '✓ Modelo PeopleRoleSkill cargado\n';
+    \$model = new \App\Models\PeopleRoleSkills();
+    echo '✓ Modelo PeopleRoleSkills cargado\n';
     
     // Verificar relaciones
-    \$sample = \App\Models\PeopleRoleSkill::with(['person', 'role', 'skill', 'evaluator'])->first();
+    \$sample = \App\Models\PeopleRoleSkills::with(['person', 'role', 'skill', 'evaluator'])->first();
     if (\$sample) {
         echo '✓ Relación person(): ' . (isset(\$sample->person) ? 'OK' : 'FALTA') . '\n';
         echo '✓ Relación role(): ' . (isset(\$sample->role) ? 'OK' : 'FALTA') . '\n';
@@ -86,21 +86,21 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 php artisan tinker --execute="
     try {
-        \$active = \App\Models\PeopleRoleSkill::active()->count();
+        \$active = \App\Models\PeopleRoleSkills::active()->count();
         echo '✓ Scope active(): ' . \$active . ' registros\n';
     } catch (\Exception \$e) {
         echo '✗ Scope active() ERROR: ' . \$e->getMessage() . '\n';
     }
     
     try {
-        \$expired = \App\Models\PeopleRoleSkill::expired()->count();
+        \$expired = \App\Models\PeopleRoleSkills::expired()->count();
         echo '✓ Scope expired(): ' . \$expired . ' registros\n';
     } catch (\Exception \$e) {
         echo '✗ Scope expired() ERROR: ' . \$e->getMessage() . '\n';
     }
     
     try {
-        \$needsReevaluation = \App\Models\PeopleRoleSkill::needsReevaluation()->count();
+        \$needsReevaluation = \App\Models\PeopleRoleSkills::needsReevaluation()->count();
         echo '✓ Scope needsReevaluation(): ' . \$needsReevaluation . ' registros\n';
     } catch (\Exception \$e) {
         echo '✗ Scope needsReevaluation() ERROR: ' . \$e->getMessage() . '\n';
@@ -116,8 +116,8 @@ echo "📦 5. Verificando repository..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 php artisan tinker --execute="
-    \$repo = app(\App\Repository\PeopleRoleSkillRepository::class);
-    echo '✓ PeopleRoleSkillRepository instanciado\n';
+    \$repo = app(\App\Repository\PeopleRoleSkillsRepository::class);
+    echo '✓ PeopleRoleSkillsRepository instanciado\n';
     
     // Verificar método getActiveSkillsForPerson
     \$firstPerson = \App\Models\People::first();
@@ -141,7 +141,7 @@ echo "⚠️  6. Gaps de Skills (current_level < required_level)..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 php artisan tinker --execute="
-    \$gaps = \App\Models\PeopleRoleSkill::whereColumn('current_level', '<', 'required_level')
+    \$gaps = \App\Models\PeopleRoleSkills::whereColumn('current_level', '<', 'required_level')
         ->where('is_active', true)
         ->with(['person', 'skill'])
         ->get();
@@ -168,9 +168,9 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 FILES=(
     "database/migrations/2026_01_01_171617_create_people_role_skills_table.php"
-    "app/Models/PeopleRoleSkill.php"
-    "app/Repository/PeopleRoleSkillRepository.php"
-    "database/seeders/PeopleRoleSkillSeeder.php"
+    "app/Models/PeopleRoleSkills.php"
+    "app/Repository/PeopleRoleSkillsRepository.php"
+    "database/seeders/PeopleRoleSkillsSeeder.php"
 )
 
 for file in "${FILES[@]}"; do
@@ -214,9 +214,9 @@ echo "  RESUMEN"
 echo "═══════════════════════════════════════════════════════════════════════════"
 
 php artisan tinker --execute="
-    \$total = \App\Models\PeopleRoleSkill::count();
-    \$expired = \App\Models\PeopleRoleSkill::where('expires_at', '<', now())->where('is_active', true)->count();
-    \$gaps = \App\Models\PeopleRoleSkill::whereColumn('current_level', '<', 'required_level')->where('is_active', true)->count();
+    \$total = \App\Models\PeopleRoleSkills::count();
+    \$expired = \App\Models\PeopleRoleSkills::where('expires_at', '<', now())->where('is_active', true)->count();
+    \$gaps = \App\Models\PeopleRoleSkills::whereColumn('current_level', '<', 'required_level')->where('is_active', true)->count();
     
     echo '\n✓ Sistema people_role_skills operativo\n';
     echo '✓ ' . \$total . ' skills registradas (activas + históricas)\n';

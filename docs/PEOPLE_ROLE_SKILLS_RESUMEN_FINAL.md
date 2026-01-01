@@ -65,7 +65,7 @@ INDEX (expires_at)            -- Detección de expiraciones
 | **Skills expiradas** | 74 ⚠️ |
 | **Skills por debajo del nivel requerido** | 75 ⚠️ |
 
-**Origen:** Datos migrados desde `people_skills` via seeder `PeopleRoleSkillSeeder`
+**Origen:** Datos migrados desde `people_skills` via seeder `PeopleRoleSkillsSeeder`
 
 ---
 
@@ -78,7 +78,7 @@ INDEX (expires_at)            -- Detección de expiraciones
 - ✅ 3 índices optimizados
 - ✅ Cascade delete en people/roles/skills
 
-### 2. Modelo (`PeopleRoleSkill.php`)
+### 2. Modelo (`PeopleRoleSkills.php`)
 
 **Relaciones:**
 - `person()` → BelongsTo People
@@ -99,7 +99,7 @@ INDEX (expires_at)            -- Detección de expiraciones
 - `meetsRequirement(): bool` - `current_level >= required_level`
 - `getLevelGap(): int` - Gap (diferencia) entre requerido y actual
 
-### 3. Repository (`PeopleRoleSkillRepository.php`)
+### 3. Repository (`PeopleRoleSkillsRepository.php`)
 
 **Consultas:**
 - `getActiveSkillsForPerson($personId)` - Skills del rol actual
@@ -113,7 +113,7 @@ INDEX (expires_at)            -- Detección de expiraciones
 - `syncSkillsFromRole($personId, $roleId, $evaluatedBy)` - **Método clave:** sincroniza skills al cambiar rol
 - `deactivateSkillsForPerson($personId, $exceptRoleId)` - Marca skills antiguas como inactivas
 
-### 4. Seeder (`PeopleRoleSkillSeeder.php`)
+### 4. Seeder (`PeopleRoleSkillsSeeder.php`)
 
 - ✅ Migra datos desde `people_skills`
 - ✅ Asigna `role_id` desde `people.role_id`
@@ -226,7 +226,7 @@ syncSkillsFromRole($personId, $newRoleId, $evaluatorId);
 3. **FormSchema** - CRUD genérico de `people_role_skills`
    ```json
    {
-     "model": "PeopleRoleSkill",
+     "model": "PeopleRoleSkills",
      "fields": [...],
      "relationships": [...],
      "actions": ["reevaluate", "deactivate"]
@@ -277,16 +277,16 @@ syncSkillsFromRole($personId, $newRoleId, $evaluatorId);
 php artisan migrate
 
 # Seeder (migrar datos)
-php artisan db:seed --class=PeopleRoleSkillSeeder
+php artisan db:seed --class=PeopleRoleSkillsSeeder
 
 # Verificar implementación
 ./verify-people-role-skills.sh
 
 # Acceder a Tinker (debugging)
 php artisan tinker
->>> $stats = app(\App\Repository\PeopleRoleSkillRepository::class)->getStatsForPerson(1);
->>> $gaps = \App\Models\PeopleRoleSkill::whereColumn('current_level', '<', 'required_level')->count();
->>> $expired = \App\Models\PeopleRoleSkill::expired()->count();
+>>> $stats = app(\App\Repository\PeopleRoleSkillsRepository::class)->getStatsForPerson(1);
+>>> $gaps = \App\Models\PeopleRoleSkills::whereColumn('current_level', '<', 'required_level')->count();
+>>> $expired = \App\Models\PeopleRoleSkills::expired()->count();
 ```
 
 ---

@@ -129,7 +129,7 @@ $expiredSkills = $repository->getExpiredSkills($orgId);
 
 ## 🔧 API - Métodos del Repository
 
-### PeopleRoleSkillRepository
+### PeopleRoleSkillsRepository
 
 #### Consultas
 
@@ -166,29 +166,29 @@ getExpiredSkills(int $orgId = null): Collection
 
 ## 🎯 Scopes del Modelo
 
-### PeopleRoleSkill
+### PeopleRoleSkills
 
 ```php
 // Skills activas (rol actual)
-PeopleRoleSkill::active()->get();
+PeopleRoleSkills::active()->get();
 
 // Skills expiradas
-PeopleRoleSkill::expired()->get();
+PeopleRoleSkills::expired()->get();
 
 // Skills que necesitan reevaluación (30 días)
-PeopleRoleSkill::needsReevaluation()->get();
+PeopleRoleSkills::needsReevaluation()->get();
 
 // Filtrar por persona
-PeopleRoleSkill::forPerson($personId)->get();
+PeopleRoleSkills::forPerson($personId)->get();
 
 // Filtrar por rol
-PeopleRoleSkill::forRole($roleId)->get();
+PeopleRoleSkills::forRole($roleId)->get();
 ```
 
 ### Helpers del Modelo
 
 ```php
-$skill = PeopleRoleSkill::find(1);
+$skill = PeopleRoleSkills::find(1);
 
 $skill->isExpired();              // bool
 $skill->needsReevaluation();      // bool (30 días antes)
@@ -233,7 +233,7 @@ $skill->peopleRoleSkills;
 
 ### Estrategia Ejecutada
 
-El seeder `PeopleRoleSkillSeeder` migró 129 skills desde `people_skills`:
+El seeder `PeopleRoleSkillsSeeder` migró 129 skills desde `people_skills`:
 
 1. **Fuente:** Tabla `people_skills` (skills actuales)
 2. **Destino:** Tabla `people_role_skills`
@@ -252,7 +252,7 @@ El seeder `PeopleRoleSkillSeeder` migró 129 skills desde `people_skills`:
 ### Comando de Migración
 
 ```bash
-php artisan db:seed --class=PeopleRoleSkillSeeder
+php artisan db:seed --class=PeopleRoleSkillsSeeder
 ```
 
 ---
@@ -276,7 +276,7 @@ public function updating(People $person)
 {
     // Si cambió role_id, auto-sincronizar skills
     if ($person->isDirty('role_id')) {
-        $repository = app(PeopleRoleSkillRepository::class);
+        $repository = app(PeopleRoleSkillsRepository::class);
         $repository->deactivateSkillsForPerson($person->id, $person->role_id);
         $repository->syncSkillsFromRole($person->id, $person->role_id);
     }
@@ -314,7 +314,7 @@ php artisan skills:notify-reevaluation
 
 ### Prioridad Baja
 
-- [ ] Tests unitarios (PeopleRoleSkillRepository)
+- [ ] Tests unitarios (PeopleRoleSkillsRepository)
 - [ ] Tests de integración (sync en cambio de rol)
 - [ ] Documentación OpenAPI/Swagger
 - [ ] Migración completa (eliminar `people_skills` cuando esté todo probado)

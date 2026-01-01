@@ -190,12 +190,27 @@ const loadItems = async () => {
     error.value = null;
 
     try {
-        const response = await fetch(mergedConfig.value.endpoints.index);
-        const data = await response.json();
-        items.value = data.data || data;
+        const response = await fetch(mergedConfig.value.endpoints.index, {
+            headers: { Accept: "application/json" },
+        });
+
+        const raw = await response.text();
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${raw.slice(0, 200)}`);
+        }
+
+        let parsed: any;
+        try {
+            parsed = raw ? JSON.parse(raw) : null;
+        } catch (parseErr) {
+            throw new Error(`Respuesta no JSON (status ${response.status}): ${raw.slice(0, 200)}`);
+        }
+
+        items.value = parsed?.data || parsed || [];
     } catch (err: any) {
         error.value = err.message || "Failed to load records";
-        console.error(err);
+        console.error("loadItems error", err);
     } finally {
         loading.value = false;
     }
@@ -265,11 +280,39 @@ const filteredItems = computed(() => {
     }
 
     // Apply custom filters
+    const normalize = (value: any) => {
+        if (value === null || value === undefined) return null;
+        // Force numbers to numbers and everything else to string for consistent comparison
+        const num = Number(value);
+        if (!Number.isNaN(num) && String(value).trim() !== '') {
+            return num;
+        }
+        return String(value);
+    };
+
+    const resolveItemValue = (item: any, field: string) => {
+        // Direct field on item
+        if (Object.prototype.hasOwnProperty.call(item, field)) {
+            return item[field];
+        }
+        // Fallback: if field ends with _id, try related object .id (e.g., role_id -> item.role.id)
+        if (field.endsWith('_id')) {
+            const relation = field.replace(/_id$/, '');
+            const related = (item as any)?.[relation];
+            if (related && Object.prototype.hasOwnProperty.call(related, 'id')) {
+                return related.id;
+            }
+        }
+        return undefined;
+    };
+
     props.filters?.forEach(filter => {
-        if (filterValues[filter.field] !== null && filterValues[filter.field] !== undefined) {
+        const selected = filterValues[filter.field];
+        if (selected !== null && selected !== undefined && selected !== '') {
+            const normalizedSelected = normalize(selected);
             result = result.filter(item => {
-                const itemValue = item[filter.field];
-                return itemValue === filterValues[filter.field];
+                const itemValue = normalize(resolveItemValue(item, filter.field));
+                return itemValue === normalizedSelected;
             });
         }
     });
@@ -305,12 +348,17 @@ const saveItem = async () => {
 
     try {
         const payload = { ...formDataRef.value.formData };
+        if (editingItem.value?.id) {
+            payload.id = editingItem.value.id;
+        }
+
+        const body = { data: payload };
 
         if (editingItem.value && editingItem.value.id) {
-            await put(`${mergedConfig.value.endpoints.apiUrl}/${editingItem.value.id}`, payload);
+            await put(`${mergedConfig.value.endpoints.apiUrl}/${editingItem.value.id}`, body);
             notify({ type: "success", text: "Record updated successfully" });
         } else {
-            await post(mergedConfig.value.endpoints.apiUrl, payload);
+            await post(mergedConfig.value.endpoints.apiUrl, body);
             notify({ type: "success", text: "Record created successfully" });
         }
 

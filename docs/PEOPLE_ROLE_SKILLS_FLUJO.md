@@ -90,12 +90,12 @@ flowchart TB
     end
     
     subgraph Repository ["Repository Layer"]
-        REPO["PeopleRoleSkillRepository:<br/>• syncSkillsFromRole()<br/>• deactivateSkillsForPerson()<br/>• getActiveSkillsForPerson()<br/>• getSkillGapsForPerson()<br/>• getStatsForPerson()"]
+        REPO["PeopleRoleSkillsRepository:<br/>• syncSkillsFromRole()<br/>• deactivateSkillsForPerson()<br/>• getActiveSkillsForPerson()<br/>• getSkillGapsForPerson()<br/>• getStatsForPerson()"]
     end
     
     subgraph Model ["Model Layer"]
         MDL_PEOPLE["People Model"]
-        MDL_ROLE_SKILL["PeopleRoleSkill Model:<br/>• Scopes (active, expired)<br/>• Helpers (isExpired, meetsRequirement)<br/>• Relations"]
+        MDL_ROLE_SKILL["PeopleRoleSkills Model:<br/>• Scopes (active, expired)<br/>• Helpers (isExpired, meetsRequirement)<br/>• Relations"]
         MDL_ROLE["Roles Model"]
         MDL_SKILL["Skills Model"]
     end

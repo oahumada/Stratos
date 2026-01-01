@@ -2,12 +2,12 @@
 
 namespace App\Repository;
 
-use App\Models\PeopleRoleSkill;
+use App\Models\PeopleRoleSkills;
 use Illuminate\Database\Eloquent\Builder;
 
-class PeopleRoleSkillRepository extends Repository
+class PeopleRoleSkillssRepository extends Repository
 {
-    public function __construct(PeopleRoleSkill $model)
+    public function __construct(PeopleRoleSkills $model)
     {
         $this->model = $model;
     }

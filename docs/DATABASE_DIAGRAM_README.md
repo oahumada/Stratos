@@ -85,7 +85,7 @@ ROLES ........................... 8 registros
 SKILLS ......................... 30 registros
 ROLE_SKILLS (Nueva) ............ 48 registros
 PEOPLE ......................... 20 registros
-PEOPLE_SKILLS ................. 129 registros
+PEOPLE_SKILLS ................. 129 registros (legacy, sustituida por `people_role_skills`)
 ```
 
 ### Distribución
