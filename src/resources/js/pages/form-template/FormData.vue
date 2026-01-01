@@ -55,6 +55,59 @@ watch(
     { deep: true }
 );
 
+// Convert string rules to validation functions
+const parseRules = (rules?: Array<string | ((v: any) => boolean | string)>): Array<(v: any) => boolean | string> => {
+    if (!rules) return [];
+    
+    return rules.map(rule => {
+        // Si ya es una función, devolver tal cual
+        if (typeof rule === 'function') {
+            return rule;
+        }
+        
+        // Si es un string, convertir a función
+        if (typeof rule === 'string') {
+            const [ruleType, ...params] = rule.split(':');
+            
+            switch (ruleType.toLowerCase()) {
+                case 'required':
+                    return (v: any) => {
+                        const value = String(v || '').trim();
+                        return value !== '' || 'This field is required';
+                    };
+                
+                case 'email':
+                    return (v: any) => {
+                        if (!v) return true; // Skip if empty (let 'required' handle it)
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        return emailRegex.test(v) || 'Please enter a valid email';
+                    };
+                
+                case 'min':
+                    const minLength = parseInt(params[0]) || 0;
+                    return (v: any) => {
+                        if (!v) return true; // Skip if empty
+                        const length = String(v).length;
+                        return length >= minLength || `Minimum ${minLength} characters required`;
+                    };
+                
+                case 'max':
+                    const maxLength = parseInt(params[0]) || 0;
+                    return (v: any) => {
+                        if (!v) return true; // Skip if empty
+                        const length = String(v).length;
+                        return length <= maxLength || `Maximum ${maxLength} characters allowed`;
+                    };
+                
+                default:
+                    return () => true;
+            }
+        }
+        
+        return () => true;
+    });
+};
+
 // Methods
 const validate = (): boolean => {
     return form.value?.validate() ?? false;
@@ -76,7 +129,6 @@ const getSelectItems = (fieldKey: string): any[] => {
     const pluralMap: Record<string, string> = {
         'department': 'departments',
         'role': 'roles',
-        'role': 'roles',
         'skill': 'skills',
     };
     
@@ -96,6 +148,14 @@ const getSelectItems = (fieldKey: string): any[] => {
     return items;
 };
 
+// Computed property that enriches fields with parsed rules
+const enrichedFields = computed(() => {
+    return props.fields.map(field => ({
+        ...field,
+        rules: parseRules(field.rules as Array<string | ((v: any) => boolean | string)>)
+    }));
+});
+
 // Expose methods to parent component
 defineExpose({
     validate,
@@ -103,9 +163,6 @@ defineExpose({
     formData,
 });
 
-console.log('FormData component loaded with fields:', props.fields);
-console.log('FormData received catalogs:', props.catalogs);
-console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
 </script>
 
 <template>
@@ -114,11 +171,11 @@ console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
             
             <v-row dense>
                 <v-col
-                    v-for="field in fields"
+                    v-for="field in enrichedFields"
                     :key="field.key"
                     cols="12"
-                    :sm="fields.length === 1 ? 12 : 6"
-                    :md="fields.length === 1 ? 12 : fields.length === 2 ? 6 : 4"
+                    :sm="enrichedFields.length === 1 ? 12 : 6"
+                    :md="enrichedFields.length === 1 ? 12 : enrichedFields.length === 2 ? 6 : 4"
                 >
                     <!-- Text Input -->
                     <v-text-field
@@ -130,6 +187,7 @@ console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
                         :required="field.required"
                         variant="outlined"
                         density="compact"
+                        validate-on="blur"
                     />
 
                     <!-- Email Input -->
@@ -143,6 +201,7 @@ console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
                         :required="field.required"
                         variant="outlined"
                         density="compact"
+                        validate-on="blur"
                     />
 
                     <!-- Password Input -->
@@ -155,6 +214,7 @@ console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
                         :required="field.required"
                         variant="outlined"
                         density="compact"
+                        validate-on="blur"
                     />
 
                     <!-- Number Input -->
@@ -167,6 +227,7 @@ console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
                         :required="field.required"
                         variant="outlined"
                         density="compact"
+                        validate-on="blur"
                     />
 
                     <!-- Textarea -->
@@ -180,6 +241,7 @@ console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
                         variant="outlined"
                         density="compact"
                         rows="3"
+                        validate-on="blur"
                     />
 
                     <!-- Select -->
@@ -196,6 +258,7 @@ console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
                         variant="outlined"
                         density="compact"
                         clearable
+                        validate-on="blur"
                     />
 
                     <!-- Date Picker -->
@@ -208,6 +271,7 @@ console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
                         :required="field.required"
                         variant="outlined"
                         density="compact"
+                        validate-on="blur"
                     />
 
                     <!-- Time Picker -->
@@ -220,6 +284,7 @@ console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
                         :required="field.required"
                         variant="outlined"
                         density="compact"
+                        validate-on="blur"
                     />
 
                     <!-- Checkbox -->

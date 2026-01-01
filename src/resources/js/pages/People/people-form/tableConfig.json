@@ -34,7 +34,7 @@
     },
     {
       "text": "Hired",
-      "value": "hired_at",
+      "value": "hire_date",
       "type": "date",
       "sortable": true
     },

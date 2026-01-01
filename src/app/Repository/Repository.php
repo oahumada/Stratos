@@ -23,11 +23,17 @@ abstract class Repository implements RepositoryInterface
     public function store(Request $request)
     {
         $query = $request->get('data');
-        Log::info($query);
+        Log::info('Store data:', $query);
         try {
             $query = array_map(function ($value) {
                 return is_array($value) ? implode(',', $value) : $value;
             }, $query);
+
+            // Asignar organization_id automáticamente si el usuario está autenticado
+            if (auth()->check() && !isset($query['organization_id'])) {
+                $query['organization_id'] = auth()->user()->organization_id;
+                Log::info('Added organization_id:', ['organization_id' => $query['organization_id']]);
+            }
 
             $request = $this->model->create($query);
             return response()->json([

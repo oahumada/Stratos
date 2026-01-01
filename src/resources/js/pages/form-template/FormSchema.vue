@@ -172,7 +172,7 @@ const loadCatalogs = async () => {
         return;
     }
     console.log('Loading catalogs:', mergedItemForm.value.catalogs);
-    var data_form = mergedItemForm.value.catalogs || [];
+    const data_form: string[] = mergedItemForm.value.catalogs || [];
 
     try {
         const response = await fetchCatalogs(data_form);
@@ -199,7 +199,6 @@ const enrichedFilters = computed(() => {
         'department_id': 'departments',
         'role_id': 'roles',
         'skill_id': 'skills',
-        'role_id': 'roles',
         'department': 'departments',
         'role': 'roles',
         'skill': 'skills',
@@ -270,7 +269,8 @@ const saveItem = async () => {
     error.value = null;
 
     try {
-        const payload = { ...formDataRef.value.formData };
+        const formDataValue = { ...formDataRef.value.formData };
+        const payload = { data: formDataValue };
 
         if (editingItem.value && editingItem.value.id) {
             await put(`${mergedConfig.value.endpoints.apiUrl}/${editingItem.value.id}`, payload);
@@ -331,9 +331,33 @@ const displayHeaders = computed(() => {
     }));
 });
 
+// Helper function to format dates as dd/mm/yyyy
+const formatDate = (value: any): string => {
+    if (!value) return '';
+    try {
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+    } catch (e) {
+        return value;
+    }
+    return value;
+};
+
 // Helper function to get nested values (e.g., 'department.name')
 const getNestedValue = (obj: any, path: string) => {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+    const value = path.split('.').reduce((current, key) => current?.[key], obj);
+    
+    // Format dates as dd/mm/yyyy if the path contains 'date' or 'fecha'
+    if (value && (path.includes('date') || path.includes('fecha'))) {
+        return formatDate(value);
+    }
+    
+    return value;
 };
 
 // Lifecycle
@@ -471,6 +495,11 @@ onMounted(() => {
                 <!-- Custom rendering for relationship columns -->
                 <template v-for="header in mergedTableConfig.headers.filter(h => h.key && h.key.includes('.'))" :key="header.value" #[`item.${header.value}`]="{ item }">
                     {{ getNestedValue(item, header.key) }}
+                </template>
+
+                <!-- Custom rendering for date columns -->
+                <template v-for="header in mergedTableConfig.headers.filter(h => h.type === 'date' && h.value)" :key="header.value" #[`item.${header.value}`]="{ item }">
+                    {{ formatDate(item[header.value as keyof typeof item]) }}
                 </template>
 
                 <!-- Actions Column -->
