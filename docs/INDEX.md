@@ -82,6 +82,36 @@
 
 - **[dia1_migraciones_modelos_completados.md](dia1_migraciones_modelos_completados.md)** - Migraciones completadas
 - **[dia2_seeders_completados.md](dia2_seeders_completados.md)** - Seeders de datos
+- **[DATABASE_ER_DIAGRAM.html](DATABASE_ER_DIAGRAM.html)** - Diagrama ER interactivo (Mermaid)
+- **[DATABASE_ER_DIAGRAM.md](DATABASE_ER_DIAGRAM.md)** - Diagrama ER (Markdown + ASCII)
+- **[DATABASE_VISUALIZATION_GUIDE.md](DATABASE_VISUALIZATION_GUIDE.md)** - Guía de visualización (8 métodos)
+- **[DATABASE_DIAGRAM_README.md](DATABASE_DIAGRAM_README.md)** - Cómo acceder a diagramas
+
+### People Role Skills (Sistema de Skills con Historial) 🆕
+
+- **[PEOPLE_ROLE_SKILLS_RESUMEN_FINAL.md](PEOPLE_ROLE_SKILLS_RESUMEN_FINAL.md)** - ⭐⭐⭐ LEER PRIMERO - Resumen ejecutivo
+  - Problema identificado: inconsistencia people_skills vs role_skills
+  - Solución: tabla `people_role_skills` con contexto de rol
+  - Estado actual: 129 skills migradas, 74 expiradas, 75 gaps
+  - Próximos pasos: Observer, API, Frontend
+- **[PEOPLE_ROLE_SKILLS_IMPLEMENTACION.md](PEOPLE_ROLE_SKILLS_IMPLEMENTACION.md)** - 📖 Documentación técnica completa
+  - Schema de tabla (13 columnas)
+  - API del Repository (10+ métodos)
+  - Scopes y helpers del modelo
+  - Casos de uso reales
+  - Comandos útiles
+- **[PEOPLE_ROLE_SKILLS_FLUJO.md](PEOPLE_ROLE_SKILLS_FLUJO.md)** - 📊 Diagramas y flujos (Mermaid)
+  - Flujo de asignación de rol
+  - Diagrama de estados (skill lifecycle)
+  - Diagrama de componentes (arquitectura)
+  - Diagrama de secuencia (cambio de rol)
+  - Diagrama ER (relaciones)
+  - Casos de uso con ejemplos SQL
+
+**Script de Verificación:**
+```bash
+./verify-people-role-skills.sh  # Verifica implementación completa
+```
 
 ---
 
