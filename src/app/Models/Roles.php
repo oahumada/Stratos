@@ -34,7 +34,7 @@ class Roles extends Model
 
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skill::class, 'role_skills', 'role_id', 'skill_id')
+        return $this->belongsToMany(Skills::class, 'role_skills', 'role_id', 'skill_id')
             ->withPivot('required_level', 'is_critical')
             ->withTimestamps();
     }
@@ -42,6 +42,11 @@ class Roles extends Model
     public function People(): HasMany
     {
         return $this->hasMany(People::class, 'role_id');
+    }
+
+    public function roleSkills(): HasMany
+    {
+        return $this->hasMany(RoleSkill::class, 'role_id');
     }
 
     public function jobOpenings(): HasMany
@@ -52,5 +57,10 @@ class Roles extends Model
     public function developmentPaths(): HasMany
     {
         return $this->hasMany(DevelopmentPath::class, 'target_role_id');
+    }
+
+    public function peopleRoleSkills(): HasMany
+    {
+        return $this->hasMany(PeopleRoleSkill::class, 'role_id');
     }
 }

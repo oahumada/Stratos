@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Skills extends Model
 {
@@ -42,5 +43,15 @@ class Skills extends Model
         return $this->belongsToMany(People::class, 'people_skills')
             ->withPivot('level', 'last_evaluated_at', 'evaluated_by')
             ->withTimestamps();
+    }
+
+    public function roleSkills(): HasMany
+    {
+        return $this->hasMany(RoleSkill::class, 'skill_id');
+    }
+
+    public function peopleRoleSkills(): HasMany
+    {
+        return $this->hasMany(PeopleRoleSkill::class, 'skill_id');
     }
 }

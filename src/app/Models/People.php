@@ -80,6 +80,33 @@ class People extends Model
         return $this->hasMany(Application::class);
     }
 
+    /**
+     * Relación con skills históricas y activas (nueva tabla people_role_skills)
+     */
+    public function roleSkills(): HasMany
+    {
+        return $this->hasMany(PeopleRoleSkill::class, 'people_id');
+    }
+
+    /**
+     * Solo skills activas del rol actual
+     */
+    public function activeSkills(): HasMany
+    {
+        return $this->hasMany(PeopleRoleSkill::class, 'people_id')
+            ->where('is_active', true);
+    }
+
+    /**
+     * Skills expiradas que requieren reevaluación
+     */
+    public function expiredSkills(): HasMany
+    {
+        return $this->hasMany(PeopleRoleSkill::class, 'people_id')
+            ->where('is_active', true)
+            ->where('expires_at', '<', now());
+    }
+
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";
