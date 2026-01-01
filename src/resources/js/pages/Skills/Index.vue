@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import FormSchema from '../form-template/FormSchema.vue';
-import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
 
 // Import JSON configs
 import configJson from './skills-form/config.json';

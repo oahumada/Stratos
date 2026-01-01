@@ -59,7 +59,7 @@ interface TableConfig {
 
 interface ItemForm {
     fields: FormField[];
-    catalogs?: string[];
+    catalogs?: any[];
     layout?: string;
 }
 
@@ -72,6 +72,12 @@ const page = usePage();
 const user = computed(() => (page.props.auth.user as any));
 const { notify } = useNotification();
 const vuetifyTheme = useVuetifyTheme();
+
+// Convertir hex a RGB
+const hexToRgb = (hex: string): string => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})/i.exec(hex);
+    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '0, 0, 0';
+};
 
 // Get theme colors reactively
 const headerGradient = computed(() => {
@@ -120,7 +126,7 @@ const props = withDefaults(
         }),
         itemForm: () => ({
             fields: [],
-            catalogs: [] as string[],
+            catalogs: [] as any[],
             layout: "single-column",
         }),
         filters: () => [],
@@ -149,7 +155,7 @@ const mergedTableConfig = computed<TableConfig>(() => {
 const mergedItemForm = computed<ItemForm>(() => {
     const baseItemForm: ItemForm = {
         fields: [],
-        catalogs: [],
+        catalogs: [] as any[],
         layout: "single-column",
     };
     return { ...baseItemForm, ...(props.itemForm || {}) };
@@ -201,7 +207,7 @@ const loadCatalogs = async () => {
         return;
     }
     console.log('Loading catalogs:', mergedItemForm.value.catalogs);
-    var data_form = mergedItemForm.value.catalogs || [];
+    const data_form: string[] = mergedItemForm.value.catalogs || [];
 
     try {
         const response = await fetchCatalogs(data_form);
@@ -541,21 +547,23 @@ onMounted(() => {
                     <div class="d-flex gap-2">
                         <v-btn
                             v-if="mergedConfig.permisos?.editar"
+                            class="action-btn"
                             icon="mdi-pencil"
                             size="large"
-                            color="warning"
+                            color="primary"
                             variant="tonal"
                             @click="openEditDialog(item)"
-                            title="Edit"
+                            title="Editar"
                         />
                         <v-btn
                             v-if="mergedConfig.permisos?.eliminar"
+                            class="action-btn"
                             icon="mdi-trash-can"
                             size="large"
                             color="error"
                             variant="tonal"
                             @click="openDeleteDialog(item)"
-                            title="Delete"
+                            title="Borrar"
                         />
                     </div>
                 </template>
@@ -587,11 +595,11 @@ onMounted(() => {
                 </v-card-title>
             </div>
 
-            <v-card-text class="py-6">
+            <v-card-text class="py-6" :style="{ '--form-primary': vuetifyTheme.global.current.value.colors.primary } as any">
                 <FormData
                     ref="formDataRef"
                     :fields="mergedItemForm.fields"
-                    :initial-data="editingItem"
+                    :initial-data="editingItem || undefined"
                     :catalogs="catalogs"
                 />
             </v-card-text>
@@ -688,6 +696,22 @@ onMounted(() => {
     z-index: 1;
     display: flex;
     align-items: center;
+}
+
+/* Action buttons: avoid shared focus/hover states */
+:deep(.action-btn) {
+    outline: none;
+    box-shadow: none;
+}
+
+:deep(.action-btn:focus) {
+    outline: none;
+    box-shadow: none;
+}
+
+:deep(.action-btn:focus-visible) {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.08);
 }
 
 :deep(.v-data-table) {

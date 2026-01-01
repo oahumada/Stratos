@@ -22,7 +22,7 @@
     },
     {
       "text": "Employees",
-      "value": "People_count",
+      "value": "people_count",
       "sortable": true
     },
     {

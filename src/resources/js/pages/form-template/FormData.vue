@@ -166,7 +166,7 @@ defineExpose({
 </script>
 
 <template>
-    <v-form ref="form" v-model="valid">
+    <v-form ref="form" v-model="valid" class="form-wrapper">
         <v-container class="form-container">
             <v-row class="form-row">
                 <v-col
@@ -357,12 +357,16 @@ defineExpose({
 }
 
 :deep(.form-field .v-field__outline) {
-    border-color: rgba(0, 0, 0, 0.1) !important;
+    border-color: var(--form-primary, var(--v-theme-primary)) !important;
 }
 
 :deep(.form-field:focus-within .v-field__outline) {
-    border-color: var(--v-primary) !important;
-    border-width: 2px !important;
+    border-color: var(--form-primary, var(--v-theme-primary)) !important;
+}
+
+/* Ensure Vuetify focused state also uses the themed color */
+:deep(.form-field .v-field--focused .v-field__outline) {
+    border-color: var(--form-primary, var(--v-theme-primary)) !important;
 }
 
 :deep(.form-field .v-label) {
@@ -373,7 +377,7 @@ defineExpose({
 }
 
 :deep(.form-field:focus-within .v-label) {
-    color: var(--v-primary) !important;
+    color: var(--form-primary, var(--v-theme-primary)) !important;
 }
 
 :deep(.form-field .v-field__prepend-inner .v-icon) {
@@ -383,7 +387,7 @@ defineExpose({
 }
 
 :deep(.form-field:focus-within .v-field__prepend-inner .v-icon) {
-    color: var(--v-primary);
+    color: var(--form-primary);
 }
 
 :deep(.form-field .v-field__input) {

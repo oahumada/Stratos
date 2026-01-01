@@ -3,8 +3,8 @@
     "index": "/api/skills",
     "apiUrl": "/api/skills"
   },
-  "titulo": "Skills Management",
-  "descripcion": "View and manage company skills",
+  "titulo": "Gestión de Skills",
+  "descripcion": "Gestionar habilidades y categorías de la organización",
   "permisos": {
     "crear": true,
     "editar": true,
