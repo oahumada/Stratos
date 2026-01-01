@@ -3,6 +3,7 @@
     "index": "/api/skills",
     "apiUrl": "/api/skills"
   },
+  "detail": true,
   "titulo": "Gestión de Skills",
   "descripcion": "Gestionar habilidades y categorías de la organización",
   "permisos": {

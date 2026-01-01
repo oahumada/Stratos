@@ -312,7 +312,17 @@ const filteredItems = computed(() => {
 
     props.filters?.forEach(filter => {
         const selected = filterValues[filter.field];
-        if (selected !== null && selected !== undefined && selected !== '') {
+        if (selected === null || selected === undefined || selected === '') return;
+
+        // Text filters: case-insensitive contains; others: strict match
+        if (filter.type === 'text') {
+            const selectedText = String(selected).toLowerCase();
+            result = result.filter(item => {
+                const itemValue = resolveItemValue(item, filter.field);
+                if (itemValue === null || itemValue === undefined) return false;
+                return String(itemValue).toLowerCase().includes(selectedText);
+            });
+        } else {
             const normalizedSelected = normalize(selected);
             result = result.filter(item => {
                 const itemValue = normalize(resolveItemValue(item, filter.field));
