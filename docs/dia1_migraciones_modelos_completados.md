@@ -77,7 +77,7 @@ Agregados a tabla existente:
 - first_name
 - last_name
 - email
-- current_role_id (FK → roles, NULLABLE)
+- role_id (FK → roles, NULLABLE)
 - department
 - hire_date
 - photo_url

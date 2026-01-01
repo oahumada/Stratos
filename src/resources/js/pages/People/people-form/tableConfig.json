@@ -5,7 +5,7 @@
       "value": "last_name",
       "sortable": true
     },
-        {
+    {
       "text": "Firstname",
       "value": "first_name",
       "sortable": true
@@ -17,15 +17,15 @@
     },
     {
       "text": "Department",
-      "value": "departments",
+      "value": "department.name",
       "sortable": true,
-      "key": "departments.name"
+      "key": "department_id"
     },
     {
       "text": "Role",
-      "value": "roles",
+      "value": "role.name",
       "sortable": false,
-      "key": "roles.name"
+      "key": "role_id"
     },
     {
       "text": "Skills",

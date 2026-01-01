@@ -430,7 +430,7 @@ describe('FormSchema.vue', () => {
 
         // 2. Mount component
         const wrapper = mount(FormSchema, {
-            props: { pacienteId: 123 },
+            props: { peopleId: 123 },
         });
 
         // 3. Wait for cargarItems()

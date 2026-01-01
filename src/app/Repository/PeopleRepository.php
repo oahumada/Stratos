@@ -5,48 +5,29 @@ namespace App\Repository;
 use App\Models\People;
 use Illuminate\Http\Request;
 use App\Helpers\Tools;
+use Illuminate\Support\Facades\Log;
 
 class PeopleRepository extends Repository
 {
-    public function __construct()
+    public function __construct($model = null)
     {
-        parent::__construct(new People());
+        if ($model === null) {
+            $model = new People();
+        }
+        parent::__construct($model);
     }
 
     /**
-     * Query con joins específicos para ExEpo usando relaciones Eloquent
+     * Override getSearchQuery to include eager loading of relationships
      */
-   /*  protected function getSearchQuery()
+    protected function getSearchQuery()
     {
-        $query = $this->model->join(
-                'paciente',
-                'examen_epo.paciente_id',
-                '=',
-                'paciente.id'
-            )->with([
-                'paciente' => function ($q) {
-                    $q->with(['empresa', 'area', 'ceco'])
-                      ->select('id', 'rut', 'nombre', 'apellidos', 'empresa_id', 'area_id', 'ceco_id');
-                },
-            ])->with([
-                'estado_epo', 
-                'estado_examen', 
-                'bateria', 
-                'semaforo', 
-                'tipo_examen'
-            ])->select(
-                'examen_epo.*',
-                'paciente.rut',
-                'paciente.nombre as paciente_nombre',
-                'paciente.apellidos as paciente_apellidos',
-                'paciente.empresa_id',
-                'paciente.area_id',
-                'paciente.ceco_id'
-            );
-            
-        \Log::info('ExEpo Query SQL: ' . $query->toSql());
+        Log::info('PeopleRepository::getSearchQuery called');
+        $query = $this->model->query()
+            ->with('department', 'role', 'skills');
+        Log::info('PeopleRepository query: ' . $query->toSql());
         return $query;
-    } */
+    }
 
     // Remover el método searchWithPaciente - ya no es necesario
     // El Repository padre manejará los filtros automáticamente usando Tools::filterData()

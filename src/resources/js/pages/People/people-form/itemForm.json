@@ -5,31 +5,42 @@
       "label": "First Name",
       "type": "text",
       "placeholder": "Enter first name",
-      "rules": ["required", "min:2"]
+      "rules": [
+        "required",
+        "min:2"
+      ]
     },
     {
       "key": "last_name",
       "label": "Last Name",
       "type": "text",
       "placeholder": "Enter last name",
-      "rules": ["required", "min:2"]
+      "rules": [
+        "required",
+        "min:2"
+      ]
     },
     {
       "key": "email",
       "label": "Email",
       "type": "email",
       "placeholder": "Enter email address",
-      "rules": ["required", "email"]
+      "rules": [
+        "required",
+        "email"
+      ]
     },
     {
       "key": "department_id",
       "label": "Department",
       "type": "select",
       "placeholder": "Select a department",
-      "rules": ["required"]
+      "rules": [
+        "required"
+      ]
     },
     {
-      "key": "current_role_id",
+      "key": "role_id",
       "label": "Role",
       "type": "select",
       "placeholder": "Select a role",
@@ -42,5 +53,8 @@
       "rules": []
     }
   ],
-  "catalogs": ["roles", "departments"]
+  "catalogs": [
+    "roles",
+    "departments"
+  ]
 }

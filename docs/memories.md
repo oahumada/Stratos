@@ -1087,7 +1087,7 @@ curl -X GET "https://api.talentia.app/v1/job-openings/15/candidates?min_match=70
     {
       "people_id": 8,
       "name": "Ana García",
-      "current_role": "Software Engineer",
+      "role": "Software Engineer",
       "match_percentage": 88.5,
       "missing_skills": ["Kubernetes", "GraphQL"],
       "ready_in_months": 3
@@ -1095,7 +1095,7 @@ curl -X GET "https://api.talentia.app/v1/job-openings/15/candidates?min_match=70
     {
       "people_id": 12,
       "name": "Carlos López",
-      "current_role": "Frontend Developer",
+      "role": "Frontend Developer",
       "match_percentage": 75.0,
       "missing_skills": ["System Design", "Microservices", "Docker"],
       "ready_in_months": 6
@@ -1159,7 +1159,7 @@ People
 ├── first_name
 ├── last_name
 ├── email
-├── current_role_id (FK to roles)
+├── role_id (FK to roles)
 ├── department
 ├── hire_date
 ├── photo_url
@@ -1244,7 +1244,7 @@ analytics_snapshots (roadmap)
 #### People
 
 - `email`: Unique per organization
-- `current_role_id`: Nullable (puede no tener rol asignado aún)
+- `role_id`: Nullable (puede no tener rol asignado aún)
 - Soft deletes enabled
 
 #### people_skills
@@ -3219,7 +3219,7 @@ FUNCIÓN matchCandidatesForJobOpening(jobOpening):
 
     PARA CADA people EN allPeople:
         // Excluir peopleas que ya están en ese rol
-        SI people.current_role_id == role.id:
+        SI people.role_id == role.id:
             CONTINUAR
         FIN SI
 
@@ -3239,7 +3239,7 @@ FUNCIÓN matchCandidatesForJobOpening(jobOpening):
         AGREGAR A candidates: {
             people_id: people.id,
             name: people.full_name,
-            current_role: people.current_role.name,
+            role: people.role.name,
             match_percentage: matchPercentage,
             missing_skills: FILTRAR(gapResult.gaps, gap > 0),
             readiness_score: readinessScore,

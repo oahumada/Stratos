@@ -18,14 +18,14 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email');
-            $table->foreignId('current_role_id')->nullable()->constrained('roles')->nullOnDelete();
-            $table->foreignId('department_id')->nullable()->after('current_role_id')->constrained('departments')->nullOnDelete();
+            $table->foreignId('role_id')->nullable()->constrained('roles')->nullOnDelete();
+            $table->foreignId('department_id')->nullable()->after('role_id')->constrained('departments')->nullOnDelete();
             $table->date('hire_date')->nullable();
             $table->string('photo_url')->nullable();
             $table->softDeletes();
             $table->timestamps();
             $table->unique(['organization_id', 'email']);
-            $table->index('department');
+            $table->index('department_id');
         });
     }
 

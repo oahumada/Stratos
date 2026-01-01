@@ -87,7 +87,7 @@ abstract class Repository implements RepositoryInterface
     {
         try {
             $filters = $request->input('data', []); // Usar 'data' como nuevo estándar
-            $query = $this->model->query()->select("*");
+            $query = $this->getSearchQuery();
             Log::info('Current Model: ' . get_class($this->model));
             Log::info('Search Filters: ' . json_encode($filters));
             Log::info('Search Query: ' . $query->toSql());

@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import FormSchema from '../form-template/FormSchema.vue';
-import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
 
 // Import JSON configs
-import configJson from './People-form/config.json';
-import tableConfigJson from './People-form/tableConfig.json';
-import itemFormJson from './People-form/itemForm.json';
-import filtersJson from './People-form/filters.json';
+import configJson from './people-form/config.json';
+import tableConfigJson from './people-form/tableConfig.json';
+import itemFormJson from './people-form/itemForm.json';
+import filtersJson from './people-form/filters.json';
 
 defineOptions({ layout: AppLayout });
 
@@ -62,58 +60,11 @@ interface FilterConfig {
   placeholder?: string;
 }
 
-interface Role {
-  id: number;
-  name: string;
-}
-
-// State
-const roles = ref<Role[]>([]);
-
-// Load configs from JSON files with null checks
-const config: Config = (configJson || {
-  endpoints: { index: '/api/People', apiUrl: '/api/People' },
-  titulo: 'People Management'
-}) as Config;
-
-const tableConfig: TableConfig = (tableConfigJson || {
-  headers: []
-}) as TableConfig;
-
-const itemForm: ItemForm = (itemFormJson || {
-  fields: [],
-  catalogs: []
-}) as ItemForm;
-
-const filtersBase: FilterConfig[] = (filtersJson || []) as FilterConfig[];
-
-// Filters configuration with dynamic items
-const filters = computed<FilterConfig[]>(() => {
-  return filtersBase.map(filter => {
-    if (filter.field === 'role_id') {
-      return {
-        ...filter,
-        items: roles.value.map(r => ({ id: r.id, name: r.name })),
-      };
-    }
-    return filter;
-  });
-});
-
-// Load roles for the form
-const loadRoles = async () => {
-  try {
-    const response = await axios.get('/api/roles');
-    roles.value = response.data.data || response.data;
-  } catch (err) {
-    console.error('Failed to load roles', err);
-  }
-};
-
-// Lifecycle
-onMounted(() => {
-  loadRoles();
-});
+// Load configs from JSON files
+const config: Config = configJson as Config;
+const tableConfig: TableConfig = tableConfigJson as TableConfig;
+const itemForm: ItemForm = itemFormJson as ItemForm;
+const filters: FilterConfig[] = filtersJson as FilterConfig[];
 </script>
 
 <template>
@@ -128,4 +79,3 @@ onMounted(() => {
 <style scoped>
 /* Custom styles */
 </style>
-

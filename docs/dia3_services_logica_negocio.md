@@ -109,7 +109,7 @@ Para cada people en la organización:
 Retornar array ordenado por match_percentage DESC:
   [
     {
-      people_id, name, current_role,
+      people_id, name, role,
       match_percentage, missing_skills[],
       time_to_productivity_months, risk_factor
     }

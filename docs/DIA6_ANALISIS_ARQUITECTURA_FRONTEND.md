@@ -143,7 +143,7 @@ export const get = (url: string, params = {}) => {
 
 ```typescript
 // En el componente:
-const dataTable = await get(`${endpoints.apiUrl}/${pacienteId}`, {
+const dataTable = await get(`${endpoints.apiUrl}/${peopleId}`, {
     withRelations: catalogs,
 });
 ```
@@ -345,13 +345,13 @@ const canDelete = computed(() => {
 
 ```typescript
 async function cargarItems() {
-    const dataTable = await show(endpoints.apiUrl, props.pacienteId, {
+    const dataTable = await show(endpoints.apiUrl, props.peopleId, {
         withRelations: catalogs,
     });
 }
 ```
 
-**Pregunta:** ¿Qué pasa si no hay pacienteId? ¿Cuál es la URL exacta que se hace?
+**Pregunta:** ¿Qué pasa si no hay peopleId? ¿Cuál es la URL exacta que se hace?
 
 ---
 
@@ -501,7 +501,7 @@ defineOptions({ layout: AppLayout });
     <v-container fluid>
         <v-sheet>
             <FormSchema
-                :paciente-id="pacienteId"
+                :paciente-id="peopleId"
                 :config="config"
                 :table-config="tableConfig"
                 :item-form="itemForm"
@@ -603,7 +603,7 @@ defineOptions({ layout: AppLayout });
 │                        ExampleForm.vue                           │
 │  (Orquestador: carga configs y pasa a FormSchema)              │
 └────────────────────┬────────────────────────────────────────────┘
-                     │ props: pacienteId, config, tableConfig, itemForm
+                     │ props: peopleId, config, tableConfig, itemForm
                      ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │                      FormSchema.vue                              │

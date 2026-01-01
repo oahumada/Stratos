@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, computed } from "vue";
 import moment from "moment";
 
 interface FormField {
@@ -14,7 +14,7 @@ interface FormField {
 
 interface CatalogItem {
     id: number | string;
-    descripcion: string;
+    name: string;
 }
 
 // Props
@@ -46,6 +46,15 @@ watch(
     { deep: true }
 );
 
+// Watch for catalogs changes
+watch(
+    () => props.catalogs,
+    (newVal) => {
+        console.log('[FormData] Catalogs updated:', newVal);
+    },
+    { deep: true }
+);
+
 // Methods
 const validate = (): boolean => {
     return form.value?.validate() ?? false;
@@ -55,12 +64,36 @@ const reset = (): void => {
     form.value?.reset();
 };
 
-const getSelectItems = (fieldKey: string): CatalogItem[] => {
-    const catalogName = fieldKey.endsWith("_id")
+// Reactive function to get select items based on field key
+const getSelectItems = (fieldKey: string): any[] => {
+    // Extract catalog name from field key
+    // department_id -> department, role_id -> role
+    let singularName = fieldKey.endsWith("_id")
         ? fieldKey.slice(0, -3)
         : fieldKey;
-
-    return (props.catalogs && props.catalogs[catalogName]) || [];
+    
+    // Map singular to plural for catalog names
+    const pluralMap: Record<string, string> = {
+        'department': 'departments',
+        'role': 'roles',
+        'role': 'roles',
+        'skill': 'skills',
+    };
+    
+    const catalogName = pluralMap[singularName] || singularName;
+    
+    const items = (props.catalogs && props.catalogs[catalogName]) || [];
+    
+    console.log(`[getSelectItems] Field: '${fieldKey}'`, {
+        singularName,
+        catalogName,
+        itemsCount: items.length,
+        items,
+        availableCatalogs: Object.keys(props.catalogs || {}),
+        allCatalogs: props.catalogs
+    });
+    
+    return items;
 };
 
 // Expose methods to parent component
@@ -69,11 +102,16 @@ defineExpose({
     reset,
     formData,
 });
+
+console.log('FormData component loaded with fields:', props.fields);
+console.log('FormData received catalogs:', props.catalogs);
+console.log('FormData catalogs keys:', Object.keys(props.catalogs || {}));
 </script>
 
 <template>
     <v-form ref="form" v-model="valid">
         <v-container fluid>
+            
             <v-row dense>
                 <v-col
                     v-for="field in fields"
@@ -151,7 +189,7 @@ defineExpose({
                         :items="field.items || getSelectItems(field.key)"
                         :label="field.label"
                         :placeholder="field.placeholder"
-                        item-title="descripcion"
+                        item-title="name"
                         item-value="id"
                         :rules="field.rules"
                         :required="field.required"

@@ -12,7 +12,7 @@ class Roles extends Model
 {
     protected $table = 'roles';
     
-    protected $fillable = ['organization_id', 'name', 'department_id', 'level', 'description'];
+    protected $fillable = ['organization_id', 'name', 'level', 'description'];
 
     protected $casts = [
         'level' => 'string',
@@ -41,7 +41,7 @@ class Roles extends Model
 
     public function People(): HasMany
     {
-        return $this->hasMany(People::class, 'current_role_id');
+        return $this->hasMany(People::class, 'role_id');
     }
 
     public function jobOpenings(): HasMany

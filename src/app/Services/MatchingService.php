@@ -42,7 +42,7 @@ class MatchingService
             $results->push([
                 'people_id' => $people->id,
                 'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
-                'current_role_id' => $people->current_role_id,
+                'role_id' => $people->role_id,
                 'match_percentage' => round($match, 2),
                 'missing_skills' => $missingSkills,
                 'time_to_productivity_months' => round($timeToProductivity, 1),

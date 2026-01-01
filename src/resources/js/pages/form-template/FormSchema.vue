@@ -25,7 +25,7 @@ interface FormField {
 
 interface CatalogItem {
     id: number | string;
-    descripcion: string;
+    name: string;
 }
 
 interface FilterConfig {
@@ -72,7 +72,7 @@ const { notify } = useNotification();
 
 const props = withDefaults(
     defineProps<{
-        pacienteId?: number;
+        peopleId?: number;
         config?: Config;
         tableConfig?: TableConfig;
         itemForm?: ItemForm;
@@ -91,7 +91,7 @@ const props = withDefaults(
         }),
         itemForm: () => ({
             fields: [],
-            catalogs: [],
+            catalogs: [] as string[],
             layout: "single-column",
         }),
         filters: () => [],
@@ -168,16 +168,53 @@ const loadItems = async () => {
 
 const loadCatalogs = async () => {
     if (!mergedItemForm.value.catalogs || mergedItemForm.value.catalogs.length === 0) {
+        console.log('No catalogs to load');
         return;
     }
+    console.log('Loading catalogs:', mergedItemForm.value.catalogs);
+    var data_form = mergedItemForm.value.catalogs || [];
 
     try {
-        const response = await fetchCatalogs(mergedItemForm.value.catalogs);
+        const response = await fetchCatalogs(data_form);
+        console.log('Catalogs loaded from API:', response);
+        console.log('Catalogs keys:', Object.keys(response));
+        console.log('All catalogs:', {
+            departments: response.departments,
+            roles: response.roles,
+            skills: response.skills,
+            responseFull: response
+        });
+        console.log('Departments length:', response.departments?.length);
+        console.log('Roles length:', response.roles?.length);
         catalogs.value = response;
+        console.log('Catalogs assigned to state:', catalogs.value);
     } catch (err) {
         console.error("Failed to load catalogs", err);
     }
 };
+
+// Map filters with their catalog data
+const enrichedFilters = computed(() => {
+    const pluralMap: Record<string, string> = {
+        'department_id': 'departments',
+        'role_id': 'roles',
+        'skill_id': 'skills',
+        'role_id': 'roles',
+        'department': 'departments',
+        'role': 'roles',
+        'skill': 'skills',
+    };
+
+    return props.filters?.map(filter => {
+        const catalogName = pluralMap[filter.field];
+        const items = catalogName ? catalogs.value[catalogName] || [] : [];
+        console.log(`Filter field: ${filter.field}, Catalog: ${catalogName}, Items count: ${items.length}`);
+        return {
+            ...filter,
+            items: items
+        };
+    }) || [];
+});
 
 // Filtered items
 const filteredItems = computed(() => {
@@ -247,7 +284,7 @@ const saveItem = async () => {
         loadItems();
     } catch (err: any) {
         error.value = err.message || "Failed to save record";
-        notify({ type: "error", text: error.value });
+        notify({ type: "error", text: error.value || "Failed to save record" });
         console.error(err);
     } finally {
         saving.value = false;
@@ -272,7 +309,7 @@ const deleteItem = async () => {
         loadItems();
     } catch (err: any) {
         error.value = err.message || "Failed to delete record";
-        notify({ type: "error", text: error.value });
+        notify({ type: "error", text: error.value || "Failed to delete record" });
         console.error(err);
     } finally {
         saving.value = false;
@@ -293,6 +330,11 @@ const displayHeaders = computed(() => {
         ...header,
     }));
 });
+
+// Helper function to get nested values (e.g., 'department.name')
+const getNestedValue = (obj: any, path: string) => {
+    return path.split('.').reduce((current, key) => current?.[key], obj);
+};
 
 // Lifecycle
 onMounted(() => {
@@ -336,11 +378,11 @@ onMounted(() => {
                         />
                     </v-col>
                     <v-col
-                        v-for="filter in filters"
+                        v-for="filter in enrichedFilters"
                         :key="filter.field"
                         cols="12"
                         sm="6"
-                        :md="12 / (filters.length + 1)"
+                        :md="12 / (enrichedFilters.length + 1)"
                     >
                         <v-text-field
                             v-if="filter.type === 'text'"
@@ -426,6 +468,11 @@ onMounted(() => {
                 :items="filteredItems"
                 class="elevation-0"
             >
+                <!-- Custom rendering for relationship columns -->
+                <template v-for="header in mergedTableConfig.headers.filter(h => h.key && h.key.includes('.'))" :key="header.value" #[`item.${header.value}`]="{ item }">
+                    {{ getNestedValue(item, header.key) }}
+                </template>
+
                 <!-- Actions Column -->
                 <template #item.actions="{ item }">
                     <div class="d-flex gap-1">

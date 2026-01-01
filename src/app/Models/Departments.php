@@ -2,25 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
 class Departments extends Model
 {
-    
-    protected $fillable = [
-        'organization_id',
-        'name',
-        'description',
-    ];
-    
-    public function People(): HasMany
-    {
-        return $this->hasMany(People::class);
-    }
-
     protected static function booted()
     {
         static::addGlobalScope('organization', function (Builder $builder) {
@@ -29,4 +19,19 @@ class Departments extends Model
             }
         });
     }
+    
+    protected $fillable = [
+        'organization_id',
+        'name',
+        'description',
+    ];
+        public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class);
+    }
+    public function People(): HasMany
+    {
+        return $this->hasMany(People::class);
+    }
+
 }

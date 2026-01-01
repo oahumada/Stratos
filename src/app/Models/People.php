@@ -17,17 +17,18 @@ class People extends Model
     protected $table = 'people';
 
     protected $fillable = [
+        'user_id',
         'organization_id',
         'role_id',
-        'user_id',
         'first_name',
         'last_name',
         'email',
-        'current_role_id',
         'department_id',
         'hire_date',
         'photo_url',
     ];
+
+    protected $appends = ['skills_count'];
 
     protected $casts = [
         'hire_date' => 'date',
@@ -52,9 +53,9 @@ class People extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function currentRole(): BelongsTo
+    public function role(): BelongsTo
     {
-        return $this->belongsTo(Roles::class, 'current_role_id');
+        return $this->belongsTo(Roles::class, 'role_id');
     }
 
     public function department(): BelongsTo
@@ -64,7 +65,7 @@ class People extends Model
 
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skills::class, 'people_skills')
+        return $this->belongsToMany(Skills::class, 'people_skills', 'people_id', 'skill_id')
             ->withPivot('level', 'last_evaluated_at', 'evaluated_by')
             ->withTimestamps();
     }
@@ -82,5 +83,10 @@ class People extends Model
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    public function getSkillsCountAttribute(): int
+    {
+        return $this->skills->count();
     }
 }

@@ -188,7 +188,7 @@ class DemoSeeder extends Seeder
                 'first_name' => $firstName,
                 'last_name' => $lastName,
                 'email' => $email,
-                'current_role_id' => $currentRole->id,
+                'role_id' => $currentRole->id,
                 'department' => $currentRole->department,
                 'hire_date' => now()->subMonths(rand(3, 60)),
                 'photo_url' => "https://api.dicebear.com/7.x/avataaars/svg?seed={$email}",

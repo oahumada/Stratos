@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('organization_id')->constrained();
+            $table->foreignId('department_id')->nullable()->constrained('departments');
             $table->string('name');
             $table->string('department')->nullable();
             $table->enum('level', ['junior', 'mid', 'senior', 'lead', 'principal'])->default('mid');

@@ -77,7 +77,7 @@
 ```
 Tabla: people
 Campos: id, organization_id, first_name, last_name, email, 
-        current_role_id, department_id, hire_date, photo_url, 
+        role_id, department_id, hire_date, photo_url, 
         deleted_at, created_at, updated_at
 Registros: 5 (peopleas de prueba)
 ```

@@ -55,5 +55,10 @@ class DatabaseSeeder extends Seeder
         
         // Crear 5 registros de People después de las tablas relacionadas
         People::factory(5)->create();
+
+        // Assign skills to people
+        $this->call([
+            PeopleSkillsSeeder::class,
+        ]);
     }
 }

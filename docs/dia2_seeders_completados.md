@@ -125,7 +125,7 @@ People {
   first_name: "Carlos",
   last_name: "García",
   email: "carlos.garcia@techcorp.com",
-  current_role_id: 1 (Backend Developer),
+  role_id: 1 (Backend Developer),
   department: "Engineering",
   hire_date: "2023-05-15",
   photo_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=carlos.garcia@techcorp.com",
@@ -334,7 +334,7 @@ development_paths table:
             'first_name' => $firstName,
             'last_name' => $lastName,
             'email' => $email,
-            'current_role_id' => $currentRole->id,
+            'role_id' => $currentRole->id,
             // ...
         ]);
 
