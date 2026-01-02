@@ -751,7 +751,7 @@ onMounted(() => {
     <v-dialog
         v-if="detailEnabled"
         v-model="detailOpen"
-        width="480"
+        width="720"
         persistent
         scrim="transparent"
         transition="dialog-right-transition"

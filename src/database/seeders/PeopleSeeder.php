@@ -42,7 +42,9 @@ class PeopleSeeder extends Seeder
             // Asignar skills a la persona usando people_role_skills
             $expiresAt = now()->addMonths(6);
 
-            // Skills del rol actual (desde RoleSkill)
+            // PARTE 1: Skills obligatorias del rol actual (desde RoleSkill)
+            // Todas las personas con el mismo rol tendrán estas skills (6 por rol)
+            // Estas son las skills que DEBE tener para cumplir su rol
             $roleSkills = RoleSkill::where('role_id', $currentRole->id)->get();
             foreach ($roleSkills as $roleSkill) {
                 PeopleRoleSkills::create([
@@ -58,10 +60,24 @@ class PeopleSeeder extends Seeder
                 ]);
             }
 
-            // Skills adicionales aleatorias
+            // PARTE 2: Skills adicionales aleatorias (2-4 por persona)
+            // IMPORTANTE: Esto causa que personas con el MISMO rol tengan DIFERENTE cantidad de skills
+            // Ejemplo: Backend Developer puede tener 8, 9 o 10 skills total (6 del rol + 2-4 adicionales)
+            // 
+            // RAZÓN: Representa skills que la persona tiene por experiencia previa/intereses
+            // pero que NO son obligatorias del rol actual
+            // 
+            // IMPACTO FUTURO:
+            // - Gap Analysis: Considerar solo skills del rol (6) o incluir adicionales?
+            // - Learning Paths: Las adicionales son "nice to have" o ignorarlas?
+            // - Scoring: ¿Dan ventaja las skills extra para promociones?
+            // - Reportes: Denominador variable (8/8 vs 9/9) puede confundir métricas
+            // 
+            // DECISIÓN: Dejado así para MVP (realismo), revisar cuando se implemente
+            // Gap Analysis o Learning Paths
             $additionalSkills = $skills->random(rand(2, 4));
             foreach ($additionalSkills as $skill) {
-                // Verificar que no esté duplicada
+                // Verificar que no esté duplicada (evita que skill del rol aparezca 2 veces)
                 $exists = PeopleRoleSkills::where('people_id', $people->id)
                     ->where('skill_id', $skill->id)
                     ->where('is_active', true)
