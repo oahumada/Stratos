@@ -88,6 +88,17 @@
 - **[DATABASE_DIAGRAM_README.md](DATABASE_DIAGRAM_README.md)** - Cómo acceder a diagramas
 - Nota: `people_skills` quedó como tabla legacy; usar `people_role_skills` para cualquier relación People–Skills.
 
+### Skill Levels System 🆕
+
+- **[SKILL_LEVELS_SYSTEM.md](SKILL_LEVELS_SYSTEM.md)** - ⭐⭐⭐ Sistema de 5 Niveles de Competencia
+  - Niveles genéricos: Básico → Intermedio → Avanzado → Experto → Maestro
+  - Sistema de puntos (10, 25, 50, 100, 200) para gamificación
+  - Componente `SkillLevelChip.vue` con tooltips
+  - API endpoint `/catalogs?catalogs[]=skill_levels`
+- **[SKILL_LEVELS_ARCHITECTURE_DECISION.md](SKILL_LEVELS_ARCHITECTURE_DECISION.md)** - Decisión arquitectónica completa
+  - Opción 1 (implementada): Niveles genéricos universales
+  - Opción 2 (roadmap): Niveles específicos por skill para Learning Paths
+
 ### People Role Skills (Sistema de Skills con Historial) 🆕
 
 - **[PEOPLE_ROLE_SKILLS_RESUMEN_FINAL.md](PEOPLE_ROLE_SKILLS_RESUMEN_FINAL.md)** - ⭐⭐⭐ LEER PRIMERO - Resumen ejecutivo

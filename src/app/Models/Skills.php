@@ -64,4 +64,23 @@ class Skills extends Model
     {
         return $this->hasMany(PeopleRoleSkills::class, 'skill_id');
     }
+
+    /**
+     * Get the count of roles that require this skill
+     */
+    public function getRolesCountAttribute(): int
+    {
+        return $this->roles()->count();
+    }
+
+    /**
+     * Get the count of employees that require this skill
+     */
+    public function getEmployeesCountAttribute(): int
+    {
+        return $this->peopleRoleSkills()
+            ->where('is_active', true)
+            ->distinct('people_id')
+            ->count();
+    }
 }

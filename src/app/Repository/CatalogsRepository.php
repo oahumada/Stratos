@@ -17,8 +17,9 @@ class CatalogsRepository
         Log::info('Requested catalogs: ' . json_encode($requested));
         $catalogMap = [
             'roles' => fn() => \App\Models\Roles::select('id', 'name', 'level')->get(),
-            'skills' => fn() => \App\Models\Skills::select('id', 'name', 'category')->get(),
+            'skills' => fn() => \App\Models\Skills::class,
             'departments' => fn() => \App\Models\Departments::select('id', 'name')->get(),
+            'skill_levels' => fn() => \App\Models\SkillLevelDefinition::orderBy('level')->get(),
         ];
 
         $catalogos = [];

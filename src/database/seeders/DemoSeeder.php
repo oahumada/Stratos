@@ -47,6 +47,7 @@ class DemoSeeder extends Seeder
         Roles::truncate();
         User::truncate();
         Organizations::truncate();
+        DB::table('skill_level_definitions')->truncate();
         
         if ($driver === 'sqlite') {
             DB::statement('PRAGMA foreign_keys = ON');
@@ -65,31 +66,39 @@ class DemoSeeder extends Seeder
         $this->command->info('👤 Creando usuario admin...');
         $this->call(UserSeeder::class);
 
-        // 3. Skills (antes de Roles para las relaciones)
+        // 3. Skill Level Definitions (sistema de niveles genéricos)
+        $this->command->info('📊 Creando definiciones de niveles de skills...');
+        $this->call(SkillLevelDefinitionSeeder::class);
+
+        // 4. Skills (antes de Roles para las relaciones)
         $this->command->info('🎯 Creando skills...');
         $this->call(SkillSeeder::class);
 
-        // 4. Roles
+        // 4. Skills (antes de Roles para las relaciones)
+        $this->command->info('🎯 Creando skills...');
+        $this->call(SkillSeeder::class);
+
+        // 5. Roles
         $this->command->info('👔 Creando roles...');
         $this->call(RoleSeeder::class);
 
-        // 5. Relaciones Role-Skill (6 skills por rol)
+        // 6. Relaciones Role-Skill (6 skills por rol)
         $this->command->info('🔗 Asociando skills a roles...');
         $this->call(RoleSkillSeeder::class);
 
-        // 6. People (empleados)
+        // 7. People (empleados)
         $this->command->info('👥 Creando people...');
         $this->call(PeopleSeeder::class);
 
-        // 7. Job Openings (vacantes)
+        // 8. Job Openings (vacantes)
         $this->command->info('💼 Creando vacantes...');
         $this->call(JobOpeningSeeder::class);
 
-        // 8. Applications (postulaciones)
+        // 9. Applications (postulaciones)
         $this->command->info('📝 Creando postulaciones...');
         $this->call(ApplicationSeeder::class);
 
-        // 9. Development Paths (rutas de desarrollo)
+        // 10. Development Paths (rutas de desarrollo)
         $this->command->info('🛤️  Creando rutas de desarrollo...');
         $this->call(DevelopmentPathSeeder::class);
 
@@ -100,6 +109,7 @@ class DemoSeeder extends Seeder
             [
                 ['Organizaciones', '1'],
                 ['Usuarios', '1'],
+                ['Definiciones de Niveles', '5 (Básico a Maestro)'],
                 ['Skills', '30'],
                 ['Roles', '8'],
                 ['Relaciones Role-Skill', '48 (6 por rol)'],

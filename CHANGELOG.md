@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [Unreleased]
+
+### ✨ Nuevas Funcionalidades
+
+- **skills:** implementar sistema de niveles de competencia (Skill Levels)
+  - Tabla `skill_level_definitions` con 5 niveles genéricos
+  - Niveles: Básico (10pts) → Intermedio (25pts) → Avanzado (50pts) → Experto (100pts) → Maestro (200pts)
+  - Sistema de puntos para gamificación
+  - Modelo `SkillLevelDefinition` con helper `display_label`
+  - Endpoint API `/catalogs?catalogs[]=skill_levels`
+  - Componente frontend `SkillLevelChip.vue` con tooltips informativos
+  - Integración en Skills/Index.vue para mostrar niveles en lugar de números
+  - Documentación arquitectónica: SKILL_LEVELS_ARCHITECTURE_DECISION.md
+  - Tres dimensiones de progresión: Autonomía, Complejidad, Responsabilidad
+
+### 📚 Documentación
+
+- **skills:** agregar SKILL_LEVELS_SYSTEM.md con guía completa del sistema de niveles
+- **skills:** documentar decisión arquitectónica entre niveles genéricos vs. específicos
+- Actualizar INDEX.md con nueva sección "Skill Levels System"
+
 ## 0.2.0 (2025-12-28)
 
 
