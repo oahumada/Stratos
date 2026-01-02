@@ -772,7 +772,7 @@ onMounted(() => {
                     :tab="detailTab"
                     :set-tab="setDetailTab"
                     :sync="syncWithRole"
-                    :close="() => { detailOpen.value = false; }"
+                    :close="() => { detailOpen = false; }"
                 >
                     <v-card flat border class="pa-3">
                         <div class="text-subtitle-2 mb-2">Detalle del registro</div>
