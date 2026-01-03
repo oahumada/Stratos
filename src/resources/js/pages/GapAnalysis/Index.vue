@@ -18,6 +18,7 @@ type People = {
   last_name?: string;
   name?: string;
   email?: string;
+  role?: { id: number; name: string };
 };
 
 type Role = {
@@ -55,7 +56,9 @@ const result = ref<GapAnalysisResult | null>(null);
 
 const peopleOptions = computed(() =>
   peoples.value.map((p) => {
-    const label = `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.name || 'Sin nombre';
+    const fullName = `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.name || 'Sin nombre';
+    const roleName = p.role?.name || 'Sin rol';
+    const label = `${fullName} (${roleName})`;
     return { ...p, label, value: p.id };
   })
 );
@@ -109,7 +112,7 @@ const loadPeoplesAndRoles = async () => {
   loading.value = true;
   try {
     const [peoplesRes, rolesRes] = await Promise.all([
-      axios.get('/api/people'),
+      axios.get('/api/people', { params: { with: 'role' } }),
       axios.get('/api/roles'),
     ]);
     peoples.value = peoplesRes.data.data || peoplesRes.data;
@@ -181,7 +184,7 @@ onMounted(() => {
       <v-card-text>
         <v-row>
           <v-col cols="12" sm="6">
-            <v-select
+            <v-autocomplete
               v-model="selectedPeopleId"
               :items="peopleOptions"
               item-title="label"
@@ -189,6 +192,8 @@ onMounted(() => {
               label="Persona"
               :loading="loading"
               outlined
+              clearable
+              placeholder="Escribe para buscar..."
             />
           </v-col>
           <v-col cols="12" sm="6">
