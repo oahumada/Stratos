@@ -22,12 +22,12 @@ class RolesRepository extends Repository
                       ->withPivot('required_level', 'is_critical')
                       ->without('roles'); // Evitar relación circular
             }])
-            ->with(['People' => function ($query) {
-                $query->select('people.id', 'people.first_name', 'people.last_name', 'people.email')
-                      ->withoutGlobalScope('organization');
+            ->with(['people' => function ($query) {
+                $query->withoutGlobalScope('organization')
+                      ->select('people.id', 'people.first_name', 'people.last_name', 'people.email', 'people.role_id');
             }])
             ->withCount('skills')
-            ->withCount(['People' => function ($query) {
+            ->withCount(['people as people_count' => function ($query) {
                 $query->withoutGlobalScope('organization');
             }]);
     }

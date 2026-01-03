@@ -44,12 +44,7 @@ const getRoleSkills = (item: any) => {
 };
 
 const getRolePeople = (item: any) => {
-  // Prefer direct people relation; fallback to people_role_skills if exists
-  if (Array.isArray(item?.people)) return item.people;
-  if (Array.isArray(item?.people_role_skills)) {
-    return item.people_role_skills.map((prs: any) => prs.person || prs.people || prs);
-  }
-  return [];
+  return Array.isArray(item?.people) ? item.people : [];
 };
 
 interface FormField {
@@ -115,6 +110,7 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
     :table-config="tableConfig"
     :item-form="itemForm"
     :filters="filters"
+    enable-row-detail
   >
     <template #detail="{ item }">
       <v-tabs v-model="detailTab">
