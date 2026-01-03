@@ -80,10 +80,10 @@ const getActionIcon = (actionType: string): string => {
 const getActionColor = (actionType: string): string => {
   const colorMap: Record<string, string> = {
     'course': 'primary',
-    'mentorship': 'info',
+    'mentorship': 'primary',
     'project': 'success',
     'certification': 'warning',
-    'workshop': 'secondary',
+    'workshop': 'success',
     'reading': 'accent',
     'practice': 'error'
   };
