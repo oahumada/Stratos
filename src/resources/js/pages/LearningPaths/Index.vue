@@ -290,7 +290,7 @@ onMounted(() => {
                   v-if="isCurrentRole(path)"
                   size="x-small"
                   color="info"
-                  variant="tonal"
+                  variant="flat"
                   prepend-icon="mdi-account-tie"
                 >
                   Rol actual
@@ -299,7 +299,7 @@ onMounted(() => {
                   v-else
                   size="x-small"
                   color="purple"
-                  variant="tonal"
+                  variant="flat"
                   prepend-icon="mdi-target"
                 >
                   Rol objetivo
