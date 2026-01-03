@@ -24,7 +24,10 @@ class RolesRepository extends Repository
             }])
             ->with(['people' => function ($query) {
                 $query->withoutGlobalScope('organization')
-                      ->select('people.id', 'people.first_name', 'people.last_name', 'people.email', 'people.role_id');
+                      ->select('people.id', 'people.first_name', 'people.last_name', 'people.email', 'people.role_id', 'people.department_id')
+                      ->with(['department' => function ($deptQuery) {
+                          $deptQuery->select('departments.id', 'departments.name');
+                      }]);
             }])
             ->withCount('skills')
             ->withCount(['people as people_count' => function ($query) {

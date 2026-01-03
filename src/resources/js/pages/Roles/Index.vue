@@ -47,6 +47,16 @@ const getRolePeople = (item: any) => {
   return Array.isArray(item?.people) ? item.people : [];
 };
 
+const getPersonName = (person: any) => {
+  if (!person) return 'Sin nombre';
+  const fullName = `${person.first_name || ''} ${person.last_name || ''}`.trim();
+  return fullName || person.name || 'Sin nombre';
+};
+
+const getPersonDepartment = (person: any) => {
+  return person?.department?.name || person?.department_full_name || person?.department_name || null;
+};
+
 interface FormField {
   key: string;
   label: string;
@@ -212,10 +222,11 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
                   </v-avatar>
                 </template>
                 <v-list-item-title class="text-body-2 font-weight-medium">
-                  {{ person.name }}
+                  {{ getPersonName(person) }}
                 </v-list-item-title>
                 <v-list-item-subtitle class="text-caption">
-                  {{ person.email || person.role_title || 'Asignado' }}
+                  {{ person.email ? `(${person.email})` : '(Sin correo)' }}
+                  <span v-if="getPersonDepartment(person)"> · {{ getPersonDepartment(person) }}</span>
                 </v-list-item-subtitle>
               </v-list-item>
             </v-list>
