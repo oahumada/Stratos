@@ -11,11 +11,16 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Star, User } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+import { defineComponent, h } from 'vue';
+import { VIcon } from 'vuetify/components';
+
+const SkillsIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-star-circle', size: 20 }));
+const GapAnalysisIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-chart-line', size: 20 }));
+const MarketplaceIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-briefcase-search', size: 20 }));
 
 const mainNavItems: NavItem[] = [
     {
@@ -36,12 +41,12 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Skills',
         href: '/skills',
-        icon: Star,
+        icon: SkillsIcon,
     },
     {
         title: 'Gap Analysis',
         href: '/gap-analysis',
-        icon: Star,
+        icon: GapAnalysisIcon,
     },
     {
         title: 'Learning Paths',
@@ -51,7 +56,7 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Marketplace',
         href: '/marketplace',
-        icon: Star,
+        icon: MarketplaceIcon,
     },
 ];
 

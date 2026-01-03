@@ -19,8 +19,8 @@ export const themeOptions: ThemeOption[] = [
         label: 'Morado Moderno',
         description: 'Gradientes púrpuras elegantes',
         colors: {
-            primary: '#596eceff',
-            secondary: '#52297aff',
+            primary: '#061a70ff',
+            secondary: '#9d78c2ff',
         },
     },
     {
@@ -28,8 +28,8 @@ export const themeOptions: ThemeOption[] = [
         label: 'Tonos Pastel',
         description: 'Suaves y delicados',
         colors: {
-            primary: '#ffb6c1',
-            secondary: '#a35a5aff',
+            primary: '#7a1e2cff',
+            secondary: '#ce7b7bff',
         },
     },
     {
@@ -37,8 +37,8 @@ export const themeOptions: ThemeOption[] = [
         label: 'Verde Natural',
         description: 'Fresco y profesional',
         colors: {
-            primary: '#4caf50',
-            secondary: '#66bb6a',
+            primary: '#0d9212ff',
+            secondary: '#76d47bff',
         },
     },
     {
@@ -46,8 +46,8 @@ export const themeOptions: ThemeOption[] = [
         label: 'Azul Corporativo',
         description: 'Clásico y confiable',
         colors: {
-            primary: '#2196f3',
-            secondary: '#135388ff',
+            primary: '#081f30ff',
+            secondary: '#7da1beff',
         },
     },
 ];

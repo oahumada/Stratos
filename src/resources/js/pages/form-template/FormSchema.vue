@@ -89,7 +89,7 @@ const headerGradient = computed(() => {
 
 const createBtnGradient = computed(() => {
     const theme = vuetifyTheme.global.current.value;
-    return `linear-gradient(135deg, ${theme.colors.accent} 0%, ${theme.colors.error} 100%)`;
+    return `linear-gradient(135deg, ${theme.colors.accent} 0%, ${theme.colors.primary} 100%)`;
 });
 
 const tableHeaderGradient = computed(() => {
@@ -236,10 +236,10 @@ const loadCatalogs = async () => {
         return;
     }
     console.log('Loading catalogs:', mergedItemForm.value.catalogs);
-    const data_form: string[] = mergedItemForm.value.catalogs || [];
+    const data_form = mergedItemForm.value.catalogs || [];
 
     try {
-        const response = await fetchCatalogs(data_form);
+        const response = await fetchCatalogs(data_form as any);
         console.log('Catalogs loaded from API:', response);
         console.log('Catalogs keys:', Object.keys(response));
         console.log('All catalogs:', {
