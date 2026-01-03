@@ -25,12 +25,14 @@ class GapAnalysisService
         $gaps = [];
 
         foreach ($roleSkills as $roleSkill) {
-            // Buscar el nivel actual de la peoplea para esta skill
-            $peopleSkill = $people->skills()
+            // Buscar el nivel actual de la persona para esta skill en people_role_skills
+            // Se busca la skill activa de la persona, independiente del rol
+            $peopleRoleSkill = $people->roleSkills()
                 ->where('skill_id', $roleSkill->id)
+                ->where('is_active', true)
                 ->first();
 
-            $currentLevel = $peopleSkill ? (int) ($peopleSkill->pivot->level ?? 0) : 0;
+            $currentLevel = $peopleRoleSkill ? (int) ($peopleRoleSkill->current_level ?? 0) : 0;
             $requiredLevel = (int) ($roleSkill->pivot->required_level ?? 0);
             $gap = max(0, $requiredLevel - $currentLevel);
 
@@ -60,8 +62,8 @@ class GapAnalysisService
         $category = $matchPercentage >= 90
             ? 'ready'
             : ($matchPercentage >= 70
-                ? 'potential'
-                : ($matchPercentage >= 50 ? 'significant-gap' : 'not-recommended'));
+                ? 'potencial'
+                : ($matchPercentage >= 50 ? 'Gap significativo' : 'no recomendado'));
 
         return [
             'match_percentage' => $matchPercentage,
