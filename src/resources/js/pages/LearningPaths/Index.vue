@@ -28,6 +28,8 @@ interface DevelopmentPath {
   id: number;
   people_id: number;
   people_name: string;
+  current_role_id?: number;
+  current_role_name?: string;
   target_role_id: number;
   target_role_name: string;
   steps: DevelopmentStep[];
@@ -79,8 +81,8 @@ const getActionIcon = (actionType: string): string => {
 // Get action color
 const getActionColor = (actionType: string): string => {
   const colorMap: Record<string, string> = {
-    'course': 'primary',
-    'mentorship': 'primary',
+    'course': 'indigo',
+    'mentorship': 'teal',
     'project': 'success',
     'certification': 'warning',
     'workshop': 'success',
@@ -93,6 +95,11 @@ const getActionColor = (actionType: string): string => {
 // Calculate total duration
 const calculateTotalDuration = (steps: DevelopmentStep[]): number => {
   return steps.reduce((total, step) => total + (step.estimated_duration_days || 0), 0);
+};
+
+// Check if path is towards current role
+const isCurrentRole = (path: DevelopmentPath): boolean => {
+  return path.current_role_id === path.target_role_id;
 };
 
 const openDeleteDialog = (path: DevelopmentPath) => {
@@ -197,6 +204,48 @@ onMounted(() => {
               </template>
               <strong>Cómo generar una ruta:</strong> Realiza un análisis de brechas (Gap Analysis) y haz clic en "Generar ruta de aprendizaje"
             </v-alert>
+
+            <div class="mt-4 pt-4 border-t">
+              <h3 class="text-subtitle-1 font-weight-bold mb-2">¿Cómo se determinan las acciones?</h3>
+              <p class="text-body-2 mb-3">
+                Las acciones de aprendizaje se generan automáticamente basándose en el <strong>tamaño de la brecha</strong> (diferencia entre nivel requerido y nivel actual), 
+                independientemente del nivel absoluto en que se encuentre la persona:
+              </p>
+              <v-table class="text-body-2" style="background: transparent;">
+                <thead>
+                  <tr style="background-color: transparent;">
+                    <th class="text-left">Tamaño de Brecha</th>
+                    <th class="text-left">Acciones Asignadas</th>
+                    <th class="text-left">Duración Estimada</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>1 nivel</strong></td>
+                    <td>📖 Lectura y estudio</td>
+                    <td>15-20 días</td>
+                  </tr>
+                  <tr>
+                    <td><strong>2 niveles</strong></td>
+                    <td>📚 Curso + Práctica</td>
+                    <td>40-50 días</td>
+                  </tr>
+                  <tr>
+                    <td><strong>3 niveles</strong></td>
+                    <td>🎓 Curso + Mentoría + Proyecto</td>
+                    <td>75-90 días</td>
+                  </tr>
+                  <tr>
+                    <td><strong>4+ niveles</strong></td>
+                    <td>🏆 Curso + Mentoría + Workshop + Proyecto</td>
+                    <td>100-120 días</td>
+                  </tr>
+                </tbody>
+              </v-table>
+              <p class="text-caption text-medium-emphasis mt-2">
+                💡 Para skills críticas se agrega certificación (15 días adicionales)
+              </p>
+            </div>
           </div>
         </div>
       </v-card-text>
@@ -232,9 +281,29 @@ onMounted(() => {
           <div class="d-flex align-center justify-space-between w-100">
             <div class="flex-grow-1">
               <div class="text-h6 font-weight-bold">{{ path.people_name }}</div>
-              <div class="text-body-2 text-medium-emphasis d-flex align-center mt-1">
-                <v-icon size="small" class="mr-1">mdi-arrow-right</v-icon>
-                {{ path.target_role_name }}
+              <div class="d-flex align-center gap-2 mt-1">
+                <div class="text-body-2 text-medium-emphasis d-flex align-center">
+                  <v-icon size="small" class="mr-1">mdi-arrow-right</v-icon>
+                  {{ path.target_role_name }}
+                </div>
+                <v-chip
+                  v-if="isCurrentRole(path)"
+                  size="x-small"
+                  color="info"
+                  variant="tonal"
+                  prepend-icon="mdi-account-tie"
+                >
+                  Rol actual
+                </v-chip>
+                <v-chip
+                  v-else
+                  size="x-small"
+                  color="purple"
+                  variant="tonal"
+                  prepend-icon="mdi-target"
+                >
+                  Rol objetivo
+                </v-chip>
               </div>
             </div>
             <div class="text-right mr-4">

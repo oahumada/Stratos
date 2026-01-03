@@ -26,6 +26,8 @@ class DevelopmentPathController extends Controller
                     'people_id' => $path->people_id,
                     'people_name' => $path->people->full_name ?? 
                                     ($path->people->first_name . ' ' . $path->people->last_name),
+                    'current_role_id' => $path->people->role_id,
+                    'current_role_name' => $path->people->role->name ?? null,
                     'target_role_id' => $path->target_role_id,
                     'target_role_name' => $path->targetRole->name ?? 'N/A',
                     'status' => $path->status,
