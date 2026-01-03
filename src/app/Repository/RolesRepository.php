@@ -13,6 +13,22 @@ class RolesRepository extends Repository
         parent::__construct(new Roles());
     }
 
-    // El Repository padre manejará los filtros automáticamente usando Tools::filterData()
-    // No se necesita eager loading de departments aquí porque Roles no tiene esa relación
+    // Eager load skills and people relations for detail views
+    protected function getSearchQuery()
+    {
+        return $this->model
+            ->with(['skills' => function ($query) {
+                $query->select('skills.id', 'skills.name', 'skills.category')
+                      ->withPivot('required_level', 'is_critical')
+                      ->without('roles'); // Evitar relación circular
+            }])
+            ->with(['People' => function ($query) {
+                $query->select('people.id', 'people.first_name', 'people.last_name', 'people.email')
+                      ->withoutGlobalScope('organization');
+            }])
+            ->withCount('skills')
+            ->withCount(['People' => function ($query) {
+                $query->withoutGlobalScope('organization');
+            }]);
+    }
 }

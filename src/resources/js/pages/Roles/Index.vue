@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import AppLayout from '@/layouts/AppLayout.vue';
 import FormSchema from '../form-template/FormSchema.vue';
-import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
+import SkillLevelChip from '@/components/SkillLevelChip.vue';
 
 // Import JSON configs
 import configJson from './roles-form/config.json';
@@ -11,6 +12,45 @@ import itemFormJson from './roles-form/itemForm.json';
 import filtersJson from './roles-form/filters.json';
 
 defineOptions({ layout: AppLayout });
+
+// Detail tab state
+const detailTab = ref('info');
+
+// Skill levels for chips
+const skillLevels = ref<any[]>([]);
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('/api/catalogs', {
+      params: { catalogs: ['skill_levels'] }
+    });
+    skillLevels.value = response.data.skill_levels || [];
+  } catch (error) {
+    console.error('Error loading skill levels:', error);
+  }
+});
+
+// Helpers to map relations safely
+const getRoleSkills = (item: any) => {
+  if (!item?.skills) return [];
+
+  return item.skills.map((skill: any) => ({
+    id: skill.id,
+    name: skill.name,
+    category: skill.category,
+    required_level: skill.pivot?.required_level || 0,
+    is_critical: skill.pivot?.is_critical || false,
+  }));
+};
+
+const getRolePeople = (item: any) => {
+  // Prefer direct people relation; fallback to people_role_skills if exists
+  if (Array.isArray(item?.people)) return item.people;
+  if (Array.isArray(item?.people_role_skills)) {
+    return item.people_role_skills.map((prs: any) => prs.person || prs.people || prs);
+  }
+  return [];
+};
 
 interface FormField {
   key: string;
@@ -75,7 +115,119 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
     :table-config="tableConfig"
     :item-form="itemForm"
     :filters="filters"
-  />
+  >
+    <template #detail="{ item }">
+      <v-tabs v-model="detailTab">
+        <v-tab value="info">
+          <v-icon start>mdi-information</v-icon>
+          Información
+        </v-tab>
+        <v-tab value="skills">
+          <v-icon start>mdi-star-circle</v-icon>
+          Skills ({{ item.skills_count || item.skills?.length || 0 }})
+        </v-tab>
+        <v-tab value="people">
+          <v-icon start>mdi-account-group</v-icon>
+          Personas ({{ item.People_count || item.people_count || item.people?.length || 0 }})
+        </v-tab>
+      </v-tabs>
+
+      <v-window v-model="detailTab" class="mt-4">
+        <!-- Info Tab -->
+        <v-window-item value="info">
+          <v-card flat border class="pa-3">
+            <div class="text-subtitle-2 mb-3">Información del Rol</div>
+            <v-list density="compact">
+              <v-list-item>
+                <v-list-item-title class="text-body-2">
+                  <strong>Nombre:</strong> {{ item.name }}
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-if="item.description">
+                <v-list-item-title class="text-body-2">
+                  <strong>Descripción:</strong> {{ item.description }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-window-item>
+
+        <!-- Skills Tab -->
+        <v-window-item value="skills">
+          <v-card flat border class="pa-3">
+            <div class="text-subtitle-2 mb-3">Skills requeridas</div>
+            <div v-if="getRoleSkills(item).length === 0" class="text-center text-secondary py-4">
+              No hay skills asignadas
+            </div>
+            <v-list v-else density="compact">
+              <v-list-item
+                v-for="skill in getRoleSkills(item)"
+                :key="skill.id"
+                class="mb-2"
+                border
+              >
+                <template #prepend>
+                  <v-avatar color="primary" size="32">
+                    <v-icon size="small">mdi-star-circle</v-icon>
+                  </v-avatar>
+                </template>
+                <v-list-item-title class="text-body-2 font-weight-medium">
+                  {{ skill.name }}
+                </v-list-item-title>
+                <v-list-item-subtitle class="text-caption">
+                  Nivel requerido:
+                  <SkillLevelChip
+                    :level="skill.required_level"
+                    :skill-levels="skillLevels"
+                    color="primary"
+                    class="ml-1"
+                  />
+                  <v-chip
+                    v-if="skill.is_critical"
+                    size="x-small"
+                    color="error"
+                    class="ml-2"
+                  >
+                    Crítica
+                  </v-chip>
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-window-item>
+
+        <!-- People Tab -->
+        <v-window-item value="people">
+          <v-card flat border class="pa-3">
+            <div class="text-subtitle-2 mb-3">Personas en este rol</div>
+            <div v-if="getRolePeople(item).length === 0" class="text-center text-secondary py-4">
+              No hay personas asignadas
+            </div>
+            <v-list v-else density="compact">
+              <v-list-item
+                v-for="person in getRolePeople(item)"
+                :key="person.id"
+                class="mb-2"
+                border
+              >
+                <template #prepend>
+                  <v-avatar color="secondary" size="32">
+                    <v-icon size="small">mdi-account</v-icon>
+                  </v-avatar>
+                </template>
+                <v-list-item-title class="text-body-2 font-weight-medium">
+                  {{ person.name }}
+                </v-list-item-title>
+                <v-list-item-subtitle class="text-caption">
+                  {{ person.email || person.role_title || 'Asignado' }}
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-window-item>
+      </v-window>
+    </template>
+  </FormSchema>
 </template>
 
 <style scoped>
