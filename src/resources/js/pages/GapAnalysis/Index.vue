@@ -5,10 +5,18 @@ import axios from 'axios';
 import { useNotification } from '@kyvg/vue3-notification';
 import { Radar } from 'vue-chartjs';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
+import { useTheme as useVuetifyTheme } from 'vuetify';
 
 defineOptions({ layout: AppLayout });
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
+
+const vuetifyTheme = useVuetifyTheme();
+
+const headerGradient = computed(() => {
+  const theme = vuetifyTheme.global.current.value;
+  return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
+});
 
 const { notify } = useNotification();
 
@@ -169,13 +177,14 @@ onMounted(() => {
 
 <template>
   <div class="pa-4">
-    <div class="mb-6">
-      <h1 class="text-h4 font-weight-bold mb-2">Gap Analysis</h1>
-      <p class="text-body-1 text-grey-darken-1 mb-3">
-        Este módulo permite identificar las brechas de competencias entre el perfil actual de una persona y los requisitos de un rol específico. 
-        Ayuda a tomar decisiones informadas sobre desarrollo de talento, asignación de roles y planes de capacitación.
-      </p>
-      <p class="text-body-2 text-grey">Compara las habilidades actuales de una persona versus las requeridas por un rol.</p>
+    <!-- Header -->
+    <div class="d-flex justify-space-between align-center mb-4" :style="{ background: headerGradient }" style="padding: 1.5rem; border-radius: 8px;">
+      <div>
+        <h1 class="text-h4 font-weight-bold mb-2" style="color: white;">Gap Analysis</h1>
+        <p class="text-subtitle-2" style="color: rgba(255,255,255,0.85);">
+          Identifica las brechas de competencias entre el perfil actual de una persona y los requisitos de un rol específico.
+        </p>
+      </div>
     </div>
 
     <!-- Form Section -->
@@ -230,15 +239,15 @@ onMounted(() => {
         <v-card-text>
           <div class="d-flex flex-wrap justify-space-between align-center gap-4">
             <div>
-              <div class="text-caption text-grey">Persona</div>
+              <div class="text-caption text-medium-emphasis">Persona</div>
               <div class="text-subtitle-1 font-weight-medium">{{ result.people?.name }}</div>
             </div>
             <div>
-              <div class="text-caption text-grey">Rol</div>
+              <div class="text-caption text-medium-emphasis">Rol</div>
               <div class="text-subtitle-1 font-weight-medium">{{ result.role?.name }}</div>
             </div>
             <div class="text-right">
-              <div class="text-caption text-grey">Match general</div>
+              <div class="text-caption text-medium-emphasis">Match general</div>
               <div :class="`text-h6 text-${getMatchColor(result.analysis.match_percentage)}`">{{ result.analysis.match_percentage }}%</div>
               <v-progress-linear
                 class="mt-1"
@@ -304,7 +313,7 @@ onMounted(() => {
                   </tr>
                 </tbody>
               </v-table>
-              <div v-else class="text-center py-6 text-grey">
+              <div v-else class="text-center py-6 text-medium-emphasis">
                 Sin brechas: match perfecto.
               </div>
             </v-card-text>
@@ -315,7 +324,7 @@ onMounted(() => {
             <v-card-title>Radar de niveles</v-card-title>
             <v-card-text style="height: 300px;">
               <Radar v-if="radarData" :data="radarData" :options="radarOptions" />
-              <div v-else class="text-center py-8 text-grey">No hay datos para graficar</div>
+              <div v-else class="text-center py-8 text-medium-emphasis">No hay datos para graficar</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -324,8 +333,8 @@ onMounted(() => {
 
     <!-- Empty State -->
     <div v-if="!result" class="text-center py-12">
-      <v-icon size="64" class="mb-4 text-grey">mdi-chart-box-outline</v-icon>
-      <p class="text-body1 text-grey">Selecciona una persona y un rol para analizar brechas</p>
+      <v-icon size="64" class="mb-4 text-medium-emphasis">mdi-chart-box-outline</v-icon>
+      <p class="text-body1 text-medium-emphasis">Selecciona una persona y un rol para analizar brechas</p>
     </div>
   </div>
 </template>
