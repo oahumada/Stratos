@@ -67,7 +67,7 @@ class DevelopmentPathService
             'organization_id' => $organizationId,
             'people_id' => $people->id,
             'target_role_id' => $targetRole->id,
-            'status' => 'pending',
+            'status' => 'draft',
             'estimated_duration_months' => $estimatedMonths,
             'steps' => $steps,
         ]);
@@ -89,7 +89,7 @@ class DevelopmentPathService
                     'skill_name' => $skillName,
                     'description' => "Estudio individual y documentación de {$skillName}",
                     'estimated_duration_days' => rand(15, 20),
-                    'status' => 'pending',
+                    'status' => 'draft',
                 ];
                 break;
 
@@ -101,7 +101,7 @@ class DevelopmentPathService
                     'skill_name' => $skillName,
                     'description' => "Curso intensivo de {$skillName} con enfoque práctico",
                     'estimated_duration_days' => rand(25, 30),
-                    'status' => 'pending',
+                    'status' => 'draft',
                 ];
                 $steps[] = [
                     'action_type' => 'practice',
@@ -109,7 +109,7 @@ class DevelopmentPathService
                     'skill_name' => $skillName,
                     'description' => "Ejercicios prácticos y proyectos pequeños de {$skillName}",
                     'estimated_duration_days' => rand(15, 20),
-                    'status' => 'pending',
+                    'status' => 'draft',
                 ];
                 break;
 
@@ -121,7 +121,7 @@ class DevelopmentPathService
                     'skill_name' => $skillName,
                     'description' => "Formación avanzada en {$skillName}",
                     'estimated_duration_days' => rand(30, 35),
-                    'status' => 'pending',
+                    'status' => 'draft',
                 ];
                 $steps[] = [
                     'action_type' => 'mentorship',
@@ -129,7 +129,7 @@ class DevelopmentPathService
                     'skill_name' => $skillName,
                     'description' => "Mentoría personalizada para dominar {$skillName}",
                     'estimated_duration_days' => rand(25, 30),
-                    'status' => 'pending',
+                    'status' => 'draft',
                 ];
                 $steps[] = [
                     'action_type' => 'project',
@@ -137,7 +137,7 @@ class DevelopmentPathService
                     'skill_name' => $skillName,
                     'description' => "Proyecto real aplicando {$skillName} en caso de uso empresarial",
                     'estimated_duration_days' => rand(20, 25),
-                    'status' => 'pending',
+                    'status' => 'draft',
                 ];
                 break;
 
@@ -149,7 +149,7 @@ class DevelopmentPathService
                     'skill_name' => $skillName,
                     'description' => "Programa completo de formación en {$skillName}",
                     'estimated_duration_days' => rand(40, 45),
-                    'status' => 'pending',
+                    'status' => 'draft',
                 ];
                 $steps[] = [
                     'action_type' => 'mentorship',
@@ -157,7 +157,7 @@ class DevelopmentPathService
                     'skill_name' => $skillName,
                     'description' => "Mentoría intensiva con experto en {$skillName}",
                     'estimated_duration_days' => rand(30, 35),
-                    'status' => 'pending',
+                    'status' => 'draft',
                 ];
                 $steps[] = [
                     'action_type' => 'workshop',
@@ -165,7 +165,7 @@ class DevelopmentPathService
                     'skill_name' => $skillName,
                     'description' => "Workshop práctico de {$skillName}",
                     'estimated_duration_days' => rand(10, 15),
-                    'status' => 'pending',
+                    'status' => 'draft',
                 ];
                 $steps[] = [
                     'action_type' => 'project',
@@ -173,7 +173,7 @@ class DevelopmentPathService
                     'skill_name' => $skillName,
                     'description' => "Proyecto enterprise aplicando {$skillName}",
                     'estimated_duration_days' => rand(20, 25),
-                    'status' => 'pending',
+                    'status' => 'draft',
                 ];
                 break;
         }
@@ -186,7 +186,7 @@ class DevelopmentPathService
                 'skill_name' => $skillName,
                 'description' => "Certificación oficial en {$skillName}",
                 'estimated_duration_days' => 15,
-                'status' => 'pending',
+                'status' => 'draft',
             ];
         }
 
