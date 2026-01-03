@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { useNotification } from '@kyvg/vue3-notification';
+import { useTheme as useVuetifyTheme } from 'vuetify';
 
 defineOptions({ layout: AppLayout });
+
+const vuetifyTheme = useVuetifyTheme();
+
+const headerGradient = computed(() => {
+  const theme = vuetifyTheme.global.current.value;
+  return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
+});
 
 const { notify } = useNotification();
 
@@ -91,117 +99,117 @@ onMounted(() => {
 
 <template>
   <div class="pa-4">
-    <div class="mb-6">
-      <h1 class="text-h4 font-weight-bold mb-2">Learning Paths</h1>
-      <p class="text-body2 text-grey">Development paths for skill growth and career progression</p>
+    <!-- Header -->
+    <div class="d-flex justify-space-between align-center mb-4" :style="{ background: headerGradient }" style="padding: 1.5rem; border-radius: 8px;">
+      <div>
+        <h1 class="text-h4 font-weight-bold mb-2" style="color: white;">Learning Paths</h1>
+        <p class="text-subtitle-2" style="color: rgba(255,255,255,0.85);">
+          Development paths for skill growth and career progression
+        </p>
+      </div>
     </div>
 
     <!-- Loading State -->
-    <v-card v-if="loading" class="mb-6">
-      <v-card-text class="text-center py-8">
-        <v-progress-circular indeterminate color="primary" />
-        <p class="mt-4">Loading development paths...</p>
+    <v-card v-if="loading" class="mb-6" elevation="0" variant="outlined">
+      <v-card-text class="text-center py-12">
+        <v-progress-circular indeterminate color="primary" size="48" />
+        <p class="mt-4 text-medium-emphasis">Cargando rutas de aprendizaje...</p>
       </v-card-text>
     </v-card>
 
     <!-- Paths List -->
     <div v-if="!loading">
-      <v-card v-if="paths.length === 0" class="mb-6">
-        <v-card-text class="text-center py-12">
-          <v-icon size="64" class="mb-4 text-grey">mdi-map-marker-path</v-icon>
-          <p class="text-body1 text-grey">No development paths created yet</p>
+      <v-card v-if="paths.length === 0" elevation="0" variant="outlined" class="py-16">
+        <v-card-text class="text-center">
+          <v-icon size="80" class="mb-6 text-medium-emphasis">mdi-map-marker-path</v-icon>
+          <div class="text-h6 mb-2">No hay rutas de aprendizaje</div>
+          <div class="text-body-2 text-medium-emphasis">
+            Las rutas de desarrollo se crean desde el módulo de análisis de brechas (Gap Analysis)
+          </div>
         </v-card-text>
       </v-card>
 
-      <v-card v-for="path in paths" :key="path.id" class="mb-4">
+      <v-card v-for="path in paths" :key="path.id" class="mb-4" elevation="0" variant="outlined">
         <!-- Header -->
         <v-card-title
           @click="expandedPath = expandedPath === path.id ? null : path.id"
-          class="cursor-pointer hover:bg-grey-100"
+          style="cursor: pointer;"
+          class="pa-6"
         >
           <div class="d-flex align-center justify-space-between w-100">
             <div class="flex-grow-1">
-              <div class="font-weight-bold">{{ path.people_name }}</div>
-              <div class="text-body2 text-grey">
-                → {{ path.target_role_name }}
+              <div class="text-h6 font-weight-bold">{{ path.people_name }}</div>
+              <div class="text-body-2 text-medium-emphasis d-flex align-center mt-1">
+                <v-icon size="small" class="mr-1">mdi-arrow-right</v-icon>
+                {{ path.target_role_name }}
               </div>
             </div>
             <div class="text-right mr-4">
-              <div class="text-caption text-grey">
-                {{ calculateTotalDuration(path.steps) }} days
-              </div>
-              <div class="text-body2 font-weight-medium">
-                {{ path.steps.length }} steps
+              <v-chip size="small" color="primary" variant="tonal" class="mb-1">
+                <v-icon start size="small">mdi-clock-outline</v-icon>
+                {{ calculateTotalDuration(path.steps) }} días
+              </v-chip>
+              <div class="text-caption text-medium-emphasis">
+                {{ path.steps.length }} pasos
               </div>
             </div>
-            <v-icon>
-              {{ expandedPath === path.id ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
-            </v-icon>
+            <v-btn icon variant="text" size="small">
+              <v-icon>
+                {{ expandedPath === path.id ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+              </v-icon>
+            </v-btn>
           </div>
         </v-card-title>
 
         <!-- Timeline of Steps -->
         <v-expand-transition>
-          <v-card-text v-if="expandedPath === path.id">
-            <div class="ml-4">
-              <div class="relative">
-                <div v-for="(step, index) in path.steps" :key="index" class="mb-6">
-                  <!-- Step Item -->
-                  <div class="d-flex gap-4">
-                    <!-- Timeline Dot -->
-                    <div class="position-relative pt-1">
-                      <v-chip
-                        size="small"
-                        :color="getActionColor(step.action_type)"
-                        text-color="white"
-                        :icon="getActionIcon(step.action_type)"
-                      />
-                      <!-- Connector Line -->
-                      <div
-                        v-if="index < path.steps.length - 1"
-                        class="position-absolute"
-                        style="
-                          left: 50%;
-                          top: 40px;
-                          width: 2px;
-                          height: 40px;
-                          background-color: #e0e0e0;
-                          transform: translateX(-50%);
-                        "
-                      />
-                    </div>
-
-                    <!-- Content -->
-                    <div class="flex-grow-1 pb-4">
-                      <div class="d-flex align-center gap-2 mb-2">
-                        <h4 class="font-weight-bold">{{ step.skill_name }}</h4>
-                        <v-chip
-                          size="x-small"
-                          variant="outlined"
-                          :color="getActionColor(step.action_type)"
-                        >
-                          {{ step.action_type }}
-                        </v-chip>
-                      </div>
-                      <p class="text-body2 text-grey mb-2">
-                        {{ step.description }}
-                      </p>
-                      <div class="d-flex gap-4 text-caption">
-                        <div>
-                          <span class="text-grey">Duration:</span>
-                          <strong>{{ step.estimated_duration_days }} days</strong>
+          <div v-if="expandedPath === path.id">
+            <v-divider />
+            <v-card-text class="pa-6">
+              <div class="ml-2">
+                <v-timeline side="end" density="compact" line-inset="12">
+                  <v-timeline-item
+                    v-for="(step, index) in path.steps"
+                    :key="index"
+                    :dot-color="getActionColor(step.action_type)"
+                    size="small"
+                  >
+                    <template #icon>
+                      <v-icon size="small" :icon="getActionIcon(step.action_type)" />
+                    </template>
+                    
+                    <v-card elevation="0" variant="tonal" :color="getActionColor(step.action_type)">
+                      <v-card-text class="pa-4">
+                        <div class="d-flex align-center justify-space-between mb-2">
+                          <div class="text-subtitle-1 font-weight-bold">{{ step.skill_name }}</div>
+                          <v-chip
+                            size="small"
+                            variant="flat"
+                            :color="getActionColor(step.action_type)"
+                          >
+                            {{ step.action_type }}
+                          </v-chip>
                         </div>
-                        <div>
-                          <span class="text-grey">Order:</span>
-                          <strong>Step {{ step.order }}</strong>
+                        <p class="text-body-2 text-medium-emphasis mb-3">
+                          {{ step.description }}
+                        </p>
+                        <div class="d-flex gap-4">
+                          <v-chip size="x-small" variant="outlined">
+                            <v-icon start size="x-small">mdi-clock-outline</v-icon>
+                            {{ step.estimated_duration_days }} días
+                          </v-chip>
+                          <v-chip size="x-small" variant="outlined">
+                            <v-icon start size="x-small">mdi-order-numeric-ascending</v-icon>
+                            Paso {{ step.order }}
+                          </v-chip>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                      </v-card-text>
+                    </v-card>
+                  </v-timeline-item>
+                </v-timeline>
               </div>
-            </div>
-          </v-card-text>
+            </v-card-text>
+          </div>
         </v-expand-transition>
       </v-card>
     </div>
@@ -209,83 +217,5 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.cursor-pointer {
-  cursor: pointer;
-}
-
-.hover\:bg-grey-100:hover {
-  background-color: #f5f5f5;
-}
-
-.relative {
-  position: relative;
-}
-
-.position-relative {
-  position: relative;
-}
-
-.position-absolute {
-  position: absolute;
-}
-
-.pt-1 {
-  padding-top: 4px;
-}
-
-.w-100 {
-  width: 100%;
-}
-
-.flex-grow-1 {
-  flex-grow: 1;
-}
-
-.d-flex {
-  display: flex;
-}
-
-.align-center {
-  align-items: center;
-}
-
-.gap-4 {
-  gap: 16px;
-}
-
-.gap-2 {
-  gap: 8px;
-}
-
-.mb-6 {
-  margin-bottom: 24px;
-}
-
-.mb-4 {
-  margin-bottom: 16px;
-}
-
-.mb-2 {
-  margin-bottom: 8px;
-}
-
-.ml-4 {
-  margin-left: 16px;
-}
-
-.mr-4 {
-  margin-right: 16px;
-}
-
-.text-right {
-  text-align: right;
-}
-
-.justify-space-between {
-  justify-content: space-between;
-}
-
-.pb-4 {
-  padding-bottom: 16px;
-}
+/* Removed custom styles - using Vuetify utilities */
 </style>

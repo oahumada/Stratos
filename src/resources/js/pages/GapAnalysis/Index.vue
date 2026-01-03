@@ -60,6 +60,7 @@ const selectedPeopleId = ref<number | null>(null);
 const selectedRoleId = ref<number | null>(null);
 const loading = ref(false);
 const analyzing = ref(false);
+const generatingPath = ref(false);
 const result = ref<GapAnalysisResult | null>(null);
 
 const peopleOptions = computed(() =>
@@ -170,6 +171,35 @@ const getMatchColor = (percentage: number): string => {
   return 'error';
 };
 
+const generateLearningPath = async () => {
+  if (!selectedPeopleId.value || !selectedRoleId.value) {
+    notify({ type: 'warning', text: 'Selecciona persona y rol' });
+    return;
+  }
+
+  generatingPath.value = true;
+  try {
+    const response = await axios.post('/api/development-paths/generate', {
+      people_id: selectedPeopleId.value,
+      role_id: selectedRoleId.value,
+    });
+    notify({ 
+      type: 'success', 
+      text: 'Ruta de aprendizaje generada exitosamente'
+    });
+    // Redirect to learning paths
+    window.location.href = '/learning-paths';
+  } catch (err: any) {
+    console.error('Failed to generate learning path', err);
+    notify({ 
+      type: 'error', 
+      text: err.response?.data?.message || 'Error al generar la ruta de aprendizaje' 
+    });
+  } finally {
+    generatingPath.value = false;
+  }
+};
+
 onMounted(() => {
   loadPeoplesAndRoles();
 });
@@ -237,7 +267,7 @@ onMounted(() => {
     <div v-if="result">
       <v-card class="mb-4">
         <v-card-text>
-          <div class="d-flex flex-wrap justify-space-between align-center gap-4">
+          <div class="d-flex flex-wrap justify-space-between align-center gap-4 mb-4">
             <div>
               <div class="text-caption text-medium-emphasis">Persona</div>
               <div class="text-subtitle-1 font-weight-medium">{{ result.people?.name }}</div>
@@ -267,6 +297,18 @@ onMounted(() => {
             <v-chip size="small" color="info" variant="outlined" v-if="result.analysis.gaps.length === 0">
               Sin brechas
             </v-chip>
+          </div>
+          <v-divider class="my-4" />
+          <div class="d-flex justify-end">
+            <v-btn
+              color="success"
+              variant="tonal"
+              @click="generateLearningPath"
+              :loading="generatingPath"
+              prepend-icon="mdi-map-marker-path"
+            >
+              Generar ruta de aprendizaje
+            </v-btn>
           </div>
         </v-card-text>
       </v-card>

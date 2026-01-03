@@ -27,6 +27,7 @@ Route::get('/catalogs', function (Illuminate\Http\Request $request) {
 
 // Core services
 Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::class, 'analyze']);
+Route::get('/development-paths', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'index']);
 Route::post('/development-paths/generate', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'generate']);
 
 // Job Openings (Día 4-5)

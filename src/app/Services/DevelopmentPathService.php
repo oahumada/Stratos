@@ -9,76 +9,181 @@ use App\Models\Roles;
 class DevelopmentPathService
 {
     /**
-     * Genera una ruta de desarrollo basada en las brechas del GapAnalysisService.
+     * Genera una ruta de desarrollo personalizada basada en gap analysis.
+     * 
+     * Lógica según especificación:
+     * - Gap 1: reading (15-20 días)
+     * - Gap 2: course + practice (45-50 días)
+     * - Gap 3: course + mentorship + project (75-90 días)
+     * - Gap 4+: course + mentorship + project + workshop (100-120 días)
+     * - Skills críticas: + certification (15 días extra)
+     * 
+     * Priorización: críticas primero, mayor gap primero
      */
     public function generate(People $people, Roles $targetRole): DevelopmentPath
     {
         $gapService = new GapAnalysisService();
         $analysis = $gapService->calculate($people, $targetRole);
 
+        // Filtrar solo gaps > 0 y ordenar por prioridad
         $gaps = collect($analysis['gaps'])
             ->filter(fn($g) => ($g['gap'] ?? 0) > 0)
-            ->sortByDesc(fn($g) => [
-                // Prioridad: críticas primero, luego gap más alto, luego rápidas (gap=1)
-                (int) ($g['is_critical'] ? 1 : 0),
-                (int) $g['gap'],
-                (int) ($g['gap'] === 1 ? 1 : 0),
+            ->sortBy([
+                // Orden: críticas desc, gap desc, nombre asc
+                fn($g) => $g['is_critical'] ? 0 : 1,
+                fn($g) => -$g['gap'],
+                fn($g) => $g['skill_name'],
             ]);
 
         $steps = [];
-        $totalHours = 0;
+        $order = 1;
+        $totalDays = 0;
 
         foreach ($gaps as $gap) {
             $gapValue = (int) $gap['gap'];
-            $critical = (bool) $gap['is_critical'];
+            $isCritical = (bool) ($gap['is_critical'] ?? false);
+            $skillName = $gap['skill_name'];
+            $skillId = $gap['skill_id'];
 
-            // Heurística simple de acción
-            $actionType = $critical
-                ? 'mentoring'
-                : ($gapValue > 2 ? 'course' : ($gapValue === 1 ? 'project' : 'course'));
+            // Generar pasos según el gap
+            $gapSteps = $this->generateStepsForGap($skillId, $skillName, $gapValue, $isCritical);
 
-            // Estimación de horas según tipo y tamaño de brecha
-            $durationHours = match ($actionType) {
-                'mentoring' => 12 * $gapValue, // 12h por nivel crítico
-                'course' => 20 * $gapValue,    // 20h por nivel
-                'project' => 16,               // proyecto corto
-                default => 12,
-            };
-
-            $totalHours += $durationHours;
-
-            $steps[] = [
-                'skill_id' => $gap['skill_id'],
-                'skill_name' => $gap['skill_name'],
-                'action_type' => $actionType,
-                'title' => $this->suggestTitle($gap['skill_name'], $actionType),
-                'duration_hours' => $durationHours,
-                'notes' => $critical ? 'Skill crítica para el rol objetivo.' : null,
-            ];
+            foreach ($gapSteps as $step) {
+                $steps[] = array_merge($step, ['order' => $order++]);
+                $totalDays += $step['estimated_duration_days'];
+            }
         }
 
-        // Conversión de horas a meses (160h ~ 1 mes)
-        $estimatedMonths = max(1, (int) ceil($totalHours / 160));
+        // Convertir días a meses (30 días = 1 mes)
+        $estimatedMonths = max(0.5, round($totalDays / 30, 1));
 
         return DevelopmentPath::create([
-            'organization_id' => $people->organization_id,
+            'organization_id' => $people->organization_id ?? null,
             'people_id' => $people->id,
             'target_role_id' => $targetRole->id,
-            'status' => 'draft',
+            'status' => 'pending',
             'estimated_duration_months' => $estimatedMonths,
             'steps' => $steps,
         ]);
     }
 
-    private function suggestTitle(string $skillName, string $actionType): string
+    /**
+     * Genera pasos específicos para una skill según el tamaño del gap
+     */
+    private function generateStepsForGap(int $skillId, string $skillName, int $gap, bool $isCritical): array
     {
-        return match ($actionType) {
-            'mentoring' => 'Mentoría avanzada en ' . $skillName,
-            'course' => 'Curso intensivo de ' . $skillName,
-            'project' => 'Proyecto práctico en ' . $skillName,
-            'certification' => 'Certificación en ' . $skillName,
-            'job_shadowing' => 'Job shadowing en ' . $skillName,
-            default => 'Mejora de ' . $skillName,
-        };
+        $steps = [];
+
+        switch ($gap) {
+            case 1:
+                // Gap pequeño: solo lectura
+                $steps[] = [
+                    'action_type' => 'reading',
+                    'skill_id' => $skillId,
+                    'skill_name' => $skillName,
+                    'description' => "Estudio individual y documentación de {$skillName}",
+                    'estimated_duration_days' => rand(15, 20),
+                    'status' => 'pending',
+                ];
+                break;
+
+            case 2:
+                // Gap medio: curso + práctica
+                $steps[] = [
+                    'action_type' => 'course',
+                    'skill_id' => $skillId,
+                    'skill_name' => $skillName,
+                    'description' => "Curso intensivo de {$skillName} con enfoque práctico",
+                    'estimated_duration_days' => rand(25, 30),
+                    'status' => 'pending',
+                ];
+                $steps[] = [
+                    'action_type' => 'practice',
+                    'skill_id' => $skillId,
+                    'skill_name' => $skillName,
+                    'description' => "Ejercicios prácticos y proyectos pequeños de {$skillName}",
+                    'estimated_duration_days' => rand(15, 20),
+                    'status' => 'pending',
+                ];
+                break;
+
+            case 3:
+                // Gap grande: curso + mentoría + proyecto
+                $steps[] = [
+                    'action_type' => 'course',
+                    'skill_id' => $skillId,
+                    'skill_name' => $skillName,
+                    'description' => "Formación avanzada en {$skillName}",
+                    'estimated_duration_days' => rand(30, 35),
+                    'status' => 'pending',
+                ];
+                $steps[] = [
+                    'action_type' => 'mentorship',
+                    'skill_id' => $skillId,
+                    'skill_name' => $skillName,
+                    'description' => "Mentoría personalizada para dominar {$skillName}",
+                    'estimated_duration_days' => rand(25, 30),
+                    'status' => 'pending',
+                ];
+                $steps[] = [
+                    'action_type' => 'project',
+                    'skill_id' => $skillId,
+                    'skill_name' => $skillName,
+                    'description' => "Proyecto real aplicando {$skillName} en caso de uso empresarial",
+                    'estimated_duration_days' => rand(20, 25),
+                    'status' => 'pending',
+                ];
+                break;
+
+            default: // 4+
+                // Gap muy grande: curso + mentoría + proyecto + workshop
+                $steps[] = [
+                    'action_type' => 'course',
+                    'skill_id' => $skillId,
+                    'skill_name' => $skillName,
+                    'description' => "Programa completo de formación en {$skillName}",
+                    'estimated_duration_days' => rand(40, 45),
+                    'status' => 'pending',
+                ];
+                $steps[] = [
+                    'action_type' => 'mentorship',
+                    'skill_id' => $skillId,
+                    'skill_name' => $skillName,
+                    'description' => "Mentoría intensiva con experto en {$skillName}",
+                    'estimated_duration_days' => rand(30, 35),
+                    'status' => 'pending',
+                ];
+                $steps[] = [
+                    'action_type' => 'workshop',
+                    'skill_id' => $skillId,
+                    'skill_name' => $skillName,
+                    'description' => "Workshop práctico de {$skillName}",
+                    'estimated_duration_days' => rand(10, 15),
+                    'status' => 'pending',
+                ];
+                $steps[] = [
+                    'action_type' => 'project',
+                    'skill_id' => $skillId,
+                    'skill_name' => $skillName,
+                    'description' => "Proyecto enterprise aplicando {$skillName}",
+                    'estimated_duration_days' => rand(20, 25),
+                    'status' => 'pending',
+                ];
+                break;
+        }
+
+        // Si es crítica, agregar certificación
+        if ($isCritical) {
+            $steps[] = [
+                'action_type' => 'certification',
+                'skill_id' => $skillId,
+                'skill_name' => $skillName,
+                'description' => "Certificación oficial en {$skillName}",
+                'estimated_duration_days' => 15,
+                'status' => 'pending',
+            ];
+        }
+
+        return $steps;
     }
 }
