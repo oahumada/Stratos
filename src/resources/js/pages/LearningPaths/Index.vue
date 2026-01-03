@@ -38,6 +38,9 @@ interface DevelopmentPath {
 const paths = ref<DevelopmentPath[]>([]);
 const loading = ref(false);
 const expandedPath = ref<number | null>(null);
+const deleteDialogOpen = ref(false);
+const pathToDelete = ref<DevelopmentPath | null>(null);
+const deleting = ref(false);
 
 // Load development paths
 const loadPaths = async () => {
@@ -92,6 +95,35 @@ const calculateTotalDuration = (steps: DevelopmentStep[]): number => {
   return steps.reduce((total, step) => total + (step.estimated_duration_days || 0), 0);
 };
 
+const openDeleteDialog = (path: DevelopmentPath) => {
+  pathToDelete.value = path;
+  deleteDialogOpen.value = true;
+};
+
+const confirmDelete = async () => {
+  if (!pathToDelete.value) return;
+
+  deleting.value = true;
+  try {
+    await axios.delete(`/api/development-paths/${pathToDelete.value.id}`);
+    notify({
+      type: 'success',
+      text: 'Ruta de aprendizaje eliminada correctamente'
+    });
+    deleteDialogOpen.value = false;
+    pathToDelete.value = null;
+    await loadPaths();
+  } catch (err: any) {
+    console.error('Failed to delete path', err);
+    notify({
+      type: 'error',
+      text: err.response?.data?.message || 'Error al eliminar la ruta'
+    });
+  } finally {
+    deleting.value = false;
+  }
+};
+
 onMounted(() => {
   loadPaths();
 });
@@ -104,10 +136,71 @@ onMounted(() => {
       <div>
         <h1 class="text-h4 font-weight-bold mb-2" style="color: white;">Learning Paths</h1>
         <p class="text-subtitle-2" style="color: rgba(255,255,255,0.85);">
-          Development paths for skill growth and career progression
+          Rutas de desarrollo personalizadas para el crecimiento de competencias
         </p>
       </div>
     </div>
+
+    <!-- Description Section -->
+    <v-card class="mb-6" elevation="0" variant="outlined">
+      <v-card-text class="pa-6">
+        <div class="d-flex align-start gap-4">
+          <v-icon size="48" color="primary" class="mt-1">mdi-map-marker-path</v-icon>
+          <div class="flex-grow-1">
+            <h2 class="text-h6 font-weight-bold mb-3">¿Qué es un Learning Path?</h2>
+            <p class="text-body-2 mb-3">
+              Un <strong>Learning Path</strong> es una ruta de aprendizaje personalizada y estructurada que se genera automáticamente 
+              basándose en el análisis de brechas de competencias entre el perfil actual de una persona y los requisitos de un rol objetivo.
+            </p>
+            <p class="text-body-2 mb-3">
+              Cada ruta contiene una secuencia organizada de pasos de desarrollo que guían el crecimiento profesional de manera 
+              progresiva y medible, desde el nivel actual hasta alcanzar las competencias requeridas.
+            </p>
+            
+            <div class="mt-4">
+              <h3 class="text-subtitle-1 font-weight-bold mb-2">Características principales:</h3>
+              <v-row dense>
+                <v-col cols="12" md="6">
+                  <div class="d-flex align-start gap-2 mb-2">
+                    <v-icon size="small" color="success">mdi-check-circle</v-icon>
+                    <span class="text-body-2"><strong>Personalizada:</strong> Adaptada al nivel actual de cada persona</span>
+                  </div>
+                  <div class="d-flex align-start gap-2 mb-2">
+                    <v-icon size="small" color="success">mdi-check-circle</v-icon>
+                    <span class="text-body-2"><strong>Priorizada:</strong> Skills críticas y brechas grandes primero</span>
+                  </div>
+                  <div class="d-flex align-start gap-2 mb-2">
+                    <v-icon size="small" color="success">mdi-check-circle</v-icon>
+                    <span class="text-body-2"><strong>Estructurada:</strong> Pasos secuenciales con duración estimada</span>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="d-flex align-start gap-2 mb-2">
+                    <v-icon size="small" color="success">mdi-check-circle</v-icon>
+                    <span class="text-body-2"><strong>Diversa:</strong> Múltiples tipos de actividades de aprendizaje</span>
+                  </div>
+                  <div class="d-flex align-start gap-2 mb-2">
+                    <v-icon size="small" color="success">mdi-check-circle</v-icon>
+                    <span class="text-body-2"><strong>Medible:</strong> Duración total y progreso por paso</span>
+                  </div>
+                  <div class="d-flex align-start gap-2 mb-2">
+                    <v-icon size="small" color="success">mdi-check-circle</v-icon>
+                    <span class="text-body-2"><strong>Certificable:</strong> Incluye certificaciones para skills críticas</span>
+                  </div>
+                </v-col>
+              </v-row>
+            </div>
+
+            <v-alert type="info" variant="tonal" class="mt-4" density="compact">
+              <template #prepend>
+                <v-icon>mdi-information</v-icon>
+              </template>
+              <strong>Cómo generar una ruta:</strong> Realiza un análisis de brechas (Gap Analysis) y haz clic en "Generar ruta de aprendizaje"
+            </v-alert>
+          </div>
+        </div>
+      </v-card-text>
+    </v-card>
 
     <!-- Loading State -->
     <v-card v-if="loading" class="mb-6" elevation="0" variant="outlined">
@@ -153,6 +246,16 @@ onMounted(() => {
                 {{ path.steps.length }} pasos
               </div>
             </div>
+            <v-btn
+              icon
+              variant="text"
+              size="small"
+              @click.stop="openDeleteDialog(path)"
+              color="error"
+              title="Eliminar ruta"
+            >
+              <v-icon>mdi-delete-outline</v-icon>
+            </v-btn>
             <v-btn icon variant="text" size="small">
               <v-icon>
                 {{ expandedPath === path.id ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
@@ -213,6 +316,41 @@ onMounted(() => {
         </v-expand-transition>
       </v-card>
     </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog v-model="deleteDialogOpen" max-width="500px">
+      <v-card>
+        <v-card-title class="d-flex align-center gap-2 text-error">
+          <v-icon>mdi-alert-circle-outline</v-icon>
+          Eliminar ruta de aprendizaje
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="py-6">
+          <p class="text-body-2 mb-3">
+            ¿Está seguro de que desea eliminar la ruta de aprendizaje de <strong>{{ pathToDelete?.people_name }}</strong>?
+          </p>
+          <p class="text-body-2 text-medium-emphasis">
+            Esta acción no se puede deshacer. La ruta será marcada como eliminada en el sistema.
+          </p>
+        </v-card-text>
+        <v-divider />
+        <v-card-actions class="pa-4">
+          <v-spacer />
+          <v-btn variant="outlined" @click="deleteDialogOpen = false">
+            Cancelar
+          </v-btn>
+          <v-btn
+            color="error"
+            variant="flat"
+            @click="confirmDelete"
+            :loading="deleting"
+          >
+            <v-icon start>mdi-delete</v-icon>
+            Eliminar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 

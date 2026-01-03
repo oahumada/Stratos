@@ -68,19 +68,22 @@ class DevelopmentPathController extends Controller
         $service = new DevelopmentPathService();
         $path = $service->generate($people, $role);
 
+    /**
+     * Elimina una ruta de desarrollo (soft delete)
+     */
+    public function destroy($id): JsonResponse
+    {
+        $path = DevelopmentPath::find($id);
+        
+        if (!$path) {
+            return response()->json(['error' => 'Ruta no encontrada'], 404);
+        }
+
+        $path->delete();
+
         return response()->json([
-            'id' => $path->id,
-            'status' => $path->status,
-            'estimated_duration_months' => $path->estimated_duration_months,
-            'steps' => $path->steps,
-            'people' => [
-                'id' => $people->id,
-                'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
-            ],
-            'target_role' => [
-                'id' => $role->id,
-                'name' => $role->name,
-            ],
-        ], 201);
+            'message' => 'Ruta de aprendizaje eliminada correctamente',
+            'id' => $id
+        ], 200);
     }
 }

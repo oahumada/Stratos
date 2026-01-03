@@ -29,6 +29,7 @@ Route::get('/catalogs', function (Illuminate\Http\Request $request) {
 Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::class, 'analyze']);
 Route::get('/development-paths', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'index']);
 Route::post('/development-paths/generate', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'generate']);
+Route::delete('/development-paths/{id}', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'destroy']);
 
 // Job Openings (Día 4-5)
 Route::get('/job-openings', [\App\Http\Controllers\Api\JobOpeningController::class, 'index']);
