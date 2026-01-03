@@ -39,15 +39,17 @@ class GapAnalysisController extends Controller
         $analysis = $service->calculate($people, $role);
 
         return response()->json([
-            'people' => [
-                'id' => $people->id,
-                'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
-            ],
-            'role' => [
-                'id' => $role->id,
-                'name' => $role->name,
-            ],
-            'analysis' => $analysis,
+            'data' => [
+                'people' => [
+                    'id' => $people->id,
+                    'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
+                ],
+                'role' => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                ],
+                'analysis' => $analysis,
+            ]
         ]);
     }
 }

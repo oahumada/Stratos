@@ -177,12 +177,19 @@ const generateLearningPath = async () => {
     return;
   }
 
+  if (!result.value) {
+    notify({ type: 'warning', text: 'Realiza primero un análisis de brechas' });
+    return;
+  }
+
   generatingPath.value = true;
   try {
+    console.log('Generating learning path for people:', selectedPeopleId.value, 'role:', selectedRoleId.value);
     const response = await axios.post('/api/development-paths/generate', {
       people_id: selectedPeopleId.value,
       role_id: selectedRoleId.value,
     });
+    console.log('Learning path generated:', response.data);
     notify({ 
       type: 'success', 
       text: 'Ruta de aprendizaje generada exitosamente'
