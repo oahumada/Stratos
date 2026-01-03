@@ -26,7 +26,7 @@ class DevelopmentPathService
         $analysis = $gapService->calculate($people, $targetRole);
 
         // Filtrar solo gaps > 0 y ordenar por prioridad
-        $gaps = collect($analysis['gaps'])
+        $gaps = collect($analysis['gaps'] ?? [])
             ->filter(fn($g) => ($g['gap'] ?? 0) > 0)
             ->sortBy([
                 // Orden: críticas desc, gap desc, nombre asc
@@ -57,8 +57,14 @@ class DevelopmentPathService
         // Convertir días a meses (30 días = 1 mes)
         $estimatedMonths = max(0.5, round($totalDays / 30, 1));
 
+        // Obtener organization_id de la persona o del usuario autenticado
+        $organizationId = $people->organization_id;
+        if (!$organizationId && auth()->check()) {
+            $organizationId = auth()->user()->organization_id;
+        }
+
         return DevelopmentPath::create([
-            'organization_id' => $people->organization_id ?? null,
+            'organization_id' => $organizationId,
             'people_id' => $people->id,
             'target_role_id' => $targetRole->id,
             'status' => 'pending',

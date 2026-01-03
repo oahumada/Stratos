@@ -43,30 +43,60 @@ class DevelopmentPathController extends Controller
      */
     public function generate(Request $request): JsonResponse
     {
-        $data = $request->validate([
-            'people_id' => ['required', 'integer'],
-            'role_id' => ['nullable', 'integer'],
-            'role_name' => ['nullable', 'string'],
-        ]);
+        try {
+            $data = $request->validate([
+                'people_id' => ['required', 'integer'],
+                'role_id' => ['nullable', 'integer'],
+                'role_name' => ['nullable', 'string'],
+            ]);
 
-        $people = People::find($data['people_id']);
-        if (! $people) {
-            return response()->json(['error' => 'Persona no encontrada'], 404);
+            $people = People::find($data['people_id']);
+            if (! $people) {
+                return response()->json(['error' => 'Persona no encontrada'], 404);
+            }
+
+            $role = null;
+            if (!empty($data['role_id'])) {
+                $role = Roles::find($data['role_id']);
+            } elseif (!empty($data['role_name'])) {
+                $role = Roles::where('name', $data['role_name'])->first();
+            }
+
+            if (! $role) {
+                return response()->json(['error' => 'Rol no encontrado'], 404);
+            }
+
+            $service = new DevelopmentPathService();
+            $path = $service->generate($people, $role);
+
+            return response()->json([
+                'data' => [
+                    'id' => $path->id,
+                    'status' => $path->status,
+                    'estimated_duration_months' => $path->estimated_duration_months,
+                    'steps' => $path->steps,
+                    'people' => [
+                        'id' => $people->id,
+                        'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
+                    ],
+                    'target_role' => [
+                        'id' => $role->id,
+                        'name' => $role->name,
+                    ],
+                ]
+            ], 201);
+        } catch (\Exception $e) {
+            \Log::error('Development path generation error: ' . $e->getMessage(), [
+                'people_id' => $request->input('people_id'),
+                'role_id' => $request->input('role_id'),
+            ]);
+            
+            return response()->json([
+                'error' => 'Error al generar la ruta de aprendizaje',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        $role = null;
-        if (!empty($data['role_id'])) {
-            $role = Roles::find($data['role_id']);
-        } elseif (!empty($data['role_name'])) {
-            $role = Roles::where('name', $data['role_name'])->first();
-        }
-
-        if (! $role) {
-            return response()->json(['error' => 'Rol no encontrado'], 404);
-        }
-
-        $service = new DevelopmentPathService();
-        $path = $service->generate($people, $role);
+    }
 
     /**
      * Elimina una ruta de desarrollo (soft delete)
