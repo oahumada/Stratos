@@ -211,14 +211,21 @@ const priorityOptions = [
 ]
 
 // Computed
+const loading = computed(() => store.getLoadingState('gaps'))
+const error = computed(() => store.getError('gaps'))
+const skillGaps = computed(() => store.getSkillGaps(props.scenarioId))
+
 const departments = computed(() => {
-  const depts = new Set(skillGaps.value.map(gap => gap.department))
+  const gaps = skillGaps.value || []
+  const depts = new Set(gaps.map(gap => gap.department))
   return Array.from(depts).sort()
 })
 
 const departmentOptions = computed(() => {
   return departments.value.map(dept => ({ title: dept, value: dept }))
 })
+
+const filteredSkillGaps = computed(() => store.getFilteredSkillGaps(props.scenarioId))
 
 // Methods
 const fetchSkillGaps = async () => {

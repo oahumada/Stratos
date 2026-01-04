@@ -396,19 +396,22 @@ const matches = computed(() => store.getMatches(props.scenarioId))
 const filteredMatches = computed(() => store.getFilteredMatches(props.scenarioId))
 
 const immediateReadyCount = computed(() => {
-  return filteredMatches.value.filter(m => m.readiness_level === 'immediate').length
+  const matches = filteredMatches.value || []
+  return matches.filter(m => m.readiness_level === 'immediate').length
 })
 
 const averageMatchScore = computed(() => {
-  if (filteredMatches.value.length === 0) return 0
-  const sum = filteredMatches.value.reduce((acc, m) => acc + m.match_score, 0)
-  return Math.round(sum / filteredMatches.value.length)
+  const matches = filteredMatches.value || []
+  if (matches.length === 0) return 0
+  const sum = matches.reduce((acc, m) => acc + m.match_score, 0)
+  return Math.round(sum / matches.length)
 })
 
 const internalCoveragePercentage = computed(() => {
-  if (filteredMatches.value.length === 0) return 0
-  const viableMatches = filteredMatches.value.filter(m => m.match_score >= 70).length
-  return Math.round((viableMatches / filteredMatches.value.length) * 100)
+  const matches = filteredMatches.value || []
+  if (matches.length === 0) return 0
+  const viableMatches = matches.filter(m => m.match_score >= 70).length
+  return Math.round((viableMatches / matches.length) * 100)
 })
 
 // Methods
