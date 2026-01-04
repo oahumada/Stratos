@@ -25,7 +25,7 @@ const MarketplaceIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-briefc
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/dashboard',
+        href: '/dashboard/analytics',
         icon: LayoutGrid,
     },
     {

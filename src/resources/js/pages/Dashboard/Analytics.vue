@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { ref, computed } from 'vue';
+import { useTheme as useVuetifyTheme } from 'vuetify';
 
 defineOptions({ layout: AppLayout });
 
 // State
+const vuetifyTheme = useVuetifyTheme();
 const loading = ref(false);
 const selectedPeriod = ref('month');
 const dashboardData = ref({
@@ -193,16 +195,30 @@ const getTrendColor = (trend: number): string => {
   return 'grey';
 };
 
+const headerGradient = computed(() => {
+  const theme = vuetifyTheme.global.current.value;
+  return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
+});
+
 </script>
 
 <template>
   <div class="pa-6">
     <!-- Header -->
     <div class="mb-6">
-      <h1 class="text-h4 font-weight-bold mb-2">Dashboard de Talento</h1>
-      <p class="text-body-2 text-medium-emphasis">
-        Visión integral de métricas de talento, marketplace y reclutamiento
-      </p>
+      <div
+        class="d-flex align-center justify-space-between pa-6"
+        :style="{ background: headerGradient }"
+        style="border-radius: 12px;"
+      >
+        <div>
+          <div class="text-overline text-white text-uppercase">Analytics</div>
+          <h1 class="text-h4 font-weight-bold mb-1" style="color: white;">Dashboard de Talento</h1>
+          <p class="text-body-2" style="color: rgba(255,255,255,0.85);">
+            Visión integral de métricas de talento, marketplace y reclutamiento
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Period Selector -->
