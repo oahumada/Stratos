@@ -187,6 +187,50 @@ const getStatusColor = (status: string): string => {
   return statusMap[status] || 'grey';
 };
 
+// Calculate summary metrics for recruiter view
+const recruiterSummary = computed(() => {
+  if (!positions.value || positions.value.length === 0) {
+    return {
+      totalPositions: 0,
+      positionsWithStrongCandidates: 0,
+      positionsWithWeakCandidates: 0,
+      positionsWithoutCandidates: 0,
+      avgMatchPercentage: 0,
+    };
+  }
+
+  let strongCount = 0;
+  let weakCount = 0;
+  let noCandidatesCount = 0;
+  let totalMatch = 0;
+  let totalCandidates = 0;
+
+  positions.value.forEach(position => {
+    const topCandidate = position.candidates[0];
+    
+    if (!topCandidate) {
+      noCandidatesCount++;
+    } else if (topCandidate.match_percentage >= 50) {
+      strongCount++;
+    } else {
+      weakCount++;
+    }
+
+    position.candidates.forEach(c => {
+      totalMatch += c.match_percentage;
+      totalCandidates++;
+    });
+  });
+
+  return {
+    totalPositions: positions.value.length,
+    positionsWithStrongCandidates: strongCount,
+    positionsWithWeakCandidates: weakCount,
+    positionsWithoutCandidates: noCandidatesCount,
+    avgMatchPercentage: totalCandidates > 0 ? Math.round(totalMatch / totalCandidates) : 0,
+  };
+});
+
 onMounted(() => {
   loadRecruiterView(); // Vista por defecto para admin
   // loadOpportunities(); // Se cargará cuando se cambie al tab de empleado
@@ -243,6 +287,103 @@ onMounted(() => {
 
     <!-- Vista de Reclutador: Posiciones con Candidatos -->
     <div v-if="activeTab === 'recruiter'">
+      <!-- Summary Dashboard -->
+      <v-row v-if="!loadingRecruiter && positions.length > 0" class="mb-6">
+        <v-col cols="12">
+          <h3 class="text-h6 font-weight-bold mb-4">Resumen de Búsqueda de Talento</h3>
+        </v-col>
+        
+        <!-- Total Positions -->
+        <v-col cols="12" md="3">
+          <v-card elevation="0" variant="outlined">
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between">
+                <div>
+                  <div class="text-caption text-medium-emphasis">Posiciones Abiertas</div>
+                  <div class="text-h4 font-weight-bold mt-1">{{ recruiterSummary.totalPositions }}</div>
+                </div>
+                <v-avatar color="primary" size="48">
+                  <v-icon size="24">mdi-briefcase-outline</v-icon>
+                </v-avatar>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <!-- Positions with Strong Candidates (50%+) -->
+        <v-col cols="12" md="3">
+          <v-card elevation="0" variant="outlined">
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between">
+                <div>
+                  <div class="text-caption text-medium-emphasis">Talento Interno Fuerte</div>
+                  <div class="text-h4 font-weight-bold text-success mt-1">{{ recruiterSummary.positionsWithStrongCandidates }}</div>
+                  <div class="text-caption text-success">Match ≥50%</div>
+                </div>
+                <v-avatar color="success" size="48">
+                  <v-icon size="24">mdi-account-check</v-icon>
+                </v-avatar>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <!-- Positions with Weak Candidates (0-50%) -->
+        <v-col cols="12" md="3">
+          <v-card elevation="0" variant="outlined">
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between">
+                <div>
+                  <div class="text-caption text-medium-emphasis">Talento en Desarrollo</div>
+                  <div class="text-h4 font-weight-bold text-warning mt-1">{{ recruiterSummary.positionsWithWeakCandidates }}</div>
+                  <div class="text-caption text-warning">Match &lt;50%</div>
+                </div>
+                <v-avatar color="warning" size="48">
+                  <v-icon size="24">mdi-account-alert</v-icon>
+                </v-avatar>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <!-- Need External Recruitment -->
+        <v-col cols="12" md="3">
+          <v-card elevation="0" variant="outlined">
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between">
+                <div>
+                  <div class="text-caption text-medium-emphasis">Requiere Búsqueda Externa</div>
+                  <div class="text-h4 font-weight-bold text-error mt-1">{{ recruiterSummary.positionsWithoutCandidates }}</div>
+                  <div class="text-caption text-error">Sin candidatos viables</div>
+                </div>
+                <v-avatar color="error" size="48">
+                  <v-icon size="24">mdi-account-search-outline</v-icon>
+                </v-avatar>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <!-- Recommendation Alert -->
+        <v-col cols="12" v-if="recruiterSummary.positionsWithWeakCandidates > 0 || recruiterSummary.positionsWithoutCandidates > 0">
+          <v-alert 
+            type="info" 
+            variant="tonal" 
+            density="compact"
+            prominent
+          >
+            <template #prepend>
+              <v-icon>mdi-information</v-icon>
+            </template>
+            <strong>Recomendación:</strong> 
+            {{ recruiterSummary.positionsWithoutCandidates > 0 ? 
+              `${recruiterSummary.positionsWithoutCandidates} posición(es) requieren búsqueda externa de talento.` :
+              `${recruiterSummary.positionsWithWeakCandidates} posición(es) tienen candidatos con bajo match - considera programas de desarrollo o búsqueda externa.`
+            }}
+          </v-alert>
+        </v-col>
+      </v-row>
+
       <!-- Loading State -->
       <v-card v-if="loadingRecruiter" class="mb-6" elevation="0" variant="outlined">
         <v-card-text class="text-center py-12">
