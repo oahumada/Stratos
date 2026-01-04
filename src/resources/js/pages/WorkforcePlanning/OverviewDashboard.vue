@@ -142,7 +142,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { usePage } from '@inertiajs/vue3'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
 import { Chart, registerables } from 'chart.js'
@@ -168,11 +168,16 @@ interface Analytics {
   medium_risk_positions: number
 }
 
-const route = useRoute()
+interface Props {
+  id: number | string
+}
+
+const props = defineProps<Props>()
+const page = usePage()
 const api = useApi()
 const { showSuccess, showError } = useNotification()
 
-const scenarioId = computed(() => route.params.id)
+const scenarioId = computed(() => props.id)
 const scenarioName = ref('')
 const scenarioDescription = ref('')
 const analyzing = ref(false)

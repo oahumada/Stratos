@@ -129,6 +129,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { router } from '@inertiajs/vue3'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
 
@@ -201,7 +202,7 @@ const loadScenarios = async () => {
     if (filters.value.fiscalYear) params.fiscal_year = filters.value.fiscalYear
 
     const response = await api.get('/api/v1/workforce-planning/scenarios', { params })
-    scenarios.value = response.data.data
+    scenarios.value = response.data
   } catch (error) {
     showError('Failed to load scenarios')
   } finally {
@@ -214,8 +215,8 @@ const applyFilters = () => {
 }
 
 const selectScenario = (scenario: Scenario) => {
-  // Navigate to scenario details
-  window.location.href = `/workforce-planning/${scenario.id}`
+  // Navigate to scenario details using Inertia
+  router.visit(`/workforce-planning/${scenario.id}`)
 }
 
 const editScenario = (scenario: Scenario) => {

@@ -1,82 +1,82 @@
 import { ref } from 'vue'
 
 export interface Notification {
-  id: string
-  type: 'success' | 'error' | 'warning' | 'info'
-  message: string
-  duration?: number
+    id: string
+    type: 'success' | 'error' | 'warning' | 'info'
+    message: string
+    duration?: number
 }
 
 const notifications = ref<Notification[]>([])
 
 export function useNotification() {
-  const addNotification = (notification: Omit<Notification, 'id'>) => {
-    const id = Math.random().toString(36).substring(7)
-    const newNotification: Notification = {
-      ...notification,
-      id,
-      duration: notification.duration || 3000,
+    const addNotification = (notification: Omit<Notification, 'id'>) => {
+        const id = Math.random().toString(36).substring(7)
+        const newNotification: Notification = {
+            ...notification,
+            id,
+            duration: notification.duration || 3000,
+        }
+
+        notifications.value.push(newNotification)
+
+        if (newNotification.duration) {
+            setTimeout(() => {
+                removeNotification(id)
+            }, newNotification.duration)
+        }
+
+        return id
     }
 
-    notifications.value.push(newNotification)
-
-    if (newNotification.duration) {
-      setTimeout(() => {
-        removeNotification(id)
-      }, newNotification.duration)
+    const removeNotification = (id: string) => {
+        notifications.value = notifications.value.filter((n) => n.id !== id)
     }
 
-    return id
-  }
+    const clearAll = () => {
+        notifications.value = []
+    }
 
-  const removeNotification = (id: string) => {
-    notifications.value = notifications.value.filter((n) => n.id !== id)
-  }
+    const showSuccess = (message: string, duration?: number) => {
+        return addNotification({
+            type: 'success',
+            message,
+            duration,
+        })
+    }
 
-  const clearAll = () => {
-    notifications.value = []
-  }
+    const showError = (message: string, duration?: number) => {
+        return addNotification({
+            type: 'error',
+            message,
+            duration: duration || 5000, // Longer duration for errors
+        })
+    }
 
-  const showSuccess = (message: string, duration?: number) => {
-    return addNotification({
-      type: 'success',
-      message,
-      duration,
-    })
-  }
+    const showWarning = (message: string, duration?: number) => {
+        return addNotification({
+            type: 'warning',
+            message,
+            duration,
+        })
+    }
 
-  const showError = (message: string, duration?: number) => {
-    return addNotification({
-      type: 'error',
-      message,
-      duration: duration || 5000, // Longer duration for errors
-    })
-  }
+    const showInfo = (message: string, duration?: number) => {
+        return addNotification({
+            type: 'info',
+            message,
+            duration,
+        })
+    }
 
-  const showWarning = (message: string, duration?: number) => {
-    return addNotification({
-      type: 'warning',
-      message,
-      duration,
-    })
-  }
-
-  const showInfo = (message: string, duration?: number) => {
-    return addNotification({
-      type: 'info',
-      message,
-      duration,
-    })
-  }
-
-  return {
-    notifications,
-    addNotification,
-    removeNotification,
-    clearAll,
-    showSuccess,
-    showError,
-    showWarning,
-    showInfo,
-  }
+    return {
+        notifications,
+        addNotification,
+        removeNotification,
+        clearAll,
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo,
+    }
 }
