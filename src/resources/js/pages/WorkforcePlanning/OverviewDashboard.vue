@@ -239,7 +239,10 @@ const page = usePage()
 const api = useApi()
 const { showSuccess, showError } = useNotification()
 
-const scenarioId = computed(() => props.id)
+const scenarioId = computed(() => {
+  const id = props.id
+  return typeof id === 'string' ? parseInt(id, 10) : (id || 0)
+})
 const scenarioName = ref('')
 const scenarioDescription = ref('')
 const analyzing = ref(false)

@@ -326,6 +326,11 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
 
         // Role Forecasts
         async fetchForecasts(scenarioId: number) {
+            if (!scenarioId) {
+                console.warn('fetchForecasts called with invalid scenarioId:', scenarioId)
+                return []
+            }
+
             // Return cached forecasts if available
             if (this.forecastsByScenario.has(scenarioId)) {
                 return this.forecastsByScenario.get(scenarioId)
@@ -338,11 +343,13 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
                 const response = await axios.get(
                     `/api/v1/workforce-planning/scenarios/${scenarioId}/role-forecasts`
                 )
-                this.forecastsByScenario.set(scenarioId, response.data)
-                return response.data
+                this.forecastsByScenario.set(scenarioId, response.data || [])
+                return response.data || []
             } catch (error: any) {
                 this.errors.forecasts = error.message || 'Failed to fetch forecasts'
                 console.error('Error fetching forecasts:', error)
+                this.forecastsByScenario.set(scenarioId, [])
+                return []
             } finally {
                 this.loading.forecasts = false
             }
@@ -358,6 +365,11 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
 
         // Matches
         async fetchMatches(scenarioId: number) {
+            if (!scenarioId) {
+                console.warn('fetchMatches called with invalid scenarioId:', scenarioId)
+                return []
+            }
+
             // Return cached matches if available
             if (this.matchesByScenario.has(scenarioId)) {
                 return this.matchesByScenario.get(scenarioId)
@@ -370,11 +382,13 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
                 const response = await axios.get(
                     `/api/v1/workforce-planning/scenarios/${scenarioId}/matches`
                 )
-                this.matchesByScenario.set(scenarioId, response.data)
-                return response.data
+                this.matchesByScenario.set(scenarioId, response.data || [])
+                return response.data || []
             } catch (error: any) {
                 this.errors.matches = error.message || 'Failed to fetch matches'
                 console.error('Error fetching matches:', error)
+                this.matchesByScenario.set(scenarioId, [])
+                return []
             } finally {
                 this.loading.matches = false
             }
@@ -394,6 +408,11 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
 
         // Skill Gaps
         async fetchSkillGaps(scenarioId: number) {
+            if (!scenarioId) {
+                console.warn('fetchSkillGaps called with invalid scenarioId:', scenarioId)
+                return []
+            }
+
             // Return cached gaps if available
             if (this.gapsByScenario.has(scenarioId)) {
                 return this.gapsByScenario.get(scenarioId)
@@ -406,11 +425,13 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
                 const response = await axios.get(
                     `/api/v1/workforce-planning/scenarios/${scenarioId}/skill-gaps`
                 )
-                this.gapsByScenario.set(scenarioId, response.data)
-                return response.data
+                this.gapsByScenario.set(scenarioId, response.data || [])
+                return response.data || []
             } catch (error: any) {
                 this.errors.gaps = error.message || 'Failed to fetch skill gaps'
                 console.error('Error fetching skill gaps:', error)
+                this.gapsByScenario.set(scenarioId, [])
+                return []
             } finally {
                 this.loading.gaps = false
             }
@@ -426,6 +447,11 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
 
         // Succession Plans
         async fetchSuccessionPlans(scenarioId: number) {
+            if (!scenarioId) {
+                console.warn('fetchSuccessionPlans called with invalid scenarioId:', scenarioId)
+                return []
+            }
+
             // Return cached succession plans if available
             if (this.successionPlansByScenario.has(scenarioId)) {
                 return this.successionPlansByScenario.get(scenarioId)
@@ -438,11 +464,13 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
                 const response = await axios.get(
                     `/api/v1/workforce-planning/scenarios/${scenarioId}/succession-plans`
                 )
-                this.successionPlansByScenario.set(scenarioId, response.data)
-                return response.data
+                this.successionPlansByScenario.set(scenarioId, response.data || [])
+                return response.data || []
             } catch (error: any) {
                 this.errors.succession = error.message || 'Failed to fetch succession plans'
                 console.error('Error fetching succession plans:', error)
+                this.successionPlansByScenario.set(scenarioId, [])
+                return []
             } finally {
                 this.loading.succession = false
             }
