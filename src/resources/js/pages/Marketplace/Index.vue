@@ -40,10 +40,34 @@ interface Application {
   created_at: string;
 }
 
+interface Candidate {
+  id: number;
+  name: string;
+  current_role: string;
+  match_percentage: number;
+  time_to_productivity: number;
+  category: string;
+  missing_skills_count: number;
+}
+
+interface Position {
+  id: number;
+  title: string;
+  role: string;
+  department: string;
+  deadline: string;
+  status: string;
+  candidates: Candidate[];
+  total_candidates: number;
+}
+
 // State
+const activeTab = ref<string>('recruiter'); // 'recruiter' o 'employee'
 const opportunities = ref<JobOpening[]>([]);
+const positions = ref<Position[]>([]);
 const applications = ref<Application[]>([]);
 const loading = ref(false);
+const loadingRecruiter = ref(false);
 const applying = ref<number | null>(null);
 const filterStatus = ref<string>('open');
 
@@ -51,6 +75,24 @@ const filterStatus = ref<string>('open');
 const currentUserId = computed(() => {
   return (page.props as any).auth?.user?.id;
 });
+
+// Load recruiter view (positions with candidates)
+const loadRecruiterView = async () => {
+  loadingRecruiter.value = true;
+  try {
+    const response = await axios.get('/api/marketplace/recruiter');
+    const data = response.data.data || response.data;
+    positions.value = data.positions || [];
+  } catch (err) {
+    console.error('Failed to load recruiter view', err);
+    notify({
+      type: 'error',
+      text: 'Error cargando vista de reclutador'
+    });
+  } finally {
+    loadingRecruiter.value = false;
+  }
+};
 
 // Load opportunities for current people
 const loadOpportunities = async () => {
@@ -146,8 +188,9 @@ const getStatusColor = (status: string): string => {
 };
 
 onMounted(() => {
-  loadOpportunities();
-  loadApplications();
+  loadRecruiterView(); // Vista por defecto para admin
+  // loadOpportunities(); // Se cargará cuando se cambie al tab de empleado
+  // loadApplications();
 });
 </script>
 
@@ -171,21 +214,145 @@ onMounted(() => {
           <div class="flex-grow-1">
             <h2 class="text-h6 font-weight-bold mb-3">¿Qué es el Marketplace Interno?</h2>
             <p class="text-body-2 mb-3">
-              El <strong>Marketplace de Oportunidades</strong> te permite descubrir posiciones abiertas dentro de tu organización
-              que mejor se ajustan a tu perfil actual. Cada oportunidad muestra un porcentaje de match basado en tus competencias
-              y las requeridas para el rol.
+              El <strong>Marketplace de Oportunidades</strong> facilita la movilidad interna conectando posiciones abiertas
+              con el talento disponible en tu organización.
             </p>
             <v-alert type="info" variant="tonal" class="mt-4" density="compact">
               <template #prepend>
                 <v-icon>mdi-information</v-icon>
               </template>
-              <strong>Tip:</strong> Las oportunidades con mayor match indican que ya tienes las skills necesarias para ser productivo rápidamente
+              <strong>Vista actual:</strong> Como administrador, puedes ver qué candidatos tienen mejor match para cada posición abierta
             </v-alert>
           </div>
         </div>
       </v-card-text>
     </v-card>
 
+    <!-- Tabs -->
+    <v-tabs v-model="activeTab" class="mb-4" color="primary">
+      <v-tab value="recruiter">
+        <v-icon start>mdi-account-search</v-icon>
+        Buscar Talento
+      </v-tab>
+      <v-tab value="employee" disabled>
+        <v-icon start>mdi-briefcase-search-outline</v-icon>
+        Mis Oportunidades
+        <v-chip size="x-small" class="ml-2" color="grey" variant="flat">Próximamente</v-chip>
+      </v-tab>
+    </v-tabs>
+
+    <!-- Vista de Reclutador: Posiciones con Candidatos -->
+    <div v-if="activeTab === 'recruiter'">
+      <!-- Loading State -->
+      <v-card v-if="loadingRecruiter" class="mb-6" elevation="0" variant="outlined">
+        <v-card-text class="text-center py-12">
+          <v-progress-circular indeterminate color="primary" size="48" />
+          <p class="mt-4 text-medium-emphasis">Analizando candidatos...</p>
+        </v-card-text>
+      </v-card>
+
+      <!-- Empty State -->
+      <v-card v-else-if="positions.length === 0" class="mb-6" elevation="0" variant="outlined">
+        <v-card-text class="text-center py-12">
+          <v-icon size="80" class="mb-6 text-medium-emphasis">mdi-briefcase-search</v-icon>
+          <div class="text-h6 mb-2">No hay posiciones abiertas</div>
+          <div class="text-body-2 text-medium-emphasis">
+            Crea nuevas posiciones para comenzar a buscar talento interno
+          </div>
+        </v-card-text>
+      </v-card>
+
+      <!-- Positions List -->
+      <div v-else>
+        <v-card v-for="position in positions" :key="position.id" class="mb-4" elevation="0" variant="outlined">
+          <v-card-title class="pa-6">
+            <div class="d-flex align-center justify-space-between w-100">
+              <div class="flex-grow-1">
+                <div class="text-h6 font-weight-bold">{{ position.title }}</div>
+                <div class="text-body-2 text-medium-emphasis mt-1">
+                  {{ position.role }} · {{ position.department }}
+                </div>
+              </div>
+              <v-chip color="success" variant="flat" prepend-icon="mdi-account-group">
+                {{ position.total_candidates }} candidatos
+              </v-chip>
+            </div>
+          </v-card-title>
+
+          <v-divider />
+
+          <v-card-text class="pa-6">
+            <h3 class="text-subtitle-1 font-weight-bold mb-4">Top Candidatos</h3>
+            
+            <v-card v-if="position.candidates.length === 0" variant="tonal" color="warning">
+              <v-card-text class="text-center py-6">
+                <v-icon size="48" class="mb-2">mdi-alert-circle-outline</v-icon>
+                <div class="text-body-2">No hay candidatos disponibles en la organización</div>
+              </v-card-text>
+            </v-card>
+
+            <v-list v-else class="pa-0">
+              <v-list-item
+                v-for="(candidate, index) in position.candidates.slice(0, 5)"
+                :key="candidate.id"
+                class="px-4 py-3"
+                :class="{ 'border-b': index < Math.min(4, position.candidates.length - 1) }"
+              >
+                <template #prepend>
+                  <v-avatar :color="getMatchColor(candidate.match_percentage)" size="40" class="mr-3">
+                    <span class="text-white font-weight-bold">#{{ index + 1 }}</span>
+                  </v-avatar>
+                </template>
+
+                <v-list-item-title class="font-weight-medium">
+                  {{ candidate.name }}
+                </v-list-item-title>
+                <v-list-item-subtitle class="text-caption">
+                  {{ candidate.current_role }}
+                </v-list-item-subtitle>
+
+                <template #append>
+                  <div class="d-flex align-center gap-3">
+                    <div class="text-center">
+                      <div :class="`text-h6 text-${getMatchColor(candidate.match_percentage)}`">
+                        {{ candidate.match_percentage }}%
+                      </div>
+                      <div class="text-caption text-medium-emphasis">Match</div>
+                    </div>
+                    <v-divider vertical />
+                    <div class="text-center">
+                      <div class="text-subtitle-2">{{ candidate.time_to_productivity }}</div>
+                      <div class="text-caption text-medium-emphasis">días</div>
+                    </div>
+                    <v-chip
+                      size="small"
+                      :color="getMatchColor(candidate.match_percentage)"
+                      variant="tonal"
+                    >
+                      {{ candidate.category }}
+                    </v-chip>
+                  </div>
+                </template>
+              </v-list-item>
+            </v-list>
+
+            <v-btn
+              v-if="position.candidates.length > 5"
+              variant="text"
+              color="primary"
+              class="mt-4"
+              block
+            >
+              Ver todos los {{ position.candidates.length }} candidatos
+              <v-icon end>mdi-chevron-down</v-icon>
+            </v-btn>
+          </v-card-text>
+        </v-card>
+      </div>
+    </div>
+
+    <!-- Vista de Empleado: Mis Oportunidades (Vista actual - para futuro) -->
+    <div v-if="activeTab === 'employee'">
     <!-- Loading State -->
     <v-card v-if="loading" class="mb-6">
       <v-card-text class="text-center py-8">
