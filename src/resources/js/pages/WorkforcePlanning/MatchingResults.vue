@@ -17,29 +17,29 @@
         <v-row class="mb-4">
           <v-col cols="12" md="3">
             <v-select
-              v-model="filters.readinessLevel"
+              v-model="store.filters.matchReadiness"
               :items="readinessOptions"
               label="Filter by Readiness"
               clearable
-              @update:model-value="applyFilters"
+              @update:model-value="store.setMatchReadinessFilter"
             />
           </v-col>
           <v-col cols="12" md="3">
             <v-select
-              v-model="filters.matchScore"
+              v-model="store.filters.matchScoreRange"
               :items="matchScoreOptions"
               label="Match Score Range"
               clearable
-              @update:model-value="applyFilters"
+              @update:model-value="store.setMatchScoreRangeFilter"
             />
           </v-col>
           <v-col cols="12" md="3">
             <v-text-field
-              v-model="filters.searchTerm"
+              v-model="store.filters.searchTerm"
               label="Search by name/role"
               prepend-icon="mdi-magnify"
               clearable
-              @update:model-value="applyFilters"
+              @update:model-value="store.setSearchTermFilter"
             />
           </v-col>
           <v-col cols="12" md="3" class="text-right">
@@ -349,18 +349,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-
-interface Match {
-  id: number
-  candidate_name: string
-  current_role: string
-  target_role: string
-  match_score: number // 0-100
-  readiness_level: 'immediate' | 'short_term' | 'long_term' | 'not_ready'
-  transition_type: 'promotion' | 'lateral' | 'reskilling' | 'no_match'
-  skill_gaps?: string[]
-  risk_level: 'low' | 'medium' | 'high'
-}
+import { useWorkforcePlanningStore, type Match } from '@/stores/workforcePlanningStore'
 
 const props = defineProps<{
   scenarioId: number
@@ -368,19 +357,11 @@ const props = defineProps<{
 
 const api = useApi()
 const { notifySuccess, notifyError } = useNotification()
+const store = useWorkforcePlanningStore()
 
 // State
-const loading = ref(false)
-const error = ref<string | null>(null)
-const matches = ref<Match[]>([])
 const selectedMatch = ref<Match | null>(null)
 const showDetailsDialog = ref(false)
-
-const filters = ref({
-  readinessLevel: null as string | null,
-  matchScore: null as string | null,
-  searchTerm: '',
-})
 
 // Filter options
 const readinessOptions = [
@@ -409,28 +390,10 @@ const tableHeaders = [
 ]
 
 // Computed properties
-const filteredMatches = computed(() => {
-  return matches.value.filter(match => {
-    if (filters.value.readinessLevel && match.readiness_level !== filters.value.readinessLevel) {
-      return false
-    }
-    if (filters.value.matchScore) {
-      const score = match.match_score
-      if (filters.value.matchScore === 'high' && score < 80) return false
-      if (filters.value.matchScore === 'medium' && (score < 60 || score >= 80)) return false
-      if (filters.value.matchScore === 'low' && score >= 60) return false
-    }
-    if (filters.value.searchTerm) {
-      const term = filters.value.searchTerm.toLowerCase()
-      if (!match.candidate_name.toLowerCase().includes(term) &&
-          !match.target_role.toLowerCase().includes(term) &&
-          !match.current_role.toLowerCase().includes(term)) {
-        return false
-      }
-    }
-    return true
-  })
-})
+const loading = computed(() => store.getLoadingState('matches'))
+const error = computed(() => store.getError('matches'))
+const matches = computed(() => store.getMatches(props.scenarioId))
+const filteredMatches = computed(() => store.getFilteredMatches(props.scenarioId))
 
 const immediateReadyCount = computed(() => {
   return filteredMatches.value.filter(m => m.readiness_level === 'immediate').length
@@ -467,7 +430,11 @@ const fetchMatches = async () => {
 }
 
 const applyFilters = () => {
-  // Computed property handles filtering
+  // Store filters handle this
+}
+
+const fetchMatches = async () => {
+  await store.fetchMatches(props.scenarioId)
 }
 
 const viewMatchDetails = (match: Match) => {
@@ -493,6 +460,7 @@ const approveMatch = async () => {
       )
       notifySuccess('Match approved successfully')
       showDetailsDialog.value = false
+      store.clearScenarioCaches(props.scenarioId)
       await fetchMatches()
     } catch (err) {
       notifyError('Failed to approve match')
@@ -576,8 +544,7 @@ const formatTransition = (transition: string): string => {
 // Lifecycle
 onMounted(() => {
   fetchMatches()
-})
-</script>
+})</script>
 
 <style scoped lang="scss">
 .matching-results {

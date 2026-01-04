@@ -17,18 +17,20 @@
         <v-row class="mb-4">
           <v-col cols="12" md="4">
             <v-select
-              v-model="filters.priority"
+              v-model="store.filters.gapPriority"
               :items="priorityOptions"
               label="Filter by Priority"
               clearable
+              @update:model-value="store.setGapPriorityFilter"
             />
           </v-col>
           <v-col cols="12" md="4">
             <v-select
-              v-model="filters.department"
+              v-model="store.filters.gapDepartment"
               :items="departmentOptions"
               label="Filter by Department"
               clearable
+              @update:model-value="store.setGapDepartmentFilter"
             />
           </v-col>
           <v-col cols="12" md="4" class="text-right">
@@ -187,15 +189,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-
-interface SkillGap {
-  id: number
-  skill_name: string
-  priority: 'critical' | 'high' | 'medium' | 'low'
-  coverage_percentage: number
-  remediation_strategy: string
-  department: string
-}
+import { useWorkforcePlanningStore, type SkillGap } from '@/stores/workforcePlanningStore'
 
 const props = defineProps<{
   scenarioId: number
@@ -203,18 +197,11 @@ const props = defineProps<{
 
 const api = useApi()
 const { notifySuccess, notifyError } = useNotification()
+const store = useWorkforcePlanningStore()
 
 // State
-const loading = ref(false)
-const error = ref<string | null>(null)
-const skillGaps = ref<SkillGap[]>([])
 const selectedGap = ref<SkillGap | null>(null)
 const showDetailsDialog = ref(false)
-
-const filters = ref({
-  priority: null as string | null,
-  department: null as string | null,
-})
 
 const priorityOptions = [
   { title: 'Critical', value: 'critical' },
@@ -233,30 +220,9 @@ const departmentOptions = computed(() => {
   return departments.value.map(dept => ({ title: dept, value: dept }))
 })
 
-const filteredSkillGaps = computed(() => {
-  return skillGaps.value.filter(gap => {
-    if (filters.value.priority && gap.priority !== filters.value.priority) return false
-    if (filters.value.department && gap.department !== filters.value.department) return false
-    return true
-  })
-})
-
 // Methods
 const fetchSkillGaps = async () => {
-  loading.value = true
-  error.value = null
-  try {
-    const response = await api.get(
-      `/api/v1/workforce-planning/scenarios/${props.scenarioId}/skill-gaps`
-    )
-    skillGaps.value = response.data || []
-  } catch (err) {
-    error.value = 'Failed to load skill gaps'
-    notifyError('Failed to load skill gaps')
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
+  await store.fetchSkillGaps(props.scenarioId)
 }
 
 const viewGapDetails = (gap: SkillGap, dept: string) => {

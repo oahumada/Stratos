@@ -274,30 +274,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-
-interface Successor {
-  id: number
-  name: string
-  readiness: number
-  current_role: string
-}
-
-interface SuccessionPlan {
-  id: number
-  role_name: string
-  current_holder: string
-  tenure_years: number
-  planned_retirement: string
-  months_to_retirement: number
-  criticality_level: 'critical' | 'high' | 'medium'
-  primary_successor?: Successor
-  secondary_successors?: Successor[]
-  development_plan?: {
-    description: string
-    duration: string
-  }
-  mentoring_assigned: boolean
-}
+import { useWorkforcePlanningStore, type SuccessionPlan } from '@/stores/workforcePlanningStore'
 
 const props = defineProps<{
   scenarioId: number
@@ -305,13 +282,16 @@ const props = defineProps<{
 
 const api = useApi()
 const { notifySuccess, notifyError } = useNotification()
+const store = useWorkforcePlanningStore()
 
 // State
-const loading = ref(false)
-const error = ref<string | null>(null)
-const successionPlans = ref<SuccessionPlan[]>([])
 const selectedPlan = ref<SuccessionPlan | null>(null)
 const showDetailsDialog = ref(false)
+
+// Computed
+const loading = computed(() => store.getLoadingState('succession'))
+const error = computed(() => store.getError('succession'))
+const successionPlans = computed(() => store.getSuccessionPlans(props.scenarioId))
 
 // Computed
 const readyNowCount = computed(() => {
@@ -336,20 +316,7 @@ const avgReadiness = computed(() => {
 
 // Methods
 const fetchSuccessionPlans = async () => {
-  loading.value = true
-  error.value = null
-  try {
-    const response = await api.get(
-      `/api/v1/workforce-planning/scenarios/${props.scenarioId}/succession-plans`
-    )
-    successionPlans.value = response.data || []
-  } catch (err) {
-    error.value = 'Failed to load succession plans'
-    notifyError('Failed to load succession plans')
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
+  await store.fetchSuccessionPlans(props.scenarioId)
 }
 
 const viewDetails = (plan: SuccessionPlan) => {
