@@ -4,11 +4,18 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { useNotification } from '@kyvg/vue3-notification';
 import { usePage } from '@inertiajs/vue3';
+import { useTheme as useVuetifyTheme } from 'vuetify';
 
 defineOptions({ layout: AppLayout });
 
 const { notify } = useNotification();
 const page = usePage();
+const vuetifyTheme = useVuetifyTheme();
+
+const headerGradient = computed(() => {
+  const theme = vuetifyTheme.global.current.value;
+  return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
+});
 
 interface JobOpening {
   id: number;
@@ -58,7 +65,8 @@ const loadOpportunities = async () => {
   loading.value = true;
   try {
     const response = await axios.get(`/api/people/${currentUserId.value}/marketplace`);
-    opportunities.value = response.data.data || response.data;
+    const data = response.data.data || response.data;
+    opportunities.value = data.opportunities || [];
   } catch (err) {
     console.error('Failed to load opportunities', err);
     notify({
@@ -145,10 +153,38 @@ onMounted(() => {
 
 <template>
   <div class="pa-4">
-    <div class="mb-6">
-      <h1 class="text-h4 font-weight-bold mb-2">Internal Opportunities</h1>
-      <p class="text-body2 text-grey">Explore and apply for internal job openings</p>
+    <!-- Header -->
+    <div class="d-flex justify-space-between align-center mb-4" :style="{ background: headerGradient }" style="padding: 1.5rem; border-radius: 8px;">
+      <div>
+        <h1 class="text-h4 font-weight-bold mb-2" style="color: white;">Marketplace de Oportunidades</h1>
+        <p class="text-subtitle-2" style="color: rgba(255,255,255,0.85);">
+          Explora oportunidades internas y postula a roles que se ajusten a tu perfil
+        </p>
+      </div>
     </div>
+
+    <!-- Description Section -->
+    <v-card class="mb-6" elevation="0" variant="outlined">
+      <v-card-text class="pa-6">
+        <div class="d-flex align-start gap-4">
+          <v-icon size="48" color="primary" class="mt-1">mdi-briefcase-search</v-icon>
+          <div class="flex-grow-1">
+            <h2 class="text-h6 font-weight-bold mb-3">¿Qué es el Marketplace Interno?</h2>
+            <p class="text-body-2 mb-3">
+              El <strong>Marketplace de Oportunidades</strong> te permite descubrir posiciones abiertas dentro de tu organización
+              que mejor se ajustan a tu perfil actual. Cada oportunidad muestra un porcentaje de match basado en tus competencias
+              y las requeridas para el rol.
+            </p>
+            <v-alert type="info" variant="tonal" class="mt-4" density="compact">
+              <template #prepend>
+                <v-icon>mdi-information</v-icon>
+              </template>
+              <strong>Tip:</strong> Las oportunidades con mayor match indican que ya tienes las skills necesarias para ser productivo rápidamente
+            </v-alert>
+          </div>
+        </div>
+      </v-card-text>
+    </v-card>
 
     <!-- Loading State -->
     <v-card v-if="loading" class="mb-6">
