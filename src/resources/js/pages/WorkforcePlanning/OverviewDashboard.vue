@@ -85,22 +85,96 @@
         </v-col>
       </v-row>
 
-      <!-- Charts Row -->
+      <!-- Primary Charts Row -->
       <v-row class="mb-4">
         <v-col cols="12" md="6">
           <v-card>
             <v-card-title>Headcount Forecast</v-card-title>
             <v-card-text>
-              <canvas ref="headcountChart" />
+              <HeadcountChart
+                :currentHeadcount="analytics.total_headcount_current"
+                :projectedHeadcount="analytics.total_headcount_projected"
+              />
             </v-card-text>
           </v-card>
         </v-col>
 
         <v-col cols="12" md="6">
           <v-card>
-            <v-card-title>Skill Coverage by Priority</v-card-title>
+            <v-card-title>Internal Coverage</v-card-title>
             <v-card-text>
-              <canvas ref="skillCoverageChart" />
+              <CoverageChart
+                :internalCoverage="analytics.internal_coverage_percentage"
+                :externalGap="analytics.external_gap_percentage"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Secondary Charts Row -->
+      <v-row class="mb-4">
+        <v-col cols="12" md="6">
+          <v-card>
+            <v-card-title>Skill Gaps by Priority</v-card-title>
+            <v-card-text>
+              <SkillGapsChart
+                :criticalGaps="countGapsByPriority('critical')"
+                :highGaps="countGapsByPriority('high')"
+                :mediumGaps="countGapsByPriority('medium')"
+                :lowGaps="countGapsByPriority('low')"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="6">
+          <v-card>
+            <v-card-title>Succession Risk Assessment</v-card-title>
+            <v-card-text>
+              <SuccessionRiskChart
+                :riskPercentage="analytics.succession_risk_percentage"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Tertiary Charts Row -->
+      <v-row class="mb-4">
+        <v-col cols="12" md="4">
+          <v-card>
+            <v-card-title>Readiness Timeline</v-card-title>
+            <v-card-text>
+              <ReadinessTimelineChart
+                :immediatelyReady="countByReadiness('immediately')"
+                :readyWithinSix="countByReadiness('within_six')"
+                :readyWithinTwelve="countByReadiness('within_twelve')"
+                :beyondTwelve="countByReadiness('beyond_twelve')"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-card>
+            <v-card-title>Match Score Distribution</v-card-title>
+            <v-card-text>
+              <MatchScoreDistributionChart
+                :scores="getAllMatchScores()"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-card>
+            <v-card-title>Gaps by Department</v-card-title>
+            <v-card-text>
+              <DepartmentGapsChart
+                :departments="getDepartments()"
+                :gapCounts="getGapCountsByDepartment()"
+              />
             </v-card-text>
           </v-card>
         </v-col>
@@ -202,15 +276,19 @@ import { usePage } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-import { Chart, registerables } from 'chart.js'
 import RoleForecastsTable from './RoleForecastsTable.vue'
 import MatchingResults from './MatchingResults.vue'
 import SkillGapsMatrix from './SkillGapsMatrix.vue'
 import SuccessionPlanCard from './SuccessionPlanCard.vue'
+import HeadcountChart from './Charts/HeadcountChart.vue'
+import CoverageChart from './Charts/CoverageChart.vue'
+import SkillGapsChart from './Charts/SkillGapsChart.vue'
+import SuccessionRiskChart from './Charts/SuccessionRiskChart.vue'
+import ReadinessTimelineChart from './Charts/ReadinessTimelineChart.vue'
+import MatchScoreDistributionChart from './Charts/MatchScoreDistributionChart.vue'
+import DepartmentGapsChart from './Charts/DepartmentGapsChart.vue'
 
 defineOptions({ layout: AppLayout })
-
-Chart.register(...registerables)
 interface Analytics {
   total_headcount_current: number
   total_headcount_projected: number
@@ -267,11 +345,45 @@ const analytics = ref<Analytics>({
   medium_risk_positions: 0,
 })
 
-const headcountChart = ref()
-const skillCoverageChart = ref()
-
 const formatNumber = (num: number): string => {
   return new Intl.NumberFormat('en-US').format(num)
+}
+
+// Helper functions for chart data aggregation
+const countGapsByPriority = (priority: string): number => {
+  // This will be populated by data from the store in the next phase
+  // For now return mock data that will be replaced by store getters
+  const gapPriorities: { [key: string]: number } = {
+    critical: 3,
+    high: 4,
+    medium: 5,
+    low: 2
+  }
+  return gapPriorities[priority] || 0
+}
+
+const countByReadiness = (level: string): number => {
+  // Mock data - will be populated from store
+  const readinessCounts: { [key: string]: number } = {
+    immediately: 3,
+    within_six: 4,
+    within_twelve: 2,
+    beyond_twelve: 1
+  }
+  return readinessCounts[level] || 0
+}
+
+const getAllMatchScores = (): number[] => {
+  // Mock data - will be populated from store
+  return [95, 87, 92, 78, 84, 91, 56, 71, 88, 82]
+}
+
+const getDepartments = (): string[] => {
+  return ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance']
+}
+
+const getGapCountsByDepartment = (): number[] => {
+  return [3, 2, 4, 1, 2]
 }
 
 const loadScenario = async () => {
@@ -295,11 +407,6 @@ const loadAnalytics = async () => {
     
     if (response.data) {
       analytics.value = response.data
-      
-      // Initialize charts after data is loaded
-      setTimeout(() => {
-        initializeCharts()
-      }, 100)
     }
   } catch (error: any) {
     // If analytics don't exist yet (404), show a helpful message
@@ -308,64 +415,6 @@ const loadAnalytics = async () => {
     } else {
       showError('Failed to load analytics')
     }
-  }
-}
-
-const initializeCharts = () => {
-  // Headcount forecast chart
-  const headcountCtx = headcountChart.value?.getContext('2d')
-  if (headcountCtx) {
-    new Chart(headcountCtx, {
-      type: 'line',
-      data: {
-        labels: ['Current', 'Projected'],
-        datasets: [
-          {
-            label: 'Headcount',
-            data: [analytics.value.total_headcount_current, analytics.value.total_headcount_projected],
-            borderColor: '#1976d2',
-            backgroundColor: 'rgba(25, 118, 210, 0.1)',
-            tension: 0.3,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            display: false,
-          },
-        },
-      },
-    })
-  }
-
-  // Skill coverage chart
-  const skillCtx = skillCoverageChart.value?.getContext('2d')
-  if (skillCtx) {
-    new Chart(skillCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['With Skill Gaps', 'Covered'],
-        datasets: [
-          {
-            data: [
-              analytics.value.skills_with_gaps,
-              analytics.value.total_skills_required - analytics.value.skills_with_gaps,
-            ],
-            backgroundColor: ['#ff6b6b', '#51cf66'],
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'bottom',
-          },
-        },
-      },
-    })
   }
 }
 
