@@ -52,6 +52,32 @@ Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController:
 Route::get('/people/{people_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']); // Vista candidato
 Route::get('/marketplace/recruiter', [\App\Http\Controllers\Api\MarketplaceController::class, 'recruiterView']); // Vista reclutador
 
+// Workforce Planning (Phase 2)
+Route::prefix('v1/workforce-planning')->group(function () {
+    // Scenarios CRUD
+    Route::get('/scenarios', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'listScenarios']);
+    Route::post('/scenarios', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'createScenario']);
+    Route::get('/scenarios/{id}', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'showScenario']);
+    Route::put('/scenarios/{id}', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'updateScenario']);
+    Route::delete('/scenarios/{id}', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'deleteScenario']);
+    
+    // Scenario approval
+    Route::post('/scenarios/{id}/approve', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'approveScenario']);
+    
+    // Analysis endpoints
+    Route::get('/scenarios/{id}/role-forecasts', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getScenarioForecasts']);
+    Route::get('/scenarios/{id}/matches', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getScenarioMatches']);
+    Route::get('/scenarios/{id}/skill-gaps', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getScenarioSkillGaps']);
+    Route::get('/scenarios/{id}/succession-plans', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getScenarioSuccessionPlans']);
+    Route::get('/scenarios/{id}/analytics', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getScenarioAnalytics']);
+    
+    // Run full analysis
+    Route::post('/scenarios/{id}/analyze', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'analyzeScenario']);
+    
+    // Match recommendations
+    Route::get('/matches/{id}/recommendations', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getMatchRecommendations']);
+});
+
 // Catálogos dinámicos para selectores
 Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');
 require __DIR__ . '/form-schema-complete.php';
