@@ -132,4 +132,4 @@ class MarketplaceController extends Controller
                 'positions' => $positionsWithCandidates,
             ],
         ]);
-    }
+    }}
