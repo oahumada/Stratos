@@ -21,6 +21,7 @@ import { VIcon } from 'vuetify/components';
 const SkillsIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-star-circle', size: 20 }));
 const GapAnalysisIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-chart-line', size: 20 }));
 const MarketplaceIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-briefcase-search', size: 20 }));
+const WorkforcePlanningIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-chart-timeline-variant', size: 20 }));
 
 const mainNavItems: NavItem[] = [
     {
@@ -57,6 +58,11 @@ const mainNavItems: NavItem[] = [
         title: 'Marketplace',
         href: '/marketplace',
         icon: MarketplaceIcon,
+    },
+    {
+        title: 'Workforce Planning',
+        href: '/workforce-planning',
+        icon: WorkforcePlanningIcon,
     },
 ];
 

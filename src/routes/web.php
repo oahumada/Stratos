@@ -50,4 +50,12 @@ Route::get('/marketplace', function () {
     return Inertia::render('Marketplace/Index');
 })->middleware(['auth', 'verified'])->name('marketplace.index');
 
+Route::get('/workforce-planning', function () {
+    return Inertia::render('WorkforcePlanning/ScenarioSelector');
+})->middleware(['auth', 'verified'])->name('workforce-planning.index');
+
+Route::get('/workforce-planning/{id}', function ($id) {
+    return Inertia::render('WorkforcePlanning/OverviewDashboard', ['id' => $id]);
+})->middleware(['auth', 'verified'])->name('workforce-planning.show');
+
 require __DIR__ . '/settings.php';
