@@ -1,17 +1,21 @@
 <template>
   <div class="w-100">
+    <v-progress-linear v-if="loading" indeterminate class="mb-4"></v-progress-linear>
     <apexchart
+      v-if="chartSeries.length > 0"
       type="radialBar"
       :options="chartOptions"
       :series="chartSeries"
       height="350"
     />
+    <div v-else class="text-center pa-4">
+      <p class="text-subtitle-2">No data available</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import VueApexCharts from 'vue3-apexcharts'
+import { computed, ref } from 'vue'
 
 interface Props {
   riskPercentage: number
@@ -22,7 +26,12 @@ const props = withDefaults(defineProps<Props>(), {
   title: 'Succession Risk'
 })
 
-const chartSeries = computed(() => [props.riskPercentage])
+const loading = ref(false)
+
+const chartSeries = computed(() => {
+  // Siempre retornar datos, incluso si es 0
+  return [props.riskPercentage]
+})
 
 const chartOptions = computed(() => ({
   chart: {

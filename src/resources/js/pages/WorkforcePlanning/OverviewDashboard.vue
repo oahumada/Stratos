@@ -1,294 +1,23 @@
-<template>
-  <div class="overview-dashboard">
-    <v-container fluid>
-      <v-row class="mb-4">
-        <v-col cols="12" md="8">
-          <h2>Scenario: {{ scenarioName }}</h2>
-          <p class="text-subtitle-2">{{ scenarioDescription }}</p>
-        </v-col>
-        <v-col cols="12" md="4" class="text-right">
-          <v-btn
-            color="primary"
-            @click="runAnalysis"
-            :loading="analyzing"
-            prepend-icon="mdi-refresh"
-            class="mr-2"
-          >
-            Run Analysis
-          </v-btn>
-          <v-btn
-            color="secondary"
-            @click="downloadReport"
-            prepend-icon="mdi-download"
-          >
-            Export
-          </v-btn>
-        </v-col>
-      </v-row>
-
-      <!-- Navigation Tabs -->
-      <v-row class="mb-4">
-        <v-col cols="12">
-          <v-tabs v-model="activeTab" bg-color="primary">
-            <v-tab value="overview">Overview</v-tab>
-            <v-tab value="forecasts">Role Forecasts</v-tab>
-            <v-tab value="matches">Talent Matches</v-tab>
-            <v-tab value="gaps">Skill Gaps</v-tab>
-            <v-tab value="succession">Succession Plans</v-tab>
-          </v-tabs>
-        </v-col>
-      </v-row>
-
-      <!-- Tab Content -->
-      <div v-show="activeTab === 'overview'">
-
-      <!-- KPI Cards -->
-      <v-row class="mb-4">
-        <v-col cols="12" md="3">
-          <v-card>
-            <v-card-text>
-              <div class="text-overline">Total Headcount</div>
-              <div class="text-h4">{{ analytics.total_headcount_current }}</div>
-              <div class="text-caption">Current → {{ analytics.total_headcount_projected }}</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="3">
-          <v-card>
-            <v-card-text>
-              <div class="text-overline">Net Growth</div>
-              <div class="text-h4">{{ analytics.net_growth }}</div>
-              <div class="text-caption">{{ analytics.net_growth > 0 ? 'Expansion' : 'Reduction' }}</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="3">
-          <v-card>
-            <v-card-text>
-              <div class="text-overline">Internal Coverage</div>
-              <div class="text-h4">{{ analytics.internal_coverage_percentage }}%</div>
-              <div class="text-caption">External Gap: {{ analytics.external_gap_percentage }}%</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="3">
-          <v-card>
-            <v-card-text>
-              <div class="text-overline">Succession Risk</div>
-              <div class="text-h4">{{ analytics.succession_risk_percentage }}%</div>
-              <div class="text-caption">Critical roles at risk</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Primary Charts Row -->
-      <v-row class="mb-4">
-        <v-col cols="12" md="6">
-          <v-card>
-            <v-card-title>Headcount Forecast</v-card-title>
-            <v-card-text>
-              <HeadcountChart
-                :currentHeadcount="analytics.total_headcount_current"
-                :projectedHeadcount="analytics.total_headcount_projected"
-              />
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="6">
-          <v-card>
-            <v-card-title>Internal Coverage</v-card-title>
-            <v-card-text>
-              <CoverageChart
-                :internalCoverage="analytics.internal_coverage_percentage"
-                :externalGap="analytics.external_gap_percentage"
-              />
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Secondary Charts Row -->
-      <v-row class="mb-4">
-        <v-col cols="12" md="6">
-          <v-card>
-            <v-card-title>Skill Gaps by Priority</v-card-title>
-            <v-card-text>
-              <SkillGapsChart
-                :criticalGaps="countGapsByPriority('critical')"
-                :highGaps="countGapsByPriority('high')"
-                :mediumGaps="countGapsByPriority('medium')"
-                :lowGaps="countGapsByPriority('low')"
-              />
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="6">
-          <v-card>
-            <v-card-title>Succession Risk Assessment</v-card-title>
-            <v-card-text>
-              <SuccessionRiskChart
-                :riskPercentage="analytics.succession_risk_percentage"
-              />
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Tertiary Charts Row -->
-      <v-row class="mb-4">
-        <v-col cols="12" md="4">
-          <v-card>
-            <v-card-title>Readiness Timeline</v-card-title>
-            <v-card-text>
-              <ReadinessTimelineChart
-                :immediatelyReady="countByReadiness('immediately')"
-                :readyWithinSix="countByReadiness('within_six')"
-                :readyWithinTwelve="countByReadiness('within_twelve')"
-                :beyondTwelve="countByReadiness('beyond_twelve')"
-              />
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="4">
-          <v-card>
-            <v-card-title>Match Score Distribution</v-card-title>
-            <v-card-text>
-              <MatchScoreDistributionChart
-                :scores="getAllMatchScores()"
-              />
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="4">
-          <v-card>
-            <v-card-title>Gaps by Department</v-card-title>
-            <v-card-text>
-              <DepartmentGapsChart
-                :departments="getDepartments()"
-                :gapCounts="getGapCountsByDepartment()"
-              />
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Risk Summary -->
-      <v-row>
-        <v-col cols="12" md="6">
-          <v-card>
-            <v-card-title>Risk Summary</v-card-title>
-            <v-list>
-              <v-list-item>
-                <v-list-item-title>High Risk Positions</v-list-item-title>
-                <v-list-item-subtitle>{{ analytics.high_risk_positions }}</v-list-item-subtitle>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title>Medium Risk Positions</v-list-item-title>
-                <v-list-item-subtitle>{{ analytics.medium_risk_positions }}</v-list-item-subtitle>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title>Critical Skills at Risk</v-list-item-title>
-                <v-list-item-subtitle>{{ analytics.critical_skills_at_risk }}</v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="6">
-          <v-card>
-            <v-card-title>Cost Estimates</v-card-title>
-            <v-list>
-              <v-list-item>
-                <v-list-item-title>Recruitment Cost</v-list-item-title>
-                <v-list-item-subtitle>${{ formatNumber(analytics.estimated_recruitment_cost) }}</v-list-item-subtitle>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title>Training Cost</v-list-item-title>
-                <v-list-item-subtitle>${{ formatNumber(analytics.estimated_training_cost) }}</v-list-item-subtitle>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title>External Hiring Timeline</v-list-item-title>
-                <v-list-item-subtitle>{{ analytics.estimated_external_hiring_months }} months</v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Action Buttons -->
-      <v-row class="mt-4">
-        <v-col cols="12">
-          <v-btn
-            color="primary"
-            @click="runAnalysis"
-            :loading="analyzing"
-            prepend-icon="mdi-refresh"
-          >
-            Run Full Analysis
-          </v-btn>
-          <v-btn
-            color="secondary"
-            @click="downloadReport"
-            prepend-icon="mdi-download"
-            class="ml-2"
-          >
-            Download Report
-          </v-btn>
-        </v-col>
-      </v-row>
-      </div>
-
-      <!-- Role Forecasts Tab -->
-      <div v-show="activeTab === 'forecasts'">
-        <RoleForecastsTable :scenarioId="scenarioId" />
-      </div>
-
-      <!-- Talent Matches Tab -->
-      <div v-show="activeTab === 'matches'">
-        <MatchingResults :scenarioId="scenarioId" />
-      </div>
-
-      <!-- Skill Gaps Tab -->
-      <div v-show="activeTab === 'gaps'">
-        <SkillGapsMatrix :scenarioId="scenarioId" />
-      </div>
-
-      <!-- Succession Plans Tab -->
-      <div v-show="activeTab === 'succession'">
-        <SuccessionPlanCard :scenarioId="scenarioId" />
-      </div>
-
-    </v-container>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { useApi } from '@/composables/useApi'
-import { useNotification } from '@/composables/useNotification'
-import RoleForecastsTable from './RoleForecastsTable.vue'
-import MatchingResults from './MatchingResults.vue'
-import SkillGapsMatrix from './SkillGapsMatrix.vue'
-import SuccessionPlanCard from './SuccessionPlanCard.vue'
-import HeadcountChart from './Charts/HeadcountChart.vue'
-import CoverageChart from './Charts/CoverageChart.vue'
-import SkillGapsChart from './Charts/SkillGapsChart.vue'
-import SuccessionRiskChart from './Charts/SuccessionRiskChart.vue'
-import ReadinessTimelineChart from './Charts/ReadinessTimelineChart.vue'
-import MatchScoreDistributionChart from './Charts/MatchScoreDistributionChart.vue'
-import DepartmentGapsChart from './Charts/DepartmentGapsChart.vue'
+import { ref, onMounted, computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import { useApi } from '@/composables/useApi';
+import { useNotification } from '@/composables/useNotification';
+import RoleForecastsTable from './RoleForecastsTable.vue';
+import MatchingResults from './MatchingResults.vue';
+import SkillGapsMatrix from './SkillGapsMatrix.vue';
+import SuccessionPlanCard from './SuccessionPlanCard.vue';
+import HeadcountChart from './Charts/HeadcountChart.vue';
+import CoverageChart from './Charts/CoverageChart.vue';
+import SkillGapsChart from './Charts/SkillGapsChart.vue';
+import SuccessionRiskChart from './Charts/SuccessionRiskChart.vue';
+import ReadinessTimelineChart from './Charts/ReadinessTimelineChart.vue';
+import MatchScoreDistributionChart from './Charts/MatchScoreDistributionChart.vue';
+import DepartmentGapsChart from './Charts/DepartmentGapsChart.vue';
 
-defineOptions({ layout: AppLayout })
+defineOptions({ layout: AppLayout });
+
 interface Analytics {
   total_headcount_current: number
   total_headcount_projected: number
@@ -406,14 +135,54 @@ const loadAnalytics = async () => {
     )
     
     if (response.data) {
-      analytics.value = response.data
+      // Convertir strings a números
+      analytics.value = {
+        ...response.data,
+        total_headcount_current: Number(response.data.total_headcount_current) || 0,
+        total_headcount_projected: Number(response.data.total_headcount_projected) || 0,
+        net_growth: Number(response.data.net_growth) || 0,
+        internal_coverage_percentage: Number(response.data.internal_coverage_percentage) || 0,
+        external_gap_percentage: Number(response.data.external_gap_percentage) || 0,
+        total_skills_required: Number(response.data.total_skills_required) || 0,
+        skills_with_gaps: Number(response.data.skills_with_gaps) || 0,
+        critical_skills_at_risk: Number(response.data.critical_skills_at_risk) || 0,
+        critical_roles: Number(response.data.critical_roles) || 0,
+        critical_roles_with_successor: Number(response.data.critical_roles_with_successor) || 0,
+        succession_risk_percentage: Number(response.data.succession_risk_percentage) || 0,
+        estimated_recruitment_cost: Number(response.data.estimated_recruitment_cost) || 0,
+        estimated_training_cost: Number(response.data.estimated_training_cost) || 0,
+        estimated_external_hiring_months: Number(response.data.estimated_external_hiring_months) || 0,
+        high_risk_positions: Number(response.data.high_risk_positions) || 0,
+        medium_risk_positions: Number(response.data.medium_risk_positions) || 0,
+      }
+    } else {
+      // Initialize with 0 values if API returns empty
+      analytics.value = {
+        total_headcount_current: 0,
+        total_headcount_projected: 0,
+        net_growth: 0,
+        internal_coverage_percentage: 0,
+        external_gap_percentage: 0,
+        total_skills_required: 0,
+        skills_with_gaps: 0,
+        critical_skills_at_risk: 0,
+        critical_roles: 0,
+        critical_roles_with_successor: 0,
+        succession_risk_percentage: 0,
+        estimated_recruitment_cost: 0,
+        estimated_training_cost: 0,
+        estimated_external_hiring_months: 0,
+        high_risk_positions: 0,
+        medium_risk_positions: 0,
+      }
+      showError('No analytics available. Click "Run Analysis" to generate data.')
     }
   } catch (error: any) {
     // If analytics don't exist yet (404), show a helpful message
     if (error.status === 404) {
-      showError('No analytics available yet. Click "Run Analysis" to generate data.')
+      showError('No hay análisis disponibles. Haz clic en "Ejecutar Análisis" para generar datos.')
     } else {
-      showError('Failed to load analytics')
+      showError('Error al cargar análisis')
     }
   }
 }
@@ -422,10 +191,10 @@ const runAnalysis = async () => {
   analyzing.value = true
   try {
     await api.post(`/api/v1/workforce-planning/scenarios/${scenarioId.value}/analyze`)
-    showSuccess('Analysis completed successfully')
+    showSuccess('Análisis completado exitosamente')
     await loadAnalytics()
   } catch (error) {
-    showError('Failed to run analysis')
+    showError('Error al ejecutar análisis')
   } finally {
     analyzing.value = false
   }
@@ -433,13 +202,286 @@ const runAnalysis = async () => {
 
 const downloadReport = () => {
   // TODO: Implement report download
-  showSuccess('Report download not yet implemented')
+  showSuccess('Descarga de reporte aún no implementada')
 }
 
 onMounted(() => {
   loadScenario()
 })
 </script>
+
+<template>
+  <div class="overview-dashboard">
+    <v-container fluid>
+      <v-row class="mb-4">
+        <v-col cols="12" md="8">
+          <h2>Escenario: {{ scenarioName }}</h2>
+          <p class="text-subtitle-2">{{ scenarioDescription }}</p>
+        </v-col>
+        <v-col cols="12" md="4" class="text-right">
+          <v-btn
+            color="primary"
+            @click="runAnalysis"
+            :loading="analyzing"
+            prepend-icon="mdi-refresh"
+            class="mr-2"
+          >
+            Ejecutar Análisis
+          </v-btn>
+          <v-btn
+            color="secondary"
+            @click="downloadReport"
+            prepend-icon="mdi-download"
+          >
+            Exportar
+          </v-btn>
+        </v-col>
+      </v-row>
+
+      <!-- Navigation Tabs -->
+      <v-row class="mb-4">
+        <v-col cols="12">
+          <v-tabs v-model="activeTab" bg-color="primary">
+            <v-tab value="overview">Resumen</v-tab>
+            <v-tab value="forecasts">Proyecciones de Roles</v-tab>
+            <v-tab value="matches">Coincidencias de Talento</v-tab>
+            <v-tab value="gaps">Brechas de Habilidades</v-tab>
+            <v-tab value="succession">Planes de Sucesión</v-tab>
+          </v-tabs>
+        </v-col>
+      </v-row>
+
+      <!-- Tab Content -->
+      <div v-show="activeTab === 'overview'">
+
+      <!-- KPI Cards -->
+      <v-row class="mb-4">
+        <v-col cols="12" md="3">
+          <v-card>
+            <v-card-text>
+              <div class="text-overline">Dotación Total</div>
+              <div class="text-h4">{{ analytics.total_headcount_current || '0' }}</div>
+              <div class="text-caption">Actual → {{ analytics.total_headcount_projected || '0' }}</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="3">
+          <v-card>
+            <v-card-text>
+              <div class="text-overline">Crecimiento Neto</div>
+              <div class="text-h4">{{ analytics.net_growth || '0' }}</div>
+              <div class="text-caption">{{ analytics.net_growth > 0 ? 'Expansión' : 'Reducción' }}</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="3">
+          <v-card>
+            <v-card-text>
+              <div class="text-overline">Cobertura Interna</div>
+              <div class="text-h4">{{ analytics.internal_coverage_percentage || '0' }}%</div>
+              <div class="text-caption">Brecha Externa: {{ analytics.external_gap_percentage || '0' }}%</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="3">
+          <v-card>
+            <v-card-text>
+              <div class="text-overline">Riesgo de Sucesión</div>
+              <div class="text-h4">{{ analytics.succession_risk_percentage || '0' }}%</div>
+              <div class="text-caption">Roles críticos en riesgo</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Primary Charts Row -->
+      <v-row class="mb-4">
+        <v-col cols="12" md="6">
+          <v-card>
+            <v-card-title>Proyección de Dotación</v-card-title>
+            <v-card-text>
+              <HeadcountChart
+                :currentHeadcount="analytics.total_headcount_current"
+                :projectedHeadcount="analytics.total_headcount_projected"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="6">
+          <v-card>
+            <v-card-title>Cobertura Interna</v-card-title>
+            <v-card-text>
+              <CoverageChart
+                :internalCoverage="analytics.internal_coverage_percentage"
+                :externalGap="analytics.external_gap_percentage"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Secondary Charts Row -->
+      <v-row class="mb-4">
+        <v-col cols="12" md="6">
+          <v-card>
+            <v-card-title>Brechas de Habilidades por Prioridad</v-card-title>
+            <v-card-text>
+              <SkillGapsChart
+                :criticalGaps="countGapsByPriority('critical')"
+                :highGaps="countGapsByPriority('high')"
+                :mediumGaps="countGapsByPriority('medium')"
+                :lowGaps="countGapsByPriority('low')"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="6">
+          <v-card>
+            <v-card-title>Evaluación de Riesgo de Sucesión</v-card-title>
+            <v-card-text>
+              <SuccessionRiskChart
+                :riskPercentage="analytics.succession_risk_percentage"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Tertiary Charts Row -->
+      <v-row class="mb-4">
+        <v-col cols="12" md="4">
+          <v-card>
+            <v-card-title>Cronograma de Preparación</v-card-title>
+            <v-card-text>
+              <ReadinessTimelineChart
+                :immediatelyReady="countByReadiness('immediately')"
+                :readyWithinSix="countByReadiness('within_six')"
+                :readyWithinTwelve="countByReadiness('within_twelve')"
+                :beyondTwelve="countByReadiness('beyond_twelve')"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-card>
+            <v-card-title>Distribución de Puntuación</v-card-title>
+            <v-card-text>
+              <MatchScoreDistributionChart
+                :scores="getAllMatchScores()"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-card>
+            <v-card-title>Brechas por Departamento</v-card-title>
+            <v-card-text>
+              <DepartmentGapsChart
+                :departments="getDepartments()"
+                :gapCounts="getGapCountsByDepartment()"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Risk Summary -->
+      <v-row>
+        <v-col cols="12" md="6">
+          <v-card>
+            <v-card-title>Resumen de Riesgos</v-card-title>
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>Posiciones de Alto Riesgo</v-list-item-title>
+                <v-list-item-subtitle>{{ analytics.high_risk_positions }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>Posiciones de Riesgo Medio</v-list-item-title>
+                <v-list-item-subtitle>{{ analytics.medium_risk_positions }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>Habilidades Críticas en Riesgo</v-list-item-title>
+                <v-list-item-subtitle>{{ analytics.critical_skills_at_risk }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="6">
+          <v-card>
+            <v-card-title>Estimaciones de Costo</v-card-title>
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>Costo de Reclutamiento</v-list-item-title>
+                <v-list-item-subtitle>${{ formatNumber(analytics.estimated_recruitment_cost) }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>Costo de Capacitación</v-list-item-title>
+                <v-list-item-subtitle>${{ formatNumber(analytics.estimated_training_cost) }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>Cronograma de Contratación Externa</v-list-item-title>
+                <v-list-item-subtitle>{{ analytics.estimated_external_hiring_months }} meses</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Action Buttons -->
+      <v-row class="mt-4">
+        <v-col cols="12">
+          <v-btn
+            color="primary"
+            @click="runAnalysis"
+            :loading="analyzing"
+            prepend-icon="mdi-refresh"
+          >
+            Ejecutar Análisis Completo
+          </v-btn>
+          <v-btn
+            color="secondary"
+            @click="downloadReport"
+            prepend-icon="mdi-download"
+            class="ml-2"
+          >
+            Descargar Reporte
+          </v-btn>
+        </v-col>
+      </v-row>
+      </div>
+
+      <!-- Role Forecasts Tab -->
+      <div v-show="activeTab === 'forecasts'">
+        <RoleForecastsTable :scenarioId="scenarioId" />
+      </div>
+
+      <!-- Talent Matches Tab -->
+      <div v-show="activeTab === 'matches'">
+        <MatchingResults :scenarioId="scenarioId" />
+      </div>
+
+      <!-- Skill Gaps Tab -->
+      <div v-show="activeTab === 'gaps'">
+        <SkillGapsMatrix :scenarioId="scenarioId" />
+      </div>
+
+      <!-- Succession Plans Tab -->
+      <div v-show="activeTab === 'succession'">
+        <SuccessionPlanCard :scenarioId="scenarioId" />
+      </div>
+
+    </v-container>
+  </div>
+</template>
+
 
 <style scoped>
 .overview-dashboard {

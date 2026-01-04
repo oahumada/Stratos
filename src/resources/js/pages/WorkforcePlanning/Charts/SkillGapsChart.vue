@@ -1,17 +1,21 @@
 <template>
   <div class="w-100">
+    <v-progress-linear v-if="loading" indeterminate class="mb-4"></v-progress-linear>
     <apexchart
+      v-if="hasData"
       type="bar"
       :options="chartOptions"
       :series="chartSeries"
       height="350"
     />
+    <div v-else class="text-center pa-4">
+      <p class="text-subtitle-2">No data available</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import VueApexCharts from 'vue3-apexcharts'
+import { computed, ref } from 'vue'
 
 interface Props {
   criticalGaps: number
@@ -25,6 +29,13 @@ const props = withDefaults(defineProps<Props>(), {
   lowGaps: 0,
   title: 'Skill Gaps by Priority'
 })
+
+const loading = ref(false)
+
+const hasData = computed(() => 
+  props.criticalGaps > 0 || props.highGaps > 0 || 
+  props.mediumGaps > 0 || props.lowGaps > 0
+)
 
 const chartSeries = computed(() => [
   {

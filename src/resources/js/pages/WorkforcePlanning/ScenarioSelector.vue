@@ -1,140 +1,11 @@
-<template>
-  <div class="scenario-selector">
-    <v-container fluid>
-      <v-row class="mb-4">
-        <v-col cols="12" md="6">
-          <h2>Planning Scenarios</h2>
-        </v-col>
-        <v-col cols="12" md="6" class="text-right">
-          <v-btn
-            color="primary"
-            @click="showCreateDialog = true"
-            prepend-icon="mdi-plus"
-          >
-            New Scenario
-          </v-btn>
-        </v-col>
-      </v-row>
-
-      <!-- Filters -->
-      <v-row class="mb-4">
-        <v-col cols="12" md="4">
-          <v-select
-            v-model="filters.status"
-            :items="statusOptions"
-            label="Filter by Status"
-            clearable
-            @update:model-value="applyFilters"
-          />
-        </v-col>
-        <v-col cols="12" md="4">
-          <v-select
-            v-model="filters.fiscalYear"
-            :items="availableYears"
-            label="Fiscal Year"
-            clearable
-            @update:model-value="applyFilters"
-          />
-        </v-col>
-      </v-row>
-
-      <!-- Scenarios Table -->
-      <v-data-table
-        :headers="tableHeaders"
-        :items="scenarios"
-        :loading="loading"
-        :items-per-page="10"
-        class="elevation-1"
-        @click:row="selectScenario"
-      >
-        <template v-slot:item.status="{ item }">
-          <v-chip
-            :color="getStatusColor(item.status)"
-            text-color="white"
-            size="small"
-          >
-            {{ item.status }}
-          </v-chip>
-        </template>
-
-        <template v-slot:item.actions="{ item }">
-          <v-btn
-            icon
-            size="small"
-            @click.stop="editScenario(item)"
-            title="Edit"
-          >
-            <v-icon>mdi-pencil</v-icon>
-          </v-btn>
-          <v-btn
-            icon
-            size="small"
-            @click.stop="deleteScenario(item.id)"
-            title="Delete"
-            color="error"
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
-        </template>
-      </v-data-table>
-
-      <!-- Create/Edit Dialog -->
-      <v-dialog v-model="showCreateDialog" max-width="600px">
-        <v-card>
-          <v-card-title>{{ editingScenario ? 'Edit Scenario' : 'Create Scenario' }}</v-card-title>
-          <v-card-text>
-            <v-text-field
-              v-model="formData.name"
-              label="Scenario Name"
-              required
-              class="mb-3"
-            />
-            <v-textarea
-              v-model="formData.description"
-              label="Description"
-              rows="3"
-              class="mb-3"
-            />
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model.number="formData.horizon_months"
-                  label="Planning Horizon (months)"
-                  type="number"
-                  min="1"
-                  max="36"
-                  required
-                />
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model.number="formData.fiscal_year"
-                  label="Fiscal Year"
-                  type="number"
-                  required
-                />
-              </v-col>
-            </v-row>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn @click="showCreateDialog = false">Cancel</v-btn>
-            <v-btn color="primary" @click="saveScenario">Save</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-container>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { router } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
-import { useApi } from '@/composables/useApi'
-import { useNotification } from '@/composables/useNotification'
+import { ref, computed, onMounted } from 'vue';
+import { router } from '@inertiajs/vue3';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { useApi } from '@/composables/useApi';
+import { useNotification } from '@/composables/useNotification';
 
-defineOptions({ layout: AppLayout })
+defineOptions({ layout: AppLayout });
 
 interface Scenario {
   id: number
@@ -271,6 +142,137 @@ onMounted(() => {
   loadScenarios()
 })
 </script>
+
+<template>
+  <div class="scenario-selector">
+    <v-container fluid>
+      <v-row class="mb-4">
+        <v-col cols="12" md="6">
+          <h2>Planning Scenarios</h2>
+        </v-col>
+        <v-col cols="12" md="6" class="text-right">
+          <v-btn
+            color="primary"
+            @click="showCreateDialog = true"
+            prepend-icon="mdi-plus"
+          >
+            New Scenario
+          </v-btn>
+        </v-col>
+      </v-row>
+
+      <!-- Filters -->
+      <v-row class="mb-4">
+        <v-col cols="12" md="4">
+          <v-select
+            v-model="filters.status"
+            :items="statusOptions"
+            label="Filter by Status"
+            clearable
+            @update:model-value="applyFilters"
+          />
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-select
+            v-model="filters.fiscalYear"
+            :items="availableYears"
+            label="Fiscal Year"
+            clearable
+            @update:model-value="applyFilters"
+          />
+        </v-col>
+      </v-row>
+
+      <!-- Scenarios Table -->
+      <v-data-table
+        :headers="tableHeaders"
+        :items="scenarios"
+        :loading="loading"
+        :items-per-page="10"
+        class="elevation-1"
+        @click:row="selectScenario"
+      >
+        <template v-slot:item.status="{ item }">
+          <v-chip
+            :color="getStatusColor(item.status)"
+            text-color="white"
+            size="small"
+          >
+            {{ item.status }}
+          </v-chip>
+        </template>
+
+        <template v-slot:item.actions="{ item }">
+          <v-btn
+            icon
+            size="small"
+            @click.stop="editScenario(item)"
+            title="Edit"
+          >
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
+          <v-btn
+            icon
+            size="small"
+            @click.stop="deleteScenario(item.id)"
+            title="Delete"
+            color="error"
+          >
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </template>
+      </v-data-table>
+
+      <!-- Create/Edit Dialog -->
+      <v-dialog v-model="showCreateDialog" max-width="600px">
+        <v-card>
+          <v-card-title>{{ editingScenario ? 'Edit Scenario' : 'Create Scenario' }}</v-card-title>
+          <v-card-text>
+            <v-text-field
+              v-model="formData.name"
+              label="Scenario Name"
+              required
+              class="mb-3"
+            />
+            <v-textarea
+              v-model="formData.description"
+              label="Description"
+              rows="3"
+              class="mb-3"
+            />
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model.number="formData.horizon_months"
+                  label="Planning Horizon (months)"
+                  type="number"
+                  min="1"
+                  max="36"
+                  required
+                />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model.number="formData.fiscal_year"
+                  label="Fiscal Year"
+                  type="number"
+                  required
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn @click="showCreateDialog = false">Cancel</v-btn>
+            <v-btn color="primary" @click="saveScenario">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-container>
+  </div>
+</template>
+
+
 
 <style scoped>
 .scenario-selector {

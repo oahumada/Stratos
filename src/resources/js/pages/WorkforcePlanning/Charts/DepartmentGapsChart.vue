@@ -1,17 +1,21 @@
 <template>
   <div class="w-100">
+    <v-progress-linear v-if="loading" indeterminate class="mb-4"></v-progress-linear>
     <apexchart
+      v-if="hasData"
       type="bar"
       :options="chartOptions"
       :series="chartSeries"
       height="300"
     />
+    <div v-else class="text-center pa-4">
+      <p class="text-subtitle-2">No data available</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import VueApexCharts from 'vue3-apexcharts'
+import { computed, ref } from 'vue'
 
 interface Props {
   departments: string[]
@@ -22,6 +26,13 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   title: 'Skill Gaps by Department'
 })
+
+const loading = ref(false)
+
+const hasData = computed(() => 
+  props.departments.length > 0 && props.gapCounts.length > 0 &&
+  props.gapCounts.some(count => count > 0)
+)
 
 const chartSeries = computed(() => [
   {
@@ -83,7 +94,7 @@ const chartOptions = computed(() => ({
     colors: ['#FF6B6B']
   },
   legend: {
-    position: 'bottomRight'
+    position: 'bottom'
   }
 }))
 </script>

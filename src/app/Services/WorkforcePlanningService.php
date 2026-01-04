@@ -30,6 +30,16 @@ class WorkforcePlanningService
     {
         $scenario = WorkforcePlanningScenario::find($scenarioId);
         $forecasts = $this->repository->getForecastsByScenario($scenarioId);
+        
+        // Si no hay forecasts, retornar array vacío
+        if ($forecasts->isEmpty()) {
+            return [
+                'total_matches' => 0,
+                'matches' => [],
+                'errors' => ['No role forecasts found for this scenario'],
+            ];
+        }
+        
         $people = People::with(['skills', 'currentRole'])->where('organization_id', $scenario->organization_id)->get();
 
         $matches = [];
@@ -259,6 +269,15 @@ class WorkforcePlanningService
     {
         $scenario = WorkforcePlanningScenario::find($scenarioId);
         $forecasts = $this->repository->getForecastsByScenario($scenarioId);
+
+        // Si no hay forecasts, retornar array vacío
+        if ($forecasts->isEmpty()) {
+            return [
+                'total_gaps' => 0,
+                'critical_gaps' => 0,
+                'gaps' => [],
+            ];
+        }
 
         $gapsData = [];
 

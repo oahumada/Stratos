@@ -1,17 +1,21 @@
 <template>
   <div class="w-100">
+    <v-progress-linear v-if="loading" indeterminate class="mb-4"></v-progress-linear>
     <apexchart
+      v-if="hasData"
       type="bar"
       :options="chartOptions"
       :series="chartSeries"
       height="300"
     />
+    <div v-else class="text-center pa-4">
+      <p class="text-subtitle-2">No data available</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import VueApexCharts from 'vue3-apexcharts'
+import { computed, ref } from 'vue'
 
 interface Props {
   immediatelyReady: number
@@ -24,6 +28,13 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   title: 'Candidate Readiness Timeline'
 })
+
+const loading = ref(false)
+
+const hasData = computed(() => 
+  props.immediatelyReady > 0 || props.readyWithinSix > 0 || 
+  props.readyWithinTwelve > 0 || props.beyondTwelve > 0
+)
 
 const chartSeries = computed(() => [
   {
@@ -97,7 +108,7 @@ const chartOptions = computed(() => ({
     colors: ['#42A5F5']
   },
   legend: {
-    position: 'topRight'
+    position: 'top'
   }
 }))
 </script>

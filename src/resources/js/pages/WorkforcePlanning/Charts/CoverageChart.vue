@@ -1,17 +1,21 @@
 <template>
   <div class="w-100">
+    <v-progress-linear v-if="loading" indeterminate class="mb-4"></v-progress-linear>
     <apexchart
+      v-if="chartSeries.length > 0"
       type="donut"
       :options="chartOptions"
       :series="chartSeries"
       height="350"
     />
+    <div v-else class="text-center pa-4">
+      <p class="text-subtitle-2">No data available</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import VueApexCharts from 'vue3-apexcharts'
+import { computed, ref } from 'vue'
 
 interface Props {
   internalCoverage: number
@@ -23,10 +27,12 @@ const props = withDefaults(defineProps<Props>(), {
   title: 'Coverage Analysis'
 })
 
-const chartSeries = computed(() => [
-  props.internalCoverage,
-  props.externalGap
-])
+const loading = ref(false)
+
+const chartSeries = computed(() => {
+  // Siempre retornar datos, incluso si son 0
+  return [props.internalCoverage, props.externalGap]
+})
 
 const chartOptions = computed(() => ({
   chart: {
