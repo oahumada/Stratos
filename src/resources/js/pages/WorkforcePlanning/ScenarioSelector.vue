@@ -130,8 +130,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
+import AppLayout from '@/layouts/AppLayout.vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
+
+defineOptions({ layout: AppLayout })
 
 interface Scenario {
   id: number

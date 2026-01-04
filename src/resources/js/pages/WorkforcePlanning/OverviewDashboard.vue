@@ -2,11 +2,45 @@
   <div class="overview-dashboard">
     <v-container fluid>
       <v-row class="mb-4">
-        <v-col cols="12">
+        <v-col cols="12" md="8">
           <h2>Scenario: {{ scenarioName }}</h2>
           <p class="text-subtitle-2">{{ scenarioDescription }}</p>
         </v-col>
+        <v-col cols="12" md="4" class="text-right">
+          <v-btn
+            color="primary"
+            @click="runAnalysis"
+            :loading="analyzing"
+            prepend-icon="mdi-refresh"
+            class="mr-2"
+          >
+            Run Analysis
+          </v-btn>
+          <v-btn
+            color="secondary"
+            @click="downloadReport"
+            prepend-icon="mdi-download"
+          >
+            Export
+          </v-btn>
+        </v-col>
       </v-row>
+
+      <!-- Navigation Tabs -->
+      <v-row class="mb-4">
+        <v-col cols="12">
+          <v-tabs v-model="activeTab" bg-color="primary">
+            <v-tab value="overview">Overview</v-tab>
+            <v-tab value="forecasts">Role Forecasts</v-tab>
+            <v-tab value="matches">Talent Matches</v-tab>
+            <v-tab value="gaps">Skill Gaps</v-tab>
+            <v-tab value="succession">Succession Plans</v-tab>
+          </v-tabs>
+        </v-col>
+      </v-row>
+
+      <!-- Tab Content -->
+      <div v-show="activeTab === 'overview'">
 
       <!-- KPI Cards -->
       <v-row class="mb-4">
@@ -136,6 +170,28 @@
           </v-btn>
         </v-col>
       </v-row>
+      </div>
+
+      <!-- Role Forecasts Tab -->
+      <div v-show="activeTab === 'forecasts'">
+        <RoleForecastsTable :scenarioId="scenarioId" />
+      </div>
+
+      <!-- Talent Matches Tab -->
+      <div v-show="activeTab === 'matches'">
+        <MatchingResults :scenarioId="scenarioId" />
+      </div>
+
+      <!-- Skill Gaps Tab -->
+      <div v-show="activeTab === 'gaps'">
+        <SkillGapsMatrix :scenarioId="scenarioId" />
+      </div>
+
+      <!-- Succession Plans Tab -->
+      <div v-show="activeTab === 'succession'">
+        <SuccessionPlanCard :scenarioId="scenarioId" />
+      </div>
+
     </v-container>
   </div>
 </template>
@@ -143,12 +199,18 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
+import AppLayout from '@/layouts/AppLayout.vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
 import { Chart, registerables } from 'chart.js'
+import RoleForecastsTable from './RoleForecastsTable.vue'
+import MatchingResults from './MatchingResults.vue'
+import SkillGapsMatrix from './SkillGapsMatrix.vue'
+import SuccessionPlanCard from './SuccessionPlanCard.vue'
+
+defineOptions({ layout: AppLayout })
 
 Chart.register(...registerables)
-
 interface Analytics {
   total_headcount_current: number
   total_headcount_projected: number
@@ -181,6 +243,7 @@ const scenarioId = computed(() => props.id)
 const scenarioName = ref('')
 const scenarioDescription = ref('')
 const analyzing = ref(false)
+const activeTab = ref('overview')
 
 const analytics = ref<Analytics>({
   total_headcount_current: 0,
@@ -211,7 +274,7 @@ const formatNumber = (num: number): string => {
 const loadScenario = async () => {
   try {
     const response = await api.get(`/api/v1/workforce-planning/scenarios/${scenarioId.value}`)
-    const scenario = response.data.data
+    const scenario = response.data
     scenarioName.value = scenario.name
     scenarioDescription.value = scenario.description
 
@@ -226,14 +289,22 @@ const loadAnalytics = async () => {
     const response = await api.get(
       `/api/v1/workforce-planning/scenarios/${scenarioId.value}/analytics`
     )
-    analytics.value = response.data.data
-
-    // Initialize charts after data is loaded
-    setTimeout(() => {
-      initializeCharts()
-    }, 100)
-  } catch (error) {
-    showError('Failed to load analytics')
+    
+    if (response.data) {
+      analytics.value = response.data
+      
+      // Initialize charts after data is loaded
+      setTimeout(() => {
+        initializeCharts()
+      }, 100)
+    }
+  } catch (error: any) {
+    // If analytics don't exist yet (404), show a helpful message
+    if (error.status === 404) {
+      showError('No analytics available yet. Click "Run Analysis" to generate data.')
+    } else {
+      showError('Failed to load analytics')
+    }
   }
 }
 
