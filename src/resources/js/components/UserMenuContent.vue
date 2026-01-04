@@ -13,20 +13,22 @@ import { Link, router } from '@inertiajs/vue3';
 import { LogOut, Settings } from 'lucide-vue-next';
 
 interface Props {
-    user: User;
+    user?: User | null;
 }
 
 const handleLogout = () => {
     router.flushAll();
 };
 
-defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+    user: null,
+});
 </script>
 
 <template>
     <DropdownMenuLabel class="p-0 font-normal">
         <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-            <UserInfo :user="user" :show-email="true" />
+            <UserInfo :user="props.user" :show-email="true" />
         </div>
     </DropdownMenuLabel>
     <DropdownMenuSeparator />
