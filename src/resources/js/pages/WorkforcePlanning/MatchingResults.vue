@@ -413,28 +413,11 @@ const internalCoveragePercentage = computed(() => {
 
 // Methods
 const fetchMatches = async () => {
-  loading.value = true
-  error.value = null
-  try {
-    const response = await api.get(
-      `/api/v1/workforce-planning/scenarios/${props.scenarioId}/matches`
-    )
-    matches.value = response.data || []
-  } catch (err) {
-    error.value = 'Failed to load matching results'
-    notifyError('Failed to load matching results')
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
+  await store.fetchMatches(props.scenarioId)
 }
 
 const applyFilters = () => {
   // Store filters handle this
-}
-
-const fetchMatches = async () => {
-  await store.fetchMatches(props.scenarioId)
 }
 
 const viewMatchDetails = (match: Match) => {
