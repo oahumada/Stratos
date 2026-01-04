@@ -191,7 +191,7 @@ class WorkforcePlanningRepository
     public function getAnalyticsByScenario($scenarioId)
     {
         return WorkforcePlanningAnalytic::where('scenario_id', $scenarioId)
-            ->firstOrFail();
+            ->first(); // Cambiar firstOrFail() por first() para retornar null si no existe
     }
 
     public function createAnalytic(array $data)

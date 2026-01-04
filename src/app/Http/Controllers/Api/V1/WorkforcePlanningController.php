@@ -252,6 +252,14 @@ class WorkforcePlanningController extends Controller
     {
         $analytics = $this->repository->getAnalyticsByScenario($scenarioId);
 
+        if (!$analytics) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No analytics available. Run analysis first.',
+                'data' => null,
+            ], 404);
+        }
+
         return response()->json([
             'success' => true,
             'data' => $analytics,
