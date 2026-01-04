@@ -217,9 +217,14 @@ const applyFilters = () => {
   loadScenarios()
 }
 
-const selectScenario = (scenario: Scenario) => {
-  // Navigate to scenario details using Inertia
-  router.visit(`/workforce-planning/${scenario.id}`)
+const selectScenario = (event: any, row: any) => {
+  // v-data-table en Vuetify 3 pasa el item como row.item
+  const scenario = row?.item || event
+  if (scenario && scenario.id) {
+    router.visit(`/workforce-planning/${scenario.id}`)
+  } else {
+    console.error('Invalid scenario selected:', scenario)
+  }
 }
 
 const editScenario = (scenario: Scenario) => {
