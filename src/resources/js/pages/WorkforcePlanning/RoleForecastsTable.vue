@@ -324,8 +324,14 @@ const tableHeaders = [
 // Computed
 const loading = computed(() => store.getLoadingState('forecasts'))
 const error = computed(() => store.getError('forecasts'))
-const forecasts = computed(() => store.getForecasts(props.scenarioId))
-const filteredForecasts = computed(() => store.getFilteredForecasts(props.scenarioId))
+const forecasts = computed(() => {
+  const data = store.getForecasts(props.scenarioId)
+  return Array.isArray(data) ? data : []
+})
+const filteredForecasts = computed(() => {
+  const data = store.getFilteredForecasts(props.scenarioId)
+  return Array.isArray(data) ? data : []
+})
 
 // Methods
 const fetchForecasts = async () => {

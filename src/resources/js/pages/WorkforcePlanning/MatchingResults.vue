@@ -392,26 +392,33 @@ const tableHeaders = [
 // Computed properties
 const loading = computed(() => store.getLoadingState('matches'))
 const error = computed(() => store.getError('matches'))
-const matches = computed(() => store.getMatches(props.scenarioId))
-const filteredMatches = computed(() => store.getFilteredMatches(props.scenarioId))
+const matches = computed(() => {
+  const data = store.getMatches(props.scenarioId)
+  return Array.isArray(data) ? data : []
+})
+const filteredMatches = computed(() => {
+  const data = store.getFilteredMatches(props.scenarioId)
+  return Array.isArray(data) ? data : []
+})
 
 const immediateReadyCount = computed(() => {
-  const matches = filteredMatches.value || []
-  return matches.filter(m => m.readiness_level === 'immediate').length
+  const data = filteredMatches.value
+  if (!Array.isArray(data)) return 0
+  return data.filter(m => m.readiness_level === 'immediate').length
 })
 
 const averageMatchScore = computed(() => {
-  const matches = filteredMatches.value || []
-  if (matches.length === 0) return 0
-  const sum = matches.reduce((acc, m) => acc + m.match_score, 0)
-  return Math.round(sum / matches.length)
+  const data = filteredMatches.value
+  if (!Array.isArray(data) || data.length === 0) return 0
+  const sum = data.reduce((acc, m) => acc + m.match_score, 0)
+  return Math.round(sum / data.length)
 })
 
 const internalCoveragePercentage = computed(() => {
-  const matches = filteredMatches.value || []
-  if (matches.length === 0) return 0
-  const viableMatches = matches.filter(m => m.match_score >= 70).length
-  return Math.round((viableMatches / matches.length) * 100)
+  const data = filteredMatches.value
+  if (!Array.isArray(data) || data.length === 0) return 0
+  const viableMatches = data.filter(m => m.match_score >= 70).length
+  return Math.round((viableMatches / data.length) * 100)
 })
 
 // Methods
