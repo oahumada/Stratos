@@ -179,6 +179,7 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
 
         getFilteredForecasts: (state) => (scenarioId: number) => {
             const forecasts = state.forecastsByScenario.get(scenarioId) || []
+            if (!Array.isArray(forecasts)) return []
             let filtered = forecasts
 
             if (state.filters.forecastArea) {
@@ -199,6 +200,7 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
 
         getFilteredMatches: (state) => (scenarioId: number) => {
             const matches = state.matchesByScenario.get(scenarioId) || []
+            if (!Array.isArray(matches)) return []
             let filtered = matches
 
             if (state.filters.matchReadiness) {
@@ -233,6 +235,7 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
 
         getFilteredSkillGaps: (state) => (scenarioId: number) => {
             const gaps = state.gapsByScenario.get(scenarioId) || []
+            if (!Array.isArray(gaps)) return []
             let filtered = gaps
 
             if (state.filters.gapPriority) {
