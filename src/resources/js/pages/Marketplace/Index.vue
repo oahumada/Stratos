@@ -70,6 +70,9 @@ const loading = ref(false);
 const loadingRecruiter = ref(false);
 const applying = ref<number | null>(null);
 const filterStatus = ref<string>('open');
+const showAllCandidates = ref(false); // Mostrar todos los candidatos o solo Top 5
+const externalSearchThreshold = ref(70); // Umbral para recomendar búsqueda externa
+const candidateMatchFilter = ref<'all' | 'high' | 'medium' | 'low'>('all'); // Filtro por nivel de match
 
 // Current user (get from inertia props)
 const currentUserId = computed(() => {
@@ -173,8 +176,39 @@ const hasApplied = (jobOpeningId: number): boolean => {
 const getMatchColor = (percentage: number | undefined): string => {
   if (!percentage) return 'grey';
   if (percentage >= 80) return 'success';
-  if (percentage >= 60) return 'warning';
+  if (percentage >= 70) return 'success';
+  if (percentage >= 50) return 'warning';
+  if (percentage >= 30) return 'orange';
   return 'error';
+};
+
+// Get match category label
+const getMatchCategory = (percentage: number): string => {
+  if (percentage >= 80) return 'Excelente Match';
+  if (percentage >= 70) return 'Buen Match';
+  if (percentage >= 50) return 'Match Moderado';
+  if (percentage >= 30) return 'Match Bajo';
+  return 'Match Muy Bajo';
+};
+
+// Get match category icon
+const getMatchIcon = (percentage: number): string => {
+  if (percentage >= 70) return 'mdi-star-circle';
+  if (percentage >= 50) return 'mdi-clock-alert-outline';
+  if (percentage >= 30) return 'mdi-alert-circle-outline';
+  return 'mdi-close-circle-outline';
+};
+
+// Filter candidates by match level
+const filterCandidatesByMatch = (candidates: Candidate[]) => {
+  if (candidateMatchFilter.value === 'all') return candidates;
+  
+  return candidates.filter(c => {
+    if (candidateMatchFilter.value === 'high') return c.match_percentage >= 70;
+    if (candidateMatchFilter.value === 'medium') return c.match_percentage >= 50 && c.match_percentage < 70;
+    if (candidateMatchFilter.value === 'low') return c.match_percentage < 50;
+    return true;
+  });
 };
 
 // Get status color
@@ -192,42 +226,57 @@ const recruiterSummary = computed(() => {
   if (!positions.value || positions.value.length === 0) {
     return {
       totalPositions: 0,
-      positionsWithStrongCandidates: 0,
-      positionsWithWeakCandidates: 0,
-      positionsWithoutCandidates: 0,
+      candidatesExcellentMatch: 0,
+      candidatesGoodMatch: 0,
+      candidatesModerateMatch: 0,
+      candidatesNeedingExternalSearch: 0,
       avgMatchPercentage: 0,
+      positionsWithoutViableCandidates: 0,
     };
   }
 
-  let strongCount = 0;
-  let weakCount = 0;
-  let noCandidatesCount = 0;
+  let excellentCount = 0; // >= 80%
+  let goodCount = 0; // 70-79%
+  let moderateCount = 0; // 50-69%
+  let lowCount = 0; // 40-49%
   let totalMatch = 0;
   let totalCandidates = 0;
+  let positionsWithoutCandidates = 0;
 
   positions.value.forEach(position => {
-    const topCandidate = position.candidates[0];
-    
-    if (!topCandidate) {
-      noCandidatesCount++;
-    } else if (topCandidate.match_percentage >= 50) {
-      strongCount++;
-    } else {
-      weakCount++;
+    // Si no hay candidatos viables, contar la posición
+    if (position.candidates.length === 0) {
+      positionsWithoutCandidates++;
     }
 
-    position.candidates.forEach(c => {
-      totalMatch += c.match_percentage;
+    // Contar TODOS los candidatos por rango
+    position.candidates.forEach(candidate => {
+      const matchPct = candidate.match_percentage;
+      
+      if (matchPct >= 80) {
+        excellentCount++;
+      } else if (matchPct >= 70) {
+        goodCount++;
+      } else if (matchPct >= 50) {
+        moderateCount++;
+      } else if (matchPct >= 40) {
+        lowCount++;
+      }
+      
+      totalMatch += matchPct;
       totalCandidates++;
     });
   });
 
   return {
     totalPositions: positions.value.length,
-    positionsWithStrongCandidates: strongCount,
-    positionsWithWeakCandidates: weakCount,
-    positionsWithoutCandidates: noCandidatesCount,
+    candidatesExcellentMatch: excellentCount,
+    candidatesGoodMatch: goodCount,
+    candidatesModerateMatch: moderateCount,
+    candidatesLowMatch: lowCount,
+    candidatesNeedingExternalSearch: lowCount,
     avgMatchPercentage: totalCandidates > 0 ? Math.round(totalMatch / totalCandidates) : 0,
+    positionsWithoutViableCandidates: positionsWithoutCandidates,
   };
 });
 
@@ -265,7 +314,10 @@ onMounted(() => {
               <template #prepend>
                 <v-icon>mdi-information</v-icon>
               </template>
-              <strong>Vista actual:</strong> Como administrador, puedes ver qué candidatos tienen mejor match para cada posición abierta
+              <div>
+                <strong>Vista actual:</strong> Como administrador, puedes ver qué candidatos tienen mejor match para cada posición abierta.<br>
+                <strong>Umbral de viabilidad:</strong> Solo se muestran candidatos con ≥40% de match. Candidatos con match muy bajo (&lt;40%) no son considerados viables.
+              </div>
             </v-alert>
           </div>
         </div>
@@ -310,17 +362,35 @@ onMounted(() => {
           </v-card>
         </v-col>
 
-        <!-- Positions with Strong Candidates (50%+) -->
+        <!-- Excellent Match (≥80%) -->
         <v-col cols="12" md="3">
           <v-card elevation="0" variant="outlined">
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
-                  <div class="text-caption text-medium-emphasis">Talento Interno Fuerte</div>
-                  <div class="text-h4 font-weight-bold text-success mt-1">{{ recruiterSummary.positionsWithStrongCandidates }}</div>
-                  <div class="text-caption text-success">Match ≥50%</div>
+                  <div class="text-caption text-medium-emphasis">Match Excelente</div>
+                  <div class="text-h4 font-weight-bold text-success mt-1">{{ recruiterSummary.positionsWithExcellentMatch }}</div>
+                  <div class="text-caption text-success">≥80% · Listos</div>
                 </div>
                 <v-avatar color="success" size="48">
+                  <v-icon size="24">mdi-star-circle</v-icon>
+                </v-avatar>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <!-- Good Match (70-79%) -->
+        <v-col cols="12" md="3">
+          <v-card elevation="0" variant="outlined">
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between">
+                <div>
+                  <div class="text-caption text-medium-emphasis">Buen Match</div>
+                  <div class="text-h4 font-weight-bold text-success mt-1" style="opacity: 0.8">{{ recruiterSummary.positionsWithGoodMatch }}</div>
+                  <div class="text-caption text-success">70-79% · Viables</div>
+                </div>
+                <v-avatar color="success" size="48" style="opacity: 0.8">
                   <v-icon size="24">mdi-account-check</v-icon>
                 </v-avatar>
               </div>
@@ -328,33 +398,33 @@ onMounted(() => {
           </v-card>
         </v-col>
 
-        <!-- Positions with Weak Candidates (0-50%) -->
+        <!-- Moderate Match (50-69%) -->
         <v-col cols="12" md="3">
           <v-card elevation="0" variant="outlined">
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
-                  <div class="text-caption text-medium-emphasis">Talento en Desarrollo</div>
-                  <div class="text-h4 font-weight-bold text-warning mt-1">{{ recruiterSummary.positionsWithWeakCandidates }}</div>
-                  <div class="text-caption text-warning">Match &lt;50%</div>
+                  <div class="text-caption text-medium-emphasis">Match Moderado</div>
+                  <div class="text-h4 font-weight-bold text-warning mt-1">{{ recruiterSummary.positionsWithModerateMatch }}</div>
+                  <div class="text-caption text-warning">50-69% · Capacitación</div>
                 </div>
                 <v-avatar color="warning" size="48">
-                  <v-icon size="24">mdi-account-alert</v-icon>
+                  <v-icon size="24">mdi-clock-alert-outline</v-icon>
                 </v-avatar>
               </div>
             </v-card-text>
           </v-card>
         </v-col>
 
-        <!-- Need External Recruitment -->
+        <!-- Need External Search -->
         <v-col cols="12" md="3">
           <v-card elevation="0" variant="outlined">
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
-                  <div class="text-caption text-medium-emphasis">Requiere Búsqueda Externa</div>
-                  <div class="text-h4 font-weight-bold text-error mt-1">{{ recruiterSummary.positionsWithoutCandidates }}</div>
-                  <div class="text-caption text-error">Sin candidatos viables</div>
+                  <div class="text-caption text-medium-emphasis">Búsqueda Externa</div>
+                  <div class="text-h4 font-weight-bold text-error mt-1">{{ recruiterSummary.positionsNeedingExternalSearch }}</div>
+                  <div class="text-caption text-error">&lt;50% · Buscar Mercado</div>
                 </div>
                 <v-avatar color="error" size="48">
                   <v-icon size="24">mdi-account-search-outline</v-icon>
@@ -364,23 +434,104 @@ onMounted(() => {
           </v-card>
         </v-col>
 
-        <!-- Recommendation Alert -->
-        <v-col cols="12" v-if="recruiterSummary.positionsWithWeakCandidates > 0 || recruiterSummary.positionsWithoutCandidates > 0">
+        <!-- Strategic Recommendations -->
+        <v-col cols="12">
+          <!-- Immediate External Search Alert -->
           <v-alert 
-            type="info" 
+            v-if="recruiterSummary.positionsRequiringImmediateExternal > 0"
+            type="error" 
             variant="tonal" 
-            density="compact"
+            density="comfortable"
             prominent
+            class="mb-3"
+          >
+            <template #prepend>
+              <v-icon>mdi-alert-circle</v-icon>
+            </template>
+            <div class="font-weight-bold mb-1">🚨 Acción Inmediata Requerida</div>
+            <div class="text-body-2">
+              <strong>{{ recruiterSummary.positionsRequiringImmediateExternal }}</strong> posición(es) con match &lt;30%.
+              <strong>Iniciar búsqueda externa de inmediato</strong> en paralelo a desarrollo interno.
+            </div>
+          </v-alert>
+
+          <!-- Moderate Match - Parallel Search Recommendation -->
+          <v-alert 
+            v-if="recruiterSummary.positionsWithModerateMatch > 0"
+            type="warning" 
+            variant="tonal" 
+            density="comfortable"
+            class="mb-3"
           >
             <template #prepend>
               <v-icon>mdi-information</v-icon>
             </template>
-            <strong>Recomendación:</strong> 
-            {{ recruiterSummary.positionsWithoutCandidates > 0 ? 
-              `${recruiterSummary.positionsWithoutCandidates} posición(es) requieren búsqueda externa de talento.` :
-              `${recruiterSummary.positionsWithWeakCandidates} posición(es) tienen candidatos con bajo match - considera programas de desarrollo o búsqueda externa.`
-            }}
+            <div class="font-weight-bold mb-1">💡 Estrategia Dual Recomendada</div>
+            <div class="text-body-2">
+              <strong>{{ recruiterSummary.positionsWithModerateMatch }}</strong> posición(es) con match 50-69%.
+              <strong>Sugerencia:</strong> Iniciar búsqueda externa preventiva mientras se desarrolla talento interno.
+            </div>
           </v-alert>
+
+          <!-- Good Internal Talent Available -->
+          <v-alert 
+            v-if="recruiterSummary.positionsWithExcellentMatch + recruiterSummary.positionsWithGoodMatch > 0"
+            type="success" 
+            variant="tonal" 
+            density="comfortable"
+          >
+            <template #prepend>
+              <v-icon>mdi-check-circle</v-icon>
+            </template>
+            <div class="font-weight-bold mb-1">✅ Talento Interno Disponible</div>
+            <div class="text-body-2">
+              <strong>{{ recruiterSummary.positionsWithExcellentMatch + recruiterSummary.positionsWithGoodMatch }}</strong> posición(es) con candidatos internos listos (≥70% match).
+              <strong>Priorizar proceso interno</strong> antes de búsqueda externa.
+            </div>
+          </v-alert>
+        </v-col>
+
+        <!-- Filter Controls -->
+        <v-col cols="12">
+          <v-card elevation="0" variant="outlined">
+            <v-card-text class="pa-4">
+              <div class="d-flex align-center gap-4 flex-wrap">
+                <div class="flex-grow-0">
+                  <v-icon class="mr-2">mdi-filter-variant</v-icon>
+                  <span class="font-weight-medium">Filtros:</span>
+                </div>
+                
+                <v-chip-group v-model="candidateMatchFilter" selected-class="text-primary" mandatory>
+                  <v-chip value="all" variant="outlined" filter>
+                    <v-icon start size="small">mdi-view-list</v-icon>
+                    Todos
+                  </v-chip>
+                  <v-chip value="high" variant="outlined" filter color="success">
+                    <v-icon start size="small">mdi-star</v-icon>
+                    Match Alto (≥70%)
+                  </v-chip>
+                  <v-chip value="medium" variant="outlined" filter color="warning">
+                    <v-icon start size="small">mdi-clock-outline</v-icon>
+                    Match Medio (50-69%)
+                  </v-chip>
+                  <v-chip value="low" variant="outlined" filter color="error">
+                    <v-icon start size="small">mdi-alert</v-icon>
+                    Match Bajo (&lt;50%)
+                  </v-chip>
+                </v-chip-group>
+
+                <v-spacer />
+
+                <v-switch
+                  v-model="showAllCandidates"
+                  color="primary"
+                  density="compact"
+                  hide-details
+                  label="Mostrar todos los candidatos"
+                />
+              </div>
+            </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
 
@@ -425,68 +576,129 @@ onMounted(() => {
           <v-card-text class="pa-6">
             <h3 class="text-subtitle-1 font-weight-bold mb-4">Top Candidatos</h3>
             
-            <v-card v-if="position.candidates.length === 0" variant="tonal" color="warning">
+            <v-card v-if="position.candidates.length === 0" variant="tonal" color="error">
               <v-card-text class="text-center py-6">
-                <v-icon size="48" class="mb-2">mdi-alert-circle-outline</v-icon>
-                <div class="text-body-2">No hay candidatos disponibles en la organización</div>
+                <v-icon size="48" class="mb-2">mdi-account-off-outline</v-icon>
+                <div class="text-body-1 font-weight-bold mb-2">Sin candidatos viables</div>
+                <div class="text-body-2">No hay candidatos internos con ≥40% de match para este rol.</div>
+                <div class="text-body-2 text-medium-emphasis mt-2">
+                  <strong>Acción requerida:</strong> Iniciar búsqueda externa inmediata
+                </div>
               </v-card-text>
             </v-card>
 
-            <v-list v-else class="pa-0">
-              <v-list-item
-                v-for="(candidate, index) in position.candidates.slice(0, 5)"
-                :key="candidate.id"
-                class="px-4 py-3"
-                :class="{ 'border-b': index < Math.min(4, position.candidates.length - 1) }"
+            <div v-else>
+              <!-- Indicador de mejor candidato -->
+              <v-alert
+                v-if="position.candidates.length > 0 && position.candidates[0].match_percentage < 30"
+                type="error"
+                variant="tonal"
+                density="compact"
+                class="mb-3"
               >
                 <template #prepend>
-                  <v-avatar :color="getMatchColor(candidate.match_percentage)" size="40" class="mr-3">
-                    <span class="text-white font-weight-bold">#{{ index + 1 }}</span>
-                  </v-avatar>
+                  <v-icon>mdi-alert</v-icon>
                 </template>
+                <strong>Búsqueda Externa Recomendada:</strong> El mejor candidato interno tiene solo {{ position.candidates[0].match_percentage }}% de match.
+              </v-alert>
+              <v-alert
+                v-else-if="position.candidates.length > 0 && position.candidates[0].match_percentage >= 70"
+                type="success"
+                variant="tonal"
+                density="compact"
+                class="mb-3"
+              >
+                <template #prepend>
+                  <v-icon>mdi-check-circle</v-icon>
+                </template>
+                <strong>Talento Interno Disponible:</strong> Candidato(s) con ≥70% de match. Priorizar proceso interno.
+              </v-alert>
+              <v-alert
+                v-else-if="position.candidates.length > 0 && position.candidates[0].match_percentage >= 50"
+                type="warning"
+                variant="tonal"
+                density="compact"
+                class="mb-3"
+              >
+                <template #prepend>
+                  <v-icon>mdi-information</v-icon>
+                </template>
+                <strong>Estrategia Dual:</strong> Candidatos internos viables con capacitación. Considerar búsqueda externa en paralelo.
+              </v-alert>
 
-                <v-list-item-title class="font-weight-medium">
-                  {{ candidate.name }}
-                </v-list-item-title>
-                <v-list-item-subtitle class="text-caption">
-                  {{ candidate.current_role }}
-                </v-list-item-subtitle>
+              <v-list class="pa-0">
+                <template v-for="(candidate, index) in filterCandidatesByMatch(showAllCandidates ? position.candidates : position.candidates.slice(0, 5))" :key="candidate.id">
+                  <v-list-item
+                    class="px-4 py-3"
+                    :class="{ 'border-b': index < (showAllCandidates ? position.candidates.length - 1 : Math.min(4, position.candidates.length - 1)) }"
+                  >
+                    <template #prepend>
+                      <v-avatar :color="getMatchColor(candidate.match_percentage)" size="44" class="mr-3">
+                        <v-icon :color="candidate.match_percentage >= 70 ? 'white' : undefined">
+                          {{ getMatchIcon(candidate.match_percentage) }}
+                        </v-icon>
+                      </v-avatar>
+                    </template>
 
-                <template #append>
-                  <div class="d-flex align-center gap-3">
-                    <div class="text-center">
-                      <div :class="`text-h6 text-${getMatchColor(candidate.match_percentage)}`">
-                        {{ candidate.match_percentage }}%
+                    <v-list-item-title class="font-weight-medium">
+                      {{ candidate.name }}
+                      <v-chip
+                        v-if="index === 0"
+                        size="x-small"
+                        class="ml-2"
+                        color="primary"
+                        variant="flat"
+                      >
+                        Top Match
+                      </v-chip>
+                    </v-list-item-title>
+                    <v-list-item-subtitle class="text-caption">
+                      {{ candidate.current_role }}
+                    </v-list-item-subtitle>
+
+                    <template #append>
+                      <div class="d-flex align-center gap-3">
+                        <div class="text-center">
+                          <div :class="`text-h6 font-weight-bold text-${getMatchColor(candidate.match_percentage)}`">
+                            {{ candidate.match_percentage }}%
+                          </div>
+                          <div class="text-caption text-medium-emphasis">{{ getMatchCategory(candidate.match_percentage) }}</div>
+                        </div>
+                        <v-divider vertical />
+                        <div class="text-center" style="min-width: 60px">
+                          <div class="text-subtitle-2 font-weight-medium">{{ candidate.time_to_productivity }}</div>
+                          <div class="text-caption text-medium-emphasis">días TTP</div>
+                        </div>
+                        <v-divider vertical />
+                        <div class="text-center" style="min-width: 60px">
+                          <div :class="`text-subtitle-2 font-weight-medium ${candidate.missing_skills_count > 0 ? 'text-warning' : 'text-success'}`">
+                            {{ candidate.missing_skills_count }}
+                          </div>
+                          <div class="text-caption text-medium-emphasis">gaps</div>
+                        </div>
                       </div>
-                      <div class="text-caption text-medium-emphasis">Match</div>
-                    </div>
-                    <v-divider vertical />
-                    <div class="text-center">
-                      <div class="text-subtitle-2">{{ candidate.time_to_productivity }}</div>
-                      <div class="text-caption text-medium-emphasis">días</div>
-                    </div>
-                    <v-chip
-                      size="small"
-                      :color="getMatchColor(candidate.match_percentage)"
-                      variant="tonal"
-                    >
-                      {{ candidate.category }}
-                    </v-chip>
-                  </div>
+                    </template>
+                  </v-list-item>
                 </template>
-              </v-list-item>
-            </v-list>
+              </v-list>
 
-            <v-btn
-              v-if="position.candidates.length > 5"
-              variant="text"
-              color="primary"
-              class="mt-4"
-              block
-            >
-              Ver todos los {{ position.candidates.length }} candidatos
-              <v-icon end>mdi-chevron-down</v-icon>
-            </v-btn>
+              <v-btn
+                v-if="!showAllCandidates && position.candidates.length > 5"
+                variant="text"
+                color="primary"
+                class="mt-4"
+                block
+                @click="showAllCandidates = true"
+              >
+                Ver todos los {{ position.candidates.length }} candidatos
+                <v-icon end>mdi-chevron-down</v-icon>
+              </v-btn>
+              
+              <div v-if="filterCandidatesByMatch(position.candidates).length === 0" class="text-center py-4 text-medium-emphasis">
+                <v-icon size="32" class="mb-2">mdi-filter-off</v-icon>
+                <div class="text-caption">No hay candidatos en este rango de match</div>
+              </div>
+            </div>
           </v-card-text>
         </v-card>
       </div>
