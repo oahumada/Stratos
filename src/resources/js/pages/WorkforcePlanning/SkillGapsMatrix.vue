@@ -216,7 +216,10 @@ const error = computed(() => store.getError('gaps'))
 const skillGaps = computed(() => store.getSkillGaps(props.scenarioId))
 
 const departments = computed(() => {
-  const gaps = skillGaps.value || []
+  const gaps = skillGaps.value
+  if (!Array.isArray(gaps)) {
+    return []
+  }
   const depts = new Set(gaps.map(gap => gap.department))
   return Array.from(depts).sort()
 })

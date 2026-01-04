@@ -295,23 +295,28 @@ const successionPlans = computed(() => store.getSuccessionPlans(props.scenarioId
 
 // Computed
 const readyNowCount = computed(() => {
-  return successionPlans.value.filter(
+  const plans = successionPlans.value
+  if (!Array.isArray(plans)) return 0
+  return plans.filter(
     p => p.primary_successor && p.primary_successor.readiness >= 80
   ).length
 })
 
 const atRiskCount = computed(() => {
-  return successionPlans.value.filter(
+  const plans = successionPlans.value
+  if (!Array.isArray(plans)) return 0
+  return plans.filter(
     p => !p.primary_successor || (p.primary_successor && p.months_to_retirement < 6)
   ).length
 })
 
 const avgReadiness = computed(() => {
-  if (successionPlans.value.length === 0) return 0
-  const sum = successionPlans.value.reduce((acc, p) => {
+  const plans = successionPlans.value
+  if (!Array.isArray(plans) || plans.length === 0) return 0
+  const sum = plans.reduce((acc, p) => {
     return acc + (p.primary_successor?.readiness || 0)
   }, 0)
-  return Math.round(sum / successionPlans.value.length)
+  return Math.round(sum / plans.length)
 })
 
 // Methods
