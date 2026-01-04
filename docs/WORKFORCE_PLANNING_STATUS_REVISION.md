@@ -8,6 +8,8 @@
 
 ## 📚 DOCUMENTACIÓN INCLUIDA ✅
 
+### En `/docs/` (6 archivos)
+
 ### 1. **WORKFORCE_PLANNING_ESPECIFICACION.md** (1131 líneas)
    - ✅ Descripción general del módulo
    - ✅ Objetivos y alcance completo
@@ -52,9 +54,104 @@
    - ✅ Stack tecnológico
    - ✅ Flujos de datos
 
+### En `/docs/WorkforcePlanning/` (Carpeta conceptual)
+
+### 7. **Modelo de Planificación moderno.md** (214 líneas) ⭐ MUY IMPORTANTE
+   - ✅ **7 Macrobloques funcionales** de Workforce Planning:
+     1. Base estratégica y modelo de roles/skills
+     2. Oferta interna actual (skills + marketplace interno)
+     3. Demanda futura de talento (escenarios)
+     4. Matching interno (cobertura con talento interno)
+     5. Cobertura externa (reclutamiento y selección)
+     6. Desarrollo, reconversión/upskilling y sucesión
+     7. Planificación de desvinculaciones y ajustes estructurales
+   - ✅ Capa transversal: Analítica, gobierno e indicadores
+   - ✅ **Descripción funcional detallada** de cada bloque:
+     - Inputs (qué información entra)
+     - Funciones del módulo (qué hace)
+     - Outputs (qué genera)
+   - ✅ **Modelo conceptual end-to-end** que conecta:
+     - Skills actuales → Demandas futuras → Marketplace interno → 
+     - Búsqueda externa → Learning paths → Reconversión/upskilling → 
+     - Sucesión → Desvinculación
+
+**NOTA CRÍTICA:** Este documento define el **modelo conceptual original** del módulo. Es la fuente de verdad para entender qué es Workforce Planning en TalentIA.
+   - ✅ Arquitectura visual
+   - ✅ Stack tecnológico
+   - ✅ Flujos de datos
+
 ---
 
-## 🔧 IMPLEMENTACIÓN COMPLETADA ✅
+## � ALINEACIÓN: MODELO CONCEPTUAL ↔ IMPLEMENTACIÓN TÉCNICA
+
+### Mapeo de los 7 Macrobloques Funcionales a Implementación
+
+```
+BLOQUE 1: Base estratégica y modelo de roles/skills
+├─ ✅ TÉCNICO: Roles + Skills modules (ya existen en MVP)
+├─ ✅ TÉCNICO: People-Role-Skills relaciones
+└─ Status: Base ya existente, integrada en WFP
+
+BLOQUE 2: Oferta interna actual (skills + marketplace interno)
+├─ ✅ TÉCNICO: Marketplace module (Sprint 1 MVP)
+├─ ✅ TÉCNICO: People skill profiles
+└─ 🔄 PENDIENTE: Mejorar recomendaciones de matching con IA
+
+BLOQUE 3: Demanda futura de talento (escenarios)
+├─ ✅ TÉCNICO: WorkforcePlanningScenario model
+├─ ✅ TÉCNICO: WorkforcePlanningRoleForecast model
+├─ ✅ TÉCNICO: API endpoints para crear/editar escenarios
+└─ ✅ IMPLEMENTADO: ScenarioSelector.vue (CRUD completo)
+
+BLOQUE 4: Matching interno (cobertura con talento interno)
+├─ ✅ TÉCNICO: WorkforcePlanningMatch model
+├─ ✅ TÉCNICO: WorkforcePlanningService.calculateMatches() algorithm
+├─ ✅ TÉCNICO: API endpoint para obtener matches
+└─ 🔄 PENDIENTE: MatchingResults.vue (componente visual)
+
+BLOQUE 5: Cobertura externa (reclutamiento y selección)
+├─ 🔄 PARCIAL: Integración con Sourcing module (existe)
+├─ 🔄 PENDIENTE: Linking WFP gaps → Sourcing requisitions
+└─ 🔄 PENDIENTE: Componente de "External Gaps Analysis"
+
+BLOQUE 6: Desarrollo, reconversión/upskilling y sucesión
+├─ ✅ TÉCNICO: WorkforcePlanningSkillGap model
+├─ ✅ TÉCNICO: WorkforcePlanningSuccessionPlan model
+├─ ✅ TÉCNICO: WorkforcePlanningService.calculateSkillGaps() 
+├─ 🔄 PENDIENTE: SkillGapsMatrix.vue (componente visual)
+├─ 🔄 PENDIENTE: SuccessionPlanCard.vue (componente visual)
+└─ 🔄 PENDIENTE: Learning Paths linking (Learning Paths module)
+
+BLOQUE 7: Planificación de desvinculaciones y ajustes
+├─ 🔄 PENDIENTE: Separation planning model
+├─ 🔄 PENDIENTE: Attrition simulation
+└─ 🔄 PENDIENTE: Workforce adjustment scenarios
+
+CAPA TRANSVERSAL: Analítica, gobierno e indicadores
+├─ ✅ TÉCNICO: WorkforcePlanningAnalytic model
+├─ ✅ TÉCNICO: WorkforcePlanningService.calculateAnalytics()
+├─ ✅ IMPLEMENTADO: OverviewDashboard.vue (KPIs y gráficos)
+└─ 🔄 PENDIENTE: Advanced reporting and what-if analysis
+```
+
+### Cobertura Actual vs Modelo
+
+| Bloque | Conceptual | Técnico | Frontend | Estado |
+|--------|-----------|---------|----------|--------|
+| 1 - Base estratégica | ✅ | ✅ | - | Integrado |
+| 2 - Oferta interna | ✅ | ✅ | - | Conectado |
+| 3 - Demanda futura | ✅ | ✅ | ✅ | COMPLETO |
+| 4 - Matching interno | ✅ | ✅ | ⏳ | 66% |
+| 5 - Cobertura externa | ✅ | ⏳ | ⏳ | 20% |
+| 6 - Desarrollo/sucesión | ✅ | ✅ | ⏳ | 50% |
+| 7 - Desvinculaciones | ✅ | ⏳ | ⏳ | 10% |
+| Transversal - Analytics | ✅ | ✅ | ✅ | COMPLETO |
+
+**Cobertura del modelo conceptual:** 62% implementado
+
+---
+
+## �🔧 IMPLEMENTACIÓN COMPLETADA ✅
 
 ### Backend Layer (100%)
 
@@ -313,6 +410,49 @@ GET    /api/v1/workforce-planning/matches/{id}/recommendations
    - Menú lateral visible
    - Header con título
    - Breadcrumbs disponible
+```
+
+---
+
+## 🎯 FUNCIONALIDADES DEL MODELO CONCEPTUAL NO IMPLEMENTADAS AÚN
+
+Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/WorkforcePlanning/`:
+
+### Bloque 5: Cobertura Externa (Reclutamiento y Selección)
+```
+❌ Linking automático WFP → Sourcing module requisitions
+❌ Recomendador de fuentes de reclutamiento por perfil
+❌ Integración con banco de candidatos externos
+❌ Componente "External Gaps Analysis"
+❌ Comparativo interno vs externo (costo, tiempo, risk)
+```
+
+### Bloque 6: Desarrollo y Reconversión (Parcialmente implementado)
+```
+✅ Identificación de skill gaps
+✅ Cálculo de remediation strategies
+❌ Linking directo a Learning Paths personalizadas
+❌ Simulación de impacto de reconversión
+❌ Trackear progreso de upskilling en execution
+```
+
+### Bloque 7: Desvinculaciones y Ajustes Estructurales (NO IMPLEMENTADO)
+```
+❌ Modelo de datos para separation planning
+❌ Análisis de excesos estructurales por rol
+❌ Simulación de escenarios de salida (jubilación, voluntary, restructuring)
+❌ Impacto en costo y riesgo de conocimiento
+❌ Planes de comunicación y transición
+```
+
+### Capa Transversal: Analítica Avanzada (Parcialmente implementado)
+```
+✅ KPIs básicos (headcount, coverage, costs)
+❌ Predicción de rotación por rol
+❌ Identificación de skills emergentes (análisis de mercado)
+❌ Recomendaciones de match basadas en IA
+❌ What-if analysis interactivo
+❌ Escenarios comparados (base, conservador, agresivo)
 ```
 
 ---
