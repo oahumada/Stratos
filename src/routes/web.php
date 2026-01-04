@@ -14,6 +14,10 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/dashboard/analytics', function () {
+    return Inertia::render('Dashboard/Analytics');
+})->middleware(['auth', 'verified'])->name('dashboard.analytics');
+
 Route::get('/people', function () {
     return Inertia::render('People/Index');
 })->middleware(['auth', 'verified'])->name('people.index');
