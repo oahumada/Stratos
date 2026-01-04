@@ -1,7 +1,7 @@
 # 📑 ÍNDICE DE DOCUMENTACIÓN - Workforce Planning Module
 
 **Actualizado:** 5 Enero 2026  
-**Total de documentos:** 10 (7 técnicos + 3 de revisión)
+**Total de documentos:** 11 (7 técnicos + 4 de guía/referencia)
 
 ---
 
@@ -24,8 +24,17 @@
    - Plantillas y responsables por cada fase
    - **LEER SEGUNDO: Este es el "manual de operación"**
 
+#### Para CONECTAR ambos documentos:
+2. [GUIA_INTEGRACION_MODELO_METODOLOGIA.md](/docs/GUIA_INTEGRACION_MODELO_METODOLOGIA.md) (320 líneas)
+   - **Mapeo Bloque → Fase**
+   - Cómo cada bloque se implementa mediante fases
+   - Flujo integrado de decisiones
+   - Ejemplo completo paso a paso
+   - Checklist para implementadores
+   - **LEER TERCERO: Este conecta el modelo con la ejecución**
+
 #### Modelos conceptuales originales (referencia):
-2. [Modelo de Planificación moderno](/docs/WorkforcePlanning/Modelo%20de%20Planificaci%C3%B3n%20moderno%202d76208b6bd18056b988ce9085c286d2.md) (214 líneas)
+3. [Modelo de Planificación moderno](/docs/WorkforcePlanning/Modelo%20de%20Planificaci%C3%B3n%20moderno%202d76208b6bd18056b988ce9085c286d2.md) (214 líneas)
    - Los 7 macrobloques del sistema
    - Flujos end-to-end
    - **NOTA:** Integrado en MODELO_PLANIFICACION_INTEGRADO.md
@@ -33,13 +42,13 @@
 ---
 
 ### **⭐ Para ver estado de implementación:**
-3. [WORKFORCE_PLANNING_PROGRESS.md](/docs/WORKFORCE_PLANNING_PROGRESS.md) (266 líneas)
+4. [WORKFORCE_PLANNING_PROGRESS.md](/docs/WORKFORCE_PLANNING_PROGRESS.md) (266 líneas)
    - Story points: 28/84 completados (33%)
    - Plan de acción técnico
    - Tareas pendientes por prioridad
 
 ### **⭐ Para auditar documentación:**
-4. [REVISION_COMPLETA_DOCUMENTACION_WFP.md](/docs/REVISION_COMPLETA_DOCUMENTACION_WFP.md) (230 líneas)
+5. [REVISION_COMPLETA_DOCUMENTACION_WFP.md](/docs/REVISION_COMPLETA_DOCUMENTACION_WFP.md) (230 líneas)
    - Status de cada bloque (conceptual vs implementado)
    - Gaps identificados
    - Fortalezas y prioridades
