@@ -785,6 +785,17 @@ DASHBOARDS EN TALENTIA:
 
 ## PRÓXIMOS PASOS
 
+### 📖 REFERENCIAS PARA IMPLEMENTACIÓN
+
+**Para ejecutar este modelo paso a paso, consulta:**
+- **[MetodologiaPasoAPaso.md](MetodologiaPasoAPaso.md)** - Guía operacional con:
+  - 7 fases ejecutables (Contexto → Monitoreo)
+  - 8 pasos de decisión del flujo
+  - Responsables, plantillas y KPIs por fase
+  - **Este documento es el "manual de operación" del modelo integrado**
+
+---
+
 ### Fase 1: Implementación Inmediata
 1. ✅ Crear escenarios en Workforce Planning (Bloque 3-4)
 2. ✅ Ejecutar matching interno (Bloque 5)
