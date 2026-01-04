@@ -467,7 +467,8 @@ onMounted(() => {
         </v-col>
       </v-row>
     </div>
-  </div>
+    </div> <!-- Cierre de activeTab === 'employee' -->
+  </div> <!-- Cierre de pa-4 -->
 </template>
 
 <style scoped>
