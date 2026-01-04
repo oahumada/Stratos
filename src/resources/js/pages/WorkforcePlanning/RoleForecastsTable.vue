@@ -17,20 +17,20 @@
         <v-row class="mb-4">
           <v-col cols="12" md="4">
             <v-select
-              v-model="filters.area"
+              v-model="store.filters.forecastArea"
               :items="areaOptions"
               label="Filter by Area"
               clearable
-              @update:model-value="applyFilters"
+              @update:model-value="store.setForecastAreaFilter"
             />
           </v-col>
           <v-col cols="12" md="4">
             <v-select
-              v-model="filters.criticality"
+              v-model="store.filters.forecastCriticality"
               :items="criticalityOptions"
               label="Filter by Criticality"
               clearable
-              @update:model-value="applyFilters"
+              @update:model-value="store.setForecastCriticalityFilter"
             />
           </v-col>
           <v-col cols="12" md="4" class="text-right">
@@ -276,18 +276,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-
-interface RoleForecast {
-  id: number
-  role_name: string
-  current_headcount: number
-  projected_headcount: number
-  growth_rate: number
-  critical_skills?: string[]
-  emerging_skills?: string[]
-  criticality_level: 'critical' | 'high' | 'medium' | 'low'
-  area: string
-}
+import { useWorkforcePlanningStore, type RoleForecast } from '@/stores/workforcePlanningStore'
 
 const props = defineProps<{
   scenarioId: number
@@ -295,19 +284,12 @@ const props = defineProps<{
 
 const api = useApi()
 const { notifySuccess, notifyError } = useNotification()
+const store = useWorkforcePlanningStore()
 
 // State
-const loading = ref(false)
-const error = ref<string | null>(null)
-const forecasts = ref<RoleForecast[]>([])
 const selectedForecast = ref<RoleForecast | null>(null)
 const showDetailsDialog = ref(false)
 const forecastMonths = ref(24)
-
-const filters = ref({
-  area: null as string | null,
-  criticality: null as string | null,
-})
 
 // Filter options
 const areaOptions = [
@@ -340,38 +322,18 @@ const tableHeaders = [
 ]
 
 // Computed
-const filteredForecasts = computed(() => {
-  return forecasts.value.filter(forecast => {
-    if (filters.value.area && forecast.area !== filters.value.area) {
-      return false
-    }
-    if (filters.value.criticality && forecast.criticality_level !== filters.value.criticality) {
-      return false
-    }
-    return true
-  })
-})
+const loading = computed(() => store.getLoadingState('forecasts'))
+const error = computed(() => store.getError('forecasts'))
+const forecasts = computed(() => store.getForecasts(props.scenarioId))
+const filteredForecasts = computed(() => store.getFilteredForecasts(props.scenarioId))
 
 // Methods
 const fetchForecasts = async () => {
-  loading.value = true
-  error.value = null
-  try {
-    const response = await api.get(
-      `/api/v1/workforce-planning/scenarios/${props.scenarioId}/role-forecasts`
-    )
-    forecasts.value = response.data || []
-  } catch (err) {
-    error.value = 'Failed to load role forecasts'
-    notifyError('Failed to load role forecasts')
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
+  await store.fetchForecasts(props.scenarioId)
 }
 
 const applyFilters = () => {
-  // Filtered computed property handles this
+  // Filtered computed property handles this via store getters
 }
 
 const updateForecast = async (forecast: RoleForecast) => {
