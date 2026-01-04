@@ -280,7 +280,12 @@ onMounted(() => {
         >
           <div class="d-flex align-center justify-space-between w-100">
             <div class="flex-grow-1">
-              <div class="text-h6 font-weight-bold">{{ path.people_name }}</div>
+              <div class="text-h6 font-weight-bold">
+                {{ path.people_name }}
+                <span v-if="path.current_role_name" class="text-body-2 text-medium-emphasis font-weight-regular">
+                  ({{ path.current_role_name }})
+                </span>
+              </div>
               <div class="d-flex align-center gap-2 mt-1">
                 <div class="text-body-2 text-medium-emphasis d-flex align-center">
                   <v-icon size="small" class="mr-1">mdi-arrow-right</v-icon>
