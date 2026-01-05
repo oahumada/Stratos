@@ -185,7 +185,7 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
                   <SkillLevelChip
                     :level="skill.required_level"
                     :skill-levels="skillLevels"
-                    color="primary"
+                    color="black"
                     class="ml-1"
                     size="small"
                   />
