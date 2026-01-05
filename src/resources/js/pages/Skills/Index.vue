@@ -114,9 +114,79 @@ const config: Config = configJson as Config;
 const tableConfig: TableConfig = tableConfigJson as TableConfig;
 const itemForm: ItemForm = itemFormJson as ItemForm;
 const filters: FilterConfig[] = filtersJson as FilterConfig[];
+
+// Skill levels descriptions
+const skillLevelDescriptions = [
+  {
+    level: 1,
+    name: 'Básico',
+    description: 'Conocimiento fundamental. Puede realizar tareas simples bajo supervisión. Requiere soporte para decisiones complejas.'
+  },
+  {
+    level: 2,
+    name: 'Intermedio',
+    description: 'Competencia establecida. Puede trabajar de forma independiente en tareas estándar. Requiere orientación en situaciones nuevas.'
+  },
+  {
+    level: 3,
+    name: 'Avanzado',
+    description: 'Dominio demostrado. Resuelve problemas complejos de forma autónoma. Puede asesorar a otros en la habilidad.'
+  },
+  {
+    level: 4,
+    name: 'Experto',
+    description: 'Dominio excepcional. Líder en la habilidad. Desarrolla mejores prácticas y mentoriza equipos.'
+  },
+  {
+    level: 5,
+    name: 'Maestría',
+    description: 'Expertise excepcional. Referente organizacional. Impulsa innovación y establece estándares de excelencia.'
+  }
+];
 </script>
 
 <template>
+  <div class="mb-6">
+    <v-card class="mb-6" variant="elevated">
+      <v-card-title class="text-h6 text-primary">
+        <v-icon start>mdi-lightbulb-outline</v-icon>
+        Módulo de Habilidades (Skills)
+      </v-card-title>
+      <v-card-text>
+        <p class="text-body-2 mb-4">
+          <strong>Objetivo del Módulo:</strong> Este módulo permite gestionar y catalogar las habilidades (skills) de la organización. 
+          Las habilidades pueden ser técnicas o blandas, y se relacionan con los roles disponibles y las personas que las poseen. 
+          Cada habilidad tiene un nivel asociado que indica el grado de dominio requerido.
+        </p>
+        
+        <div>
+          <p class="text-body-2 font-weight-bold mb-3">Niveles de Habilidades (1-5):</p>
+          <v-row dense>
+            <v-col v-for="level in skillLevelDescriptions" :key="level.level" cols="12" md="6" lg="4" xl="3">
+              <v-card variant="outlined" class="h-100">
+                <v-card-title class="text-subtitle-2">
+                  <v-chip :color="
+                    level.level === 1 ? 'blue' :
+                    level.level === 2 ? 'cyan' :
+                    level.level === 3 ? 'green' :
+                    level.level === 4 ? 'orange' :
+                    'red'
+                  " text-color="white" size="small" class="mr-2">
+                    Nivel {{ level.level }}
+                  </v-chip>
+                  {{ level.name }}
+                </v-card-title>
+                <v-card-text class="text-caption">
+                  {{ level.description }}
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </div>
+      </v-card-text>
+    </v-card>
+  </div>
+
   <FormSchema
     :config="config"
     :table-config="tableConfig"
@@ -201,20 +271,23 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
                 <v-list-item-title class="text-body-2 font-weight-medium">
                   {{ roleSkill.role?.name || 'N/A' }}
                 </v-list-item-title>
-                <v-list-item-subtitle class="text-caption">
-                  Nivel requerido: 
+                <v-list-item-subtitle class="text-body-2 mt-2 d-flex align-center gap-2">
+                  <span class="font-weight-medium">Nivel requerido:</span>
                   <SkillLevelChip 
                     :level="roleSkill.required_level" 
                     :skill-levels="skillLevels"
                     color="primary"
-                    class="ml-1"
+                    size="large"
+                    
                   />
                   <v-chip 
                     v-if="roleSkill.is_critical" 
-                    size="x-small" 
+                    size="small" 
                     color="error" 
-                    class="ml-2"
+                    text-color="white"
+                    class="ml-auto"
                   >
+                    <v-icon start size="small">mdi-alert</v-icon>
                     Crítica
                   </v-chip>
                 </v-list-item-subtitle>

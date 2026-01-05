@@ -22,6 +22,8 @@ const SkillsIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-star-circle
 const GapAnalysisIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-chart-line', size: 20 }));
 const MarketplaceIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-briefcase-search', size: 20 }));
 const WorkforcePlanningIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-chart-timeline-variant', size: 20 }));
+const PeopleExperienceIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-account-group', size: 20 }));
+const Talento360Icon = defineComponent(() => () => h(VIcon, { icon: 'mdi-account-convert', size: 20 }));
 
 const mainNavItems: NavItem[] = [
     {
@@ -63,6 +65,16 @@ const mainNavItems: NavItem[] = [
         title: 'Workforce Planning',
         href: '/workforce-planning',
         icon: WorkforcePlanningIcon,
+    },
+     {
+        title: 'Talento 360°',
+        href: '/workforce-planning',
+        icon: Talento360Icon,
+    },
+     {
+        title: 'People Experience',
+        href: '/workforce-planning',
+        icon: PeopleExperienceIcon,
     },
 ];
 

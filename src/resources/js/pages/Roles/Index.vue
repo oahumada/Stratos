@@ -187,10 +187,11 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
                     :skill-levels="skillLevels"
                     color="primary"
                     class="ml-1"
+                    size="small"
                   />
                   <v-chip
                     v-if="skill.is_critical"
-                    size="x-small"
+                    size="small"
                     color="error"
                     class="ml-2"
                   >
