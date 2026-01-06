@@ -53,29 +53,25 @@ Route::get('/people/{people_id}/marketplace', [\App\Http\Controllers\Api\Marketp
 Route::get('/marketplace/recruiter', [\App\Http\Controllers\Api\MarketplaceController::class, 'recruiterView']); // Vista reclutador
 
 // Workforce Planning (Phase 2)
-Route::prefix('v1/workforce-planning')->group(function () {
-    // Scenarios CRUD
-    Route::get('/scenarios', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'listScenarios']);
-    Route::post('/scenarios', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'createScenario']);
-    Route::get('/scenarios/{id}', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'showScenario']);
-    Route::put('/scenarios/{id}', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'updateScenario']);
-    Route::delete('/scenarios/{id}', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'deleteScenario']);
-    
-    // Scenario approval
-    Route::post('/scenarios/{id}/approve', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'approveScenario']);
-    
-    // Analysis endpoints
-    Route::get('/scenarios/{id}/role-forecasts', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getScenarioForecasts']);
-    Route::get('/scenarios/{id}/matches', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getScenarioMatches']);
-    Route::get('/scenarios/{id}/skill-gaps', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getScenarioSkillGaps']);
-    Route::get('/scenarios/{id}/succession-plans', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getScenarioSuccessionPlans']);
-    Route::get('/scenarios/{id}/analytics', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getScenarioAnalytics']);
-    
-    // Run full analysis
-    Route::post('/scenarios/{id}/analyze', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'analyzeScenario']);
-    
-    // Match recommendations
-    Route::get('/matches/{id}/recommendations', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getMatchRecommendations']);
+Route::prefix('v1/workforce-planning')->middleware(['auth:sanctum'])->group(function () {
+    // Scenario Templates
+    Route::get('/scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
+    Route::get('/scenario-templates/{template}', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'show']);
+
+    // Workforce Scenarios
+    Route::get('/workforce-scenarios', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'index']);
+    Route::post('/workforce-scenarios', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'store']);
+    Route::post('/workforce-scenarios/{template}/instantiate-from-template', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'instantiateFromTemplate']);
+    Route::get('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'show']);
+    Route::patch('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'update']);
+    Route::delete('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'destroy']);
+    Route::post('/workforce-scenarios/{scenario}/calculate-gaps', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'calculateGaps']);
+    Route::post('/workforce-scenarios/{scenario}/refresh-suggested-strategies', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'refreshSuggestedStrategies']);
+
+    // Scenario Comparisons
+    Route::post('/scenario-comparisons', [\App\Http\Controllers\Api\ScenarioComparisonController::class, 'store']);
+    Route::get('/scenario-comparisons', [\App\Http\Controllers\Api\ScenarioComparisonController::class, 'index']);
+    Route::get('/scenario-comparisons/{comparison}', [\App\Http\Controllers\Api\ScenarioComparisonController::class, 'show']);
 });
 
 // Catálogos dinámicos para selectores
