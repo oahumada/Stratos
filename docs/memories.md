@@ -1,8 +1,27 @@
 # TalentIA – Memoria de Contexto para GitHub Copilot
 
-**Última actualización:** 31 Diciembre 2025  
-**Status:** MVP Backend ✅ COMPLETADO (Días 1-5), Frontend ✅ COMPLETADO (Días 6-7)  
+**Última actualización:** 5 Enero 2026  
+**Status:** MVP Backend ✅ COMPLETADO (Días 1-5), Frontend ✅ COMPLETADO (Días 6-7), WFP Phase 2 🚀 INICIADO (Día 8+)  
 **Patrón CRUD:** ✅ Consolidado en FormSchemaController + form-schema-complete.php
+
+---
+
+## 🎯 WORKFORCE PLANNING PHASE 2 (5 Enero 2026 - EN DESARROLLO)
+
+### Plan de Acción para 3 Actores Clave
+
+**Documentos relacionados:**
+- 📖 [GUIA_RAPIDA_IMPLEMENTACION_2026_01_05.md](GUIA_RAPIDA_IMPLEMENTACION_2026_01_05.md) ⭐ **COMIENZA AQUÍ** - Paso-a-paso (7 pasos)
+- 📊 [PLAN_ACCION_WFP_AJUSTADO_2026_01_05.md](PLAN_ACCION_WFP_AJUSTADO_2026_01_05.md) - Plan detallado (18-24 horas, 50% ahorro)
+- 💼 [RESUMEN_EJECUTIVO_PLAN_WFP_2026_01_05.md](RESUMEN_EJECUTIVO_PLAN_WFP_2026_01_05.md) - Resumen para stakeholders
+- 🔍 [WorkforcePlanning/CasosDeUso.md](WorkforcePlanning/CasosDeUso.md) - 11 casos de uso por actor
+
+**3 Componentes a Implementar:**
+| Componente | Actor | Tiempo | Status |
+|-----------|-------|--------|--------|
+| Simulador de Crecimiento | CEO | 4-6h | 🚀 INICIADO |
+| Calculadora ROI | CFO | 4-5h | ⏳ TODO |
+| Asignador de Estrategias | CHRO | 6-8h | ⏳ TODO |
 
 ---
 
