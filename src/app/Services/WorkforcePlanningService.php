@@ -7,11 +7,16 @@ use App\Models\WorkforcePlanningRoleForecast;
 use App\Models\WorkforcePlanningMatch;
 use App\Models\WorkforcePlanningSkillGap;
 use App\Models\WorkforcePlanningAnalytic;
+use App\Models\ScenarioSkillDemand;
+use App\Models\ScenarioClosureStrategy;
 use App\Repositories\WorkforcePlanningRepository;
 use App\Models\People;
 use App\Models\Skills;
+use App\Models\Skill;
 use App\Models\PeopleRoleSkills;
+use App\Models\Organizations;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class WorkforcePlanningService
 {
@@ -438,5 +443,305 @@ class WorkforcePlanningService
                 'analytics' => $this->calculateAnalytics($scenarioId),
             ];
         });
+    }
+
+    // ==================== SCENARIO MODELING METHODS ====================
+
+    /**
+     * Calcula brechas de skills para un escenario específico (Scenario Modeling).
+     * Compara demanda requerida vs inventario actual desde people_skills.
+     *
+     * @param WorkforcePlanningScenario $scenario
+     * @return array ['scenario_id', 'generated_at', 'summary', 'gaps']
+     */
+    public function calculateScenarioGaps(WorkforcePlanningScenario $scenario): array
+    {
+        $demands = $scenario->skillDemands()->with('skill')->get();
+        $organization = $scenario->organization;
+
+        $gaps = [];
+
+        foreach ($demands as $demand) {
+            $currentInventory = $this->calculateCurrentInventory(
+                $organization,
+                $demand->skill_id,
+                $demand->role_id,
+                $demand->department
+            );
+
+            // Actualizar demanda con inventario actual calculado
+            $demand->update([
+                'current_headcount' => $currentInventory['headcount'],
+                'current_avg_level' => $currentInventory['avg_level']
+            ]);
+
+            $gapHeadcount = max(0, $demand->required_headcount - $currentInventory['headcount']);
+            $gapLevel = round(max(0, (float)$demand->required_level - (float)$currentInventory['avg_level']), 1);
+
+            $gaps[] = [
+                'skill_id' => $demand->skill_id,
+                'skill_name' => $demand->skill->name,
+                'priority' => $demand->priority,
+                'department' => $demand->department,
+                'role_id' => $demand->role_id,
+                'current_headcount' => $currentInventory['headcount'],
+                'required_headcount' => $demand->required_headcount,
+                'gap_headcount' => $gapHeadcount,
+                'current_avg_level' => (float)$currentInventory['avg_level'],
+                'required_level' => (float)$demand->required_level,
+                'gap_level' => $gapLevel,
+                'coverage_pct' => $demand->required_headcount > 0
+                    ? round(($currentInventory['headcount'] / $demand->required_headcount) * 100)
+                    : 100,
+                'rationale' => $demand->rationale
+            ];
+        }
+
+        // KPIs agregados del escenario
+        $summary = $this->summarizeScenarioGaps($scenario, $gaps);
+
+        return [
+            'scenario_id' => $scenario->id,
+            'generated_at' => now()->toISOString(),
+            'summary' => $summary,
+            'gaps' => $gaps
+        ];
+    }
+
+    /**
+     * Calcula inventario actual real para Scenario Modeling.
+     *
+     * @param Organizations $organization
+     * @param int $skillId
+     * @param int|null $roleId
+     * @param string|null $department
+     * @param int $minLevel
+     * @return array ['headcount', 'avg_level']
+     */
+    private function calculateCurrentInventory(
+        Organizations $organization,
+        int $skillId,
+        ?int $roleId = null,
+        ?string $department = null,
+        int $minLevel = 2
+    ): array {
+        $peopleQuery = People::query()->where('organization_id', $organization->id);
+
+        if ($department && Schema::hasColumn('people', 'department')) {
+            $peopleQuery->where('department', $department);
+        }
+
+        if ($roleId && Schema::hasColumn('people', 'role_id')) {
+            $peopleQuery->where('role_id', $roleId);
+        }
+
+        $peopleIds = $peopleQuery->pluck('id');
+
+        // Detectar tabla correcta
+        $skillsTable = 'people_skills';
+        if (!Schema::hasTable($skillsTable)) {
+            $skillsTable = Schema::hasTable('person_role_skills') ? 'person_role_skills' : 'people_skills';
+        }
+
+        if (!Schema::hasTable($skillsTable)) {
+            return ['headcount' => 0, 'avg_level' => 0];
+        }
+
+        $headcount = DB::table($skillsTable)
+            ->whereIn('people_id', $peopleIds)
+            ->where('skill_id', $skillId)
+            ->where('current_level', '>=', $minLevel)
+            ->distinct()
+            ->count('people_id');
+
+        $avgLevel = DB::table($skillsTable)
+            ->whereIn('people_id', $peopleIds)
+            ->where('skill_id', $skillId)
+            ->avg('current_level');
+
+        $avgLevel = round((float)($avgLevel ?: 0), 1);
+
+        return [
+            'headcount' => (int)$headcount,
+            'avg_level' => $avgLevel
+        ];
+    }
+
+    /**
+     * Resume gaps en KPIs agregados.
+     */
+    private function summarizeScenarioGaps(WorkforcePlanningScenario $scenario, array $gaps): array
+    {
+        $totalSkills = count($gaps);
+        $critical = collect($gaps)->where('priority', 'critical')->count();
+        $withHeadcountGap = collect($gaps)->where('gap_headcount', '>', 0)->count();
+
+        $avgCoverage = $totalSkills > 0
+            ? round(collect($gaps)->avg('coverage_pct'), 1)
+            : 100;
+
+        $riskScore = min(100, ($critical * 15) + ($withHeadcountGap * 5) + (100 - $avgCoverage));
+
+        return [
+            'total_skills' => $totalSkills,
+            'critical_skills' => $critical,
+            'skills_with_headcount_gap' => $withHeadcountGap,
+            'avg_coverage_pct' => $avgCoverage,
+            'risk_score' => round($riskScore, 0),
+            'estimated_cost_total' => (float)$scenario->getTotalEstimatedCost(),
+            'estimated_time_avg_weeks' => round((float)$scenario->getAverageCompletionTime(), 1),
+            'milestones_completion_pct' => (int)$scenario->getCompletionPercentage()
+        ];
+    }
+
+    /**
+     * Recomienda estrategias para cerrar una brecha (MVP: reglas simples).
+     */
+    public function recommendStrategiesForGap(WorkforcePlanningScenario $scenario, array $gap, array $preferences = []): array
+    {
+        $timePressure = $preferences['time_pressure'] ?? 'medium';
+        $budgetSensitivity = $preferences['budget_sensitivity'] ?? 'medium';
+        $automationAllowed = $preferences['automation_allowed'] ?? false;
+
+        $recommendations = [];
+        $gapHeadcount = (int)$gap['gap_headcount'];
+        $gapLevel = (float)$gap['gap_level'];
+
+        if ($gapHeadcount >= 10 && $timePressure === 'high') {
+            $recommendations[] = ['strategy' => 'buy', 'reason' => 'Brecha grande y alta presión de tiempo'];
+            $recommendations[] = ['strategy' => 'borrow', 'reason' => 'Cubrir rápido mientras se desarrolla interno'];
+        } elseif ($gapLevel >= 1.5 && $gapHeadcount <= 5) {
+            $recommendations[] = ['strategy' => 'build', 'reason' => 'Brecha de nivel relevante con pocos puestos'];
+        } else {
+            $recommendations[] = ['strategy' => 'build', 'reason' => 'Ruta estándar de upskilling'];
+            $recommendations[] = ['strategy' => 'bridge', 'reason' => 'Solución temporal para continuidad'];
+        }
+
+        if ($budgetSensitivity === 'high') {
+            $recommendations = array_values(array_filter($recommendations, fn($r) => in_array($r['strategy'], ['build', 'bridge', 'bind'])));
+            $recommendations[] = ['strategy' => 'bind', 'reason' => 'Retención más barata que contratación'];
+        }
+
+        if ($automationAllowed) {
+            $recommendations[] = ['strategy' => 'bot', 'reason' => 'Automatización parcial permitida'];
+        }
+
+        return $recommendations;
+    }
+
+    /**
+     * Genera/actualiza estrategias sugeridas basadas en gaps.
+     */
+    public function refreshSuggestedStrategies(WorkforcePlanningScenario $scenario, array $preferences = []): int
+    {
+        $result = $this->calculateScenarioGaps($scenario);
+        $gaps = $result['gaps'];
+        $created = 0;
+
+        foreach ($gaps as $gap) {
+            if ($gap['gap_headcount'] <= 0 && $gap['gap_level'] <= 0) {
+                continue;
+            }
+
+            $recs = $this->recommendStrategiesForGap($scenario, $gap, $preferences);
+
+            foreach ($recs as $rec) {
+                $exists = $scenario->closureStrategies()
+                    ->where('skill_id', $gap['skill_id'])
+                    ->where('strategy', $rec['strategy'])
+                    ->exists();
+
+                if ($exists) continue;
+
+                ScenarioClosureStrategy::create([
+                    'scenario_id' => $scenario->id,
+                    'skill_id' => $gap['skill_id'],
+                    'strategy' => $rec['strategy'],
+                    'strategy_name' => strtoupper($rec['strategy']) . ' (Sugerida)',
+                    'description' => $rec['reason'],
+                    'estimated_cost' => null,
+                    'estimated_time_weeks' => null,
+                    'success_probability' => 0.6,
+                    'risk_level' => 'medium',
+                    'status' => 'proposed',
+                    'action_items' => [
+                        'Definir plan detallado',
+                        'Asignar responsable',
+                        'Aprobar presupuesto',
+                        'Ejecutar y medir resultados'
+                    ]
+                ]);
+
+                $created++;
+            }
+        }
+
+        return $created;
+    }
+
+    /**
+     * Compara múltiples escenarios según criterios.
+     */
+    public function compareScenarios(array $scenarioIds, array $criteria = []): array
+    {
+        $scenarios = WorkforcePlanningScenario::with(['skillDemands', 'closureStrategies', 'milestones'])
+            ->whereIn('id', $scenarioIds)
+            ->get();
+
+        if ($scenarios->count() < 2) {
+            throw new \InvalidArgumentException('Se requieren al menos 2 escenarios para comparar');
+        }
+
+        $defaultCriteria = ['cost', 'time', 'risk', 'coverage'];
+        $criteria = empty($criteria) ? $defaultCriteria : $criteria;
+
+        $comparison = [];
+
+        foreach ($scenarios as $scenario) {
+            $gapsResult = $this->calculateScenarioGaps($scenario);
+            
+            $scenarioData = [
+                'scenario_id' => $scenario->id,
+                'scenario_name' => $scenario->name,
+                'scenario_type' => $scenario->scenario_type,
+            ];
+
+            if (in_array('cost', $criteria)) {
+                $scenarioData['total_cost'] = $scenario->getTotalEstimatedCost();
+            }
+
+            if (in_array('time', $criteria)) {
+                $scenarioData['avg_time_weeks'] = round($scenario->getAverageCompletionTime(), 1);
+            }
+
+            if (in_array('risk', $criteria)) {
+                $scenarioData['risk_score'] = $gapsResult['summary']['risk_score'];
+            }
+
+            if (in_array('coverage', $criteria)) {
+                $scenarioData['avg_coverage_pct'] = $gapsResult['summary']['avg_coverage_pct'];
+            }
+
+            $scenarioData['critical_skills'] = $gapsResult['summary']['critical_skills'];
+            $scenarioData['completion_pct'] = $scenario->getCompletionPercentage();
+
+            $comparison[] = $scenarioData;
+        }
+
+        $comparison = collect($comparison)->sortBy(function ($item) use ($criteria) {
+            $score = 0;
+            if (in_array('cost', $criteria)) $score += $item['total_cost'] ?? 0;
+            if (in_array('time', $criteria)) $score += ($item['avg_time_weeks'] ?? 0) * 1000;
+            if (in_array('risk', $criteria)) $score += ($item['risk_score'] ?? 0) * 100;
+            if (in_array('coverage', $criteria)) $score -= ($item['avg_coverage_pct'] ?? 0) * 50;
+            return $score;
+        })->values()->all();
+
+        return [
+            'criteria' => $criteria,
+            'scenarios_compared' => count($comparison),
+            'comparison' => $comparison,
+            'generated_at' => now()->toISOString(),
+        ];
     }
 }
