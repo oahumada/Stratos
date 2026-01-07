@@ -12,7 +12,6 @@ use App\Models\ScenarioClosureStrategy;
 use App\Repositories\WorkforcePlanningRepository;
 use App\Models\People;
 use App\Models\Skills;
-use App\Models\Skill;
 use App\Models\PeopleRoleSkills;
 use App\Models\Organizations;
 use Illuminate\Support\Facades\DB;

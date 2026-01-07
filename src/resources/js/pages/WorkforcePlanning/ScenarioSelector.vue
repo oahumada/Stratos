@@ -84,8 +84,10 @@ const loadScenarios = async () => {
     if (filters.value.status) params.status = filters.value.status
     if (filters.value.fiscalYear) params.fiscal_year = filters.value.fiscalYear
 
-    const response = await api.get('/api/v1/workforce-planning/workforce-scenarios', { params })
-    scenarios.value = response.data.data || response.data
+    const res = await api.get('/api/v1/workforce-planning/workforce-scenarios', { params })
+    // useApi.get devuelve response.data directamente
+    // El backend responde { success, data: [...], pagination }
+    scenarios.value = Array.isArray((res as any).data) ? (res as any).data : (Array.isArray(res) ? res : [])
   } catch (error) {
     showError('Failed to load scenarios')
   } finally {
@@ -132,7 +134,12 @@ const saveScenario = async () => {
     editingScenario.value = null
     loadScenarios()
   } catch (error) {
-    showError('Failed to save scenario')
+    console.error('Save scenario error:', error)
+    // Intentar extraer mensaje de validación o backend
+    const apiMessage = error?.response?.data?.message
+    const errors = error?.response?.data?.errors
+    const firstError = errors ? Object.values(errors).flat()[0] : null
+    showError(apiMessage || firstError || error?.message || 'Failed to save scenario')
   }
 }
 
@@ -248,13 +255,13 @@ onMounted(() => {
               v-model="formData.description"
               label="Description"
               rows="3"
-                          <v-select
-                            v-model="formData.scenario_type"
-                            :items="scenarioTypeOptions"
-                            label="Tipo de Escenario"
-                            required
-                            class="mb-3"
-                          />
+              class="mb-3"
+            />
+            <v-select
+              v-model="formData.scenario_type"
+              :items="scenarioTypeOptions"
+              label="Tipo de Escenario"
+              required
               class="mb-3"
             />
             <v-row>

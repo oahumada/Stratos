@@ -84,7 +84,9 @@
             size="small"
             variant="outlined"
             density="compact"
-            @blur="updateForecast(item)"
+            disabled
+            hint="Edición disponible próximamente"
+            persistent-hint
             class="max-width-100"
           />
         </template>
@@ -343,18 +345,7 @@ const applyFilters = () => {
 }
 
 const updateForecast = async (forecast: RoleForecast) => {
-  try {
-    await api.put(
-      `/api/v1/workforce-planning/scenarios/${props.scenarioId}/role-forecasts/${forecast.id}`,
-      {
-        projected_headcount: forecast.projected_headcount,
-      }
-    )
-    notifySuccess('Forecast updated')
-  } catch (err) {
-    notifyError('Failed to update forecast')
-    console.error(err)
-  }
+  notifyError('Actualización de forecasts aún no disponible en esta vista')
 }
 
 const expandForecast = (forecast: RoleForecast) => {

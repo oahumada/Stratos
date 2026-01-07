@@ -1,16 +1,28 @@
 import { ref } from 'vue'
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios'
+import { initSanctum } from '@/apiHelper'
+
+const baseURL = import.meta.env.VITE_API_BASE_URL || window.location.origin
 
 const api: AxiosInstance = axios.create({
-    baseURL: window.location.origin,
+    baseURL,
+    withCredentials: true,
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
     },
 })
 
-// Add CSRF token to requests
-api.interceptors.request.use((config) => {
+// Add CSRF token and ensure Sanctum cookie exists
+api.interceptors.request.use(async (config) => {
+    const hasXsrf = document.cookie.includes('XSRF-TOKEN=')
+    if (!hasXsrf) {
+        await initSanctum().catch(() => null)
+    }
+
     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
     if (token) {
         config.headers['X-CSRF-TOKEN'] = token
@@ -23,7 +35,6 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Redirect to login
             window.location.href = '/login'
         }
         return Promise.reject(error)

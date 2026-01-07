@@ -63,6 +63,7 @@ Route::prefix('v1/workforce-planning')->middleware(['auth:sanctum'])->group(func
     Route::post('/workforce-scenarios', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'store']);
     Route::post('/workforce-scenarios/{template}/instantiate-from-template', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'instantiateFromTemplate']);
     Route::get('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'show']);
+    Route::put('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'update']);
     Route::patch('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'update']);
     Route::delete('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'destroy']);
     Route::post('/workforce-scenarios/{scenario}/calculate-gaps', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'calculateGaps']);
@@ -72,6 +73,26 @@ Route::prefix('v1/workforce-planning')->middleware(['auth:sanctum'])->group(func
     Route::post('/scenario-comparisons', [\App\Http\Controllers\Api\ScenarioComparisonController::class, 'store']);
     Route::get('/scenario-comparisons', [\App\Http\Controllers\Api\ScenarioComparisonController::class, 'index']);
     Route::get('/scenario-comparisons/{comparison}', [\App\Http\Controllers\Api\ScenarioComparisonController::class, 'show']);
+
+    // Use Case activation per organization
+    Route::get('/use-cases', [\App\Http\Controllers\Api\OrganizationUseCaseController::class, 'index']);
+    Route::post('/use-cases/{template}/activate', [\App\Http\Controllers\Api\OrganizationUseCaseController::class, 'activate']);
+    Route::post('/use-cases/{template}/deactivate', [\App\Http\Controllers\Api\OrganizationUseCaseController::class, 'deactivate']);
+
+    // Legacy compatibility routes (temporary) to avoid 404s while migrating frontend
+    Route::get('/scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'show']);
+    Route::get('/scenarios/{id}/role-forecasts', function ($id) {
+        return response()->json(['success' => true, 'data' => []]);
+    });
+    Route::get('/scenarios/{id}/matches', function ($id) {
+        return response()->json(['success' => true, 'data' => []]);
+    });
+    Route::get('/scenarios/{id}/skill-gaps', function ($id) {
+        return response()->json(['success' => true, 'data' => []]);
+    });
+    Route::get('/scenarios/{id}/succession-plans', function ($id) {
+        return response()->json(['success' => true, 'data' => []]);
+    });
 });
 
 // Catálogos dinámicos para selectores

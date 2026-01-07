@@ -12,13 +12,18 @@ class WorkforcePlanningScenarioFactory extends Factory
     public function definition(): array
     {
         return [
-            'organization_id' => 1,
+            'organization_id' => 1, // Must be overridden
             'name' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(),
+            'scenario_type' => $this->faker->randomElement(['growth', 'transformation', 'optimization', 'crisis', 'custom']),
             'horizon_months' => $this->faker->numberBetween(6, 24),
-            'status' => $this->faker->randomElement(['draft', 'pending_approval', 'approved', 'archived']),
-            'fiscal_year' => $this->faker->numberBetween(2025, 2027),
-            'created_by' => 1,
+            'time_horizon_weeks' => $this->faker->numberBetween(26, 156),
+            'status' => $this->faker->randomElement(['draft', 'active', 'archived', 'completed']),
+            'fiscal_year' => now()->year,
+            'created_by' => 1, // Must be overridden
+            'assumptions' => [],
+            'custom_config' => [],
+            'estimated_budget' => $this->faker->numberBetween(50000, 500000),
         ];
     }
 

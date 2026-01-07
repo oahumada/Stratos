@@ -117,86 +117,53 @@ const getGapCountsByDepartment = (): number[] => {
 
 const loadScenario = async () => {
   try {
-    const response = await api.get(`/api/v1/workforce-planning/scenarios/${scenarioId.value}`)
-    const scenario = response.data
+    const response = await api.get(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}`)
+    const scenario = (response as any).data
     scenarioName.value = scenario.name
     scenarioDescription.value = scenario.description
-
-    await loadAnalytics()
+    // Analytics legacy deshabilitado temporalmente
   } catch (error) {
     showError('Failed to load scenario')
   }
 }
 
+// Analytics legacy deshabilitado temporalmente hasta migrar al nuevo módulo
 const loadAnalytics = async () => {
-  try {
-    const response = await api.get(
-      `/api/v1/workforce-planning/scenarios/${scenarioId.value}/analytics`
-    )
-    
-    if (response.data) {
-      // Convertir strings a números
-      analytics.value = {
-        ...response.data,
-        total_headcount_current: Number(response.data.total_headcount_current) || 0,
-        total_headcount_projected: Number(response.data.total_headcount_projected) || 0,
-        net_growth: Number(response.data.net_growth) || 0,
-        internal_coverage_percentage: Number(response.data.internal_coverage_percentage) || 0,
-        external_gap_percentage: Number(response.data.external_gap_percentage) || 0,
-        total_skills_required: Number(response.data.total_skills_required) || 0,
-        skills_with_gaps: Number(response.data.skills_with_gaps) || 0,
-        critical_skills_at_risk: Number(response.data.critical_skills_at_risk) || 0,
-        critical_roles: Number(response.data.critical_roles) || 0,
-        critical_roles_with_successor: Number(response.data.critical_roles_with_successor) || 0,
-        succession_risk_percentage: Number(response.data.succession_risk_percentage) || 0,
-        estimated_recruitment_cost: Number(response.data.estimated_recruitment_cost) || 0,
-        estimated_training_cost: Number(response.data.estimated_training_cost) || 0,
-        estimated_external_hiring_months: Number(response.data.estimated_external_hiring_months) || 0,
-        high_risk_positions: Number(response.data.high_risk_positions) || 0,
-        medium_risk_positions: Number(response.data.medium_risk_positions) || 0,
-      }
-    } else {
-      // Initialize with 0 values if API returns empty
-      analytics.value = {
-        total_headcount_current: 0,
-        total_headcount_projected: 0,
-        net_growth: 0,
-        internal_coverage_percentage: 0,
-        external_gap_percentage: 0,
-        total_skills_required: 0,
-        skills_with_gaps: 0,
-        critical_skills_at_risk: 0,
-        critical_roles: 0,
-        critical_roles_with_successor: 0,
-        succession_risk_percentage: 0,
-        estimated_recruitment_cost: 0,
-        estimated_training_cost: 0,
-        estimated_external_hiring_months: 0,
-        high_risk_positions: 0,
-        medium_risk_positions: 0,
-      }
-      showError('No analytics available. Click "Run Analysis" to generate data.')
-    }
-  } catch (error: any) {
-    // If analytics don't exist yet (404), show a helpful message
-    if (error.status === 404) {
-      showError('No hay análisis disponibles. Haz clic en "Ejecutar Análisis" para generar datos.')
-    } else {
-      showError('Error al cargar análisis')
-    }
-  }
+  return
 }
 
 const runAnalysis = async () => {
-  analyzing.value = true
+  if (!scenarioId.value) return
   try {
-    await api.post(`/api/v1/workforce-planning/scenarios/${scenarioId.value}/analyze`)
-    showSuccess('Análisis completado exitosamente')
-    await loadAnalytics()
-  } catch (error) {
-    showError('Error al ejecutar análisis')
+    analyzing.value = true
+    const res = await api.post(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}/calculate-gaps`, {})
+    const result: any = (res as any).data || res
+    if (result && result.summary) {
+      // Mapear algunos KPIs a tarjetas existentes cuando sea posible
+      analytics.value.total_skills_required = result.summary.total_required_skills || analytics.value.total_skills_required
+      analytics.value.skills_with_gaps = result.summary.critical_skills_count ?? analytics.value.skills_with_gaps
+      analytics.value.internal_coverage_percentage = Math.round((result.summary.coverage_pct ?? 0))
+    }
+    showSuccess('Brechas calculadas correctamente')
+  } catch (e:any) {
+    console.error('calculate-gaps error', e)
+    const msg = e?.response?.data?.message || e?.message || 'Error al calcular brechas'
+    showError(msg)
   } finally {
     analyzing.value = false
+  }
+}
+
+const generateStrategies = async () => {
+  if (!scenarioId.value) return
+  try {
+    const res = await api.post(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}/refresh-suggested-strategies`, {})
+    const created = (res as any)?.created ?? 0
+    showSuccess(`Estrategias sugeridas actualizadas (${created} nuevas)`) 
+  } catch (e:any) {
+    console.error('refresh-suggested-strategies error', e)
+    const msg = e?.response?.data?.message || e?.message || 'Error al generar estrategias'
+    showError(msg)
   }
 }
 
@@ -227,6 +194,14 @@ onMounted(() => {
             class="mr-2"
           >
             Ejecutar Análisis
+          </v-btn>
+          <v-btn
+            color="success"
+            @click="generateStrategies"
+            prepend-icon="mdi-lightbulb-on"
+            class="mr-2"
+          >
+            Generar Estrategias
           </v-btn>
           <v-btn
             color="secondary"

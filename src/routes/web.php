@@ -51,11 +51,11 @@ Route::get('/marketplace', function () {
 })->middleware(['auth', 'verified'])->name('marketplace.index');
 
 Route::get('/workforce-planning', function () {
-    return Inertia::render('WorkforcePlanning/ScenarioSelector');
+    return Inertia::render('WorkforcePlanning/ScenarioList');
 })->middleware(['auth', 'verified'])->name('workforce-planning.index');
 
 Route::get('/workforce-planning/{id}', function ($id) {
-    return Inertia::render('WorkforcePlanning/OverviewDashboard', ['id' => $id]);
+    return Inertia::render('WorkforcePlanning/ScenarioDetail', ['id' => $id]);
 })->middleware(['auth', 'verified'])->name('workforce-planning.show');
 
 require __DIR__ . '/settings.php';

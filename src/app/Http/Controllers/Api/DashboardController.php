@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\People;
 use App\Models\Roles;
-use App\Models\Skill;
+use App\Models\Skills;
 use App\Services\GapAnalysisService;
 use Illuminate\Http\JsonResponse;
 
@@ -14,7 +14,7 @@ class DashboardController extends Controller
     public function metrics(): JsonResponse
     {
         $totalPeople = People::count();
-        $totalSkills = Skill::count();
+        $totalSkills = Skills::count();
         $totalRoles = Roles::count();
 
         // Brechas promedio por peoplea
