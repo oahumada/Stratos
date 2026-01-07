@@ -28,6 +28,7 @@ const editingScenario = ref<Scenario | null>(null)
 const formData = ref({
   name: '',
   description: '',
+    scenario_type: 'growth',
   horizon_months: 12,
   fiscal_year: new Date().getFullYear(),
 })
@@ -39,10 +40,18 @@ const filters = ref({
 
 const statusOptions = [
   'draft',
-  'pending_approval',
-  'approved',
+  'active',
+  'completed',
   'archived',
 ]
+const scenarioTypeOptions = [
+  { value: 'growth', title: 'Crecimiento' },
+  { value: 'transformation', title: 'Transformación' },
+  { value: 'optimization', title: 'Optimización' },
+  { value: 'crisis', title: 'Crisis' },
+  { value: 'custom', title: 'Personalizado' },
+]
+
 
 const availableYears = computed(() => {
   const currentYear = new Date().getFullYear()
@@ -61,8 +70,8 @@ const tableHeaders = [
 const getStatusColor = (status: string): string => {
   const colors: Record<string, string> = {
     draft: 'warning',
-    pending_approval: 'info',
-    approved: 'success',
+    active: 'success',
+    completed: 'info',
     archived: 'grey',
   }
   return colors[status] || 'default'
@@ -75,8 +84,8 @@ const loadScenarios = async () => {
     if (filters.value.status) params.status = filters.value.status
     if (filters.value.fiscalYear) params.fiscal_year = filters.value.fiscalYear
 
-    const response = await api.get('/api/v1/workforce-planning/scenarios', { params })
-    scenarios.value = response.data
+    const response = await api.get('/api/v1/workforce-planning/workforce-scenarios', { params })
+    scenarios.value = response.data.data || response.data
   } catch (error) {
     showError('Failed to load scenarios')
   } finally {
@@ -103,6 +112,7 @@ const editScenario = (scenario: Scenario) => {
   formData.value = {
     name: scenario.name,
     description: scenario.description,
+      scenario_type: (scenario as any).scenario_type || 'growth',
     horizon_months: scenario.horizon_months,
     fiscal_year: scenario.fiscal_year,
   }
@@ -112,10 +122,10 @@ const editScenario = (scenario: Scenario) => {
 const saveScenario = async () => {
   try {
     if (editingScenario.value) {
-      await api.put(`/api/v1/workforce-planning/scenarios/${editingScenario.value.id}`, formData.value)
+      await api.put(`/api/v1/workforce-planning/workforce-scenarios/${editingScenario.value.id}`, formData.value)
       showSuccess('Scenario updated successfully')
     } else {
-      await api.post('/api/v1/workforce-planning/scenarios', formData.value)
+      await api.post('/api/v1/workforce-planning/workforce-scenarios', formData.value)
       showSuccess('Scenario created successfully')
     }
     showCreateDialog.value = false
@@ -129,7 +139,7 @@ const saveScenario = async () => {
 const deleteScenario = async (id: number) => {
   if (confirm('Are you sure you want to delete this scenario?')) {
     try {
-      await api.delete(`/api/v1/workforce-planning/scenarios/${id}`)
+      await api.delete(`/api/v1/workforce-planning/workforce-scenarios/${id}`)
       showSuccess('Scenario deleted successfully')
       loadScenarios()
     } catch (error) {
@@ -238,6 +248,13 @@ onMounted(() => {
               v-model="formData.description"
               label="Description"
               rows="3"
+                          <v-select
+                            v-model="formData.scenario_type"
+                            :items="scenarioTypeOptions"
+                            label="Tipo de Escenario"
+                            required
+                            class="mb-3"
+                          />
               class="mb-3"
             />
             <v-row>
