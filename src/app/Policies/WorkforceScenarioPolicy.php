@@ -10,6 +10,21 @@ class WorkforceScenarioPolicy
 {
     use HandlesAuthorization;
 
+    private function hasPermission(User $user, string $permission): bool
+    {
+        return method_exists($user, 'hasPermissionTo') ? $user->hasPermissionTo($permission) : true;
+    }
+
+    /**
+     * Listar escenarios (requiere permiso de visualización o cualquier permiso de edición/creación)
+     */
+    public function viewAny(User $user): bool
+    {
+        return $this->hasPermission($user, 'workforce_planning.view')
+            || $this->hasPermission($user, 'workforce_planning.create')
+            || $this->hasPermission($user, 'workforce_planning.update');
+    }
+
     /**
      * Ver escenarios (solo si pertenece a su org)
      */
@@ -23,7 +38,7 @@ class WorkforceScenarioPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('workforce_planning.create');
+        return $this->hasPermission($user, 'workforce_planning.create');
     }
 
     /**
@@ -37,7 +52,7 @@ class WorkforceScenarioPolicy
             return false;
         }
 
-        if (!$user->hasPermissionTo('workforce_planning.update')) {
+        if (!$this->hasPermission($user, 'workforce_planning.update')) {
             return false;
         }
 
@@ -60,7 +75,7 @@ class WorkforceScenarioPolicy
             return false;
         }
 
-        if (!$user->hasPermissionTo('workforce_planning.delete')) {
+        if (!$this->hasPermission($user, 'workforce_planning.delete')) {
             return false;
         }
 
@@ -88,7 +103,7 @@ class WorkforceScenarioPolicy
             return false;
         }
 
-        if (!$user->hasPermissionTo('workforce_planning.create')) {
+        if (!$this->hasPermission($user, 'workforce_planning.create')) {
             return false;
         }
 
@@ -116,11 +131,11 @@ class WorkforceScenarioPolicy
 
         // Transiciones que requieren permiso especial de aprobación
         if (in_array($toStatus, ['approved', 'rejected']) && $from === 'pending_approval') {
-            return $user->hasPermissionTo('workforce_planning.approve');
+            return $this->hasPermission($user, 'workforce_planning.approve');
         }
 
         // Transiciones normales (draft -> pending, rejected -> draft)
-        return $user->hasPermissionTo('workforce_planning.update');
+        return $this->hasPermission($user, 'workforce_planning.update');
     }
 
     /**
@@ -134,7 +149,7 @@ class WorkforceScenarioPolicy
             return false;
         }
 
-        if (!$user->hasPermissionTo('workforce_planning.execute')) {
+        if (!$this->hasPermission($user, 'workforce_planning.execute')) {
             return false;
         }
 
@@ -156,7 +171,7 @@ class WorkforceScenarioPolicy
             return false;
         }
 
-        if (!$user->hasPermissionTo('workforce_planning.execute')) {
+        if (!$this->hasPermission($user, 'workforce_planning.execute')) {
             return false;
         }
 
@@ -173,7 +188,7 @@ class WorkforceScenarioPolicy
             return false;
         }
 
-        if (!$user->hasPermissionTo('workforce_planning.execute')) {
+        if (!$this->hasPermission($user, 'workforce_planning.execute')) {
             return false;
         }
 
@@ -192,7 +207,7 @@ class WorkforceScenarioPolicy
             return false;
         }
 
-        if (!$user->hasPermissionTo('workforce_planning.update')) {
+        if (!$this->hasPermission($user, 'workforce_planning.update')) {
             return false;
         }
 

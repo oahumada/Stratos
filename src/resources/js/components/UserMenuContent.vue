@@ -6,7 +6,8 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { logout, edit } from '@/routes';
+import { logout } from '@/routes';
+import { edit } from '@/routes/profile';
 import type { User } from '@/types';
 import { Link, router } from '@inertiajs/vue3';
 import { LogOut, Settings } from 'lucide-vue-next';
@@ -33,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
     <DropdownMenuSeparator />
     <DropdownMenuGroup>
         <DropdownMenuItem :as-child="true">
-            <Link class="block w-full" :href="edit()" prefetch as="button">
+            <Link class="block w-full" :href="edit().url" prefetch as="button">
                 <Settings class="mr-2 h-4 w-4" />
                 Configuración
             </Link>
@@ -43,7 +44,7 @@ const props = withDefaults(defineProps<Props>(), {
     <DropdownMenuItem :as-child="true">
         <Link
             class="block w-full"
-            :href="logout.destroy().url"
+            :href="logout().url"
             method="post"
             @click="handleLogout"
             as="button"

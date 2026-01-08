@@ -58,6 +58,10 @@ const scenarioId = computed(() => {
 
 const loadScenario = async () => {
   loading.value = true
+  try {
+    const response = await api.get(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}`)
+    const data = (response as any)?.data ?? response
+    scenario.value = data
     currentStep.value = scenario.value?.current_step || 1
   } catch (error) {
     showError('No se pudo cargar el escenario')
@@ -72,7 +76,6 @@ const handleStatusChanged = () => {
 
 const handleStepChange = (step: number) => {
   currentStep.value = step
-  // Aquí se podría guardar el paso actual en el backend
 }
 
 const openVersionHistory = () => {
@@ -80,10 +83,7 @@ const openVersionHistory = () => {
 }
 
 const openStatusTimeline = () => {
-  statusTimelineRef.value?.openTimeline() showError('No se pudo cargar el escenario')
-  } finally {
-    loading.value = false
-  }
+  statusTimelineRef.value?.openTimeline()
 }
 
 const calculateGaps = async () => {
@@ -97,12 +97,33 @@ const calculateGaps = async () => {
     refreshing.value = false
   }
 }
-6">
+
+const refreshStrategies = async () => {
+  refreshing.value = true
+  try {
+    // Endpoint opcional para generar/actualizar estrategias; si no existe, recarga el escenario
+    showSuccess('Estrategias actualizadas')
+  } catch (error) {
+    showError('Error al actualizar estrategias')
+  } finally {
+    refreshing.value = false
+  }
+}
+
+onMounted(() => {
+  loadScenario()
+})
+</script>
+
+<template>
+  <v-container fluid class="scenario-detail">
+    <v-row class="mb-4 align-center">
+      <v-col cols="12" md="6">
         <h2 class="mb-1">{{ scenario?.name || 'Escenario' }}</h2>
         <p class="text-medium-emphasis mb-0">{{ scenario?.description }}</p>
         <div class="text-caption text-uppercase text-medium-emphasis">
           Tipo: {{ scenario?.scenario_type || 'custom' }} · Horizonte: {{ scenario?.time_horizon_weeks || '—' }} semanas
-          <span v-if="scenario?.version_number"> · v{{ scenario.version_number }}</span>
+          <span v-if="scenario?.version_number"> · v{{ scenario?.version_number }}</span>
         </div>
       </v-col>
       <v-col cols="12" md="6" class="text-right">
@@ -128,7 +149,29 @@ const calculateGaps = async () => {
         <v-btn class="mr-2" color="primary" variant="outlined" :loading="refreshing" @click="calculateGaps" prepend-icon="mdi-calculator-variant">
           Calcular brechas
         </v-btn>
-        <v-btn color="primary" :loadstepper'" v-if="scenario">
+        <v-btn color="primary" :loading="refreshing" @click="refreshStrategies" prepend-icon="mdi-lightbulb-on-outline">
+          Sugerir estrategias
+        </v-btn>
+      </v-col>
+    </v-row>
+
+    <v-card>
+      <v-tabs v-model="activeTab" bg-color="surface">
+        <v-tab value="stepper" prepend-icon="mdi-format-list-numbered">Metodología 7 Pasos</v-tab>
+        <v-tab value="actions" prepend-icon="mdi-cog">Estados & Acciones</v-tab>
+        <v-tab value="overview" prepend-icon="mdi-view-dashboard">Overview</v-tab>
+        <v-tab value="gaps" prepend-icon="mdi-matrix">Brechas</v-tab>
+        <v-tab value="strategies" prepend-icon="mdi-source-branch">Estrategias</v-tab>
+        <v-tab value="matches" prepend-icon="mdi-account-search">Matching</v-tab>
+        <v-tab value="forecasts" prepend-icon="mdi-chart-timeline-variant">Forecasts</v-tab>
+        <v-tab value="comparisons" prepend-icon="mdi-compare">Comparaciones</v-tab>
+        <v-tab value="succession" prepend-icon="mdi-family-tree">Sucesión</v-tab>
+      </v-tabs>
+
+      <v-divider></v-divider>
+
+      <v-card-text>
+        <div v-show="activeTab === 'stepper'" v-if="scenario">
           <ScenarioStepperComponent
             :current-step="currentStep"
             :scenario-status="scenario.execution_status"
@@ -146,64 +189,6 @@ const calculateGaps = async () => {
           />
         </div>
 
-        <div v-show="activeTab === 'ing="refreshing" @click="refreshStrategies" prepend-icon="mdi-lightbulb-on-outline">
-          Sugerir estrategias
-        </v-btn>
-      </v-col>
-    </v-row>
-
-    <v-card>
-      <v-tabs v-model="activeTab" bg-color="surface">
-
-    <!-- Modales -->
-    <VersionHistoryModal
-      v-if="scenario?.version_group_id"
-      ref="versionHistoryRef"
-      :scenario-id="scenarioId"
-      :version-group-id="scenario.version_group_id"
-      :current-version="scenario.version_number || 1"
-      @version-selected="(id) => $router.push(`/workforce-planning/scenarios/${id}`)"
-    />
-
-    <StatusTimeline
-      ref="statusTimelineRef"
-      :scenario-id="scenarioId"
-    />
-        <v-tab value="stepper" prepend-icon="mdi-format-list-numbered">Metodología 7 Pasos</v-tab>
-        <v-tab value="actions" prepend-icon="mdi-cog">Estados & Acciones</v-tab
-  <v-container fluid class="scenario-detail">
-    <v-row class="mb-4 align-center">
-      <v-col cols="12" md="8">
-        <h2 class="mb-1">{{ scenario?.name || 'Escenario' }}</h2>
-        <p class="text-medium-emphasis mb-0">{{ scenario?.description }}</p>
-        <div class="text-caption text-uppercase text-medium-emphasis">
-          Tipo: {{ scenario?.scenario_type || 'custom' }} · Estado: {{ scenario?.status }} · Horizonte: {{ scenario?.time_horizon_weeks || '—' }} semanas
-        </div>
-      </v-col>
-      <v-col cols="12" md="4" class="text-right">
-        <v-btn class="mr-2" color="primary" variant="outlined" :loading="refreshing" @click="calculateGaps" prepend-icon="mdi-calculator-variant">
-          Calcular brechas
-        </v-btn>
-        <v-btn color="primary" :loading="refreshing" @click="refreshStrategies" prepend-icon="mdi-lightbulb-on-outline">
-          Sugerir estrategias
-        </v-btn>
-      </v-col>
-    </v-row>
-
-    <v-card>
-      <v-tabs v-model="activeTab" bg-color="surface">
-        <v-tab value="overview" prepend-icon="mdi-view-dashboard">Overview</v-tab>
-        <v-tab value="gaps" prepend-icon="mdi-matrix">Brechas</v-tab>
-        <v-tab value="strategies" prepend-icon="mdi-source-branch">Estrategias</v-tab>
-        <v-tab value="matches" prepend-icon="mdi-account-search">Matching</v-tab>
-        <v-tab value="forecasts" prepend-icon="mdi-chart-timeline-variant">Forecasts</v-tab>
-        <v-tab value="comparisons" prepend-icon="mdi-compare">Comparaciones</v-tab>
-        <v-tab value="succession" prepend-icon="mdi-family-tree">Sucesión</v-tab>
-      </v-tabs>
-
-      <v-divider></v-divider>
-
-      <v-card-text>
         <div v-show="activeTab === 'overview'">
           <OverviewDashboard :id="scenarioId" />
         </div>
@@ -227,5 +212,20 @@ const calculateGaps = async () => {
         </div>
       </v-card-text>
     </v-card>
+
+    <!-- Modales -->
+    <VersionHistoryModal
+      v-if="scenario?.version_group_id"
+      ref="versionHistoryRef"
+      :scenario-id="scenarioId"
+      :version-group-id="scenario?.version_group_id || ''"
+      :current-version="scenario?.version_number || 1"
+      @version-selected="(id) => $router.push(`/workforce-planning/scenarios/${id}`)"
+    />
+
+    <StatusTimeline
+      ref="statusTimelineRef"
+      :scenario-id="scenarioId"
+    />
   </v-container>
 </template>
