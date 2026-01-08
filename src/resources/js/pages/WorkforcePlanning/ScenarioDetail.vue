@@ -10,6 +10,10 @@ import RoleForecastsTable from './RoleForecastsTable.vue'
 import SuccessionPlanCard from './SuccessionPlanCard.vue'
 import ClosureStrategies from './ClosureStrategies.vue'
 import ScenarioComparison from './ScenarioComparison.vue'
+import ScenarioStepperComponent from '@/components/WorkforcePlanning/ScenarioStepperComponent.vue'
+import ScenarioActionsPanel from '@/components/WorkforcePlanning/ScenarioActionsPanel.vue'
+import VersionHistoryModal from '@/components/WorkforcePlanning/VersionHistoryModal.vue'
+import StatusTimeline from '@/components/WorkforcePlanning/StatusTimeline.vue'
 
 interface Props {
   id: number | string
@@ -21,6 +25,13 @@ interface ScenarioPayload {
   description?: string
   scenario_type?: string
   status: string
+  decision_status: string
+  execution_status: string
+  current_step?: number
+  is_current_version?: boolean
+  version_number?: number
+  version_group_id?: string
+  parent_id?: number | null
   time_horizon_weeks?: number
   estimated_budget?: number
   created_at?: string
@@ -35,7 +46,10 @@ const { showSuccess, showError } = useNotification()
 const scenario = ref<ScenarioPayload | null>(null)
 const loading = ref(false)
 const refreshing = ref(false)
-const activeTab = ref<'overview' | 'gaps' | 'strategies' | 'matches' | 'forecasts' | 'comparisons' | 'succession'>('overview')
+const activeTab = ref<'stepper' | 'overview' | 'gaps' | 'strategies' | 'matches' | 'forecasts' | 'comparisons' | 'succession' | 'actions'>('stepper')
+const currentStep = ref(1)
+const versionHistoryRef = ref<InstanceType<typeof VersionHistoryModal> | null>(null)
+const statusTimelineRef = ref<InstanceType<typeof StatusTimeline> | null>(null)
 
 const scenarioId = computed(() => {
   const value = typeof props.id === 'string' ? parseInt(props.id, 10) : props.id
@@ -44,11 +58,29 @@ const scenarioId = computed(() => {
 
 const loadScenario = async () => {
   loading.value = true
-  try {
-    const res: any = await api.get(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}`)
-    scenario.value = res?.data || res
+    currentStep.value = scenario.value?.current_step || 1
   } catch (error) {
     showError('No se pudo cargar el escenario')
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleStatusChanged = () => {
+  loadScenario()
+}
+
+const handleStepChange = (step: number) => {
+  currentStep.value = step
+  // Aquí se podría guardar el paso actual en el backend
+}
+
+const openVersionHistory = () => {
+  versionHistoryRef.value?.openDialog()
+}
+
+const openStatusTimeline = () => {
+  statusTimelineRef.value?.openTimeline() showError('No se pudo cargar el escenario')
   } finally {
     loading.value = false
   }
@@ -65,25 +97,80 @@ const calculateGaps = async () => {
     refreshing.value = false
   }
 }
+6">
+        <h2 class="mb-1">{{ scenario?.name || 'Escenario' }}</h2>
+        <p class="text-medium-emphasis mb-0">{{ scenario?.description }}</p>
+        <div class="text-caption text-uppercase text-medium-emphasis">
+          Tipo: {{ scenario?.scenario_type || 'custom' }} · Horizonte: {{ scenario?.time_horizon_weeks || '—' }} semanas
+          <span v-if="scenario?.version_number"> · v{{ scenario.version_number }}</span>
+        </div>
+      </v-col>
+      <v-col cols="12" md="6" class="text-right">
+        <v-btn
+          v-if="scenario?.version_group_id"
+          color="purple"
+          variant="outlined"
+          prepend-icon="mdi-history"
+          class="mr-2"
+          @click="openVersionHistory"
+        >
+          Versiones
+        </v-btn>
+        <v-btn
+          color="grey-darken-1"
+          variant="outlined"
+          prepend-icon="mdi-timeline-clock"
+          class="mr-2"
+          @click="openStatusTimeline"
+        >
+          Historial
+        </v-btn>
+        <v-btn class="mr-2" color="primary" variant="outlined" :loading="refreshing" @click="calculateGaps" prepend-icon="mdi-calculator-variant">
+          Calcular brechas
+        </v-btn>
+        <v-btn color="primary" :loadstepper'" v-if="scenario">
+          <ScenarioStepperComponent
+            :current-step="currentStep"
+            :scenario-status="scenario.execution_status"
+            :decision-status="scenario.decision_status"
+            @update:current-step="handleStepChange"
+            @step-click="handleStepChange"
+          />
+        </div>
 
-const refreshStrategies = async () => {
-  refreshing.value = true
-  try {
-    await api.post(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}/refresh-suggested-strategies`)
-    showSuccess('Estrategias sugeridas actualizadas')
-  } catch (error) {
-    showError('Error al refrescar estrategias')
-  } finally {
-    refreshing.value = false
-  }
-}
+        <div v-show="activeTab === 'actions'" v-if="scenario">
+          <ScenarioActionsPanel
+            :scenario="scenario"
+            @refresh="loadScenario"
+            @status-changed="handleStatusChanged"
+          />
+        </div>
 
-onMounted(() => {
-  loadScenario()
-})
-</script>
+        <div v-show="activeTab === 'ing="refreshing" @click="refreshStrategies" prepend-icon="mdi-lightbulb-on-outline">
+          Sugerir estrategias
+        </v-btn>
+      </v-col>
+    </v-row>
 
-<template>
+    <v-card>
+      <v-tabs v-model="activeTab" bg-color="surface">
+
+    <!-- Modales -->
+    <VersionHistoryModal
+      v-if="scenario?.version_group_id"
+      ref="versionHistoryRef"
+      :scenario-id="scenarioId"
+      :version-group-id="scenario.version_group_id"
+      :current-version="scenario.version_number || 1"
+      @version-selected="(id) => $router.push(`/workforce-planning/scenarios/${id}`)"
+    />
+
+    <StatusTimeline
+      ref="statusTimelineRef"
+      :scenario-id="scenarioId"
+    />
+        <v-tab value="stepper" prepend-icon="mdi-format-list-numbered">Metodología 7 Pasos</v-tab>
+        <v-tab value="actions" prepend-icon="mdi-cog">Estados & Acciones</v-tab
   <v-container fluid class="scenario-detail">
     <v-row class="mb-4 align-center">
       <v-col cols="12" md="8">

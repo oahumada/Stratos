@@ -93,6 +93,20 @@ Route::prefix('v1/workforce-planning')->middleware(['auth:sanctum'])->group(func
     Route::get('/scenarios/{id}/succession-plans', function ($id) {
         return response()->json(['success' => true, 'data' => []]);
     });
+
+    // Workforce Planning Phase 2 - Simulador de Crecimiento
+    Route::post('/scenarios/{id}/simulate-growth', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'simulateGrowth']);
+    Route::get('/critical-positions', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getCriticalPositions']);
+
+    // Workforce Planning Phase 2 - Avanzado: Versionamiento, Jerarquía, Estados
+    Route::post('/scenarios/{scenario}/decision-status', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'transitionDecisionStatus']);
+    Route::post('/scenarios/{scenario}/execution/start', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'startExecution']);
+    Route::post('/scenarios/{scenario}/execution/pause', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'pauseExecution']);
+    Route::post('/scenarios/{scenario}/execution/complete', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'completeExecution']);
+    Route::post('/scenarios/{scenario}/versions', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'createNewVersion']);
+    Route::get('/scenarios/{scenario}/versions', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'listVersions']);
+    Route::post('/scenarios/{scenario}/sync-parent', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'syncParentSkills']);
+    Route::get('/scenarios/{scenario}/rollup', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getRollup']);
 });
 
 // Catálogos dinámicos para selectores

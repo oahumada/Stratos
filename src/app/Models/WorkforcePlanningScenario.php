@@ -15,33 +15,48 @@ class WorkforcePlanningScenario extends Model
 
     protected $fillable = [
         'organization_id',
+        'parent_id',
         'template_id',
         'name',
         'description',
         'scenario_type',
+        'scope_type',
+        'scope_id',
         'target_date',
         'time_horizon_weeks',
         'horizon_months',
         'status',
+        'decision_status',
+        'execution_status',
+        'current_step',
         'assumptions',
         'custom_config',
         'estimated_budget',
         'fiscal_year',
         'owner',
+        'owner_id',
         'created_by',
         'approved_by',
         'approved_at',
+        'last_simulated_at',
+        'version_group_id',
+        'version_number',
+        'is_current_version',
     ];
 
     protected $casts = [
         'fiscal_year' => 'integer',
         'horizon_months' => 'integer',
         'time_horizon_weeks' => 'integer',
+        'current_step' => 'integer',
+        'version_number' => 'integer',
+        'is_current_version' => 'boolean',
         'target_date' => 'date',
         'assumptions' => 'array',
         'custom_config' => 'array',
         'estimated_budget' => 'decimal:2',
         'approved_at' => 'datetime',
+        'last_simulated_at' => 'datetime',
     ];
 
     // Relationships
@@ -106,6 +121,27 @@ class WorkforcePlanningScenario extends Model
         return $this->hasMany(ScenarioMilestone::class, 'scenario_id');
     }
 
+    // Nuevas relaciones para jerarquía y auditoría
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(WorkforcePlanningScenario::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(WorkforcePlanningScenario::class, 'parent_id');
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function statusEvents(): HasMany
+    {
+        return $this->hasMany(ScenarioStatusEvent::class, 'scenario_id');
+    }
+
     // Scopes
     public function scopeForOrganization($query, $organizationId)
     {
@@ -120,6 +156,45 @@ class WorkforcePlanningScenario extends Model
     public function scopeByType($query, $type)
     {
         return $query->where('scenario_type', $type);
+    }
+
+    public function scopeCurrentVersion($query)
+    {
+        return $query->where('is_current_version', true);
+    }
+
+    public function scopeByVersionGroup($query, $versionGroupId)
+    {
+        return $query->where('version_group_id', $versionGroupId);
+    }
+
+    public function scopeByScope($query, $scopeType, $scopeId = null)
+    {
+        $query->where('scope_type', $scopeType);
+        if ($scopeId !== null) {
+            $query->where('scope_id', $scopeId);
+        }
+        return $query;
+    }
+
+    public function scopeParents($query)
+    {
+        return $query->whereNull('parent_id');
+    }
+
+    public function scopeChildren($query)
+    {
+        return $query->whereNotNull('parent_id');
+    }
+
+    public function scopeByDecisionStatus($query, $status)
+    {
+        return $query->where('decision_status', $status);
+    }
+
+    public function scopeByExecutionStatus($query, $status)
+    {
+        return $query->where('execution_status', $status);
     }
 
     // Métodos auxiliares de negocio
@@ -149,5 +224,46 @@ class WorkforcePlanningScenario extends Model
     public function getCriticalSkillsCount()
     {
         return $this->skillDemands()->where('priority', 'critical')->count();
+    }
+
+    // Accessors para estados
+    public function getIsApprovedAttribute(): bool
+    {
+        return $this->decision_status === 'approved';
+    }
+
+    public function getCanEditAttribute(): bool
+    {
+        return !$this->is_approved;
+    }
+
+    public function getIsParentAttribute(): bool
+    {
+        return $this->parent_id === null;
+    }
+
+    public function getIsChildAttribute(): bool
+    {
+        return $this->parent_id !== null;
+    }
+
+    public function getIsExecutingAttribute(): bool
+    {
+        return in_array($this->execution_status, ['in_progress', 'paused']);
+    }
+
+    // Helper para verificar transiciones permitidas
+    public function canTransitionTo(string $newDecisionStatus): bool
+    {
+        $validTransitions = [
+            'draft' => ['simulated', 'archived'],
+            'simulated' => ['proposed', 'draft', 'archived'],
+            'proposed' => ['approved', 'simulated', 'rejected', 'archived'],
+            'approved' => ['archived'],
+            'rejected' => ['archived'],
+            'archived' => [],
+        ];
+
+        return in_array($newDecisionStatus, $validTransitions[$this->decision_status] ?? []);
     }
 }

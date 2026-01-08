@@ -743,4 +743,441 @@ class WorkforcePlanningService
             'generated_at' => now()->toISOString(),
         ];
     }
+
+    // ========================================================================
+    // NUEVOS MÉTODOS - WORKFORCE PLANNING PHASE 2 (Escenarios Avanzados)
+    // ========================================================================
+
+    /**
+     * Crear escenario desde template con configuración avanzada
+     */
+    public function createScenarioFromTemplate($organizationId, $template, array $payload): WorkforcePlanningScenario
+    {
+        DB::beginTransaction();
+        try {
+            // Generar version_group_id único
+            $versionGroupId = \Illuminate\Support\Str::uuid();
+
+            $scenario = WorkforcePlanningScenario::create([
+                'organization_id' => $organizationId,
+                'parent_id' => $payload['parent_id'] ?? null,
+                'template_id' => $template->id,
+                'name' => $payload['name'],
+                'description' => $payload['description'] ?? $template->description,
+                'scenario_type' => $template->scenario_type,
+                'scope_type' => $payload['scope_type'] ?? 'organization',
+                'scope_id' => $payload['scope_id'] ?? null,
+                'horizon_months' => $payload['horizon_months'] ?? 24,
+                'fiscal_year' => $payload['fiscal_year'] ?? now()->year,
+                'current_step' => 1,
+                'decision_status' => 'draft',
+                'execution_status' => 'not_started',
+                'version_group_id' => $versionGroupId,
+                'version_number' => 1,
+                'is_current_version' => true,
+                'created_by' => $payload['created_by'],
+                'owner_id' => $payload['owner_id'] ?? $payload['created_by'],
+                'assumptions' => $payload['assumptions'] ?? [],
+                'custom_config' => $template->config ?? [],
+            ]);
+
+            // Importar skills sugeridas del template
+            if (isset($template->config['suggested_skills'])) {
+                foreach ($template->config['suggested_skills'] as $skillConfig) {
+                    // Si es escenario padre y skill es transversal, marcar como mandatory
+                    $isMandatory = $scenario->is_parent && ($skillConfig['scope_type'] ?? 'domain') === 'transversal';
+                    
+                    ScenarioSkillDemand::create([
+                        'scenario_id' => $scenario->id,
+                        'skill_id' => $skillConfig['skill_id'],
+                        'required_headcount' => $skillConfig['default_headcount'] ?? 1,
+                        'required_level' => $skillConfig['default_level'] ?? 3.0,
+                        'priority' => $skillConfig['priority'] ?? 'medium',
+                        'is_mandatory_from_parent' => $isMandatory,
+                    ]);
+                }
+            }
+
+            // Si es escenario hijo, sincronizar skills mandatory del padre
+            if ($scenario->parent_id) {
+                $this->syncParentMandatorySkills($scenario);
+            }
+
+            DB::commit();
+            return $scenario->fresh();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Sincronizar skills obligatorias desde el escenario padre
+     */
+    public function syncParentMandatorySkills(WorkforcePlanningScenario $childScenario): int
+    {
+        if (!$childScenario->parent_id) {
+            return 0;
+        }
+
+        $parent = $childScenario->parent;
+        if (!$parent) {
+            return 0;
+        }
+
+        $mandatoryDemands = $parent->skillDemands()
+            ->where('is_mandatory_from_parent', true)
+            ->get();
+
+        $synced = 0;
+        foreach ($mandatoryDemands as $parentDemand) {
+            // Upsert: crear o actualizar en hijo
+            ScenarioSkillDemand::updateOrCreate(
+                [
+                    'scenario_id' => $childScenario->id,
+                    'skill_id' => $parentDemand->skill_id,
+                ],
+                [
+                    'required_headcount' => $parentDemand->required_headcount,
+                    'required_level' => $parentDemand->required_level,
+                    'priority' => $parentDemand->priority,
+                    'rationale' => "Heredado del escenario padre: {$parent->name}",
+                    'is_mandatory_from_parent' => true,
+                ]
+            );
+            $synced++;
+        }
+
+        return $synced;
+    }
+
+    /**
+     * Calcular supply (inventario) filtrando por scope del escenario
+     */
+    public function calculateSupply(WorkforcePlanningScenario $scenario): array
+    {
+        $organizationId = $scenario->organization_id;
+        
+        // Filtrar población base según scope
+        $peopleQuery = People::where('organization_id', $organizationId);
+        
+        switch ($scenario->scope_type) {
+            case 'department':
+                if ($scenario->scope_id && Schema::hasColumn('people', 'department_id')) {
+                    $peopleQuery->where('department_id', $scenario->scope_id);
+                }
+                break;
+            case 'role_family':
+                if ($scenario->scope_id && Schema::hasColumn('roles', 'role_family_id')) {
+                    $peopleQuery->whereHas('currentRole', function($q) use ($scenario) {
+                        $q->where('role_family_id', $scenario->scope_id);
+                    });
+                }
+                break;
+            case 'organization':
+            default:
+                // Sin filtro adicional, toda la org
+                break;
+        }
+
+        $people = $peopleQuery->get();
+        $totalHeadcount = $people->count();
+
+        // Agregar skills por skill_id
+        $skillInventory = PeopleRoleSkills::whereIn('people_id', $people->pluck('id'))
+            ->where('current_level', '>=', 2) // Mínimo nivel 2 para contar
+            ->with('skill')
+            ->get()
+            ->groupBy('skill_id')
+            ->map(function ($group) {
+                return [
+                    'skill_id' => $group->first()->skill_id,
+                    'skill_name' => $group->first()->skill->name ?? 'N/A',
+                    'headcount' => $group->pluck('people_id')->unique()->count(),
+                    'avg_level' => round($group->avg('current_level'), 1),
+                ];
+            })
+            ->values()
+            ->all();
+
+        return [
+            'scenario_id' => $scenario->id,
+            'scope_type' => $scenario->scope_type,
+            'scope_id' => $scenario->scope_id,
+            'total_headcount' => $totalHeadcount,
+            'skills_inventory' => $skillInventory,
+            'calculated_at' => now()->toISOString(),
+        ];
+    }
+
+    /**
+     * Transicionar estado de decisión con validaciones
+     */
+    public function transitionDecisionStatus(
+        WorkforcePlanningScenario $scenario,
+        string $toStatus,
+        $user,
+        ?string $notes = null
+    ): WorkforcePlanningScenario {
+        // Validar transición permitida
+        if (!$scenario->canTransitionTo($toStatus)) {
+            throw new \Exception("No se puede transicionar de {$scenario->decision_status} a {$toStatus}");
+        }
+
+        // Validaciones específicas por transición
+        if ($toStatus === 'approved') {
+            // Validar que tenga demands
+            if ($scenario->skillDemands()->count() === 0) {
+                throw new \Exception("No se puede aprobar un escenario sin demands configuradas");
+            }
+
+            // Validar que haya al menos 1 estrategia
+            if ($scenario->closureStrategies()->count() === 0) {
+                throw new \Exception("No se puede aprobar sin al menos una estrategia de cierre");
+            }
+
+            // Setear campos de aprobación
+            $scenario->approved_at = now();
+            $scenario->approved_by = is_object($user) ? $user->id : $user;
+        }
+
+        $fromStatus = $scenario->decision_status;
+        $scenario->decision_status = $toStatus;
+        $scenario->save();
+
+        // Registrar evento de transición
+        \App\Models\ScenarioStatusEvent::create([
+            'scenario_id' => $scenario->id,
+            'from_decision_status' => $fromStatus,
+            'to_decision_status' => $toStatus,
+            'changed_by' => is_object($user) ? $user->id : $user,
+            'notes' => $notes,
+        ]);
+
+        return $scenario->fresh();
+    }
+
+    /**
+     * Iniciar ejecución de un escenario aprobado
+     */
+    public function startExecution(WorkforcePlanningScenario $scenario, $user): WorkforcePlanningScenario
+    {
+        if ($scenario->decision_status !== 'approved') {
+            throw new \Exception("Solo se pueden ejecutar escenarios aprobados");
+        }
+
+        if ($scenario->execution_status === 'in_progress') {
+            throw new \Exception("El escenario ya está en ejecución");
+        }
+
+        $fromStatus = $scenario->execution_status;
+        $scenario->execution_status = 'in_progress';
+        $scenario->save();
+
+        \App\Models\ScenarioStatusEvent::create([
+            'scenario_id' => $scenario->id,
+            'from_execution_status' => $fromStatus,
+            'to_execution_status' => 'in_progress',
+            'changed_by' => is_object($user) ? $user->id : $user,
+        ]);
+
+        return $scenario->fresh();
+    }
+
+    /**
+     * Pausar ejecución
+     */
+    public function pauseExecution(WorkforcePlanningScenario $scenario, $user, ?string $notes = null): WorkforcePlanningScenario
+    {
+        if ($scenario->execution_status !== 'in_progress') {
+            throw new \Exception("Solo se pueden pausar escenarios en ejecución");
+        }
+
+        $fromStatus = $scenario->execution_status;
+        $scenario->execution_status = 'paused';
+        $scenario->save();
+
+        \App\Models\ScenarioStatusEvent::create([
+            'scenario_id' => $scenario->id,
+            'from_execution_status' => $fromStatus,
+            'to_execution_status' => 'paused',
+            'changed_by' => is_object($user) ? $user->id : $user,
+            'notes' => $notes,
+        ]);
+
+        return $scenario->fresh();
+    }
+
+    /**
+     * Completar ejecución
+     */
+    public function completeExecution(WorkforcePlanningScenario $scenario, $user): WorkforcePlanningScenario
+    {
+        if (!in_array($scenario->execution_status, ['in_progress', 'paused'])) {
+            throw new \Exception("Solo se pueden completar escenarios en ejecución o pausados");
+        }
+
+        $fromStatus = $scenario->execution_status;
+        $scenario->execution_status = 'completed';
+        $scenario->save();
+
+        \App\Models\ScenarioStatusEvent::create([
+            'scenario_id' => $scenario->id,
+            'from_execution_status' => $fromStatus,
+            'to_execution_status' => 'completed',
+            'changed_by' => is_object($user) ? $user->id : $user,
+        ]);
+
+        return $scenario->fresh();
+    }
+
+    /**
+     * Crear nueva versión desde escenario aprobado (clonación profunda)
+     */
+    public function createNewVersion(
+        WorkforcePlanningScenario $originalScenario,
+        $user,
+        ?string $notes = null
+    ): WorkforcePlanningScenario {
+        if ($originalScenario->decision_status !== 'approved') {
+            throw new \Exception("Solo se pueden versionar escenarios aprobados");
+        }
+
+        DB::beginTransaction();
+        try {
+            // Marcar original como no-current
+            $originalScenario->is_current_version = false;
+            $originalScenario->save();
+
+            // Clonar escenario
+            $newVersion = $originalScenario->replicate();
+            $newVersion->version_number = $originalScenario->version_number + 1;
+            $newVersion->is_current_version = true;
+            $newVersion->decision_status = 'draft';
+            $newVersion->execution_status = 'not_started';
+            $newVersion->approved_at = null;
+            $newVersion->approved_by = null;
+            $newVersion->last_simulated_at = null;
+            $newVersion->created_by = is_object($user) ? $user->id : $user;
+            $newVersion->save();
+
+            // Clonar skill demands
+            foreach ($originalScenario->skillDemands as $demand) {
+                $newDemand = $demand->replicate();
+                $newDemand->scenario_id = $newVersion->id;
+                $newDemand->save();
+            }
+
+            // Clonar strategies
+            foreach ($originalScenario->closureStrategies as $strategy) {
+                $newStrategy = $strategy->replicate();
+                $newStrategy->scenario_id = $newVersion->id;
+                $newStrategy->status = 'proposed'; // Reset status
+                $newStrategy->save();
+            }
+
+            // Clonar milestones
+            foreach ($originalScenario->milestones as $milestone) {
+                $newMilestone = $milestone->replicate();
+                $newMilestone->scenario_id = $newVersion->id;
+                $newMilestone->status = 'pending'; // Reset status
+                $newMilestone->actual_date = null;
+                $newMilestone->save();
+            }
+
+            // Registrar evento en ambos escenarios
+            \App\Models\ScenarioStatusEvent::create([
+                'scenario_id' => $originalScenario->id,
+                'from_decision_status' => 'approved',
+                'to_decision_status' => 'approved',
+                'changed_by' => is_object($user) ? $user->id : $user,
+                'notes' => "Nueva versión creada: v{$newVersion->version_number}",
+            ]);
+
+            \App\Models\ScenarioStatusEvent::create([
+                'scenario_id' => $newVersion->id,
+                'from_decision_status' => null,
+                'to_decision_status' => 'draft',
+                'changed_by' => is_object($user) ? $user->id : $user,
+                'notes' => $notes ?? "Versión creada desde v{$originalScenario->version_number}",
+            ]);
+
+            DB::commit();
+            return $newVersion->fresh();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Consolidar métricas de escenarios hijos (roll-up para padre)
+     */
+    public function consolidateParent(WorkforcePlanningScenario $parentScenario): array
+    {
+        if ($parentScenario->is_child) {
+            throw new \Exception("Solo se pueden consolidar escenarios padre");
+        }
+
+        $children = $parentScenario->children()
+            ->currentVersion()
+            ->get();
+
+        if ($children->isEmpty()) {
+            return [
+                'parent_id' => $parentScenario->id,
+                'parent_name' => $parentScenario->name,
+                'children_count' => 0,
+                'message' => 'No tiene escenarios hijos',
+            ];
+        }
+
+        $totalCost = 0;
+        $totalHeadcount = 0;
+        $statusBreakdown = [
+            'draft' => 0,
+            'simulated' => 0,
+            'proposed' => 0,
+            'approved' => 0,
+            'in_progress' => 0,
+            'completed' => 0,
+        ];
+
+        foreach ($children as $child) {
+            $totalCost += $child->getTotalEstimatedCost();
+            $totalHeadcount += $child->skillDemands()->sum('required_headcount');
+            
+            $statusBreakdown[$child->decision_status]++;
+            if ($child->execution_status !== 'not_started') {
+                $statusBreakdown[$child->execution_status]++;
+            }
+        }
+
+        $avgCompletion = $children->avg(function ($child) {
+            return $child->getCompletionPercentage();
+        });
+
+        return [
+            'parent_id' => $parentScenario->id,
+            'parent_name' => $parentScenario->name,
+            'children_count' => $children->count(),
+            'consolidated_metrics' => [
+                'total_estimated_cost' => $totalCost,
+                'total_required_headcount' => $totalHeadcount,
+                'avg_completion_percentage' => round($avgCompletion, 1),
+                'status_breakdown' => $statusBreakdown,
+            ],
+            'children_summary' => $children->map(function ($child) {
+                return [
+                    'id' => $child->id,
+                    'name' => $child->name,
+                    'scope_type' => $child->scope_type,
+                    'decision_status' => $child->decision_status,
+                    'execution_status' => $child->execution_status,
+                    'completion_pct' => $child->getCompletionPercentage(),
+                ];
+            })->all(),
+        ];
+    }
 }
+

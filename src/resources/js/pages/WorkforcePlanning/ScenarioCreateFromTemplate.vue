@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
+import ParentScenarioSelector from '@/components/WorkforcePlanning/ParentScenarioSelector.vue'
 
 interface ScenarioTemplate {
   id: number
@@ -33,6 +34,8 @@ const customizations = ref({
   time_horizon_weeks: 52,
   estimated_budget: 500000,
   scenario_type: 'transformation',
+  scope_type: 'organization' as 'organization' | 'department' | 'role_family',
+  parent_id: null as number | null,
 })
 
 const loadTemplates = async () => {
@@ -57,6 +60,10 @@ const applyTemplateDefaults = () => {
 const createScenario = async () => {
   if (!selectedTemplate.value) {
     showError('Selecciona una plantilla')
+    return
+  }
+  if (!customizations.value.name.trim()) {
+    showError('El nombre del escenario es obligatorio')
     return
   }
   submitting.value = true
@@ -167,11 +174,28 @@ onMounted(() => {
                 />
               </v-col>
               <v-col cols="12" md="4">
-                <v-text-field
-                  v-model.number="customizations.estimated_budget"
-                  type="number"
-                  label="Presupuesto estimado"
-                  prefix="$"
+                <v-select
+                  v-model="customizations.scope_type"
+                  :items="[
+                    { value: 'organization', title: '🏢 Organización' },
+                    { value: 'department', title: '🏢 Departamento' },
+                    { value: 'role_family', title: '👥 Familia de Roles' },
+                  ]"
+                  label="Nivel de alcance (Scope)"
+                  hint="Define el nivel de jerarquía del escenario"
+                  persistent-hint
+                />
+              </v-col>
+            </v-row>
+
+            <v-row v-if="customizations.scope_type !== 'organization'" class="mt-2">
+              <v-col cols="12">
+                <ParentScenarioSelector
+                  v-model="customizations.parent_id"
+                  :organization-id="1"
+                  :scope-type="customizations.scope_type"
+                  label="Escenario Padre (Opcional)"
+                  hint="Selecciona un escenario padre para heredar skills obligatorias"
                 />
               </v-col>
             </v-row>

@@ -10,7 +10,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Skills extends Model
 {
-    protected $fillable = ['organization_id', 'name', 'category', 'description', 'is_critical'];
+    protected $fillable = [
+        'organization_id',
+        'name',
+        'category',
+        'description',
+        'is_critical',
+        'scope_type',
+        'domain_tag',
+    ];
 
     protected $casts = [
         'category' => 'string',
@@ -82,5 +90,42 @@ class Skills extends Model
             ->where('is_active', true)
             ->distinct('people_id')
             ->count();
+    }
+
+    // Scopes para skills por alcance
+    public function scopeTransversal($query)
+    {
+        return $query->where('scope_type', 'transversal');
+    }
+
+    public function scopeDomain($query)
+    {
+        return $query->where('scope_type', 'domain');
+    }
+
+    public function scopeSpecific($query)
+    {
+        return $query->where('scope_type', 'specific');
+    }
+
+    public function scopeByDomain($query, $domainTag)
+    {
+        return $query->where('domain_tag', $domainTag);
+    }
+
+    // Helper methods
+    public function isTransversal(): bool
+    {
+        return $this->scope_type === 'transversal';
+    }
+
+    public function isDomain(): bool
+    {
+        return $this->scope_type === 'domain';
+    }
+
+    public function isSpecific(): bool
+    {
+        return $this->scope_type === 'specific';
     }
 }

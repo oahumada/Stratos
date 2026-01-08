@@ -76,22 +76,35 @@ class WorkforceScenarioController extends Controller
 
         $data = $request->validated();
         $organizationId = auth()->user()->organization_id;
+        $customizations = $data['customizations'] ?? [];
+
+        // Extract versionamiento fields
+        $versionGroupId = \Illuminate\Support\Str::uuid();
+        $scopeType = $customizations['scope_type'] ?? 'organization';
+        $parentId = $customizations['parent_id'] ?? null;
 
         $scenario = WorkforcePlanningScenario::create([
             'organization_id' => $organizationId,
             'template_id' => $template->id,
-            'name' => $data['name'] ?? $template->name,
-            'description' => $data['description'] ?? $template->description,
-            'scenario_type' => $template->scenario_type,
-            'horizon_months' => $data['horizon_months'] ?? 12,
-            'time_horizon_weeks' => $data['time_horizon_weeks'] ?? null,
-            'target_date' => $data['target_date'] ?? null,
+            'name' => $customizations['name'] ?? $template->name,
+            'description' => $customizations['description'] ?? $template->description,
+            'scenario_type' => $customizations['scenario_type'] ?? $template->scenario_type,
+            'scope_type' => $scopeType,
+            'parent_id' => $parentId,
+            'version_group_id' => $versionGroupId,
+            'version_number' => 1,
+            'is_current_version' => true,
+            'decision_status' => 'draft',
+            'execution_status' => 'not_started',
+            'horizon_months' => $customizations['horizon_months'] ?? 12,
+            'time_horizon_weeks' => $customizations['time_horizon_weeks'] ?? null,
+            'target_date' => $customizations['target_date'] ?? null,
             'status' => 'draft',
-            'assumptions' => $data['assumptions'] ?? ($template->config['assumptions'] ?? null),
-            'custom_config' => $data['custom_config'] ?? null,
-            'estimated_budget' => $data['estimated_budget'] ?? null,
-            'fiscal_year' => $data['fiscal_year'] ?? now()->year,
-            'owner' => $data['owner'] ?? null,
+            'assumptions' => $customizations['assumptions'] ?? ($template->config['assumptions'] ?? null),
+            'custom_config' => $customizations['custom_config'] ?? null,
+            'estimated_budget' => $customizations['estimated_budget'] ?? null,
+            'fiscal_year' => $customizations['fiscal_year'] ?? now()->year,
+            'owner' => $customizations['owner'] ?? null,
             'created_by' => auth()->id(),
         ]);
 
@@ -113,7 +126,7 @@ class WorkforceScenarioController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Scenario instantiated from template',
-            'data' => $scenario->load(['template', 'skillDemands']),
+            'data' => $scenario->load(['template', 'skillDemands', 'parent', 'statusEvents']),
         ], 201);
     }
 

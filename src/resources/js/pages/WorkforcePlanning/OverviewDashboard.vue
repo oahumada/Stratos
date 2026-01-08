@@ -132,6 +132,67 @@ const loadAnalytics = async () => {
   return
 }
 
+// Growth Simulator
+const simulationParams = ref({
+  growth_percentage: 25,
+  horizon_months: 24,
+  external_hiring_ratio: 30,
+  retention_target: 95
+})
+
+const simulationResults = ref<any>(null)
+const criticalPositions = ref<any[]>([])
+const criticalPositionsCount = computed(() => criticalPositions.value.length)
+
+const criticalPositionsHeaders = [
+  { title: 'Role', value: 'role.name' },
+  { title: 'Department', value: 'department' },
+  { title: 'Criticality', value: 'criticality_level' },
+  { title: 'Risk Status', value: 'risk_status' },
+  { title: 'Ready Now', value: 'successors.ready_now' },
+  { title: 'Ready 12m', value: 'successors.ready_12m' },
+  { title: 'Action', value: 'recommended_action' },
+]
+
+const runSimulation = async () => {
+  if (!scenarioId.value) return
+  try {
+    const response = await api.post(
+      `/api/v1/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
+      simulationParams.value
+    )
+    const result: any = (response as any).data
+    simulationResults.value = result.simulation
+    showSuccess('Simulación ejecutada correctamente')
+  } catch (error: any) {
+    console.error('Simulation error:', error)
+    showError('Error al ejecutar la simulación')
+  }
+}
+
+const loadCriticalPositions = async () => {
+  if (!scenarioId.value) return
+  try {
+    const response = await api.get('/api/v1/workforce-planning/critical-positions', {
+      params: { scenario_id: scenarioId.value }
+    })
+    const result: any = (response as any).data
+    criticalPositions.value = Array.isArray(result) ? result : (result.data || [])
+  } catch (error: any) {
+    console.error('Critical positions error:', error)
+    showError('Error al cargar posiciones críticas')
+  }
+}
+
+const getRiskColor = (riskStatus: string): string => {
+  switch (riskStatus) {
+    case 'HIGH': return 'error'
+    case 'MEDIUM': return 'warning'
+    case 'LOW': return 'success'
+    default: return 'grey'
+  }
+}
+
 const runAnalysis = async () => {
   if (!scenarioId.value) return
   try {
@@ -174,6 +235,7 @@ const downloadReport = () => {
 
 onMounted(() => {
   loadScenario()
+  loadCriticalPositions()
 })
 </script>
 
@@ -218,6 +280,14 @@ onMounted(() => {
         <v-col cols="12">
           <v-tabs v-model="activeTab" bg-color="primary">
             <v-tab value="overview">Resumen</v-tab>
+            <v-tab value="simulator">
+              <v-icon start>mdi-chart-timeline</v-icon>
+              Simulador de Crecimiento
+            </v-tab>
+            <v-tab value="critical">
+              <v-icon start>mdi-alert-circle</v-icon>
+              Posiciones Críticas ({{ criticalPositionsCount }})
+            </v-tab>
             <v-tab value="forecasts">Proyecciones de Roles</v-tab>
             <v-tab value="matches">Coincidencias de Talento</v-tab>
             <v-tab value="gaps">Brechas de Habilidades</v-tab>
@@ -431,6 +501,249 @@ onMounted(() => {
           </v-btn>
         </v-col>
       </v-row>
+      </div>
+
+      <!-- Growth Simulator Tab -->
+      <div v-show="activeTab === 'simulator'">
+        <v-card>
+          <v-card-title class="text-h5 bg-primary">
+            <v-icon start>mdi-chart-timeline</v-icon>
+            Simulador de Escenarios de Crecimiento
+          </v-card-title>
+          <v-card-text>
+            <v-row class="mt-4">
+              <v-col cols="12" md="3">
+                <v-text-field
+                  v-model.number="simulationParams.growth_percentage"
+                  label="Crecimiento %"
+                  type="number"
+                  suffix="%"
+                  min="0"
+                  max="100"
+                  density="comfortable"
+                  variant="outlined"
+                />
+              </v-col>
+              <v-col cols="12" md="3">
+                <v-select
+                  v-model="simulationParams.horizon_months"
+                  :items="[12, 18, 24, 36]"
+                  label="Horizonte (meses)"
+                  density="comfortable"
+                  variant="outlined"
+                />
+              </v-col>
+              <v-col cols="12" md="3">
+                <v-text-field
+                  v-model.number="simulationParams.external_hiring_ratio"
+                  label="Contratación Externa %"
+                  type="number"
+                  suffix="%"
+                  min="0"
+                  max="100"
+                  density="comfortable"
+                  variant="outlined"
+                />
+              </v-col>
+              <v-col cols="12" md="3">
+                <v-btn color="primary" size="large" @click="runSimulation" block>
+                  <v-icon start>mdi-play</v-icon>
+                  Ejecutar Simulación
+                </v-btn>
+              </v-col>
+            </v-row>
+
+            <v-divider class="my-4"></v-divider>
+
+            <!-- Simulation Results -->
+            <v-row v-if="simulationResults" class="mt-4">
+              <v-col cols="12" md="4">
+                <v-card color="blue-lighten-5">
+                  <v-card-title>Proyección de Dotación</v-card-title>
+                  <v-card-text>
+                    <v-row>
+                      <v-col cols="6" class="text-center">
+                        <div class="text-h4">{{ simulationResults.current_headcount }}</div>
+                        <div class="text-caption">Actual</div>
+                      </v-col>
+                      <v-col cols="6" class="text-center">
+                        <div class="text-h4 text-primary">{{ simulationResults.projected_headcount }}</div>
+                        <div class="text-caption">Proyectado</div>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card color="green-lighten-5">
+                  <v-card-title>Crecimiento Neto</v-card-title>
+                  <v-card-text>
+                    <div class="text-h3 text-success text-center">+{{ simulationResults.net_growth }}</div>
+                    <div class="text-caption text-center">Nuevas posiciones a cubrir</div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card color="orange-lighten-5">
+                  <v-card-title>Costo Estimado</v-card-title>
+                  <v-card-text>
+                    <div class="text-h4 text-center">${{ formatNumber(simulationResults.estimated_cost?.total || 0) }}</div>
+                    <div class="text-caption text-center">
+                      Reclutamiento: ${{ formatNumber(simulationResults.estimated_cost?.recruitment || 0) }}<br>
+                      Capacitación: ${{ formatNumber(simulationResults.estimated_cost?.training || 0) }}
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Department Breakdown -->
+            <v-row v-if="simulationResults">
+              <v-col cols="12">
+                <v-card>
+                  <v-card-title>Distribución por Departamento</v-card-title>
+                  <v-card-text>
+                    <v-table density="comfortable">
+                      <thead>
+                        <tr>
+                          <th>Departamento</th>
+                          <th>Actual</th>
+                          <th>Proyectado</th>
+                          <th>Brecha</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(data, dept) in simulationResults.by_department" :key="dept">
+                          <td>{{ dept }}</td>
+                          <td>{{ data.current }}</td>
+                          <td><strong>{{ data.projected }}</strong></td>
+                          <td>
+                            <v-chip :color="data.gap > 0 ? 'success' : 'error'" size="small">
+                              {{ data.gap > 0 ? '+' : '' }}{{ data.gap }}
+                            </v-chip>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Skills Needed -->
+            <v-row v-if="simulationResults?.skills_needed">
+              <v-col cols="12">
+                <v-card>
+                  <v-card-title>Habilidades Más Demandadas</v-card-title>
+                  <v-card-text>
+                    <v-table density="comfortable">
+                      <thead>
+                        <tr>
+                          <th>Habilidad</th>
+                          <th>Cantidad Requerida</th>
+                          <th>Disponibilidad Interna</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="skill in simulationResults.skills_needed" :key="skill.skill_id">
+                          <td>{{ skill.skill_name }}</td>
+                          <td><strong>{{ skill.count }}</strong></td>
+                          <td>
+                            <v-progress-linear
+                              :model-value="skill.availability_internal * 100"
+                              :color="skill.availability_internal > 0.5 ? 'success' : 'warning'"
+                              height="20"
+                            >
+                              {{ Math.round(skill.availability_internal * 100) }}%
+                            </v-progress-linear>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Critical Risks -->
+            <v-row v-if="simulationResults?.critical_risks?.length">
+              <v-col cols="12">
+                <v-card color="red-lighten-5">
+                  <v-card-title>
+                    <v-icon start color="error">mdi-alert</v-icon>
+                    Riesgos Críticos Identificados
+                  </v-card-title>
+                  <v-card-text>
+                    <v-list>
+                      <v-list-item v-for="(risk, idx) in simulationResults.critical_risks" :key="idx">
+                        <v-list-item-title>{{ risk.role }}</v-list-item-title>
+                        <v-list-item-subtitle>
+                          <v-chip color="error" size="small" class="mr-2">{{ risk.critical_level }}</v-chip>
+                          {{ risk.action }}
+                        </v-list-item-subtitle>
+                      </v-list-item>
+                    </v-list>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </div>
+
+      <!-- Critical Positions Tab -->
+      <div v-show="activeTab === 'critical'">
+        <v-card>
+          <v-card-title class="text-h5 bg-error">
+            <v-icon start>mdi-alert-circle</v-icon>
+            Posiciones Críticas & Riesgo de Sucesión
+          </v-card-title>
+          <v-card-text>
+            <v-data-table
+              :headers="criticalPositionsHeaders"
+              :items="criticalPositions"
+              density="comfortable"
+              class="mt-4"
+            >
+              <template #item.role.name="{ item }">
+                <strong>{{ item.role.name }}</strong>
+              </template>
+              <template #item.criticality_level="{ item }">
+                <v-chip
+                  :color="item.criticality_level === 'critical' ? 'error' : 'warning'"
+                  size="small"
+                >
+                  {{ item.criticality_level }}
+                </v-chip>
+              </template>
+              <template #item.risk_status="{ item }">
+                <v-chip
+                  :color="getRiskColor(item.risk_status)"
+                  text-color="white"
+                  size="small"
+                >
+                  {{ item.risk_status }}
+                </v-chip>
+              </template>
+              <template #item.successors.ready_now="{ item }">
+                <v-chip
+                  :color="item.successors.ready_now > 0 ? 'success' : 'error'"
+                  size="small"
+                >
+                  {{ item.successors.ready_now }}
+                </v-chip>
+              </template>
+              <template #item.successors.ready_12m="{ item }">
+                <v-chip color="info" size="small">
+                  {{ item.successors.ready_12m }}
+                </v-chip>
+              </template>
+              <template #item.recommended_action="{ item }">
+                <span class="text-caption">{{ item.recommended_action }}</span>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
       </div>
 
       <!-- Role Forecasts Tab -->

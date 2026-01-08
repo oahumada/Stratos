@@ -17,6 +17,11 @@ type ScenarioListItem = {
   description: string
   scenario_type: string
   status: ScenarioStatus
+  decision_status?: 'draft' | 'pending_approval' | 'approved' | 'rejected'
+  execution_status?: 'planned' | 'in_progress' | 'paused' | 'completed'
+  is_current_version?: boolean
+  version_number?: number
+  parent_id?: number | null
   time_horizon_weeks?: number
   fiscal_year?: number
   created_at: string
@@ -48,10 +53,10 @@ const typeOptions = [
 const tableHeaders = [
   { title: 'Nombre', key: 'name' },
   { title: 'Tipo', key: 'scenario_type' },
-  { title: 'Estado', key: 'status' },
+  { title: 'Estado (Decisión)', key: 'decision_status' },
+  { title: 'Estado (Ejecución)', key: 'execution_status' },
+  { title: 'Versión', key: 'version_number' },
   { title: 'Horizonte (semanas)', key: 'time_horizon_weeks' },
-  { title: 'Fiscal year', key: 'fiscal_year' },
-  { title: 'Creado', key: 'created_at' },
   { title: 'Acciones', key: 'actions', sortable: false },
 ]
 
@@ -71,6 +76,46 @@ const statusColor = (status: ScenarioStatus) => {
     archived: 'grey',
   }
   return map[status] || 'default'
+}
+
+const decisionStatusColor = (status?: string) => {
+  const map: Record<string, string> = {
+    draft: 'grey',
+    pending_approval: 'warning',
+    approved: 'success',
+    rejected: 'error',
+  }
+  return map[status || 'draft'] || 'grey'
+}
+
+const executionStatusColor = (status?: string) => {
+  const map: Record<string, string> = {
+    planned: 'grey-lighten-1',
+    in_progress: 'primary',
+    paused: 'warning',
+    completed: 'success',
+  }
+  return map[status || 'planned'] || 'grey'
+}
+
+const decisionStatusText = (status?: string) => {
+  const map: Record<string, string> = {
+    draft: 'Borrador',
+    pending_approval: 'Pendiente',
+    approved: 'Aprobado',
+    rejected: 'Rechazado',
+  }
+  return map[status || 'draft']
+}
+
+const executionStatusText = (status?: string) => {
+  const map: Record<string, string> = {
+    planned: 'Planificado',
+    in_progress: 'En ejecución',
+    paused: 'Pausado',
+    completed: 'Completado',
+  }
+  return map[status || 'planned']
 }
 
 const loadScenarios = async () => {
@@ -106,27 +151,22 @@ onMounted(() => {
       <v-row class="mb-4 align-center">
         <v-col cols="12" md="6">
           <h2 class="mb-0">Workforce Planning - Escenarios</h2>
-          <p class="text-medium-emphasis mb-0">Administra, filtra y navega escenarios</p>
-        </v-col>
-        <v-col cols="12" md="6" class="text-right">
-          <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateFromTemplate">
-            Nuevo desde plantilla
-          </v-btn>
+          <p class="text-medium-emphasis mb-0">Administra, filtra y navega escenarios con metodología 7 pasos</p>
         </v-col>
       </v-row>
 
       <v-card class="mb-4">
         <v-card-text>
           <v-row>
-            <v-col cols="12" md="4">
+            <v-col cols="12" md="3">
               <v-select
                 v-model="filters.status"
                 :items="statusOptions"
-                label="Estado"
+                label="Estado (Legacy)"
                 clearable
               />
             </v-col>
-            <v-col cols="12" md="4">
+            <v-col cols="12" md="3">
               <v-select
                 v-model="filters.type"
                 :items="typeOptions"
@@ -136,12 +176,20 @@ onMounted(() => {
                 clearable
               />
             </v-col>
-            <v-col cols="12" md="4" class="text-right">
+            <v-col cols="12" md="2" class="text-right">
               <v-btn variant="outlined" color="primary" @click="loadScenarios" prepend-icon="mdi-refresh">
                 Refrescar
               </v-btn>
             </v-col>
+            <v-col cols="12" md="4" class="text-right">
+              <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateFromTemplate">
+                Nuevo desde plantilla
+              </v-btn>
+            </v-col>
           </v-row>
+          <v-alert type="info" variant="tonal" density="compact" class="mt-2">
+            <strong>Estados duales:</strong> Los escenarios ahora tienen estado de decisión (borrador/pendiente/aprobado/rechazado) y estado de ejecución (planificado/en progreso/pausado/completado).
+          </v-alert>
         </v-card-text>
 
         <v-data-table
@@ -153,16 +201,103 @@ onMounted(() => {
           v-model:selected="selectedScenarioIds"
           class="elevation-0"
         >
-          <template #item.status="{ item }">
-            <v-chip :color="statusColor(item.status)" size="small" variant="flat" class="text-uppercase">
-              {{ item.status }}
+          <template #item.decision_status="{ item }">
+            <v-chip
+              :color="decisionStatusColor(item.decision_status)"
+              size="small"
+              variant="flat"
+              class="text-uppercase"
+            >
+              {{ decisionStatusText(item.decision_status) }}
             </v-chip>
           </template>
 
+          <template #item.execution_status="{ item }">
+            <v-chip
+              v-if="item.decision_status === 'approved'"
+              :color="executionStatusColor(item.execution_status)"
+              size="small"
+              variant="outlined"
+              class="text-uppercase"
+            >
+              {{ executionStatusText(item.execution_status) }}
+            </v-chip>
+            <v-chip v-else size="small" color="grey-lighten-2" variant="flat" disabled>
+              N/A
+            </v-chip>
+          </template>
+
+          <template #item.version_number="{ item }">
+            <div v-if="item.version_number" class="text-caption">
+              <v-icon icon="mdi-history" size="x-small" class="mr-1" />
+              v{{ item.version_number }}
+              <v-chip v-if="item.is_current_version" size="x-small" color="primary" variant="flat" class="ml-1">
+                Actual
+              </v-chip>
+            </div>
+            <span v-else class="text-medium-emphasis">—</span>
+          </template>
+
           <template #item.actions="{ item }">
-            <v-btn size="small" variant="text" color="primary" @click="goToDetail(item)" prepend-icon="mdi-eye">
-              Ver
-            </v-btn>
+            <div class="d-flex gap-1">
+              <v-tooltip text="Ver detalle">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    size="small"
+                    variant="text"
+                    icon="mdi-eye"
+                    color="primary"
+                    @click="goToDetail(item)"
+                  />
+                </template>
+              </v-tooltip>
+
+              <v-tooltip v-if="item.parent_id" text="Escenario hijo">
+                <template #activator="{ props }">
+                  <v-icon v-bind="props" icon="mdi-file-tree" size="small" color="info" />
+                </template>
+              </v-tooltip>
+
+              <v-menu>
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    size="small"
+                    variant="text"
+                    icon="mdi-dots-vertical"
+                    color="grey-darken-1"
+                  />
+                </template>
+
+                <v-list density="compact">
+                  <v-list-item
+                    v-if="item.decision_status === 'approved' && item.is_current_version"
+                    prepend-icon="mdi-content-copy"
+                    title="Crear nueva versión"
+                    @click="goToDetail(item)"
+                  />
+                  <v-list-item
+                    v-if="item.decision_status !== 'approved'"
+                    prepend-icon="mdi-pencil"
+                    title="Editar"
+                    @click="goToDetail(item)"
+                  />
+                  <v-list-item
+                    v-if="item.parent_id"
+                    prepend-icon="mdi-sync"
+                    title="Sincronizar desde padre"
+                    @click="goToDetail(item)"
+                  />
+                  <v-divider />
+                  <v-list-item
+                    prepend-icon="mdi-history"
+                    title="Ver historial de versiones"
+                    @click="goToDetail(item)"
+                  />
+                </v-list>
+              </v-menu>
+            </div>
           </template>
 
           <template #no-data>

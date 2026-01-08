@@ -23,6 +23,7 @@ class ScenarioSkillDemand extends Model
         'priority',
         'rationale',
         'target_date',
+        'is_mandatory_from_parent',
     ];
 
     protected $casts = [
@@ -31,6 +32,7 @@ class ScenarioSkillDemand extends Model
         'current_headcount' => 'integer',
         'current_avg_level' => 'decimal:1',
         'target_date' => 'date',
+        'is_mandatory_from_parent' => 'boolean',
     ];
 
     // Relaciones
@@ -64,5 +66,27 @@ class ScenarioSkillDemand extends Model
     {
         if ($this->required_headcount === 0) return 100;
         return round(($this->current_headcount / $this->required_headcount) * 100);
+    }
+
+    // Scopes
+    public function scopeMandatoryFromParent($query)
+    {
+        return $query->where('is_mandatory_from_parent', true);
+    }
+
+    public function scopeEditable($query)
+    {
+        return $query->where('is_mandatory_from_parent', false);
+    }
+
+    // Helpers
+    public function isMandatory(): bool
+    {
+        return $this->is_mandatory_from_parent === true;
+    }
+
+    public function canDelete(): bool
+    {
+        return !$this->is_mandatory_from_parent;
     }
 }
