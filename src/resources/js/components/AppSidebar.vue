@@ -62,7 +62,7 @@ const mainNavItems: NavItem[] = [
         icon: MarketplaceIcon,
     },
     {
-        title: 'Workforce Planning',
+        title: 'Strategic Talent Scenarios',
         href: '/workforce-planning',
         icon: WorkforcePlanningIcon,
     },
