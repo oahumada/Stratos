@@ -41,7 +41,7 @@ const fetchStrategies = async () => {
     const raw = res?.data || res
     strategies.value = raw?.closure_strategies || []
   } catch (error) {
-    showError('No se pudieron cargar las estrategias')
+    showError('No se pudieron cargar las estrategias: '+error)
   } finally {
     loading.value = false
   }
@@ -55,7 +55,7 @@ const refreshSuggested = async () => {
     showSuccess('Estrategias sugeridas actualizadas')
     emit('refreshed')
   } catch (error) {
-    showError('Error al refrescar estrategias')
+    showError('Error al refrescar estrategias: ' + error)
   } finally {
     refreshing.value = false
   }
