@@ -196,7 +196,7 @@ const props = defineProps<{
 }>()
 
 const api = useApi()
-const { notifySuccess, notifyError } = useNotification()
+const { showSuccess, showError } = useNotification()
 const store = useWorkforcePlanningStore()
 
 // State
@@ -241,7 +241,7 @@ const viewGapDetails = (gap: SkillGap, dept: string) => {
 }
 
 const downloadGapsReport = () => {
-  notifySuccess('Skill gaps matrix exported')
+  showSuccess('Skill gaps matrix exported')
 }
 
 const getGapCoverage = (skill: SkillGap, dept: string): number => {

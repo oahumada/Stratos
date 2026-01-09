@@ -281,7 +281,7 @@ const props = defineProps<{
 }>()
 
 const api = useApi()
-const { notifySuccess, notifyError } = useNotification()
+const { showSuccess, showError } = useNotification()
 const store = useWorkforcePlanningStore()
 
 // State
@@ -306,7 +306,7 @@ const atRiskCount = computed(() => {
   const plans = successionPlans.value
   if (!Array.isArray(plans)) return 0
   return plans.filter(
-    p => !p.primary_successor || (p.primary_successor && p.months_to_retirement < 6)
+    p => !p.primary_successor || (p.primary_successor && (p.months_to_retirement ?? 0) < 6)
   ).length
 })
 
@@ -330,7 +330,7 @@ const viewDetails = (plan: SuccessionPlan) => {
 }
 
 const editPlan = (plan: SuccessionPlan) => {
-  notifySuccess(`Editing succession plan for ${plan.role_name}`)
+  showSuccess(`Editing succession plan for ${plan.role_name}`)
 }
 
 const getInitials = (name: string): string => {
@@ -373,7 +373,7 @@ onMounted(() => {
     }
 
     &:hover {
-      elevation: 4;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       transform: translateY(-2px);
     }
   }

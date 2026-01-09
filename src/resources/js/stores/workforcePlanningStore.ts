@@ -68,6 +68,9 @@ export interface SuccessionPlan {
     role_name: string
     current_holder: string
     criticality_level: 'critical' | 'high' | 'medium'
+    planned_retirement?: string
+    months_to_retirement?: number
+    tenure_years?: number
     primary_successor?: {
         id: number
         name: string
@@ -80,6 +83,11 @@ export interface SuccessionPlan {
         readiness: number
         current_role: string
     }>
+    development_plan?: {
+        duration?: string
+        description?: string
+    }
+    mentoring_assigned?: boolean
 }
 
 interface WorkforcePlanningState {

@@ -133,7 +133,7 @@ const saveScenario = async () => {
     showCreateDialog.value = false
     editingScenario.value = null
     loadScenarios()
-  } catch (error) {
+  } catch (error: any) {
     console.error('Save scenario error:', error)
     // Intentar extraer mensaje de validación o backend
     const apiMessage = error?.response?.data?.message

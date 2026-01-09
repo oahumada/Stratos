@@ -74,7 +74,7 @@ const createScenario = async () => {
     showSuccess('Escenario creado correctamente')
     emit('created')
     emit('close')
-  } catch (error) {
+  } catch (error: any) {
     const apiMessage = error?.response?.data?.message
     const firstError = error?.response?.data?.errors ? Object.values(error.response.data.errors).flat()[0] : null
     showError(apiMessage || (firstError as string) || 'No se pudo crear el escenario')
