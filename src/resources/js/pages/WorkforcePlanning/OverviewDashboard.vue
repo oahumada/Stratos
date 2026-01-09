@@ -155,7 +155,7 @@ const criticalPositionsHeaders = [
 ]
 
 const runSimulation = async () => {
-  if (!scenarioId.value) return
+  if (!scenarioId.value || scenarioId.value <= 0) return
   try {
     const response = await api.post(
       `/api/v1/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
@@ -171,11 +171,9 @@ const runSimulation = async () => {
 }
 
 const loadCriticalPositions = async () => {
-  if (!scenarioId.value) return
+  if (!scenarioId.value || scenarioId.value <= 0) return
   try {
-    const response = await api.get('/api/v1/workforce-planning/critical-positions', {
-      params: { scenario_id: scenarioId.value }
-    })
+    const response = await api.get('/api/v1/workforce-planning/critical-positions', { scenario_id: scenarioId.value })
     const result: any = (response as any).data
     criticalPositions.value = Array.isArray(result) ? result : (result.data || [])
   } catch (error: any) {
@@ -194,7 +192,7 @@ const getRiskColor = (riskStatus: string): string => {
 }
 
 const runAnalysis = async () => {
-  if (!scenarioId.value) return
+  if (!scenarioId.value || scenarioId.value <= 0) return
   try {
     analyzing.value = true
     const res = await api.post(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}/calculate-gaps`, {})
@@ -216,7 +214,7 @@ const runAnalysis = async () => {
 }
 
 const generateStrategies = async () => {
-  if (!scenarioId.value) return
+  if (!scenarioId.value || scenarioId.value <= 0) return
   try {
     const res = await api.post(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}/refresh-suggested-strategies`, {})
     const created = (res as any)?.created ?? 0

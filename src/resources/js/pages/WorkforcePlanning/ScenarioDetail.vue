@@ -14,12 +14,13 @@ import ScenarioStepperComponent from '@/components/WorkforcePlanning/ScenarioSte
 import ScenarioActionsPanel from '@/components/WorkforcePlanning/ScenarioActionsPanel.vue'
 import VersionHistoryModal from '@/components/WorkforcePlanning/VersionHistoryModal.vue'
 import StatusTimeline from '@/components/WorkforcePlanning/StatusTimeline.vue'
+import { router } from '@inertiajs/vue3'
 
-interface Props {
+type Props = {
   id: number | string
 }
 
-interface ScenarioPayload {
+type ScenarioPayload = {
   id: number
   name: string
   description?: string
@@ -57,6 +58,7 @@ const scenarioId = computed(() => {
 })
 
 const loadScenario = async () => {
+  if (!scenarioId.value || scenarioId.value <= 0) return
   loading.value = true
   try {
     const response = await api.get(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}`)
@@ -86,7 +88,12 @@ const openStatusTimeline = () => {
   statusTimelineRef.value?.openTimeline()
 }
 
+const handleVersionSelected = (id: number) => {
+  router.visit(`/workforce-planning/scenarios/${id}`)
+}
+
 const calculateGaps = async () => {
+  if (!scenarioId.value || scenarioId.value <= 0) return
   refreshing.value = true
   try {
     await api.post(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}/calculate-gaps`)
@@ -220,7 +227,7 @@ onMounted(() => {
       :scenario-id="scenarioId"
       :version-group-id="scenario?.version_group_id || ''"
       :current-version="scenario?.version_number || 1"
-      @version-selected="(id) => $router.push(`/workforce-planning/scenarios/${id}`)"
+      @version-selected="handleVersionSelected"
     />
 
     <StatusTimeline

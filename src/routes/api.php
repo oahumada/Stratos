@@ -53,7 +53,7 @@ Route::get('/people/{people_id}/marketplace', [\App\Http\Controllers\Api\Marketp
 Route::get('/marketplace/recruiter', [\App\Http\Controllers\Api\MarketplaceController::class, 'recruiterView']); // Vista reclutador
 
 // Workforce Planning (Phase 2)
-Route::prefix('v1/workforce-planning')->middleware(['auth:sanctum'])->group(function () {
+Route::middleware('auth:sanctum')->prefix('v1/workforce-planning')->group(function () {
     // Scenario Templates
     Route::get('/scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
     Route::get('/scenario-templates/{template}', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'show']);

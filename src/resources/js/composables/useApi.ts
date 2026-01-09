@@ -50,7 +50,23 @@ export function useApi() {
         error.value = null
 
         try {
-            const response = await api[method](url, data, config)
+            let finalConfig = config
+
+            // For GET requests, if data is provided, treat it as query params
+            if (method === 'get' && data && typeof data === 'object') {
+                finalConfig = {
+                    ...config,
+                    params: data
+                }
+                data = undefined
+            }
+
+            let response
+            if (method === 'get') {
+                response = await api.get(url, finalConfig)
+            } else {
+                response = await (api as any)[method](url, data, finalConfig)
+            }
             return response.data
         } catch (err: any) {
             error.value = err.response?.data?.message || err.message || 'An error occurred'
@@ -64,7 +80,10 @@ export function useApi() {
         api,
         isLoading,
         error,
-        get: (url: string, config?: AxiosRequestConfig) => request('get', url, undefined, config),
+        get: (url: string, params?: any, config?: AxiosRequestConfig) => {
+            const finalConfig: AxiosRequestConfig = { ...(config || {}), params }
+            return request('get', url, undefined, finalConfig)
+        },
         post: (url: string, data?: any, config?: AxiosRequestConfig) => request('post', url, data, config),
         put: (url: string, data?: any, config?: AxiosRequestConfig) => request('put', url, data, config),
         delete: (url: string, config?: AxiosRequestConfig) => request('delete', url, undefined, config),

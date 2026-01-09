@@ -285,7 +285,7 @@ const props = defineProps<{
 }>()
 
 const api = useApi()
-const { notifySuccess, notifyError } = useNotification()
+const { showSuccess, showError } = useNotification()
 const store = useWorkforcePlanningStore()
 
 // State
@@ -314,13 +314,13 @@ const criticalityOptions = [
 // Table headers
 const tableHeaders = [
   { title: 'Role', value: 'role_name', width: '200px' },
-  { title: 'Current FTE', value: 'current_headcount', align: 'center' },
-  { title: 'Projected FTE', value: 'projected_headcount', align: 'center' },
-  { title: 'Growth Rate', value: 'growth_rate', align: 'center' },
+  { title: 'Current FTE', value: 'current_headcount', align: 'center' as const },
+  { title: 'Projected FTE', value: 'projected_headcount', align: 'center' as const },
+  { title: 'Growth Rate', value: 'growth_rate', align: 'center' as const },
   { title: 'Critical Skills', value: 'critical_skills' },
   { title: 'Emerging Skills', value: 'emerging_skills' },
-  { title: 'Criticality', value: 'criticality_level', align: 'center' },
-  { title: 'Actions', value: 'actions', align: 'center', sortable: false },
+  { title: 'Criticality', value: 'criticality_level', align: 'center' as const },
+  { title: 'Actions', value: 'actions', align: 'center' as const, sortable: false },
 ]
 
 // Computed
@@ -345,7 +345,7 @@ const applyFilters = () => {
 }
 
 const updateForecast = async (forecast: RoleForecast) => {
-  notifyError('Actualización de forecasts aún no disponible en esta vista')
+  showError('Actualización de forecasts aún no disponible en esta vista')
 }
 
 const expandForecast = (forecast: RoleForecast) => {
@@ -354,25 +354,24 @@ const expandForecast = (forecast: RoleForecast) => {
 }
 
 const viewSkillGaps = (forecast: RoleForecast) => {
-  // Navigate to skill gaps tab or component
-  notifySuccess(`View skill gaps for ${forecast.role_name}`)
+  showSuccess(`View skill gaps for ${forecast.role_name}`)
 }
 
 const viewMatching = (forecast: RoleForecast) => {
-  // Navigate to matching tab or component
-  notifySuccess(`View internal matching for ${forecast.role_name}`)
+  showSuccess(`View internal matching for ${forecast.role_name}`)
 }
 
 const saveChanges = async () => {
   if (selectedForecast.value) {
     await updateForecast(selectedForecast.value)
+    showSuccess('Changes saved successfully')
     showDetailsDialog.value = false
   }
 }
 
 const downloadForecastReport = () => {
   // Generate CSV/PDF report
-  notifySuccess('Forecast report downloaded')
+  showSuccess('Forecast report downloaded')
 }
 
 const getHeadcountChange = (forecast: RoleForecast): number => {

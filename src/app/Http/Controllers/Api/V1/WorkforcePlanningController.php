@@ -406,9 +406,22 @@ class WorkforcePlanningController extends Controller
      */
     public function getCriticalPositions(Request $request): JsonResponse
     {
-        $scenarioId = $request->input('scenario_id');
+        \Log::info('getCriticalPositions REQUEST DETAILS', [
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+            'query_all' => $request->query(),
+            'input_all' => $request->all(),
+            'scenario_id_query' => $request->query('scenario_id'),
+            'scenario_id_input' => $request->input('scenario_id'),
+            'headers' => $request->headers->all(),
+        ]);
         
-        if (!$scenarioId) {
+        $scenarioId = $request->query('scenario_id');
+        
+        \Log::info('getCriticalPositions scenario_id value: "' . $scenarioId . '" (type: ' . gettype($scenarioId) . ')');
+        
+        if ($scenarioId === null || $scenarioId === '') {
+            \Log::warning('getCriticalPositions: scenario_id is null or empty');
             return response()->json([
                 'success' => false,
                 'message' => 'scenario_id is required',
@@ -420,7 +433,7 @@ class WorkforcePlanningController extends Controller
             
             // Obtener planes de sucesión con análisis de riesgo
             $successionPlans = $scenario->successionPlans()
-                ->with(['role', 'primarySuccessor', 'secondarySuccessor'])
+                ->with(['role', 'primarySuccessor', 'secondarySuccessor', 'department'])
                 ->get();
             
             $criticalPositions = $successionPlans->map(function ($plan) {
@@ -457,7 +470,7 @@ class WorkforcePlanningController extends Controller
                         'id' => $plan->role->id ?? null,
                         'name' => $plan->role->name ?? 'N/A'
                     ],
-                    'department' => $plan->role->department ?? 'N/A',
+                    'department' => $plan->department ? $plan->department->name : 'N/A',
                     'criticality_level' => $plan->criticality_level,
                     'criticality_score' => $criticalityScore,
                     'impact_if_vacant' => $plan->impact_if_vacant ?? 'High impact on operations',
