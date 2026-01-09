@@ -1,6 +1,6 @@
 # API Reference
 
-Documentación completa de los 17 endpoints del MVP de TalentIA.
+Documentación completa de los 17 endpoints del MVP de Strato.
 
 ---
 
@@ -8,7 +8,7 @@ Documentación completa de los 17 endpoints del MVP de TalentIA.
 
 ```
 Development: http://127.0.0.1:8000/api
-Production:  https://talentia.example.com/api
+Production:  https://Strato.example.com/api
 ```
 
 ---

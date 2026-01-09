@@ -69,7 +69,7 @@ CHANGELOG.md actualizarse automáticamente
 ┌─────────────────────────────────────────────────┐
 │ 3. GitHub Release (automático)                  │
 │                                                 │
-│   https://github.com/oahumada/TalentIA/releases│
+│   https://github.com/oahumada/Strato/releases│
 │                                                 │
 │   - Changelog                                   │
 │   - Comparación de commits                      │
@@ -193,7 +193,7 @@ git log v0.1.0..HEAD --oneline
 ✅ package.json actualizado
 ✅ Git tag creado: v0.2.0
 ✅ Pushed a GitHub
-✅ Release visible en https://github.com/oahumada/TalentIA/releases
+✅ Release visible en https://github.com/oahumada/Strato/releases
 ```
 
 ---
@@ -266,7 +266,7 @@ El changelog agrupa automáticamente:
 Automáticamente en:
 
 ```
-https://github.com/oahumada/TalentIA/releases
+https://github.com/oahumada/Strato/releases
 ```
 
 Cada release tiene:

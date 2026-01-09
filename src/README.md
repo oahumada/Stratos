@@ -1,4 +1,4 @@
-# 🚀 TalentIA - Plataforma de Gestión de Talento Basada en Skills
+# 🚀 Strato - Plataforma de Gestión de Talento Basada en Skills
 
 > **SaaS + Consultoría** para mapeo estratégico de talento, identificación de brechas y diseño de rutas de desarrollo con IA.
 
@@ -112,7 +112,7 @@ cat docs/DIA6_PLAN_ACCION.md
 ## 📋 Estructura del Proyecto
 
 ```
-talentia/
+Strato/
 ├── docs/                      (📚 45+ archivos de documentación)
 │   ├── INDEX.md              (Índice principal)
 │   ├── memories.md           (Memoria de contexto)
@@ -156,7 +156,7 @@ talentia/
                         ↓
 ┌─────────────────────────────────────────────────┐
 │ 3. GitHub Release (automático)                 │
-│    https://github.com/oahumada/TalentIA/releases
+│    https://github.com/oahumada/Strato/releases
 └─────────────────────────────────────────────────┘
 ```
 

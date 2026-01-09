@@ -228,7 +228,7 @@ docs/
 └── CHECKLIST_ARQUITECTURA_WORKFORCE.md           [Validación rápida]
 ```
 
-Todos están en `/home/omar/TalentIA/docs/`
+Todos están en `/home/omar/Strato/docs/`
 
 ---
 

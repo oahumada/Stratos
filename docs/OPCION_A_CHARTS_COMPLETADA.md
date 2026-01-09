@@ -343,7 +343,7 @@ Grid Gray: #f2f2f2
 
 ```bash
 commit 758c3df
-Author: Omar <omar@talentia.tech>
+Author: Omar <omar@Strato.tech>
 Date:   2026-01-15 15:45:00
 
 feat: create ApexCharts visualization components for dashboard

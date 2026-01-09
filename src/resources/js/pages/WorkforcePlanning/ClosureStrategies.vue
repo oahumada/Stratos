@@ -33,6 +33,10 @@ const strategyFilter = ref<string | null>(null)
 const statusOptions = ['proposed', 'approved', 'in_progress', 'completed', 'cancelled']
 const strategyOptions = ['build', 'buy', 'borrow', 'bot', 'bind', 'bridge']
 
+/**
+ * Fetches the closure strategies for a given scenario
+ * @returns {Promise<void>} resolves when the strategies are fetched
+ */
 const fetchStrategies = async () => {
   if (!props.scenarioId) return
   loading.value = true
@@ -47,6 +51,12 @@ const fetchStrategies = async () => {
   }
 }
 
+/**
+ * Refreshes the suggested closure strategies for a given scenario
+ * This will trigger a call to the backend to refresh the strategies,
+ * and then fetch the updated strategies.
+ * @emits {refreshed} when the strategies are refreshed
+ */
 const refreshSuggested = async () => {
   refreshing.value = true
   try {
@@ -74,6 +84,12 @@ const formatMoney = (value?: number) => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
 }
 
+/**
+ * Formats a probability value as a percentage string.
+ * If the value is undefined or null, returns '—'.
+ * @param {number} [value] - The probability value to format.
+ * @returns {string} - The formatted probability value as a percentage string.
+ */
 const formatProb = (value?: number) => {
   if (value === undefined || value === null) return '—'
   return `${Math.round(value * 100)}%`

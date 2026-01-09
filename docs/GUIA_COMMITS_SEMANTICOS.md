@@ -1,4 +1,4 @@
-# Guía de Commits Semánticos - TalentIA
+# Guía de Commits Semánticos - Strato
 
 ## ¿Qué son los Commits Semánticos?
 

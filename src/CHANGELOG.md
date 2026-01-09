@@ -28,21 +28,21 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### 📚 Documentación
 
-* actualizar guía de commits semánticos con nuevas secciones y ejemplos ([dd6ecb0](https://github.com/oahumada/TalentIA/commit/dd6ecb06888e50d0e61f86b468a0d2a683aa0938))
+* actualizar guía de commits semánticos con nuevas secciones y ejemplos ([dd6ecb0](https://github.com/oahumada/Strato/commit/dd6ecb06888e50d0e61f86b468a0d2a683aa0938))
 
 
 ### ♻️ Refactorización
 
-* **scripts:** mejorar script de commits con análisis automático de cambios ([c83602b](https://github.com/oahumada/TalentIA/commit/c83602b83c2979c0df1c9cfed8b8862d0e1f4d42))
+* **scripts:** mejorar script de commits con análisis automático de cambios ([c83602b](https://github.com/oahumada/Strato/commit/c83602b83c2979c0df1c9cfed8b8862d0e1f4d42))
 
 
 ### ✨ Nuevas Funcionalidades
 
-* add .gitignore files for storage and testing directories ([371b374](https://github.com/oahumada/TalentIA/commit/371b3744510d6083715bd4a1f48d17255b782cc8))
-* add initial MVP documentation for TalentIA project (estado_actual_mvp.md) ([241f3a4](https://github.com/oahumada/TalentIA/commit/241f3a4abb4ad5222162820bda1b2e1ecdee9009))
-* agregar soporte para Vuetify y configurar el tema predeterminado ([0e16a7a](https://github.com/oahumada/TalentIA/commit/0e16a7ac56481f4b8155e239a21f46ff28b7f4e7))
-* Implement form schema and CRUD functionality for Alergia model ([34f12a7](https://github.com/oahumada/TalentIA/commit/34f12a7888ca643ca10e2b95a43e9fe38bf88734))
-* **release:** agregar sistema de versionado y changelog automático ([9f28673](https://github.com/oahumada/TalentIA/commit/9f2867315b0ecfd3b3627fbab1ed0106d73ebeb8))
+* add .gitignore files for storage and testing directories ([371b374](https://github.com/oahumada/Strato/commit/371b3744510d6083715bd4a1f48d17255b782cc8))
+* add initial MVP documentation for Strato project (estado_actual_mvp.md) ([241f3a4](https://github.com/oahumada/Strato/commit/241f3a4abb4ad5222162820bda1b2e1ecdee9009))
+* agregar soporte para Vuetify y configurar el tema predeterminado ([0e16a7a](https://github.com/oahumada/Strato/commit/0e16a7ac56481f4b8155e239a21f46ff28b7f4e7))
+* Implement form schema and CRUD functionality for Alergia model ([34f12a7](https://github.com/oahumada/Strato/commit/34f12a7888ca643ca10e2b95a43e9fe38bf88734))
+* **release:** agregar sistema de versionado y changelog automático ([9f28673](https://github.com/oahumada/Strato/commit/9f2867315b0ecfd3b3627fbab1ed0106d73ebeb8))
 
 ## [0.1.0] - 2025-12-28
 

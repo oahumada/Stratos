@@ -13,7 +13,7 @@
 0. [MODELO_PLANIFICACION_INTEGRADO.md](/docs/WorkforcePlanning/MODELO_PLANIFICACION_INTEGRADO.md) (827 líneas)
    - **Conceptual + Operacional** - Los 7 bloques + 6 módulos + gobernanza
    - Casos de uso reales (Tech + Manufactura)
-   - Integración con TalentIA
+   - Integración con Strato
    - **LEER PRIMERO: Esta es la versión oficial**
 
 #### Para IMPLEMENTAR el modelo:

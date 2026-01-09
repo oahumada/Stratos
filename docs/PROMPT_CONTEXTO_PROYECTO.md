@@ -1,4 +1,4 @@
-# 🤖 PROMPT DE CONTEXTO - TalentIA Project
+# 🤖 PROMPT DE CONTEXTO - Strato Project
 
 **Última actualización:** 5 Enero 2026  
 **Versión:** 2.0  
@@ -8,7 +8,7 @@
 
 ## 📋 RESUMEN EJECUTIVO
 
-**TalentIA** es una plataforma SaaS de Talent Management enfocada en **Skills-Based Talent Management** que ayuda a organizaciones a:
+**Strato** es una plataforma SaaS de Talent Management enfocada en **Skills-Based Talent Management** que ayuda a organizaciones a:
 - Identificar brechas de competencias (Gap Analysis)
 - Generar rutas de desarrollo personalizadas
 - Realizar matching inteligente para vacantes internas
@@ -477,7 +477,7 @@ npm run format
 - [Tailwind CSS](https://tailwindcss.com/)
 
 ### Herramientas
-- **Postman Collection:** `/docs/TalentIA_API_Postman.json`
+- **Postman Collection:** `/docs/Strato_API_Postman.json`
 - **Database Diagram:** Ejecutar `./VIEW_DATABASE_DIAGRAM.sh`
 - **DBeaver Setup:** `./dbeaver-setup.sh`
 

@@ -1,4 +1,4 @@
-Para que \*\*TalentIA\*\* sea un sistema disruptivo, el módulo de \*\*Workforce Planning (WFP)\*\* no puede ser solo una herramienta de reporte para RRHH; debe ser el "sistema operativo" que alinee a toda la organización.
+Para que \*\*Strato\*\* sea un sistema disruptivo, el módulo de \*\*Workforce Planning (WFP)\*\* no puede ser solo una herramienta de reporte para RRHH; debe ser el "sistema operativo" que alinee a toda la organización.
 
 
 
@@ -18,7 +18,7 @@ Aquí tienes los casos de uso detallados para \*\*todos los actores involucrados
 
 \*   \*\*Caso de Uso: Simulación de Escenarios de Crecimiento/Transformación.\*\*
 
-&nbsp;   \*   \*\*Acción:\*\* El CEO crea un escenario de "Expansión a Nuevo Mercado" en TalentIA.
+&nbsp;   \*   \*\*Acción:\*\* El CEO crea un escenario de "Expansión a Nuevo Mercado" en Strato.
 
 &nbsp;   \*   \*\*Resultado:\*\* El sistema proyecta automáticamente cuántos roles y qué skills específicos faltarán en 24 meses, comparando el costo de contratar fuera vs. reconvertir talento interno. Permite al CEO tomar decisiones de inversión basadas en la viabilidad del talento, no solo en finanzas.
 
@@ -64,7 +64,7 @@ Aquí tienes los casos de uso detallados para \*\*todos los actores involucrados
 
 &nbsp;   \*   \*\*Acción:\*\* Identifica un excedente de personal en una unidad que se está digitalizando.
 
-&nbsp;   \*   \*\*Resultado:\*\* En lugar de proponer despidos, usa TalentIA para buscar "Matching de Skills" en otras áreas con vacantes, facilitando transferencias internas inmediatas basadas en datos.
+&nbsp;   \*   \*\*Resultado:\*\* En lugar de proponer despidos, usa Strato para buscar "Matching de Skills" en otras áreas con vacantes, facilitando transferencias internas inmediatas basadas en datos.
 
 
 
@@ -92,7 +92,7 @@ Aquí tienes los casos de uso detallados para \*\*todos los actores involucrados
 
 &nbsp;   \*   \*\*Acción:\*\* El empleado accede a su perfil y ve que su rol actual tiene una "Demanda Decreciente" según el plan estratégico de la empresa.
 
-&nbsp;   \*   \*\*Resultado:\*\* TalentIA le recomienda automáticamente una "Ruta de Reskilling" hacia un rol con "Demanda Creciente" que coincide con sus skills base, permitiéndole postularse a programas de formación internos.
+&nbsp;   \*   \*\*Resultado:\*\* Strato le recomienda automáticamente una "Ruta de Reskilling" hacia un rol con "Demanda Creciente" que coincide con sus skills base, permitiéndole postularse a programas de formación internos.
 
 
 
@@ -118,7 +118,7 @@ Aquí tienes los casos de uso detallados para \*\*todos los actores involucrados
 
 \*   \*\*Caso de Uso: Refinamiento de Algoritmos de Demanda.\*\*
 
-&nbsp;   \*   \*\*Acción:\*\* Ajusta los drivers de demanda (ej. "Ventas por empleado" o "Tickets por soporte") en el motor de TalentIA.
+&nbsp;   \*   \*\*Acción:\*\* Ajusta los drivers de demanda (ej. "Ventas por empleado" o "Tickets por soporte") en el motor de Strato.
 
 &nbsp;   \*   \*\*Resultado:\*\* Mejora la precisión de las proyecciones de headcount para el próximo año fiscal, reduciendo el error en la planificación dotacional.
 
@@ -138,7 +138,7 @@ Aquí tienes los casos de uso detallados para \*\*todos los actores involucrados
 
 \*   \*\*Caso de Uso: Integración en el Ecosistema de Talento.\*\*
 
-&nbsp;   \*   \*\*Acción:\*\* Reciben requerimientos específicos de skills y volumen basados en la planificación de "picos de demanda" de TalentIA.
+&nbsp;   \*   \*\*Acción:\*\* Reciben requerimientos específicos de skills y volumen basados en la planificación de "picos de demanda" de Strato.
 
 &nbsp;   \*   \*\*Resultado:\*\* Pueden prepararse con antelación para proveer el talento justo a tiempo, alineados con la estrategia de la empresa.
 
@@ -152,7 +152,7 @@ Aquí tienes los casos de uso detallados para \*\*todos los actores involucrados
 
 
 
-| Actor | Valor Principal | Herramienta en TalentIA |
+| Actor | Valor Principal | Herramienta en Strato |
 
 | :--- | :--- | :--- |
 

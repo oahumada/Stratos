@@ -424,7 +424,7 @@ Objetivo: que la planificación dotacional \*\*no sea un ejercicio aislado\*\*, 
 
 
 
-Para bajar esto a algo práctico y alineado con tu realidad (y con el proyecto “TalentIA”), te propongo elegir juntos el foco del siguiente paso. Algunas opciones:
+Para bajar esto a algo práctico y alineado con tu realidad (y con el proyecto “Strato”), te propongo elegir juntos el foco del siguiente paso. Algunas opciones:
 
 
 

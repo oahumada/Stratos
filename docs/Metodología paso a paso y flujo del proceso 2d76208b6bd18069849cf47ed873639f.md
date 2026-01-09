@@ -2,12 +2,12 @@
 
 Voy a hacer ambas cosas, en este orden:
 
-1. Metodología paso a paso (como guía/“manual” para el módulo TalentIA).
-2. Flujo de decisión lógico, pensando ya en reglas que TalentIA podría implementar.
+1. Metodología paso a paso (como guía/“manual” para el módulo Strato).
+2. Flujo de decisión lógico, pensando ya en reglas que Strato podría implementar.
 
 ---
 
-### 1. Metodología paso a paso del Modelo de Planificación Dotacional TalentIA
+### 1. Metodología paso a paso del Modelo de Planificación Dotacional Strato
 
 La organizo en **7 fases**, cada una con: propósito, actividades clave, inputs, outputs y responsables típicos.
 
@@ -37,7 +37,7 @@ La organizo en **7 fases**, cada una con: propósito, actividades clave, inputs,
 
 **Outputs:**
 
-- Documento/acta de **“Alcance de la planificación dotacional TalentIA”**:
+- Documento/acta de **“Alcance de la planificación dotacional Strato”**:
     - Áreas cubiertas, horizonte, objetivos.
     - Principales drivers de cambio y riesgos.
 
@@ -72,7 +72,7 @@ La organizo en **7 fases**, cada una con: propósito, actividades clave, inputs,
 **Outputs:**
 
 - **Catálogo de roles**.
-- **Diccionario de skills TalentIA**.
+- **Diccionario de skills Strato**.
 - Matriz **Rol ↔ Skills requeridas** (hoy y futuro).
 
 **Responsables típicos:**
@@ -99,7 +99,7 @@ La organizo en **7 fases**, cada una con: propósito, actividades clave, inputs,
 3. Identificar:
     - Talento crítico (altos potenciales, expertos, roles “single point of failure”).
     - Roles en riesgo (alta rotación, alta edad promedio, muchos contratos temporales, etc.).
-4. Configurar el **marketplace interno de talento** (en TalentIA):
+4. Configurar el **marketplace interno de talento** (en Strato):
     - Publicación de vacantes internas y proyectos.
     - Motor de matching que sugiera candidatos internos según skills, potencial, preferencias.
 
@@ -269,7 +269,7 @@ La organizo en **7 fases**, cada una con: propósito, actividades clave, inputs,
 
 ---
 
-### 2. Flujo de decisión del módulo de Planificación Dotacional TalentIA
+### 2. Flujo de decisión del módulo de Planificación Dotacional Strato
 
 Ahora bajamos a un **flujo de decisión lógico**, pensado para orquestar:
 
@@ -447,13 +447,13 @@ Para cada decisión (interno, reconversión, externo, automatización, desvincul
 
 ---
 
-### Cómo lo usaría TalentIA
+### Cómo lo usaría Strato
 
 - La **metodología paso a paso** sirve como:
     - Manual de implementación.
     - Base para diseño de vistas, formularios y dashboards del módulo.
 - El **flujo de decisión** sirve como:
-    - Lógica de negocio que TalentIA puede ir automatizando:
+    - Lógica de negocio que Strato puede ir automatizando:
         - Sugerencias automáticas de:
             - Internos vs externos.
             - Reconversión vs desvinculación.

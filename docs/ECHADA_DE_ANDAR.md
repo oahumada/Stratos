@@ -122,7 +122,7 @@ curl http://127.0.0.1:5173
 grep -r "Route::" routes/api.php | grep -i "tu-modulo"
 
 # O si tienes Postman:
-# Abre TalentIA_API_Postman.json
+# Abre Strato_API_Postman.json
 ```
 
 **Checklist:**

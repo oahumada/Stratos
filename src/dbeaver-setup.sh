@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Script para conectar DBeaver a la BD de TalentIA
+# Script para conectar DBeaver a la BD de Strato
 # Crea una conexión SQLite en DBeaver
 
-DB_PATH="/home/omar/TalentIA/src/database/database.sqlite"
+DB_PATH="/home/omar/Strato/src/database/database.sqlite"
 
 # Abrir DBeaver y crear conexión
 echo "✅ DBeaver se está iniciando..."

@@ -541,4 +541,4 @@ Pero **técnicamente el sistema ya funciona.** Solo necesita la UI de presentaci
 
 **Reporte generado:** 7 de Enero 2026  
 **Auditor:** GitHub Copilot  
-**Workspace:** /home/omar/TalentIA
+**Workspace:** /home/omar/Strato

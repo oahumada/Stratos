@@ -237,7 +237,7 @@ El único cuello de botella es UI frontend. Pero técnicamente:
 
 ### Opción 1: Desde Terminal (Backend)
 ```bash
-cd /home/omar/TalentIA/src
+cd /home/omar/Strato/src
 
 # Ver migraciones aplicadas
 php artisan migrate:status

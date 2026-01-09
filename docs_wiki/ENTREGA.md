@@ -1,4 +1,4 @@
-# ✅ Wiki TalentIA - Estructura Creada
+# ✅ Wiki Strato - Estructura Creada
 
 **Fecha:** 5 Enero 2026  
 **Tiempo invertido:** ~35 minutos  
@@ -9,7 +9,7 @@
 
 ## 📊 Resumen Ejecutivo
 
-Se creó la **estructura base de la Wiki de TalentIA** usando **MkDocs Material** con:
+Se creó la **estructura base de la Wiki de Strato** usando **MkDocs Material** con:
 
 - ✅ Configuración completa y funcional
 - ✅ 5 páginas principales consolidadas
@@ -57,7 +57,7 @@ docs_wiki/
 ### 1. **[index.md](docs/index.md)** - Homepage ⭐
 
 **Contenido:**
-- Overview de TalentIA
+- Overview de Strato
 - Cards de navegación rápida
 - Características principales
 - Tabla de módulos
@@ -198,7 +198,7 @@ mkdocs build
 
 ```bash
 mkdocs gh-deploy
-# → https://yourusername.github.io/TalentIA/
+# → https://yourusername.github.io/Strato/
 ```
 
 O esperar a que GitHub Actions lo haga automáticamente al hacer push a `main`.
@@ -316,7 +316,7 @@ cd docs_wiki && mkdocs serve
 **Prueba la wiki:**
 
 ```bash
-cd /home/omar/TalentIA/docs_wiki
+cd /home/omar/Strato/docs_wiki
 pip install -r requirements.txt
 mkdocs serve
 ```

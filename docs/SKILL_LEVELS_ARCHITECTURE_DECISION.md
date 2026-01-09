@@ -8,7 +8,7 @@
 
 ## 📋 Contexto
 
-El sistema TalentIA maneja skills (habilidades) que las personas poseen en diferentes niveles de dominio. Inicialmente, los niveles eran numéricos (1-5) sin definición clara de qué significa cada número.
+El sistema Strato maneja skills (habilidades) que las personas poseen en diferentes niveles de dominio. Inicialmente, los niveles eran numéricos (1-5) sin definición clara de qué significa cada número.
 
 ---
 
@@ -227,5 +227,5 @@ php artisan db:seed --class=SkillLevelDefinitionSeeder
 
 ---
 
-**Aprobado por:** Equipo TalentIA  
+**Aprobado por:** Equipo Strato  
 **Próxima revisión:** Al iniciar Fase 2 - Learning Paths

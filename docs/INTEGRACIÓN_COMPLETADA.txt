@@ -246,7 +246,7 @@ Para contexto detallado:
 
 2. Verifica que el backend está corriendo:
    
-   cd /workspaces/talentia/src
+   cd /workspaces/Strato/src
    php artisan serve --port=8000
    
    Deberías ver: "Server running on http://127.0.0.1:8000"
@@ -259,7 +259,7 @@ Para contexto detallado:
 
 4. Abre Postman y carga la colección:
    
-   docs/TalentIA_API_Postman.json
+   docs/Strato_API_Postman.json
    
    Para probar los endpoints rápidamente
 

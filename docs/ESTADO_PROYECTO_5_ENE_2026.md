@@ -2,7 +2,7 @@
 
 ## 📊 Overview General
 
-**Proyecto:** TalentIA - Sistema de Gestión de Talento
+**Proyecto:** Strato - Sistema de Gestión de Talento
 **Versión Actual:** v1.0.0-mvp (en main)
 **Rama Activa:** feature/workforce-planning
 **Status General:** ✅ MVP Completo, Fase 2 Iniciada

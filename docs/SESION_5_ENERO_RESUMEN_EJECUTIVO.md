@@ -73,7 +73,7 @@
 ✅ 6 Módulos (profundidad operacional)
 ✅ Capa transversal (gobernanza + KPIs)
 ✅ 2 Casos de uso (Tech + Manufactura)
-✅ Integración con TalentIA
+✅ Integración con Strato
 ```
 
 ---
@@ -259,7 +259,7 @@ WORKFORCE PLANNING MODULE - DOCUMENTACIÓN v3.0
 - 7 fases listas para ejecutar
 - Plantillas y checklists por fase
 - Timeline y responsables definidos
-- Integración con TalentIA clara
+- Integración con Strato clara
 
 ### Product Management ✅
 - Roadmap de features por fase
@@ -313,7 +313,7 @@ Total: 13 story points (4-5 horas estimadas)
 ✅ Modelo conceptual completo
 ✅ Metodología operacional completa
 ✅ Integración modelo-metodología completa
-🔄 Ejemplos en TalentIA (alimentarlos cuando frontend esté listo)
+🔄 Ejemplos en Strato (alimentarlos cuando frontend esté listo)
 ```
 
 ### Progress Tracking

@@ -1,4 +1,4 @@
-# Workflow de Desarrollo TalentIA
+# Workflow de Desarrollo Strato
 
 ## Guía para Uso Eficiente de memories.md
 
@@ -479,4 +479,4 @@ php artisan db:seed --class=DemoSeeder
 
 **Última actualización:** 2025-12-27  
 **Versión:** 1.0  
-**Autor:** Equipo TalentIA
+**Autor:** Equipo Strato

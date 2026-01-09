@@ -1,6 +1,6 @@
 # CRUD Pattern: JSON-Driven Development
 
-El patrón **JSON-Driven CRUD** es el corazón de TalentIA. Permite crear módulos CRUD completos en **10 minutos** sin duplicar código.
+El patrón **JSON-Driven CRUD** es el corazón de Strato. Permite crear módulos CRUD completos en **10 minutos** sin duplicar código.
 
 ---
 

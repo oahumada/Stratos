@@ -17,8 +17,8 @@ Status: Ready para FASE 2
 ### 1. **Inicio de Sesión (5 minutos)**
 
 ```bash
-# Abre terminal en /workspaces/talentia
-cd /workspaces/talentia
+# Abre terminal en /workspaces/Strato
+cd /workspaces/Strato
 
 # Verifica que estés en MVP
 git status
@@ -70,7 +70,7 @@ npm run dev
 
 ## 📋 QUÉ DESARROLLAR MAÑANA: GAP ANALYSIS (FASE 2)
 
-### **Objetivo:** Crear el diferenciador de TalentIA
+### **Objetivo:** Crear el diferenciador de Strato
 
 **Componentes a crear:**
 
@@ -204,12 +204,12 @@ npm run dev
 
 **Hoy hicimos:** People, Skills, Roles (CRUD base) ✅
 
-**Mañana:** Gap Analysis (el diferenciador de TalentIA) 🎯
+**Mañana:** Gap Analysis (el diferenciador de Strato) 🎯
 
 **Cómo empezar:**
 
 ```bash
-cd /workspaces/talentia
+cd /workspaces/Strato
 git status              # Verifica que MVP esté limpio
 cd src && npm run dev   # Servidor corriendo
 # Abre docs/MVP_FRONTEND_ROADMAP.md → FASE 2

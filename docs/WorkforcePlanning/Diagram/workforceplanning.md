@@ -1,4 +1,4 @@
-### Diagrama(s) para documentar el módulo **Workforce Planning (WFP)** + **Modelamiento de Escenarios** (TalentIA)
+### Diagrama(s) para documentar el módulo **Workforce Planning (WFP)** + **Modelamiento de Escenarios** (Strato)
 
 A continuación tienes un set de diagramas (en **Mermaid**) para documentación: **qué hace**, **cómo se usa**, **componentes**, **elementos principales** y **cómo funciona** (workflow + estados + versionamiento). Puedes pegarlos en tu README, Wiki, Notion o cualquier soporte que renderice Mermaid.
 

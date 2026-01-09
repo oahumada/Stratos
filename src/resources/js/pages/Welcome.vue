@@ -43,7 +43,7 @@ withDefaults(
                         <v-col cols="auto">
                             <Link href="/">
                                 <h1 class="text-h3 font-weight-bold text-decoration-none text-black dark:text-white">
-                                    Talentia
+                                    Strato
                                 </h1>
                             </Link>
                         </v-col>
@@ -111,11 +111,11 @@ withDefaults(
                                    -webkit-text-fill-color: transparent;
                                    background-clip: text;"
                         >
-                            Talentia
+                            Strato
                         </span>
                     </h2>
                     <p class="text-h6 text-grey-darken-1 dark:text-grey-lighten-2 mb-4">
-                        Discover how Talentia helps product teams do their
+                        Discover how Strato helps product teams do their
                         <br />
                         best work with less effort.
                     </p>

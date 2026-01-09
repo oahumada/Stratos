@@ -189,7 +189,7 @@ Status: ⚠️ 70% (existe dashboard, falta timeline visual)
 
 ## 📁 Documentos Generados para Ti
 
-He creado 5 documentos en `/home/omar/TalentIA/docs/`:
+He creado 5 documentos en `/home/omar/Strato/docs/`:
 
 1. **AUDIT_ARQUITECTURA_WORKFORCE_PLANNING.md** 
    → Detalles técnicos completos (900+ líneas)

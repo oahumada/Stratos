@@ -1,8 +1,8 @@
-site_name: TalentIA - Documentación Técnica
+site_name: Strato - Documentación Técnica
 site_description: Sistema ATS (Applicant Tracking System) con IA para gestión de talento
 site_author: Omar AG
-repo_url: https://github.com/yourusername/TalentIA
-repo_name: TalentIA
+repo_url: https://github.com/yourusername/Strato
+repo_name: Strato
 
 theme:
   name: material
@@ -103,7 +103,7 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/yourusername/TalentIA
+      link: https://github.com/yourusername/Strato
   
 extra_css:
   - stylesheets/extra.css

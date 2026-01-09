@@ -145,7 +145,7 @@ MetodologiaPasoAPaso.md (944 L)
 │  ├─ Paso 1-8 + Paso 0
 │  └─ Entrada → Seguimiento
 │
-└─ Cómo usarlo en TalentIA (44 L)
+└─ Cómo usarlo en Strato (44 L)
 ```
 
 ### Conectar Modelo y Metodología

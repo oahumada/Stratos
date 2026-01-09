@@ -2,7 +2,7 @@
 
 ---
 
-### 1. Objetivo del módulo de Planificación Dotacional (TalentIA)
+### 1. Objetivo del módulo de Planificación Dotacional (Strato)
 
 Disponer de un **sistema integrado** que:
 
@@ -15,7 +15,7 @@ Disponer de un **sistema integrado** que:
 
 ---
 
-### 2. Estructura general del módulo (macroproceso TalentIA)
+### 2. Estructura general del módulo (macroproceso Strato)
 
 El módulo se puede organizar en **7 macrobloques**, alineados con lo que comentas:
 
@@ -27,7 +27,7 @@ El módulo se puede organizar en **7 macrobloques**, alineados con lo que coment
 6. **Desarrollo, reconversión y sucesión**
 7. **Gestión de desvinculaciones y ajustes estructurales**
 
-Los detallo como “cajas funcionales” genéricas para incorporar a TalentIA.
+Los detallo como “cajas funcionales” genéricas para incorporar a Strato.
 
 ---
 
@@ -45,7 +45,7 @@ Los detallo como “cajas funcionales” genéricas para incorporar a TalentIA.
     - Mapear **roles ↔ skills requeridas** hoy y a futuro.
 - **Outputs:**
     - Catálogo de roles.
-    - Diccionario de skills TalentIA.
+    - Diccionario de skills Strato.
     - Mapa rol–skills (perfil objetivo por rol).
 
 ---
@@ -199,7 +199,7 @@ Todo lo anterior se sustenta en una capa transversal:
 
 ### 11. Cómo seguimos
 
-Ya tenemos un **modelo genérico de módulo TalentIA de Planificación Dotacional**, con las piezas que mencionaste explícitamente:
+Ya tenemos un **modelo genérico de módulo Strato de Planificación Dotacional**, con las piezas que mencionaste explícitamente:
 
 - Skills actuales → demandas futuras → marketplace interno → búsqueda externa → learning paths → reconversión/upskilling → sucesión → desvinculación.
 
@@ -211,4 +211,4 @@ En el **siguiente paso** puedo:
 Dime con cuál prefieres seguir ahora:
 
 - ¿1) Metodología paso a paso del módulo?
-- ¿2) Flujo de decisión detallado (para usarlo como lógica de proceso en TalentIA)?
+- ¿2) Flujo de decisión detallado (para usarlo como lógica de proceso en Strato)?

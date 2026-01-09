@@ -1,4 +1,4 @@
-# ✅ Estado Actual del Proyecto - TalentIA
+# ✅ Estado Actual del Proyecto - Strato
 
 **Fecha:** 1 Enero 2026  
 **Fase:** MVP - Skills Module Completado  
@@ -158,7 +158,7 @@ class RoleSkillRepository extends Repository {
 ### Estadísticas Verificadas
 
 ```
-Comando: sqlite3 /home/omar/TalentIA/src/database/database.sqlite
+Comando: sqlite3 /home/omar/Strato/src/database/database.sqlite
 
 Resultados:
 ✅ roles: 8
@@ -176,7 +176,7 @@ Resultados:
 ## 🏗️ Estructura de Carpetas Actualizada
 
 ```
-/home/omar/TalentIA/
+/home/omar/Strato/
 ├── app/
 │   ├── Models/
 │   │   ├── RoleSkill.php ✅ NEW
@@ -436,10 +436,10 @@ El módulo puede escalar fácilmente a:
 
 **Próxima sesión:** API REST + FormSchema Implementation  
 **Documentación:** Completa en `/docs/`  
-**Base de datos:** `/home/omar/TalentIA/src/database/database.sqlite`
+**Base de datos:** `/home/omar/Strato/src/database/database.sqlite`
 
 ---
 
 *Documento generado: 1 Enero 2026*  
-*Proyecto: TalentIA MVP*  
+*Proyecto: Strato MVP*  
 *Versión: 0.2.0*

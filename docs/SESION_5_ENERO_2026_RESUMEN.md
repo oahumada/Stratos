@@ -48,7 +48,7 @@
 - Mantener 7-bloque como estructura lógica
 - Agregar profundidad operacional de 6-módulos
 - Incorporar gobernanza y KPIs
-- Crear guía implementación en TalentIA
+- Crear guía implementación en Strato
 
 ---
 
@@ -66,7 +66,7 @@
 ✅ 2 Casos de uso detallados:
    - Empresa Tech en crecimiento exponencial
    - Manufactura con automatización radical
-✅ Integración con módulos TalentIA
+✅ Integración con módulos Strato
 ✅ Roadmap de implementación por fases
 ✅ KPIs estratégicos + operacionales + tácticos
 ```
@@ -186,7 +186,7 @@ Coverage por tema:
 3. **Arquitectura 7 Bloques** (Diagrama + descripción)
 4. **Bloques Detallados** (Cada uno con inputs/funciones/outputs)
 5. **Gobernanza y Continuidad** (Roles, ritmos, gobernanza)
-6. **Implementación en TalentIA** (Mapeo técnico)
+6. **Implementación en Strato** (Mapeo técnico)
 7. **Casos de Uso** (Tech + Manufactura)
 
 **Características clave:**
@@ -196,7 +196,7 @@ Estructura:
   - 7 bloques secuenciales (flujo lógico)
   - 6 módulos operacionales (cómo hacer)
   - Capa transversal (gobernanza)
-  - Integración técnica (código TalentIA)
+  - Integración técnica (código Strato)
 
 Gobernanza:
   - 6 roles: RRHH, CFO, CEO, Líderes Negocio, Finance, IT

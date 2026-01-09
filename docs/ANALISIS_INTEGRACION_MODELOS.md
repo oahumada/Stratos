@@ -264,7 +264,7 @@ CAPA TRANSVERSAL: Gobernanza, indicadores y revisión (MODELO2 Mód 6 - MEJORADO
 - Mantener ambos originales como "fuente" pero marcar uno como "RECOMENDADO"
 
 ### PASO 3: Mapear a implementación técnica
-- Vincular cada bloque a modelos/endpoints específicos en TalentIA
+- Vincular cada bloque a modelos/endpoints específicos en Strato
 - Identificar qué está implementado vs qué falta
 
 ---
@@ -289,4 +289,4 @@ CAPA TRANSVERSAL: Gobernanza, indicadores y revisión (MODELO2 Mód 6 - MEJORADO
 
 ---
 
-**Recomendación final:** Integrar ambos documentos con enfoque en modelo híbrido. Crear documento unificado que sea referencia única para TalentIA.
+**Recomendación final:** Integrar ambos documentos con enfoque en modelo híbrido. Crear documento unificado que sea referencia única para Strato.

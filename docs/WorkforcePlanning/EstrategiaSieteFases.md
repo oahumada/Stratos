@@ -1,6 +1,6 @@
 ### ¿A qué “7 fases” me refiero en el caso del CHRO?
 
-Me refiero exactamente a la **Metodología de 7 Fases** del modelo integrado de Planificación Dotacional Estratégica que definiste para TalentIA (síntesis HSE 2010 + WA State + NOAA, modernizado a lógica de producto). En TalentIA, el “Portafolio de Estrategias” (Build‑Buy‑Borrow‑Bot) **se arma en la Fase 6**, pero **se alimenta y gobierna** con información producida por las fases 1–5 y se **ejecuta/monitorea** en la Fase 7.
+Me refiero exactamente a la **Metodología de 7 Fases** del modelo integrado de Planificación Dotacional Estratégica que definiste para Strato (síntesis HSE 2010 + WA State + NOAA, modernizado a lógica de producto). En Strato, el “Portafolio de Estrategias” (Build‑Buy‑Borrow‑Bot) **se arma en la Fase 6**, pero **se alimenta y gobierna** con información producida por las fases 1–5 y se **ejecuta/monitorea** en la Fase 7.
 
 A continuación te lo dejo explicado fase por fase, con foco en qué hace el CHRO y qué produce el sistema.
 

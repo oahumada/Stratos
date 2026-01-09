@@ -1,6 +1,6 @@
-# TalentIA Wiki
+# Strato Wiki
 
-Documentación técnica de TalentIA usando MkDocs Material.
+Documentación técnica de Strato usando MkDocs Material.
 
 ---
 
@@ -149,7 +149,7 @@ mkdocs gh-deploy
 Esto:
 1. Construye el sitio
 2. Publica a rama `gh-pages`
-3. Tu wiki estará en `https://yourusername.github.io/TalentIA/`
+3. Tu wiki estará en `https://yourusername.github.io/Strato/`
 
 ---
 

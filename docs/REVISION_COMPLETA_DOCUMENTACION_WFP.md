@@ -22,7 +22,7 @@ WORKFORCE_PLANNING_COMPLETE_SUMMARY.md     - Resumen ejecutivo
 ### **Carpeta `/docs/WorkforcePlanning/`** (Conceptual)
 ```
 Modelo de Planificación moderno.md         (214 líneas)  - Modelo conceptual de 7 bloques
-└─ CRÍTICO: Define qué es WFP en TalentIA (source of truth conceptual)
+└─ CRÍTICO: Define qué es WFP en Strato (source of truth conceptual)
 ```
 
 ---

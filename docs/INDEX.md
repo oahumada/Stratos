@@ -1,4 +1,4 @@
-# 📚 Documentación TalentIA
+# 📚 Documentación Strato
 
 Índice centralizado de toda la documentación del proyecto.
 
@@ -47,7 +47,7 @@
 
 ### Autenticación (Sanctum)
 
-- **[AUTH_SANCTUM_COMPLETA.md](AUTH_SANCTUM_COMPLETA.md)** - ⭐ Guía completa Sanctum en TalentIA
+- **[AUTH_SANCTUM_COMPLETA.md](AUTH_SANCTUM_COMPLETA.md)** - ⭐ Guía completa Sanctum en Strato
   - Estado actual de la configuración
   - Cómo funciona el flujo de autenticación
   - Solución de problemas

@@ -8,7 +8,7 @@
 
 ## 📊 Resumen Ejecutivo
 
-Se ha completado un **libro profesional de arquitectura de software** documentando el **FormSchema Pattern**, un patrón genérico CRUD que demostró ser altamente escalable en el proyecto TalentIA.
+Se ha completado un **libro profesional de arquitectura de software** documentando el **FormSchema Pattern**, un patrón genérico CRUD que demostró ser altamente escalable en el proyecto Strato.
 
 ### Estadísticas:
 
@@ -136,7 +136,7 @@ Con soluciones para cada uno.
 
 ## 📈 Escalabilidad Demostrada
 
-El patrón fue probado en **TalentIA MVP** con:
+El patrón fue probado en **Strato MVP** con:
 
 ```
 Timeline:       7 días de desarrollo
@@ -228,7 +228,7 @@ docs/LIBRO_FORMSCHEMA/
 
 ## 🎯 Siguientes Pasos Recomendados
 
-### Para TalentIA:
+### Para Strato:
 1. Revisar Book para identificar mejoras
 2. Implementar capítulo 08 cases en nuevo modelo
 3. Setup testing completo (Cap 10)
@@ -251,7 +251,7 @@ docs/LIBRO_FORMSCHEMA/
 1. **Documentación Práctica**
    - No es solo teoría, incluye código real
    - 100+ snippets copiables y adaptables
-   - Implementado en proyecto real (TalentIA)
+   - Implementado en proyecto real (Strato)
 
 2. **Múltiples Perspectivas**
    - Frontend: Vue 3, Composition API
@@ -273,7 +273,7 @@ docs/LIBRO_FORMSCHEMA/
 ## 📞 Información de Contacto
 
 **Autor:** Omar (Development & Architecture)  
-**Proyecto:** TalentIA  
+**Proyecto:** Strato  
 **Fecha:** 31 Diciembre 2025  
 **Versión:** 1.0  
 **Licencia:** MIT (reutilizable, modificable, distribuible)

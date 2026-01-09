@@ -12,7 +12,7 @@
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│           TALENTIA - ARQUITECTURA CRUD GENÉRICA COMPLETA          │
+│           Strato - ARQUITECTURA CRUD GENÉRICA COMPLETA          │
 ├────────────────────────────────────────────────────────────────────┤
 │                                                                    │
 │   ┌──────────────────────────────────────────────────────────┐   │
@@ -689,6 +689,6 @@ class CirugiaRepository extends Repository
 ---
 
 **Generado por**: GitHub Copilot  
-**Proyecto**: TalentIA  
+**Proyecto**: Strato  
 **Rama**: Vuetify  
 **Última actualización**: 27 Diciembre 2025

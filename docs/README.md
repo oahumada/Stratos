@@ -1,4 +1,4 @@
-# 📚 Índice de Documentación TalentIA - MVP
+# 📚 Índice de Documentación Strato - MVP
 
 **Última Actualización:** 27 Diciembre 2025  
 **Status MVP:** Días 1-5 Completados ✅ | Días 6-7 Pendientes ⏳  
@@ -191,7 +191,7 @@ Contiene:
     - Ejemplos cURL para cada endpoint
     - 30 minutos de lectura detallada
 
-5. **[TalentIA_API_Postman.json](TalentIA_API_Postman.json)**
+5. **[Strato_API_Postman.json](Strato_API_Postman.json)**
     - Colección lista para importar en Postman
     - 17 requests pre-configurados
     - Variable `base_url` configurable
@@ -333,7 +333,7 @@ Contiene:
 
 1. [dia5_api_endpoints.md](dia5_api_endpoints.md) - Especificación
 2. [CHEATSHEET_COMANDOS.md](CHEATSHEET_COMANDOS.md) - Comandos rápidos
-3. [TalentIA_API_Postman.json](TalentIA_API_Postman.json) - Colección Postman
+3. [Strato_API_Postman.json](Strato_API_Postman.json) - Colección Postman
 
 ### Para Desarrollo Frontend (Día 6)
 
@@ -362,7 +362,7 @@ Contiene:
 | memories.md                     | 45 min   | Contexto       | Business domain             | ⭐⭐      |
 | dia3_services_logica_negocio.md | 25 min   | Técnica        | Services spec               | ⭐⭐      |
 | CHECKLIST_MVP_COMPLETION.md     | 15 min   | Verificación   | Code review                 | ⭐        |
-| TalentIA_API_Postman.json       | 2 min    | Setup          | API testing                 | ⭐        |
+| Strato_API_Postman.json       | 2 min    | Setup          | API testing                 | ⭐        |
 | (Otros históricos)              | Variable | Referencia     | Context                     | -         |
 
 ---
@@ -378,7 +378,7 @@ Contiene:
 ### Endpoints API
 
 - **Especificación completa:** [dia5_api_endpoints.md](dia5_api_endpoints.md)
-- **Testing rápido:** [TalentIA_API_Postman.json](TalentIA_API_Postman.json)
+- **Testing rápido:** [Strato_API_Postman.json](Strato_API_Postman.json)
 - **Comandos útiles:** [CHEATSHEET_COMANDOS.md](CHEATSHEET_COMANDOS.md)
 
 ### Servicios de Negocio
@@ -411,7 +411,7 @@ Completado (Días 1-5):
   ✅ CHECKLIST_MVP_COMPLETION.md
   ✅ estado_actual_mvp.md
   ✅ dia5_api_endpoints.md
-  ✅ TalentIA_API_Postman.json
+  ✅ Strato_API_Postman.json
   ✅ dia5_resumen_entrega.md
   ✅ CHEATSHEET_COMANDOS.md
   ✅ GUIA_DESARROLLO_ESTRUCTURADO.md (NEW)
@@ -463,12 +463,12 @@ A Crear:
 
 **¿Cómo importo la colección de Postman?**
 
-- Abre Postman → Import → Select File → `TalentIA_API_Postman.json`
+- Abre Postman → Import → Select File → `Strato_API_Postman.json`
 
 **¿Dónde veo los endpoints?**
 
 - Lista: [dia5_api_endpoints.md](dia5_api_endpoints.md)
-- Testing: [TalentIA_API_Postman.json](TalentIA_API_Postman.json)
+- Testing: [Strato_API_Postman.json](Strato_API_Postman.json)
 
 **¿Cómo empiezo el frontend?**
 

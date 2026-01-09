@@ -51,9 +51,9 @@
       "hidden": false
     }
   ],
-  "commitUrlFormat": "https://github.com/oahumada/TalentIA/commit/{{hash}}",
-  "compareUrlFormat": "https://github.com/oahumada/TalentIA/compare/{{previousTag}}...{{currentTag}}",
-  "issueUrlFormat": "https://github.com/oahumada/TalentIA/issues/{{id}}",
+  "commitUrlFormat": "https://github.com/oahumada/Strato/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/oahumada/Strato/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "https://github.com/oahumada/Strato/issues/{{id}}",
   "userUrlFormat": "https://github.com/{{user}}",
   "releaseCommitMessageFormat": "chore(release): 📦 v{{currentTag}}",
   "tagPrefix": "v"

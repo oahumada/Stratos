@@ -1,4 +1,4 @@
-# Bienvenido a TalentIA
+# Bienvenido a Strato
 
 <div class="grid cards" markdown>
 
@@ -22,9 +22,9 @@
 
 ---
 
-## 🎯 ¿Qué es TalentIA?
+## 🎯 ¿Qué es Strato?
 
-**TalentIA** es un sistema ATS (Applicant Tracking System) de próxima generación que combina:
+**Strato** es un sistema ATS (Applicant Tracking System) de próxima generación que combina:
 
 - **Gestión de talento inteligente** con análisis de brechas de competencias
 - **Matching automático** de candidatos a vacantes usando algoritmos avanzados
@@ -151,8 +151,8 @@ graph LR
 
 ## 📚 Recursos Adicionales
 
-- **GitHub Repository:** [TalentIA](https://github.com/yourusername/TalentIA)
-- **Changelog:** Ver [releases](https://github.com/yourusername/TalentIA/releases)
+- **GitHub Repository:** [Strato](https://github.com/yourusername/Strato)
+- **Changelog:** Ver [releases](https://github.com/yourusername/Strato/releases)
 - **Contribuir:** Lee nuestra [guía de contribución](development/commits.md)
 
 ---
@@ -161,8 +161,8 @@ graph LR
 
 ¿Preguntas? ¿Encontraste un bug?
 
-- **Issues:** [GitHub Issues](https://github.com/yourusername/TalentIA/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/TalentIA/discussions)
+- **Issues:** [GitHub Issues](https://github.com/yourusername/Strato/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/yourusername/Strato/discussions)
 
 ---
 

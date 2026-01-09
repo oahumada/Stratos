@@ -1,4 +1,4 @@
-\# Sí, se puede implementar un módulo de las 7 fases en TalentIA
+\# Sí, se puede implementar un módulo de las 7 fases en Strato
 
 
 

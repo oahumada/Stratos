@@ -1,4 +1,4 @@
-# TalentIA – Memoria de Contexto para GitHub Copilot
+# Strato – Memoria de Contexto para GitHub Copilot
 
 **Última actualización:** 5 Enero 2026  
 **Status:** MVP Backend ✅ COMPLETADO (Días 1-5), Frontend ✅ COMPLETADO (Días 6-7), WFP Phase 2 🚀 INICIADO (Día 8+)  
@@ -116,7 +116,7 @@
 
 ### 1.1 Objetivo
 
-**TalentIA** es una plataforma SaaS + consultoría para gestión estratégica de talento basada en skills, IA y credenciales verificables (SSI). Permite a las organizaciones:
+**Strato** es una plataforma SaaS + consultoría para gestión estratégica de talento basada en skills, IA y credenciales verificables (SSI). Permite a las organizaciones:
 
 - Mapear el talento interno por competencias (skills) y niveles de dominio
 - Identificar brechas entre perfiles actuales y roles objetivo
@@ -133,7 +133,7 @@
   - **Gerentes de Talento/Desarrollo:** Gestión de rutas de desarrollo, análisis de brechas
   - **Reclutadores internos:** Selección por skills, comparación interno vs externo
   - **Empleados:** Consulta de perfil de skills, oportunidades internas, rutas de carrera
-  - **Consultores TalentIA:** Configuración de modelos de talento, acompañamiento estratégico
+  - **Consultores Strato:** Configuración de modelos de talento, acompañamiento estratégico
 
 ### 1.3 Propuesta de Valor
 
@@ -272,7 +272,7 @@ Para el MVP, se creará una empresa ficticia **"TechCorp"** con los siguientes d
 
 - **Modelo:** Single Database, Shared Schema con `organization_id`
 - **Identificación de tenant:**
-  - **Opción 1 (MVP):** Subdomain (`techcorp.talentia.app`)
+  - **Opción 1 (MVP):** Subdomain (`techcorp.Strato.app`)
   - **Opción 2 (Alternativa):** JWT con claim `organization_id`
 - **Middleware:** `EnsureTenantContext` en todas las rutas protegidas
 - **Scopes globales:** Eloquent Global Scope en todos los modelos multi-tenant
@@ -449,7 +449,7 @@ onMounted(() => loadRoles());
 
 #### Seguridad
 
-1. **CORS:** Configurado para subdominios `*.talentia.app`
+1. **CORS:** Configurado para subdominios `*.Strato.app`
 2. **Rate Limiting:** 60 req/min por IP (Laravel Throttle)
 3. **Validación:** Server-side obligatoria, client-side para UX
 4. **SQL Injection:** Protegido por Eloquent (prepared statements)
@@ -463,7 +463,7 @@ onMounted(() => loadRoles());
 
 #### Flujo MVP (Sin Login Real)
 
-1. Usuario accede a `techcorp.talentia.app`
+1. Usuario accede a `techcorp.Strato.app`
 2. Middleware detecta subdomain → carga `organization_id = 1` (TechCorp)
 3. Usuario hardcoded: `demo@techcorp.com` (rol: Admin)
 4. Token ficticio en localStorage para simular sesión
@@ -489,7 +489,7 @@ onMounted(() => loadRoles());
    - Definir roles clave (ej: "Software Engineer", "Product Manager")
    - Cargar empleados (CSV import o manual)
 4. **Configuración de consultoría:**
-   - Asignar consultor TalentIA
+   - Asignar consultor Strato
    - Agendar sesiones de mapeo de talento
 5. **Activación:** Envío de invitaciones a usuarios
 
@@ -800,7 +800,7 @@ function calculateGap(People $people, Role $role): array
 #### Base URL
 
 ```
-https://api.talentia.app/v1
+https://api.Strato.app/v1
 ```
 
 #### Headers Requeridos
@@ -1033,7 +1033,7 @@ Response: Postulación actualizada
 
 ```bash
 # 1. Calcular brecha
-curl -X POST https://api.talentia.app/v1/gap-analysis \
+curl -X POST https://api.Strato.app/v1/gap-analysis \
   -H "Authorization: Bearer {token}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1061,7 +1061,7 @@ curl -X POST https://api.talentia.app/v1/gap-analysis \
 }
 
 # 2. Generar ruta de desarrollo
-curl -X POST https://api.talentia.app/v1/development-paths/generate \
+curl -X POST https://api.Strato.app/v1/development-paths/generate \
   -H "Authorization: Bearer {token}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1096,7 +1096,7 @@ curl -X POST https://api.talentia.app/v1/development-paths/generate \
 #### Ejemplo 2: Buscar Candidatos Internos para Vacante
 
 ```bash
-curl -X GET "https://api.talentia.app/v1/job-openings/15/candidates?min_match=70" \
+curl -X GET "https://api.Strato.app/v1/job-openings/15/candidates?min_match=70" \
   -H "Authorization: Bearer {token}"
 
 # Response
@@ -1319,7 +1319,7 @@ CREATE INDEX idx_skills_name_fulltext ON skills USING gin(to_tsvector('spanish',
 
 #### Sistema de Diseño Base: Vuetify 3
 
-- **Tema:** Peoplealizado con colores corporativos TalentIA
+- **Tema:** Peoplealizado con colores corporativos Strato
 - **Tipografía:** Inter (sans-serif) para UI, Roboto Mono para código/datos
 - **Espaciado:** Sistema de 8px (múltiplos: 8, 16, 24, 32, 48, 64)
 - **Breakpoints:**
@@ -1383,7 +1383,7 @@ $text-secondary: #6b7280; // Gris medio (texto secundario)
 - **Uso:** Toda la aplicación autenticada
 - **Estructura:**
   - App Bar (top):
-    - Logo TalentIA (link a dashboard)
+    - Logo Strato (link a dashboard)
     - Breadcrumbs
     - Buscador global (roadmap)
     - Notificaciones (roadmap)
@@ -1566,14 +1566,14 @@ $text-secondary: #6b7280; // Gris medio (texto secundario)
 
 #### Staging (Pre-producción)
 
-- **URL:** `https://staging.talentia.app`
+- **URL:** `https://staging.Strato.app`
 - **DB:** PostgreSQL en Digital Ocean (managed)
 - **Deploy:** Manual via SSH (roadmap: CI/CD)
 - **Variables:** `.env.staging`
 
 #### Production (Producción)
 
-- **URL:** `https://app.talentia.app` (wildcard: `*.talentia.app`)
+- **URL:** `https://app.Strato.app` (wildcard: `*.Strato.app`)
 - **DB:** PostgreSQL en Digital Ocean (managed, backups diarios)
 - **Deploy:** Manual via SSH (roadmap: CI/CD con GitHub Actions)
 - **Variables:** `.env.production`
@@ -1596,10 +1596,10 @@ php artisan serve
 
 ```bash
 # SSH al droplet
-ssh root@talentia.app
+ssh root@Strato.app
 
 # Pull latest code
-cd /var/www/talentia-api
+cd /var/www/Strato-api
 git pull origin main
 
 # Install dependencies
@@ -1641,9 +1641,9 @@ npm run build
 npm run build
 
 # Upload to server
-scp -r dist/* root@talentia.app:/var/www/talentia-frontend/
+scp -r dist/* root@Strato.app:/var/www/Strato-frontend/
 
-# Nginx sirve archivos estáticos desde /var/www/talentia-frontend/
+# Nginx sirve archivos estáticos desde /var/www/Strato-frontend/
 ```
 
 ### 9.3 Variables de Entorno
@@ -1651,21 +1651,21 @@ scp -r dist/* root@talentia.app:/var/www/talentia-frontend/
 #### Backend (.env)
 
 ```bash
-APP_NAME=TalentIA
+APP_NAME=Strato
 APP_ENV=production
 APP_KEY=base64:...
 APP_DEBUG=false
-APP_URL=https://api.talentia.app
+APP_URL=https://api.Strato.app
 
 DB_CONNECTION=pgsql
-DB_HOST=db.talentia.app
+DB_HOST=db.Strato.app
 DB_PORT=5432
-DB_DATABASE=talentia_prod
-DB_USERNAME=talentia_user
+DB_DATABASE=Strato_prod
+DB_USERNAME=Strato_user
 DB_PASSWORD=***
 
-SANCTUM_STATEFUL_DOMAINS=*.talentia.app
-SESSION_DOMAIN=.talentia.app
+SANCTUM_STATEFUL_DOMAINS=*.Strato.app
+SESSION_DOMAIN=.Strato.app
 
 # IA (roadmap)
 OPENAI_API_KEY=sk-...
@@ -1681,8 +1681,8 @@ MAIL_PASSWORD=***
 #### Frontend (.env)
 
 ```bash
-VITE_API_BASE_URL=https://api.talentia.app/v1
-VITE_APP_NAME=TalentIA
+VITE_API_BASE_URL=https://api.Strato.app/v1
+VITE_APP_NAME=Strato
 VITE_APP_ENV=production
 ```
 
@@ -1694,7 +1694,7 @@ VITE_APP_ENV=production
 - **Retención:** 7 días (rolling)
 - **Backup manual:**
   ```bash
-  pg_dump -h db.talentia.app -U talentia_user talentia_prod > backup_$(date +%Y%m%d).sql
+  pg_dump -h db.Strato.app -U Strato_user Strato_prod > backup_$(date +%Y%m%d).sql
   ```
 
 #### Código
@@ -2596,11 +2596,11 @@ VITE_APP_ENV=production
 ### 12.1 Contexto de la Demo (5 minutos)
 
 **Narrativa:**
-"Hoy les voy a mostrar TalentIA, nuestra plataforma de gestión estratégica de talento basada en skills. Vamos a usar el caso de TechCorp, una startup tecnológica de 20 peopleas que está creciendo rápidamente y necesita estructurar su talento.
+"Hoy les voy a mostrar Strato, nuestra plataforma de gestión estratégica de talento basada en skills. Vamos a usar el caso de TechCorp, una startup tecnológica de 20 peopleas que está creciendo rápidamente y necesita estructurar su talento.
 
 El desafío de TechCorp es típico: tienen vacantes críticas abiertas (Tech Lead, Senior Frontend), no saben si tienen talento interno listo o deben contratar externamente, y necesitan planificar el desarrollo de su equipo de forma estratégica.
 
-Con TalentIA, vamos a resolver estos tres problemas en menos de 15 minutos."
+Con Strato, vamos a resolver estos tres problemas en menos de 15 minutos."
 
 ### 12.2 Flujo de Demo Paso a Paso
 
@@ -2750,7 +2750,7 @@ Ana ya postuló hace 2 días con un mensaje de interés. El manager puede revisa
 #### Paso 7: Cierre y Valor (1 minuto)
 
 **Narrativa:**
-"En resumen, con TalentIA, TechCorp logró en 15 minutos:
+"En resumen, con Strato, TechCorp logró en 15 minutos:
 
 1. ✅ **Visibilidad estratégica:** Dashboard con métricas clave de talento
 2. ✅ **Decisión basada en datos:** Ana lista para promoción (ahorro de $5K-8K en reclutamiento)
@@ -2798,7 +2798,7 @@ Esto es solo el MVP. En nuestro roadmap tenemos:
 ### 13.1 Backend (Laravel)
 ```
 
-talentia-api/
+Strato-api/
 ├── app/
 │ ├── Console/
 │ ├── Exceptions/
@@ -2891,7 +2891,7 @@ talentia-api/
 
 ```
 
-talentia-frontend/
+Strato-frontend/
 ├── public/
 │ ├── favicon.ico
 │ └── index.html
@@ -3373,7 +3373,7 @@ FIN FUNCIÓN
 
 **Notas Finales para GitHub Copilot:**
 
-Este documento es la fuente de verdad para el desarrollo de TalentIA. Cuando generes código, asegúrate de:
+Este documento es la fuente de verdad para el desarrollo de Strato. Cuando generes código, asegúrate de:
 
 1. **Respetar la arquitectura multi-tenant:** Siempre filtrar por `organization_id`
 2. **Seguir las convenciones de nombres:** Modelos en singular, tablas en plural, snake_case en DB, camelCase en JS
@@ -3388,7 +3388,7 @@ Este documento es la fuente de verdad para el desarrollo de TalentIA. Cuando gen
 
 **Última actualización:** 2025-12-27  
 **Versión:** 1.1 (mejoras: índice navegable, leyenda MVP en endpoints, algoritmos documentados, resumen de datos demo)  
-**Autor:** Equipo TalentIA
+**Autor:** Equipo Strato
 
 ```
 

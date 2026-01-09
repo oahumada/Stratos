@@ -1,7 +1,7 @@
 # 🎯 Estrategia de Matching y Selección de Candidatos Internos
 
 **Fecha:** 3 de enero de 2026  
-**Sistema:** TalentIA - Marketplace Interno  
+**Sistema:** Strato - Marketplace Interno  
 **Objetivo:** Definir criterios claros para la priorización de talento interno vs. búsqueda externa
 
 ---

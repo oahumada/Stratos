@@ -256,7 +256,7 @@ Documentación: 100% LISTA PARA IMPLEMENTACIÓN
 ### Próxima revisión
 1. Después de completar 4 componentes restantes
 2. Sincronizar documentación con código real
-3. Actualizar ejemplos con datos de TalentIA
+3. Actualizar ejemplos con datos de Strato
 
 ---
 

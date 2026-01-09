@@ -1,6 +1,6 @@
 # 🎯 Workforce Planning Module - Complete Implementation Summary
 
-**Project:** TalentIA MVP - Phase 2: Workforce Planning
+**Project:** Strato MVP - Phase 2: Workforce Planning
 **Duration:** January 4-5, 2026
 **Status:** ✅ PHASE 1 COMPLETE - Ready for Frontend Component Continuation
 **Branch:** `feature/workforce-planning`

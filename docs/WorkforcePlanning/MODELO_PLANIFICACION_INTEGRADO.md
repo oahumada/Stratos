@@ -3,7 +3,7 @@
 **Versión:** 2.0 Integrada  
 **Fecha:** 5 Enero 2026  
 **Audiencia:** Ejecutivos, RRHH, Líderes de Negocio  
-**Status:** Referencia Canónica para TalentIA
+**Status:** Referencia Canónica para Strato
 
 ---
 
@@ -14,7 +14,7 @@
 3. [Arquitectura del Modelo (7 Bloques)](#arquitectura-del-modelo-7-bloques)
 4. [Bloques Detallados](#bloques-detallados)
 5. [Gobernanza y Continuidad](#gobernanza-y-continuidad)
-6. [Implementación en TalentIA](#implementación-en-talentia)
+6. [Implementación en Strato](#implementación-en-Strato)
 
 ---
 
@@ -688,7 +688,7 @@ La planificación dotacional **no es aislada**. Debe conectar con:
 
 ---
 
-## IMPLEMENTACIÓN EN TALENTIA
+## IMPLEMENTACIÓN EN Strato
 
 ### Mapeo a Módulos Técnicos
 
@@ -730,7 +730,7 @@ GOBERNANZA:
 
 ---
 
-## CASOS DE USO EN TALENTIA
+## CASOS DE USO EN Strato
 
 ### Caso 1: Empresa Tech (500 personas, crecimiento 30%)
 
@@ -740,7 +740,7 @@ ESCENARIO:
 ├─ Transformación: Migración a cloud (RPA, IA)
 ├─ Reto: Talento digital muy escaso
 
-PLAN EJECUTADO EN TALENTIA:
+PLAN EJECUTADO EN Strato:
 1. Crear escenario (Bloque 4): +150 FTE con breakdown por rol
 2. Matching interno (Bloque 5): Solo 30% cobertura interna posible
 3. Portfolio de acciones (Bloque 6):
@@ -751,7 +751,7 @@ PLAN EJECUTADO EN TALENTIA:
 4. Planes de sucesión: +5 promotions a liderazgo
 5. Resultado: Plan accionable presupuestado y con timeline
 
-DASHBOARDS EN TALENTIA:
+DASHBOARDS EN Strato:
 └─ Seguimiento semanal de plan vs ejecución
 ```
 
@@ -763,7 +763,7 @@ ESCENARIO:
 ├─ Transformación: +50 roles digitales nuevos
 ├─ Reto: Gestionar reducción dignamente
 
-PLAN EJECUTADO EN TALENTIA:
+PLAN EJECUTADO EN Strato:
 1. Diagnóstico actual (Bloque 3): Mapa de talento + riesgos
 2. Proyección demanda (Bloque 4): -200 operarios, +50 analistas/técnicos
 3. Matching interno (Bloque 5): 60% de operarios pueden reskillarse
@@ -774,7 +774,7 @@ PLAN EJECUTADO EN TALENTIA:
    └─ SALIDAS PLANIFICADAS: 80 personas (jubilaciones + incentivos)
 5. Resultado: Plan de transición digno, costo optimizado, riesgos mitigados
 
-DASHBOARDS EN TALENTIA:
+DASHBOARDS EN Strato:
 ├─ Avance de reskilling
 ├─ Cobertura de nuevos roles
 ├─ Seguimiento de salidas planificadas
@@ -825,7 +825,7 @@ Este modelo de **Planificación Dotacional Estratégica Moderna** es:
 ✅ **Basado en datos**: Usa analytics e información real  
 ✅ **Balanceado**: Build-Buy-Borrow-Bot, no solo contratación  
 ✅ **Gobernado**: Roles, rituales, KPIs claros  
-✅ **Implementable**: En TalentIA con módulos específicos  
+✅ **Implementable**: En Strato con módulos específicos  
 
 **Es la base para que una organización anticipe, no reaccione, en temas de talento.**
 

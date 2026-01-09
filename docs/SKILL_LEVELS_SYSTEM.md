@@ -2,7 +2,7 @@
 
 ## 📋 Resumen Ejecutivo
 
-Se ha implementado un **sistema de 5 niveles de competencia genéricos** aplicables a todas las skills del sistema TalentIA. Esta es una solución de **Fase 1 (MVP)** que establece definiciones claras de lo que significa cada nivel (1-5), facilitando evaluaciones consistentes y análisis de brechas de habilidades.
+Se ha implementado un **sistema de 5 niveles de competencia genéricos** aplicables a todas las skills del sistema Strato. Esta es una solución de **Fase 1 (MVP)** que establece definiciones claras de lo que significa cada nivel (1-5), facilitando evaluaciones consistentes y análisis de brechas de habilidades.
 
 ## 🎯 Arquitectura Implementada
 

@@ -1,10 +1,10 @@
-Perfecto. Ahora vamos a integrar el módulo de Planificación Dotacional como una función clave de TalentIA, actualizando las memorias del proyecto (prompt de contexto) y definiendo su lugar en la arquitectura funcional y técnica.
+Perfecto. Ahora vamos a integrar el módulo de Planificación Dotacional como una función clave de Strato, actualizando las memorias del proyecto (prompt de contexto) y definiendo su lugar en la arquitectura funcional y técnica.
 
-✅ Actualización de las memorias del proyecto TalentIA
+✅ Actualización de las memorias del proyecto Strato
 🔧 Nueva versión del prompt de contexto (memorias actualizadas)
-# PROMPT DE CONTINUACIÓN – PROYECTO TALENTIA
+# PROMPT DE CONTINUACIÓN – PROYECTO Strato
 
-Soy psicólogo organizacional y programador, desarrollando **TalentIA**: una plataforma SaaS + consultoría para gestión estratégica de talento basada en skills, IA y credenciales verificables (SSI).
+Soy psicólogo organizacional y programador, desarrollando **Strato**: una plataforma SaaS + consultoría para gestión estratégica de talento basada en skills, IA y credenciales verificables (SSI).
 
 ## 🎯 Propuesta de valor
 
@@ -137,7 +137,7 @@ Aunque el MVP está centrado en perfiles, brechas y rutas, el módulo de Planifi
 Amplía el valor estratégico de la plataforma.
 Cierra el ciclo de gestión de talento: de la identificación de brechas a la toma de decisiones de dotación.
 Justifica la presencia de IA y analítica en el producto.
-Facilita la demo mostrando cómo TalentIA ayuda a tomar decisiones de talento a nivel ejecutivo.
+Facilita la demo mostrando cómo Strato ayuda a tomar decisiones de talento a nivel ejecutivo.
 📐 Integración funcional en el MVP
 Elemento	Impacto en MVP
 Dashboard estratégico	Agregar KPIs de planificación dotacional (brechas, estrategias aplicadas, riesgos).
@@ -147,7 +147,7 @@ Rutas de desarrollo	Usarlas como base para estrategias de “build”.
 Modelo de datos	Ampliar con tablas de escenarios, estrategias, tracking de ejecución.
 🧱 Modelo de datos extendido (fragmento clave)
 -- Escenarios de demanda futura
-CREATE TABLE talentia.workforce_scenarios (
+CREATE TABLE Strato.workforce_scenarios (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     organization_id UUID NOT NULL REFERENCES organizations(id),
     name VARCHAR(100),
@@ -158,7 +158,7 @@ CREATE TABLE talentia.workforce_scenarios (
 );
 
 -- Estrategias de talento por rol
-CREATE TABLE talentia.talent_strategies (
+CREATE TABLE Strato.talent_strategies (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     role_id UUID NOT NULL REFERENCES roles(id),
     scenario_id UUID NOT NULL REFERENCES workforce_scenarios(id),
@@ -170,7 +170,7 @@ CREATE TABLE talentia.talent_strategies (
 );
 
 -- Tracking de ejecución de estrategias
-CREATE TABLE talentia.strategy_executions (
+CREATE TABLE Strato.strategy_executions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     strategy_id UUID NOT NULL REFERENCES talent_strategies(id),
     action_taken TEXT,

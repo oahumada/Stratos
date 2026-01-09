@@ -1,12 +1,12 @@
 # Architecture Overview
 
-Entiende cómo TalentIA está diseñado y cómo fluyen los datos a través del sistema.
+Entiende cómo Strato está diseñado y cómo fluyen los datos a través del sistema.
 
 ---
 
 ## 📊 Vista de 10,000 Pies
 
-TalentIA usa una **arquitectura en 3 capas** con patrón **JSON-Driven**:
+Strato usa una **arquitectura en 3 capas** con patrón **JSON-Driven**:
 
 ```mermaid
 graph TB

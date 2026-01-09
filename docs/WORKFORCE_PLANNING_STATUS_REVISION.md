@@ -75,7 +75,7 @@
      - Búsqueda externa → Learning paths → Reconversión/upskilling → 
      - Sucesión → Desvinculación
 
-**NOTA CRÍTICA:** Este documento define el **modelo conceptual original** del módulo. Es la fuente de verdad para entender qué es Workforce Planning en TalentIA.
+**NOTA CRÍTICA:** Este documento define el **modelo conceptual original** del módulo. Es la fuente de verdad para entender qué es Workforce Planning en Strato.
    - ✅ Arquitectura visual
    - ✅ Stack tecnológico
    - ✅ Flujos de datos

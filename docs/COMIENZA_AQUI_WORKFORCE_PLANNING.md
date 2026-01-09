@@ -188,7 +188,7 @@ Total: 18 sp (~6 horas)
 ### Próxima Revisión
 ```
 [ ] Sincronizar documentación con código
-[ ] Agregar ejemplos con datos reales de TalentIA
+[ ] Agregar ejemplos con datos reales de Strato
 [ ] Crear video tutorial de flujo completo
 ```
 

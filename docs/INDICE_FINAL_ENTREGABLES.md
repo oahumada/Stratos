@@ -237,7 +237,7 @@
 
 ---
 
-## 🗂️ ESTRUCTURA FINAL DE /workspaces/talentia/src/docs/
+## 🗂️ ESTRUCTURA FINAL DE /workspaces/Strato/src/docs/
 
 ```
 docs/

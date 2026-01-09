@@ -1,6 +1,6 @@
 # Quick Start - 5 Minutos
 
-Pon en marcha TalentIA en menos de 5 minutos.
+Pon en marcha Strato en menos de 5 minutos.
 
 ---
 
@@ -21,8 +21,8 @@ Asegúrate de tener instalado:
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/yourusername/TalentIA.git
-cd TalentIA
+git clone https://github.com/yourusername/Strato.git
+cd Strato
 ```
 
 ### 2. Instalar dependencias Backend
@@ -53,7 +53,7 @@ O PostgreSQL para producción:
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
-DB_DATABASE=talentia
+DB_DATABASE=Strato
 DB_USERNAME=postgres
 DB_PASSWORD=secret
 ```

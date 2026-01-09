@@ -356,7 +356,7 @@ const props = defineProps<{
 }>()
 
 const api = useApi()
-const { notifySuccess, notifyError } = useNotification()
+const { showSuccess, showError } = useNotification()
 const store = useWorkforcePlanningStore()
 
 // State
@@ -381,13 +381,13 @@ const matchScoreOptions = [
 const tableHeaders = [
   { title: 'Candidate', value: 'candidate_name', width: '200px' },
   { title: 'Target Role', value: 'target_role', width: '180px' },
-  { title: 'Match Score', value: 'match_score', align: 'center' },
-  { title: 'Readiness', value: 'readiness_level', align: 'center' },
-  { title: 'Type', value: 'transition_type', align: 'center' },
+  { title: 'Match Score', value: 'match_score', align: 'center' as const },
+  { title: 'Readiness', value: 'readiness_level', align: 'center' as const },
+  { title: 'Type', value: 'transition_type', align: 'center' as const },
   { title: 'Gaps', value: 'skill_gaps' },
-  { title: 'Risk', value: 'risk_level', align: 'center' },
-  { title: 'Actions', value: 'actions', align: 'center', sortable: false },
-]
+  { title: 'Risk', value: 'risk_level', align: 'center' as const },
+  { title: 'Actions', value: 'actions', align: 'center' as const, sortable: false },
+] as const
 
 // Computed properties
 const loading = computed(() => store.getLoadingState('matches'))
@@ -437,11 +437,11 @@ const viewMatchDetails = (match: Match) => {
 
 const viewRecommendations = (match: Match) => {
   // Navigate to recommendations view
-  notifySuccess(`View recommendations for ${match.candidate_name}`)
+  showSuccess(`View recommendations for ${match.candidate_name}`)
 }
 
 const createDevelopmentPlan = (match: Match) => {
-  notifySuccess(`Development plan created for ${match.candidate_name}`)
+  showSuccess(`Development plan created for ${match.candidate_name}`)
 }
 
 const approveMatch = async () => {
@@ -451,23 +451,23 @@ const approveMatch = async () => {
         `/api/v1/workforce-planning/matches/${selectedMatch.value.id}/approve`,
         {}
       )
-      notifySuccess('Match approved successfully')
+      showSuccess('Match approved successfully')
       showDetailsDialog.value = false
       store.clearScenarioCaches(props.scenarioId)
       await fetchMatches()
     } catch (err) {
-      notifyError('Failed to approve match')
+      showError('Failed to approve match')
       console.error(err)
     }
   }
 }
 
 const exportMatchDetails = (match: Match) => {
-  notifySuccess(`Match details exported for ${match.candidate_name}`)
+  showSuccess(`Match details exported for ${match.candidate_name}`)
 }
 
 const generateMatchingReport = () => {
-  notifySuccess('Matching report generated and downloaded')
+  showSuccess('Matching report generated and downloaded')
 }
 
 const getInitials = (name: string): string => {

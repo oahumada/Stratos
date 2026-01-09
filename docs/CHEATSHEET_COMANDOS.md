@@ -1,4 +1,4 @@
-# Cheat Sheet - Comandos Útiles TalentIA
+# Cheat Sheet - Comandos Útiles Strato
 
 **Referencia rápida para desarrollo**
 
@@ -8,7 +8,7 @@
 
 ```bash
 # 1. Navegar a la carpeta
-cd /workspaces/talentia/src
+cd /workspaces/Strato/src
 
 # 2. Instalar dependencias (si es primera vez)
 composer install
@@ -111,7 +111,7 @@ curl http://localhost:8000/api/job-openings/1/candidates
 ```bash
 # Importar colección
 # 1. Abrir Postman
-# 2. Import → File → docs/TalentIA_API_Postman.json
+# 2. Import → File → docs/Strato_API_Postman.json
 # 3. Cambiar base_url si necesario
 # 4. Ejecutar requests
 ```
@@ -209,7 +209,7 @@ src/
 │   ├── dia3_servicios_*.md
 │   ├── dia3_comandos_*.md
 │   ├── dia5_api_endpoints.md
-│   ├── TalentIA_API_Postman.json
+│   ├── Strato_API_Postman.json
 │   ├── STATUS_EJECUTIVO_DIA5.md
 │   ├── DIA6_GUIA_INICIO_FRONTEND.md
 │   └── CHECKLIST_MVP_COMPLETION.md
@@ -327,7 +327,7 @@ npm install
 | `docs/STATUS_EJECUTIVO_DIA5.md`         | Resumen actual y próximos pasos |
 | `docs/dia5_api_endpoints.md`            | Especificación completa de API  |
 | `docs/DIA6_GUIA_INICIO_FRONTEND.md`     | Cómo empezar frontend           |
-| `docs/TalentIA_API_Postman.json`        | Colección Postman para testing  |
+| `docs/Strato_API_Postman.json`        | Colección Postman para testing  |
 | `docs/CHECKLIST_MVP_COMPLETION.md`      | Verificación de completitud     |
 | `docs/dia3_servicios_logica_negocio.md` | Especificación de servicios     |
 

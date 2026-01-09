@@ -476,7 +476,7 @@ Crear un sistema de documentación y operación que permita:
 ## 📦 ARCHIVOS ENTREGABLES
 
 ```
-/workspaces/talentia/src/docs/
+/workspaces/Strato/src/docs/
 
 OPERACIONAL (CRÍTICO):
 ✅ ECHADA_DE_ANDAR.md (650+ líneas)

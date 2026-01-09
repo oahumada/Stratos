@@ -74,7 +74,7 @@
 - Foto de dotación (FTE, estructura, demografía)
 - Foto de capacidades (perfil de skills por persona)
 - Identificar talento crítico y roles en riesgo
-- Configurar marketplace interno en TalentIA
+- Configurar marketplace interno en Strato
 - Output: Mapa de dotación + Mapa de skills + Marketplace operativo
 
 **Responsables típicos:** RRHH (Talento/People Analytics) + TI + jefaturas
@@ -252,7 +252,7 @@
 **METODOLOGÍA (Fase 7 + Paso 8):**
 - Lanzar reclutamiento (semana 13)
 - Iniciar reconversión DE→CA (semana 14)
-- Dashboard en TalentIA mostrando: % cobertura proyectado, costo acumulado, riesgo
+- Dashboard en Strato mostrando: % cobertura proyectado, costo acumulado, riesgo
 
 ### Mes 6: Revisión Trimestral
 **MODELO:** "Ajustes según progreso real"  
@@ -276,7 +276,7 @@
 ### Para EJECUTAR (RRHH, Gestores de Talento)
 1. **Leer:** MetodologiaPasoAPaso (responsables, actividades, outputs)
 2. **Usar:** MODELO_PLANIFICACION_INTEGRADO (conceptos, ejemplos, gobernanza)
-3. **Apoyarse en:** Dashboards de TalentIA (ejecutado basado en estos docs)
+3. **Apoyarse en:** Dashboards de Strato (ejecutado basado en estos docs)
 
 ### Para GOBERNAR (Dirección, Comités)
 1. **Leer:** MODELO_PLANIFICACION_INTEGRADO (marcos, KPIs, gobernanza)
@@ -332,12 +332,12 @@ DECISION EN PASO 6 (¿Qué con surpluses?)
 - [ ] ¿He entendido el mapeo Bloque → Fase?
 - [ ] ¿Sé qué responsables intervienen en cada Fase?
 - [ ] ¿Tengo claro el flujo de decisión (Pasos 1-8)?
-- [ ] ¿He identificado qué TalentIA debe automatizar en cada Fase?
+- [ ] ¿He identificado qué Strato debe automatizar en cada Fase?
 - [ ] ¿He definido qué datos genera cada Fase para KPIs?
 - [ ] ¿Tengo el diagrama de decisiones dibujado?
 - [ ] ¿He validado con stakeholders que entienden el flujo?
 
 ---
 
-**Documento de apoyo para la implementación de Workforce Planning en TalentIA**  
+**Documento de apoyo para la implementación de Workforce Planning en Strato**  
 **Referencia:** Mapeo entre MODELO_PLANIFICACION_INTEGRADO.md y MetodologiaPasoAPaso.md

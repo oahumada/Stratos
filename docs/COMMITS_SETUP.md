@@ -1,4 +1,4 @@
-# Commits Semánticos - Configuración TalentIA
+# Commits Semánticos - Configuración Strato
 
 ✅ Configuración completada para commits semánticos en tu proyecto.
 

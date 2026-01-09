@@ -1,4 +1,4 @@
-# TALENTIA — PROMPT MAESTRO PARA COPILOT
+# Strato — PROMPT MAESTRO PARA COPILOT
 ## Módulo: Workforce Planning (WFP) con Escenarios, Scopes, 7 pasos, estados y versionamiento inmutable
 
 **Fecha de creación:** 7 Enero 2026  
@@ -7,7 +7,7 @@
 ---
 
 ### 0) CONTEXTO
-Estoy desarrollando TalentIA (Laravel + PostgreSQL, Vue 3 + TS + Vuetify). Multi-tenant: todo dato debe aislarse por `organization_id`.
+Estoy desarrollando Strato (Laravel + PostgreSQL, Vue 3 + TS + Vuetify). Multi-tenant: todo dato debe aislarse por `organization_id`.
 
 Este desarrollo NO reemplaza el Workforce Planning actual (baseline). Es una **sub-funcionalidad avanzada** dentro de WFP: "Planificación por Escenarios" que coexiste con el baseline.
 

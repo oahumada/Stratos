@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "TalentIA API - MVP",
-    "description": "Endpoints for TalentIA MVP - Talent Management System",
+    "name": "Strato API - MVP",
+    "description": "Endpoints for Strato MVP - Talent Management System",
     "version": "1.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },

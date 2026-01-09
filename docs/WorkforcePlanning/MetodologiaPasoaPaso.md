@@ -2,9 +2,9 @@ Voy a hacer ambas cosas, en este orden:
 
 
 
-1\) Metodología paso a paso (como guía/“manual” para el módulo TalentIA).  
+1\) Metodología paso a paso (como guía/“manual” para el módulo Strato).  
 
-2\) Flujo de decisión lógico, pensando ya en reglas que TalentIA podría implementar.
+2\) Flujo de decisión lógico, pensando ya en reglas que Strato podría implementar.
 
 
 
@@ -12,7 +12,7 @@ Voy a hacer ambas cosas, en este orden:
 
 
 
-\### 1. Metodología paso a paso del Modelo de Planificación Dotacional TalentIA
+\### 1. Metodología paso a paso del Modelo de Planificación Dotacional Strato
 
 
 
@@ -68,7 +68,7 @@ La organizo en \*\*7 fases\*\*, cada una con: propósito, actividades clave, inp
 
 \*\*Outputs:\*\*
 
-\- Documento/acta de \*\*“Alcance de la planificación dotacional TalentIA”\*\*:
+\- Documento/acta de \*\*“Alcance de la planificación dotacional Strato”\*\*:
 
 &nbsp; - Áreas cubiertas, horizonte, objetivos.  
 
@@ -132,7 +132,7 @@ La organizo en \*\*7 fases\*\*, cada una con: propósito, actividades clave, inp
 
 \- \*\*Catálogo de roles\*\*.  
 
-\- \*\*Diccionario de skills TalentIA\*\*.  
+\- \*\*Diccionario de skills Strato\*\*.  
 
 \- Matriz \*\*Rol ↔ Skills requeridas\*\* (hoy y futuro).
 
@@ -184,7 +184,7 @@ La organizo en \*\*7 fases\*\*, cada una con: propósito, actividades clave, inp
 
 &nbsp;  - Roles en riesgo (alta rotación, alta edad promedio, muchos contratos temporales, etc.).  
 
-4\. Configurar el \*\*marketplace interno de talento\*\* (en TalentIA):
+4\. Configurar el \*\*marketplace interno de talento\*\* (en Strato):
 
 &nbsp;  - Publicación de vacantes internas y proyectos.  
 
@@ -494,7 +494,7 @@ La organizo en \*\*7 fases\*\*, cada una con: propósito, actividades clave, inp
 
 
 
-\### 2. Flujo de decisión del módulo de Planificación Dotacional TalentIA
+\### 2. Flujo de decisión del módulo de Planificación Dotacional Strato
 
 
 
@@ -902,7 +902,7 @@ Para cada decisión (interno, reconversión, externo, automatización, desvincul
 
 
 
-\### Cómo lo usaría TalentIA
+\### Cómo lo usaría Strato
 
 
 
@@ -916,7 +916,7 @@ Para cada decisión (interno, reconversión, externo, automatización, desvincul
 
 \- El \*\*flujo de decisión\*\* sirve como:
 
-&nbsp; - Lógica de negocio que TalentIA puede ir automatizando:
+&nbsp; - Lógica de negocio que Strato puede ir automatizando:
 
 &nbsp;   - Sugerencias automáticas de:
 

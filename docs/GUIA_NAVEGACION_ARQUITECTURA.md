@@ -430,5 +430,5 @@ Tienes **11 documentos** bien estructurados que cubren:
 ---
 
 **Creado**: 27 Diciembre 2025  
-**Para**: Todos los roles en TalentIA  
+**Para**: Todos los roles en Strato  
 **Próxima lectura recomendada**: DIA6_PLAN_ACCION.md (tu trabajo hoy)

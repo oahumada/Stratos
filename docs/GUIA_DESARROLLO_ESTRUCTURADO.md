@@ -1,4 +1,4 @@
-# Guía de Desarrollo Estructurado - TalentIA
+# Guía de Desarrollo Estructurado - Strato
 
 **Versión:** 1.0  
 **Basado en:** Ejecución Exitosa Días 1-5 (MVP Backend)  
@@ -187,7 +187,7 @@ Planificación por día (1 semana típicamente)
 6. [ ] Revisar documentación requerida
 
 Comando:
-  cd /workspaces/talentia/src
+  cd /workspaces/Strato/src
   php artisan test
   php artisan route:list
   git status
