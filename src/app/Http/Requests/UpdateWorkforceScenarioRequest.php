@@ -26,6 +26,10 @@ class UpdateWorkforceScenarioRequest extends FormRequest
             'estimated_budget' => 'nullable|numeric|min:0',
             'fiscal_year' => 'nullable|integer|min:2020|max:2050',
             'owner' => 'nullable|string|max:255',
+            'step1' => 'nullable|array',
+            'step1.metadata' => 'nullable|array',
+            'step1.skills' => 'nullable|array',
+            'step1.roles' => 'nullable|array',
         ];
     }
 }

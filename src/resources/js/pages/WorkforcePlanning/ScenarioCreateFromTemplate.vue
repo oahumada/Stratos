@@ -33,7 +33,7 @@ const customizations = ref({
   description: '',
   time_horizon_weeks: 52,
   estimated_budget: 500000,
-  scenario_type: 'transformation',
+  scenario_type: 'growth',
   scope_type: 'organization' as 'organization' | 'department' | 'role_family',
   parent_id: null as number | null,
 })
@@ -54,7 +54,10 @@ const applyTemplateDefaults = () => {
   if (!selectedTemplate.value) return
   customizations.value.name = selectedTemplate.value.name
   customizations.value.description = selectedTemplate.value.description || ''
-  customizations.value.scenario_type = selectedTemplate.value.scenario_type || 'custom'
+  // Backend accepted values: succession,growth,cost_optimization,restructuring,capacity_planning
+  const allowed = ['succession','growth','cost_optimization','restructuring','capacity_planning']
+  const tplType = selectedTemplate.value.scenario_type
+  customizations.value.scenario_type = allowed.includes(tplType) ? tplType : 'growth'
 }
 
 const createScenario = async () => {
@@ -68,13 +71,47 @@ const createScenario = async () => {
   }
   submitting.value = true
   try {
-    await api.post(`/api/v1/workforce-planning/workforce-scenarios/${selectedTemplate.value.id}/instantiate-from-template`, {
+    // debug payload to help diagnose 422 validation errors
+    console.debug('instantiate-from-template payload', { customizations: customizations.value })
+    const res: any = await api.post(`/api/v1/workforce-planning/workforce-scenarios/${selectedTemplate.value.id}/instantiate-from-template`, {
       customizations: customizations.value,
     })
+    const createdId = res?.data?.id ?? res?.id ?? res?.scenario?.id ?? null
+
+    // Store minimal customizations to prefill Phase 1 wizard after navigation
+    try {
+        const plan = res?.workforce_plan ?? res?.data?.workforce_plan ?? null
+        if (plan) {
+          // prefer backend-created plan for accurate defaults
+          localStorage.setItem('wfp_prefill', JSON.stringify({
+            name: plan.name,
+            scope_type: plan.scope_type === 'organization_wide' ? 'organization' : (plan.scope_type === 'department' ? 'department' : 'role_family'),
+            description: plan.description,
+            time_horizon_weeks: (plan.planning_horizon_months || 0) * 4,
+          }))
+        } else {
+          localStorage.setItem('wfp_prefill', JSON.stringify({
+            name: customizations.value.name,
+            scope_type: customizations.value.scope_type,
+            description: customizations.value.description,
+            time_horizon_weeks: customizations.value.time_horizon_weeks,
+          }))
+        }
+    } catch (e) {
+      // ignore storage errors
+    }
+
     showSuccess('Escenario creado correctamente')
-    emit('created')
-    emit('close')
+    // Navigate to scenario detail if id available, otherwise emit events as before
+    if (createdId) {
+      router.visit(`/workforce-planning/${createdId}`)
+    } else {
+      emit('created')
+      emit('close')
+    }
   } catch (error: any) {
+    // Log full server response to help debug 422 validation errors
+    console.error('instantiate-from-template error:', error?.response?.data ?? error)
     const apiMessage = error?.response?.data?.message
     const firstError = error?.response?.data?.errors ? Object.values(error.response.data.errors).flat()[0] : null
     showError(apiMessage || (firstError as string) || 'No se pudo crear el escenario')
@@ -144,11 +181,11 @@ onMounted(() => {
                 <v-select
                   v-model="customizations.scenario_type"
                   :items="[
-                    { value: 'transformation', title: 'Transformación' },
+                    { value: 'succession', title: 'Sucesión' },
                     { value: 'growth', title: 'Crecimiento' },
-                    { value: 'automation', title: 'Automatización' },
-                    { value: 'merger', title: 'Fusión/Adquisición' },
-                    { value: 'custom', title: 'Personalizado' },
+                    { value: 'cost_optimization', title: 'Optimización de Costos' },
+                    { value: 'restructuring', title: 'Reestructuración' },
+                    { value: 'capacity_planning', title: 'Planificación de Capacidad' },
                   ]"
                   label="Tipo de escenario"
                 />

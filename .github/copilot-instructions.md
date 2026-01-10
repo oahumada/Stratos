@@ -1,0 +1,16 @@
+# Copilot Instructions for Stratos
+
+- **Stack & scope:** Laravel 12 + Inertia v2 + Vue 3/TypeScript/Vuetify 3; multi-tenant SaaS keyed by `organization_id`; auth via Sanctum. Wayfinder generates typed frontend route helpers.
+- **Repo layout:** Code lives in `src/` (Laravel app + resources/js), docs in `docs/` (see `docs/INDEX.md` for navigation) and `docs_wiki/` (MkDocs), helper scripts in `scripts/` (`commit.sh`, `release.sh`).
+- **Multi-tenancy rules:** Every query/entity must scope by `organization_id`; API routes use `tenant` middleware + Sanctum. Do not expose cross-tenant data; policy checks must also enforce org match.
+- **Laravel 12 structure:** No `app/Http/Middleware` registration; use `bootstrap/app.php` for middleware/routes/providers. Commands auto-discover in `app/Console/Commands`. Model casts use `casts()` method when present.
+- **Backend patterns:** Prefer Form Requests over inline validation; eager load to avoid N+1; use named routes + resources; policies in `app/Policies` registered via `AuthServiceProvider`. For enums, mirror existing strings (e.g., workforce planning statuses/reasons). Use factories in tests.
+- **Workforce planning module:** New feature focuses on Fase 1 planning (plans, scope units/roles, transformation projects, talent risks, stakeholders, documents). Preserve multi-tenant FKs, status guards (`draft`, `in_review`, `approved`, `active`, `completed`, `archived`), and helper methods (`canBeEdited`, `isDraft`, `approve/activate/archive`).
+- **Services & controllers:** Business logic belongs in service classes under `app/Services/...`; controllers stay thin and call services; policies guard CRUD/approve actions. Use transactions for multi-step writes.
+- **Frontend conventions:** Vue Composition API + TypeScript; Inertia pages under `resources/js/Pages`; components/composables under `resources/js/components` and `resources/js/composables`. Pinia for state, Vuetify for UI. Keep API shapes in `src/types/*.ts` (e.g., `workforcePlanning.ts`), and use typed API clients (Wayfinder or `apiClient`).
+- **Build/run:** From `src/`: `composer install`, `npm install`; dev stack `composer run dev` (php server + queue + logs + Vite via concurrently). Tests via `composer test` or `php artisan test`; browser/integration tests use Pest v4. Format PHP with `vendor/bin/pint --dirty`; JS/TS with `npm run lint` and `npm run format`.
+- **Release/commits:** Use semantic commits (`./scripts/commit.sh`) and releases via `./scripts/release.sh` (wrapper npm scripts exist). Standard-version drives versioning/changelog.
+- **Data sources & docs:** For domain context and flows, read `docs/INDEX.md`, `docs/DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md`, `docs/dia5_api_endpoints.md`, and `docs/DIA6_GUIA_INICIO_FRONTEND.md`. Wiki lives under `docs_wiki/` (MkDocs).
+- **Testing focus:** Target minimal affected suites (`php artisan test tests/...`). Prefer Pest assertions helpers (`assertForbidden`, etc.). Seeders/factories exist—reuse instead of manual inserts.
+- **Security & safety:** Never use `env()` outside config; respect Sanctum auth; validate and authorize every endpoint; ensure tenant scoping and role-based policies.
+- **When unsure:** Align with existing patterns nearby; consult Laravel Boost `search-docs` for version-specific guidance before changing framework features.

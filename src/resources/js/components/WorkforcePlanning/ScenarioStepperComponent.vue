@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, toRefs } from 'vue'
 
 interface Props {
   currentStep: number
@@ -22,6 +22,9 @@ const props = withDefaults(defineProps<Props>(), {
   scenarioStatus: 'active',
   decisionStatus: 'draft'
 })
+
+// expose individual props as refs for template usage
+const { currentStep, totalSteps, scenarioStatus, decisionStatus } = toRefs(props)
 
 const emit = defineEmits<{
   (e: 'update:currentStep', step: number): void

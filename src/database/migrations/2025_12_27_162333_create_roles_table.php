@@ -17,11 +17,12 @@ return new class extends Migration
             $table->foreignId('department_id')->nullable()->constrained('departments');
             $table->string('name');
             $table->string('department')->nullable();
+            $table->string('family')->nullable();
             $table->enum('level', ['junior', 'mid', 'senior', 'lead', 'principal'])->default('mid');
             $table->text('description')->nullable();
-            $table->timestamps();
             $table->unique(['organization_id', 'name']);
             $table->index('level');
+            $table->timestamps();
         });
     }
 

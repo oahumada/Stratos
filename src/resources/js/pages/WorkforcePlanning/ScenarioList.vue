@@ -136,6 +136,20 @@ const goToDetail = (scenario: ScenarioListItem) => {
   router.visit(`/workforce-planning/${scenario.id}`)
 }
 
+const deleteScenario = async (scenario: ScenarioListItem) => {
+  const ok = window.confirm(`¿Eliminar escenario "${scenario.name}"? Esta acción no se puede deshacer.`)
+  if (!ok) return
+
+  try {
+    await api.delete(`/api/v1/workforce-planning/workforce-scenarios/${scenario.id}`)
+    showSuccess('Escenario eliminado')
+    // reload list
+    await loadScenarios()
+  } catch (err: any) {
+    showError(err?.response?.data?.message || 'Error al eliminar el escenario')
+  }
+}
+
 const openCreateFromTemplate = () => {
   showCreateFromTemplate.value = true
 }
@@ -249,6 +263,19 @@ onMounted(() => {
                     icon="mdi-eye"
                     color="primary"
                     @click="goToDetail(item)"
+                  />
+                </template>
+              </v-tooltip>
+
+              <v-tooltip text="Borrar">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    size="small"
+                    variant="text"
+                    icon="mdi-delete"
+                    color="error"
+                    @click="deleteScenario(item)"
                   />
                 </template>
               </v-tooltip>

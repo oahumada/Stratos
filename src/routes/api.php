@@ -107,6 +107,25 @@ Route::middleware('auth:sanctum')->prefix('v1/workforce-planning')->group(functi
     Route::get('/scenarios/{scenario}/versions', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'listVersions']);
     Route::post('/scenarios/{scenario}/sync-parent', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'syncParentSkills']);
     Route::get('/scenarios/{scenario}/rollup', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getRollup']);
+
+    // Workforce Planning Phase 1 - Planes de dotación
+    Route::get('/workforce-plans', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'index']);
+    Route::post('/workforce-plans', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'store']);
+    Route::get('/workforce-plans/{workforcePlan}', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'show']);
+    Route::put('/workforce-plans/{workforcePlan}', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'update']);
+    Route::patch('/workforce-plans/{workforcePlan}', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'update']);
+    Route::delete('/workforce-plans/{workforcePlan}', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'destroy']);
+
+    Route::post('/workforce-plans/{workforcePlan}/scope-units', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'addScopeUnit']);
+    Route::post('/workforce-plans/{workforcePlan}/scope-roles', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'addScopeRole']);
+    Route::post('/workforce-plans/{workforcePlan}/transformation-projects', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'addTransformationProject']);
+    Route::post('/workforce-plans/{workforcePlan}/talent-risks', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'addTalentRisk']);
+    Route::post('/workforce-plans/{workforcePlan}/analyze-risks', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'analyzeRisks']);
+    Route::post('/workforce-plans/{workforcePlan}/scope-document', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'scopeDocument']);
+    Route::get('/workforce-plans/{workforcePlan}/statistics', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'statistics']);
+    Route::post('/workforce-plans/{workforcePlan}/approve', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'approve']);
+    Route::post('/workforce-plans/{workforcePlan}/activate', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'activate']);
+    Route::post('/workforce-plans/{workforcePlan}/archive', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'archive']);
 });
 
 // Catálogos dinámicos para selectores

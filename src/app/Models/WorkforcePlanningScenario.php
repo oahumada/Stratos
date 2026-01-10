@@ -14,6 +14,7 @@ class WorkforcePlanningScenario extends Model
     protected $table = 'workforce_planning_scenarios';
 
     protected $fillable = [
+        'workforce_plan_id',
         'organization_id',
         'parent_id',
         'template_id',
@@ -104,6 +105,11 @@ class WorkforcePlanningScenario extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(ScenarioTemplate::class, 'template_id');
+    }
+
+    public function workforcePlan(): BelongsTo
+    {
+        return $this->belongsTo(WorkforcePlan::class, 'workforce_plan_id');
     }
 
     public function skillDemands(): HasMany
