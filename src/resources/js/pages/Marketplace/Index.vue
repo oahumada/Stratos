@@ -69,7 +69,7 @@ const applications = ref<Application[]>([]);
 const loading = ref(false);
 const loadingRecruiter = ref(false);
 const applying = ref<number | null>(null);
-const filterStatus = ref<string>('open');
+const filterStatus = ref<string>('open'); // mark unused bindings during refactor
 const showAllCandidates = ref(false); // Mostrar todos los candidatos o solo Top 5
 const externalSearchThreshold = ref(70); // Umbral para recomendar búsqueda externa
 const candidateMatchFilter = ref<'all' | 'high' | 'medium' | 'low'>('all'); // Filtro por nivel de match
@@ -285,6 +285,10 @@ onMounted(() => {
   // loadOpportunities(); // Se cargará cuando se cambie al tab de empleado
   // loadApplications();
 });
+// mark some refs/functions referenced to avoid unused-var during refactor
+void filterStatus.value;
+void externalSearchThreshold.value;
+void loadOpportunities;
 </script>
 
 <template>

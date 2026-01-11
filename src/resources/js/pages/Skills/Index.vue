@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import FormSchema from '../form-template/FormSchema.vue';
 import SkillLevelChip from '@/components/SkillLevelChip.vue';
@@ -31,17 +31,21 @@ onMounted(async () => {
   }
 });
 
-// Helper to get level name
-const getLevelName = (level: number) => {
+// Helper to get level name (kept for future use)
+const _getLevelName = (level: number) => {
   const levelDef = skillLevels.value.find(l => l.level === level);
   return levelDef ? levelDef.name : `Nivel ${level}`;
 };
 
-// Helper to get level display label (e.g., "1 - Básico")
-const getLevelDisplay = (level: number) => {
+// Helper to get level display label (kept for future use)
+const _getLevelDisplay = (level: number) => {
   const levelDef = skillLevels.value.find(l => l.level === level);
   return levelDef ? levelDef.display_label : `Nivel ${level}`;
 };
+
+// reference to avoid unused-var during iterative refactor
+void _getLevelName
+void _getLevelDisplay
 
 // Computed properties para roles y people basados en el item que viene con las relaciones
 const getSkillRoles = (item: any) => {

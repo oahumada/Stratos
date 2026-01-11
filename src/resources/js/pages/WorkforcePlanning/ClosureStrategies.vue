@@ -41,7 +41,7 @@ const fetchStrategies = async () => {
   if (!props.scenarioId) return
   loading.value = true
   try {
-    const res: any = await api.get(`/api/v1/workforce-planning/workforce-scenarios/${props.scenarioId}`)
+    const res: any = await api.get(`/api/v1/strategic-planning/workforce-scenarios/${props.scenarioId}`)
     const raw = res?.data || res
     strategies.value = raw?.closure_strategies || []
   } catch (error) {
@@ -60,7 +60,7 @@ const fetchStrategies = async () => {
 const refreshSuggested = async () => {
   refreshing.value = true
   try {
-    await api.post(`/api/v1/workforce-planning/workforce-scenarios/${props.scenarioId}/refresh-suggested-strategies`)
+    await api.post(`/api/v1/strategic-planning/workforce-scenarios/${props.scenarioId}/refresh-suggested-strategies`)
     await fetchStrategies()
     showSuccess('Estrategias sugeridas actualizadas')
     emit('refreshed')
@@ -153,6 +153,7 @@ onMounted(() => {
         item-key="id"
         class="elevation-0"
       >
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.skill_name="{ item }">
           <div class="d-flex align-center">
             <v-icon size="small" class="mr-2">mdi-lightbulb-on-outline</v-icon>
@@ -163,18 +164,24 @@ onMounted(() => {
           </div>
         </template>
 
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.strategy="{ item }">
           <v-chip size="small" color="primary" variant="tonal" class="text-uppercase">{{ item.strategy }}</v-chip>
         </template>
 
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.estimated_cost="{ item }">{{ formatMoney(item.estimated_cost) }}</template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.estimated_time_weeks="{ item }">{{ item.estimated_time_weeks || '—' }}</template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.success_probability="{ item }">{{ formatProb(item.success_probability) }}</template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.risk_level="{ item }">
           <v-chip size="small" :color="item.risk_level === 'high' ? 'error' : item.risk_level === 'medium' ? 'warning' : 'success'" variant="flat">
             {{ item.risk_level || '—' }}
           </v-chip>
         </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.status="{ item }">
           <v-chip size="small" :color="item.status === 'approved' ? 'success' : item.status === 'in_progress' ? 'info' : item.status === 'completed' ? 'primary' : 'warning'" variant="flat">
             {{ item.status || 'proposed' }}

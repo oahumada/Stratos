@@ -4,19 +4,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('scenario_skills', function (Blueprint $table) {
+        Schema::create('scenario_role', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
             $table->foreignId('scenario_id')->constrained('workforce_planning_scenarios')->cascadeOnDelete();
-            $table->foreignId('skill_id')->constrained('skills')->cascadeOnDelete();
-            $table->enum('strategic_role', ['target', 'accelerator', 'sunset', 'watch', 'secondary'])->default('secondary');
-            $table->integer('priority')->default(0);
-            $table->text('rationale')->nullable();
+            $table->foreignId('role_id')->constrained('roles')->cascadeOnDelete();
+            $table->enum('strategic_role', ['primary', 'secondary', 'tertiary'])->default('secondary'); 
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('scenario_skills');
+        Schema::dropIfExists('scenario_role');
     }
 };

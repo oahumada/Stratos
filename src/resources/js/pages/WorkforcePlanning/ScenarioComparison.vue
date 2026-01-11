@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-import { useWorkforcePlanningStore } from '@/stores/workforcePlanningStore'
+import { useStrategicPlanningScenariosStore } from '@/stores/strategicPlanningScenariosStore'
 
 interface ComparisonScenario {
   scenario_id: number
@@ -25,7 +25,7 @@ const props = defineProps<{ scenarioId?: number }>()
 
 const api = useApi()
 const { showError } = useNotification()
-const store = useWorkforcePlanningStore()
+const store = useStrategicPlanningScenariosStore()
 
 const loading = ref(false)
 const comparing = ref(false)
@@ -38,11 +38,12 @@ const loadScenariosIfEmpty = async () => {
   if (store.scenarios.length > 0) return
   loading.value = true
   try {
-    const res: any = await api.get('/api/v1/workforce-planning/workforce-scenarios')
+     const res: any = await api.get('/api/v1/strategic-planning/workforce-scenarios')
     const data = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
     store.scenarios = data
   } catch (error) {
-    showError('No se pudieron cargar los escenarios para comparar')
+     void error
+     showError('No se pudieron cargar los escenarios para comparar')
   } finally {
     loading.value = false
   }
@@ -55,13 +56,14 @@ const compare = async () => {
   }
   comparing.value = true
   try {
-    const res: any = await api.post('/api/v1/workforce-planning/scenario-comparisons', {
+      const res: any = await api.post('/api/v1/strategic-planning/scenario-comparisons', {
       scenario_ids: selectedScenarioIds.value,
       comparison_criteria: { cost: true, time: true, risk: true, coverage: true, roi: true },
     })
     comparison.value = res?.data || res
   } catch (error) {
-    showError('Error al comparar escenarios')
+      void error
+      showError('Error al comparar escenarios')
   } finally {
     comparing.value = false
   }
@@ -125,10 +127,15 @@ onMounted(() => {
         item-key="scenario_id"
         class="elevation-0"
       >
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.total_cost="{ item }">{{ formatMoney(item.total_cost) }}</template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.max_timeline_weeks="{ item }">{{ item.max_timeline_weeks || '—' }}</template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.average_risk_score="{ item }">{{ item.average_risk_score?.toFixed(2) ?? '—' }}</template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.expected_coverage="{ item }">{{ formatPct(item.expected_coverage) }}</template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.estimated_roi="{ item }">{{ item.estimated_roi ? item.estimated_roi.toFixed(2) + 'x' : '—' }}</template>
       </v-data-table>
 

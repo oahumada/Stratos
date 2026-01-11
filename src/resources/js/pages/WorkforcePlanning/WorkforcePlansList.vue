@@ -28,6 +28,7 @@ const load = async () => {
     const data = (res?.data?.data) ?? res?.data ?? []
     items.value = Array.isArray(data) ? data : []
   } catch (e) {
+    void e
     showError('No fue posible cargar los planes')
   } finally {
     loading.value = false
@@ -51,9 +52,11 @@ onMounted(load)
 
     <v-card>
       <v-data-table :headers="headers" :items="items" :loading="loading" density="comfortable">
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.name="{ item }">
           <RouterLink :to="{ name: 'workforce-plans.show', params: { id: item.id } }">{{ item.name }}</RouterLink>
         </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.status="{ item }">
           <v-chip size="small" :color="item.status === 'active' ? 'success' : (item.status === 'approved' ? 'info' : 'grey')">{{ item.status }}</v-chip>
         </template>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useWorkforcePlanning } from '@/composables/useWorkforcePlanning'
+import { useWorkforcePlanning } from '@/composables/useStrategicPlanningScenarios'
 import { useNotification } from '@/composables/useNotification'
 import type { WorkforcePlan } from '@/types/workforcePlanning'
 
-const { list, getById } = useWorkforcePlanning()
+const { list } = useWorkforcePlanning()
 const { showError } = useNotification()
 
 const loading = ref(false)
@@ -18,6 +18,7 @@ const load = async () => {
     const data = res?.data?.data ?? res?.data ?? res
     plans.value = Array.isArray(data) ? data : data?.data ?? []
   } catch (e) {
+    void e
     showError('No fue posible cargar los planes')
   } finally {
     loading.value = false
@@ -32,9 +33,11 @@ onMounted(load)
     <h3>Planes de Dotación (Overview)</h3>
     <v-card>
       <v-data-table :items="plans" :loading="loading" density="comfortable">
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.name="{ item }">
           <RouterLink :to="{ name: 'workforce-plans.show', params: { id: item.id } }">{{ item.name }}</RouterLink>
         </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.status="{ item }">
           <v-chip size="small" :color="item.status === 'active' ? 'success' : (item.status === 'approved' ? 'info' : 'grey')">{{ item.status }}</v-chip>
         </template>

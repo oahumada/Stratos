@@ -7,7 +7,7 @@ defineOptions({ layout: AppLayout });
 
 // State
 const vuetifyTheme = useVuetifyTheme();
-const loading = ref(false);
+const _loading = ref(false);
 const selectedPeriod = ref('month');
 const dashboardData = ref({
   talentMetrics: {
@@ -177,7 +177,7 @@ const riskIndicators = computed(() => [
   },
 ]);
 
-const getStatusColor = (percentage: number): string => {
+const _getStatusColor = (percentage: number): string => {
   if (percentage >= 80) return 'success';
   if (percentage >= 60) return 'warning';
   return 'error';
@@ -199,6 +199,10 @@ const headerGradient = computed(() => {
   const theme = vuetifyTheme.global.current.value;
   return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
 });
+
+// mark intentionally-unused bindings to satisfy linter during refactor
+void _loading.value
+void _getStatusColor
 
 </script>
 

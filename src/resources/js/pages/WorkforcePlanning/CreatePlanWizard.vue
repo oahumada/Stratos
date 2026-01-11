@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { router } from '@inertiajs/vue3'
 import { useNotification } from '@/composables/useNotification'
 import { useWorkforcePlanning } from '@/composables/useWorkforcePlanning'
 
 defineOptions({ layout: AppLayout })
 
-const router = useRouter()
+// use Inertia router for navigation
 const { showSuccess, showError } = useNotification()
 const { createPlan } = useWorkforcePlanning()
 
@@ -34,7 +34,8 @@ const submit = async () => {
     const res: any = await createPlan(form.value)
     const created = res?.data || res
     showSuccess('Plan creado')
-    router.push({ name: 'workforce-plans.show', params: { id: created.id } })
+    // Navigate to the created plan detail using Inertia
+    router.visit(`/workforce-plans/${created.id}`)
   } catch (e: any) {
     const msg = e?.response?.data?.message || 'No fue posible crear el plan'
     showError(msg)

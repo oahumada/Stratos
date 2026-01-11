@@ -84,12 +84,13 @@ const loadScenarios = async () => {
     if (filters.value.status) params.status = filters.value.status
     if (filters.value.fiscalYear) params.fiscal_year = filters.value.fiscalYear
 
-    const res = await api.get('/api/v1/workforce-planning/workforce-scenarios', { params })
+    const res = await api.get('/api/v1/strategic-planning/workforce-scenarios', { params })
     // useApi.get devuelve response.data directamente
     // El backend responde { success, data: [...], pagination }
     scenarios.value = Array.isArray((res as any).data) ? (res as any).data : (Array.isArray(res) ? res : [])
-  } catch (error) {
-    showError('Failed to load scenarios')
+    } catch (e) {
+      void e
+      showError('Failed to load scenarios')
   } finally {
     loading.value = false
   }
@@ -103,7 +104,7 @@ const selectScenario = (event: any, row: any) => {
   // v-data-table en Vuetify 3 pasa el item como row.item
   const scenario = row?.item || event
   if (scenario && scenario.id) {
-    router.visit(`/workforce-planning/${scenario.id}`)
+    router.visit(`/strategic-planning/${scenario.id}`)
   } else {
     console.error('Invalid scenario selected:', scenario)
   }
@@ -124,10 +125,10 @@ const editScenario = (scenario: Scenario) => {
 const saveScenario = async () => {
   try {
     if (editingScenario.value) {
-      await api.put(`/api/v1/workforce-planning/workforce-scenarios/${editingScenario.value.id}`, formData.value)
+      await api.put(`/api/v1/strategic-planning/workforce-scenarios/${editingScenario.value.id}`, formData.value)
       showSuccess('Scenario updated successfully')
     } else {
-      await api.post('/api/v1/workforce-planning/workforce-scenarios', formData.value)
+      await api.post('/api/v1/strategic-planning/workforce-scenarios', formData.value)
       showSuccess('Scenario created successfully')
     }
     showCreateDialog.value = false
@@ -146,10 +147,11 @@ const saveScenario = async () => {
 const deleteScenario = async (id: number) => {
   if (confirm('Are you sure you want to delete this scenario?')) {
     try {
-      await api.delete(`/api/v1/workforce-planning/workforce-scenarios/${id}`)
+      await api.delete(`/api/v1/strategic-planning/workforce-scenarios/${id}`)
       showSuccess('Scenario deleted successfully')
       loadScenarios()
-    } catch (error) {
+    } catch (e) {
+      void e
       showError('Failed to delete scenario')
     }
   }
@@ -209,6 +211,7 @@ onMounted(() => {
         class="elevation-1"
         @click:row="selectScenario"
       >
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template v-slot:item.status="{ item }">
           <v-chip
             :color="getStatusColor(item.status)"
@@ -219,6 +222,7 @@ onMounted(() => {
           </v-chip>
         </template>
 
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template v-slot:item.actions="{ item }">
           <v-btn
             icon

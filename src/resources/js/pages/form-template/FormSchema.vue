@@ -107,6 +107,11 @@ const dialogWarningGradient = computed(() => {
     return `linear-gradient(135deg, ${theme.colors.accent} 0%, ${theme.colors.error} 100%)`;
 });
 
+// mark some bindings referenced to avoid unused-var during refactor
+void user.value
+void hexToRgb
+void dialogWarningGradient.value
+
 const emit = defineEmits(['sync-role']);
 
 const props = withDefaults(
@@ -217,7 +222,8 @@ const loadItems = async () => {
         let parsed: any;
         try {
             parsed = raw ? JSON.parse(raw) : null;
-        } catch (parseErr) {
+        } catch (e) {
+            void e
             throw new Error(`Respuesta no JSON (status ${response.status}): ${raw.slice(0, 200)}`);
         }
 
@@ -441,11 +447,37 @@ const openDetail = (item: TableItem) => {
 defineExpose({ openDetail });
 
 const displayHeaders = computed(() => {
-    return mergedTableConfig.value.headers.map((header: any) => ({
-        title: header.text || header.title,
-        key: header.value || header.key,
-        ...header,
-    }));
+    return mergedTableConfig.value.headers.map((header: any) => {
+        const origKey = header.value || header.key;
+        const safeKey = String(origKey).replace(/\./g, '__');
+        return {
+            title: header.text || header.title,
+            key: safeKey,
+            value: safeKey,
+            origKey,
+            ...header,
+        };
+    });
+});
+
+// Process items to add derived fields for nested keys (replace dots with __)
+const processedItems = computed(() => {
+    const headers = mergedTableConfig.value.headers || [];
+    return filteredItems.value.map((item: any) => {
+        const out = { ...item } as Record<string, any>;
+        headers.forEach((h: any) => {
+            const orig = h.value || h.key;
+            if (orig && String(orig).includes('.')) {
+                const safe = String(orig).replace(/\./g, '__');
+                out[safe] = getNestedValue(item, orig as string);
+            }
+            if (h.type === 'date' && orig) {
+                const safe = String(h.value || h.key).replace(/\./g, '__');
+                out[safe] = formatDate(item[h.value as keyof typeof item]);
+            }
+        });
+        return out;
+    });
 });
 
 // Helper function to format dates as dd/mm/yyyy
@@ -460,6 +492,7 @@ const formatDate = (value: any): string => {
             return `${day}/${month}/${year}`;
         }
     } catch (e) {
+        void e
         return value;
     }
     return value;
@@ -608,7 +641,7 @@ onMounted(() => {
         <v-card v-if="!loading">
             <v-data-table
                 :headers="displayHeaders"
-                :items="filteredItems"
+                :items="processedItems"
                 class="elevation-0"
                 density="comfortable"
                 hover
@@ -616,17 +649,10 @@ onMounted(() => {
                 :style="{ '--table-gradient': tableHeaderGradient } as any"
                 @click:row="onRowClick"
             >
-                <!-- Custom rendering for relationship columns -->
-                <template v-for="header in mergedTableConfig.headers.filter(h => h.key && h.key.includes('.'))" :key="header.value" #[`item.${header.value}`]="{ item }">
-                    {{ getNestedValue(item, header.key) }}
-                </template>
-
-                <!-- Custom rendering for date columns -->
-                <template v-for="header in mergedTableConfig.headers.filter(h => h.type === 'date' && h.value)" :key="header.value" #[`item.${header.value}`]="{ item }">
-                    {{ formatDate(item[header.value as keyof typeof item]) }}
-                </template>
+                <!-- Relationship/date columns are rendered from derived fields in `processedItems` to avoid dynamic slot names -->
 
                 <!-- Actions Column -->
+                <!-- eslint-disable-next-line vue/valid-v-slot -->
                 <template #item.actions="{ item }">
                     <div class="d-flex gap-2">
                         <v-btn

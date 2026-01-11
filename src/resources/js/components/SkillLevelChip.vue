@@ -31,10 +31,7 @@ const displayText = computed(() => {
   return levelInfo.value?.display_label || `Nivel ${props.level}`;
 });
 
-const tooltipText = computed(() => {
-  if (!levelInfo.value) return '';
-  return `${levelInfo.value.name}: ${levelInfo.value.description} (${levelInfo.value.points} pts)`;
-});
+// tooltipText removed — template uses `levelInfo` directly
 </script>
 
 <template>

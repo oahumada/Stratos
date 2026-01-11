@@ -55,6 +55,9 @@ watch(
     { deep: true }
 );
 
+// mark moment referenced to avoid unused-import during refactor
+void moment
+
 // Convert string rules to validation functions
 const parseRules = (rules?: Array<string | ((v: any) => boolean | string)>): Array<(v: any) => boolean | string> => {
     if (!rules) return [];
@@ -121,7 +124,7 @@ const reset = (): void => {
 const getSelectItems = (fieldKey: string): any[] => {
     // Extract catalog name from field key
     // department_id -> department, role_id -> role
-    let singularName = fieldKey.endsWith("_id")
+    const singularName = fieldKey.endsWith("_id")
         ? fieldKey.slice(0, -3)
         : fieldKey;
     

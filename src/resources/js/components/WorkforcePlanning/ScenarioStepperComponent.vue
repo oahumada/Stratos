@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, toRefs } from 'vue'
+import { computed, toRefs } from 'vue'
 
 interface Props {
   currentStep: number
@@ -115,11 +115,7 @@ const getStepColor = (stepId: number): string => {
   return 'grey-lighten-1'
 }
 
-const getStepVariant = (stepId: number): 'elevated' | 'outlined' | 'tonal' => {
-  if (stepId === props.currentStep) return 'elevated'
-  if (stepId < props.currentStep) return 'tonal'
-  return 'outlined'
-}
+// getStepVariant intentionally removed — not used currently
 
 const handleStepClick = (stepId: number) => {
   if (canNavigateToStep(stepId)) {

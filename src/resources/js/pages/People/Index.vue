@@ -78,6 +78,7 @@ const formatDate = (value: any): string => {
       return `${day}/${month}/${year}`;
     }
   } catch (e) {
+    void e
     return value as string;
   }
   return value as string;

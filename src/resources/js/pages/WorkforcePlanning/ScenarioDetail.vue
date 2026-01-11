@@ -10,11 +10,11 @@ import RoleForecastsTable from './RoleForecastsTable.vue'
 import SuccessionPlanCard from './SuccessionPlanCard.vue'
 import ClosureStrategies from './ClosureStrategies.vue'
 import ScenarioComparison from './ScenarioComparison.vue'
-import ScenarioStepperComponent from '@/components/WorkforcePlanning/ScenarioStepperComponent.vue'
-import WorkforcePlansOverview from '@/components/WorkforcePlanning/WorkforcePlansOverview.vue'
-import ScenarioActionsPanel from '@/components/WorkforcePlanning/ScenarioActionsPanel.vue'
-import VersionHistoryModal from '@/components/WorkforcePlanning/VersionHistoryModal.vue'
-import StatusTimeline from '@/components/WorkforcePlanning/StatusTimeline.vue'
+import ScenarioStepperComponent from '@/components/StrategicPlanningScenarios/ScenarioStepperComponent.vue'
+import WorkforcePlansOverview from '@/components/StrategicPlanningScenarios/WorkforcePlansOverview.vue'
+import ScenarioActionsPanel from '@/components/StrategicPlanningScenarios/ScenarioActionsPanel.vue'
+import VersionHistoryModal from '@/components/StrategicPlanningScenarios/VersionHistoryModal.vue'
+import StatusTimeline from '@/components/StrategicPlanningScenarios/StatusTimeline.vue'
 import { router } from '@inertiajs/vue3'
 
 type Props = {
@@ -40,9 +40,12 @@ type ScenarioPayload = {
   scope_type?: string
   scope_id?: number | null
   horizon_months?: number
+  planning_horizon_months?: number
   start_date?: string | null
   end_date?: string | null
   owner?: string | null
+  scenario_skills?: any[]
+  skill_demands?: any[]
 }
 
 defineOptions({ layout: AppLayout })
@@ -56,18 +59,46 @@ const loading = ref(false)
 const refreshing = ref(false)
 const savingStep1 = ref(false)
 const formData = ref({
+  // Basic metadata
+  id: null as number | null,
   name: '',
   description: '',
-  scope_type: '',
-  scope_id: null as number | null,
+  scenario_type: '',
+  status: 'draft',
+  decision_status: '',
+  execution_status: '',
+  current_step: 1,
+  is_current_version: false,
+  version_number: null as number | null,
+  version_group_id: null as string | null,
+  parent_id: null as number | null,
+
+  // Time / horizon
   planning_horizon_months: 12,
+  horizon_months: 12,
+  time_horizon_weeks: null as number | null,
   start_date: null as string | null,
   end_date: null as string | null,
+
+  // other
   owner: null as string | null,
+  estimated_budget: null as number | null,
+  scope_type: '',
+  scope_id: null as number | null,
   import_to_plan: false,
 })
+
+const fieldErrors = ref<Record<string, string[]>>({})
 const roles = ref<any[]>([])
 const rolesLoading = ref(false)
+const skills = ref<any[]>([])
+const skillsLoading = ref(false)
+const scenarioSkills = ref<any[]>([])
+const showNewSkillDialog = ref(false)
+const newSkillName = ref('')
+const newSkillCategory = ref('technical')
+const newSkillLoading = ref(false)
+const newSkillTargetIndex = ref<number | null>(null)
 const roleActions = ref<Record<number, string>>({})
 const departments = ref<any[]>([])
 const deptLoading = ref(false)
@@ -95,7 +126,7 @@ const loadScenario = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   loading.value = true
   try {
-    const response = await api.get(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}`)
+    const response = await api.get(`/api/v1/strategic-planning/scenarios/${scenarioId.value}`)
     const data = (response as any)?.data ?? response
     scenario.value = data
     currentStep.value = scenario.value?.current_step || 1
@@ -103,18 +134,45 @@ const loadScenario = async () => {
     formData.value.name = scenario.value?.name ?? ''
     formData.value.description = scenario.value?.description ?? ''
     formData.value.scope_type = scenario.value?.scope_type ?? ''
-    formData.value.planning_horizon_months = scenario.value?.horizon_months ?? 12
+    formData.value.planning_horizon_months = scenario.value?.horizon_months ?? scenario.value?.planning_horizon_months ?? 12
+    formData.value.horizon_months = scenario.value?.horizon_months ?? formData.value.planning_horizon_months
+    formData.value.time_horizon_weeks = scenario.value?.time_horizon_weeks ?? null
     formData.value.start_date = scenario.value?.start_date ?? null
     formData.value.end_date = scenario.value?.end_date ?? null
     formData.value.owner = scenario.value?.owner ?? null
     formData.value.scope_id = scenario.value?.scope_id ?? null
+
+    // advanced / tracking fields
+    formData.value.id = scenario.value?.id ?? null
+    formData.value.scenario_type = scenario.value?.scenario_type ?? ''
+    formData.value.status = scenario.value?.status ?? 'draft'
+    formData.value.decision_status = scenario.value?.decision_status ?? ''
+    formData.value.execution_status = scenario.value?.execution_status ?? ''
+    formData.value.current_step = scenario.value?.current_step ?? formData.value.current_step
+    formData.value.is_current_version = scenario.value?.is_current_version ?? false
+    formData.value.version_number = scenario.value?.version_number ?? null
+    formData.value.version_group_id = scenario.value?.version_group_id ?? null
+    formData.value.parent_id = scenario.value?.parent_id ?? null
+    formData.value.estimated_budget = scenario.value?.estimated_budget ?? null
     // load departments/role families if applicable
     if (formData.value.scope_type === 'department' || formData.value.scope_type === 'role_family') {
       await loadDepartments()
     }
-    // load roles for step1 based on scope
+    // load skills for step1 and populate scenario skills
+    await loadSkills()
+    // populate scenarioSkills from scenario payload if available
+    scenarioSkills.value = (scenario.value?.scenario_skills || scenario.value?.skill_demands || []).map((s: any) => ({
+      id: s.id || null,
+      skill_id: s.skill_id || s.id || null,
+      required_level: s.required_level ?? s.level ?? 1,
+      required_headcount: s.required_headcount ?? s.required_headcount ?? 1,
+      priority: s.priority || 'medium',
+      rationale: s.rationale || s.notes || '',
+    }))
+    // load roles for step1 based on scope (kept but roles will be unused in Phase 1)
     await loadRoles()
-  } catch (error) {
+  } catch (e) {
+    void e
     showError('No se pudo cargar el escenario')
   } finally {
     loading.value = false
@@ -143,9 +201,75 @@ const loadRoles = async () => {
       if (!roleActions.value[r.id]) roleActions.value[r.id] = 'ignore'
     })
   } catch (e) {
+    void e
     // ignore silently; roles are optional
   } finally {
     rolesLoading.value = false
+  }
+}
+
+const loadSkills = async () => {
+  skillsLoading.value = true
+  try {
+    const res = await api.get('/api/skills')
+    skills.value = (res as any)?.data ?? res ?? []
+  } catch (e) {
+    void e
+    // ignore
+  } finally {
+    skillsLoading.value = false
+  }
+}
+
+const addScenarioSkill = () => {
+  scenarioSkills.value.push({
+    id: null,
+    skill_id: null,
+    strategic_role: '',
+    priority: 'medium',
+    rationale: '',
+  })
+}
+
+const removeScenarioSkill = (index: number) => {
+  scenarioSkills.value.splice(index, 1)
+}
+
+const openNewSkillDialog = (targetIndex: number | null = null) => {
+  newSkillName.value = ''
+  newSkillCategory.value = 'technical'
+  newSkillTargetIndex.value = targetIndex
+  showNewSkillDialog.value = true
+}
+
+const createNewSkill = async () => {
+  if (!newSkillName.value.trim()) return
+  newSkillLoading.value = true
+  try {
+    const payload: any = {
+      name: newSkillName.value.trim(),
+      category: newSkillCategory.value,
+      maturity_status: 'emergente',
+      status: 'active',
+    }
+    // if we have a scenario context, mark discovery origin
+    if (scenarioId.value && scenarioId.value > 0) payload.discovered_in_scenario_id = scenarioId.value
+    const res: any = await api.post('/api/skills', payload)
+    const created = (res as any)?.data ?? res
+    // append to local skills catalog
+    skills.value.push(created)
+    // if target index provided, assign to that row, else create new scenarioSkill with this skill
+    if (newSkillTargetIndex.value !== null && scenarioSkills.value[newSkillTargetIndex.value]) {
+      scenarioSkills.value[newSkillTargetIndex.value].skill_id = created.id
+    } else {
+      scenarioSkills.value.push({ id: null, skill_id: created.id, strategic_role: '', priority: 'medium', rationale: '' })
+    }
+    showNewSkillDialog.value = false
+  } catch (e) {
+    void e
+    showError('Error al crear la skill')
+  } finally {
+    newSkillLoading.value = false
   }
 }
 
@@ -154,6 +278,13 @@ const setAllActions = (action: string) => {
     roleActions.value[r.id] = action
   })
 }
+
+// mark computed/handlers referenced to avoid unused-var while Phase 1 removes roles
+void includedCount.value
+void importCount.value
+void ignoredCount.value
+void roleHeaders.value
+void setAllActions
 
 watch(() => formData.value.scope_type, async (nv, ov) => {
   if (nv !== ov) await loadRoles()
@@ -169,6 +300,7 @@ const loadDepartments = async () => {
     const res = await api.get('/api/departments')
     departments.value = (res as any)?.data ?? res
   } catch (e) {
+    void e
     // ignore
   } finally {
     deptLoading.value = false
@@ -178,40 +310,99 @@ const loadDepartments = async () => {
 const saveStep1 = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   savingStep1.value = true
-  try {
-    const step1Roles = roles.value.map((r: any) => ({
-      id: r.id,
-      role_id: r.id,
-      name: r.name,
-      action: roleActions.value[r.id] || 'ignore',
-    }))
+  fieldErrors.value = {}
+
+  // client-side validation
+  if (!validateStep1()) {
+    savingStep1.value = false
+    return
+  }
+
+    try {
 
     const payload = {
       step1: {
         metadata: {
+          id: formData.value.id,
           name: formData.value.name,
           description: formData.value.description,
-          scope_type: formData.value.scope_type,
+          scenario_type: formData.value.scenario_type,
+          status: formData.value.status,
+          decision_status: formData.value.decision_status,
+          execution_status: formData.value.execution_status,
+          current_step: formData.value.current_step,
+          is_current_version: formData.value.is_current_version,
+          version_number: formData.value.version_number,
+          version_group_id: formData.value.version_group_id,
+          parent_id: formData.value.parent_id,
+
           planning_horizon_months: formData.value.planning_horizon_months,
+          horizon_months: formData.value.horizon_months,
+          time_horizon_weeks: formData.value.time_horizon_weeks,
           start_date: formData.value.start_date,
           end_date: formData.value.end_date,
+
           owner: formData.value.owner,
+          scope_type: formData.value.scope_type,
           scope_id: formData.value.scope_id,
+          estimated_budget: formData.value.estimated_budget,
         },
-        roles: step1Roles,
+        // scenario skills for Phase 1
+        skills: scenarioSkills.value.map((s: any) => ({
+          id: s.id || null,
+          skill_id: s.skill_id,
+          required_level: s.required_level,
+          required_headcount: s.required_headcount,
+          priority: s.priority,
+          rationale: s.rationale,
+        })),
         import_to_plan: formData.value.import_to_plan,
       },
     }
 
-    const res = await api.patch(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}`, payload)
+    const res = await api.patch(`/api/v1/strategic-planning/scenarios/${scenarioId.value}`, payload)
     const updated = (res as any)?.data ?? res
     scenario.value = updated
     showSuccess('Paso 1 guardado')
-  } catch (e) {
-    showError('No se pudo guardar el Paso 1')
+  } catch (err: any) {
+    // extract validation errors if provided by server
+    if (err?.response?.data) {
+      const data = err.response.data
+      if (data.errors) fieldErrors.value = data.errors
+      if (data.message) showError(data.message)
+      else showError('No se pudo guardar el Paso 1')
+    } else {
+      showError('No se pudo guardar el Paso 1')
+    }
   } finally {
     savingStep1.value = false
   }
+}
+
+function validateStep1() {
+  const errors: Record<string, string[]> = {}
+  if (!formData.value.name || !formData.value.name.trim()) {
+    errors.name = ['El nombre es requerido']
+  }
+  if (!formData.value.planning_horizon_months || formData.value.planning_horizon_months <= 0) {
+    errors.planning_horizon_months = ['El horizonte debe ser mayor que 0']
+  }
+  if (formData.value.start_date && formData.value.end_date) {
+    const s = new Date(formData.value.start_date)
+    const e = new Date(formData.value.end_date)
+    if (s > e) errors.start_date = ['La fecha de inicio no puede ser posterior a la fecha fin']
+  }
+
+  // Scenario skills validation: each item must have a skill selected
+  if (Array.isArray(scenarioSkills.value) && scenarioSkills.value.length > 0) {
+    const missing = scenarioSkills.value.some((s: any) => !s.skill_id)
+    if (missing) {
+      errors.scenario_skills = ['Todas las filas deben tener una skill seleccionada']
+    }
+  }
+
+  fieldErrors.value = errors
+  return Object.keys(errors).length === 0
 }
 
 const handleStatusChanged = () => {
@@ -231,16 +422,17 @@ const openStatusTimeline = () => {
 }
 
 const handleVersionSelected = (id: number) => {
-  router.visit(`/workforce-planning/scenarios/${id}`)
+  router.visit(`/strategic-planning/scenarios/${id}`)
 }
 
 const calculateGaps = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   refreshing.value = true
   try {
-    await api.post(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}/calculate-gaps`)
+    await api.post(`/api/v1/strategic-planning/scenarios/${scenarioId.value}/calculate-gaps`)
     showSuccess('Brechas recalculadas')
-  } catch (error) {
+  } catch (e) {
+    void e
     showError('Error al recalcular brechas')
   } finally {
     refreshing.value = false
@@ -252,7 +444,8 @@ const refreshStrategies = async () => {
   try {
     // Endpoint opcional para generar/actualizar estrategias; si no existe, recarga el escenario
     showSuccess('Estrategias actualizadas')
-  } catch (error) {
+  } catch (e) {
+    void e
     showError('Error al actualizar estrategias')
   } finally {
     refreshing.value = false
@@ -328,12 +521,33 @@ onMounted(() => {
             @update:current-step="handleStepChange"
             @step-click="handleStepChange"
           >
-            <template #step-1="{ step }">
+            <template #step-1>
               <v-form>
                 <v-row>
                   <v-col cols="12" md="8">
-                    <v-text-field v-model="formData.name" label="Nombre del escenario" />
-                    <v-textarea v-model="formData.description" label="Descripción" rows="3" />
+                    <v-text-field v-model="formData.name" label="Nombre del escenario" :error-messages="fieldErrors.name || []" />
+                    <v-textarea v-model="formData.description" label="Descripción" rows="3" :error-messages="fieldErrors.description || []" />
+                    <v-row>
+                      <v-col cols="12" md="6">
+                        <v-text-field v-model="formData.scenario_type" label="Tipo de escenario" :error-messages="fieldErrors.scenario_type || []" />
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <v-select
+                          v-model="formData.status"
+                          :items="['draft','active','archived']"
+                          label="Estado"
+                          :error-messages="fieldErrors.status || []"
+                        />
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col cols="12" md="6">
+                        <v-text-field v-model="formData.decision_status" label="Decision status" :error-messages="fieldErrors.decision_status || []" />
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <v-text-field v-model="formData.execution_status" label="Execution status" :error-messages="fieldErrors.execution_status || []" />
+                      </v-col>
+                    </v-row>
                     <v-row>
                       <v-col cols="12" md="4">
                         <v-select
@@ -353,66 +567,90 @@ onMounted(() => {
                           />
                         </v-col>
                       <v-col cols="6" md="4">
-                        <v-text-field v-model="formData.planning_horizon_months" type="number" label="Horizonte (meses)" />
+                        <v-text-field v-model="formData.planning_horizon_months" type="number" label="Horizonte (meses)" :error-messages="fieldErrors.planning_horizon_months || []" />
                       </v-col>
                       <v-col cols="6" md="4">
-                        <v-text-field v-model="formData.owner" label="Owner (usuario)" />
+                        <v-text-field v-model="formData.owner" label="Owner (usuario)" :error-messages="fieldErrors.owner || []" />
                       </v-col>
                     </v-row>
                   </v-col>
-                  <v-col cols="12" md="4">
-                    <v-text-field v-model="formData.start_date" type="date" label="Fecha inicio" />
-                    <v-text-field v-model="formData.end_date" type="date" label="Fecha fin" />
-                    <v-checkbox v-model="formData.import_to_plan" label="Importar a plan (crear scope entries)" />
-                    <v-btn class="mt-4" color="primary" :loading="savingStep1" @click.prevent="saveStep1">Guardar Paso 1</v-btn>
-                  </v-col>
+                    <v-col cols="12" md="4">
+                      <v-text-field v-model="formData.start_date" type="date" label="Fecha inicio" :error-messages="fieldErrors.start_date || []" />
+                      <v-text-field v-model="formData.end_date" type="date" label="Fecha fin" :error-messages="fieldErrors.end_date || []" />
+                      <v-text-field v-model="formData.estimated_budget" type="number" label="Presupuesto estimado" :error-messages="fieldErrors.estimated_budget || []" />
+                      <v-text-field v-model="formData.parent_id" type="number" label="Parent scenario ID" :error-messages="fieldErrors.parent_id || []" />
+                      <v-checkbox v-model="formData.is_current_version" label="Versión actual" />
+                      <v-text-field v-model="formData.version_number" label="Número de versión" readonly />
+                      <v-checkbox v-model="formData.import_to_plan" label="Importar a plan (crear scope entries)" />
+                      <v-btn class="mt-4" color="primary" :loading="savingStep1" @click.prevent="saveStep1">Guardar Paso 1</v-btn>
+                    </v-col>
                 </v-row>
                 <v-divider class="my-4" />
                 <div>
-                  <h3 class="mb-2">Roles afectados</h3>
+                  <h3 class="mb-2">Skills requeridas (Fase 1)</h3>
                   <div class="d-flex align-center mb-2">
-                    <v-btn small color="secondary" class="mr-2" @click="setAllActions('include')">Marcar todos: Incluir</v-btn>
-                    <v-btn small color="grey" class="mr-2" @click="setAllActions('ignore')">Marcar todos: Ignorar</v-btn>
-                    <v-btn small color="primary" class="mr-2" @click="setAllActions('import')">Marcar todos: Importar</v-btn>
-                    <div class="text-caption ml-auto">Incluidos: {{ includedCount }} · Importados: {{ importCount }} · Ignorados: {{ ignoredCount }}</div>
+                    <v-btn small color="secondary" class="mr-2" @click="addScenarioSkill">Añadir skill</v-btn>
+                    <v-btn small color="primary" class="mr-2" @click="openNewSkillDialog()">Crear nueva skill</v-btn>
+                    <div class="text-caption ml-auto">Items: {{ scenarioSkills.length }}</div>
                   </div>
-                  <div v-if="rolesLoading">Cargando roles...</div>
+                  <div v-if="skillsLoading">Cargando catálogo de skills...</div>
                   <div v-else>
                     <v-data-table
-                      :headers="roleHeaders"
-                      :items="roles"
-                      item-key="id"
+                      :headers="[
+                        { title: 'Skill', key: 'skill' },
+                        { title: 'Strategic Role', key: 'strategic_role' },
+                        { title: 'Prioridad', key: 'priority' },
+                        { title: 'Razonamiento', key: 'rationale' },
+                        { title: 'Acciones', key: 'actions', sortable: false }
+                      ]"
+                      :items="scenarioSkills"
+                      item-key="__idx"
                       class="elevation-1"
                       dense
                     >
-                      <template #item.name="{ item }">
-                        <div>{{ item.name }}</div>
+                      <!-- eslint-disable-next-line vue/valid-v-slot -->
+                      <template #item.skill="{ item }">
+                        <v-select :items="skills" item-title="name" item-value="id" v-model="item.skill_id" dense hide-details style="min-width:220px" />
                       </template>
-                      <template #item.department="{ item }">
-                        <div>{{ item.department_name || item.department || '—' }}</div>
+                      <!-- eslint-disable-next-line vue/valid-v-slot -->
+                      <template #item.strategic_role="{ item }">
+                        <v-text-field v-model="item.strategic_role" dense hide-details />
                       </template>
-                      <template #item.family="{ item }">
-                        <div>{{ item.role_family_name || item.role_family || item.role_family_id || '—' }}</div>
+                      <!-- eslint-disable-next-line vue/valid-v-slot -->
+                      <template #item.priority="{ item }">
+                        <v-select :items="['critical','high','medium','low']" v-model="item.priority" dense hide-details />
                       </template>
-                      <template #item.actions="{ item }">
-                        <div class="d-flex align-center">
-                          <v-select
-                            :items="['ignore','include','import']"
-                            v-model="roleActions[item.id]"
-                            dense
-                            hide-details
-                            style="min-width:160px"
-                          />
-                        </div>
+                      <!-- eslint-disable-next-line vue/valid-v-slot -->
+                      <template #item.rationale="{ item }">
+                        <v-text-field v-model="item.rationale" dense hide-details />
+                      </template>
+                      <!-- eslint-disable-next-line vue/valid-v-slot -->
+                      <template #item.actions="{ index }">
+                        <v-btn icon small color="error" @click="removeScenarioSkill(index)"><v-icon>mdi-delete</v-icon></v-btn>
                       </template>
                     </v-data-table>
-                    <div class="text-caption mt-2">Selecciona 'include' para considerar el rol, 'import' para crear scope entries en el plan.</div>
+                    <div class="text-caption mt-2">Define las skills que requiere este escenario. Estos se guardarán en `scenario_skills`.</div>
                   </div>
                 </div>
               </v-form>
             </template>
           </ScenarioStepperComponent>
         </div>
+
+        <v-dialog v-model="showNewSkillDialog" width="500">
+          <v-card>
+            <v-card-title>Crear nueva skill</v-card-title>
+            <v-card-text>
+              <v-text-field v-model="newSkillName" label="Nombre de la skill" />
+              <v-select v-model="newSkillCategory" :items="['technical','soft','business','language']" label="Categoría" />
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn text @click="showNewSkillDialog = false">Cancelar</v-btn>
+              <v-btn color="primary" :loading="newSkillLoading" @click="createNewSkill">Crear</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
         <div v-show="activeTab === 'actions'" v-if="scenario">
           <ScenarioActionsPanel

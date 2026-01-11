@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('scenario_id')->constrained('workforce_planning_scenarios')->cascadeOnDelete();
             $table->foreignId('role_id')->constrained('roles')->cascadeOnDelete();
             $table->foreignId('skill_id')->constrained('skills')->cascadeOnDelete();
-            $table->number('required_level')->default(1);
+            $table->integer('required_level')->default(1);
             $table->string('change_type')->default('maintain'); //new, incresead, decreased, unchanged, obsolete
             $table->boolean('is_critical')->default(false);
             $table->timestamps();

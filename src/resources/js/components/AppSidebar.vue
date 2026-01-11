@@ -1,4 +1,4 @@
-<script setup lang="ts">
+adelante<script setup lang="ts">
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -63,17 +63,17 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Strategic Talent Scenarios',
-        href: '/workforce-planning',
+        href: '/strategic-planning',
         icon: WorkforcePlanningIcon,
     },
      {
         title: 'Talento 360°',
-        href: '/workforce-planning',
+        href: '/strategic-planning',
         icon: Talento360Icon,
     },
      {
         title: 'People Experience',
-        href: '/workforce-planning',
+        href: '/strategic-planning',
         icon: PeopleExperienceIcon,
     },
 ];

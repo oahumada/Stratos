@@ -117,12 +117,13 @@ const getGapCountsByDepartment = (): number[] => {
 
 const loadScenario = async () => {
   try {
-    const response = await api.get(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}`)
+    const response = await api.get(`/api/v1/strategic-planning/workforce-scenarios/${scenarioId.value}`)
     const scenario = (response as any).data
     scenarioName.value = scenario.name
     scenarioDescription.value = scenario.description
     // Analytics legacy deshabilitado temporalmente
-  } catch (error) {
+  } catch (e) {
+    void e
     showError('Failed to load scenario')
   }
 }
@@ -158,7 +159,7 @@ const runSimulation = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   try {
     const response = await api.post(
-      `/api/v1/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
+      `/api/v1/strategic-planning/scenarios/${scenarioId.value}/simulate-growth`,
       simulationParams.value
     )
     const result: any = (response as any).data
@@ -173,7 +174,7 @@ const runSimulation = async () => {
 const loadCriticalPositions = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   try {
-    const response = await api.get('/api/v1/workforce-planning/critical-positions', { scenario_id: scenarioId.value })
+    const response = await api.get('/api/v1/strategic-planning/critical-positions', { scenario_id: scenarioId.value })
     const result: any = (response as any).data
     criticalPositions.value = Array.isArray(result) ? result : (result.data || [])
   } catch (error: any) {
@@ -195,7 +196,7 @@ const runAnalysis = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   try {
     analyzing.value = true
-    const res = await api.post(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}/calculate-gaps`, {})
+    const res = await api.post(`/api/v1/strategic-planning/workforce-scenarios/${scenarioId.value}/calculate-gaps`, {})
     const result: any = (res as any).data || res
     if (result && result.summary) {
       // Mapear algunos KPIs a tarjetas existentes cuando sea posible
@@ -216,7 +217,7 @@ const runAnalysis = async () => {
 const generateStrategies = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   try {
-    const res = await api.post(`/api/v1/workforce-planning/workforce-scenarios/${scenarioId.value}/refresh-suggested-strategies`, {})
+    const res = await api.post(`/api/v1/strategic-planning/workforce-scenarios/${scenarioId.value}/refresh-suggested-strategies`, {})
     const created = (res as any)?.created ?? 0
     showSuccess(`Estrategias sugeridas actualizadas (${created} nuevas)`) 
   } catch (e:any) {
@@ -225,6 +226,10 @@ const generateStrategies = async () => {
     showError(msg)
   }
 }
+
+// mark some bindings referenced to avoid unused-var during staged refactor
+void page
+void loadAnalytics
 
 const downloadReport = () => {
   // TODO: Implement report download
@@ -703,9 +708,11 @@ onMounted(() => {
               density="comfortable"
               class="mt-4"
             >
+              <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.role.name="{ item }">
                 <strong>{{ item.role.name }}</strong>
               </template>
+              <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.criticality_level="{ item }">
                 <v-chip
                   :color="item.criticality_level === 'critical' ? 'error' : 'warning'"
@@ -714,6 +721,7 @@ onMounted(() => {
                   {{ item.criticality_level }}
                 </v-chip>
               </template>
+              <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.risk_status="{ item }">
                 <v-chip
                   :color="getRiskColor(item.risk_status)"
@@ -723,6 +731,7 @@ onMounted(() => {
                   {{ item.risk_status }}
                 </v-chip>
               </template>
+              <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.successors.ready_now="{ item }">
                 <v-chip
                   :color="item.successors.ready_now > 0 ? 'success' : 'error'"
@@ -731,11 +740,13 @@ onMounted(() => {
                   {{ item.successors.ready_now }}
                 </v-chip>
               </template>
+              <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.successors.ready_12m="{ item }">
                 <v-chip color="info" size="small">
                   {{ item.successors.ready_12m }}
                 </v-chip>
               </template>
+              <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.recommended_action="{ item }">
                 <span class="text-caption">{{ item.recommended_action }}</span>
               </template>

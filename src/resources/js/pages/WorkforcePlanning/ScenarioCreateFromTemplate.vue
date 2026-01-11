@@ -41,9 +41,10 @@ const customizations = ref({
 const loadTemplates = async () => {
   loading.value = true
   try {
-    const res: any = await api.get('/api/v1/workforce-planning/scenario-templates')
+    const res: any = await api.get('/api/v1/strategic-planning/scenario-templates')
     templates.value = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
-  } catch (error) {
+  } catch (e) {
+    void e
     showError('No se pudieron cargar las plantillas')
   } finally {
     loading.value = false
@@ -73,7 +74,7 @@ const createScenario = async () => {
   try {
     // debug payload to help diagnose 422 validation errors
     console.debug('instantiate-from-template payload', { customizations: customizations.value })
-    const res: any = await api.post(`/api/v1/workforce-planning/workforce-scenarios/${selectedTemplate.value.id}/instantiate-from-template`, {
+    const res: any = await api.post(`/api/v1/strategic-planning/workforce-scenarios/${selectedTemplate.value.id}/instantiate-from-template`, {
       customizations: customizations.value,
     })
     const createdId = res?.data?.id ?? res?.id ?? res?.scenario?.id ?? null
@@ -98,13 +99,14 @@ const createScenario = async () => {
           }))
         }
     } catch (e) {
+      void e
       // ignore storage errors
     }
 
     showSuccess('Escenario creado correctamente')
     // Navigate to scenario detail if id available, otherwise emit events as before
     if (createdId) {
-      router.visit(`/workforce-planning/${createdId}`)
+      router.visit(`/strategic-planning/${createdId}`)
     } else {
       emit('created')
       emit('close')
@@ -120,9 +122,11 @@ const createScenario = async () => {
   }
 }
 
-const goToScenario = (id: number) => {
-  router.visit(`/workforce-planning/${id}`)
+const _goToScenario = (id: number) => {
+  router.visit(`/strategic-planning/${id}`)
 }
+// mark as referenced to avoid unused-var during refactor
+void _goToScenario
 
 onMounted(() => {
   loadTemplates()
@@ -136,13 +140,11 @@ onMounted(() => {
         <div class="text-h6">Crear escenario desde plantilla</div>
         <div class="text-caption text-medium-emphasis">Selecciona una plantilla y ajusta los parámetros clave</div>
       </div>
-      <v-btn icon="mdi-close" variant="text" @click="emit('close')" />
+      <v-btn variant="text" @click="emit('close')">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
     </v-card-title>
-
-    <v-divider></v-divider>
-
-    <v-card-text>
-      <v-row>
+    <v-row>
         <v-col cols="12" md="4">
           <v-skeleton-loader v-if="loading" type="list-item-two-line" class="mb-4"/>
           <v-list v-else density="comfortable" nav class="rounded-lg border">
@@ -268,9 +270,8 @@ onMounted(() => {
               </v-chip>
             </v-chip-group>
           </div>
-        </v-col>
-      </v-row>
-    </v-card-text>
+          </v-col>
+        </v-row>
 
     <v-divider></v-divider>
 

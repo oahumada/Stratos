@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
 
@@ -45,9 +45,10 @@ const openDialog = () => {
 const loadVersions = async () => {
   loading.value = true
   try {
-    const res = await api.get(`/api/v1/workforce-planning/scenarios/${props.scenarioId}/versions`)
+            const res = await api.get(`/api/v1/strategic-planning/scenarios/${props.scenarioId}/versions`)
     versions.value = res.data?.versions || []
-  } catch (error) {
+  } catch (e) {
+    void e
     showError('Error al cargar versiones')
   } finally {
     loading.value = false

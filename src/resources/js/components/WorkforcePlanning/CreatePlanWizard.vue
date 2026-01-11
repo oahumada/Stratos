@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
-import { useWorkforcePlanning } from '@/composables/useWorkforcePlanning'
+import { useWorkforcePlanning } from '@/composables/useStrategicPlanningScenarios'
 import { useNotification } from '@/composables/useNotification'
 import { useApi } from '@/composables/useApi'
 
@@ -72,7 +72,7 @@ const loadUsers = async () => {
     const res: any = await api.get('/api/v1/users')
     users.value = res?.data ?? res ?? []
   } catch (e) {
-    // ignore
+    void e
   }
 }
 
@@ -104,14 +104,14 @@ onMounted(async () => {
       // remove prefill after reading
       localStorage.removeItem('wfp_prefill')
     }
-  } catch (e) {
-    // ignore parsing errors
-  }
+    } catch (e) {
+      void e
+    }
 
   // If we have a scenarioId, prefer fetching the scenario (and its workforce_plan)
   if (props.scenarioId) {
     try {
-      const resp: any = await api.get(`/api/v1/workforce-planning/workforce-scenarios/${props.scenarioId}`)
+      const resp: any = await api.get(`/api/v1/strategic-planning/scenarios/${props.scenarioId}`)
       const data = resp?.data ?? resp
       scenarioData.value = data
       const plan = data?.workforce_plan ?? null
@@ -132,7 +132,7 @@ onMounted(async () => {
       }
       await loadUsers()
     } catch (e) {
-      // ignore fetch errors for now
+      void e
     }
   }
 })
@@ -149,6 +149,7 @@ const submit = async () => {
     }
     return plan
   } catch (e: any) {
+    void e
     showError('Error al crear el plan')
     throw e
   } finally {
@@ -158,7 +159,7 @@ const submit = async () => {
 
 const openPlan = () => {
   if (planData.value && planData.value.id) {
-    router.visit(`/workforce-planning/workforce-plans/${planData.value.id}`)
+    router.visit(`/strategic-planning/workforce-plans/${planData.value.id}`)
   }
 }
 
@@ -179,6 +180,7 @@ const importRolesFromSkills = async () => {
     await Promise.all(promises)
     showSuccess(`Importados ${items.length} roles al alcance del plan`)
   } catch (e) {
+    void e
     showError('Error al importar roles')
   }
 }
@@ -200,6 +202,7 @@ const importUnitsFromSkills = async () => {
     await Promise.all(promises)
     showSuccess(`Importadas ${items.length} unidades al alcance del plan`)
   } catch (e) {
+    void e
     showError('Error al importar unidades')
   }
 }
@@ -223,9 +226,10 @@ const saveStep1 = async () => {
   }
 
   try {
-    await api.patch(`/api/v1/workforce-planning/workforce-scenarios/${props.scenarioId}`, payload)
+    await api.patch(`/api/v1/strategic-planning/scenarios/${props.scenarioId}`, payload)
     showSuccess('Cambios guardados en el escenario')
   } catch (e) {
+    void e
     showError('Error al guardar los cambios')
   }
 }

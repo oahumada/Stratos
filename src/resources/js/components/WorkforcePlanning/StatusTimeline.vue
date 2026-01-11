@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
 
@@ -33,9 +33,10 @@ const showTimeline = ref(false)
 const loadStatusEvents = async () => {
   loading.value = true
   try {
-    const res = await api.get(`/api/v1/workforce-planning/scenarios/${props.scenarioId}`)
+    const res = await api.get(`/api/v1/strategic-planning/scenarios/${props.scenarioId}`)
     events.value = res.data?.status_events || []
-  } catch (error) {
+  } catch (e) {
+    void e
     showError('Error al cargar historial de cambios')
   } finally {
     loading.value = false

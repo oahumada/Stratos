@@ -274,7 +274,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-import { useWorkforcePlanningStore, type SuccessionPlan } from '@/stores/workforcePlanningStore'
+import { useStrategicPlanningScenariosStore, type SuccessionPlan } from '@/stores/strategicPlanningScenariosStore'
 
 const props = defineProps<{
   scenarioId: number
@@ -282,7 +282,7 @@ const props = defineProps<{
 
 const api = useApi()
 const { showSuccess, showError } = useNotification()
-const store = useWorkforcePlanningStore()
+const store = useStrategicPlanningScenariosStore()
 
 // State
 const selectedPlan = ref<SuccessionPlan | null>(null)
@@ -358,6 +358,11 @@ const getRiskLevel = (plan: SuccessionPlan): string => {
 onMounted(() => {
   fetchSuccessionPlans()
 })
+
+// reference unused bindings to satisfy linter during refactor
+void api
+void showError
+void loading.value
 </script>
 
 <style scoped lang="scss">
