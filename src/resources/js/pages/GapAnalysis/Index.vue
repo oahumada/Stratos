@@ -112,7 +112,7 @@ const radarOptions = {
   },
   plugins: {
     legend: {
-      position: 'bottom',
+      position: 'bottom' as const,
     },
   },
 };
@@ -142,17 +142,28 @@ const analyzeGap = async () => {
 
   analyzing.value = true;
   try {
-    const response = await axios.post('/api/gap-analysis', {
-      people_id: selectedPeopleId.value,
-      role_id: selectedRoleId.value,
-    });
-    result.value = response.data.data || response.data;
-    notify({ type: 'success', text: 'Análisis completado' });
+    const payload = {
+      people_id: Number(selectedPeopleId.value),
+      role_id: selectedRoleId.value ? Number(selectedRoleId.value) : null,
+    }
+    console.debug('Gap analysis payload', payload)
+    const response = await axios.post('/api/gap-analysis', payload)
+    // support different response shapes
+    result.value = response?.data?.data ?? response?.data ?? response
+    console.debug('Gap analysis response', response)
+    notify({ type: 'success', text: 'Análisis completado' })
   } catch (err: any) {
-    console.error('Gap analysis failed', err);
-    notify({ type: 'error', text: err.response?.data?.message || 'Error en el análisis' });
+    console.error('Gap analysis failed', err)
+    const serverMessage = err?.response?.data?.message || err?.response?.data?.error || null
+    if (serverMessage) {
+      notify({ type: 'error', text: serverMessage })
+    } else {
+      notify({ type: 'error', text: 'Error en el análisis' })
+    }
+    // clear previous result on error
+    result.value = null
   } finally {
-    analyzing.value = false;
+    analyzing.value = false
   }
 };
 

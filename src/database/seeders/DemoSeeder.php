@@ -74,10 +74,6 @@ class DemoSeeder extends Seeder
         $this->command->info('🎯 Creando skills...');
         $this->call(SkillSeeder::class);
 
-        // 4. Skills (antes de Roles para las relaciones)
-        $this->command->info('🎯 Creando skills...');
-        $this->call(SkillSeeder::class);
-
         // 5. Roles
         $this->command->info('👔 Creando roles...');
         $this->call(RoleSeeder::class);

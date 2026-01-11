@@ -13,8 +13,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             DemoSeeder::class,
-            ScenarioTemplateSeeder::class,
-            WorkforcePlanningSeeder::class,
+           // ScenarioTemplateSeeder::class,
+           // WorkforcePlanningSeeder::class,
         ]);
     }
 }
