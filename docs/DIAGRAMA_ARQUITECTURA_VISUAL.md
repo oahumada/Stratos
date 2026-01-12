@@ -39,7 +39,7 @@
         │                                            │
         │  WorkforceScenarioController::store()     │
         │  ├─ Validar input                         │
-        │  ├─ Crear WorkforcePlanningScenario       │
+        │  ├─ Crear StrategicPlanningScenarios       │
         │  └─ Copiar skills desde template          │
         └────────────────┬─────────────────────────┘
                          │
@@ -385,7 +385,7 @@ BACKEND: 100% | FRONTEND: 36%
 
 ## 🎯 CONCLUSIÓN
 
-El sistema está completamente pensado y implementado en backend. 
+El sistema está completamente pensado y implementado en backend.
 
 Los pasos 3, 5, 6, 9 y 11 funcionan **100% ahora**.
 

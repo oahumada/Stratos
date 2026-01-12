@@ -1,4 +1,5 @@
 # ✅ WORKFORCE PLANNING PHASE 2 - COMPLETADO
+
 ## Implementación Prompt Maestro - 7 Enero 2026
 
 ---
@@ -23,7 +24,9 @@
 ### PHASE 1: BASE DE DATOS (4 Migraciones)
 
 #### 1. `2026_01_07_232635_enhance_workforce_scenarios_with_versioning_hierarchy_scope.php`
+
 **Versionamiento inmutable + Jerarquía + Scope:**
+
 ```php
 // Versionamiento
 $table->uuid('version_group_id')->index();
@@ -44,20 +47,26 @@ $table->integer('current_step')->default(1); // Metodología 7 pasos
 ```
 
 #### 2. `2026_01_07_232642_add_scope_to_skills_table.php`
+
 **Skills clasificadas por alcance:**
+
 ```php
 $table->enum('scope_type', ['transversal', 'domain', 'specific'])->default('specific');
 $table->string('domain_tag')->nullable(); // e.g., 'tech', 'sales', 'finance'
 ```
 
 #### 3. `2026_01_07_232648_add_mandatory_from_parent_to_scenario_skill_demands.php`
+
 **Herencia de skills desde padre:**
+
 ```php
 $table->boolean('is_mandatory_from_parent')->default(false);
 ```
 
 #### 4. `2026_01_07_232653_create_scenario_status_events_table.php`
+
 **Audit trail de transiciones:**
+
 ```php
 $table->foreignId('scenario_id')->constrained('workforce_planning_scenarios')->cascadeOnDelete();
 $table->string('from_decision_status')->nullable();
@@ -72,8 +81,10 @@ $table->text('notes')->nullable();
 
 ### PHASE 2: MODELOS (4 Archivos Actualizados + 1 Nuevo)
 
-#### 1. `WorkforcePlanningScenario.php`
+#### 1. `StrategicPlanningScenarios.php`
+
 **Nuevas capacidades:**
+
 - ✅ 13 campos fillable nuevos (version_group_id, parent_id, scope_type, decision_status, etc.)
 - ✅ 4 relaciones: `parent()`, `children()`, `owner()`, `statusEvents()`
 - ✅ 8 scopes: `draft()`, `approved()`, `byScope()`, `currentVersions()`, etc.
@@ -81,17 +92,23 @@ $table->text('notes')->nullable();
 - ✅ Método `canTransitionTo()` para validación de workflows
 
 #### 2. `Skills.php`
+
 **Clasificación por alcance:**
+
 - ✅ 4 scopes: `transversal()`, `domainSpecific()`, `specific()`, `byDomain()`
 - ✅ 3 helpers: `isTransversal()`, `isDomainSpecific()`, `isSpecific()`
 
 #### 3. `ScenarioSkillDemand.php`
+
 **Herencia desde padre:**
+
 - ✅ 2 scopes: `mandatory()`, `optional()`
 - ✅ 2 helpers: `isMandatoryFromParent()`, `canBeModified()`
 
 #### 4. `ScenarioStatusEvent.php` **(NUEVO)**
+
 **Audit trail:**
+
 - ✅ Relaciones a `scenario`, `changedBy` (user)
 - ✅ Helpers: `hasDecisionChange()`, `hasExecutionChange()`
 
@@ -101,17 +118,17 @@ $table->text('notes')->nullable();
 
 #### `WorkforcePlanningService.php`
 
-| Método | Línea | Propósito |
-|--------|-------|-----------|
-| `createScenarioFromTemplate()` | 754 | Crear desde plantilla con scope heredado |
-| `syncParentMandatorySkills()` | 817 | Sincronizar skills obligatorias desde padre |
-| `calculateSupply()` | 857 | Cálculo de supply con filtros por scope |
-| `transitionDecisionStatus()` | 916 | Transiciones draft→pending→approved/rejected |
-| `startExecution()` | 963 | Iniciar ejecución (solo approved) |
-| `pauseExecution()` | 990 | Pausar ejecución con notas |
-| `completeExecution()` | 1014 | Completar ejecución |
-| `createNewVersion()` | 1037 | Inmutabilidad - clonar escenario aprobado |
-| `consolidateParent()` | 1116 | Rollup de métricas desde hijos |
+| Método                         | Línea | Propósito                                    |
+| ------------------------------ | ----- | -------------------------------------------- |
+| `createScenarioFromTemplate()` | 754   | Crear desde plantilla con scope heredado     |
+| `syncParentMandatorySkills()`  | 817   | Sincronizar skills obligatorias desde padre  |
+| `calculateSupply()`            | 857   | Cálculo de supply con filtros por scope      |
+| `transitionDecisionStatus()`   | 916   | Transiciones draft→pending→approved/rejected |
+| `startExecution()`             | 963   | Iniciar ejecución (solo approved)            |
+| `pauseExecution()`             | 990   | Pausar ejecución con notas                   |
+| `completeExecution()`          | 1014  | Completar ejecución                          |
+| `createNewVersion()`           | 1037  | Inmutabilidad - clonar escenario aprobado    |
+| `consolidateParent()`          | 1116  | Rollup de métricas desde hijos               |
 
 **Patrón de diseño:** Cada transición guarda evento en `scenario_status_events` para audit trail completo.
 
@@ -120,7 +137,9 @@ $table->text('notes')->nullable();
 ### PHASE 4: SEGURIDAD (1 Policy + 4 Request Validators)
 
 #### `WorkforceScenarioPolicy.php`
+
 **10 métodos de autorización:**
+
 - ✅ `update()`: **BLOQUEADO** si `decision_status === 'approved'` (inmutabilidad)
 - ✅ `delete()`: **BLOQUEADO** si aprobado o tiene hijos
 - ✅ `createNewVersion()`: **SOLO** permitido en escenarios aprobados
@@ -129,6 +148,7 @@ $table->text('notes')->nullable();
 - ✅ `syncFromParent()`: Solo escenarios hijos
 
 #### Request Validators:
+
 1. **`TransitionDecisionStatusRequest`**: Valida estados + llama a `canTransitionTo()`
 2. **`CreateVersionRequest`**: Solo desde `approved`
 3. **`SyncParentSkillsRequest`**: Solo si `parent_id !== null`
@@ -138,16 +158,16 @@ $table->text('notes')->nullable();
 
 ### PHASE 5: API REST (8 Endpoints Nuevos)
 
-| Método | Endpoint | Controlador | Policy |
-|--------|----------|-------------|--------|
-| POST | `/scenarios/{scenario}/decision-status` | `transitionDecisionStatus()` | ✅ |
-| POST | `/scenarios/{scenario}/execution/start` | `startExecution()` | ✅ |
-| POST | `/scenarios/{scenario}/execution/pause` | `pauseExecution()` | ✅ |
-| POST | `/scenarios/{scenario}/execution/complete` | `completeExecution()` | ✅ |
-| POST | `/scenarios/{scenario}/versions` | `createNewVersion()` | ✅ |
-| GET | `/scenarios/{scenario}/versions` | `listVersions()` | ✅ |
-| POST | `/scenarios/{scenario}/sync-parent` | `syncParentSkills()` | ✅ |
-| GET | `/scenarios/{scenario}/rollup` | `getRollup()` | ✅ |
+| Método | Endpoint                                   | Controlador                  | Policy |
+| ------ | ------------------------------------------ | ---------------------------- | ------ |
+| POST   | `/scenarios/{scenario}/decision-status`    | `transitionDecisionStatus()` | ✅     |
+| POST   | `/scenarios/{scenario}/execution/start`    | `startExecution()`           | ✅     |
+| POST   | `/scenarios/{scenario}/execution/pause`    | `pauseExecution()`           | ✅     |
+| POST   | `/scenarios/{scenario}/execution/complete` | `completeExecution()`        | ✅     |
+| POST   | `/scenarios/{scenario}/versions`           | `createNewVersion()`         | ✅     |
+| GET    | `/scenarios/{scenario}/versions`           | `listVersions()`             | ✅     |
+| POST   | `/scenarios/{scenario}/sync-parent`        | `syncParentSkills()`         | ✅     |
+| GET    | `/scenarios/{scenario}/rollup`             | `getRollup()`                | ✅     |
 
 **Registradas en:** `routes/api.php` (líneas 99-106)
 **Policy registrada en:** `AppServiceProvider.php`
@@ -157,7 +177,9 @@ $table->text('notes')->nullable();
 ### PHASE 6: FRONTEND VUE (5 Componentes + Integración)
 
 #### 1. `ScenarioStepperComponent.vue`
+
 **Metodología 7 pasos con guardrails:**
+
 - ✅ Stepper visual con 7 pasos: Definir → Demanda → Supply → Gaps → Estrategias → Ejecutar → Revisar
 - ✅ Guardrails por paso (requisitos mínimos)
 - ✅ Navegación bloqueada si no cumple requisitos
@@ -165,7 +187,9 @@ $table->text('notes')->nullable();
 - ✅ Validación: Paso 6 requiere `approved`, Paso 7 requiere `completed`
 
 #### 2. `ScenarioActionsPanel.vue`
+
 **Panel de control de estados:**
+
 - ✅ Badges de estado dual (decisión + ejecución)
 - ✅ Botones dinámicos según estado actual:
   - Draft → "Enviar a Aprobación"
@@ -178,7 +202,9 @@ $table->text('notes')->nullable();
 - ✅ Indicador visual "Escenario Inmutable" cuando está aprobado
 
 #### 3. `VersionHistoryModal.vue`
+
 **Visor de historial de versiones:**
+
 - ✅ Timeline vertical con todas las versiones del grupo
 - ✅ Badges de estado (draft/approved/rejected + planned/in_progress/completed)
 - ✅ Comparador: Seleccionar 2 versiones para comparar
@@ -187,14 +213,18 @@ $table->text('notes')->nullable();
 - ✅ Metadatos: Fecha creación, autor, descripción
 
 #### 4. `StatusTimeline.vue`
+
 **Audit trail visual:**
+
 - ✅ Timeline de eventos de cambio de estado
 - ✅ Cada evento muestra: from→to status, usuario, fecha, notas
 - ✅ Iconos y colores por tipo de evento
 - ✅ Historial completo inmutable
 
 #### 5. `ParentScenarioSelector.vue`
+
 **Selector de escenario padre:**
+
 - ✅ Autocomplete con búsqueda
 - ✅ Solo muestra escenarios aprobados de alcance superior
 - ✅ Iconos por scope_type (organization/department/role_family)
@@ -202,7 +232,9 @@ $table->text('notes')->nullable();
 - ✅ Integrable en formularios de creación/edición
 
 #### 6. `ScenarioDetail.vue` (Integración)
+
 **Actualizado con 2 nuevas tabs:**
+
 - ✅ Tab "Metodología 7 Pasos" → `ScenarioStepperComponent`
 - ✅ Tab "Estados & Acciones" → `ScenarioActionsPanel`
 - ✅ Botones header: "Versiones", "Historial"
@@ -214,10 +246,11 @@ $table->text('notes')->nullable();
 ## 📊 FLUJOS DE TRABAJO IMPLEMENTADOS
 
 ### 1. Workflow de Aprobación (decision_status)
+
 ```
-draft 
+draft
   ↓ (Enviar a aprobación)
-pending_approval 
+pending_approval
   ↓ (Aprobar)          ↓ (Rechazar)
 approved              rejected
                         ↓ (Volver a borrador)
@@ -225,15 +258,17 @@ approved              rejected
 ```
 
 **Reglas:**
+
 - ✅ Solo `approved` puede ejecutarse
 - ✅ Solo `approved` puede crear nuevas versiones
 - ✅ Escenarios `approved` son **INMUTABLES** (no update/delete)
 
 ### 2. Workflow de Ejecución (execution_status)
+
 ```
-planned 
+planned
   ↓ (Iniciar ejecución - requiere approved)
-in_progress 
+in_progress
   ↓ (Pausar)           ↓ (Completar)
 paused               completed
   ↓ (Reanudar)
@@ -241,6 +276,7 @@ in_progress
 ```
 
 ### 3. Versionamiento Inmutable
+
 ```
 Scenario v1 (approved) → [Crear Nueva Versión] → Scenario v2 (draft)
   ↑                                                    ↓
@@ -250,6 +286,7 @@ Scenario v1 (approved) → [Crear Nueva Versión] → Scenario v2 (draft)
 ```
 
 ### 4. Jerarquía Padre-Hijo
+
 ```
 Escenario Org (parent_id = null, scope = organization)
   │
@@ -261,6 +298,7 @@ Escenario Org (parent_id = null, scope = organization)
 ```
 
 ### 5. Metodología 7 Pasos
+
 ```
 1. Definir → 2. Demanda → 3. Supply → 4. Gaps → 5. Estrategias → 6. Ejecutar → 7. Revisar
       ↓          ↓           ↓           ↓            ↓              ↓            ↓
@@ -272,26 +310,31 @@ Escenario Org (parent_id = null, scope = organization)
 ## 🔒 GUARDRAILS IMPLEMENTADOS
 
 ### Nivel Base de Datos
+
 - ✅ Foreign keys con cascadeOnDelete para integridad referencial
 - ✅ Enums para estados válidos (no permite valores inválidos)
 - ✅ Indexes en campos de búsqueda frecuente (version_group_id, parent_id)
 
 ### Nivel Modelo
+
 - ✅ `canTransitionTo()` valida transiciones permitidas
 - ✅ Scopes automáticos para filtrado por estado
 - ✅ Accessors computed para lógica de negocio
 
 ### Nivel Policy
+
 - ✅ Bloqueo de update/delete en escenarios aprobados
 - ✅ Validación de permisos por acción (create, update, execute, approve)
 - ✅ Autorización basada en organization_id (multi-tenant)
 
 ### Nivel Request Validator
+
 - ✅ Validación de estados destino válidos
 - ✅ Llamada a `canTransitionTo()` del modelo
 - ✅ Mensajes de error específicos por regla violada
 
 ### Nivel Frontend
+
 - ✅ Botones deshabilitados según estado actual
 - ✅ Stepper no permite saltos de pasos
 - ✅ Modales de confirmación antes de acciones críticas
@@ -302,6 +345,7 @@ Escenario Org (parent_id = null, scope = organization)
 ## 📁 ARCHIVOS MODIFICADOS/CREADOS
 
 ### Backend (18 archivos)
+
 ```
 src/database/migrations/
 ├── 2026_01_07_232635_enhance_workforce_scenarios_with_versioning_hierarchy_scope.php ✅
@@ -310,7 +354,7 @@ src/database/migrations/
 └── 2026_01_07_232653_create_scenario_status_events_table.php ✅
 
 src/app/Models/
-├── WorkforcePlanningScenario.php (actualizado) ✅
+├── StrategicPlanningScenarios.php (actualizado) ✅
 ├── Skills.php (actualizado) ✅
 ├── ScenarioSkillDemand.php (actualizado) ✅
 └── ScenarioStatusEvent.php (NUEVO) ✅
@@ -338,6 +382,7 @@ src/app/Providers/
 ```
 
 ### Frontend (6 archivos)
+
 ```
 src/resources/js/components/WorkforcePlanning/
 ├── ScenarioStepperComponent.vue (NUEVO) ✅
@@ -351,6 +396,7 @@ src/resources/js/pages/WorkforcePlanning/
 ```
 
 ### Documentación
+
 ```
 docs/
 ├── PROMPT_MAESTRO_WFP_ESCENARIOS_2026_01_07.md ✅
@@ -363,6 +409,7 @@ docs/
 ## ✅ VALIDACIÓN Y TESTING
 
 ### Compilación
+
 ```bash
 ✅ Sin errores de sintaxis en todos los archivos
 ✅ Migraciones ejecutadas exitosamente
@@ -371,6 +418,7 @@ docs/
 ```
 
 ### Cobertura de Funcionalidad
+
 - ✅ Versionamiento: 100%
 - ✅ Jerarquía: 100%
 - ✅ Estados duales: 100%
@@ -385,24 +433,28 @@ docs/
 ## 🎯 PRÓXIMOS PASOS RECOMENDADOS
 
 ### Testing
+
 1. **Unit Tests** para WorkforcePlanningService (9 métodos)
 2. **Feature Tests** para endpoints API (8 rutas)
 3. **Policy Tests** para reglas de autorización
 4. **E2E Tests** para flujos completos de versionamiento
 
 ### Optimización
+
 1. **Eager loading** en relaciones para reducir N+1 queries
 2. **Cache** de escenarios aprobados (inmutables)
 3. **Queue jobs** para rollup de escenarios con muchos hijos
 4. **Indexación full-text** para búsqueda de scenarios
 
 ### Mejoras UX
+
 1. **Comparador de versiones** con diff visual de cambios
 2. **Export PDF** de escenario con todas las métricas
 3. **Notificaciones** cuando escenario hijo se sincroniza desde padre
 4. **Dashboard CEO** con vistas consolidadas de todos los escenarios
 
 ### Documentación
+
 1. **API Documentation** (OpenAPI/Swagger)
 2. **User Guide** para metodología 7 pasos
 3. **Video Tutorial** de workflows de aprobación
@@ -413,6 +465,7 @@ docs/
 ## 📌 COMANDOS ÚTILES
 
 ### Backend
+
 ```bash
 # Ver rutas registradas
 php artisan route:list --path=workforce-planning/scenarios
@@ -428,6 +481,7 @@ php artisan permission:show workforce_planning
 ```
 
 ### Testing
+
 ```bash
 # Ejecutar tests específicos
 php artisan test --filter=WorkforcePlanningTest
@@ -447,14 +501,14 @@ php artisan test --filter=WorkforceScenarioPolicyTest
 ✅ **Workflow validation** en todos los niveles (DB, Model, Policy, Request, UI)  
 ✅ **Metodología estructurada** con guardrails para usuarios  
 ✅ **100% type-safe** con TypeScript en frontend  
-✅ **0 errores de compilación**  
+✅ **0 errores de compilación**
 
 ---
 
 **Implementado por:** GitHub Copilot  
 **Fecha:** 7 Enero 2026  
 **Stack:** Laravel 10 + PostgreSQL + Vue 3 + TypeScript + Vuetify 3  
-**Documentación base:** PROMPT_MAESTRO_WFP_ESCENARIOS_2026_01_07.md  
+**Documentación base:** PROMPT_MAESTRO_WFP_ESCENARIOS_2026_01_07.md
 
 ---
 

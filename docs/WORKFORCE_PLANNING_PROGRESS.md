@@ -10,6 +10,7 @@
 ## ✅ Completed Tasks
 
 ### 1. Database Layer (6 migrations executed)
+
 - ✅ `workforce_planning_scenarios` - Scenario container
 - ✅ `workforce_planning_role_forecasts` - Role projections
 - ✅ `workforce_planning_matches` - Internal talent matching
@@ -20,7 +21,8 @@
 **Status:** All tables created, indexes optimized, foreign keys configured.
 
 ### 2. Backend Models (6 Eloquent models)
-- ✅ `WorkforcePlanningScenario.php` - Relationships to all child entities
+
+- ✅ `StrategicPlanningScenarios.php` - Relationships to all child entities
 - ✅ `WorkforcePlanningRoleForecast.php` - Role forecasting with scopes
 - ✅ `WorkforcePlanningMatch.php` - Talent matching with readiness levels
 - ✅ `WorkforcePlanningSkillGap.php` - Gap analysis with priority scopes
@@ -30,6 +32,7 @@
 **Status:** All models have proper relationships, casts, and query scopes.
 
 ### 3. Data Access Layer (Repository Pattern)
+
 - ✅ `WorkforcePlanningRepository.php`
   - Methods: getScenarioById, getScenariosByOrganization, createScenario, updateScenario, deleteScenario
   - Methods: getForecastsByScenario, createForecast, updateForecast
@@ -41,33 +44,40 @@
 **Status:** 30+ repository methods for complete CRUD operations.
 
 ### 4. Business Logic Layer (Service)
+
 - ✅ `WorkforcePlanningService.php` (500+ lines)
+
   - Method: `calculateMatches()` - Main matching algorithm
+
     - Compares person skills vs role requirements
     - Calculates match score (0-100) based on skill_match(60%) + readiness(20%) + risk(20%)
     - Determines readiness level: immediate, short_term, long_term, not_ready
     - Identifies transition types: promotion, lateral, reskilling, no_match
     - Calculates transition timeline in months
     - Generates risk score and risk factors
-  
+
   - Method: `calculateSkillGaps()` - Skill deficiency analysis
+
     - Identifies critical/missing skills per department/role
     - Calculates coverage percentage
     - Suggests remediation strategies: hiring, training, reskilling
     - Estimates remediation costs and timeline
-  
+
   - Method: `calculateAnalytics()` - Aggregated metrics
+
     - Headcount projections (current vs projected)
     - Internal coverage percentage
     - Succession risk assessment
     - Cost estimations for recruitment and training
-  
+
   - Method: `runFullAnalysis()` - Orchestrates all calculations in transaction
 
 **Status:** Core matching algorithm fully implemented with complex business logic.
 
 ### 5. API Layer (Controller + Routes + Validation)
+
 - ✅ `WorkforcePlanningController.php` (300+ lines)
+
   - Endpoints implemented:
     - `GET /api/v1/workforce-planning/scenarios` - List with pagination & filters
     - `POST /api/v1/workforce-planning/scenarios` - Create
@@ -83,14 +93,16 @@
     - `POST /api/v1/workforce-planning/scenarios/{id}/analyze` - Run full analysis
     - `GET /api/v1/workforce-planning/matches/{id}/recommendations` - Get recommendations
 
-- ✅ `StoreWorkforcePlanningScenarioRequest.php` - Validation for creation
-- ✅ `UpdateWorkforcePlanningScenarioRequest.php` - Validation for updates
+- ✅ `StoreStrategicPlanningScenariosRequest.php` - Validation for creation
+- ✅ `UpdateStrategicPlanningScenariosRequest.php` - Validation for updates
 - ✅ Routes added to `/routes/api.php` under `/v1/workforce-planning` prefix
 
 **Status:** 13+ API endpoints with validation and error handling.
 
 ### 6. Testing Layer
+
 - ✅ `WorkforcePlanningServiceTest.php` (150+ lines)
+
   - Tests: Repository CRUD operations
   - Tests: Readiness level calculation
   - Tests: Transition months estimation
@@ -98,6 +110,7 @@
   - Tests: Scenario creation, update, delete, filtering
 
 - ✅ `WorkforcePlanningApiTest.php` (200+ lines)
+
   - Tests: List scenarios with pagination
   - Tests: Create scenario with validation
   - Tests: Show, update, delete operations
@@ -106,14 +119,16 @@
   - Tests: Authentication requirement
   - Tests: 404 responses
 
-- ✅ `WorkforcePlanningScenarioFactory.php`
+- ✅ `StrategicPlanningScenariosFactory.php`
   - Factory for generating test scenarios
   - States: draft, approved, archived
 
 **Status:** 20+ unit and integration tests covering core functionality.
 
 ### 7. Frontend Components (Initial)
+
 - ✅ `ScenarioSelector.vue` (250+ lines)
+
   - Lists all scenarios with pagination
   - Create/edit dialog
   - Delete with confirmation
@@ -136,23 +151,24 @@
 
 ## 📊 Implementation Statistics
 
-| Component | Lines | Files | Status |
-|-----------|-------|-------|--------|
-| Database | 500+ | 6 migrations | ✅ Complete |
-| Models | 350 | 6 models | ✅ Complete |
-| Repository | 320 | 1 file | ✅ Complete |
-| Service | 500+ | 1 file | ✅ Complete |
-| Controller | 300+ | 1 file | ✅ Complete |
-| Requests | 50 | 2 files | ✅ Complete |
-| Tests | 350+ | 3 files | ✅ Complete |
-| Frontend | 500+ | 2 components | ✅ Complete |
-| **Total** | **2,800+** | **23 files** | **✅** |
+| Component  | Lines      | Files        | Status      |
+| ---------- | ---------- | ------------ | ----------- |
+| Database   | 500+       | 6 migrations | ✅ Complete |
+| Models     | 350        | 6 models     | ✅ Complete |
+| Repository | 320        | 1 file       | ✅ Complete |
+| Service    | 500+       | 1 file       | ✅ Complete |
+| Controller | 300+       | 1 file       | ✅ Complete |
+| Requests   | 50         | 2 files      | ✅ Complete |
+| Tests      | 350+       | 3 files      | ✅ Complete |
+| Frontend   | 500+       | 2 components | ✅ Complete |
+| **Total**  | **2,800+** | **23 files** | **✅**      |
 
 ---
 
 ## 🚀 Next Steps (Pending)
 
 ### Phase 2: Complete Frontend Components (13 story points)
+
 - [ ] `RoleForecastsTable.vue` - Table with role forecasts and editing
 - [ ] `MatchingResults.vue` - Results with filters and detail modal
 - [ ] `SuccessionPlanCard.vue` - Succession cards with readiness indicators
@@ -160,6 +176,7 @@
 - [ ] Supporting components: Forms, Dialogs, Charts
 
 ### Phase 3: Integration & Polish (5 story points)
+
 - [ ] Connect ScenarioSelector to backend API
 - [ ] Implement state management (Pinia store) for shared state
 - [ ] Add error handling and loading states
@@ -167,6 +184,7 @@
 - [ ] Dark mode support
 
 ### Phase 4: Advanced Features (8 story points)
+
 - [ ] Scenario comparison (Side-by-side comparison of scenarios)
 - [ ] Export/Import scenarios
 - [ ] Succession plan templates
@@ -174,6 +192,7 @@
 - [ ] Bulk operations (create multiple forecasts)
 
 ### Phase 5: Testing & Documentation (5 story points)
+
 - [ ] E2E tests for user workflows
 - [ ] API documentation (OpenAPI/Swagger)
 - [ ] User guide and training materials
@@ -207,6 +226,7 @@
 ## 🔗 Integration Points
 
 **Connected with existing modules:**
+
 - ✅ People (via WorkforcePlanningMatch.person_id → People.id)
 - ✅ Roles (via WorkforcePlanningRoleForecast.role_id → Roles.id)
 - ✅ Skills (via WorkforcePlanningSkillGap.skill_id → Skills.id)
@@ -232,6 +252,7 @@
 ## 🎯 Remaining Work
 
 **Estimated effort for completion:**
+
 - Complete remaining components: 13 story points
 - Integration and polish: 5 story points
 - Advanced features: 8 story points
@@ -239,6 +260,7 @@
 - **Total remaining:** 31/84 story points
 
 **Timeline (if 12-hour focused sprints):**
+
 - Frontend components: 1-2 sprints
 - Integration: 1 sprint
 - Testing: 1 sprint

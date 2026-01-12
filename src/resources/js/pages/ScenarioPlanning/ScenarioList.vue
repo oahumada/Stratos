@@ -4,8 +4,8 @@ import { router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-import { useStrategicPlanningScenariosStore } from '@/stores/strategicPlanningScenariosStore'
-import ScenarioCreateFromTemplate from './ScenarioCreateFromTemplate.vue'
+import { usescenarioPlanningScenariosStore } from '@/stores/scenarioPlanningScenariosStore'
+import ScenarioCreateModal from './ScenarioCreateModal.vue'
 
 defineOptions({ layout: AppLayout })
 
@@ -29,7 +29,7 @@ type ScenarioListItem = {
 
 const api = useApi()
 const { showSuccess, showError } = useNotification()
-const store = useStrategicPlanningScenariosStore()
+const store = usescenarioPlanningScenariosStore()
 
 const scenarios = ref<ScenarioListItem[]>([])
 const loading = ref(false)
@@ -124,7 +124,12 @@ const executionStatusText = (status?: string) => {
 const loadScenarios = async () => {
   loading.value = true
   try {
-    const res: any = await api.get('/api/v1/strategic-planning/workforce-scenarios')
+    const res: any = await api.get('/api/scenario-planning-list', {
+      params: {
+        status: filters.value.status,
+        type: filters.value.type,
+      },
+    })
     const data = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
     scenarios.value = data
     store.scenarios = data
@@ -137,7 +142,7 @@ const loadScenarios = async () => {
 }
 
 const goToDetail = (scenario: ScenarioListItem) => {
-  router.visit(`/strategic-planning/${scenario.id}`)
+  router.visit(`/scenario-planning/${scenario.id}`)
 }
 
 const deleteScenario = async (scenario: ScenarioListItem) => {
@@ -145,7 +150,7 @@ const deleteScenario = async (scenario: ScenarioListItem) => {
   if (!ok) return
 
   try {
-    await api.delete(`/api/v1/strategic-planning/workforce-scenarios/${scenario.id}`)
+    await api.delete(`/api/v1/scenario-planning/workforce-scenarios/${scenario.id}`)
     showSuccess('Escenario eliminado')
     // reload list
     await loadScenarios()
@@ -168,7 +173,7 @@ onMounted(() => {
     <v-container fluid>
       <v-row class="mb-4 align-center">
         <v-col cols="12" md="6">
-          <h2 class="mb-0">Workforce Planning - Escenarios</h2>
+          <h2 class="mb-0">Planificación Estratégica de Escenarios</h2>
           <p class="text-medium-emphasis mb-0">Administra, filtra y navega escenarios con metodología 7 pasos</p>
         </v-col>
       </v-row>
@@ -201,7 +206,7 @@ onMounted(() => {
             </v-col>
             <v-col cols="12" md="4" class="text-right">
               <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreateFromTemplate">
-                Nuevo desde plantilla
+                Nuevo escenario
               </v-btn>
             </v-col>
           </v-row>
@@ -345,7 +350,7 @@ onMounted(() => {
     </v-container>
 
     <v-dialog v-model="showCreateFromTemplate" max-width="900px">
-      <ScenarioCreateFromTemplate @created="loadScenarios" @close="showCreateFromTemplate = false" />
+      <ScenarioCreateModal @created="loadScenarios" @close="showCreateFromTemplate = false" />
     </v-dialog>
   </div>
 </template>

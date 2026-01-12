@@ -12,11 +12,11 @@ Agregar estas líneas ANTES de la última `});`:
     // Simulación de crecimiento (Componente 1)
     Route::post('/scenarios/{id}/simulate-growth', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'simulateGrowth']);
     Route::get('/critical-positions', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getCriticalPositions']);
-    
+
     // ROI Calculator (Componente 2)
     Route::post('/roi-calculator/calculate', [\App\Http\Controllers\Api\V1\RoiCalculatorController::class, 'calculate']);
     Route::get('/roi-calculator/scenarios', [\App\Http\Controllers\Api\V1\RoiCalculatorController::class, 'listCalculations']);
-    
+
     // Strategy Assignment (Componente 3)
     Route::get('/scenarios/{id}/gaps-for-assignment', [\App\Http\Controllers\Api\V1\StrategyController::class, 'getGapsForAssignment']);
     Route::post('/strategies/assign', [\App\Http\Controllers\Api\V1\StrategyController::class, 'assignStrategy']);
@@ -47,8 +47,8 @@ Agregar al final de la clase (antes del último `}`):
         ]);
 
         try {
-            $scenario = WorkforcePlanningScenario::findOrFail($scenarioId);
-            
+            $scenario = StrategicPlanningScenarios::findOrFail($scenarioId);
+
             $currentHeadcount = 250; // Obtener del analytics
             $projectedHeadcount = $currentHeadcount * (1 + $validated['growth_percentage'] / 100);
             $netGrowth = $projectedHeadcount - $currentHeadcount;
@@ -99,10 +99,10 @@ Agregar al final de la clase (antes del último `}`):
     public function getCriticalPositions(Request $request): JsonResponse
     {
         $scenarioId = $request->input('scenario_id');
-        
+
         try {
-            $scenario = WorkforcePlanningScenario::findOrFail($scenarioId);
-            
+            $scenario = StrategicPlanningScenarios::findOrFail($scenarioId);
+
             $criticalPositions = [
                 [
                     'id' => 1,
@@ -294,7 +294,7 @@ Crear archivo con contenido:
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\WorkforcePlanningScenario;
+use App\Models\StrategicPlanningScenarios;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -304,8 +304,8 @@ class StrategyController extends Controller
     public function getGapsForAssignment($scenarioId, Request $request): JsonResponse
     {
         try {
-            $scenario = WorkforcePlanningScenario::findOrFail($scenarioId);
-            
+            $scenario = StrategicPlanningScenarios::findOrFail($scenarioId);
+
             $gaps = [
                 [
                     'id' => 'skill_1',
@@ -347,7 +347,7 @@ class StrategyController extends Controller
         try {
             // Simular almacenamiento
             $id = rand(1, 1000);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => ['id' => $id],
@@ -396,12 +396,12 @@ class StrategyController extends Controller
 Localizar la línea con `<v-tab value="overview">` y agregar ANTES de la última `</v-tabs>`:
 
 ```vue
-      <v-tab value="simulator">
+<v-tab value="simulator">
         <v-icon start>mdi-chart-timeline</v-icon>
         Growth Simulator
       </v-tab>
 
-      <v-tab value="critical">
+<v-tab value="critical">
         <v-icon start>mdi-alert-circle</v-icon>
         Critical Positions ({{ criticalPositionsCount }})
       </v-tab>
@@ -410,8 +410,8 @@ Localizar la línea con `<v-tab value="overview">` y agregar ANTES de la última
 Luego localizar `</v-window-item>` al final y agregar ANTES de `</v-window>`:
 
 ```vue
-      <!-- Growth Simulator Tab -->
-      <v-window-item value="simulator">
+<!-- Growth Simulator Tab -->
+<v-window-item value="simulator">
         <v-card>
           <v-card-title>Growth Scenario Simulator</v-card-title>
           <v-card-text class="bg-blue-50">
@@ -476,8 +476,8 @@ Luego localizar `</v-window-item>` al final y agregar ANTES de `</v-window>`:
         </v-card>
       </v-window-item>
 
-      <!-- Critical Positions Tab -->
-      <v-window-item value="critical">
+<!-- Critical Positions Tab -->
+<v-window-item value="critical">
         <v-card>
           <v-card-title>Critical Positions & Succession Risk</v-card-title>
           <v-card-text>
@@ -505,57 +505,57 @@ const simulationParams = ref({
   growth_percentage: 25,
   horizon_months: 24,
   external_hiring_ratio: 30,
-  retention_target: 95
-})
+  retention_target: 95,
+});
 
-const simulationResults = ref(null)
-const criticalPositions = ref([])
+const simulationResults = ref(null);
+const criticalPositions = ref([]);
 
 const criticalPositionsHeaders = [
-  { title: 'Role', key: 'role.name' },
-  { title: 'Department', key: 'department' },
-  { title: 'Criticality', key: 'criticality_level' },
-  { title: 'Risk Status', key: 'risk_status' },
-]
+  { title: "Role", key: "role.name" },
+  { title: "Department", key: "department" },
+  { title: "Criticality", key: "criticality_level" },
+  { title: "Risk Status", key: "risk_status" },
+];
 
-const criticalPositionsCount = computed(() => criticalPositions.value.length)
+const criticalPositionsCount = computed(() => criticalPositions.value.length);
 
 const runSimulation = async () => {
   try {
     const response = await api.post(
       `/api/v1/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
       simulationParams.value
-    )
-    simulationResults.value = response.data.data.simulation
+    );
+    simulationResults.value = response.data.data.simulation;
   } catch (error) {
-    showError('Simulation failed')
-    console.error(error)
+    showError("Simulation failed");
+    console.error(error);
   }
-}
+};
 
 const loadCriticalPositions = async () => {
   try {
     const response = await api.get(
       `/api/v1/workforce-planning/critical-positions`,
       { scenario_id: scenarioId.value }
-    )
-    criticalPositions.value = response.data.data
+    );
+    criticalPositions.value = response.data.data;
   } catch (error) {
-    showError('Failed to load critical positions')
-    console.error(error)
+    showError("Failed to load critical positions");
+    console.error(error);
   }
-}
+};
 
 const getRiskColor = (status: string): string => {
-  return { HIGH: 'red', MEDIUM: 'orange', LOW: 'green' }[status] || 'grey'
-}
+  return { HIGH: "red", MEDIUM: "orange", LOW: "green" }[status] || "grey";
+};
 ```
 
 Y agregar en el `onMounted`:
 
 ```typescript
-  await loadCriticalPositions()
-  await runSimulation()
+await loadCriticalPositions();
+await runSimulation();
 ```
 
 ---
@@ -579,28 +579,33 @@ Crear archivo nuevo con contenido completo (ver documento PLAN_ACCION_WFP_AJUSTA
 ## ✅ Checklist de Implementación
 
 ### Backend (1 hora)
+
 - [ ] Agregar rutas en `/src/routes/api.php` (7 rutas)
 - [ ] Agregar 2 métodos en WorkforcePlanningController
 - [ ] Crear RoiCalculatorController.php
 - [ ] Crear StrategyController.php
 
 ### Frontend Componente 1 (2 horas)
+
 - [ ] Extender OverviewDashboard.vue (agregar 2 tabs)
 - [ ] Agregar variables de estado (simulation, critical)
 - [ ] Agregar métodos (runSimulation, loadCriticalPositions)
 - [ ] Testear en navegador
 
 ### Frontend Componente 2 (1.5 horas)
+
 - [ ] Crear RoiCalculator.vue (250 líneas)
 - [ ] Agregar ruta web en Routes (si es necesario)
 - [ ] Testear cálculos
 
 ### Frontend Componente 3 (1.5 horas)
+
 - [ ] Crear StrategyAssigner.vue (300 líneas)
 - [ ] Agregar ruta web en Routes
 - [ ] Testear 3-step wizard
 
 ### Testing (1 hora)
+
 - [ ] Testear todos los endpoints con Postman
 - [ ] Validar flujos en navegador
 - [ ] Ajustes menores
@@ -610,6 +615,7 @@ Crear archivo nuevo con contenido completo (ver documento PLAN_ACCION_WFP_AJUSTA
 ## 🚀 TESTEO RÁPIDO CON POSTMAN
 
 ### Simulador de Crecimiento
+
 ```
 POST http://localhost:8000/api/v1/workforce-planning/scenarios/1/simulate-growth
 Body:
@@ -622,6 +628,7 @@ Body:
 ```
 
 ### ROI Calculator
+
 ```
 POST http://localhost:8000/api/v1/workforce-planning/roi-calculator/calculate
 Body:
@@ -638,6 +645,7 @@ Body:
 ```
 
 ### Get Gaps for Assignment
+
 ```
 GET http://localhost:8000/api/v1/workforce-planning/scenarios/1/gaps-for-assignment?department_id=1
 ```

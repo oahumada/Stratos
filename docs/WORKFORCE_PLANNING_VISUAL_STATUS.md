@@ -22,7 +22,7 @@
 │     └─ Optimized indexes (300+ lines)                                     │
 │                                                                            │
 │  📦 ELOQUENT MODELS                                          ✅ COMPLETE   │
-│     ├─ WorkforcePlanningScenario                                          │
+│     ├─ StrategicPlanningScenarios                                          │
 │     ├─ WorkforcePlanningRoleForecast                                      │
 │     ├─ WorkforcePlanningMatch                                             │
 │     ├─ WorkforcePlanningSkillGap                                          │
@@ -51,8 +51,8 @@
 │     └─ Full API implementation (329 lines)                                │
 │                                                                            │
 │  ✅ VALIDATION LAYER                                         ✅ COMPLETE   │
-│     ├─ StoreWorkforcePlanningScenarioRequest                              │
-│     ├─ UpdateWorkforcePlanningScenarioRequest                             │
+│     ├─ StoreStrategicPlanningScenariosRequest                              │
+│     ├─ UpdateStrategicPlanningScenariosRequest                             │
 │     └─ Input validation (57 lines)                                        │
 │                                                                            │
 │  🧪 TESTING FRAMEWORK                                        ✅ COMPLETE   │

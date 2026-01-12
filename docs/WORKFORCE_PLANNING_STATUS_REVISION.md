@@ -11,74 +11,82 @@
 ### En `/docs/` (6 archivos)
 
 ### 1. **WORKFORCE_PLANNING_ESPECIFICACION.md** (1131 líneas)
-   - ✅ Descripción general del módulo
-   - ✅ Objetivos y alcance completo
-   - ✅ Arquitectura de 6 bloques (Base estratégica → Análisis de salida)
-   - ✅ Modelos de datos detallados (6 tablas)
-   - ✅ 13+ endpoints API documentados
-   - ✅ 6 componentes frontend especificados
-   - ✅ User stories completas
-   - ✅ Criterios de aceptación por feature
-   - ✅ Integración con módulos existentes
+
+- ✅ Descripción general del módulo
+- ✅ Objetivos y alcance completo
+- ✅ Arquitectura de 6 bloques (Base estratégica → Análisis de salida)
+- ✅ Modelos de datos detallados (6 tablas)
+- ✅ 13+ endpoints API documentados
+- ✅ 6 componentes frontend especificados
+- ✅ User stories completas
+- ✅ Criterios de aceptación por feature
+- ✅ Integración con módulos existentes
 
 ### 2. **WORKFORCE_PLANNING_PROGRESS.md** (266 líneas)
-   - ✅ Reporte de progreso técnico
-   - ✅ Status de 6 capas implementadas (DB → Controller)
-   - ✅ Story points: 28/84 (33% completado)
-   - ✅ Lista de tareas completadas vs pendientes
-   - ✅ Plan de acción para completar
+
+- ✅ Reporte de progreso técnico
+- ✅ Status de 6 capas implementadas (DB → Controller)
+- ✅ Story points: 28/84 (33% completado)
+- ✅ Lista de tareas completadas vs pendientes
+- ✅ Plan de acción para completar
 
 ### 3. **WORKFORCE_PLANNING_GUIA.md** (218 líneas)
-   - ✅ Guía rápida de integración
-   - ✅ Explicación para no-técnicos
-   - ✅ Resumen de backend required
-   - ✅ URLs de endpoints API
-   - ✅ Ejemplos de payloads
-   - ✅ Estructura JSON de respuestas
+
+- ✅ Guía rápida de integración
+- ✅ Explicación para no-técnicos
+- ✅ Resumen de backend required
+- ✅ URLs de endpoints API
+- ✅ Ejemplos de payloads
+- ✅ Estructura JSON de respuestas
 
 ### 4. **WORKFORCE_PLANNING_UI_INTEGRATION.md** (211 líneas)
-   - ✅ Integración en AppSidebar (menú lateral)
-   - ✅ Rutas web configuradas
-   - ✅ Componentes y sus ubicaciones
-   - ✅ Flow de navegación
-   - ✅ Estados de UI (loading, error, empty)
+
+- ✅ Integración en AppSidebar (menú lateral)
+- ✅ Rutas web configuradas
+- ✅ Componentes y sus ubicaciones
+- ✅ Flow de navegación
+- ✅ Estados de UI (loading, error, empty)
 
 ### 5. **WORKFORCE_PLANNING_VISUAL_STATUS.md**
-   - ✅ Dashboard visual del estado actual
-   - ✅ Checklist de implementación
-   - ✅ Roadmap de funcionalidades
+
+- ✅ Dashboard visual del estado actual
+- ✅ Checklist de implementación
+- ✅ Roadmap de funcionalidades
 
 ### 6. **WORKFORCE_PLANNING_COMPLETE_SUMMARY.md**
-   - ✅ Resumen ejecutivo
-   - ✅ Arquitectura visual
-   - ✅ Stack tecnológico
-   - ✅ Flujos de datos
+
+- ✅ Resumen ejecutivo
+- ✅ Arquitectura visual
+- ✅ Stack tecnológico
+- ✅ Flujos de datos
 
 ### En `/docs/WorkforcePlanning/` (Carpeta conceptual)
 
 ### 7. **Modelo de Planificación moderno.md** (214 líneas) ⭐ MUY IMPORTANTE
-   - ✅ **7 Macrobloques funcionales** de Workforce Planning:
-     1. Base estratégica y modelo de roles/skills
-     2. Oferta interna actual (skills + marketplace interno)
-     3. Demanda futura de talento (escenarios)
-     4. Matching interno (cobertura con talento interno)
-     5. Cobertura externa (reclutamiento y selección)
-     6. Desarrollo, reconversión/upskilling y sucesión
-     7. Planificación de desvinculaciones y ajustes estructurales
-   - ✅ Capa transversal: Analítica, gobierno e indicadores
-   - ✅ **Descripción funcional detallada** de cada bloque:
-     - Inputs (qué información entra)
-     - Funciones del módulo (qué hace)
-     - Outputs (qué genera)
-   - ✅ **Modelo conceptual end-to-end** que conecta:
-     - Skills actuales → Demandas futuras → Marketplace interno → 
-     - Búsqueda externa → Learning paths → Reconversión/upskilling → 
-     - Sucesión → Desvinculación
+
+- ✅ **7 Macrobloques funcionales** de Workforce Planning:
+  1.  Base estratégica y modelo de roles/skills
+  2.  Oferta interna actual (skills + marketplace interno)
+  3.  Demanda futura de talento (escenarios)
+  4.  Matching interno (cobertura con talento interno)
+  5.  Cobertura externa (reclutamiento y selección)
+  6.  Desarrollo, reconversión/upskilling y sucesión
+  7.  Planificación de desvinculaciones y ajustes estructurales
+- ✅ Capa transversal: Analítica, gobierno e indicadores
+- ✅ **Descripción funcional detallada** de cada bloque:
+  - Inputs (qué información entra)
+  - Funciones del módulo (qué hace)
+  - Outputs (qué genera)
+- ✅ **Modelo conceptual end-to-end** que conecta:
+  - Skills actuales → Demandas futuras → Marketplace interno →
+  - Búsqueda externa → Learning paths → Reconversión/upskilling →
+  - Sucesión → Desvinculación
 
 **NOTA CRÍTICA:** Este documento define el **modelo conceptual original** del módulo. Es la fuente de verdad para entender qué es Workforce Planning en Strato.
-   - ✅ Arquitectura visual
-   - ✅ Stack tecnológico
-   - ✅ Flujos de datos
+
+- ✅ Arquitectura visual
+- ✅ Stack tecnológico
+- ✅ Flujos de datos
 
 ---
 
@@ -98,7 +106,7 @@ BLOQUE 2: Oferta interna actual (skills + marketplace interno)
 └─ 🔄 PENDIENTE: Mejorar recomendaciones de matching con IA
 
 BLOQUE 3: Demanda futura de talento (escenarios)
-├─ ✅ TÉCNICO: WorkforcePlanningScenario model
+├─ ✅ TÉCNICO: StrategicPlanningScenarios model
 ├─ ✅ TÉCNICO: WorkforcePlanningRoleForecast model
 ├─ ✅ TÉCNICO: API endpoints para crear/editar escenarios
 └─ ✅ IMPLEMENTADO: ScenarioSelector.vue (CRUD completo)
@@ -117,7 +125,7 @@ BLOQUE 5: Cobertura externa (reclutamiento y selección)
 BLOQUE 6: Desarrollo, reconversión/upskilling y sucesión
 ├─ ✅ TÉCNICO: WorkforcePlanningSkillGap model
 ├─ ✅ TÉCNICO: WorkforcePlanningSuccessionPlan model
-├─ ✅ TÉCNICO: WorkforcePlanningService.calculateSkillGaps() 
+├─ ✅ TÉCNICO: WorkforcePlanningService.calculateSkillGaps()
 ├─ 🔄 PENDIENTE: SkillGapsMatrix.vue (componente visual)
 ├─ 🔄 PENDIENTE: SuccessionPlanCard.vue (componente visual)
 └─ 🔄 PENDIENTE: Learning Paths linking (Learning Paths module)
@@ -136,16 +144,16 @@ CAPA TRANSVERSAL: Analítica, gobierno e indicadores
 
 ### Cobertura Actual vs Modelo
 
-| Bloque | Conceptual | Técnico | Frontend | Estado |
-|--------|-----------|---------|----------|--------|
-| 1 - Base estratégica | ✅ | ✅ | - | Integrado |
-| 2 - Oferta interna | ✅ | ✅ | - | Conectado |
-| 3 - Demanda futura | ✅ | ✅ | ✅ | COMPLETO |
-| 4 - Matching interno | ✅ | ✅ | ⏳ | 66% |
-| 5 - Cobertura externa | ✅ | ⏳ | ⏳ | 20% |
-| 6 - Desarrollo/sucesión | ✅ | ✅ | ⏳ | 50% |
-| 7 - Desvinculaciones | ✅ | ⏳ | ⏳ | 10% |
-| Transversal - Analytics | ✅ | ✅ | ✅ | COMPLETO |
+| Bloque                  | Conceptual | Técnico | Frontend | Estado    |
+| ----------------------- | ---------- | ------- | -------- | --------- |
+| 1 - Base estratégica    | ✅         | ✅      | -        | Integrado |
+| 2 - Oferta interna      | ✅         | ✅      | -        | Conectado |
+| 3 - Demanda futura      | ✅         | ✅      | ✅       | COMPLETO  |
+| 4 - Matching interno    | ✅         | ✅      | ⏳       | 66%       |
+| 5 - Cobertura externa   | ✅         | ⏳      | ⏳       | 20%       |
+| 6 - Desarrollo/sucesión | ✅         | ✅      | ⏳       | 50%       |
+| 7 - Desvinculaciones    | ✅         | ⏳      | ⏳       | 10%       |
+| Transversal - Analytics | ✅         | ✅      | ✅       | COMPLETO  |
 
 **Cobertura del modelo conceptual:** 62% implementado
 
@@ -156,6 +164,7 @@ CAPA TRANSVERSAL: Analítica, gobierno e indicadores
 ### Backend Layer (100%)
 
 #### Database (6 Migraciones)
+
 ```
 ✅ workforce_planning_scenarios
    - id, organization_id, name, description, status
@@ -191,8 +200,9 @@ CAPA TRANSVERSAL: Analítica, gobierno e indicadores
 ```
 
 #### Models (6 Eloquent Models)
+
 ```
-✅ WorkforcePlanningScenario.php
+✅ StrategicPlanningScenarios.php
    - Relationships: hasMany forecasts, matches, gaps, successions, analytics
    - Scopes: approved(), draft(), archived()
 
@@ -218,6 +228,7 @@ CAPA TRANSVERSAL: Analítica, gobierno e indicadores
 ```
 
 #### Repository Pattern (30+ métodos)
+
 ```
 ✅ WorkforcePlanningRepository.php
    - Scenario: getScenarioById, getScenariosByOrganization, createScenario, updateScenario, deleteScenario, approveScenario
@@ -230,30 +241,31 @@ CAPA TRANSVERSAL: Analítica, gobierno e indicadores
 ```
 
 #### Service Layer (500+ líneas)
+
 ```
 ✅ WorkforcePlanningService.php
-   
+
    calculateMatches($scenarioId)
    - Skill matching algorithm (60% skill_match + 20% readiness + 20% risk)
    - Readiness levels: immediate, short_term, long_term, not_ready
    - Transition types: promotion, lateral, reskilling, no_match
    - Risk scoring (0-100) and factors
    - Output: 100+ match records per scenario
-   
+
    calculateSkillGaps($scenarioId)
    - Gap identification per skill/role/department
    - Coverage percentage analysis
    - Priority classification: critical, high, medium
    - Remediation strategies: hiring, training, reskilling
    - Cost and timeline estimation
-   
+
    calculateAnalytics($scenarioId)
    - Headcount projections (current vs projected)
    - Internal coverage % calculation
    - Succession risk % calculation
    - Cost estimates (recruitment + training)
    - Timeline estimates (months for external hiring)
-   
+
    runFullAnalysis($scenarioId)
    - Orchestration method that chains all calculations
    - Database transaction for consistency
@@ -261,6 +273,7 @@ CAPA TRANSVERSAL: Analítica, gobierno e indicadores
 ```
 
 #### API Controller (13+ endpoints)
+
 ```
 ✅ WorkforcePlanningController.php
 
@@ -285,18 +298,20 @@ GET    /api/v1/workforce-planning/matches/{id}/recommendations
 ```
 
 #### Validation Layer
+
 ```
-✅ StoreWorkforcePlanningScenarioRequest.php
+✅ StoreStrategicPlanningScenariosRequest.php
    - name: required, max 100
    - description: nullable, max 500
    - horizon_months: required, min 1, max 36
    - fiscal_year: required, min 2020, max 2030
 
-✅ UpdateWorkforcePlanningScenarioRequest.php
+✅ UpdateStrategicPlanningScenariosRequest.php
    - Same as above + status: sometimes, in:draft,pending_approval,approved,archived
 ```
 
 #### Testing Layer (400+ líneas)
+
 ```
 ✅ WorkforcePlanningServiceTest.php
    - Test readiness level calculations
@@ -313,7 +328,7 @@ GET    /api/v1/workforce-planning/matches/{id}/recommendations
    - Test authentication requirement
    - Test 404 responses
 
-✅ WorkforcePlanningScenarioFactory.php
+✅ StrategicPlanningScenariosFactory.php
    - States: draft(), approved(), archived()
    - Realistic test data generation
 ```
@@ -419,6 +434,7 @@ GET    /api/v1/workforce-planning/matches/{id}/recommendations
 Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/WorkforcePlanning/`:
 
 ### Bloque 5: Cobertura Externa (Reclutamiento y Selección)
+
 ```
 ❌ Linking automático WFP → Sourcing module requisitions
 ❌ Recomendador de fuentes de reclutamiento por perfil
@@ -428,6 +444,7 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
 ```
 
 ### Bloque 6: Desarrollo y Reconversión (Parcialmente implementado)
+
 ```
 ✅ Identificación de skill gaps
 ✅ Cálculo de remediation strategies
@@ -437,6 +454,7 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
 ```
 
 ### Bloque 7: Desvinculaciones y Ajustes Estructurales (NO IMPLEMENTADO)
+
 ```
 ❌ Modelo de datos para separation planning
 ❌ Análisis de excesos estructurales por rol
@@ -446,6 +464,7 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
 ```
 
 ### Capa Transversal: Analítica Avanzada (Parcialmente implementado)
+
 ```
 ✅ KPIs básicos (headcount, coverage, costs)
 ❌ Predicción de rotación por rol
@@ -501,7 +520,7 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
     - Actions: fetchScenarios, fetchScenario, createScenario, updateScenario
     - Actions: runAnalysis, fetchAnalytics
     - Getters: scenarioCount, completedAnalyses, atRiskRoles
-    
+
 [ ] Reemplazar API calls directas con store methods
     - ScenarioSelector → use store
     - OverviewDashboard → use store
@@ -518,17 +537,17 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
     - [ ] Seleccionar 2 scenarios
     - [ ] Mostrar side-by-side comparison
     - [ ] Highlight diferencias en métricas
-    
+
 [ ] Export/Report Generation
     - [ ] PDF export de scenario
     - [ ] Excel export de datos
     - [ ] Templated reports
-    
+
 [ ] Scenario Templates
     - [ ] Crear templates reutilizables
     - [ ] Base de datos de templates
     - [ ] Duplicar scenario from template
-    
+
 [ ] What-If Analysis
     - [ ] Ajustar variables en UI
     - [ ] Recalcular en tiempo real
@@ -546,12 +565,12 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
     - [ ] Run analysis flow
     - [ ] View analytics dashboard
     - [ ] Export report
-    
+
 [ ] Component Tests
     - [ ] RoleForecastsTable component tests
     - [ ] MatchingResults component tests
     - [ ] Charts rendering tests
-    
+
 [ ] Integration Tests
     - [ ] Scenario → Analysis → Dashboard flow
     - [ ] Data consistency across components
@@ -566,15 +585,15 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
 [ ] Marketplace Integration
     - [ ] Mostrar candidates matched en Marketplace
     - [ ] Cross-link Marketplace ↔ Workforce Planning
-    
+
 [ ] Skills Module Integration
     - [ ] Sincronizar skills con Skills module
     - [ ] Mostrar skill proficiency en matches
-    
+
 [ ] Learning Paths Module Integration
     - [ ] Sugerir learning paths para skill gaps
     - [ ] Trackear progress en gap remediation
-    
+
 [ ] Reports Module Integration
     - [ ] Generar reportes en Reports module
     - [ ] Integrar con reporting dashboard
@@ -585,6 +604,7 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
 ## 📊 MÉTRICAS DE COMPLETACIÓN
 
 ### Por Capa:
+
 - Backend (API + Service + Models): **100%** ✅
 - Database: **100%** ✅
 - Testing: **100%** ✅ (basis)
@@ -594,6 +614,7 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
 - E2E Tests: **0%** ⏳
 
 ### Story Points:
+
 - **Completados:** 28/84 (33%) ✅
 - **Pendientes:** 56/84 (67%) ⏳
   - Componentes Frontend: 13 sp
@@ -608,16 +629,19 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
 ## 🎯 RECOMENDACIONES
 
 ### Inmediato (Hoy/Mañana)
+
 1. ✅ **Completar 4 componentes frontend** - Critical path
 2. ✅ **Probar flujo completo** (create → analyze → view)
 3. ✅ **Actualizar documentación** con cambios realizados
 
 ### Corto Plazo (Esta semana)
+
 1. 📝 **Agregar Pinia store** - Mejora architecture
 2. 🧪 **Crear E2E tests** - Asegurar calidad
 3. 📊 **Implementar reports** - Valor para usuario
 
 ### Mediano Plazo (Próximas 2 semanas)
+
 1. 🔗 **Integrar con otros módulos** - Marketplace, Skills, Learning
 2. 🎨 **Advanced features** - Comparison, templates, what-if
 3. 📱 **Mobile responsiveness** - Asegurar usabilidad mobile

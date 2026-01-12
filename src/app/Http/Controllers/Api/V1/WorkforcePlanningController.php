@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\WorkforcePlanningScenario;
-use App\Http\Requests\StoreWorkforcePlanningScenarioRequest;
-use App\Http\Requests\UpdateWorkforcePlanningScenarioRequest;
+use App\Models\StrategicPlanningScenarios;
+use App\Http\Requests\StoreStrategicPlanningScenariosRequest;
+use App\Http\Requests\UpdateStrategicPlanningScenariosRequest;
 use App\Repositories\WorkforcePlanningRepository;
 use App\Services\WorkforcePlanningService;
 use Illuminate\Http\JsonResponse;
@@ -31,7 +31,7 @@ class WorkforcePlanningController extends Controller
     public function listScenarios(Request $request): JsonResponse
     {
         $organizationId = auth()->user()->organization_id;
-        
+
         $filters = [
             'status' => $request->input('status'),
             'fiscal_year' => $request->input('fiscal_year'),
@@ -76,7 +76,7 @@ class WorkforcePlanningController extends Controller
      * Crear nuevo scenario
      * POST /api/v1/workforce-planning/scenarios
      */
-    public function createScenario(StoreWorkforcePlanningScenarioRequest $request): JsonResponse
+    public function createScenario(StoreStrategicPlanningScenariosRequest $request): JsonResponse
     {
         $data = $request->validated();
         $data['organization_id'] = auth()->user()->organization_id;
@@ -95,9 +95,9 @@ class WorkforcePlanningController extends Controller
      * Actualizar scenario
      * PUT /api/v1/workforce-planning/scenarios/{id}
      */
-    public function updateScenario($id, UpdateWorkforcePlanningScenarioRequest $request): JsonResponse
+    public function updateScenario($id, UpdateStrategicPlanningScenariosRequest $request): JsonResponse
     {
-        $scenario = WorkforcePlanningScenario::find($id);
+        $scenario = StrategicPlanningScenarios::find($id);
 
         if (!$scenario) {
             return response()->json([
@@ -122,7 +122,7 @@ class WorkforcePlanningController extends Controller
      */
     public function approveScenario($id): JsonResponse
     {
-        $scenario = WorkforcePlanningScenario::find($id);
+        $scenario = StrategicPlanningScenarios::find($id);
 
         if (!$scenario) {
             return response()->json([
@@ -350,22 +350,22 @@ class WorkforcePlanningController extends Controller
         ]);
 
         try {
-            $scenario = WorkforcePlanningScenario::findOrFail($scenarioId);
-            
+            $scenario = StrategicPlanningScenarios::findOrFail($scenarioId);
+
             // Obtener analytics del escenario
             $analytics = $this->repository->getAnalyticsByScenario($scenarioId);
             $currentHeadcount = $analytics->total_headcount_current ?? 250;
-            
+
             // Calcular proyecciones
             $projectedHeadcount = round($currentHeadcount * (1 + $validated['growth_percentage'] / 100));
             $netGrowth = $projectedHeadcount - $currentHeadcount;
-            
+
             // Calcular distribución por departamento (simulado con lógica de negocio)
             $departmentBreakdown = $this->calculateDepartmentBreakdown($scenario, $currentHeadcount, $netGrowth);
-            
+
             // Identificar skills necesarias basadas en role forecasts
             $skillsNeeded = $this->calculateSkillsNeeded($scenario, $netGrowth);
-            
+
             // Identificar riesgos críticos
             $criticalRisks = $this->identifyCriticalRisks($scenario);
 
@@ -415,11 +415,11 @@ class WorkforcePlanningController extends Controller
             'scenario_id_input' => $request->input('scenario_id'),
             'headers' => $request->headers->all(),
         ]);
-        
+
         $scenarioId = $request->query('scenario_id');
-        
+
         \Log::info('getCriticalPositions scenario_id value: "' . $scenarioId . '" (type: ' . gettype($scenarioId) . ')');
-        
+
         if ($scenarioId === null || $scenarioId === '') {
             \Log::warning('getCriticalPositions: scenario_id is null or empty');
             return response()->json([
@@ -429,19 +429,19 @@ class WorkforcePlanningController extends Controller
         }
 
         try {
-            $scenario = WorkforcePlanningScenario::findOrFail($scenarioId);
-            
+            $scenario = StrategicPlanningScenarios::findOrFail($scenarioId);
+
             // Obtener planes de sucesión con análisis de riesgo
             $successionPlans = $scenario->successionPlans()
                 ->with(['role', 'primarySuccessor', 'secondarySuccessor', 'department'])
                 ->get();
-            
+
             $criticalPositions = $successionPlans->map(function ($plan) {
                 $readyNow = 0;
                 $ready12m = 0;
                 $ready24m = 0;
                 $notReady = 0;
-                
+
                 // Contar sucesores por nivel de preparación
                 if ($plan->primarySuccessor && $plan->primary_readiness === 'ready_now') {
                     $readyNow++;
@@ -452,7 +452,7 @@ class WorkforcePlanningController extends Controller
                 } else {
                     $notReady++;
                 }
-                
+
                 if ($plan->secondarySuccessor && $plan->secondary_readiness === 'ready_now') {
                     $readyNow++;
                 } elseif ($plan->secondarySuccessor && $plan->secondary_readiness === 'ready_12m') {
@@ -460,10 +460,10 @@ class WorkforcePlanningController extends Controller
                 } elseif ($plan->secondarySuccessor && $plan->secondary_readiness === 'ready_24m') {
                     $ready24m++;
                 }
-                
+
                 $criticalityScore = $this->calculateCriticalityScore($plan);
                 $riskStatus = $this->assessRiskStatus($plan, $readyNow);
-                
+
                 return [
                     'id' => $plan->id,
                     'role' => [
@@ -518,7 +518,7 @@ class WorkforcePlanningController extends Controller
             'Operations' => 0.12,
             'Support' => 0.08,
         ];
-        
+
         $breakdown = [];
         foreach ($departments as $dept => $ratio) {
             $current = round($currentHeadcount * $ratio);
@@ -529,7 +529,7 @@ class WorkforcePlanningController extends Controller
                 'gap' => $growth,
             ];
         }
-        
+
         return $breakdown;
     }
 
@@ -543,7 +543,7 @@ class WorkforcePlanningController extends Controller
             ['skill_id' => 4, 'skill_name' => 'Python', 'weight' => 0.12],
             ['skill_id' => 5, 'skill_name' => 'Communication', 'weight' => 0.08],
         ];
-        
+
         return array_map(function ($skill) use ($netGrowth) {
             return [
                 'skill_id' => $skill['skill_id'],
@@ -561,7 +561,7 @@ class WorkforcePlanningController extends Controller
             ->whereNull('primary_successor_id')
             ->with('role')
             ->get();
-            
+
         return $successionPlans->map(function ($plan) {
             return [
                 'role' => $plan->role->name ?? 'Critical Role',
@@ -574,16 +574,16 @@ class WorkforcePlanningController extends Controller
 
     private function calculateCriticalityScore($plan): int
     {
-        $baseScore = match($plan->criticality_level) {
+        $baseScore = match ($plan->criticality_level) {
             'critical' => 90,
             'high' => 70,
             'medium' => 50,
             default => 30,
         };
-        
+
         // Ajustar según tiempo de reemplazo
         $timeAdjustment = ($plan->replacement_time_months ?? 6) > 6 ? 10 : 0;
-        
+
         return min(100, $baseScore + $timeAdjustment);
     }
 
@@ -592,11 +592,11 @@ class WorkforcePlanningController extends Controller
         if ($plan->criticality_level === 'critical' && $readyNow == 0) {
             return 'HIGH';
         }
-        
+
         if ($plan->criticality_level === 'high' && $readyNow == 0) {
             return 'MEDIUM';
         }
-        
+
         return 'LOW';
     }
 
@@ -605,11 +605,11 @@ class WorkforcePlanningController extends Controller
         if ($readyNow > 0) {
             return "Continue development of ready successors";
         }
-        
+
         if ($plan->criticality_level === 'critical') {
             return "URGENT: Immediate succession planning required";
         }
-        
+
         return "Identify and develop potential successors";
     }
 
@@ -617,18 +617,18 @@ class WorkforcePlanningController extends Controller
      * Transicionar estado de decisión de un escenario
      * POST /api/v1/workforce-planning/scenarios/{id}/decision-status
      * 
-     * @param WorkforcePlanningScenario $scenario
+     * @param StrategicPlanningScenarios $scenario
      * @param \App\Http\Requests\WorkforcePlanning\TransitionDecisionStatusRequest $request
      * @return JsonResponse
      */
     public function transitionDecisionStatus(
-        WorkforcePlanningScenario $scenario,
+        StrategicPlanningScenarios $scenario,
         \App\Http\Requests\WorkforcePlanning\TransitionDecisionStatusRequest $request
     ): JsonResponse {
         $this->authorize('transitionDecisionStatus', [$scenario, $request->to_status]);
 
         $user = auth()->user();
-        
+
         $updatedScenario = $this->service->transitionDecisionStatus(
             $scenario,
             $request->to_status,
@@ -647,18 +647,18 @@ class WorkforcePlanningController extends Controller
      * Iniciar ejecución de escenario aprobado
      * POST /api/v1/workforce-planning/scenarios/{id}/execution/start
      * 
-     * @param WorkforcePlanningScenario $scenario
+     * @param StrategicPlanningScenarios $scenario
      * @param \App\Http\Requests\WorkforcePlanning\ExecutionActionRequest $request
      * @return JsonResponse
      */
     public function startExecution(
-        WorkforcePlanningScenario $scenario,
+        StrategicPlanningScenarios $scenario,
         \App\Http\Requests\WorkforcePlanning\ExecutionActionRequest $request
     ): JsonResponse {
         $this->authorize('startExecution', $scenario);
 
         $user = auth()->user();
-        
+
         $updatedScenario = $this->service->startExecution($scenario, $user);
 
         return response()->json([
@@ -672,18 +672,18 @@ class WorkforcePlanningController extends Controller
      * Pausar ejecución de escenario
      * POST /api/v1/workforce-planning/scenarios/{id}/execution/pause
      * 
-     * @param WorkforcePlanningScenario $scenario
+     * @param StrategicPlanningScenarios $scenario
      * @param \App\Http\Requests\WorkforcePlanning\ExecutionActionRequest $request
      * @return JsonResponse
      */
     public function pauseExecution(
-        WorkforcePlanningScenario $scenario,
+        StrategicPlanningScenarios $scenario,
         \App\Http\Requests\WorkforcePlanning\ExecutionActionRequest $request
     ): JsonResponse {
         $this->authorize('pauseExecution', $scenario);
 
         $user = auth()->user();
-        
+
         $updatedScenario = $this->service->pauseExecution($scenario, $user, $request->notes);
 
         return response()->json([
@@ -697,18 +697,18 @@ class WorkforcePlanningController extends Controller
      * Completar ejecución de escenario
      * POST /api/v1/workforce-planning/scenarios/{id}/execution/complete
      * 
-     * @param WorkforcePlanningScenario $scenario
+     * @param StrategicPlanningScenarios $scenario
      * @param \App\Http\Requests\WorkforcePlanning\ExecutionActionRequest $request
      * @return JsonResponse
      */
     public function completeExecution(
-        WorkforcePlanningScenario $scenario,
+        StrategicPlanningScenarios $scenario,
         \App\Http\Requests\WorkforcePlanning\ExecutionActionRequest $request
     ): JsonResponse {
         $this->authorize('completeExecution', $scenario);
 
         $user = auth()->user();
-        
+
         $updatedScenario = $this->service->completeExecution($scenario, $user);
 
         return response()->json([
@@ -722,18 +722,18 @@ class WorkforcePlanningController extends Controller
      * Crear nueva versión de escenario aprobado (inmutabilidad)
      * POST /api/v1/workforce-planning/scenarios/{id}/versions
      * 
-     * @param WorkforcePlanningScenario $scenario
+     * @param StrategicPlanningScenarios $scenario
      * @param \App\Http\Requests\WorkforcePlanning\CreateVersionRequest $request
      * @return JsonResponse
      */
     public function createNewVersion(
-        WorkforcePlanningScenario $scenario,
+        StrategicPlanningScenarios $scenario,
         \App\Http\Requests\WorkforcePlanning\CreateVersionRequest $request
     ): JsonResponse {
         $this->authorize('createNewVersion', $scenario);
 
         $user = auth()->user();
-        
+
         $newVersion = $this->service->createNewVersion(
             $scenario,
             $request->name,
@@ -755,14 +755,14 @@ class WorkforcePlanningController extends Controller
      * Listar todas las versiones de un grupo de versionamiento
      * GET /api/v1/workforce-planning/scenarios/{id}/versions
      * 
-     * @param WorkforcePlanningScenario $scenario
+     * @param StrategicPlanningScenarios $scenario
      * @return JsonResponse
      */
-    public function listVersions(WorkforcePlanningScenario $scenario): JsonResponse
+    public function listVersions(StrategicPlanningScenarios $scenario): JsonResponse
     {
         $this->authorize('view', $scenario);
 
-        $versions = WorkforcePlanningScenario::where('version_group_id', $scenario->version_group_id)
+        $versions = StrategicPlanningScenarios::where('version_group_id', $scenario->version_group_id)
             ->orderBy('version_number', 'desc')
             ->with(['owner', 'statusEvents'])
             ->get();
@@ -782,12 +782,12 @@ class WorkforcePlanningController extends Controller
      * Sincronizar skills obligatorias desde padre
      * POST /api/v1/workforce-planning/scenarios/{id}/sync-parent
      * 
-     * @param WorkforcePlanningScenario $scenario
+     * @param StrategicPlanningScenarios $scenario
      * @param \App\Http\Requests\WorkforcePlanning\SyncParentSkillsRequest $request
      * @return JsonResponse
      */
     public function syncParentSkills(
-        WorkforcePlanningScenario $scenario,
+        StrategicPlanningScenarios $scenario,
         \App\Http\Requests\WorkforcePlanning\SyncParentSkillsRequest $request
     ): JsonResponse {
         $this->authorize('syncFromParent', $scenario);
@@ -808,10 +808,10 @@ class WorkforcePlanningController extends Controller
      * Consolidar rollup de escenarios hijos
      * GET /api/v1/workforce-planning/scenarios/{id}/rollup
      * 
-     * @param WorkforcePlanningScenario $scenario
+     * @param StrategicPlanningScenarios $scenario
      * @return JsonResponse
      */
-    public function getRollup(WorkforcePlanningScenario $scenario): JsonResponse
+    public function getRollup(StrategicPlanningScenarios $scenario): JsonResponse
     {
         $this->authorize('view', $scenario);
 

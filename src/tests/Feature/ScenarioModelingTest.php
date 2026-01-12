@@ -2,7 +2,7 @@
 
 use App\Models\Organizations;
 use App\Models\User;
-use App\Models\WorkforcePlanningScenario;
+use App\Models\StrategicPlanningScenarios;
 use App\Models\ScenarioTemplate;
 use App\Models\ScenarioSkillDemand;
 use App\Models\Skills;
@@ -34,7 +34,7 @@ test('it enforces tenant isolation for scenarios', function () {
         'size' => 'small',
     ]);
 
-    $scenario1 = WorkforcePlanningScenario::create([
+    $scenario1 = StrategicPlanningScenarios::create([
         'organization_id' => $org1->id,
         'name' => 'Scenario 1',
         'description' => 'Test scenario 1',
@@ -52,7 +52,7 @@ test('it enforces tenant isolation for scenarios', function () {
         'role' => 'admin',
     ]);
 
-    $scenario2 = WorkforcePlanningScenario::create([
+    $scenario2 = StrategicPlanningScenarios::create([
         'organization_id' => $org2->id,
         'name' => 'Scenario 2',
         'description' => 'Test scenario 2',
@@ -112,7 +112,7 @@ test('it creates scenario from template', function () {
 });
 
 test('it calculates gaps with expected structure', function () {
-    $scenario = WorkforcePlanningScenario::create([
+    $scenario = StrategicPlanningScenarios::create([
         'organization_id' => $this->organization->id,
         'name' => 'Gap Analysis Scenario',
         'description' => 'Test scenario',
@@ -154,7 +154,7 @@ test('it calculates gaps with expected structure', function () {
 });
 
 test('it generates suggested strategies', function () {
-    $scenario = WorkforcePlanningScenario::create([
+    $scenario = StrategicPlanningScenarios::create([
         'organization_id' => $this->organization->id,
         'name' => 'Strategy Scenario',
         'description' => 'Test scenario',

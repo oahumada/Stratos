@@ -286,7 +286,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-import { useStrategicPlanningScenariosStore, type RoleForecast } from '@/stores/strategicPlanningScenariosStore'
+import { useStrategicPlanningScenariosStore, type RoleForecast } from '@/stores/scenarioPlanningScenariosStore'
 
 const props = defineProps<{
   scenarioId: number

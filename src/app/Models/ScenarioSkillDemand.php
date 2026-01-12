@@ -38,7 +38,7 @@ class ScenarioSkillDemand extends Model
     // Relaciones
     public function scenario(): BelongsTo
     {
-        return $this->belongsTo(WorkforcePlanningScenario::class, 'scenario_id');
+        return $this->belongsTo(StrategicPlanningScenarios::class, 'scenario_id');
     }
 
     public function skill(): BelongsTo
@@ -64,7 +64,8 @@ class ScenarioSkillDemand extends Model
 
     public function getCoveragePercentage()
     {
-        if ($this->required_headcount === 0) return 100;
+        if ($this->required_headcount === 0)
+            return 100;
         return round(($this->current_headcount / $this->required_headcount) * 100);
     }
 

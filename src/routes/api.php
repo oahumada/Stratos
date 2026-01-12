@@ -52,82 +52,12 @@ Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController:
 Route::get('/people/{people_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']); // Vista candidato
 Route::get('/marketplace/recruiter', [\App\Http\Controllers\Api\MarketplaceController::class, 'recruiterView']); // Vista reclutador
 
-// Workforce Planning (Phase 2)
-Route::middleware('auth:sanctum')->prefix('v1/workforce-planning')->group(function () {
-    // Scenario Templates
-    Route::get('/scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
-    Route::get('/scenario-templates/{template}', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'show']);
+// Scenario Planning
 
-    // Workforce Scenarios
-    Route::get('/workforce-scenarios', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'index']);
-    Route::post('/workforce-scenarios', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'store']);
-    Route::post('/workforce-scenarios/{template}/instantiate-from-template', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'instantiateFromTemplate']);
-    Route::get('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'show']);
-    Route::put('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'update']);
-    Route::patch('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'update']);
-    Route::delete('/workforce-scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'destroy']);
-    Route::post('/workforce-scenarios/{scenario}/calculate-gaps', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'calculateGaps']);
-    Route::post('/workforce-scenarios/{scenario}/refresh-suggested-strategies', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'refreshSuggestedStrategies']);
-
-    // Scenario Comparisons
-    Route::post('/scenario-comparisons', [\App\Http\Controllers\Api\ScenarioComparisonController::class, 'store']);
-    Route::get('/scenario-comparisons', [\App\Http\Controllers\Api\ScenarioComparisonController::class, 'index']);
-    Route::get('/scenario-comparisons/{comparison}', [\App\Http\Controllers\Api\ScenarioComparisonController::class, 'show']);
-
-    // Use Case activation per organization
-    Route::get('/use-cases', [\App\Http\Controllers\Api\OrganizationUseCaseController::class, 'index']);
-    Route::post('/use-cases/{template}/activate', [\App\Http\Controllers\Api\OrganizationUseCaseController::class, 'activate']);
-    Route::post('/use-cases/{template}/deactivate', [\App\Http\Controllers\Api\OrganizationUseCaseController::class, 'deactivate']);
-
-    // Legacy compatibility routes (temporary) to avoid 404s while migrating frontend
-    Route::get('/scenarios/{scenario}', [\App\Http\Controllers\Api\WorkforceScenarioController::class, 'show']);
-    Route::get('/scenarios/{id}/role-forecasts', function ($id) {
-        return response()->json(['success' => true, 'data' => []]);
-    });
-    Route::get('/scenarios/{id}/matches', function ($id) {
-        return response()->json(['success' => true, 'data' => []]);
-    });
-    Route::get('/scenarios/{id}/skill-gaps', function ($id) {
-        return response()->json(['success' => true, 'data' => []]);
-    });
-    Route::get('/scenarios/{id}/succession-plans', function ($id) {
-        return response()->json(['success' => true, 'data' => []]);
-    });
-
-    // Workforce Planning Phase 2 - Simulador de Crecimiento
-    Route::post('/scenarios/{id}/simulate-growth', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'simulateGrowth']);
-    Route::get('/critical-positions', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getCriticalPositions']);
-
-    // Workforce Planning Phase 2 - Avanzado: Versionamiento, Jerarquía, Estados
-    Route::post('/scenarios/{scenario}/decision-status', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'transitionDecisionStatus']);
-    Route::post('/scenarios/{scenario}/execution/start', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'startExecution']);
-    Route::post('/scenarios/{scenario}/execution/pause', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'pauseExecution']);
-    Route::post('/scenarios/{scenario}/execution/complete', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'completeExecution']);
-    Route::post('/scenarios/{scenario}/versions', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'createNewVersion']);
-    Route::get('/scenarios/{scenario}/versions', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'listVersions']);
-    Route::post('/scenarios/{scenario}/sync-parent', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'syncParentSkills']);
-    Route::get('/scenarios/{scenario}/rollup', [\App\Http\Controllers\Api\V1\WorkforcePlanningController::class, 'getRollup']);
-
-    // Workforce Planning Phase 1 - Planes de dotación
-    Route::get('/workforce-plans', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'index']);
-    Route::post('/workforce-plans', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'store']);
-    Route::get('/workforce-plans/{workforcePlan}', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'show']);
-    Route::put('/workforce-plans/{workforcePlan}', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'update']);
-    Route::patch('/workforce-plans/{workforcePlan}', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'update']);
-    Route::delete('/workforce-plans/{workforcePlan}', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'destroy']);
-
-    Route::post('/workforce-plans/{workforcePlan}/scope-units', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'addScopeUnit']);
-    Route::post('/workforce-plans/{workforcePlan}/scope-roles', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'addScopeRole']);
-    Route::post('/workforce-plans/{workforcePlan}/transformation-projects', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'addTransformationProject']);
-    Route::post('/workforce-plans/{workforcePlan}/talent-risks', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'addTalentRisk']);
-    Route::post('/workforce-plans/{workforcePlan}/analyze-risks', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'analyzeRisks']);
-    Route::post('/workforce-plans/{workforcePlan}/scope-document', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'scopeDocument']);
-    Route::get('/workforce-plans/{workforcePlan}/statistics', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'statistics']);
-    Route::post('/workforce-plans/{workforcePlan}/approve', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'approve']);
-    Route::post('/workforce-plans/{workforcePlan}/activate', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'activate']);
-    Route::post('/workforce-plans/{workforcePlan}/archive', [\App\Http\Controllers\Api\V1\WorkforcePlanController::class, 'archive']);
-});
 
 // Catálogos dinámicos para selectores
 Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');
 require __DIR__ . '/form-schema-complete.php';
+
+
+// TODO: recordar que estas rutas están protegidas por el middleware 'auth' en RouteServiceProvider.php y son Multinenant deben filtrar el organization_id del usuario autenticado

@@ -8,16 +8,16 @@
 
 ## 📊 RESUMEN EJECUTIVO
 
-| Componente | Estado | Notas |
-|-----------|--------|-------|
-| **Tablas de Base de Datos** | ✅ | 6 tablas + relaciones completamente implementadas |
-| **Modelos Eloquent** | ✅ | 6 modelos con relaciones y scopes |
-| **Service Layer** | ✅ | WorkforcePlanningService con 8 métodos core |
-| **API Controllers** | ✅ | 3 controllers con endpoints completos |
-| **Rutas API** | ✅ | 17 endpoints v1/workforce-planning implementados |
-| **Componentes Vue** | ⚠️ | 6 componentes existentes, algunos parciales |
-| **Store (Pinia)** | ✅ | workforcePlanningStore.ts con state completo |
-| **Seeders de Plantillas** | ✅ | 4+ plantillas predefinidas |
+| Componente                  | Estado | Notas                                             |
+| --------------------------- | ------ | ------------------------------------------------- |
+| **Tablas de Base de Datos** | ✅     | 6 tablas + relaciones completamente implementadas |
+| **Modelos Eloquent**        | ✅     | 6 modelos con relaciones y scopes                 |
+| **Service Layer**           | ✅     | WorkforcePlanningService con 8 métodos core       |
+| **API Controllers**         | ✅     | 3 controllers con endpoints completos             |
+| **Rutas API**               | ✅     | 17 endpoints v1/workforce-planning implementados  |
+| **Componentes Vue**         | ⚠️     | 6 componentes existentes, algunos parciales       |
+| **Store (Pinia)**           | ✅     | workforcePlanningStore.ts con state completo      |
+| **Seeders de Plantillas**   | ✅     | 4+ plantillas predefinidas                        |
 
 **Veredicto:** La arquitectura de fondo está **100% implementada**. Lo que falta es principalmente la UI (componentes Vue) para las operaciones CRUD de escenarios.
 
@@ -28,6 +28,7 @@
 ### ✅ Tablas Implementadas
 
 #### 1. **workforce_planning_scenarios**
+
 ```sql
 -- Creada: 2026_01_04_100000
 - id (BIGINT PK)
@@ -41,11 +42,13 @@
 - created_by, approved_by, approved_at
 - timestamps
 ```
+
 ✅ **Estado:** Completa con enhance migration (2026_01_06_193810)
 
 ---
 
 #### 2. **scenario_skill_demands**
+
 ```sql
 -- Creada: 2026_01_06_193815
 - id (BIGINT PK)
@@ -63,11 +66,13 @@
 - timestamps, soft_deletes
 - UNIQUE: (scenario_id, skill_id, role_id, department)
 ```
+
 ✅ **Estado:** Completa con índices
 
 ---
 
 #### 3. **scenario_closure_strategies**
+
 ```sql
 -- Creada: 2026_01_06_193815
 - id (BIGINT PK)
@@ -86,11 +91,13 @@
 - target_completion_date DATE
 - timestamps, soft_deletes
 ```
+
 ✅ **Estado:** Completa con índices
 
 ---
 
 #### 4. **scenario_templates**
+
 ```sql
 -- Creada: 2026_01_06_193804
 - id (BIGINT PK)
@@ -103,11 +110,13 @@
 - usage_count INT
 - soft_deletes
 ```
+
 ✅ **Estado:** Completa
 
 ---
 
 #### 5. **scenario_milestones**
+
 ```sql
 -- Creada: 2026_01_06_193815
 - id (BIGINT PK)
@@ -116,11 +125,13 @@
 - status ENUM(pending|in_progress|completed|delayed)
 - timestamps
 ```
+
 ✅ **Estado:** Implementada para tracking
 
 ---
 
 #### 6. **scenario_comparisons**
+
 ```sql
 -- Creada: 2026_01_06_193816
 - id (BIGINT PK)
@@ -131,6 +142,7 @@
 - results JSON
 - timestamps
 ```
+
 ✅ **Estado:** Implementada para análisis what-if
 
 ---
@@ -152,16 +164,17 @@
 
 ### ✅ Modelos Implementados
 
-| Modelo | Archivo | Relaciones | Scopes |
-|--------|---------|-----------|--------|
-| **WorkforcePlanningScenario** | Models/WorkforcePlanningScenario.php | organization, template, skillDemands, closureStrategies, milestones | forOrganization, byStatus, byType |
-| **ScenarioTemplate** | Models/ScenarioTemplate.php | scenarios | active, byIndustry, byType |
-| **ScenarioSkillDemand** | Models/ScenarioSkillDemand.php | scenario, skill, role | byPriority, forScenario |
-| **ScenarioClosureStrategy** | Models/ScenarioClosureStrategy.php | scenario, skill, assignee | byStatus, byStrategy, forScenario |
-| **ScenarioMilestone** | Models/ScenarioMilestone.php | scenario | byStatus, forScenario |
-| **ScenarioComparison** | Models/ScenarioComparison.php | organization | forOrganization |
+| Modelo                         | Archivo                               | Relaciones                                                          | Scopes                            |
+| ------------------------------ | ------------------------------------- | ------------------------------------------------------------------- | --------------------------------- |
+| **StrategicPlanningScenarios** | Models/StrategicPlanningScenarios.php | organization, template, skillDemands, closureStrategies, milestones | forOrganization, byStatus, byType |
+| **ScenarioTemplate**           | Models/ScenarioTemplate.php           | scenarios                                                           | active, byIndustry, byType        |
+| **ScenarioSkillDemand**        | Models/ScenarioSkillDemand.php        | scenario, skill, role                                               | byPriority, forScenario           |
+| **ScenarioClosureStrategy**    | Models/ScenarioClosureStrategy.php    | scenario, skill, assignee                                           | byStatus, byStrategy, forScenario |
+| **ScenarioMilestone**          | Models/ScenarioMilestone.php          | scenario                                                            | byStatus, forScenario             |
+| **ScenarioComparison**         | Models/ScenarioComparison.php         | organization                                                        | forOrganization                   |
 
 ✅ **Todos los modelos tienen:**
+
 - Fillable arrays correctos
 - Protected $casts
 - Relaciones properly defined
@@ -189,7 +202,7 @@
 4. runFullAnalysis($scenarioId): array
    // Ejecuta matches + gaps + analytics en una llamada
 
-5. calculateScenarioGaps(WorkforcePlanningScenario $scenario): array
+5. calculateScenarioGaps(StrategicPlanningScenarios $scenario): array
    // ⭐ MÉTODO CLAVE: Proyecta demanda vs. inventario actual
    // Retorna:
    //   - current_headcount (personas con skill hoy)
@@ -227,13 +240,13 @@
 
 GET     /v1/workforce-planning/workforce-scenarios
         → index() - Lista escenarios con paginación
-        
+
 POST    /v1/workforce-planning/workforce-scenarios
         → store() - Crea nuevo escenario
 
 POST    /v1/workforce-planning/workforce-scenarios/{template}/instantiate-from-template
         → instantiateFromTemplate() - ⭐ CREA DESDE PLANTILLA
-        
+
 GET     /v1/workforce-planning/workforce-scenarios/{scenario}
         → show() - Detalle de escenario
 
@@ -245,7 +258,7 @@ DELETE  /v1/workforce-planning/workforce-scenarios/{scenario}
 
 POST    /v1/workforce-planning/workforce-scenarios/{scenario}/calculate-gaps
         → calculateGaps() - ⭐ CALCULA BRECHAS
-        
+
 POST    /v1/workforce-planning/workforce-scenarios/{scenario}/refresh-suggested-strategies
         → refreshSuggestedStrategies() - ⭐ SUGIERE ESTRATEGIAS
 ```
@@ -257,12 +270,13 @@ POST    /v1/workforce-planning/workforce-scenarios/{scenario}/refresh-suggested-
 ```php
 GET     /v1/workforce-planning/scenario-templates
         → index() - Lista plantillas (con filtros)
-        
+
 GET     /v1/workforce-planning/scenario-templates/{template}
         → show() - Detalle de plantilla
 ```
 
 **Plantillas Predefinidas (4):**
+
 1. **IA Adoption Accelerator** - Transformación digital + IA
 2. **Digital Transformation** - Cloud + modernización
 3. **Rapid Growth** - Expansión de 50%+ headcount
@@ -275,10 +289,10 @@ GET     /v1/workforce-planning/scenario-templates/{template}
 ```php
 GET     /v1/workforce-planning/scenario-comparisons
         → index() - Lista comparaciones
-        
+
 POST    /v1/workforce-planning/scenario-comparisons
         → store() - Crea comparación what-if
-        
+
 GET     /v1/workforce-planning/scenario-comparisons/{comparison}
         → show() - Detalle de comparación
 ```
@@ -308,14 +322,14 @@ POST    /v1/workforce-planning/use-cases/{template}/deactivate
 
 ### ✅ Componentes Existentes
 
-| Componente | Ubicación | Estado | Funcionalidad |
-|-----------|-----------|--------|--------------|
-| **ScenarioSelector** | WorkforcePlanning/ScenarioSelector.vue | ✅ | Selecciona escenario activo |
-| **SkillGapsMatrix** | WorkforcePlanning/SkillGapsMatrix.vue | ✅ | Visualiza brechas en matriz |
-| **MatchingResults** | WorkforcePlanning/MatchingResults.vue | ✅ | Muestra matches de talento |
-| **RoleForecastsTable** | WorkforcePlanning/RoleForecastsTable.vue | ✅ | Tabla de proyecciones |
-| **SuccessionPlanCard** | WorkforcePlanning/SuccessionPlanCard.vue | ✅ | Planes de sucesión |
-| **OverviewDashboard** | WorkforcePlanning/OverviewDashboard.vue | ✅ | Dashboard principal |
+| Componente             | Ubicación                                | Estado | Funcionalidad               |
+| ---------------------- | ---------------------------------------- | ------ | --------------------------- |
+| **ScenarioSelector**   | WorkforcePlanning/ScenarioSelector.vue   | ✅     | Selecciona escenario activo |
+| **SkillGapsMatrix**    | WorkforcePlanning/SkillGapsMatrix.vue    | ✅     | Visualiza brechas en matriz |
+| **MatchingResults**    | WorkforcePlanning/MatchingResults.vue    | ✅     | Muestra matches de talento  |
+| **RoleForecastsTable** | WorkforcePlanning/RoleForecastsTable.vue | ✅     | Tabla de proyecciones       |
+| **SuccessionPlanCard** | WorkforcePlanning/SuccessionPlanCard.vue | ✅     | Planes de sucesión          |
+| **OverviewDashboard**  | WorkforcePlanning/OverviewDashboard.vue  | ✅     | Dashboard principal         |
 
 ---
 
@@ -323,16 +337,16 @@ POST    /v1/workforce-planning/use-cases/{template}/deactivate
 
 Para una experiencia de usuario completa en creación y gestión de escenarios, faltan:
 
-| Componente Necesario | Ubicación | Propósito | Prioridad |
-|---------------------|-----------|----------|-----------|
-| **ScenarioList** | WorkforcePlanning/ScenarioList.vue | Listar + filtrar escenarios | 🔴 ALTA |
-| **ScenarioCreate** | WorkforcePlanning/ScenarioCreate.vue | Wizard de creación desde cero | 🔴 ALTA |
-| **ScenarioCreateFromTemplate** | WorkforcePlanning/ScenarioCreateFromTemplate.vue | Wizard desde plantilla | 🔴 ALTA |
-| **ScenarioDetail** | WorkforcePlanning/ScenarioDetail.vue | Vista detallada con tabs | 🔴 ALTA |
-| **StrategyComparison** | WorkforcePlanning/StrategyComparison.vue | Compara estrategias build vs buy | 🔴 MEDIA |
-| **ScenarioComparison** | WorkforcePlanning/ScenarioComparison.vue | Compara múltiples escenarios | 🔴 MEDIA |
-| **ClosureStrategies** | WorkforcePlanning/ClosureStrategies.vue | Gestiona estrategias sugeridas | 🔴 ALTA |
-| **ScenarioTimeline** | WorkforcePlanning/ScenarioTimeline.vue | Gantt chart del escenario | 🟡 BAJA |
+| Componente Necesario           | Ubicación                                        | Propósito                        | Prioridad |
+| ------------------------------ | ------------------------------------------------ | -------------------------------- | --------- |
+| **ScenarioList**               | WorkforcePlanning/ScenarioList.vue               | Listar + filtrar escenarios      | 🔴 ALTA   |
+| **ScenarioCreate**             | WorkforcePlanning/ScenarioCreate.vue             | Wizard de creación desde cero    | 🔴 ALTA   |
+| **ScenarioCreateFromTemplate** | WorkforcePlanning/ScenarioCreateFromTemplate.vue | Wizard desde plantilla           | 🔴 ALTA   |
+| **ScenarioDetail**             | WorkforcePlanning/ScenarioDetail.vue             | Vista detallada con tabs         | 🔴 ALTA   |
+| **StrategyComparison**         | WorkforcePlanning/StrategyComparison.vue         | Compara estrategias build vs buy | 🔴 MEDIA  |
+| **ScenarioComparison**         | WorkforcePlanning/ScenarioComparison.vue         | Compara múltiples escenarios     | 🔴 MEDIA  |
+| **ClosureStrategies**          | WorkforcePlanning/ClosureStrategies.vue          | Gestiona estrategias sugeridas   | 🔴 ALTA   |
+| **ScenarioTimeline**           | WorkforcePlanning/ScenarioTimeline.vue           | Gantt chart del escenario        | 🟡 BAJA   |
 
 ---
 
@@ -427,7 +441,7 @@ Todas las operaciones filtran por `organization_id`:
 ```php
 // En Controllers:
 $organizationId = auth()->user()->organization_id;
-WorkforcePlanningScenario::forOrganization($organizationId)
+StrategicPlanningScenarios::forOrganization($organizationId)
 
 // En Models - Scope:
 public function scopeForOrganization($query, $orgId) {
@@ -435,7 +449,7 @@ public function scopeForOrganization($query, $orgId) {
 }
 
 // En Policies:
-public function viewAny(User $user, WorkforcePlanningScenario $scenario) {
+public function viewAny(User $user, StrategicPlanningScenarios $scenario) {
     return $user->organization_id === $scenario->organization_id;
 }
 ```
@@ -473,7 +487,7 @@ Todas con validaciones completas (required, unique, exists, etc.)
 ✅ Validaciones: Form requests  
 ✅ Multi-tenant: Filtros por organización  
 ✅ Seeders: 4 plantillas predefinidas  
-✅ Store Pinia: Estado completo  
+✅ Store Pinia: Estado completo
 
 **Total Backend:** ✅ **100% IMPLEMENTADO**
 
@@ -483,9 +497,10 @@ Todas con validaciones completas (required, unique, exists, etc.)
 
 ✅ Componentes existentes: 6 (dashboard, gaps, matching, etc.)  
 ⚠️ Componentes faltantes: 8 (CRUD de escenarios)  
-✅ Store: Completamente funcional  
+✅ Store: Completamente funcional
 
 **Componentes Críticos Faltantes:**
+
 1. **ScenarioList.vue** - Para ver listado de escenarios
 2. **ScenarioCreate.vue** - Para crear desde cero
 3. **ScenarioCreateFromTemplate.vue** - Para crear desde plantilla
@@ -501,6 +516,7 @@ Todas con validaciones completas (required, unique, exists, etc.)
 ### La Arquitectura Está Completa ✅
 
 **El backend está 100% listo.** Tienes:
+
 - ✅ Todas las tablas de BD
 - ✅ Todos los modelos
 - ✅ Todo el servicio de lógica de negocio
@@ -511,14 +527,14 @@ Todas con validaciones completas (required, unique, exists, etc.)
 
 ### Cómo Esto Mapea a Tu Especificación
 
-| Tu Requerimiento | Implementación | Estado |
-|-----------------|-----------------|--------|
-| Crear escenarios | `POST /workforce-scenarios` + `instantiateFromTemplate()` | ✅ API |
-| Ver brechas proyectadas | `GET /workforce-scenarios/{id}/gaps` | ✅ API + Service |
-| Sugerir estrategias | `refreshSuggestedStrategies()` | ✅ Service |
-| Comparar escenarios | `compareScenarios()` | ✅ Service |
-| Dashboard de escenario | `OverviewDashboard.vue` | ✅ Vue |
-| Listar escenarios | `GET /workforce-scenarios` | ✅ API, ⚠️ UI |
+| Tu Requerimiento        | Implementación                                            | Estado           |
+| ----------------------- | --------------------------------------------------------- | ---------------- |
+| Crear escenarios        | `POST /workforce-scenarios` + `instantiateFromTemplate()` | ✅ API           |
+| Ver brechas proyectadas | `GET /workforce-scenarios/{id}/gaps`                      | ✅ API + Service |
+| Sugerir estrategias     | `refreshSuggestedStrategies()`                            | ✅ Service       |
+| Comparar escenarios     | `compareScenarios()`                                      | ✅ Service       |
+| Dashboard de escenario  | `OverviewDashboard.vue`                                   | ✅ Vue           |
+| Listar escenarios       | `GET /workforce-scenarios`                                | ✅ API, ⚠️ UI    |
 
 ---
 
@@ -527,13 +543,11 @@ Todas con validaciones completas (required, unique, exists, etc.)
 Para tener una interfaz de usuario completa:
 
 **Día 1 (Frontend Básico):**
+
 1. Crear `ScenarioList.vue` - listar escenarios con filtros
 2. Crear `ScenarioCreateFromTemplate.vue` - wizard de creación
 
-**Día 2 (Frontend Completo):**
-3. Crear `ScenarioDetail.vue` - vista detallada con tabs
-4. Crear `ClosureStrategies.vue` - gestión de estrategias
-5. Integración con `SkillGapsMatrix` existente
+**Día 2 (Frontend Completo):** 3. Crear `ScenarioDetail.vue` - vista detallada con tabs 4. Crear `ClosureStrategies.vue` - gestión de estrategias 5. Integración con `SkillGapsMatrix` existente
 
 Pero **técnicamente el sistema ya funciona.** Solo necesita la UI de presentación.
 

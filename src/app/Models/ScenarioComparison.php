@@ -41,7 +41,7 @@ class ScenarioComparison extends Model
     // Método para obtener escenarios comparados
     public function getScenarios()
     {
-        return WorkforcePlanningScenario::whereIn('id', $this->scenario_ids ?? [])->get();
+        return StrategicPlanningScenarios::whereIn('id', $this->scenario_ids ?? [])->get();
     }
 
     // Scope multi-tenant

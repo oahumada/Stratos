@@ -14,7 +14,7 @@ class ScenarioClosureStrategyFactory extends Factory
         $strategy = $this->faker->randomElement(['build', 'buy', 'borrow', 'bot', 'bind', 'bridge']);
 
         return [
-            'scenario_id' => \App\Models\WorkforcePlanningScenario::factory(),
+            'scenario_id' => \App\Models\StrategicPlanningScenarios::factory(),
             'skill_id' => \App\Models\Skill::factory(),
             'strategy' => $strategy,
             'strategy_name' => strtoupper($strategy) . ' Strategy',
@@ -32,7 +32,7 @@ class ScenarioClosureStrategyFactory extends Factory
 
     public function proposed(): self
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => 'proposed',
         ]);
     }

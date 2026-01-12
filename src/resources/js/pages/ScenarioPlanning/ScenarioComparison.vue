@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-import { useStrategicPlanningScenariosStore } from '@/stores/strategicPlanningScenariosStore'
+import { useStrategicPlanningScenariosStore } from '@/stores/scenarioPlanningScenariosStore'
 
 interface ComparisonScenario {
   scenario_id: number

@@ -2,12 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\WorkforcePlanningScenario;
+use App\Models\StrategicPlanningScenarios;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class WorkforcePlanningScenarioFactory extends Factory
+class StrategicPlanningScenariosFactory extends Factory
 {
-    protected $model = WorkforcePlanningScenario::class;
+    protected $model = StrategicPlanningScenarios::class;
 
     public function definition(): array
     {

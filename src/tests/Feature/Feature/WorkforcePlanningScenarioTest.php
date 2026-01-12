@@ -5,10 +5,10 @@ namespace Tests\Feature;
 use App\Models\Organizations;
 use App\Models\ScenarioTemplate;
 use App\Models\User;
-use App\Models\WorkforcePlanningScenario;
+use App\Models\StrategicPlanningScenarios;
 use Tests\TestCase;
 
-class WorkforcePlanningScenarioTest extends TestCase
+class StrategicPlanningScenariosTest extends TestCase
 {
     protected User $user;
     protected Organizations $organization;
@@ -62,7 +62,7 @@ class WorkforcePlanningScenarioTest extends TestCase
     public function test_tenant_isolation_prevents_cross_org_access(): void
     {
         $otherOrg = Organizations::factory()->create();
-        $scenario = WorkforcePlanningScenario::factory()->create([
+        $scenario = StrategicPlanningScenarios::factory()->create([
             'organization_id' => $otherOrg->id,
         ]);
 
@@ -77,11 +77,11 @@ class WorkforcePlanningScenarioTest extends TestCase
      */
     public function test_list_scenarios_filtered_by_organization(): void
     {
-        WorkforcePlanningScenario::factory(3)->create([
+        StrategicPlanningScenarios::factory(3)->create([
             'organization_id' => $this->organization->id,
         ]);
 
-        WorkforcePlanningScenario::factory(2)->create([
+        StrategicPlanningScenarios::factory(2)->create([
             'organization_id' => Organizations::factory()->create()->id,
         ]);
 
@@ -140,7 +140,7 @@ class WorkforcePlanningScenarioTest extends TestCase
      */
     public function test_calculate_scenario_gaps(): void
     {
-        $scenario = WorkforcePlanningScenario::factory()->create([
+        $scenario = StrategicPlanningScenarios::factory()->create([
             'organization_id' => $this->organization->id,
         ]);
 
@@ -171,7 +171,7 @@ class WorkforcePlanningScenarioTest extends TestCase
     {
         $otherOrg = Organizations::factory()->create();
         $otherUser = User::factory()->create(['organization_id' => $otherOrg->id]);
-        $scenario = WorkforcePlanningScenario::factory()->create([
+        $scenario = StrategicPlanningScenarios::factory()->create([
             'organization_id' => $this->organization->id,
         ]);
 
@@ -188,12 +188,12 @@ class WorkforcePlanningScenarioTest extends TestCase
      */
     public function test_filter_scenarios_by_status(): void
     {
-        WorkforcePlanningScenario::factory(2)->create([
+        StrategicPlanningScenarios::factory(2)->create([
             'organization_id' => $this->organization->id,
             'status' => 'draft',
         ]);
 
-        WorkforcePlanningScenario::factory(1)->create([
+        StrategicPlanningScenarios::factory(1)->create([
             'organization_id' => $this->organization->id,
             'status' => 'active',
         ]);

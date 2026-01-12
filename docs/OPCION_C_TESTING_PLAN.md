@@ -10,6 +10,7 @@
 ## 🎯 Objetivo General
 
 Implementar una suite completa de tests (unitarios, integración, E2E) para validar:
+
 1. Lógica de negocio (matching algorithm, analytics)
 2. Componentes Vue (renderizado, interacciones)
 3. Store Pinia (state management, getters)
@@ -23,6 +24,7 @@ Implementar una suite completa de tests (unitarios, integración, E2E) para vali
 ### 1️⃣ Unit Tests - Backend (Laravel) (60 min)
 
 **1.1 Service Tests**
+
 ```bash
 tests/Unit/WorkforcePlanning/
 ├── MatchingServiceTest.php
@@ -48,14 +50,15 @@ tests/Unit/WorkforcePlanning/
 **Test Cases por Service:**
 
 **MatchingService (8-10 tests)**
+
 ```php
 // Test 1: Match score calculation
 public function testCalculateMatchScorePositive() {
     $candidate = ['skills' => ['PHP', 'JavaScript'], 'experience_years' => 5];
     $role = ['required_skills' => ['PHP', 'JavaScript'], 'required_years' => 5];
-    
+
     $score = $this->service->calculateScore($candidate, $role);
-    
+
     $this->assertGreaterThanOrEqual(85, $score);
 }
 
@@ -63,9 +66,9 @@ public function testCalculateMatchScorePositive() {
 public function testCalculateScoreMissingCriticalSkill() {
     $candidate = ['skills' => ['PHP'], 'experience_years' => 5];
     $role = ['required_skills' => ['PHP', 'JavaScript', 'SQL'], 'required_years' => 5];
-    
+
     $score = $this->service->calculateScore($candidate, $role);
-    
+
     $this->assertLessThan(70, $score);
 }
 
@@ -73,9 +76,9 @@ public function testCalculateScoreMissingCriticalSkill() {
 public function testCalculateScoreOverqualified() {
     $candidate = ['skills' => ['PHP', 'JavaScript', 'Go', 'Rust'], 'experience_years' => 15];
     $role = ['required_skills' => ['PHP'], 'required_years' => 3];
-    
+
     $score = $this->service->calculateScore($candidate, $role);
-    
+
     $this->assertGreaterThanOrEqual(95, $score);
 }
 
@@ -83,14 +86,15 @@ public function testCalculateScoreOverqualified() {
 public function testCalculateScoreNoExperience() {
     $candidate = ['skills' => ['PHP', 'JavaScript'], 'experience_years' => 0];
     $role = ['required_skills' => ['PHP', 'JavaScript'], 'required_years' => 5];
-    
+
     $score = $this->service->calculateScore($candidate, $role);
-    
+
     $this->assertLessThan(50, $score);
 }
 ```
 
 **AnalyticsService (6-8 tests)**
+
 ```php
 public function testGenerateAnalyticsEmpty() {
     // Empty scenario should not crash
@@ -112,15 +116,17 @@ public function testCalculateSuccessionRisk() {
 ```
 
 **1.2 Model Tests (4-6 tests)**
+
 ```php
 tests/Unit/WorkforcePlanning/
-├── WorkforcePlanningScenarioTest.php
+├── StrategicPlanningScenariosTest.php
 ├── WorkforcePlanningMatchTest.php
 ├── WorkforcePlanningSkillGapTest.php
 └── WorkforcePlanningSuccessionPlanTest.php
 ```
 
 **1.3 Repository Tests (4-6 tests)**
+
 ```php
 public function testFindByScenario() {
     $matches = $this->repo->findByScenario(1);
@@ -138,6 +144,7 @@ public function testGetFilteredByReadiness() {
 ### 2️⃣ Unit Tests - Frontend (Vue/Vitest) (60 min)
 
 **2.1 Store Tests**
+
 ```bash
 tests/unit/stores/
 └── workforcePlanningStore.spec.ts
@@ -151,60 +158,59 @@ tests/unit/stores/
 ```
 
 **Test Cases del Store:**
+
 ```typescript
-describe('workforcePlanningStore', () => {
-    
-    it('initializes with empty state', () => {
-        const store = useWorkforcePlanningStore();
-        expect(store.scenarios).toEqual([]);
-        expect(store.filters.searchTerm).toBeNull();
-    });
-    
-    it('returns forecasts for scenario', () => {
-        const store = useWorkforcePlanningStore();
-        store.forecastsByScenario.set(1, [
-            { id: 1, role: 'Backend Dev' }
-        ]);
-        
-        const forecasts = store.getForecasts(1);
-        expect(forecasts).toHaveLength(1);
-    });
-    
-    it('validates array before filtering', () => {
-        const store = useWorkforcePlanningStore();
-        store.forecastsByScenario.set(1, null as any);
-        
-        const filtered = store.getFilteredForecasts(1);
-        expect(Array.isArray(filtered)).toBe(true);
-        expect(filtered).toEqual([]);
-    });
-    
-    it('filters by area', () => {
-        const store = useWorkforcePlanningStore();
-        store.forecastsByScenario.set(1, [
-            { id: 1, area: 'Engineering' },
-            { id: 2, area: 'Sales' }
-        ]);
-        store.filters.forecastArea = 'Engineering';
-        
-        const filtered = store.getFilteredForecasts(1);
-        expect(filtered).toHaveLength(1);
-    });
-    
-    it('clears all filters', () => {
-        const store = useWorkforcePlanningStore();
-        store.filters.searchTerm = 'test';
-        store.filters.forecastArea = 'Engineering';
-        
-        store.clearFilters();
-        
-        expect(store.filters.searchTerm).toBeNull();
-        expect(store.filters.forecastArea).toBeNull();
-    });
+describe("workforcePlanningStore", () => {
+  it("initializes with empty state", () => {
+    const store = useWorkforcePlanningStore();
+    expect(store.scenarios).toEqual([]);
+    expect(store.filters.searchTerm).toBeNull();
+  });
+
+  it("returns forecasts for scenario", () => {
+    const store = useWorkforcePlanningStore();
+    store.forecastsByScenario.set(1, [{ id: 1, role: "Backend Dev" }]);
+
+    const forecasts = store.getForecasts(1);
+    expect(forecasts).toHaveLength(1);
+  });
+
+  it("validates array before filtering", () => {
+    const store = useWorkforcePlanningStore();
+    store.forecastsByScenario.set(1, null as any);
+
+    const filtered = store.getFilteredForecasts(1);
+    expect(Array.isArray(filtered)).toBe(true);
+    expect(filtered).toEqual([]);
+  });
+
+  it("filters by area", () => {
+    const store = useWorkforcePlanningStore();
+    store.forecastsByScenario.set(1, [
+      { id: 1, area: "Engineering" },
+      { id: 2, area: "Sales" },
+    ]);
+    store.filters.forecastArea = "Engineering";
+
+    const filtered = store.getFilteredForecasts(1);
+    expect(filtered).toHaveLength(1);
+  });
+
+  it("clears all filters", () => {
+    const store = useWorkforcePlanningStore();
+    store.filters.searchTerm = "test";
+    store.filters.forecastArea = "Engineering";
+
+    store.clearFilters();
+
+    expect(store.filters.searchTerm).toBeNull();
+    expect(store.filters.forecastArea).toBeNull();
+  });
 });
 ```
 
 **2.2 Component Tests**
+
 ```bash
 tests/unit/components/
 ├── RoleForecastsTable.spec.ts
@@ -233,44 +239,44 @@ tests/unit/components/
 ```
 
 **Test Cases de Componentes:**
+
 ```typescript
-describe('RoleForecastsTable.vue', () => {
-    
-    it('renders table with data', () => {
-        const wrapper = mount(RoleForecastsTable, {
-            props: { scenarioId: 1 }
-        });
-        
-        expect(wrapper.find('table').exists()).toBe(true);
+describe("RoleForecastsTable.vue", () => {
+  it("renders table with data", () => {
+    const wrapper = mount(RoleForecastsTable, {
+      props: { scenarioId: 1 },
     });
-    
-    it('shows loading skeleton initially', () => {
-        const wrapper = mount(RoleForecastsTable, {
-            props: { scenarioId: 1 }
-        });
-        
-        expect(wrapper.find('.loading-skeleton').exists()).toBe(true);
+
+    expect(wrapper.find("table").exists()).toBe(true);
+  });
+
+  it("shows loading skeleton initially", () => {
+    const wrapper = mount(RoleForecastsTable, {
+      props: { scenarioId: 1 },
     });
-    
-    it('updates data when filter changes', async () => {
-        const wrapper = mount(RoleForecastsTable, {
-            props: { scenarioId: 1 }
-        });
-        
-        await wrapper.vm.setFilter('forecastArea', 'Engineering');
-        await wrapper.vm.$nextTick();
-        
-        expect(wrapper.vm.filteredForecasts).toHaveLength(3);
+
+    expect(wrapper.find(".loading-skeleton").exists()).toBe(true);
+  });
+
+  it("updates data when filter changes", async () => {
+    const wrapper = mount(RoleForecastsTable, {
+      props: { scenarioId: 1 },
     });
-    
-    it('exports to CSV', () => {
-        const wrapper = mount(RoleForecastsTable);
-        const spy = vi.spyOn(window, 'fetch');
-        
-        wrapper.vm.exportToCSV();
-        
-        expect(spy).toHaveBeenCalledWith('/api/export/csv');
-    });
+
+    await wrapper.vm.setFilter("forecastArea", "Engineering");
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.filteredForecasts).toHaveLength(3);
+  });
+
+  it("exports to CSV", () => {
+    const wrapper = mount(RoleForecastsTable);
+    const spy = vi.spyOn(window, "fetch");
+
+    wrapper.vm.exportToCSV();
+
+    expect(spy).toHaveBeenCalledWith("/api/export/csv");
+  });
 });
 ```
 
@@ -279,6 +285,7 @@ describe('RoleForecastsTable.vue', () => {
 ### 3️⃣ Integration Tests (60 min)
 
 **3.1 API Integration Tests**
+
 ```bash
 tests/Feature/WorkforcePlanning/
 ├── ScenariosApiTest.php
@@ -308,12 +315,13 @@ tests/Feature/WorkforcePlanning/
 ```
 
 **Test Case Example - API Response Contract:**
+
 ```php
 public function testGetAnalyticsResponseStructure() {
     $scenario = Scenario::factory()->create();
-    
+
     $response = $this->getJson("/api/v1/workforce-planning/scenarios/{$scenario->id}/analytics");
-    
+
     $response->assertStatus(200);
     $response->assertJsonStructure([
         'total_headcount_current',
@@ -329,15 +337,16 @@ public function testGetAnalyticsResponseStructure() {
 ```
 
 **3.2 Database Integration**
+
 ```php
 public function testScenariosWithMatches() {
     // Create scenario with related data
     $scenario = Scenario::factory()
         ->has(Match::factory()->count(5))
         ->create();
-    
+
     $matches = $scenario->matches;
-    
+
     $this->assertCount(5, $matches);
     $this->assertInstanceOf(Match::class, $matches[0]);
 }
@@ -348,6 +357,7 @@ public function testScenariosWithMatches() {
 ### 4️⃣ E2E Tests - Playwright (60 min)
 
 **4.1 Critical User Flows**
+
 ```bash
 tests/e2e/
 ├── workflows.spec.ts
@@ -376,57 +386,61 @@ tests/e2e/
 ```
 
 **E2E Test Example:**
+
 ```typescript
-test('Complete workflow: Create scenario → Run analysis → Export report', async ({ page }) => {
-    // Navigate to app
-    await page.goto('/workforce-planning');
-    
-    // Create scenario
-    await page.click('[data-testid="btn-create-scenario"]');
-    await page.fill('[data-testid="input-name"]', 'Q1 2026 Planning');
-    await page.fill('[data-testid="input-description"]', 'Recruitment planning');
-    await page.click('[data-testid="btn-save"]');
-    
-    // Verify scenario created
-    await expect(page.locator('text=Q1 2026 Planning')).toBeVisible();
-    
-    // Navigate to dashboard
-    await page.click('[data-testid="link-dashboard"]');
-    
-    // Run analysis
-    await page.click('[data-testid="btn-run-analysis"]');
-    await page.waitForLoadState('networkidle');
-    
-    // Verify charts loaded
-    await expect(page.locator('svg')).toHaveCount(7); // 7 charts
-    
-    // Export report
-    await page.click('[data-testid="btn-export"]');
-    
-    // Verify download
-    const downloadPromise = page.waitForEvent('download');
-    await page.click('[data-testid="btn-export-pdf"]');
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toBe('scenario-q1-2026.pdf');
+test("Complete workflow: Create scenario → Run analysis → Export report", async ({
+  page,
+}) => {
+  // Navigate to app
+  await page.goto("/workforce-planning");
+
+  // Create scenario
+  await page.click('[data-testid="btn-create-scenario"]');
+  await page.fill('[data-testid="input-name"]', "Q1 2026 Planning");
+  await page.fill('[data-testid="input-description"]', "Recruitment planning");
+  await page.click('[data-testid="btn-save"]');
+
+  // Verify scenario created
+  await expect(page.locator("text=Q1 2026 Planning")).toBeVisible();
+
+  // Navigate to dashboard
+  await page.click('[data-testid="link-dashboard"]');
+
+  // Run analysis
+  await page.click('[data-testid="btn-run-analysis"]');
+  await page.waitForLoadState("networkidle");
+
+  // Verify charts loaded
+  await expect(page.locator("svg")).toHaveCount(7); // 7 charts
+
+  // Export report
+  await page.click('[data-testid="btn-export"]');
+
+  // Verify download
+  const downloadPromise = page.waitForEvent("download");
+  await page.click('[data-testid="btn-export-pdf"]');
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe("scenario-q1-2026.pdf");
 });
 ```
 
 **4.2 Error Scenarios**
+
 ```typescript
-test('Handle 500 error gracefully', async ({ page }) => {
-    // Mock API to return 500
-    await page.route('**/api/v1/workforce-planning/**', route => {
-        route.abort('servererror');
-    });
-    
-    await page.goto('/workforce-planning');
-    
-    // Should show error message
-    await expect(page.locator('[data-testid="error-message"]')).toBeVisible();
-    await expect(page.locator('text=Something went wrong')).toBeVisible();
-    
-    // Should show retry button
-    await expect(page.locator('[data-testid="btn-retry"]')).toBeEnabled();
+test("Handle 500 error gracefully", async ({ page }) => {
+  // Mock API to return 500
+  await page.route("**/api/v1/workforce-planning/**", (route) => {
+    route.abort("servererror");
+  });
+
+  await page.goto("/workforce-planning");
+
+  // Should show error message
+  await expect(page.locator('[data-testid="error-message"]')).toBeVisible();
+  await expect(page.locator("text=Something went wrong")).toBeVisible();
+
+  // Should show retry button
+  await expect(page.locator('[data-testid="btn-retry"]')).toBeEnabled();
 });
 ```
 
@@ -435,6 +449,7 @@ test('Handle 500 error gracefully', async ({ page }) => {
 ### 5️⃣ Performance Tests (30 min)
 
 **5.1 Lighthouse Audits**
+
 ```bash
 npm run test:lighthouse
 
@@ -446,6 +461,7 @@ Requirements:
 ```
 
 **5.2 Bundle Size Analysis**
+
 ```bash
 npm run analyze:bundle
 
@@ -457,13 +473,14 @@ Limits:
 ```
 
 **5.3 Runtime Performance**
+
 ```typescript
-test('Dashboard renders in < 1 second', async () => {
-    const start = performance.now();
-    const wrapper = mount(OverviewDashboard);
-    const end = performance.now();
-    
-    expect(end - start).toBeLessThan(1000);
+test("Dashboard renders in < 1 second", async () => {
+  const start = performance.now();
+  const wrapper = mount(OverviewDashboard);
+  const end = performance.now();
+
+  expect(end - start).toBeLessThan(1000);
 });
 ```
 
@@ -471,14 +488,14 @@ test('Dashboard renders in < 1 second', async () => {
 
 ## 📊 Test Coverage Targets
 
-| Category | Target | Current |
-|----------|--------|---------|
-| Unit Tests (Backend) | 90% | 0% |
-| Unit Tests (Frontend) | 85% | 0% |
-| Integration Tests | 80% | 0% |
-| E2E Tests | 6+ flows | 0 |
-| Performance | 85+ score | TBD |
-| Accessibility | 90+ score | TBD |
+| Category              | Target    | Current |
+| --------------------- | --------- | ------- |
+| Unit Tests (Backend)  | 90%       | 0%      |
+| Unit Tests (Frontend) | 85%       | 0%      |
+| Integration Tests     | 80%       | 0%      |
+| E2E Tests             | 6+ flows  | 0       |
+| Performance           | 85+ score | TBD     |
+| Accessibility         | 90+ score | TBD     |
 
 ---
 
@@ -561,6 +578,7 @@ Total: 270 minutes (4.5 hours) - pero se puede paralelizar
 ## ✅ Definition of Done
 
 **Para cada test suite:**
+
 1. ✅ Todos los tests escritos
 2. ✅ 100% de tests pasando
 3. ✅ Coverage >= target
@@ -569,6 +587,7 @@ Total: 270 minutes (4.5 hours) - pero se puede paralelizar
 6. ✅ CI/CD integrado
 
 **Para Opción C completa:**
+
 1. ✅ 50+ tests escritos
 2. ✅ 80%+ code coverage
 3. ✅ 0 failing tests
@@ -581,18 +600,21 @@ Total: 270 minutes (4.5 hours) - pero se puede paralelizar
 ## 🎯 Success Criteria
 
 ✅ **All 4 critical flows work end-to-end:**
+
 - Create scenario → View dashboard
 - Upload candidates → Run matching
 - Apply filters → Export report
 - Delete with confirmation → Verify deletion
 
 ✅ **Performance targets met:**
+
 - Page load: < 2 seconds
 - Chart rendering: < 500ms
 - Filter response: < 300ms
 - API responses: < 1 second (p95)
 
 ✅ **Quality gates:**
+
 - 80%+ code coverage
 - 0 critical bugs
 - 0 security vulnerabilities
@@ -615,7 +637,7 @@ Total: 270 minutes (4.5 hours) - pero se puede paralelizar
 
 - [Opción A - Charts (COMPLETADA)](./OPCION_A_CHARTS_COMPLETADA.md)
 - [Opción B - UX Polish (Próximo)](./OPCION_B_UX_POLISH_PLAN.md)
-- [Testing Best Practices](./TESTING_BEST_PRACTICES.md) *(Crear)*
+- [Testing Best Practices](./TESTING_BEST_PRACTICES.md) _(Crear)_
 
 ---
 

@@ -12,7 +12,7 @@ class ScenarioSkillDemandFactory extends Factory
     public function definition(): array
     {
         return [
-            'scenario_id' => \App\Models\WorkforcePlanningScenario::factory(),
+            'scenario_id' => \App\Models\StrategicPlanningScenarios::factory(),
             'skill_id' => \App\Models\Skill::factory(),
             'role_id' => $this->faker->optional()->randomElement([1, 2, 3]),
             'department' => $this->faker->optional()->randomElement(['Engineering', 'Product', 'Operations']),
@@ -28,7 +28,7 @@ class ScenarioSkillDemandFactory extends Factory
 
     public function critical(): self
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'priority' => 'critical',
         ]);
     }

@@ -62,6 +62,7 @@
 ## ✅ Completed Components (28/84 Story Points)
 
 ### 1. Database Layer ✅
+
 - ✅ 6 migrations executed successfully
 - ✅ All tables created with proper schema
 - ✅ Indexes optimized for query performance
@@ -69,7 +70,8 @@
 - **Lines:** 300+ | **Status:** 100%
 
 ### 2. Eloquent Models ✅
-- ✅ WorkforcePlanningScenario
+
+- ✅ StrategicPlanningScenarios
 - ✅ WorkforcePlanningRoleForecast
 - ✅ WorkforcePlanningMatch
 - ✅ WorkforcePlanningSkillGap
@@ -78,6 +80,7 @@
 - **Lines:** 350 | **Status:** 100%
 
 ### 3. Repository Pattern ✅
+
 - ✅ WorkforcePlanningRepository
 - ✅ 30+ CRUD methods
 - ✅ Advanced filtering & sorting
@@ -85,6 +88,7 @@
 - **Lines:** 207 | **Status:** 100%
 
 ### 4. Service Layer (Core Algorithm) ✅
+
 - ✅ calculateMatches() - Talent matching algorithm
 - ✅ calculateSkillGaps() - Gap analysis & remediation
 - ✅ calculateAnalytics() - KPI aggregation
@@ -92,6 +96,7 @@
 - **Lines:** 423 | **Status:** 100%
 
 ### 5. API Controller ✅
+
 - ✅ 13+ RESTful endpoints
 - ✅ Proper request validation
 - ✅ Error handling & status codes
@@ -99,11 +104,13 @@
 - **Lines:** 329 | **Status:** 100%
 
 ### 6. Form Requests ✅
-- ✅ StoreWorkforcePlanningScenarioRequest
-- ✅ UpdateWorkforcePlanningScenarioRequest
+
+- ✅ StoreStrategicPlanningScenariosRequest
+- ✅ UpdateStrategicPlanningScenariosRequest
 - **Lines:** 57 | **Status:** 100%
 
 ### 7. Testing ✅
+
 - ✅ Unit tests (Service logic)
 - ✅ Integration tests (API endpoints)
 - ✅ Factory for test data
@@ -111,13 +118,16 @@
 - **Status:** 100%
 
 ### 8. Frontend Components (2/6 Initial) ✅
+
 - ✅ ScenarioSelector.vue (270 lines)
+
   - List scenarios with pagination
   - Create/edit/delete dialogs
   - Filter by status & fiscal year
   - Responsive data table
 
 - ✅ OverviewDashboard.vue (320 lines)
+
   - KPI cards (headcount, growth, coverage, risk)
   - Headcount forecast chart
   - Skill coverage doughnut chart
@@ -127,6 +137,7 @@
 - **Status:** 33% complete
 
 ### 9. Routing & Navigation ✅
+
 - ✅ AppSidebar integration
 - ✅ Menu icon: mdi-chart-timeline-variant
 - ✅ Web routes: /workforce-planning
@@ -138,25 +149,26 @@
 
 ## 📈 Code Statistics
 
-| Component | Lines | Files | Status |
-|-----------|-------|-------|--------|
-| **Migrations** | 300+ | 6 | ✅ Complete |
-| **Models** | 350 | 6 | ✅ Complete |
-| **Repository** | 207 | 1 | ✅ Complete |
-| **Service** | 423 | 1 | ✅ Complete |
-| **Controller** | 329 | 1 | ✅ Complete |
-| **Form Requests** | 57 | 2 | ✅ Complete |
-| **Tests** | 402 | 3 | ✅ Complete |
-| **Vue Components** | 590 | 2 | ⏳ 33% |
-| **Documentation** | 575 | 3 | ✅ Complete |
-| **Routes** | 15 | 1 | ✅ Complete |
-| **TOTAL** | **3,248** | **26** | **75%** |
+| Component          | Lines     | Files  | Status      |
+| ------------------ | --------- | ------ | ----------- |
+| **Migrations**     | 300+      | 6      | ✅ Complete |
+| **Models**         | 350       | 6      | ✅ Complete |
+| **Repository**     | 207       | 1      | ✅ Complete |
+| **Service**        | 423       | 1      | ✅ Complete |
+| **Controller**     | 329       | 1      | ✅ Complete |
+| **Form Requests**  | 57        | 2      | ✅ Complete |
+| **Tests**          | 402       | 3      | ✅ Complete |
+| **Vue Components** | 590       | 2      | ⏳ 33%      |
+| **Documentation**  | 575       | 3      | ✅ Complete |
+| **Routes**         | 15        | 1      | ✅ Complete |
+| **TOTAL**          | **3,248** | **26** | **75%**     |
 
 ---
 
 ## 🔗 API Endpoints Ready for Frontend
 
 ### Scenario Management
+
 ```
 GET    /api/v1/workforce-planning/scenarios
 POST   /api/v1/workforce-planning/scenarios
@@ -167,6 +179,7 @@ POST   /api/v1/workforce-planning/scenarios/{id}/approve
 ```
 
 ### Analysis & Data Retrieval
+
 ```
 POST   /api/v1/workforce-planning/scenarios/{id}/analyze
 GET    /api/v1/workforce-planning/scenarios/{id}/role-forecasts
@@ -182,6 +195,7 @@ GET    /api/v1/workforce-planning/matches/{id}/recommendations
 ## 🎯 Key Features Implemented
 
 ### 1. Matching Algorithm
+
 - **Input:** Person skills vs Role requirements
 - **Output:** Match score (0-100%)
 - **Calculation:** 60% skill_match + 20% readiness + 20% risk
@@ -189,6 +203,7 @@ GET    /api/v1/workforce-planning/matches/{id}/recommendations
 - **Transition Types:** promotion, lateral, reskilling, no_match
 
 ### 2. Skill Gap Analysis
+
 - **Detection:** Compare required vs available skills
 - **Priority:** critical, high, medium, low
 - **Remediation:** hiring, training, reskilling, outsourcing
@@ -196,6 +211,7 @@ GET    /api/v1/workforce-planning/matches/{id}/recommendations
 - **Timeline Estimation:** months required
 
 ### 3. Succession Planning
+
 - **Criticality Levels:** critical, important, standard
 - **Successor Tracking:** primary, secondary, tertiary
 - **Readiness Assessment:** ready_now, ready_12m, ready_24m, not_ready
@@ -203,6 +219,7 @@ GET    /api/v1/workforce-planning/matches/{id}/recommendations
 - **Risk Mitigation:** actions & timeline
 
 ### 4. Analytics & KPIs
+
 - Headcount projections (current vs projected)
 - Internal coverage percentage
 - Skill gaps summary
@@ -220,10 +237,10 @@ src/
 │   ├── Http/
 │   │   ├── Controllers/Api/V1/WorkforcePlanningController.php
 │   │   └── Requests/
-│   │       ├── StoreWorkforcePlanningScenarioRequest.php
-│   │       └── UpdateWorkforcePlanningScenarioRequest.php
+│   │       ├── StoreStrategicPlanningScenariosRequest.php
+│   │       └── UpdateStrategicPlanningScenariosRequest.php
 │   ├── Models/
-│   │   ├── WorkforcePlanningScenario.php
+│   │   ├── StrategicPlanningScenarios.php
 │   │   ├── WorkforcePlanningRoleForecast.php
 │   │   ├── WorkforcePlanningMatch.php
 │   │   ├── WorkforcePlanningSkillGap.php
@@ -243,7 +260,7 @@ src/
 │   │   ├── 2026_01_04_100004_create_workforce_planning_succession_plans_table.php
 │   │   └── 2026_01_04_100005_create_workforce_planning_analytics_table.php
 │   └── factories/
-│       └── WorkforcePlanningScenarioFactory.php
+│       └── StrategicPlanningScenariosFactory.php
 │
 ├── resources/js/
 │   └── pages/WorkforcePlanning/
@@ -269,6 +286,7 @@ docs/
 ## 🚀 Next Steps (56/84 Story Points Remaining)
 
 ### Phase 2: Complete Frontend Components (13 sp)
+
 - [ ] RoleForecastsTable.vue
 - [ ] MatchingResults.vue
 - [ ] SuccessionPlanCard.vue
@@ -276,18 +294,21 @@ docs/
 - [ ] Supporting components (forms, dialogs, charts)
 
 ### Phase 3: State Management (5 sp)
+
 - [ ] Pinia store for scenarios
 - [ ] Composables for API calls
 - [ ] Loading & error states
 - [ ] Notification system
 
 ### Phase 4: Advanced Features (8 sp)
+
 - [ ] Scenario comparison
 - [ ] Export/Import
 - [ ] Templates
 - [ ] Bulk operations
 
 ### Phase 5: Testing & Polish (5 sp)
+
 - [ ] E2E tests
 - [ ] Swagger documentation
 - [ ] Performance optimization
@@ -320,29 +341,34 @@ docs/
 ## 🎬 Demo Navigation Flow
 
 1. **Login to application**
+
    ```
    http://localhost:8000/login
    ```
 
 2. **Click Workforce Planning in sidebar**
+
    ```
    http://localhost:8000/workforce-planning
    → ScenarioSelector component loads
    ```
 
 3. **Create a new scenario**
+
    ```
    POST /api/v1/workforce-planning/scenarios
    ✅ Returns created scenario
    ```
 
 4. **View scenario details**
+
    ```
    http://localhost:8000/workforce-planning/1
    → OverviewDashboard component loads with metrics
    ```
 
 5. **Run analysis**
+
    ```
    POST /api/v1/workforce-planning/scenarios/1/analyze
    ✅ Calculates matching, gaps, analytics
@@ -359,11 +385,11 @@ docs/
 
 ## 📊 Git Commits
 
-| Commit | Message | Changes |
-|--------|---------|---------|
-| `c840728` | feat: implement workforce planning module - phase 1 | 24 files, 3,113 insertions |
-| `71b7ed6` | feat: add workforce planning module to app sidebar and routes | 2 files, 14 insertions |
-| `3acd87c` | docs: add workforce planning UI integration guide | 1 file, 210 insertions |
+| Commit    | Message                                                       | Changes                    |
+| --------- | ------------------------------------------------------------- | -------------------------- |
+| `c840728` | feat: implement workforce planning module - phase 1           | 24 files, 3,113 insertions |
+| `71b7ed6` | feat: add workforce planning module to app sidebar and routes | 2 files, 14 insertions     |
+| `3acd87c` | docs: add workforce planning UI integration guide             | 1 file, 210 insertions     |
 
 **Branch:** `feature/workforce-planning`
 **Status:** Ready for merge to main after final testing

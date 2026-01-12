@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ScenarioStatusEvent extends Model
 {
     protected $table = 'scenario_status_events';
-    
+
     public $timestamps = false; // Solo created_at
-    
+
     const CREATED_AT = 'created_at';
     const UPDATED_AT = null;
 
@@ -33,7 +33,7 @@ class ScenarioStatusEvent extends Model
     // Relationships
     public function scenario(): BelongsTo
     {
-        return $this->belongsTo(WorkforcePlanningScenario::class, 'scenario_id');
+        return $this->belongsTo(StrategicPlanningScenarios::class, 'scenario_id');
     }
 
     public function user(): BelongsTo

@@ -12,6 +12,7 @@
 ## ✅ MVP Phase 1 (v1.0.0) - COMPLETADO
 
 ### Backend ✅
+
 - [x] FormSchemaController para CRUD genérico
 - [x] 5+ endpoints operativos (GET, POST, PUT, DELETE)
 - [x] Validación en todas las rutas
@@ -19,6 +20,7 @@
 - [x] 16 migraciones de BD ejecutadas
 
 ### Frontend ✅
+
 - [x] Dashboard Analytics (Analytics.vue) - 470 líneas
 - [x] GapAnalysis componente maquetado
 - [x] LearningPaths componente maquetado
@@ -26,6 +28,7 @@
 - [x] Dark mode soporte
 
 ### Base de Datos ✅
+
 - [x] 16 migraciones creadas y ejecutadas
 - [x] Seeders con 250+ registros de prueba
 - [x] Relaciones configuradas
@@ -33,11 +36,13 @@
 - [x] Foreign keys con cascadas
 
 ### Testing ✅
+
 - [x] Tests unitarios implementados
 - [x] Tests de integración
 - [x] Good coverage (>70%)
 
 ### Documentación ✅
+
 - [x] 100+ archivos de documentación
 - [x] Guías técnicas
 - [x] Checklists completadas
@@ -48,6 +53,7 @@
 ## 🔄 Workforce Planning - INICIADO (Phase 2)
 
 ### Especificación ✅
+
 - [x] Documento técnico completo (500+ líneas)
 - [x] 6 tablas de BD diseñadas
 - [x] 15+ endpoints definidos
@@ -55,6 +61,7 @@
 - [x] 9 user stories escritas
 
 ### Base de Datos ✅ (6/6)
+
 ```
 ✅ workforce_planning_scenarios (100000)
 ✅ workforce_planning_role_forecasts (100001)
@@ -65,6 +72,7 @@
 ```
 
 ### Backend ✅ (10/10)
+
 ```
 ✅ Models (6): Scenario, RoleForecast, Match, SkillGap, SuccessionPlan, Analytic
 ✅ Repository (1): WorkforcePlanningRepository con 30+ métodos
@@ -73,10 +81,11 @@
 ✅ Requests (2): Store y Update request validation
 ✅ Routes: Agregadas al api.php
 ✅ Tests (2): Unit + Integration tests
-✅ Factories (1): WorkforcePlanningScenarioFactory
+✅ Factories (1): StrategicPlanningScenariosFactory
 ```
 
 ### Frontend 🔄 (2/6 componentes)
+
 ```
 ✅ ScenarioSelector.vue (250+ líneas)
 ✅ OverviewDashboard.vue (250+ líneas)
@@ -87,6 +96,7 @@
 ```
 
 ### Story Points
+
 - ✅ Completados: 28/84 (33%)
 - ⏳ Pendientes: 56/84 (67%)
 
@@ -95,19 +105,21 @@
 ## 📈 Estadísticas de Código
 
 ### Workforce Planning (Fase 1 completada)
-| Componente | Líneas | Archivos | Status |
-|-----------|--------|----------|--------|
-| Base de Datos | 500+ | 6 | ✅ |
-| Models | 350 | 6 | ✅ |
-| Repository | 320 | 1 | ✅ |
-| Service | 500+ | 1 | ✅ |
-| Controller | 300+ | 1 | ✅ |
-| Requests | 50 | 2 | ✅ |
-| Tests | 350+ | 3 | ✅ |
-| Frontend | 500+ | 2 | 🔄 |
-| **Total** | **2,800+** | **23** | ✅ |
+
+| Componente    | Líneas     | Archivos | Status |
+| ------------- | ---------- | -------- | ------ |
+| Base de Datos | 500+       | 6        | ✅     |
+| Models        | 350        | 6        | ✅     |
+| Repository    | 320        | 1        | ✅     |
+| Service       | 500+       | 1        | ✅     |
+| Controller    | 300+       | 1        | ✅     |
+| Requests      | 50         | 2        | ✅     |
+| Tests         | 350+       | 3        | ✅     |
+| Frontend      | 500+       | 2        | 🔄     |
+| **Total**     | **2,800+** | **23**   | ✅     |
 
 ### Proyecto Total
+
 - **Backend:** ~5,000+ líneas
 - **Frontend:** ~3,000+ líneas
 - **Tests:** ~1,500+ líneas
@@ -119,6 +131,7 @@
 ## 🎯 Próximos Pasos (Prioridad)
 
 ### 1. Completar Frontend Workforce Planning (13 sp)
+
 - [ ] RoleForecastsTable.vue
 - [ ] MatchingResults.vue
 - [ ] SuccessionPlanCard.vue
@@ -126,6 +139,7 @@
 - [ ] Componentes de soporte (Forms, Dialogs)
 
 ### 2. Integración y Pulido (5 sp)
+
 - [ ] Conectar componentes con APIs
 - [ ] State management (Pinia store)
 - [ ] Error handling y loading states
@@ -133,6 +147,7 @@
 - [ ] Dark mode support
 
 ### 3. Fase 3 Avanzada (8 sp)
+
 - [ ] Comparación de escenarios
 - [ ] Export/Import scenarios
 - [ ] Succession templates
@@ -140,6 +155,7 @@
 - [ ] Operaciones en bulk
 
 ### 4. Testing y Docs (5 sp)
+
 - [ ] E2E tests
 - [ ] OpenAPI/Swagger docs
 - [ ] User guide
@@ -151,6 +167,7 @@
 ## 🔍 Checklist de Calidad
 
 ### Código
+
 - [x] Validación en endpoints
 - [x] Error handling adecuado
 - [x] Relaciones de BD configuradas
@@ -160,6 +177,7 @@
 - [x] Type safety en TypeScript
 
 ### Testing
+
 - [x] 20+ tests implementados
 - [x] Unit tests para Service
 - [x] Integration tests para API
@@ -167,6 +185,7 @@
 - [ ] E2E tests (pendiente)
 
 ### Documentación
+
 - [x] Especificación técnica
 - [x] Comentarios en código
 - [x] Progress report
@@ -180,18 +199,22 @@
 Según PLAN_DE_TRABAJO_MODULOS_FASE2.md:
 
 ### Workforce Planning ✅ (Iniciado)
+
 - Status: Backend completo, Frontend 33%
 - Timeline: 2-3 sprints más (4-5 días)
 
 ### People Experience ⏳ (Siguiente)
+
 - Módulo de experiencia de empleado
 - Timeline: Después de completar Workforce Planning
 
 ### FormBuilder ⏳
+
 - Constructor de formularios dinámicos
 - Timeline: Tercero en prioridad
 
 ### Talent 360° ⏳
+
 - Evaluaciones 360 grados
 - Timeline: Cuarto en prioridad
 
@@ -200,12 +223,14 @@ Según PLAN_DE_TRABAJO_MODULOS_FASE2.md:
 ## 🚀 Velocidad de Desarrollo
 
 ### Metrics
+
 - **Líneas de código por sprint:** ~700-900 líneas
 - **Archivos por sprint:** ~6-8 archivos
 - **Tests per sprint:** ~5-7 tests
 - **Documentation:** 1-2 archivos
 
 ### Ritmo
+
 - **Sprints de 12 horas:** 1 sprint cada 1-2 días
 - **Sprints estándar (8h):** 1 sprint cada 1-2 días
 - **Sin restricción de tiempo:** Flexible según complejidad
@@ -225,6 +250,7 @@ Según PLAN_DE_TRABAJO_MODULOS_FASE2.md:
 ## 📝 Notas Técnicas
 
 ### Decisiones Arquitectónicas
+
 1. JSON fields para skill lists (flexibilidad vs normalización)
 2. Analytics table denormalizada (performance de dashboard)
 3. Service layer para algoritmo complejo
@@ -232,6 +258,7 @@ Según PLAN_DE_TRABAJO_MODULOS_FASE2.md:
 5. Vue Composition API con TypeScript
 
 ### Algoritmo Matching
+
 ```
 Score = (SkillMatch × 0.6) + (Readiness × 0.2) + ((100 - Risk) × 0.2)
 Readiness Levels: immediate, short_term, long_term, not_ready
@@ -244,6 +271,7 @@ Risk Factors: múltiples gaps, bajo readiness, etc.
 ## 🎯 Objetivo Final
 
 **Completar Workforce Planning y pasar a Phase 2** en las próximas 48-72 horas
+
 - Todos los componentes Vue implementados
 - Tests E2E pasando
 - Documentación completa

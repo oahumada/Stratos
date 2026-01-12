@@ -50,21 +50,13 @@ Route::get('/marketplace', function () {
     return Inertia::render('Marketplace/Index');
 })->middleware(['auth', 'verified'])->name('marketplace.index');
 
-Route::get('/workforce-planning', function () {
-    return Inertia::render('WorkforcePlanning/ScenarioList');
-})->middleware(['auth', 'verified'])->name('workforce-planning.index');
+// Alias routes for new frontend naming: /scenario-planning
+Route::get('/scenario-planning', function () {
+    return Inertia::render('ScenarioPlanning/ScenarioList');
+})->middleware(['auth', 'verified'])->name('scenario-planning.index');
 
-Route::get('/workforce-planning/{id}', function ($id) {
-    return Inertia::render('WorkforcePlanning/ScenarioDetail', ['id' => $id]);
-})->middleware(['auth', 'verified'])->name('workforce-planning.show');
-
-// Alias routes for new frontend naming: /strategic-planning
-Route::get('/strategic-planning', function () {
-    return Inertia::render('WorkforcePlanning/ScenarioList');
-})->middleware(['auth', 'verified'])->name('strategic-planning.index');
-
-Route::get('/strategic-planning/{id}', function ($id) {
-    return Inertia::render('WorkforcePlanning/ScenarioDetail', ['id' => $id]);
-})->middleware(['auth', 'verified'])->name('strategic-planning.show');
+Route::get('/scenario-planning/{id}', function ($id) {
+    return Inertia::render('ScenarioPlanning/ScenarioDetail', ['id' => $id]);
+})->middleware(['auth', 'verified'])->name('scenario-planning.show');
 
 require __DIR__ . '/settings.php';

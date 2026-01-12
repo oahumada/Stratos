@@ -5,7 +5,7 @@ namespace Tests\Unit\Services;
 use Tests\TestCase;
 use App\Services\WorkforcePlanningService;
 use App\Repositories\WorkforcePlanningRepository;
-use App\Models\WorkforcePlanningScenario;
+use App\Models\StrategicPlanningScenarios;
 use App\Models\WorkforcePlanningRoleForecast;
 use App\Models\People;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,7 +39,7 @@ class WorkforcePlanningServiceTest extends TestCase
 
         $scenario = $this->repository->createScenario($scenarioData);
 
-        $this->assertInstanceOf(WorkforcePlanningScenario::class, $scenario);
+        $this->assertInstanceOf(StrategicPlanningScenarios::class, $scenario);
         $this->assertEquals('Q1 2026 Planning', $scenario->name);
         $this->assertEquals('draft', $scenario->status);
     }
@@ -48,7 +48,7 @@ class WorkforcePlanningServiceTest extends TestCase
     public function it_can_list_scenarios_by_organization()
     {
         $organizationId = 1;
-        
+
         // Create 3 scenarios
         for ($i = 0; $i < 3; $i++) {
             $this->repository->createScenario([
@@ -70,7 +70,7 @@ class WorkforcePlanningServiceTest extends TestCase
     public function it_can_filter_scenarios_by_status()
     {
         $organizationId = 1;
-        
+
         $this->repository->createScenario([
             'organization_id' => $organizationId,
             'name' => 'Draft Scenario',
@@ -131,7 +131,7 @@ class WorkforcePlanningServiceTest extends TestCase
         $deleted = $this->repository->deleteScenario($scenario->id);
 
         $this->assertTrue($deleted > 0);
-        $this->assertNull(WorkforcePlanningScenario::find($scenario->id));
+        $this->assertNull(StrategicPlanningScenarios::find($scenario->id));
     }
 
     /** @test */

@@ -16,7 +16,7 @@ RESUMEN EJECUTIVO
    ✅ Soft deletes donde corresponde
    
 2. MODELOS ELOQUENT (6 nuevos)
-   ✅ WorkforcePlanningScenario
+   ✅ StrategicPlanningScenarios
    ✅ ScenarioTemplate
    ✅ ScenarioSkillDemand
    ✅ ScenarioClosureStrategy

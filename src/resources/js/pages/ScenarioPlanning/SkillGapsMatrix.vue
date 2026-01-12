@@ -189,7 +189,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-import { useStrategicPlanningScenariosStore, type SkillGap } from '@/stores/strategicPlanningScenariosStore'
+import { useStrategicPlanningScenariosStore, type SkillGap } from '@/stores/scenarioPlanningScenariosStore'
 
 const props = defineProps<{
   scenarioId: number

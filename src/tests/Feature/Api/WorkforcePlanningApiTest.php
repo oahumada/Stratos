@@ -4,7 +4,7 @@ namespace Tests\Feature\Api;
 
 use Tests\TestCase;
 use App\Models\User;
-use App\Models\WorkforcePlanningScenario;
+use App\Models\StrategicPlanningScenarios;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 
@@ -17,11 +17,11 @@ class WorkforcePlanningApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create([
             'organization_id' => 1,
         ]);
-        
+
         Sanctum::actingAs($this->user);
     }
 
@@ -29,7 +29,7 @@ class WorkforcePlanningApiTest extends TestCase
     public function it_can_list_scenarios()
     {
         // Create test scenarios
-        WorkforcePlanningScenario::factory(3)->create([
+        StrategicPlanningScenarios::factory(3)->create([
             'organization_id' => 1,
         ]);
 
@@ -77,7 +77,7 @@ class WorkforcePlanningApiTest extends TestCase
     /** @test */
     public function it_can_show_a_specific_scenario()
     {
-        $scenario = WorkforcePlanningScenario::factory()->create([
+        $scenario = StrategicPlanningScenarios::factory()->create([
             'organization_id' => 1,
         ]);
 
@@ -101,7 +101,7 @@ class WorkforcePlanningApiTest extends TestCase
     /** @test */
     public function it_can_update_a_scenario()
     {
-        $scenario = WorkforcePlanningScenario::factory()->create([
+        $scenario = StrategicPlanningScenarios::factory()->create([
             'organization_id' => 1,
             'name' => 'Original',
             'status' => 'draft',
@@ -120,7 +120,7 @@ class WorkforcePlanningApiTest extends TestCase
     /** @test */
     public function it_can_approve_a_scenario()
     {
-        $scenario = WorkforcePlanningScenario::factory()->create([
+        $scenario = StrategicPlanningScenarios::factory()->create([
             'organization_id' => 1,
             'status' => 'draft',
         ]);
@@ -135,7 +135,7 @@ class WorkforcePlanningApiTest extends TestCase
     /** @test */
     public function it_can_delete_a_scenario()
     {
-        $scenario = WorkforcePlanningScenario::factory()->create([
+        $scenario = StrategicPlanningScenarios::factory()->create([
             'organization_id' => 1,
         ]);
 
@@ -144,18 +144,18 @@ class WorkforcePlanningApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('success', true);
 
-        $this->assertNull(WorkforcePlanningScenario::find($scenario->id));
+        $this->assertNull(StrategicPlanningScenarios::find($scenario->id));
     }
 
     /** @test */
     public function it_can_filter_scenarios_by_status()
     {
-        WorkforcePlanningScenario::factory(2)->create([
+        StrategicPlanningScenarios::factory(2)->create([
             'organization_id' => 1,
             'status' => 'draft',
         ]);
 
-        WorkforcePlanningScenario::factory()->create([
+        StrategicPlanningScenarios::factory()->create([
             'organization_id' => 1,
             'status' => 'approved',
         ]);

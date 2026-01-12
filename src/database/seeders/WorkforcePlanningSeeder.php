@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\WorkforcePlanningScenario;
+use App\Models\StrategicPlanningScenarios;
 use App\Models\WorkforcePlanningAnalytic;
 use App\Models\WorkforcePlanningRoleForecast;
 use App\Models\WorkforcePlanningMatch;
@@ -15,7 +15,7 @@ class WorkforcePlanningSeeder extends Seeder
     public function run(): void
     {
         // Crear un scenario de ejemplo (o usar uno existente)
-        $scenario = WorkforcePlanningScenario::firstOrCreate(
+        $scenario = StrategicPlanningScenarios::firstOrCreate(
             ['id' => 1],
             [
                 'organization_id' => 1,

@@ -1,4 +1,5 @@
 # 📊 AJUSTE DE PLAN ACCIÓN - Basado en Implementación Actual
+
 **Fecha:** 5 de Enero de 2026  
 **Status de Revisión:** ✅ COMPLETADA
 
@@ -7,9 +8,10 @@
 ## 📈 ESTADO ACTUAL IMPLEMENTADO
 
 ### ✅ Backend (100% Core)
+
 ```
 ✅ Models (6):
-   - WorkforcePlanningScenario
+   - StrategicPlanningScenarios
    - WorkforcePlanningRoleForecast
    - WorkforcePlanningMatch
    - WorkforcePlanningSkillGap
@@ -37,14 +39,15 @@
    - runFullAnalysis()
 
 ✅ Requests (Validation):
-   - StoreWorkforcePlanningScenarioRequest
-   - UpdateWorkforcePlanningScenarioRequest
+   - StoreStrategicPlanningScenariosRequest
+   - UpdateStrategicPlanningScenariosRequest
 
 ✅ Routes:
    - /api/v1/workforce-planning/* (todos registrados)
 ```
 
 ### ⏳ Frontend (33% Implementado)
+
 ```
 ✅ Componentes Básicos (6):
    - ScenarioSelector.vue (selector de escenarios + create)
@@ -75,6 +78,7 @@
 ## 🎯 PLAN DE ACCIÓN AJUSTADO
 
 ### 📌 Cambio Principal
+
 **Del:** Crear 3 componentes completamente nuevos (38-50 horas)  
 **Al:** Extender/reutilizar componentes existentes + agregar endpoints nuevos (18-24 horas)
 
@@ -104,13 +108,13 @@ public function simulateGrowth($scenarioId, Request $request): JsonResponse
     ]);
 
     try {
-        $scenario = WorkforcePlanningScenario::findOrFail($scenarioId);
-        
+        $scenario = StrategicPlanningScenarios::findOrFail($scenarioId);
+
         // Calcular proyecciones
         $currentHeadcount = $scenario->analytics->total_headcount_current ?? 250;
         $projectedHeadcount = $currentHeadcount * (1 + $validated['growth_percentage'] / 100);
         $netGrowth = $projectedHeadcount - $currentHeadcount;
-        
+
         // Calcular skill gaps
         $forecasts = $scenario->roleForecasts()->get();
         $skillsNeeded = [];
@@ -159,7 +163,7 @@ private function getDepartmentBreakdown($scenario, $validated): array
 private function identifyCriticalRisks($scenario): array
 {
     $successors = $scenario->successionPlans()->where('status', 'approved')->get();
-    
+
     return [
         [
             'role' => 'VP Engineering',
@@ -183,10 +187,10 @@ private function identifyCriticalRisks($scenario): array
 public function getCriticalPositions(Request $request): JsonResponse
 {
     $scenarioId = $request->input('scenario_id');
-    
+
     try {
-        $scenario = WorkforcePlanningScenario::findOrFail($scenarioId);
-        
+        $scenario = StrategicPlanningScenarios::findOrFail($scenarioId);
+
         // Obtener planes de sucesión con análisis de riesgo
         $criticalPositions = $scenario->successionPlans()
             ->with('role', 'primarySuccessor', 'secondarySuccessor')
@@ -262,6 +266,7 @@ private function recommendAction($plan): string
 ### Frontend - Extensión de OverviewDashboard.vue
 
 **Cambios:**
+
 1. Agregar nueva tab: "Simulador de Crecimiento"
 2. Agregar nueva tab: "Posiciones Críticas"
 3. Reutilizar charts existentes
@@ -389,55 +394,55 @@ const simulationParams = ref({
   growth_percentage: 25,
   horizon_months: 24,
   external_hiring_ratio: 30,
-  retention_target: 95
-})
+  retention_target: 95,
+});
 
-const simulationResults = ref(null)
-const criticalPositions = ref([])
+const simulationResults = ref(null);
+const criticalPositions = ref([]);
 const criticalPositionsHeaders = [
-  { title: 'Role', value: 'role.name' },
-  { title: 'Department', value: 'department' },
-  { title: 'Criticality', value: 'criticality_level' },
-  { title: 'Risk Status', value: 'risk_status' },
-  { title: 'Action', value: 'recommended_action' }
-]
+  { title: "Role", value: "role.name" },
+  { title: "Department", value: "department" },
+  { title: "Criticality", value: "criticality_level" },
+  { title: "Risk Status", value: "risk_status" },
+  { title: "Action", value: "recommended_action" },
+];
 
-const criticalPositionsCount = computed(() => criticalPositions.value.length)
+const criticalPositionsCount = computed(() => criticalPositions.value.length);
 
 const runSimulation = async () => {
   try {
     const response = await api.post(
       `/api/v1/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
       simulationParams.value
-    )
-    simulationResults.value = response.data.data.simulation
+    );
+    simulationResults.value = response.data.data.simulation;
   } catch (error) {
-    showError('Simulation failed')
+    showError("Simulation failed");
   }
-}
+};
 
 const loadCriticalPositions = async () => {
   try {
     const response = await api.get(
       `/api/v1/workforce-planning/critical-positions`,
       { scenario_id: scenarioId.value }
-    )
-    criticalPositions.value = response.data.data
+    );
+    criticalPositions.value = response.data.data;
   } catch (error) {
-    showError('Failed to load critical positions')
+    showError("Failed to load critical positions");
   }
-}
+};
 
 const getRiskColor = (status: string): string => {
-  return { HIGH: 'red', MEDIUM: 'orange', LOW: 'green' }[status] || 'grey'
-}
+  return { HIGH: "red", MEDIUM: "orange", LOW: "green" }[status] || "grey";
+};
 
 // En onMounted
 onMounted(async () => {
   // ... código existente ...
-  await loadCriticalPositions()
-  await runSimulation()
-})
+  await loadCriticalPositions();
+  await runSimulation();
+});
 ```
 
 ### ✅ Checklist Componente 1
@@ -598,7 +603,7 @@ class RoiCalculatorController extends Controller
 public function listCalculations(Request $request): JsonResponse
 {
     $scenarioId = $request->input('scenario_id');
-    
+
     // Retornar historial de cálculos (simulado por ahora)
     return response()->json([
         'success' => true,
@@ -666,29 +671,63 @@ public function listCalculations(Request $request): JsonResponse
 
       <v-card-text v-if="results">
         <h3 class="mb-4">Results</h3>
-        
+
         <v-row>
-          <v-col cols="12" md="4" v-for="strategy in ['build', 'buy', 'borrow']" :key="strategy">
-            <v-card :class="{ 'border-2 border-primary': results.recommendation.strategy === strategy }">
-              <v-card-title class="text-capitalize">{{ strategy }}</v-card-title>
+          <v-col
+            cols="12"
+            md="4"
+            v-for="strategy in ['build', 'buy', 'borrow']"
+            :key="strategy"
+          >
+            <v-card
+              :class="{
+                'border-2 border-primary':
+                  results.recommendation.strategy === strategy,
+              }"
+            >
+              <v-card-title class="text-capitalize">{{
+                strategy
+              }}</v-card-title>
               <v-card-text>
                 <div class="mb-3">
                   <div class="text-caption">ROI</div>
-                  <div class="text-h5" :class="getRoiColor(results.roi_comparison[strategy].roi_percentage)">
+                  <div
+                    class="text-h5"
+                    :class="
+                      getRoiColor(
+                        results.roi_comparison[strategy].roi_percentage
+                      )
+                    "
+                  >
                     {{ results.roi_comparison[strategy].roi_percentage }}%
                   </div>
                 </div>
                 <div class="mb-3">
                   <div class="text-caption">Total Cost</div>
-                  <div class="text-subtitle2">${{ formatCost(results.roi_comparison[strategy].total_cost) }}</div>
+                  <div class="text-subtitle2">
+                    ${{
+                      formatCost(results.roi_comparison[strategy].total_cost)
+                    }}
+                  </div>
                 </div>
                 <div class="mb-3">
                   <div class="text-caption">Time to Productivity</div>
-                  <div class="text-subtitle2">{{ results.roi_comparison[strategy].time_to_productivity_months }} months</div>
+                  <div class="text-subtitle2">
+                    {{
+                      results.roi_comparison[strategy]
+                        .time_to_productivity_months
+                    }}
+                    months
+                  </div>
                 </div>
                 <div>
                   <div class="text-caption">Risk Level</div>
-                  <v-chip size="small" :color="getRiskColor(results.roi_comparison[strategy].risk_level)">
+                  <v-chip
+                    size="small"
+                    :color="
+                      getRiskColor(results.roi_comparison[strategy].risk_level)
+                    "
+                  >
                     {{ results.roi_comparison[strategy].risk_level }}
                   </v-chip>
                 </div>
@@ -699,7 +738,10 @@ public function listCalculations(Request $request): JsonResponse
 
         <!-- Recommendation -->
         <v-alert type="info" class="mt-6">
-          <strong>Recommended: {{ results.recommendation.strategy.toUpperCase() }}</strong>
+          <strong
+            >Recommended:
+            {{ results.recommendation.strategy.toUpperCase() }}</strong
+          >
           <p class="mt-2">{{ results.recommendation.reasoning }}</p>
         </v-alert>
       </v-card-text>
@@ -708,12 +750,12 @@ public function listCalculations(Request $request): JsonResponse
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useApi } from '@/composables/useApi'
-import { useNotification } from '@/composables/useNotification'
+import { ref } from "vue";
+import { useApi } from "@/composables/useApi";
+import { useNotification } from "@/composables/useNotification";
 
-const api = useApi()
-const { showError } = useNotification()
+const api = useApi();
+const { showError } = useNotification();
 
 const params = ref({
   scenario_id: 1,
@@ -724,33 +766,33 @@ const params = ref({
   internal_candidate_pool: 5,
   salary_external_annual: 85000,
   salary_internal_annual: 75000,
-})
+});
 
-const results = ref(null)
+const results = ref(null);
 
 const calculate = async () => {
   try {
     const response = await api.post(
-      '/api/v1/workforce-planning/roi-calculator/calculate',
+      "/api/v1/workforce-planning/roi-calculator/calculate",
       params.value
-    )
-    results.value = response.data.data
+    );
+    results.value = response.data.data;
   } catch (error) {
-    showError('Calculation failed')
+    showError("Calculation failed");
   }
-}
+};
 
 const getRoiColor = (roi: number): string => {
-  return roi > 100 ? 'green' : roi > 0 ? 'orange' : 'red'
-}
+  return roi > 100 ? "green" : roi > 0 ? "orange" : "red";
+};
 
 const getRiskColor = (level: string): string => {
-  return { low: 'green', medium: 'orange', high: 'red' }[level] || 'grey'
-}
+  return { low: "green", medium: "orange", high: "red" }[level] || "grey";
+};
 
 const formatCost = (cost: number): string => {
-  return new Intl.NumberFormat('en-US').format(cost)
-}
+  return new Intl.NumberFormat("en-US").format(cost);
+};
 </script>
 ```
 
@@ -781,13 +823,13 @@ public function getGapsForAssignment($scenarioId, Request $request): JsonRespons
 {
     $department = $request->input('department_id');
     $criticality = $request->input('criticality_level');
-    
+
     try {
-        $scenario = WorkforcePlanningScenario::findOrFail($scenarioId);
-        
+        $scenario = StrategicPlanningScenarios::findOrFail($scenarioId);
+
         // Combinar skill gaps + succession gaps + headcount gaps
         $gaps = collect();
-        
+
         // Skill gaps
         $skillGaps = $scenario->skillGaps()
             ->when($department, fn($q) => $q->where('department_id', $department))
@@ -806,7 +848,7 @@ public function getGapsForAssignment($scenarioId, Request $request): JsonRespons
                 'current_strategy' => null,
                 'recommended_strategies' => ['build', 'borrow'],
             ]);
-        
+
         $gaps = $gaps->merge($skillGaps);
 
         return response()->json([
@@ -919,9 +961,7 @@ public function getStrategyPortfolio($scenarioId): JsonResponse
         Assign Strategies
       </v-stepper-header-item>
       <v-divider />
-      <v-stepper-header-item step="3">
-        Review Portfolio
-      </v-stepper-header-item>
+      <v-stepper-header-item step="3"> Review Portfolio </v-stepper-header-item>
     </v-stepper-header>
 
     <!-- CONTENT -->
@@ -942,7 +982,11 @@ public function getStrategyPortfolio($scenarioId): JsonResponse
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn color="primary" @click="step = 2" :disabled="selectedGaps.length === 0">
+            <v-btn
+              color="primary"
+              @click="step = 2"
+              :disabled="selectedGaps.length === 0"
+            >
               Next
             </v-btn>
           </v-card-actions>
@@ -959,7 +1003,9 @@ public function getStrategyPortfolio($scenarioId): JsonResponse
                 <v-row>
                   <v-col cols="12" md="6">
                     <h4>{{ gap.gap_description }}</h4>
-                    <p class="text-caption">{{ gap.recommended_strategies.join(', ').toUpperCase() }}</p>
+                    <p class="text-caption">
+                      {{ gap.recommended_strategies.join(", ").toUpperCase() }}
+                    </p>
                   </v-col>
                   <v-col cols="12" md="6">
                     <v-select
@@ -990,13 +1036,22 @@ public function getStrategyPortfolio($scenarioId): JsonResponse
           <v-card-title>Step 3: Strategy Portfolio</v-card-title>
           <v-card-text v-if="portfolio">
             <v-row>
-              <v-col cols="12" md="3" v-for="strategy in ['build', 'buy', 'borrow', 'bot']" :key="strategy">
+              <v-col
+                cols="12"
+                md="3"
+                v-for="strategy in ['build', 'buy', 'borrow', 'bot']"
+                :key="strategy"
+              >
                 <v-card>
-                  <v-card-title class="text-capitalize">{{ strategy }}</v-card-title>
+                  <v-card-title class="text-capitalize">{{
+                    strategy
+                  }}</v-card-title>
                   <v-card-text>
                     <div class="text-h6">{{ portfolio[strategy].count }}</div>
                     <div class="text-caption">gaps</div>
-                    <div class="text-subtitle2 mt-2">${{ portfolio[strategy].total_cost | currency }}</div>
+                    <div class="text-subtitle2 mt-2">
+                      ${{ portfolio[strategy].total_cost | currency }}
+                    </div>
                   </v-card-text>
                 </v-card>
               </v-col>
@@ -1009,56 +1064,56 @@ public function getStrategyPortfolio($scenarioId): JsonResponse
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useApi } from '@/composables/useApi'
+import { ref, onMounted } from "vue";
+import { useApi } from "@/composables/useApi";
 
-const api = useApi()
-const step = ref(1)
-const scenarioId = ref(1)
+const api = useApi();
+const step = ref(1);
+const scenarioId = ref(1);
 
-const gaps = ref([])
-const selectedGaps = ref([])
-const assignments = ref({})
-const portfolio = ref(null)
+const gaps = ref([]);
+const selectedGaps = ref([]);
+const assignments = ref({});
+const portfolio = ref(null);
 
 const gapHeaders = [
-  { title: 'Gap', value: 'gap_description' },
-  { title: 'Type', value: 'gap_type' },
-  { title: 'Criticality', value: 'criticality' },
-]
+  { title: "Gap", value: "gap_description" },
+  { title: "Type", value: "gap_type" },
+  { title: "Criticality", value: "criticality" },
+];
 
 const strategies = [
-  { value: 'build', label: 'Build' },
-  { value: 'buy', label: 'Buy' },
-  { value: 'borrow', label: 'Borrow' },
-  { value: 'bot', label: 'Bot' },
-]
+  { value: "build", label: "Build" },
+  { value: "buy", label: "Buy" },
+  { value: "borrow", label: "Borrow" },
+  { value: "bot", label: "Bot" },
+];
 
 const loadGaps = async () => {
   const response = await api.get(
     `/api/v1/workforce-planning/scenarios/${scenarioId.value}/gaps-for-assignment`
-  )
-  gaps.value = response.data.data
-}
+  );
+  gaps.value = response.data.data;
+};
 
 const saveAssignments = async () => {
   for (const gapId of selectedGaps.value) {
-    await api.post('/api/v1/workforce-planning/strategies/assign', {
+    await api.post("/api/v1/workforce-planning/strategies/assign", {
       gap_id: gapId,
       strategy: assignments.value[gapId],
-      reasoning: 'Strategy assigned',
+      reasoning: "Strategy assigned",
       assigned_by: 1,
-    })
+    });
   }
 
   const response = await api.get(
     `/api/v1/workforce-planning/strategies/portfolio/${scenarioId.value}`
-  )
-  portfolio.value = response.data.data.portfolio
-  step.value = 3
-}
+  );
+  portfolio.value = response.data.data.portfolio;
+  step.value = 3;
+};
 
-onMounted(() => loadGaps())
+onMounted(() => loadGaps());
 </script>
 ```
 
@@ -1077,23 +1132,24 @@ onMounted(() => loadGaps())
 ## 📅 CRONOGRAMA REVISADO (18-24 horas)
 
 ### Día 1 (5 Enero - 6 horas)
+
 - **Mañana (9:00-13:00):** Componente 1 Backend + Frontend
   - ✅ 2 métodos en WorkforcePlanningController
   - ✅ Extender OverviewDashboard.vue
-  
 - **Tarde (14:00-15:00):** Testeo Componente 1
 
 ### Día 2 (6 Enero - 8 horas)
+
 - **Mañana (9:00-12:00):** Componente 2 Completo
   - ✅ Crear RoiCalculatorController
   - ✅ Crear RoiCalculator.vue
-  
 - **Tarde (13:00-17:00):** Componente 3 Backend
   - ✅ Crear StrategyController
   - ✅ Crear StrategyAssigner.vue (Parte 1)
 
 ### Día 3 (7 Enero - 4 horas)
-- **Mañana (9:00-13:00):** 
+
+- **Mañana (9:00-13:00):**
   - ✅ StrategyAssigner.vue (Parte 2)
   - ✅ Testeo integral
   - ✅ Ajustes UI/UX
@@ -1102,18 +1158,19 @@ onMounted(() => loadGaps())
 
 ## 📊 RESUMEN DE CAMBIOS
 
-| Componente | Antes | Después | Ahorro |
-|-----------|-------|---------|--------|
-| Simulador | +16-20h | +4-6h (extensión) | **12-14h ✅** |
-| ROI | +12-16h | +4-5h (nuevo simple) | **8-11h ✅** |
-| Estrategias | +10-14h | +6-8h (nuevo modular) | **4-6h ✅** |
-| **TOTAL** | **38-50h** | **18-24h** | **20-26h ahorrados** |
+| Componente  | Antes      | Después               | Ahorro               |
+| ----------- | ---------- | --------------------- | -------------------- |
+| Simulador   | +16-20h    | +4-6h (extensión)     | **12-14h ✅**        |
+| ROI         | +12-16h    | +4-5h (nuevo simple)  | **8-11h ✅**         |
+| Estrategias | +10-14h    | +6-8h (nuevo modular) | **4-6h ✅**          |
+| **TOTAL**   | **38-50h** | **18-24h**            | **20-26h ahorrados** |
 
 ---
 
 ## 🎯 PRÓXIMOS PASOS INMEDIATOS
 
 1. **Agregar rutas en `/src/routes/api.php`**
+
    - POST `/api/v1/workforce-planning/scenarios/{id}/simulate-growth`
    - GET `/api/v1/workforce-planning/critical-positions`
    - POST `/api/v1/workforce-planning/roi-calculator/calculate`

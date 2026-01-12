@@ -36,7 +36,7 @@ class ScenarioMilestone extends Model
     // Relaciones
     public function scenario(): BelongsTo
     {
-        return $this->belongsTo(WorkforcePlanningScenario::class, 'scenario_id');
+        return $this->belongsTo(StrategicPlanningScenarios::class, 'scenario_id');
     }
 
     public function owner(): BelongsTo
@@ -58,7 +58,7 @@ class ScenarioMilestone extends Model
     public function scopeOverdue($query)
     {
         return $query->where('target_date', '<', now())
-                    ->whereNotIn('status', ['completed', 'cancelled']);
+            ->whereNotIn('status', ['completed', 'cancelled']);
     }
 
     // Métodos auxiliares

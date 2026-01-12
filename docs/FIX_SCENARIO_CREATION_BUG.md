@@ -1,21 +1,26 @@
 # FIX: Scenario Creation Not Persisting - Bug Resolution
 
 ## Issue Summary
+
 Escenarios creados a través de `ScenarioCreateFromTemplate.vue` no se guardaban en la base de datos porque el controlador `WorkforceScenarioController::instantiateFromTemplate()` no soportaba los nuevos campos agregados en la Fase 2:
+
 - `scope_type` (organization|department|role_family)
 - `parent_id` (jerarquía padre-hijo)
 - Campos de versionamiento: `version_group_id`, `version_number`, `is_current_version`
 - Estados duales: `decision_status`, `execution_status`
 
 ## Root Cause
+
 El método `instantiateFromTemplate()` estaba diseñado para el antiguo flujo de creación y no manejaba el payload con estructura `customizations` que ahora envía el frontend con los nuevos campos.
 
 ## Changes Made
 
 ### 1. **WorkforceScenarioController::instantiateFromTemplate()** (Lines 72-130)
+
 ✅ **Actualización**: Ahora extrae todos los campos del objeto `customizations` y los pasa al modelo.
 
 **Cambios clave:**
+
 ```php
 $customizations = $data['customizations'] ?? [];
 
@@ -24,7 +29,7 @@ $versionGroupId = \Illuminate\Support\Str::uuid();
 $scopeType = $customizations['scope_type'] ?? 'organization';
 $parentId = $customizations['parent_id'] ?? null;
 
-$scenario = WorkforcePlanningScenario::create([
+$scenario = StrategicPlanningScenarios::create([
     // ... existing fields ...
     'scope_type' => $scopeType,
     'parent_id' => $parentId,
@@ -40,13 +45,16 @@ $scenario = WorkforcePlanningScenario::create([
 ```
 
 **Respuesta mejorada:**
+
 - Ahora incluye las relaciones: `['template', 'skillDemands', 'parent', 'statusEvents']`
 - Permite al frontend cargar todas las relaciones necesarias inmediatamente
 
 ### 2. **InstantiateScenarioFromTemplateRequest** (Lines 15-35)
+
 ✅ **Actualización**: Añadidas validaciones para los nuevos campos bajo `customizations`.
 
 **Validaciones nuevas:**
+
 ```php
 'customizations' => 'nullable|array',
 'customizations.scope_type' => 'nullable|string|in:organization,department,role_family',
@@ -55,16 +63,21 @@ $scenario = WorkforcePlanningScenario::create([
 ```
 
 **Backward compatibility:**
+
 - Mantiene las validaciones antigas para campos sin `customizations` (fallback)
 - Permite ambas estructuras de payload
 
 ## Database Verification
+
 ✅ Todas las migraciones ejecutadas correctamente:
+
 - `2026_01_07_232635_enhance_workforce_scenarios_with_versioning_hierarchy_scope` ✅
 - Campos confirmados: `scope_type`, `parent_id`, `version_group_id`, `version_number`, `is_current_version`, `decision_status`, `execution_status`
 
 ## Testing Results
+
 ✅ **Test Manual Completado**: Scenario creado con éxito con todos los nuevos campos:
+
 ```
 ✅ Scenario created successfully!
    - ID: 8
@@ -82,23 +95,30 @@ $scenario = WorkforcePlanningScenario::create([
 ```
 
 ## Frontend Status
+
 ✅ `ScenarioCreateFromTemplate.vue` ya envía el payload correcto:
+
 ```javascript
-await api.post(`/api/v1/workforce-planning/workforce-scenarios/${selectedTemplate.value.id}/instantiate-from-template`, {
-  customizations: {
-    name,
-    description,
-    scenario_type,
-    scope_type,
-    parent_id,
-    horizon_months,
-    // ... other fields
-  },
-})
+await api.post(
+  `/api/v1/workforce-planning/workforce-scenarios/${selectedTemplate.value.id}/instantiate-from-template`,
+  {
+    customizations: {
+      name,
+      description,
+      scenario_type,
+      scope_type,
+      parent_id,
+      horizon_months,
+      // ... other fields
+    },
+  }
+);
 ```
 
 ## Enum Values Fixed
+
 ⚠️ **Importante**: `execution_status` debe ser uno de:
+
 - `'not_started'` (estado inicial) ← Usamos este
 - `'in_progress'`
 - `'paused'`
@@ -107,6 +127,7 @@ await api.post(`/api/v1/workforce-planning/workforce-scenarios/${selectedTemplat
 **NO** `'planned'` (ese es un estado antiguo no soportado)
 
 ## Impact
+
 - ✅ Escenarios se guardan correctamente con todos los nuevos campos
 - ✅ Versionamiento funciona (version_group_id + version_number)
 - ✅ Jerarquía padre-hijo funciona (parent_id)
@@ -115,10 +136,12 @@ await api.post(`/api/v1/workforce-planning/workforce-scenarios/${selectedTemplat
 - ✅ Relaciones se cargan correctamente
 
 ## Files Modified
+
 1. `/app/Http/Controllers/Api/WorkforceScenarioController.php` - Updated `instantiateFromTemplate()` method
 2. `/app/Http/Requests/InstantiateScenarioFromTemplateRequest.php` - Added validations for new fields
 
 ## Next Steps
+
 1. ✅ Probar creación de escenarios desde interfaz (ScenarioCreateFromTemplate.vue)
 2. ✅ Verificar que parent-child relationships funcionan
 3. ✅ Verificar que scopes se respetan

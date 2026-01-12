@@ -357,7 +357,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-import { useStrategicPlanningScenariosStore, type Match } from '@/stores/strategicPlanningScenariosStore'
+import { useStrategicPlanningScenariosStore, type Match } from '@/stores/scenarioPlanningScenariosStore'
 
 const props = defineProps<{
   scenarioId: number

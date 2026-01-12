@@ -20,6 +20,7 @@ Workforce Planning con Escenarios
 ### 1. CREAR ESCENARIO
 
 #### ✅ Backend (API)
+
 ```
 POST /v1/workforce-planning/workforce-scenarios
 ├── Body: { name, description, scenario_type, time_horizon_weeks }
@@ -32,6 +33,7 @@ POST /v1/workforce-planning/workforce-scenarios/{template}/instantiate-from-temp
 ```
 
 #### ⚠️ Frontend
+
 ```
 EXISTE:  ScenarioSelector.vue (para SELECCIONAR escenario activo)
 FALTA:   ScenarioCreate.vue (para CREAR nuevo escenario)
@@ -46,11 +48,12 @@ FALTA:   ScenarioList.vue (listar todos los escenarios)
 ### 2. ANALIZAR BRECHAS
 
 #### ✅ Backend (API + Service)
+
 ```
 POST /v1/workforce-planning/workforce-scenarios/{scenario}/calculate-gaps
 ├── Controller: WorkforceScenarioController::calculateGaps()
 ├── Service: WorkforcePlanningService::calculateScenarioGaps()
-├── Returns: 
+├── Returns:
 │   ├── skill_id
 │   ├── current_headcount (inventario actual)
 │   ├── required_headcount (demanda escenario)
@@ -60,6 +63,7 @@ POST /v1/workforce-planning/workforce-scenarios/{scenario}/calculate-gaps
 ```
 
 #### ✅ Frontend (Visualización)
+
 ```
 EXISTE: SkillGapsMatrix.vue
 ├── Muestra brechas en matriz 2D
@@ -74,10 +78,11 @@ EXISTE: SkillGapsMatrix.vue
 ### 3. SUGERIR ESTRATEGIAS (6Bs)
 
 #### ✅ Backend (API + Service)
+
 ```
 POST /v1/workforce-planning/workforce-scenarios/{scenario}/refresh-suggested-strategies
 ├── Controller: refreshSuggestedStrategies()
-├── Service: 
+├── Service:
 │   ├── calculateScenarioGaps(scenario) → gaps[]
 │   ├── Para cada gap:
 │   │   └── recommendStrategiesForGap(scenario, gap)
@@ -93,6 +98,7 @@ POST /v1/workforce-planning/workforce-scenarios/{scenario}/refresh-suggested-str
 ```
 
 #### ⚠️ Frontend (Visualización)
+
 ```
 EXISTE:   Componentes de visualización (charts)
 FALTA:    ClosureStrategies.vue (gestión completa de estrategias)
@@ -110,10 +116,11 @@ FALTA:    StrategyComparison.vue (comparar BUILD vs BUY para 1 skill)
 ### 4. COMPARAR ESCENARIOS (What-If)
 
 #### ✅ Backend (API + Service)
+
 ```
 POST /v1/workforce-planning/scenario-comparisons
 ├── Controller: ScenarioComparisonController::store()
-├── Body: 
+├── Body:
 │   ├── scenario_ids: [1, 2, 3]
 │   └── comparison_criteria: { cost: true, time: true, risk: true }
 │
@@ -130,6 +137,7 @@ POST /v1/workforce-planning/scenario-comparisons
 ```
 
 #### ⚠️ Frontend (Visualización)
+
 ```
 EXISTE:   Datos en store (workforcePlanningStore.comparisons)
 FALTA:    ScenarioComparison.vue
@@ -146,6 +154,7 @@ FALTA:    ScenarioComparison.vue
 ### 5. MONITOREAR EJECUCIÓN
 
 #### ✅ Backend (API + Data Model)
+
 ```
 Datos disponibles:
 ├── scenario_milestones (hitos del escenario)
@@ -157,6 +166,7 @@ Datos disponibles:
 ```
 
 #### ✅ Frontend (Dashboard)
+
 ```
 EXISTE: OverviewDashboard.vue
 ├── Muestra métricas agregadas
@@ -265,6 +275,7 @@ Body: {
 ## ✅ CONCLUSIÓN: LISTO PARA DEMOSTRACIONES
 
 **HOY PUEDES DEMOSTRAR:**
+
 - ✅ API funcionando (postman)
 - ✅ Cálculo de brechas automático
 - ✅ Sugerencias de estrategias (6Bs)
@@ -272,6 +283,7 @@ Body: {
 - ✅ Dashboard con KPIs
 
 **PARA COMPLETAR LA UX (1-2 días de frontend):**
+
 - ⚠️ Wizard de creación de escenarios
 - ⚠️ Listado de escenarios
 - ⚠️ Gestión de estrategias (aprobar/rechazar)
@@ -291,7 +303,7 @@ Body: {
 │   │   ├── ScenarioTemplateController.php ✅
 │   │   └── ScenarioComparisonController.php ✅
 │   ├── Models/
-│   │   ├── WorkforcePlanningScenario.php ✅
+│   │   ├── StrategicPlanningScenarios.php ✅
 │   │   ├── ScenarioTemplate.php ✅
 │   │   ├── ScenarioSkillDemand.php ✅
 │   │   ├── ScenarioClosureStrategy.php ✅
