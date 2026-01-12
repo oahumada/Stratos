@@ -58,4 +58,13 @@ Route::get('/workforce-planning/{id}', function ($id) {
     return Inertia::render('WorkforcePlanning/ScenarioDetail', ['id' => $id]);
 })->middleware(['auth', 'verified'])->name('workforce-planning.show');
 
+// Alias routes for new frontend naming: /strategic-planning
+Route::get('/strategic-planning', function () {
+    return Inertia::render('WorkforcePlanning/ScenarioList');
+})->middleware(['auth', 'verified'])->name('strategic-planning.index');
+
+Route::get('/strategic-planning/{id}', function ($id) {
+    return Inertia::render('WorkforcePlanning/ScenarioDetail', ['id' => $id]);
+})->middleware(['auth', 'verified'])->name('strategic-planning.show');
+
 require __DIR__ . '/settings.php';
