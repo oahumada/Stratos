@@ -121,6 +121,7 @@
   - Casos de uso con ejemplos SQL
 
 **Script de Verificación:**
+
 ```bash
 ./verify-people-role-skills.sh  # Verifica implementación completa
 ```
@@ -163,6 +164,7 @@
 
 - **[MODULE_TASKFORCE.md](MODULE_TASKFORCE.md)** - Análisis completo del módulo (referencia)
 - **[WORKFORCE_PLANNING_GUIA.md](WORKFORCE_PLANNING_GUIA.md)** - Guía rápida de implementación ⭐ COMIENZA AQUÍ
+- **[memories_workforce_planning.md](memories_workforce_planning.md)** - Resumen operativo y pasos Postman (últimas modificaciones)
 
 ---
 
@@ -247,4 +249,4 @@ Estado:               ✅ Centralizada en /docs
 
 ---
 
-**Última actualización:** 28 de Diciembre, 2025
+**Última actualización:** 14 Enero 2026

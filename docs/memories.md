@@ -1,16 +1,19 @@
 # Strato – Memoria de Contexto para GitHub Copilot
 
-**Última actualización:** 5 Enero 2026  
+**Última actualización:** 14 Enero 2026  
 **Status:** MVP Backend ✅ COMPLETADO (Días 1-5), Frontend ✅ COMPLETADO (Días 6-7), WFP Phase 2 🚀 INICIADO (Día 8+)  
 **Patrón CRUD:** ✅ Consolidado en FormSchemaController + form-schema-complete.php
 
 ---
+
+> Nota: La sección de _Workforce Planning / Scenario Planning_ se ha extraído a [docs/memories_workforce_planning.md](memories_workforce_planning.md) para facilitar mantenimiento y validación rápida (Postman). Consulte ese archivo para los endpoints, pasos Postman y estado del módulo.
 
 ## 🎯 WORKFORCE PLANNING PHASE 2 (5 Enero 2026 - EN DESARROLLO)
 
 ### Plan de Acción para 3 Actores Clave
 
 **Documentos relacionados:**
+
 - 📖 [GUIA_RAPIDA_IMPLEMENTACION_2026_01_05.md](GUIA_RAPIDA_IMPLEMENTACION_2026_01_05.md) ⭐ **COMIENZA AQUÍ** - Paso-a-paso (7 pasos)
 - 📊 [PLAN_ACCION_WFP_AJUSTADO_2026_01_05.md](PLAN_ACCION_WFP_AJUSTADO_2026_01_05.md) - Plan detallado (18-24 horas, 50% ahorro)
 - 💼 [RESUMEN_EJECUTIVO_PLAN_WFP_2026_01_05.md](RESUMEN_EJECUTIVO_PLAN_WFP_2026_01_05.md) - Resumen para stakeholders
@@ -30,11 +33,13 @@
 ### SIN Duplicación de Rutas
 
 **Antes (Problema):**
+
 - Rutas API definidas manualmente en `/routes/api.php`
 - Rutas CRUD generadas en `/routes/form-schema-complete.php`
 - Mismo endpoint `/api/people` registrado DOS VECES → conflicto
 
 **Ahora (Solución):**
+
 - Todas las rutas CRUD en `/routes/form-schema-complete.php` (única fuente de verdad)
 - Registro automático de modelos en `$formSchemaModels` mapping
 - FormSchemaController maneja todos los CRUD genéricamente
@@ -3386,7 +3391,7 @@ Este documento es la fuente de verdad para el desarrollo de Strato. Cuando gener
 9. **Revisar endpoints MVP:** Usar leyenda ✅/🔴/🟡 en sección 6.2 para saber qué implementar
 10. **Consultar datos de demo:** Sección 2.4 (resumen) y 11 (detalle completo) para seeds
 
-**Última actualización:** 2025-12-27  
+**Última actualización:** 14 Enero 2026  
 **Versión:** 1.1 (mejoras: índice navegable, leyenda MVP en endpoints, algoritmos documentados, resumen de datos demo)  
 **Autor:** Equipo Strato
 

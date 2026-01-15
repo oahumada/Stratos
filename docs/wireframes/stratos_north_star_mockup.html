@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Stratos — North Star Mockup (Scenario Home)</title>
+  <style>
+    :root{
+      --bg:#0f1724; --surface:#071018; --accent:#6fb8ff; --primary:#3ce0c8; --muted:#9fb3c9; --card:#07161f;
+      --glass: rgba(255,255,255,0.04); --blur: 12px; --gap:20px; --radius:14px;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      --base-font-size:14px; --muted-opacity:0.6;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#061018);color:#e6eef8;font-size:var(--base-font-size);font-weight:300}
+    .app{height:100vh;display:flex;flex-direction:column}
+    header{height:64px;display:flex;align-items:center;gap:12px;padding:0 32px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    header .title{font-size:16px;font-weight:500;letter-spacing:0.2px}
+    .main{flex:1;display:grid;grid-template-columns:1fr 380px;padding:36px;gap:32px}
+    .canvas-wrap{background:transparent;border-radius:18px;padding:18px;position:relative}
+    .canvas-frame{flex:1;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.007));border:1px solid rgba(255,255,255,0.04);box-shadow:0 18px 60px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.02);position:relative;overflow:hidden}
+    .frame-top-glow{position:absolute;left:24px;right:24px;top:10px;height:6px;background:linear-gradient(90deg,var(--primary),var(--accent));opacity:0.28;filter:blur(8px);border-radius:8px}
+    .frame-inner{padding:28px;height:100%;box-sizing:border-box}
+    /* mock nodes (glowing) */
+    svg{width:100%;height:100%;display:block}
+    /* soften paths */
+    .conn{stroke:rgba(140,200,255,0.04);stroke-width:1.2;fill:none}
+    .mini-map{position:absolute;right:28px;top:28px;width:120px;height:84px;background:rgba(255,255,255,0.02);backdrop-filter:blur(10px);border-radius:10px;padding:8px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 20px rgba(2,10,20,0.6)}
+    .insights{background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);border-radius:14px;padding:20px;border:1px solid rgba(255,255,255,0.04);box-shadow:none}
+    .insights h3{margin:0 0 8px;font-size:16px}
+    .cta{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+    .btn{background:linear-gradient(90deg,var(--primary),var(--accent));color:#021919;padding:10px 12px;border-radius:12px;font-weight:600;border:none;cursor:pointer;box-shadow:0 6px 24px rgba(60,224,200,0.08)}
+    .kpis{display:flex;gap:12px;margin-top:18px}
+    .kpi{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;flex:1;text-align:left;font-size:13px}
+    .bottom-sheet{position:absolute;left:50%;transform:translateX(-50%);bottom:28px;background:rgba(255,255,255,0.02);backdrop-filter:blur(12px);padding:14px 18px;border-radius:14px;border:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:18px;min-width:560px}
+    .sim{display:flex;flex-direction:column;gap:6px}
+    .pill{background:rgba(255,255,255,0.02);padding:6px 12px;border-radius:999px;font-size:13px;color:var(--muted)}
+    /* reduce overall font sizes for a lighter look */
+    body, .title, .kpi, .insights, .sim {font-weight:300}
+    .title{font-size:15px}
+    .insights, .kpi{font-size:13px}
+    /* responsive small */
+    @media (max-width:900px){.main{grid-template-columns:1fr} .insights{display:none}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:700;color:#021919">S</div>
+      <div class="title">Stratos — AI Adoption · Scenario: IA Adoption Accelerator</div>
+      <div style="margin-left:auto;color:var(--muted);font-size:13px">Última ejecución: 2026-01-12 · Owner: Omar</div>
+      <div style="margin-left:12px;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.03);color:var(--muted);background:rgba(255,255,255,0.01)">🔍</div>
+    </header>
+
+    <div class="main">
+      <div class="canvas-wrap">
+        <div class="canvas-frame">
+          <div class="frame-top-glow"></div>
+          <div class="frame-inner">
+        <!-- SVG bubble map -->
+        <svg viewBox="0 0 1200 640" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="g1" cx="30%" cy="30%">
+              <stop offset="0%" stop-color="#6fb8ff" stop-opacity="0.95"/>
+              <stop offset="100%" stop-color="#6fb8ff" stop-opacity="0.06"/>
+            </radialGradient>
+            <radialGradient id="g2" cx="30%" cy="30%">
+              <stop offset="0%" stop-color="#3ce0c8" stop-opacity="0.95"/>
+              <stop offset="100%" stop-color="#3ce0c8" stop-opacity="0.06"/>
+            </radialGradient>
+            <radialGradient id="g3" cx="30%" cy="30%">
+              <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.04"/>
+            </radialGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+
+          <!-- connecting paths: very soft organic curves -->
+          <g class="conn">
+            <path d="M120 480 C220 330, 420 260, 560 320 S900 420,1040 340" stroke-linecap="round" stroke-linejoin="round" opacity="0.06"/>
+            <path d="M180 380 C300 220, 460 180,600 240 S820 320,980 240" stroke-linecap="round" stroke-linejoin="round" opacity="0.05"/>
+          </g>
+
+          <!-- nodes cluster left (glowing nodes) -->
+          <g>
+            <circle cx="160" cy="420" r="46" fill="url(#g2)" opacity="0.65" filter="url(#glow)"/>
+            <circle cx="240" cy="320" r="34" fill="url(#g1)" opacity="0.6" filter="url(#glow)"/>
+            <circle cx="300" cy="380" r="26" fill="url(#g2)" opacity="0.55" filter="url(#glow)"/>
+            <circle cx="420" cy="300" r="20" fill="url(#g1)" opacity="0.5" filter="url(#glow)"/>
+          </g>
+
+          <!-- center cluster -->
+          <g>
+            <circle cx="640" cy="320" r="86" fill="url(#g2)" opacity="0.5" filter="url(#glow)"/>
+            <circle cx="720" cy="240" r="44" fill="url(#g1)" opacity="0.55" filter="url(#glow)"/>
+            <circle cx="820" cy="300" r="30" fill="url(#g3)" opacity="0.5" filter="url(#glow)"/>
+            <circle cx="960" cy="220" r="20" fill="url(#g2)" opacity="0.45" filter="url(#glow)"/>
+          </g>
+
+          <!-- right small -->
+          <g>
+            <circle cx="1040" cy="380" r="54" fill="url(#g1)" opacity="0.5" filter="url(#glow)"/>
+            <circle cx="1080" cy="460" r="26" fill="url(#g2)" opacity="0.45" filter="url(#glow)"/>
+          </g>
+
+          <!-- highlight node with label (softer) -->
+          <g>
+            <circle cx="660" cy="310" r="86" fill="none" stroke="rgba(60,224,200,0.12)" stroke-width="1.6"/>
+            <circle cx="660" cy="310" r="40" fill="url(#g2)" opacity="0.9" filter="url(#glow)"/>
+            <text x="660" y="310" text-anchor="middle" dy="6" font-size="13" fill="#e6eef8" opacity="0.95" font-weight="600">System Design</text>
+            <text x="660" y="330" text-anchor="middle" dy="6" font-size="11" fill="#9fb3c9">Etapa: dominio emergente · Confianza 62%</text>
+          </g>
+
+        </svg>
+
+        <div class="mini-map">Mini-map</div>
+
+        <div class="bottom-sheet">
+          <div style="width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--primary));box-shadow:0 6px 18px rgba(45,212,191,0.08)"></div>
+          <div class="sim">
+            <div style="font-weight:700;font-size:15px">Health: 72% · Coverage</div>
+            <div style="font-size:13px;color:var(--muted)">Top risks: System Design, Kubernetes, Mentoring</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:6px">Confidence: 62% · Data freshness: 7d</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+            <div class="pill">Horizon: 12 months</div>
+            <button class="btn">Run full analysis</button>
+          </div>
+        </div>
+
+          </div> <!-- frame-inner -->
+        </div> <!-- canvas-frame -->
+
+      </div>
+
+      <aside style="display:flex;flex-direction:column;gap:16px">
+        <div class="insights">
+          <h3>Insights</h3>
+          <div style="font-size:13px;color:var(--muted)">Strategic gaps identified · Potential for upskilling</div>
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">Top action</div><div style="color:var(--muted)">Impact est.: +18% coverage</div></div>
+            <div style="font-size:13px;color:var(--muted)">Build: Internal training program · 12 weeks</div>
+            <div style="font-size:13px;color:var(--muted)">Buy: Hire 3 specialists · 8 weeks</div>
+          </div>
+
+          <div class="cta">
+            <button class="btn">Definir Scope</button>
+            <button style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:10px;border-radius:10px">Ver simulación</button>
+          </div>
+
+          <div class="kpis">
+            <div class="kpi"><div style="font-size:12px;color:var(--muted)">Health</div><div style="font-weight:700">72%</div></div>
+            <div class="kpi"><div style="font-size:12px;color:var(--muted)">Coverage</div><div style="font-weight:700">68%</div></div>
+            <div class="kpi"><div style="font-size:12px;color:var(--muted)">Risk</div><div style="font-weight:700;color:var(--muted)">3 roles</div></div>
+          </div>
+        </div>
+
+        <div style="background:var(--card);padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)">
+          <div style="font-size:13px;color:var(--muted)">Top 3 recommended</div>
+          <ol style="margin:8px 0 0 18px;color:#e6eef8">
+            <li>Build — Training program for Prompt Eng (12w) · Est. impact +22%</li>
+            <li>Buy — Hire 2 Data Engineers · Est. impact +15%</li>
+            <li>Borrow — External consultants (2w) · Quick triage</li>
+          </ol>
+        </div>
+
+      </aside>
+
+    </div>
+  </div>
+</body>
+</html>
