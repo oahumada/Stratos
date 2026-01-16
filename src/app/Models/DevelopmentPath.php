@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DevelopmentPath extends Model
 {
     use SoftDeletes;
-    
+
     protected $fillable = [
+        'action_title',
         'organization_id',
         'people_id',
         'target_role_id',

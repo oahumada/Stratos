@@ -23,6 +23,7 @@ class DevelopmentPathSeeder extends Seeder
         }
 
         DevelopmentPath::create([
+            'action_title' => 'Personal development plan',
             'organization_id' => $org->id,
             'people_id' => $people->id,
             'target_role_id' => $targetRole->id,

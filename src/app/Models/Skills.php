@@ -20,6 +20,14 @@ class Skills extends Model
         'domain_tag',
     ];
 
+    // Defaults applied when creating via Eloquent to match DB defaults
+    protected $attributes = [
+        'complexity_level' => 'tactical',
+        'lifecycle_status' => 'active',
+        'is_critical' => false,
+        'scope_type' => 'domain',
+    ];
+
     protected $casts = [
         'category' => 'string',
         'is_critical' => 'boolean',
