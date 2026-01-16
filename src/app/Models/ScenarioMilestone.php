@@ -36,7 +36,7 @@ class ScenarioMilestone extends Model
     // Relaciones
     public function scenario(): BelongsTo
     {
-        return $this->belongsTo(StrategicPlanningScenarios::class, 'scenario_id');
+        return $this->belongsTo(Scenario::class, 'scenario_id');
     }
 
     public function owner(): BelongsTo

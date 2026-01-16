@@ -8,6 +8,7 @@ use App\Models\Capability;
 use App\Services\ScenarioAnalyticsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia;
 
 class ScenarioController extends Controller
 {
@@ -88,5 +89,24 @@ class ScenarioController extends Controller
 
             return response()->json(['message' => 'Escenario aprobado y capacidades graduadas con éxito.']);
         });
+    }
+
+    public function show($id)
+    {
+        // Aquí luego vendrá la lógica de Eloquent: Scenario::with('capabilities')->find($id)
+        return Inertia::render('Stratos/ScenarioView', [
+            'scenario' => [
+                'name' => 'IA Adoption Accelerator',
+                'health' => 72,
+                'coverage' => 68,
+                'risk' => 3
+            ],
+            'capabilities' => [
+                ['id' => 1, 'name' => 'System Design', 'level' => 2, 'required' => 4, 'importance' => 5, 'x' => 50, 'y' => 40],
+                ['id' => 2, 'name' => 'Data Governance', 'level' => 3, 'required' => 4, 'importance' => 4, 'x' => 30, 'y' => 60],
+                ['id' => 3, 'name' => 'MLOps', 'level' => 2, 'required' => 5, 'importance' => 5, 'x' => 70, 'y' => 50],
+                ['id' => 4, 'name' => 'Prompt Engineering', 'level' => 4, 'required' => 4, 'importance' => 3, 'x' => 40, 'y' => 25],
+            ]
+        ]);
     }
 }

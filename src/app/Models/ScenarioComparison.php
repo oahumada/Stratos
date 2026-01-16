@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Scenario;
 
 class ScenarioComparison extends Model
 {
@@ -41,7 +42,7 @@ class ScenarioComparison extends Model
     // Método para obtener escenarios comparados
     public function getScenarios()
     {
-        return StrategicPlanningScenarios::whereIn('id', $this->scenario_ids ?? [])->get();
+        return Scenario::whereIn('id', $this->scenario_ids ?? [])->get();
     }
 
     // Scope multi-tenant

@@ -14,6 +14,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('organization_id')->constrained();
             $table->string('name');
+            $table->text('description')->nullable();
+            $table->enum('complexity_level', ['operative', 'tactical', 'strategic'])->default('tactical');
+            $table->foreignId('capability_id')->constrained()->onDelete('cascade');
             $table->string('lifecycle_status')->default('active');
             $table->foreignId('parent_skill_id')->nullable()->constrained('skills')->nullOnDelete();
             $table->enum('category', ['technical', 'soft', 'business', 'language'])->default('technical');

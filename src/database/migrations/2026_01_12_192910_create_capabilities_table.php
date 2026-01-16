@@ -13,22 +13,19 @@ return new class extends Migration {
             $table->unsignedBigInteger('organization_id')->index();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('category')->default('technical'); // technical, leadership, business, operational
-            $table->string('status')->default('active'); // active, inactive
+            $table->decimal('position_x', 5, 2)->default(50.00); // Posición en el canvas (%)
+            $table->decimal('position_y', 5, 2)->default(50.00);
+            $table->integer('importance')->default(3); // 1-5, define el tamaño de la burbuja
+            $table->enum('type', ['technical', 'behavioral', 'strategic'])->default('technical');
+            $table->enum('category', ['technical', 'leadership', 'business', 'operational'])->default('technical');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->foreignId('discovered_in_scenario_id')->nullable()->constrained('scenarios')->onDelete('set null'); // -- "incubando"
             $table->timestamps();
 
             $table->index(['organization_id', 'status']);
         });
 
-        // Añadir constraints solo en drivers que soporten ALTER TABLE ADD CONSTRAINT (no SQLite)
-        if (DB::getDriverName() !== 'sqlite') {
-            // Constraint para category
-            DB::statement("ALTER TABLE capabilities ADD CONSTRAINT capabilities_category_check CHECK (category IN ('technical', 'leadership', 'business', 'operational'))");
 
-            // Constraint para status
-            DB::statement("ALTER TABLE capabilities ADD CONSTRAINT capabilities_status_check CHECK (status IN ('active', 'inactive'))");
-        }
     }
 
     public function down(): void

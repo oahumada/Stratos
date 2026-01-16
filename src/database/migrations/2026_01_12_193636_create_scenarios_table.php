@@ -15,6 +15,7 @@ return new class extends Migration {
                 $table->string('name');
                 $table->string('code', 50)->unique();
                 $table->text('description')->nullable();
+                $table->json('kpis')->nullable(); // KPIs de negocio esperados
 
                 $table->date('start_date');
                 $table->date('end_date');
