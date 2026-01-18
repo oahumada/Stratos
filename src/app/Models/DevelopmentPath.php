@@ -53,4 +53,14 @@ class DevelopmentPath extends Model
     {
         return $this->belongsTo(Roles::class, 'target_role_id');
     }
+
+    public function actions()
+    {
+        return $this->hasMany(DevelopmentAction::class)->orderBy('order');
+    }
+
+    public function evaluation()
+    {
+        return $this->belongsTo(Evaluation::class);
+    }
 }

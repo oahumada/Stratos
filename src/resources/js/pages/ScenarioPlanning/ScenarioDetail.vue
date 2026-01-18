@@ -15,6 +15,7 @@ import WorkforcePlansOverview from '@/components/StrategicPlanningScenarios/Work
 import ScenarioActionsPanel from '@/components/StrategicPlanningScenarios/ScenarioActionsPanel.vue'
 import VersionHistoryModal from '@/components/StrategicPlanningScenarios/VersionHistoryModal.vue'
 import StatusTimeline from '@/components/StrategicPlanningScenarios/StatusTimeline.vue'
+import PrototypeMap from './Index.vue'
 import { router } from '@inertiajs/vue3'
 
 type Props = {
@@ -121,6 +122,16 @@ const scenarioId = computed(() => {
   const value = typeof props.id === 'string' ? parseInt(props.id, 10) : props.id
   return value || 0
 })
+
+// detect optional view mode from querystring (e.g., ?view=map)
+const viewMode = (() => {
+  try {
+    const params = new URLSearchParams(window.location.search)
+    return params.get('view') || null
+  } catch (e) {
+    return null
+  }
+})()
 
 const loadScenario = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
@@ -458,7 +469,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <v-container fluid class="scenario-detail">
+  <div>
+    <template v-if="viewMode === 'map'">
+      <PrototypeMap :scenario="scenario" />
+    </template>
+    <template v-else>
+      <v-container fluid class="scenario-detail">
     <v-row class="mb-4 align-center">
       <v-col cols="12" md="6">
         <h2 class="mb-1">{{ scenario?.name || 'Escenario' }}</h2>
@@ -512,11 +528,11 @@ onMounted(() => {
 
       <v-divider></v-divider>
 
-      <v-card-text>
-        <div v-show="activeTab === 'stepper'">
-          <ScenarioStepperComponent
-            :current-step="currentStep"
-            :scenario-status="scenario?.execution_status ?? 'draft'"
+      </v-card-text>
+      </v-container>
+    </template>
+  </div>
+</template>
             :decision-status="scenario?.decision_status ?? 'draft'"
             @update:current-step="handleStepChange"
             @step-click="handleStepChange"

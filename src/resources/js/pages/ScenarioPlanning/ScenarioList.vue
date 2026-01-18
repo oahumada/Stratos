@@ -4,7 +4,7 @@ import { router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
-import { usescenarioPlanningScenariosStore } from '@/stores/scenarioPlanningScenariosStore'
+import { useStrategicPlanningScenariosStore } from '@/stores/scenarioPlanningScenariosStore'
 import ScenarioCreateModal from './ScenarioCreateModal.vue'
 
 defineOptions({ layout: AppLayout })
@@ -29,7 +29,7 @@ type ScenarioListItem = {
 
 const api = useApi()
 const { showSuccess, showError } = useNotification()
-const store = usescenarioPlanningScenariosStore()
+const store = useStrategicPlanningScenariosStore()
 
 const scenarios = ref<ScenarioListItem[]>([])
 const loading = ref(false)
@@ -142,7 +142,7 @@ const loadScenarios = async () => {
 }
 
 const goToDetail = (scenario: ScenarioListItem) => {
-  router.visit(`/scenario-planning/${scenario.id}`)
+  router.visit(`/scenario-planning/${scenario.id}?view=map`)
 }
 
 const deleteScenario = async (scenario: ScenarioListItem) => {

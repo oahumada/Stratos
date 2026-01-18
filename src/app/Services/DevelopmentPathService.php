@@ -54,8 +54,8 @@ class DevelopmentPathService
             }
         }
 
-        // Convertir días a meses (30 días = 1 mes)
-        $estimatedMonths = max(0.5, round($totalDays / 30, 1));
+        // Convertir días a meses (30 días = 1 mes) y asegurar entero para la columna DB
+        $estimatedMonths = (int) max(1, round($totalDays / 30));
 
         // Obtener organization_id de la persona o del usuario autenticado
         $organizationId = $people->organization_id;
@@ -63,7 +63,11 @@ class DevelopmentPathService
             $organizationId = auth()->user()->organization_id;
         }
 
+        $peopleName = $people->full_name ?? ($people->first_name . ' ' . $people->last_name);
+        $actionTitle = "Ruta automática de aprendizaje para {$peopleName} → {$targetRole->name}";
+
         return DevelopmentPath::create([
+            'action_title' => $actionTitle,
             'organization_id' => $organizationId,
             'people_id' => $people->id,
             'target_role_id' => $targetRole->id,

@@ -54,6 +54,37 @@ Route::get('/marketplace/recruiter', [\App\Http\Controllers\Api\MarketplaceContr
 
 // Scenario Planning
 
+// Lista simple de escenarios (stub para frontend durante desarrollo)
+Route::get('/scenario-planning-list', function () {
+    return response()->json([
+        [
+            'id' => 1,
+            'name' => 'Adopción de IA',
+            'description' => 'Acelerar la adopción de IA en productos core',
+            'scenario_type' => 'transformation',
+            'status' => 'draft',
+            'decision_status' => 'draft',
+            'execution_status' => 'planned',
+            'is_current_version' => true,
+            'version_number' => 1,
+            'time_horizon_weeks' => 24,
+            'created_at' => now()->toDateTimeString(),
+        ],
+        [
+            'id' => 2,
+            'name' => 'Optimización de Plataforma',
+            'description' => 'Reducir costos y mejorar escalabilidad',
+            'scenario_type' => 'automation',
+            'status' => 'active',
+            'decision_status' => 'approved',
+            'execution_status' => 'in_progress',
+            'is_current_version' => true,
+            'version_number' => 2,
+            'time_horizon_weeks' => 52,
+            'created_at' => now()->toDateTimeString(),
+        ],
+    ]);
+});
 
 // Catálogos dinámicos para selectores
 Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');

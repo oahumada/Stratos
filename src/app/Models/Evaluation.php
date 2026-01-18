@@ -11,14 +11,44 @@ class Evaluation extends Model
 
     protected $table = 'evaluations';
 
-    protected $fillable = ['evaluatable_type', 'evaluatable_id', 'user_id', 'score', 'notes', 'metadata'];
+    protected $fillable = ['user_id', 'skill_id', 'scenario_id', 'current_level', 
+        'required_level', 'gap', 'confidence_score', 'evaluated_at', 'metadata'];
 
-    protected $casts = [
+   protected $casts = [
+        'current_level' => 'decimal:2',
+        'gap' => 'decimal:2',
+        'evaluated_at' => 'datetime',
         'metadata' => 'array',
     ];
 
+    // Relaciones
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function skill()
+    {
+        return $this->belongsTo(Skill::class);
+    }
+
+    public function scenario()
+    {
+        return $this->belongsTo(Scenario::class);
+    }
+
     public function responses()
     {
-        return $this->hasMany(EvaluationResponse::class, 'evaluation_id');
+        return $this->hasMany(EvaluationResponse::class);
+    }
+
+    public function evidences()
+    {
+        return $this->hasMany(Evidence::class);
+    }
+
+    public function developmentActions()
+    {
+        return $this->hasMany(DevelopmentPath::class);
     }
 }

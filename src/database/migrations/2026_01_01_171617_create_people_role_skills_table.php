@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->foreignId('people_id')->constrained('people')->onDelete('cascade');
             $table->foreignId('role_id')->nullable()->constrained('roles')->nullOnDelete();
             $table->foreignId('skill_id')->constrained('skills')->onDelete('cascade');
-
+            $table->integer('level')->default(0)->after('created_at')->comment('Compatibilidad: alias para current_level en fixtures/tests');
             // Niveles
             $table->integer('current_level')->default(1)->comment('Nivel actual de la persona en esta skill (1-5)');
             $table->integer('required_level')->default(3)->comment('Nivel requerido por el rol en el momento de asignación');

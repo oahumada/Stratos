@@ -11,10 +11,16 @@ class BarsLevel extends Model
 
     protected $table = 'bars_levels';
 
-    protected $fillable = ['name', 'min_value', 'max_value', 'description'];
+    protected $fillable = ['skill_id', 'level', 'level_name', 'behavioral_description'];
 
-    protected $casts = [
-        'min_value' => 'integer',
-        'max_value' => 'integer',
-    ];
+    // Relaciones
+    public function skill()
+    {
+        return $this->belongsTo(Skill::class);
+    }
+
+    public function responses()
+    {
+        return $this->hasMany(EvaluationResponse::class);
+    }
 }
