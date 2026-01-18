@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Models\PeopleRoleSkills;
 use Illuminate\Database\Eloquent\Builder;
 
-class PeopleRoleSkillssRepository extends Repository
+class PeopleRoleSkillsRepository extends Repository
 {
     public function __construct(PeopleRoleSkills $model)
     {

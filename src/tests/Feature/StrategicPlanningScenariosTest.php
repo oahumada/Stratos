@@ -23,9 +23,6 @@ class StrategicPlanningScenariosTest extends TestCase
         $this->template = ScenarioTemplate::factory()->create();
     }
 
-    /**
-     * Test: Create a new scenario
-     */
     public function test_create_workforce_scenario(): void
     {
         $response = $this->actingAs($this->user)
@@ -56,9 +53,6 @@ class StrategicPlanningScenariosTest extends TestCase
         ]);
     }
 
-    /**
-     * Test: Tenant isolation - user cannot see other org scenarios
-     */
     public function test_tenant_isolation_prevents_cross_org_access(): void
     {
         $otherOrg = Organizations::factory()->create();
@@ -72,9 +66,6 @@ class StrategicPlanningScenariosTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * Test: List scenarios for organization
-     */
     public function test_list_scenarios_filtered_by_organization(): void
     {
         StrategicPlanningScenarios::factory(3)->create([
@@ -92,9 +83,6 @@ class StrategicPlanningScenariosTest extends TestCase
             ->assertJsonCount(3, 'data');
     }
 
-    /**
-     * Test: Instantiate scenario from template
-     */
     public function test_instantiate_scenario_from_template(): void
     {
         $template = ScenarioTemplate::factory()->create([
@@ -135,9 +123,6 @@ class StrategicPlanningScenariosTest extends TestCase
         ]);
     }
 
-    /**
-     * Test: Calculate scenario gaps
-     */
     public function test_calculate_scenario_gaps(): void
     {
         $scenario = StrategicPlanningScenarios::factory()->create([
@@ -164,9 +149,6 @@ class StrategicPlanningScenariosTest extends TestCase
             ]);
     }
 
-    /**
-     * Test: Unauthorized user cannot update scenario
-     */
     public function test_unauthorized_user_cannot_update_scenario(): void
     {
         $otherOrg = Organizations::factory()->create();
@@ -183,9 +165,6 @@ class StrategicPlanningScenariosTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * Test: Filter scenarios by status
-     */
     public function test_filter_scenarios_by_status(): void
     {
         StrategicPlanningScenarios::factory(2)->create([

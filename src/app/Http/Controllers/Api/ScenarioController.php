@@ -8,6 +8,7 @@ use App\Models\Capability;
 use App\Services\ScenarioAnalysisService;
 use App\Repository\ScenarioRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -18,7 +19,8 @@ class ScenarioController extends Controller
     public function __construct(
         private ScenarioRepository $scenarioRepo,
         private ScenarioAnalysisService $analysisService
-    ) {}
+    ) {
+    }
 
     /**
      * Obtiene el IQ y métricas clave del escenario.
@@ -27,6 +29,32 @@ class ScenarioController extends Controller
     {
         $metrics = $this->analytics->calculateScenarioIQ($id);
         return response()->json($metrics);
+    }
+
+    /**
+     * API: Listar escenarios paginados por organización
+     */
+    public function listScenarios(Request $request): JsonResponse
+    {
+        $organizationId = auth()->user()->organization_id;
+
+        $filters = [
+            'status' => $request->input('status'),
+            'fiscal_year' => $request->input('fiscal_year'),
+        ];
+
+        $scenarios = $this->scenarioRepo->getScenariosByOrganization($organizationId, $filters);
+
+        return response()->json([
+            'success' => true,
+            'data' => $scenarios->items(),
+            'pagination' => [
+                'current_page' => $scenarios->currentPage(),
+                'total' => $scenarios->total(),
+                'per_page' => $scenarios->perPage(),
+                'last_page' => $scenarios->lastPage(),
+            ],
+        ]);
     }
 
     /**
@@ -94,10 +122,10 @@ class ScenarioController extends Controller
 
     public function show($id)
     {
-       $scenario = $this->scenarioRepo->findWithCapabilities($id);
+        $scenario = $this->scenarioRepo->findWithCapabilities($id);
         $health = $this->analysisService->calculateHealth($scenario);
 
-        $capabilities = $scenario->capabilities->map(function($cap) {
+        $capabilities = $scenario->capabilities->map(function ($cap) {
             return [
                 'id' => $cap->id,
                 'name' => $cap->name,
@@ -112,6 +140,26 @@ class ScenarioController extends Controller
         return inertia('Stratos/ScenarioView', [
             'scenario' => array_merge($scenario->toArray(), $health),
             'capabilities' => $capabilities
+        ]);
+    }
+
+    /**
+     * API: Obtener escenario como JSON (compatibility method)
+     */
+    public function showScenario($id): JsonResponse
+    {
+        $scenario = $this->scenarioRepo->getScenarioById((int) $id);
+
+        if (!$scenario) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Scenario not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $scenario,
         ]);
     }
 }

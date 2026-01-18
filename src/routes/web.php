@@ -63,4 +63,13 @@ Route::get('/scenario-planning/{id}', function ($id) {
     return Inertia::render('ScenarioPlanning/ScenarioDetail', ['id' => $id]);
 })->middleware(['auth', 'verified'])->name('scenario-planning.show');
 
+// Backwards-compatibility aliases: /strategic-planning -> /scenario-planning
+Route::get('/strategic-planning', function () {
+    return Inertia::render('ScenarioPlanning/ScenarioList');
+})->middleware(['auth', 'verified'])->name('strategic-planning.index');
+
+Route::get('/strategic-planning/{id}', function ($id) {
+    return Inertia::render('ScenarioPlanning/ScenarioDetail', ['id' => $id]);
+})->middleware(['auth', 'verified'])->name('strategic-planning.show');
+
 require __DIR__ . '/settings.php';

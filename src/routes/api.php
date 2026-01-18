@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CatalogsController;
+use App\Http\Controllers\Api\V1\WorkforcePlanningController;
 
 /* // Catálogos dinámicos para selectores
 Route::get('/catalogs', function (Illuminate\Http\Request $request) {
@@ -85,6 +86,10 @@ Route::get('/scenario-planning-list', function () {
         ],
     ]);
 });
+
+// Scenario Planning API (canonical, without /v1 prefix)
+Route::get('/strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
+Route::get('/strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
 
 // Catálogos dinámicos para selectores
 Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');

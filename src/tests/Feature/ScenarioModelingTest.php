@@ -6,7 +6,7 @@ use App\Models\StrategicPlanningScenarios;
 use App\Models\ScenarioTemplate;
 use App\Models\ScenarioSkillDemand;
 use App\Models\Skills;
-use App\Services\WorkforcePlanningService;
+use App\Services\ScenarioService;
 
 beforeEach(function () {
     $this->organization = Organizations::create([
@@ -137,7 +137,7 @@ test('it calculates gaps with expected structure', function () {
         'rationale' => 'Test gap',
     ]);
 
-    $service = app(WorkforcePlanningService::class);
+    $service = app(ScenarioService::class);
     $result = $service->calculateScenarioGaps($scenario);
 
     expect($result)->toHaveKeys(['scenario_id', 'generated_at', 'summary', 'gaps']);

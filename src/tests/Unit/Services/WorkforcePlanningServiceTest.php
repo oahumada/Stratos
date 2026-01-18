@@ -3,8 +3,8 @@
 namespace Tests\Unit\Services;
 
 use Tests\TestCase;
-use App\Services\WorkforcePlanningService;
-use App\Repositories\WorkforcePlanningRepository;
+use App\Services\ScenarioService;
+use App\Repository\WorkforcePlanningRepository;
 use App\Models\StrategicPlanningScenarios;
 use App\Models\WorkforcePlanningRoleForecast;
 use App\Models\People;
@@ -21,7 +21,7 @@ class WorkforcePlanningServiceTest extends TestCase
     {
         parent::setUp();
         $this->repository = new WorkforcePlanningRepository();
-        $this->service = new WorkforcePlanningService($this->repository);
+        $this->service = new ScenarioService($this->repository);
     }
 
     /** @test */

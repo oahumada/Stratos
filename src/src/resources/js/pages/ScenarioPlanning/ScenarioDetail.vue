@@ -484,5 +484,3 @@ onMounted(() => {
         </v-row>
       </v-container>
     </template>
-    </div>
-  </template>
