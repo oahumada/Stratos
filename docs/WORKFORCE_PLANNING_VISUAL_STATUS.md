@@ -115,21 +115,21 @@
 ├────────────────────────────────────────────────────────────────────────────┤
 │                                                                            │
 │  SCENARIO MANAGEMENT                                                      │
-│  ├─ GET    /api/v1/workforce-planning/scenarios                           │
-│  ├─ POST   /api/v1/workforce-planning/scenarios                           │
-│  ├─ GET    /api/v1/workforce-planning/scenarios/{id}                      │
-│  ├─ PUT    /api/v1/workforce-planning/scenarios/{id}                      │
-│  ├─ DELETE /api/v1/workforce-planning/scenarios/{id}                      │
-│  └─ POST   /api/v1/workforce-planning/scenarios/{id}/approve              │
+│  ├─ GET    //api/workforce-planning/scenarios                           │
+│  ├─ POST   //api/workforce-planning/scenarios                           │
+│  ├─ GET    //api/workforce-planning/scenarios/{id}                      │
+│  ├─ PUT    //api/workforce-planning/scenarios/{id}                      │
+│  ├─ DELETE //api/workforce-planning/scenarios/{id}                      │
+│  └─ POST   //api/workforce-planning/scenarios/{id}/approve              │
 │                                                                            │
 │  ANALYSIS & DATA RETRIEVAL                                                │
-│  ├─ POST   /api/v1/workforce-planning/scenarios/{id}/analyze              │
-│  ├─ GET    /api/v1/workforce-planning/scenarios/{id}/role-forecasts       │
-│  ├─ GET    /api/v1/workforce-planning/scenarios/{id}/matches              │
-│  ├─ GET    /api/v1/workforce-planning/scenarios/{id}/skill-gaps           │
-│  ├─ GET    /api/v1/workforce-planning/scenarios/{id}/succession-plans     │
-│  ├─ GET    /api/v1/workforce-planning/scenarios/{id}/analytics            │
-│  └─ GET    /api/v1/workforce-planning/matches/{id}/recommendations        │
+│  ├─ POST   //api/workforce-planning/scenarios/{id}/analyze              │
+│  ├─ GET    //api/workforce-planning/scenarios/{id}/role-forecasts       │
+│  ├─ GET    //api/workforce-planning/scenarios/{id}/matches              │
+│  ├─ GET    //api/workforce-planning/scenarios/{id}/skill-gaps           │
+│  ├─ GET    //api/workforce-planning/scenarios/{id}/succession-plans     │
+│  ├─ GET    //api/workforce-planning/scenarios/{id}/analytics            │
+│  └─ GET    //api/workforce-planning/matches/{id}/recommendations        │
 │                                                                            │
 │  Total: 13+ Endpoints ✅                                                  │
 │                                                                            │

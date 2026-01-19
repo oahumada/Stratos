@@ -17,6 +17,7 @@ El módulo **Workforce Planning** ahora está disponible en el menú lateral con
 - **Componente:** `AppSidebar.vue`
 
 **Ubicación visual:**
+
 ```
 Dashboard
 People
@@ -33,12 +34,14 @@ Marketplace
 ## 🔗 Rutas Web Configuradas
 
 ### 1. Listado de Scenarios
+
 **Ruta:** `/workforce-planning`
 **Componente:** `WorkforcePlanning/ScenarioSelector.vue`
 **Nombre:** `workforce-planning.index`
 **Middleware:** `auth`, `verified`
 
 **Funcionalidad:**
+
 - Listar todos los scenarios de planning
 - Crear nuevos scenarios
 - Editar scenarios existentes
@@ -46,17 +49,20 @@ Marketplace
 - Eliminar scenarios
 
 **URL en navegador:**
+
 ```
 http://localhost:8000/workforce-planning
 ```
 
 ### 2. Dashboard de Scenario
+
 **Ruta:** `/workforce-planning/{id}`
 **Componente:** `WorkforcePlanning/OverviewDashboard.vue`
 **Nombre:** `workforce-planning.show`
 **Middleware:** `auth`, `verified`
 
 **Funcionalidad:**
+
 - Ver métricas principales del scenario
 - Visualizar gráficos de headcount y skill coverage
 - Ver resumen de riesgos y costos
@@ -64,6 +70,7 @@ http://localhost:8000/workforce-planning
 - Descargar reportes
 
 **URL en navegador:**
+
 ```
 http://localhost:8000/workforce-planning/1
 http://localhost:8000/workforce-planning/2
@@ -98,6 +105,7 @@ Sidebar: Workforce Planning (Click)
 ## 🎨 Iconografía
 
 ### Icono Workforce Planning
+
 - **Material Design Icon:** `mdi-chart-timeline-variant`
 - **Tamaño:** 20px
 - **Color:** Heredado del tema (light/dark)
@@ -108,6 +116,7 @@ Sidebar: Workforce Planning (Click)
 ## 🔐 Autenticación y Autorización
 
 Ambas rutas requieren:
+
 - ✅ Usuario autenticado (`auth`)
 - ✅ Email verificado (`verified`)
 
@@ -120,20 +129,21 @@ Sin estos middleware, se redirige a `/login`
 Las rutas web apuntan a componentes que se conectan con:
 
 ### API Endpoints disponibles:
+
 ```
-GET    /api/v1/workforce-planning/scenarios
-POST   /api/v1/workforce-planning/scenarios
-GET    /api/v1/workforce-planning/scenarios/{id}
-PUT    /api/v1/workforce-planning/scenarios/{id}
-DELETE /api/v1/workforce-planning/scenarios/{id}
-POST   /api/v1/workforce-planning/scenarios/{id}/approve
-GET    /api/v1/workforce-planning/scenarios/{id}/role-forecasts
-GET    /api/v1/workforce-planning/scenarios/{id}/matches
-GET    /api/v1/workforce-planning/scenarios/{id}/skill-gaps
-GET    /api/v1/workforce-planning/scenarios/{id}/succession-plans
-GET    /api/v1/workforce-planning/scenarios/{id}/analytics
-POST   /api/v1/workforce-planning/scenarios/{id}/analyze
-GET    /api/v1/workforce-planning/matches/{id}/recommendations
+GET    //api/workforce-planning/scenarios
+POST   //api/workforce-planning/scenarios
+GET    //api/workforce-planning/scenarios/{id}
+PUT    //api/workforce-planning/scenarios/{id}
+DELETE //api/workforce-planning/scenarios/{id}
+POST   //api/workforce-planning/scenarios/{id}/approve
+GET    //api/workforce-planning/scenarios/{id}/role-forecasts
+GET    //api/workforce-planning/scenarios/{id}/matches
+GET    //api/workforce-planning/scenarios/{id}/skill-gaps
+GET    //api/workforce-planning/scenarios/{id}/succession-plans
+GET    //api/workforce-planning/scenarios/{id}/analytics
+POST   //api/workforce-planning/scenarios/{id}/analyze
+GET    //api/workforce-planning/matches/{id}/recommendations
 ```
 
 ---
@@ -141,21 +151,16 @@ GET    /api/v1/workforce-planning/matches/{id}/recommendations
 ## 📂 Archivos Modificados
 
 ### 1. AppSidebar.vue
-```vue
-// Agregar icono
-const WorkforcePlanningIcon = defineComponent(() => 
-  () => h(VIcon, { icon: 'mdi-chart-timeline-variant', size: 20 })
-);
 
-// Agregar item al menú
-{
-    title: 'Workforce Planning',
-    href: '/workforce-planning',
-    icon: WorkforcePlanningIcon,
-}
+```vue
+// Agregar icono const WorkforcePlanningIcon = defineComponent(() => () =>
+h(VIcon, { icon: 'mdi-chart-timeline-variant', size: 20 }) ); // Agregar item al
+menú { title: 'Workforce Planning', href: '/workforce-planning', icon:
+WorkforcePlanningIcon, }
 ```
 
 ### 2. routes/web.php
+
 ```php
 Route::get('/workforce-planning', function () {
     return Inertia::render('WorkforcePlanning/ScenarioSelector');

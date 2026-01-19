@@ -312,15 +312,15 @@ scopeByDomain()      // ❌ where('domain_tag', $tag)
 **Rutas actuales:**
 
 ```php
-✅ GET    /api/v1/workforce-planning/scenario-templates
-✅ GET    /api/v1/workforce-planning/workforce-scenarios
-✅ POST   /api/v1/workforce-planning/workforce-scenarios
-✅ GET    /api/v1/workforce-planning/workforce-scenarios/{id}
-✅ PUT    /api/v1/workforce-planning/workforce-scenarios/{id}
-✅ DELETE /api/v1/workforce-planning/workforce-scenarios/{id}
-✅ POST   /api/v1/workforce-planning/workforce-scenarios/{id}/calculate-gaps
-✅ POST   /api/v1/workforce-planning/workforce-scenarios/{id}/refresh-suggested-strategies
-✅ POST   /api/v1/workforce-planning/workforce-scenarios/{template}/instantiate-from-template
+✅ GET    //api/workforce-planning/scenario-templates
+✅ GET    //api/workforce-planning/workforce-scenarios
+✅ POST   //api/workforce-planning/workforce-scenarios
+✅ GET    //api/workforce-planning/workforce-scenarios/{id}
+✅ PUT    //api/workforce-planning/workforce-scenarios/{id}
+✅ DELETE //api/workforce-planning/workforce-scenarios/{id}
+✅ POST   //api/workforce-planning/workforce-scenarios/{id}/calculate-gaps
+✅ POST   //api/workforce-planning/workforce-scenarios/{id}/refresh-suggested-strategies
+✅ POST   //api/workforce-planning/workforce-scenarios/{template}/instantiate-from-template
 ```
 
 ---
@@ -330,32 +330,32 @@ scopeByDomain()      // ❌ where('domain_tag', $tag)
 **Workflow & Transitions:**
 
 ```php
-❌ POST /api/v1/workforce-scenarios/{id}/simulate
-❌ POST /api/v1/workforce-scenarios/{id}/decision-status  // transition
-❌ POST /api/v1/workforce-scenarios/{id}/execution/start
-❌ POST /api/v1/workforce-scenarios/{id}/execution/pause
-❌ POST /api/v1/workforce-scenarios/{id}/execution/complete
+❌ POST //api/workforce-scenarios/{id}/simulate
+❌ POST //api/workforce-scenarios/{id}/decision-status  // transition
+❌ POST //api/workforce-scenarios/{id}/execution/start
+❌ POST //api/workforce-scenarios/{id}/execution/pause
+❌ POST //api/workforce-scenarios/{id}/execution/complete
 ```
 
 **Versionamiento:**
 
 ```php
-❌ POST /api/v1/workforce-scenarios/{id}/versions  // createNewVersion
-❌ GET  /api/v1/workforce-scenarios/{id}/versions  // listar por version_group
+❌ POST //api/workforce-scenarios/{id}/versions  // createNewVersion
+❌ GET  //api/workforce-scenarios/{id}/versions  // listar por version_group
 ```
 
 **Jerarquía:**
 
 ```php
-❌ GET /api/v1/workforce-scenarios/{id}/rollup  // consolidación padre
-❌ GET /api/v1/workforce-scenarios/{id}/children
+❌ GET //api/workforce-scenarios/{id}/rollup  // consolidación padre
+❌ GET //api/workforce-scenarios/{id}/children
 ```
 
 **Supply/Demand por Scope:**
 
 ```php
-❌ GET /api/v1/workforce-scenarios/{id}/supply   // Inventario actual
-❌ GET /api/v1/workforce-scenarios/{id}/demand   // Demanda proyectada
+❌ GET //api/workforce-scenarios/{id}/supply   // Inventario actual
+❌ GET //api/workforce-scenarios/{id}/demand   // Demanda proyectada
 ```
 
 ---
@@ -510,7 +510,6 @@ transitions
 ### FASE 1: Fundamentos (8-12 horas)
 
 1. ✅ Migraciones de campos faltantes
-
    - Versionamiento en scenarios
    - Jerarquía (parent_id)
    - Scope (scope_type/scope_id)
@@ -527,7 +526,6 @@ transitions
 ### FASE 2: Lógica de Negocio (12-16 horas)
 
 3. ✅ Implementar 10 métodos en WorkforcePlanningService
-
    - createScenarioFromTemplate
    - syncParentMandatorySkills
    - calculateSupply (con scope)

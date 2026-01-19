@@ -20,15 +20,15 @@ Ubicación en la app
 API clave (resumen)
 
 ```
-GET    /api/v1/workforce-planning/scenario-templates
-POST   /api/v1/workforce-planning/workforce-scenarios/{template_id}/instantiate-from-template
-POST   /api/v1/workforce-planning/workforce-scenarios/{id}/calculate-gaps
-POST   /api/v1/workforce-planning/workforce-scenarios/{id}/refresh-suggested-strategies
-POST   /api/v1/workforce-planning/scenario-comparisons
-GET    /api/v1/workforce-planning/workforce-scenarios/{id}
-GET    /api/v1/workforce-planning/workforce-scenarios/{id}/role-forecasts
-GET    /api/v1/workforce-planning/workforce-scenarios/{id}/skill-gaps
-POST   /api/v1/workforce-planning/workforce-scenarios/{id}/analyze
+GET    //api/workforce-planning/scenario-templates
+POST   //api/workforce-planning/workforce-scenarios/{template_id}/instantiate-from-template
+POST   //api/workforce-planning/workforce-scenarios/{id}/calculate-gaps
+POST   //api/workforce-planning/workforce-scenarios/{id}/refresh-suggested-strategies
+POST   //api/workforce-planning/scenario-comparisons
+GET    //api/workforce-planning/workforce-scenarios/{id}
+GET    //api/workforce-planning/workforce-scenarios/{id}/role-forecasts
+GET    //api/workforce-planning/workforce-scenarios/{id}/skill-gaps
+POST   //api/workforce-planning/workforce-scenarios/{id}/analyze
 ```
 
 Quick-steps (Postman - 5 min)

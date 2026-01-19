@@ -27,14 +27,14 @@ Agregar estas líneas ANTES de la última `});`:
 
 ## ⚡ Paso 2: Crear Métodos en WorkforcePlanningController.php
 
-**Archivo:** `/src/app/Http/Controllers/Api/V1/WorkforcePlanningController.php`
+**Archivo:** `/src/app/Http/Controllers//api/WorkforcePlanningController.php`
 
 Agregar al final de la clase (antes del último `}`):
 
 ```php
     /**
      * Simular crecimiento de headcount
-     * POST /api/v1/workforce-planning/scenarios/{id}/simulate-growth
+     * POST //api/workforce-planning/scenarios/{id}/simulate-growth
      */
     public function simulateGrowth($scenarioId, Request $request): JsonResponse
     {
@@ -94,7 +94,7 @@ Agregar al final de la clase (antes del último `}`):
 
     /**
      * Obtener posiciones críticas
-     * GET /api/v1/workforce-planning/critical-positions
+     * GET //api/workforce-planning/critical-positions
      */
     public function getCriticalPositions(Request $request): JsonResponse
     {
@@ -146,7 +146,7 @@ Agregar al final de la clase (antes del último `}`):
 
 ## ⚡ Paso 3: Crear RoiCalculatorController.php
 
-**Archivo:** `/src/app/Http/Controllers/Api/V1/RoiCalculatorController.php`
+**Archivo:** `/src/app/Http/Controllers//api/RoiCalculatorController.php`
 
 Crear archivo con contenido:
 
@@ -284,7 +284,7 @@ class RoiCalculatorController extends Controller
 
 ## ⚡ Paso 4: Crear StrategyController.php
 
-**Archivo:** `/src/app/Http/Controllers/Api/V1/StrategyController.php`
+**Archivo:** `/src/app/Http/Controllers//api/StrategyController.php`
 
 Crear archivo con contenido:
 
@@ -523,8 +523,8 @@ const criticalPositionsCount = computed(() => criticalPositions.value.length);
 const runSimulation = async () => {
   try {
     const response = await api.post(
-      `/api/v1/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
-      simulationParams.value
+      `//api/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
+      simulationParams.value,
     );
     simulationResults.value = response.data.data.simulation;
   } catch (error) {
@@ -536,8 +536,8 @@ const runSimulation = async () => {
 const loadCriticalPositions = async () => {
   try {
     const response = await api.get(
-      `/api/v1/workforce-planning/critical-positions`,
-      { scenario_id: scenarioId.value }
+      `//api/workforce-planning/critical-positions`,
+      { scenario_id: scenarioId.value },
     );
     criticalPositions.value = response.data.data;
   } catch (error) {
@@ -617,7 +617,7 @@ Crear archivo nuevo con contenido completo (ver documento PLAN_ACCION_WFP_AJUSTA
 ### Simulador de Crecimiento
 
 ```
-POST http://localhost:8000/api/v1/workforce-planning/scenarios/1/simulate-growth
+POST http://localhost:8000//api/workforce-planning/scenarios/1/simulate-growth
 Body:
 {
   "growth_percentage": 25,
@@ -630,7 +630,7 @@ Body:
 ### ROI Calculator
 
 ```
-POST http://localhost:8000/api/v1/workforce-planning/roi-calculator/calculate
+POST http://localhost:8000//api/workforce-planning/roi-calculator/calculate
 Body:
 {
   "scenario_id": 1,
@@ -647,7 +647,7 @@ Body:
 ### Get Gaps for Assignment
 
 ```
-GET http://localhost:8000/api/v1/workforce-planning/scenarios/1/gaps-for-assignment?department_id=1
+GET http://localhost:8000//api/workforce-planning/scenarios/1/gaps-for-assignment?department_id=1
 ```
 
 ---

@@ -225,10 +225,10 @@ FRONTEND TOTAL:         ~35% (backend lista, necesita UI)
 
 ```bash
 # 1. Ver plantillas disponibles
-GET http://localhost/api/v1/workforce-planning/scenario-templates
+GET http://localhost//api/workforce-planning/scenario-templates
 
 # 2. Crear escenario desde plantilla "IA Adoption Accelerator"
-POST http://localhost/api/v1/workforce-planning/workforce-scenarios/{template_id}/instantiate-from-template
+POST http://localhost//api/workforce-planning/workforce-scenarios/{template_id}/instantiate-from-template
 Headers: Authorization: Bearer YOUR_TOKEN
 Body: {
   "customizations": {
@@ -238,19 +238,19 @@ Body: {
 }
 
 # 3. Listar escenarios (debe aparecer el creado)
-GET http://localhost/api/v1/workforce-planning/workforce-scenarios
+GET http://localhost//api/workforce-planning/workforce-scenarios
 
 # 4. Calcular brechas automáticamente
-POST http://localhost/api/v1/workforce-planning/workforce-scenarios/{scenario_id}/calculate-gaps
+POST http://localhost//api/workforce-planning/workforce-scenarios/{scenario_id}/calculate-gaps
 
 # 5. Ver brechas calculadas
-GET http://localhost/api/v1/workforce-planning/workforce-scenarios/{scenario_id}
+GET http://localhost//api/workforce-planning/workforce-scenarios/{scenario_id}
 
 # 6. Generar estrategias sugeridas
-POST http://localhost/api/v1/workforce-planning/workforce-scenarios/{scenario_id}/refresh-suggested-strategies
+POST http://localhost//api/workforce-planning/workforce-scenarios/{scenario_id}/refresh-suggested-strategies
 
 # 7. Comparar este escenario con otro
-POST http://localhost/api/v1/workforce-planning/scenario-comparisons
+POST http://localhost//api/workforce-planning/scenario-comparisons
 Body: {
   "scenario_ids": [1, 2],
   "comparison_criteria": { "cost": true, "time": true, "risk": true }

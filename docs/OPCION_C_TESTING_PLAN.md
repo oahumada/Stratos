@@ -320,7 +320,7 @@ tests/Feature/WorkforcePlanning/
 public function testGetAnalyticsResponseStructure() {
     $scenario = Scenario::factory()->create();
 
-    $response = $this->getJson("/api/v1/workforce-planning/scenarios/{$scenario->id}/analytics");
+    $response = $this->getJson("//api/workforce-planning/scenarios/{$scenario->id}/analytics");
 
     $response->assertStatus(200);
     $response->assertJsonStructure([
@@ -429,7 +429,7 @@ test("Complete workflow: Create scenario → Run analysis → Export report", as
 ```typescript
 test("Handle 500 error gracefully", async ({ page }) => {
   // Mock API to return 500
-  await page.route("**/api/v1/workforce-planning/**", (route) => {
+  await page.route("**//api/workforce-planning/**", (route) => {
     route.abort("servererror");
   });
 

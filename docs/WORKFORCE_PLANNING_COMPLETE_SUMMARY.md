@@ -23,7 +23,7 @@
 │  └─ SkillGapsMatrix (Pending)                         │
 │                  ↓                                      │
 │  API Layer (RESTful + Sanctum Auth)                    │
-│  ├─ 13+ endpoints in /api/v1/workforce-planning       │
+│  ├─ 13+ endpoints in //api/workforce-planning       │
 │  ├─ Proper validation & error handling                │
 │  └─ Pagination & filtering support                    │
 │                  ↓                                      │
@@ -120,14 +120,12 @@
 ### 8. Frontend Components (2/6 Initial) ✅
 
 - ✅ ScenarioSelector.vue (270 lines)
-
   - List scenarios with pagination
   - Create/edit/delete dialogs
   - Filter by status & fiscal year
   - Responsive data table
 
 - ✅ OverviewDashboard.vue (320 lines)
-
   - KPI cards (headcount, growth, coverage, risk)
   - Headcount forecast chart
   - Skill coverage doughnut chart
@@ -170,24 +168,24 @@
 ### Scenario Management
 
 ```
-GET    /api/v1/workforce-planning/scenarios
-POST   /api/v1/workforce-planning/scenarios
-GET    /api/v1/workforce-planning/scenarios/{id}
-PUT    /api/v1/workforce-planning/scenarios/{id}
-DELETE /api/v1/workforce-planning/scenarios/{id}
-POST   /api/v1/workforce-planning/scenarios/{id}/approve
+GET    //api/workforce-planning/scenarios
+POST   //api/workforce-planning/scenarios
+GET    //api/workforce-planning/scenarios/{id}
+PUT    //api/workforce-planning/scenarios/{id}
+DELETE //api/workforce-planning/scenarios/{id}
+POST   //api/workforce-planning/scenarios/{id}/approve
 ```
 
 ### Analysis & Data Retrieval
 
 ```
-POST   /api/v1/workforce-planning/scenarios/{id}/analyze
-GET    /api/v1/workforce-planning/scenarios/{id}/role-forecasts
-GET    /api/v1/workforce-planning/scenarios/{id}/matches
-GET    /api/v1/workforce-planning/scenarios/{id}/skill-gaps
-GET    /api/v1/workforce-planning/scenarios/{id}/succession-plans
-GET    /api/v1/workforce-planning/scenarios/{id}/analytics
-GET    /api/v1/workforce-planning/matches/{id}/recommendations
+POST   //api/workforce-planning/scenarios/{id}/analyze
+GET    //api/workforce-planning/scenarios/{id}/role-forecasts
+GET    //api/workforce-planning/scenarios/{id}/matches
+GET    //api/workforce-planning/scenarios/{id}/skill-gaps
+GET    //api/workforce-planning/scenarios/{id}/succession-plans
+GET    //api/workforce-planning/scenarios/{id}/analytics
+GET    //api/workforce-planning/matches/{id}/recommendations
 ```
 
 ---
@@ -235,7 +233,7 @@ GET    /api/v1/workforce-planning/matches/{id}/recommendations
 src/
 ├── app/
 │   ├── Http/
-│   │   ├── Controllers/Api/V1/WorkforcePlanningController.php
+│   │   ├── Controllers//api/WorkforcePlanningController.php
 │   │   └── Requests/
 │   │       ├── StoreStrategicPlanningScenariosRequest.php
 │   │       └── UpdateStrategicPlanningScenariosRequest.php
@@ -356,7 +354,7 @@ docs/
 3. **Create a new scenario**
 
    ```
-   POST /api/v1/workforce-planning/scenarios
+   POST //api/workforce-planning/scenarios
    ✅ Returns created scenario
    ```
 
@@ -370,14 +368,14 @@ docs/
 5. **Run analysis**
 
    ```
-   POST /api/v1/workforce-planning/scenarios/1/analyze
+   POST //api/workforce-planning/scenarios/1/analyze
    ✅ Calculates matching, gaps, analytics
    ```
 
 6. **View results**
    ```
-   GET /api/v1/workforce-planning/scenarios/1/matches
-   GET /api/v1/workforce-planning/scenarios/1/skill-gaps
+   GET //api/workforce-planning/scenarios/1/matches
+   GET //api/workforce-planning/scenarios/1/skill-gaps
    → Display in future components
    ```
 

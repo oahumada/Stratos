@@ -33,6 +33,7 @@ GUARDAR: Copiar el token
 ```
 
 Ahora todas las requests llevan:
+
 ```
 Authorization: Bearer 12|abc123xyz...
 ```
@@ -42,7 +43,7 @@ Authorization: Bearer 12|abc123xyz...
 ## ✅ Paso 1: Ver Plantillas Disponibles (10 segundos)
 
 ```
-GET http://localhost/api/v1/workforce-planning/scenario-templates
+GET http://localhost//api/workforce-planning/scenario-templates
 
 Headers:
   Authorization: Bearer YOUR_TOKEN
@@ -85,7 +86,7 @@ Response (4 plantillas):
 ## ✅ Paso 2: Crear Escenario desde Plantilla (20 segundos)
 
 ```
-POST http://localhost/api/v1/workforce-planning/workforce-scenarios/1/instantiate-from-template
+POST http://localhost//api/workforce-planning/workforce-scenarios/1/instantiate-from-template
 
 Headers:
   Authorization: Bearer YOUR_TOKEN
@@ -126,7 +127,7 @@ GUARDAR: scenario_id = 1 (para próximos pasos)
 ## ✅ Paso 3: Calcular Brechas (20 segundos)
 
 ```
-POST http://localhost/api/v1/workforce-planning/workforce-scenarios/1/calculate-gaps
+POST http://localhost//api/workforce-planning/workforce-scenarios/1/calculate-gaps
 
 Headers:
   Authorization: Bearer YOUR_TOKEN
@@ -193,7 +194,7 @@ Response:
 ## ✅ Paso 4: Sugerir Estrategias (30 segundos)
 
 ```
-POST http://localhost/api/v1/workforce-planning/workforce-scenarios/1/refresh-suggested-strategies
+POST http://localhost//api/workforce-planning/workforce-scenarios/1/refresh-suggested-strategies
 
 Headers:
   Authorization: Bearer YOUR_TOKEN
@@ -304,7 +305,7 @@ Response:
 Primero, crea un segundo escenario con 6 meses en lugar de 12:
 
 ```
-POST http://localhost/api/v1/workforce-planning/workforce-scenarios/1/instantiate-from-template
+POST http://localhost//api/workforce-planning/workforce-scenarios/1/instantiate-from-template
 
 Body:
 {
@@ -321,7 +322,7 @@ Response: scenario_id = 2
 Luego, compara:
 
 ```
-POST http://localhost/api/v1/workforce-planning/scenario-comparisons
+POST http://localhost//api/workforce-planning/scenario-comparisons
 
 Headers:
   Authorization: Bearer YOUR_TOKEN
@@ -389,7 +390,7 @@ Response:
 ## ✅ Paso 6: Ver el Escenario Completo (20 segundos)
 
 ```
-GET http://localhost/api/v1/workforce-planning/workforce-scenarios/1
+GET http://localhost//api/workforce-planning/workforce-scenarios/1
 
 Headers:
   Authorization: Bearer YOUR_TOKEN
@@ -411,12 +412,12 @@ Response:
     "owner": "Omar",
     "created_at": "2026-01-07T10:30:00Z",
     "updated_at": "2026-01-07T10:35:00Z",
-    
+
     // Datos calculados incluidos:
     "skill_demands_count": 4,
     "closure_strategies_count": 18,
     "milestones_count": 5,
-    
+
     // Relaciones cargadas:
     "template": {...},
     "skill_demands": [...],
@@ -460,17 +461,17 @@ Una vez validado en Postman, los datos que obtuviste ya están disponibles en el
 
 ```javascript
 // En cualquier componente Vue:
-import { useWorkforcePlanningStore } from '@/stores/workforcePlanningStore'
+import { useWorkforcePlanningStore } from "@/stores/workforcePlanningStore";
 
-const store = useWorkforcePlanningStore()
+const store = useWorkforcePlanningStore();
 
 // Cargar datos
-await store.fetchScenarios()  // GET /workforce-scenarios
-await store.fetchSkillGaps(scenarioId)  // GET gaps del escenario
+await store.fetchScenarios(); // GET /workforce-scenarios
+await store.fetchSkillGaps(scenarioId); // GET gaps del escenario
 
 // Los datos están en:
-const gaps = store.getSkillGaps(1)  // Brechas del escenario 1
-const matches = store.getMatches(1) // Matching del escenario 1
+const gaps = store.getSkillGaps(1); // Brechas del escenario 1
+const matches = store.getMatches(1); // Matching del escenario 1
 ```
 
 ---
@@ -478,17 +479,21 @@ const matches = store.getMatches(1) // Matching del escenario 1
 ## 📝 Notas Importantes
 
 ### Si la API retorna 401 (Unauthorized)
+
 - El token expiró → Obtén uno nuevo en Paso 0
 
 ### Si la API retorna 404 (Not Found)
+
 - La ruta está incorrecta → Verifica la URL
 - Plantilla no existe → Crea una primero (Paso 2)
 
 ### Si la API retorna 422 (Validation Error)
+
 - Faltan campos requeridos
 - Revisa el mensaje de error para ver qué falta
 
 ### Si los números no te cuadran
+
 - Los cálculos de brechas se basan en datos reales de tu BD
 - `current_headcount` viene del `people_role_skills` existente
 - `required_headcount` viene de la configuración de la plantilla
@@ -511,6 +516,7 @@ Una vez que esto funcione en Postman, el siguiente paso es:
 **¡Con esto tienes el proof of concept completo en 5 minutos!**
 
 Ahora puedes decir a tu coach:
+
 > "El sistema está funcionando. Aquí están las 4 plantillas, aquí estoy creando un escenario, aquí calcula 35 personas faltantes en Prompt Engineering, aquí sugiere 6 estrategias diferentes, y aquí comparo dos escenarios. Todo automatizado."
 
 🚀 **El sistema está listo.**

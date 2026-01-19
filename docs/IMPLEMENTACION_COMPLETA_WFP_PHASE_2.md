@@ -371,7 +371,7 @@ src/app/Http/Requests/WorkforcePlanning/
 ├── CreateVersionRequest.php (NUEVO) ✅
 └── ExecutionActionRequest.php (NUEVO) ✅
 
-src/app/Http/Controllers/Api/V1/
+src/app/Http/Controllers//api/
 └── WorkforcePlanningController.php (8 métodos nuevos) ✅
 
 src/routes/

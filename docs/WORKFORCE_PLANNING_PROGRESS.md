@@ -46,9 +46,7 @@
 ### 4. Business Logic Layer (Service)
 
 - ✅ `WorkforcePlanningService.php` (500+ lines)
-
   - Method: `calculateMatches()` - Main matching algorithm
-
     - Compares person skills vs role requirements
     - Calculates match score (0-100) based on skill_match(60%) + readiness(20%) + risk(20%)
     - Determines readiness level: immediate, short_term, long_term, not_ready
@@ -57,14 +55,12 @@
     - Generates risk score and risk factors
 
   - Method: `calculateSkillGaps()` - Skill deficiency analysis
-
     - Identifies critical/missing skills per department/role
     - Calculates coverage percentage
     - Suggests remediation strategies: hiring, training, reskilling
     - Estimates remediation costs and timeline
 
   - Method: `calculateAnalytics()` - Aggregated metrics
-
     - Headcount projections (current vs projected)
     - Internal coverage percentage
     - Succession risk assessment
@@ -77,21 +73,20 @@
 ### 5. API Layer (Controller + Routes + Validation)
 
 - ✅ `WorkforcePlanningController.php` (300+ lines)
-
   - Endpoints implemented:
-    - `GET /api/v1/workforce-planning/scenarios` - List with pagination & filters
-    - `POST /api/v1/workforce-planning/scenarios` - Create
-    - `GET /api/v1/workforce-planning/scenarios/{id}` - Show details
-    - `PUT /api/v1/workforce-planning/scenarios/{id}` - Update
-    - `DELETE /api/v1/workforce-planning/scenarios/{id}` - Delete
-    - `POST /api/v1/workforce-planning/scenarios/{id}/approve` - Approve scenario
-    - `GET /api/v1/workforce-planning/scenarios/{id}/role-forecasts` - Get forecasts
-    - `GET /api/v1/workforce-planning/scenarios/{id}/matches` - Get matches with filters
-    - `GET /api/v1/workforce-planning/scenarios/{id}/skill-gaps` - Get gaps with filters
-    - `GET /api/v1/workforce-planning/scenarios/{id}/succession-plans` - Get succession plans
-    - `GET /api/v1/workforce-planning/scenarios/{id}/analytics` - Get analytics
-    - `POST /api/v1/workforce-planning/scenarios/{id}/analyze` - Run full analysis
-    - `GET /api/v1/workforce-planning/matches/{id}/recommendations` - Get recommendations
+    - `GET //api/workforce-planning/scenarios` - List with pagination & filters
+    - `POST //api/workforce-planning/scenarios` - Create
+    - `GET //api/workforce-planning/scenarios/{id}` - Show details
+    - `PUT //api/workforce-planning/scenarios/{id}` - Update
+    - `DELETE //api/workforce-planning/scenarios/{id}` - Delete
+    - `POST //api/workforce-planning/scenarios/{id}/approve` - Approve scenario
+    - `GET //api/workforce-planning/scenarios/{id}/role-forecasts` - Get forecasts
+    - `GET //api/workforce-planning/scenarios/{id}/matches` - Get matches with filters
+    - `GET //api/workforce-planning/scenarios/{id}/skill-gaps` - Get gaps with filters
+    - `GET //api/workforce-planning/scenarios/{id}/succession-plans` - Get succession plans
+    - `GET //api/workforce-planning/scenarios/{id}/analytics` - Get analytics
+    - `POST //api/workforce-planning/scenarios/{id}/analyze` - Run full analysis
+    - `GET //api/workforce-planning/matches/{id}/recommendations` - Get recommendations
 
 - ✅ `StoreStrategicPlanningScenariosRequest.php` - Validation for creation
 - ✅ `UpdateStrategicPlanningScenariosRequest.php` - Validation for updates
@@ -102,7 +97,6 @@
 ### 6. Testing Layer
 
 - ✅ `WorkforcePlanningServiceTest.php` (150+ lines)
-
   - Tests: Repository CRUD operations
   - Tests: Readiness level calculation
   - Tests: Transition months estimation
@@ -110,7 +104,6 @@
   - Tests: Scenario creation, update, delete, filtering
 
 - ✅ `WorkforcePlanningApiTest.php` (200+ lines)
-
   - Tests: List scenarios with pagination
   - Tests: Create scenario with validation
   - Tests: Show, update, delete operations
@@ -128,7 +121,6 @@
 ### 7. Frontend Components (Initial)
 
 - ✅ `ScenarioSelector.vue` (250+ lines)
-
   - Lists all scenarios with pagination
   - Create/edit dialog
   - Delete with confirmation

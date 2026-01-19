@@ -1,4 +1,5 @@
 # 🚀 PLAN DE ACCIÓN - Workforce Planning para Actores Clave
+
 **Fecha:** 5 de Enero de 2026  
 **Objetivo:** Implementar 3 componentes críticos para responder a necesidades de CEO, CFO y CHRO  
 **Duración estimada:** 48-72 horas  
@@ -10,18 +11,19 @@
 
 Tras evaluar los **11 casos de uso** del documento `CasosDeUso.md` contra la arquitectura actual, identificamos **3 implementaciones urgentes** que habilitarán decisiones estratégicas en tiempo real.
 
-| Componente | Actor(es) | Impacto | Complejidad | Horas |
-|-----------|-----------|--------|------------|-------|
-| **Dashboard Ejecutivo + Simulador** | CEO | 🔴 CRÍTICA | Alta | 16-20h |
-| **Calculadora ROI Build vs Buy** | CFO | 🔴 CRÍTICA | Media | 12-16h |
-| **Asignador de Estrategias 4B** | CHRO | 🟠 ALTA | Media | 10-14h |
-| **TOTAL** | - | - | - | **38-50h** |
+| Componente                          | Actor(es) | Impacto    | Complejidad | Horas      |
+| ----------------------------------- | --------- | ---------- | ----------- | ---------- |
+| **Dashboard Ejecutivo + Simulador** | CEO       | 🔴 CRÍTICA | Alta        | 16-20h     |
+| **Calculadora ROI Build vs Buy**    | CFO       | 🔴 CRÍTICA | Media       | 12-16h     |
+| **Asignador de Estrategias 4B**     | CHRO      | 🟠 ALTA    | Media       | 10-14h     |
+| **TOTAL**                           | -         | -          | -           | **38-50h** |
 
 ---
 
 ## 🎯 COMPONENTE 1: DASHBOARD EJECUTIVO PARA CEO
 
 ### 📌 Casos de Uso Cubiertos
+
 - ✅ Simulación de escenarios de crecimiento/transformación
 - ✅ Monitor de riesgo de continuidad de negocio (puestos críticos)
 - ✅ Decisiones basadas en viabilidad de talento
@@ -30,7 +32,8 @@ Tras evaluar los **11 casos de uso** del documento `CasosDeUso.md` contra la arq
 
 #### Backend - Nuevos Endpoints (2)
 
-**1. POST `/api/v1/workforce-planning/scenarios/{id}/simulate-growth`**
+**1. POST `//api/workforce-planning/scenarios/{id}/simulate-growth`**
+
 ```php
 // Request
 {
@@ -63,7 +66,8 @@ Tras evaluar los **11 casos de uso** del documento `CasosDeUso.md` contra la arq
 }
 ```
 
-**2. GET `/api/v1/workforce-planning/critical-positions`**
+**2. GET `//api/workforce-planning/critical-positions`**
+
 ```php
 // Query params: scenario_id, organization_id, include_successors=true
 // Response
@@ -181,9 +185,7 @@ Tras evaluar los **11 casos de uso** del documento `CasosDeUso.md` contra la arq
             <v-card>
               <v-card-title>Skills Availability Gap</v-card-title>
               <v-card-text>
-                <chart-skills-gap
-                  :skills-needed="results.skills_needed"
-                />
+                <chart-skills-gap :skills-needed="results.skills_needed" />
               </v-card-text>
             </v-card>
           </v-col>
@@ -224,20 +226,20 @@ Tras evaluar los **11 casos de uso** del documento `CasosDeUso.md` contra la arq
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useApi } from '@/composables/useApi'
+import { ref, computed, onMounted } from "vue";
+import { useApi } from "@/composables/useApi";
 
-const { get, post } = useApi()
-const activeTab = ref('overview')
-const scenarioId = ref(1)
+const { get, post } = useApi();
+const activeTab = ref("overview");
+const scenarioId = ref(1);
 
 // Simulation inputs
 const simulation = ref({
   growth_percentage: 25,
   horizon_months: 24,
   external_hiring_ratio: 30,
-  retention_target: 95
-})
+  retention_target: 95,
+});
 
 // Results
 const results = ref({
@@ -246,46 +248,45 @@ const results = ref({
   net_growth: 0,
   by_department: [],
   skills_needed: [],
-  critical_risks: []
-})
+  critical_risks: [],
+});
 
-const criticalPositions = ref([])
+const criticalPositions = ref([]);
 
-const criticalPositionsCount = computed(() => criticalPositions.value.length)
+const criticalPositionsCount = computed(() => criticalPositions.value.length);
 
 // Methods
 const runSimulation = async () => {
   try {
     const response = await post(
-      `/api/v1/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
-      simulation.value
-    )
-    results.value = response.data.simulation
+      `//api/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
+      simulation.value,
+    );
+    results.value = response.data.simulation;
   } catch (error) {
-    console.error('Simulation failed:', error)
+    console.error("Simulation failed:", error);
   }
-}
+};
 
 const loadCriticalPositions = async () => {
   try {
-    const response = await get(
-      `/api/v1/workforce-planning/critical-positions`,
-      { scenario_id: scenarioId.value }
-    )
-    criticalPositions.value = response.data.data
+    const response = await get(`//api/workforce-planning/critical-positions`, {
+      scenario_id: scenarioId.value,
+    });
+    criticalPositions.value = response.data.data;
   } catch (error) {
-    console.error('Failed to load critical positions:', error)
+    console.error("Failed to load critical positions:", error);
   }
-}
+};
 
 const departments = computed(() => {
-  return Array.from(new Set(criticalPositions.value.map(p => p.department)))
-})
+  return Array.from(new Set(criticalPositions.value.map((p) => p.department)));
+});
 
 onMounted(() => {
-  loadCriticalPositions()
-  runSimulation()
-})
+  loadCriticalPositions();
+  runSimulation();
+});
 </script>
 ```
 
@@ -323,6 +324,7 @@ onMounted(() => {
 ## 💰 COMPONENTE 2: CALCULADORA ROI BUILD VS BUY
 
 ### 📌 Casos de Uso Cubiertos
+
 - ✅ Optimización del presupuesto OPEX (CFO)
 - ✅ Comparación costo Build (academia interna) vs Buy (contratación externa)
 - ✅ ROI analysis + Time-to-Productivity impacto
@@ -331,7 +333,8 @@ onMounted(() => {
 
 #### Backend - Nuevos Endpoints (2)
 
-**1. POST `/api/v1/workforce-planning/roi-calculator/calculate`**
+**1. POST `//api/workforce-planning/roi-calculator/calculate`**
+
 ```php
 // Request
 {
@@ -397,7 +400,8 @@ onMounted(() => {
 }
 ```
 
-**2. GET `/api/v1/workforce-planning/roi-calculator/scenarios`**
+**2. GET `//api/workforce-planning/roi-calculator/scenarios`**
+
 ```php
 // Query params: scenario_id
 // Response: Lista histórica de cálculos ROI para comparar
@@ -426,7 +430,8 @@ onMounted(() => {
     <v-card>
       <v-card-title>ROI Calculator: Build vs Buy vs Borrow</v-card-title>
       <v-card-subtitle>
-        Compare cost and time-to-productivity for different talent acquisition strategies
+        Compare cost and time-to-productivity for different talent acquisition
+        strategies
       </v-card-subtitle>
 
       <!-- INPUT SECTION -->
@@ -524,7 +529,12 @@ onMounted(() => {
 
         <!-- Comparison Cards -->
         <v-row>
-          <v-col cols="12" md="4" v-for="strategy in ['build', 'buy', 'borrow']" :key="strategy">
+          <v-col
+            cols="12"
+            md="4"
+            v-for="strategy in ['build', 'buy', 'borrow']"
+            :key="strategy"
+          >
             <comparison-card
               :strategy="strategy"
               :data="results.roi_comparison[strategy]"
@@ -535,13 +545,19 @@ onMounted(() => {
 
         <!-- Recommendation Box -->
         <v-alert
-          :type="results.recommendation.strategy === 'build' ? 'info' : 'warning'"
+          :type="
+            results.recommendation.strategy === 'build' ? 'info' : 'warning'
+          "
           class="mt-6"
         >
-          <strong>Recommendation: {{ results.recommendation.strategy.toUpperCase() }}</strong>
+          <strong
+            >Recommendation:
+            {{ results.recommendation.strategy.toUpperCase() }}</strong
+          >
           <p class="mt-2">{{ results.recommendation.reasoning }}</p>
           <p v-if="results.recommendation.hybrid_approach" class="mt-2">
-            <strong>Hybrid Approach:</strong> {{ results.recommendation.hybrid_approach }}
+            <strong>Hybrid Approach:</strong>
+            {{ results.recommendation.hybrid_approach }}
           </p>
         </v-alert>
 
@@ -577,45 +593,45 @@ onMounted(() => {
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useApi } from '@/composables/useApi'
+import { ref } from "vue";
+import { useApi } from "@/composables/useApi";
 
-const { post } = useApi()
+const { post } = useApi();
 
 const config = ref({
   scenario_id: 1,
-  strategy_type: 'all',
+  strategy_type: "all",
   headcount_needed: 10,
   recruitment_cost_per_hire: 15000,
   training_cost_per_person: 8000,
   training_duration_months: 6,
   internal_candidate_pool: 5,
   salary_external_annual: 85000,
-  salary_internal_annual: 75000
-})
+  salary_internal_annual: 75000,
+});
 
-const results = ref(null)
+const results = ref(null);
 
 const calculate = async () => {
   try {
     const response = await post(
-      '/api/v1/workforce-planning/roi-calculator/calculate',
-      config.value
-    )
-    results.value = response.data
+      "//api/workforce-planning/roi-calculator/calculate",
+      config.value,
+    );
+    results.value = response.data;
   } catch (error) {
-    console.error('ROI calculation failed:', error)
+    console.error("ROI calculation failed:", error);
   }
-}
+};
 
 const resetResults = () => {
-  results.value = null
-}
+  results.value = null;
+};
 
 const saveCalculation = async () => {
   // POST to save calculation for audit trail
-  console.log('Calculation saved')
-}
+  console.log("Calculation saved");
+};
 </script>
 ```
 
@@ -656,6 +672,7 @@ const saveCalculation = async () => {
 ## 🎯 COMPONENTE 3: ASIGNADOR DE ESTRATEGIAS (BUILD-BUY-BORROW-BOT)
 
 ### 📌 Casos de Uso Cubiertos
+
 - ✅ Diseño del portafolio de estrategias (CHRO)
 - ✅ Asignación de estrategias a cada brecha detectada
 - ✅ Plan maestro consolidado
@@ -664,7 +681,8 @@ const saveCalculation = async () => {
 
 #### Backend - Nuevos Endpoints (3)
 
-**1. GET `/api/v1/workforce-planning/scenarios/{id}/gaps-for-assignment`**
+**1. GET `//api/workforce-planning/scenarios/{id}/gaps-for-assignment`**
+
 ```php
 // Query params: department_id, criticality_level
 // Response: Brechas listas para asignar estrategia
@@ -689,7 +707,8 @@ const saveCalculation = async () => {
 }
 ```
 
-**2. POST `/api/v1/workforce-planning/strategies/assign`**
+**2. POST `//api/workforce-planning/strategies/assign`**
+
 ```php
 // Request
 {
@@ -715,7 +734,8 @@ const saveCalculation = async () => {
 }
 ```
 
-**3. GET `/api/v1/workforce-planning/strategies/portfolio/{scenario_id}`**
+**3. GET `//api/workforce-planning/strategies/portfolio/{scenario_id}`**
+
 ```php
 // Response: Portafolio consolidado de todas las estrategias
 {
@@ -824,7 +844,11 @@ const saveCalculation = async () => {
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="primary" @click="step = 2" :disabled="selectedGaps.length === 0">
+              <v-btn
+                color="primary"
+                @click="step = 2"
+                :disabled="selectedGaps.length === 0"
+              >
                 Next: Assign Strategies
               </v-btn>
             </v-card-actions>
@@ -836,7 +860,11 @@ const saveCalculation = async () => {
           <v-card>
             <v-card-title>Step 2: Assign Strategy to Each Gap</v-card-title>
             <v-card-text>
-              <div v-for="(gap, idx) in selectedGaps" :key="gap.id" class="mb-6">
+              <div
+                v-for="(gap, idx) in selectedGaps"
+                :key="gap.id"
+                class="mb-6"
+              >
                 <v-card variant="outlined" class="pa-4">
                   <v-row>
                     <v-col cols="12" md="6">
@@ -845,7 +873,10 @@ const saveCalculation = async () => {
                         Criticality: <strong>{{ gap.criticality }}</strong>
                       </p>
                       <p class="text-caption">
-                        Recommended: {{ gap.recommended_strategies.join(', ').toUpperCase() }}
+                        Recommended:
+                        {{
+                          gap.recommended_strategies.join(", ").toUpperCase()
+                        }}
                       </p>
                     </v-col>
 
@@ -860,9 +891,13 @@ const saveCalculation = async () => {
                         <template #item="{ props, item }">
                           <v-list-item v-bind="props">
                             <template #prepend>
-                              <v-icon :color="item.raw.color">{{ item.raw.icon }}</v-icon>
+                              <v-icon :color="item.raw.color">{{
+                                item.raw.icon
+                              }}</v-icon>
                             </template>
-                            <v-list-item-title>{{ item.raw.label }}</v-list-item-title>
+                            <v-list-item-title>{{
+                              item.raw.label
+                            }}</v-list-item-title>
                             <v-list-item-subtitle>
                               {{ item.raw.description }}
                             </v-list-item-subtitle>
@@ -900,7 +935,12 @@ const saveCalculation = async () => {
             <v-card-text>
               <!-- Portfolio Cards -->
               <v-row>
-                <v-col cols="12" md="3" v-for="strategy in ['build', 'buy', 'borrow', 'bot']" :key="strategy">
+                <v-col
+                  cols="12"
+                  md="3"
+                  v-for="strategy in ['build', 'buy', 'borrow', 'bot']"
+                  :key="strategy"
+                >
                   <portfolio-card
                     :strategy="strategy"
                     :data="portfolio[strategy]"
@@ -976,106 +1016,106 @@ const saveCalculation = async () => {
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useApi } from '@/composables/useApi'
+import { ref, onMounted } from "vue";
+import { useApi } from "@/composables/useApi";
 
-const { get, post } = useApi()
+const { get, post } = useApi();
 
-const step = ref(1)
-const scenarioId = ref(1)
+const step = ref(1);
+const scenarioId = ref(1);
 
 const filters = ref({
   department_id: null,
-  criticality_level: null
-})
+  criticality_level: null,
+});
 
-const gaps = ref([])
-const selectedGaps = ref([])
-const assignments = ref({})
-const reasonings = ref({})
+const gaps = ref([]);
+const selectedGaps = ref([]);
+const assignments = ref({});
+const reasonings = ref({});
 
-const departments = ref([])
-const portfolio = ref(null)
+const departments = ref([]);
+const portfolio = ref(null);
 
 const strategies = [
   {
-    value: 'build',
-    label: 'Build',
-    icon: 'mdi-hammer',
-    color: 'blue',
-    description: 'Develop skills internally through training'
+    value: "build",
+    label: "Build",
+    icon: "mdi-hammer",
+    color: "blue",
+    description: "Develop skills internally through training",
   },
   {
-    value: 'buy',
-    label: 'Buy',
-    icon: 'mdi-shopping-outline',
-    color: 'orange',
-    description: 'Hire external talent'
+    value: "buy",
+    label: "Buy",
+    icon: "mdi-shopping-outline",
+    color: "orange",
+    description: "Hire external talent",
   },
   {
-    value: 'borrow',
-    label: 'Borrow',
-    icon: 'mdi-handshake',
-    color: 'purple',
-    description: 'Contract freelancers or outsource'
+    value: "borrow",
+    label: "Borrow",
+    icon: "mdi-handshake",
+    color: "purple",
+    description: "Contract freelancers or outsource",
   },
   {
-    value: 'bot',
-    label: 'Bot',
-    icon: 'mdi-robot',
-    color: 'green',
-    description: 'Automate through technology'
-  }
-]
+    value: "bot",
+    label: "Bot",
+    icon: "mdi-robot",
+    color: "green",
+    description: "Automate through technology",
+  },
+];
 
 const loadGaps = async () => {
   try {
     const response = await get(
-      `/api/v1/workforce-planning/scenarios/${scenarioId.value}/gaps-for-assignment`,
-      filters.value
-    )
-    gaps.value = response.data.data
+      `//api/workforce-planning/scenarios/${scenarioId.value}/gaps-for-assignment`,
+      filters.value,
+    );
+    gaps.value = response.data.data;
   } catch (error) {
-    console.error('Failed to load gaps:', error)
+    console.error("Failed to load gaps:", error);
   }
-}
+};
 
 const saveAssignments = async () => {
   try {
     for (const gap of selectedGaps.value) {
-      await post('/api/v1/workforce-planning/strategies/assign', {
+      await post("//api/workforce-planning/strategies/assign", {
         gap_id: gap.id,
         strategy: assignments.value[gap.id],
         reasoning: reasonings.value[gap.id],
-        assigned_by: 1
-      })
+        assigned_by: 1,
+      });
     }
 
     // Load portfolio
     const response = await get(
-      `/api/v1/workforce-planning/strategies/portfolio/${scenarioId.value}`
-    )
-    portfolio.value = response.data.portfolio
+      `//api/workforce-planning/strategies/portfolio/${scenarioId.value}`,
+    );
+    portfolio.value = response.data.portfolio;
 
-    step.value = 3
+    step.value = 3;
   } catch (error) {
-    console.error('Failed to save assignments:', error)
+    console.error("Failed to save assignments:", error);
   }
-}
+};
 
 const exportPortfolio = () => {
   // Trigger PDF export
-  console.log('Exporting portfolio as PDF')
-}
+  console.log("Exporting portfolio as PDF");
+};
 
 const approvePortfolio = async () => {
   // Mark portfolio as approved
-  console.log('Portfolio approved')
-}
+  console.log("Portfolio approved");
+};
 
 onMounted(() => {
-  loadGaps()
-})
+  loadGaps();
+});
 </script>
 ```
 
@@ -1116,29 +1156,29 @@ onMounted(() => {
 ## 📅 CRONOGRAMA ESTIMADO
 
 ### Día 1 (5 Enero - 8 horas)
+
 - **Mañana (9:00-13:00):** Setup de endpoints Backend + validaciones
   - ✅ Componente 1: 2 endpoints
   - ✅ Componente 2: 2 endpoints
   - ✅ Componente 3: 3 endpoints
-  
 - **Tarde (14:00-17:00):** Componente 1 - Dashboard Ejecutivo
   - ✅ ExecutiveDashboard.vue
   - ✅ Sub-componentes (charts)
 
 ### Día 2 (6 Enero - 8 horas)
+
 - **Mañana (9:00-13:00):** Componente 2 - Calculadora ROI
   - ✅ RoiCalculator.vue
   - ✅ Sub-componentes (comparison cards, charts)
-  
 - **Tarde (14:00-17:00):** Componente 3 - Asignador de Estrategias (Parte 1)
   - ✅ StrategyAssigner.vue (Step 1 & 2)
 
 ### Día 3 (7 Enero - 4 horas)
+
 - **Mañana (9:00-13:00):** Componente 3 - Asignador de Estrategias (Parte 2)
   - ✅ StrategyAssigner.vue (Step 3)
   - ✅ Sub-componentes (portfolio, distribution)
-  
-- **Testing & Pulido:** 
+- **Testing & Pulido:**
   - ✅ Validación en todos los endpoints
   - ✅ Testeo de flujos completos
   - ✅ Ajustes de UI/UX
@@ -1148,18 +1188,21 @@ onMounted(() => {
 ## 🎯 MÉTRICAS DE ÉXITO
 
 ### Componente 1: Dashboard Ejecutivo
+
 - ✅ CEO puede simular escenarios en < 2 minutos
 - ✅ Visualización clara de puestos críticos y riesgo
 - ✅ Identificación automática de brechas por rol
 - ✅ Dashboard cargue en < 3 segundos
 
 ### Componente 2: Calculadora ROI
+
 - ✅ CFO compara estrategias en < 5 minutos
 - ✅ ROI % generado automáticamente
 - ✅ Recomendación clara (Build vs Buy vs Borrow)
 - ✅ Cálculos auditables y validados
 
 ### Componente 3: Asignador de Estrategias
+
 - ✅ CHRO asigna estrategias en < 10 minutos
 - ✅ Portafolio consolidado generado automáticamente
 - ✅ Export a PDF con signature

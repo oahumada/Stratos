@@ -33,7 +33,7 @@ class WorkforcePlanningApiTest extends TestCase
             'organization_id' => 1,
         ]);
 
-        $response = $this->getJson('/api/v1/workforce-planning/scenarios');
+        $response = $this->getJson('//api/workforce-planning/scenarios');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -54,7 +54,7 @@ class WorkforcePlanningApiTest extends TestCase
             'fiscal_year' => 2026,
         ];
 
-        $response = $this->postJson('/api/v1/workforce-planning/scenarios', $data);
+        $response = $this->postJson('//api/workforce-planning/scenarios', $data);
 
         $response->assertStatus(201)
             ->assertJsonStructure([
@@ -68,7 +68,7 @@ class WorkforcePlanningApiTest extends TestCase
     /** @test */
     public function it_validates_required_fields()
     {
-        $response = $this->postJson('/api/v1/workforce-planning/scenarios', []);
+        $response = $this->postJson('//api/workforce-planning/scenarios', []);
 
         $response->assertStatus(422)
             ->assertJsonStructure(['message', 'errors']);
@@ -81,7 +81,7 @@ class WorkforcePlanningApiTest extends TestCase
             'organization_id' => 1,
         ]);
 
-        $response = $this->getJson("/api/v1/workforce-planning/scenarios/{$scenario->id}");
+        $response = $this->getJson("//api/workforce-planning/scenarios/{$scenario->id}");
 
         $response->assertStatus(200)
             ->assertJsonPath('success', true)
@@ -92,7 +92,7 @@ class WorkforcePlanningApiTest extends TestCase
     /** @test */
     public function it_returns_404_for_non_existent_scenario()
     {
-        $response = $this->getJson('/api/v1/workforce-planning/scenarios/99999');
+        $response = $this->getJson('//api/workforce-planning/scenarios/99999');
 
         $response->assertStatus(404)
             ->assertJsonPath('success', false);
@@ -107,7 +107,7 @@ class WorkforcePlanningApiTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $response = $this->putJson("/api/v1/workforce-planning/scenarios/{$scenario->id}", [
+        $response = $this->putJson("//api/workforce-planning/scenarios/{$scenario->id}", [
             'name' => 'Updated',
             'status' => 'approved',
         ]);
@@ -125,7 +125,7 @@ class WorkforcePlanningApiTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $response = $this->postJson("/api/v1/workforce-planning/scenarios/{$scenario->id}/approve");
+        $response = $this->postJson("//api/workforce-planning/scenarios/{$scenario->id}/approve");
 
         $response->assertStatus(200)
             ->assertJsonPath('data.status', 'approved')
@@ -139,7 +139,7 @@ class WorkforcePlanningApiTest extends TestCase
             'organization_id' => 1,
         ]);
 
-        $response = $this->deleteJson("/api/v1/workforce-planning/scenarios/{$scenario->id}");
+        $response = $this->deleteJson("//api/workforce-planning/scenarios/{$scenario->id}");
 
         $response->assertStatus(200)
             ->assertJsonPath('success', true);
@@ -160,7 +160,7 @@ class WorkforcePlanningApiTest extends TestCase
             'status' => 'approved',
         ]);
 
-        $response = $this->getJson('/api/v1/workforce-planning/scenarios?status=draft');
+        $response = $this->getJson('//api/workforce-planning/scenarios?status=draft');
 
         $response->assertStatus(200)
             ->assertJsonPath('pagination.total', 2);
@@ -169,7 +169,7 @@ class WorkforcePlanningApiTest extends TestCase
     /** @test */
     public function it_requires_authentication()
     {
-        $response = $this->postJson('/api/v1/workforce-planning/scenarios', [
+        $response = $this->postJson('//api/workforce-planning/scenarios', [
             'name' => 'Test',
             'horizon_months' => 12,
             'fiscal_year' => 2026,

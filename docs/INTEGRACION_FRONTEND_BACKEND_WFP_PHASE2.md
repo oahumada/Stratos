@@ -1,5 +1,7 @@
 # 🔗 INTEGRACIÓN - FRONTEND & BACKEND
+
 ## Workforce Planning Phase 2 - Conexiones Implementadas
+
 **Fecha:** 7 Enero 2026
 
 ---
@@ -16,7 +18,7 @@
                 │              │              │
                 ▼              ▼              ▼
         ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-        │ GET /api/v1/ │ │ Decision     │ │ Execution    │
+        │ GET //api/ │ │ Decision     │ │ Execution    │
         │ workforce-   │ │ Status Chips │ │ Status Chips │
         │ planning/    │ │              │ │              │
         │ scenarios    │ └──────────────┘ └──────────────┘
@@ -32,7 +34,7 @@
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │ 1. Seleccionar Plantilla                                 │  │
-│  │    GET /api/v1/workforce-planning/scenario-templates     │  │
+│  │    GET //api/workforce-planning/scenario-templates     │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │ 2. Configurar Parámetros                                 │  │
@@ -43,12 +45,12 @@
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │ 3. Seleccionar Padre (si scope ≠ organization)           │  │
 │  │    Componente: ParentScenarioSelector.vue                │  │
-│  │    GET /api/v1/workforce-planning/scenarios?status=      │  │
+│  │    GET //api/workforce-planning/scenarios?status=      │  │
 │  │        approved&scope_type=org                           │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │ 4. Crear Escenario                                       │  │
-│  │    POST /api/v1/workforce-planning/workforce-scenarios/  │  │
+│  │    POST //api/workforce-planning/workforce-scenarios/  │  │
 │  │         {templateId}/instantiate-from-template           │  │
 │  │    Payload:                                              │  │
 │  │    {                                                     │  │
@@ -110,7 +112,8 @@
 ```
 
 **Endpoints usados:**
-- `GET /api/v1/workforce-planning/scenario-templates` - Cargar plantillas disponibles
+
+- `GET //api/workforce-planning/scenario-templates` - Cargar plantillas disponibles
 
 ---
 
@@ -140,7 +143,8 @@
 ```
 
 **Endpoints usados:**
-- `GET /api/v1/workforce-planning/scenarios?organization_id=...&decision_status=approved` - Cargar padres disponibles
+
+- `GET //api/workforce-planning/scenarios?organization_id=...&decision_status=approved` - Cargar padres disponibles
 
 ---
 
@@ -150,21 +154,21 @@
 **Cómo:** Router navigation + click handler
 
 ```vue
-<v-btn 
-  size="small" 
-  variant="text" 
-  icon="mdi-eye" 
-  color="primary" 
-  @click="goToDetail(item)" 
+<v-btn
+  size="small"
+  variant="text"
+  icon="mdi-eye"
+  color="primary"
+  @click="goToDetail(item)"
 />
 
 <!-- Script -->
 const goToDetail = (scenario: ScenarioListItem) => {
-  router.visit(`/workforce-planning/${scenario.id}`)
-}
+router.visit(`/workforce-planning/${scenario.id}`) }
 ```
 
 **Muestra:**
+
 - Estados duales (decision_status + execution_status)
 - Número de versión
 - Indicador "es hijo"
@@ -175,6 +179,7 @@ const goToDetail = (scenario: ScenarioListItem) => {
 ### 4. **ScenarioList.vue - Nuevas Columnas**
 
 **Decision Status:**
+
 ```vue
 <template #item.decision_status="{ item }">
   <v-chip
@@ -188,6 +193,7 @@ const goToDetail = (scenario: ScenarioListItem) => {
 ```
 
 **Execution Status:**
+
 ```vue
 <template #item.execution_status="{ item }">
   <v-chip
@@ -201,6 +207,7 @@ const goToDetail = (scenario: ScenarioListItem) => {
 ```
 
 **Version Number:**
+
 ```vue
 <template #item.version_number="{ item }">
   <div v-if="item.version_number">
@@ -216,6 +223,7 @@ const goToDetail = (scenario: ScenarioListItem) => {
 ### 5. **ScenarioDetail.vue - Nuevas Tabs**
 
 **Tab 1: Metodología 7 Pasos**
+
 ```vue
 <v-tab value="stepper" prepend-icon="mdi-format-list-numbered">
   Metodología 7 Pasos
@@ -232,6 +240,7 @@ const goToDetail = (scenario: ScenarioListItem) => {
 ```
 
 **Tab 2: Estados & Acciones**
+
 ```vue
 <v-tab value="actions" prepend-icon="mdi-cog">
   Estados & Acciones
@@ -251,6 +260,7 @@ const goToDetail = (scenario: ScenarioListItem) => {
 ### 6. **ScenarioDetail.vue - Headers & Botones**
 
 **Botones de Versiones e Historial:**
+
 ```vue
 <v-btn
   v-if="scenario?.version_group_id"
@@ -273,19 +283,19 @@ const goToDetail = (scenario: ScenarioListItem) => {
 ```
 
 **Modales integrados:**
+
 ```vue
 <VersionHistoryModal
   ref="versionHistoryRef"
   :scenario-id="scenarioId"
   :version-group-id="scenario.version_group_id"
   :current-version="scenario.version_number"
-  @version-selected="(id) => $router.push(`/workforce-planning/scenarios/${id}`)"
+  @version-selected="
+    (id) => $router.push(`/workforce-planning/scenarios/${id}`)
+  "
 />
 
-<StatusTimeline
-  ref="statusTimelineRef"
-  :scenario-id="scenarioId"
-/>
+<StatusTimeline ref="statusTimelineRef" :scenario-id="scenarioId" />
 ```
 
 ---
@@ -293,6 +303,7 @@ const goToDetail = (scenario: ScenarioListItem) => {
 ### 7. **ScenarioActionsPanel.vue - Control de Estados**
 
 **Transición de Decisión:**
+
 ```vue
 <!-- Botones dinámicos según estado actual -->
 <v-btn
@@ -306,14 +317,12 @@ const goToDetail = (scenario: ScenarioListItem) => {
 </v-btn>
 
 <!-- Envía POST -->
-POST /api/v1/workforce-planning/scenarios/{id}/decision-status
-{
-  to_status: "pending_approval" | "approved" | "rejected" | "draft",
-  notes: "..."
-}
+POST //api/workforce-planning/scenarios/{id}/decision-status { to_status:
+"pending_approval" | "approved" | "rejected" | "draft", notes: "..." }
 ```
 
 **Ejecución:**
+
 ```vue
 <v-btn
   v-for="btn in executionActions"
@@ -324,43 +333,30 @@ POST /api/v1/workforce-planning/scenarios/{id}/decision-status
 </v-btn>
 
 <!-- Envía POST -->
-POST /api/v1/workforce-planning/scenarios/{id}/execution/{action}
-{
-  notes: "..."
-}
+POST //api/workforce-planning/scenarios/{id}/execution/{action} { notes: "..." }
 ```
 
 **Sincronizar desde Padre:**
+
 ```vue
-<v-btn
-  v-if="canSyncFromParent"
-  @click="syncFromParent"
->
+<v-btn v-if="canSyncFromParent" @click="syncFromParent">
   Sincronizar Skills desde Padre
 </v-btn>
 
 <!-- Envía POST -->
-POST /api/v1/workforce-planning/scenarios/{id}/sync-parent
+POST //api/workforce-planning/scenarios/{id}/sync-parent
 ```
 
 **Crear Nueva Versión:**
+
 ```vue
-<v-btn
-  v-if="canCreateVersion"
-  @click="openVersionDialog"
->
+<v-btn v-if="canCreateVersion" @click="openVersionDialog">
   Crear Nueva Versión
 </v-btn>
 
 <!-- Dialog con form, envía POST -->
-POST /api/v1/workforce-planning/scenarios/{id}/versions
-{
-  name: "...",
-  description: "...",
-  notes: "...",
-  copy_skills: true,
-  copy_strategies: true
-}
+POST //api/workforce-planning/scenarios/{id}/versions { name: "...",
+description: "...", notes: "...", copy_skills: true, copy_strategies: true }
 ```
 
 ---
@@ -368,27 +364,24 @@ POST /api/v1/workforce-planning/scenarios/{id}/versions
 ### 8. **VersionHistoryModal.vue - Visor de Versiones**
 
 **Carga historial:**
+
 ```vue
-GET /api/v1/workforce-planning/scenarios/{id}/versions
+GET //api/workforce-planning/scenarios/{id}/versions
 
 <!-- Respuesta -->
-{
-  version_group_id: "uuid",
-  current_version: 3,
-  total_versions: 3,
-  versions: [
-    { id, version_number, name, decision_status, execution_status, ... }
-  ]
-}
+{ version_group_id: "uuid", current_version: 3, total_versions: 3, versions: [ {
+id, version_number, name, decision_status, execution_status, ... } ] }
 ```
 
 **Navegación:**
+
 ```vue
-@click="selectVersion(version.id)" 
-→ router.push(`/workforce-planning/scenarios/${id}`)
+@click="selectVersion(version.id)" →
+router.push(`/workforce-planning/scenarios/${id}`)
 ```
 
 **Comparador:**
+
 ```vue
 <!-- Seleccionar 2 versiones -->
 selectedVersions = [v1_id, v2_id]
@@ -402,25 +395,18 @@ selectedVersions = [v1_id, v2_id]
 ### 9. **StatusTimeline.vue - Audit Trail**
 
 **Carga eventos:**
+
 ```vue
-GET /api/v1/workforce-planning/scenarios/{id}
+GET //api/workforce-planning/scenarios/{id}
 
 <!-- Respuesta incluye -->
-{
-  ...scenario,
-  status_events: [
-    {
-      from_decision_status: "draft",
-      to_decision_status: "pending_approval",
-      changed_by: { name, email },
-      notes: "...",
-      created_at: "..."
-    }
-  ]
-}
+{ ...scenario, status_events: [ { from_decision_status: "draft",
+to_decision_status: "pending_approval", changed_by: { name, email }, notes:
+"...", created_at: "..." } ] }
 ```
 
 **Muestra timeline visual:**
+
 - Icono por tipo de evento
 - Color por estado destino
 - Usuario que realizó cambio
@@ -433,17 +419,19 @@ GET /api/v1/workforce-planning/scenarios/{id}
 ### Escenario: Crear y aprobar un escenario de crecimiento a nivel de Departamento
 
 **Paso 1: En ScenarioList.vue**
+
 ```
 [Botón "Nuevo desde plantilla"]
 → Abre Modal ScenarioCreateFromTemplate
 ```
 
 **Paso 2: En Modal (ScenarioCreateFromTemplate.vue)**
+
 ```
 1. Selecciona plantilla "Growth Strategy"
 2. Configura:
    - Nombre: "Crecimiento Tech 2026"
-   - Scope: "Department" 
+   - Scope: "Department"
    - Padre: "Growth Org-wide Strategy" (sincroniza skills)
    - Presupuesto: $200,000
 3. [Crear Escenario]
@@ -456,6 +444,7 @@ GET /api/v1/workforce-planning/scenarios/{id}
 ```
 
 **Paso 3: Redirect a ScenarioDetail.vue**
+
 ```
 Carga escenario con:
 - Tab "Metodología 7 Pasos" → Paso 1: Definición
@@ -464,6 +453,7 @@ Carga escenario con:
 ```
 
 **Paso 4: Completar pasos metodología**
+
 ```
 Avanza: 1→2→3→4→5
 - Cada paso verifica guardrails
@@ -471,6 +461,7 @@ Avanza: 1→2→3→4→5
 ```
 
 **Paso 5: Enviar a Aprobación**
+
 ```
 Tab "Estados & Acciones"
 [Botón "Enviar a Aprobación"]
@@ -482,6 +473,7 @@ Tab "Estados & Acciones"
 ```
 
 **Paso 6: Gerente aprueba (si permisos workflow_planning.approve)**
+
 ```
 [Botón "Aprobar"]
 → Dialog confirmación
@@ -494,6 +486,7 @@ Tab "Estados & Acciones"
 ```
 
 **Paso 7: Iniciar Ejecución**
+
 ```
 [Botón "Iniciar Ejecución"]
 → POST execution/start
@@ -502,6 +495,7 @@ Tab "Estados & Acciones"
 ```
 
 **Paso 8: Crear Nueva Versión (cuando se requieren cambios)**
+
 ```
 [Botón "Crear Nueva Versión"]
 → Dialog con:
@@ -517,6 +511,7 @@ Tab "Estados & Acciones"
 ```
 
 **Paso 9: Ver Historial**
+
 ```
 [Botón "Historial"]
 → Modal StatusTimeline
@@ -527,6 +522,7 @@ Tab "Estados & Acciones"
 ```
 
 **Paso 10: Ver Versiones**
+
 ```
 [Botón "Versiones"]
 → Modal VersionHistoryModal
@@ -604,22 +600,24 @@ Tab "Estados & Acciones"
 ## 📡 ENDPOINTS UTILIZADOS EN FRONTEND
 
 ### List & Detail
+
 ```
-GET /api/v1/workforce-planning/scenarios
-GET /api/v1/workforce-planning/scenarios/{id}
-POST /api/v1/workforce-planning/scenario-templates
+GET //api/workforce-planning/scenarios
+GET //api/workforce-planning/scenarios/{id}
+POST //api/workforce-planning/scenario-templates
 ```
 
 ### New Features (Phase 2)
+
 ```
-POST   /api/v1/workforce-planning/scenarios/{scenario}/decision-status
-POST   /api/v1/workforce-planning/scenarios/{scenario}/execution/start
-POST   /api/v1/workforce-planning/scenarios/{scenario}/execution/pause
-POST   /api/v1/workforce-planning/scenarios/{scenario}/execution/complete
-POST   /api/v1/workforce-planning/scenarios/{scenario}/versions
-GET    /api/v1/workforce-planning/scenarios/{scenario}/versions
-POST   /api/v1/workforce-planning/scenarios/{scenario}/sync-parent
-GET    /api/v1/workforce-planning/scenarios/{scenario}/rollup
+POST   //api/workforce-planning/scenarios/{scenario}/decision-status
+POST   //api/workforce-planning/scenarios/{scenario}/execution/start
+POST   //api/workforce-planning/scenarios/{scenario}/execution/pause
+POST   //api/workforce-planning/scenarios/{scenario}/execution/complete
+POST   //api/workforce-planning/scenarios/{scenario}/versions
+GET    //api/workforce-planning/scenarios/{scenario}/versions
+POST   //api/workforce-planning/scenarios/{scenario}/sync-parent
+GET    //api/workforce-planning/scenarios/{scenario}/rollup
 ```
 
 ---
@@ -660,5 +658,4 @@ GET    /api/v1/workforce-planning/scenarios/{scenario}/rollup
 
 **Estado:** 🟢 INTEGRACIÓN COMPLETA  
 **Errores:** 0 (sin errores de compilación)  
-**Coverage:** 100% de funcionalidades del Prompt Maestro conectadas  
-
+**Coverage:** 100% de funcionalidades del Prompt Maestro conectadas

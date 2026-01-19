@@ -100,7 +100,7 @@ $scenario = StrategicPlanningScenarios::create([
 
 ```javascript
 await api.post(
-  `/api/v1/workforce-planning/workforce-scenarios/${selectedTemplate.value.id}/instantiate-from-template`,
+  `//api/workforce-planning/workforce-scenarios/${selectedTemplate.value.id}/instantiate-from-template`,
   {
     customizations: {
       name,
@@ -111,7 +111,7 @@ await api.post(
       horizon_months,
       // ... other fields
     },
-  }
+  },
 );
 ```
 

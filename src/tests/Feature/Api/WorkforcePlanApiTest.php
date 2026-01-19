@@ -34,7 +34,7 @@ class WorkforcePlanApiTest extends TestCase
             'owner_user_id' => $this->user->id,
         ];
 
-        $response = $this->postJson('/api/v1/workforce-planning/workforce-plans', $data);
+        $response = $this->postJson('//api/workforce-planning/workforce-plans', $data);
 
         $response->assertStatus(201)
             ->assertJsonStructure(['id', 'name', 'code', 'status']);
@@ -45,7 +45,7 @@ class WorkforcePlanApiTest extends TestCase
     {
         WorkforcePlan::factory(3)->create(['organization_id' => 1]);
 
-        $response = $this->getJson('/api/v1/workforce-planning/workforce-plans');
+        $response = $this->getJson('//api/workforce-planning/workforce-plans');
 
         $response->assertStatus(200)
             ->assertJsonStructure(['data', 'links', 'meta']);
@@ -56,7 +56,7 @@ class WorkforcePlanApiTest extends TestCase
     {
         $plan = WorkforcePlan::factory()->create(['organization_id' => 1]);
 
-        $response = $this->getJson("/api/v1/workforce-planning/workforce-plans/{$plan->id}");
+        $response = $this->getJson("//api/workforce-planning/workforce-plans/{$plan->id}");
 
         $response->assertStatus(200)
             ->assertJsonPath('plan.id', $plan->id);
@@ -71,7 +71,7 @@ class WorkforcePlanApiTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $response = $this->deleteJson("/api/v1/workforce-planning/workforce-plans/{$plan->id}");
+        $response = $this->deleteJson("//api/workforce-planning/workforce-plans/{$plan->id}");
 
         $response->assertStatus(200);
         $this->assertNull(WorkforcePlan::find($plan->id));

@@ -9,6 +9,7 @@
 ## 📋 RESUMEN EJECUTIVO
 
 **Strato** es una plataforma SaaS de Talent Management enfocada en **Skills-Based Talent Management** que ayuda a organizaciones a:
+
 - Identificar brechas de competencias (Gap Analysis)
 - Generar rutas de desarrollo personalizadas
 - Realizar matching inteligente para vacantes internas
@@ -23,12 +24,14 @@
 ### Stack Tecnológico
 
 **Backend:**
+
 - Laravel 11 (PHP 8.2+)
 - SQLite (desarrollo) / PostgreSQL (producción)
 - Repository Pattern para persistencia
-- API RESTful con versionado (/api/v1)
+- API RESTful con versionado (//api)
 
 **Frontend:**
+
 - Vue 3 + TypeScript
 - Inertia.js (SSR híbrido)
 - Tailwind CSS 4 / Vuetify
@@ -37,6 +40,7 @@
 - ApexCharts + Chart.js para visualizaciones
 
 **Herramientas:**
+
 - Prettier + ESLint
 - Commitlint (conventional commits)
 - Husky (git hooks)
@@ -45,6 +49,7 @@
 ### Patrón Arquitectónico Principal: JSON-Driven CRUD
 
 **Flujo de Arquitectura:**
+
 ```
 HTTP Request
     ↓
@@ -61,15 +66,16 @@ Database
 
 **Responsabilidades por Capa:**
 
-| Componente | Responsabilidad | Ejemplo |
-|------------|-----------------|---------|
-| **form-schema-complete.php** | Registrar rutas dinámicamente | `Route::get('/people', [FormSchemaController...])` |
-| **FormSchemaController** | Orquestar HTTP, inicializar modelo/repo | `initializeForModel()`, retornar respuesta |
-| **{Model}Repository** | Ejecutar queries, aplicar filtros | `PeopleRepository::search()` con eager loading |
-| **{Model} Eloquent** | Mapear tabla a clase, relaciones | `People::with('skills')->get()` |
-| **Database** | Persistir datos | `SELECT * FROM people` |
+| Componente                   | Responsabilidad                         | Ejemplo                                            |
+| ---------------------------- | --------------------------------------- | -------------------------------------------------- |
+| **form-schema-complete.php** | Registrar rutas dinámicamente           | `Route::get('/people', [FormSchemaController...])` |
+| **FormSchemaController**     | Orquestar HTTP, inicializar modelo/repo | `initializeForModel()`, retornar respuesta         |
+| **{Model}Repository**        | Ejecutar queries, aplicar filtros       | `PeopleRepository::search()` con eager loading     |
+| **{Model} Eloquent**         | Mapear tabla a clase, relaciones        | `People::with('skills')->get()`                    |
+| **Database**                 | Persistir datos                         | `SELECT * FROM people`                             |
 
 **Ventajas del Patrón:**
+
 - ✅ Crear nuevo CRUD en 10-15 minutos
 - ✅ Sin duplicación de código
 - ✅ Configuración JSON-driven (4 archivos JSON por módulo)
@@ -84,7 +90,7 @@ Database
 ├── app/
 │   ├── Http/Controllers/
 │   │   ├── FormSchemaController.php (CRUD genérico)
-│   │   └── Api/V1/ (controladores específicos)
+│   │   └── /api/ (controladores específicos)
 │   ├── Models/ (Eloquent models)
 │   ├── Repository/ (capa de persistencia)
 │   └── Services/ (lógica de negocio)
@@ -117,50 +123,59 @@ Database
 ## 🎯 MÓDULOS PRINCIPALES IMPLEMENTADOS
 
 ### 1. Dashboard Analytics ✅
+
 - Métricas clave: coverage, roles at risk, gaps, promotions
 - Top skills gaps
 - Roles críticos
 
 ### 2. People Management ✅
+
 - CRUD completo de empleados
 - Gestión de skills por persona
 - Niveles de competencia (1-5)
 - Búsqueda y filtros avanzados
 
 ### 3. Skills Catalog ✅
+
 - Catálogo de competencias
 - Categorías: technical, soft, leadership, domain
 - Relación con roles y personas
 
 ### 4. Roles ✅
+
 - Definición de roles con skills requeridas
 - Niveles mínimos por skill
 - Matching de personas a roles
 
 ### 5. Gap Analysis ✅
+
 - Análisis de brechas persona vs rol
 - Cálculo de match percentage
 - Identificación de gaps críticos
 - Status: ready, close, needs_development
 
 ### 6. Development Paths ✅
+
 - Generación de rutas de desarrollo
 - Pasos secuenciales con duración
 - Tracking de progreso
 - Estados: draft, active, completed, cancelled
 
 ### 7. Job Openings & Matching ✅
+
 - Vacantes internas
 - Matching automático de candidatos
 - Ranking por porcentaje de match
 - Comparación interno vs externo
 
 ### 8. Applications ✅
+
 - Postulaciones a vacantes
 - Estados: pending, accepted, rejected
 - Marketplace de oportunidades
 
 ### 9. Workforce Planning 🚀 (Phase 2 - EN DESARROLLO)
+
 - **Componente 1:** Simulador de Crecimiento (CEO) - 🚀 INICIADO
 - **Componente 2:** Calculadora ROI (CFO) - ⏳ TODO
 - **Componente 3:** Asignador de Estrategias (CHRO) - ⏳ TODO
@@ -170,6 +185,7 @@ Database
 ## 🔑 REGLAS DE NEGOCIO CRÍTICAS
 
 ### Skill Levels
+
 - **Escala:** 1-5 (Básico → Experto)
 - **Niveles:**
   - 1: Básico (conocimiento teórico)
@@ -179,6 +195,7 @@ Database
   - 5: Experto (referente organizacional)
 
 ### Gap Analysis
+
 - **Match Percentage:** `(skills_cumplidas / skills_requeridas) * 100`
 - **Gap Status:**
   - `ready`: nivel actual ≥ requerido
@@ -186,11 +203,13 @@ Database
   - `needs_development`: gap ≥ 2 niveles
 
 ### Matching de Vacantes
+
 - **Threshold mínimo:** 60% match
 - **Ranking:** Por match_percentage descendente
 - **Consideraciones:** Skills críticas tienen mayor peso
 
 ### Development Paths
+
 - **Duración estimada:** Basada en gap_size y complejidad
 - **Pasos:** Secuenciales con dependencias
 - **Tipos de acción:** training, mentoring, project, certification
@@ -199,9 +218,10 @@ Database
 
 ## 📊 ENDPOINTS API PRINCIPALES
 
-**Base URL:** `/api/v1`
+**Base URL:** `//api`
 
 ### Dashboard
+
 ```
 GET /dashboard/metrics
 GET /dashboard/skills-gaps
@@ -209,6 +229,7 @@ GET /dashboard/roles-at-risk
 ```
 
 ### People
+
 ```
 GET    /people
 GET    /people/{id}
@@ -220,12 +241,14 @@ POST   /people/{id}/skills
 ```
 
 ### Gap Analysis
+
 ```
 POST /gap-analysis
 GET  /gap-analysis/people/{people_id}
 ```
 
 ### Development Paths
+
 ```
 POST  /development-paths/generate
 GET   /development-paths
@@ -234,6 +257,7 @@ PATCH /development-paths/{id}
 ```
 
 ### Job Openings
+
 ```
 GET  /job-openings
 GET  /job-openings/{id}
@@ -242,6 +266,7 @@ POST /job-openings/{id}/compare
 ```
 
 ### Workforce Planning (Phase 2)
+
 ```
 POST /workforce-planning/scenarios/{id}/simulate-growth
 GET  /workforce-planning/critical-positions
@@ -257,6 +282,7 @@ POST /workforce-planning/strategies/assign
 ### Flujo Rápido (10-15 minutos)
 
 1. **Registrar modelo** en `form-schema-complete.php`:
+
    ```php
    'YourModel' => 'route-name'
    ```
@@ -270,6 +296,7 @@ POST /workforce-planning/strategies/assign
 3. **Copiar Index.vue** de People y cambiar imports JSON
 
 4. **Agregar ruta web** en `/routes/web.php`:
+
    ```php
    Route::get('/your-model', fn() => Inertia::render('YourModel/Index'))->name('your-model.index');
    ```
@@ -288,14 +315,18 @@ POST /workforce-planning/strategies/assign
 ## 🎯 WORKFORCE PLANNING PHASE 2 - PRIORIDAD ACTUAL
 
 ### Objetivo
+
 Implementar 3 componentes para 3 actores clave:
 
 ### Componente 1: Simulador de Crecimiento (CEO) 🚀 INICIADO
+
 **Endpoints:**
+
 - `POST /scenarios/{id}/simulate-growth`
 - `GET /critical-positions`
 
 **Funcionalidad:**
+
 - Proyección de headcount por crecimiento %
 - Identificación de skills necesarias
 - Análisis de posiciones críticas
@@ -304,11 +335,14 @@ Implementar 3 componentes para 3 actores clave:
 **Status:** Backend iniciado, Frontend pendiente
 
 ### Componente 2: Calculadora ROI (CFO) ⏳ TODO
+
 **Endpoints:**
+
 - `POST /roi-calculator/calculate`
 - `GET /roi-calculator/scenarios`
 
 **Funcionalidad:**
+
 - Comparación Build vs Buy vs Borrow
 - Cálculo de costos por estrategia
 - Recomendación basada en ROI
@@ -317,12 +351,15 @@ Implementar 3 componentes para 3 actores clave:
 **Tiempo estimado:** 4-5 horas
 
 ### Componente 3: Asignador de Estrategias (CHRO) ⏳ TODO
+
 **Endpoints:**
+
 - `GET /scenarios/{id}/gaps-for-assignment`
 - `POST /strategies/assign`
 - `GET /strategies/portfolio/{scenario_id}`
 
 **Funcionalidad:**
+
 - Asignación de estrategias a gaps
 - Portfolio de estrategias por escenario
 - Tracking de implementación
@@ -337,17 +374,20 @@ Implementar 3 componentes para 3 actores clave:
 ## 📚 DOCUMENTACIÓN CLAVE
 
 ### Lectura Obligatoria
+
 1. **memories.md** - Memoria principal del proyecto (3396 líneas)
 2. **GUIA_CREAR_NUEVO_CRUD_GENERICO.md** - Paso a paso para nuevos módulos
 3. **PATRON_JSON_DRIVEN_CRUD.md** - Arquitectura técnica completa
 4. **GUIA_RAPIDA_IMPLEMENTACION_2026_01_05.md** - Plan WFP Phase 2
 
 ### Libro FormSchema (11 capítulos)
+
 - `/docs/LIBRO_FORMSCHEMA/00_INDICE.md`
 - Lectura completa: ~3h 50min
 - Cubre arquitectura, patrones, anti-patrones, escalabilidad
 
 ### Casos de Uso
+
 - `/docs/WorkforcePlanning/CasosDeUso.md` - 11 casos de uso por actor
 
 ---
@@ -355,6 +395,7 @@ Implementar 3 componentes para 3 actores clave:
 ## 🔧 COMANDOS ÚTILES
 
 ### Backend
+
 ```bash
 # Migraciones
 php artisan migrate:fresh --seed
@@ -372,6 +413,7 @@ php artisan serve
 ```
 
 ### Frontend
+
 ```bash
 # Desarrollo
 npm run dev
@@ -387,6 +429,7 @@ npm run format
 ```
 
 ### Base de Datos
+
 ```bash
 # Ver diagrama
 ./VIEW_DATABASE_DIAGRAM.sh
@@ -400,24 +443,28 @@ npm run format
 ## ⚠️ CONVENCIONES Y MEJORES PRÁCTICAS
 
 ### Código
+
 - **Commits:** Conventional Commits (feat:, fix:, docs:, refactor:)
 - **Naming:** camelCase (JS/TS), snake_case (PHP/DB)
 - **Imports:** Organizados automáticamente con Prettier
 - **Types:** TypeScript estricto en frontend
 
 ### Arquitectura
+
 - **NO duplicar controladores** - Usar FormSchemaController
 - **Repository Pattern** para lógica de BD
 - **Services** para lógica de negocio compleja
 - **Validación** en Request classes o inline en controllers
 
 ### Testing
+
 - **Feature tests** para endpoints API
 - **Unit tests** para Services y Repositories
 - **Coverage mínimo:** 70%
 
 ### Git
-- **Branches:** feature/*, bugfix/*, hotfix/*
+
+- **Branches:** feature/_, bugfix/_, hotfix/\*
 - **PRs:** Requieren review
 - **CI/CD:** Tests automáticos en push
 
@@ -426,17 +473,20 @@ npm run format
 ## 🎯 PRÓXIMOS PASOS RECOMENDADOS
 
 ### Corto Plazo (Esta Semana)
+
 1. ✅ Completar Componente 1: Simulador de Crecimiento
 2. ⏳ Implementar Componente 2: Calculadora ROI
 3. ⏳ Implementar Componente 3: Asignador de Estrategias
 
 ### Mediano Plazo (Próximas 2 Semanas)
+
 - Tests de integración para WFP Phase 2
 - Documentación de usuario final
 - Optimización de queries (N+1 problems)
 - Implementar caché para dashboard
 
 ### Largo Plazo (Roadmap)
+
 - Autenticación multi-tenant
 - Notificaciones en tiempo real
 - Integración con HRIS externos
@@ -471,12 +521,14 @@ npm run format
 ## 📞 RECURSOS ADICIONALES
 
 ### Documentación Externa
+
 - [Laravel 11 Docs](https://laravel.com/docs/11.x)
 - [Vue 3 Docs](https://vuejs.org/)
 - [Inertia.js Docs](https://inertiajs.com/)
 - [Tailwind CSS](https://tailwindcss.com/)
 
 ### Herramientas
+
 - **Postman Collection:** `/docs/Strato_API_Postman.json`
 - **Database Diagram:** Ejecutar `./VIEW_DATABASE_DIAGRAM.sh`
 - **DBeaver Setup:** `./dbeaver-setup.sh`

@@ -278,23 +278,23 @@ CAPA TRANSVERSAL: Analítica, gobierno e indicadores
 ✅ WorkforcePlanningController.php
 
 Scenario Management:
-GET    /api/v1/workforce-planning/scenarios             → list (paginated, filtered)
-POST   /api/v1/workforce-planning/scenarios             → create
-GET    /api/v1/workforce-planning/scenarios/{id}        → show
-PUT    /api/v1/workforce-planning/scenarios/{id}        → update
-DELETE /api/v1/workforce-planning/scenarios/{id}        → delete
-POST   /api/v1/workforce-planning/scenarios/{id}/approve → approve
+GET    //api/workforce-planning/scenarios             → list (paginated, filtered)
+POST   //api/workforce-planning/scenarios             → create
+GET    //api/workforce-planning/scenarios/{id}        → show
+PUT    //api/workforce-planning/scenarios/{id}        → update
+DELETE //api/workforce-planning/scenarios/{id}        → delete
+POST   //api/workforce-planning/scenarios/{id}/approve → approve
 
 Data Retrieval:
-GET    /api/v1/workforce-planning/scenarios/{id}/role-forecasts
-GET    /api/v1/workforce-planning/scenarios/{id}/matches
-GET    /api/v1/workforce-planning/scenarios/{id}/skill-gaps
-GET    /api/v1/workforce-planning/scenarios/{id}/succession-plans
-GET    /api/v1/workforce-planning/scenarios/{id}/analytics
+GET    //api/workforce-planning/scenarios/{id}/role-forecasts
+GET    //api/workforce-planning/scenarios/{id}/matches
+GET    //api/workforce-planning/scenarios/{id}/skill-gaps
+GET    //api/workforce-planning/scenarios/{id}/succession-plans
+GET    //api/workforce-planning/scenarios/{id}/analytics
 
 Analysis & Actions:
-POST   /api/v1/workforce-planning/scenarios/{id}/analyze
-GET    /api/v1/workforce-planning/matches/{id}/recommendations
+POST   //api/workforce-planning/scenarios/{id}/analyze
+GET    //api/workforce-planning/matches/{id}/recommendations
 ```
 
 #### Validation Layer
@@ -486,25 +486,25 @@ Basándose en el documento "Modelo de Planificación moderno.md" de `/docs/Workf
 ```
 1. RoleForecastsTable.vue (3 sp)
    - [ ] Crear tabla data grid
-   - [ ] Conectar a GET /api/v1/workforce-planning/scenarios/{id}/role-forecasts
+   - [ ] Conectar a GET //api/workforce-planning/scenarios/{id}/role-forecasts
    - [ ] Editar forecasts inline
    - [ ] Mostrar skills críticos/emergentes
 
 2. MatchingResults.vue (3 sp)
    - [ ] Crear tabla de matches
-   - [ ] Conectar a GET /api/v1/workforce-planning/scenarios/{id}/matches
+   - [ ] Conectar a GET //api/workforce-planning/scenarios/{id}/matches
    - [ ] Filtrar por readiness level
    - [ ] Mostrar recomendaciones
 
 3. SkillGapsMatrix.vue (4 sp)
    - [ ] Crear matriz interactiva
-   - [ ] Conectar a GET /api/v1/workforce-planning/scenarios/{id}/skill-gaps
+   - [ ] Conectar a GET //api/workforce-planning/scenarios/{id}/skill-gaps
    - [ ] Color coding por priority
    - [ ] Mostrar remediation suggestions
 
 4. SuccessionPlanCard.vue (3 sp)
    - [ ] Crear cards por role
-   - [ ] Conectar a GET /api/v1/workforce-planning/scenarios/{id}/succession-plans
+   - [ ] Conectar a GET //api/workforce-planning/scenarios/{id}/succession-plans
    - [ ] Mostrar succession readiness
    - [ ] Highlight at-risk roles
 ```

@@ -65,11 +65,11 @@ test('it enforces tenant isolation for scenarios', function () {
     $this->actingAs($this->user);
 
     // User can access own org's scenario
-    $response = $this->getJson("/api/v1/workforce-planning/workforce-scenarios/{$scenario1->id}");
+    $response = $this->getJson("//api/workforce-planning/workforce-scenarios/{$scenario1->id}");
     $response->assertStatus(200);
 
     // User cannot access other org's scenario (403 Forbidden by policy)
-    $response = $this->getJson("/api/v1/workforce-planning/workforce-scenarios/{$scenario2->id}");
+    $response = $this->getJson("//api/workforce-planning/workforce-scenarios/{$scenario2->id}");
     $response->assertStatus(403);
 });
 
@@ -85,7 +85,7 @@ test('it creates scenario from template', function () {
         'config' => [],  // Empty config to avoid FK violations
     ]);
 
-    $response = $this->postJson("/api/v1/workforce-planning/workforce-scenarios/{$template->id}/instantiate-from-template", [
+    $response = $this->postJson("//api/workforce-planning/workforce-scenarios/{$template->id}/instantiate-from-template", [
         'name' => 'My Scenario from Template',
         'horizon_months' => 12,
         'fiscal_year' => 2026,
@@ -181,7 +181,7 @@ test('it generates suggested strategies', function () {
 
     $this->actingAs($this->user);
 
-    $response = $this->postJson("/api/v1/workforce-planning/workforce-scenarios/{$scenario->id}/refresh-suggested-strategies", [
+    $response = $this->postJson("//api/workforce-planning/workforce-scenarios/{$scenario->id}/refresh-suggested-strategies", [
         'time_pressure' => 'high',
         'budget_sensitivity' => 'medium',
         'automation_allowed' => false,
@@ -234,7 +234,7 @@ test('it lists scenario templates', function () {
 
     $this->actingAs($this->user);
 
-    $response = $this->getJson('/api/v1/workforce-planning/scenario-templates');
+    $response = $this->getJson('//api/workforce-planning/scenario-templates');
 
     $response->assertStatus(200);
     $response->assertJsonStructure([

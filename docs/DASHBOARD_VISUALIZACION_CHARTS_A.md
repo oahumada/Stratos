@@ -118,7 +118,9 @@ FOOTER (Full Width)
 ## 🎨 Componentes Chart Detallados
 
 ### 1️⃣ HeadcountChart
+
 **Tipo:** Bar Chart (ApexCharts)
+
 ```
 ┌─────────────────────────────┐
 │ Headcount Forecast          │
@@ -150,7 +152,9 @@ Features:
 ```
 
 ### 2️⃣ CoverageChart
+
 **Tipo:** Donut/Pie Chart (ApexCharts)
+
 ```
 ┌─────────────────────────────┐
 │ Internal Coverage           │
@@ -181,7 +185,9 @@ Features:
 ```
 
 ### 3️⃣ SkillGapsChart
+
 **Tipo:** Bar Chart (ApexCharts)
+
 ```
 ┌─────────────────────────────┐
 │ Skill Gaps by Priority      │
@@ -209,7 +215,9 @@ Features:
 ```
 
 ### 4️⃣ SuccessionRiskChart
+
 **Tipo:** Radial Bar Gauge (ApexCharts)
+
 ```
 ┌─────────────────────────────┐
 │ Succession Risk Assessment  │
@@ -236,7 +244,9 @@ Features:
 ```
 
 ### 5️⃣ ReadinessTimelineChart
+
 **Tipo:** Stacked Bar Chart (ApexCharts)
+
 ```
 ┌──────────────────────────────┐
 │ Readiness Timeline           │
@@ -264,7 +274,9 @@ Features:
 ```
 
 ### 6️⃣ MatchScoreDistributionChart
+
 **Tipo:** Area Chart (ApexCharts)
+
 ```
 ┌──────────────────────────────┐
 │ Match Score Distribution     │
@@ -293,7 +305,9 @@ Features:
 ```
 
 ### 7️⃣ DepartmentGapsChart
+
 **Tipo:** Horizontal Bar Chart (ApexCharts)
+
 ```
 ┌──────────────────────────────┐
 │ Gaps by Department           │
@@ -324,23 +338,23 @@ Features:
 ```
 Backend API
     │
-    ├─► /api/v1/workforce-planning/scenarios/{id}
+    ├─► //api/workforce-planning/scenarios/{id}
     │       └─► Scenario name & description
     │
-    ├─► /api/v1/workforce-planning/scenarios/{id}/analytics
+    ├─► //api/workforce-planning/scenarios/{id}/analytics
     │       └─► total_headcount_current (120)
     │           total_headcount_projected (135)
     │           internal_coverage_percentage (78)
     │           external_gap_percentage (22)
     │           succession_risk_percentage (25)
     │
-    ├─► /api/v1/workforce-planning/scenarios/{id}/role-forecasts
+    ├─► //api/workforce-planning/scenarios/{id}/role-forecasts
     │       └─► Used by RoleForecastsTable tab
     │
-    ├─► /api/v1/workforce-planning/scenarios/{id}/matches
+    ├─► //api/workforce-planning/scenarios/{id}/matches
     │       └─► [Used for readiness timeline & match scores]
     │
-    └─► /api/v1/workforce-planning/scenarios/{id}/skill-gaps
+    └─► //api/workforce-planning/scenarios/{id}/skill-gaps
             └─► [Used for gap distribution charts]
 
 OverviewDashboard Component
@@ -361,6 +375,7 @@ OverviewDashboard Component
 ## 🎯 Estado Actual
 
 ✅ **Completado:**
+
 - 7 componentes gráficos creados
 - Integración en OverviewDashboard
 - Props typing con TypeScript
@@ -370,25 +385,27 @@ OverviewDashboard Component
 - Helper functions para agregación datos
 
 🔄 **En Desarrollo:**
+
 - Conectar mock data a Pinia store getters
 - Testing con datos reales de backend
 
 ⏳ **Próximo:**
+
 - UX Polish (loading states, empty states, etc.)
 - Comprehensive testing
 - Performance optimization
 
 ## 📊 Estadísticas
 
-| Métrica | Valor |
-|---------|-------|
-| Total Componentes | 7 |
-| Líneas de Código | 660 |
-| Breakpoints Responsive | 3 |
-| Colores Únicos | 5 |
-| Tipos de Gráficos | 6 |
-| Features ApexCharts | 15+ |
-| Props Definidos | 25+ |
+| Métrica                | Valor |
+| ---------------------- | ----- |
+| Total Componentes      | 7     |
+| Líneas de Código       | 660   |
+| Breakpoints Responsive | 3     |
+| Colores Únicos         | 5     |
+| Tipos de Gráficos      | 6     |
+| Features ApexCharts    | 15+   |
+| Props Definidos        | 25+   |
 
 ---
 

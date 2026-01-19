@@ -277,16 +277,16 @@ ls app/Models | grep -i scenario
 POST /api/auth/login
 
 # Ver plantillas
-GET /api/v1/workforce-planning/scenario-templates
+GET //api/workforce-planning/scenario-templates
 
 # Crear desde plantilla
-POST /api/v1/workforce-planning/workforce-scenarios/1/instantiate-from-template
+POST //api/workforce-planning/workforce-scenarios/1/instantiate-from-template
 
 # Calcular brechas
-POST /api/v1/workforce-planning/workforce-scenarios/1/calculate-gaps
+POST //api/workforce-planning/workforce-scenarios/1/calculate-gaps
 
 # Ver respuesta con brechas
-GET /api/v1/workforce-planning/workforce-scenarios/1
+GET //api/workforce-planning/workforce-scenarios/1
 ```
 
 ### Opción 3: Desde Código (Archivo Específico)

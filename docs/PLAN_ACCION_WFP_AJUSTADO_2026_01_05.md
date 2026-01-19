@@ -43,7 +43,7 @@
    - UpdateStrategicPlanningScenariosRequest
 
 ✅ Routes:
-   - /api/v1/workforce-planning/* (todos registrados)
+   - //api/workforce-planning/* (todos registrados)
 ```
 
 ### ⏳ Frontend (33% Implementado)
@@ -88,14 +88,14 @@
 
 ### Backend - Nuevos Endpoints (2)
 
-#### 1. POST `/api/v1/workforce-planning/scenarios/{id}/simulate-growth`
+#### 1. POST `//api/workforce-planning/scenarios/{id}/simulate-growth`
 
 **Ubicación:** Agregar a WorkforcePlanningController.php
 
 ```php
 /**
  * Simular crecimiento de headcount
- * POST /api/v1/workforce-planning/scenarios/{id}/simulate-growth
+ * POST //api/workforce-planning/scenarios/{id}/simulate-growth
  */
 public function simulateGrowth($scenarioId, Request $request): JsonResponse
 {
@@ -175,14 +175,14 @@ private function identifyCriticalRisks($scenario): array
 }
 ```
 
-#### 2. GET `/api/v1/workforce-planning/critical-positions`
+#### 2. GET `//api/workforce-planning/critical-positions`
 
 **Ubicación:** Agregar a WorkforcePlanningController.php
 
 ```php
 /**
  * Obtener posiciones críticas y riesgo de sucesión
- * GET /api/v1/workforce-planning/critical-positions?scenario_id=1
+ * GET //api/workforce-planning/critical-positions?scenario_id=1
  */
 public function getCriticalPositions(Request $request): JsonResponse
 {
@@ -412,8 +412,8 @@ const criticalPositionsCount = computed(() => criticalPositions.value.length);
 const runSimulation = async () => {
   try {
     const response = await api.post(
-      `/api/v1/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
-      simulationParams.value
+      `//api/workforce-planning/scenarios/${scenarioId.value}/simulate-growth`,
+      simulationParams.value,
     );
     simulationResults.value = response.data.data.simulation;
   } catch (error) {
@@ -424,8 +424,8 @@ const runSimulation = async () => {
 const loadCriticalPositions = async () => {
   try {
     const response = await api.get(
-      `/api/v1/workforce-planning/critical-positions`,
-      { scenario_id: scenarioId.value }
+      `//api/workforce-planning/critical-positions`,
+      { scenario_id: scenarioId.value },
     );
     criticalPositions.value = response.data.data;
   } catch (error) {
@@ -461,7 +461,7 @@ onMounted(async () => {
 
 ### Backend - Nuevos Endpoints (2)
 
-#### 1. POST `/api/v1/workforce-planning/roi-calculator/calculate`
+#### 1. POST `//api/workforce-planning/roi-calculator/calculate`
 
 **Ubicación:** Crear RoiCalculatorController.php
 
@@ -597,7 +597,7 @@ class RoiCalculatorController extends Controller
 }
 ```
 
-#### 2. GET `/api/v1/workforce-planning/roi-calculator/scenarios`
+#### 2. GET `//api/workforce-planning/roi-calculator/scenarios`
 
 ```php
 public function listCalculations(Request $request): JsonResponse
@@ -695,7 +695,7 @@ public function listCalculations(Request $request): JsonResponse
                     class="text-h5"
                     :class="
                       getRoiColor(
-                        results.roi_comparison[strategy].roi_percentage
+                        results.roi_comparison[strategy].roi_percentage,
                       )
                     "
                   >
@@ -773,8 +773,8 @@ const results = ref(null);
 const calculate = async () => {
   try {
     const response = await api.post(
-      "/api/v1/workforce-planning/roi-calculator/calculate",
-      params.value
+      "//api/workforce-planning/roi-calculator/calculate",
+      params.value,
     );
     results.value = response.data.data;
   } catch (error) {
@@ -812,12 +812,12 @@ const formatCost = (cost: number): string => {
 
 ### Backend - Nuevos Endpoints (3)
 
-#### 1. GET `/api/v1/workforce-planning/scenarios/{id}/gaps-for-assignment`
+#### 1. GET `//api/workforce-planning/scenarios/{id}/gaps-for-assignment`
 
 ```php
 /**
  * Obtener brechas listas para asignar estrategia
- * GET /api/v1/workforce-planning/scenarios/{id}/gaps-for-assignment
+ * GET //api/workforce-planning/scenarios/{id}/gaps-for-assignment
  */
 public function getGapsForAssignment($scenarioId, Request $request): JsonResponse
 {
@@ -861,12 +861,12 @@ public function getGapsForAssignment($scenarioId, Request $request): JsonRespons
 }
 ```
 
-#### 2. POST `/api/v1/workforce-planning/strategies/assign`
+#### 2. POST `//api/workforce-planning/strategies/assign`
 
 ```php
 /**
  * Asignar estrategia a un gap
- * POST /api/v1/workforce-planning/strategies/assign
+ * POST //api/workforce-planning/strategies/assign
  */
 public function assignStrategy(Request $request): JsonResponse
 {
@@ -902,12 +902,12 @@ public function assignStrategy(Request $request): JsonResponse
 }
 ```
 
-#### 3. GET `/api/v1/workforce-planning/strategies/portfolio/{scenario_id}`
+#### 3. GET `//api/workforce-planning/strategies/portfolio/{scenario_id}`
 
 ```php
 /**
  * Obtener portafolio consolidado de estrategias
- * GET /api/v1/workforce-planning/strategies/portfolio/{scenario_id}
+ * GET //api/workforce-planning/strategies/portfolio/{scenario_id}
  */
 public function getStrategyPortfolio($scenarioId): JsonResponse
 {
@@ -1091,14 +1091,14 @@ const strategies = [
 
 const loadGaps = async () => {
   const response = await api.get(
-    `/api/v1/workforce-planning/scenarios/${scenarioId.value}/gaps-for-assignment`
+    `//api/workforce-planning/scenarios/${scenarioId.value}/gaps-for-assignment`,
   );
   gaps.value = response.data.data;
 };
 
 const saveAssignments = async () => {
   for (const gapId of selectedGaps.value) {
-    await api.post("/api/v1/workforce-planning/strategies/assign", {
+    await api.post("//api/workforce-planning/strategies/assign", {
       gap_id: gapId,
       strategy: assignments.value[gapId],
       reasoning: "Strategy assigned",
@@ -1107,7 +1107,7 @@ const saveAssignments = async () => {
   }
 
   const response = await api.get(
-    `/api/v1/workforce-planning/strategies/portfolio/${scenarioId.value}`
+    `//api/workforce-planning/strategies/portfolio/${scenarioId.value}`,
   );
   portfolio.value = response.data.data.portfolio;
   step.value = 3;
@@ -1170,14 +1170,13 @@ onMounted(() => loadGaps());
 ## 🎯 PRÓXIMOS PASOS INMEDIATOS
 
 1. **Agregar rutas en `/src/routes/api.php`**
-
-   - POST `/api/v1/workforce-planning/scenarios/{id}/simulate-growth`
-   - GET `/api/v1/workforce-planning/critical-positions`
-   - POST `/api/v1/workforce-planning/roi-calculator/calculate`
-   - GET `/api/v1/workforce-planning/roi-calculator/scenarios`
-   - GET `/api/v1/workforce-planning/scenarios/{id}/gaps-for-assignment`
-   - POST `/api/v1/workforce-planning/strategies/assign`
-   - GET `/api/v1/workforce-planning/strategies/portfolio/{scenario_id}`
+   - POST `//api/workforce-planning/scenarios/{id}/simulate-growth`
+   - GET `//api/workforce-planning/critical-positions`
+   - POST `//api/workforce-planning/roi-calculator/calculate`
+   - GET `//api/workforce-planning/roi-calculator/scenarios`
+   - GET `//api/workforce-planning/scenarios/{id}/gaps-for-assignment`
+   - POST `//api/workforce-planning/strategies/assign`
+   - GET `//api/workforce-planning/strategies/portfolio/{scenario_id}`
 
 2. **Crear migraciones si falta `strategy_assignments`**
 

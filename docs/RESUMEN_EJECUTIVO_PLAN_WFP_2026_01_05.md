@@ -115,8 +115,8 @@ TOTAL:                      18-24 HORAS ✅ 50% AHORRO
 **Backend Nuevos:**
 
 ```
-POST /api/v1/workforce-planning/scenarios/{id}/simulate-growth
-GET  /api/v1/workforce-planning/critical-positions
+POST //api/workforce-planning/scenarios/{id}/simulate-growth
+GET  //api/workforce-planning/critical-positions
 ```
 
 **Impacto:**
@@ -140,8 +140,8 @@ GET  /api/v1/workforce-planning/critical-positions
 **Backend Nuevos:**
 
 ```
-POST /api/v1/workforce-planning/roi-calculator/calculate
-GET  /api/v1/workforce-planning/roi-calculator/scenarios
+POST //api/workforce-planning/roi-calculator/calculate
+GET  //api/workforce-planning/roi-calculator/scenarios
 ```
 
 **Impacto:**
@@ -164,9 +164,9 @@ GET  /api/v1/workforce-planning/roi-calculator/scenarios
 **Backend Nuevos:**
 
 ```
-GET  /api/v1/workforce-planning/scenarios/{id}/gaps-for-assignment
-POST /api/v1/workforce-planning/strategies/assign
-GET  /api/v1/workforce-planning/strategies/portfolio/{scenario_id}
+GET  //api/workforce-planning/scenarios/{id}/gaps-for-assignment
+POST //api/workforce-planning/strategies/assign
+GET  //api/workforce-planning/strategies/portfolio/{scenario_id}
 ```
 
 **Impacto:**
@@ -254,8 +254,8 @@ GET  /api/v1/workforce-planning/strategies/portfolio/{scenario_id}
 ### Crear (3 archivos)
 
 ```
-1. /src/app/Http/Controllers/Api/V1/RoiCalculatorController.php
-2. /src/app/Http/Controllers/Api/V1/StrategyController.php
+1. /src/app/Http/Controllers//api/RoiCalculatorController.php
+2. /src/app/Http/Controllers//api/StrategyController.php
 3. /src/resources/js/pages/WorkforcePlanning/RoiCalculator.vue
 4. /src/resources/js/pages/WorkforcePlanning/StrategyAssigner.vue
 ```
@@ -264,7 +264,7 @@ GET  /api/v1/workforce-planning/strategies/portfolio/{scenario_id}
 
 ```
 1. /src/routes/api.php (agregar 7 rutas)
-2. /src/app/Http/Controllers/Api/V1/WorkforcePlanningController.php (agregar 2 métodos)
+2. /src/app/Http/Controllers//api/WorkforcePlanningController.php (agregar 2 métodos)
 3. /src/resources/js/pages/WorkforcePlanning/OverviewDashboard.vue (extender con 2 tabs)
 ```
 

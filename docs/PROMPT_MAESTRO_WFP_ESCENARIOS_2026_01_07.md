@@ -1,12 +1,14 @@
 # Strato — PROMPT MAESTRO PARA COPILOT
+
 ## Módulo: Workforce Planning (WFP) con Escenarios, Scopes, 7 pasos, estados y versionamiento inmutable
 
 **Fecha de creación:** 7 Enero 2026  
-**Status:** Blueprint para implementación  
+**Status:** Blueprint para implementación
 
 ---
 
 ### 0) CONTEXTO
+
 Estoy desarrollando Strato (Laravel + PostgreSQL, Vue 3 + TS + Vuetify). Multi-tenant: todo dato debe aislarse por `organization_id`.
 
 Este desarrollo NO reemplaza el Workforce Planning actual (baseline). Es una **sub-funcionalidad avanzada** dentro de WFP: "Planificación por Escenarios" que coexiste con el baseline.
@@ -14,6 +16,7 @@ Este desarrollo NO reemplaza el Workforce Planning actual (baseline). Es una **s
 ---
 
 ### 1) PRINCIPIOS DE DISEÑO (OBLIGATORIOS)
+
 1. Multi-tenant enforce: todas las queries y endpoints deben filtrar por `organization_id` del usuario autenticado.
 2. Escenarios "what-if" vs "en marcha": separar **estado de decisión** y **estado de ejecución**.
 3. Escenarios segmentados: no todos los escenarios son globales; pueden aplicar a áreas / familias de roles.
@@ -27,7 +30,9 @@ Este desarrollo NO reemplaza el Workforce Planning actual (baseline). Es una **s
 ---
 
 ### 2) METODOLOGÍA "7 PASOS" (PRODUCTIZADA)
+
 El escenario debe guiar al usuario con un stepper/workflow:
+
 1. Alcance y supuestos (scope + horizonte + drivers)
 2. Inventario (Supply) — foto actual (por scope)
 3. Demanda futura (Demand) — headcount + nivel requerido (por scope)
@@ -41,7 +46,9 @@ Guardar progreso: `current_step` (1..7) y opcional checklist por paso.
 ---
 
 ### 3) MODELO DE ALCANCE (SCOPE) — ESCENARIOS SEGMENTADOS
+
 Implementar scope explícito. Un escenario puede:
+
 - ser global (`organization`)
 - ser por `department`
 - ser por `role_family`
@@ -51,8 +58,11 @@ MVP: soportar 1 scope principal por escenario (en `workforce_scenarios.scope_typ
 ---
 
 ### 4) ESTADOS (LIFECYCLE) — DOS CAPAS
+
 #### 4.1 Estado de decisión (governance)
+
 `draft`, `simulated`, `proposed`, `approved`, `archived`, `rejected` (opcional)
+
 - `draft`: se edita
 - `simulated`: ya calculó gaps (what-if)
 - `proposed`: listo para revisión/aprobación
@@ -61,17 +71,20 @@ MVP: soportar 1 scope principal por escenario (en `workforce_scenarios.scope_typ
 - `rejected`: descartado (opcional)
 
 #### 4.2 Estado de ejecución (delivery)
+
 `not_started`, `in_progress`, `paused`, `completed`
 Reglas:
+
 - Si `decision_status != approved` => `execution_status` debe ser `not_started`
 - Si `execution_status == completed` => `decision_status` debe ser `approved` (o `archived`)
 
 ---
 
 ### 5) VERSIONAMIENTO (OPCIÓN 1) — INMUTABLE
+
 - Un escenario aprobado no se modifica.
 - Para cambiarlo, se crea nueva versión `draft` (clon profundo).
-Campos:
+  Campos:
 - `version_group_id` (UUID) agrupa versiones del mismo plan
 - `version_number` int incremental
 - `is_current_version` boolean (solo una true por group)
@@ -80,9 +93,11 @@ Campos:
 ---
 
 ### 6) MIGRACIONES (POSTGRES)
+
 Crear/ajustar tablas:
 
 #### 6.1 workforce_scenarios (agregar campos)
+
 ```sql
 -- Campos a agregar/modificar en workforce_scenarios
 parent_id bigint nullable FK workforce_scenarios.id
@@ -106,13 +121,16 @@ owner_id bigint nullable FK users.id
 ```
 
 #### 6.2 skills (agregar campos)
+
 ```sql
 scope_type enum('transversal','domain','specific') default 'domain'
 domain_tag string nullable  -- ej "Ventas", "TI", "Legal"
 ```
 
 #### 6.3 scenario_templates (global, no tenant)
+
 Mantener plantillas globales con config JSON. Deben poder sugerir:
+
 - lista de skills transversales y domain (por industry)
 - KPIs
 - estrategias sugeridas
@@ -120,6 +138,7 @@ Mantener plantillas globales con config JSON. Deben poder sugerir:
 - "skills obligatorias" (transversales) para padre
 
 #### 6.4 scenario_skill_demands
+
 ```sql
 CREATE TABLE scenario_skill_demands (
     id bigserial PRIMARY KEY,
@@ -141,6 +160,7 @@ CREATE TABLE scenario_skill_demands (
 ```
 
 #### 6.5 scenario_closure_strategies
+
 ```sql
 CREATE TABLE scenario_closure_strategies (
     id bigserial PRIMARY KEY,
@@ -164,6 +184,7 @@ CREATE TABLE scenario_closure_strategies (
 ```
 
 #### 6.6 scenario_milestones
+
 ```sql
 CREATE TABLE scenario_milestones (
     id bigserial PRIMARY KEY,
@@ -181,6 +202,7 @@ CREATE TABLE scenario_milestones (
 ```
 
 #### 6.7 scenario_status_events (auditoría)
+
 ```sql
 CREATE TABLE scenario_status_events (
     id bigserial PRIMARY KEY,
@@ -200,27 +222,33 @@ CREATE TABLE scenario_status_events (
 ### 7) MODELOS ELOQUENT + POLICIES
 
 **WorkforceScenario:**
+
 - Relations: parent, children, skillDemands, closureStrategies, milestones, statusEvents
 - Casts: decision_status, execution_status, scope_type
 - Scopes: currentVersion(), byOrganization()
 
 **ScenarioTemplate:**
+
 - Global (sin organization_id)
 - JSON config para skills sugeridas
 
 **Skill:**
+
 - Agregar: scope_type, domain_tag
 
 **Policies:**
+
 - view/update/delete restricted por organization_id
 - update/delete bloqueado si decision_status == 'approved' (excepto acción createNewVersion)
 
 ---
 
 ### 8) SERVICIOS (BUSINESS LOGIC) — CENTRALIZAR
+
 Crear `WorkforcePlanningService` con métodos:
 
 #### 8.1 createScenarioFromTemplate(organization, template, payload)
+
 - crea escenario padre o hijo según payload
 - aplica `scope_type/scope_id`
 - si es hijo, asigna `parent_id`
@@ -230,11 +258,13 @@ Crear `WorkforcePlanningService` con métodos:
 - set current_step=1, decision_status='draft'
 
 #### 8.2 syncParentMandatorySkills(childScenario)
+
 - copiar (upsert) desde el padre todas las demands con `is_mandatory_from_parent=true`
 - marcar en hijo también como `is_mandatory_from_parent=true`
 - impedir que se eliminen en UI/API
 
 #### 8.3 calculateSupply(scenario)
+
 - calcular inventario desde person_skills:
   - headcount: count distinct user_id con current_level >= minLevel (default 2)
   - avg_level: avg(current_level)
@@ -242,9 +272,10 @@ Crear `WorkforcePlanningService` con métodos:
   - organization: todos users de org
   - department: users.department_id == scope_id (si existe)
   - role_family: roles.role_family_id o users.role_family_id (si existe)
-Si columnas/tablas no existen, degradar con fallback sin romper (MVP), pero dejar TODO centralizado para adaptar luego.
+    Si columnas/tablas no existen, degradar con fallback sin romper (MVP), pero dejar TODO centralizado para adaptar luego.
 
 #### 8.4 calculateScenarioGaps(scenario)
+
 - para cada demand:
   - actualiza current_headcount, current_avg_level
   - gap_headcount = max(0, required_headcount - current_headcount)
@@ -253,17 +284,21 @@ Si columnas/tablas no existen, degradar con fallback sin romper (MVP), pero deja
 - al finalizar, si decision_status == 'draft' puede pasar a 'simulated' por acción explícita (no automático)
 
 #### 8.5 recommendStrategiesForGap(scenario, gap, preferences)
+
 MVP reglas:
+
 - si gap_headcount grande y time_pressure high => buy + borrow
 - si gap_level alto pero gap_headcount bajo => build
 - si budget_sensitivity high => build + bind + bridge
 - si automation_allowed => bot sugerido
 
 #### 8.6 refreshSuggestedStrategies(scenario, preferences)
+
 - crea estrategias `proposed` sin duplicar (skill_id + strategy)
 - prohibido si scenario approved
 
 #### 8.7 transitionDecisionStatus(scenario, toStatus, user, notes)
+
 - valida transiciones (draft->simulated->proposed->approved->archived)
 - al aprobar:
   - decision_status='approved'
@@ -276,10 +311,12 @@ MVP reglas:
   - no hay al menos 1 estrategia approved (o regla MVP: al menos 1 propuesta)
 
 #### 8.8 startExecution / pauseExecution / completeExecution
+
 - solo si decision_status == approved
 - log event
 
 #### 8.9 createNewVersion(originalApprovedScenario, user, notes)
+
 - solo si original decision_status == approved
 - clon profundo:
   - replicate scenario, set version_number+1, new id, decision_status='draft', execution_status='not_started'
@@ -293,7 +330,9 @@ MVP reglas:
 - retornar nueva versión
 
 #### 8.10 roll-up parent (consolidación)
+
 `consolidateParent(parentScenario)`:
+
 - considera SOLO hijos `is_current_version=true`
 - agrega métricas:
   - coverage promedio ponderado
@@ -304,36 +343,37 @@ MVP reglas:
 ---
 
 ### 9) API (LARAVEL) — ENDPOINTS
-Versionar rutas: `/api/v1/...`
+
+Versionar rutas: `//api/...`
 
 ```php
 // Templates
-GET /api/v1/scenario-templates
+GET //api/scenario-templates
 
 // Scenarios CRUD
-POST /api/v1/workforce-scenarios (crear)
-POST /api/v1/workforce-scenarios/{id}/from-template
-GET /api/v1/workforce-scenarios (listar por tenant + filtros)
-GET /api/v1/workforce-scenarios/{id}
-PATCH /api/v1/workforce-scenarios/{id} (solo si no approved)
-DELETE /api/v1/workforce-scenarios/{id} (solo si no approved)
+POST //api/workforce-scenarios (crear)
+POST //api/workforce-scenarios/{id}/from-template
+GET //api/workforce-scenarios (listar por tenant + filtros)
+GET //api/workforce-scenarios/{id}
+PATCH //api/workforce-scenarios/{id} (solo si no approved)
+DELETE //api/workforce-scenarios/{id} (solo si no approved)
 
 // Workflow & Analysis
-POST /api/v1/workforce-scenarios/{id}/simulate (calculate gaps y set decision_status=simulated)
-POST /api/v1/workforce-scenarios/{id}/refresh-suggested-strategies
+POST //api/workforce-scenarios/{id}/simulate (calculate gaps y set decision_status=simulated)
+POST //api/workforce-scenarios/{id}/refresh-suggested-strategies
 
 // State Management
-POST /api/v1/workforce-scenarios/{id}/decision-status (transition)
-POST /api/v1/workforce-scenarios/{id}/execution/start
-POST /api/v1/workforce-scenarios/{id}/execution/pause
-POST /api/v1/workforce-scenarios/{id}/execution/complete
+POST //api/workforce-scenarios/{id}/decision-status (transition)
+POST //api/workforce-scenarios/{id}/execution/start
+POST //api/workforce-scenarios/{id}/execution/pause
+POST //api/workforce-scenarios/{id}/execution/complete
 
 // Versioning
-POST /api/v1/workforce-scenarios/{id}/versions (createNewVersion)
-GET /api/v1/workforce-scenarios/{id}/versions (listar por version_group_id)
+POST //api/workforce-scenarios/{id}/versions (createNewVersion)
+GET //api/workforce-scenarios/{id}/versions (listar por version_group_id)
 
 // Hierarchy
-GET /api/v1/workforce-scenarios/{id}/rollup (si es padre)
+GET //api/workforce-scenarios/{id}/rollup (si es padre)
 ```
 
 FormRequests para validación y Policies para authorize.
@@ -343,11 +383,13 @@ FormRequests para validación y Policies para authorize.
 ### 10) FRONTEND (VUE 3 + VUETIFY) — UX CLAVE
 
 **Rutas:**
+
 - /workforce-planning (baseline dashboard)
 - /workforce-planning/scenarios (lista)
 - /workforce-planning/scenarios/:id (detalle con stepper)
 
 **UI:**
+
 - **Lista**: chips doble estado (decision/execution), filtros por scope y status
 - **Detalle**: `v-stepper` (7 pasos), con guardrails:
   - si approved => todo disabled y mostrar botón "Crear nueva versión"
@@ -358,12 +400,15 @@ FormRequests para validación y Policies para authorize.
 ---
 
 ### 11) SEEDERS (DEMO)
+
 Crear seeds:
 
 **ScenarioTemplatesSeeder:**
+
 - Templates: AI Adoption (transversal), E-commerce growth (domain), Digital transformation
 
 **Demo org TechCorp:**
+
 - Escenario padre: "Transformación Digital 2026" (scope organization)
   - skills transversales mandatory: Ética en IA, Data Literacy básica
 - Escenario hijo: "Incremento ventas online" (scope department Ventas)
@@ -374,7 +419,9 @@ Crear seeds:
 ---
 
 ### 12) TESTS (MÍNIMOS)
+
 Feature tests:
+
 - tenant isolation
 - cannot update approved scenario (demands/strategies)
 - createNewVersion clones relationships
