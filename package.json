@@ -1,5 +1,13 @@
 {
+  "scripts": {
+    "format": "npx prettier --no-plugin-search --write \"src/**/*.{js,ts,vue,css,scss,json,md}\"",
+    "lint": "npx eslint \"src/**/*.{js,ts,vue}\" --ext .js,.ts,.vue",
+    "lint:fix": "npx eslint \"src/**/*.{js,ts,vue}\" --ext .js,.ts,.vue --fix"
+  },
   "dependencies": {
     "puppeteer": "^24.35.0"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3"
   }
 }
