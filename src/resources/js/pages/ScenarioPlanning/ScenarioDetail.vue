@@ -143,6 +143,7 @@ const loadScenario = async () => {
     const response = await api.get(`/api/strategic-planning/scenarios/${scenarioId.value}`)
     const data = (response as any)?.data ?? response
     scenario.value = data
+    // scenario payload loaded
     currentStep.value = scenario.value?.current_step || 1
     // populate simple form data for step1
     formData.value.name = scenario.value?.name ?? ''

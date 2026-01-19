@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CatalogsController;
 use App\Http\Controllers\Api\V1\WorkforcePlanningController;
+use Illuminate\Http\Request;
 
 /* // Catálogos dinámicos para selectores
 Route::get('/catalogs', function (Illuminate\Http\Request $request) {
@@ -92,6 +93,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
     Route::get('/strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
     Route::get('/strategic-planning/scenarios/{id}/capability-tree', [\App\Http\Controllers\Api\ScenarioController::class, 'getCapabilityTree']);
+});
+
+// Dev-only: accept saved positions for prototype mapping (no auth)
+Route::post('/strategic-planning/scenarios/{id}/capability-tree/save-positions', function (Request $request, $id) {
+    // For development, just log and return ok. Persisting should be implemented in a service.
+    \Log::info('Saving capability positions for scenario ' . $id, ['positions' => $request->input('positions')]);
+    return response()->json(['status' => 'ok']);
 });
 
 // Dev-only endpoint removed: use canonical `/strategic-planning/scenarios` with auth:sanctum
