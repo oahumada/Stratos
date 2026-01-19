@@ -11,13 +11,13 @@ class WorkforcePlanFactory extends Factory
 
     public function definition(): array
     {
-        $start = $this->faker->dateTimeBetween('now', '+1 month');
-        $end = (clone $start)->modify('+6 months');
+        $start = now();
+        $end = (clone $start)->addMonths(6);
 
         return [
             'organization_id' => 1,
-            'name' => $this->faker->sentence(3),
-            'description' => $this->faker->paragraph(),
+            'name' => 'Workforce Plan ' . uniqid(),
+            'description' => 'Auto-generated workforce plan for tests',
             'start_date' => $start->format('Y-m-d'),
             'end_date' => $end->format('Y-m-d'),
             'planning_horizon_months' => 12,

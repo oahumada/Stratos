@@ -100,6 +100,8 @@ Route::prefix('v1')->group(function () {
         Route::patch('workforce-scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'updateScenario']);
         Route::post('workforce-scenarios/{template_id}/instantiate-from-template', [\App\Http\Controllers\Api\ScenarioController::class, 'instantiateFromTemplate']);
         Route::post('workforce-scenarios/{id}/calculate-gaps', [\App\Http\Controllers\Api\ScenarioController::class, 'calculateGaps']);
+        Route::post('workforce-scenarios/{id}/refresh-suggested-strategies', [\App\Http\Controllers\Api\ScenarioController::class, 'refreshSuggestedStrategies']);
+        Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
     });
 });
 

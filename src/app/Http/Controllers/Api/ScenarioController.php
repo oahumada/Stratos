@@ -251,6 +251,7 @@ class ScenarioController extends Controller
 
         return response()->json([
             'success' => true,
+            'message' => 'Scenario instantiated from template',
             'data' => array_merge($scenario, ['skill_demands' => $skillDemands, 'template_id' => $template->id]),
         ], 201);
     }
@@ -264,19 +265,45 @@ class ScenarioController extends Controller
         if (!$scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
         }
+        // Use service to build a proper gap structure
+        $service = app(\App\Services\ScenarioService::class);
+        $payload = $service->calculateScenarioGaps($scenario);
 
-        $result = [
-            'scenario_id' => $scenario->id,
-            'generated_at' => now()->toDateTimeString(),
-            'summary' => [
-                'total_skills' => 0,
-                'critical_skills' => 0,
-                'avg_coverage_pct' => 0,
-                'risk_score' => 0,
-            ],
-            'gaps' => [],
-        ];
+        return response()->json(['success' => true, 'data' => $payload]);
+    }
 
-        return response()->json(['success' => true, 'data' => $result]);
+    /**
+     * API: Generate suggested strategies for scenario (minimal implementation for tests)
+     */
+    public function refreshSuggestedStrategies($id, Request $request): JsonResponse
+    {
+        $scenario = $this->scenarioRepo->getScenarioById((int) $id);
+        if (!$scenario) {
+            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+        }
+
+        // Tenant isolation
+        if ($scenario->organization_id !== auth()->user()->organization_id) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        $created = 0;
+        // Create a simple proposed strategy per demanded skill
+        foreach (\App\Models\ScenarioSkillDemand::where('scenario_id', $scenario->id)->get() as $d) {
+            $id = DB::table('scenario_closure_strategies')->insertGetId([
+                'scenario_id' => $scenario->id,
+                'skill_id' => $d->skill_id,
+                'strategy' => 'build',
+                'strategy_name' => 'Auto suggested',
+                'description' => 'Auto-generated suggested strategy',
+                'status' => 'proposed',
+                'created_at' => now()->toDateTimeString(),
+                'updated_at' => now()->toDateTimeString(),
+            ]);
+            if ($id)
+                $created++;
+        }
+
+        return response()->json(['success' => true, 'message' => 'Suggested strategies refreshed', 'created' => $created]);
     }
 }

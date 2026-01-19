@@ -86,4 +86,49 @@ class ScenarioService
             'total_children' => $scenario->children()->count() ?? 0,
         ];
     }
+
+    /**
+     * Calculate scenario gaps and return a structured summary used by tests.
+     */
+    public function calculateScenarioGaps(StrategicPlanningScenarios $scenario): array
+    {
+        $demands = $scenario->skillDemands()->with('skill')->get();
+
+        $gaps = [];
+        $totalSkills = $demands->count();
+        $critical = 0;
+        $coverageSum = 0.0;
+
+        foreach ($demands as $d) {
+            $current = $d->current_headcount ?? 0;
+            $required = $d->required_headcount ?? 0;
+            $gap = max(0, $required - $current);
+            $coverage = $required > 0 ? round(($current / $required) * 100, 1) : 0.0;
+            $coverageSum += $coverage;
+            if ($d->priority === 'critical')
+                $critical++;
+
+            $gaps[] = [
+                'skill_id' => $d->skill_id,
+                'skill_name' => $d->skill?->name ?? null,
+                'priority' => $d->priority,
+                'gap_headcount' => $gap,
+                'coverage_pct' => $coverage,
+            ];
+        }
+
+        $avgCoverage = $totalSkills > 0 ? round($coverageSum / $totalSkills, 1) : 0.0;
+
+        return [
+            'scenario_id' => $scenario->id,
+            'generated_at' => now()->toDateTimeString(),
+            'summary' => [
+                'total_skills' => $totalSkills,
+                'critical_skills' => $critical,
+                'risk_score' => 0, // placeholder
+                'avg_coverage_pct' => $avgCoverage,
+            ],
+            'gaps' => $gaps,
+        ];
+    }
 }
