@@ -30,13 +30,17 @@ const { currentTheme, setTheme, themeOptions } = useTheme();
                 >
                     <template v-slot:prepend>
                         <div class="theme-preview">
-                            <div 
-                                class="color-square" 
-                                :style="{ backgroundColor: theme.colors.primary }"
+                            <div
+                                class="color-square"
+                                :style="{
+                                    backgroundColor: theme.colors.primary,
+                                }"
                             />
-                            <div 
-                                class="color-square" 
-                                :style="{ backgroundColor: theme.colors.secondary }"
+                            <div
+                                class="color-square"
+                                :style="{
+                                    backgroundColor: theme.colors.secondary,
+                                }"
                             />
                         </div>
                     </template>

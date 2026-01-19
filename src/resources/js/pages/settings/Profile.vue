@@ -85,7 +85,8 @@ const user = page.props.auth.user;
                                 as="button"
                                 class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                             >
-                                Haga clic aquí para reenviar "link de reset" a su correo.
+                                Haga clic aquí para reenviar "link de reset" a
+                                su correo.
                             </Link>
                         </p>
 
@@ -93,7 +94,8 @@ const user = page.props.auth.user;
                             v-if="status === 'verification-link-sent'"
                             class="mt-2 text-sm font-medium text-green-600"
                         >
-                            Un nuevo link de verificación a sido enviado a su dirección de correo.
+                            Un nuevo link de verificación a sido enviado a su
+                            dirección de correo.
                         </div>
                     </div>
 

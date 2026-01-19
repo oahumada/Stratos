@@ -1,3 +1,3 @@
 <script lang="ts">
-export { default } from '@/components/WorkforcePlanning/ScenarioStepperComponent.vue'
+export { default } from '@/components/WorkforcePlanning/ScenarioStepperComponent.vue';
 </script>

@@ -1,13 +1,13 @@
 {
-  "endpoints": {
-    "index": "/api/roles",
-    "apiUrl": "/api/roles"
-  },
-  "titulo": "Roles Management",
-  "descripcion": "View and manage company roles",
-  "permisos": {
-    "crear": true,
-    "editar": true,
-    "eliminar": true
-  }
+    "endpoints": {
+        "index": "/api/roles",
+        "apiUrl": "/api/roles"
+    },
+    "titulo": "Roles Management",
+    "descripcion": "View and manage company roles",
+    "permisos": {
+        "crear": true,
+        "editar": true,
+        "eliminar": true
+    }
 }

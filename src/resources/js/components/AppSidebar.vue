@@ -1,4 +1,5 @@
-adelante<script setup lang="ts">
+adelante
+<script setup lang="ts">
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -14,16 +15,28 @@ import {
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Star, User } from 'lucide-vue-next';
-import AppLogo from './AppLogo.vue';
 import { defineComponent, h } from 'vue';
 import { VIcon } from 'vuetify/components';
+import AppLogo from './AppLogo.vue';
 
-const SkillsIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-star-circle', size: 20 }));
-const GapAnalysisIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-chart-line', size: 20 }));
-const MarketplaceIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-briefcase-search', size: 20 }));
-const WorkforcePlanningIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-chart-timeline-variant', size: 20 }));
-const PeopleExperienceIcon = defineComponent(() => () => h(VIcon, { icon: 'mdi-account-group', size: 20 }));
-const Talento360Icon = defineComponent(() => () => h(VIcon, { icon: 'mdi-account-convert', size: 20 }));
+const SkillsIcon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-star-circle', size: 20 }),
+);
+const GapAnalysisIcon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-chart-line', size: 20 }),
+);
+const MarketplaceIcon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-briefcase-search', size: 20 }),
+);
+const WorkforcePlanningIcon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-chart-timeline-variant', size: 20 }),
+);
+const PeopleExperienceIcon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-account-group', size: 20 }),
+);
+const Talento360Icon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-account-convert', size: 20 }),
+);
 
 const mainNavItems: NavItem[] = [
     {
@@ -66,12 +79,12 @@ const mainNavItems: NavItem[] = [
         href: '/scenario-planning',
         icon: WorkforcePlanningIcon,
     },
-     {
+    {
         title: 'Talento 360°',
         href: '/strategic-planning',
         icon: Talento360Icon,
     },
-     {
+    {
         title: 'People Experience',
         href: '/strategic-planning',
         icon: PeopleExperienceIcon,

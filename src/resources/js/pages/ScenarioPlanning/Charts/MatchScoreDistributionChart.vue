@@ -1,115 +1,119 @@
 <template>
-  <div class="w-100">
-    <v-progress-linear v-if="loading" indeterminate class="mb-4"></v-progress-linear>
-    <apexchart
-      v-if="hasData"
-      type="area"
-      :options="chartOptions"
-      :series="chartSeries"
-      height="300"
-    />
-    <div v-else class="text-center pa-4">
-      <p class="text-subtitle-2">No data available</p>
+    <div class="w-100">
+        <v-progress-linear
+            v-if="loading"
+            indeterminate
+            class="mb-4"
+        ></v-progress-linear>
+        <apexchart
+            v-if="hasData"
+            type="area"
+            :options="chartOptions"
+            :series="chartSeries"
+            height="300"
+        />
+        <div v-else class="pa-4 text-center">
+            <p class="text-subtitle-2">No data available</p>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref } from 'vue';
 
 interface Props {
-  scores: number[]
-  title?: string
+    scores: number[];
+    title?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  title: 'Match Score Distribution'
-})
+    title: 'Match Score Distribution',
+});
 
-const loading = ref(false)
+const loading = ref(false);
 
-const hasData = computed(() => props.scores.length > 0)
+const hasData = computed(() => props.scores.length > 0);
 
 const getDistribution = () => {
-  const bins = {
-    '90-100': 0,
-    '80-89': 0,
-    '70-79': 0,
-    '60-69': 0,
-    '50-59': 0,
-    'Below 50': 0
-  }
+    const bins = {
+        '90-100': 0,
+        '80-89': 0,
+        '70-79': 0,
+        '60-69': 0,
+        '50-59': 0,
+        'Below 50': 0,
+    };
 
-  props.scores.forEach(score => {
-    if (score >= 90) bins['90-100']++
-    else if (score >= 80) bins['80-89']++
-    else if (score >= 70) bins['70-79']++
-    else if (score >= 60) bins['60-69']++
-    else if (score >= 50) bins['50-59']++
-    else bins['Below 50']++
-  })
+    props.scores.forEach((score) => {
+        if (score >= 90) bins['90-100']++;
+        else if (score >= 80) bins['80-89']++;
+        else if (score >= 70) bins['70-79']++;
+        else if (score >= 60) bins['60-69']++;
+        else if (score >= 50) bins['50-59']++;
+        else bins['Below 50']++;
+    });
 
-  return bins
-}
+    return bins;
+};
 
 const chartSeries = computed(() => {
-  const dist = getDistribution()
-  return [
-    {
-      name: 'Candidates',
-      data: Object.values(dist)
-    }
-  ]
-})
+    const dist = getDistribution();
+    return [
+        {
+            name: 'Candidates',
+            data: Object.values(dist),
+        },
+    ];
+});
 
 const chartOptions = computed(() => ({
-  chart: {
-    type: 'area',
-    toolbar: {
-      show: true,
-      tools: {
-        download: true,
-        selection: true,
-        zoom: true,
-        zoomin: true,
-        zoomout: true,
-        pan: true,
-        reset: true
-      }
-    }
-  },
-  dataLabels: {
-    enabled: false
-  },
-  stroke: {
-    curve: 'smooth',
-    width: 2,
-    colors: ['#42A5F5']
-  },
-  fill: {
-    type: 'gradient',
-    gradient: {
-      opacityFrom: 0.6,
-      opacityTo: 0.1
-    }
-  },
-  xaxis: {
-    categories: ['90-100', '80-89', '70-79', '60-69', '50-59', 'Below 50'],
-    title: {
-      text: 'Match Score Range'
-    }
-  },
-  yaxis: {
-    title: {
-      text: 'Number of Candidates'
-    }
-  },
-  tooltip: {
-    shared: true,
-    intersect: false,
-    y: {
-      formatter: (val: number) => val.toString() + ' candidates'
-    }
-  }
-}))
+    chart: {
+        type: 'area',
+        toolbar: {
+            show: true,
+            tools: {
+                download: true,
+                selection: true,
+                zoom: true,
+                zoomin: true,
+                zoomout: true,
+                pan: true,
+                reset: true,
+            },
+        },
+    },
+    dataLabels: {
+        enabled: false,
+    },
+    stroke: {
+        curve: 'smooth',
+        width: 2,
+        colors: ['#42A5F5'],
+    },
+    fill: {
+        type: 'gradient',
+        gradient: {
+            opacityFrom: 0.6,
+            opacityTo: 0.1,
+        },
+    },
+    xaxis: {
+        categories: ['90-100', '80-89', '70-79', '60-69', '50-59', 'Below 50'],
+        title: {
+            text: 'Match Score Range',
+        },
+    },
+    yaxis: {
+        title: {
+            text: 'Number of Candidates',
+        },
+    },
+    tooltip: {
+        shared: true,
+        intersect: false,
+        y: {
+            formatter: (val: number) => val.toString() + ' candidates',
+        },
+    },
+}));
 </script>

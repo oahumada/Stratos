@@ -2,13 +2,13 @@ import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createPinia } from 'pinia';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
-import { createPinia } from 'pinia';
 import VueApexCharts from 'vue3-apexcharts';
+import { initializeTheme } from './composables/useAppearance';
 import AppLayout from './layouts/AppLayout.vue';
 import vuetify from './plugins/vuetify';
-import { initializeTheme } from './composables/useAppearance';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const pinia = createPinia();

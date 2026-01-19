@@ -18,17 +18,17 @@ const { getInitials } = useInitials();
 
 // Provide a safe computed `user` so template never crashes when prop is null
 const user = computed(() => {
-    return (
-        props.user ?? {
-            name: 'Usuario',
-            email: '',
-            avatar: '',
-        }
-    ) as User;
+    return (props.user ?? {
+        name: 'Usuario',
+        email: '',
+        avatar: '',
+    }) as User;
 });
 
 // Compute whether we should show the avatar image (safe access)
-const showAvatar = computed(() => !!user.value.avatar && user.value.avatar !== '');
+const showAvatar = computed(
+    () => !!user.value.avatar && user.value.avatar !== '',
+);
 </script>
 
 <template>

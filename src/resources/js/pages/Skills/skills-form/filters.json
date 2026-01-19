@@ -1,14 +1,14 @@
 [
-  {
-    "field": "name",
-    "type": "text",
-    "label": "Skill Name",
-    "placeholder": "Search by skill name"
-  },
-  {
-    "field": "category",
-    "type": "text",
-    "label": "Category",
-    "placeholder": "Search by category"
-  }
+    {
+        "field": "name",
+        "type": "text",
+        "label": "Skill Name",
+        "placeholder": "Search by skill name"
+    },
+    {
+        "field": "category",
+        "type": "text",
+        "label": "Category",
+        "placeholder": "Search by category"
+    }
 ]

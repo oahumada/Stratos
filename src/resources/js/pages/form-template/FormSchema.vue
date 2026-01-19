@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from "vue";
-import { post, put, remove, fetchCatalogs } from "@/apiHelper";
-import { useNotification } from "@kyvg/vue3-notification";
+import { fetchCatalogs, post, put, remove } from '@/apiHelper';
+import { usePage } from '@inertiajs/vue3';
+import { useNotification } from '@kyvg/vue3-notification';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useTheme as useVuetifyTheme } from 'vuetify';
-import FormData from "./FormData.vue";
-import { usePage } from "@inertiajs/vue3";
+import FormData from './FormData.vue';
 
 interface TableHeader {
     key: string;
@@ -17,7 +17,17 @@ interface TableHeader {
 
 interface FormField {
     key: string;
-    type: 'text' | 'select' | 'date' | 'time' | 'switch' | 'checkbox' | 'number' | 'email' | 'password' | 'textarea';
+    type:
+        | 'text'
+        | 'select'
+        | 'date'
+        | 'time'
+        | 'switch'
+        | 'checkbox'
+        | 'number'
+        | 'email'
+        | 'password'
+        | 'textarea';
     label: string;
     required?: boolean;
     rules?: Array<any>;
@@ -71,14 +81,16 @@ interface TableItem {
 }
 
 const page = usePage();
-const user = computed(() => (page.props.auth.user as any));
+const user = computed(() => page.props.auth.user as any);
 const { notify } = useNotification();
 const vuetifyTheme = useVuetifyTheme();
 
 // Convertir hex a RGB
 const hexToRgb = (hex: string): string => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})/i.exec(hex);
-    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '0, 0, 0';
+    return result
+        ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+        : '0, 0, 0';
 };
 
 // Get theme colors reactively
@@ -108,9 +120,9 @@ const dialogWarningGradient = computed(() => {
 });
 
 // mark some bindings referenced to avoid unused-var during refactor
-void user.value
-void hexToRgb
-void dialogWarningGradient.value
+void user.value;
+void hexToRgb;
+void dialogWarningGradient.value;
 
 const emit = defineEmits(['sync-role']);
 
@@ -125,9 +137,9 @@ const props = withDefaults(
     }>(),
     {
         config: () => ({
-            endpoints: { index: "", apiUrl: "" },
-            titulo: "Registros",
-            descripcion: "Manage your records",
+            endpoints: { index: '', apiUrl: '' },
+            titulo: 'Registros',
+            descripcion: 'Manage your records',
             permisos: { crear: true, editar: true, eliminar: true },
         }),
         tableConfig: () => ({
@@ -137,19 +149,19 @@ const props = withDefaults(
         itemForm: () => ({
             fields: [],
             catalogs: [] as any[],
-            layout: "single-column",
+            layout: 'single-column',
         }),
         filters: () => [],
         enableRowDetail: false,
-    }
+    },
 );
 
 // Merged configs
 const mergedConfig = computed<Config>(() => {
     const baseConfig: Config = {
-        endpoints: { index: "", apiUrl: "" },
-        titulo: "Registros",
-        descripcion: "Manage your records",
+        endpoints: { index: '', apiUrl: '' },
+        titulo: 'Registros',
+        descripcion: 'Manage your records',
         permisos: { crear: true, editar: true, eliminar: true },
         detail: false,
     };
@@ -168,7 +180,7 @@ const mergedItemForm = computed<ItemForm>(() => {
     const baseItemForm: ItemForm = {
         fields: [],
         catalogs: [] as any[],
-        layout: "single-column",
+        layout: 'single-column',
     };
     return { ...baseItemForm, ...(props.itemForm || {}) };
 });
@@ -184,19 +196,21 @@ const formDataRef = ref<any>(null);
 const editingItem = ref<TableItem | null>(null);
 const itemToDelete = ref<TableItem | null>(null);
 const catalogs = ref<Record<string, CatalogItem[]>>({});
-const searchQuery = ref("");
+const searchQuery = ref('');
 const filterValues = reactive<Record<string, any>>({});
 const detailOpen = ref(false);
 const detailItem = ref<TableItem | null>(null);
-const detailTab = ref<'active' | 'history'>("active");
-const detailEnabled = computed(() => props.enableRowDetail || mergedConfig.value.detail === true);
+const detailTab = ref<'active' | 'history'>('active');
+const detailEnabled = computed(
+    () => props.enableRowDetail || mergedConfig.value.detail === true,
+);
 const setDetailTab = (value: 'active' | 'history') => {
     detailTab.value = value;
 };
 
 // Initialize filter values
 const initializeFilters = () => {
-    props.filters?.forEach(filter => {
+    props.filters?.forEach((filter) => {
         filterValues[filter.field] = null;
     });
 };
@@ -210,7 +224,7 @@ const loadItems = async () => {
 
     try {
         const response = await fetch(mergedConfig.value.endpoints.index, {
-            headers: { Accept: "application/json" },
+            headers: { Accept: 'application/json' },
         });
 
         const raw = await response.text();
@@ -223,21 +237,26 @@ const loadItems = async () => {
         try {
             parsed = raw ? JSON.parse(raw) : null;
         } catch (e) {
-            void e
-            throw new Error(`Respuesta no JSON (status ${response.status}): ${raw.slice(0, 200)}`);
+            void e;
+            throw new Error(
+                `Respuesta no JSON (status ${response.status}): ${raw.slice(0, 200)}`,
+            );
         }
 
         items.value = parsed?.data || parsed || [];
     } catch (err: any) {
-        error.value = err.message || "Failed to load records";
-        console.error("loadItems error", err);
+        error.value = err.message || 'Failed to load records';
+        console.error('loadItems error', err);
     } finally {
         loading.value = false;
     }
 };
 
 const loadCatalogs = async () => {
-    if (!mergedItemForm.value.catalogs || mergedItemForm.value.catalogs.length === 0) {
+    if (
+        !mergedItemForm.value.catalogs ||
+        mergedItemForm.value.catalogs.length === 0
+    ) {
         console.log('No catalogs to load');
         return;
     }
@@ -252,27 +271,31 @@ const loadCatalogs = async () => {
             departments: response.departments,
             roles: response.roles,
             skills: response.skills,
-            responseFull: response
+            responseFull: response,
         });
         console.log('Departments length:', response.departments?.length);
         console.log('Roles length:', response.roles?.length);
         catalogs.value = response;
         console.log('Catalogs assigned to state:', catalogs.value);
     } catch (err) {
-        console.error("Failed to load catalogs", err);
+        console.error('Failed to load catalogs', err);
     }
 };
 
 // Map filters with their catalog data
 const enrichedFilters = computed(() => {
-    return props.filters?.map(filter => {
-        const catalogName = filter.catalogKey;
-        const resolvedItems = filter.items ?? (catalogName ? catalogs.value[catalogName] || [] : []);
-        return {
-            ...filter,
-            items: resolvedItems,
-        };
-    }) || [];
+    return (
+        props.filters?.map((filter) => {
+            const catalogName = filter.catalogKey;
+            const resolvedItems =
+                filter.items ??
+                (catalogName ? catalogs.value[catalogName] || [] : []);
+            return {
+                ...filter,
+                items: resolvedItems,
+            };
+        }) || []
+    );
 });
 
 // Filtered items
@@ -282,10 +305,10 @@ const filteredItems = computed(() => {
     // Apply search
     if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase();
-        result = result.filter(item =>
-            Object.values(item).some(val =>
-                String(val).toLowerCase().includes(query)
-            )
+        result = result.filter((item) =>
+            Object.values(item).some((val) =>
+                String(val).toLowerCase().includes(query),
+            ),
         );
     }
 
@@ -309,29 +332,35 @@ const filteredItems = computed(() => {
         if (field.endsWith('_id')) {
             const relation = field.replace(/_id$/, '');
             const related = (item as any)?.[relation];
-            if (related && Object.prototype.hasOwnProperty.call(related, 'id')) {
+            if (
+                related &&
+                Object.prototype.hasOwnProperty.call(related, 'id')
+            ) {
                 return related.id;
             }
         }
         return undefined;
     };
 
-    props.filters?.forEach(filter => {
+    props.filters?.forEach((filter) => {
         const selected = filterValues[filter.field];
-        if (selected === null || selected === undefined || selected === '') return;
+        if (selected === null || selected === undefined || selected === '')
+            return;
 
         // Text filters: case-insensitive contains; others: strict match
         if (filter.type === 'text') {
             const selectedText = String(selected).toLowerCase();
-            result = result.filter(item => {
+            result = result.filter((item) => {
                 const itemValue = resolveItemValue(item, filter.field);
                 if (itemValue === null || itemValue === undefined) return false;
                 return String(itemValue).toLowerCase().includes(selectedText);
             });
         } else {
             const normalizedSelected = normalize(selected);
-            result = result.filter(item => {
-                const itemValue = normalize(resolveItemValue(item, filter.field));
+            result = result.filter((item) => {
+                const itemValue = normalize(
+                    resolveItemValue(item, filter.field),
+                );
                 return itemValue === normalizedSelected;
             });
         }
@@ -360,7 +389,7 @@ const closeDialog = () => {
 
 const saveItem = async () => {
     if (!formDataRef.value?.validate()) {
-        notify({ type: "error", text: "Please fill all required fields" });
+        notify({ type: 'error', text: 'Please fill all required fields' });
         return;
     }
 
@@ -376,18 +405,21 @@ const saveItem = async () => {
         const body = { data: payload };
 
         if (editingItem.value && editingItem.value.id) {
-            await put(`${mergedConfig.value.endpoints.apiUrl}/${editingItem.value.id}`, body);
-            notify({ type: "success", text: "Record updated successfully" });
+            await put(
+                `${mergedConfig.value.endpoints.apiUrl}/${editingItem.value.id}`,
+                body,
+            );
+            notify({ type: 'success', text: 'Record updated successfully' });
         } else {
             await post(mergedConfig.value.endpoints.apiUrl, body);
-            notify({ type: "success", text: "Record created successfully" });
+            notify({ type: 'success', text: 'Record created successfully' });
         }
 
         closeDialog();
         loadItems();
     } catch (err: any) {
-        error.value = err.message || "Failed to save record";
-        notify({ type: "error", text: error.value || "Failed to save record" });
+        error.value = err.message || 'Failed to save record';
+        notify({ type: 'error', text: error.value || 'Failed to save record' });
         console.error(err);
     } finally {
         saving.value = false;
@@ -407,13 +439,18 @@ const deleteItem = async () => {
     error.value = null;
 
     try {
-        await remove(`${mergedConfig.value.endpoints.apiUrl}/${itemToDelete.value.id}`);
-        notify({ type: "success", text: "Record deleted successfully" });
+        await remove(
+            `${mergedConfig.value.endpoints.apiUrl}/${itemToDelete.value.id}`,
+        );
+        notify({ type: 'success', text: 'Record deleted successfully' });
         deleteDialogOpen.value = false;
         loadItems();
     } catch (err: any) {
-        error.value = err.message || "Failed to delete record";
-        notify({ type: "error", text: error.value || "Failed to delete record" });
+        error.value = err.message || 'Failed to delete record';
+        notify({
+            type: 'error',
+            text: error.value || 'Failed to delete record',
+        });
         console.error(err);
     } finally {
         saving.value = false;
@@ -421,8 +458,8 @@ const deleteItem = async () => {
 };
 
 const resetFilters = () => {
-    searchQuery.value = "";
-    Object.keys(filterValues).forEach(key => {
+    searchQuery.value = '';
+    Object.keys(filterValues).forEach((key) => {
         filterValues[key] = null;
     });
 };
@@ -492,7 +529,7 @@ const formatDate = (value: any): string => {
             return `${day}/${month}/${year}`;
         }
     } catch (e) {
-        void e
+        void e;
         return value;
     }
     return value;
@@ -501,12 +538,12 @@ const formatDate = (value: any): string => {
 // Helper function to get nested values (e.g., 'department.name')
 const getNestedValue = (obj: any, path: string) => {
     const value = path.split('.').reduce((current, key) => current?.[key], obj);
-    
+
     // Format dates as dd/mm/yyyy if the path contains 'date' or 'fecha'
     if (value && (path.includes('date') || path.includes('fecha'))) {
         return formatDate(value);
     }
-    
+
     return value;
 };
 
@@ -519,12 +556,26 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="pa-4" :style="{ '--table-gradient': tableHeaderGradient } as any">
+    <div
+        class="pa-4"
+        :style="{ '--table-gradient': tableHeaderGradient } as any"
+    >
         <!-- Header -->
-        <div class="d-flex justify-space-between align-center mb-4" :style="{ background: headerGradient }" style="padding: 1.5rem; border-radius: 8px;">
+        <div
+            class="d-flex justify-space-between align-center mb-4"
+            :style="{ background: headerGradient }"
+            style="padding: 1.5rem; border-radius: 8px"
+        >
             <div>
-                <h1 class="text-h4 font-weight-bold mb-2" style="color: white;">{{ mergedConfig.titulo }}</h1>
-                <p class="text-subtitle2" style="color: rgba(255,255,255,0.85);">{{ mergedConfig.descripcion }}</p>
+                <h1 class="text-h4 font-weight-bold mb-2" style="color: white">
+                    {{ mergedConfig.titulo }}
+                </h1>
+                <p
+                    class="text-subtitle2"
+                    style="color: rgba(255, 255, 255, 0.85)"
+                >
+                    {{ mergedConfig.descripcion }}
+                </p>
             </div>
             <v-btn
                 v-if="mergedConfig.permisos?.crear"
@@ -539,7 +590,11 @@ onMounted(() => {
         </div>
 
         <!-- Filters -->
-        <v-card v-if="filters && filters.length > 0" class="mb-4" variant="outlined">
+        <v-card
+            v-if="filters && filters.length > 0"
+            class="mb-4"
+            variant="outlined"
+        >
             <v-card-text>
                 <v-row dense>
                     <v-col cols="12" sm="6" :md="12 / (filters.length + 1)">
@@ -621,7 +676,7 @@ onMounted(() => {
 
         <!-- Loading & Error States -->
         <v-card v-if="loading" class="mb-4">
-            <v-card-text class="text-center py-8">
+            <v-card-text class="py-8 text-center">
                 <v-progress-circular indeterminate color="primary" />
                 <p class="mt-4">Loading records...</p>
             </v-card-text>
@@ -680,8 +735,10 @@ onMounted(() => {
 
                 <!-- No data -->
                 <template #no-data>
-                    <div class="text-center py-8 text-grey">
-                        <v-icon size="48" class="mb-4">mdi-inbox-outline</v-icon>
+                    <div class="text-grey py-8 text-center">
+                        <v-icon size="48" class="mb-4"
+                            >mdi-inbox-outline</v-icon
+                        >
                         <p>No records found</p>
                     </div>
                 </template>
@@ -698,14 +755,27 @@ onMounted(() => {
     >
         <v-card class="form-dialog" elevation="24">
             <!-- Header with gradient -->
-            <div class="dialog-header-gradient" :style="{ background: dialogHeaderGradient }">
-                <v-card-title class="text-white text-h5 font-weight-bold">
-                    <v-icon class="mr-2">{{ editingItem ? 'mdi-pencil' : 'mdi-plus-circle' }}</v-icon>
+            <div
+                class="dialog-header-gradient"
+                :style="{ background: dialogHeaderGradient }"
+            >
+                <v-card-title class="text-h5 font-weight-bold text-white">
+                    <v-icon class="mr-2">{{
+                        editingItem ? 'mdi-pencil' : 'mdi-plus-circle'
+                    }}</v-icon>
                     {{ editingItem ? 'Edit Record' : 'New Record' }}
                 </v-card-title>
             </div>
 
-            <v-card-text class="py-6" :style="{ '--form-primary': vuetifyTheme.global.current.value.colors.primary } as any">
+            <v-card-text
+                class="py-6"
+                :style="
+                    {
+                        '--form-primary':
+                            vuetifyTheme.global.current.value.colors.primary,
+                    } as any
+                "
+            >
                 <FormData
                     ref="formDataRef"
                     :fields="mergedItemForm.fields"
@@ -734,7 +804,9 @@ onMounted(() => {
                     variant="tonal"
                     :style="{ background: createBtnGradient, color: 'white' }"
                 >
-                    <v-icon left>{{ editingItem ? 'mdi-check-circle' : 'mdi-plus-circle' }}</v-icon>
+                    <v-icon left>{{
+                        editingItem ? 'mdi-check-circle' : 'mdi-plus-circle'
+                    }}</v-icon>
                     {{ editingItem ? 'Update' : 'Create' }}
                 </v-btn>
             </v-card-actions>
@@ -742,15 +814,12 @@ onMounted(() => {
     </v-dialog>
 
     <!-- Delete Confirmation Dialog -->
-    <v-dialog
-        v-model="deleteDialogOpen"
-        max-width="400px"
-    >
+    <v-dialog v-model="deleteDialogOpen" max-width="400px">
         <v-card>
             <v-card-title>Confirm Delete</v-card-title>
             <v-card-text>
                 Are you sure you want to delete this record?
-                <br>
+                <br />
                 <small class="text-error">This action cannot be undone.</small>
             </v-card-text>
             <v-card-actions>
@@ -762,11 +831,7 @@ onMounted(() => {
                 >
                     Cancel
                 </v-btn>
-                <v-btn
-                    color="error"
-                    @click="deleteItem"
-                    :loading="saving"
-                >
+                <v-btn color="error" @click="deleteItem" :loading="saving">
                     Delete
                 </v-btn>
             </v-card-actions>
@@ -782,13 +847,28 @@ onMounted(() => {
         scrim="transparent"
         transition="dialog-right-transition"
     >
-        <v-card class="pa-4" height="100%" style="min-height: 100vh; border-left: 1px solid var(--v-theme-surface-variant);">
+        <v-card
+            class="pa-4"
+            height="100%"
+            style="
+                min-height: 100vh;
+                border-left: 1px solid var(--v-theme-surface-variant);
+            "
+        >
             <div class="d-flex align-center justify-space-between mb-3">
                 <div>
-                    <div class="text-subtitle-1 font-weight-medium">Detalle</div>
-                    <div class="text-body-2 text-secondary">Registro seleccionado</div>
+                    <div class="text-subtitle-1 font-weight-medium">
+                        Detalle
+                    </div>
+                    <div class="text-body-2 text-secondary">
+                        Registro seleccionado
+                    </div>
                 </div>
-                <v-btn icon="mdi-close" variant="text" @click="detailOpen = false" />
+                <v-btn
+                    icon="mdi-close"
+                    variant="text"
+                    @click="detailOpen = false"
+                />
             </div>
 
             <div v-if="detailItem" class="d-flex flex-column gap-4">
@@ -798,13 +878,28 @@ onMounted(() => {
                     :tab="detailTab"
                     :set-tab="setDetailTab"
                     :sync="syncWithRole"
-                    :close="() => { detailOpen = false; }"
+                    :close="
+                        () => {
+                            detailOpen = false;
+                        }
+                    "
                 >
                     <v-card flat border class="pa-3">
-                        <div class="text-subtitle-2 mb-2">Detalle del registro</div>
-                        <div class="text-body-2 text-secondary mb-2">Personaliza este contenido usando el slot "detail".</div>
-                        <div class="d-flex flex-column gap-1" style="max-height: 320px; overflow: auto;">
-                            <div v-for="(value, key) in detailItem" :key="key" class="text-body-2">
+                        <div class="text-subtitle-2 mb-2">
+                            Detalle del registro
+                        </div>
+                        <div class="text-body-2 mb-2 text-secondary">
+                            Personaliza este contenido usando el slot "detail".
+                        </div>
+                        <div
+                            class="d-flex flex-column gap-1"
+                            style="max-height: 320px; overflow: auto"
+                        >
+                            <div
+                                v-for="(value, key) in detailItem"
+                                :key="key"
+                                class="text-body-2"
+                            >
                                 <strong>{{ key }}:</strong> {{ value }}
                             </div>
                         </div>
@@ -812,7 +907,9 @@ onMounted(() => {
                 </slot>
             </div>
 
-            <div v-else class="text-center text-secondary mt-6">Selecciona una fila para ver detalle.</div>
+            <div v-else class="mt-6 text-center text-secondary">
+                Selecciona una fila para ver detalle.
+            </div>
         </v-card>
     </v-dialog>
 </template>
@@ -840,7 +937,11 @@ onMounted(() => {
     right: -50%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 70%
+    );
     z-index: 0;
 }
 
@@ -864,7 +965,7 @@ onMounted(() => {
 
 :deep(.action-btn:focus-visible) {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(0,0,0,0.08);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
 }
 
 :deep(.v-data-table) {
@@ -922,7 +1023,10 @@ onMounted(() => {
 
 /* Desktop styles */
 :deep(.v-data-table thead tr) {
-    background: var(--table-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+    background: var(
+        --table-gradient,
+        linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    );
 }
 
 :deep(.v-data-table thead th) {

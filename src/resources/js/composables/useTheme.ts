@@ -55,7 +55,7 @@ export const themeOptions: ThemeOption[] = [
 export function useTheme() {
     const vuetifyTheme = useVuetifyTheme();
     const currentTheme = ref<ThemeName>(
-        (localStorage.getItem('app-theme') as ThemeName) || 'purple'
+        (localStorage.getItem('app-theme') as ThemeName) || 'purple',
     );
 
     const setTheme = (themeName: ThemeName) => {

@@ -1,3 +1,4 @@
 <script lang="ts">
-export { default } from '@/components/WorkforcePlanning/VersionHistoryModal.vue'
+import VersionHistoryModal from '@/components/WorkforcePlanning/VersionHistoryModal.vue';
+export default VersionHistoryModal;
 </script>

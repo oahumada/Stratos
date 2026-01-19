@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { login, register, dashboard } from '@/routes';
-import { Head, Link } from '@inertiajs/vue3';
-import { usePage } from '@inertiajs/vue3';
+import { dashboard, login, register } from '@/routes';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 const auth = page.props.auth as any;
@@ -13,7 +12,7 @@ const features = [
     'RESTful routing',
     'Cache for enhanced performance',
     'API ready',
-    'Deploy now'
+    'Deploy now',
 ];
 
 withDefaults(
@@ -31,18 +30,25 @@ withDefaults(
         <link rel="preconnect" href="https://rsms.me/" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     </Head>
-    
+
     <v-app>
         <!-- Main Container -->
-        <v-container class="h-screen d-flex flex-column pa-6 pa-md-8">
+        <v-container class="d-flex flex-column pa-6 pa-md-8 h-screen">
             <!-- Header Navigation -->
             <v-row no-gutters class="mb-8">
                 <v-col cols="12">
-                    <v-row align="center" justify="space-between" no-gutters class="w-100">
+                    <v-row
+                        align="center"
+                        justify="space-between"
+                        no-gutters
+                        class="w-100"
+                    >
                         <!-- Logo -->
                         <v-col cols="auto">
                             <Link href="/">
-                                <h1 class="text-h3 font-weight-bold text-decoration-none text-black dark:text-white">
+                                <h1
+                                    class="text-h3 font-weight-bold text-decoration-none text-black dark:text-white"
+                                >
                                     Strato
                                 </h1>
                             </Link>
@@ -99,22 +105,36 @@ withDefaults(
             </v-row>
 
             <!-- Main Content Row -->
-            <v-row class="flex-grow-1 align-center gap-12" no-gutters>
+            <v-row class="align-center flex-grow-1 gap-12" no-gutters>
                 <!-- Left Column: Heading and Description -->
-                <v-col cols="12" lg="6" class="d-flex flex-column justify-center">
-                    <h2 class="text-h2 font-weight-bold mb-6 text-black dark:text-white">
+                <v-col
+                    cols="12"
+                    lg="6"
+                    class="d-flex flex-column justify-center"
+                >
+                    <h2
+                        class="text-h2 font-weight-bold mb-6 text-black dark:text-white"
+                    >
                         Build faster with
                         <span
                             class="d-block font-weight-bold text-transparent"
-                            style="background: linear-gradient(to right, #F53003, #FDB022);
-                                   -webkit-background-clip: text;
-                                   -webkit-text-fill-color: transparent;
-                                   background-clip: text;"
+                            style="
+                                background: linear-gradient(
+                                    to right,
+                                    #f53003,
+                                    #fdb022
+                                );
+                                -webkit-background-clip: text;
+                                -webkit-text-fill-color: transparent;
+                                background-clip: text;
+                            "
                         >
                             Strato
                         </span>
                     </h2>
-                    <p class="text-h6 text-grey-darken-1 dark:text-grey-lighten-2 mb-4">
+                    <p
+                        class="text-h6 text-grey-darken-1 dark:text-grey-lighten-2 mb-4"
+                    >
                         Discover how Strato helps product teams do their
                         <br />
                         best work with less effort.
@@ -131,13 +151,15 @@ withDefaults(
                         class="text-decoration-none d-block mb-2"
                     >
                         <v-card
-                            class="hover:elevation-4 transition-all cursor-pointer rounded-md"
+                            class="hover:elevation-4 cursor-pointer rounded-md transition-all"
                             elevation="0"
                             border
                         >
-                            <v-card-text class="d-flex align-center gap-2 pa-3">
+                            <v-card-text class="d-flex align-center pa-3 gap-2">
                                 <v-icon size="small" icon="mdi-file-document" />
-                                <span class="text-black dark:text-white">Documentation</span>
+                                <span class="text-black dark:text-white"
+                                    >Documentation</span
+                                >
                                 <v-spacer />
                                 <v-icon size="small" icon="mdi-arrow-right" />
                             </v-card-text>
@@ -152,13 +174,15 @@ withDefaults(
                         class="text-decoration-none d-block mb-6"
                     >
                         <v-card
-                            class="hover:elevation-4 transition-all cursor-pointer rounded-md"
+                            class="hover:elevation-4 cursor-pointer rounded-md transition-all"
                             elevation="0"
                             border
                         >
-                            <v-card-text class="d-flex align-center gap-2 pa-3">
+                            <v-card-text class="d-flex align-center pa-3 gap-2">
                                 <v-icon size="small" icon="mdi-play-circle" />
-                                <span class="text-black dark:text-white">Interactive tutorials</span>
+                                <span class="text-black dark:text-white"
+                                    >Interactive tutorials</span
+                                >
                                 <v-spacer />
                                 <v-icon size="small" icon="mdi-arrow-right" />
                             </v-card-text>
@@ -167,7 +191,9 @@ withDefaults(
 
                     <!-- Features Chips -->
                     <div class="space-y-2">
-                        <div class="mb-2 text-overline text-grey-darken-1 dark:text-grey-lighten-2">
+                        <div
+                            class="text-overline text-grey-darken-1 dark:text-grey-lighten-2 mb-2"
+                        >
                             Included Features
                         </div>
                         <div class="d-flex flex-wrap gap-2">
@@ -186,10 +212,14 @@ withDefaults(
                 </v-col>
 
                 <!-- Right Column: SVG Graphics -->
-                <v-col cols="12" lg="6" class="d-none d-lg-flex align-center justify-center">
+                <v-col
+                    cols="12"
+                    lg="6"
+                    class="d-none d-lg-flex align-center justify-center"
+                >
                     <svg
                         class="w-100"
-                        style="max-width: 438px; aspect-ratio: 438 / 376;"
+                        style="max-width: 438px; aspect-ratio: 438 / 376"
                         viewBox="0 0 438 104"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
@@ -218,9 +248,10 @@ withDefaults(
 }
 
 .hover\:elevation-4:hover {
-    box-shadow: 0px 3px 6px -1px rgba(0, 0, 0, 0.2),
-                0px 6px 16px 0px rgba(0, 0, 0, 0.14),
-                0px 9px 28px 8px rgba(0, 0, 0, 0.12) !important;
+    box-shadow:
+        0px 3px 6px -1px rgba(0, 0, 0, 0.2),
+        0px 6px 16px 0px rgba(0, 0, 0, 0.14),
+        0px 9px 28px 8px rgba(0, 0, 0, 0.12) !important;
 }
 
 .cursor-pointer {

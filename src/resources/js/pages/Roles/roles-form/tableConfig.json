@@ -1,34 +1,34 @@
 {
-  "headers": [
-    {
-      "text": "Name",
-      "value": "name",
-      "sortable": true
-    },
-    {
-      "text": "Description",
-      "value": "description",
-      "sortable": true
-    },
-    {
-      "text": "Skills",
-      "value": "skills_count",
-      "sortable": true
-    },
-    {
-      "text": "Employees",
-      "value": "people_count",
-      "sortable": true
-    },
-    {
-      "text": "Actions",
-      "value": "actions",
-      "sortable": false
+    "headers": [
+        {
+            "text": "Name",
+            "value": "name",
+            "sortable": true
+        },
+        {
+            "text": "Description",
+            "value": "description",
+            "sortable": true
+        },
+        {
+            "text": "Skills",
+            "value": "skills_count",
+            "sortable": true
+        },
+        {
+            "text": "Employees",
+            "value": "people_count",
+            "sortable": true
+        },
+        {
+            "text": "Actions",
+            "value": "actions",
+            "sortable": false
+        }
+    ],
+    "options": {
+        "dense": false,
+        "itemsPerPage": 10,
+        "showSelect": false
     }
-  ],
-  "options": {
-    "dense": false,
-    "itemsPerPage": 10,
-    "showSelect": false
-  }
 }
