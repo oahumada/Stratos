@@ -54,8 +54,8 @@
              :class="{ critical: !!node.is_critical, focused: dragging && dragging.id === node.id }"
              @pointerdown.prevent="startDrag(node, $event)">
             <title>{{ node.name }}</title>
-            <circle class="node-circle" :r="34" fill="url(#nodeGrad)" filter="url(#softGlow)" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
-            <circle v-if="node.is_critical" class="node-inner" :r="12" fill="rgba(255,80,80,0.95)" />
+            <circle class="node-circle" :r="34" fill="url(#nodeGrad)" filter="url(#softGlow)" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
+            <circle v-if="node.is_critical" class="node-inner" :r="12" fill="#ff5050" fill-opacity="0.95" />
             <text :x="0" :y="46" text-anchor="middle" class="node-label">{{ node.name }}</text>
           </g>
         </g>
