@@ -137,7 +137,7 @@ const loadScenario = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   loading.value = true
   try {
-    const response = await api.get(`/api/v1/strategic-planning/scenarios/${scenarioId.value}`)
+    const response = await api.get(`/api/strategic-planning/scenarios/${scenarioId.value}`)
     const data = (response as any)?.data ?? response
     scenario.value = data
     currentStep.value = scenario.value?.current_step || 1
@@ -371,7 +371,7 @@ const saveStep1 = async () => {
       },
     }
 
-    const res = await api.patch(`/api/v1/strategic-planning/scenarios/${scenarioId.value}`, payload)
+    const res = await api.patch(`/api/strategic-planning/scenarios/${scenarioId.value}`, payload)
     const updated = (res as any)?.data ?? res
     scenario.value = updated
     showSuccess('Paso 1 guardado')
@@ -440,7 +440,7 @@ const calculateGaps = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   refreshing.value = true
   try {
-    await api.post(`/api/v1/strategic-planning/scenarios/${scenarioId.value}/calculate-gaps`)
+    await api.post(`/api/strategic-planning/scenarios/${scenarioId.value}/calculate-gaps`)
     showSuccess('Brechas recalculadas')
   } catch (e) {
     void e

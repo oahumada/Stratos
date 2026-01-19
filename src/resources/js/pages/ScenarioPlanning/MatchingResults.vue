@@ -460,7 +460,7 @@ const approveMatch = async () => {
   if (selectedMatch.value) {
     try {
       await api.post(
-        `/api/v1/strategic-planning/matches/${selectedMatch.value.id}/approve`,
+        `/api/strategic-planning/matches/${selectedMatch.value.id}/approve`,
         {}
       )
       showSuccess('Match approved successfully')

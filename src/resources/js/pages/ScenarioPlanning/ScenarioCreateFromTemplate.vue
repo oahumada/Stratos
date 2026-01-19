@@ -41,7 +41,7 @@ const customizations = ref({
 const loadTemplates = async () => {
   loading.value = true
   try {
-    const res: any = await api.get('/api/v1/strategic-planning/scenario-templates')
+    const res: any = await api.get('/api/workforce-planning/scenario-templates')
     templates.value = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
   } catch (e) {
     void e
@@ -74,7 +74,7 @@ const createScenario = async () => {
   try {
     // debug payload to help diagnose 422 validation errors
     console.debug('instantiate-from-template payload', { customizations: customizations.value })
-    const res: any = await api.post(`/api/v1/strategic-planning/workforce-scenarios/${selectedTemplate.value.id}/instantiate-from-template`, {
+    const res: any = await api.post(`/api/workforce-planning/workforce-scenarios/${selectedTemplate.value.id}/instantiate-from-template`, {
       customizations: customizations.value,
     })
     const createdId = res?.data?.id ?? res?.id ?? res?.scenario?.id ?? null

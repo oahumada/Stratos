@@ -38,7 +38,7 @@ const loadScenariosIfEmpty = async () => {
   if (store.scenarios.length > 0) return
   loading.value = true
   try {
-     const res: any = await api.get('/api/v1/strategic-planning/workforce-scenarios')
+    const res: any = await api.get('/api/workforce-planning/workforce-scenarios')
     const data = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
     store.scenarios = data
   } catch (error) {
@@ -56,7 +56,7 @@ const compare = async () => {
   }
   comparing.value = true
   try {
-      const res: any = await api.post('/api/v1/strategic-planning/scenario-comparisons', {
+      const res: any = await api.post('/api/scenario-comparisons', {
       scenario_ids: selectedScenarioIds.value,
       comparison_criteria: { cost: true, time: true, risk: true, coverage: true, roi: true },
     })

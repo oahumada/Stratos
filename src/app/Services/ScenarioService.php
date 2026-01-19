@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\StrategicPlanningScenarios;
+use App\Models\Scenario;
 use App\Repository\ScenarioRepository;
 use Illuminate\Support\Facades\Log;
 
@@ -30,35 +30,35 @@ class ScenarioService
         ];
     }
 
-    public function transitionDecisionStatus(StrategicPlanningScenarios $scenario, string $toStatus, $user, $notes = null): StrategicPlanningScenarios
+    public function transitionDecisionStatus(Scenario $scenario, string $toStatus, $user, $notes = null): Scenario
     {
         $scenario->decision_status = $toStatus;
         $scenario->save();
         return $scenario;
     }
 
-    public function startExecution(StrategicPlanningScenarios $scenario, $user): StrategicPlanningScenarios
+    public function startExecution(Scenario $scenario, $user): Scenario
     {
         $scenario->execution_status = 'in_progress';
         $scenario->save();
         return $scenario;
     }
 
-    public function pauseExecution(StrategicPlanningScenarios $scenario, $user, $notes = null): StrategicPlanningScenarios
+    public function pauseExecution(Scenario $scenario, $user, $notes = null): Scenario
     {
         $scenario->execution_status = 'paused';
         $scenario->save();
         return $scenario;
     }
 
-    public function completeExecution(StrategicPlanningScenarios $scenario, $user): StrategicPlanningScenarios
+    public function completeExecution(Scenario $scenario, $user): Scenario
     {
         $scenario->execution_status = 'completed';
         $scenario->save();
         return $scenario;
     }
 
-    public function createNewVersion(StrategicPlanningScenarios $scenario, $name, $description, $user, $notes = null, $copySkills = true, $copyStrategies = true)
+    public function createNewVersion(Scenario $scenario, $name, $description, $user, $notes = null, $copySkills = true, $copyStrategies = true)
     {
         $new = $scenario->replicate();
         $new->name = $name ?? ($scenario->name . ' (copy)');
@@ -72,13 +72,13 @@ class ScenarioService
         return $new;
     }
 
-    public function syncParentMandatorySkills(StrategicPlanningScenarios $scenario): int
+    public function syncParentMandatorySkills(Scenario $scenario): int
     {
         // Placeholder - no-op
         return 0;
     }
 
-    public function consolidateParent(StrategicPlanningScenarios $scenario): array
+    public function consolidateParent(Scenario $scenario): array
     {
         // Simple rollup placeholder
         return [
@@ -90,7 +90,7 @@ class ScenarioService
     /**
      * Calculate scenario gaps and return a structured summary used by tests.
      */
-    public function calculateScenarioGaps(StrategicPlanningScenarios $scenario): array
+    public function calculateScenarioGaps(Scenario $scenario): array
     {
         $demands = $scenario->skillDemands()->with('skill')->get();
 

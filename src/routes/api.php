@@ -102,6 +102,10 @@ Route::prefix('v1')->group(function () {
         Route::post('workforce-scenarios/{id}/calculate-gaps', [\App\Http\Controllers\Api\ScenarioController::class, 'calculateGaps']);
         Route::post('workforce-scenarios/{id}/refresh-suggested-strategies', [\App\Http\Controllers\Api\ScenarioController::class, 'refreshSuggestedStrategies']);
         Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
+
+        // Backwards-compatible aliases for the canonical strategic-planning endpoints
+        Route::get('strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
+        Route::get('strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
     });
 });
 

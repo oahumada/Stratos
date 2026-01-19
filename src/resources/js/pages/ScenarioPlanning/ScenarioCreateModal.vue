@@ -47,7 +47,7 @@ const createScenario = async () => {
       version_number: versionNumber.value,
       time_horizon_weeks: timeHorizonWeeks.value,
     }
-    const res: any = await api.post('/api/v1/strategic-planning/workforce-scenarios', payload)
+    const res: any = await api.post('/api/workforce-planning/workforce-scenarios', payload)
     const created = res?.data ?? res
     showSuccess('Escenario creado')
     emit('created', created)

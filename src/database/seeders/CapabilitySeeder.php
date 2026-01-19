@@ -16,7 +16,7 @@ class CapabilitySeeder extends Seeder
 
         if ($orgs->isEmpty()) {
             $orgs = collect([
-                Organizations::create(['name' => 'Demo Org', 'slug' => Str::slug('Demo Org')])
+                Organizations::create(['name' => 'Demo Org', 'subdomain' => Str::slug('Demo Org')])
             ]);
         }
 

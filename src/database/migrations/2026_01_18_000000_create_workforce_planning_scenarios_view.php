@@ -19,6 +19,7 @@ return new class extends Migration {
                 start_date DATETIME,
                 end_date DATETIME,
                 horizon_months INTEGER,
+                   time_horizon_weeks INTEGER,
                 fiscal_year INTEGER,
                 scenario_type TEXT,
                 scope_type TEXT,
@@ -49,7 +50,8 @@ return new class extends Migration {
                 execution_status TEXT,
                 owner_id INTEGER,
                 last_simulated_at DATETIME,
-                custom_config TEXT
+                custom_config TEXT,
+                estimated_budget INTEGER
             );
 
             CREATE TRIGGER IF NOT EXISTS trg_wp_scenarios_insert
@@ -57,20 +59,20 @@ return new class extends Migration {
             BEGIN
                 INSERT INTO workforce_planning_scenarios (
                     id, organization_id, name, code, description, kpis, start_date, end_date,
-                    horizon_months, fiscal_year, scenario_type, scope_type, scope_notes,
+                    horizon_months, time_horizon_weeks, fiscal_year, scenario_type, scope_type, scope_notes,
                     strategic_context, budget_constraints, legal_constraints, labor_relations_constraints,
                     status, approved_at, approved_by, assumptions, owner_user_id, sponsor_user_id,
                     template_id, created_by, updated_by, created_at, updated_at, version_group_id,
                     version_number, is_current_version, parent_id, f, scope_id, current_step,
-                    decision_status, execution_status, owner_id, last_simulated_at, custom_config
+                    decision_status, execution_status, owner_id, last_simulated_at, custom_config, estimated_budget
                 ) VALUES (
                     NEW.id, NEW.organization_id, NEW.name, NEW.code, NEW.description, NEW.kpis, NEW.start_date, NEW.end_date,
-                    NEW.horizon_months, NEW.fiscal_year, NEW.scenario_type, NEW.scope_type, NEW.scope_notes,
+                    NEW.horizon_months, NEW.time_horizon_weeks, NEW.fiscal_year, NEW.scenario_type, NEW.scope_type, NEW.scope_notes,
                     NEW.strategic_context, NEW.budget_constraints, NEW.legal_constraints, NEW.labor_relations_constraints,
                     NEW.status, NEW.approved_at, NEW.approved_by, NEW.assumptions, NEW.owner_user_id, NEW.sponsor_user_id,
                     NEW.template_id, NEW.created_by, NEW.updated_by, NEW.created_at, NEW.updated_at, NEW.version_group_id,
                     NEW.version_number, NEW.is_current_version, NEW.parent_id, NEW.f, NEW.scope_id, NEW.current_step,
-                    NEW.decision_status, NEW.execution_status, NEW.owner_id, NEW.last_simulated_at, NEW.custom_config
+                    NEW.decision_status, NEW.execution_status, NEW.owner_id, NEW.last_simulated_at, NEW.custom_config, NEW.estimated_budget
                 );
             END;
 
@@ -87,6 +89,7 @@ return new class extends Migration {
                     start_date = NEW.start_date,
                     end_date = NEW.end_date,
                     horizon_months = NEW.horizon_months,
+                    time_horizon_weeks = NEW.time_horizon_weeks,
                     fiscal_year = NEW.fiscal_year,
                     scenario_type = NEW.scenario_type,
                     scope_type = NEW.scope_type,
@@ -116,7 +119,8 @@ return new class extends Migration {
                     execution_status = NEW.execution_status,
                     owner_id = NEW.owner_id,
                     last_simulated_at = NEW.last_simulated_at,
-                    custom_config = NEW.custom_config
+                    custom_config = NEW.custom_config,
+                    estimated_budget = NEW.estimated_budget
                 WHERE id = NEW.id;
             END;
 

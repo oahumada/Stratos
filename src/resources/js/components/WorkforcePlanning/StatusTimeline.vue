@@ -33,7 +33,7 @@ const showTimeline = ref(false)
 const loadStatusEvents = async () => {
   loading.value = true
   try {
-    const res = await api.get(`/api/v1/strategic-planning/scenarios/${props.scenarioId}`)
+    const res = await api.get(`/api/strategic-planning/scenarios/${props.scenarioId}`)
     events.value = res.data?.status_events || []
   } catch (e) {
     void e

@@ -84,7 +84,7 @@ const loadScenarios = async () => {
     if (filters.value.status) params.status = filters.value.status
     if (filters.value.fiscalYear) params.fiscal_year = filters.value.fiscalYear
 
-    const res = await api.get('/api/v1/strategic-planning/workforce-scenarios', { params })
+    const res = await api.get('/api/workforce-planning/workforce-scenarios', { params })
     // useApi.get devuelve response.data directamente
     // El backend responde { success, data: [...], pagination }
     scenarios.value = Array.isArray((res as any).data) ? (res as any).data : (Array.isArray(res) ? res : [])
@@ -125,10 +125,10 @@ const editScenario = (scenario: Scenario) => {
 const saveScenario = async () => {
   try {
     if (editingScenario.value) {
-      await api.put(`/api/v1/strategic-planning/workforce-scenarios/${editingScenario.value.id}`, formData.value)
+      await api.put(`/api/workforce-planning/workforce-scenarios/${editingScenario.value.id}`, formData.value)
       showSuccess('Scenario updated successfully')
     } else {
-      await api.post('/api/v1/strategic-planning/workforce-scenarios', formData.value)
+      await api.post('/api/workforce-planning/workforce-scenarios', formData.value)
       showSuccess('Scenario created successfully')
     }
     showCreateDialog.value = false
@@ -147,7 +147,7 @@ const saveScenario = async () => {
 const deleteScenario = async (id: number) => {
   if (confirm('Are you sure you want to delete this scenario?')) {
     try {
-      await api.delete(`/api/v1/strategic-planning/workforce-scenarios/${id}`)
+      await api.delete(`/api/workforce-planning/workforce-scenarios/${id}`)
       showSuccess('Scenario deleted successfully')
       loadScenarios()
     } catch (e) {

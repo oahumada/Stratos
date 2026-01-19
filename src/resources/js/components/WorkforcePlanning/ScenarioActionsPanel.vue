@@ -151,7 +151,7 @@ const openTransitionDialog = (toStatus: string) => {
 const confirmTransition = async () => {
   loading.value = true
   try {
-    await api.post(`/api/v1/strategic-planning/scenarios/${props.scenario.id}/decision-status`, {
+    await api.post(`/api/strategic-planning/scenarios/${props.scenario.id}/decision-status`, {
       to_status: targetStatus.value,
       notes: transitionNotes.value || null
     })
@@ -170,7 +170,7 @@ const confirmTransition = async () => {
 const executeAction = async (action: string) => {
   loading.value = true
   try {
-    await api.post(`/api/v1/strategic-planning/scenarios/${props.scenario.id}/execution/${action}`, {
+    await api.post(`/api/strategic-planning/scenarios/${props.scenario.id}/execution/${action}`, {
       notes: executionNotes.value || null
     })
     showSuccess(`Ejecución ${action === 'start' ? 'iniciada' : action === 'pause' ? 'pausada' : 'completada'}`)
@@ -195,7 +195,7 @@ const openExecutionDialog = (action: string) => {
 const syncFromParent = async () => {
   loading.value = true
   try {
-    const res = await api.post(`/api/v1/strategic-planning/scenarios/${props.scenario.id}/sync-parent`)
+    const res = await api.post(`/api/strategic-planning/scenarios/${props.scenario.id}/sync-parent`)
     showSuccess(res.message || 'Skills sincronizadas desde el padre')
     emit('refresh')
   } catch (error: any) {
@@ -213,7 +213,7 @@ const openVersionDialog = () => {
 const createNewVersion = async (payload: any) => {
   loading.value = true
   try {
-    const res = await api.post(`/api/v1/strategic-planning/scenarios/${props.scenario.id}/versions`, payload)
+    const res = await api.post(`/api/strategic-planning/scenarios/${props.scenario.id}/versions`, payload)
     showSuccess(res.message || 'Nueva versión creada')
     showVersionDialog.value = false
     emit('refresh')

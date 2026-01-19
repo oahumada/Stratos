@@ -277,7 +277,7 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
             this.errors.scenarios = null
 
             try {
-                const response = await axios.get('/api/v1/workforce-planning/workforce-scenarios')
+                const response = await axios.get('/api/workforce-planning/workforce-scenarios')
                 this.scenarios = (response.data && Array.isArray(response.data.data)) ? response.data.data : (Array.isArray(response.data) ? response.data : [])
             } catch (error: any) {
                 this.errors.scenarios = error.message || 'Failed to fetch scenarios'
@@ -289,7 +289,7 @@ export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
 
         async fetchScenario(id: number) {
             try {
-                const response = await axios.get(`/api/v1/workforce-planning/workforce-scenarios/${id}`)
+                const response = await axios.get(`/api/workforce-planning/workforce-scenarios/${id}`)
                 this.activeScenario = (response.data && response.data.data) ? response.data.data : response.data
                 this.activeScenarioId = id
                 return (response.data && response.data.data) ? response.data.data : response.data

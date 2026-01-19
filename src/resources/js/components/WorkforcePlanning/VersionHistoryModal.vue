@@ -45,7 +45,7 @@ const openDialog = () => {
 const loadVersions = async () => {
   loading.value = true
   try {
-            const res = await api.get(`/api/v1/strategic-planning/scenarios/${props.scenarioId}/versions`)
+            const res = await api.get(`/api/strategic-planning/scenarios/${props.scenarioId}/versions`)
     versions.value = res.data?.versions || []
   } catch (e) {
     void e

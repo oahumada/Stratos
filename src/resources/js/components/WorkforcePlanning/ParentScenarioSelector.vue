@@ -59,7 +59,7 @@ const loadParentCandidates = async () => {
       params.append('scope_type', 'department,organization')
     }
 
-    const res = await api.get(`/api/v1/strategic-planning/scenarios?${params.toString()}`)
+    const res = await api.get(`/api/strategic-planning/scenarios?${params.toString()}`)
     scenarios.value = res.data || []
   } catch (error) {
     console.error('Error loading parent candidates:', error)

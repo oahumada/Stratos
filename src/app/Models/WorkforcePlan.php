@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 
 class WorkforcePlan extends Model
 {
@@ -40,5 +41,14 @@ class WorkforcePlan extends Model
     public function scenarios()
     {
         return $this->hasMany(Scenario::class, 'workforce_plan_id');
+    }
+
+    protected static function booted()
+    {
+        static::creating(function ($plan) {
+            if (empty($plan->code)) {
+                $plan->code = 'WFP-' . strtoupper(Str::random(6));
+            }
+        });
     }
 }

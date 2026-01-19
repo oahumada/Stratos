@@ -15,7 +15,7 @@ class SkillSeeder extends Seeder
         $org = Organizations::first();
 
         if (!$org) {
-            $org = Organizations::create(['name' => 'Demo Org', 'slug' => 'demo-org']);
+            $org = Organizations::create(['name' => 'Demo Org', 'subdomain' => 'demo-org']);
         }
 
         $capabilities = Capability::where('organization_id', $org->id)->get();

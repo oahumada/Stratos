@@ -150,7 +150,7 @@ const deleteScenario = async (scenario: ScenarioListItem) => {
   if (!ok) return
 
   try {
-    await api.delete(`/api/v1/scenario-planning/workforce-scenarios/${scenario.id}`)
+    await api.delete(`/api/scenario-planning/workforce-scenarios/${scenario.id}`)
     showSuccess('Escenario eliminado')
     // reload list
     await loadScenarios()

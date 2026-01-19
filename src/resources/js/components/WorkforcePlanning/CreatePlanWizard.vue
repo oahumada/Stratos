@@ -69,7 +69,7 @@ const initEdited = () => {
 const users = ref<any[]>([])
 const loadUsers = async () => {
   try {
-    const res: any = await api.get('/api/v1/users')
+    const res: any = await api.get('/api/users')
     users.value = res?.data ?? res ?? []
   } catch (e) {
     void e
@@ -111,7 +111,7 @@ onMounted(async () => {
   // If we have a scenarioId, prefer fetching the scenario (and its workforce_plan)
   if (props.scenarioId) {
     try {
-      const resp: any = await api.get(`/api/v1/strategic-planning/scenarios/${props.scenarioId}`)
+      const resp: any = await api.get(`/api/strategic-planning/scenarios/${props.scenarioId}`)
       const data = resp?.data ?? resp
       scenarioData.value = data
       const plan = data?.workforce_plan ?? null
@@ -226,7 +226,7 @@ const saveStep1 = async () => {
   }
 
   try {
-    await api.patch(`/api/v1/strategic-planning/scenarios/${props.scenarioId}`, payload)
+    await api.patch(`/api/strategic-planning/scenarios/${props.scenarioId}`, payload)
     showSuccess('Cambios guardados en el escenario')
   } catch (e) {
     void e
