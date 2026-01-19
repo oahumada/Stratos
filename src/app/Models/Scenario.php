@@ -16,6 +16,7 @@ class Scenario extends Model
     protected $casts = [
         'kpis' => 'array',
         'assumptions' => 'array',
+        'custom_config' => 'array',
         'start_date' => 'date',
         'end_date' => 'date',
     ];
@@ -30,8 +31,23 @@ class Scenario extends Model
         return $this->hasMany(ScenarioSkill::class, 'scenario_id');
     }
 
-        public function roles()
+    public function roles()
     {
         return $this->hasMany(\App\Models\ScenarioRole::class, 'scenario_id');
+    }
+    
+    public function owner()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'owner_user_id');
+    }
+
+    public function statusEvents()
+    {
+        return $this->hasMany(\App\Models\ScenarioStatusEvent::class, 'scenario_id');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
     }
 }

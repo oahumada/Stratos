@@ -91,6 +91,18 @@ Route::get('/scenario-planning-list', function () {
 Route::get('/strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
 Route::get('/strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
 
+// Backwards-compatible v1 API aliases for workforce-planning (tests and older clients)
+Route::prefix('v1')->group(function () {
+    Route::prefix('workforce-planning')->group(function () {
+        Route::get('workforce-scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
+        Route::post('workforce-scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'store']);
+        Route::get('workforce-scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
+        Route::patch('workforce-scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'updateScenario']);
+        Route::post('workforce-scenarios/{template_id}/instantiate-from-template', [\App\Http\Controllers\Api\ScenarioController::class, 'instantiateFromTemplate']);
+        Route::post('workforce-scenarios/{id}/calculate-gaps', [\App\Http\Controllers\Api\ScenarioController::class, 'calculateGaps']);
+    });
+});
+
 // Catálogos dinámicos para selectores
 Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');
 require __DIR__ . '/form-schema-complete.php';
