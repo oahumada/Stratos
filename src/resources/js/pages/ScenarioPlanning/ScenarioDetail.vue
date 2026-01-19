@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useApi } from '@/composables/useApi'
 import { useNotification } from '@/composables/useNotification'
@@ -124,14 +125,16 @@ const scenarioId = computed(() => {
 })
 
 // detect optional view mode from querystring (e.g., ?view=map)
-const viewMode = (() => {
+const page = usePage()
+const viewMode = computed(() => {
   try {
-    const params = new URLSearchParams(window.location.search)
+    const url = (page as any).url || window.location.href
+    const params = new URLSearchParams(new URL(url, window.location.origin).search)
     return params.get('view') || null
   } catch (e) {
     return null
   }
-})()
+})
 
 const loadScenario = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
@@ -471,7 +474,7 @@ onMounted(() => {
 <template>
   <div>
     <template v-if="viewMode === 'map'">
-      <PrototypeMap :scenario="scenario" />
+      <PrototypeMap :scenario="scenario ?? undefined" />
     </template>
     <template v-else>
       <v-container fluid class="scenario-detail">

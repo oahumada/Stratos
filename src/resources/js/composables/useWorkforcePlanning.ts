@@ -3,7 +3,7 @@ import type { WorkforcePlan, ScopeUnit, ScopeRole, TransformationProject, Talent
 
 export function useWorkforcePlanning() {
   const api = useApi()
-  const base = '/api/workforce-planning/workforce-plans'
+  const base = '/api/strategic-planning/workforce-plans'
 
   const listPlans = (params?: any) => api.get(base, params)
   const createPlan = (payload: Partial<WorkforcePlan>) => api.post(base, payload)

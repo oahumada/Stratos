@@ -88,10 +88,17 @@ Route::get('/scenario-planning-list', function () {
 });
 
 // Scenario Planning API (canonical, without /v1 prefix)
-Route::get('/strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
-Route::get('/strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
+    Route::get('/strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
+    Route::get('/strategic-planning/scenarios/{id}/capability-tree', [\App\Http\Controllers\Api\ScenarioController::class, 'getCapabilityTree']);
+});
+
+// Dev-only endpoint removed: use canonical `/strategic-planning/scenarios` with auth:sanctum
 
 // Backwards-compatible v1 API aliases for workforce-planning (tests and older clients)
+// NOTE: temporalmente deshabilitadas hasta migrar el frontend a las rutas canónicas.
+/*
 Route::prefix('v1')->group(function () {
     Route::prefix('workforce-planning')->group(function () {
         Route::get('workforce-scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
@@ -108,6 +115,7 @@ Route::prefix('v1')->group(function () {
         Route::get('strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
     });
 });
+*/
 
 // Catálogos dinámicos para selectores
 Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');

@@ -4,14 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Capability;
 
 class Scenario extends Model
 {
     use HasFactory;
 
-    // Use legacy table name to preserve compatibility with existing
-    // migrations and foreign key constraints (scenario_skill_demands, etc.)
-    protected $table = 'workforce_planning_scenarios';
+    // Use canonical table for seeding and core operations. Compatibility
+    // with `workforce_planning_scenarios` is provided by DB triggers.
+    protected $table = 'scenarios';
 
     protected $fillable = ['organization_id', 'name', 'code', 'description', 'kpis', 'start_date', 'end_date', 'horizon_months', 'fiscal_year', 'scope_type', 'scope_notes', 'status', 'approved_at', 'approved_by', 'assumptions', 'owner_user_id', 'sponsor_user_id', 'created_by', 'updated_by'];
 
@@ -24,6 +25,14 @@ class Scenario extends Model
     ];
 
     public function capabilities()
+    {
+        return $this->belongsToMany(Capability::class, 'scenario_capabilities', 'scenario_id', 'capability_id')
+            ->withPivot(['required_level', 'is_critical', 'strategic_role', 'strategic_weight', 'priority', 'rationale'])
+            ->withTimestamps();
+    }
+
+    // Backwards-compatible alias used by some controllers
+    public function scenarioCapabilities()
     {
         return $this->hasMany(ScenarioCapability::class, 'scenario_id');
     }

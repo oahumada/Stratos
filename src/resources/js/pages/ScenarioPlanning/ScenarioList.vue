@@ -124,13 +124,13 @@ const executionStatusText = (status?: string) => {
 const loadScenarios = async () => {
   loading.value = true
   try {
-    const res: any = await api.get('/api/scenario-planning-list', {
+    const res: any = await api.get('/api/strategic-planning/scenarios', {
       params: {
         status: filters.value.status,
         type: filters.value.type,
       },
     })
-    const data = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
+    const data = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : []
     scenarios.value = data
     store.scenarios = data
   } catch (e) {
@@ -149,14 +149,14 @@ const deleteScenario = async (scenario: ScenarioListItem) => {
   const ok = window.confirm(`¿Eliminar escenario "${scenario.name}"? Esta acción no se puede deshacer.`)
   if (!ok) return
 
-  try {
-    await api.delete(`/api/scenario-planning/workforce-scenarios/${scenario.id}`)
-    showSuccess('Escenario eliminado')
-    // reload list
-    await loadScenarios()
-  } catch (err: any) {
-    showError(err?.response?.data?.message || 'Error al eliminar el escenario')
-  }
+    try {
+      await api.delete(`/api/strategic-planning/scenarios/${scenario.id}`)
+      showSuccess('Escenario eliminado')
+      // reload list
+      await loadScenarios()
+    } catch (err: any) {
+      showError(err?.response?.data?.message || 'Error al eliminar el escenario')
+    }
 }
 
 const openCreateFromTemplate = () => {

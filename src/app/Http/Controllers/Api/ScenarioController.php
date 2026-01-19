@@ -21,6 +21,7 @@ class ScenarioController extends Controller
         private ScenarioRepository $scenarioRepo,
         private ScenarioAnalysisService $analysisService
     ) {
+        $this->analytics = $analysisService;
     }
 
     /**
@@ -37,7 +38,11 @@ class ScenarioController extends Controller
      */
     public function listScenarios(Request $request): JsonResponse
     {
-        $organizationId = auth()->user()->organization_id;
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $organizationId = $user->organization_id;
 
         $filters = [
             'status' => $request->input('status'),
@@ -64,15 +69,14 @@ class ScenarioController extends Controller
     public function getCapabilityTree($id)
     {
         $scenario = Scenario::with([
-            'scenarioCapabilities.capability.competencies.competencySkills.skill'
+            'capabilities.competencies.competencySkills.skill'
         ])->findOrFail($id);
 
-        $tree = $scenario->scenarioCapabilities->map(function ($scap) use ($id) {
-            $capability = $scap->capability;
+        $tree = $scenario->capabilities->map(function ($capability) use ($id) {
             return [
                 'id' => $capability->id,
                 'name' => $capability->name,
-                'strategic_role' => $scap->strategic_role,
+                'strategic_role' => $capability->pivot->strategic_role ?? null,
                 'is_incubating' => $capability->isIncubating(),
                 'readiness' => round($this->analytics->calculateCapabilityReadiness($id, $capability->id) * 100, 1),
                 'competencies' => $capability->competencies->map(function ($comp) use ($id) {
@@ -170,7 +174,11 @@ class ScenarioController extends Controller
         }
 
         // Tenant isolation: only allow access to scenarios within the user's organization
-        $userOrg = auth()->user()->organization_id;
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $userOrg = $user->organization_id;
         if ($scenario->organization_id !== $userOrg) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
@@ -187,8 +195,12 @@ class ScenarioController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->only(['name', 'description', 'scenario_type', 'horizon_months', 'fiscal_year']);
-        $data['organization_id'] = auth()->user()->organization_id;
-        $data['created_by'] = auth()->id();
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $data['organization_id'] = $user->organization_id;
+        $data['created_by'] = $user->id;
         $data['created_at'] = now()->toDateTimeString();
         $data['updated_at'] = now()->toDateTimeString();
 
@@ -215,7 +227,12 @@ class ScenarioController extends Controller
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
         }
 
-        if ($scenario->organization_id !== auth()->user()->organization_id) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        if ($scenario->organization_id !== $user->organization_id) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
 
@@ -236,11 +253,15 @@ class ScenarioController extends Controller
 
         $data = [
             'name' => $request->input('name'),
-            'organization_id' => auth()->user()->organization_id,
+            'organization_id' => (auth()->user() ? auth()->user()->organization_id : null),
             'template_id' => $template->id,
             'horizon_months' => $request->input('horizon_months', 12),
             'scenario_type' => $template->type ?? 'template',
         ];
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
         $data['created_at'] = now()->toDateTimeString();
         $data['updated_at'] = now()->toDateTimeString();
 
@@ -283,7 +304,12 @@ class ScenarioController extends Controller
         }
 
         // Tenant isolation
-        if ($scenario->organization_id !== auth()->user()->organization_id) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        if ($scenario->organization_id !== $user->organization_id) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
 

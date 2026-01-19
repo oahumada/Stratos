@@ -29,4 +29,9 @@ class Capability extends Model
     {
         return $this->belongsTo(Scenario::class, 'discovered_in_scenario_id');
     }
+
+    public function isIncubating(): bool
+    {
+        return !is_null($this->discovered_in_scenario_id);
+    }
 }

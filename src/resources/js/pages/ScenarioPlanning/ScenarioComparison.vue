@@ -38,7 +38,7 @@ const loadScenariosIfEmpty = async () => {
   if (store.scenarios.length > 0) return
   loading.value = true
   try {
-    const res: any = await api.get('/api/workforce-planning/workforce-scenarios')
+    const res: any = await api.get('/api/strategic-planning/scenarios')
     const data = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
     store.scenarios = data
   } catch (error) {

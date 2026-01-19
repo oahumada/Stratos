@@ -41,7 +41,7 @@ const fetchStrategies = async () => {
   if (!props.scenarioId) return
   loading.value = true
   try {
-    const res: any = await api.get(`/api/workforce-planning/workforce-scenarios/${props.scenarioId}`)
+    const res: any = await api.get(`/api/strategic-planning/scenarios/${props.scenarioId}`)
     const raw = res?.data || res
     strategies.value = raw?.closure_strategies || []
   } catch (error) {
@@ -60,7 +60,7 @@ const fetchStrategies = async () => {
 const refreshSuggested = async () => {
   refreshing.value = true
   try {
-    await api.post(`/api/workforce-planning/workforce-scenarios/${props.scenarioId}/refresh-suggested-strategies`)
+    await api.post(`/api/strategic-planning/scenarios/${props.scenarioId}/refresh-suggested-strategies`)
     await fetchStrategies()
     showSuccess('Estrategias sugeridas actualizadas')
     emit('refreshed')

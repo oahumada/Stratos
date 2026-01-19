@@ -117,7 +117,7 @@ const getGapCountsByDepartment = (): number[] => {
 
 const loadScenario = async () => {
   try {
-    const response = await api.get(`/api/workforce-planning/workforce-scenarios/${scenarioId.value}`)
+    const response = await api.get(`/api/strategic-planning/scenarios/${scenarioId.value}`)
     const scenario = (response as any).data
     scenarioName.value = scenario.name
     scenarioDescription.value = scenario.description
@@ -196,7 +196,7 @@ const runAnalysis = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   try {
     analyzing.value = true
-    const res = await api.post(`/api/workforce-planning/workforce-scenarios/${scenarioId.value}/calculate-gaps`, {})
+    const res = await api.post(`/api/strategic-planning/scenarios/${scenarioId.value}/calculate-gaps`, {})
     const result: any = (res as any).data || res
     if (result && result.summary) {
       // Mapear algunos KPIs a tarjetas existentes cuando sea posible
@@ -217,7 +217,7 @@ const runAnalysis = async () => {
 const generateStrategies = async () => {
   if (!scenarioId.value || scenarioId.value <= 0) return
   try {
-    const res = await api.post(`/api/workforce-planning/workforce-scenarios/${scenarioId.value}/refresh-suggested-strategies`, {})
+    const res = await api.post(`/api/strategic-planning/scenarios/${scenarioId.value}/refresh-suggested-strategies`, {})
     const created = (res as any)?.created ?? 0
     showSuccess(`Estrategias sugeridas actualizadas (${created} nuevas)`) 
   } catch (e:any) {

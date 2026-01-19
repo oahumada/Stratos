@@ -25,6 +25,10 @@ class ScenarioSeeder extends Seeder
             'name' => 'Adopción de IA Generativa 2026',
             'description' => 'Plan estratégico para integrar GenAI en el ciclo de vida de producto.',
             'horizon_months' => 18,
+            'fiscal_year' => now()->year,
+            'created_by' => 1,
+            'updated_by' => 1,
+            'owner_user_id' => 1,
             'status' => 'draft',
             'assumptions' => ['tech_stack' => 'OpenAI/Anthropic', 'budget_approved' => true]
         ]);
