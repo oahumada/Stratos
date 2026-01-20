@@ -166,11 +166,16 @@ const initializeNodes = () => {
 
 const initializeLinks = () => {
     if (props.connections.length > 0) {
-        links.value = props.connections.map((c) => ({
-            source: nodes.value.find((n) => n.id === c.source_id),
-            target: nodes.value.find((n) => n.id === c.target_id),
-            isCritical: c.is_critical || false,
-        }));
+        links.value = props.connections.map((c) => {
+            // accept either source/target or source_id/target_id
+            const sId = c.source ?? c.source_id ?? null;
+            const tId = c.target ?? c.target_id ?? null;
+            return {
+                source: nodes.value.find((n) => n.id === Number(sId)),
+                target: nodes.value.find((n) => n.id === Number(tId)),
+                isCritical: c.is_critical || false,
+            };
+        });
     }
 };
 

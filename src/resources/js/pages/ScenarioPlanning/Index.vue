@@ -174,14 +174,7 @@ import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import * as d3 from 'd3';
 import { onMounted, ref, watch } from 'vue';
-
-interface NodeItem {
-    id: number;
-    name: string;
-    x: number;
-    y: number;
-    is_critical?: boolean;
-}
+import type { NodeItem, Edge, ConnectionPayload, ScenarioShape } from '@/types/brain';
 interface Props {
     scenario?: {
         id?: number;
@@ -195,7 +188,7 @@ const props = defineProps<Props>();
 const api = useApi();
 const loaded = ref(false);
 const nodes = ref<Array<NodeItem>>([]);
-const edges = ref<Array<{ source: number; target: number }>>([]);
+const edges = ref<Array<Edge>>([]);
 const dragging = ref<any>(null);
 const dragOffset = ref({ x: 0, y: 0 });
 const { showSuccess, showError } = useNotification();
@@ -230,13 +223,13 @@ function buildNodesFromItems(items: any[]) {
             centerY + radius * Math.sin(idx * angleStep),
         );
         return {
-            id: it.id,
+            id: Number(it.id),
             name: it.name,
             x: x ?? fallbackX,
             y: y ?? fallbackY,
             _hasCoords: hasPos,
             is_critical: it.is_critical ?? it.isCritical ?? false,
-        };
+        } as any;
     });
     nodes.value = mapped.map((m: any) => ({
         id: m.id,
@@ -298,28 +291,38 @@ function runForceLayout() {
 }
 
 function buildEdgesFromItems(items: any[]) {
-    const result: Array<{ source: number; target: number }> = [];
-    // support explicit connections list
-    if (
-        Array.isArray((props as any).scenario?.connections) &&
-        (props as any).scenario.connections.length > 0
-    ) {
-        (props as any).scenario.connections.forEach((c: any) => {
-            if (c.source != null && c.target != null)
-                result.push({ source: c.source, target: c.target });
+    const result: Edge[] = [];
+    // support explicit connections list from scenario.connections
+    const conns = (props as any).scenario?.connections;
+    if (Array.isArray(conns) && conns.length > 0) {
+        (conns as ConnectionPayload[]).forEach((c) => {
+            const s = c.source ?? c.source_id ?? null;
+            const t = c.target ?? c.target_id ?? null;
+            if (s != null && t != null) {
+                result.push({ source: Number(s), target: Number(t), isCritical: !!c.is_critical });
+            }
         });
     } else {
-        // if items have linked_to or connected_to arrays
+        // if items have linked_to, connected_to, or links arrays
         items.forEach((it: any) => {
             if (Array.isArray(it.connected_to)) {
                 it.connected_to.forEach((t: any) => {
-                    result.push({ source: it.id, target: t });
+                    result.push({ source: Number(it.id), target: Number(t) });
                 });
             }
             if (Array.isArray(it.links)) {
                 it.links.forEach((t: any) =>
-                    result.push({ source: it.id, target: t }),
+                    result.push({ source: Number(it.id), target: Number(t) }),
                 );
+            }
+            // support nested connections on item (source/target or source_id/target_id)
+            if (Array.isArray(it.connections)) {
+                it.connections.forEach((c: ConnectionPayload) => {
+                    const s = c.source ?? c.source_id ?? null;
+                    const t = c.target ?? c.target_id ?? null;
+                    if (s != null && t != null)
+                        result.push({ source: Number(s), target: Number(t), isCritical: !!c.is_critical });
+                });
             }
         });
     }
