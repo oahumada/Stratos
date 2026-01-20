@@ -15,7 +15,8 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 ## Componentes clave (relevantes para WFP / Cerebro Stratos)
 - `resources/js/pages/ScenarioPlanning/Index.vue` — Mapa prototipo (PrototypeMap). Usado por `ScenarioDetail.vue`.
-- `resources/js/pages/ScenarioPlanning/BrainCanvas.vue` — Componente referenciado en la guía (implementación con D3).
+- `src/resources/js/components/brain/BrainCanvas.vue` — Componente referenciado en la guía (implementación con D3).  
+- Nota: la guía se movió a `docs/GUIA_STRATOS_CEREBRO.txt`.
 - `docs/GUIA_STRATOS_CEREBRO.txt` — Guía de implementación del "Cerebro Stratos" (inspirada en TheBrain).
 
 ## Búsquedas iniciales realizadas (Phase 1)
