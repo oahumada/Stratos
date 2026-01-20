@@ -74,6 +74,10 @@ class DemoSeeder extends Seeder
         $this->command->info('🎯 Creando skills...');
         $this->call(SkillSeeder::class);
 
+        // 4.1 Competencies (attach competencies to capabilities using existing skills)
+        $this->command->info('🏷️  Creando competencias (competencies) para capabilities...');
+        $this->call(CompetencySeeder::class);
+
         // 5. Roles
         $this->command->info('👔 Creando roles...');
         $this->call(RoleSeeder::class);
