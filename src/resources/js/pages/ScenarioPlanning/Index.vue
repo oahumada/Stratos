@@ -535,10 +535,7 @@ if (!edges.value) edges.value = [];
     cursor: grabbing;
 }
 
-/* scale slightly on hover */
-.node-group:hover {
-    transform: scale(1.04);
-}
+/* hover scale removed to disable hover animation */
 
 .node-circle {
     transition:
