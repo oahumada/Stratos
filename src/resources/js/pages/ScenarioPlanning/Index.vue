@@ -124,6 +124,19 @@
 
                 <!-- nodes -->
                 <g class="nodes">
+                    <!-- child edges -->
+                    <g class="child-edges">
+                        <line
+                            v-for="(e, idx) in childEdges"
+                            :key="`child-edge-${idx}`"
+                            :x1="nodeById(e.source)?.x ?? (e.source < 0 ? childNodeById(e.source)?.x : undefined)"
+                            :y1="nodeById(e.source)?.y ?? (e.source < 0 ? childNodeById(e.source)?.y : undefined)"
+                            :x2="childNodeById(e.target)?.x ?? undefined"
+                            :y2="childNodeById(e.target)?.y ?? undefined"
+                            class="edge-line child-edge"
+                        />
+                    </g>
+
                     <g
                         v-for="node in nodes"
                         :key="node.id"
@@ -161,6 +174,28 @@
                         >
                             {{ node.name }}
                         </text>
+                    </g>
+
+                    <!-- child nodes (competencies) -->
+                    <g class="child-nodes">
+                        <g
+                            v-for="c in childNodes"
+                            :key="c.id"
+                            :transform="`translate(${c.x},${c.y})`"
+                            class="node-group child-node"
+                            @click.stop="(e) => handleNodeClick(c, e)"
+                        >
+                            <title>{{ c.name }}</title>
+                            <circle
+                                class="node-circle"
+                                :r="20"
+                                fill="#2b2b2b"
+                                stroke="#ffffff"
+                                stroke-opacity="0.06"
+                                stroke-width="1"
+                            />
+                            <text :x="0" :y="28" text-anchor="middle" class="node-label" style="font-size:10px">{{ c.name }}</text>
+                        </g>
                     </g>
                 </g>
             </svg>
@@ -226,6 +261,8 @@ const height = 600;
 const focusedNode = ref<NodeItem | null>(null);
 const tooltipX = ref(0);
 const tooltipY = ref(0);
+const childNodes = ref<Array<NodeItem>>([]);
+const childEdges = ref<Array<Edge>>([]);
 
 // Debug helpers removed
 
@@ -365,9 +402,15 @@ function nodeById(id: number) {
     return nodes.value.find((n) => n.id === id) || null;
 }
 
+function childNodeById(id: number) {
+    return childNodes.value.find((n) => n.id === id) || null;
+}
+
 const handleNodeClick = (node: NodeItem, event?: MouseEvent) => {
     // focus node and compute tooltip position relative to svg
     focusedNode.value = node;
+    // expand competencies as child nodes (TheBrain style)
+    expandCompetencies(node);
     // if mouse event provided, use client coords; else derive from node position
     if (event) {
         tooltipX.value = event.clientX + 12;
@@ -380,7 +423,29 @@ const handleNodeClick = (node: NodeItem, event?: MouseEvent) => {
 
 const closeTooltip = () => {
     focusedNode.value = null;
+    childNodes.value = [];
+    childEdges.value = [];
 };
+
+function expandCompetencies(node: NodeItem) {
+    childNodes.value = [];
+    childEdges.value = [];
+    const comps = (node as any).competencies ?? [];
+    if (!Array.isArray(comps) || comps.length === 0) return;
+    const angleStep = (2 * Math.PI) / comps.length;
+    const radius = 90; // distance from parent
+    const cx = node.x ?? width / 2;
+    const cy = node.y ?? height / 2;
+    comps.forEach((c: any, i: number) => {
+        const angle = i * angleStep;
+        const x = Math.round(cx + radius * Math.cos(angle));
+        const y = Math.round(cy + radius * Math.sin(angle));
+        // create a unique negative id to avoid collision with real nodes
+        const id = -(node.id * 1000 + i + 1);
+        childNodes.value.push({ id, name: c.name ?? c, x, y, is_critical: false });
+        childEdges.value.push({ source: node.id, target: id });
+    });
+}
 
 function startDrag(node: any, event: PointerEvent) {
     dragging.value = node;
@@ -542,6 +607,14 @@ if (!edges.value) edges.value = [];
         r 0.12s ease,
         filter 0.12s ease,
         transform 0.12s ease;
+}
+
+.child-node .node-circle {
+    fill: #1f2937;
+}
+.child-edge {
+    stroke: rgba(200,200,200,0.12);
+    stroke-dasharray: 2 3;
 }
 
 .node-inner {
