@@ -110,13 +110,14 @@
 
                 <!-- edges -->
                 <g class="edges">
+                    <!-- coalesce null to undefined so template typings accept Numberish | undefined -->
                     <line
                         v-for="(e, idx) in edges"
                         :key="`edge-${idx}`"
-                        :x1="nodeById(e.source)?.x"
-                        :y1="nodeById(e.source)?.y"
-                        :x2="nodeById(e.target)?.x"
-                        :y2="nodeById(e.target)?.y"
+                        :x1="nodeById(e.source)?.x ?? undefined"
+                        :y1="nodeById(e.source)?.y ?? undefined"
+                        :x2="nodeById(e.target)?.x ?? undefined"
+                        :y2="nodeById(e.target)?.y ?? undefined"
                         class="edge-line"
                     />
                 </g>
@@ -133,6 +134,7 @@
                             focused: dragging && dragging.id === node.id,
                         }"
                         @pointerdown.prevent="startDrag(node, $event)"
+                        @click.stop="(e) => handleNodeClick(node, e)"
                     >
                         <title>{{ node.name }}</title>
                         <circle
@@ -162,6 +164,33 @@
                     </g>
                 </g>
             </svg>
+
+            <!-- Tooltip / details panel -->
+            <transition name="fade">
+                <div
+                    v-if="focusedNode"
+                    class="glass-panel-strong absolute z-50 max-w-sm rounded-2xl p-4"
+                    :style="{ position: 'absolute', left: tooltipX + 'px', top: tooltipY + 'px' }"
+                >
+                    <div class="d-flex justify-space-between align-center mb-2">
+                        <strong>{{ focusedNode.name }}</strong>
+                        <v-btn icon small variant="text" @click="closeTooltip">
+                            <v-icon icon="mdi-close" />
+                        </v-btn>
+                    </div>
+                    <div class="text-small text-medium-emphasis mb-2">
+                        <!-- display possible description or metadata if present -->
+                        <div v-if="(focusedNode as any).description">{{ (focusedNode as any).description }}</div>
+                    </div>
+                    <div v-if="(focusedNode as any).competencies && (focusedNode as any).competencies.length > 0">
+                        <div class="text-xs text-white/60 mb-1">Competencias</div>
+                        <ul class="pl-3 mb-0">
+                            <li v-for="(c, i) in (focusedNode as any).competencies" :key="i">{{ c.name || c }}</li>
+                        </ul>
+                    </div>
+                    <div v-else class="text-xs text-white/50">No hay competencias registradas.</div>
+                </div>
+            </transition>
             <div class="cap-list" v-if="nodes.length === 0">
                 No hay capacidades para mostrar.
             </div>
@@ -194,6 +223,9 @@ const dragOffset = ref({ x: 0, y: 0 });
 const { showSuccess, showError } = useNotification();
 const width = 900;
 const height = 600;
+const focusedNode = ref<NodeItem | null>(null);
+const tooltipX = ref(0);
+const tooltipY = ref(0);
 
 // Debug helpers removed
 
@@ -332,6 +364,23 @@ function buildEdgesFromItems(items: any[]) {
 function nodeById(id: number) {
     return nodes.value.find((n) => n.id === id) || null;
 }
+
+const handleNodeClick = (node: NodeItem, event?: MouseEvent) => {
+    // focus node and compute tooltip position relative to svg
+    focusedNode.value = node;
+    // if mouse event provided, use client coords; else derive from node position
+    if (event) {
+        tooltipX.value = event.clientX + 12;
+        tooltipY.value = event.clientY + 12;
+    } else {
+        tooltipX.value = (node.x ?? 0) + 12;
+        tooltipY.value = (node.y ?? 0) + 12;
+    }
+};
+
+const closeTooltip = () => {
+    focusedNode.value = null;
+};
 
 function startDrag(node: any, event: PointerEvent) {
     dragging.value = node;
