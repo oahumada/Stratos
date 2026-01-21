@@ -10,6 +10,7 @@ export interface NodeItem {
   required?: number;
   description?: string;
   competencies?: any[];
+  raw?: any;
 }
 
 export interface Edge {

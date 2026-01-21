@@ -1,5 +1,5 @@
 <template>
-    <div class="prototype-map-root" ref="mapRoot">
+    <div class="prototype-map-root" ref="mapRoot" :class="{ 'with-node-sidebar': nodeSidebarVisible, 'with-node-sidebar-collapsed': nodeSidebarCollapsed }">
         <div
             class="map-controls"
             style="
@@ -26,10 +26,19 @@
                 small
                 icon
                 color="primary"
-                @click="toggleSidebar"
-                title="Información del escenario"
+                @click="openScenarioInfo"
+                title="Volver a la vista inicial y mostrar información del escenario"
             >
-                <v-icon icon="mdi-information" />
+                <v-icon icon="mdi-home" />
+            </v-btn>
+            <v-btn
+                small
+                icon
+                color="primary"
+                @click="togglePanelFullscreen"
+                :title="panelFullscreen ? 'Salir de pantalla completa' : 'Ver detalles en pantalla completa'"
+            >
+                <v-icon :icon="panelFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
             </v-btn>
         </div>
         <div v-if="!loaded">Cargando mapa...</div>
@@ -87,6 +96,17 @@
                         </feMerge>
                     </filter>
 
+                    <!-- gradient for child edges -->
+                    <linearGradient id="childGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#7dd3fc" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#60a5fa" stop-opacity="1" />
+                    </linearGradient>
+
+                    <!-- arrow marker for child edges -->
+                    <marker id="childArrow" markerUnits="strokeWidth" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                        <path d="M0,0 L8,4 L0,8 z" fill="url(#childGrad)" />
+                    </marker>
+
                     <filter
                         id="innerShadow"
                         x="-20%"
@@ -118,42 +138,50 @@
                 />
 
                 <!-- edges -->
-                <g class="edges">
-                    <!-- coalesce null to undefined so template typings accept Numberish | undefined -->
-                    <line
-                        v-for="(e, idx) in edges"
-                        :key="`edge-${idx}`"
-                        :x1="nodeById(e.source)?.x ?? undefined"
-                        :y1="nodeById(e.source)?.y ?? undefined"
-                        :x2="nodeById(e.target)?.x ?? undefined"
-                        :y2="nodeById(e.target)?.y ?? undefined"
-                        class="edge-line"
-                    />
-                </g>
+                <g class="viewport-group" :style="viewportStyle">
+                    <!-- edges -->
+                    <g class="edges">
+                        <line
+                            v-for="(e, idx) in edges"
+                            :key="`edge-${idx}`"
+                            :x1="renderedNodeById(e.source)?.x ?? undefined"
+                            :y1="renderedNodeById(e.source)?.y ?? undefined"
+                            :x2="renderedNodeById(e.target)?.x ?? undefined"
+                            :y2="renderedNodeById(e.target)?.y ?? undefined"
+                            class="edge-line"
+                        />
+                    </g>
 
-                <!-- nodes -->
-                <g class="nodes">
+                    <!-- nodes -->
+                    <g class="nodes">
                     <!-- child edges -->
                     <g class="child-edges">
                         <line
                             v-for="(e, idx) in childEdges"
                             :key="`child-edge-${idx}`"
-                            :x1="nodeById(e.source)?.x ?? (e.source < 0 ? (childNodeById(e.source)?.x ?? undefined) : undefined)"
-                            :y1="nodeById(e.source)?.y ?? (e.source < 0 ? (childNodeById(e.source)?.y ?? undefined) : undefined)"
+                            :x1="renderedNodeById(e.source)?.x ?? (e.source < 0 ? (childNodeById(e.source)?.x ?? undefined) : undefined)"
+                            :y1="renderedNodeById(e.source)?.y ?? (e.source < 0 ? (childNodeById(e.source)?.y ?? undefined) : undefined)"
                             :x2="childNodeById(e.target)?.x ?? undefined"
                             :y2="childNodeById(e.target)?.y ?? undefined"
                             class="edge-line child-edge"
+                            stroke="url(#childGrad)"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            marker-end="url(#childArrow)"
+                            filter="url(#softGlow)"
                         />
                     </g>
 
                     <g
                         v-for="node in nodes"
                         :key="node.id"
-                        :transform="`translate(${node.x},${node.y})`"
+                        :transform="`translate(${renderNodeX(node)},${node.y})`"
                         class="node-group"
                         :class="{
                             critical: !!node.is_critical,
-                            focused: dragging && dragging.id === node.id,
+                            focused: focusedNode && focusedNode.id === node.id,
+                            dragging: dragging && dragging.id === node.id,
+                            small: focusedNode && focusedNode.id !== node.id,
                         }"
                         @pointerdown.prevent="startDrag(node, $event)"
                         @click.stop="(e) => handleNodeClick(node, e)"
@@ -161,7 +189,7 @@
                         <title>{{ node.name }}</title>
                         <circle
                             class="node-circle"
-                            :r="34"
+                            r="34"
                             fill="url(#nodeGrad)"
                             filter="url(#softGlow)"
                             stroke="#ffffff"
@@ -171,7 +199,7 @@
                         <circle
                             v-if="node.is_critical"
                             class="node-inner"
-                            :r="12"
+                            r="12"
                             fill="#ff5050"
                             fill-opacity="0.95"
                         />
@@ -181,7 +209,7 @@
                             text-anchor="middle"
                             class="node-label"
                         >
-                            {{ node.name }}
+                            {{ (node as any).displayName ?? node.name }}
                         </text>
                     </g>
 
@@ -206,22 +234,46 @@
                             <text :x="0" :y="28" text-anchor="middle" class="node-label" style="font-size:10px">{{ c.name }}</text>
                         </g>
                     </g>
+                    </g>
                 </g>
             </svg>
 
-            <!-- Tooltip / details panel -->
-            <transition name="fade">
-                <div
-                    v-if="focusedNode"
-                    class="glass-panel-strong absolute z-50 max-w-sm rounded-2xl p-4"
-                    :style="{ position: 'absolute', left: tooltipX + 'px', top: tooltipY + 'px' }"
-                >
-                    <div class="d-flex justify-space-between align-center mb-2">
-                        <strong>{{ focusedNode.name }}</strong>
-                        <v-btn icon small variant="text" @click="closeTooltip">
-                            <v-icon icon="mdi-close" />
-                        </v-btn>
+            <!-- Nodo: panel lateral que desplaza contenido en vista normal -->
+            <transition name="slide-fade">
+                            <aside
+                                class="node-details-sidebar glass-panel-strong"
+                                :class="[{ 'glass-fullscreen': panelFullscreen && !isDocumentFullScreen, collapsed: nodeSidebarCollapsed }, sidebarTheme === 'dark' ? 'theme-dark' : 'theme-light']"
+                                :style="panelStyle"
+                            >
+                    <div class="d-flex justify-space-between align-center mb-2 panel-header">
+                        <strong>{{ focusedNode ? focusedNode.name : (showSidebar ? 'Escenario' : 'Detalle') }}</strong>
+                        <div class="d-flex align-center" style="gap:8px">
+                            <v-btn icon small variant="text" @click="toggleSidebarTheme" :title="sidebarTheme === 'dark' ? 'Tema claro' : 'Tema oscuro'">
+                                <v-icon :icon="sidebarTheme === 'dark' ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
+                            </v-btn>
+                            <v-btn icon small variant="text" @click="focusedNode ? closeTooltip() : toggleSidebar()" v-if="!nodeSidebarCollapsed">
+                                <v-icon icon="mdi-close" />
+                            </v-btn>
+                        </div>
+                        <!-- collapse/expand toggle (visible on the inner edge) -->
+                        <div class="sidebar-collapse-toggle">
+                            <v-btn icon small variant="text" @click="toggleNodeSidebarCollapse" :title="nodeSidebarCollapsed ? 'Mostrar panel' : 'Ocultar panel'">
+                                <v-icon :icon="nodeSidebarCollapsed ? 'mdi-chevron-left' : 'mdi-chevron-right'" />
+                            </v-btn>
+                        </div>
                     </div>
+
+                    <template v-if="focusedNode">
+                    <!-- Basic metadata block -->
+                    <div class="text-xs text-white/60 mb-2">
+                        <div><strong>ID:</strong> {{ (focusedNode as any).id ?? '—' }}</div>
+                        <div><strong>Crítico:</strong> {{ (focusedNode as any).is_critical ? 'Sí' : 'No' }}</div>
+                        <div><strong>Importancia:</strong> {{ (focusedNode as any).importance ?? '—' }}</div>
+                        <div><strong>Nivel:</strong> {{ (focusedNode as any).level ?? '—' }}</div>
+                        <div><strong>Required:</strong> {{ (focusedNode as any).required ?? '—' }}</div>
+                        <div><strong>Competencias:</strong> {{ ((focusedNode as any).competencies || []).length }}</div>
+                    </div>
+
                     <div class="text-small text-medium-emphasis mb-2">
                         <!-- If focusedNode is a competency (child node), show its attributes -->
                         <template v-if="(focusedNode as any).skills || (focusedNode as any).compId">
@@ -235,54 +287,60 @@
                             </ul>
                         </template>
 
-                        <!-- If focusedNode is a capability, show its competencies list -->
+                        <!-- If focusedNode is a capability, show its competencies list and description -->
                         <template v-else>
                             <div v-if="(focusedNode as any).description">{{ (focusedNode as any).description }}</div>
                         </template>
                     </div>
+
                     <div v-if="(focusedNode as any).competencies && (focusedNode as any).competencies.length > 0">
                         <div class="text-xs text-white/60 mb-1">Competencias</div>
                         <ul class="pl-3 mb-0">
-                            <li v-for="(c, i) in (focusedNode as any).competencies" :key="i">{{ c.name || c }}</li>
+                            <li v-for="(c, i) in (focusedNode as any).competencies" :key="i">{{ (c && c.name) || c }}</li>
                         </ul>
                     </div>
-                    <div v-else-if="!(focusedNode as any).skills"> 
+                    <div v-else-if="!((focusedNode as any).skills) && !((focusedNode as any).competencies && (focusedNode as any).competencies.length)"> 
                         <div class="text-xs text-white/50">No hay competencias registradas.</div>
                     </div>
-                </div>
-            </transition>
-            
-            <!-- Scenario side panel -->
-            <transition name="slide-fade">
-                <aside
-                    v-if="showSidebar"
-                    class="scenario-sidebar"
-                    role="region"
-                    aria-label="Información del escenario"
-                >
-                    <div class="sidebar-header d-flex justify-space-between align-center mb-4">
-                        <h3 class="mb-0">Escenario</h3>
-                        <v-btn icon small variant="text" @click="toggleSidebar">
-                            <v-icon icon="mdi-close" />
-                        </v-btn>
+
+                    <!-- show created/updated if available in raw payload -->
+                    <div class="mt-3 text-xs text-white/50">
+                        <div v-if="(focusedNode as any).raw && (focusedNode as any).raw.created_at"><strong>Creado:</strong> {{ (focusedNode as any).raw.created_at }}</div>
+                        <div v-if="(focusedNode as any).raw && (focusedNode as any).raw.updated_at"><strong>Actualizado:</strong> {{ (focusedNode as any).raw.updated_at }}</div>
                     </div>
 
-                    <div class="sidebar-body text-sm">
-                        <div class="mb-2"><strong>Nombre:</strong> {{ props.scenario?.name || '—' }}</div>
-                        <div v-if="props.scenario?.description" class="mb-2"><strong>Descripción:</strong> {{ props.scenario.description }}</div>
-                        <div class="mb-2"><strong>ID:</strong> {{ props.scenario?.id ?? '—' }}</div>
-                        <div class="mb-2"><strong>Estado:</strong> {{ props.scenario?.status ?? '—' }}</div>
-                        <div class="mb-2"><strong>Año fiscal:</strong> {{ props.scenario?.fiscal_year ?? '—' }}</div>
-                        <div class="mb-2"><strong>Organización:</strong> {{ props.scenario?.organization_id ?? '—' }}</div>
-                        <div v-if="props.scenario?.created_at" class="mb-2"><strong>Creado:</strong> {{ props.scenario.created_at }}</div>
-                        <div v-if="props.scenario?.updated_at" class="mb-2"><strong>Actualizado:</strong> {{ props.scenario.updated_at }}</div>
-                        <div class="mb-2"><strong>Capacidades:</strong> {{ (props.scenario?.capabilities ?? []).length }}</div>
-                    </div>
+                    <!-- quick debug: raw JSON -->
+                    <details class="mt-3 text-xs text-white/50">
+                        <summary>Mostrar JSON crudo</summary>
+                        <pre style="white-space: pre-wrap; word-break: break-word;">{{ JSON.stringify((focusedNode as any).raw ?? focusedNode, null, 2) }}</pre>
+                    </details>
+                    </template>
+                    <template v-else>
+                        <div class="text-xs text-white/60 mb-2">Selecciona un nodo para ver detalles.</div>
+                    </template>
+
+                    <!-- Scenario info shown inside the same panel when toggled -->
+                    <transition name="slide-fade">
+                        <div v-if="showSidebar && !focusedNode" class="sidebar-body text-sm mt-4">
+                            <div class="mb-2"><strong>Nombre:</strong> {{ props.scenario?.name || '—' }}</div>
+                            <div v-if="props.scenario?.description" class="mb-2"><strong>Descripción:</strong> {{ props.scenario.description }}</div>
+                            <div class="mb-2"><strong>ID:</strong> {{ props.scenario?.id ?? '—' }}</div>
+                            <div class="mb-2"><strong>Estado:</strong> {{ props.scenario?.status ?? '—' }}</div>
+                            <div class="mb-2"><strong>Año fiscal:</strong> {{ props.scenario?.fiscal_year ?? '—' }}</div>
+                            <div class="mb-2"><strong>Organización:</strong> {{ props.scenario?.organization_id ?? '—' }}</div>
+                            <div v-if="props.scenario?.created_at" class="mb-2"><strong>Creado:</strong> {{ props.scenario.created_at }}</div>
+                            <div v-if="props.scenario?.updated_at" class="mb-2"><strong>Actualizado:</strong> {{ props.scenario.updated_at }}</div>
+                            <div class="mb-2"><strong>Capacidades:</strong> {{ (props.scenario?.capabilities ?? []).length }}</div>
+                        </div>
+                    </transition>
                 </aside>
             </transition>
+            
+            
             <div class="cap-list" v-if="nodes.length === 0">
                 No hay capacidades para mostrar.
             </div>
+                <!-- debug controls removed -->
         </div>
     </div>
 </template>
@@ -292,13 +350,20 @@ import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import * as d3 from 'd3';
 import { onMounted, ref, watch, onBeforeUnmount, computed } from 'vue';
+import type { CSSProperties } from 'vue';
 import type { NodeItem, Edge, ConnectionPayload, ScenarioShape } from '@/types/brain';
 interface Props {
     scenario?: {
         id?: number;
         name?: string;
+        description?: string;
+        status?: string;
+        fiscal_year?: number | string;
+        organization_id?: number | string;
         capabilities?: any[];
         connections?: any[];
+        created_at?: string | null;
+        updated_at?: string | null;
     };
 }
 
@@ -320,54 +385,105 @@ const tooltipY = ref(0);
 const childNodes = ref<Array<NodeItem>>([]);
 const childEdges = ref<Array<Edge>>([]);
 const showSidebar = ref(false);
+// localStorage keys
+const LS_KEYS = {
+    collapsed: 'stratos:scenario:nodeSidebarCollapsed',
+    lastView: 'stratos:scenario:lastView',
+    lastFocusedId: 'stratos:scenario:lastFocusedNodeId',
+};
+const savedFocusedNodeId = ref<number | null>(null);
+
+// viewport transform for pan/zoom
+const viewX = ref(0);
+const viewY = ref(0);
+const viewScale = ref(1);
+const viewportStyle = computed(() => ({
+    transform: `translate(${viewX.value}px, ${viewY.value}px) scale(${viewScale.value})`,
+    transformOrigin: '0 0',
+}));
+
+function centerOnNode(node: NodeItem) {
+    if (!node) return;
+    // center node in visible area
+    const targetX = Math.round(width.value / 2 - (node.x ?? 0));
+    const targetY = Math.round(height.value / 2 - (node.y ?? 0));
+    viewX.value = targetX;
+    viewY.value = targetY;
+}
+
+// (Using CSS scale for visual shrinking; radii kept constant)
 
 const toggleSidebar = () => {
     showSidebar.value = !showSidebar.value;
 };
 
+function openScenarioInfo() {
+    // close any focused node and its children, then reset view and show scenario info
+    closeTooltip();
+    viewScale.value = 1;
+    viewX.value = 0;
+    viewY.value = 0;
+    showSidebar.value = true;
+}
+
+function truncateLabel(s: any, max = 14) {
+    if (s == null) return '';
+    const str = String(s);
+    return str.length > max ? str.slice(0, max - 1) + '…' : str;
+}
+
 function computeInitialPosition(idx: number, total: number) {
+    // Grid-based centered layout: place nodes in a nearly square grid centered
     const centerX = width.value / 2;
     const centerY = height.value / 2 - 30;
-    const sx = Math.min(240, width.value / 4); // horizontal spacing
-    const sy = Math.min(140, height.value / 4); // vertical spacing
 
-    if (total === 1) {
-        return { x: Math.round(centerX), y: Math.round(centerY) };
+    if (total <= 1) return { x: Math.round(centerX), y: Math.round(centerY) };
+
+    // compute grid dimensions (cols x rows) close to square
+    const cols = Math.max(1, Math.ceil(Math.sqrt(total)));
+    const rows = Math.max(1, Math.ceil(total / cols));
+
+    // margins and spacing (more compact vertical spacing)
+    const margin = 24;
+    const availableW = Math.max(120, width.value - margin * 2);
+    const availableH = Math.max(120, height.value - margin * 2);
+    const spacingX = cols > 1 ? Math.min(160, Math.floor(availableW / cols)) : 0;
+    // increase vertical spacing cap to provide more room between rows
+    const spacingY = rows > 1 ? Math.min(140, Math.floor(availableH / rows)) : 0;
+
+    const col = idx % cols;
+    const row = Math.floor(idx / cols);
+
+    // center the whole grid around centerX/centerY
+    const totalGridW = (cols - 1) * spacingX;
+    const totalGridH = (rows - 1) * spacingY;
+    const offsetX = col * spacingX - totalGridW / 2;
+    const offsetY = row * spacingY - totalGridH / 2;
+
+    return { x: Math.round(centerX + offsetX), y: Math.round(centerY + offsetY) };
+}
+
+function nodeRenderShift(n: any) {
+    if (!focusedNode.value) return 0;
+    if (!n || n.id === focusedNode.value.id) return 0;
+    const baseX = n.x ?? 0;
+    const pivotX = focusedNode.value.x ?? 0;
+    const sideGap = Math.min(220, Math.round(width.value * 0.28));
+    return baseX < pivotX ? -sideGap : sideGap;
+}
+
+function renderNodeX(n: any) {
+    return (n.x ?? 0) + nodeRenderShift(n);
+}
+
+function renderedNodeById(id: number) {
+    if (id == null) return null;
+    if (id < 0) {
+        return childNodeById(id);
     }
-    if (total === 2) {
-        return {
-            x: Math.round(centerX + (idx === 0 ? -sx / 2 : sx / 2)),
-            y: Math.round(centerY),
-        };
-    }
-    if (total === 3) {
-        if (idx === 0) return { x: Math.round(centerX), y: Math.round(centerY - sy) };
-        return {
-            x: Math.round(centerX + (idx === 1 ? -sx / 1.6 : sx / 1.6)),
-            y: Math.round(centerY + sy / 1.2),
-        };
-    }
-    if (total === 4) {
-        const cols = [-sx / 2, sx / 2];
-        const rows = [-sy / 2, sy / 2];
-        const col = idx % 2;
-        const row = Math.floor(idx / 2);
-        return { x: Math.round(centerX + cols[col]), y: Math.round(centerY + rows[row]) };
-    }
-    // even split into two columns for small even totals (6,8,10)
-    if (total % 2 === 0 && total <= 10) {
-        const half = total / 2;
-        const col = idx < half ? -1 : 1;
-        const posInCol = idx < half ? idx : idx - half;
-        const spacing = Math.min((half - 1) * 40, 200);
-        const startY = centerY - spacing / 2;
-        const y = Math.round(startY + posInCol * (spacing / Math.max(half - 1, 1)));
-        return { x: Math.round(centerX + col * sx / 1.5), y };
-    }
-    // fallback: circle
-    const angle = ((2 * Math.PI) / total) * idx;
-    const r = Math.min(width.value, height.value) / 3;
-    return { x: Math.round(centerX + r * Math.cos(angle)), y: Math.round(centerY + r * Math.sin(angle)) };
+    const n = nodeById(id);
+    if (!n) return null;
+    return { x: renderNodeX(n), y: n.y } as any;
 }
 
 // Debug helpers removed
@@ -387,7 +503,8 @@ function buildNodesFromItems(items: any[]) {
         const rawY = it.position_y ?? it.y ?? it.cy ?? null;
         const parsedX = rawX != null ? parseFloat(String(rawX)) : NaN;
         const parsedY = rawY != null ? parseFloat(String(rawY)) : NaN;
-        const hasPos = !Number.isNaN(parsedX) && !Number.isNaN(parsedY);
+        // Default behaviour: center grid by default. Ignore stored coordinates so layout is consistent.
+    const hasPos = false;
         const x = hasPos ? Math.round(parsedX) : undefined;
         const y = hasPos ? Math.round(parsedY) : undefined;
         // if missing position, place roughly on a circle initially (helps force start) but mark undefined so we can re-run force
@@ -416,6 +533,7 @@ function buildNodesFromItems(items: any[]) {
     nodes.value = mapped.map((m: any) => ({
         id: m.id,
         name: m.name,
+        displayName: truncateLabel(m.name, 14),
         x: m.x,
         y: m.y,
         is_critical: !!m.is_critical,
@@ -424,12 +542,14 @@ function buildNodesFromItems(items: any[]) {
         importance: m.importance,
         level: m.level,
         required: m.required,
+        raw: m.raw,
     }));
     // build edges before attempting a force layout
     buildEdgesFromItems(items);
-    // if any node originally lacked real coordinates, run a short force layout to compute nicer positions
-    const missing = mapped.some((m: any) => !m._hasCoords);
-    if (missing) runForceLayout();
+    // Only run force layout if some nodes originally had real coordinates.
+    // When we intentionally ignore stored coords (default grid), do not run the simulation
+    const hadAnyCoords = mapped.some((m: any) => !!m._hasCoords);
+    if (hadAnyCoords) runForceLayout();
     // store last items so we can recompute layout on resize
     lastItems = items;
 }
@@ -464,14 +584,12 @@ function runForceLayout() {
         simulation.stop();
 
         const pos = new Map(
-            simNodes.map((n: any) => [
-                n.id,
-                { x: Math.round(n.x), y: Math.round(n.y) },
-            ]),
+            simNodes.map((n: any) => [n.id, { x: Math.round(n.x), y: Math.round(n.y) }]),
         );
-        nodes.value = nodes.value.map((n) => {
+        // Preserve existing node metadata (competencies, description, flags) when applying positions
+        nodes.value = nodes.value.map((n: any) => {
             const p = pos.get(n.id);
-            return { id: n.id, name: n.name, x: p?.x ?? n.x, y: p?.y ?? n.y };
+            return { ...n, x: p?.x ?? n.x, y: p?.y ?? n.y } as any;
         });
     } catch (err) {
         // if simulation fails, silently skip (fallback positions already set)
@@ -532,21 +650,207 @@ const handleNodeClick = (node: NodeItem, event?: MouseEvent) => {
     focusedNode.value = node;
     // expand competencies as child nodes (TheBrain style)
     expandCompetencies(node);
-    // if mouse event provided, use client coords; else derive from node position
-    if (event) {
+    // center the clicked node with a pan transform
+    centerOnNode(node);
+
+    // If we are NOT in fullscreen mode, fix panel to top-left corner
+    const inTrueFullscreen = !!document.fullscreenElement;
+    if (!inTrueFullscreen && !panelFullscreen.value) {
+        tooltipX.value = 24;
+        tooltipY.value = 24;
+    } else if (event) {
+        // when in fullscreen or CSS-fullscreen, use event coords
         tooltipX.value = event.clientX + 12;
         tooltipY.value = event.clientY + 12;
     } else {
+        // fallback: derive from node position
         tooltipX.value = (node.x ?? 0) + 12;
         tooltipY.value = (node.y ?? 0) + 12;
     }
+
+    // debug: log coordinates and fullscreen state (temporary)
+    // eslint-disable-next-line no-console
+    console.log('[PrototypeMap] panel coords', { x: tooltipX.value, y: tooltipY.value, fullscreen: inTrueFullscreen || !!panelFullscreen.value });
 };
 
 const closeTooltip = () => {
     focusedNode.value = null;
     childNodes.value = [];
     childEdges.value = [];
+    // reset pan to default
+    viewX.value = 0;
+    viewY.value = 0;
 };
+
+// panel drag (make the glass panel movable)
+const panelDragging = ref(false);
+const panelDragOffset = ref({ x: 0, y: 0 });
+const panelFullscreen = ref(false);
+
+// sidebar collapsed state: false -> visible (anchored), true -> collapsed (narrow)
+const nodeSidebarCollapsed = ref(false);
+
+function toggleNodeSidebarCollapse() {
+    nodeSidebarCollapsed.value = !nodeSidebarCollapsed.value;
+}
+
+// sidebar theme: 'light' | 'dark'
+const sidebarTheme = ref<'light' | 'dark'>('light');
+
+function toggleSidebarTheme() {
+    sidebarTheme.value = sidebarTheme.value === 'light' ? 'dark' : 'light';
+}
+
+// visible when not collapsed; when collapsed the sidebar shows a narrow tab
+const nodeSidebarVisible = computed(() => {
+    return !nodeSidebarCollapsed.value;
+});
+
+// helper to avoid referencing `document` from the template context (template type-checker complains)
+const isDocumentFullScreen = computed(() => {
+    return !!(globalThis.document && globalThis.document.fullscreenElement);
+});
+
+const panelStyle = computed<CSSProperties>(() => {
+    // compute width depending on collapsed state and fullscreen
+    const inTrueFullscreen = !!document.fullscreenElement;
+    const widthPx = inTrueFullscreen || panelFullscreen.value ? 360 : nodeSidebarCollapsed.value ? 56 : 360;
+
+    // If document is in true Fullscreen API or panelFullscreen requested, keep the panel fixed
+    if (inTrueFullscreen || panelFullscreen.value) {
+        return {
+            position: 'fixed',
+            right: '0px',
+            top: '0px',
+            height: '100vh',
+            width: `${widthPx}px`,
+            zIndex: 100000,
+            overflow: 'auto',
+        } as CSSProperties;
+    }
+
+    // Normal mode: provide width so layout can shift; CSS handles positioning
+    return {
+        width: `${widthPx}px`,
+    } as CSSProperties;
+});
+
+function startPanelDrag(e: PointerEvent) {
+    panelDragging.value = true;
+    panelDragOffset.value.x = e.clientX - (tooltipX.value || 0);
+    panelDragOffset.value.y = e.clientY - (tooltipY.value || 0);
+    window.addEventListener('pointermove', onPanelPointerMove);
+    window.addEventListener('pointerup', onPanelPointerUp);
+}
+
+function onPanelPointerMove(e: PointerEvent) {
+    if (!panelDragging.value) return;
+    const proposedX = Math.round(e.clientX - panelDragOffset.value.x);
+    const proposedY = Math.round(e.clientY - panelDragOffset.value.y);
+    // attempt to clamp within mapRoot bounds (if available)
+    const mapEl = mapRoot.value as HTMLElement | null;
+    const panelEl = document.querySelector('.glass-panel-strong') as HTMLElement | null;
+    if (panelEl) {
+        const panelRect = panelEl.getBoundingClientRect();
+        if (document.fullscreenElement) {
+            // clamp against viewport when in fullscreen
+            const minX = 8;
+            const maxX = Math.round(window.innerWidth - panelRect.width - 8);
+            const minY = 8;
+            const maxY = Math.round(window.innerHeight - panelRect.height - 8);
+            tooltipX.value = Math.min(Math.max(proposedX, minX), Math.max(minX, maxX));
+            tooltipY.value = Math.min(Math.max(proposedY, minY), Math.max(minY, maxY));
+            return;
+        }
+        if (mapEl) {
+            const mapRect = mapEl.getBoundingClientRect();
+            const minX = Math.round(mapRect.left + 8); // small padding
+            const maxX = Math.round(mapRect.right - panelRect.width - 8);
+            const minY = Math.round(mapRect.top + 8);
+            const maxY = Math.round(mapRect.bottom - panelRect.height - 8);
+            tooltipX.value = Math.min(Math.max(proposedX, minX), Math.max(minX, maxX));
+            tooltipY.value = Math.min(Math.max(proposedY, minY), Math.max(minY, maxY));
+            return;
+        }
+    }
+    tooltipX.value = proposedX;
+    tooltipY.value = proposedY;
+}
+
+function onPanelPointerUp() {
+    panelDragging.value = false;
+    window.removeEventListener('pointermove', onPanelPointerMove);
+    window.removeEventListener('pointerup', onPanelPointerUp);
+}
+
+async function togglePanelFullscreen() {
+    // prefer using the Fullscreen API when available
+    const fsAvailable = !!(document.fullscreenEnabled);
+    // if Fullscreen API unavailable, fallback to CSS toggle on panel
+    if (!fsAvailable) {
+        panelFullscreen.value = !panelFullscreen.value;
+        if (panelFullscreen.value) {
+            tooltipX.value = 24;
+            tooltipY.value = 24;
+        }
+        return;
+    }
+
+    // request fullscreen on the main map container so SVG remains visible
+    const containerEl = (mapRoot.value as HTMLElement) || document.documentElement;
+    const panelEl = document.querySelector('.glass-panel-strong') as HTMLElement | null;
+
+    // compute relative ratios of the panel inside the container so we can restore position after resize
+    let ratioX = 0.06;
+    let ratioY = 0.06;
+    if (panelEl && containerEl instanceof HTMLElement) {
+        const mapRectBefore = containerEl.getBoundingClientRect();
+        const panelRectBefore = panelEl.getBoundingClientRect();
+        if (mapRectBefore.width > 0 && mapRectBefore.height > 0) {
+            ratioX = (panelRectBefore.left - mapRectBefore.left) / mapRectBefore.width;
+            ratioY = (panelRectBefore.top - mapRectBefore.top) / mapRectBefore.height;
+        }
+    }
+
+    try {
+        if (!document.fullscreenElement) {
+            await containerEl.requestFullscreen();
+            // ensure visual state
+            panelFullscreen.value = true;
+            // allow layout to stabilise and then compute new absolute pos using ratios
+            await new Promise((r) => setTimeout(r, 48));
+            const mapRectNow = (containerEl as HTMLElement).getBoundingClientRect();
+            tooltipX.value = Math.round(Math.max(8, Math.min(mapRectNow.width - 48, ratioX * mapRectNow.width)));
+            tooltipY.value = Math.round(Math.max(8, Math.min(mapRectNow.height - 48, ratioY * mapRectNow.height)));
+        } else {
+            await document.exitFullscreen();
+            panelFullscreen.value = false;
+            // when exiting fullscreen, clamp position to the normal container
+            const panelElAfter = document.querySelector('.glass-panel-strong') as HTMLElement | null;
+            if (panelElAfter && mapRoot.value) {
+                const mapRectAfter = (mapRoot.value as HTMLElement).getBoundingClientRect();
+                const panelRectAfter = panelElAfter.getBoundingClientRect();
+                const clampedX = Math.min(Math.max(panelRectAfter.left - mapRectAfter.left, 8), Math.max(8, mapRectAfter.width - panelRectAfter.width - 8));
+                const clampedY = Math.min(Math.max(panelRectAfter.top - mapRectAfter.top, 8), Math.max(8, mapRectAfter.height - panelRectAfter.height - 8));
+                tooltipX.value = Math.round(clampedX);
+                tooltipY.value = Math.round(clampedY);
+            }
+        }
+    } catch (err) {
+        // fallback: toggle CSS on panel only
+        panelFullscreen.value = !panelFullscreen.value;
+        if (panelEl) {
+            if (panelFullscreen.value) panelEl.classList.add('glass-fullscreen');
+            else panelEl.classList.remove('glass-fullscreen');
+        }
+    }
+}
+
+function onFullscreenChange() {
+    const containerEl = (mapRoot.value as HTMLElement) || null;
+    const isFs = document.fullscreenElement === containerEl;
+    panelFullscreen.value = !!isFs;
+}
 
 function expandCompetencies(node: NodeItem) {
     childNodes.value = [];
@@ -555,8 +859,8 @@ function expandCompetencies(node: NodeItem) {
     if (!Array.isArray(comps) || comps.length === 0) return;
     const angleStep = (2 * Math.PI) / comps.length;
     const radius = 90; // distance from parent
-    const cx = node.x ?? width / 2;
-    const cy = node.y ?? height / 2;
+    const cx = node.x ?? width.value / 2;
+    const cy = node.y ?? height.value / 2;
     comps.forEach((c: any, i: number) => {
         const angle = i * angleStep;
         const x = Math.round(cx + radius * Math.cos(angle));
@@ -568,6 +872,7 @@ function expandCompetencies(node: NodeItem) {
             id,
             compId: c.id ?? null,
             name: c.name ?? c,
+            displayName: truncateLabel(c.name ?? c, 16),
             x,
             y,
             is_critical: false,
@@ -575,7 +880,7 @@ function expandCompetencies(node: NodeItem) {
             readiness: c.readiness ?? null,
             skills: Array.isArray(c.skills) ? c.skills : [],
             raw: c,
-        });
+        } as any);
         childEdges.value.push({ source: node.id, target: id });
     });
 }
@@ -667,6 +972,21 @@ onMounted(() => {
         const caps = (props.scenario as any).capabilities;
         buildNodesFromItems(caps);
         buildEdgesFromItems(caps);
+        // restore persisted UI state after nodes built
+        try {
+            const collapsed = localStorage.getItem(LS_KEYS.collapsed);
+            if (collapsed !== null) nodeSidebarCollapsed.value = collapsed === 'true';
+            const lastView = localStorage.getItem(LS_KEYS.lastView);
+            const lastId = localStorage.getItem(LS_KEYS.lastFocusedId);
+            if (lastId) savedFocusedNodeId.value = parseInt(lastId, 10);
+            if (lastView === 'scenario' && !focusedNode.value) showSidebar.value = true;
+            if (savedFocusedNodeId.value) {
+                const restored = nodeById(savedFocusedNodeId.value);
+                if (restored) focusedNode.value = restored;
+            }
+        } catch (e) {
+            // ignore storage errors
+        }
         loaded.value = true;
         return;
     }
@@ -709,13 +1029,32 @@ onMounted(() => {
         });
         ro.observe(el);
     }
+    // listen fullscreen change to sync state and classes
+    document.addEventListener('fullscreenchange', onFullscreenChange);
     const onWindowResize = () => applySize();
     window.addEventListener('resize', onWindowResize);
     onBeforeUnmount(() => {
         if (ro) ro.disconnect();
         window.removeEventListener('resize', onWindowResize);
+        document.removeEventListener('fullscreenchange', onFullscreenChange);
     });
 });
+
+// persist UI choices: collapsed, lastView, lastFocusedNodeId
+watch(
+    [nodeSidebarCollapsed, showSidebar, focusedNode],
+    () => {
+        try {
+            localStorage.setItem(LS_KEYS.collapsed, nodeSidebarCollapsed.value ? 'true' : 'false');
+            const lastView = focusedNode.value ? 'node' : showSidebar.value ? 'scenario' : 'none';
+            localStorage.setItem(LS_KEYS.lastView, lastView);
+            localStorage.setItem(LS_KEYS.lastFocusedId, focusedNode.value ? String((focusedNode.value as any).id) : '');
+        } catch (e) {
+            // ignore storage errors
+        }
+    },
+    { immediate: true },
+);
 
 // react to scenario prop updates (e.g., loaded after mount)
 watch(
@@ -737,6 +1076,8 @@ watch(
     { immediate: false, deep: true },
 );
 
+// debug watch removed
+
 // ensure edges exist even if no capabilities loaded yet (avoids template warnings)
 if (!edges.value) edges.value = [];
 </script>
@@ -745,10 +1086,12 @@ if (!edges.value) edges.value = [];
 .prototype-map-root {
     padding: 16px;
     position: relative;
-    /* ensure there's room for the sidebar to anchor against */
-    min-height: 420px;
+    /* use viewport-aware height so the component adapts to screen size */
+    height: calc(100vh - 120px);
+    max-height: calc(100vh - 72px);
     display: flex;
     flex-direction: column;
+    color: #ffffff;
 }
 
 /* sidebar styles - anchored to the right */
@@ -810,12 +1153,19 @@ if (!edges.value) edges.value = [];
 .map-canvas {
     display: block;
     width: 100%;
-    height: 100%;
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 260px;
+}
+
+/* smooth pan/zoom transitions for viewport group */
+.viewport-group {
+    transition: transform 420ms cubic-bezier(.22,.9,.3,1);
 }
 
 .node-group {
     cursor: grab;
-    transition: transform 0.12s ease;
+    transition: transform 420ms cubic-bezier(.22,.9,.3,1);
     transform-box: fill-box;
     transform-origin: center;
 }
@@ -832,16 +1182,165 @@ if (!edges.value) edges.value = [];
         transform 0.12s ease;
 }
 
+/* SVG text labels should be white for better contrast */
+.node-label {
+    fill: #ffffff;
+    fill-opacity: 1;
+    font-weight: 600;
+    font-size: 12px;
+    dominant-baseline: hanging;
+}
+
+.node-group.small .node-label {
+    font-size: 10px;
+}
+
+/* scale down non-selected nodes smoothly via CSS transform */
+.node-circle {
+    transition:
+        r 0.12s ease,
+        filter 0.12s ease,
+        transform 420ms cubic-bezier(.22,.9,.3,1);
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+/* scale down visuals (circle + label) for non-selected nodes without moving their group */
+.node-group.small .node-circle {
+    transform: scale(0.5);
+}
+.node-group.small .node-label {
+    transform: scale(0.85);
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
 .child-node .node-circle {
     fill: #1f2937;
 }
 .child-edge {
-    stroke: rgba(200,200,200,0.12);
-    stroke-dasharray: 2 3;
+    stroke-dasharray: none;
+    opacity: 0.95;
+}
+
+/* make child edges more visible with subtle glow */
+.edge-line.child-edge {
+    mix-blend-mode: screen;
 }
 
 .node-inner {
     pointer-events: none;
+}
+
+/* glass panel styles */
+.glass-panel-strong {
+    color: #ffffff;
+    background: rgba(255,255,255,0.04);
+    padding: 20px;
+    box-sizing: border-box;
+    min-width: 220px;
+}
+.glass-panel-strong .panel-header {
+    cursor: move;
+    user-select: none;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+.glass-panel-strong .mb-2 {
+    margin-bottom: 8px;
+}
+
+/* sidebar variant: when a node detail sidebar is open, push content to the left */
+.with-node-sidebar {
+    transition: margin 180ms ease;
+    margin-right: 360px; /* width of sidebar */
+}
+
+.node-details-sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 360px;
+    box-sizing: border-box;
+    z-index: 60;
+    overflow-y: auto;
+    padding: 20px;
+    backdrop-filter: blur(6px);
+}
+
+/* Light theme (default) */
+.node-details-sidebar.theme-light {
+    border-left: 1px solid rgba(0,0,0,0.06);
+    background: rgba(255,255,255,0.96);
+    color: #0b0b0b;
+}
+.node-details-sidebar.theme-light .text-white\/60,
+.node-details-sidebar.theme-light .text-white\/50,
+.node-details-sidebar.theme-light .text-small,
+.node-details-sidebar.theme-light .text-xs {
+    color: rgba(0,0,0,0.72) !important;
+}
+.node-details-sidebar.theme-light pre,
+.node-details-sidebar.theme-light summary {
+    color: #0b0b0b !important;
+}
+
+/* Dark theme (glass-style) */
+.node-details-sidebar.theme-dark {
+    border-left: 1px solid rgba(255,255,255,0.04);
+    background: rgba(11,16,41,0.95);
+    color: #ffffff;
+}
+.node-details-sidebar.theme-dark .text-white\/60,
+.node-details-sidebar.theme-dark .text-white\/50,
+.node-details-sidebar.theme-dark .text-small,
+.node-details-sidebar.theme-dark .text-xs {
+    color: rgba(255,255,255,0.72) !important;
+}
+.node-details-sidebar.theme-dark pre,
+.node-details-sidebar.theme-dark summary {
+    color: #ffffff !important;
+}
+
+
+/* fullscreen variant for the details panel */
+.glass-fullscreen {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    left: 0 !important;
+    top: 0 !important;
+    border-radius: 0 !important;
+    padding: 28px !important;
+    z-index: 100000 !important;
+    overflow: auto !important;
+    backdrop-filter: blur(6px);
+}
+
+/* collapsed sidebar: narrow tab and reduced margin */
+.with-node-sidebar-collapsed {
+    transition: margin 180ms ease;
+    margin-right: 56px; /* narrow tab width */
+}
+.node-details-sidebar.collapsed {
+    width: 56px !important;
+    padding: 8px !important;
+    overflow: visible;
+}
+.node-details-sidebar.collapsed .panel-header > strong,
+.node-details-sidebar.collapsed .text-xs,
+.node-details-sidebar.collapsed .text-small,
+.node-details-sidebar.collapsed details,
+.node-details-sidebar.collapsed .sidebar-body {
+    display: none !important;
+}
+.sidebar-collapse-toggle {
+    position: absolute;
+    left: -28px;
+    top: 12px;
+    z-index: 100001;
 }
 
 </style>
