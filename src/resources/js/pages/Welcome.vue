@@ -56,7 +56,7 @@ withDefaults(
 
                         <!-- Navigation Links -->
                         <v-col cols="auto">
-                            <v-button-group>
+                            <v-btn-group>
                                 <Link
                                     v-if="!auth.user"
                                     :href="login()"
@@ -98,7 +98,7 @@ withDefaults(
                                         Dashboard
                                     </v-btn>
                                 </Link>
-                            </v-button-group>
+                            </v-btn-group>
                         </v-col>
                     </v-row>
                 </v-col>

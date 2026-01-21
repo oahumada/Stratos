@@ -8,7 +8,7 @@ class ScenarioRepository
     public function findWithCapabilities(int $id)
     {
         return Scenario::with([
-            'capabilities.competencies.competencySkills.skill',
+            'capabilities.competencies.skills',
             'owner'
         ])->findOrFail($id);
     }
@@ -35,7 +35,7 @@ class ScenarioRepository
     {
         return Scenario::with([
             'owner',
-            'capabilities.competencies.competencySkills.skill',
+            'capabilities.competencies.skills',
             'statusEvents',
             'parent'
         ])->find($id);

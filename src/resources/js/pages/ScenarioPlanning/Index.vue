@@ -1,5 +1,5 @@
 <template>
-    <div class="prototype-map-root">
+    <div class="prototype-map-root" ref="mapRoot">
         <div
             class="map-controls"
             style="
@@ -22,6 +22,15 @@
             <v-btn small @click="resetPositions" v-if="nodes.length > 0"
                 >Reset posiciones</v-btn
             >
+            <v-btn
+                small
+                icon
+                color="primary"
+                @click="toggleSidebar"
+                title="Información del escenario"
+            >
+                <v-icon icon="mdi-information" />
+            </v-btn>
         </div>
         <div v-if="!loaded">Cargando mapa...</div>
         <div v-else>
@@ -129,8 +138,8 @@
                         <line
                             v-for="(e, idx) in childEdges"
                             :key="`child-edge-${idx}`"
-                            :x1="nodeById(e.source)?.x ?? (e.source < 0 ? childNodeById(e.source)?.x : undefined)"
-                            :y1="nodeById(e.source)?.y ?? (e.source < 0 ? childNodeById(e.source)?.y : undefined)"
+                            :x1="nodeById(e.source)?.x ?? (e.source < 0 ? (childNodeById(e.source)?.x ?? undefined) : undefined)"
+                            :y1="nodeById(e.source)?.y ?? (e.source < 0 ? (childNodeById(e.source)?.y ?? undefined) : undefined)"
                             :x2="childNodeById(e.target)?.x ?? undefined"
                             :y2="childNodeById(e.target)?.y ?? undefined"
                             class="edge-line child-edge"
@@ -214,8 +223,22 @@
                         </v-btn>
                     </div>
                     <div class="text-small text-medium-emphasis mb-2">
-                        <!-- display possible description or metadata if present -->
-                        <div v-if="(focusedNode as any).description">{{ (focusedNode as any).description }}</div>
+                        <!-- If focusedNode is a competency (child node), show its attributes -->
+                        <template v-if="(focusedNode as any).skills || (focusedNode as any).compId">
+                            <div v-if="(focusedNode as any).description">{{ (focusedNode as any).description }}</div>
+                            <div class="text-xs text-white/60">Readiness: {{ (focusedNode as any).readiness ?? '—' }}%</div>
+                            <div class="mt-2 text-xs text-white/60 mb-1">Skills</div>
+                            <ul class="pl-3 mb-0">
+                                <li v-for="(s, idx) in (focusedNode as any).skills" :key="idx">
+                                    {{ s.name }} <span class="text-white/50">(weight: {{ s.weight ?? s.pivot?.weight ?? '—' }}, readiness: {{ s.readiness ?? '—' }}%)</span>
+                                </li>
+                            </ul>
+                        </template>
+
+                        <!-- If focusedNode is a capability, show its competencies list -->
+                        <template v-else>
+                            <div v-if="(focusedNode as any).description">{{ (focusedNode as any).description }}</div>
+                        </template>
                     </div>
                     <div v-if="(focusedNode as any).competencies && (focusedNode as any).competencies.length > 0">
                         <div class="text-xs text-white/60 mb-1">Competencias</div>
@@ -223,8 +246,39 @@
                             <li v-for="(c, i) in (focusedNode as any).competencies" :key="i">{{ c.name || c }}</li>
                         </ul>
                     </div>
-                    <div v-else class="text-xs text-white/50">No hay competencias registradas.</div>
+                    <div v-else-if="!(focusedNode as any).skills"> 
+                        <div class="text-xs text-white/50">No hay competencias registradas.</div>
+                    </div>
                 </div>
+            </transition>
+            
+            <!-- Scenario side panel -->
+            <transition name="slide-fade">
+                <aside
+                    v-if="showSidebar"
+                    class="scenario-sidebar"
+                    role="region"
+                    aria-label="Información del escenario"
+                >
+                    <div class="sidebar-header d-flex justify-space-between align-center mb-4">
+                        <h3 class="mb-0">Escenario</h3>
+                        <v-btn icon small variant="text" @click="toggleSidebar">
+                            <v-icon icon="mdi-close" />
+                        </v-btn>
+                    </div>
+
+                    <div class="sidebar-body text-sm">
+                        <div class="mb-2"><strong>Nombre:</strong> {{ props.scenario?.name || '—' }}</div>
+                        <div v-if="props.scenario?.description" class="mb-2"><strong>Descripción:</strong> {{ props.scenario.description }}</div>
+                        <div class="mb-2"><strong>ID:</strong> {{ props.scenario?.id ?? '—' }}</div>
+                        <div class="mb-2"><strong>Estado:</strong> {{ props.scenario?.status ?? '—' }}</div>
+                        <div class="mb-2"><strong>Año fiscal:</strong> {{ props.scenario?.fiscal_year ?? '—' }}</div>
+                        <div class="mb-2"><strong>Organización:</strong> {{ props.scenario?.organization_id ?? '—' }}</div>
+                        <div v-if="props.scenario?.created_at" class="mb-2"><strong>Creado:</strong> {{ props.scenario.created_at }}</div>
+                        <div v-if="props.scenario?.updated_at" class="mb-2"><strong>Actualizado:</strong> {{ props.scenario.updated_at }}</div>
+                        <div class="mb-2"><strong>Capacidades:</strong> {{ (props.scenario?.capabilities ?? []).length }}</div>
+                    </div>
+                </aside>
             </transition>
             <div class="cap-list" v-if="nodes.length === 0">
                 No hay capacidades para mostrar.
@@ -237,7 +291,7 @@
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import * as d3 from 'd3';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, onBeforeUnmount, computed } from 'vue';
 import type { NodeItem, Edge, ConnectionPayload, ScenarioShape } from '@/types/brain';
 interface Props {
     scenario?: {
@@ -256,13 +310,65 @@ const edges = ref<Array<Edge>>([]);
 const dragging = ref<any>(null);
 const dragOffset = ref({ x: 0, y: 0 });
 const { showSuccess, showError } = useNotification();
-const width = 900;
-const height = 600;
+const width = ref(900);
+const height = ref(600);
+const mapRoot = ref<HTMLElement | null>(null);
+let lastItems: any[] = [];
 const focusedNode = ref<NodeItem | null>(null);
 const tooltipX = ref(0);
 const tooltipY = ref(0);
 const childNodes = ref<Array<NodeItem>>([]);
 const childEdges = ref<Array<Edge>>([]);
+const showSidebar = ref(false);
+
+const toggleSidebar = () => {
+    showSidebar.value = !showSidebar.value;
+};
+
+function computeInitialPosition(idx: number, total: number) {
+    const centerX = width.value / 2;
+    const centerY = height.value / 2 - 30;
+    const sx = Math.min(240, width.value / 4); // horizontal spacing
+    const sy = Math.min(140, height.value / 4); // vertical spacing
+
+    if (total === 1) {
+        return { x: Math.round(centerX), y: Math.round(centerY) };
+    }
+    if (total === 2) {
+        return {
+            x: Math.round(centerX + (idx === 0 ? -sx / 2 : sx / 2)),
+            y: Math.round(centerY),
+        };
+    }
+    if (total === 3) {
+        if (idx === 0) return { x: Math.round(centerX), y: Math.round(centerY - sy) };
+        return {
+            x: Math.round(centerX + (idx === 1 ? -sx / 1.6 : sx / 1.6)),
+            y: Math.round(centerY + sy / 1.2),
+        };
+    }
+    if (total === 4) {
+        const cols = [-sx / 2, sx / 2];
+        const rows = [-sy / 2, sy / 2];
+        const col = idx % 2;
+        const row = Math.floor(idx / 2);
+        return { x: Math.round(centerX + cols[col]), y: Math.round(centerY + rows[row]) };
+    }
+    // even split into two columns for small even totals (6,8,10)
+    if (total % 2 === 0 && total <= 10) {
+        const half = total / 2;
+        const col = idx < half ? -1 : 1;
+        const posInCol = idx < half ? idx : idx - half;
+        const spacing = Math.min((half - 1) * 40, 200);
+        const startY = centerY - spacing / 2;
+        const y = Math.round(startY + posInCol * (spacing / Math.max(half - 1, 1)));
+        return { x: Math.round(centerX + col * sx / 1.5), y };
+    }
+    // fallback: circle
+    const angle = ((2 * Math.PI) / total) * idx;
+    const r = Math.min(width.value, height.value) / 3;
+    return { x: Math.round(centerX + r * Math.cos(angle)), y: Math.round(centerY + r * Math.sin(angle)) };
+}
 
 // Debug helpers removed
 
@@ -272,9 +378,9 @@ function buildNodesFromItems(items: any[]) {
         return;
     }
     // prefer provided position_x/position_y or numeric x/y; if missing leave undefined so force layout can compute
-    const centerX = width / 2;
-    const centerY = height / 2 - 30;
-    const radius = Math.min(width, height) / 3;
+    const centerX = width.value / 2;
+    const centerY = height.value / 2 - 30;
+    const radius = Math.min(width.value, height.value) / 3;
     const angleStep = (2 * Math.PI) / items.length;
     const mapped = items.map((it: any, idx: number) => {
         const rawX = it.position_x ?? it.x ?? it.cx ?? null;
@@ -285,12 +391,9 @@ function buildNodesFromItems(items: any[]) {
         const x = hasPos ? Math.round(parsedX) : undefined;
         const y = hasPos ? Math.round(parsedY) : undefined;
         // if missing position, place roughly on a circle initially (helps force start) but mark undefined so we can re-run force
-        const fallbackX = Math.round(
-            centerX + radius * Math.cos(idx * angleStep),
-        );
-        const fallbackY = Math.round(
-            centerY + radius * Math.sin(idx * angleStep),
-        );
+        const fallbackPos = computeInitialPosition(idx, items.length);
+        const fallbackX = Math.round(fallbackPos.x);
+        const fallbackY = Math.round(fallbackPos.y);
         return {
             id: Number(it.id),
             name: it.name,
@@ -298,6 +401,16 @@ function buildNodesFromItems(items: any[]) {
             y: y ?? fallbackY,
             _hasCoords: hasPos,
             is_critical: it.is_critical ?? it.isCritical ?? false,
+            description: it.description ?? it.desc ?? null,
+            competencies: Array.isArray(it.competencies)
+                ? it.competencies
+                : Array.isArray(it.competency)
+                ? it.competency
+                : [],
+            importance: it.importance ?? it.rank ?? null,
+            level: it.level ?? null,
+            required: it.required ?? null,
+            raw: it,
         } as any;
     });
     nodes.value = mapped.map((m: any) => ({
@@ -306,12 +419,19 @@ function buildNodesFromItems(items: any[]) {
         x: m.x,
         y: m.y,
         is_critical: !!m.is_critical,
+        description: m.description,
+        competencies: m.competencies,
+        importance: m.importance,
+        level: m.level,
+        required: m.required,
     }));
     // build edges before attempting a force layout
     buildEdgesFromItems(items);
     // if any node originally lacked real coordinates, run a short force layout to compute nicer positions
     const missing = mapped.some((m: any) => !m._hasCoords);
     if (missing) runForceLayout();
+    // store last items so we can recompute layout on resize
+    lastItems = items;
 }
 
 function runForceLayout() {
@@ -337,7 +457,7 @@ function runForceLayout() {
                     .strength(0.5),
             )
             .force('charge', (d3 as any).forceManyBody().strength(-220))
-            .force('center', (d3 as any).forceCenter(width / 2, height / 2));
+            .force('center', (d3 as any).forceCenter(width.value / 2, height.value / 2));
 
         // run a fixed number of synchronous ticks to stabilise layout
         for (let i = 0; i < 300; i++) simulation.tick();
@@ -407,6 +527,7 @@ function childNodeById(id: number) {
 }
 
 const handleNodeClick = (node: NodeItem, event?: MouseEvent) => {
+    console.log('[PrototypeMap] clicked node', node);
     // focus node and compute tooltip position relative to svg
     focusedNode.value = node;
     // expand competencies as child nodes (TheBrain style)
@@ -442,7 +563,19 @@ function expandCompetencies(node: NodeItem) {
         const y = Math.round(cy + radius * Math.sin(angle));
         // create a unique negative id to avoid collision with real nodes
         const id = -(node.id * 1000 + i + 1);
-        childNodes.value.push({ id, name: c.name ?? c, x, y, is_critical: false });
+        // preserve competency attributes so tooltip can show them
+        childNodes.value.push({
+            id,
+            compId: c.id ?? null,
+            name: c.name ?? c,
+            x,
+            y,
+            is_critical: false,
+            description: c.description ?? null,
+            readiness: c.readiness ?? null,
+            skills: Array.isArray(c.skills) ? c.skills : [],
+            raw: c,
+        });
         childEdges.value.push({ source: node.id, target: id });
     });
 }
@@ -539,6 +672,49 @@ onMounted(() => {
     }
     // otherwise fetch capability tree from API
     void loadTreeFromApi(props.scenario?.id);
+
+    // initialize responsive sizing and observe container
+    const el = mapRoot.value as HTMLElement | null;
+    const applySize = (w?: number, h?: number) => {
+        const computedWidth = w ?? el?.clientWidth ?? 900;
+        // compute available height inside the container: prefer container height if available,
+        // otherwise use viewport remaining space below the container's top.
+        let containerHeight = el?.clientHeight ?? 0;
+        if (!containerHeight || containerHeight === 0) {
+            const top = el?.getBoundingClientRect().top ?? 0;
+            containerHeight = Math.max(320, Math.round(window.innerHeight - top - 24));
+        }
+        const controlsEl = el?.querySelector('.map-controls') as HTMLElement | null;
+        const controlsH = controlsEl?.offsetHeight ?? 0;
+        const computedHeight = h ?? Math.max(300, containerHeight - controlsH - 12);
+
+        width.value = computedWidth;
+        height.value = computedHeight;
+
+        // if we have previously loaded items, rebuild positions to adapt
+        if (Array.isArray(lastItems) && lastItems.length > 0) {
+            buildNodesFromItems(lastItems);
+            buildEdgesFromItems(lastItems);
+        }
+    };
+    applySize();
+    let ro: ResizeObserver | null = null;
+    if (el && (window as any).ResizeObserver) {
+        ro = new ResizeObserver((entries: any) => {
+            for (const entry of entries) {
+                const w = Math.round(entry.contentRect.width);
+                const h = Math.round(entry.contentRect.height);
+                applySize(w, h);
+            }
+        });
+        ro.observe(el);
+    }
+    const onWindowResize = () => applySize();
+    window.addEventListener('resize', onWindowResize);
+    onBeforeUnmount(() => {
+        if (ro) ro.disconnect();
+        window.removeEventListener('resize', onWindowResize);
+    });
 });
 
 // react to scenario prop updates (e.g., loaded after mount)
@@ -568,10 +744,50 @@ if (!edges.value) edges.value = [];
 <style scoped>
 .prototype-map-root {
     padding: 16px;
+    position: relative;
+    /* ensure there's room for the sidebar to anchor against */
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
 }
-</style>
 
-<style scoped>
+/* sidebar styles - anchored to the right */
+.scenario-sidebar {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    bottom: 16px;
+    width: 340px;
+    max-width: calc(100% - 48px);
+    background: rgba(18, 24, 32, 0.95);
+    color: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(2,6,23,0.6);
+    z-index: 60;
+    overflow: auto;
+}
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+    transition: all 240ms ease;
+}
+.slide-fade-enter-from {
+    transform: translateX(12px);
+    opacity: 0;
+}
+.slide-fade-enter-to {
+    transform: translateX(0);
+    opacity: 1;
+}
+.slide-fade-leave-from {
+    transform: translateX(0);
+    opacity: 1;
+}
+.slide-fade-leave-to {
+    transform: translateX(12px);
+    opacity: 0;
+}
+
 .edges line {
     transition:
         x1 0.08s linear,
@@ -588,6 +804,13 @@ if (!edges.value) edges.value = [];
         stroke 0.12s ease,
         stroke-width 0.12s ease,
         opacity 0.12s ease;
+}
+
+/* make SVG canvas expand to available space */
+.map-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .node-group {
@@ -621,34 +844,4 @@ if (!edges.value) edges.value = [];
     pointer-events: none;
 }
 
-.node-label {
-    fill: #ffffff;
-    font-weight: 600;
-    font-size: 12px;
-    pointer-events: none;
-    paint-order: stroke;
-    stroke: rgba(0, 0, 0, 0.35);
-    stroke-width: 0.6px;
-}
-
-/* critical pulse */
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        filter: drop-shadow(0 0 0 rgba(255, 0, 0, 0));
-    }
-    50% {
-        transform: scale(1.08);
-        filter: drop-shadow(0 0 12px rgba(255, 60, 60, 0.65));
-    }
-    100% {
-        transform: scale(1);
-        filter: drop-shadow(0 0 0 rgba(255, 0, 0, 0));
-    }
-}
-.node-group.critical .node-circle {
-    animation: pulse 1.6s infinite;
-    stroke: rgba(255, 80, 80, 0.95);
-    stroke-width: 2px;
-}
 </style>

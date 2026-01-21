@@ -8,6 +8,8 @@ export interface NodeItem {
   importance?: number;
   level?: number;
   required?: number;
+  description?: string;
+  competencies?: any[];
 }
 
 export interface Edge {

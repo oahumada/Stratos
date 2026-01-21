@@ -24,4 +24,9 @@ class Competency extends Model
             ->withPivot('weight')
             ->withTimestamps();
     }
+
+    public function competencySkills()
+    {
+        return $this->hasMany(CompetencySkill::class, 'competency_id');
+    }
 }

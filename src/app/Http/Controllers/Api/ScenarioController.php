@@ -69,7 +69,7 @@ class ScenarioController extends Controller
     public function getCapabilityTree($id)
     {
         $scenario = Scenario::with([
-            'capabilities.competencies.competencySkills.skill'
+            'capabilities.competencies.skills'
         ])->findOrFail($id);
 
         $tree = $scenario->capabilities->map(function ($capability) use ($id) {
@@ -83,14 +83,15 @@ class ScenarioController extends Controller
                     return [
                         'id' => $comp->id,
                         'name' => $comp->name,
+                        'description' => $comp->description ?? null,
                         'readiness' => round($this->analytics->calculateCompetencyReadiness($id, $comp->id) * 100, 1),
-                        'skills' => $comp->competencySkills->map(function ($cs) use ($id) {
+                        'skills' => $comp->skills->map(function ($skill) use ($id) {
                             return [
-                                'id' => $cs->skill->id,
-                                'name' => $cs->skill->name,
-                                'weight' => $cs->weight,
-                                'is_incubating' => !is_null($cs->skill->discovered_in_scenario_id),
-                                'readiness' => round($this->analytics->calculateSkillReadiness($id, $cs->skill->id) * 100, 1)
+                                'id' => $skill->id,
+                                'name' => $skill->name,
+                                'weight' => $skill->pivot->weight ?? null,
+                                'is_incubating' => !is_null($skill->discovered_in_scenario_id),
+                                'readiness' => round($this->analytics->calculateSkillReadiness($id, $skill->id) * 100, 1)
                             ];
                         })
                     ];
