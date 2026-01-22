@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\DB;
 
 class Capability extends Model
 {
@@ -33,5 +34,44 @@ class Capability extends Model
     public function isIncubating(): bool
     {
         return !is_null($this->discovered_in_scenario_id);
+    }
+
+    protected static function booted()
+    {
+        static::created(function (self $cap) {
+            try {
+                // Only attach to scenario pivot when the capability was created as part
+                // of a scenario (discovered_in_scenario_id defined). The UI/save action
+                // should provide this field when creating from a node.
+                $scenarioId = $cap->discovered_in_scenario_id;
+                if (empty($scenarioId)) {
+                    return;
+                }
+
+                $exists = DB::table('scenario_capabilities')
+                    ->where('scenario_id', $scenarioId)
+                    ->where('capability_id', $cap->id)
+                    ->exists();
+
+                if ($exists) {
+                    return;
+                }
+
+                DB::table('scenario_capabilities')->insert([
+                    'scenario_id' => $scenarioId,
+                    'capability_id' => $cap->id,
+                    'strategic_role' => 'target',
+                    'strategic_weight' => 10,
+                    'priority' => 1,
+                    'rationale' => null,
+                    'required_level' => 3,
+                    'is_critical' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Throwable $e) {
+                \Log::error('Error attaching capability to scenario pivot: ' . $e->getMessage(), ['capability_id' => $cap->id, 'scenario_id' => $cap->discovered_in_scenario_id ?? null]);
+            }
+        });
     }
 }

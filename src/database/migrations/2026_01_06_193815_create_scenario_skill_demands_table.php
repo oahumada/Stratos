@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,7 +12,8 @@ return new class extends Migration
     {
         Schema::create('scenario_skill_demands', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('scenario_id')->constrained('workforce_planning_scenarios')->onDelete('cascade');
+            // reference canonical `scenarios` table (some legacy code used `workforce_planning_scenarios`)
+            $table->foreignId('scenario_id')->constrained('scenarios')->onDelete('cascade');
             $table->foreignId('skill_id')->constrained('skills')->onDelete('cascade');
             $table->foreignId('role_id')->nullable()->constrained('roles')->nullOnDelete();
             $table->string('department')->nullable(); // Departamento objetivo

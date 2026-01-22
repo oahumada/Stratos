@@ -41,15 +41,7 @@
                             stroke-width="6"
                             filter="url(#softGlow)"
                         />
-            <v-btn
-                small
-                icon
-                color="primary"
-                @click="togglePanelFullscreen"
-                :title="panelFullscreen ? 'Salir de pantalla completa' : 'Ver detalles en pantalla completa'"
-            >
-                <v-icon :icon="panelFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
-            </v-btn>
+            <!-- fullscreen button removed (disabled for now) -->
             <v-btn
                 small
                 :variant="followScenario ? 'tonal' : 'text'"
@@ -469,7 +461,7 @@
             <transition name="slide-fade">
                             <aside v-show="showSidebar || focusedNode"
                                 class="node-details-sidebar glass-panel-strong"
-                                :class="[{ 'glass-fullscreen': panelFullscreen && !isDocumentFullScreen, collapsed: nodeSidebarCollapsed }, sidebarTheme === 'dark' ? 'theme-dark' : 'theme-light']"
+                                :class="[{ collapsed: nodeSidebarCollapsed }, sidebarTheme === 'dark' ? 'theme-dark' : 'theme-light']"
                                 :style="panelStyle"
                             >
                     <div class="d-flex justify-space-between align-center mb-2 panel-header">
@@ -1215,13 +1207,13 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
         expandCompetencies(updated as NodeItem, nodePrevPos);
     }
 
-    // If we are NOT in fullscreen mode, fix panel to top-left corner
+    // If we are NOT in true fullscreen mode, fix panel to top-left corner
     const inTrueFullscreen = !!document.fullscreenElement;
-    if (!inTrueFullscreen && !panelFullscreen.value) {
+    if (!inTrueFullscreen) {
         tooltipX.value = 24;
         tooltipY.value = 24;
     } else if (event) {
-        // when in fullscreen or CSS-fullscreen, use event coords
+        // when in fullscreen, use event coords
         tooltipX.value = event.clientX + 12;
         tooltipY.value = event.clientY + 12;
     } else {
@@ -1275,7 +1267,6 @@ const closeTooltip = () => {
 // panel drag (make the glass panel movable)
 const panelDragging = ref(false);
 const panelDragOffset = ref({ x: 0, y: 0 });
-const panelFullscreen = ref(false);
 
 // sidebar collapsed state: false -> visible (anchored), true -> collapsed (narrow)
 const nodeSidebarCollapsed = ref(false);
@@ -1297,17 +1288,15 @@ const nodeSidebarVisible = computed(() => {
 });
 
 // helper to avoid referencing `document` from the template context (template type-checker complains)
-const isDocumentFullScreen = computed(() => {
-    return !!(globalThis.document && globalThis.document.fullscreenElement);
-});
+// (we no longer keep a local CSS-only fullscreen state)
 
 const panelStyle = computed<CSSProperties>(() => {
     // compute width depending on collapsed state and fullscreen
     const inTrueFullscreen = !!document.fullscreenElement;
-    const widthPx = inTrueFullscreen || panelFullscreen.value ? 360 : nodeSidebarCollapsed.value ? 56 : 360;
+    const widthPx = nodeSidebarCollapsed.value ? 56 : 360;
 
-    // If document is in true Fullscreen API or panelFullscreen requested, keep the panel fixed
-    if (inTrueFullscreen || panelFullscreen.value) {
+    // If document is in true Fullscreen API, keep the panel fixed
+    if (inTrueFullscreen) {
         return {
             position: 'fixed',
             right: '0px',
@@ -1373,75 +1362,7 @@ function onPanelPointerUp() {
     window.removeEventListener('pointerup', onPanelPointerUp);
 }
 
-async function togglePanelFullscreen() {
-    // prefer using the Fullscreen API when available
-    const fsAvailable = !!(document.fullscreenEnabled);
-    // if Fullscreen API unavailable, fallback to CSS toggle on panel
-    if (!fsAvailable) {
-        panelFullscreen.value = !panelFullscreen.value;
-        if (panelFullscreen.value) {
-            tooltipX.value = 24;
-            tooltipY.value = 24;
-        }
-        return;
-    }
-
-    // request fullscreen on the main map container so SVG remains visible
-    const containerEl = (mapRoot.value as HTMLElement) || document.documentElement;
-    const panelEl = document.querySelector('.glass-panel-strong') as HTMLElement | null;
-
-    // compute relative ratios of the panel inside the container so we can restore position after resize
-    let ratioX = 0.06;
-    let ratioY = 0.06;
-    if (panelEl && containerEl instanceof HTMLElement) {
-        const mapRectBefore = containerEl.getBoundingClientRect();
-        const panelRectBefore = panelEl.getBoundingClientRect();
-        if (mapRectBefore.width > 0 && mapRectBefore.height > 0) {
-            ratioX = (panelRectBefore.left - mapRectBefore.left) / mapRectBefore.width;
-            ratioY = (panelRectBefore.top - mapRectBefore.top) / mapRectBefore.height;
-        }
-    }
-
-    try {
-        if (!document.fullscreenElement) {
-            await containerEl.requestFullscreen();
-            // ensure visual state
-            panelFullscreen.value = true;
-            // allow layout to stabilise and then compute new absolute pos using ratios
-            await new Promise((r) => setTimeout(r, 48));
-            const mapRectNow = (containerEl as HTMLElement).getBoundingClientRect();
-            tooltipX.value = Math.round(Math.max(8, Math.min(mapRectNow.width - 48, ratioX * mapRectNow.width)));
-            tooltipY.value = Math.round(Math.max(8, Math.min(mapRectNow.height - 48, ratioY * mapRectNow.height)));
-        } else {
-            await document.exitFullscreen();
-            panelFullscreen.value = false;
-            // when exiting fullscreen, clamp position to the normal container
-            const panelElAfter = document.querySelector('.glass-panel-strong') as HTMLElement | null;
-            if (panelElAfter && mapRoot.value) {
-                const mapRectAfter = (mapRoot.value as HTMLElement).getBoundingClientRect();
-                const panelRectAfter = panelElAfter.getBoundingClientRect();
-                const clampedX = Math.min(Math.max(panelRectAfter.left - mapRectAfter.left, 8), Math.max(8, mapRectAfter.width - panelRectAfter.width - 8));
-                const clampedY = Math.min(Math.max(panelRectAfter.top - mapRectAfter.top, 8), Math.max(8, mapRectAfter.height - panelRectAfter.height - 8));
-                tooltipX.value = Math.round(clampedX);
-                tooltipY.value = Math.round(clampedY);
-            }
-        }
-    } catch (err) {
-        void err;
-        // fallback: toggle CSS on panel only
-        panelFullscreen.value = !panelFullscreen.value;
-        if (panelEl) {
-            if (panelFullscreen.value) panelEl.classList.add('glass-fullscreen');
-            else panelEl.classList.remove('glass-fullscreen');
-        }
-    }
-}
-
-function onFullscreenChange() {
-    const containerEl = (mapRoot.value as HTMLElement) || null;
-    const isFs = document.fullscreenElement === containerEl;
-    panelFullscreen.value = !!isFs;
-}
+// Fullscreen toggle removed: UX disabled. We rely only on the browser Fullscreen API when used externally.
 
 function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: number }) {
     childNodes.value = [];
@@ -1688,14 +1609,12 @@ onMounted(() => {
         });
         ro.observe(el);
     }
-    // listen fullscreen change to sync state and classes
-    document.addEventListener('fullscreenchange', onFullscreenChange);
+    // fullscreen change listener removed (UI fullscreen button disabled)
     const onWindowResize = () => applySize();
     window.addEventListener('resize', onWindowResize);
     onBeforeUnmount(() => {
         if (ro) ro.disconnect();
         window.removeEventListener('resize', onWindowResize);
-        document.removeEventListener('fullscreenchange', onFullscreenChange);
     });
 });
 
@@ -2077,20 +1996,7 @@ if (!edges.value) edges.value = [];
 }
 
 
-/* fullscreen variant for the details panel */
-.glass-fullscreen {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    left: 0 !important;
-    top: 0 !important;
-    border-radius: 0 !important;
-    padding: 28px !important;
-    z-index: 100000 !important;
-    overflow: auto !important;
-    backdrop-filter: blur(6px);
-}
+
 
 /* collapsed sidebar: narrow tab and reduced margin */
 .with-node-sidebar-collapsed {

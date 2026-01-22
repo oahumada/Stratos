@@ -513,7 +513,8 @@ const openStatusTimeline = () => {
 };
 
 const handleVersionSelected = (id: number) => {
-    router.visit(`/strategic-planning/scenarios/${id}`);
+    // Navigate to the web route (Inertia page) not the API JSON endpoint
+    router.visit(`/strategic-planning/${id}`);
 };
 
 const calculateGaps = async () => {

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('scenario_closure_strategies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('scenario_id')->constrained('workforce_planning_scenarios')->onDelete('cascade');
+            $table->foreignId('scenario_id')->constrained('scenarios')->onDelete('cascade');
             $table->foreignId('skill_id')->nullable()->constrained('skills')->nullOnDelete();
             $table->enum('strategy', ['build', 'buy', 'borrow', 'bot', 'bind', 'bridge']); // 6Bs framework
             $table->string('strategy_name'); // Nombre descriptivo de la estrategia

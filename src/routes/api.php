@@ -93,6 +93,94 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
     Route::get('/strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
     Route::get('/strategic-planning/scenarios/{id}/capability-tree', [\App\Http\Controllers\Api\ScenarioController::class, 'getCapabilityTree']);
+
+    // Dev API: create a Competency under a Capability for the scenario (multi-tenant)
+    Route::post('/strategic-planning/capabilities/{id}/competencies', function (Illuminate\Http\Request $request, $id) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $capability = App\Models\Capability::find($id);
+        if (!$capability) {
+            return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
+        }
+        // ensure capability belongs to user's organization (if capability has org)
+        // For now, rely on scenario-level tenant rules; set organization_id from user
+        $data = $request->only(['name', 'description', 'is_critical']);
+        if (empty($data['name'])) {
+            return response()->json(['success' => false, 'message' => 'Name is required'], 422);
+        }
+        $comp = App\Models\Competency::create([
+            'organization_id' => $user->organization_id ?? null,
+            'capability_id' => $capability->id,
+            'name' => $data['name'],
+            'description' => $data['description'] ?? null,
+        ]);
+
+        return response()->json(['success' => true, 'data' => $comp], 201);
+    });
+
+    // Dev API: create a Capability under a Scenario (multi-tenant)
+    Route::post('/strategic-planning/scenarios/{id}/capabilities', function (Illuminate\Http\Request $request, $id) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $scenario = App\Models\Scenario::find($id);
+        if (!$scenario) {
+            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+        }
+        try {
+            $data = $request->only(['name', 'description', 'importance', 'is_critical']);
+            if (empty($data['name'])) {
+                return response()->json(['success' => false, 'message' => 'Name is required'], 422);
+            }
+            $cap = App\Models\Capability::create([
+                'organization_id' => $user->organization_id ?? null,
+                'name' => $data['name'],
+                'description' => $data['description'] ?? null,
+                // importance column is NOT NULL in sqlite; default defined in migration.
+                // Avoid inserting explicit NULL which violates constraint — use default 3 when missing.
+                'importance' => isset($data['importance']) ? $data['importance'] : 3,
+                'discovered_in_scenario_id' => $scenario->id,
+            ]);
+
+            // Insert relationship-specific attributes into pivot `scenario_capabilities`.
+            // Only include fields that belong to the relationship (not to Capability entity).
+            $pivot = [
+                'scenario_id' => $scenario->id,
+                'capability_id' => $cap->id,
+                'strategic_role' => $request->input('strategic_role', 'target'),
+                'strategic_weight' => (int) $request->input('strategic_weight', 10),
+                'priority' => (int) $request->input('priority', 1),
+                'rationale' => $request->input('rationale', null),
+                'required_level' => (int) $request->input('required_level', 3),
+                'is_critical' => (bool) $request->input('is_critical', false),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            // Respect unique constraint; insert only if not exists.
+            if (
+                !\DB::table('scenario_capabilities')
+                    ->where('scenario_id', $scenario->id)
+                    ->where('capability_id', $cap->id)
+                    ->exists()
+            ) {
+                \DB::table('scenario_capabilities')->insert($pivot);
+            }
+
+            return response()->json(['success' => true, 'data' => $cap], 201);
+        } catch (\Throwable $e) {
+            \Log::error('Error creating capability for scenario ' . $id . ': ' . $e->getMessage(), [
+                'exception' => $e,
+                'payload' => $request->all(),
+                'user_id' => $user->id ?? null,
+                'scenario_id' => $id,
+            ]);
+            return response()->json(['success' => false, 'message' => 'Server error creating capability', 'error' => $e->getMessage()], 500);
+        }
+    });
 });
 
 // Dev-only: accept saved positions for prototype mapping (no auth)
@@ -106,7 +194,6 @@ Route::post('/strategic-planning/scenarios/{id}/capability-tree/save-positions',
 
 // Backwards-compatible v1 API aliases for workforce-planning (tests and older clients)
 // NOTE: temporalmente deshabilitadas hasta migrar el frontend a las rutas canónicas.
-/*
 Route::prefix('v1')->group(function () {
     Route::prefix('workforce-planning')->group(function () {
         Route::get('workforce-scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
@@ -123,7 +210,23 @@ Route::prefix('v1')->group(function () {
         Route::get('strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
     });
 });
-*/
+
+// Backwards-compatible aliases WITHOUT /v1 prefix so legacy tests/clients using
+// `/api/workforce-planning/...` continue to work during migration.
+Route::prefix('workforce-planning')->group(function () {
+    Route::get('workforce-scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
+    Route::post('workforce-scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'store']);
+    Route::get('workforce-scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
+    Route::patch('workforce-scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'updateScenario']);
+    Route::post('workforce-scenarios/{template_id}/instantiate-from-template', [\App\Http\Controllers\Api\ScenarioController::class, 'instantiateFromTemplate']);
+    Route::post('workforce-scenarios/{id}/calculate-gaps', [\App\Http\Controllers\Api\ScenarioController::class, 'calculateGaps']);
+    Route::post('workforce-scenarios/{id}/refresh-suggested-strategies', [\App\Http\Controllers\Api\ScenarioController::class, 'refreshSuggestedStrategies']);
+    Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
+
+    // Also provide compatibility aliases
+    Route::get('strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
+    Route::get('strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
+});
 
 // Catálogos dinámicos para selectores
 Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');
