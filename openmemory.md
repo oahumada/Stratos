@@ -42,6 +42,18 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Notas de integración:** `AppSidebar.vue` ya incluye el link; rutas registradas (`workforce-planning.index`, `workforce-planning.show`). Mantener `POSTMAN_VALIDATION_5MIN.md` como guía rápida.
 - **Recomendación:** Añadir E2E (Playwright) para el flujo create→calculate→suggest→compare y migrar stores a Pinia según `WORKFORCE_PLANNING_UI_INTEGRATION.md`.
 
+#### Renombramiento del módulo
+
+- **Qué:** El módulo originalmente llamado `WorkForce Planning` fue renombrado a `ScenarioPlanning` para enfatizar la creación y modelamiento de escenarios (what-if), y alinear el nombre con la UX y las páginas actuales.
+- **Por qué:** El nombre `ScenarioPlanning` comunica mejor el propósito principal: modelado y comparación de escenarios, plantillas y análisis de brechas.
+- **Fecha:** 2026-01-21
+- **Metadata Git:**
+  - `git_repo_name`: oahumada/Stratos
+  - `git_branch`: feature/workforce-planning-scenario-modeling
+  - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
+
+Esta entrada sirve como referencia para nombres de rutas, directorios y componentes que podrían contener la forma antigua (`workforce-planning`) y deben considerarse para actualizaciones futuras.
+
 ## Búsquedas iniciales realizadas (Phase 1)
 
 - Confirmadas referencias a `BrainCanvas.vue` y uso del mapa: `PrototypeMap` es `Index.vue`.
@@ -53,6 +65,19 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Dónde: `src/resources/js/pages/ScenarioPlanning/Index.vue` (sustitución de `svg` con `defs` para gradientes, filtro de sombra, clases CSS scoped y animación `pulse` para nodos críticos).
 - Decisión clave: mantener la lógica D3 existente; usar `defs` SVG para estilos visuales (gradiente radial + sombra); no cambiar API ni persistencia.
 - Archivos modificados: Index.vue (visual + ligeras señales `is_critical` en nodos), openmemory.md (registro).
+
+### Implementación: Estilo "Burbuja" para nodos (ScenarioPlanning)
+
+- **Qué:** Se actualizó la representación visual de los nodos principales en `ScenarioPlanning/Index.vue` para que las esferas parezcan burbujas (gradiente radial más pronunciado, reflejo especular y ribete sutil). Esto mejora la legibilidad y la sensación de profundidad.
+- **Por qué:** El aspecto de "burbuja" facilita identificar nodos principales y su estado crítico, además de alinearse con las mejoras visuales propuestas en el PrototypeMap.
+- **Fecha:** 2026-01-21
+- **Archivos modificados:** `src/resources/js/pages/ScenarioPlanning/Index.vue`
+- **Metadata Git:**
+  - `git_repo_name`: oahumada/Stratos
+  - `git_branch`: feature/workforce-planning-scenario-modeling
+  - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
+
+Nota: Este cambio es puramente visual (SVG/defs/CSS). La lógica D3 y el layout no han sido alterados. Si deseas que aplique el mismo tratamiento a las `child-nodes`, lo hago en la siguiente iteración.
 
 ## Acción técnica relacionada: typings D3
 

@@ -31,6 +31,16 @@
             >
                 <v-icon icon="mdi-home" />
             </v-btn>
+                        <!-- extra soft halo/gloss to ensure bubble effect is visible on all nodes -->
+                        <circle
+                            class="node-gloss"
+                            r="36"
+                            fill="none"
+                            stroke="#ffffff"
+                            stroke-opacity="0.04"
+                            stroke-width="6"
+                            filter="url(#softGlow)"
+                        />
             <v-btn
                 small
                 icon
@@ -64,22 +74,20 @@
                         />
                     </linearGradient>
 
-                    <radialGradient id="nodeGrad" cx="45%" cy="30%" r="70%">
-                        <stop
-                            offset="0%"
-                            stop-color="#ffffff"
-                            stop-opacity="0.18"
-                        />
-                        <stop
-                            offset="40%"
-                            stop-color="#6fc3ff"
-                            stop-opacity="0.95"
-                        />
-                        <stop
-                            offset="100%"
-                            stop-color="#0b66b2"
-                            stop-opacity="1"
-                        />
+                    <radialGradient id="nodeGrad" cx="30%" cy="25%" r="70%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75" />
+                        <stop offset="12%" stop-color="#e8f6ff" stop-opacity="0.55" />
+                        <stop offset="45%" stop-color="#6fc3ff" stop-opacity="0.95" />
+                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="1" />
+                    </radialGradient>
+                    <!-- iridescent overlay to simulate soap-bubble sheen -->
+                    <radialGradient id="iridescentGrad" cx="70%" cy="30%" r="90%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.0" />
+                        <stop offset="18%" stop-color="#ffd6f7" stop-opacity="0.06" />
+                        <stop offset="32%" stop-color="#d6f7ff" stop-opacity="0.07" />
+                        <stop offset="48%" stop-color="#fff2d6" stop-opacity="0.06" />
+                        <stop offset="68%" stop-color="#d6fff3" stop-opacity="0.05" />
+                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0" />
                     </radialGradient>
 
                     <filter
@@ -125,6 +133,15 @@
                             in2="blur2"
                             operator="over"
                         />
+                    </filter>
+
+                    <!-- soft specular blur for highlights (used on small highlight shapes) -->
+                    <filter id="specular" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="spec" />
+                        <feMerge>
+                            <feMergeNode in="spec" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
                     </filter>
                 </defs>
 
@@ -196,6 +213,35 @@
                             stroke-opacity="0.06"
                             stroke-width="1"
                         />
+                        <!-- iridescent sheen overlay: semitransparent, uses blend to simulate soap colors -->
+                        <circle
+                            class="node-iridescence"
+                            r="34"
+                            fill="url(#iridescentGrad)"
+                            opacity="0.22"
+                            style="mix-blend-mode: screen"
+                        />
+                        <!-- bubble-style highlight: small blurred specular on top-left -->
+                        <ellipse
+                            class="node-reflection"
+                            cx="-12"
+                            cy="-14"
+                            rx="14"
+                            ry="9"
+                            fill="#ffffff"
+                            fill-opacity="0.18"
+                            transform="rotate(-22)"
+                            filter="url(#specular)"
+                        />
+                        <!-- subtle glossy rim to enhance bubble feel -->
+                        <circle
+                            class="node-rim"
+                            r="34"
+                            fill="none"
+                            stroke="#ffffff"
+                            stroke-opacity="0.08"
+                            stroke-width="1.4"
+                        />
                         <circle
                             v-if="node.is_critical"
                             class="node-inner"
@@ -230,6 +276,42 @@
                                 stroke="#ffffff"
                                 stroke-opacity="0.06"
                                 stroke-width="1"
+                            />
+                            <!-- child node: iridescent sheen + small reflection to match bubble style -->
+                            <circle
+                                class="node-iridescence child-iridescence"
+                                :r="20"
+                                fill="url(#iridescentGrad)"
+                                opacity="0.18"
+                                style="mix-blend-mode: screen"
+                            />
+                            <ellipse
+                                class="node-reflection child-reflection"
+                                cx="-6"
+                                cy="-6"
+                                rx="7"
+                                ry="4.5"
+                                fill="#ffffff"
+                                fill-opacity="0.14"
+                                transform="rotate(-22)"
+                                filter="url(#specular)"
+                            />
+                            <circle
+                                class="node-rim child-rim"
+                                :r="20"
+                                fill="none"
+                                stroke="#ffffff"
+                                stroke-opacity="0.06"
+                                stroke-width="1"
+                            />
+                            <circle
+                                class="node-gloss child-gloss"
+                                :r="22"
+                                fill="none"
+                                stroke="#ffffff"
+                                stroke-opacity="0.04"
+                                stroke-width="4"
+                                filter="url(#softGlow)"
                             />
                             <text :x="0" :y="28" text-anchor="middle" class="node-label" style="font-size:10px">{{ c.name }}</text>
                         </g>
@@ -645,7 +727,7 @@ function childNodeById(id: number) {
 }
 
 const handleNodeClick = (node: NodeItem, event?: MouseEvent) => {
-    console.log('[PrototypeMap] clicked node', node);
+    // debug log removed
     // focus node and compute tooltip position relative to svg
     focusedNode.value = node;
     // expand competencies as child nodes (TheBrain style)
@@ -668,9 +750,7 @@ const handleNodeClick = (node: NodeItem, event?: MouseEvent) => {
         tooltipY.value = (node.y ?? 0) + 12;
     }
 
-    // debug: log coordinates and fullscreen state (temporary)
-    // eslint-disable-next-line no-console
-    console.log('[PrototypeMap] panel coords', { x: tooltipX.value, y: tooltipY.value, fullscreen: inTrueFullscreen || !!panelFullscreen.value });
+    // debug coords removed
 };
 
 const closeTooltip = () => {
@@ -1218,6 +1298,18 @@ if (!edges.value) edges.value = [];
 .child-node .node-circle {
     fill: #1f2937;
 }
+
+.child-iridescence {
+    pointer-events: none;
+    transition: opacity 200ms ease, transform 200ms ease;
+    mix-blend-mode: screen;
+}
+.child-reflection {
+    pointer-events: none;
+}
+.child-rim {
+    pointer-events: none;
+}
 .child-edge {
     stroke-dasharray: none;
     opacity: 0.95;
@@ -1229,6 +1321,26 @@ if (!edges.value) edges.value = [];
 }
 
 .node-inner {
+    pointer-events: none;
+}
+
+.node-reflection {
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+.node-rim {
+    pointer-events: none;
+    transition: stroke-opacity 180ms ease, transform 180ms ease;
+}
+
+.node-iridescence {
+    pointer-events: none;
+    transition: opacity 220ms ease, transform 220ms ease;
+    mix-blend-mode: screen;
+}
+
+.node-gloss,
+.child-gloss {
     pointer-events: none;
 }
 
@@ -1264,7 +1376,8 @@ if (!edges.value) edges.value = [];
     width: 360px;
     box-sizing: border-box;
     z-index: 60;
-    overflow-y: auto;
+    /* allow the collapse toggle to overflow the panel edge so it remains visible */
+    overflow: visible;
     padding: 20px;
     backdrop-filter: blur(6px);
 }
@@ -1338,9 +1451,28 @@ if (!edges.value) edges.value = [];
 }
 .sidebar-collapse-toggle {
     position: absolute;
-    left: -28px;
-    top: 12px;
+    left: -3em;
+    top: 14%;
+    transform: translateY(-50%);
     z-index: 100001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-collapse-toggle .v-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.06);
+    box-shadow: 0 6px 18px rgba(2,6,23,0.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: inherit;
+    border: 1px solid rgba(0,0,0,0.06);
 }
 
 </style>
