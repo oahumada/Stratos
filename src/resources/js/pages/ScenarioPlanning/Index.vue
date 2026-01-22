@@ -50,6 +50,15 @@
             >
                 <v-icon :icon="panelFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
             </v-btn>
+            <v-btn
+                small
+                :variant="followScenario ? 'tonal' : 'text'"
+                :color="followScenario ? 'primary' : undefined"
+                @click="followScenario = !followScenario"
+                :title="followScenario ? 'Seguir origen: activado' : 'Seguir origen: desactivado'"
+            >
+                Seguir origen
+            </v-btn>
         </div>
         <div v-if="!loaded">Cargando mapa...</div>
         <div v-else>
@@ -144,6 +153,13 @@
                         <stop offset="100%" stop-color="#60a5fa" stop-opacity="1" />
                     </linearGradient>
 
+                    <!-- gradient for scenario->child edges (distinct visual) -->
+                    <linearGradient id="scenarioEdgeGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#9be7ff" stop-opacity="0.98" />
+                        <stop offset="50%" stop-color="#6fb8ff" stop-opacity="0.9" />
+                        <stop offset="100%" stop-color="#3fa6ff" stop-opacity="0.82" />
+                    </linearGradient>
+
                     <!-- subtle gradient + glow for main edges -->
                     <linearGradient id="edgeGrad" x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stop-color="#6fe7ff" stop-opacity="0.85" />
@@ -163,6 +179,9 @@
                     <marker id="childArrow" markerUnits="strokeWidth" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
                         <path d="M0,0 L8,4 L0,8 z" fill="url(#childGrad)" />
                     </marker>
+
+                    <!-- arrow marker for scenario edges -->
+                    <!-- scenario arrow removed: prefer clean lines without arrowheads -->
 
                     <filter
                         id="innerShadow"
@@ -237,9 +256,59 @@
                             stroke-opacity="0.9"
                         />
                     </g>
+                    <!-- scenario -> capability edges (distinct group so we can style/animate) -->
+                    <g class="scenario-edges">
+                        <line
+                            v-for="(e, idx) in scenarioEdges"
+                            :key="`scenario-edge-${idx}`"
+                            :x1="renderedNodeById(e.source)?.x ?? undefined"
+                            :y1="renderedNodeById(e.source)?.y ?? undefined"
+                            :x2="renderedNodeById(e.target)?.x ?? undefined"
+                            :y2="renderedNodeById(e.target)?.y ?? undefined"
+                                class="edge-line scenario-edge"
+                                stroke="url(#scenarioEdgeGrad)"
+                                stroke-width="2.6"
+                                stroke-linecap="round"
+                                filter="url(#edgeGlow)"
+                                stroke-opacity="0.95"
+                        />
+                    </g>
 
                     <!-- nodes -->
                     <g class="nodes">
+                    <!-- scenario/origin node (optional) -->
+                    <g
+                        v-if="scenarioNode"
+                        :style="{ transform: `translate(${scenarioNode.x}px, ${scenarioNode.y}px)` }"
+                        class="node-group scenario-node"
+                        :data-node-id="scenarioNode.id"
+                    >
+                        <title>{{ scenarioNode.name }}</title>
+                        <!-- Smaller parent node (scenario) with icon support -->
+                        <circle
+                            class="node-circle"
+                            r="22"
+                            fill="url(#glassGrad)"
+                            filter="url(#innerGlow)"
+                            stroke="rgba(255,255,255,0.14)"
+                            stroke-width="1.2"
+                        />
+                        <circle class="node-iridescence" r="22" fill="url(#iridescentGrad)" opacity="0.18" style="mix-blend-mode: screen" />
+                        <circle class="node-rim" r="22" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1.2" />
+
+                        <!-- Icon inside the scenario node: map-pin SVG -->
+                        <g class="scenario-icon" transform="translate(0,-4)">
+                            <circle r="12" fill="rgba(245, 26, 26, 0.04)" />
+                            <g transform="translate(0,0) scale(0.9)">
+                                <!-- pin shape -->
+                                <path d="M0,-8 C4,-8 7,-5 7,-1 C7,4 0,11 0,11 C0,11 -7,4 -7,-1 C-7,-5 -4,-8 0,-8 Z" fill="rgba(255,255,255,0.06)" />
+                                <circle cx="0" cy="-2" r="1.8" fill="#ffcc66" />
+                            </g>
+                        </g>
+
+                        <!-- keep a label below the smaller node -->
+                        <text x="0" y="36" text-anchor="middle" class="node-label" style="font-size:12px">{{ scenarioNode.name }}</text>
+                    </g>
                     <!-- child edges -->
                     <g class="child-edges">
                         <line
@@ -249,20 +318,22 @@
                             :y1="renderedNodeById(e.source)?.y ?? (e.source < 0 ? (childNodeById(e.source)?.y ?? undefined) : undefined)"
                             :x2="childNodeById(e.target)?.x ?? undefined"
                             :y2="childNodeById(e.target)?.y ?? undefined"
-                            class="edge-line child-edge"
-                            stroke="url(#childGrad)"
-                            stroke-width="2.2"
+                            :class="['edge-line','child-edge', (e as any).isScenarioEdge ? 'scenario-edge' : '']"
+                            :stroke="(e as any).isScenarioEdge ? 'url(#scenarioEdgeGrad)' : 'url(#childGrad)'"
+                            :stroke-width="(e as any).isScenarioEdge ? 2.8 : 2.2"
                             stroke-linecap="round"
-                            marker-end="url(#childArrow)"
-                            filter="url(#softGlow)"
+                            :marker-end="(e as any).isScenarioEdge ? undefined : 'url(#childArrow)'"
+                            :filter="(e as any).isScenarioEdge ? 'url(#edgeGlow)' : 'url(#softGlow)'"
+                            :stroke-opacity="(e as any).isScenarioEdge ? 0.98 : 0.95"
                         />
                     </g>
 
                     <g
                         v-for="node in nodes"
                         :key="node.id"
-                        :transform="`translate(${renderNodeX(node)},${node.y})`"
+                        :style="{ transform: `translate(${renderNodeX(node)}px, ${node.y}px)` }"
                         class="node-group"
+                        :data-node-id="node.id"
                         :class="{
                             critical: !!node.is_critical,
                             focused: focusedNode && focusedNode.id === node.id,
@@ -325,13 +396,8 @@
                             fill="#ff5050"
                             fill-opacity="0.95"
                         />
-                        <text
-                            :x="0"
-                            :y="46"
-                            text-anchor="middle"
-                            class="node-label"
-                        >
-                            {{ (node as any).displayName ?? node.name }}
+                        <text :x="0" :y="38" text-anchor="middle" class="node-label">
+                            <tspan v-for="(line, idx) in ((node as any).displayName ?? node.name).split('\n')" :key="idx" :x="0" :dy="idx === 0 ? 0 : 12">{{ line }}</tspan>
                         </text>
                     </g>
 
@@ -340,8 +406,9 @@
                         <g
                             v-for="c in childNodes"
                             :key="c.id"
-                            :transform="`translate(${c.x},${c.y})`"
-                            class="node-group child-node"
+                            :style="{ transform: `translate(${c.x}px, ${c.y}px) scale(${c.__scale ?? 1})`, opacity: (c.__opacity ?? 1), transitionDelay: (c.__delay ? c.__delay + 'ms' : undefined), filter: c.__filter ? c.__filter : undefined }"
+                                class="node-group child-node"
+                            :data-node-id="c.id"
                             @click.stop="(e) => handleNodeClick(c, e)"
                         >
                             <title>{{ c.name }}</title>
@@ -389,7 +456,9 @@
                                 stroke-width="4"
                                 filter="url(#softGlow)"
                             />
-                            <text :x="0" :y="28" text-anchor="middle" class="node-label" style="font-size:10px">{{ c.name }}</text>
+                            <text :x="0" :y="22" text-anchor="middle" class="node-label" style="font-size:10px">
+                                <tspan v-for="(line, idx) in String((c as any).displayName ?? c.name).split('\n')" :key="idx" :x="0" :dy="idx === 0 ? 0 : 10">{{ line }}</tspan>
+                            </text>
                         </g>
                     </g>
                     </g>
@@ -507,7 +576,7 @@
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import * as d3 from 'd3';
-import { onMounted, ref, watch, onBeforeUnmount, computed } from 'vue';
+import { onMounted, ref, watch, onBeforeUnmount, computed, nextTick } from 'vue';
 import type { CSSProperties } from 'vue';
 import type { NodeItem, Edge, ConnectionPayload, ScenarioShape } from '@/types/brain';
 interface Props {
@@ -523,6 +592,8 @@ interface Props {
         created_at?: string | null;
         updated_at?: string | null;
     };
+    // optional: number of columns for child competencies layout
+    childColumns?: number;
 }
 
 const props = defineProps<Props>();
@@ -542,6 +613,7 @@ const tooltipX = ref(0);
 const tooltipY = ref(0);
 const childNodes = ref<Array<NodeItem>>([]);
 const childEdges = ref<Array<Edge>>([]);
+const scenarioEdges = ref<Array<Edge>>([]);
 const showSidebar = ref(false);
 // localStorage keys
 const LS_KEYS = {
@@ -560,15 +632,214 @@ const viewportStyle = computed(() => ({
     transformOrigin: '0 0',
 }));
 
-function centerOnNode(node: NodeItem) {
+// scenario/origin node that can follow a selected child
+const scenarioNode = ref<any>(null);
+const followScenario = ref<boolean>(false);
+
+// Transition timing used by `.node-group` CSS (keep in sync with CSS)
+const TRANSITION_MS = 420;
+const TRANSITION_BUFFER = 60; // small buffer to ensure browser finished
+function wait(ms: number) {
+    return new Promise((res) => setTimeout(res, ms));
+}
+
+// Wait until the element for a node finishes its CSS transition (transform).
+// Resolves true if transitionend fired, false if timed out or not found.
+function waitForTransitionForNode(nodeId: number | string, timeoutMs = TRANSITION_MS * 2 + TRANSITION_BUFFER) {
+    return new Promise<boolean>((resolve) => {
+        const sel = `[data-node-id="${nodeId}"]`;
+        let el: Element | null = document.querySelector(sel);
+        let timer: ReturnType<typeof setTimeout> | null = null;
+        const cleanup = () => {
+            if (el) el.removeEventListener('transitionend', onEnd as EventListener);
+            if (timer) clearTimeout(timer);
+        };
+        const onEnd = (ev: Event) => {
+            const te = ev as TransitionEvent;
+            if (!te.propertyName || te.propertyName === 'transform') {
+                cleanup();
+                resolve(true);
+            }
+        };
+
+        timer = setTimeout(() => {
+            cleanup();
+            resolve(false);
+        }, timeoutMs);
+
+        if (!el) {
+            // element may not be in DOM yet; wait a tick then try again
+            nextTick().then(() => {
+                el = document.querySelector(sel);
+                if (!el) {
+                    if (timer) clearTimeout(timer);
+                    resolve(false);
+                    return;
+                }
+                el.addEventListener('transitionend', onEnd as EventListener);
+            });
+        } else {
+            el.addEventListener('transitionend', onEnd as EventListener);
+        }
+    });
+}
+
+const originalPositions = ref<Map<number, { x: number; y: number }>>(new Map());
+
+function centerOnNode(node: NodeItem, prev?: NodeItem) {
     if (!node) return;
-    // center node in visible area
-    const targetX = Math.round(width.value / 2 - (node.x ?? 0));
-    // position node vertically at 25% of the viewport (closer to top)
+    // If we're focusing a different node, immediately clear any existing child nodes/edges
+    // so previous child animations don't continue while the parent moves.
+    if (prev && prev.id !== node.id) {
+        childNodes.value = [];
+        childEdges.value = [];
+    }
+    // Save original positions the first time we focus a node so we can restore later
+    if (originalPositions.value.size === 0) {
+        nodes.value.forEach((n) => {
+            originalPositions.value.set(n.id, { x: n.x ?? 0, y: n.y ?? 0 });
+        });
+        // also save scenario node if present
+        if (scenarioNode.value) originalPositions.value.set(scenarioNode.value.id, { x: scenarioNode.value.x, y: scenarioNode.value.y });
+    }
+
+    // If there was a previously focused node, swap positions with it and keep others unchanged.
+    if (prev && prev.id !== node.id) {
+        const prevNode = nodes.value.find((n) => n.id === prev.id);
+        const newNode = nodes.value.find((n) => n.id === node.id);
+        if (prevNode && newNode) {
+            const tx = prevNode.x ?? 0;
+            const ty = prevNode.y ?? 0;
+            prevNode.x = newNode.x ?? tx;
+            prevNode.y = newNode.y ?? ty;
+            newNode.x = tx;
+            newNode.y = ty;
+            // apply updated nodes (keep rest intact)
+            nodes.value = nodes.value.map((n) => {
+                if (!n) return n;
+                if (n.id === newNode.id) return { ...newNode } as any;
+                if (n.id === prevNode.id) return { ...prevNode } as any;
+                return n;
+            });
+            // update scenario node if following (keep previous behavior)
+            if (followScenario.value && scenarioNode.value) {
+                // place scenario relative to the currently focused (new) node
+                const centerX = Math.round(width.value / 2);
+                const VERTICAL_FOCUS_RATIO = 0.25;
+                const centerY = Math.round(height.value * VERTICAL_FOCUS_RATIO);
+                const offsetY = 80;
+                scenarioNode.value.x = centerX;
+                scenarioNode.value.y = Math.round(centerY - offsetY);
+            }
+            return;
+        }
+    }
+
+    // compute absolute center position for focused node
+    const centerX = Math.round(width.value / 2);
     const VERTICAL_FOCUS_RATIO = 0.25;
-    const targetY = Math.round(height.value * VERTICAL_FOCUS_RATIO - (node.y ?? 0));
-    viewX.value = targetX;
-    viewY.value = targetY;
+    const centerY = Math.round(height.value * VERTICAL_FOCUS_RATIO);
+
+    // fixed side columns (absolute x coords)
+    const leftX = Math.round(width.value * 0.18);
+    const rightX = Math.round(width.value * 0.82);
+
+    // separate other nodes into balanced left/right groups.
+    // Sort remaining nodes by their original X (fallback to current x), then split into two halves
+    const others = nodes.value.filter((n) => n && n.id !== node.id);
+    const othersSorted = others
+        .map((n) => ({ n, origX: n.x ?? originalPositions.value.get(n.id)?.x ?? width.value / 2 }))
+        .sort((a, b) => a.origX - b.origX)
+        .map((o) => o.n);
+    const mid = Math.ceil(othersSorted.length / 2);
+    const leftGroup = othersSorted.slice(0, mid);
+    const rightGroup = othersSorted.slice(mid);
+
+    // sort by original Y to keep visual order
+    const getOrigY = (n: any) => n.y ?? originalPositions.value.get(n.id)?.y ?? centerY;
+    leftGroup.sort((a, b) => getOrigY(a) - getOrigY(b));
+    rightGroup.sort((a, b) => getOrigY(a) - getOrigY(b));
+
+    // compute vertical distribution bounds
+    const minY = 64;
+    const maxY = Math.max(120, height.value - 64);
+
+    const distribute = (group: any[], targetX: number, side: 'left' | 'right') => {
+        if (group.length === 0) return;
+        const len = group.length;
+        // compute spacing dynamically based on available vertical space to avoid overlaps
+        const available = Math.max(0, maxY - minY);
+        const minSpacing = 32; // minimum spacing between nodes (more compact)
+        const maxSpacing = 100; // cap spacing to avoid overly spread columns
+        const spacing = len > 1 ? Math.min(maxSpacing, Math.max(minSpacing, Math.floor(available / (len - 1)))) : 0;
+
+        // if group is large, split into multiple parallel columns to avoid vertical crowding
+        const maxPerColumn = 5;
+        if (len <= maxPerColumn) {
+            const startY = Math.round(centerY - ((len - 1) * spacing) / 2);
+            for (let i = 0; i < len; i++) {
+                const n = group[i];
+                const proposedY = startY + i * spacing;
+                n.x = targetX;
+                n.y = clampY(proposedY);
+            }
+            return;
+        }
+
+        // multiple columns: compute number of columns and distribute items into them
+        const cols = Math.ceil(len / maxPerColumn);
+        const perCol = Math.ceil(len / cols);
+        const colGap = 56; // horizontal gap between sub-columns
+
+        for (let c = 0; c < cols; c++) {
+            const colItems = group.slice(c * perCol, c * perCol + perCol);
+            const colLen = colItems.length;
+            const colSpacing = colLen > 1 ? Math.min(spacing, Math.floor(available / (colLen - 1))) : 0;
+            const startY = Math.round(centerY - ((colLen - 1) * colSpacing) / 2);
+            // compute x offset for this sub-column
+            const offsetMult = (c - (cols - 1) / 2);
+            const xOffset = Math.round(offsetMult * colGap) * (side === 'left' ? -1 : 1);
+            const colX = targetX + xOffset;
+            for (let i = 0; i < colLen; i++) {
+                const n = colItems[i];
+                const proposedY = startY + i * colSpacing;
+                n.x = Math.min(Math.max(32, colX), Math.max(48, width.value - 32));
+                n.y = clampY(proposedY);
+            }
+        }
+    };
+
+    // apply distribution
+    distribute(leftGroup, leftX);
+    distribute(rightGroup, rightX);
+
+    // set focused node at center
+    nodes.value = nodes.value.map((n) => {
+        if (!n) return n;
+        if (n.id === node.id) return { ...n, x: centerX, y: centerY } as any;
+        const matched = leftGroup.find((m) => m.id === n.id) || rightGroup.find((m) => m.id === n.id);
+        if (matched) return { ...n, x: matched.x, y: matched.y } as any;
+        // fallback: clamp existing
+        return { ...n, x: Math.min(Math.max(48, n.x ?? centerX), Math.max(160, width.value - 48)), y: clampY(n.y ?? centerY) } as any;
+    });
+
+    // Position scenario node (if following) relative to focused node
+    if (followScenario.value && scenarioNode.value) {
+        const offsetY = 80;
+        scenarioNode.value.x = centerX;
+        scenarioNode.value.y = Math.round(centerY - offsetY);
+    }
+
+    // keep tooltip/layout responsibilities handled elsewhere; we no longer pan the viewport
+}
+
+function setScenarioInitial() {
+    scenarioNode.value = {
+        id: 0,
+        name: (props.scenario && (props.scenario.name || 'Escenario')) as string,
+        x: Math.round(width.value / 2),
+        y: Math.round(height.value * 0.12),
+    };
 }
 
 // (Using CSS scale for visual shrinking; radii kept constant)
@@ -590,6 +861,20 @@ function truncateLabel(s: any, max = 14) {
     if (s == null) return '';
     const str = String(s);
     return str.length > max ? str.slice(0, max - 1) + '…' : str;
+}
+
+function wrapLabel(s: any, max = 14) {
+    if (s == null) return '';
+    const str = String(s).trim();
+    if (str.length <= max) return str;
+    // try to break at last space before max
+    const before = str.slice(0, max + 1);
+    const lastSpace = before.lastIndexOf(' ');
+    if (lastSpace > 0) {
+        return str.slice(0, lastSpace) + '\n' + str.slice(lastSpace + 1);
+    }
+    // otherwise break at max
+    return str.slice(0, max) + '\n' + str.slice(max);
 }
 
 function computeInitialPosition(idx: number, total: number) {
@@ -624,26 +909,46 @@ function computeInitialPosition(idx: number, total: number) {
 }
 
 function nodeRenderShift(n: any) {
+    // New behavior: when a node is focused, place other nodes in fixed left/right columns
     if (!focusedNode.value) return 0;
     if (!n || n.id === focusedNode.value.id) return 0;
-    const baseX = n.x ?? 0;
-    const pivotX = focusedNode.value.x ?? 0;
-    const sideGap = Math.min(220, Math.round(width.value * 0.28));
-    return baseX < pivotX ? -sideGap : sideGap;
+    // Decide side based on original x relative to focused pivot
+    const pivotX = focusedNode.value.x ?? width.value / 2;
+    const originalX = n.x ?? width.value / 2;
+    const leftX = Math.round(width.value * 0.18);
+    const rightX = Math.round(width.value * 0.82);
+    return originalX < pivotX ? leftX - (n.x ?? 0) : rightX - (n.x ?? 0);
 }
 
 function renderNodeX(n: any) {
-    return (n.x ?? 0) + nodeRenderShift(n);
+    const minX = 48;
+    const maxX = Math.max(160, width.value - 48);
+    // When a node is focused, non-selected nodes should snap to fixed side columns
+    if (focusedNode.value && n && n.id !== focusedNode.value.id) {
+        const pivotX = focusedNode.value.x ?? width.value / 2;
+        const originalX = n.x ?? width.value / 2;
+        const leftX = Math.round(width.value * 0.18);
+        const rightX = Math.round(width.value * 0.82);
+        const target = originalX < pivotX ? leftX : rightX;
+        return Math.min(Math.max(minX, target), maxX);
+    }
+    const base = (n.x ?? 0);
+    return Math.min(Math.max(minX, base), maxX);
 }
 
 function renderedNodeById(id: number) {
     if (id == null) return null;
+    // special-case: scenarioNode
+    if (scenarioNode.value && id === scenarioNode.value.id) {
+        return { x: scenarioNode.value.x, y: scenarioNode.value.y } as any;
+    }
     if (id < 0) {
         return childNodeById(id);
     }
     const n = nodeById(id);
     if (!n) return null;
-    return { x: renderNodeX(n), y: n.y } as any;
+    // ensure we pass a number to clampY (avoid undefined)
+    return { x: renderNodeX(n), y: clampY(n.y ?? 0) } as any;
 }
 
 // Debug helpers removed
@@ -693,7 +998,7 @@ function buildNodesFromItems(items: any[]) {
     nodes.value = mapped.map((m: any) => ({
         id: m.id,
         name: m.name,
-        displayName: truncateLabel(m.name, 14),
+        displayName: wrapLabel(m.name, 14),
         x: m.x,
         y: m.y,
         is_critical: !!m.is_critical,
@@ -704,6 +1009,10 @@ function buildNodesFromItems(items: any[]) {
         required: m.required,
         raw: m.raw,
     }));
+    // initialize scenario node after building nodes
+    setScenarioInitial();
+    // build scenario->capability edges so initial view shows connections from scenario to capabilities
+    scenarioEdges.value = nodes.value.map((n: any) => ({ source: scenarioNode.value?.id ?? 0, target: n.id, isScenarioEdge: true } as Edge));
     // build edges before attempting a force layout
     buildEdgesFromItems(items);
     // Only run force layout if some nodes originally had real coordinates.
@@ -804,14 +1113,67 @@ function childNodeById(id: number) {
     return childNodes.value.find((n) => n.id === id) || null;
 }
 
-const handleNodeClick = (node: NodeItem, event?: MouseEvent) => {
-    // debug log removed
-    // focus node and compute tooltip position relative to svg
-    focusedNode.value = node;
-    // expand competencies as child nodes (TheBrain style)
-    expandCompetencies(node);
-    // center the clicked node with a pan transform
-    centerOnNode(node);
+const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
+    // capture previous focused node so we can swap positions when appropriate
+    const prev = focusedNode.value ? { ...focusedNode.value } : undefined;
+    let updated: NodeItem | null = null;
+
+    // If the clicked node is a child (id < 0), first locate its parent and center on the parent
+    if (node && node.id != null && node.id < 0) {
+        // find parent edge linking to this child
+        const parentEdge = childEdges.value.find((e) => e.target === node.id);
+        const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
+        if (parentNode) {
+            // capture parent's previous position so children can animate from there in sync
+            const parentPrevPos = { x: parentNode.x ?? 0, y: parentNode.y ?? 0 };
+            // center parent first so child positions are computed relative to it
+            centerOnNode(parentNode, prev);
+            // start expanding children slightly before the parent's full transition ends
+            // (race between transitionend and a lead timeout = 60% of TRANSITION_MS)
+            const parentLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
+            await Promise.race([waitForTransitionForNode(parentNode.id), wait(parentLead)]);
+            // rebuild children under the parent (positions will use updated parent coords)
+            const updatedParent = nodeById(parentNode.id) || parentNode;
+            expandCompetencies(updatedParent as NodeItem, parentPrevPos);
+            // find the freshly created child node by id
+            const freshChild = childNodeById(node.id);
+            // set focused to the child (if present) so sidebar shows child details
+            focusedNode.value = freshChild || node;
+            // set updated reference for later use
+            updated = (freshChild as NodeItem) || updatedParent || nodeById(node.id) || node;
+            // if the child itself has inner skills/competencies, expand them now
+            if (freshChild && ((freshChild as any).skills || (freshChild as any).competencies)) {
+                // expand grandchildren under the child. Start them slightly before the child
+                // finishes by racing the child's transitionend with a short lead timeout.
+                const childId = (freshChild as NodeItem).id;
+                const childLead = Math.max(0, Math.round(TRANSITION_MS * 0.5));
+                await Promise.race([waitForTransitionForNode(childId), wait(childLead)]);
+                expandCompetencies(freshChild as NodeItem, parentPrevPos);
+            }
+        } else {
+            // fallback: treat as normal node click
+            focusedNode.value = node;
+            const nodePrevPos = { x: node.x ?? 0, y: node.y ?? 0 };
+            centerOnNode(node, prev);
+            // start expanding a bit earlier: race transitionend with a lead timeout
+            const nodeLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
+            await Promise.race([waitForTransitionForNode(node.id), wait(nodeLead)]);
+            updated = nodeById(node.id) || node;
+            expandCompetencies(updated as NodeItem, nodePrevPos);
+        }
+    } else {
+        // normal capability node click
+        focusedNode.value = node;
+        // first reposition nodes so focused node is centered and others snap aside
+        const nodePrevPos = { x: node.x ?? 0, y: node.y ?? 0 };
+        centerOnNode(node, prev);
+        // start expanding a bit earlier: race transitionend with a lead timeout
+        const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
+        await Promise.race([waitForTransitionForNode(node.id), wait(centeredLead)]);
+        // then expand competencies using the updated focused node coordinates
+        updated = nodeById(node.id) || node;
+        expandCompetencies(updated as NodeItem, nodePrevPos);
+    }
 
     // If we are NOT in fullscreen mode, fix panel to top-left corner
     const inTrueFullscreen = !!document.fullscreenElement;
@@ -829,13 +1191,42 @@ const handleNodeClick = (node: NodeItem, event?: MouseEvent) => {
     }
 
     // debug coords removed
+    // If followScenario is enabled, move scenarioNode to follow the clicked node (smoothly)
+    try {
+        if (followScenario.value && scenarioNode.value && (updated || node)) {
+            // position scenario node slightly above the clicked node to act as origin
+            const offsetY = 80;
+            const refNode = updated || node;
+            scenarioNode.value.x = (refNode.x ?? 0);
+            scenarioNode.value.y = Math.round((refNode.y ?? 0) - offsetY);
+        }
+    } catch (err) {
+        // ignore
+    }
 };
 
 const closeTooltip = () => {
     focusedNode.value = null;
     childNodes.value = [];
     childEdges.value = [];
-    // reset pan to default
+    // restore original node positions if we have them
+    if (originalPositions.value && originalPositions.value.size > 0) {
+        nodes.value = nodes.value.map((n) => {
+            const p = originalPositions.value.get(n.id);
+            if (p) return { ...n, x: p.x, y: p.y } as any;
+            return n;
+        });
+        // restore scenario node
+        if (scenarioNode.value) {
+            const sp = originalPositions.value.get(scenarioNode.value.id);
+            if (sp) {
+                scenarioNode.value.x = sp.x;
+                scenarioNode.value.y = sp.y;
+            }
+        }
+        originalPositions.value.clear();
+    }
+    // reset pan to default (kept for compatibility)
     viewX.value = 0;
     viewY.value = 0;
 };
@@ -1010,37 +1401,101 @@ function onFullscreenChange() {
     panelFullscreen.value = !!isFs;
 }
 
-function expandCompetencies(node: NodeItem) {
+function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: number }) {
     childNodes.value = [];
     childEdges.value = [];
     const comps = (node as any).competencies ?? [];
     if (!Array.isArray(comps) || comps.length === 0) return;
-    const angleStep = (2 * Math.PI) / comps.length;
-    const radius = 90; // distance from parent
-    const cx = node.x ?? width.value / 2;
-    const cy = node.y ?? height.value / 2;
-    comps.forEach((c: any, i: number) => {
-        const angle = i * angleStep;
-        const x = Math.round(cx + radius * Math.cos(angle));
-        const y = Math.round(cy + radius * Math.sin(angle));
-        // create a unique negative id to avoid collision with real nodes
+    // Layout child competencies in two vertical columns underneath the parent node
+    const cx = node.x ?? Math.round(width.value / 2);
+    const cy = node.y ?? Math.round(height.value / 2);
+    const initX = initialParentPos?.x ?? cx;
+    const initY = initialParentPos?.y ?? cy;
+    const columns = Math.max(1, Math.min(8, parseInt(String(props.childColumns ?? 4), 10))); // configurable via props, clamped 1..8
+    const columnSpacing = 72; // horizontal distance between columns (reduced for 4 columns)
+    // If the node is itself a child node (we use negative ids for childNodes), use a tighter layout
+    const isChildNode = node.id != null && node.id < 0;
+    // Tighten layout for grandchildren: smaller spacing and much smaller vertical offset
+    const baseRowSpacing = isChildNode ? 30 : 44; // tighter spacing for grandchildren
+    const verticalOffset = isChildNode ? 80 : 100; // bring grandchildren closer to their parent
+    // Add extra vertical gap for lower rows when there are many items
+    const extraGapForLowerRows = comps.length > columns ? (isChildNode ? 8 : 28) : 0;
+
+    const total = comps.length;
+    const rowsPerColumn = Math.ceil(total / columns);
+    // compute total block height accounting for the extra gap applied below the first row
+    const blockHeight = (rowsPerColumn - 1) * baseRowSpacing + (rowsPerColumn > 1 ? extraGapForLowerRows : 0);
+    // compute top start so the multi-column block is vertically centered under parent
+    const startY = Math.round(cy + verticalOffset - blockHeight / 2);
+
+    // Build child entries with initial position at parent, then animate to targets on nextTick
+    const builtChildren: Array<any> = [];
+        comps.forEach((c: any, i: number) => {
+        const colIndex = i % columns; // 0..columns-1
+        const rowIndex = Math.floor(i / columns);
+        const targetX = Math.round(cx + (colIndex - (columns - 1) / 2) * columnSpacing);
+        // apply extra gap only for rows below the first to avoid crowding lower rows
+        const rawY = Math.round(startY + rowIndex * baseRowSpacing + (rowIndex > 0 ? extraGapForLowerRows : 0));
+        const targetY = clampY(rawY);
         const id = -(node.id * 1000 + i + 1);
-        // preserve competency attributes so tooltip can show them
-        childNodes.value.push({
+        // push with initial coordinates at parent's center so CSS transition can animate to target
+        // small stagger so children appear organic; grandchildren slightly slower
+        // base stagger per-row/col, plus a small random jitter for organic feel
+        const baseDelay = rowIndex * 30 + colIndex * 12;
+        const jitter = Math.round((Math.random() - 0.5) * 40); // -20..+20ms
+        const delay = Math.max(0, baseDelay + jitter);
+        const child = {
             id,
             compId: c.id ?? null,
             name: c.name ?? c,
-            displayName: truncateLabel(c.name ?? c, 16),
-            x,
-            y,
+            displayName: wrapLabel(c.name ?? c, 14),
+            x: initX,
+            y: initY,
+            __scale: 0.84,
+            __opacity: 0,
+            __delay: delay,
+            __filter: 'blur(6px) drop-shadow(0 10px 18px rgba(2,6,23,0.36))',
+            __targetX: targetX,
+            __targetY: targetY,
             is_critical: false,
             description: c.description ?? null,
             readiness: c.readiness ?? null,
             skills: Array.isArray(c.skills) ? c.skills : [],
             raw: c,
-        } as any);
+        } as any;
+        builtChildren.push(child);
         childEdges.value.push({ source: node.id, target: id });
     });
+    // assign initial children so they render at parent position
+    childNodes.value = builtChildren.slice();
+    // animate to target positions on next tick — apply slight overshoot + clear blur for organic effect
+    nextTick(() => {
+        // move to targets and make visible with slight overshoot
+        childNodes.value = childNodes.value.map((ch: any) => ({
+            ...ch,
+            x: ch.__targetX ?? ch.x,
+            y: ch.__targetY ?? ch.y,
+            __scale: 1.06,
+            __opacity: 1,
+            __filter: 'none',
+        }));
+
+        // then settle scale to 1 for natural bounce
+        setTimeout(() => {
+            childNodes.value = childNodes.value.map((ch: any) => ({ ...ch, __scale: 1 }));
+            // cleanup helper target props after settle
+            nextTick(() => {
+                childNodes.value.forEach((ch: any) => { delete ch.__targetX; delete ch.__targetY; delete ch.__delay; delete ch.__filter; });
+            });
+        }, 160);
+    });
+}
+
+// clamp child node Y positions when setting them to avoid placing nodes outside viewport
+function clampY(y: number) {
+    const minY = 40;
+    const maxY = Math.max(120, height.value - 40);
+    return Math.min(Math.max(y, minY), maxY);
 }
 
 function startDrag(node: any, event: PointerEvent) {
@@ -1072,7 +1527,6 @@ const resetPositions = () => {
         x: undefined as any,
         y: undefined as any,
     }));
-    // rebuild with defaults using buildNodesFromItems
     if (props.scenario && Array.isArray((props.scenario as any).capabilities)) {
         buildNodesFromItems((props.scenario as any).capabilities);
     }
@@ -1146,6 +1600,8 @@ onMounted(() => {
             // ignore storage errors
         }
         loaded.value = true;
+        // ensure scenario node initialized with correct name
+        setScenarioInitial();
         return;
     }
     // otherwise fetch capability tree from API
@@ -1232,6 +1688,25 @@ watch(
         }
     },
     { immediate: false, deep: true },
+);
+
+// keep scenario name in sync when scenario prop changes
+watch(
+    () => props.scenario && (props.scenario.name ?? null),
+    (nv) => {
+        if (scenarioNode.value) scenarioNode.value.name = nv ?? 'Escenario';
+    },
+);
+
+// ensure scenarioEdges recompute whenever main nodes change (positions or list)
+watch(
+    () => nodes.value.map((n) => n.id),
+    () => {
+        if (scenarioNode.value && Array.isArray(nodes.value)) {
+            scenarioEdges.value = nodes.value.map((n: any) => ({ source: scenarioNode.value!.id, target: n.id, isScenarioEdge: true } as Edge));
+        }
+    },
+    { immediate: true },
 );
 
 // debug watch removed
@@ -1338,7 +1813,7 @@ if (!edges.value) edges.value = [];
 
 .node-group {
     cursor: grab;
-    transition: transform 420ms cubic-bezier(.22,.9,.3,1);
+    transition: transform 420ms cubic-bezier(.22,.9,.3,1), opacity 320ms ease, filter 360ms ease;
     transform-box: fill-box;
     transform-origin: center;
 }
@@ -1404,6 +1879,22 @@ if (!edges.value) edges.value = [];
     transform: scale(0.85);
     transform-box: fill-box;
     transform-origin: center;
+}
+
+/* scenario node styling (smooth follow transition) */
+.scenario-node {
+    pointer-events: none;
+    transition: transform 360ms cubic-bezier(.22,.9,.3,1);
+}
+
+/* animated scenario-edge: moving dash + soft pulse */
+.scenario-edge {
+    stroke-linecap: round;
+}
+
+/* scenario-edge: static styling (no animation) */
+.edge-line.scenario-edge {
+    stroke-linecap: round;
 }
 
 .child-node .node-circle {
