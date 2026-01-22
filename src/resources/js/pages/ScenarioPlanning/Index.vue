@@ -586,6 +586,7 @@ const nodes = ref<Array<NodeItem>>([]);
 const edges = ref<Array<Edge>>([]);
 const dragging = ref<any>(null);
 const dragOffset = ref({ x: 0, y: 0 });
+const positionsDirty = ref(false);
 const { showSuccess, showError } = useNotification();
 const width = ref(900);
 const height = ref(600);
@@ -1464,14 +1465,26 @@ function onPointerMove(e: PointerEvent) {
     if (!dragging.value) return;
     dragging.value.x = Math.round(e.clientX - dragOffset.value.x);
     dragging.value.y = Math.round(e.clientY - dragOffset.value.y);
+    // mark positions as changed so they can be saved on pointer up
+    positionsDirty.value = true;
 }
 
-function onPointerUp() {
+async function onPointerUp() {
     if (dragging.value) {
         dragging.value = null;
     }
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('pointerup', onPointerUp);
+
+    // If positions changed during drag, save automatically
+    if (positionsDirty.value) {
+        try {
+            await savePositions();
+        } catch (err) {
+            void err;
+        }
+        positionsDirty.value = false;
+    }
 }
 
 const resetPositions = () => {
@@ -1559,6 +1572,12 @@ onMounted(() => {
         loaded.value = true;
         // ensure scenario node initialized with correct name
         setScenarioInitial();
+        // reset positions to default layout on reload (user requested automatic reset)
+        try {
+            resetPositions();
+        } catch (err) {
+            void err;
+        }
         return;
     }
     // otherwise fetch capability tree from API
