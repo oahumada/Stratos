@@ -62,16 +62,10 @@
             >
                 <defs>
                     <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
-                        <stop
-                            offset="0%"
-                            stop-color="#071029"
-                            stop-opacity="1"
-                        />
-                        <stop
-                            offset="100%"
-                            stop-color="#0b1f33"
-                            stop-opacity="1"
-                        />
+                        <stop offset="0%" stop-color="#040914" stop-opacity="1" />
+                        <stop offset="25%" stop-color="#071029" stop-opacity="1" />
+                        <stop offset="70%" stop-color="#071a2a" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#051018" stop-opacity="1" />
                     </linearGradient>
 
                     <radialGradient id="nodeGrad" cx="30%" cy="25%" r="70%">
@@ -89,6 +83,46 @@
                         <stop offset="68%" stop-color="#d6fff3" stop-opacity="0.05" />
                         <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0" />
                     </radialGradient>
+                    <!-- bubble outer gradient: darker near rim, lighter inward to simulate inner glow -->
+                    <radialGradient id="bubbleOuterGrad" cx="50%" cy="50%" r="80%">
+                        <stop offset="0%" stop-color="#0b66b2" stop-opacity="0.06" />
+                        <stop offset="60%" stop-color="#6fc3ff" stop-opacity="0.18" />
+                        <stop offset="85%" stop-color="#6fc3ff" stop-opacity="0.06" />
+                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="0.02" />
+                    </radialGradient>
+
+                    <!-- core gradient: small bright core to suggest nucleus -->
+                    <radialGradient id="bubbleCoreGrad" cx="35%" cy="30%" r="60%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+                        <stop offset="35%" stop-color="#dffaff" stop-opacity="0.7" />
+                        <stop offset="100%" stop-color="#6fc3ff" stop-opacity="0.0" />
+                    </radialGradient>
+
+                    <!-- inner glow filter: blur + composite to push glow inward -->
+                    <filter id="innerGlow" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blurInner" />
+                        <feComposite in="blurInner" in2="SourceGraphic" operator="arithmetic" k1="0" k2="1" k3="-1" k4="0" result="innerComp" />
+                        <feMerge>
+                            <feMergeNode in="innerComp" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+
+                    <!-- glass fill for glassmorphism appearance on main nodes -->
+                    <radialGradient id="glassGrad" cx="35%" cy="28%" r="72%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.30" />
+                        <stop offset="30%" stop-color="#dff6ff" stop-opacity="0.12" />
+                        <stop offset="70%" stop-color="#9fd8ff" stop-opacity="0.08" />
+                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="0.18" />
+                    </radialGradient>
+
+                    <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="4" result="gblur" />
+                        <feMerge>
+                            <feMergeNode in="gblur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
 
                     <filter
                         id="softGlow"
@@ -109,6 +143,21 @@
                         <stop offset="0%" stop-color="#7dd3fc" stop-opacity="1" />
                         <stop offset="100%" stop-color="#60a5fa" stop-opacity="1" />
                     </linearGradient>
+
+                    <!-- subtle gradient + glow for main edges -->
+                    <linearGradient id="edgeGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#6fe7ff" stop-opacity="0.85" />
+                        <stop offset="60%" stop-color="#66b8ff" stop-opacity="0.7" />
+                        <stop offset="100%" stop-color="#9bd0ff" stop-opacity="0.55" />
+                    </linearGradient>
+
+                    <filter id="edgeGlow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="blurEdge" />
+                        <feMerge>
+                            <feMergeNode in="blurEdge" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
 
                     <!-- arrow marker for child edges -->
                     <marker id="childArrow" markerUnits="strokeWidth" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
@@ -145,13 +194,28 @@
                     </filter>
                 </defs>
 
-                <!-- subtle background rect for contrast -->
+                <!-- subtle background rect for contrast (rounded + border/glow) -->
                 <rect
                     x="0"
                     y="0"
                     :width="width"
                     :height="height"
+                    rx="12"
+                    ry="12"
                     fill="url(#bgGrad)"
+                />
+                <!-- container border/glow to emulate glass frame -->
+                <rect
+                    x="1"
+                    y="1"
+                    :width="width - 2"
+                    :height="height - 2"
+                    rx="12"
+                    ry="12"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.04)"
+                    stroke-width="1"
+                    filter="url(#softGlow)"
                 />
 
                 <!-- edges -->
@@ -166,6 +230,11 @@
                             :x2="renderedNodeById(e.target)?.x ?? undefined"
                             :y2="renderedNodeById(e.target)?.y ?? undefined"
                             class="edge-line"
+                            :stroke="`url(#edgeGrad)`"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            filter="url(#edgeGlow)"
+                            stroke-opacity="0.9"
                         />
                     </g>
 
@@ -207,11 +276,11 @@
                         <circle
                             class="node-circle"
                             r="34"
-                            fill="url(#nodeGrad)"
-                            filter="url(#softGlow)"
-                            stroke="#ffffff"
-                            stroke-opacity="0.06"
-                            stroke-width="1"
+                            fill="url(#bubbleOuterGrad)"
+                            filter="url(#innerGlow)"
+                            stroke="rgba(255,255,255,0.12)"
+                            stroke-opacity="1"
+                            stroke-width="1.2"
                         />
                         <!-- iridescent sheen overlay: semitransparent, uses blend to simulate soap colors -->
                         <circle
@@ -222,7 +291,7 @@
                             style="mix-blend-mode: screen"
                         />
                         <!-- bubble-style highlight: small blurred specular on top-left -->
-                        <ellipse
+                        <!-- <ellipse
                             class="node-reflection"
                             cx="-12"
                             cy="-14"
@@ -231,6 +300,13 @@
                             fill="#ffffff"
                             fill-opacity="0.18"
                             transform="rotate(-22)"
+                            filter="url(#specular)"
+                        /> -->
+                        <!-- inner core that suggests nucleus -->
+                        <circle
+                            class="node-core"
+                            r="12"
+                            fill="url(#bubbleCoreGrad)"
                             filter="url(#specular)"
                         />
                         <!-- subtle glossy rim to enhance bubble feel -->
@@ -488,7 +564,9 @@ function centerOnNode(node: NodeItem) {
     if (!node) return;
     // center node in visible area
     const targetX = Math.round(width.value / 2 - (node.x ?? 0));
-    const targetY = Math.round(height.value / 2 - (node.y ?? 0));
+    // position node vertically at 25% of the viewport (closer to top)
+    const VERTICAL_FOCUS_RATIO = 0.25;
+    const targetY = Math.round(height.value * VERTICAL_FOCUS_RATIO - (node.y ?? 0));
     viewX.value = targetX;
     viewY.value = targetY;
 }
@@ -1174,6 +1252,21 @@ if (!edges.value) edges.value = [];
     color: #ffffff;
 }
 
+.prototype-map-root::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 14px;
+    pointer-events: none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -24px 48px rgba(11,22,48,0.12);
+    z-index: 10;
+}
+
+.map-canvas {
+    border-radius: 12px;
+    overflow: visible;
+}
+
 /* sidebar styles - anchored to the right */
 .scenario-sidebar {
     position: absolute;
@@ -1285,6 +1378,24 @@ if (!edges.value) edges.value = [];
     transform-origin: center;
 }
 
+/* hover + focus */
+.node-group:hover .node-circle {
+    transform: scale(1.06);
+}
+.node-group:active .node-circle {
+    transform: scale(1.02);
+}
+
+/* pulse for critical nodes */
+.node-group.critical {
+    animation: pulse 2400ms infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
 /* scale down visuals (circle + label) for non-selected nodes without moving their group */
 .node-group.small .node-circle {
     transform: scale(0.5);
@@ -1318,6 +1429,10 @@ if (!edges.value) edges.value = [];
 /* make child edges more visible with subtle glow */
 .edge-line.child-edge {
     mix-blend-mode: screen;
+}
+
+.edge-line {
+    transition: stroke-width 180ms ease, stroke-opacity 180ms ease, filter 220ms ease;
 }
 
 .node-inner {
@@ -1380,6 +1495,14 @@ if (!edges.value) edges.value = [];
     overflow: visible;
     padding: 20px;
     backdrop-filter: blur(6px);
+}
+
+.node-details-sidebar.theme-dark {
+    box-shadow: 0 8px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    border-left: 1px solid rgba(255,255,255,0.04);
+}
+.node-details-sidebar.theme-light {
+    box-shadow: 0 8px 24px rgba(2,6,23,0.28), inset 0 1px 0 rgba(255,255,255,0.02);
 }
 
 /* Light theme (default) */
