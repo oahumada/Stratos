@@ -12,16 +12,7 @@
             <div v-if="props.scenario && props.scenario.id">
                 Escenario: {{ props.scenario?.name || '—' }}
             </div>
-            <v-btn
-                small
-                color="primary"
-                @click="savePositions"
-                v-if="props.scenario && props.scenario.id"
-                >Guardar posiciones</v-btn
-            >
-            <v-btn small @click="resetPositions" v-if="nodes.length > 0"
-                >Reset posiciones</v-btn
-            >
+            <!-- Position controls removed: positions are saved/reset by default -->
             <v-btn
                 small
                 icon
