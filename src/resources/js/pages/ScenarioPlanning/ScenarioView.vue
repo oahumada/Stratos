@@ -1,10 +1,12 @@
-<script setup>
+<script setup lang="ts">
 import InsightsPanel from './InsightsPanel.vue';
-const props = defineProps({
+const { scenario: _scenario, capabilities, connections } = defineProps({
     scenario: Object,
     capabilities: Array,
     connections: Array, // Nueva prop para las conexiones
 });
+// mark unused prop to satisfy linter
+void _scenario;
 
 const handleNodeClick = (node) => {
     console.log('Capacidad seleccionada:', node);

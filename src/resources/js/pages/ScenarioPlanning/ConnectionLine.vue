@@ -25,7 +25,7 @@
     </g>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps({

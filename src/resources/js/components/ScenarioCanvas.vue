@@ -88,7 +88,7 @@ function create() {
     const node = g.append('g').selectAll('g').data(nodes).join('g');
 
     // circle + outer glow
-    const circles = node
+    node
         .append('g')
         .attr('class', 'node-group')
         .call((sel) =>

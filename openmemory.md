@@ -99,3 +99,7 @@ Nota: Este cambio es puramente visual (SVG/defs/CSS). La lógica D3 y el layout 
 ---
 
 Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el archivo `src/types/d3.d.ts`, indícalo y lo ejecuto ahora.
+
+- Memoria detallada de la sesión de 2026-01-22: [docs/MEMORY_ScenarioPlanning_2026-01-22.md](docs/MEMORY_ScenarioPlanning_2026-01-22.md)
+
+- Estado: memoria creada en `docs/MEMORY_ScenarioPlanning_2026-01-22.md` (confirmado 2026-01-22).

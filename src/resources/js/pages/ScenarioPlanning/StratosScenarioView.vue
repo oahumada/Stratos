@@ -72,7 +72,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import CapabilityEcosystem from './CapabilityEcosystem.vue';
 import InsightsPanel from './InsightsPanel.vue';

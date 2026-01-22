@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 defineProps({ scenario: { type: Object, required: false } })
 </script>
 

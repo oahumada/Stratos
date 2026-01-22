@@ -64,7 +64,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import CapabilityNode from './CapabilityNode.vue';
 
 defineProps(['capabilities']);

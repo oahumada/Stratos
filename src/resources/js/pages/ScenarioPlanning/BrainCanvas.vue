@@ -121,7 +121,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import * as d3 from 'd3';
 import { computed, onMounted, ref, watch } from 'vue';
 import CapabilityNode from './CapabilityNode.vue';
