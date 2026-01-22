@@ -306,8 +306,8 @@
                             </g>
                         </g>
 
-                        <!-- keep a label below the smaller node -->
-                        <text x="0" y="36" text-anchor="middle" class="node-label" style="font-size:12px">{{ scenarioNode.name }}</text>
+                        <!-- label above the smaller node for clearer hierarchy -->
+                        <text x="0" y="-48" text-anchor="middle" class="node-label" style="font-size:16px; font-weight:700">{{ scenarioNode.name }}</text>
                     </g>
                     <!-- child edges -->
                     <g class="child-edges">
@@ -864,17 +864,46 @@ function truncateLabel(s: any, max = 14) {
 }
 
 function wrapLabel(s: any, max = 14) {
+    // Wrap into at most two lines, each up to `max` chars. If text exceeds two lines,
+    // truncate the second line and add an ellipsis.
     if (s == null) return '';
     const str = String(s).trim();
     if (str.length <= max) return str;
-    // try to break at last space before max
-    const before = str.slice(0, max + 1);
-    const lastSpace = before.lastIndexOf(' ');
-    if (lastSpace > 0) {
-        return str.slice(0, lastSpace) + '\n' + str.slice(lastSpace + 1);
+
+    // Helper to cut a line at word boundary if possible
+    const cutLine = (text: string, limit: number) => {
+        if (text.length <= limit) return { line: text, rest: '' };
+        // Try to break at last space within limit
+        const slice = text.slice(0, limit + 1);
+        const lastSpace = slice.lastIndexOf(' ');
+        if (lastSpace > 0) {
+            const line = text.slice(0, lastSpace);
+            const rest = text.slice(lastSpace + 1).trim();
+            return { line, rest };
+        }
+        // No space found: hard cut
+        return { line: text.slice(0, limit), rest: text.slice(limit).trim() };
+    };
+
+    const first = cutLine(str, max);
+    if (!first.rest) return first.line;
+
+    // build second line (truncate with ellipsis if needed)
+    const secondRaw = first.rest;
+    if (secondRaw.length <= max) return first.line + '\n' + secondRaw;
+    // try to cut second at word boundary
+    const secondCut = cutLine(secondRaw, max);
+    let second = secondCut.line;
+    if (secondCut.rest && second.length >= max) {
+        // ensure room for ellipsis
+        second = second.slice(0, Math.max(0, max - 1));
+        second = second.replace(/\s+$/,'');
+        second = second + '…';
+    } else if (secondCut.rest) {
+        // append ellipsis if anything remains
+        second = second + '…';
     }
-    // otherwise break at max
-    return str.slice(0, max) + '\n' + str.slice(max);
+    return first.line + '\n' + second;
 }
 
 function computeInitialPosition(idx: number, total: number) {
