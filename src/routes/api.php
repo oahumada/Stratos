@@ -120,6 +120,182 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['success' => true, 'data' => $comp], 201);
     });
 
+    // Dev API: manage capability_competencies pivot (competency assignments per capability per scenario)
+    Route::post('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
+        $user = auth()->user();
+        if (!$user)
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        $scenario = App\Models\Scenario::find($scenarioId);
+        if (!$scenario)
+            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+        if ($scenario->organization_id !== ($user->organization_id ?? null))
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        $cap = App\Models\Capability::find($capabilityId);
+        if (!$cap)
+            return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
+        $competencyId = $request->input('competency_id');
+        $comp = App\Models\Competency::find($competencyId);
+        if (!$comp)
+            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+
+        try {
+            $insert = [
+                'scenario_id' => $scenarioId,
+                'capability_id' => $capabilityId,
+                'competency_id' => $competencyId,
+                'required_level' => (int) $request->input('required_level', 3),
+                'weight' => $request->has('weight') ? (int) $request->input('weight') : null,
+                'rationale' => $request->input('rationale', null),
+                'is_required' => (bool) $request->input('is_required', false),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            $exists = \DB::table('capability_competencies')
+                ->where('scenario_id', $scenarioId)
+                ->where('capability_id', $capabilityId)
+                ->where('competency_id', $competencyId)
+                ->exists();
+            if ($exists) {
+                return response()->json(['success' => false, 'message' => 'Relation already exists'], 409);
+            }
+            \DB::table('capability_competencies')->insert($insert);
+            return response()->json(['success' => true, 'data' => $insert]);
+        } catch (\Throwable $e) {
+            \Log::error('Error creating capability_competency: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Server error creating relation'], 500);
+        }
+    });
+        Route::post('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
+            $user = auth()->user();
+            if (!$user) return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+
+            $scenario = App\Models\Scenario::find($scenarioId);
+            if (!$scenario) return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+            if ($scenario->organization_id !== ($user->organization_id ?? null)) return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+
+            $cap = App\Models\Capability::find($capabilityId);
+            if (!$cap) return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
+
+            // Accept either `competency_id` (use existing) or `competency` payload to create a new competency.
+            $competencyId = $request->input('competency_id');
+
+            try {
+                $result = \DB::transaction(function () use ($request, $scenarioId, $capabilityId, $competencyId, $user, $cap) {
+                    // If competency_id provided, validate existence and tenant
+                    if ($competencyId) {
+                        $comp = App\Models\Competency::find($competencyId);
+                        if (!$comp) throw new \Exception('Competency not found');
+                        if ($comp->organization_id !== ($user->organization_id ?? null)) throw new \Exception('Forbidden');
+                        $createdCompetencyId = $comp->id;
+                    } else {
+                        // Create new competency
+                        $payload = $request->input('competency', []);
+                        $name = trim($payload['name'] ?? '');
+                        if (empty($name)) throw new \Exception('Competency name is required');
+                        $comp = App\Models\Competency::create([
+                            'organization_id' => $user->organization_id ?? null,
+                            'capability_id' => $capabilityId,
+                            'name' => $name,
+                            'description' => $payload['description'] ?? null,
+                        ]);
+                        $createdCompetencyId = $comp->id;
+                    }
+
+                    // Prepare pivot insert
+                    $insert = [
+                        'scenario_id' => $scenarioId,
+                        'capability_id' => $capabilityId,
+                        'competency_id' => $createdCompetencyId,
+                        'required_level' => (int) $request->input('required_level', 3),
+                        'weight' => $request->has('weight') ? (int) $request->input('weight') : null,
+                        'rationale' => $request->input('rationale', null),
+                        'is_required' => (bool) $request->input('is_required', false),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+
+                    $exists = \DB::table('capability_competencies')
+                        ->where('scenario_id', $scenarioId)
+                        ->where('capability_id', $capabilityId)
+                        ->where('competency_id', $createdCompetencyId)
+                        ->exists();
+                    if ($exists) {
+                        // return existing row info
+                        $row = \DB::table('capability_competencies')
+                            ->where('scenario_id', $scenarioId)
+                            ->where('capability_id', $capabilityId)
+                            ->where('competency_id', $createdCompetencyId)
+                            ->first();
+                        return ['status' => 'exists', 'row' => $row];
+                    }
+
+                    \DB::table('capability_competencies')->insert($insert);
+                    return ['status' => 'created', 'data' => $insert];
+                });
+
+                if ($result['status'] === 'created') {
+                    return response()->json(['success' => true, 'data' => $result['data']], 201);
+                }
+                return response()->json(['success' => true, 'data' => $result['row'], 'note' => 'already_exists'], 200);
+            } catch (\Exception $e) {
+                \Log::error('Error creating capability_competency (POST): ' . $e->getMessage(), ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId]);
+                if (str_contains($e->getMessage(), 'Forbidden')) return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+                if (str_contains($e->getMessage(), 'Competency name is required')) return response()->json(['success' => false, 'message' => 'Competency name is required'], 422);
+                return response()->json(['success' => false, 'message' => 'Server error creating relation'], 500);
+            }
+        });
+
+    Route::patch('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies/{competencyId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId, $competencyId) {
+        $user = auth()->user();
+        if (!$user)
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        $scenario = App\Models\Scenario::find($scenarioId);
+        if (!$scenario)
+            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+        if ($scenario->organization_id !== ($user->organization_id ?? null))
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        $exists = \DB::table('capability_competencies')
+            ->where('scenario_id', $scenarioId)
+            ->where('capability_id', $capabilityId)
+            ->where('competency_id', $competencyId)
+            ->exists();
+        if (!$exists)
+            return response()->json(['success' => false, 'message' => 'Relation not found'], 404);
+        $update = [];
+        foreach (['required_level', 'weight', 'rationale', 'is_required'] as $f) {
+            if ($request->has($f))
+                $update[$f] = $request->input($f);
+        }
+        if (!empty($update)) {
+            $update['updated_at'] = now();
+            \DB::table('capability_competencies')
+                ->where('scenario_id', $scenarioId)
+                ->where('capability_id', $capabilityId)
+                ->where('competency_id', $competencyId)
+                ->update($update);
+        }
+        return response()->json(['success' => true, 'updated' => $update]);
+    });
+
+    Route::delete('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies/{competencyId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId, $competencyId) {
+        $user = auth()->user();
+        if (!$user)
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        $scenario = App\Models\Scenario::find($scenarioId);
+        if (!$scenario)
+            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+        if ($scenario->organization_id !== ($user->organization_id ?? null))
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        $deleted = \DB::table('capability_competencies')
+            ->where('scenario_id', $scenarioId)
+            ->where('capability_id', $capabilityId)
+            ->where('competency_id', $competencyId)
+            ->delete();
+        if ($deleted)
+            return response()->json(['success' => true]);
+        return response()->json(['success' => false, 'message' => 'Relation not found'], 404);
+    });
+
     // Dev API: create a Capability under a Scenario (multi-tenant)
     Route::post('/strategic-planning/scenarios/{id}/capabilities', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
@@ -250,6 +426,9 @@ Route::middleware('auth:sanctum')->group(function () {
                 'rationale' => $request->input('rationale', null),
                 'required_level' => (int) $request->input('required_level', 3),
                 'is_critical' => (bool) $request->input('is_critical', false),
+                'position_x' => $request->has('position_x') ? $request->input('position_x') : null,
+                'position_y' => $request->has('position_y') ? $request->input('position_y') : null,
+                'is_fixed' => (bool) $request->input('is_fixed', false),
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -264,7 +443,7 @@ Route::middleware('auth:sanctum')->group(function () {
             }
         }
         $update = [];
-        $fields = ['strategic_role', 'strategic_weight', 'priority', 'rationale', 'required_level', 'is_critical'];
+        $fields = ['strategic_role', 'strategic_weight', 'priority', 'rationale', 'required_level', 'is_critical', 'position_x', 'position_y', 'is_fixed'];
         foreach ($fields as $f) {
             if ($request->has($f)) {
                 $update[$f] = $request->input($f);
@@ -338,9 +517,59 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Dev-only: accept saved positions for prototype mapping (no auth)
 Route::post('/strategic-planning/scenarios/{id}/capability-tree/save-positions', function (Request $request, $id) {
-    // For development, just log and return ok. Persisting should be implemented in a service.
-    \Log::info('Saving capability positions for scenario ' . $id, ['positions' => $request->input('positions')]);
-    return response()->json(['status' => 'ok']);
+    // Persist positions for prototype mapping. This endpoint is dev-friendly but will persist into pivot.
+    $positions = $request->input('positions', []);
+    $updated = 0;
+    $inserted = 0;
+    foreach ($positions as $p) {
+        $capId = $p['id'] ?? $p['capability_id'] ?? null;
+        if (!$capId)
+            continue;
+        $x = array_key_exists('x', $p) ? $p['x'] : null;
+        $y = array_key_exists('y', $p) ? $p['y'] : null;
+        $isFixed = array_key_exists('is_fixed', $p) ? (bool) $p['is_fixed'] : true;
+
+        try {
+            $exists = \DB::table('scenario_capabilities')
+                ->where('scenario_id', $id)
+                ->where('capability_id', $capId)
+                ->exists();
+            if ($exists) {
+                \DB::table('scenario_capabilities')
+                    ->where('scenario_id', $id)
+                    ->where('capability_id', $capId)
+                    ->update([
+                        'position_x' => $x,
+                        'position_y' => $y,
+                        'is_fixed' => $isFixed,
+                        'updated_at' => now(),
+                    ]);
+                $updated++;
+            } else {
+                // create minimal pivot row with sensible defaults plus positions
+                \DB::table('scenario_capabilities')->insert([
+                    'scenario_id' => $id,
+                    'capability_id' => $capId,
+                    'strategic_role' => 'target',
+                    'strategic_weight' => 10,
+                    'priority' => 1,
+                    'rationale' => null,
+                    'required_level' => 3,
+                    'is_critical' => false,
+                    'position_x' => $x,
+                    'position_y' => $y,
+                    'is_fixed' => $isFixed,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $inserted++;
+            }
+        } catch (\Throwable $e) {
+            \Log::error('Error saving position for cap ' . $capId . ': ' . $e->getMessage());
+        }
+    }
+    \Log::info('Saved positions for scenario ' . $id, ['updated' => $updated, 'inserted' => $inserted]);
+    return response()->json(['status' => 'ok', 'updated' => $updated, 'inserted' => $inserted]);
 });
 
 // Dev-only endpoint removed: use canonical `/strategic-planning/scenarios` with auth:sanctum

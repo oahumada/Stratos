@@ -29,4 +29,9 @@ class Competency extends Model
     {
         return $this->hasMany(CompetencySkill::class, 'competency_id');
     }
+
+    public function capabilityCompetencies()
+    {
+        return $this->hasMany(\App\Models\CapabilityCompetency::class, 'competency_id');
+    }
 }

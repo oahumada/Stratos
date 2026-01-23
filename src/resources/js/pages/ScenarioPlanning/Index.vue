@@ -1355,12 +1355,12 @@ function buildNodesFromItems(items: any[]) {
     const mapped = items.map((it: any, idx: number) => {
         const rawX = it.position_x ?? it.x ?? it.cx ?? null;
         const rawY = it.position_y ?? it.y ?? it.cy ?? null;
-        const parsedX = rawX != null ? parseFloat(String(rawX)) : NaN;
-        const parsedY = rawY != null ? parseFloat(String(rawY)) : NaN;
-        // Default behaviour: center grid by default. Ignore stored coordinates so layout is consistent.
-    const hasPos = false;
-        const x = hasPos ? Math.round(parsedX) : undefined;
-        const y = hasPos ? Math.round(parsedY) : undefined;
+            const parsedX = rawX != null ? parseFloat(String(rawX)) : NaN;
+            const parsedY = rawY != null ? parseFloat(String(rawY)) : NaN;
+            // If stored coordinates are valid numbers, prefer them so nodes remain fixed where the user left them.
+            const hasPos = !Number.isNaN(parsedX) && !Number.isNaN(parsedY);
+            const x = hasPos ? Math.round(parsedX) : undefined;
+            const y = hasPos ? Math.round(parsedY) : undefined;
         // if missing position, place roughly on a circle initially (helps force start) but mark undefined so we can re-run force
         const fallbackPos = computeInitialPosition(idx, items.length);
         const fallbackX = Math.round(fallbackPos.x);

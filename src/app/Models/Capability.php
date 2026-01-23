@@ -26,6 +26,11 @@ class Capability extends Model
         return $this->hasMany(Competency::class, 'capability_id');
     }
 
+    public function capabilityCompetencies()
+    {
+        return $this->hasMany(CapabilityCompetency::class, 'capability_id');
+    }
+
     public function discoveredInScenario()
     {
         return $this->belongsTo(Scenario::class, 'discovered_in_scenario_id');

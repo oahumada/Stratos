@@ -37,6 +37,11 @@ class Scenario extends Model
         return $this->hasMany(ScenarioCapability::class, 'scenario_id');
     }
 
+    public function capabilityCompetencies()
+    {
+        return $this->hasMany(\App\Models\CapabilityCompetency::class, 'scenario_id');
+    }
+
     public function skills()
     {
         return $this->hasMany(ScenarioSkill::class, 'scenario_id');
