@@ -897,23 +897,23 @@ function computeInitialPosition(idx: number, total: number) {
 
     if (total <= 1) return { x: Math.round(centerX), y: Math.round(centerY) };
 
-    // compute grid dimensions (cols x rows) close to square
-    const cols = Math.max(1, Math.ceil(Math.sqrt(total)));
-    const rows = Math.max(1, Math.ceil(total / cols));
+    // compute grid dimensions: use up to 5 columns, rows as needed
+    const columns = Math.min(5, Math.max(1, total));
+    const rows = Math.max(1, Math.ceil(total / columns));
 
     // margins and spacing (more compact vertical spacing)
     const margin = 24;
     const availableW = Math.max(120, width.value - margin * 2);
     const availableH = Math.max(120, height.value - margin * 2);
-    const spacingX = cols > 1 ? Math.min(160, Math.floor(availableW / cols)) : 0;
+    const spacingX = columns > 1 ? Math.min(160, Math.floor(availableW / columns)) : 0;
     // increase vertical spacing cap to provide more room between rows
     const spacingY = rows > 1 ? Math.min(140, Math.floor(availableH / rows)) : 0;
 
-    const col = idx % cols;
-    const row = Math.floor(idx / cols);
+    const col = idx % columns;
+    const row = Math.floor(idx / columns);
 
     // center the whole grid around centerX/centerY
-    const totalGridW = (cols - 1) * spacingX;
+    const totalGridW = (columns - 1) * spacingX;
     const totalGridH = (rows - 1) * spacingY;
     const offsetX = col * spacingX - totalGridW / 2;
     const offsetY = row * spacingY - totalGridH / 2;
@@ -1366,29 +1366,37 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     const cy = node.y ?? Math.round(height.value / 2);
     const initX = initialParentPos?.x ?? cx;
     const initY = initialParentPos?.y ?? cy;
-    const columns = Math.max(1, Math.min(8, parseInt(String(props.childColumns ?? 4), 10))); // configurable via props, clamped 1..8
-    const columnSpacing = 72; // horizontal distance between columns (reduced for 4 columns)
+    // Layout policy: up to 5 columns.
+    // Behavior: columns = min(5, total), rows = ceil(total / columns), centering incomplete rows.
+    const total = comps.length;
+    const columns = Math.min(5, total);
+    // reduce spacing when more columns to keep layout compact
+    const columnSpacing = 72;
     // If the node is itself a child node (we use negative ids for childNodes), use a tighter layout
     const isChildNode = node.id != null && node.id < 0;
     // Tighten layout for grandchildren: smaller spacing and much smaller vertical offset
     const baseRowSpacing = isChildNode ? 30 : 44; // tighter spacing for grandchildren
-    const verticalOffset = isChildNode ? 80 : 100; // bring grandchildren closer to their parent
+    const verticalOffset = isChildNode ? 80 : 150; // bring grandchildren closer to their parent
     // Add extra vertical gap for lower rows when there are many items
     const extraGapForLowerRows = comps.length > columns ? (isChildNode ? 8 : 28) : 0;
 
-    const total = comps.length;
     const rowsPerColumn = Math.ceil(total / columns);
     // compute total block height accounting for the extra gap applied below the first row
     const blockHeight = (rowsPerColumn - 1) * baseRowSpacing + (rowsPerColumn > 1 ? extraGapForLowerRows : 0);
     // compute top start so the multi-column block is vertically centered under parent
     const startY = Math.round(cy + verticalOffset - blockHeight / 2);
+    const fullRowsCount = Math.floor(total / columns);
 
     // Build child entries with initial position at parent, then animate to targets on nextTick
     const builtChildren: Array<any> = [];
         comps.forEach((c: any, i: number) => {
         const colIndex = i % columns; // 0..columns-1
         const rowIndex = Math.floor(i / columns);
-        const targetX = Math.round(cx + (colIndex - (columns - 1) / 2) * columnSpacing);
+        const itemsInRow = rowIndex < fullRowsCount ? columns : total % columns;
+        const maxRowWidth = (columns - 1) * columnSpacing;
+        const rowWidth = (itemsInRow - 1) * columnSpacing;
+        const rowOffset = (maxRowWidth - rowWidth) / 2;
+        const targetX = Math.round(cx - maxRowWidth / 2 + colIndex * columnSpacing + rowOffset);
         // apply extra gap only for rows below the first to avoid crowding lower rows
         const rawY = Math.round(startY + rowIndex * baseRowSpacing + (rowIndex > 0 ? extraGapForLowerRows : 0));
         const targetY = clampY(rawY);
