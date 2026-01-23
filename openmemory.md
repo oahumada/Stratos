@@ -123,6 +123,44 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 
 - Estado: memoria creada en `docs/MEMORY_ScenarioPlanning_2026-01-22.md` (confirmado 2026-01-22).
 
+## Memoria: Sesión 2026-01-23
+
+- **Resumen corto:** Implementé el endpoint backend para asignar competencias a capacidades por escenario (`capability_competencies`) que acepta `competency_id` o crea una nueva `competency` y la asocia, creé la migración/modelo para la pivot, añadí tests Feature que cubren ambos flujos y verifiqué que los tests pasan localmente.
+- **Archivos clave modificados/añadidos:**
+  - `src/routes/api.php` — POST `/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies` (lógica transaccional, tenant checks, manejo de duplicados).
+  - `src/app/Models/CapabilityCompetency.php` — nuevo modelo para pivot.
+  - `src/database/migrations/2026_01_23_120000_add_positions_to_scenario_capabilities_table.php` — agregó `position_x/position_y/is_fixed` a `scenario_capabilities`.
+  - `src/database/migrations/2026_01_23_121000_create_capability_competencies_table.php` — nueva tabla `capability_competencies`.
+  - `src/tests/Feature/CapabilityCompetencyTest.php` — tests para: adjuntar competencia existente; crear nueva competencia + pivot en transacción.
+
+- **Comprobaciones realizadas:**
+  - Ejecuté los tests del nuevo archivo y pasaron: `php artisan test tests/Feature/CapabilityCompetencyTest.php` (2 tests, 8 assertions) en el entorno de desarrollo local del repo.
+
+- **Decisiones y reglas aplicadas:**
+  - El endpoint opera en transacción (crea la `competency` si se entrega `competency` payload, o usa `competency_id` si se entrega).
+  - Verificación multitenant: se comprueba `organization_id` del `scenario` y de la `competency` nueva/existente antes de asociar.
+  - Prevención de duplicados: verifica existencia en `capability_competencies` antes de insertar; si existe devuelve la fila existente.
+
+- **Próximos pasos guardados (para mañana):**
+  1. Ejecutar migraciones en el entorno dev y validar end-to-end (actualizar posiciones desde UI y comprobar `scenario_capabilities`):
+
+     ```bash
+     cd src
+     php artisan migrate
+     npm run dev   # si es necesario reconstruir assets
+     ```
+
+  2. Implementar la UI (modal/select) en `src/resources/js/pages/ScenarioPlanning/Index.vue` para: seleccionar competencia existente o crear una nueva y llamar al endpoint transaccional.
+  3. Añadir validaciones/autorization finales y pruebas E2E pequeñas (Playwright/Pest) para el flujo completo.
+
+- **Metadata:**
+  - `git_branch`: feature/workforce-planning-scenario-modeling
+  - `fecha`: 2026-01-23
+
+---
+
+Registro creado automáticamente para dejar el estado listo para continuar mañana.
+
 ## Implementación registrada: Auto-attach de `Capability` a `Scenario` (pivot)
 
 - **Qué:** Al crear una nueva `Capability` que tenga `discovered_in_scenario_id`, el modelo ahora inserta automáticamente una fila en la tabla pivot `scenario_capabilities` (si no existe) con valores por defecto (`strategic_role='target'`, `strategic_weight=10`, `priority=1`, `required_level=3`, `is_critical=false`). La relación también se crea explícitamente desde la ruta API que guarda la capacidad desde el nodo del escenario.
