@@ -1192,7 +1192,33 @@ async function saveNewCapability() {
         const res: any = await api.post(`/api/strategic-planning/scenarios/${props.scenario.id}/capabilities`, payload);
         const created = res?.data ?? res;
         showSuccess('Capacidad creada y asociada al escenario');
-        // refresh tree from API to include pivot attributes
+        // Optimistic update: add the created capability to the local nodes immediately
+        try {
+            if (created && typeof created.id !== 'undefined') {
+                const fallback = computeInitialPosition(nodes.value.length, (nodes.value.length || 0) + 1);
+                const newNode = {
+                    id: Number(created.id),
+                    name: created.name,
+                    displayName: wrapLabel(created.name, 14),
+                    x: Math.round(fallback.x),
+                    y: Math.round(fallback.y),
+                    is_critical: !!created.is_critical,
+                    description: created.description ?? null,
+                    competencies: [],
+                    importance: created.importance ?? 3,
+                    level: null,
+                    required: null,
+                    raw: created,
+                } as any;
+                nodes.value = [...nodes.value, newNode];
+                // rebuild edges to include new node
+                buildEdgesFromItems((props.scenario as any).capabilities || []);
+                positionsDirty.value = true;
+            }
+        } catch (optErr) {
+            void optErr;
+        }
+        // Refresh canonical tree from API to include pivot attributes and avoid drift
         await loadTreeFromApi(props.scenario.id);
         // close modal and reset
         createModalVisible.value = false;
@@ -1305,7 +1331,7 @@ function computeInitialPosition(idx: number, total: number) {
  * - >=7: grid with up to 6 columns (rows = ceil(total/cols))
  * After reordering nodes are updated in `nodes.value` and `positionsDirty` is set.
  */
-function reorderNodes() {
+async function reorderNodes() {
     const total = nodes.value.length;
     if (!total) return;
     const cx = Math.round(width.value / 2);
@@ -1351,7 +1377,7 @@ function reorderNodes() {
 
     // ensure nodes are not placed on top of the scenario origin
     try {
-        const MIN_ORIGIN_SEPARATION = 180; // increased separation for safety
+        const MIN_ORIGIN_SEPARATION = 120; // increased separation for safety
         if (scenarioNode.value) {
             const sx = scenarioNode.value.x ?? Math.round(width.value / 2);
             const sy = scenarioNode.value.y ?? Math.round(height.value * 0.12);
@@ -1390,6 +1416,17 @@ function reorderNodes() {
         showSidebar.value = false;
     } catch (err) {
         void err;
+    }
+
+    // Persist positions immediately after reordering so the change is durable.
+    try {
+        await savePositions();
+        positionsDirty.value = false;
+    } catch (err) {
+        void err;
+        showError('No se pudieron guardar las posiciones tras reordenar');
+        // leave positionsDirty=true to indicate unsaved changes
+        positionsDirty.value = true;
     }
 }
 
