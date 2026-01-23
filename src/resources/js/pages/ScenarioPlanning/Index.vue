@@ -9,6 +9,7 @@
                 align-items: center;
             "
         >
+            <!-- top control removed; 'Crear capacidad' integrated next to home control -->
             <div v-if="props.scenario && props.scenario.id">
                 Escenario: {{ props.scenario?.name || '—' }}
             </div>
@@ -300,6 +301,18 @@
                         <!-- Home icon (simple polygon) -->
                         <polygon points="0,-8 -10,2 -5,2 -5,9 5,9 5,2 10,2" fill="#dbeafe" transform="scale(0.9)" />
                     </g>
+                    <!-- Create capability control: placed under the home control -->
+                    <g
+                        class="scenario-create-control"
+                        :transform="`translate(${Math.max(48, width - 56)}, 72)`"
+                        @click.stop="createCapabilityClicked"
+                        style="cursor: pointer"
+                        aria-label="Crear capacidad"
+                    >
+                        <circle r="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)"/>
+                        <title>Crear capacidad</title>
+                        <text x="0" y="4" text-anchor="middle" font-size="14" fill="#dbeafe" style="font-weight:700">+</text>
+                    </g>
                     <!-- child edges -->
                     <g class="child-edges">
                         <line
@@ -588,6 +601,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const emit = defineEmits<{
+    (e: 'createCapability'): void;
+}>();
 const api = useApi();
 const loaded = ref(false);
 const nodes = ref<Array<NodeItem>>([]);
@@ -870,6 +886,12 @@ function openScenarioInfo() {
     viewX.value = 0;
     viewY.value = 0;
     showSidebar.value = true;
+}
+
+function createCapabilityClicked() {
+    // open sidebar and emit event so parent can handle creation flow
+    showSidebar.value = true;
+    emit('createCapability');
 }
 
 function truncateLabel(s: any, max = 14) {
