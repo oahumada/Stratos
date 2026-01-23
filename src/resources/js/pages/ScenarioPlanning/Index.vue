@@ -13,15 +13,7 @@
                 Escenario: {{ props.scenario?.name || '—' }}
             </div>
             <!-- Position controls removed: positions are saved/reset by default -->
-            <v-btn
-                small
-                icon
-                color="primary"
-                @click="openScenarioInfo"
-                title="Volver a la vista inicial y mostrar información del escenario"
-            >
-                <v-icon icon="mdi-home" />
-            </v-btn>
+            <!-- 'Volver a la vista inicial' integrado en la esfera del escenario y en el borde derecho del diagrama -->
                         <!-- extra soft halo/gloss to ensure bubble effect is visible on all nodes -->
                         <circle
                             class="node-gloss"
@@ -265,6 +257,9 @@
                         :style="{ transform: `translate(${scenarioNode.x}px, ${scenarioNode.y}px)` }"
                         class="node-group scenario-node"
                         :data-node-id="scenarioNode.id"
+                        @click.stop="openScenarioInfo"
+                        :title="'Ver información del escenario'"
+                        style="cursor: pointer"
                     >
                         <title>{{ scenarioNode.name }}</title>
                         <!-- Smaller parent node (scenario) with icon support -->
@@ -291,6 +286,19 @@
 
                         <!-- label above the smaller node for clearer hierarchy -->
                         <text x="0" y="-48" text-anchor="middle" class="node-label" style="font-size:16px; font-weight:700">{{ scenarioNode.name }}</text>
+                    </g>
+                    <!-- Small integrated control on the right edge to open scenario info (subtle) -->
+                    <g
+                        class="scenario-edge-control"
+                        :transform="`translate(${Math.max(48, width - 56)}, 36)`"
+                        @click.stop="openScenarioInfo"
+                        style="cursor: pointer"
+                        aria-label="Abrir información del escenario"
+                    >
+                        <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
+                        <title>Volver a la vista inicial / Mostrar información del escenario</title>
+                        <!-- Home icon (simple polygon) -->
+                        <polygon points="0,-8 -10,2 -5,2 -5,9 5,9 5,2 10,2" fill="#dbeafe" transform="scale(0.9)" />
                     </g>
                     <!-- child edges -->
                     <g class="child-edges">
