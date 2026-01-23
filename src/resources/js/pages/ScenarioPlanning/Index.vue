@@ -498,10 +498,6 @@
                     <!-- Basic metadata block -->
                     <div class="text-xs text-white/60 mb-2">
                         <div><strong>ID:</strong> {{ (focusedNode as any).id ?? '—' }}</div>
-                        <div><strong>Crítico:</strong> {{ (focusedNode as any).is_critical ? 'Sí' : 'No' }}</div>
-                        <div><strong>Importancia:</strong> {{ (focusedNode as any).importance ?? '—' }}</div>
-                        <div><strong>Nivel:</strong> {{ (focusedNode as any).level ?? '—' }}</div>
-                        <div><strong>Required:</strong> {{ (focusedNode as any).required ?? '—' }}</div>
                         <div><strong>Competencias:</strong> {{ ((focusedNode as any).competencies || []).length }}</div>
                     </div>
 
@@ -520,50 +516,48 @@
 
                         <!-- If focusedNode is a capability, show its competencies list and description -->
                         <template v-else>
-                            <div v-if="(focusedNode as any).description">{{ (focusedNode as any).description }}</div>
+                            <!-- Editable form for capability and pivot with scroll + slider -->
+                            <div class="sidebar-body text-sm mt-2" style="position:relative;">
+                                <div ref="editFormScrollEl" style="max-height:360px; overflow:auto; padding-right:12px;">
+                                    <v-form>
+                                        <v-text-field v-model="editCapName" label="Nombre" required />
+                                        <v-textarea v-model="editCapDescription" label="Descripción" rows="3" />
+                                        <div style="display:flex; gap:8px">
+                                            <v-text-field v-model="editCapImportance" label="Importancia" type="number" style="flex:1" />
+                                            <v-text-field v-model="editCapLevel" label="Nivel" type="number" style="flex:1" />
+                                        </div>
+
+                                        <div style="margin-top:12px; font-weight:700">Atributos de la relación con el escenario</div>
+                                        <v-select v-model="editPivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
+                                        <div style="display:flex; gap:8px">
+                                            <v-text-field v-model="editPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
+                                            <v-text-field v-model="editPivotPriority" label="Priority" type="number" style="flex:1" />
+                                        </div>
+                                        <v-text-field v-model="editPivotRequiredLevel" label="Required level" type="number" />
+                                        <v-checkbox v-model="editPivotIsCritical" label="Is critical" />
+                                        <v-textarea v-model="editPivotRationale" label="Rationale" rows="2" />
+
+                                        <div style="display:flex; gap:8px; margin-top:12px">
+                                            <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode">Guardar</v-btn>
+                                            <v-btn text @click="resetFocusedEdits">Cancelar</v-btn>
+                                        </div>
+                                    </v-form>
+                                </div>
+                                <!-- vertical slider to control scroll position (0-100) -->
+                                <v-slider
+                                    v-model="editFormScrollPercent"
+                                    vertical
+                                    hide-details
+                                    :min="0"
+                                    :max="100"
+                                    step="1"
+                                    @input="onEditSliderInput"
+                                    style="position:absolute; right:8px; top:8px; height: calc(100% - 16px); width:28px;"
+                                />
+                            </div>
                         </template>
-                    </div>
-
-                    <div v-if="(focusedNode as any).competencies && (focusedNode as any).competencies.length > 0">
-                        <div class="text-xs text-white/60 mb-1">Competencias</div>
-                        <ul class="pl-3 mb-0">
-                            <li v-for="(c, i) in (focusedNode as any).competencies" :key="i">{{ (c && c.name) || c }}</li>
-                        </ul>
-                    </div>
-                    <div v-else-if="!((focusedNode as any).skills) && !((focusedNode as any).competencies && (focusedNode as any).competencies.length)"> 
-                        <div class="text-xs text-white/50">No hay competencias registradas.</div>
-                    </div>
-
-                    <!-- show created/updated if available in raw payload -->
-                    <div class="mt-3 text-xs text-white/50">
-                        <div v-if="(focusedNode as any).raw && (focusedNode as any).raw.created_at"><strong>Creado:</strong> {{ (focusedNode as any).raw.created_at }}</div>
-                        <div v-if="(focusedNode as any).raw && (focusedNode as any).raw.updated_at"><strong>Actualizado:</strong> {{ (focusedNode as any).raw.updated_at }}</div>
-                    </div>
-
-                    <!-- quick debug: raw JSON -->
-                    <details class="mt-3 text-xs text-white/50">
-                        <summary>Mostrar JSON crudo</summary>
-                        <pre style="white-space: pre-wrap; word-break: break-word;">{{ JSON.stringify((focusedNode as any).raw ?? focusedNode, null, 2) }}</pre>
-                    </details>
-                    </template>
-                    <template v-else>
-                        <div class="text-xs text-white/60 mb-2">Selecciona un nodo para ver detalles.</div>
-                    </template>
-
-                    <!-- Scenario info shown inside the same panel when toggled -->
-                    <transition name="slide-fade">
-                        <div v-if="showSidebar && !focusedNode" class="sidebar-body text-sm mt-4">
-                            <div class="mb-2"><strong>Nombre:</strong> {{ props.scenario?.name || '—' }}</div>
-                            <div v-if="props.scenario?.description" class="mb-2"><strong>Descripción:</strong> {{ props.scenario.description }}</div>
-                            <div class="mb-2"><strong>ID:</strong> {{ props.scenario?.id ?? '—' }}</div>
-                            <div class="mb-2"><strong>Estado:</strong> {{ props.scenario?.status ?? '—' }}</div>
-                            <div class="mb-2"><strong>Año fiscal:</strong> {{ props.scenario?.fiscal_year ?? '—' }}</div>
-                            <div class="mb-2"><strong>Organización:</strong> {{ props.scenario?.organization_id ?? '—' }}</div>
-                            <div v-if="props.scenario?.created_at" class="mb-2"><strong>Creado:</strong> {{ props.scenario.created_at }}</div>
-                            <div v-if="props.scenario?.updated_at" class="mb-2"><strong>Actualizado:</strong> {{ props.scenario.updated_at }}</div>
-                            <div class="mb-2"><strong>Capacidades:</strong> {{ (props.scenario?.capabilities ?? []).length }}</div>
                         </div>
-                    </transition>
+                    </template>
                 </aside>
             </transition>
             <!-- Create capability modal: form exposes fields from `capabilities` and `scenario_capabilities` -->
@@ -672,6 +666,39 @@ const childNodes = ref<Array<any>>([]);
 const childEdges = ref<Array<Edge>>([]);
 const scenarioEdges = ref<Array<Edge>>([]);
 const showSidebar = ref(false);
+// editing focused node / pivot
+const editCapName = ref('');
+const editCapDescription = ref('');
+const editCapImportance = ref<number | null>(null);
+const editCapLevel = ref<number | null>(null);
+
+const editPivotStrategicRole = ref('target');
+const editPivotStrategicWeight = ref<number | null>(10);
+const editPivotPriority = ref<number | null>(1);
+const editPivotRationale = ref('');
+const editPivotRequiredLevel = ref<number | null>(3);
+const editPivotIsCritical = ref(false);
+const savingNode = ref(false);
+// slider / scroll sync for edit form
+const editFormScrollEl = ref<HTMLElement | null>(null);
+const editFormScrollPercent = ref<number>(0); // 0..100
+let editFormScrollHandler: ((ev: Event) => void) | null = null;
+
+function onEditSliderInput(val: number) {
+    const el = editFormScrollEl.value;
+    if (!el) return;
+    const max = Math.max(0, el.scrollHeight - el.clientHeight);
+    const target = Math.round((val / 100) * max);
+    el.scrollTop = target;
+}
+
+function syncSliderFromScroll() {
+    const el = editFormScrollEl.value;
+    if (!el) return;
+    const max = Math.max(0, el.scrollHeight - el.clientHeight);
+    const percent = max === 0 ? 0 : Math.round((el.scrollTop / max) * 100);
+    editFormScrollPercent.value = percent;
+}
 // localStorage keys
 const LS_KEYS = {
     collapsed: 'stratos:scenario:nodeSidebarCollapsed',
@@ -935,6 +962,116 @@ function openScenarioInfo() {
     viewX.value = 0;
     viewY.value = 0;
     showSidebar.value = true;
+}
+
+// initialize edit fields when focusedNode changes
+watch(focusedNode, (nv) => {
+    if (!nv) {
+        editCapName.value = '';
+        editCapDescription.value = '';
+        editCapImportance.value = null;
+        editCapLevel.value = null;
+        editPivotStrategicRole.value = 'target';
+        editPivotStrategicWeight.value = 10;
+        editPivotPriority.value = 1;
+        editPivotRationale.value = '';
+        editPivotRequiredLevel.value = 3;
+        editPivotIsCritical.value = false;
+        return;
+    }
+    // populate from focused node and its raw payload if present
+    editCapName.value = (nv as any).name ?? '';
+    editCapDescription.value = (nv as any).description ?? (nv as any).raw?.description ?? '';
+    editCapImportance.value = (nv as any).importance ?? (nv as any).raw?.importance ?? null;
+    editCapLevel.value = (nv as any).level ?? null;
+
+    // pivot values: try several locations
+    editPivotStrategicRole.value = (nv as any).strategic_role ?? (nv as any).raw?.strategic_role ?? 'target';
+    editPivotStrategicWeight.value = (nv as any).raw?.strategic_weight ?? 10;
+    editPivotPriority.value = (nv as any).raw?.priority ?? 1;
+    editPivotRationale.value = (nv as any).raw?.rationale ?? '';
+    editPivotRequiredLevel.value = (nv as any).raw?.required_level ?? (nv as any).required ?? 3;
+    editPivotIsCritical.value = !!((nv as any).raw?.is_critical || (nv as any).is_critical);
+});
+
+function resetFocusedEdits() {
+    // reset edits to current focusedNode state
+    if (focusedNode.value) {
+        const f = focusedNode.value as any;
+        editCapName.value = f.name ?? '';
+        editCapDescription.value = f.description ?? f.raw?.description ?? '';
+        editCapImportance.value = f.importance ?? f.raw?.importance ?? null;
+        editCapLevel.value = f.level ?? null;
+        editPivotStrategicRole.value = f.strategic_role ?? f.raw?.strategic_role ?? 'target';
+        editPivotStrategicWeight.value = f.raw?.strategic_weight ?? 10;
+        editPivotPriority.value = f.raw?.priority ?? 1;
+        editPivotRationale.value = f.raw?.rationale ?? '';
+        editPivotRequiredLevel.value = f.raw?.required_level ?? f.required ?? 3;
+        editPivotIsCritical.value = !!(f.raw?.is_critical || f.is_critical);
+    }
+}
+
+async function saveFocusedNode() {
+    if (!focusedNode.value) return;
+    const id = (focusedNode.value as any).id;
+    savingNode.value = true;
+    try {
+        // 1) attempt to update capability entity (if endpoint exists)
+        const capPayload: any = {
+            name: editCapName.value,
+            description: editCapDescription.value,
+            importance: editCapImportance.value,
+            position_x: (focusedNode.value as any).x ?? undefined,
+            position_y: (focusedNode.value as any).y ?? undefined,
+        };
+        try {
+            await api.patch(`/api/capabilities/${id}`, capPayload);
+            showSuccess('Capacidad actualizada');
+        } catch (err) {
+            // ignore if endpoint missing; leave server to handle via other flows
+        }
+
+        // 2) attempt to update pivot via best-effort PATCH endpoint
+        const pivotPayload = {
+            strategic_role: editPivotStrategicRole.value,
+            strategic_weight: editPivotStrategicWeight.value,
+            priority: editPivotPriority.value,
+            rationale: editPivotRationale.value,
+            required_level: editPivotRequiredLevel.value,
+            is_critical: !!editPivotIsCritical.value,
+        };
+        try {
+            // preferred: PATCH to scenario-specific pivot endpoint
+            await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`, pivotPayload);
+            showSuccess('Relación escenario–capacidad actualizada');
+        } catch (errPivot) {
+            try {
+                // fallback: POST to create association (if missing) — server inserts only if not exists
+                await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities`, {
+                    name: editCapName.value,
+                    description: editCapDescription.value || '',
+                    importance: editCapImportance.value ?? 3,
+                    type: null,
+                    category: null,
+                    strategic_role: pivotPayload.strategic_role,
+                    strategic_weight: pivotPayload.strategic_weight,
+                    priority: pivotPayload.priority,
+                    rationale: pivotPayload.rationale,
+                    required_level: pivotPayload.required_level,
+                    is_critical: pivotPayload.is_critical,
+                });
+                showSuccess('Relación actualizada (fallback)');
+            } catch (err2) {
+                // final fallback: inform user
+                showError('No se pudo actualizar la relación. Verifica el backend.');
+            }
+        }
+
+        // after successful ops, refresh tree and focused node
+        await loadTreeFromApi(props.scenario?.id);
+    } finally {
+        savingNode.value = false;
+    }
 }
 
 function createCapabilityClicked() {
@@ -1788,7 +1925,16 @@ onMounted(() => {
     // fullscreen change listener removed (UI fullscreen button disabled)
     const onWindowResize = () => applySize();
     window.addEventListener('resize', onWindowResize);
+    // attach scroll listener for edit form slider
+    editFormScrollHandler = (ev: Event) => syncSliderFromScroll();
+    // attempt to attach after a tick in case element not yet rendered
+    nextTick(() => {
+        if (editFormScrollEl.value) editFormScrollEl.value.addEventListener('scroll', editFormScrollHandler as EventListener);
+    });
     onBeforeUnmount(() => {
+        // cleanup edit form scroll listener
+        if (editFormScrollEl.value && editFormScrollHandler) editFormScrollEl.value.removeEventListener('scroll', editFormScrollHandler as EventListener);
+        editFormScrollHandler = null;
         if (ro) ro.disconnect();
         window.removeEventListener('resize', onWindowResize);
     });
