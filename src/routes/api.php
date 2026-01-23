@@ -181,6 +181,60 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['success' => false, 'message' => 'Server error creating capability', 'error' => $e->getMessage()], 500);
         }
     });
+
+    // Dev API: delete the relationship (pivot) between a scenario and a capability
+    Route::delete('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
+        $user = auth()->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        // ensure scenario exists and belongs to user org
+        $scenario = App\Models\Scenario::find($scenarioId);
+        if (! $scenario) {
+            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+        }
+        if ($scenario->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        $deleted = \DB::table('scenario_capabilities')
+            ->where('scenario_id', $scenarioId)
+            ->where('capability_id', $capabilityId)
+            ->delete();
+
+        if ($deleted) {
+            return response()->json(['success' => true, 'message' => 'Relationship deleted']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Relation not found'], 404);
+    });
+
+    // Dev API: delete a Capability entity (multi-tenant safe)
+    Route::delete('/capabilities/{id}', function (Illuminate\Http\Request $request, $id) {
+        $user = auth()->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $cap = App\Models\Capability::find($id);
+        if (! $cap) {
+            return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
+        }
+
+        // Tenant check if capability has organization_id
+        if (isset($cap->organization_id) && $cap->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        try {
+            $cap->delete();
+            return response()->json(['success' => true, 'message' => 'Capability deleted']);
+        } catch (\Throwable $e) {
+            \Log::error('Error deleting capability ' . $id . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Server error deleting capability'], 500);
+        }
+    });
 });
 
 // Dev-only: accept saved positions for prototype mapping (no auth)

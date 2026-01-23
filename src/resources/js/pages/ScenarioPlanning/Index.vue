@@ -538,6 +538,8 @@
                                         <v-textarea v-model="editPivotRationale" label="Rationale" rows="2" />
 
                                         <div style="display:flex; gap:8px; margin-top:12px">
+                                            <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar</v-btn>
+                                            <v-spacer />
                                             <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode">Guardar</v-btn>
                                             <v-btn text @click="resetFocusedEdits">Cancelar</v-btn>
                                         </div>
@@ -1069,6 +1071,64 @@ async function saveFocusedNode() {
 
         // after successful ops, refresh tree and focused node
         await loadTreeFromApi(props.scenario?.id);
+    } finally {
+        savingNode.value = false;
+    }
+}
+
+async function deleteFocusedNode() {
+    if (!focusedNode.value) return;
+    let id = (focusedNode.value as any).id;
+    // if a child node (negative id), find its parent capability id
+    if (typeof id === 'number' && id < 0) {
+        const parentEdge = childEdges.value.find((e) => e.target === id);
+        if (parentEdge) id = parentEdge.source;
+    }
+    // confirm destructive action
+    const ok = window.confirm('¿Eliminar esta capacidad y su relación con el escenario? Esta acción es irreversible.');
+    if (!ok) return;
+    savingNode.value = true;
+    try {
+        let pivotErrStatus: number | null = null;
+        let capErrStatus: number | null = null;
+        // 1) attempt to delete pivot relation first (best-effort)
+        try {
+            await api.delete(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`);
+        } catch (e: any) {
+            pivotErrStatus = e?.response?.status ?? null;
+        }
+
+        // 2) attempt to delete capability entity
+        try {
+            await api.delete(`/api/capabilities/${id}`);
+            // remove locally if present
+            nodes.value = nodes.value.filter((n) => n.id !== id);
+            // remove any childNodes and edges referencing this capability
+            childNodes.value = childNodes.value.filter((c) => !(c.__parentId === id || c.parentId === id || (c.raw && c.raw.capability_id === id)));
+            edges.value = edges.value.filter((e) => e.source !== id && e.target !== id);
+            childEdges.value = childEdges.value.filter((e) => e.source !== id && e.target !== id);
+        } catch (e: any) {
+            capErrStatus = e?.response?.status ?? null;
+        }
+
+        // If both endpoints returned 404 (not found), assume backend doesn't expose delete and remove locally
+        if ((pivotErrStatus === 404 || pivotErrStatus === null) && (capErrStatus === 404 || capErrStatus === null)) {
+            // remove locally anyway
+            nodes.value = nodes.value.filter((n) => n.id !== id);
+            childNodes.value = childNodes.value.filter((c) => !(c.__parentId === id || c.parentId === id || (c.raw && c.raw.capability_id === id)));
+            edges.value = edges.value.filter((e) => e.source !== id && e.target !== id);
+            childEdges.value = childEdges.value.filter((e) => e.source !== id && e.target !== id);
+            showError('Eliminado localmente. El backend no expone endpoints DELETE; implementar API para eliminación permanente.');
+        } else {
+            showSuccess('Capacidad y relación eliminadas');
+        }
+
+        // refresh tree (best-effort)
+        await loadTreeFromApi(props.scenario?.id);
+        // clear focus
+        focusedNode.value = null;
+    } catch (err) {
+        showError('Error al eliminar la capacidad');
     } finally {
         savingNode.value = false;
     }
