@@ -1069,8 +1069,19 @@ async function saveFocusedNode() {
             }
         }
 
-        // after successful ops, refresh tree and focused node
+        // after successful ops, refresh tree and restore focus without losing center position
+        const focusedId = focusedNode.value ? (focusedNode.value as any).id : null;
         await loadTreeFromApi(props.scenario?.id);
+        if (focusedId != null) {
+            const restored = nodeById(focusedId);
+            if (restored) {
+                // set focused node to the refreshed object and re-center it
+                focusedNode.value = restored as any;
+                // allow DOM update then center to ensure visual centering
+                await nextTick();
+                centerOnNode(restored as NodeItem);
+            }
+        }
     } finally {
         savingNode.value = false;
     }

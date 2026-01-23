@@ -236,9 +236,32 @@ Route::middleware('auth:sanctum')->group(function () {
             ->where('scenario_id', $scenarioId)
             ->where('capability_id', $capabilityId)
             ->exists();
+
+        // If the pivot relation does not exist, create it (upsert behavior)
         if (!$exists) {
-            \Log::warning('Relation not found for scenario-capability PATCH', ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId]);
-            return response()->json(['success' => false, 'message' => 'Relation not found', 'relation_exists' => false], 404);
+            \Log::info('Pivot relation not found; creating new relation (upsert)', ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId]);
+            // build pivot values with sensible defaults
+            $insert = [
+                'scenario_id' => $scenarioId,
+                'capability_id' => $capabilityId,
+                'strategic_role' => $request->input('strategic_role', 'target'),
+                'strategic_weight' => (int) $request->input('strategic_weight', 10),
+                'priority' => (int) $request->input('priority', 1),
+                'rationale' => $request->input('rationale', null),
+                'required_level' => (int) $request->input('required_level', 3),
+                'is_critical' => (bool) $request->input('is_critical', false),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            try {
+                \DB::table('scenario_capabilities')->insert($insert);
+                // mark that we created the relation so frontend can act accordingly
+                $exists = true;
+                \Log::info('Inserted pivot relation', ['insert' => $insert]);
+            } catch (\Throwable $e) {
+                \Log::error('Failed to insert pivot relation during PATCH upsert: ' . $e->getMessage(), ['exception' => $e]);
+                return response()->json(['success' => false, 'message' => 'Failed to create relation'], 500);
+            }
         }
         $update = [];
         $fields = ['strategic_role', 'strategic_weight', 'priority', 'rationale', 'required_level', 'is_critical'];
