@@ -566,7 +566,39 @@
                     </transition>
                 </aside>
             </transition>
-            
+            <!-- Create capability modal: form exposes fields from `capabilities` and `scenario_capabilities` -->
+            <v-dialog v-model="createModalVisible" max-width="720">
+                <v-card>
+                    <v-card-title>Crear capacidad</v-card-title>
+                    <v-card-text>
+                        <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
+                            <v-text-field v-model="newCapName" label="Nombre" required />
+                            <v-text-field v-model="newCapType" label="Tipo" />
+                            <v-text-field v-model="newCapCategory" label="Categoría" />
+                            <v-text-field v-model="newCapImportance" label="Importancia (1-5)" type="number" />
+                            <v-textarea v-model="newCapDescription" label="Descripción" rows="3" style="grid-column: 1 / -1" />
+                        </div>
+
+                        <div class="mt-3" style="margin-top:12px">
+                            <div style="font-weight:700; margin-bottom:6px">Atributos para el escenario (scenario_capabilities)</div>
+                            <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
+                                <v-select v-model="pivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
+                                <v-text-field v-model="pivotStrategicWeight" label="Strategic weight" type="number" />
+                                <v-text-field v-model="pivotPriority" label="Priority (1-5)" type="number" />
+                                <v-text-field v-model="pivotRequiredLevel" label="Required level (1-5)" type="number" />
+                                <v-checkbox v-model="pivotIsCritical" label="Is critical" />
+                                <v-textarea v-model="pivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1" />
+                            </div>
+                        </div>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="createModalVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" :loading="creating" @click="saveNewCapability">Guardar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
             
             <div class="cap-list" v-if="nodes.length === 0">
                 No hay capacidades para mostrar.
@@ -604,6 +636,23 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
     (e: 'createCapability'): void;
 }>();
+
+// Create-capability modal state
+const createModalVisible = ref(false);
+const availableCapabilities = ref<any[]>([]);
+const newCapName = ref('');
+const newCapDescription = ref('');
+const newCapType = ref('');
+const newCapCategory = ref('');
+const newCapImportance = ref<number | null>(3);
+// pivot fields
+const pivotStrategicRole = ref('target');
+const pivotStrategicWeight = ref<number | null>(10);
+const pivotPriority = ref<number | null>(1);
+const pivotRationale = ref('');
+const pivotRequiredLevel = ref<number | null>(3);
+const pivotIsCritical = ref(false);
+const creating = ref(false);
 const api = useApi();
 const loaded = ref(false);
 const nodes = ref<Array<NodeItem>>([]);
@@ -889,9 +938,65 @@ function openScenarioInfo() {
 }
 
 function createCapabilityClicked() {
-    // open sidebar and emit event so parent can handle creation flow
-    showSidebar.value = true;
-    emit('createCapability');
+    // open the create-capability modal (prefer modal over sidebar for quick create)
+    // initialize defaults for the form
+    newCapName.value = '';
+    newCapDescription.value = '';
+    newCapType.value = '';
+    newCapCategory.value = '';
+    newCapImportance.value = 3;
+    pivotStrategicRole.value = 'target';
+    pivotStrategicWeight.value = 10;
+    pivotPriority.value = 1;
+    pivotRationale.value = '';
+    pivotRequiredLevel.value = 3;
+    pivotIsCritical.value = false;
+    createModalVisible.value = true;
+}
+
+async function saveNewCapability() {
+    if (!props.scenario || !props.scenario.id) return showError('Escenario no seleccionado');
+    if (!newCapName.value || !newCapName.value.trim()) return showError('El nombre es obligatorio');
+    creating.value = true;
+    try {
+        const payload: any = {
+            name: newCapName.value.trim(),
+            description: newCapDescription.value || null,
+            importance: newCapImportance.value ?? 3,
+            type: newCapType.value || null,
+            category: newCapCategory.value || null,
+            // pivot attributes
+            strategic_role: pivotStrategicRole.value,
+            strategic_weight: pivotStrategicWeight.value ?? 10,
+            priority: pivotPriority.value ?? 1,
+            rationale: pivotRationale.value || null,
+            required_level: pivotRequiredLevel.value ?? 3,
+            is_critical: !!pivotIsCritical.value,
+        };
+
+        const res: any = await api.post(`/api/strategic-planning/scenarios/${props.scenario.id}/capabilities`, payload);
+        const created = res?.data ?? res;
+        showSuccess('Capacidad creada y asociada al escenario');
+        // refresh tree from API to include pivot attributes
+        await loadTreeFromApi(props.scenario.id);
+        // close modal and reset
+        createModalVisible.value = false;
+        newCapName.value = '';
+        newCapDescription.value = '';
+        newCapType.value = '';
+        newCapCategory.value = '';
+        newCapImportance.value = 3;
+        pivotStrategicRole.value = 'target';
+        pivotStrategicWeight.value = 10;
+        pivotPriority.value = 1;
+        pivotRationale.value = '';
+        pivotRequiredLevel.value = 3;
+        pivotIsCritical.value = false;
+    } catch (err: any) {
+        showError(err?.response?.data?.message || 'Error creando capacidad');
+    } finally {
+        creating.value = false;
+    }
 }
 
 function truncateLabel(s: any, max = 14) {
