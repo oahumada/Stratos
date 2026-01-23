@@ -182,16 +182,92 @@ Route::middleware('auth:sanctum')->group(function () {
         }
     });
 
+    // Dev API: update a Capability entity (multi-tenant safe)
+    Route::patch('/capabilities/{id}', function (Illuminate\Http\Request $request, $id) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $cap = App\Models\Capability::find($id);
+        if (!$cap) {
+            return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
+        }
+        if (isset($cap->organization_id) && $cap->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        try {
+            $data = $request->only(['name', 'description', 'importance', 'position_x', 'position_y', 'type', 'category', 'is_critical']);
+            // Only set fields that are present
+            foreach ($data as $k => $v) {
+                if ($v !== null)
+                    $cap->{$k} = $v;
+            }
+            $cap->save();
+            return response()->json(['success' => true, 'data' => $cap]);
+        } catch (\Throwable $e) {
+            \Log::error('Error updating capability ' . $id . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Server error updating capability'], 500);
+        }
+    });
+
+    // Dev API: update pivot attributes for scenario_capabilities
+    Route::patch('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $scenario = App\Models\Scenario::find($scenarioId);
+        if (!$scenario) {
+            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+        }
+        if ($scenario->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        // debug logging to help frontend troubleshooting (dev-only)
+        \Log::info('PATCH scenario-capability called', [
+            'user_id' => $user->id ?? null,
+            'user_org' => $user->organization_id ?? null,
+            'scenario_id' => $scenarioId,
+            'capability_id' => $capabilityId,
+            'input' => $request->all(),
+        ]);
+
+        $exists = \DB::table('scenario_capabilities')
+            ->where('scenario_id', $scenarioId)
+            ->where('capability_id', $capabilityId)
+            ->exists();
+        if (!$exists) {
+            \Log::warning('Relation not found for scenario-capability PATCH', ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId]);
+            return response()->json(['success' => false, 'message' => 'Relation not found', 'relation_exists' => false], 404);
+        }
+        $update = [];
+        $fields = ['strategic_role', 'strategic_weight', 'priority', 'rationale', 'required_level', 'is_critical'];
+        foreach ($fields as $f) {
+            if ($request->has($f)) {
+                $update[$f] = $request->input($f);
+            }
+        }
+        if (!empty($update)) {
+            $update['updated_at'] = now();
+            \DB::table('scenario_capabilities')
+                ->where('scenario_id', $scenarioId)
+                ->where('capability_id', $capabilityId)
+                ->update($update);
+        }
+        \Log::info('Relation updated for scenario-capability', ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId, 'updated' => $update]);
+        return response()->json(['success' => true, 'message' => 'Relation updated', 'relation_exists' => true, 'updated' => $update]);
+    });
+
     // Dev API: delete the relationship (pivot) between a scenario and a capability
     Route::delete('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
         $user = auth()->user();
-        if (! $user) {
+        if (!$user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
         // ensure scenario exists and belongs to user org
         $scenario = App\Models\Scenario::find($scenarioId);
-        if (! $scenario) {
+        if (!$scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
         }
         if ($scenario->organization_id !== ($user->organization_id ?? null)) {
@@ -213,12 +289,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dev API: delete a Capability entity (multi-tenant safe)
     Route::delete('/capabilities/{id}', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
-        if (! $user) {
+        if (!$user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
         $cap = App\Models\Capability::find($id);
-        if (! $cap) {
+        if (!$cap) {
             return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
         }
 
