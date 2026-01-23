@@ -469,6 +469,13 @@
                 </g>
             </svg>
 
+            <!-- Reorder control -->
+            <div style="position:absolute; right:16px; top:12px; z-index:99999">
+                <v-btn small color="secondary" @click="reorderNodes" title="Reordenar nodos">
+                    Reordenar
+                </v-btn>
+            </div>
+
             <!-- Nodo: panel lateral que desplaza contenido en vista normal -->
             <transition name="slide-fade">
                             <aside v-show="showSidebar || focusedNode"
@@ -1263,8 +1270,10 @@ function computeInitialPosition(idx: number, total: number) {
 
     if (total <= 1) return { x: Math.round(centerX), y: Math.round(centerY) };
 
-    // compute grid dimensions: use up to 5 columns, rows as needed
-    const columns = Math.min(5, Math.max(1, total));
+    // compute grid dimensions: choose a balanced grid (near-square) up to 5 columns
+    // previous behaviour used `columns = total` which produced a single row for small totals
+    // (e.g. 4 nodes -> 4 columns). Use sqrt-based heuristic so 4 -> 2x2, 3 -> 2x2, 5 -> 3x2, etc.
+    const columns = Math.min(5, Math.max(1, Math.ceil(Math.sqrt(total))));
     const rows = Math.max(1, Math.ceil(total / columns));
 
     // margins and spacing (more compact vertical spacing)
@@ -1285,6 +1294,103 @@ function computeInitialPosition(idx: number, total: number) {
     const offsetY = row * spacingY - totalGridH / 2;
 
     return { x: Math.round(centerX + offsetX), y: Math.round(centerY + offsetY) };
+}
+
+/**
+ * Reorder main nodes according to simple layout rules requested by the user:
+ * - 1: centered
+ * - 2: side-by-side
+ * - 3: center + two sides
+ * - 4..6: single row evenly spaced
+ * - >=7: grid with up to 6 columns (rows = ceil(total/cols))
+ * After reordering nodes are updated in `nodes.value` and `positionsDirty` is set.
+ */
+function reorderNodes() {
+    const total = nodes.value.length;
+    if (!total) return;
+    const cx = Math.round(width.value / 2);
+    const cy = Math.round(height.value / 2 - 30);
+    const marginH = 48;
+    const availableW = Math.max(200, width.value - marginH * 2);
+
+    if (total === 1) {
+        nodes.value = nodes.value.map((n: any) => ({ ...n, x: cx, y: cy }));
+    } else if (total === 2) {
+        const gap = Math.min(220, Math.floor(availableW / 3));
+        nodes.value = nodes.value.map((n: any, i: number) => ({ ...n, x: cx + (i === 0 ? -gap / 2 : gap / 2), y: cy }));
+    } else if (total === 3) {
+        const gap = Math.min(220, Math.floor(availableW / 4));
+        nodes.value = nodes.value.map((n: any, i: number) => {
+            if (i === 1) return { ...n, x: cx, y: cy };
+            return { ...n, x: cx + (i === 0 ? -gap : gap), y: cy };
+        });
+    } else if (total >= 4 && total <= 6) {
+        const cols = total;
+        const spacing = Math.min(160, Math.floor(availableW / cols));
+        const totalW = (cols - 1) * spacing;
+        const startX = Math.round(cx - totalW / 2);
+        nodes.value = nodes.value.map((n: any, i: number) => ({ ...n, x: startX + i * spacing, y: cy }));
+    } else {
+        // grid layout for larger sets: choose a near-square grid (ceil(sqrt(total))) up to 6 columns
+        const cols = Math.min(6, Math.max(2, Math.ceil(Math.sqrt(total))));
+        const rows = Math.ceil(total / cols);
+        const spacingX = Math.min(140, Math.floor(availableW / cols));
+        const spacingY = Math.min(140, Math.floor((height.value - 160) / Math.max(1, rows)));
+        const totalGridW = (cols - 1) * spacingX;
+        const totalGridH = (rows - 1) * spacingY;
+        // push grid slightly down to avoid the scenario header/origin area
+        const startX = Math.round(cx - totalGridW / 2);
+        const downwardBias = 40; // pixels to lower the grid from center
+        const startY = Math.round(cy - totalGridH / 2 + downwardBias);
+        nodes.value = nodes.value.map((n: any, i: number) => {
+            const r = Math.floor(i / cols);
+            const c = i % cols;
+            return { ...n, x: startX + c * spacingX, y: clampY(startY + r * spacingY) } as any;
+        });
+    }
+
+    // ensure nodes are not placed on top of the scenario origin
+    try {
+        const MIN_ORIGIN_SEPARATION = 180; // increased separation for safety
+        if (scenarioNode.value) {
+            const sx = scenarioNode.value.x ?? Math.round(width.value / 2);
+            const sy = scenarioNode.value.y ?? Math.round(height.value * 0.12);
+            // compute maximum downward shift required so ALL nodes are at least MIN_ORIGIN_SEPARATION away
+            let requiredShift = 0;
+            nodes.value.forEach((n: any) => {
+                if (!n || n.x == null || n.y == null) return;
+                const dx = n.x - sx;
+                const dy = n.y - sy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < MIN_ORIGIN_SEPARATION) {
+                    const need = MIN_ORIGIN_SEPARATION - dist;
+                    if (need > requiredShift) requiredShift = need;
+                }
+            });
+            if (requiredShift > 0) {
+                // add a small margin and shift all nodes down together to avoid splitting rows
+                const margin = 20;
+                const shift = Math.round(requiredShift + margin);
+                nodes.value = nodes.value.map((n: any) => {
+                    if (!n || n.y == null) return n;
+                    return { ...n, y: clampY((n.y ?? 0) + shift) } as any;
+                });
+            }
+        }
+    } catch (err) {
+        void err;
+    }
+
+    positionsDirty.value = true;
+    // Clear focus/children so renderNodeX doesn't snap nodes into side columns
+    try {
+        focusedNode.value = null;
+        childNodes.value = [];
+        childEdges.value = [];
+        showSidebar.value = false;
+    } catch (err) {
+        void err;
+    }
 }
 
 function nodeRenderShift(n: any) {
@@ -1358,9 +1464,22 @@ function buildNodesFromItems(items: any[]) {
             const parsedX = rawX != null ? parseFloat(String(rawX)) : NaN;
             const parsedY = rawY != null ? parseFloat(String(rawY)) : NaN;
             // If stored coordinates are valid numbers, prefer them so nodes remain fixed where the user left them.
+            // Heuristic: legacy `capabilities.position_x/position_y` were stored as percentages (0..100).
+            // Newer pivot `scenario_capabilities.position_x` may be absolute pixels (>100). Detect small values
+            // and convert from percentage -> pixels using current canvas size to avoid overlaps with the scenario origin.
             const hasPos = !Number.isNaN(parsedX) && !Number.isNaN(parsedY);
-            const x = hasPos ? Math.round(parsedX) : undefined;
-            const y = hasPos ? Math.round(parsedY) : undefined;
+            let x: number | undefined = undefined;
+            let y: number | undefined = undefined;
+            if (hasPos) {
+                const looksLikePercent = parsedX >= 0 && parsedX <= 100 && parsedY >= 0 && parsedY <= 100;
+                if (looksLikePercent) {
+                    x = Math.round((parsedX / 100) * width.value);
+                    y = Math.round((parsedY / 100) * height.value);
+                } else {
+                    x = Math.round(parsedX);
+                    y = Math.round(parsedY);
+                }
+            }
         // if missing position, place roughly on a circle initially (helps force start) but mark undefined so we can re-run force
         const fallbackPos = computeInitialPosition(idx, items.length);
         const fallbackX = Math.round(fallbackPos.x);
@@ -1400,6 +1519,35 @@ function buildNodesFromItems(items: any[]) {
     }));
     // initialize scenario node after building nodes
     setScenarioInitial();
+    // Ensure no node is placed on top of the scenario origin. If a stored/initial
+    // position is too close to the scenario node, push it outward beneath the origin
+    // to avoid visual overlap. This handles legacy coords and saved positions.
+    try {
+        const MIN_ORIGIN_SEPARATION = 140; // pixels
+        if (scenarioNode.value) {
+            const sx = scenarioNode.value.x ?? Math.round(width.value / 2);
+            const sy = scenarioNode.value.y ?? Math.round(height.value * 0.12);
+            nodes.value = nodes.value.map((n: any) => {
+                if (!n || n.x == null || n.y == null) return n;
+                const dx = n.x - sx;
+                const dy = n.y - sy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < MIN_ORIGIN_SEPARATION) {
+                    // push node downwards preferentially; if directly above, nudge down
+                    if (dist === 0) {
+                        return { ...n, x: n.x, y: clampY(sy + MIN_ORIGIN_SEPARATION) } as any;
+                    }
+                    const scale = MIN_ORIGIN_SEPARATION / Math.max(1, dist);
+                    const newX = Math.round(sx + dx * scale);
+                    const newY = Math.round(sy + dy * scale);
+                    return { ...n, x: newX, y: clampY(newY) } as any;
+                }
+                return n;
+            });
+        }
+    } catch (err) {
+        void err;
+    }
     // build scenario->capability edges so initial view shows connections from scenario to capabilities
     scenarioEdges.value = nodes.value.map((n: any) => ({ source: scenarioNode.value?.id ?? 0, target: n.id, isScenarioEdge: true } as Edge));
     // build edges before attempting a force layout
