@@ -753,14 +753,37 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
         const len = group.length;
         // compute spacing dynamically based on available vertical space to avoid overlaps
         const available = Math.max(0, maxY - minY);
-        const minSpacing = 32; // minimum spacing between nodes (more compact)
-        const maxSpacing = 100; // cap spacing to avoid overly spread columns
+        // node visual sizes: main node radius ~34, ensure center-to-center spacing avoids overlap
+        const FOCUS_RADIUS = 34;
+        const minSpacing = Math.max(48, FOCUS_RADIUS * 2 + 8); // safe minimum spacing between centers
+        const maxSpacing = 140; // cap spacing to avoid overly spread columns
         const spacing = len > 1 ? Math.min(maxSpacing, Math.max(minSpacing, Math.floor(available / (len - 1)))) : 0;
+
+        // protect a vertical band around the focused node so distributed nodes don't overlap it
+        const focusBand = Math.round(FOCUS_RADIUS + 12);
+        const protectedTop = Math.max(minY, centerY - focusBand);
+        const protectedBottom = Math.min(maxY, centerY + focusBand);
 
         // if group is large, split into multiple parallel columns to avoid vertical crowding
         const maxPerColumn = 5;
         if (len <= maxPerColumn) {
-            const startY = Math.round(centerY - ((len - 1) * spacing) / 2);
+            let startY = Math.round(centerY - ((len - 1) * spacing) / 2);
+            const endY = startY + (len - 1) * spacing;
+            // If this span intersects the protected focused band, shift up or down to avoid overlap
+            const intersectsProtected = !(endY < protectedTop || startY > protectedBottom);
+            if (intersectsProtected) {
+                // prefer shifting up if there is more room above, otherwise shift down
+                const roomAbove = protectedTop - minY;
+                const roomBelow = maxY - protectedBottom;
+                if (roomAbove >= roomBelow) {
+                    const shift = Math.min(roomAbove, protectedBottom - startY + focusBand);
+                    startY = Math.max(minY, startY - shift);
+                } else {
+                    const shift = Math.min(roomBelow, endY - protectedTop + focusBand);
+                    startY = Math.min(maxY - (len - 1) * spacing, startY + shift);
+                }
+            }
+
             for (let i = 0; i < len; i++) {
                 const n = group[i];
                 const proposedY = startY + i * spacing;
