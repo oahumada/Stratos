@@ -474,17 +474,20 @@
                 <v-btn small color="secondary" @click="reorderNodes" title="Reordenar nodos">
                     Reordenar
                 </v-btn>
+                    <v-btn small color="primary" @click="restoreView" title="Restaurar vista" style="margin-left:8px">
+                        Restaurar vista
+                    </v-btn>
             </div>
 
             <!-- Nodo: panel lateral que desplaza contenido en vista normal -->
             <transition name="slide-fade">
-                            <aside v-show="showSidebar || focusedNode"
+                            <aside v-show="showSidebar || focusedNode || selectedChild"
                                 class="node-details-sidebar glass-panel-strong"
                                 :class="[{ collapsed: nodeSidebarCollapsed }, sidebarTheme === 'dark' ? 'theme-dark' : 'theme-light']"
                                 :style="panelStyle"
                             >
                     <div class="d-flex justify-space-between align-center mb-2 panel-header">
-                        <strong>{{ focusedNode ? focusedNode.name : (showSidebar ? 'Escenario' : 'Detalle') }}</strong>
+                        <strong>{{ displayNode ? displayNode.name : (showSidebar ? 'Escenario' : 'Detalle') }}</strong>
                         <div class="d-flex align-center" style="gap:8px">
                             <v-btn icon small variant="text" @click="toggleSidebarTheme" :title="sidebarTheme === 'dark' ? 'Tema claro' : 'Tema oscuro'">
                                 <v-icon :icon="sidebarTheme === 'dark' ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
@@ -501,21 +504,21 @@
                         </div>
                     </div>
 
-                    <template v-if="focusedNode">
+                    <template v-if="displayNode">
                     <!-- Basic metadata block -->
                     <div class="text-xs text-white/60 mb-2">
-                        <div><strong>ID:</strong> {{ (focusedNode as any).id ?? '—' }}</div>
-                        <div><strong>Competencias:</strong> {{ ((focusedNode as any).competencies || []).length }}</div>
+                        <div><strong>ID:</strong> {{ (displayNode as any).id ?? '—' }}</div>
+                        <div><strong>Competencias:</strong> {{ ((displayNode as any).competencies || []).length }}</div>
                     </div>
 
                     <div class="text-small text-medium-emphasis mb-2">
                         <!-- If focusedNode is a competency (child node), show its attributes -->
-                        <template v-if="(focusedNode as any).skills || (focusedNode as any).compId">
-                            <div v-if="(focusedNode as any).description">{{ (focusedNode as any).description }}</div>
-                            <div class="text-xs text-white/60">Readiness: {{ (focusedNode as any).readiness ?? '—' }}%</div>
+                        <template v-if="(displayNode as any).skills || (displayNode as any).compId">
+                            <div v-if="(displayNode as any).description">{{ (displayNode as any).description }}</div>
+                            <div class="text-xs text-white/60">Readiness: {{ (displayNode as any).readiness ?? '—' }}%</div>
                             <div class="mt-2 text-xs text-white/60 mb-1">Skills</div>
                             <ul class="pl-3 mb-0">
-                                <li v-for="(s, idx) in (focusedNode as any).skills" :key="idx">
+                                <li v-for="(s, idx) in (displayNode as any).skills" :key="idx">
                                     {{ s.name }} <span class="text-white/50">(weight: {{ s.weight ?? s.pivot?.weight ?? '—' }}, readiness: {{ s.readiness ?? '—' }}%)</span>
                                 </li>
                             </ul>
@@ -635,6 +638,34 @@ interface Props {
     childColumns?: number;
 }
 
+function restoreView() {
+    // Clear focused state and visibility flags; restore original positions if available
+    focusedNode.value = null;
+    childNodes.value = [];
+    childEdges.value = [];
+    selectedChild.value = null;
+    // clear render flags
+    nodes.value = nodes.value.map((n: any) => ({ ...n, __hidden: false, __displayNone: false }));
+    // restore original positions if present
+    if (originalPositions.value && originalPositions.value.size > 0) {
+        nodes.value = nodes.value.map((n) => {
+            const p = originalPositions.value.get(n.id);
+            if (p) return { ...n, x: p.x, y: p.y } as any;
+            return n;
+        });
+        if (scenarioNode.value) {
+            const sp = originalPositions.value.get(scenarioNode.value.id);
+            if (sp) {
+                scenarioNode.value.x = sp.x;
+                scenarioNode.value.y = sp.y;
+            }
+        }
+        originalPositions.value.clear();
+    }
+    viewX.value = 0;
+    viewY.value = 0;
+}
+
 // Dev helper: calcular el nivel (profundidad) de un nodo.
 // Nivel 0 = escenario, Nivel 1 = capacidad, Nivel 2 = competencia, etc.
 function nodeLevel(nodeOrId: any) {
@@ -716,6 +747,9 @@ const childNodes = ref<Array<any>>([]);
 const childEdges = ref<Array<Edge>>([]);
 const scenarioEdges = ref<Array<Edge>>([]);
 const showSidebar = ref(false);
+// selectedChild: when a competency (level-2) is clicked we keep it here
+// while `focusedNode` remains the parent capability (so layout treats parent as focused).
+const selectedChild = ref<any>(null);
 // editing focused node / pivot
 const editCapName = ref('');
 const editCapDescription = ref('');
@@ -767,6 +801,9 @@ const viewportStyle = computed(() => ({
     transform: `translate(${viewX.value}px, ${viewY.value}px) scale(${viewScale.value})`,
     transformOrigin: '0 0',
 }));
+
+// displayNode: prefer `selectedChild` (a competency) for sidebar details, otherwise the focused capability
+const displayNode = computed(() => selectedChild.value ?? focusedNode.value);
 
 // scenario/origin node that can follow a selected child
 const scenarioNode = ref<any>(null);
@@ -1019,7 +1056,7 @@ function openScenarioInfo() {
 // initialize edit fields when focusedNode changes
 watch(focusedNode, (nv) => {
     try {
-        if (nv) console.debug('[focusedNode.change] id=', (nv as any).id, 'level=', nodeLevel((nv as any).id), 'isChild=', !!(((nv as any).skills) || (nv as any).compId), 'parentId=', parentIdOfFocusedChild());
+        if (nv && (window as any).__DEBUG__) console.debug('[focusedNode.change] id=', (nv as any).id, 'level=', nodeLevel((nv as any).id), 'isChild=', !!(((nv as any).skills) || (nv as any).compId), 'parentId=', parentIdOfFocusedChild());
     } catch (e) { void e; }
     if (!nv) {
         editCapName.value = '';
@@ -1736,23 +1773,81 @@ function childNodeById(id: number) {
 
 const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
     try {
-        console.debug('[node.click] id=', (node as any)?.id, 'level=', nodeLevel((node as any)?.id), 'isTrusted=', !!(event as any)?.isTrusted, 'time=', Date.now());
-        console.debug(new Error('click-stack').stack?.split('\n').slice(1,6).join('\n'));
+        if ((window as any).__DEBUG__) {
+            console.debug('[node.click] id=', (node as any)?.id, 'level=', nodeLevel((node as any)?.id), 'isTrusted=', !!(event as any)?.isTrusted, 'time=', Date.now());
+            console.debug(new Error('click-stack').stack?.split('\n').slice(1,6).join('\n'));
+        }
     } catch (e) { void e; }
     // If this is a level-2 node (competency), short-circuit: only log and do not run animations/expansions
     try {
         const lvl = nodeLevel((node as any)?.id);
         if (lvl === 2) {
-            try { console.debug('[node.click.level2] id=', (node as any)?.id, 'level=', lvl); } catch (e) { void e; }
+            try { if ((window as any).__DEBUG__) console.debug('[node.click.level2] id=', (node as any)?.id, 'level=', lvl); } catch (e) { void e; }
             try {
+                // briefly disable animations for this interaction
                 noAnimations.value = true;
                 setTimeout(() => {
                     noAnimations.value = false;
                 }, Math.max(300, TRANSITION_MS));
             } catch (e) { void e; }
+
+            // Open sidebar and populate form with the selected competency
+            try {
+                showSidebar.value = true;
+                nodeSidebarCollapsed.value = false;
+                // locate parent capability for this child node
+                const parentEdge = childEdges.value.find((e) => e.target === (node as any).id);
+                const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
+                // if we found the parent, center on it and expand its children so layout treats the parent as focused
+                if (parentNode) {
+                    const prev = focusedNode.value ? { ...focusedNode.value } : undefined;
+                    // center the parent (this updates `nodes.value` positions)
+                    centerOnNode(parentNode, prev);
+                    // wait for parent transition (or a short lead) then expand children
+                    const parentLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
+                    await Promise.race([waitForTransitionForNode(parentNode.id), wait(parentLead)]);
+                    expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
+                }
+
+                // set selected child for the sidebar and keep focusedNode on the parent for layout
+                selectedChild.value = node as any;
+                if (parentNode) focusedNode.value = parentNode;
+                else focusedNode.value = node as any;
+                // ensure form scroll resets so fields are visible
+                nextTick(() => {
+                    try { if (editFormScrollEl.value) editFormScrollEl.value.scrollTop = 0; } catch (e) { void e; }
+                });
+
+                // ensure the selected child stays visible and rendered on top
+                try {
+                    const fid = (selectedChild.value as any)?.id ?? (focusedNode.value as any).id;
+                    if (fid != null) {
+                        childNodes.value = childNodes.value.map((ch: any) => {
+                            if (ch.id === fid) return { ...ch, __opacity: 1, __scale: ch.__scale ?? 1, __hidden: false, __displayNone: false } as any;
+                            return ch;
+                        });
+                        const found = childNodeById(fid);
+                        if (found) {
+                            const others = childNodes.value.filter((ch: any) => ch.id !== fid);
+                            childNodes.value = others.concat(childNodes.value.filter((ch: any) => ch.id === fid));
+                        }
+                    }
+                } catch (err) { void err; }
+            } catch (e) { void e; }
+
             return;
         }
     } catch (e) { void e; }
+    // debounce/guard: avoid processing duplicate rapid calls for the same node
+    try {
+        const now = Date.now();
+        if ((window as any).__lastClick && (window as any).__lastClick.id === (node as any)?.id && now - (window as any).__lastClick.time < 300) {
+            if ((window as any).__DEBUG__) console.debug('[node.click] ignored duplicate click id=', (node as any)?.id);
+            return;
+        }
+        (window as any).__lastClick = { id: (node as any)?.id, time: now };
+    } catch (e) { void e; }
+
     // capture previous focused node so we can swap positions when appropriate
     const prev = focusedNode.value ? { ...focusedNode.value } : undefined;
     let updated: NodeItem | null = null;
@@ -1794,11 +1889,12 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             expandCompetencies(updatedParent as NodeItem, parentPrevPos);
             // find the freshly created child node by id
             const freshChild = childNodeById(node.id);
-            // set focused to the child (if present) so sidebar shows child details
-            focusedNode.value = freshChild || node;
+            // set selected child for sidebar and keep focusedNode as parent so layout remains stable
+            selectedChild.value = freshChild || node;
+            focusedNode.value = parentNode;
             // Ensure the selected child remains visible (do not let it disappear)
             try {
-                const fid = (focusedNode.value as any).id;
+                const fid = (selectedChild.value as any)?.id ?? (focusedNode.value as any).id;
                 if (fid != null) {
                     // make any existing rendered child visible and bring to front
                     childNodes.value = childNodes.value.map((ch: any) => {
@@ -1885,6 +1981,7 @@ const closeTooltip = () => {
     focusedNode.value = null;
     childNodes.value = [];
     childEdges.value = [];
+    selectedChild.value = null;
     // restore original node positions if we have them
     if (originalPositions.value && originalPositions.value.size > 0) {
         nodes.value = nodes.value.map((n) => {
