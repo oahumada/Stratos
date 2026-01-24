@@ -1,5 +1,5 @@
 <template>
-    <div class="prototype-map-root" ref="mapRoot" :class="{ 'with-node-sidebar': nodeSidebarVisible, 'with-node-sidebar-collapsed': nodeSidebarCollapsed }">
+    <div class="prototype-map-root" ref="mapRoot" :class="{ 'with-node-sidebar': nodeSidebarVisible, 'with-node-sidebar-collapsed': nodeSidebarCollapsed, 'no-animations': noAnimations }">
         <div
             class="map-controls"
             style="
@@ -635,6 +635,47 @@ interface Props {
     childColumns?: number;
 }
 
+// Dev helper: calcular el nivel (profundidad) de un nodo.
+// Nivel 0 = escenario, Nivel 1 = capacidad, Nivel 2 = competencia, etc.
+function nodeLevel(nodeOrId: any) {
+    if (!nodeOrId) return null;
+    const id = typeof nodeOrId === 'number' ? nodeOrId : nodeOrId.id;
+    if (id == null) return null;
+    const scenarioId = scenarioNode.value ? scenarioNode.value.id : null;
+    // if it's the scenario node
+    if (scenarioId != null && id === scenarioId) return 0;
+
+    let currentId: number | null = id;
+    let depth = 0;
+    // walk parent links via childEdges until we either hit the scenario or no parent exists
+    while (currentId != null) {
+        // if there's a child-edge pointing to currentId, move to its source (parent)
+        const pe = childEdges.value.find((e) => e.target === currentId);
+        if (pe) {
+            currentId = pe.source;
+            depth++;
+            // protect against infinite loops
+            if (depth > 10) break;
+            // continue walking
+            continue;
+        }
+        // otherwise check if scenario directly references this id (scenario -> capability)
+        const se = scenarioEdges.value.find((e) => e.target === currentId);
+        if (se) {
+            depth++;
+            break;
+        }
+        // if currentId corresponds to a top-level capability (in nodes) and we haven't counted it yet
+        const isCap = nodes.value.find((n) => n.id === currentId);
+        if (isCap) {
+            // capability under scenario
+            depth = Math.max(depth, 1);
+        }
+        break;
+    }
+    return depth;
+}
+
 const props = defineProps<Props>();
 const emit = defineEmits<{
     (e: 'createCapability'): void;
@@ -688,6 +729,8 @@ const editPivotRationale = ref('');
 const editPivotRequiredLevel = ref<number | null>(3);
 const editPivotIsCritical = ref(false);
 const savingNode = ref(false);
+// Temporarily disable CSS animations for level-2 clicks
+const noAnimations = ref(false);
 // slider / scroll sync for edit form
 const editFormScrollEl = ref<HTMLElement | null>(null);
 const editFormScrollPercent = ref<number>(0); // 0..100
@@ -975,6 +1018,9 @@ function openScenarioInfo() {
 
 // initialize edit fields when focusedNode changes
 watch(focusedNode, (nv) => {
+    try {
+        if (nv) console.debug('[focusedNode.change] id=', (nv as any).id, 'level=', nodeLevel((nv as any).id), 'isChild=', !!(((nv as any).skills) || (nv as any).compId), 'parentId=', parentIdOfFocusedChild());
+    } catch (e) { void e; }
     if (!nv) {
         editCapName.value = '';
         editCapDescription.value = '';
@@ -1689,6 +1735,24 @@ function childNodeById(id: number) {
 }
 
 const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
+    try {
+        console.debug('[node.click] id=', (node as any)?.id, 'level=', nodeLevel((node as any)?.id), 'isTrusted=', !!(event as any)?.isTrusted, 'time=', Date.now());
+        console.debug(new Error('click-stack').stack?.split('\n').slice(1,6).join('\n'));
+    } catch (e) { void e; }
+    // If this is a level-2 node (competency), short-circuit: only log and do not run animations/expansions
+    try {
+        const lvl = nodeLevel((node as any)?.id);
+        if (lvl === 2) {
+            try { console.debug('[node.click.level2] id=', (node as any)?.id, 'level=', lvl); } catch (e) { void e; }
+            try {
+                noAnimations.value = true;
+                setTimeout(() => {
+                    noAnimations.value = false;
+                }, Math.max(300, TRANSITION_MS));
+            } catch (e) { void e; }
+            return;
+        }
+    } catch (e) { void e; }
     // capture previous focused node so we can swap positions when appropriate
     const prev = focusedNode.value ? { ...focusedNode.value } : undefined;
     let updated: NodeItem | null = null;
@@ -1699,6 +1763,24 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
         const parentEdge = childEdges.value.find((e) => e.target === node.id);
         const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
         if (parentNode) {
+            // If this clicked node is at depth 2 (competency under capability), hide all level-1 nodes
+            try {
+                const lvl = nodeLevel((node as any).id);
+                if (lvl === 2) {
+                    try { noAnimations.value = true; } catch (e) { void e; }
+                    const parentId = parentNode.id;
+                    nodes.value = nodes.value.map((n: any) => {
+                        if (n.id === parentId) return { ...n, __hidden: false, __displayNone: false };
+                        return { ...n, __hidden: true };
+                    });
+                    // advance to display:none shortly to free space
+                    setTimeout(() => {
+                        nodes.value = nodes.value.map((n: any) => (n.id === parentId ? { ...n, __displayNone: false } : { ...n, __displayNone: true }));
+                    }, Math.max(40, TRANSITION_MS - 120));
+                }
+            } catch (e) {
+                void e;
+            }
             // capture parent's previous position so children can animate from there in sync
             const parentPrevPos = { x: parentNode.x ?? 0, y: parentNode.y ?? 0 };
             // center parent first so child positions are computed relative to it
@@ -1714,6 +1796,24 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             const freshChild = childNodeById(node.id);
             // set focused to the child (if present) so sidebar shows child details
             focusedNode.value = freshChild || node;
+            // Ensure the selected child remains visible (do not let it disappear)
+            try {
+                const fid = (focusedNode.value as any).id;
+                if (fid != null) {
+                    // make any existing rendered child visible and bring to front
+                    childNodes.value = childNodes.value.map((ch: any) => {
+                        if (ch.id === fid) return { ...ch, __opacity: 1, __scale: ch.__scale ?? 1, __hidden: false, __displayNone: false } as any;
+                        return ch;
+                    });
+                    const found = childNodeById(fid);
+                    if (found) {
+                        const others = childNodes.value.filter((ch: any) => ch.id !== fid);
+                        childNodes.value = others.concat(childNodes.value.filter((ch: any) => ch.id === fid));
+                    }
+                }
+            } catch (err) {
+                void err;
+            }
             // set updated reference for later use
             updated = (freshChild as NodeItem) || updatedParent || nodeById(node.id) || node;
             // if the child itself has inner skills/competencies, expand them now
@@ -2102,6 +2202,8 @@ const loadTreeFromApi = async (scenarioId?: number) => {
 };
 
 onMounted(() => {
+    // expose helper for quick debugging in browser console
+    try { (window as any).__nodeLevel = nodeLevel; } catch (e) { void e; }
     // prefer passed-in scenario.capabilities to avoid extra network roundtrip
     // onMounted: handle incoming props.scenario
     if (
@@ -2617,6 +2719,19 @@ if (!edges.value) edges.value = [];
     padding: 0;
     color: inherit;
     border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* When `.no-animations` is set on the root, suppress transitions for diagnostic clicks */
+.no-animations .node-group,
+.no-animations .child-node,
+.no-animations .viewport-group,
+.no-animations .edges line,
+.no-animations .edge-line,
+.no-animations .node-circle,
+.no-animations .child-iridescence,
+.no-animations .node-reflection {
+    transition: none !important;
+    animation: none !important;
 }
 
 </style>
