@@ -17,15 +17,16 @@ export function computeMatrixPositions(total: number, cx: number, topY: number, 
 
   const limit = Math.min(total, rows * cols);
   const positions: Array<{ x: number; y: number }> = [];
-
   // Fill by rows: row 0 left->right, row 1 left->right, etc.
-  const totalCols = cols;
-  const blockWidth = (totalCols - 1) * hSpacing;
   for (let i = 0; i < limit; i++) {
-    const row = Math.floor(i / totalCols);
-    const col = i % totalCols;
-    // center block on cx
-    const x = Math.round(cx - blockWidth / 2 + col * hSpacing);
+    const row = Math.floor(i / cols);
+    const indexInRow = i % cols;
+    // compute how many items are in this row (may be less than cols for the last row)
+    const remaining = limit - row * cols;
+    const itemsInRow = Math.min(remaining, cols);
+    // center the occupied columns for this row
+    const rowBlockWidth = itemsInRow > 1 ? (itemsInRow - 1) * hSpacing : 0;
+    const x = Math.round(cx - rowBlockWidth / 2 + indexInRow * hSpacing);
     const y = Math.round(topY + row * vSpacing);
     positions.push({ x, y });
   }

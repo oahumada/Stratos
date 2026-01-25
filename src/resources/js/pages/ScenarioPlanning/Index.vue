@@ -707,6 +707,13 @@ interface Props {
     };
     // optional: number of columns for child competencies layout
     childColumns?: number;
+    // optional: layout overrides for competencies (rows, cols, spacing)
+    competencyLayout?: {
+        rows?: 2;
+        cols?: 5;
+        hSpacing?: number;
+        vSpacing?: number;
+    };
 }
 
 function restoreView() {
@@ -2220,9 +2227,13 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     const verticalOffset = (node.id != null && node.id < 0) ? 80 : 150;
     const topY = Math.round(parentY + verticalOffset);
 
-    const rows = opts.rows ?? 2;
-    const cols = opts.cols ?? 5;
-    const positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: 120, vSpacing: 100 });
+    // Defaults for competency layout (level-1 friendly defaults)
+    const DEFAULT_COMPETENCY_LAYOUT = { rows: 1, cols: 4, hSpacing: 100, vSpacing: 80 };
+    const rows = opts.rows ?? props.competencyLayout?.rows ?? DEFAULT_COMPETENCY_LAYOUT.rows;
+    const cols = opts.cols ?? props.competencyLayout?.cols ?? DEFAULT_COMPETENCY_LAYOUT.cols;
+    const hSpacing = props.competencyLayout?.hSpacing ?? DEFAULT_COMPETENCY_LAYOUT.hSpacing;
+    const vSpacing = props.competencyLayout?.vSpacing ?? DEFAULT_COMPETENCY_LAYOUT.vSpacing;
+    const positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing, vSpacing });
 
     const builtChildren: Array<any> = [];
     toShow.forEach((c: any, i: number) => {
