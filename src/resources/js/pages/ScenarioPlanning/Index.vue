@@ -512,22 +512,57 @@
                     </div>
 
                     <div class="text-small text-medium-emphasis mb-2">
-                        <!-- If focusedNode is a competency (child node), show its attributes -->
-                        <template v-if="(displayNode as any).skills || (displayNode as any).compId">
-                            <div v-if="(displayNode as any).description">{{ (displayNode as any).description }}</div>
-                            <div class="text-xs text-white/60">Readiness: {{ (displayNode as any).readiness ?? '—' }}%</div>
-                            <div class="mt-2 text-xs text-white/60 mb-1">Skills</div>
-                            <ul class="pl-3 mb-0">
-                                <li v-for="(s, idx) in (displayNode as any).skills" :key="idx">
-                                    {{ s.name }} <span class="text-white/50">(weight: {{ s.weight ?? s.pivot?.weight ?? '—' }}, readiness: {{ s.readiness ?? '—' }}%)</span>
-                                </li>
-                            </ul>
-                        </template>
+                                        <!-- If displayNode is a competency (child node), show its attributes -->
+                                        <template v-if="(displayNode as any).skills || (displayNode as any).compId">
+                                            <!-- Editable competency form -->
+                                            <div class="sidebar-body text-sm mt-2" style="position:relative;">
+                                                <div ref="editFormScrollEl" style="max-height:360px; overflow:auto; padding-right:12px;">
+                                                    <v-form>
+                                                        <v-text-field v-model="editChildName" label="Nombre" required />
+                                                        <v-textarea v-model="editChildDescription" label="Descripción" rows="3" />
+                                                        <div style="display:flex; gap:8px">
+                                                            <v-text-field v-model="editChildReadiness" label="Readiness" type="number" style="flex:1" />
+                                                            <v-text-field v-model="editChildSkills" label="Skills (coma-separadas)" style="flex:1" />
+                                                        </div>
 
-                        <!-- If focusedNode is a capability, show its competencies list and description -->
+                                                        <div style="margin-top:12px; font-weight:700">Atributos de la relación con la capacidad</div>
+                                                        <div style="display:flex; gap:8px">
+                                                            <v-text-field v-model="editChildPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
+                                                            <v-text-field v-model="editChildPivotPriority" label="Priority" type="number" style="flex:1" />
+                                                        </div>
+                                                        <v-text-field v-model="editChildPivotRequiredLevel" label="Required level" type="number" />
+                                                        <v-checkbox v-model="editChildPivotIsCritical" label="Is critical" />
+                                                        <v-textarea v-model="editChildPivotRationale" label="Rationale" rows="2" />
+
+                                                        <div style="display:flex; gap:8px; margin-top:12px">
+                                                            <v-btn color="error" text @click="selectedChild = null">Cerrar</v-btn>
+                                                            <v-spacer />
+                                                            <v-btn color="primary" @click="saveSelectedChild">Guardar</v-btn>
+                                                            <v-btn text @click="(selectedChild = null, resetFocusedEdits())">Cancelar</v-btn>
+                                                        </div>
+                                                    </v-form>
+                                                </div>
+                                                <v-slider
+                                                    v-model="editFormScrollPercent"
+                                                    vertical
+                                                    hide-details
+                                                    :min="0"
+                                                    :max="100"
+                                                    step="1"
+                                                    @input="onEditSliderInput"
+                                                    style="position:absolute; right:8px; top:8px; height: calc(100% - 16px); width:28px;"
+                                                />
+                                            </div>
+                                        </template>
+
+                        <!-- If displayNode is a capability, show its competencies list and description -->
                         <template v-else>
                             <!-- Editable form for capability and pivot with scroll + slider -->
                             <div class="sidebar-body text-sm mt-2" style="position:relative;">
+                                <div style="display:flex; gap:8px; margin-bottom:8px">
+                                    <v-btn small color="primary" @click="createCompDialogVisible = true">Crear competencia</v-btn>
+                                    <v-btn small color="secondary" @click="(async ()=>{ await fetchAvailableCompetencies(); addExistingCompDialogVisible = true; })()">Agregar existente</v-btn>
+                                </div>
                                 <div ref="editFormScrollEl" style="max-height:360px; overflow:auto; padding-right:12px;">
                                     <v-form>
                                         <v-text-field v-model="editCapName" label="Nombre" required />
@@ -572,6 +607,41 @@
                     </template>
                 </aside>
             </transition>
+
+            <!-- Create competency dialog -->
+            <v-dialog v-model="createCompDialogVisible" max-width="640">
+                <v-card>
+                    <v-card-title>Crear competencia</v-card-title>
+                    <v-card-text>
+                        <v-form>
+                            <v-text-field v-model="newCompName" label="Nombre" required />
+                            <v-textarea v-model="newCompDescription" label="Descripción" rows="3" />
+                            <v-text-field v-model="newCompReadiness" label="Readiness" type="number" />
+                            <v-textarea v-model="newCompSkills" label="Skills (coma-separadas)" rows="2" />
+                        </v-form>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="createCompDialogVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" @click="createAndAttachComp">Crear y asociar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <!-- Add existing competency dialog -->
+            <v-dialog v-model="addExistingCompDialogVisible" max-width="640">
+                <v-card>
+                    <v-card-title>Agregar competencia existente</v-card-title>
+                    <v-card-text>
+                        <v-select :items="availableExistingCompetencies" item-title="name" item-value="id" v-model="addExistingSelection" label="Competencia" />
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="addExistingCompDialogVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" @click="attachExistingComp">Agregar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
             <!-- Create capability modal: form exposes fields from `capabilities` and `scenario_capabilities` -->
             <v-dialog v-model="createModalVisible" max-width="720">
                 <v-card>
@@ -763,6 +833,26 @@ const editPivotRationale = ref('');
 const editPivotRequiredLevel = ref<number | null>(3);
 const editPivotIsCritical = ref(false);
 const savingNode = ref(false);
+// Competency creation/attach UI state
+const createCompDialogVisible = ref(false);
+const addExistingCompDialogVisible = ref(false);
+const availableExistingCompetencies = ref<any[]>([]);
+const newCompName = ref('');
+const newCompDescription = ref('');
+const newCompReadiness = ref<number | null>(null);
+const newCompSkills = ref('');
+const addExistingSelection = ref<number | null>(null);
+
+// selectedChild edit fields (competency + pivot)
+const editChildName = ref('');
+const editChildDescription = ref('');
+const editChildReadiness = ref<number | null>(null);
+const editChildSkills = ref('');
+const editChildPivotStrategicWeight = ref<number | null>(10);
+const editChildPivotPriority = ref<number | null>(1);
+const editChildPivotRequiredLevel = ref<number | null>(3);
+const editChildPivotIsCritical = ref(false);
+const editChildPivotRationale = ref('');
 // Temporarily disable CSS animations for level-2 clicks
 const noAnimations = ref(false);
 // slider / scroll sync for edit form
@@ -1056,7 +1146,12 @@ function openScenarioInfo() {
 // initialize edit fields when focusedNode changes
 watch(focusedNode, (nv) => {
     try {
-        if (nv && (window as any).__DEBUG__) console.debug('[focusedNode.change] id=', (nv as any).id, 'level=', nodeLevel((nv as any).id), 'isChild=', !!(((nv as any).skills) || (nv as any).compId), 'parentId=', parentIdOfFocusedChild());
+        if (nv && (window as any).__DEBUG__) {
+            const parentId = ((nv as any).id != null && (nv as any).id < 0)
+                ? (childEdges.value.find((e) => e.target === (nv as any).id)?.source ?? null)
+                : null;
+            console.debug('[focusedNode.change] id=', (nv as any).id, 'level=', nodeLevel((nv as any).id), 'isChild=', !!(((nv as any).skills) || (nv as any).compId), 'parentId=', parentId);
+        }
     } catch (e) { void e; }
     if (!nv) {
         editCapName.value = '';
@@ -1084,6 +1179,35 @@ watch(focusedNode, (nv) => {
     editPivotRationale.value = (nv as any).raw?.rationale ?? '';
     editPivotRequiredLevel.value = (nv as any).raw?.required_level ?? (nv as any).required ?? 3;
     editPivotIsCritical.value = !!((nv as any).raw?.is_critical || (nv as any).is_critical);
+});
+
+// populate selectedChild edit fields when selection changes
+watch(selectedChild, (nv) => {
+    if (!nv) {
+        editChildName.value = '';
+        editChildDescription.value = '';
+        editChildReadiness.value = null;
+        editChildSkills.value = '';
+        editChildPivotStrategicWeight.value = 10;
+        editChildPivotPriority.value = 1;
+        editChildPivotRequiredLevel.value = 3;
+        editChildPivotIsCritical.value = false;
+        editChildPivotRationale.value = '';
+        return;
+    }
+    editChildName.value = nv.name ?? nv.raw?.name ?? '';
+    editChildDescription.value = nv.description ?? nv.raw?.description ?? '';
+    editChildReadiness.value = nv.readiness ?? nv.raw?.readiness ?? null;
+    // skills may come as array
+    const skillsArr = Array.isArray(nv.skills) ? nv.skills.map((s: any) => s.name ?? s) : [];
+    editChildSkills.value = skillsArr.join(', ');
+    // try to obtain pivot values from raw.pivot or raw.pivot_data
+    const pivot = nv.raw?.pivot ?? nv.raw?.capability_pivot ?? {};
+    editChildPivotStrategicWeight.value = pivot?.strategic_weight ?? 10;
+    editChildPivotPriority.value = pivot?.priority ?? 1;
+    editChildPivotRequiredLevel.value = pivot?.required_level ?? 3;
+    editChildPivotIsCritical.value = !!pivot?.is_critical;
+    editChildPivotRationale.value = pivot?.rationale ?? '';
 });
 
 function resetFocusedEdits() {
@@ -2215,6 +2339,111 @@ function startDrag(node: any, event: PointerEvent) {
     dragOffset.value.y = event.clientY - node.y;
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
+}
+
+// --- Competency API helpers ---
+async function fetchAvailableCompetencies() {
+    try {
+        const res: any = await api.get('/api/competencies');
+        const all = res?.data ?? res;
+        // exclude competencies already attached to the capability (if any)
+        const attached = (focusedNode.value as any)?.competencies?.map((c: any) => c.id) || [];
+        availableExistingCompetencies.value = Array.isArray(all) ? all.filter((c: any) => !attached.includes(c.id)) : [];
+    } catch (e) {
+        availableExistingCompetencies.value = [];
+    }
+}
+
+async function createAndAttachComp() {
+    if (!displayNode.value || !((displayNode.value as any).id)) return showError('Seleccione una capacidad para asociar');
+    const capId = (displayNode.value as any).id;
+    try {
+        const payload = {
+            name: newCompName.value,
+            description: newCompDescription.value,
+            readiness: newCompReadiness.value,
+            skills: (newCompSkills.value || '').split(',').map((s) => s.trim()).filter((s) => s),
+        };
+        const res: any = await api.post('/api/competencies', payload);
+        const created = res?.data ?? res;
+        // attach to capability via best-effort endpoint
+        try {
+            await api.post(`/api/capabilities/${capId}/competencies`, { competency_id: created.id });
+        } catch (err) {
+            // fallback: try pivot endpoint on scenario if available
+            try { await api.post(`/api/strategic-planning/capabilities/${capId}/competencies`, { competency_id: created.id }); } catch (e) { void e; }
+        }
+        createCompDialogVisible.value = false;
+        // refresh tree and expand parent
+        await loadTreeFromApi(props.scenario?.id);
+        const parent = nodeById(capId);
+        if (parent) {
+            expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
+        }
+        showSuccess('Competencia creada y asociada');
+    } catch (e) {
+        showError('Error creando competencia');
+    }
+}
+
+async function attachExistingComp() {
+    if (!displayNode.value || !((displayNode.value as any).id)) return showError('Seleccione una capacidad');
+    if (!addExistingSelection.value) return showError('Seleccione una competencia existente');
+    const capId = (displayNode.value as any).id;
+    try {
+        await api.post(`/api/capabilities/${capId}/competencies`, { competency_id: addExistingSelection.value });
+        addExistingCompDialogVisible.value = false;
+        await loadTreeFromApi(props.scenario?.id);
+        const parent = nodeById(capId);
+        if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
+        showSuccess('Competencia asociada correctamente');
+    } catch (e) {
+        showError('Error asociando competencia');
+    }
+}
+
+// Save edits for selectedChild (competency and pivot)
+async function saveSelectedChild() {
+    const child = selectedChild.value;
+    if (!child) return showError('No hay competencia seleccionada');
+    try {
+        // update competency entity
+        const compPayload: any = {
+            name: editChildName.value,
+            description: editChildDescription.value,
+            readiness: editChildReadiness.value,
+            skills: (editChildSkills.value || '').split(',').map((s) => s.trim()).filter((s) => s),
+        };
+        if (child.compId || child.compId === 0 || (child.raw && child.raw.id)) {
+            const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
+            try { await api.patch(`/api/competencies/${compId}`, compPayload); } catch (e) { void e; }
+        }
+
+        // update pivot (capability_competencies) if we can find parent
+        const parentEdge = childEdges.value.find((e) => e.target === child.id);
+        const parentId = parentEdge ? parentEdge.source : null;
+        if (parentId && (child.compId || child.raw?.id)) {
+            const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
+            const pivotPayload = {
+                strategic_weight: editChildPivotStrategicWeight.value,
+                priority: editChildPivotPriority.value,
+                required_level: editChildPivotRequiredLevel.value,
+                is_critical: !!editChildPivotIsCritical.value,
+                rationale: editChildPivotRationale.value,
+            };
+            try { await api.patch(`/api/capabilities/${parentId}/competencies/${compId}`, pivotPayload); } catch (e) { void e; }
+        }
+
+        // refresh and re-open parent expansion
+        await loadTreeFromApi(props.scenario?.id);
+        if (parentId) {
+            const parent = nodeById(parentId);
+            if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
+        }
+        showSuccess('Competencia actualizada');
+    } catch (e) {
+        showError('Error guardando competencia');
+    }
 }
 
 function onPointerMove(e: PointerEvent) {
