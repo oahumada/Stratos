@@ -123,6 +123,30 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 
 - Estado: memoria creada en `docs/MEMORY_ScenarioPlanning_2026-01-22.md` (confirmado 2026-01-22).
 
+## Implementación registrada: Navegación por niveles (matriz 2x5)
+
+- **Qué:** Añadida lógica de navegación por niveles en el mapa de `ScenarioPlanning`:
+  - La vista raíz ahora muestra el `scenario` y hasta 10 capacidades dispuestas en una matriz de 2 filas x 5 columnas.
+  - Al seleccionar una capacidad, el nodo seleccionado se centra horizontalmente y se posiciona verticalmente al 25% del lienzo; los demás nodos de nivel 1 se ocultan (se ponen `display:none`) y se mantiene visible el nodo `scenario`.
+  - La expansión de competencias (nivel 2) ahora está limitada a 10 nodos y se dispone en matriz 2x5 debajo del nodo seleccionado.
+  - Comportamiento análogo para profundizar un nivel más (nivel 3): oculta nodos no seleccionados y muestra únicamente el padre y sus hijos.
+- **Dónde:** `src/resources/js/pages/ScenarioPlanning/Index.vue` (modificación de `expandCompetencies`, `handleNodeClick`) y nuevo helper `src/resources/js/composables/useNodeNavigation.ts` (`computeMatrixPositions`).
+- **Por qué:** UX consistente, reduce saturación visual y proporciona una navegación predecible por niveles.
+- **Fecha:** 2026-01-25
+
+## Estrategia de testing (registrada)
+
+- **Qué:** Decisión de testing integrada en el proyecto.
+- **Stack de pruebas:**
+  - Backend: `Pest` (PHP) — ya en uso para pruebas de API y lógica del servidor.
+  - Frontend unit/integration: `Vitest` + `@vue/test-utils` para composables y componentes Vue.
+  - Frontend E2E/funcionales: `Playwright` para pruebas end-to-end (multi-navegador) — cobertura de flujos complejos (D3 interactions, drag/drop, centering, sidebar).
+- **Enfoque:** Desarrollo orientado por pruebas (TDD) cuando sea práctico: empezar por tests unitarios/componente para la lógica (`useNodeNavigation`, `expandCompetencies`) y luego añadir pruebas E2E con Playwright para flujos críticos (ej. crear/adjuntar/centrar/guardar).
+- **Notas operativas:**
+  - Usar `msw` para mocks en pruebas de componentes cuando levantar el servidor resulte costoso.
+  - Para E2E se usará `npm run dev` en entorno local o un server de pruebas con datos seed; Playwright tests aceptan `BASE_URL` para apuntar a diferentes servidores.
+  - Añadir pasos a CI para ejecutar: `composer test` (Pest), `npm run test:unit` (Vitest), `npm run test:e2e` (Playwright headless). Preferir Playwright oficial images/actions en CI.
+
 ## Memoria: Sesión 2026-01-23
 
 - **Resumen corto:** Implementé el endpoint backend para asignar competencias a capacidades por escenario (`capability_competencies`) que acepta `competency_id` o crea una nueva `competency` y la asocia, creé la migración/modelo para la pivot, añadí tests Feature que cubren ambos flujos y verifiqué que los tests pasan localmente.

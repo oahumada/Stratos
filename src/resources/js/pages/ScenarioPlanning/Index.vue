@@ -689,6 +689,7 @@ import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import * as d3 from 'd3';
 import { onMounted, ref, watch, onBeforeUnmount, computed, nextTick } from 'vue';
+import { computeMatrixPositions } from '@/composables/useNodeNavigation';
 import type { CSSProperties } from 'vue';
 import type { NodeItem, Edge, ConnectionPayload } from '@/types/brain';
 interface Props {
@@ -1538,81 +1539,32 @@ function computeInitialPosition(idx: number, total: number) {
  * - >=7: grid with up to 6 columns (rows = ceil(total/cols))
  * After reordering nodes are updated in `nodes.value` and `positionsDirty` is set.
  */
+import reorderNodesHelper from '@/utils/reorderNodesHelper';
+
 async function reorderNodes() {
     const total = nodes.value.length;
     if (!total) return;
-    const cx = Math.round(width.value / 2);
-    const cy = Math.round(height.value / 2 - 30);
-    const marginH = 48;
-    const availableW = Math.max(200, width.value - marginH * 2);
 
-    if (total === 1) {
-        nodes.value = nodes.value.map((n: any) => ({ ...n, x: cx, y: cy }));
-    } else if (total === 2) {
-        const gap = Math.min(220, Math.floor(availableW / 3));
-        nodes.value = nodes.value.map((n: any, i: number) => ({ ...n, x: cx + (i === 0 ? -gap / 2 : gap / 2), y: cy }));
-    } else if (total === 3) {
-        const gap = Math.min(220, Math.floor(availableW / 4));
-        nodes.value = nodes.value.map((n: any, i: number) => {
-            if (i === 1) return { ...n, x: cx, y: cy };
-            return { ...n, x: cx + (i === 0 ? -gap : gap), y: cy };
-        });
-    } else if (total >= 4 && total <= 6) {
-        const cols = total;
-        const spacing = Math.min(160, Math.floor(availableW / cols));
-        const totalW = (cols - 1) * spacing;
-        const startX = Math.round(cx - totalW / 2);
-        nodes.value = nodes.value.map((n: any, i: number) => ({ ...n, x: startX + i * spacing, y: cy }));
-    } else {
-        // grid layout for larger sets: choose a near-square grid (ceil(sqrt(total))) up to 6 columns
-        const cols = Math.min(6, Math.max(2, Math.ceil(Math.sqrt(total))));
-        const rows = Math.ceil(total / cols);
-        const spacingX = Math.min(140, Math.floor(availableW / cols));
-        const spacingY = Math.min(140, Math.floor((height.value - 160) / Math.max(1, rows)));
-        const totalGridW = (cols - 1) * spacingX;
-        const totalGridH = (rows - 1) * spacingY;
-        // push grid slightly down to avoid the scenario header/origin area
-        const startX = Math.round(cx - totalGridW / 2);
-        const downwardBias = 40; // pixels to lower the grid from center
-        const startY = Math.round(cy - totalGridH / 2 + downwardBias);
-        nodes.value = nodes.value.map((n: any, i: number) => {
-            const r = Math.floor(i / cols);
-            const c = i % cols;
-            return { ...n, x: startX + c * spacingX, y: clampY(startY + r * spacingY) } as any;
-        });
-    }
-
-    // ensure nodes are not placed on top of the scenario origin
+    // Delegate base layout computation to helper for easier testing
+    const scenario = scenarioNode.value ? { id: scenarioNode.value.id, x: scenarioNode.value.x, y: scenarioNode.value.y } : undefined;
+    // Diagnostic logs: print node ids/count before reorder to help debug unexpected layouts
     try {
-        const MIN_ORIGIN_SEPARATION = 120; // increased separation for safety
-        if (scenarioNode.value) {
-            const sx = scenarioNode.value.x ?? Math.round(width.value / 2);
-            const sy = scenarioNode.value.y ?? Math.round(height.value * 0.12);
-            // compute maximum downward shift required so ALL nodes are at least MIN_ORIGIN_SEPARATION away
-            let requiredShift = 0;
-            nodes.value.forEach((n: any) => {
-                if (!n || n.x == null || n.y == null) return;
-                const dx = n.x - sx;
-                const dy = n.y - sy;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < MIN_ORIGIN_SEPARATION) {
-                    const need = MIN_ORIGIN_SEPARATION - dist;
-                    if (need > requiredShift) requiredShift = need;
-                }
-            });
-            if (requiredShift > 0) {
-                // add a small margin and shift all nodes down together to avoid splitting rows
-                const margin = 20;
-                const shift = Math.round(requiredShift + margin);
-                nodes.value = nodes.value.map((n: any) => {
-                    if (!n || n.y == null) return n;
-                    return { ...n, y: clampY((n.y ?? 0) + shift) } as any;
-                });
-            }
-        }
-    } catch (err) {
-        void err;
-    }
+        // Use console.debug so logs are easy to filter in browser devtools
+        console.debug('[reorderNodes] before - count:', nodes.value.length, 'ids:', nodes.value.map((n: any) => n && n.id));
+    } catch (e) { void e; }
+
+    // ensure each item has a `name` and cast the helper result to the expected NodeItem[] type
+    nodes.value = reorderNodesHelper(
+        nodes.value.map((n: any) => ({ ...n, name: n.name ?? n.raw?.name ?? '' } as any)),
+        width.value,
+        height.value,
+        scenario,
+    ) as unknown as Array<NodeItem>;
+
+    try {
+        console.debug('[reorderNodes] after - count:', nodes.value.length, 'ids:', nodes.value.map((n: any) => n && n.id));
+    } catch (e) { void e; }
+
 
     positionsDirty.value = true;
     // Clear focus/children so renderNodeX doesn't snap nodes into side columns
@@ -2058,16 +2010,41 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
         }
     } else {
         // normal capability node click
-        focusedNode.value = node;
-        // first reposition nodes so focused node is centered and others snap aside
-        const nodePrevPos = { x: node.x ?? 0, y: node.y ?? 0 };
-        centerOnNode(node, prev);
-        // start expanding a bit earlier: race transitionend with a lead timeout
-        const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
-        await Promise.race([waitForTransitionForNode(node.id), wait(centeredLead)]);
-        // then expand competencies using the updated focused node coordinates
-        updated = nodeById(node.id) || node;
-        expandCompetencies(updated as NodeItem, nodePrevPos);
+            focusedNode.value = node;
+            // first reposition nodes so focused node is centered and others snap aside
+            const nodePrevPos = { x: node.x ?? 0, y: node.y ?? 0 };
+            centerOnNode(node, prev);
+            // ensure selected node is horizontally centered and vertically at 25% of canvas
+            try {
+                const selected = nodeById(node.id) || node;
+                const centerX = Math.round(width.value / 2);
+                const targetY = Math.round(height.value * 0.25);
+                // apply desired coordinates (will animate via CSS transitions)
+                selected.x = centerX;
+                selected.y = targetY;
+                // hide non-selected level-1 nodes but keep scenario node visible
+                const scenarioId = scenarioNode.value?.id ?? null;
+                nodes.value = nodes.value.map((n: any) => {
+                    if (n.id === selected.id || n.id === scenarioId) return { ...n, __hidden: false, __displayNone: false };
+                    return { ...n, __hidden: true };
+                });
+                // advance to display:none shortly after to free layout space
+                setTimeout(() => {
+                    nodes.value = nodes.value.map((n: any) => (n.id === selected.id || n.id === scenarioId ? { ...n, __displayNone: false } : { ...n, __displayNone: true }));
+                }, Math.max(40, TRANSITION_MS - 120));
+                // start expanding a bit earlier: race transitionend with a lead timeout
+                const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
+                await Promise.race([waitForTransitionForNode(selected.id), wait(centeredLead)]);
+                // then expand competencies using the updated focused node coordinates (limit to 10 in 2x5)
+                updated = nodeById(selected.id) || selected;
+                expandCompetencies(updated as NodeItem, nodePrevPos, { limit: 10, rows: 2, cols: 5 });
+            } catch (e) {
+                // fallback: original flow
+                const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
+                await Promise.race([waitForTransitionForNode(node.id), wait(centeredLead)]);
+                updated = nodeById(node.id) || node;
+                expandCompetencies(updated as NodeItem, nodePrevPos);
+            }
     }
 
     // If we are NOT in true fullscreen mode, fix panel to top-left corner
@@ -2228,70 +2205,43 @@ function onPanelPointerUp() {
 
 // Fullscreen toggle removed: UX disabled. We rely only on the browser Fullscreen API when used externally.
 
-function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: number }) {
+function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: number }, opts: { limit?: number; rows?: number; cols?: number } = {}) {
     childNodes.value = [];
     childEdges.value = [];
     const comps = (node as any).competencies ?? [];
     if (!Array.isArray(comps) || comps.length === 0) return;
-    // Layout child competencies in two vertical columns underneath the parent node
+    const limit = Math.min(opts.limit ?? 10, 10);
+    const toShow = comps.slice(0, limit);
+
+    // Use matrix layout (default 2 rows x 5 cols) centered under parent's x
     const cx = node.x ?? Math.round(width.value / 2);
-    const cy = node.y ?? Math.round(height.value / 2);
-    const initX = initialParentPos?.x ?? cx;
-    const initY = initialParentPos?.y ?? cy;
-    // Layout policy: up to 5 columns.
-    // Behavior: columns = min(5, total), rows = ceil(total / columns), centering incomplete rows.
-    const total = comps.length;
-    const columns = Math.min(5, total);
-    // reduce spacing when more columns to keep layout compact
-    const columnSpacing = 72;
-    // If the node is itself a child node (we use negative ids for childNodes), use a tighter layout
-    const isChildNode = node.id != null && node.id < 0;
-    // Tighten layout for grandchildren: smaller spacing and much smaller vertical offset
-    const baseRowSpacing = isChildNode ? 30 : 44; // tighter spacing for grandchildren
-    const verticalOffset = isChildNode ? 80 : 150; // bring grandchildren closer to their parent
-    // Add extra vertical gap for lower rows when there are many items
-    const extraGapForLowerRows = comps.length > columns ? (isChildNode ? 8 : 28) : 0;
+    // place matrix top starting approximately below parent (use parent's y + offset)
+    const parentY = node.y ?? Math.round(height.value / 2);
+    const verticalOffset = (node.id != null && node.id < 0) ? 80 : 150;
+    const topY = Math.round(parentY + verticalOffset);
 
-    const rowsPerColumn = Math.ceil(total / columns);
-    // compute total block height accounting for the extra gap applied below the first row
-    const blockHeight = (rowsPerColumn - 1) * baseRowSpacing + (rowsPerColumn > 1 ? extraGapForLowerRows : 0);
-    // compute top start so the multi-column block is vertically centered under parent
-    const startY = Math.round(cy + verticalOffset - blockHeight / 2);
-    const fullRowsCount = Math.floor(total / columns);
+    const rows = opts.rows ?? 2;
+    const cols = opts.cols ?? 5;
+    const positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: 120, vSpacing: 100 });
 
-    // Build child entries with initial position at parent, then animate to targets on nextTick
     const builtChildren: Array<any> = [];
-        comps.forEach((c: any, i: number) => {
-        const colIndex = i % columns; // 0..columns-1
-        const rowIndex = Math.floor(i / columns);
-        const itemsInRow = rowIndex < fullRowsCount ? columns : total % columns;
-        const maxRowWidth = (columns - 1) * columnSpacing;
-        const rowWidth = (itemsInRow - 1) * columnSpacing;
-        const rowOffset = (maxRowWidth - rowWidth) / 2;
-        const targetX = Math.round(cx - maxRowWidth / 2 + colIndex * columnSpacing + rowOffset);
-        // apply extra gap only for rows below the first to avoid crowding lower rows
-        const rawY = Math.round(startY + rowIndex * baseRowSpacing + (rowIndex > 0 ? extraGapForLowerRows : 0));
-        const targetY = clampY(rawY);
+    toShow.forEach((c: any, i: number) => {
+        const pos = positions[i] || { x: cx, y: topY };
         const id = -(node.id * 1000 + i + 1);
-        // push with initial coordinates at parent's center so CSS transition can animate to target
-        // small stagger so children appear organic; grandchildren slightly slower
-        // base stagger per-row/col, plus a small random jitter for organic feel
-        const baseDelay = rowIndex * 30 + colIndex * 12;
-        const jitter = Math.round((Math.random() - 0.5) * 40); // -20..+20ms
-        const delay = Math.max(0, baseDelay + jitter);
+        const delay = Math.max(0, Math.floor(i / cols) * 30 + (i % cols) * 12 + Math.round((Math.random() - 0.5) * 30));
         const child = {
             id,
             compId: c.id ?? null,
             name: c.name ?? c,
             displayName: wrapLabel(c.name ?? c, 14),
-            x: initX,
-            y: initY,
+            x: initialParentPos?.x ?? (node.x ?? cx),
+            y: initialParentPos?.y ?? (node.y ?? parentY),
             __scale: 0.84,
             __opacity: 0,
             __delay: delay,
             __filter: 'blur(6px) drop-shadow(0 10px 18px rgba(2,6,23,0.36))',
-            __targetX: targetX,
-            __targetY: targetY,
+            __targetX: pos.x,
+            __targetY: clampY(pos.y),
             is_critical: false,
             description: c.description ?? null,
             readiness: c.readiness ?? null,
@@ -2301,11 +2251,9 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
         builtChildren.push(child);
         childEdges.value.push({ source: node.id, target: id });
     });
-    // assign initial children so they render at parent position
+
     childNodes.value = builtChildren.slice();
-    // animate to target positions on next tick — apply slight overshoot + clear blur for organic effect
     nextTick(() => {
-        // move to targets and make visible with slight overshoot
         childNodes.value = childNodes.value.map((ch: any) => ({
             ...ch,
             x: ch.__targetX ?? ch.x,
@@ -2315,10 +2263,8 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
             __filter: 'none',
         }));
 
-        // then settle scale to 1 for natural bounce
         setTimeout(() => {
             childNodes.value = childNodes.value.map((ch: any) => ({ ...ch, __scale: 1 }));
-            // cleanup helper target props after settle
             nextTick(() => {
                 childNodes.value.forEach((ch: any) => { delete ch.__targetX; delete ch.__targetY; delete ch.__delay; delete ch.__filter; });
             });
