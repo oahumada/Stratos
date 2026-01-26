@@ -1,5 +1,5 @@
 <template>
-    <div class="prototype-map-root" ref="mapRoot" :class="{ 'with-node-sidebar': nodeSidebarVisible, 'with-node-sidebar-collapsed': nodeSidebarCollapsed, 'no-animations': noAnimations }">
+    <div class="prototype-map-root" ref="mapRoot" :class="{ 'no-animations': noAnimations }">
         <div
             class="map-controls"
             style="
@@ -479,167 +479,121 @@
                     </v-btn>
             </div>
 
-            <!-- Nodo: panel lateral que desplaza contenido en vista normal -->
-            <transition name="slide-fade">
-                            <aside v-show="showSidebar || focusedNode || selectedChild"
-                                class="node-details-sidebar glass-panel-strong"
-                                :class="[{ collapsed: nodeSidebarCollapsed }, sidebarTheme === 'dark' ? 'theme-dark' : 'theme-light']"
-                                :style="panelStyle"
-                            >
-                    <div class="d-flex justify-space-between align-center mb-2 panel-header">
+            <!-- Reemplazo: mostrar detalles en modal en lugar de panel lateral -->
+            <v-dialog v-model="showSidebar" max-width="980" persistent scrollable>
+                <v-card>
+                    <v-card-title class="d-flex justify-space-between align-center">
                         <strong>{{ displayNode ? displayNode.name : (showSidebar ? 'Escenario' : 'Detalle') }}</strong>
                         <div class="d-flex align-center" style="gap:8px">
                             <v-btn icon small variant="text" @click="toggleSidebarTheme" :title="sidebarTheme === 'dark' ? 'Tema claro' : 'Tema oscuro'">
                                 <v-icon :icon="sidebarTheme === 'dark' ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
                             </v-btn>
-                            <v-btn icon small variant="text" @click="focusedNode ? closeTooltip() : toggleSidebar()" v-if="!nodeSidebarCollapsed">
+                            <v-btn icon small variant="text" @click="showSidebar = false">
                                 <v-icon icon="mdi-close" />
                             </v-btn>
                         </div>
-                        <!-- collapse/expand toggle (visible on the inner edge) -->
-                        <div class="sidebar-collapse-toggle">
-                            <v-btn icon small variant="text" @click="toggleNodeSidebarCollapse" :title="nodeSidebarCollapsed ? 'Mostrar panel' : 'Ocultar panel'">
-                                <v-icon :icon="nodeSidebarCollapsed ? 'mdi-chevron-left' : 'mdi-chevron-right'" />
-                            </v-btn>
-                        </div>
-                    </div>
+                    </v-card-title>
+                    <v-card-text style="max-height:70vh; overflow:auto;">
+                        <template v-if="displayNode">
+                            <div class="text-xs text-white/60 mb-2">
+                                <div><strong>ID:</strong> {{ (displayNode as any).id ?? '—' }}</div>
+                                <div><strong>Competencias:</strong> {{ ((displayNode as any).competencies || []).length }}</div>
+                            </div>
 
-                    <template v-if="displayNode">
-                    <!-- Basic metadata block -->
-                    <div class="text-xs text-white/60 mb-2">
-                        <div><strong>ID:</strong> {{ (displayNode as any).id ?? '—' }}</div>
-                        <div><strong>Competencias:</strong> {{ ((displayNode as any).competencies || []).length }}</div>
-                    </div>
-
-                    <div class="text-small text-medium-emphasis mb-2">
-                                        <!-- If displayNode is a competency (child node), show its attributes -->
-                                        <template v-if="(displayNode as any).skills || (displayNode as any).compId">
-                                            <!-- Editable competency form -->
-                                            <div class="sidebar-body text-sm mt-2" style="position:relative;">
-                                                <div ref="editFormScrollEl" style="max-height:360px; overflow:auto; padding-right:12px;">
-                                                    <v-form>
-                                                        <v-text-field v-model="editChildName" label="Nombre" required />
-                                                        <v-textarea v-model="editChildDescription" label="Descripción" rows="3" />
-                                                        <div style="display:flex; gap:8px">
-                                                            <v-btn small color="primary" @click="createSkillDialogVisible = true">Crear nueva skill</v-btn>
-                                                            <v-btn small color="secondary" @click="(async ()=>{ await loadAvailableSkills(); selectSkillDialogVisible = true; })()">Seleccionar skill existente</v-btn>
-                                                            <v-text-field v-model="editChildReadiness" label="Readiness" type="number" style="flex:1" />
-                                                            <div style="flex:1; display:flex; align-items:center">
-                                                                <template v-if="loadingSkills">
-                                                                    <v-progress-circular indeterminate size="20" color="primary" />
-                                                                    <span style="margin-left:8px; color:var(--v-theme-on-surface, #b0bec5); font-size:0.9rem">Cargando skills...</span>
-                                                                </template>
-                                                                <template v-else>
-                                                                    <v-text-field v-model="editChildSkills" label="Skills (coma-separadas)" style="flex:1" />
-                                                                    <div v-if="!editChildSkills && !((displayNode as any).skills || []).length" style="margin-left:8px; font-size:12px; color:#9e9e9e">No se encontraron skills</div>
-                                                                </template>
-                                                            </div>
-                                                        </div>
-
-                                                        <div style="margin-top:12px; font-weight:700">Atributos de la relación con la capacidad</div>
-                                                        <div style="display:flex; gap:8px">
-                                                            <v-text-field v-model="editChildPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
-                                                            <v-text-field v-model="editChildPivotPriority" label="Priority" type="number" style="flex:1" />
-                                                        </div>
-                                                        <v-text-field v-model="editChildPivotRequiredLevel" label="Required level" type="number" />
-                                                        <v-checkbox v-model="editChildPivotIsCritical" label="Is critical" />
-                                                        <v-textarea v-model="editChildPivotRationale" label="Rationale" rows="2" />
-
-                                                        <div style="display:flex; gap:8px; margin-top:12px">
-                                                            <v-btn color="error" text @click="selectedChild = null">Cerrar</v-btn>
-                                                            <v-spacer />
-                                                            <v-btn color="primary" @click="saveSelectedChild">Guardar</v-btn>
-                                                            <v-btn text @click="(selectedChild = null, resetFocusedEdits())">Cancelar</v-btn>
-                                                        </div>
-                                                    </v-form>
+                            <div class="text-small text-medium-emphasis mb-2">
+                                <template v-if="(displayNode as any).skills || (displayNode as any).compId">
+                                    <div style="position:relative;">
+                                        <div style="max-height:360px; overflow:auto; padding-right:12px;">
+                                            <v-form>
+                                                <v-text-field v-model="editChildName" label="Nombre" required />
+                                                <v-textarea v-model="editChildDescription" label="Descripción" rows="3" />
+                                                <div style="display:flex; gap:8px">
+                                                    <v-btn small color="primary" @click="createSkillDialogVisible = true">Crear nueva skill</v-btn>
+                                                    <v-btn small color="secondary" @click="(async ()=>{ await loadAvailableSkills(); selectSkillDialogVisible = true; })()">Seleccionar skill existente</v-btn>
+                                                    <v-text-field v-model="editChildReadiness" label="Readiness" type="number" style="flex:1" />
                                                 </div>
-                                                <v-slider
-                                                    v-model="editFormScrollPercent"
-                                                    vertical
-                                                    hide-details
-                                                    :min="0"
-                                                    :max="100"
-                                                    step="1"
-                                                    @input="onEditSliderInput"
-                                                    style="position:absolute; right:8px; top:8px; height: calc(100% - 16px); width:28px;"
-                                                />
-                                            </div>
-                                        </template>
 
-                        <!-- If displayNode is a capability, show its competencies list and description -->
-                        <template v-else>
-                            <!-- Editable form for capability and pivot with scroll + slider -->
-                            <div class="sidebar-body text-sm mt-2" style="position:relative;">
-                                <div style="display:flex; gap:8px; margin-bottom:8px">
-                                    <v-btn small color="primary" @click="createCompDialogVisible = true">Crear competencia</v-btn>
-                                    <v-btn small color="secondary" @click="(async ()=>{ await fetchAvailableCompetencies(); addExistingCompDialogVisible = true; })()">Agregar existente</v-btn>
-                                </div>
-                                <div ref="editFormScrollEl" style="max-height:360px; overflow:auto; padding-right:12px;">
-                                    <v-form>
-                                        <v-text-field v-model="editCapName" label="Nombre" required />
-                                        <v-textarea v-model="editCapDescription" label="Descripción" rows="3" />
-                                        <div style="display:flex; gap:8px">
-                                            <v-text-field v-model="editCapImportance" label="Importancia" type="number" style="flex:1" />
-                                            <v-text-field v-model="editCapLevel" label="Nivel" type="number" style="flex:1" />
-                                        </div>
+                                                <div style="margin-top:12px; font-weight:700">Atributos de la relación con la capacidad</div>
+                                                <div style="display:flex; gap:8px">
+                                                    <v-text-field v-model="editChildPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
+                                                    <v-text-field v-model="editChildPivotPriority" label="Priority" type="number" style="flex:1" />
+                                                </div>
+                                                <v-text-field v-model="editChildPivotRequiredLevel" label="Required level" type="number" />
+                                                <v-checkbox v-model="editChildPivotIsCritical" label="Is critical" />
+                                                <v-textarea v-model="editChildPivotRationale" label="Rationale" rows="2" />
 
-                                        <div style="margin-top:12px; font-weight:700">Atributos de la relación con el escenario</div>
-                                        <v-select v-model="editPivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
-                                        <div style="display:flex; gap:8px">
-                                            <v-text-field v-model="editPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
-                                            <v-text-field v-model="editPivotPriority" label="Priority" type="number" style="flex:1" />
+                                                <div style="display:flex; gap:8px; margin-top:12px">
+                                                    <v-btn color="error" text @click="selectedChild = null">Cerrar</v-btn>
+                                                    <v-spacer />
+                                                    <v-btn color="primary" @click="saveSelectedChild">Guardar</v-btn>
+                                                    <v-btn text @click="(selectedChild = null, resetFocusedEdits())">Cancelar</v-btn>
+                                                </div>
+                                            </v-form>
                                         </div>
-                                        <v-text-field v-model="editPivotRequiredLevel" label="Required level" type="number" />
-                                        <v-checkbox v-model="editPivotIsCritical" label="Is critical" />
-                                        <v-textarea v-model="editPivotRationale" label="Rationale" rows="2" />
+                                    </div>
+                                </template>
 
-                                        <div style="display:flex; gap:8px; margin-top:12px">
-                                            <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar</v-btn>
-                                            <v-spacer />
-                                            <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode">Guardar</v-btn>
-                                            <v-btn text @click="resetFocusedEdits">Cancelar</v-btn>
+                                <template v-else>
+                                    <div style="position:relative;">
+                                        <div style="display:flex; gap:8px; margin-bottom:8px">
+                                            <v-btn small color="primary" @click="createCompDialogVisible = true">Crear competencia</v-btn>
+                                            <v-btn small color="secondary" @click="(async ()=>{ await fetchAvailableCompetencies(); addExistingCompDialogVisible = true; })()">Agregar existente</v-btn>
                                         </div>
-                                    </v-form>
-                                </div>
-                                <!-- vertical slider to control scroll position (0-100) -->
-                                <v-slider
-                                    v-model="editFormScrollPercent"
-                                    vertical
-                                    hide-details
-                                    :min="0"
-                                    :max="100"
-                                    step="1"
-                                    @input="onEditSliderInput"
-                                    style="position:absolute; right:8px; top:8px; height: calc(100% - 16px); width:28px;"
-                                />
+                                        <div style="max-height:360px; overflow:auto; padding-right:12px;">
+                                            <v-form>
+                                                <v-text-field v-model="editCapName" label="Nombre" required />
+                                                <v-textarea v-model="editCapDescription" label="Descripción" rows="3" />
+                                                <div style="display:flex; gap:8px">
+                                                    <v-text-field v-model="editCapImportance" label="Importancia" type="number" style="flex:1" />
+                                                    <v-text-field v-model="editCapLevel" label="Nivel" type="number" style="flex:1" />
+                                                </div>
+
+                                                <div style="margin-top:12px; font-weight:700">Atributos de la relación con el escenario</div>
+                                                <v-select v-model="editPivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
+                                                <div style="display:flex; gap:8px">
+                                                    <v-text-field v-model="editPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
+                                                    <v-text-field v-model="editPivotPriority" label="Priority" type="number" style="flex:1" />
+                                                </div>
+                                                <v-text-field v-model="editPivotRequiredLevel" label="Required level" type="number" />
+                                                <v-checkbox v-model="editPivotIsCritical" label="Is critical" />
+                                                <v-textarea v-model="editPivotRationale" label="Rationale" rows="2" />
+
+                                                <div style="display:flex; gap:8px; margin-top:12px">
+                                                    <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar</v-btn>
+                                                    <v-spacer />
+                                                    <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode">Guardar</v-btn>
+                                                    <v-btn text @click="resetFocusedEdits">Cancelar</v-btn>
+                                                </div>
+                                            </v-form>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
                         </template>
-                        </div>
-                    </template>
 
-                    <!-- When no node is selected, show scenario metadata and an expandable raw JSON view -->
-                    <template v-else>
-                        <div class="sidebar-body text-sm mt-2">
-                            <div style="margin-bottom:8px">
+                        <template v-else>
+                            <div>
                                 <div style="font-weight:700">Escenario</div>
                                 <div><strong>Nombre:</strong> {{ props.scenario?.name ?? '—' }}</div>
                                 <div><strong>ID:</strong> {{ props.scenario?.id ?? '—' }}</div>
                                 <div><strong>Descripción:</strong> {{ props.scenario?.description ?? '—' }}</div>
                                 <div style="margin-top:6px"><strong>Estado:</strong> {{ props.scenario?.status ?? '—' }} • <strong>Año fiscal:</strong> {{ props.scenario?.fiscal_year ?? '—' }}</div>
+                                <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
+                                    <v-btn small color="secondary" @click="showScenarioRaw = !showScenarioRaw">{{ showScenarioRaw ? 'Ocultar JSON' : 'Ver JSON crudo' }}</v-btn>
+                                    <v-btn small text @click="() => { void loadTreeFromApi(props.scenario?.id); }">Refrescar árbol</v-btn>
+                                </div>
+                                <div v-if="showScenarioRaw" style="margin-top:12px; max-height:420px; overflow:auto; background:rgba(0,0,0,0.04); padding:8px; border-radius:6px">
+                                    <pre style="white-space:pre-wrap; word-break:break-word">{{ capabilityTreeRaw ? JSON.stringify(capabilityTreeRaw, null, 2) : 'No hay datos cargados. Pulsa "Refrescar árbol".' }}</pre>
+                                </div>
                             </div>
-
-                            <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
-                                <v-btn small color="secondary" @click="showScenarioRaw = !showScenarioRaw">{{ showScenarioRaw ? 'Ocultar JSON' : 'Ver JSON crudo' }}</v-btn>
-                                <v-btn small text @click="() => { void loadTreeFromApi(props.scenario?.id); }">Refrescar árbol</v-btn>
-                            </div>
-
-                            <div v-if="showScenarioRaw" style="margin-top:12px; max-height:420px; overflow:auto; background:rgba(0,0,0,0.04); padding:8px; border-radius:6px">
-                                <pre class="text-caption" style="white-space:pre-wrap; word-break:break-word">{{ capabilityTreeRaw ? JSON.stringify(capabilityTreeRaw, null, 2) : 'No hay datos cargados. Pulsa "Refrescar árbol".' }}</pre>
-                            </div>
-                        </div>
-                    </template>
-                </aside>
-            </transition>
+                        </template>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="showSidebar = false">Cerrar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
 
             <!-- Create competency dialog -->
             <v-dialog v-model="createCompDialogVisible" max-width="640">
