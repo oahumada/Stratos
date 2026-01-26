@@ -466,14 +466,24 @@
                 </g>
             </svg>
 
-            <!-- Context menu overlay (right-click) -->
-            <div ref="contextMenuEl" v-if="contextMenuVisible" class="node-context-menu" :style="{ position: 'absolute', left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000, background: 'var(--v-theme-surface, #0b1320)', padding: '6px', borderRadius: '6px', boxShadow: '0 6px 18px rgba(0,0,0,0.6)', minWidth: '160px' }">
-                    <div style="display:flex; flex-direction:column; gap:6px">
-                    <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:var(--v-theme-on-surface, #dbeafe); background:transparent; border:none" @click="contextViewEdit">Ver / Editar detalles</button>
-                    <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:var(--v-theme-on-surface, #dbeafe); background:transparent; border:none" @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()">{{ contextMenuIsChild ? 'Crear skill' : 'Crear competencia' }}</button>
-                    <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:#ff8a80; background:transparent; border:none" @click="contextDeleteNode">Eliminar nodo</button>
-                </div>
-            </div>
+            <!-- Context menu overlay (right-click) replaced with Vuetify v-menu -->
+            <v-menu v-model="contextMenuVisible" absolute offset-y :open-on-click="false" :style="{ left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000 }">
+                <template #default>
+                    <div ref="contextMenuEl" style="background:var(--v-theme-surface, #0b1320); padding:6px; border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,0.6); min-width:160px;">
+                        <v-list density="compact">
+                            <v-list-item @click="contextViewEdit">
+                                <v-list-item-title>Ver / Editar detalles</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()">
+                                <v-list-item-title>{{ contextMenuIsChild ? 'Crear skill' : 'Crear competencia' }}</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item @click="contextDeleteNode">
+                                <v-list-item-title class="text-error">Eliminar nodo</v-list-item-title>
+                            </v-list-item>
+                        </v-list>
+                    </div>
+                </template>
+            </v-menu>
 
             <!-- Reemplazo: mostrar detalles en modal en lugar de panel lateral -->
             <v-dialog v-model="showSidebar" max-width="980" persistent scrollable>
