@@ -495,7 +495,7 @@
             </svg>
 
             <!-- Context menu overlay (right-click) -->
-            <div v-if="contextMenuVisible" class="node-context-menu" :style="{ position: 'absolute', left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000, background: 'var(--v-theme-surface, #0b1320)', padding: '6px', borderRadius: '6px', boxShadow: '0 6px 18px rgba(0,0,0,0.6)', minWidth: '160px' }">
+            <div ref="contextMenuEl" v-if="contextMenuVisible" class="node-context-menu" :style="{ position: 'absolute', left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000, background: 'var(--v-theme-surface, #0b1320)', padding: '6px', borderRadius: '6px', boxShadow: '0 6px 18px rgba(0,0,0,0.6)', minWidth: '160px' }">
                 <div style="display:flex; flex-direction:column; gap:6px">
                     <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:var(--v-theme-on-surface, #dbeafe); background:transparent; border:none" @click="contextViewEdit">Ver / Editar detalles</button>
                     <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:var(--v-theme-on-surface, #dbeafe); background:transparent; border:none" @click="contextCreateChild">Crear hijo</button>
@@ -924,6 +924,7 @@ const contextMenuLeft = ref(0);
 const contextMenuTop = ref(0);
 const contextMenuTarget = ref<any | null>(null);
 const contextMenuIsChild = ref(false);
+const contextMenuEl = ref<HTMLElement | null>(null);
 
 function openNodeContextMenu(node: any, ev: MouseEvent) {
     try {
@@ -1012,6 +1013,14 @@ async function contextDeleteNode() {
 
 onMounted(() => {
     const handler = (ev: MouseEvent) => {
+        if (!contextMenuVisible.value) return;
+        try {
+            const el = contextMenuEl.value as HTMLElement | null;
+            if (el && ev.target && (ev.target instanceof Node) && el.contains(ev.target as Node)) {
+                // click happened inside the context menu — ignore
+                return;
+            }
+        } catch (e) { void e; }
         if (contextMenuVisible.value) closeContextMenu();
     };
     document.addEventListener('pointerdown', handler);
