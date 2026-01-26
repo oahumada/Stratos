@@ -2124,6 +2124,21 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
     // If this is a level-2 node (competency), short-circuit: only log and do not run animations/expansions
     try {
         const lvl = nodeLevel((node as any)?.id);
+        // Toggle collapse: if clicking again on an already-expanded node, collapse its children
+        try {
+            // If capability is focused and its competencies are shown, collapse on second click
+            if ((node as any)?.id != null && (node as any).id >= 0 && focusedNode.value && focusedNode.value.id === (node as any).id && childNodes.value.length > 0) {
+                closeTooltip();
+                return;
+            }
+            // If clicking a competency and its skills are shown, collapse them
+            if (lvl === 2 && selectedChild.value && selectedChild.value.id === (node as any).id && grandChildNodes.value.length > 0) {
+                grandChildNodes.value = [];
+                grandChildEdges.value = [];
+                // keep selectedChild focused but clear skills
+                return;
+            }
+        } catch (e) { void e; }
         if (lvl === 2) {
             try { if ((window as any).__DEBUG__) console.debug('[node.click.level2] id=', (node as any)?.id, 'level=', lvl); } catch (e) { void e; }
             try {
