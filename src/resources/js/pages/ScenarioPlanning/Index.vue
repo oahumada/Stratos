@@ -1,738 +1,3 @@
-<template>
-    <div class="prototype-map-root" ref="mapRoot" :class="{ 'no-animations': noAnimations }">
-        <div
-            class="map-controls"
-            style="
-                margin-bottom: 8px;
-                display: flex;
-                gap: 8px;
-                align-items: center;
-            "
-        >
-            <!-- top control removed; 'Crear capacidad' integrated next to home control -->
-            <div v-if="props.scenario && props.scenario.id">
-                Escenario: {{ props.scenario?.name || '—' }}
-            </div>
-            <!-- Position controls removed: positions are saved/reset by default -->
-            <!-- 'Volver a la vista inicial' integrado en la esfera del escenario y en el borde derecho del diagrama -->
-                        <!-- extra soft halo/gloss to ensure bubble effect is visible on all nodes -->
-                        <circle
-                            class="node-gloss"
-                            r="36"
-                            fill="none"
-                            stroke="#ffffff"
-                            stroke-opacity="0.04"
-                            stroke-width="6"
-                            filter="url(#softGlow)"
-                        />
-            <!-- fullscreen button removed (disabled for now) -->
-            <v-btn
-                small
-                :variant="followScenario ? 'tonal' : 'text'"
-                :color="followScenario ? 'primary' : undefined"
-                @click="followScenario = !followScenario"
-                :title="followScenario ? 'Seguir origen: activado' : 'Seguir origen: desactivado'"
-            >
-                Seguir origen
-            </v-btn>
-        </div>
-        <div v-if="!loaded">Cargando mapa...</div>
-        <div v-else>
-            <svg
-                :width="width"
-                :height="height"
-                :viewBox="`0 0 ${width} ${height}`"
-                class="map-canvas"
-                style="touch-action: none"
-            >
-                <defs>
-                    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#040914" stop-opacity="1" />
-                        <stop offset="25%" stop-color="#071029" stop-opacity="1" />
-                        <stop offset="70%" stop-color="#071a2a" stop-opacity="1" />
-                        <stop offset="100%" stop-color="#051018" stop-opacity="1" />
-                    </linearGradient>
-
-                    <radialGradient id="nodeGrad" cx="30%" cy="25%" r="70%">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75" />
-                        <stop offset="12%" stop-color="#e8f6ff" stop-opacity="0.55" />
-                        <stop offset="45%" stop-color="#6fc3ff" stop-opacity="0.95" />
-                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="1" />
-                    </radialGradient>
-                    <!-- iridescent overlay to simulate soap-bubble sheen -->
-                    <radialGradient id="iridescentGrad" cx="70%" cy="30%" r="90%">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.0" />
-                        <stop offset="18%" stop-color="#ffd6f7" stop-opacity="0.06" />
-                        <stop offset="32%" stop-color="#d6f7ff" stop-opacity="0.07" />
-                        <stop offset="48%" stop-color="#fff2d6" stop-opacity="0.06" />
-                        <stop offset="68%" stop-color="#d6fff3" stop-opacity="0.05" />
-                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0" />
-                    </radialGradient>
-                    <!-- bubble outer gradient: darker near rim, lighter inward to simulate inner glow -->
-                    <radialGradient id="bubbleOuterGrad" cx="50%" cy="50%" r="80%">
-                        <stop offset="0%" stop-color="#0b66b2" stop-opacity="0.06" />
-                        <stop offset="60%" stop-color="#6fc3ff" stop-opacity="0.18" />
-                        <stop offset="85%" stop-color="#6fc3ff" stop-opacity="0.06" />
-                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="0.02" />
-                    </radialGradient>
-
-                    <!-- core gradient: small bright core to suggest nucleus -->
-                    <radialGradient id="bubbleCoreGrad" cx="35%" cy="30%" r="60%">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
-                        <stop offset="35%" stop-color="#dffaff" stop-opacity="0.7" />
-                        <stop offset="100%" stop-color="#6fc3ff" stop-opacity="0.0" />
-                    </radialGradient>
-
-                    <!-- inner glow filter: blur + composite to push glow inward -->
-                    <filter id="innerGlow" x="-30%" y="-30%" width="160%" height="160%">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blurInner" />
-                        <feComposite in="blurInner" in2="SourceGraphic" operator="arithmetic" k1="0" k2="1" k3="-1" k4="0" result="innerComp" />
-                        <feMerge>
-                            <feMergeNode in="innerComp" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
-
-                    <!-- glass fill for glassmorphism appearance on main nodes -->
-                    <radialGradient id="glassGrad" cx="35%" cy="28%" r="72%">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.30" />
-                        <stop offset="30%" stop-color="#dff6ff" stop-opacity="0.12" />
-                        <stop offset="70%" stop-color="#9fd8ff" stop-opacity="0.08" />
-                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="0.18" />
-                    </radialGradient>
-
-                    <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="4" result="gblur" />
-                        <feMerge>
-                            <feMergeNode in="gblur" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
-
-                    <filter
-                        id="softGlow"
-                        x="-50%"
-                        y="-50%"
-                        width="200%"
-                        height="200%"
-                    >
-                        <feGaussianBlur stdDeviation="6" result="blur" />
-                        <feMerge>
-                            <feMergeNode in="blur" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
-
-                    <!-- gradient for child edges -->
-                    <linearGradient id="childGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#7dd3fc" stop-opacity="1" />
-                        <stop offset="100%" stop-color="#60a5fa" stop-opacity="1" />
-                    </linearGradient>
-
-                    <!-- gradient for scenario->child edges (distinct visual) -->
-                    <linearGradient id="scenarioEdgeGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#9be7ff" stop-opacity="0.98" />
-                        <stop offset="50%" stop-color="#6fb8ff" stop-opacity="0.9" />
-                        <stop offset="100%" stop-color="#3fa6ff" stop-opacity="0.82" />
-                    </linearGradient>
-
-                    <!-- subtle gradient + glow for main edges -->
-                    <linearGradient id="edgeGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#6fe7ff" stop-opacity="0.85" />
-                        <stop offset="60%" stop-color="#66b8ff" stop-opacity="0.7" />
-                        <stop offset="100%" stop-color="#9bd0ff" stop-opacity="0.55" />
-                    </linearGradient>
-
-                    <filter id="edgeGlow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="3" result="blurEdge" />
-                        <feMerge>
-                            <feMergeNode in="blurEdge" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
-
-                    <!-- arrow marker for child edges -->
-                    <marker id="childArrow" markerUnits="strokeWidth" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-                        <path d="M0,0 L8,4 L0,8 z" fill="url(#childGrad)" />
-                    </marker>
-
-                    <!-- arrow marker for scenario edges -->
-                    <!-- scenario arrow removed: prefer clean lines without arrowheads -->
-
-                    <filter
-                        id="innerShadow"
-                        x="-20%"
-                        y="-20%"
-                        width="140%"
-                        height="140%"
-                    >
-                        <feOffset dx="0" dy="2" result="off" />
-                        <feGaussianBlur
-                            in="off"
-                            stdDeviation="2"
-                            result="blur2"
-                        />
-                        <feComposite
-                            in="SourceGraphic"
-                            in2="blur2"
-                            operator="over"
-                        />
-                    </filter>
-
-                    <!-- soft specular blur for highlights (used on small highlight shapes) -->
-                    <filter id="specular" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="3" result="spec" />
-                        <feMerge>
-                            <feMergeNode in="spec" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
-                </defs>
-
-                <!-- subtle background rect for contrast (rounded + border/glow) -->
-                <rect
-                    x="0"
-                    y="0"
-                    :width="width"
-                    :height="height"
-                    rx="12"
-                    ry="12"
-                    fill="url(#bgGrad)"
-                />
-                <!-- container border/glow to emulate glass frame -->
-                <rect
-                    x="1"
-                    y="1"
-                    :width="width - 2"
-                    :height="height - 2"
-                    rx="12"
-                    ry="12"
-                    fill="none"
-                    stroke="rgba(255,255,255,0.04)"
-                    stroke-width="1"
-                    filter="url(#softGlow)"
-                />
-                
-
-                <!-- edges -->
-                <g class="viewport-group" :style="viewportStyle">
-                    <!-- edges -->
-                    <g class="edges">
-                        <line
-                            v-for="(e, idx) in edges"
-                            :key="`edge-${idx}`"
-                            :x1="renderedNodeById(e.source)?.x ?? undefined"
-                            :y1="renderedNodeById(e.source)?.y ?? undefined"
-                            :x2="renderedNodeById(e.target)?.x ?? undefined"
-                            :y2="renderedNodeById(e.target)?.y ?? undefined"
-                            class="edge-line"
-                            :stroke="`url(#edgeGrad)`"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            filter="url(#edgeGlow)"
-                            stroke-opacity="0.9"
-                        />
-                    </g>
-
-                    <!-- Create capability control: placed under the home control -->
-                    <g
-                        class="scenario-create-control"
-                        :transform="`translate(${Math.max(48, width - 56)}, 72)`"
-                        @click.stop="createCapabilityClicked"
-                        style="cursor: pointer"
-                        aria-label="Crear capacidad"
-                    >
-                        <circle r="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)"/>
-                        <title>Crear capacidad</title>
-                        <text x="0" y="4" text-anchor="middle" font-size="14" fill="#dbeafe" style="font-weight:700">+</text>
-                    </g>
-                    </g>
-                    <!-- scenario -> capability edges (distinct group so we can style/animate) -->
-                    <g class="scenario-edges">
-                        <line
-                            v-for="(e, idx) in scenarioEdges"
-                            :key="`scenario-edge-${idx}`"
-                            :x1="renderedNodeById(e.source)?.x ?? undefined"
-                            :y1="renderedNodeById(e.source)?.y ?? undefined"
-                            :x2="renderedNodeById(e.target)?.x ?? undefined"
-                            :y2="renderedNodeById(e.target)?.y ?? undefined"
-                                class="edge-line scenario-edge"
-                                stroke="url(#scenarioEdgeGrad)"
-                                stroke-width="2.6"
-                                stroke-linecap="round"
-                                filter="url(#edgeGlow)"
-                                stroke-opacity="0.95"
-                        />
-                    </g>
-
-                    <!-- nodes -->
-                    <g class="nodes">
-                    <!-- scenario/origin node (optional) -->
-                    <g
-                        v-if="scenarioNode"
-                        :style="{ transform: `translate(${scenarioNode.x}px, ${scenarioNode.y}px)` }"
-                        class="node-group scenario-node"
-                        :data-node-id="scenarioNode.id"
-                        @click.stop="openScenarioInfo"
-                        :title="'Ver información del escenario'"
-                        style="cursor: pointer"
-                    >
-                        <title>{{ scenarioNode.name }}</title>
-                        <!-- Smaller parent node (scenario) with icon support -->
-                        <circle
-                            class="node-circle"
-                            r="22"
-                            fill="url(#glassGrad)"
-                            filter="url(#softGlow)"
-                            stroke="rgba(255,255,255,0.06)"
-                            stroke-width="1.2"
-                        />
-                    </g>
-
-                    <g
-                        v-for="node in nodes"
-                        :key="node.id"
-                        :style="{ transform: `translate(${renderNodeX(node)}px, ${node.y}px)` }"
-                        class="node-group"
-                        :data-node-id="node.id"
-                        :class="{
-                            critical: !!node.is_critical,
-                            focused: focusedNode && focusedNode.id === node.id,
-                            dragging: dragging && dragging.id === node.id,
-                            small: focusedNode && focusedNode.id !== node.id,
-                        }"
-                        @pointerdown.prevent="startDrag(node, $event)"
-                        @click.stop="(e) => handleNodeClick(node, e)"
-                        @contextmenu.prevent.stop="(e) => openNodeContextMenu(node, e)"
-                    >
-                        <title>{{ node.name }}</title>
-                        <circle
-                            class="node-circle"
-                            r="34"
-                            fill="url(#bubbleOuterGrad)"
-                            filter="url(#innerGlow)"
-                            stroke="rgba(255,255,255,0.12)"
-                            stroke-opacity="1"
-                            stroke-width="1.2"
-                        />
-                        <!-- iridescent sheen overlay: semitransparent, uses blend to simulate soap colors -->
-                        <circle
-                            class="node-iridescence"
-                            r="34"
-                            fill="url(#iridescentGrad)"
-                            opacity="0.22"
-                            style="mix-blend-mode: screen"
-                        />
-                        <!-- bubble-style highlight: small blurred specular on top-left -->
-                        <!-- <ellipse
-                            class="node-reflection"
-                            cx="-12"
-                            cy="-14"
-                            rx="14"
-                            ry="9"
-                            fill="#ffffff"
-                            fill-opacity="0.18"
-                            transform="rotate(-22)"
-                            filter="url(#specular)"
-                        /> -->
-                        <!-- inner core that suggests nucleus -->
-                        <circle
-                            class="node-core"
-                            r="10"
-                            fill="url(#bubbleCoreGrad)"
-                            filter="url(#specular)"
-                        />
-                        <!-- subtle glossy rim to enhance bubble feel -->
-                        <circle
-                            class="node-rim"
-                            r="34"
-                            fill="none"
-                            stroke="#ffffff"
-                            stroke-opacity="0.08"
-                            stroke-width="1.4"
-                        />
-                        <circle
-                            v-if="node.is_critical"
-                            class="node-inner"
-                            r="12"
-                            fill="#ff5050"
-                            fill-opacity="0.95"
-                        />
-                        <text :x="0" :y="38" text-anchor="middle" class="node-label">
-                            <tspan v-for="(line, idx) in ((node as any).displayName ?? node.name).split('\n')" :key="idx" :x="0" :dy="idx === 0 ? 0 : 12">{{ line }}</tspan>
-                        </text>
-                    </g>
-
-                    <!-- child nodes (competencies) -->
-                    <g class="child-nodes">
-                        <g
-                            v-for="c in childNodes"
-                            :key="c.id"
-                            :style="{ transform: `translate(${c.x}px, ${c.y}px) scale(${c.animScale ?? 1})`, opacity: (c.animOpacity ?? 1), transitionDelay: (c.animDelay ? c.animDelay + 'ms' : undefined), filter: c.animFilter ? c.animFilter : undefined }"
-                                class="node-group child-node"
-                            :data-node-id="c.id"
-                            @click.stop="(e) => handleNodeClick(c, e)"
-                            @contextmenu.prevent.stop="(e) => openNodeContextMenu(c, e)"
-                        >
-                            <title>{{ c.name }}</title>
-                            <circle
-                                class="node-circle"
-                                :r="20"
-                                fill="#2b2b2b"
-                                stroke="#ffffff"
-                                stroke-opacity="0.06"
-                                stroke-width="1"
-                            />
-                            <!-- child node: iridescent sheen + small reflection to match bubble style -->
-                            <circle
-                                class="node-iridescence child-iridescence"
-                                :r="20"
-                                fill="url(#iridescentGrad)"
-                                opacity="0.18"
-                                style="mix-blend-mode: screen"
-                            />
-                            <ellipse
-                                class="node-reflection child-reflection"
-                                cx="-6"
-                                cy="-6"
-                                rx="7"
-                                ry="4.5"
-                                fill="#ffffff"
-                                fill-opacity="0.14"
-                                transform="rotate(-22)"
-                                filter="url(#specular)"
-                            />
-                            <circle
-                                class="node-rim child-rim"
-                                :r="20"
-                                fill="none"
-                                stroke="#ffffff"
-                                stroke-opacity="0.06"
-                                stroke-width="1"
-                            />
-                            <circle
-                                class="node-gloss child-gloss"
-                                :r="22"
-                                fill="none"
-                                stroke="#ffffff"
-                                stroke-opacity="0.04"
-                                stroke-width="4"
-                                filter="url(#softGlow)"
-                            />
-                            <text :x="0" :y="22" text-anchor="middle" class="node-label" style="font-size:10px">
-                                <tspan v-for="(line, idx) in String((c as any).displayName ?? c.name).split('\n')" :key="idx" :x="0" :dy="idx === 0 ? 0 : 10">{{ line }}</tspan>
-                            </text>
-                        </g>
-                    </g>
-
-                    <!-- skill nodes (grandchildren) -->
-                    <g class="skill-nodes">
-                        <g
-                            v-for="s in grandChildNodes"
-                            :key="s.id"
-                            :style="{ transform: `translate(${s.x}px, ${s.y}px) scale(${s.animScale ?? 1})`, opacity: (s.animOpacity ?? 1) }"
-                            class="node-group skill-node"
-                            :data-node-id="s.id"
-                            @click.stop="(e) => handleSkillClick(s, e)"
-                        >
-                            <title>{{ s.name }}</title>
-                            <circle class="node-circle" :r="14" fill="#16324a" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
-                            <circle class="node-iridescence" :r="14" fill="url(#iridescentGrad)" opacity="0.12" style="mix-blend-mode: screen" />
-                            <text :x="0" :y="4" text-anchor="middle" class="node-label" style="font-size:10px">{{ s.name }}</text>
-                        </g>
-                    </g>
-                    <!-- Controles integrados en el SVG: reordenar / restaurar vista -->
-                    <g
-                        class="diagram-control reorder-control"
-                        :transform="`translate(${Math.max(48, width - 56)}, 108)`"
-                        @click.stop="reorderNodes"
-                        style="cursor: pointer"
-                    >
-                        <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
-                        <title>Reordenar nodos</title>
-                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">R</text>
-                    </g>
-
-                    <g
-                        class="diagram-control restore-control"
-                        :transform="`translate(${Math.max(48, width - 56)}, 144)`"
-                        @click.stop="restoreView"
-                        style="cursor: pointer"
-                    >
-                        <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
-                        <title>Restaurar vista</title>
-                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">↺</text>
-                    </g>
-                </g>
-            </svg>
-
-            <!-- Context menu overlay (right-click) replaced with Vuetify v-menu -->
-            <v-menu v-model="contextMenuVisible" absolute offset-y :open-on-click="false" :style="{ left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000 }">
-                <template #default>
-                    <div ref="contextMenuEl" class="node-context-menu-v" style="min-width:250px;">
-                        <v-list density="compact">
-                            <v-list-item @click="contextViewEdit" class="node-context-item">
-                                <v-list-item-icon>
-                                    <v-icon icon="mdi-eye-outline" />
-                                </v-list-item-icon>
-                                <v-list-item-title>Ver detalles</v-list-item-title>
-                            </v-list-item>
-                            <v-list-item @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()" class="node-context-item">
-                                <v-list-item-icon>
-                                    <v-icon icon="mdi-plus" />  
-                                </v-list-item-icon>
-                                <v-list-item-title>{{ contextMenuIsChild ? 'Crear skill' : 'Crear competencia' }}</v-list-item-title>
-                            </v-list-item>
-                            <v-list-item v-if="contextMenuIsChild" @click="contextAttachExistingSkill" class="node-context-item">
-                                <v-list-item-icon>
-                                    <v-icon icon="mdi-link-variant" />
-                                </v-list-item-icon>
-                                <v-list-item-title>Agregar skill existente</v-list-item-title>
-                            </v-list-item>
-                            <v-list-item @click="contextDeleteNode" class="node-context-item">
-                                <v-list-item-icon>
-                                    <v-icon icon="mdi-delete-outline" />
-                                </v-list-item-icon>
-                                <v-list-item-title class="text-error">Eliminar nodo</v-list-item-title>
-                            </v-list-item>
-                        </v-list>
-                    </div>
-                </template>
-            </v-menu>
-
-            <!-- Reemplazo: mostrar detalles en modal en lugar de panel lateral -->
-            <v-dialog v-model="showSidebar" max-width="980" persistent scrollable>
-                <v-card>
-                    <v-card-title class="d-flex justify-space-between align-center">
-                        <strong>{{ displayNode ? displayNode.name : (showSidebar ? 'Escenario' : 'Detalle') }}</strong>
-                        <div class="d-flex align-center" style="gap:8px">
-                            <v-btn icon small variant="text" @click="toggleSidebarTheme" :title="sidebarTheme === 'dark' ? 'Tema claro' : 'Tema oscuro'">
-                                <v-icon :icon="sidebarTheme === 'dark' ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
-                            </v-btn>
-                            <v-btn icon small variant="text" @click="showSidebar = false">
-                                <v-icon icon="mdi-close" />
-                            </v-btn>
-                        </div>
-                    </v-card-title>
-                    <v-card-text style="max-height:70vh; overflow:auto;">
-                        <template v-if="displayNode">
-                            <div class="text-xs text-white/60 mb-2">
-                                <div><strong>ID:</strong> {{ (displayNode as any).id ?? '—' }}</div>
-                                <div><strong>Competencias:</strong> {{ ((displayNode as any).competencies || []).length }}</div>
-                            </div>
-
-                            <div class="text-small text-medium-emphasis mb-2">
-                                <template v-if="(displayNode as any).skills || (displayNode as any).compId">
-                                    <div style="position:relative;">
-                                        <div style="max-height:360px; overflow:auto; padding-right:12px;">
-                                            <v-form>
-                                                <v-text-field v-model="editChildName" label="Nombre" required />
-                                                <v-textarea v-model="editChildDescription" label="Descripción" rows="3" />
-                                                <div style="display:flex; gap:8px">
-                                                    <v-btn small color="primary" @click="createSkillDialogVisible = true">Crear nueva skill</v-btn>
-                                                    <v-btn small color="secondary" @click="(async ()=>{ await loadAvailableSkills(); selectSkillDialogVisible = true; })()">Seleccionar skill existente</v-btn>
-                                                    <v-text-field v-model="editChildReadiness" label="Readiness" type="number" style="flex:1" />
-                                                </div>
-
-                                                <div style="margin-top:12px; font-weight:700">Atributos de la relación con la capacidad</div>
-                                                <div style="display:flex; gap:8px">
-                                                    <v-text-field v-model="editChildPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
-                                                    <v-text-field v-model="editChildPivotPriority" label="Priority" type="number" style="flex:1" />
-                                                </div>
-                                                <v-text-field v-model="editChildPivotRequiredLevel" label="Required level" type="number" />
-                                                <v-checkbox v-model="editChildPivotIsCritical" label="Is critical" />
-                                                <v-textarea v-model="editChildPivotRationale" label="Rationale" rows="2" />
-
-                                                <div style="display:flex; gap:8px; margin-top:12px">
-                                                    <v-btn color="error" text @click="selectedChild = null">Cerrar</v-btn>
-                                                    <v-spacer />
-                                                    <v-btn color="primary" @click="saveSelectedChild">Guardar</v-btn>
-                                                    <v-btn text @click="(selectedChild = null, resetFocusedEdits())">Cancelar</v-btn>
-                                                </div>
-                                            </v-form>
-                                        </div>
-                                    </div>
-                                </template>
-
-                                <template v-else>
-                                    <div style="position:relative;">
-                                        <div style="display:flex; gap:8px; margin-bottom:8px">
-                                            <v-btn small color="primary" @click="createCompDialogVisible = true">Crear competencia</v-btn>
-                                            <v-btn small color="secondary" @click="(async ()=>{ await fetchAvailableCompetencies(); addExistingCompDialogVisible = true; })()">Agregar existente</v-btn>
-                                        </div>
-                                        <div style="max-height:360px; overflow:auto; padding-right:12px;">
-                                            <v-form>
-                                                <v-text-field v-model="editCapName" label="Nombre" required />
-                                                <v-textarea v-model="editCapDescription" label="Descripción" rows="3" />
-                                                <div style="display:flex; gap:8px">
-                                                    <v-text-field v-model="editCapImportance" label="Importancia" type="number" style="flex:1" />
-                                                    <v-text-field v-model="editCapLevel" label="Nivel" type="number" style="flex:1" />
-                                                </div>
-
-                                                <div style="margin-top:12px; font-weight:700">Atributos de la relación con el escenario</div>
-                                                <v-select v-model="editPivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
-                                                <div style="display:flex; gap:8px">
-                                                    <v-text-field v-model="editPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
-                                                    <v-text-field v-model="editPivotPriority" label="Priority" type="number" style="flex:1" />
-                                                </div>
-                                                <v-text-field v-model="editPivotRequiredLevel" label="Required level" type="number" />
-                                                <v-checkbox v-model="editPivotIsCritical" label="Is critical" />
-                                                <v-textarea v-model="editPivotRationale" label="Rationale" rows="2" />
-
-                                                <div style="display:flex; gap:8px; margin-top:12px">
-                                                    <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar</v-btn>
-                                                    <v-spacer />
-                                                    <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode">Guardar</v-btn>
-                                                    <v-btn text @click="resetFocusedEdits">Cancelar</v-btn>
-                                                </div>
-                                            </v-form>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </template>
-
-                        <template v-else>
-                            <div>
-                                <div style="font-weight:700">Escenario</div>
-                                <div><strong>Nombre:</strong> {{ props.scenario?.name ?? '—' }}</div>
-                                <div><strong>ID:</strong> {{ props.scenario?.id ?? '—' }}</div>
-                                <div><strong>Descripción:</strong> {{ props.scenario?.description ?? '—' }}</div>
-                                <div style="margin-top:6px"><strong>Estado:</strong> {{ props.scenario?.status ?? '—' }} • <strong>Año fiscal:</strong> {{ props.scenario?.fiscal_year ?? '—' }}</div>
-                                <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
-                                    <v-btn small color="secondary" @click="showScenarioRaw = !showScenarioRaw">{{ showScenarioRaw ? 'Ocultar JSON' : 'Ver JSON crudo' }}</v-btn>
-                                    <v-btn small text @click="() => { void loadTreeFromApi(props.scenario?.id); }">Refrescar árbol</v-btn>
-                                </div>
-                                <div v-if="showScenarioRaw" style="margin-top:12px; max-height:420px; overflow:auto; background:rgba(0,0,0,0.04); padding:8px; border-radius:6px">
-                                    <pre style="white-space:pre-wrap; word-break:break-word">{{ capabilityTreeRaw ? JSON.stringify(capabilityTreeRaw, null, 2) : 'No hay datos cargados. Pulsa "Refrescar árbol".' }}</pre>
-                                </div>
-                            </div>
-                        </template>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="showSidebar = false">Cerrar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            <!-- Create competency dialog -->
-            <v-dialog v-model="createCompDialogVisible" max-width="640">
-                <v-card>
-                    <v-card-title>Crear competencia</v-card-title>
-                    <v-card-text>
-                        <v-form>
-                            <v-text-field v-model="newCompName" label="Nombre" required />
-                            <v-textarea v-model="newCompDescription" label="Descripción" rows="3" />
-                            <v-text-field v-model="newCompReadiness" label="Readiness" type="number" />
-                            <v-textarea v-model="newCompSkills" label="Skills (coma-separadas)" rows="2" />
-                        </v-form>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="createCompDialogVisible = false">Cancelar</v-btn>
-                        <v-btn color="primary" @click="createAndAttachComp">Crear y asociar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            <!-- Create skill dialog -->
-            <v-dialog v-model="createSkillDialogVisible" max-width="640">
-                <v-card>
-                    <v-card-title>Crear nueva skill</v-card-title>
-                    <v-card-text>
-                        <v-form>
-                            <v-text-field v-model="newSkillName" label="Nombre" required />
-                            <v-text-field v-model="newSkillCategory" label="Categoría" />
-                            <v-textarea v-model="newSkillDescription" label="Descripción" rows="3" />
-                        </v-form>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="createSkillDialogVisible = false">Cancelar</v-btn>
-                        <v-btn color="primary" :loading="savingSkill" @click="createAndAttachSkill">Crear y asociar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            <!-- Select existing skill dialog -->
-            <v-dialog v-model="selectSkillDialogVisible" max-width="720">
-                <v-card>
-                    <v-card-title>Seleccionar skill existente</v-card-title>
-                    <v-card-text>
-                        <v-select
-                            :items="availableSkills"
-                            item-title="name"
-                            item-value="id"
-                            v-model="selectedSkillId"
-                            label="Skill"
-                        />
-                        <div v-if="availableSkills.length === 0" style="margin-top:8px">No se encontraron skills.</div>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="selectSkillDialogVisible = false">Cancelar</v-btn>
-                        <v-btn color="primary" :loading="attachingSkill" @click="attachExistingSkill">Asociar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            <!-- Add existing competency dialog -->
-            <v-dialog v-model="addExistingCompDialogVisible" max-width="640">
-                <v-card>
-                    <v-card-title>Agregar competencia existente</v-card-title>
-                    <v-card-text>
-                        <v-select :items="availableExistingCompetencies" item-title="name" item-value="id" v-model="addExistingSelection" label="Competencia" />
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="addExistingCompDialogVisible = false">Cancelar</v-btn>
-                        <v-btn color="primary" @click="attachExistingComp">Agregar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-            <!-- Create capability modal: form exposes fields from `capabilities` and `scenario_capabilities` -->
-            <v-dialog v-model="createModalVisible" max-width="720">
-                <v-card>
-                    <v-card-title>Crear capacidad</v-card-title>
-                    <v-card-text>
-                        <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
-                            <v-text-field v-model="newCapName" label="Nombre" required />
-                            <v-text-field v-model="newCapType" label="Tipo" />
-                            <v-text-field v-model="newCapCategory" label="Categoría" />
-                            <v-text-field v-model="newCapImportance" label="Importancia (1-5)" type="number" />
-                            <v-textarea v-model="newCapDescription" label="Descripción" rows="3" style="grid-column: 1 / -1" />
-                        </div>
-
-                        <div class="mt-3" style="margin-top:12px">
-                            <div style="font-weight:700; margin-bottom:6px">Atributos para el escenario (scenario_capabilities)</div>
-                            <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
-                                <v-select v-model="pivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
-                                <v-text-field v-model="pivotStrategicWeight" label="Strategic weight" type="number" />
-                                <v-text-field v-model="pivotPriority" label="Priority (1-5)" type="number" />
-                                <v-text-field v-model="pivotRequiredLevel" label="Required level (1-5)" type="number" />
-                                <v-checkbox v-model="pivotIsCritical" label="Is critical" />
-                                <v-textarea v-model="pivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1" />
-                            </div>
-                        </div>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="createModalVisible = false">Cancelar</v-btn>
-                        <v-btn color="primary" :loading="creating" @click="saveNewCapability">Guardar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            
-            <div class="cap-list" v-if="nodes.length === 0">
-                No hay capacidades para mostrar.
-            </div>
-                <!-- debug controls removed -->
-        </div>
-    </div>
-</template>
-
 <script setup lang="ts">
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
@@ -835,6 +100,7 @@ function nodeLevel(nodeOrId: any) {
 }
 
 const props = defineProps<Props>();
+    
 const emit = defineEmits<{
     (e: 'createCapability'): void;
 }>();
@@ -3112,6 +2378,741 @@ watch(
 // ensure edges exist even if no capabilities loaded yet (avoids template warnings)
 if (!edges.value) edges.value = [];
 </script>
+
+<template>
+    <div class="prototype-map-root" ref="mapRoot" :class="{ 'no-animations': noAnimations }">
+        <div
+            class="map-controls"
+            style="
+                margin-bottom: 8px;
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            "
+        >
+            <!-- top control removed; 'Crear capacidad' integrated next to home control -->
+            <div v-if="props.scenario && props.scenario.id">
+                Escenario: {{ props.scenario?.name || '—' }}
+            </div>
+            <!-- Position controls removed: positions are saved/reset by default -->
+            <!-- 'Volver a la vista inicial' integrado en la esfera del escenario y en el borde derecho del diagrama -->
+                        <!-- extra soft halo/gloss to ensure bubble effect is visible on all nodes -->
+                        <circle
+                            class="node-gloss"
+                            r="36"
+                            fill="none"
+                            stroke="#ffffff"
+                            stroke-opacity="0.04"
+                            stroke-width="6"
+                            filter="url(#softGlow)"
+                        />
+            <!-- fullscreen button removed (disabled for now) -->
+            <v-btn
+                small
+                :variant="followScenario ? 'tonal' : 'text'"
+                :color="followScenario ? 'primary' : undefined"
+                @click="followScenario = !followScenario"
+                :title="followScenario ? 'Seguir origen: activado' : 'Seguir origen: desactivado'"
+            >
+                Seguir origen
+            </v-btn>
+        </div>
+        <div v-if="!loaded">Cargando mapa...</div>
+        <div v-else>
+            <svg
+                :width="width"
+                :height="height"
+                :viewBox="`0 0 ${width} ${height}`"
+                class="map-canvas"
+                style="touch-action: none"
+            >
+                <defs>
+                    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#040914" stop-opacity="1" />
+                        <stop offset="25%" stop-color="#071029" stop-opacity="1" />
+                        <stop offset="70%" stop-color="#071a2a" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#051018" stop-opacity="1" />
+                    </linearGradient>
+
+                    <radialGradient id="nodeGrad" cx="30%" cy="25%" r="70%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75" />
+                        <stop offset="12%" stop-color="#e8f6ff" stop-opacity="0.55" />
+                        <stop offset="45%" stop-color="#6fc3ff" stop-opacity="0.95" />
+                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="1" />
+                    </radialGradient>
+                    <!-- iridescent overlay to simulate soap-bubble sheen -->
+                    <radialGradient id="iridescentGrad" cx="70%" cy="30%" r="90%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.0" />
+                        <stop offset="18%" stop-color="#ffd6f7" stop-opacity="0.06" />
+                        <stop offset="32%" stop-color="#d6f7ff" stop-opacity="0.07" />
+                        <stop offset="48%" stop-color="#fff2d6" stop-opacity="0.06" />
+                        <stop offset="68%" stop-color="#d6fff3" stop-opacity="0.05" />
+                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0" />
+                    </radialGradient>
+                    <!-- bubble outer gradient: darker near rim, lighter inward to simulate inner glow -->
+                    <radialGradient id="bubbleOuterGrad" cx="50%" cy="50%" r="80%">
+                        <stop offset="0%" stop-color="#0b66b2" stop-opacity="0.06" />
+                        <stop offset="60%" stop-color="#6fc3ff" stop-opacity="0.18" />
+                        <stop offset="85%" stop-color="#6fc3ff" stop-opacity="0.06" />
+                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="0.02" />
+                    </radialGradient>
+
+                    <!-- core gradient: small bright core to suggest nucleus -->
+                    <radialGradient id="bubbleCoreGrad" cx="35%" cy="30%" r="60%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+                        <stop offset="35%" stop-color="#dffaff" stop-opacity="0.7" />
+                        <stop offset="100%" stop-color="#6fc3ff" stop-opacity="0.0" />
+                    </radialGradient>
+
+                    <!-- inner glow filter: blur + composite to push glow inward -->
+                    <filter id="innerGlow" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blurInner" />
+                        <feComposite in="blurInner" in2="SourceGraphic" operator="arithmetic" k1="0" k2="1" k3="-1" k4="0" result="innerComp" />
+                        <feMerge>
+                            <feMergeNode in="innerComp" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+
+                    <!-- glass fill for glassmorphism appearance on main nodes -->
+                    <radialGradient id="glassGrad" cx="35%" cy="28%" r="72%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.30" />
+                        <stop offset="30%" stop-color="#dff6ff" stop-opacity="0.12" />
+                        <stop offset="70%" stop-color="#9fd8ff" stop-opacity="0.08" />
+                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="0.18" />
+                    </radialGradient>
+
+                    <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="4" result="gblur" />
+                        <feMerge>
+                            <feMergeNode in="gblur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+
+                    <filter
+                        id="softGlow"
+                        x="-50%"
+                        y="-50%"
+                        width="200%"
+                        height="200%"
+                    >
+                        <feGaussianBlur stdDeviation="6" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+
+                    <!-- gradient for child edges -->
+                    <linearGradient id="childGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#7dd3fc" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#60a5fa" stop-opacity="1" />
+                    </linearGradient>
+
+                    <!-- gradient for scenario->child edges (distinct visual) -->
+                    <linearGradient id="scenarioEdgeGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#9be7ff" stop-opacity="0.98" />
+                        <stop offset="50%" stop-color="#6fb8ff" stop-opacity="0.9" />
+                        <stop offset="100%" stop-color="#3fa6ff" stop-opacity="0.82" />
+                    </linearGradient>
+
+                    <!-- subtle gradient + glow for main edges -->
+                    <linearGradient id="edgeGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#6fe7ff" stop-opacity="0.85" />
+                        <stop offset="60%" stop-color="#66b8ff" stop-opacity="0.7" />
+                        <stop offset="100%" stop-color="#9bd0ff" stop-opacity="0.55" />
+                    </linearGradient>
+
+                    <filter id="edgeGlow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="blurEdge" />
+                        <feMerge>
+                            <feMergeNode in="blurEdge" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+
+                    <!-- arrow marker for child edges -->
+                    <marker id="childArrow" markerUnits="strokeWidth" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                        <path d="M0,0 L8,4 L0,8 z" fill="url(#childGrad)" />
+                    </marker>
+
+                    <!-- arrow marker for scenario edges -->
+                    <!-- scenario arrow removed: prefer clean lines without arrowheads -->
+
+                    <filter
+                        id="innerShadow"
+                        x="-20%"
+                        y="-20%"
+                        width="140%"
+                        height="140%"
+                    >
+                        <feOffset dx="0" dy="2" result="off" />
+                        <feGaussianBlur
+                            in="off"
+                            stdDeviation="2"
+                            result="blur2"
+                        />
+                        <feComposite
+                            in="SourceGraphic"
+                            in2="blur2"
+                            operator="over"
+                        />
+                    </filter>
+
+                    <!-- soft specular blur for highlights (used on small highlight shapes) -->
+                    <filter id="specular" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="spec" />
+                        <feMerge>
+                            <feMergeNode in="spec" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <!-- subtle background rect for contrast (rounded + border/glow) -->
+                <rect
+                    x="0"
+                    y="0"
+                    :width="width"
+                    :height="height"
+                    rx="12"
+                    ry="12"
+                    fill="url(#bgGrad)"
+                />
+                <!-- container border/glow to emulate glass frame -->
+                <rect
+                    x="1"
+                    y="1"
+                    :width="width - 2"
+                    :height="height - 2"
+                    rx="12"
+                    ry="12"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.04)"
+                    stroke-width="1"
+                    filter="url(#softGlow)"
+                />
+                
+
+                <!-- edges -->
+                <g class="viewport-group" :style="viewportStyle">
+                    <!-- edges -->
+                    <g class="edges">
+                        <line
+                            v-for="(e, idx) in edges"
+                            :key="`edge-${idx}`"
+                            :x1="renderedNodeById(e.source)?.x ?? undefined"
+                            :y1="renderedNodeById(e.source)?.y ?? undefined"
+                            :x2="renderedNodeById(e.target)?.x ?? undefined"
+                            :y2="renderedNodeById(e.target)?.y ?? undefined"
+                            class="edge-line"
+                            :stroke="`url(#edgeGrad)`"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            filter="url(#edgeGlow)"
+                            stroke-opacity="0.9"
+                        />
+                    </g>
+
+                    <!-- Create capability control: placed under the home control -->
+                    <g
+                        class="scenario-create-control"
+                        :transform="`translate(${Math.max(48, width - 56)}, 72)`"
+                        @click.stop="createCapabilityClicked"
+                        style="cursor: pointer"
+                        aria-label="Crear capacidad"
+                    >
+                        <circle r="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)"/>
+                        <title>Crear capacidad</title>
+                        <text x="0" y="4" text-anchor="middle" font-size="14" fill="#dbeafe" style="font-weight:700">+</text>
+                    </g>
+                    </g>
+                    <!-- scenario -> capability edges (distinct group so we can style/animate) -->
+                    <g class="scenario-edges">
+                        <line
+                            v-for="(e, idx) in scenarioEdges"
+                            :key="`scenario-edge-${idx}`"
+                            :x1="renderedNodeById(e.source)?.x ?? undefined"
+                            :y1="renderedNodeById(e.source)?.y ?? undefined"
+                            :x2="renderedNodeById(e.target)?.x ?? undefined"
+                            :y2="renderedNodeById(e.target)?.y ?? undefined"
+                                class="edge-line scenario-edge"
+                                stroke="url(#scenarioEdgeGrad)"
+                                stroke-width="2.6"
+                                stroke-linecap="round"
+                                filter="url(#edgeGlow)"
+                                stroke-opacity="0.95"
+                        />
+                    </g>
+
+                    <!-- nodes -->
+                    <g class="nodes">
+                    <!-- scenario/origin node (optional) -->
+                    <g
+                        v-if="scenarioNode"
+                        :style="{ transform: `translate(${scenarioNode.x}px, ${scenarioNode.y}px)` }"
+                        class="node-group scenario-node"
+                        :data-node-id="scenarioNode.id"
+                        @click.stop="openScenarioInfo"
+                        :title="'Ver información del escenario'"
+                        style="cursor: pointer"
+                    >
+                        <title>{{ scenarioNode.name }}</title>
+                        <!-- Smaller parent node (scenario) with icon support -->
+                        <circle
+                            class="node-circle"
+                            r="22"
+                            fill="url(#glassGrad)"
+                            filter="url(#softGlow)"
+                            stroke="rgba(255,255,255,0.06)"
+                            stroke-width="1.2"
+                        />
+                    </g>
+
+                    <g
+                        v-for="node in nodes"
+                        :key="node.id"
+                        :style="{ transform: `translate(${renderNodeX(node)}px, ${node.y}px)` }"
+                        class="node-group"
+                        :data-node-id="node.id"
+                        :class="{
+                            critical: !!node.is_critical,
+                            focused: focusedNode && focusedNode.id === node.id,
+                            dragging: dragging && dragging.id === node.id,
+                            small: focusedNode && focusedNode.id !== node.id,
+                        }"
+                        @pointerdown.prevent="startDrag(node, $event)"
+                        @click.stop="(e) => handleNodeClick(node, e)"
+                        @contextmenu.prevent.stop="(e) => openNodeContextMenu(node, e)"
+                    >
+                        <title>{{ node.name }}</title>
+                        <circle
+                            class="node-circle"
+                            r="34"
+                            fill="url(#bubbleOuterGrad)"
+                            filter="url(#innerGlow)"
+                            stroke="rgba(255,255,255,0.12)"
+                            stroke-opacity="1"
+                            stroke-width="1.2"
+                        />
+                        <!-- iridescent sheen overlay: semitransparent, uses blend to simulate soap colors -->
+                        <circle
+                            class="node-iridescence"
+                            r="34"
+                            fill="url(#iridescentGrad)"
+                            opacity="0.22"
+                            style="mix-blend-mode: screen"
+                        />
+                        <!-- bubble-style highlight: small blurred specular on top-left -->
+                        <!-- <ellipse
+                            class="node-reflection"
+                            cx="-12"
+                            cy="-14"
+                            rx="14"
+                            ry="9"
+                            fill="#ffffff"
+                            fill-opacity="0.18"
+                            transform="rotate(-22)"
+                            filter="url(#specular)"
+                        /> -->
+                        <!-- inner core that suggests nucleus -->
+                        <circle
+                            class="node-core"
+                            r="10"
+                            fill="url(#bubbleCoreGrad)"
+                            filter="url(#specular)"
+                        />
+                        <!-- subtle glossy rim to enhance bubble feel -->
+                        <circle
+                            class="node-rim"
+                            r="34"
+                            fill="none"
+                            stroke="#ffffff"
+                            stroke-opacity="0.08"
+                            stroke-width="1.4"
+                        />
+                        <circle
+                            v-if="node.is_critical"
+                            class="node-inner"
+                            r="12"
+                            fill="#ff5050"
+                            fill-opacity="0.95"
+                        />
+                        <text :x="0" :y="38" text-anchor="middle" class="node-label">
+                            <tspan v-for="(line, idx) in ((node as any).displayName ?? node.name).split('\n')" :key="idx" :x="0" :dy="idx === 0 ? 0 : 12">{{ line }}</tspan>
+                        </text>
+                    </g>
+
+                    <!-- child nodes (competencies) -->
+                    <g class="child-nodes">
+                        <g
+                            v-for="c in childNodes"
+                            :key="c.id"
+                            :style="{ transform: `translate(${c.x}px, ${c.y}px) scale(${c.animScale ?? 1})`, opacity: (c.animOpacity ?? 1), transitionDelay: (c.animDelay ? c.animDelay + 'ms' : undefined), filter: c.animFilter ? c.animFilter : undefined }"
+                                class="node-group child-node"
+                            :data-node-id="c.id"
+                            @click.stop="(e) => handleNodeClick(c, e)"
+                            @contextmenu.prevent.stop="(e) => openNodeContextMenu(c, e)"
+                        >
+                            <title>{{ c.name }}</title>
+                            <circle
+                                class="node-circle"
+                                :r="20"
+                                fill="#2b2b2b"
+                                stroke="#ffffff"
+                                stroke-opacity="0.06"
+                                stroke-width="1"
+                            />
+                            <!-- child node: iridescent sheen + small reflection to match bubble style -->
+                            <circle
+                                class="node-iridescence child-iridescence"
+                                :r="20"
+                                fill="url(#iridescentGrad)"
+                                opacity="0.18"
+                                style="mix-blend-mode: screen"
+                            />
+                            <ellipse
+                                class="node-reflection child-reflection"
+                                cx="-6"
+                                cy="-6"
+                                rx="7"
+                                ry="4.5"
+                                fill="#ffffff"
+                                fill-opacity="0.14"
+                                transform="rotate(-22)"
+                                filter="url(#specular)"
+                            />
+                            <circle
+                                class="node-rim child-rim"
+                                :r="20"
+                                fill="none"
+                                stroke="#ffffff"
+                                stroke-opacity="0.06"
+                                stroke-width="1"
+                            />
+                            <circle
+                                class="node-gloss child-gloss"
+                                :r="22"
+                                fill="none"
+                                stroke="#ffffff"
+                                stroke-opacity="0.04"
+                                stroke-width="4"
+                                filter="url(#softGlow)"
+                            />
+                            <text :x="0" :y="22" text-anchor="middle" class="node-label" style="font-size:10px">
+                                <tspan v-for="(line, idx) in String((c as any).displayName ?? c.name).split('\n')" :key="idx" :x="0" :dy="idx === 0 ? 0 : 10">{{ line }}</tspan>
+                            </text>
+                        </g>
+                    </g>
+
+                    <!-- skill nodes (grandchildren) -->
+                    <g class="skill-nodes">
+                        <g
+                            v-for="s in grandChildNodes"
+                            :key="s.id"
+                            :style="{ transform: `translate(${s.x}px, ${s.y}px) scale(${s.animScale ?? 1})`, opacity: (s.animOpacity ?? 1) }"
+                            class="node-group skill-node"
+                            :data-node-id="s.id"
+                            @click.stop="(e) => handleSkillClick(s, e)"
+                        >
+                            <title>{{ s.name }}</title>
+                            <circle class="node-circle" :r="14" fill="#16324a" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
+                            <circle class="node-iridescence" :r="14" fill="url(#iridescentGrad)" opacity="0.12" style="mix-blend-mode: screen" />
+                            <text :x="0" :y="4" text-anchor="middle" class="node-label" style="font-size:10px">{{ s.name }}</text>
+                        </g>
+                    </g>
+                    <!-- Controles integrados en el SVG: reordenar / restaurar vista -->
+                    <g
+                        class="diagram-control reorder-control"
+                        :transform="`translate(${Math.max(48, width - 56)}, 108)`"
+                        @click.stop="reorderNodes"
+                        style="cursor: pointer"
+                    >
+                        <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
+                        <title>Reordenar nodos</title>
+                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">R</text>
+                    </g>
+
+                    <g
+                        class="diagram-control restore-control"
+                        :transform="`translate(${Math.max(48, width - 56)}, 144)`"
+                        @click.stop="restoreView"
+                        style="cursor: pointer"
+                    >
+                        <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
+                        <title>Restaurar vista</title>
+                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">↺</text>
+                    </g>
+                </g>
+            </svg>
+
+            <!-- Context menu overlay (right-click) replaced with Vuetify v-menu -->
+            <v-menu v-model="contextMenuVisible" absolute offset-y :open-on-click="false" :style="{ left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000 }">
+                <template #default>
+                    <div ref="contextMenuEl" class="node-context-menu-v" style="min-width:250px;">
+                        <v-list density="compact">
+                            <v-list-item @click="contextViewEdit" class="node-context-item">
+                                <v-list-item-icon>
+                                    <v-icon icon="mdi-eye-outline" />
+                                </v-list-item-icon>
+                                <v-list-item-title>Ver detalles</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()" class="node-context-item">
+                                <v-list-item-icon>
+                                    <v-icon icon="mdi-plus" />  
+                                </v-list-item-icon>
+                                <v-list-item-title>{{ contextMenuIsChild ? 'Crear skill' : 'Crear competencia' }}</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item v-if="contextMenuIsChild" @click="contextAttachExistingSkill" class="node-context-item">
+                                <v-list-item-icon>
+                                    <v-icon icon="mdi-link-variant" />
+                                </v-list-item-icon>
+                                <v-list-item-title>Agregar skill existente</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item @click="contextDeleteNode" class="node-context-item">
+                                <v-list-item-icon>
+                                    <v-icon icon="mdi-delete-outline" />
+                                </v-list-item-icon>
+                                <v-list-item-title class="text-error">Eliminar nodo</v-list-item-title>
+                            </v-list-item>
+                        </v-list>
+                    </div>
+                </template>
+            </v-menu>
+
+            <!-- Reemplazo: mostrar detalles en modal en lugar de panel lateral -->
+            <v-dialog v-model="showSidebar" max-width="980" persistent scrollable>
+                <v-card>
+                    <v-card-title class="d-flex justify-space-between align-center">
+                        <strong>{{ displayNode ? displayNode.name : (showSidebar ? 'Escenario' : 'Detalle') }}</strong>
+                        <div class="d-flex align-center" style="gap:8px">
+                            <v-btn icon small variant="text" @click="toggleSidebarTheme" :title="sidebarTheme === 'dark' ? 'Tema claro' : 'Tema oscuro'">
+                                <v-icon :icon="sidebarTheme === 'dark' ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
+                            </v-btn>
+                            <v-btn icon small variant="text" @click="showSidebar = false">
+                                <v-icon icon="mdi-close" />
+                            </v-btn>
+                        </div>
+                    </v-card-title>
+                    <v-card-text style="max-height:70vh; overflow:auto;">
+                        <template v-if="displayNode">
+                            <div class="text-xs text-white/60 mb-2">
+                                <div><strong>ID:</strong> {{ (displayNode as any).id ?? '—' }}</div>
+                                <div><strong>Competencias:</strong> {{ ((displayNode as any).competencies || []).length }}</div>
+                            </div>
+
+                            <div class="text-small text-medium-emphasis mb-2">
+                                <template v-if="(displayNode as any).skills || (displayNode as any).compId">
+                                    <div style="position:relative;">
+                                        <div style="max-height:360px; overflow:auto; padding-right:12px;">
+                                            <v-form>
+                                                <v-text-field v-model="editChildName" label="Nombre" required />
+                                                <v-textarea v-model="editChildDescription" label="Descripción" rows="3" />
+                                                <div style="display:flex; gap:8px">
+                                                    <v-btn small color="primary" @click="createSkillDialogVisible = true">Crear nueva skill</v-btn>
+                                                    <v-btn small color="secondary" @click="(async ()=>{ await loadAvailableSkills(); selectSkillDialogVisible = true; })()">Seleccionar skill existente</v-btn>
+                                                    <v-text-field v-model="editChildReadiness" label="Readiness" type="number" style="flex:1" />
+                                                </div>
+
+                                                <div style="margin-top:12px; font-weight:700">Atributos de la relación con la capacidad</div>
+                                                <div style="display:flex; gap:8px">
+                                                    <v-text-field v-model="editChildPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
+                                                    <v-text-field v-model="editChildPivotPriority" label="Priority" type="number" style="flex:1" />
+                                                </div>
+                                                <v-text-field v-model="editChildPivotRequiredLevel" label="Required level" type="number" />
+                                                <v-checkbox v-model="editChildPivotIsCritical" label="Is critical" />
+                                                <v-textarea v-model="editChildPivotRationale" label="Rationale" rows="2" />
+
+                                                <div style="display:flex; gap:8px; margin-top:12px">
+                                                    <v-btn color="error" text @click="selectedChild = null">Cerrar</v-btn>
+                                                    <v-spacer />
+                                                    <v-btn color="primary" @click="saveSelectedChild">Guardar</v-btn>
+                                                    <v-btn text @click="(selectedChild = null, resetFocusedEdits())">Cancelar</v-btn>
+                                                </div>
+                                            </v-form>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template v-else>
+                                    <div style="position:relative;">
+                                        <div style="display:flex; gap:8px; margin-bottom:8px">
+                                            <v-btn small color="primary" @click="createCompDialogVisible = true">Crear competencia</v-btn>
+                                            <v-btn small color="secondary" @click="(async ()=>{ await fetchAvailableCompetencies(); addExistingCompDialogVisible = true; })()">Agregar existente</v-btn>
+                                        </div>
+                                        <div style="max-height:360px; overflow:auto; padding-right:12px;">
+                                            <v-form>
+                                                <v-text-field v-model="editCapName" label="Nombre" required />
+                                                <v-textarea v-model="editCapDescription" label="Descripción" rows="3" />
+                                                <div style="display:flex; gap:8px">
+                                                    <v-text-field v-model="editCapImportance" label="Importancia" type="number" style="flex:1" />
+                                                    <v-text-field v-model="editCapLevel" label="Nivel" type="number" style="flex:1" />
+                                                </div>
+
+                                                <div style="margin-top:12px; font-weight:700">Atributos de la relación con el escenario</div>
+                                                <v-select v-model="editPivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
+                                                <div style="display:flex; gap:8px">
+                                                    <v-text-field v-model="editPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
+                                                    <v-text-field v-model="editPivotPriority" label="Priority" type="number" style="flex:1" />
+                                                </div>
+                                                <v-text-field v-model="editPivotRequiredLevel" label="Required level" type="number" />
+                                                <v-checkbox v-model="editPivotIsCritical" label="Is critical" />
+                                                <v-textarea v-model="editPivotRationale" label="Rationale" rows="2" />
+
+                                                <div style="display:flex; gap:8px; margin-top:12px">
+                                                    <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar</v-btn>
+                                                    <v-spacer />
+                                                    <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode">Guardar</v-btn>
+                                                    <v-btn text @click="resetFocusedEdits">Cancelar</v-btn>
+                                                </div>
+                                            </v-form>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template v-else>
+                            <div>
+                                <div style="font-weight:700">Escenario</div>
+                                <div><strong>Nombre:</strong> {{ props.scenario?.name ?? '—' }}</div>
+                                <div><strong>ID:</strong> {{ props.scenario?.id ?? '—' }}</div>
+                                <div><strong>Descripción:</strong> {{ props.scenario?.description ?? '—' }}</div>
+                                <div style="margin-top:6px"><strong>Estado:</strong> {{ props.scenario?.status ?? '—' }} • <strong>Año fiscal:</strong> {{ props.scenario?.fiscal_year ?? '—' }}</div>
+                                <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
+                                    <v-btn small color="secondary" @click="showScenarioRaw = !showScenarioRaw">{{ showScenarioRaw ? 'Ocultar JSON' : 'Ver JSON crudo' }}</v-btn>
+                                    <v-btn small text @click="() => { void loadTreeFromApi(props.scenario?.id); }">Refrescar árbol</v-btn>
+                                </div>
+                                <div v-if="showScenarioRaw" style="margin-top:12px; max-height:420px; overflow:auto; background:rgba(0,0,0,0.04); padding:8px; border-radius:6px">
+                                    <pre style="white-space:pre-wrap; word-break:break-word">{{ capabilityTreeRaw ? JSON.stringify(capabilityTreeRaw, null, 2) : 'No hay datos cargados. Pulsa "Refrescar árbol".' }}</pre>
+                                </div>
+                            </div>
+                        </template>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="showSidebar = false">Cerrar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <!-- Create competency dialog -->
+            <v-dialog v-model="createCompDialogVisible" max-width="640">
+                <v-card>
+                    <v-card-title>Crear competencia</v-card-title>
+                    <v-card-text>
+                        <v-form>
+                            <v-text-field v-model="newCompName" label="Nombre" required />
+                            <v-textarea v-model="newCompDescription" label="Descripción" rows="3" />
+                            <v-text-field v-model="newCompReadiness" label="Readiness" type="number" />
+                            <v-textarea v-model="newCompSkills" label="Skills (coma-separadas)" rows="2" />
+                        </v-form>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="createCompDialogVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" @click="createAndAttachComp">Crear y asociar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <!-- Create skill dialog -->
+            <v-dialog v-model="createSkillDialogVisible" max-width="640">
+                <v-card>
+                    <v-card-title>Crear nueva skill</v-card-title>
+                    <v-card-text>
+                        <v-form>
+                            <v-text-field v-model="newSkillName" label="Nombre" required />
+                            <v-text-field v-model="newSkillCategory" label="Categoría" />
+                            <v-textarea v-model="newSkillDescription" label="Descripción" rows="3" />
+                        </v-form>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="createSkillDialogVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" :loading="savingSkill" @click="createAndAttachSkill">Crear y asociar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <!-- Select existing skill dialog -->
+            <v-dialog v-model="selectSkillDialogVisible" max-width="720">
+                <v-card>
+                    <v-card-title>Seleccionar skill existente</v-card-title>
+                    <v-card-text>
+                        <v-select
+                            :items="availableSkills"
+                            item-title="name"
+                            item-value="id"
+                            v-model="selectedSkillId"
+                            label="Skill"
+                        />
+                        <div v-if="availableSkills.length === 0" style="margin-top:8px">No se encontraron skills.</div>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="selectSkillDialogVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" :loading="attachingSkill" @click="attachExistingSkill">Asociar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <!-- Add existing competency dialog -->
+            <v-dialog v-model="addExistingCompDialogVisible" max-width="640">
+                <v-card>
+                    <v-card-title>Agregar competencia existente</v-card-title>
+                    <v-card-text>
+                        <v-select :items="availableExistingCompetencies" item-title="name" item-value="id" v-model="addExistingSelection" label="Competencia" />
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="addExistingCompDialogVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" @click="attachExistingComp">Agregar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <!-- Create capability modal: form exposes fields from `capabilities` and `scenario_capabilities` -->
+            <v-dialog v-model="createModalVisible" max-width="720">
+                <v-card>
+                    <v-card-title>Crear capacidad</v-card-title>
+                    <v-card-text>
+                        <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
+                            <v-text-field v-model="newCapName" label="Nombre" required />
+                            <v-text-field v-model="newCapType" label="Tipo" />
+                            <v-text-field v-model="newCapCategory" label="Categoría" />
+                            <v-text-field v-model="newCapImportance" label="Importancia (1-5)" type="number" />
+                            <v-textarea v-model="newCapDescription" label="Descripción" rows="3" style="grid-column: 1 / -1" />
+                        </div>
+
+                        <div class="mt-3" style="margin-top:12px">
+                            <div style="font-weight:700; margin-bottom:6px">Atributos para el escenario (scenario_capabilities)</div>
+                            <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
+                                <v-select v-model="pivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
+                                <v-text-field v-model="pivotStrategicWeight" label="Strategic weight" type="number" />
+                                <v-text-field v-model="pivotPriority" label="Priority (1-5)" type="number" />
+                                <v-text-field v-model="pivotRequiredLevel" label="Required level (1-5)" type="number" />
+                                <v-checkbox v-model="pivotIsCritical" label="Is critical" />
+                                <v-textarea v-model="pivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1" />
+                            </div>
+                        </div>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="createModalVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" :loading="creating" @click="saveNewCapability">Guardar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            
+            <div class="cap-list" v-if="nodes.length === 0">
+                No hay capacidades para mostrar.
+            </div>
+                <!-- debug controls removed -->
+        </div>
+    </div>
+</template>
 
 <style scoped>
 .prototype-map-root {
