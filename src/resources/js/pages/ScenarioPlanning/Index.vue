@@ -2517,6 +2517,13 @@ if (!edges.value) edges.value = [];
                         <stop offset="100%" stop-color="#3fa6ff" stop-opacity="0.82" />
                     </linearGradient>
 
+                    <!-- gradient for compass needle (blue) -->
+                    <linearGradient id="compassNeedleGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#08306b" stop-opacity="1" />
+                        <stop offset="60%" stop-color="#1e66d6" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#9fe6ff" stop-opacity="1" />
+                    </linearGradient>
+
                     <!-- subtle gradient + glow for main edges -->
                     <linearGradient id="edgeGrad" x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stop-color="#6fe7ff" stop-opacity="0.85" />
@@ -2668,6 +2675,22 @@ if (!edges.value) edges.value = [];
                             stroke="rgba(255,255,255,0.06)"
                             stroke-width="1.2"
                         />
+                        <!-- Compass rose icon centered on the scenario node (larger, stylized) -->
+                        <g class="scenario-icon" transform="translate(0,0) scale(1.6)">
+                            <!-- subtle backing circle for contrast -->
+                            <circle r="9" fill="rgba(0,0,0,0.28)" />
+                            <!-- elegant 8-point rose -->
+                            <g class="rose" transform="translate(0,0)">
+                                <!-- outline / secondary points -->
+                                <path class="rose-outline" d="M0,-14 L4,-4 L14,0 L4,4 L0,14 L-4,4 L-14,0 L-4,-4 Z" />
+                                <!-- primary north needle -->
+                                <path class="rose-primary" d="M0,-14 L5,0 L0,10 L-5,0 Z" />
+                                <!-- primary south needle (mirrored) -->
+                                <path class="rose-secondary" d="M0,14 L5,0 L0,-10 L-5,0 Z" fill="url(#compassNeedleGrad)" />
+                                <!-- center hub -->
+                                <circle class="rose-center" r="2" />
+                            </g>
+                        </g>
                     </g>
 
                     <g
@@ -3284,6 +3307,28 @@ if (!edges.value) edges.value = [];
 .scenario-node {
     pointer-events: none;
     transition: transform 360ms cubic-bezier(.22,.9,.3,1);
+}
+
+/* compass/rose styling */
+.scenario-node .scenario-icon {
+    pointer-events: none;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+.scenario-node .scenario-icon .rose-outline {
+    fill: rgba(255,255,255,0.08);
+    stroke: rgba(255,255,255,0.12);
+    stroke-width: 0.6;
+}
+.scenario-node .scenario-icon .rose-primary {
+    fill: #ff6b6b; /* highlighted north needle */
+}
+.scenario-node .scenario-icon .rose-secondary {
+    /* fill is provided by SVG gradient (compassNeedleGrad) */
+}
+.scenario-node .scenario-icon .rose-center {
+    fill: #ffffff;
+    fill-opacity: 0.95;
 }
 
 /* animated scenario-edge: moving dash + soft pulse */
