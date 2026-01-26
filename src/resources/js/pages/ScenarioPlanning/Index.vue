@@ -2681,12 +2681,17 @@ if (!edges.value) edges.value = [];
                             <circle r="9" fill="rgba(0,0,0,0.28)" />
                             <!-- elegant 8-point rose -->
                             <g class="rose" transform="translate(0,0)">
+                                <g class="rose-x" transform="translate(0,2)">
+                                    <path class="rose-x-arm" d="M0,-14 L5,0 L0,10 L-5,0 Z" transform="rotate(45) scale(1.2)" fill="rgba(255,255,255,0.06)" />
+                                    <path class="rose-x-arm" d="M0,-14 L5,0 L0,10 L-5,0 Z" transform="rotate(-45) scale(1.2)" fill="rgba(255,255,255,0.06)" />
+                                </g>
                                 <!-- outline / secondary points -->
                                 <path class="rose-outline" d="M0,-14 L4,-4 L14,0 L4,4 L0,14 L-4,4 L-14,0 L-4,-4 Z" />
                                 <!-- primary north needle -->
                                 <path class="rose-primary" d="M0,-14 L5,0 L0,10 L-5,0 Z" />
-                                <!-- primary south needle (mirrored) -->
-                                <path class="rose-secondary" d="M0,14 L5,0 L0,-10 L-5,0 Z" fill="url(#compassNeedleGrad)" />
+                                <!-- primary south needle (mirrored) - aumentada 10% -->
+                                <path class="rose-secondary" d="M0,14 L5,0 L0,-10 L-5,0 Z" transform="scale(1.1)" fill="url(#compassNeedleGrad)" />
+                                <!-- subtle X behind center using the needle shapes (rotated) -->
                                 <!-- center hub -->
                                 <circle class="rose-center" r="2" />
                             </g>
