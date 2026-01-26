@@ -212,6 +212,7 @@
                     stroke-width="1"
                     filter="url(#softGlow)"
                 />
+                
 
                 <!-- edges -->
                 <g class="viewport-group" :style="viewportStyle">
@@ -231,6 +232,7 @@
                             filter="url(#edgeGlow)"
                             stroke-opacity="0.9"
                         />
+                    </g>
                     </g>
                     <!-- scenario -> capability edges (distinct group so we can style/animate) -->
                     <g class="scenario-edges">
@@ -465,19 +467,30 @@
                             </text>
                         </g>
                     </g>
+                    <!-- Controles integrados en el SVG: reordenar / restaurar vista -->
+                    <g
+                        class="diagram-control reorder-control"
+                        :transform="`translate(${Math.max(48, width - 56)}, 108)`"
+                        @click.stop="reorderNodes"
+                        style="cursor: pointer"
+                    >
+                        <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
+                        <title>Reordenar nodos</title>
+                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">R</text>
+                    </g>
+
+                    <g
+                        class="diagram-control restore-control"
+                        :transform="`translate(${Math.max(48, width - 56)}, 144)`"
+                        @click.stop="restoreView"
+                        style="cursor: pointer"
+                    >
+                        <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
+                        <title>Restaurar vista</title>
+                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">↺</text>
                     </g>
                 </g>
             </svg>
-
-            <!-- Reorder control -->
-            <div style="position:absolute; right:16px; top:12px; z-index:99999">
-                <v-btn small color="secondary" @click="reorderNodes" title="Reordenar nodos">
-                    Reordenar
-                </v-btn>
-                    <v-btn small color="primary" @click="restoreView" title="Restaurar vista" style="margin-left:8px">
-                        Restaurar vista
-                    </v-btn>
-            </div>
 
             <!-- Reemplazo: mostrar detalles en modal en lugar de panel lateral -->
             <v-dialog v-model="showSidebar" max-width="980" persistent scrollable>
