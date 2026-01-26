@@ -876,6 +876,27 @@ function onEditSliderInput(val: number) {
     el.scrollTop = target;
 }
 
+// Show only a selected competency and its parent (optionally keep scenario visible)
+function showOnlySelectedAndParent(childId: number, keepScenario = true) {
+    try {
+        const parentEdge = childEdges.value.find((e) => e.target === childId);
+        const parentId = parentEdge ? parentEdge.source : null;
+        const scenarioId = scenarioNode.value?.id ?? null;
+        nodes.value = nodes.value.map((n: any) => {
+            if (n.id === parentId) return { ...n, __hidden: false, __displayNone: false };
+            if (keepScenario && n.id === scenarioId) return { ...n, __hidden: false, __displayNone: false };
+            return { ...n, __hidden: true, __displayNone: true };
+        });
+
+        childNodes.value = childNodes.value.map((c: any) => {
+            if (c.id === childId) return { ...c, __hidden: false, __displayNone: false };
+            // keep siblings of same parent visible (optional) — hide them to show only selected
+            if (c.__parentId === parentId || c.parentId === parentId) return { ...c, __hidden: true, __displayNone: true };
+            return { ...c, __hidden: true, __displayNone: true };
+        });
+    } catch (e) { void e; }
+}
+
 function syncSliderFromScroll() {
     const el = editFormScrollEl.value;
     if (!el) return;
@@ -1896,6 +1917,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 selectedChild.value = node as any;
                 if (parentNode) focusedNode.value = parentNode;
                 else focusedNode.value = node as any;
+                // hide everything except the selected competency and its parent
+                try {
+                    const cid = (selectedChild.value as any)?.id ?? (node as any)?.id;
+                    if (cid != null) showOnlySelectedAndParent(cid, true);
+                } catch (e) { void e; }
                 // ensure form scroll resets so fields are visible
                 nextTick(() => {
                     try { if (editFormScrollEl.value) editFormScrollEl.value.scrollTop = 0; } catch (e) { void e; }
@@ -1975,6 +2001,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             // set selected child for sidebar and keep focusedNode as parent so layout remains stable
             selectedChild.value = freshChild || node;
             focusedNode.value = parentNode;
+            // hide all except selected competency and its parent
+            try {
+                const cid = (selectedChild.value as any)?.id ?? (node as any)?.id;
+                if (cid != null) showOnlySelectedAndParent(cid, true);
+            } catch (e) { void e; }
             // Ensure the selected child remains visible (do not let it disappear)
             try {
                 const fid = (selectedChild.value as any)?.id ?? (focusedNode.value as any).id;
