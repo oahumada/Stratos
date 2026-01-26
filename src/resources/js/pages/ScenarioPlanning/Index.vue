@@ -348,6 +348,7 @@
                         }"
                         @pointerdown.prevent="startDrag(node, $event)"
                         @click.stop="(e) => handleNodeClick(node, e)"
+                        @contextmenu.prevent.stop="(e) => openNodeContextMenu(node, e)"
                     >
                         <title>{{ node.name }}</title>
                         <circle
@@ -416,6 +417,7 @@
                                 class="node-group child-node"
                             :data-node-id="c.id"
                             @click.stop="(e) => handleNodeClick(c, e)"
+                            @contextmenu.prevent.stop="(e) => openNodeContextMenu(c, e)"
                         >
                             <title>{{ c.name }}</title>
                             <circle
@@ -491,6 +493,15 @@
                     </g>
                 </g>
             </svg>
+
+            <!-- Context menu overlay (right-click) -->
+            <div v-if="contextMenuVisible" class="node-context-menu" :style="{ position: 'absolute', left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000, background: 'var(--v-theme-surface, #0b1320)', padding: '6px', borderRadius: '6px', boxShadow: '0 6px 18px rgba(0,0,0,0.6)', minWidth: '160px' }">
+                <div style="display:flex; flex-direction:column; gap:6px">
+                    <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:var(--v-theme-on-surface, #dbeafe); background:transparent; border:none" @click="contextViewEdit">Ver / Editar detalles</button>
+                    <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:var(--v-theme-on-surface, #dbeafe); background:transparent; border:none" @click="contextCreateChild">Crear hijo</button>
+                    <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:#ff8a80; background:transparent; border:none" @click="contextDeleteNode">Eliminar nodo</button>
+                </div>
+            </div>
 
             <!-- Reemplazo: mostrar detalles en modal en lugar de panel lateral -->
             <v-dialog v-model="showSidebar" max-width="980" persistent scrollable>
@@ -906,6 +917,106 @@ const newSkillCategory = ref('');
 const newSkillDescription = ref('');
 const savingSkill = ref(false);
 const attachingSkill = ref(false);
+
+// Context menu state (right-click on nodes)
+const contextMenuVisible = ref(false);
+const contextMenuLeft = ref(0);
+const contextMenuTop = ref(0);
+const contextMenuTarget = ref<any | null>(null);
+const contextMenuIsChild = ref(false);
+
+function openNodeContextMenu(node: any, ev: MouseEvent) {
+    try {
+        ev.preventDefault();
+        ev.stopPropagation();
+    } catch (e) { void e; }
+    const rect = mapRoot.value ? mapRoot.value.getBoundingClientRect() : { left: 0, top: 0 };
+    contextMenuLeft.value = Math.max(8, (ev.clientX - rect.left));
+    contextMenuTop.value = Math.max(8, (ev.clientY - rect.top));
+    contextMenuTarget.value = node;
+    contextMenuIsChild.value = !!(node && node.id != null && node.id < 0);
+    contextMenuVisible.value = true;
+}
+
+function closeContextMenu() {
+    contextMenuVisible.value = false;
+    contextMenuTarget.value = null;
+}
+
+function contextViewEdit() {
+    const node = contextMenuTarget.value;
+    if (!node) return closeContextMenu();
+    // If child, set selectedChild and parent focus
+    if (contextMenuIsChild.value) {
+        selectedChild.value = node as any;
+        const parentEdge = childEdges.value.find((e) => e.target === node.id);
+        const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
+        if (parentNode) focusedNode.value = parentNode;
+    } else {
+        focusedNode.value = node as NodeItem;
+        selectedChild.value = null;
+    }
+    // ensure sidebar opens with the selected/display node
+    // populate edit fields for focused node and load skills for child if needed
+    nextTick(async () => {
+        try {
+            resetFocusedEdits();
+            if (contextMenuIsChild.value && selectedChild.value) {
+                const compId = (selectedChild.value as any)?.compId ?? (selectedChild.value as any)?.raw?.id ?? Math.abs((selectedChild.value as any)?.id || 0);
+                if (compId) {
+                    const skills = await fetchSkillsForCompetency(Number(compId));
+                    try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (e) { void e; }
+                }
+            }
+        } catch (e) { void e; }
+        showSidebar.value = true;
+        closeContextMenu();
+    });
+}
+
+function contextCreateChild() {
+    const node = contextMenuTarget.value;
+    if (!node) return closeContextMenu();
+    // If clicked on a child, try to use its parent as target
+    let targetParent = node;
+    if (node.id != null && node.id < 0) {
+        const parentEdge = childEdges.value.find((e) => e.target === node.id);
+        targetParent = parentEdge ? nodeById(parentEdge.source) : node;
+    }
+    if (targetParent) {
+        focusedNode.value = targetParent as NodeItem;
+    }
+    // open create-competency dialog
+    createCompDialogVisible.value = true;
+    closeContextMenu();
+}
+
+async function contextDeleteNode() {
+    const node = contextMenuTarget.value;
+    if (!node) return closeContextMenu();
+    // focus the node and call existing deletion flow
+    if (node.id != null && node.id < 0) {
+        // if child, set selectedChild
+        selectedChild.value = node as any;
+        const parentEdge = childEdges.value.find((e) => e.target === node.id);
+        if (parentEdge) focusedNode.value = nodeById(parentEdge.source);
+    } else {
+        focusedNode.value = node as NodeItem;
+        selectedChild.value = null;
+    }
+    try {
+        await deleteFocusedNode();
+    } catch (e) { void e; }
+    closeContextMenu();
+}
+
+onMounted(() => {
+    const handler = (ev: MouseEvent) => {
+        if (contextMenuVisible.value) closeContextMenu();
+    };
+    document.addEventListener('pointerdown', handler);
+    onBeforeUnmount(() => document.removeEventListener('pointerdown', handler));
+});
 
 async function loadAvailableSkills() {
     try {
