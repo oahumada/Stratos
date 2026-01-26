@@ -3321,18 +3321,18 @@ if (!edges.value) edges.value = [];
     transform-origin: center;
 }
 .scenario-node .scenario-icon .rose-outline {
-    fill: rgba(255,255,255,0.08);
-    stroke: rgba(255,255,255,0.12);
+    fill: rgba(54, 46, 46, 0.08);
+    stroke: rgba(255, 255, 255, 0.26);
     stroke-width: 0.6;
 }
 .scenario-node .scenario-icon .rose-primary {
-    fill: #cbd0d8; /* north needle: changed from pink to blue */
+    fill: #5f94e9; /* north needle: changed from pink to blue */
 }
 .scenario-node .scenario-icon .rose-secondary {
     /* fill is provided by SVG gradient (compassNeedleGrad) */
 }
 .scenario-node .scenario-icon .rose-center {
-    fill: #ffffff;
+    fill: #03545a;
     fill-opacity: 0.95;
 }
 
