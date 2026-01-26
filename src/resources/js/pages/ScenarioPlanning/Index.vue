@@ -380,7 +380,7 @@
                         <!-- inner core that suggests nucleus -->
                         <circle
                             class="node-core"
-                            r="12"
+                            r="10"
                             fill="url(#bubbleCoreGrad)"
                             filter="url(#specular)"
                         />
@@ -410,7 +410,7 @@
                         <g
                             v-for="c in childNodes"
                             :key="c.id"
-                            :style="{ transform: `translate(${c.x}px, ${c.y}px) scale(${c.__scale ?? 1})`, opacity: (c.__opacity ?? 1), transitionDelay: (c.__delay ? c.__delay + 'ms' : undefined), filter: c.__filter ? c.__filter : undefined }"
+                            :style="{ transform: `translate(${c.x}px, ${c.y}px) scale(${c.animScale ?? 1})`, opacity: (c.animOpacity ?? 1), transitionDelay: (c.animDelay ? c.animDelay + 'ms' : undefined), filter: c.animFilter ? c.animFilter : undefined }"
                                 class="node-group child-node"
                             :data-node-id="c.id"
                             @click.stop="(e) => handleNodeClick(c, e)"
@@ -521,8 +521,19 @@
                                                         <v-text-field v-model="editChildName" label="Nombre" required />
                                                         <v-textarea v-model="editChildDescription" label="Descripción" rows="3" />
                                                         <div style="display:flex; gap:8px">
+                                                            <v-btn small color="primary" @click="createSkillDialogVisible = true">Crear nueva skill</v-btn>
+                                                            <v-btn small color="secondary" @click="(async ()=>{ await loadAvailableSkills(); selectSkillDialogVisible = true; })()">Seleccionar skill existente</v-btn>
                                                             <v-text-field v-model="editChildReadiness" label="Readiness" type="number" style="flex:1" />
-                                                            <v-text-field v-model="editChildSkills" label="Skills (coma-separadas)" style="flex:1" />
+                                                            <div style="flex:1; display:flex; align-items:center">
+                                                                <template v-if="loadingSkills">
+                                                                    <v-progress-circular indeterminate size="20" color="primary" />
+                                                                    <span style="margin-left:8px; color:var(--v-theme-on-surface, #b0bec5); font-size:0.9rem">Cargando skills...</span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    <v-text-field v-model="editChildSkills" label="Skills (coma-separadas)" style="flex:1" />
+                                                                    <div v-if="!editChildSkills && !((displayNode as any).skills || []).length" style="margin-left:8px; font-size:12px; color:#9e9e9e">No se encontraron skills</div>
+                                                                </template>
+                                                            </div>
                                                         </div>
 
                                                         <div style="margin-top:12px; font-weight:700">Atributos de la relación con la capacidad</div>
@@ -605,6 +616,28 @@
                         </template>
                         </div>
                     </template>
+
+                    <!-- When no node is selected, show scenario metadata and an expandable raw JSON view -->
+                    <template v-else>
+                        <div class="sidebar-body text-sm mt-2">
+                            <div style="margin-bottom:8px">
+                                <div style="font-weight:700">Escenario</div>
+                                <div><strong>Nombre:</strong> {{ props.scenario?.name ?? '—' }}</div>
+                                <div><strong>ID:</strong> {{ props.scenario?.id ?? '—' }}</div>
+                                <div><strong>Descripción:</strong> {{ props.scenario?.description ?? '—' }}</div>
+                                <div style="margin-top:6px"><strong>Estado:</strong> {{ props.scenario?.status ?? '—' }} • <strong>Año fiscal:</strong> {{ props.scenario?.fiscal_year ?? '—' }}</div>
+                            </div>
+
+                            <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
+                                <v-btn small color="secondary" @click="showScenarioRaw = !showScenarioRaw">{{ showScenarioRaw ? 'Ocultar JSON' : 'Ver JSON crudo' }}</v-btn>
+                                <v-btn small text @click="() => { void loadTreeFromApi(props.scenario?.id); }">Refrescar árbol</v-btn>
+                            </div>
+
+                            <div v-if="showScenarioRaw" style="margin-top:12px; max-height:420px; overflow:auto; background:rgba(0,0,0,0.04); padding:8px; border-radius:6px">
+                                <pre class="text-caption" style="white-space:pre-wrap; word-break:break-word">{{ capabilityTreeRaw ? JSON.stringify(capabilityTreeRaw, null, 2) : 'No hay datos cargados. Pulsa "Refrescar árbol".' }}</pre>
+                            </div>
+                        </div>
+                    </template>
                 </aside>
             </transition>
 
@@ -624,6 +657,47 @@
                         <v-spacer />
                         <v-btn text @click="createCompDialogVisible = false">Cancelar</v-btn>
                         <v-btn color="primary" @click="createAndAttachComp">Crear y asociar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <!-- Create skill dialog -->
+            <v-dialog v-model="createSkillDialogVisible" max-width="640">
+                <v-card>
+                    <v-card-title>Crear nueva skill</v-card-title>
+                    <v-card-text>
+                        <v-form>
+                            <v-text-field v-model="newSkillName" label="Nombre" required />
+                            <v-text-field v-model="newSkillCategory" label="Categoría" />
+                            <v-textarea v-model="newSkillDescription" label="Descripción" rows="3" />
+                        </v-form>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="createSkillDialogVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" :loading="savingSkill" @click="createAndAttachSkill">Crear y asociar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <!-- Select existing skill dialog -->
+            <v-dialog v-model="selectSkillDialogVisible" max-width="720">
+                <v-card>
+                    <v-card-title>Seleccionar skill existente</v-card-title>
+                    <v-card-text>
+                        <v-select
+                            :items="availableSkills"
+                            item-title="name"
+                            item-value="id"
+                            v-model="selectedSkillId"
+                            label="Skill"
+                        />
+                        <div v-if="availableSkills.length === 0" style="margin-top:8px">No se encontraron skills.</div>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="selectSkillDialogVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" :loading="attachingSkill" @click="attachExistingSkill">Asociar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -723,7 +797,7 @@ function restoreView() {
     childEdges.value = [];
     selectedChild.value = null;
     // clear render flags
-    nodes.value = nodes.value.map((n: any) => ({ ...n, __hidden: false, __displayNone: false }));
+    nodes.value = nodes.value.map((n: any) => ({ ...n, visible: true }));
     // restore original positions if present
     if (originalPositions.value && originalPositions.value.size > 0) {
         nodes.value = nodes.value.map((n) => {
@@ -828,6 +902,10 @@ const showSidebar = ref(false);
 // selectedChild: when a competency (level-2) is clicked we keep it here
 // while `focusedNode` remains the parent capability (so layout treats parent as focused).
 const selectedChild = ref<any>(null);
+const loadingSkills = ref(false);
+// raw capability-tree fetched from API (for debugging / inspection)
+const capabilityTreeRaw = ref<any | null>(null);
+const showScenarioRaw = ref(false);
 // editing focused node / pivot
 const editCapName = ref('');
 const editCapDescription = ref('');
@@ -850,6 +928,92 @@ const newCompDescription = ref('');
 const newCompReadiness = ref<number | null>(null);
 const newCompSkills = ref('');
 const addExistingSelection = ref<number | null>(null);
+
+// Skill modal state (creación / selección)
+const createSkillDialogVisible = ref(false);
+const selectSkillDialogVisible = ref(false);
+const availableSkills = ref<any[]>([]);
+const selectedSkillId = ref<number | null>(null);
+const newSkillName = ref('');
+const newSkillCategory = ref('');
+const newSkillDescription = ref('');
+const savingSkill = ref(false);
+const attachingSkill = ref(false);
+
+async function loadAvailableSkills() {
+    try {
+        const res: any = await api.get('/api/skills');
+        availableSkills.value = Array.isArray(res) ? res : (res?.data ?? []);
+    } catch (e) {
+        availableSkills.value = [];
+    }
+}
+
+async function createAndAttachSkill() {
+    if (!selectedChild.value) return showError('Seleccione una competencia');
+    if (!newSkillName.value || !newSkillName.value.trim()) return showError('El nombre es obligatorio');
+    savingSkill.value = true;
+    try {
+        const payload: any = { name: newSkillName.value.trim() };
+        // Ensure category is provided; DB schema requires non-null category (use 'technical' as default)
+        payload.category = (newSkillCategory.value && String(newSkillCategory.value).trim() !== '') ? newSkillCategory.value : 'technical';
+        if (newSkillDescription.value && String(newSkillDescription.value).trim() !== '') {
+            payload.description = newSkillDescription.value;
+        }
+        const res: any = await api.post('/api/skills', { data: payload });
+        const created = res?.data ?? res;
+        if (created) {
+            // optimistic local attach
+            if (!Array.isArray((selectedChild.value as any).skills)) (selectedChild.value as any).skills = [];
+            (selectedChild.value as any).skills.push(created);
+            // ensure backend pivot exists: attach created skill to competency
+            try {
+                const compId = (selectedChild.value as any).compId ?? (selectedChild.value as any).raw?.id ?? Math.abs((selectedChild.value as any).id || 0);
+                if (compId) {
+                    await api.post(`/api/competencies/${compId}/skills`, { skill_id: created.id });
+                }
+            } catch (attachErr) {
+                // if attach fails, keep optimistic local state and notify later
+                console.warn('Failed to attach skill to competency on backend', attachErr);
+            }
+        }
+        createSkillDialogVisible.value = false;
+        newSkillName.value = '';
+        newSkillCategory.value = '';
+        newSkillDescription.value = '';
+        showSuccess('Skill creada');
+    } catch (e) {
+        showError('Error creando skill');
+    } finally {
+        savingSkill.value = false;
+    }
+}
+
+async function attachExistingSkill() {
+    if (!selectedChild.value) return showError('Seleccione una competencia');
+    if (!selectedSkillId.value) return showError('Seleccione una skill');
+    attachingSkill.value = true;
+    try {
+        // try backend attach endpoint, fall back to local optimistic attach
+        const compId = (selectedChild.value as any).compId ?? (selectedChild.value as any).raw?.id ?? Math.abs((selectedChild.value as any).id || 0);
+        try {
+            await api.post(`/api/competencies/${compId}/skills`, { skill_id: selectedSkillId.value });
+        } catch (e) {
+            const found = availableSkills.value.find((s: any) => s.id === selectedSkillId.value);
+            if (found) {
+                if (!Array.isArray((selectedChild.value as any).skills)) (selectedChild.value as any).skills = [];
+                (selectedChild.value as any).skills.push(found);
+            }
+        }
+        selectSkillDialogVisible.value = false;
+        selectedSkillId.value = null;
+        showSuccess('Skill asociada');
+    } catch (e) {
+        showError('Error asociando skill');
+    } finally {
+        attachingSkill.value = false;
+    }
+}
 
 // selectedChild edit fields (competency + pivot)
 const editChildName = ref('');
@@ -883,16 +1047,16 @@ function showOnlySelectedAndParent(childId: number, keepScenario = true) {
         const parentId = parentEdge ? parentEdge.source : null;
         const scenarioId = scenarioNode.value?.id ?? null;
         nodes.value = nodes.value.map((n: any) => {
-            if (n.id === parentId) return { ...n, __hidden: false, __displayNone: false };
-            if (keepScenario && n.id === scenarioId) return { ...n, __hidden: false, __displayNone: false };
-            return { ...n, __hidden: true, __displayNone: true };
+            if (n.id === parentId) return { ...n, visible: true };
+            if (keepScenario && n.id === scenarioId) return { ...n, visible: true };
+            return { ...n, visible: false };
         });
 
         childNodes.value = childNodes.value.map((c: any) => {
-            if (c.id === childId) return { ...c, __hidden: false, __displayNone: false };
+            if (c.id === childId) return { ...c, visible: true };
             // keep siblings of same parent visible (optional) — hide them to show only selected
-            if (c.__parentId === parentId || c.parentId === parentId) return { ...c, __hidden: true, __displayNone: true };
-            return { ...c, __hidden: true, __displayNone: true };
+            if (c.__parentId === parentId || c.parentId === parentId) return { ...c, visible: false };
+            return { ...c, visible: false };
         });
     } catch (e) { void e; }
 }
@@ -1917,6 +2081,15 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 selectedChild.value = node as any;
                 if (parentNode) focusedNode.value = parentNode;
                 else focusedNode.value = node as any;
+                // load related skills for the selected competency
+                try {
+                    const compId = (selectedChild.value as any)?.compId ?? (selectedChild.value as any)?.raw?.id ?? Math.abs((selectedChild.value as any)?.id || 0);
+                    if (compId) {
+                        const skills = await fetchSkillsForCompetency(Number(compId));
+                        // attach skills onto the selectedChild so the sidebar/watchers can pick them up
+                        try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (e) { void e; }
+                    }
+                } catch (e) { void e; }
                 // hide everything except the selected competency and its parent
                 try {
                     const cid = (selectedChild.value as any)?.id ?? (node as any)?.id;
@@ -1932,7 +2105,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     const fid = (selectedChild.value as any)?.id ?? (focusedNode.value as any).id;
                     if (fid != null) {
                         childNodes.value = childNodes.value.map((ch: any) => {
-                            if (ch.id === fid) return { ...ch, __opacity: 1, __scale: ch.__scale ?? 1, __hidden: false, __displayNone: false } as any;
+                            if (ch.id === fid) return { ...ch, animOpacity: 1, animScale: ch.animScale ?? 1, visible: true } as any;
                             return ch;
                         });
                         const found = childNodeById(fid);
@@ -1974,12 +2147,12 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     try { noAnimations.value = true; } catch (e) { void e; }
                     const parentId = parentNode.id;
                     nodes.value = nodes.value.map((n: any) => {
-                        if (n.id === parentId) return { ...n, __hidden: false, __displayNone: false };
-                        return { ...n, __hidden: true };
+                        if (n.id === parentId) return { ...n, visible: true };
+                        return { ...n, visible: false };
                     });
-                    // advance to display:none shortly to free space
+                    // advance to display:none shortly to free space (keep for compatibility with any code reading __displayNone)
                     setTimeout(() => {
-                        nodes.value = nodes.value.map((n: any) => (n.id === parentId ? { ...n, __displayNone: false } : { ...n, __displayNone: true }));
+                        nodes.value = nodes.value.map((n: any) => (n.id === parentId ? { ...n, visible: true } : { ...n, visible: false }));
                     }, Math.max(40, TRANSITION_MS - 120));
                 }
             } catch (e) {
@@ -2001,6 +2174,15 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             // set selected child for sidebar and keep focusedNode as parent so layout remains stable
             selectedChild.value = freshChild || node;
             focusedNode.value = parentNode;
+            // load related skills for the selected competency (if any)
+            try {
+                const comp = selectedChild.value as any;
+                const compId = comp?.compId ?? comp?.raw?.id ?? Math.abs(comp?.id || 0);
+                if (compId) {
+                    const skills = await fetchSkillsForCompetency(Number(compId));
+                    try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (e) { void e; }
+                }
+            } catch (e) { void e; }
             // hide all except selected competency and its parent
             try {
                 const cid = (selectedChild.value as any)?.id ?? (node as any)?.id;
@@ -2012,7 +2194,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 if (fid != null) {
                     // make any existing rendered child visible and bring to front
                     childNodes.value = childNodes.value.map((ch: any) => {
-                        if (ch.id === fid) return { ...ch, __opacity: 1, __scale: ch.__scale ?? 1, __hidden: false, __displayNone: false } as any;
+                        if (ch.id === fid) return { ...ch, animOpacity: 1, animScale: ch.animScale ?? 1, visible: true } as any;
                         return ch;
                     });
                     const found = childNodeById(fid);
@@ -2063,12 +2245,12 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 // hide non-selected level-1 nodes but keep scenario node visible
                 const scenarioId = scenarioNode.value?.id ?? null;
                 nodes.value = nodes.value.map((n: any) => {
-                    if (n.id === selected.id || n.id === scenarioId) return { ...n, __hidden: false, __displayNone: false };
-                    return { ...n, __hidden: true };
+                    if (n.id === selected.id || n.id === scenarioId) return { ...n, visible: true };
+                    return { ...n, visible: false };
                 });
-                // advance to display:none shortly after to free layout space
+                // advance to display:none shortly after to free layout space (maintain timing behavior)
                 setTimeout(() => {
-                    nodes.value = nodes.value.map((n: any) => (n.id === selected.id || n.id === scenarioId ? { ...n, __displayNone: false } : { ...n, __displayNone: true }));
+                    nodes.value = nodes.value.map((n: any) => (n.id === selected.id || n.id === scenarioId ? { ...n, visible: true } : { ...n, visible: false }));
                 }, Math.max(40, TRANSITION_MS - 120));
                 // start expanding a bit earlier: race transitionend with a lead timeout
                 const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
@@ -2266,7 +2448,7 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     const vSpacing = props.competencyLayout?.vSpacing ?? DEFAULT_COMPETENCY_LAYOUT.vSpacing;
     const positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing, vSpacing });
 
-    const builtChildren: Array<any> = [];
+        const builtChildren: Array<any> = [];
     toShow.forEach((c: any, i: number) => {
         const pos = positions[i] || { x: cx, y: topY };
         const id = -(node.id * 1000 + i + 1);
@@ -2278,12 +2460,12 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
             displayName: wrapLabel(c.name ?? c, 14),
             x: initialParentPos?.x ?? (node.x ?? cx),
             y: initialParentPos?.y ?? (node.y ?? parentY),
-            __scale: 0.84,
-            __opacity: 0,
-            __delay: delay,
-            __filter: 'blur(6px) drop-shadow(0 10px 18px rgba(2,6,23,0.36))',
-            __targetX: pos.x,
-            __targetY: clampY(pos.y),
+            animScale: 0.84,
+            animOpacity: 0,
+            animDelay: delay,
+            animFilter: 'blur(6px) drop-shadow(0 10px 18px rgba(2,6,23,0.36))',
+            animTargetX: pos.x,
+            animTargetY: clampY(pos.y),
             is_critical: false,
             description: c.description ?? null,
             readiness: c.readiness ?? null,
@@ -2296,19 +2478,19 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
 
     childNodes.value = builtChildren.slice();
     nextTick(() => {
-        childNodes.value = childNodes.value.map((ch: any) => ({
+                    childNodes.value = childNodes.value.map((ch: any) => ({
             ...ch,
-            x: ch.__targetX ?? ch.x,
-            y: ch.__targetY ?? ch.y,
-            __scale: 1.06,
-            __opacity: 1,
-            __filter: 'none',
+            x: ch.animTargetX ?? ch.x,
+            y: ch.animTargetY ?? ch.y,
+            animScale: 1.06,
+            animOpacity: 1,
+            animFilter: 'none',
         }));
 
         setTimeout(() => {
-            childNodes.value = childNodes.value.map((ch: any) => ({ ...ch, __scale: 1 }));
+            childNodes.value = childNodes.value.map((ch: any) => ({ ...ch, animScale: 1 }));
             nextTick(() => {
-                childNodes.value.forEach((ch: any) => { delete ch.__targetX; delete ch.__targetY; delete ch.__delay; delete ch.__filter; });
+                childNodes.value.forEach((ch: any) => { delete ch.animTargetX; delete ch.animTargetY; delete ch.animDelay; delete ch.animFilter; });
             });
         }, 160);
     });
@@ -2340,6 +2522,71 @@ async function fetchAvailableCompetencies() {
     } catch (e) {
         availableExistingCompetencies.value = [];
     }
+}
+
+// Fetch skills for a competency. Tries multiple endpoint patterns and falls back gracefully.
+async function fetchSkillsForCompetency(compId: number) {
+    if (!compId) return [];
+    loadingSkills.value = true;
+    try {
+        // 1) If we have a scenario context, prefer the capability-tree endpoint which includes
+        //    competencies and their nested `skills` (produced by ScenarioController@getCapabilityTree)
+        try {
+            if (props.scenario && props.scenario.id) {
+                const tree: any = await api.get(`/api/strategic-planning/scenarios/${props.scenario.id}/capability-tree`);
+                const items = Array.isArray(tree) ? tree : (tree?.data ?? tree ?? []);
+                for (const cap of items) {
+                    if (!cap || !Array.isArray(cap.competencies)) continue;
+                    for (const comp of cap.competencies) {
+                        if (Number(comp.id) === Number(compId)) {
+                            return Array.isArray(comp.skills) ? comp.skills : (comp?.skills || []);
+                        }
+                    }
+                }
+            }
+        } catch (e) { void e; }
+
+        // 2) Try dedicated competency endpoints (we added these routes server-side):
+        try {
+            const r: any = await api.get(`/api/competencies/${compId}/skills`);
+            const s = r?.data ?? r;
+            if (Array.isArray(s)) return s;
+        } catch (e) { void e; }
+
+        try {
+            const r2: any = await api.get(`/api/competencies/${compId}`);
+            const obj = r2?.data ?? r2;
+            if (obj) {
+                if (Array.isArray(obj.skills)) return obj.skills;
+                if (Array.isArray(obj.data?.skills)) return obj.data.skills;
+            }
+        } catch (e) { void e; }
+
+        // 3) Fallback: try generic skills endpoint and filter locally (best-effort)
+        try {
+            const res: any = await api.get('/api/skills');
+            const all = Array.isArray(res) ? res : (res?.data ?? []);
+            if (!Array.isArray(all)) return [];
+            const filtered = all.filter((s: any) => {
+                if (!s) return false;
+                // If skills include nested competencies or pivot info, try to detect relation
+                if (Array.isArray(s.competencies)) {
+                    return s.competencies.some((c: any) => Number(c.id) === Number(compId));
+                }
+                if (s.pivot && (s.pivot.competency_id || s.pivot.competencyId)) {
+                    return Number(s.pivot.competency_id || s.pivot.competencyId) === Number(compId);
+                }
+                return false;
+            });
+            return filtered;
+        } catch (e) { void e; }
+
+    } catch (e) { void e; }
+    finally {
+        loadingSkills.value = false;
+    }
+
+    return [];
 }
 
 async function createAndAttachComp() {
@@ -2502,6 +2749,8 @@ const loadTreeFromApi = async (scenarioId?: number) => {
             `/api/strategic-planning/scenarios/${scenarioId}/capability-tree`,
         );
         const items = (tree as any) || [];
+        // keep raw payload for debugging / inspection in sidebar
+        capabilityTreeRaw.value = items;
         // capability-tree response received
         buildNodesFromItems(items);
         // ensure edges are rebuilt from the fetched items
@@ -2526,6 +2775,8 @@ onMounted(() => {
         (props.scenario as any).capabilities.length > 0
     ) {
         const caps = (props.scenario as any).capabilities;
+        // store incoming capabilities as raw payload for inspection
+        capabilityTreeRaw.value = caps;
         buildNodesFromItems(caps);
         buildEdgesFromItems(caps);
         // restore persisted UI state after nodes built

@@ -185,6 +185,14 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 
 Registro creado automáticamente para dejar el estado listo para continuar mañana.
 
+## Cambio reciente: Migración de flags de animación/visibilidad en ScenarioPlanning/Index.vue
+
+- **Qué:** Se migraron los flags legacy `__scale`, `__opacity`, `__filter`, `__delay`, `__hidden`, `__displayNone`, `__targetX/Y` a campos explícitos del modelo de nodo: `animScale`, `animOpacity`, `animFilter`, `animDelay`, `animTargetX`, `animTargetY` y `visible`.
+- **Dónde:** `src/resources/js/pages/ScenarioPlanning/Index.vue` (plantilla y funciones `expandCompetencies`, `showOnlySelectedAndParent`, y manejadores de click).
+- **Por qué:** Normalizar campos facilita bindings CSS, evita errores por acceso a propiedades inexistentes en template y prepara la migración completa de animaciones a propiedades del modelo.
+- **Fecha:** 2026-01-26
+- **Metadata Git:** branch `feature/workforce-planning-scenario-modeling` (ediciones locales durante sesión).
+
 ## Implementación registrada: Auto-attach de `Capability` a `Scenario` (pivot)
 
 - **Qué:** Al crear una nueva `Capability` que tenga `discovered_in_scenario_id`, el modelo ahora inserta automáticamente una fila en la tabla pivot `scenario_capabilities` (si no existe) con valores por defecto (`strategic_role='target'`, `strategic_weight=10`, `priority=1`, `required_level=3`, `is_critical=false`). La relación también se crea explícitamente desde la ruta API que guarda la capacidad desde el nodo del escenario.

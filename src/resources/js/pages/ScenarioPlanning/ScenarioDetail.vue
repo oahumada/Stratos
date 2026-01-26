@@ -309,7 +309,7 @@ const createNewSkill = async () => {
         // if we have a scenario context, mark discovery origin
         if (scenarioId.value && scenarioId.value > 0)
             payload.discovered_in_scenario_id = scenarioId.value;
-        const res: any = await api.post('/api/skills', payload);
+        const res: any = await api.post('/api/skills', { data: payload });
         const created = (res as any)?.data ?? res;
         // append to local skills catalog
         skills.value.push(created);

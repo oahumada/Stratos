@@ -469,6 +469,103 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['success' => true, 'message' => 'Relation updated', 'relation_exists' => true, 'updated' => $update]);
     });
 
+    // Read a competency including its related skills (multi-tenant safe)
+    Route::get('/competencies/{id}', function (Illuminate\Http\Request $request, $id) {
+        $user = auth()->user();
+        if (!$user)
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        $comp = App\Models\Competency::with('skills')->find($id);
+        if (!$comp)
+            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        return response()->json(['success' => true, 'data' => $comp]);
+    });
+
+    // Shortcut endpoint returning only skills for a competency (multi-tenant safe)
+    Route::get('/competencies/{id}/skills', function (Illuminate\Http\Request $request, $id) {
+        $user = auth()->user();
+        if (!$user)
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        $comp = App\Models\Competency::with('skills')->find($id);
+        if (!$comp)
+            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        $skills = $comp->skills ?? [];
+        return response()->json(['success' => true, 'data' => $skills]);
+    });
+
+    // Dev API: attach a skill to a competency. Accepts either `skill_id` (existing) or `skill` payload to create then attach.
+    Route::post('/competencies/{id}/skills', function (Illuminate\Http\Request $request, $id) {
+        $user = auth()->user();
+        if (!$user)
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+
+        $comp = App\Models\Competency::find($id);
+        if (!$comp)
+            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null))
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+
+        try {
+            $result = \DB::transaction(function () use ($request, $comp, $user, $id) {
+                $skillId = $request->input('skill_id');
+                $createdSkill = null;
+
+                if ($skillId) {
+                    $skill = App\Models\Skills::find($skillId);
+                    if (!$skill)
+                        throw new \Exception('Skill not found');
+                    if (isset($skill->organization_id) && $skill->organization_id !== ($user->organization_id ?? null))
+                        throw new \Exception('Forbidden');
+                    $skillToAttach = $skill;
+                } else {
+                    $payload = $request->input('skill', []);
+                    $name = trim($payload['name'] ?? '');
+                    if (empty($name))
+                        throw new \Exception('Skill name is required');
+                    $createdSkill = App\Models\Skills::create([
+                        'organization_id' => $user->organization_id ?? null,
+                        'name' => $name,
+                        'description' => $payload['description'] ?? null,
+                        'category' => $payload['category'] ?? null,
+                    ]);
+                    $skillToAttach = $createdSkill;
+                }
+
+                // Avoid duplicate pivot
+                $exists = \DB::table('competency_skills')
+                    ->where('competency_id', $comp->id)
+                    ->where('skill_id', $skillToAttach->id)
+                    ->exists();
+                if (!$exists) {
+                    $insert = [
+                        'competency_id' => $comp->id,
+                        'skill_id' => $skillToAttach->id,
+                        'weight' => (int) $request->input('weight', 10),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                    \DB::table('competency_skills')->insert($insert);
+                }
+
+                return ['skill' => $skillToAttach];
+            });
+
+            return response()->json(['success' => true, 'data' => $result['skill']], 201);
+        } catch (\Exception $e) {
+            if (str_contains($e->getMessage(), 'Forbidden'))
+                return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            if (str_contains($e->getMessage(), 'Skill name is required'))
+                return response()->json(['success' => false, 'message' => 'Skill name is required'], 422);
+            \Log::error('Error attaching skill to competency: ' . $e->getMessage(), ['competency_id' => $id]);
+            return response()->json(['success' => false, 'message' => 'Server error attaching skill'], 500);
+        }
+    });
+
     // Dev API: delete the relationship (pivot) between a scenario and a capability
     Route::delete('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
         $user = auth()->user();
