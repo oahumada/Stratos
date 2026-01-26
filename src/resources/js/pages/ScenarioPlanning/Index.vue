@@ -469,15 +469,30 @@
             <!-- Context menu overlay (right-click) replaced with Vuetify v-menu -->
             <v-menu v-model="contextMenuVisible" absolute offset-y :open-on-click="false" :style="{ left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000 }">
                 <template #default>
-                    <div ref="contextMenuEl" style="background:var(--v-theme-surface, #0b1320); padding:6px; border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,0.6); min-width:160px;">
+                    <div ref="contextMenuEl" class="node-context-menu-v" style="min-width:250px;">
                         <v-list density="compact">
-                            <v-list-item @click="contextViewEdit">
-                                <v-list-item-title>Ver / Editar detalles</v-list-item-title>
+                            <v-list-item @click="contextViewEdit" class="node-context-item">
+                                <v-list-item-icon>
+                                    <v-icon icon="mdi-eye-outline" />
+                                </v-list-item-icon>
+                                <v-list-item-title>Ver detalles</v-list-item-title>
                             </v-list-item>
-                            <v-list-item @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()">
+                            <v-list-item @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()" class="node-context-item">
+                                <v-list-item-icon>
+                                    <v-icon icon="mdi-plus" />  
+                                </v-list-item-icon>
                                 <v-list-item-title>{{ contextMenuIsChild ? 'Crear skill' : 'Crear competencia' }}</v-list-item-title>
                             </v-list-item>
-                            <v-list-item @click="contextDeleteNode">
+                            <v-list-item v-if="contextMenuIsChild" @click="contextAttachExistingSkill" class="node-context-item">
+                                <v-list-item-icon>
+                                    <v-icon icon="mdi-link-variant" />
+                                </v-list-item-icon>
+                                <v-list-item-title>Agregar skill existente</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item @click="contextDeleteNode" class="node-context-item">
+                                <v-list-item-icon>
+                                    <v-icon icon="mdi-delete-outline" />
+                                </v-list-item-icon>
                                 <v-list-item-title class="text-error">Eliminar nodo</v-list-item-title>
                             </v-list-item>
                         </v-list>
@@ -987,6 +1002,24 @@ function contextCreateSkill() {
         selectedChild.value = null;
     }
     createSkillDialogVisible.value = true;
+    closeContextMenu();
+}
+
+async function contextAttachExistingSkill() {
+    const node = contextMenuTarget.value;
+    if (!node) return closeContextMenu();
+    // If a child competency was clicked, use it
+    if (node.id != null && node.id < 0) {
+        selectedChild.value = node as any;
+    } else {
+        // try to pick a child competency of the focused node if available
+        const child = childNodes.value.find((c: any) => c.__parentId === node.id || c.parentId === node.id);
+        if (child) selectedChild.value = child;
+    }
+    try {
+        await loadAvailableSkills();
+    } catch (e) { /* ignore */ }
+    selectSkillDialogVisible.value = true;
     closeContextMenu();
 }
 
@@ -3446,6 +3479,43 @@ if (!edges.value) edges.value = [];
 .no-animations .child-node,
 .no-animations .viewport-group,
 .no-animations .edges line,
+
+/* Context menu (Vuetify) custom styling for node context */
+.node-context-menu-v {
+    background: var(--v-theme-surface, rgba(11,16,41,0.98));
+    border-radius: 10px;
+    padding: 6px 8px;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    color: var(--v-theme-on-surface, #e6eef8);
+}
+.node-context-menu-v .v-list {
+    padding: 4px 0;
+}
+.node-context-item {
+    border-radius: 8px;
+    padding: 6px 8px;
+    transition: background-color 140ms ease, transform 120ms ease;
+}
+.node-context-item {
+    display: flex;
+    align-items: center;
+}
+.node-context-item:hover {
+    background: rgba(255,255,255,0.03);
+}
+.node-context-item .v-list-item-icon {
+    color: rgba(255,255,255,0.9);
+    min-width: 34px;
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+.node-context-item .v-list-item-title {
+    color: var(--v-theme-on-surface, #e6eef8);
+    font-weight: 600;
+    font-size: 13px;
+}
+.node-context-menu-v .text-error { color: #ff8a80 !important; font-weight:700 }
 .no-animations .edge-line,
 .no-animations .node-circle,
 .no-animations .child-iridescence,
