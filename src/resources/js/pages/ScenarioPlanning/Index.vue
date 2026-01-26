@@ -233,6 +233,19 @@
                             stroke-opacity="0.9"
                         />
                     </g>
+
+                    <!-- Create capability control: placed under the home control -->
+                    <g
+                        class="scenario-create-control"
+                        :transform="`translate(${Math.max(48, width - 56)}, 72)`"
+                        @click.stop="createCapabilityClicked"
+                        style="cursor: pointer"
+                        aria-label="Crear capacidad"
+                    >
+                        <circle r="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)"/>
+                        <title>Crear capacidad</title>
+                        <text x="0" y="4" text-anchor="middle" font-size="14" fill="#dbeafe" style="font-weight:700">+</text>
+                    </g>
                     </g>
                     <!-- scenario -> capability edges (distinct group so we can style/animate) -->
                     <g class="scenario-edges">
@@ -270,67 +283,9 @@
                             class="node-circle"
                             r="22"
                             fill="url(#glassGrad)"
-                            filter="url(#innerGlow)"
-                            stroke="rgba(255,255,255,0.14)"
+                            filter="url(#softGlow)"
+                            stroke="rgba(255,255,255,0.06)"
                             stroke-width="1.2"
-                        />
-                        <circle class="node-iridescence" r="22" fill="url(#iridescentGrad)" opacity="0.18" style="mix-blend-mode: screen" />
-                        <circle class="node-rim" r="22" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1.2" />
-
-                        <!-- Icon inside the scenario node: map-pin SVG -->
-                        <g class="scenario-icon" transform="translate(0,-4)">
-                            <circle r="12" fill="rgba(245, 26, 26, 0.04)" />
-                            <g transform="translate(0,0) scale(0.9)">
-                                <!-- pin shape -->
-                                <path d="M0,-8 C4,-8 7,-5 7,-1 C7,4 0,11 0,11 C0,11 -7,4 -7,-1 C-7,-5 -4,-8 0,-8 Z" fill="rgba(255,255,255,0.06)" />
-                                <circle cx="0" cy="-2" r="1.8" fill="#ffcc66" />
-                            </g>
-                        </g>
-
-                        <!-- label above the smaller node for clearer hierarchy -->
-                        <text x="0" y="-48" text-anchor="middle" class="node-label" style="font-size:16px; font-weight:700">{{ scenarioNode.name }}</text>
-                    </g>
-                    <!-- Small integrated control on the right edge to open scenario info (subtle) -->
-                    <g
-                        class="scenario-edge-control"
-                        :transform="`translate(${Math.max(48, width - 56)}, 36)`"
-                        @click.stop="openScenarioInfo"
-                        style="cursor: pointer"
-                        aria-label="Abrir información del escenario"
-                    >
-                        <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
-                        <title>Volver a la vista inicial / Mostrar información del escenario</title>
-                        <!-- Home icon (simple polygon) -->
-                        <polygon points="0,-8 -10,2 -5,2 -5,9 5,9 5,2 10,2" fill="#dbeafe" transform="scale(0.9)" />
-                    </g>
-                    <!-- Create capability control: placed under the home control -->
-                    <g
-                        class="scenario-create-control"
-                        :transform="`translate(${Math.max(48, width - 56)}, 72)`"
-                        @click.stop="createCapabilityClicked"
-                        style="cursor: pointer"
-                        aria-label="Crear capacidad"
-                    >
-                        <circle r="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)"/>
-                        <title>Crear capacidad</title>
-                        <text x="0" y="4" text-anchor="middle" font-size="14" fill="#dbeafe" style="font-weight:700">+</text>
-                    </g>
-                    <!-- child edges -->
-                    <g class="child-edges">
-                        <line
-                            v-for="(e, idx) in childEdges"
-                            :key="`child-edge-${idx}`"
-                            :x1="renderedNodeById(e.source)?.x ?? (e.source < 0 ? (childNodeById(e.source)?.x ?? undefined) : undefined)"
-                            :y1="renderedNodeById(e.source)?.y ?? (e.source < 0 ? (childNodeById(e.source)?.y ?? undefined) : undefined)"
-                            :x2="childNodeById(e.target)?.x ?? undefined"
-                            :y2="childNodeById(e.target)?.y ?? undefined"
-                            :class="['edge-line','child-edge', (e as any).isScenarioEdge ? 'scenario-edge' : '']"
-                            :stroke="(e as any).isScenarioEdge ? 'url(#scenarioEdgeGrad)' : 'url(#childGrad)'"
-                            :stroke-width="(e as any).isScenarioEdge ? 2.8 : 2.2"
-                            stroke-linecap="round"
-                            :marker-end="(e as any).isScenarioEdge ? undefined : 'url(#childArrow)'"
-                            :filter="(e as any).isScenarioEdge ? 'url(#edgeGlow)' : 'url(#softGlow)'"
-                            :stroke-opacity="(e as any).isScenarioEdge ? 0.98 : 0.95"
                         />
                     </g>
 
@@ -469,6 +424,23 @@
                             </text>
                         </g>
                     </g>
+
+                    <!-- skill nodes (grandchildren) -->
+                    <g class="skill-nodes">
+                        <g
+                            v-for="s in grandChildNodes"
+                            :key="s.id"
+                            :style="{ transform: `translate(${s.x}px, ${s.y}px) scale(${s.animScale ?? 1})`, opacity: (s.animOpacity ?? 1) }"
+                            class="node-group skill-node"
+                            :data-node-id="s.id"
+                            @click.stop="(e) => handleSkillClick(s, e)"
+                        >
+                            <title>{{ s.name }}</title>
+                            <circle class="node-circle" :r="14" fill="#16324a" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
+                            <circle class="node-iridescence" :r="14" fill="url(#iridescentGrad)" opacity="0.12" style="mix-blend-mode: screen" />
+                            <text :x="0" :y="4" text-anchor="middle" class="node-label" style="font-size:10px">{{ s.name }}</text>
+                        </g>
+                    </g>
                     <!-- Controles integrados en el SVG: reordenar / restaurar vista -->
                     <g
                         class="diagram-control reorder-control"
@@ -496,9 +468,9 @@
 
             <!-- Context menu overlay (right-click) -->
             <div ref="contextMenuEl" v-if="contextMenuVisible" class="node-context-menu" :style="{ position: 'absolute', left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000, background: 'var(--v-theme-surface, #0b1320)', padding: '6px', borderRadius: '6px', boxShadow: '0 6px 18px rgba(0,0,0,0.6)', minWidth: '160px' }">
-                <div style="display:flex; flex-direction:column; gap:6px">
+                    <div style="display:flex; flex-direction:column; gap:6px">
                     <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:var(--v-theme-on-surface, #dbeafe); background:transparent; border:none" @click="contextViewEdit">Ver / Editar detalles</button>
-                    <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:var(--v-theme-on-surface, #dbeafe); background:transparent; border:none" @click="contextCreateChild">Crear hijo</button>
+                    <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:var(--v-theme-on-surface, #dbeafe); background:transparent; border:none" @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()">{{ contextMenuIsChild ? 'Crear skill' : 'Crear competencia' }}</button>
                     <button class="v-btn v-btn--text" style="text-align:left; padding:8px; color:#ff8a80; background:transparent; border:none" @click="contextDeleteNode">Eliminar nodo</button>
                 </div>
             </div>
@@ -876,6 +848,8 @@ const tooltipY = ref(0);
 const childNodes = ref<Array<any>>([]);
 const childEdges = ref<Array<Edge>>([]);
 const scenarioEdges = ref<Array<Edge>>([]);
+const grandChildNodes = ref<Array<any>>([]);
+const grandChildEdges = ref<Array<Edge>>([]);
 const showSidebar = ref(false);
 // selectedChild: when a competency (level-2) is clicked we keep it here
 // while `focusedNode` remains the parent capability (so layout treats parent as focused).
@@ -989,6 +963,20 @@ function contextCreateChild() {
     }
     // open create-competency dialog
     createCompDialogVisible.value = true;
+    closeContextMenu();
+}
+
+function contextCreateSkill() {
+    const node = contextMenuTarget.value;
+    if (!node) return closeContextMenu();
+    // if clicked on a child competency, set it as selected and open skill creation
+    if (node.id != null && node.id < 0) {
+        selectedChild.value = node as any;
+    } else {
+        // if user somehow invoked on a capability, try to focus the first child or the focused node
+        selectedChild.value = null;
+    }
+    createSkillDialogVisible.value = true;
     closeContextMenu();
 }
 
@@ -2139,62 +2127,31 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
         if (lvl === 2) {
             try { if ((window as any).__DEBUG__) console.debug('[node.click.level2] id=', (node as any)?.id, 'level=', lvl); } catch (e) { void e; }
             try {
-                // briefly disable animations for this interaction
                 noAnimations.value = true;
-                setTimeout(() => {
-                    noAnimations.value = false;
-                }, Math.max(300, TRANSITION_MS));
+                setTimeout(() => { noAnimations.value = false; }, Math.max(300, TRANSITION_MS));
             } catch (e) { void e; }
 
-            // Open sidebar and populate form with the selected competency
+            // For left-click on a competency, expand its skills (do not open modal)
             try {
-                showSidebar.value = true;
-                nodeSidebarCollapsed.value = false;
-                // locate parent capability for this child node
                 const parentEdge = childEdges.value.find((e) => e.target === (node as any).id);
                 const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
-                // if we found the parent, center on it and expand its children so layout treats the parent as focused
                 if (parentNode) {
                     const prev = focusedNode.value ? { ...focusedNode.value } : undefined;
-                    // center the parent (this updates `nodes.value` positions)
                     centerOnNode(parentNode, prev);
-                    // wait for parent transition (or a short lead) then expand children
                     const parentLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
                     await Promise.race([waitForTransitionForNode(parentNode.id), wait(parentLead)]);
                     expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
                 }
 
-                // set selected child for the sidebar and keep focusedNode on the parent for layout
                 selectedChild.value = node as any;
-                if (parentNode) focusedNode.value = parentNode;
-                else focusedNode.value = node as any;
-                // load related skills for the selected competency
-                try {
-                    const compId = (selectedChild.value as any)?.compId ?? (selectedChild.value as any)?.raw?.id ?? Math.abs((selectedChild.value as any)?.id || 0);
-                    if (compId) {
-                        const skills = await fetchSkillsForCompetency(Number(compId));
-                        // attach skills onto the selectedChild so the sidebar/watchers can pick them up
-                        try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (e) { void e; }
-                    }
-                } catch (e) { void e; }
-                // hide everything except the selected competency and its parent
-                try {
-                    const cid = (selectedChild.value as any)?.id ?? (node as any)?.id;
-                    if (cid != null) showOnlySelectedAndParent(cid, true);
-                } catch (e) { void e; }
-                // ensure form scroll resets so fields are visible
-                nextTick(() => {
-                    try { if (editFormScrollEl.value) editFormScrollEl.value.scrollTop = 0; } catch (e) { void e; }
-                });
+                if (parentNode) focusedNode.value = parentNode; else focusedNode.value = node as any;
 
-                // ensure the selected child stays visible and rendered on top
+                try { const cid = (selectedChild.value as any)?.id ?? (node as any)?.id; if (cid != null) showOnlySelectedAndParent(cid, true); } catch (e) { void e; }
+
                 try {
                     const fid = (selectedChild.value as any)?.id ?? (focusedNode.value as any).id;
                     if (fid != null) {
-                        childNodes.value = childNodes.value.map((ch: any) => {
-                            if (ch.id === fid) return { ...ch, animOpacity: 1, animScale: ch.animScale ?? 1, visible: true } as any;
-                            return ch;
-                        });
+                        childNodes.value = childNodes.value.map((ch: any) => ch.id === fid ? { ...ch, animOpacity: 1, animScale: ch.animScale ?? 1, visible: true } as any : ch);
                         const found = childNodeById(fid);
                         if (found) {
                             const others = childNodes.value.filter((ch: any) => ch.id !== fid);
@@ -2202,6 +2159,24 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                         }
                     }
                 } catch (err) { void err; }
+
+                // expand skills for this competency
+                try {
+                    const comp = selectedChild.value as any;
+                    const compId = comp.compId ?? comp.raw?.id ?? Math.abs(comp.id || 0);
+                    const existingSkills = Array.isArray(comp.skills) ? comp.skills : (comp.raw?.skills ?? []);
+                    if ((existingSkills && existingSkills.length > 0) || compId) {
+                        if (existingSkills && existingSkills.length > 0) {
+                            expandSkills(comp, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                        } else if (compId) {
+                            try {
+                                const skills = await fetchSkillsForCompetency(Number(compId));
+                                try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (e) { void e; }
+                                expandSkills(selectedChild.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                            } catch (e) { void e; }
+                        }
+                    }
+                } catch (e) { void e; }
             } catch (e) { void e; }
 
             return;
@@ -2389,6 +2364,8 @@ const closeTooltip = () => {
     focusedNode.value = null;
     childNodes.value = [];
     childEdges.value = [];
+    grandChildNodes.value = [];
+    grandChildEdges.value = [];
     selectedChild.value = null;
     // restore original node positions if we have them
     if (originalPositions.value && originalPositions.value.size > 0) {
@@ -2510,6 +2487,24 @@ function onPanelPointerUp() {
     window.removeEventListener('pointerup', onPanelPointerUp);
 }
 
+// Handle clicks on an individual skill node (optional: open a small detail or select)
+function handleSkillClick(skill: any, event?: MouseEvent) {
+    try {
+        // Open the selectedChild sidebar if we have a parent competency
+        // Find parent competency by edge
+        const parentEdge = grandChildEdges.value.find((e) => e.target === skill.id);
+        const parentComp = parentEdge ? childNodeById(parentEdge.source) : null;
+        if (parentComp) {
+            selectedChild.value = parentComp as any;
+            // optionally focus the parent capability as well
+            const parentOfCompEdge = childEdges.value.find((e) => e.target === parentComp.id);
+            if (parentOfCompEdge) focusedNode.value = nodeById(parentOfCompEdge.source);
+        }
+        // open skill creation modal? Instead, open sidebar to view/edit selected child
+        showSidebar.value = true;
+    } catch (e) { void e; }
+}
+
 // Fullscreen toggle removed: UX disabled. We rely only on the browser Fullscreen API when used externally.
 
 function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: number }, opts: { limit?: number; rows?: number; cols?: number } = {}) {
@@ -2580,6 +2575,54 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
                 childNodes.value.forEach((ch: any) => { delete ch.animTargetX; delete ch.animTargetY; delete ch.animDelay; delete ch.animFilter; });
             });
         }, 160);
+    });
+}
+
+function grandChildNodeById(id: number) {
+    return grandChildNodes.value.find((n) => n.id === id) || null;
+}
+
+function expandSkills(node: any, initialPos?: { x: number; y: number }) {
+    grandChildNodes.value = [];
+    grandChildEdges.value = [];
+    const skills = Array.isArray(node.skills) ? node.skills : (node.raw?.skills ?? []);
+    if (!Array.isArray(skills) || skills.length === 0) return;
+    const limit = Math.min(skills.length, 12);
+    const toShow = skills.slice(0, limit);
+    const cx = node.x ?? Math.round(width.value / 2);
+    const parentY = node.y ?? Math.round(height.value / 2);
+    const topY = Math.round(parentY + 80);
+    const rows = Math.min(2, Math.ceil(toShow.length / 6));
+    const cols = Math.min(6, toShow.length);
+    const positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: 80, vSpacing: 56 });
+
+    const built: any[] = [];
+    toShow.forEach((sk: any, i: number) => {
+        const pos = positions[i] || { x: cx, y: topY };
+        const id = -(Math.abs(node.id) * 100000 + i + 1);
+        const delay = Math.max(0, Math.floor(i / cols) * 20 + (i % cols) * 8);
+        const item = {
+            id,
+            name: sk.name ?? sk,
+            x: initialPos?.x ?? (node.x ?? cx),
+            y: initialPos?.y ?? (node.y ?? parentY),
+            animScale: 0.8,
+            animOpacity: 0,
+            animDelay: delay,
+            animTargetX: pos.x,
+            animTargetY: clampY(pos.y),
+            raw: sk,
+        } as any;
+        built.push(item);
+        grandChildEdges.value.push({ source: node.id, target: id });
+    });
+    grandChildNodes.value = built.slice();
+    nextTick(() => {
+        grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+        setTimeout(() => {
+            grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, animScale: 1 }));
+            nextTick(() => { grandChildNodes.value.forEach((g: any) => { delete g.animTargetX; delete g.animTargetY; delete g.animDelay; delete g.animFilter; }); });
+        }, 140);
     });
 }
 
