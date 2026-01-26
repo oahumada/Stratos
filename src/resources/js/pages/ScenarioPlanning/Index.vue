@@ -3326,7 +3326,7 @@ if (!edges.value) edges.value = [];
     stroke-width: 0.6;
 }
 .scenario-node .scenario-icon .rose-primary {
-    fill: #ff6b6b; /* highlighted north needle */
+    fill: #cbd0d8; /* north needle: changed from pink to blue */
 }
 .scenario-node .scenario-icon .rose-secondary {
     /* fill is provided by SVG gradient (compassNeedleGrad) */
