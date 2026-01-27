@@ -1305,7 +1305,7 @@ function edgeRenderFor(e: Edge) {
     // modo curva
     if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
         // control point más alto para curvas más pronunciadas y evitar solapamiento
-        const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) - 90;
+        const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) - 10;
         const d = `M ${x1} ${y1} C ${x1} ${cpY} ${x2} ${cpY} ${x2} ${y2}`;
         return { isPath: true, d } as any;
     }
@@ -2775,14 +2775,32 @@ if (!edges.value) edges.value = [];
                     </g>
 
                     <!-- child edges: conexiones entre la capacidad seleccionada y sus competencias -->
-                    <g class="child-edges" v-if="childEdgeMode !== 2">
-                        <line
+                    <g class="child-edges">
+                        <!-- curva (modo 2) -->
+                        <path
+                            v-if="childEdgeMode === 2"
                             v-for="(e, idx) in childEdges"
-                            :key="`child-edge-${idx}`"
-                            :x1="edgeEndpoint(e, false)?.x ?? undefined"
-                            :y1="edgeEndpoint(e, false)?.y ?? undefined"
-                            :x2="edgeEndpoint(e, true)?.x ?? undefined"
-                            :y2="edgeEndpoint(e, true)?.y ?? undefined"
+                            :key="`child-edge-path-${idx}`"
+                            :d="edgeRenderFor(e).d"
+                            class="edge-line child-edge"
+                            stroke="url(#childGrad)"
+                            stroke-width="4"
+                            stroke-linecap="round"
+                            fill="none"
+                            filter="url(#edgeGlow)"
+                            stroke-opacity="0.98"
+                            marker-end="url(#childArrow)"
+                        />
+
+                        <!-- líneas simples / modos no-curva -->
+                        <line
+                            v-else
+                            v-for="(e, idx) in childEdges"
+                            :key="`child-edge-line-${idx}`"
+                            :x1="edgeRenderFor(e).x1 ?? undefined"
+                            :y1="edgeRenderFor(e).y1 ?? undefined"
+                            :x2="edgeRenderFor(e).x2 ?? undefined"
+                            :y2="edgeRenderFor(e).y2 ?? undefined"
                             class="edge-line child-edge"
                             stroke="url(#childGrad)"
                             stroke-width="2"
