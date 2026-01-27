@@ -2984,41 +2984,7 @@ if (!edges.value) edges.value = [];
                         </g>
                     </g>
                     <!-- overlay: dibujar conectores tipo 'hub' para que cada hijo tenga su conector visible -->
-                    <g class="child-edges-overlay">
-                        <template v-if="childEdges && childEdges.length > 0">
-                            <!-- Agrupar por padre (source) -->
-                            <template v-for="(group, gi) in (() => {
-                                const map = new Map();
-                                (childEdges || []).forEach((e) => {
-                                    const s = e.source;
-                                    if (!map.has(s)) map.set(s, []);
-                                    map.get(s).push(e);
-                                });
-                                return Array.from(map.values());
-                            })()" :key="`hub-${gi}`">
-                                <g v-if="group && group.length > 0">
-                                    <!-- línea vertical desde el padre hasta el hubY -->
-                                    <line
-                                        v-if="renderedNodeById(group[0].source)"
-                                        :x1="renderedNodeById(group[0].source).x"
-                                        :y1="renderedNodeById(group[0].source).y"
-                                        :x2="renderedNodeById(group[0].source).x"
-                                        :y2="(() => {
-                                            const childYs = group.map((e) => renderedNodeById(e.target)?.y ?? 0);
-                                            const minChildY = Math.min.apply(null, childYs.length ? childYs : [height]);
-                                            return (minChildY - 36);
-                                        })()"
-                                        class="edge-line child-edge"
-                                        stroke="url(#childGrad)"
-                                        stroke-width="2.6"
-                                        stroke-linecap="round"
-                                        filter="url(#edgeGlow)"
-                                        stroke-opacity="1"
-                                    />
-                                </g>
-                            </template>
-                        </template>
-                    </g>
+                    
                     <!-- Controles integrados en el SVG: reordenar / restaurar vista -->
                     <g
                         class="diagram-control reorder-control"
@@ -3503,11 +3469,11 @@ if (!edges.value) edges.value = [];
 }
 .scenario-node .scenario-icon .rose-outline {
     fill: rgba(54, 46, 46, 0.08);
-    stroke: rgba(255, 255, 255, 0.26);
+    stroke: rgba(88, 173, 199, 0.432);
     stroke-width: 0.6;
 }
 .scenario-node .scenario-icon .rose-primary {
-    fill: #5f94e9; /* north needle: changed from pink to blue */
+    fill: #5f82b9; /* north needle: changed from pink to blue */
 }
 .scenario-node .scenario-icon .rose-secondary {
     /* fill is provided by SVG gradient (compassNeedleGrad) */
@@ -3528,7 +3494,7 @@ if (!edges.value) edges.value = [];
 }
 
 .child-node .node-circle {
-    fill: #1f2937;
+    fill: #3e5069;
 }
 
 .child-iridescence {
