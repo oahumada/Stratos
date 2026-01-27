@@ -154,6 +154,7 @@ const editCapName = ref('');
 const editCapDescription = ref('');
 const editCapImportance = ref<number | null>(null);
 const editCapLevel = ref<number | null>(null);
+const ee = ref<number | null>(null);
 
 const editPivotStrategicRole = ref('target');
 const editPivotStrategicWeight = ref<number | null>(10);
@@ -191,12 +192,25 @@ const contextMenuTarget = ref<any | null>(null);
 const contextMenuIsChild = ref(false);
 const contextMenuEl = ref<HTMLElement | null>(null);
 
+// Modo de renderizado de aristas hijo: 0=offset pequeño,1=offset grande,2=curva,3=separación horizontal
+const childEdgeMode = ref(2);
+const childEdgeModeLabels = ['offset','gap-large','curve','spread'];
+
+function nextChildEdgeMode() {
+    childEdgeMode.value = (childEdgeMode.value + 1) % childEdgeModeLabels.length;
+}
+
 function openNodeContextMenu(node: any, ev: MouseEvent) {
     try {
         ev.preventDefault();
         ev.stopPropagation();
-    } catch (e) { void e; }
-    const rect = mapRoot.value ? mapRoot.value.getBoundingClientRect() : { left: 0, top: 0 };
+    } catch (err: unknown) { void err; }
+        const rect = mapRoot.value ? mapRoot.value.getBoundingClientRect() : { left: 0, top: 0 };
+        contextMenuLeft.value = Math.max(8, (ev.clientX - rect.left));
+        contextMenuTop.value = Math.max(8, (ev.clientY - rect.top));
+        contextMenuTarget.value = node;
+        contextMenuIsChild.value = !!(node && node.id != null && node.id < 0);
+        contextMenuVisible.value = true;
     contextMenuLeft.value = Math.max(8, (ev.clientX - rect.left));
     contextMenuTop.value = Math.max(8, (ev.clientY - rect.top));
     contextMenuTarget.value = node;
@@ -231,10 +245,10 @@ function contextViewEdit() {
                 const compId = (selectedChild.value as any)?.compId ?? (selectedChild.value as any)?.raw?.id ?? Math.abs((selectedChild.value as any)?.id || 0);
                 if (compId) {
                     const skills = await fetchSkillsForCompetency(Number(compId));
-                    try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (e) { void e; }
+                    try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (err: unknown) { void err; }
                 }
             }
-        } catch (e) { void e; }
+        } catch (err: unknown) { void err; }
         showSidebar.value = true;
         closeContextMenu();
     });
@@ -284,7 +298,7 @@ async function contextAttachExistingSkill() {
     }
     try {
         await loadAvailableSkills();
-    } catch (e) { /* ignore */ }
+    } catch (err: unknown) { /* ignore */ }
     selectSkillDialogVisible.value = true;
     closeContextMenu();
 }
@@ -304,7 +318,7 @@ async function contextDeleteNode() {
     }
     try {
         await deleteFocusedNode();
-    } catch (e) { void e; }
+    } catch (err: unknown) { void err; }
     closeContextMenu();
 }
 
@@ -317,7 +331,7 @@ onMounted(() => {
                 // click happened inside the context menu — ignore
                 return;
             }
-        } catch (e) { void e; }
+        } catch (err: unknown) { void err; }
         if (contextMenuVisible.value) closeContextMenu();
     };
     document.addEventListener('pointerdown', handler);
@@ -328,7 +342,7 @@ async function loadAvailableSkills() {
     try {
         const res: any = await api.get('/api/skills');
         availableSkills.value = Array.isArray(res) ? res : (res?.data ?? []);
-    } catch (e) {
+    } catch (err: unknown) {
         availableSkills.value = [];
     }
 }
@@ -356,7 +370,7 @@ async function createAndAttachSkill() {
                 if (compId) {
                     await api.post(`/api/competencies/${compId}/skills`, { skill_id: created.id });
                 }
-            } catch (attachErr) {
+            } catch (attachErr: unknown) {
                 // if attach fails, keep optimistic local state and notify later
                 console.warn('Failed to attach skill to competency on backend', attachErr);
             }
@@ -366,7 +380,7 @@ async function createAndAttachSkill() {
         newSkillCategory.value = '';
         newSkillDescription.value = '';
         showSuccess('Skill creada');
-    } catch (e) {
+    } catch (err: unknown) {
         showError('Error creando skill');
     } finally {
         savingSkill.value = false;
@@ -382,7 +396,7 @@ async function attachExistingSkill() {
         const compId = (selectedChild.value as any).compId ?? (selectedChild.value as any).raw?.id ?? Math.abs((selectedChild.value as any).id || 0);
         try {
             await api.post(`/api/competencies/${compId}/skills`, { skill_id: selectedSkillId.value });
-        } catch (e) {
+        } catch (err: unknown) {
             const found = availableSkills.value.find((s: any) => s.id === selectedSkillId.value);
             if (found) {
                 if (!Array.isArray((selectedChild.value as any).skills)) (selectedChild.value as any).skills = [];
@@ -392,7 +406,7 @@ async function attachExistingSkill() {
         selectSkillDialogVisible.value = false;
         selectedSkillId.value = null;
         showSuccess('Skill asociada');
-    } catch (e) {
+    } catch (err: unknown) {
         showError('Error asociando skill');
     } finally {
         attachingSkill.value = false;
@@ -442,7 +456,7 @@ function showOnlySelectedAndParent(childId: number, keepScenario = true) {
             if (c.__parentId === parentId || c.parentId === parentId) return { ...c, visible: false };
             return { ...c, visible: false };
         });
-    } catch (e) { void e; }
+    } catch (err: unknown) { void err; }
 }
 
 function syncSliderFromScroll() {
@@ -724,13 +738,13 @@ async function handleScenarioClick() {
     // Ejecuta el reordenamiento y luego restaura la vista al nivel inicial
     try {
         await reorderNodes();
-    } catch (e) {
-        void e;
+    } catch (err: unknown) {
+        void err;
     }
     try {
         restoreView();
-    } catch (e) {
-        void e;
+    } catch (err: unknown) {
+        void err;
     }
 }
 
@@ -743,7 +757,7 @@ watch(focusedNode, (nv) => {
                 : null;
             console.debug('[focusedNode.change] id=', (nv as any).id, 'level=', nodeLevel((nv as any).id), 'isChild=', !!(((nv as any).skills) || (nv as any).compId), 'parentId=', parentId);
         }
-    } catch (e) { void e; }
+    } catch (err: unknown) { void err; }
     if (!nv) {
         editCapName.value = '';
         editCapDescription.value = '';
@@ -834,7 +848,7 @@ async function saveFocusedNode() {
         try {
             await api.patch(`/api/capabilities/${id}`, capPayload);
             showSuccess('Capacidad actualizada');
-        } catch (err) {
+        } catch (err: unknown) {
             // ignore if endpoint missing; leave server to handle via other flows
         }
 
@@ -851,7 +865,7 @@ async function saveFocusedNode() {
             // preferred: PATCH to scenario-specific pivot endpoint
             await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`, pivotPayload);
             showSuccess('Relación escenario–capacidad actualizada');
-        } catch (errPivot) {
+        } catch (errPivot: unknown) {
             try {
                 // fallback: POST to create association (if missing) — server inserts only if not exists
                 await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities`, {
@@ -868,8 +882,9 @@ async function saveFocusedNode() {
                     is_critical: pivotPayload.is_critical,
                 });
                 showSuccess('Relación actualizada (fallback)');
-            } catch (err2) {
+            } catch (err2: unknown) {
                 // final fallback: inform user
+                void err2;
                 showError('No se pudo actualizar la relación. Verifica el backend.');
             }
         }
@@ -910,8 +925,9 @@ async function deleteFocusedNode() {
         // 1) attempt to delete pivot relation first (best-effort)
         try {
             await api.delete(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`);
-        } catch (e: any) {
-            pivotErrStatus = e?.response?.status ?? null;
+        } catch (e: unknown) {
+            const _e: any = e as any;
+            pivotErrStatus = _e?.response?.status ?? null;
         }
 
         // 2) attempt to delete capability entity
@@ -923,8 +939,9 @@ async function deleteFocusedNode() {
             childNodes.value = childNodes.value.filter((c) => !(c.__parentId === id || c.parentId === id || (c.raw && c.raw.capability_id === id)));
             edges.value = edges.value.filter((e) => e.source !== id && e.target !== id);
             childEdges.value = childEdges.value.filter((e) => e.source !== id && e.target !== id);
-        } catch (e: any) {
-            capErrStatus = e?.response?.status ?? null;
+        } catch (e: unknown) {
+            const _e: any = e as any;
+            capErrStatus = _e?.response?.status ?? null;
         }
 
         // If both endpoints returned 404 (not found), assume backend doesn't expose delete and remove locally
@@ -943,7 +960,7 @@ async function deleteFocusedNode() {
         await loadTreeFromApi(props.scenario?.id);
         // clear focus
         focusedNode.value = null;
-    } catch (err) {
+    } catch (err: unknown) {
         showError('Error al eliminar la capacidad');
     } finally {
         savingNode.value = false;
@@ -1013,7 +1030,7 @@ async function saveNewCapability() {
                 buildEdgesFromItems((props.scenario as any).capabilities || []);
                 positionsDirty.value = true;
             }
-        } catch (optErr) {
+        } catch (optErr: unknown) {
             void optErr;
         }
         // Refresh canonical tree from API to include pivot attributes and avoid drift
@@ -1031,8 +1048,9 @@ async function saveNewCapability() {
         pivotRationale.value = '';
         pivotRequiredLevel.value = 3;
         pivotIsCritical.value = false;
-    } catch (err: any) {
-        showError(err?.response?.data?.message || 'Error creando capacidad');
+    } catch (err: unknown) {
+        const _err: any = err as any;
+        showError(_err?.response?.data?.message || 'Error creando capacidad');
     } finally {
         creating.value = false;
     }
@@ -1141,7 +1159,7 @@ async function reorderNodes() {
     try {
         // Use console.debug so logs are easy to filter in browser devtools
         console.debug('[reorderNodes] before - count:', nodes.value.length, 'ids:', nodes.value.map((n: any) => n && n.id));
-    } catch (e) { void e; }
+    } catch (err: unknown) { void err; }
 
     // ensure each item has a `name` and cast the helper result to the expected NodeItem[] type
     nodes.value = reorderNodesHelper(
@@ -1153,7 +1171,7 @@ async function reorderNodes() {
 
     try {
         console.debug('[reorderNodes] after - count:', nodes.value.length, 'ids:', nodes.value.map((n: any) => n && n.id));
-    } catch (e) { void e; }
+    } catch (err: unknown) { void err; }
 
 
     positionsDirty.value = true;
@@ -1163,7 +1181,7 @@ async function reorderNodes() {
         childNodes.value = [];
         childEdges.value = [];
         showSidebar.value = false;
-    } catch (err) {
+    } catch (err: unknown) {
         void err;
     }
 
@@ -1171,7 +1189,7 @@ async function reorderNodes() {
     try {
         await savePositions();
         positionsDirty.value = false;
-    } catch (err) {
+    } catch (err: unknown) {
         void err;
         showError('No se pudieron guardar las posiciones tras reordenar');
         // leave positionsDirty=true to indicate unsaved changes
@@ -1225,6 +1243,87 @@ function renderedNodeById(id: number) {
     if (!n) return null;
     // ensure we pass a number to clampY (avoid undefined)
     return { x: renderNodeX(n), y: clampY(n.y ?? 0) } as any;
+}
+
+// Returns true if the given edge's target node is approximately centered horizontally
+function edgeTargetIsCentered(e: Edge) {
+    try {
+        const tgt = renderedNodeById(e.target);
+        if (!tgt || typeof tgt.x !== 'number') return false;
+        const centerX = Math.round(width.value / 2);
+        return Math.abs((tgt.x ?? 0) - centerX) <= 12; // 12px tolerance
+    } catch (err: unknown) { void err; }
+    return false;
+}
+
+// Devuelve coordenadas ajustadas para el extremo de una arista.
+// Si forTarget es true y el target es un child node, devolvemos y ligeramente por encima
+// del centro del nodo para que la línea no quede oculta por el círculo del nodo.
+function edgeEndpoint(e: Edge, forTarget = true) {
+    try {
+        const id = forTarget ? e.target : e.source;
+        const n = renderedNodeById(id);
+        if (!n) return { x: undefined, y: undefined } as any;
+        let x = n.x;
+        let y = n.y;
+        // si es el target y corresponde a un child node (id negativo), ajustar para evitar solapamiento
+        if (forTarget && id < 0) {
+            const childRadius = 24; // radio visual estimado del nodo hijo (incluye rim/gloss)
+            const extraGap = 6; // separación visual adicional
+            y = (y ?? 0) - (childRadius + extraGap); // dejar un gap suficiente para que la línea no quede oculta
+        }
+        return { x, y } as any;
+    } catch (err: unknown) { void err; }
+    return { x: undefined, y: undefined } as any;
+}
+
+// Devuelve el índice dentro de un grupo de aristas que comparten mismo source y target aproximado
+function groupedIndexForEdge(e: Edge) {
+    try {
+        const tgt = renderedNodeById(e.target);
+        if (!tgt) return 0;
+        const candidates = childEdges.value.filter((ed) => {
+            const rt = renderedNodeById(ed.target);
+            return ed.source === e.source && rt && Math.abs((rt.x ?? 0) - (tgt.x ?? 0)) <= 8;
+        });
+        candidates.sort((a, b) => (a.target - b.target));
+        return Math.max(0, candidates.findIndex((c) => c === e));
+    } catch (err: unknown) { void err; }
+    return 0;
+}
+
+// Construye los puntos o path para una arista según el modo seleccionado
+function edgeRenderFor(e: Edge) {
+    const start = edgeEndpoint(e, false);
+    const end = edgeEndpoint(e, true);
+    const x1 = start.x; const y1 = start.y; const x2 = end.x; const y2 = end.y;
+    const mode = childEdgeMode.value;
+    // modo curva
+    if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
+        // control point más alto para curvas más pronunciadas y evitar solapamiento
+        const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) - 90;
+        const d = `M ${x1} ${y1} C ${x1} ${cpY} ${x2} ${cpY} ${x2} ${y2}`;
+        return { isPath: true, d } as any;
+    }
+    // modo spread: desplazar X del target según índice en grupo
+    if (mode === 3 && typeof x1 === 'number' && typeof x2 === 'number') {
+        const idx = groupedIndexForEdge(e);
+        const candidates = childEdges.value.filter((ed) => {
+            const rt = renderedNodeById(ed.target);
+            const r = renderedNodeById(e.target);
+            return ed.source === e.source && rt && r && Math.abs((rt.x ?? 0) - (r.x ?? 0)) <= 8;
+        });
+        const centerOffset = ((idx - (candidates.length - 1) / 2) * 18);
+        return { isPath: false, x1, y1, x2: (x2 ?? 0) + centerOffset, y2 } as any;
+    }
+    // modo gap grande: aumentar el desplazamiento vertical del target
+    if (mode === 1 && typeof x1 === 'number' && typeof x2 === 'number') {
+        const childRadius = 20;
+        const y2adj = (y2 ?? 0) - (childRadius - 2);
+        return { isPath: false, x1, y1, x2, y2: y2adj } as any;
+    }
+    // modo por defecto: offset pequeño
+    return { isPath: false, x1, y1, x2, y2 } as any;
 }
 
 // Debug helpers removed
@@ -1331,7 +1430,7 @@ function buildNodesFromItems(items: any[]) {
                 return n;
             });
         }
-    } catch (err) {
+    } catch (err: unknown) {
         void err;
     }
     // build scenario->capability edges so initial view shows connections from scenario to capabilities
@@ -1383,7 +1482,7 @@ function runForceLayout() {
             const p = pos.get(n.id);
             return { ...n, x: p?.x ?? n.x, y: p?.y ?? n.y } as any;
         });
-    } catch (err) {
+    } catch (err: unknown) {
         void err;
         // if simulation fails, silently skip (fallback positions already set)
         // console.warn('[PrototypeMap] force layout failed', err)
@@ -1443,7 +1542,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             console.debug('[node.click] id=', (node as any)?.id, 'level=', nodeLevel((node as any)?.id), 'isTrusted=', !!(event as any)?.isTrusted, 'time=', Date.now());
             console.debug(new Error('click-stack').stack?.split('\n').slice(1,6).join('\n'));
         }
-    } catch (e) { void e; }
+    } catch (err: unknown) { void err; }
     // If this is a level-2 node (competency), short-circuit: only log and do not run animations/expansions
     try {
         const lvl = nodeLevel((node as any)?.id);
@@ -1461,13 +1560,13 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 // keep selectedChild focused but clear skills
                 return;
             }
-        } catch (e) { void e; }
+        } catch (err: unknown) { void err; }
         if (lvl === 2) {
-            try { if ((window as any).__DEBUG__) console.debug('[node.click.level2] id=', (node as any)?.id, 'level=', lvl); } catch (e) { void e; }
+            try { if ((window as any).__DEBUG__) console.debug('[node.click.level2] id=', (node as any)?.id, 'level=', lvl); } catch (err: unknown) { void err; }
             try {
                 noAnimations.value = true;
                 setTimeout(() => { noAnimations.value = false; }, Math.max(300, TRANSITION_MS));
-            } catch (e) { void e; }
+            } catch (err: unknown) { void err; }
 
             // For left-click on a competency, expand its skills (do not open modal)
             try {
@@ -1484,7 +1583,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 selectedChild.value = node as any;
                 if (parentNode) focusedNode.value = parentNode; else focusedNode.value = node as any;
 
-                try { const cid = (selectedChild.value as any)?.id ?? (node as any)?.id; if (cid != null) showOnlySelectedAndParent(cid, true); } catch (e) { void e; }
+                try { const cid = (selectedChild.value as any)?.id ?? (node as any)?.id; if (cid != null) showOnlySelectedAndParent(cid, true); } catch (err: unknown) { void err; }
 
                 try {
                     const fid = (selectedChild.value as any)?.id ?? (focusedNode.value as any).id;
@@ -1496,7 +1595,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                             childNodes.value = others.concat(childNodes.value.filter((ch: any) => ch.id === fid));
                         }
                     }
-                } catch (err) { void err; }
+                } catch (err: unknown) { void err; }
 
                 // expand skills for this competency
                 try {
@@ -1509,17 +1608,17 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                         } else if (compId) {
                             try {
                                 const skills = await fetchSkillsForCompetency(Number(compId));
-                                try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (e) { void e; }
+                                try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (err: unknown) { void err; }
                                 expandSkills(selectedChild.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
-                            } catch (e) { void e; }
+                            } catch (err: unknown) { void err; }
                         }
                     }
-                } catch (e) { void e; }
-            } catch (e) { void e; }
+                } catch (err: unknown) { void err; }
+            } catch (err: unknown) { void err; }
 
             return;
         }
-    } catch (e) { void e; }
+    } catch (err: unknown) { void err; }
     // debounce/guard: avoid processing duplicate rapid calls for the same node
     try {
         const now = Date.now();
@@ -1528,7 +1627,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             return;
         }
         (window as any).__lastClick = { id: (node as any)?.id, time: now };
-    } catch (e) { void e; }
+    } catch (err: unknown) { void err; }
 
     // capture previous focused node so we can swap positions when appropriate
     const prev = focusedNode.value ? { ...focusedNode.value } : undefined;
@@ -1544,7 +1643,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             try {
                 const lvl = nodeLevel((node as any).id);
                 if (lvl === 2) {
-                    try { noAnimations.value = true; } catch (e) { void e; }
+                    try { noAnimations.value = true; } catch (err: unknown) { void err; }
                     const parentId = parentNode.id;
                     nodes.value = nodes.value.map((n: any) => {
                         if (n.id === parentId) return { ...n, visible: true };
@@ -1555,8 +1654,8 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                         nodes.value = nodes.value.map((n: any) => (n.id === parentId ? { ...n, visible: true } : { ...n, visible: false }));
                     }, Math.max(40, TRANSITION_MS - 120));
                 }
-            } catch (e) {
-                void e;
+            } catch (err: unknown) {
+                void err;
             }
             // capture parent's previous position so children can animate from there in sync
             const parentPrevPos = { x: parentNode.x ?? 0, y: parentNode.y ?? 0 };
@@ -1580,14 +1679,14 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 const compId = comp?.compId ?? comp?.raw?.id ?? Math.abs(comp?.id || 0);
                 if (compId) {
                     const skills = await fetchSkillsForCompetency(Number(compId));
-                    try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (e) { void e; }
+                                try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (err: unknown) { void err; }
                 }
-            } catch (e) { void e; }
+                            } catch (err: unknown) { void err; }
             // hide all except selected competency and its parent
             try {
                 const cid = (selectedChild.value as any)?.id ?? (node as any)?.id;
                 if (cid != null) showOnlySelectedAndParent(cid, true);
-            } catch (e) { void e; }
+                } catch (err: unknown) { void err; }
             // Ensure the selected child remains visible (do not let it disappear)
             try {
                 const fid = (selectedChild.value as any)?.id ?? (focusedNode.value as any).id;
@@ -1603,7 +1702,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                         childNodes.value = others.concat(childNodes.value.filter((ch: any) => ch.id === fid));
                     }
                 }
-            } catch (err) {
+            } catch (err: unknown) {
                 void err;
             }
             // set updated reference for later use
@@ -1658,7 +1757,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 // then expand competencies using the updated focused node coordinates (limit to 10 in 2x5)
                 updated = nodeById(selected.id) || selected;
                 expandCompetencies(updated as NodeItem, nodePrevPos, { limit: 10, rows: 2, cols: 5 });
-            } catch (e) {
+            } catch (err: unknown) {
                 // fallback: original flow
                 const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
                 await Promise.race([waitForTransitionForNode(node.id), wait(centeredLead)]);
@@ -1692,7 +1791,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             scenarioNode.value.x = (refNode.x ?? 0);
             scenarioNode.value.y = Math.round((refNode.y ?? 0) - offsetY);
         }
-    } catch (err) {
+    } catch (err: unknown) {
         void err;
         // ignore
     }
@@ -1840,7 +1939,7 @@ function handleSkillClick(skill: any, event?: MouseEvent) {
         }
         // open skill creation modal? Instead, open sidebar to view/edit selected child
         showSidebar.value = true;
-    } catch (e) { void e; }
+            } catch (err: unknown) { void err; }
 }
 
 // Fullscreen toggle removed: UX disabled. We rely only on the browser Fullscreen API when used externally.
@@ -1987,7 +2086,7 @@ async function fetchAvailableCompetencies() {
         // exclude competencies already attached to the capability (if any)
         const attached = (focusedNode.value as any)?.competencies?.map((c: any) => c.id) || [];
         availableExistingCompetencies.value = Array.isArray(all) ? all.filter((c: any) => !attached.includes(c.id)) : [];
-    } catch (e) {
+    } catch (err: unknown) {
         availableExistingCompetencies.value = [];
     }
 }
@@ -2012,14 +2111,14 @@ async function fetchSkillsForCompetency(compId: number) {
                     }
                 }
             }
-        } catch (e) { void e; }
+        } catch (err: unknown) { void err; }
 
         // 2) Try dedicated competency endpoints (we added these routes server-side):
         try {
             const r: any = await api.get(`/api/competencies/${compId}/skills`);
             const s = r?.data ?? r;
             if (Array.isArray(s)) return s;
-        } catch (e) { void e; }
+        } catch (err: unknown) { void err; }
 
         try {
             const r2: any = await api.get(`/api/competencies/${compId}`);
@@ -2028,7 +2127,7 @@ async function fetchSkillsForCompetency(compId: number) {
                 if (Array.isArray(obj.skills)) return obj.skills;
                 if (Array.isArray(obj.data?.skills)) return obj.data.skills;
             }
-        } catch (e) { void e; }
+        } catch (err: unknown) { void err; }
 
         // 3) Fallback: try generic skills endpoint and filter locally (best-effort)
         try {
@@ -2047,9 +2146,9 @@ async function fetchSkillsForCompetency(compId: number) {
                 return false;
             });
             return filtered;
-        } catch (e) { void e; }
+        } catch (err: unknown) { void err; }
 
-    } catch (e) { void e; }
+    } catch (err: unknown) { void err; }
     finally {
         loadingSkills.value = false;
     }
@@ -2072,9 +2171,9 @@ async function createAndAttachComp() {
         // attach to capability via best-effort endpoint
         try {
             await api.post(`/api/capabilities/${capId}/competencies`, { competency_id: created.id });
-        } catch (err) {
+        } catch (err: unknown) {
             // fallback: try pivot endpoint on scenario if available
-            try { await api.post(`/api/strategic-planning/capabilities/${capId}/competencies`, { competency_id: created.id }); } catch (e) { void e; }
+            try { await api.post(`/api/strategic-planning/capabilities/${capId}/competencies`, { competency_id: created.id }); } catch (err: unknown) { void err; }
         }
         createCompDialogVisible.value = false;
         // refresh tree and expand parent
@@ -2084,7 +2183,7 @@ async function createAndAttachComp() {
             expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
         }
         showSuccess('Competencia creada y asociada');
-    } catch (e) {
+    } catch (err: unknown) {
         showError('Error creando competencia');
     }
 }
@@ -2100,7 +2199,7 @@ async function attachExistingComp() {
         const parent = nodeById(capId);
         if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
         showSuccess('Competencia asociada correctamente');
-    } catch (e) {
+    } catch (err: unknown) {
         showError('Error asociando competencia');
     }
 }
@@ -2119,7 +2218,7 @@ async function saveSelectedChild() {
         };
         if (child.compId || child.compId === 0 || (child.raw && child.raw.id)) {
             const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
-            try { await api.patch(`/api/competencies/${compId}`, compPayload); } catch (e) { void e; }
+            try { await api.patch(`/api/competencies/${compId}`, compPayload); } catch (err: unknown) { void err; }
         }
 
         // update pivot (capability_competencies) if we can find parent
@@ -2134,7 +2233,7 @@ async function saveSelectedChild() {
                 is_critical: !!editChildPivotIsCritical.value,
                 rationale: editChildPivotRationale.value,
             };
-            try { await api.patch(`/api/capabilities/${parentId}/competencies/${compId}`, pivotPayload); } catch (e) { void e; }
+            try { await api.patch(`/api/capabilities/${parentId}/competencies/${compId}`, pivotPayload); } catch (err: unknown) { void err; }
         }
 
         // refresh and re-open parent expansion
@@ -2144,7 +2243,8 @@ async function saveSelectedChild() {
             if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
         }
         showSuccess('Competencia actualizada');
-    } catch (e) {
+    } catch (err: unknown) {
+        void err;
         showError('Error guardando competencia');
     }
 }
@@ -2168,7 +2268,7 @@ async function onPointerUp() {
     if (positionsDirty.value) {
         try {
             await savePositions();
-        } catch (err) {
+        } catch (err: unknown) {
             void err;
         }
         positionsDirty.value = false;
@@ -2199,8 +2299,8 @@ const savePositions = async () => {
             payload,
         );
         showSuccess('Posiciones guardadas');
-    } catch (e) {
-        void e;
+    } catch (err: unknown) {
+        void err;
         showError('Error al guardar posiciones');
     }
 };
@@ -2223,8 +2323,8 @@ const loadTreeFromApi = async (scenarioId?: number) => {
         buildNodesFromItems(items);
         // ensure edges are rebuilt from the fetched items
         buildEdgesFromItems(items);
-    } catch (e) {
-        void e;
+    } catch (err: unknown) {
+        void err;
         // error loading capability-tree
         nodes.value = [];
     } finally {
@@ -2234,7 +2334,7 @@ const loadTreeFromApi = async (scenarioId?: number) => {
 
 onMounted(() => {
     // expose helper for quick debugging in browser console
-    try { (window as any).__nodeLevel = nodeLevel; } catch (e) { void e; }
+    try { (window as any).__nodeLevel = nodeLevel; } catch (err: unknown) { void err; }
     // prefer passed-in scenario.capabilities to avoid extra network roundtrip
     // onMounted: handle incoming props.scenario
     if (
@@ -2259,8 +2359,8 @@ onMounted(() => {
                 const restored = nodeById(savedFocusedNodeId.value);
                 if (restored) focusedNode.value = restored;
             }
-        } catch (e) {
-            void e;
+        } catch (err: unknown) {
+            void err;
             // ignore storage errors
         }
         loaded.value = true;
@@ -2269,7 +2369,7 @@ onMounted(() => {
         // reset positions to default layout on reload (user requested automatic reset)
         try {
             resetPositions();
-        } catch (err) {
+        } catch (err: unknown) {
             void err;
         }
         return;
@@ -2340,8 +2440,8 @@ watch(
             const lastView = focusedNode.value ? 'node' : showSidebar.value ? 'scenario' : 'none';
             localStorage.setItem(LS_KEYS.lastView, lastView);
             localStorage.setItem(LS_KEYS.lastFocusedId, focusedNode.value ? String((focusedNode.value as any).id) : '');
-        } catch (e) {
-            void e;
+        } catch (err: unknown) {
+            void err;
             // ignore storage errors
         }
     },
@@ -2398,9 +2498,9 @@ if (!edges.value) edges.value = [];
         <div
             class="map-controls"
             style="
-                margin-bottom: 8px;
+                margin-bottom: 2px;
                 display: flex;
-                gap: 8px;
+                gap: 2px;
                 align-items: center;
             "
         >
@@ -2667,6 +2767,25 @@ if (!edges.value) edges.value = [];
                         />
                     </g>
 
+                    <!-- child edges: conexiones entre la capacidad seleccionada y sus competencias -->
+                    <g class="child-edges" v-if="childEdgeMode !== 2">
+                        <line
+                            v-for="(e, idx) in childEdges"
+                            :key="`child-edge-${idx}`"
+                            :x1="edgeEndpoint(e, false)?.x ?? undefined"
+                            :y1="edgeEndpoint(e, false)?.y ?? undefined"
+                            :x2="edgeEndpoint(e, true)?.x ?? undefined"
+                            :y2="edgeEndpoint(e, true)?.y ?? undefined"
+                            class="edge-line child-edge"
+                            stroke="url(#childGrad)"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            filter="url(#edgeGlow)"
+                            stroke-opacity="0.98"
+                            marker-end="url(#childArrow)"
+                        />
+                    </g>
+
                     <!-- nodes -->
                     <g class="nodes">
                     <!-- scenario/origin node (optional) -->
@@ -2864,6 +2983,42 @@ if (!edges.value) edges.value = [];
                             <text :x="0" :y="4" text-anchor="middle" class="node-label" style="font-size:10px">{{ s.name }}</text>
                         </g>
                     </g>
+                    <!-- overlay: dibujar conectores tipo 'hub' para que cada hijo tenga su conector visible -->
+                    <g class="child-edges-overlay">
+                        <template v-if="childEdges && childEdges.length > 0">
+                            <!-- Agrupar por padre (source) -->
+                            <template v-for="(group, gi) in (() => {
+                                const map = new Map();
+                                (childEdges || []).forEach((e) => {
+                                    const s = e.source;
+                                    if (!map.has(s)) map.set(s, []);
+                                    map.get(s).push(e);
+                                });
+                                return Array.from(map.values());
+                            })()" :key="`hub-${gi}`">
+                                <g v-if="group && group.length > 0">
+                                    <!-- línea vertical desde el padre hasta el hubY -->
+                                    <line
+                                        v-if="renderedNodeById(group[0].source)"
+                                        :x1="renderedNodeById(group[0].source).x"
+                                        :y1="renderedNodeById(group[0].source).y"
+                                        :x2="renderedNodeById(group[0].source).x"
+                                        :y2="(() => {
+                                            const childYs = group.map((e) => renderedNodeById(e.target)?.y ?? 0);
+                                            const minChildY = Math.min.apply(null, childYs.length ? childYs : [height]);
+                                            return (minChildY - 36);
+                                        })()"
+                                        class="edge-line child-edge"
+                                        stroke="url(#childGrad)"
+                                        stroke-width="2.6"
+                                        stroke-linecap="round"
+                                        filter="url(#edgeGlow)"
+                                        stroke-opacity="1"
+                                    />
+                                </g>
+                            </template>
+                        </template>
+                    </g>
                     <!-- Controles integrados en el SVG: reordenar / restaurar vista -->
                     <g
                         class="diagram-control reorder-control"
@@ -2874,6 +3029,18 @@ if (!edges.value) edges.value = [];
                         <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
                         <title>Reordenar nodos</title>
                         <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">R</text>
+                    </g>
+                    
+                    <g
+                        class="diagram-control mode-control"
+                        :transform="`translate(${Math.max(48, width - 56)}, 180)`"
+                        @click.stop="nextChildEdgeMode"
+                        style="cursor: pointer"
+                        :title="`Edge mode: ${childEdgeModeLabels[childEdgeMode]}`"
+                    >
+                        <circle r="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)"/>
+                        <title>Cambiar modo conector</title>
+                        <text x="0" y="4" text-anchor="middle" font-size="10" fill="#dbeafe" style="font-weight:700">{{ childEdgeModeLabels[childEdgeMode] }}</text>
                     </g>
 
                     <g
@@ -3307,7 +3474,7 @@ if (!edges.value) edges.value = [];
     animation: pulse 2400ms infinite;
 }
 @keyframes pulse {
-    0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+    0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(54, 52, 52, 0)); }
     50% { transform: scale(1.03); }
     100% { transform: scale(1); }
 }
