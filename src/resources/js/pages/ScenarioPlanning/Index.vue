@@ -30,6 +30,8 @@ interface Props {
         // vertical offset (px) from parent capability to first row of competencies
         parentOffset?: number;
     };
+    // optional: explicit top-level override (px) for parent->children distance
+    capabilityChildrenOffset?: number;
     // optional: curvature depth (px) for scenario->capability curved edges
     scenarioEdgeCurveDepth?: number;
 }
@@ -104,7 +106,8 @@ function nodeLevel(nodeOrId: any) {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    competencyLayout: () => ({ parentOffset: 100 }),
+    competencyLayout: () => ({ parentOffset: 80 }),
+    capabilityChildrenOffset: 150,
     scenarioEdgeCurveDepth: 90,
 });
     
@@ -722,7 +725,7 @@ function setScenarioInitial() {
         id: 0,
         name: (props.scenario && (props.scenario.name || 'Escenario')) as string,
         x: Math.round(width.value / 2),
-        y: Math.round(height.value * 0.12),
+        y: Math.round(height.value * 0.1),
     };
 }
 
@@ -1981,8 +1984,10 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     const DEFAULT_COMPETENCY_LAYOUT = { rows: 1, cols: 4, hSpacing: 100, vSpacing: 80, parentOffset: 150 };
     // allow smaller offset for fake/temporary nodes (negative ids)
     const defaultParentOffset = (node.id != null && node.id < 0) ? 80 : DEFAULT_COMPETENCY_LAYOUT.parentOffset;
-    // priority: explicit prop > default per-node fallback
-    const verticalOffset = props.competencyLayout?.parentOffset ?? defaultParentOffset;
+    // priority: top-level explicit override > competencyLayout prop > default per-node fallback
+    const verticalOffset = (typeof props.capabilityChildrenOffset === 'number')
+        ? props.capabilityChildrenOffset
+        : (props.competencyLayout?.parentOffset ?? defaultParentOffset);
     const topY = Math.round(parentY + verticalOffset);
 
     const rows = opts.rows ?? props.competencyLayout?.rows ?? DEFAULT_COMPETENCY_LAYOUT.rows;
