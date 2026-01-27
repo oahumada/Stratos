@@ -34,6 +34,23 @@ interface Props {
     capabilityChildrenOffset?: number;
     // optional: curvature depth (px) for scenario->capability curved edges
     scenarioEdgeCurveDepth?: number;
+    // visual configuration overrides for layout and edges
+    visualConfig?: {
+        nodeRadius?: number;
+        focusRadius?: number;
+        // scenario node offsets
+        scenarioOffset?: number; // used when following a node
+        scenarioOffsetSwap?: number; // used when swapping focused nodes
+        // small drops to push children/skills lower
+        childDrop?: number;
+        skillDrop?: number;
+        // edge config
+        edge?: {
+            baseDepth?: number;
+            curveFactor?: number;
+            spreadOffset?: number;
+        };
+    };
 }
 
 function restoreView() {
@@ -109,6 +126,15 @@ const props = withDefaults(defineProps<Props>(), {
     competencyLayout: () => ({ parentOffset: 80 }),
     capabilityChildrenOffset: 150,
     scenarioEdgeCurveDepth: 90,
+    visualConfig: () => ({
+        nodeRadius: 34,
+        focusRadius: 34,
+        scenarioOffset: 80,
+        scenarioOffsetSwap: 150,
+        childDrop: 18,
+        skillDrop: 18,
+        edge: { baseDepth: 40, curveFactor: 0.35, spreadOffset: 18 },
+    }),
 });
     
 const emit = defineEmits<{
@@ -591,7 +617,7 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
                 const centerX = Math.round(width.value / 2);
                 const VERTICAL_FOCUS_RATIO = 0.45;
                 const centerY = Math.round(height.value * VERTICAL_FOCUS_RATIO);
-                const offsetY = 150;
+                const offsetY = props.visualConfig?.scenarioOffsetSwap ?? 150;
                 scenarioNode.value.x = centerX;
                 scenarioNode.value.y = Math.round(centerY - offsetY);
             }
@@ -712,7 +738,7 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
 
     // Position scenario node (if following) relative to focused node
     if (followScenario.value && scenarioNode.value) {
-        const offsetY = 80;
+        const offsetY = props.visualConfig?.scenarioOffset ?? 80;
         scenarioNode.value.x = centerX;
         scenarioNode.value.y = Math.round(centerY - offsetY);
     }
@@ -1310,9 +1336,12 @@ function edgeRenderFor(e: Edge) {
     const mode = childEdgeMode.value;
     // modo curva
     if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
-        // control point más alto para curvas más pronunciadas y evitar solapamiento
-        
-        const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) + 20;
+        // control point adaptativo para curvas más pronunciadas, configurable via props.visualConfig.edge
+        const baseDepth = props.visualConfig?.edge?.baseDepth ?? 40;
+        const curveFactor = props.visualConfig?.edge?.curveFactor ?? 0.35;
+        const distance = Math.abs((y2 ?? 0) - (y1 ?? 0));
+        const depth = Math.max(baseDepth, Math.round(distance * curveFactor) + baseDepth);
+        const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) + depth;
         const d = `M ${x1} ${y1} C ${x1} ${cpY} ${x2} ${cpY} ${x2} ${y2}`;
         return { isPath: true, d } as any;
     }
@@ -1810,7 +1839,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
     try {
         if (followScenario.value && scenarioNode.value && (updated || node)) {
             // position scenario node slightly above the clicked node to act as origin
-            const offsetY = 80;
+            const offsetY = props.visualConfig?.scenarioOffset ?? 80;
             const refNode = updated || node;
             scenarioNode.value.x = (refNode.x ?? 0);
             scenarioNode.value.y = Math.round((refNode.y ?? 0) - offsetY);
@@ -1984,11 +2013,12 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     const DEFAULT_COMPETENCY_LAYOUT = { rows: 1, cols: 4, hSpacing: 100, vSpacing: 80, parentOffset: 150 };
     // allow smaller offset for fake/temporary nodes (negative ids)
     const defaultParentOffset = (node.id != null && node.id < 0) ? 80 : DEFAULT_COMPETENCY_LAYOUT.parentOffset;
-    // priority: top-level explicit override > competencyLayout prop > default per-node fallback
-    const verticalOffset = (typeof props.capabilityChildrenOffset === 'number')
-        ? props.capabilityChildrenOffset
-        : (props.competencyLayout?.parentOffset ?? defaultParentOffset);
-    const topY = Math.round(parentY + verticalOffset);
+    // priority: visualConfig override > top-level prop > competencyLayout prop > default per-node fallback
+    const verticalOffset = (typeof props.visualConfig?.capabilityChildrenOffset === 'number')
+        ? props.visualConfig!.capabilityChildrenOffset!
+        : (typeof props.capabilityChildrenOffset === 'number' ? props.capabilityChildrenOffset : (props.competencyLayout?.parentOffset ?? defaultParentOffset));
+    const CHILD_DROP = props.visualConfig?.childDrop ?? props.competencyLayout?.childDrop ?? 18;
+    const topY = Math.round(parentY + verticalOffset + CHILD_DROP);
 
     const rows = opts.rows ?? props.competencyLayout?.rows ?? DEFAULT_COMPETENCY_LAYOUT.rows;
     const cols = opts.cols ?? props.competencyLayout?.cols ?? DEFAULT_COMPETENCY_LAYOUT.cols;
@@ -2057,7 +2087,9 @@ function expandSkills(node: any, initialPos?: { x: number; y: number }) {
     const toShow = skills.slice(0, limit);
     const cx = node.x ?? Math.round(width.value / 2);
     const parentY = node.y ?? Math.round(height.value / 2);
-    const topY = Math.round(parentY + 80);
+    const SKILL_PARENT_OFFSET = 80;
+    const SKILL_DROP_EXTRA = props.visualConfig?.skillDrop ?? props.competencyLayout?.skillDrop ?? 18;
+    const topY = Math.round(parentY + SKILL_PARENT_OFFSET + SKILL_DROP_EXTRA);
     const rows = Math.min(2, Math.ceil(toShow.length / 6));
     const cols = Math.min(6, toShow.length);
     const positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: 80, vSpacing: 56 });
