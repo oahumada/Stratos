@@ -720,6 +720,20 @@ function openScenarioInfo() {
     showSidebar.value = true;
 }
 
+async function handleScenarioClick() {
+    // Ejecuta el reordenamiento y luego restaura la vista al nivel inicial
+    try {
+        await reorderNodes();
+    } catch (e) {
+        void e;
+    }
+    try {
+        restoreView();
+    } catch (e) {
+        void e;
+    }
+}
+
 // initialize edit fields when focusedNode changes
 watch(focusedNode, (nv) => {
     try {
@@ -2661,7 +2675,7 @@ if (!edges.value) edges.value = [];
                         :style="{ transform: `translate(${scenarioNode.x}px, ${scenarioNode.y}px)` }"
                         class="node-group scenario-node"
                         :data-node-id="scenarioNode.id"
-                        @click.stop="openScenarioInfo"
+                        @click.stop="handleScenarioClick"
                         :title="'Ver información del escenario'"
                         style="cursor: pointer"
                     >
@@ -3310,7 +3324,7 @@ if (!edges.value) edges.value = [];
 
 /* scenario node styling (smooth follow transition) */
 .scenario-node {
-    pointer-events: none;
+    pointer-events: auto;
     transition: transform 360ms cubic-bezier(.22,.9,.3,1);
 }
 
