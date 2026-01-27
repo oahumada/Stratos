@@ -30,6 +30,8 @@ interface Props {
         // vertical offset (px) from parent capability to first row of competencies
         parentOffset?: number;
     };
+    // optional: curvature depth (px) for scenario->capability curved edges
+    scenarioEdgeCurveDepth?: number;
 }
 
 function restoreView() {
@@ -103,6 +105,7 @@ function nodeLevel(nodeOrId: any) {
 
 const props = withDefaults(defineProps<Props>(), {
     competencyLayout: () => ({ parentOffset: 100 }),
+    scenarioEdgeCurveDepth: 90,
 });
     
 const emit = defineEmits<{
@@ -1305,7 +1308,8 @@ function edgeRenderFor(e: Edge) {
     // modo curva
     if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
         // control point más alto para curvas más pronunciadas y evitar solapamiento
-        const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) - 10;
+        
+        const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) + 20;
         const d = `M ${x1} ${y1} C ${x1} ${cpY} ${x2} ${cpY} ${x2} ${y2}`;
         return { isPath: true, d } as any;
     }
@@ -1328,6 +1332,19 @@ function edgeRenderFor(e: Edge) {
     }
     // modo por defecto: offset pequeño
     return { isPath: false, x1, y1, x2, y2 } as any;
+}
+
+// Devuelve un path curvo para aristas scenario->capability (configurable por props.scenarioEdgeCurveDepth)
+function scenarioEdgePath(e: Edge) {
+    try {
+        const s = renderedNodeById(e.source);
+        const t = renderedNodeById(e.target);
+        if (!s || !t || typeof s.x !== 'number' || typeof t.x !== 'number') return '';
+        const depth = props.scenarioEdgeCurveDepth ?? + 40;
+        const cpY = Math.min((s.y ?? 0), (t.y ?? 0)) + depth;
+        return `M ${s.x} ${s.y} C ${s.x} ${cpY} ${t.x} ${cpY} ${t.x} ${t.y}`;
+    } catch (err: unknown) { void err; }
+    return '';
 }
 
 // Debug helpers removed
@@ -2753,25 +2770,38 @@ if (!edges.value) edges.value = [];
                     >
                         <circle r="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)"/>
                         <title>Crear capacidad</title>
-                        <text x="0" y="4" text-anchor="middle" font-size="14" fill="#dbeafe" style="font-weight:700">+</text>
+                        <text x="0" y="4" text-anchor="middle" font-size="16" fill="#dbeafe" style="font-weight:700">+</text>
                     </g>
                     </g>
                     <!-- scenario -> capability edges (distinct group so we can style/animate) -->
                     <g class="scenario-edges">
-                        <line
-                            v-for="(e, idx) in scenarioEdges"
-                            :key="`scenario-edge-${idx}`"
-                            :x1="renderedNodeById(e.source)?.x ?? undefined"
-                            :y1="renderedNodeById(e.source)?.y ?? undefined"
-                            :x2="renderedNodeById(e.target)?.x ?? undefined"
-                            :y2="renderedNodeById(e.target)?.y ?? undefined"
+                        <template v-for="(e, idx) in scenarioEdges" :key="`scenario-edge-${idx}`">
+                            <path
+                                v-if="scenarioEdgePath(e)"
+                                :d="scenarioEdgePath(e)"
+                                class="edge-line scenario-edge"
+                                stroke="url(#scenarioEdgeGrad)"
+                                stroke-width="2.6"
+                                stroke-linecap="round"
+                                fill="none"
+                                filter="url(#edgeGlow)"
+                                stroke-opacity="0.95"
+                            />
+                            <!-- fallback to straight line if path empty -->
+                            <line
+                                v-else
+                                :x1="renderedNodeById(e.source)?.x ?? undefined"
+                                :y1="renderedNodeById(e.source)?.y ?? undefined"
+                                :x2="renderedNodeById(e.target)?.x ?? undefined"
+                                :y2="renderedNodeById(e.target)?.y ?? undefined"
                                 class="edge-line scenario-edge"
                                 stroke="url(#scenarioEdgeGrad)"
                                 stroke-width="2.6"
                                 stroke-linecap="round"
                                 filter="url(#edgeGlow)"
                                 stroke-opacity="0.95"
-                        />
+                            />
+                        </template>
                     </g>
 
                     <!-- child edges: conexiones entre la capacidad seleccionada y sus competencias -->
