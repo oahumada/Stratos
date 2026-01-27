@@ -27,6 +27,8 @@ interface Props {
         cols?: 5;
         hSpacing?: number;
         vSpacing?: number;
+        // vertical offset (px) from parent capability to first row of competencies
+        parentOffset?: number;
     };
 }
 
@@ -99,7 +101,9 @@ function nodeLevel(nodeOrId: any) {
     return depth;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+    competencyLayout: () => ({ parentOffset: 100 }),
+});
     
 const emit = defineEmits<{
     (e: 'createCapability'): void;
@@ -579,9 +583,9 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
             if (followScenario.value && scenarioNode.value) {
                 // place scenario relative to the currently focused (new) node
                 const centerX = Math.round(width.value / 2);
-                const VERTICAL_FOCUS_RATIO = 0.25;
+                const VERTICAL_FOCUS_RATIO = 0.45;
                 const centerY = Math.round(height.value * VERTICAL_FOCUS_RATIO);
-                const offsetY = 80;
+                const offsetY = 150;
                 scenarioNode.value.x = centerX;
                 scenarioNode.value.y = Math.round(centerY - offsetY);
             }
@@ -1411,7 +1415,7 @@ function buildNodesFromItems(items: any[]) {
         const MIN_ORIGIN_SEPARATION = 140; // pixels
         if (scenarioNode.value) {
             const sx = scenarioNode.value.x ?? Math.round(width.value / 2);
-            const sy = scenarioNode.value.y ?? Math.round(height.value * 0.12);
+            const sy = scenarioNode.value.y ?? Math.round(height.value * 0.1);
             nodes.value = nodes.value.map((n: any) => {
                 if (!n || n.x == null || n.y == null) return n;
                 const dx = n.x - sx;
@@ -1956,11 +1960,14 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     const cx = node.x ?? Math.round(width.value / 2);
     // place matrix top starting approximately below parent (use parent's y + offset)
     const parentY = node.y ?? Math.round(height.value / 2);
-    const verticalOffset = (node.id != null && node.id < 0) ? 80 : 150;
+    // Defaults for competency layout (level-1 friendly defaults)
+    const DEFAULT_COMPETENCY_LAYOUT = { rows: 1, cols: 4, hSpacing: 100, vSpacing: 80, parentOffset: 150 };
+    // allow smaller offset for fake/temporary nodes (negative ids)
+    const defaultParentOffset = (node.id != null && node.id < 0) ? 80 : DEFAULT_COMPETENCY_LAYOUT.parentOffset;
+    // priority: explicit prop > default per-node fallback
+    const verticalOffset = props.competencyLayout?.parentOffset ?? defaultParentOffset;
     const topY = Math.round(parentY + verticalOffset);
 
-    // Defaults for competency layout (level-1 friendly defaults)
-    const DEFAULT_COMPETENCY_LAYOUT = { rows: 1, cols: 4, hSpacing: 100, vSpacing: 80 };
     const rows = opts.rows ?? props.competencyLayout?.rows ?? DEFAULT_COMPETENCY_LAYOUT.rows;
     const cols = opts.cols ?? props.competencyLayout?.cols ?? DEFAULT_COMPETENCY_LAYOUT.cols;
     const hSpacing = props.competencyLayout?.hSpacing ?? DEFAULT_COMPETENCY_LAYOUT.hSpacing;
