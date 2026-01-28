@@ -23,8 +23,8 @@ interface Props {
     childColumns?: number;
     // optional: layout overrides for competencies (rows, cols, spacing)
     competencyLayout?: {
-        rows?: 2;
-        cols?: 5;
+        rows?: number;
+        cols?: number;
         hSpacing?: number;
         vSpacing?: number;
         // vertical offset (px) from parent capability to first row of competencies
@@ -255,14 +255,16 @@ function openNodeContextMenu(node: any, ev: MouseEvent) {
         ev.preventDefault();
         ev.stopPropagation();
     } catch (err: unknown) { void err; }
-        const rect = mapRoot.value ? mapRoot.value.getBoundingClientRect() : { left: 0, top: 0 };
-        contextMenuLeft.value = Math.max(8, (ev.clientX - rect.left));
-        contextMenuTop.value = Math.max(8, (ev.clientY - rect.top));
-        contextMenuTarget.value = node;
-        contextMenuIsChild.value = !!(node && node.id != null && node.id < 0);
-        contextMenuVisible.value = true;
-    contextMenuLeft.value = Math.max(8, (ev.clientX - rect.left));
-    contextMenuTop.value = Math.max(8, (ev.clientY - rect.top));
+    // compute container rect (map root) and clamp menu to stay inside
+    const rect = mapRoot.value ? mapRoot.value.getBoundingClientRect() : { left: 0, top: 0, width: width.value, height: height.value } as DOMRect;
+    const MENU_W = 260;
+    const MENU_H = 300; // conservative height for clamping
+    const relX = (ev.clientX - rect.left);
+    const relY = (ev.clientY - rect.top);
+    const clampedX = Math.max(8, Math.min(relX, (rect.width ?? width.value) - MENU_W - 8));
+    const clampedY = Math.max(8, Math.min(relY, (rect.height ?? height.value) - 24));
+    contextMenuLeft.value = Math.round(clampedX);
+    contextMenuTop.value = Math.round(clampedY);
     contextMenuTarget.value = node;
     contextMenuIsChild.value = !!(node && node.id != null && node.id < 0);
     contextMenuVisible.value = true;
@@ -1051,6 +1053,22 @@ function createCapabilityClicked() {
     pivotRequiredLevel.value = 3;
     pivotIsCritical.value = false;
     createModalVisible.value = true;
+}
+
+// Dialog helpers to centralize open/close logic
+function showCreateCompDialog() {
+    createCompDialogVisible.value = true;
+}
+function showCreateSkillDialog() {
+    createSkillDialogVisible.value = true;
+}
+async function openSelectSkillDialog() {
+    await loadAvailableSkills();
+    selectSkillDialogVisible.value = true;
+}
+async function openAddExistingCompDialog() {
+    await fetchAvailableCompetencies();
+    addExistingCompDialogVisible.value = true;
 }
 
 async function saveNewCapability() {
@@ -1939,6 +1957,8 @@ function toggleNodeSidebarCollapse() {
 
 // sidebar theme: 'light' | 'dark'
 const sidebarTheme = ref<'light' | 'dark'>('light');
+
+const dialogThemeClass = computed(() => (sidebarTheme.value === 'dark' ? 'dialog-dark' : 'dialog-light'));
 
 function toggleSidebarTheme() {
     sidebarTheme.value = sidebarTheme.value === 'light' ? 'dark' : 'light';
@@ -3238,7 +3258,15 @@ if (!edges.value) edges.value = [];
             </svg>
 
             <!-- Context menu overlay (right-click) replaced with Vuetify v-menu -->
-            <v-menu v-model="contextMenuVisible" absolute offset-y :open-on-click="false" :style="{ left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000 }">
+            <v-menu
+                v-model="contextMenuVisible"
+                absolute
+                offset-y
+                transition="scale-transition"
+                :close-on-content-click="false"
+                :open-on-click="false"
+                :style="{ left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000 }"
+            >
                 <template #default>
                     <div ref="contextMenuEl" class="node-context-menu-v" style="min-width:250px;">
                         <v-list density="compact">
@@ -3272,8 +3300,8 @@ if (!edges.value) edges.value = [];
             </v-menu>
 
             <!-- Reemplazo: mostrar detalles en modal en lugar de panel lateral -->
-            <v-dialog v-model="showSidebar" max-width="980" persistent scrollable>
-                <v-card>
+            <v-dialog v-model="showSidebar" max-width="980" persistent scrollable transition="scale-transition">
+                <v-card :class="dialogThemeClass">
                     <v-card-title class="d-flex justify-space-between align-center">
                         <strong>{{ displayNode ? displayNode.name : (showSidebar ? 'Escenario' : 'Detalle') }}</strong>
                         <div class="d-flex align-center" style="gap:8px">
@@ -3300,8 +3328,8 @@ if (!edges.value) edges.value = [];
                                                 <v-text-field v-model="editChildName" label="Nombre" required />
                                                 <v-textarea v-model="editChildDescription" label="Descripción" rows="3" />
                                                 <div style="display:flex; gap:8px">
-                                                    <v-btn small color="primary" @click="createSkillDialogVisible = true">Crear nueva skill</v-btn>
-                                                    <v-btn small color="secondary" @click="(async ()=>{ await loadAvailableSkills(); selectSkillDialogVisible = true; })()">Seleccionar skill existente</v-btn>
+                                                    <v-btn small color="primary" @click="showCreateSkillDialog">Crear nueva skill</v-btn>
+                                                    <v-btn small color="secondary" @click="openSelectSkillDialog">Seleccionar skill existente</v-btn>
                                                     <v-text-field v-model="editChildReadiness" label="Readiness" type="number" style="flex:1" />
                                                 </div>
 
@@ -3328,8 +3356,8 @@ if (!edges.value) edges.value = [];
                                 <template v-else>
                                     <div style="position:relative;">
                                         <div style="display:flex; gap:8px; margin-bottom:8px">
-                                            <v-btn small color="primary" @click="createCompDialogVisible = true">Crear competencia</v-btn>
-                                            <v-btn small color="secondary" @click="(async ()=>{ await fetchAvailableCompetencies(); addExistingCompDialogVisible = true; })()">Agregar existente</v-btn>
+                                            <v-btn small color="primary" @click="showCreateCompDialog">Crear competencia</v-btn>
+                                            <v-btn small color="secondary" @click="openAddExistingCompDialog">Agregar existente</v-btn>
                                         </div>
                                         <div style="max-height:360px; overflow:auto; padding-right:12px;">
                                             <v-form>
@@ -3388,8 +3416,8 @@ if (!edges.value) edges.value = [];
             </v-dialog>
 
             <!-- Create competency dialog -->
-            <v-dialog v-model="createCompDialogVisible" max-width="640">
-                <v-card>
+            <v-dialog v-model="createCompDialogVisible" max-width="640" transition="scale-transition">
+                <v-card :class="dialogThemeClass">
                     <v-card-title>Crear competencia</v-card-title>
                     <v-card-text>
                         <v-form>
@@ -3408,8 +3436,8 @@ if (!edges.value) edges.value = [];
             </v-dialog>
 
             <!-- Create skill dialog -->
-            <v-dialog v-model="createSkillDialogVisible" max-width="640">
-                <v-card>
+            <v-dialog v-model="createSkillDialogVisible" max-width="640" transition="scale-transition">
+                <v-card :class="dialogThemeClass">
                     <v-card-title>Crear nueva skill</v-card-title>
                     <v-card-text>
                         <v-form>
@@ -3427,8 +3455,8 @@ if (!edges.value) edges.value = [];
             </v-dialog>
 
             <!-- Select existing skill dialog -->
-            <v-dialog v-model="selectSkillDialogVisible" max-width="720">
-                <v-card>
+            <v-dialog v-model="selectSkillDialogVisible" max-width="720" transition="scale-transition">
+                <v-card :class="dialogThemeClass">
                     <v-card-title>Seleccionar skill existente</v-card-title>
                     <v-card-text>
                         <v-select
@@ -3449,8 +3477,8 @@ if (!edges.value) edges.value = [];
             </v-dialog>
 
             <!-- Add existing competency dialog -->
-            <v-dialog v-model="addExistingCompDialogVisible" max-width="640">
-                <v-card>
+            <v-dialog v-model="addExistingCompDialogVisible" max-width="640" transition="scale-transition">
+                <v-card :class="dialogThemeClass">
                     <v-card-title>Agregar competencia existente</v-card-title>
                     <v-card-text>
                         <v-select :items="availableExistingCompetencies" item-title="name" item-value="id" v-model="addExistingSelection" label="Competencia" />
@@ -3463,8 +3491,8 @@ if (!edges.value) edges.value = [];
                 </v-card>
             </v-dialog>
             <!-- Create capability modal: form exposes fields from `capabilities` and `scenario_capabilities` -->
-            <v-dialog v-model="createModalVisible" max-width="720">
-                <v-card>
+            <v-dialog v-model="createModalVisible" max-width="720" transition="scale-transition">
+                <v-card :class="dialogThemeClass">
                     <v-card-title>Crear capacidad</v-card-title>
                     <v-card-text>
                         <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
@@ -3926,6 +3954,8 @@ if (!edges.value) edges.value = [];
     padding: 6px 8px;
     box-shadow: 0 10px 30px rgba(2,6,23,0.6);
     color: var(--v-theme-on-surface, #e6eef8);
+    min-width: 260px;
+    max-width: 340px;
 }
 .node-context-menu-v .v-list {
     padding: 4px 0;
@@ -3961,6 +3991,32 @@ if (!edges.value) edges.value = [];
 .no-animations .node-reflection {
     transition: none !important;
     animation: none !important;
+}
+
+/* Dialog theme variants */
+.dialog-dark {
+    background: linear-gradient(180deg, rgba(6,10,25,0.95), rgba(11,16,41,0.98));
+    color: var(--v-theme-on-surface, #e6eef8);
+    border-radius: 12px;
+    box-shadow: 0 18px 50px rgba(2,6,23,0.7);
+}
+.dialog-light {
+    background: linear-gradient(180deg, #ffffff, #f6fbff);
+    color: #0b2233;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(8,12,30,0.08);
+}
+
+.dialog-dark .v-card-title,
+.dialog-light .v-card-title {
+    padding: 14px 18px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.dialog-dark .v-card-text,
+.dialog-light .v-card-text {
+    padding: 12px 18px 18px 18px;
 }
 
 </style>

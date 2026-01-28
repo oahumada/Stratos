@@ -9,6 +9,12 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Fecha: 2026-01-19
 - la carpeta del proyecto es /src
 
+## Preferencias del usuario
+
+- **Proyecto (específico):** Ejecutar comandos, scripts y pruebas desde la carpeta `src` (por ejemplo, `cd src && npm test` o `cd src && php artisan test`).
+  - Motivo: ejecutar comandos desde la raíz del repo provoca errores recurrentes (no se detecta `package.json`/`artisan` en la raíz).
+  - Registrado: 2026-01-28
+
 ## Overview rápido
 
 - Stack: Laravel 12 (backend) + Inertia v2 + Vue 3 + TypeScript + Vuetify 3
@@ -80,7 +86,6 @@ Esta entrada sirve como referencia para nombres de rutas, directorios y componen
 - **Estado Git local:** cambios aplicados en branch `feature/workforce-planning-scenario-modeling` (commits locales pendientes de push). Intento de fetch/push falló por autenticación remota (usar SSH o PAT para sincronizar).
 - **Próximos pasos guardados:** continuar mañana con la implementación del `NodeContextMenu` y los modales para crear/asociar competencias/skills (ver TODO list actualizada en repo).
 - **Fecha:** 2026-01-27
-
 
 ### Comportamiento: Mostrar Guardar/Reset sólo cuando hay cambios
 
