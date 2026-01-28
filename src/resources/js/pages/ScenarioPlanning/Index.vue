@@ -54,6 +54,12 @@ interface Props {
             curveFactor?: number;
             spreadOffset?: number;
         };
+        // separate edge parameters for skill-level (grandchild) connectors
+        edgeSkill?: {
+            baseDepth?: number;
+            curveFactor?: number;
+            spreadOffset?: number;
+        };
     };
 }
 
@@ -138,6 +144,8 @@ const props = withDefaults(defineProps<Props>(), {
         childDrop: 18,
         skillDrop: 18,
         edge: { baseDepth: 40, curveFactor: 0.35, spreadOffset: 18 },
+        // overrides specifically for skill (grandchild) connectors
+        edgeSkill: { baseDepth: 20, curveFactor: 0.25, spreadOffset: 10 },
     }),
 });
     
@@ -1277,6 +1285,9 @@ function renderedNodeById(id: number) {
         return { x: scenarioNode.value.x, y: scenarioNode.value.y } as any;
     }
     if (id < 0) {
+        // grandChild nodes also use negative ids; prefer returning a grandChild node
+        const g = grandChildNodeById(id);
+        if (g) return g;
         return childNodeById(id);
     }
     const n = nodeById(id);
@@ -1308,8 +1319,10 @@ function edgeEndpoint(e: Edge, forTarget = true) {
         let y = n.y;
         // si es el target y corresponde a un child node (id negativo), ajustar para evitar solapamiento
         if (forTarget && id < 0) {
-            const childRadius = 24; // radio visual estimado del nodo hijo (incluye rim/gloss)
-            const extraGap = 6; // separación visual adicional
+            // Distinguimos entre nodo child (competency) y grandChild (skill)
+            const isGrand = !!grandChildNodeById(id);
+            const childRadius = isGrand ? 14 : 24; // skills son más pequeños
+            const extraGap = isGrand ? 4 : 6; // separación visual adicional menor para skills
             y = (y ?? 0) - (childRadius + extraGap); // dejar un gap suficiente para que la línea no quede oculta
         }
         return { x, y } as any;
@@ -1333,36 +1346,41 @@ function groupedIndexForEdge(e: Edge) {
 }
 
 // Construye los puntos o path para una arista según el modo seleccionado
-function edgeRenderFor(e: Edge) {
+    function edgeRenderFor(e: Edge) {
     const start = edgeEndpoint(e, false);
     const end = edgeEndpoint(e, true);
     const x1 = start.x; const y1 = start.y; const x2 = end.x; const y2 = end.y;
     const mode = childEdgeMode.value;
-    // modo curva
-    if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
-        // control point adaptativo para curvas más pronunciadas, configurable via props.visualConfig.edge
-        const baseDepth = props.visualConfig?.edge?.baseDepth ?? 40;
-        const curveFactor = props.visualConfig?.edge?.curveFactor ?? 0.35;
-        const distance = Math.abs((y2 ?? 0) - (y1 ?? 0));
-        const depth = Math.max(baseDepth, Math.round(distance * curveFactor) + baseDepth);
-        const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) + depth;
-        const d = `M ${x1} ${y1} C ${x1} ${cpY} ${x2} ${cpY} ${x2} ${y2}`;
-        return { isPath: true, d } as any;
-    }
+        // modo curva
+        if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
+            // detectar si la arista apunta a un grandChild (skill) para usar parámetros específicos
+            const isGrand = !!grandChildNodeById(e.target) || !!grandChildNodeById(e.source) || grandChildEdges.value.includes(e as any);
+            // control point adaptativo para curvas más pronunciadas, configurable via props.visualConfig.edge
+            const baseDepth = isGrand ? (props.visualConfig?.edgeSkill?.baseDepth ?? 28) : (props.visualConfig?.edge?.baseDepth ?? 40);
+            const curveFactor = isGrand ? (props.visualConfig?.edgeSkill?.curveFactor ?? 0.30) : (props.visualConfig?.edge?.curveFactor ?? 0.35);
+            const distance = Math.abs((y2 ?? 0) - (y1 ?? 0));
+            const depth = Math.max(baseDepth, Math.round(distance * curveFactor) + baseDepth);
+            const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) + depth;
+            const d = `M ${x1} ${y1} C ${x1} ${cpY} ${x2} ${cpY} ${x2} ${y2}`;
+            return { isPath: true, d } as any;
+        }
     // modo spread: desplazar X del target según índice en grupo
     if (mode === 3 && typeof x1 === 'number' && typeof x2 === 'number') {
         const idx = groupedIndexForEdge(e);
-        const candidates = childEdges.value.filter((ed) => {
+        // use candidates from both childEdges and grandChildEdges so grouping keeps consistent spacing
+        const candidates = childEdges.value.concat(grandChildEdges.value).filter((ed) => {
             const rt = renderedNodeById(ed.target);
             const r = renderedNodeById(e.target);
             return ed.source === e.source && rt && r && Math.abs((rt.x ?? 0) - (r.x ?? 0)) <= 8;
         });
-        const centerOffset = ((idx - (candidates.length - 1) / 2) * 18);
+        const centerOffset = ((idx - (candidates.length - 1) / 2) * (props.visualConfig?.edge?.spreadOffset ?? 18));
         return { isPath: false, x1, y1, x2: (x2 ?? 0) + centerOffset, y2 } as any;
     }
     // modo gap grande: aumentar el desplazamiento vertical del target
     if (mode === 1 && typeof x1 === 'number' && typeof x2 === 'number') {
-        const childRadius = 20;
+        // reduce the gap adjustment for skill nodes (smaller radius)
+        const isGrand = !!grandChildNodeById(e.target);
+        const childRadius = isGrand ? 14 : 20;
         const y2adj = (y2 ?? 0) - (childRadius - 2);
         return { isPath: false, x1, y1, x2, y2: y2adj } as any;
     }
@@ -2868,6 +2886,43 @@ if (!edges.value) edges.value = [];
                             v-else
                             v-for="(e, idx) in childEdges"
                             :key="`child-edge-line-${idx}`"
+                            :x1="edgeRenderFor(e).x1 ?? undefined"
+                            :y1="edgeRenderFor(e).y1 ?? undefined"
+                            :x2="edgeRenderFor(e).x2 ?? undefined"
+                            :y2="edgeRenderFor(e).y2 ?? undefined"
+                            class="edge-line child-edge"
+                            stroke="url(#childGrad)"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            filter="url(#edgeGlow)"
+                            stroke-opacity="0.98"
+                            marker-end="url(#childArrow)"
+                        />
+                    </g>
+
+                    <!-- grandchild edges: conexiones entre la competencia seleccionada y sus skills (mismo estilo que child-edges) -->
+                    <g class="grandchild-edges">
+                        <!-- curva (modo 2) -->
+                        <path
+                            v-if="childEdgeMode === 2"
+                            v-for="(e, idx) in grandChildEdges"
+                            :key="`grandchild-edge-path-${idx}`"
+                            :d="edgeRenderFor(e).d"
+                            class="edge-line child-edge"
+                            stroke="url(#childGrad)"
+                            stroke-width="4"
+                            stroke-linecap="round"
+                            fill="none"
+                            filter="url(#edgeGlow)"
+                            stroke-opacity="0.98"
+                            marker-end="url(#childArrow)"
+                        />
+
+                        <!-- líneas simples / modos no-curva -->
+                        <line
+                            v-else
+                            v-for="(e, idx) in grandChildEdges"
+                            :key="`grandchild-edge-line-${idx}`"
                             :x1="edgeRenderFor(e).x1 ?? undefined"
                             :y1="edgeRenderFor(e).y1 ?? undefined"
                             :x2="edgeRenderFor(e).x2 ?? undefined"
