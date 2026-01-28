@@ -92,7 +92,11 @@ function restoreView() {
     viewX.value = 0;
     viewY.value = 0;
 }
-
+const tickLabels = {
+    1: '1',
+    2: '2',
+    3: '3',
+  }
 // Dev helper: calcular el nivel (profundidad) de un nodo.
 // Nivel 0 = escenario, Nivel 1 = capacidad, Nivel 2 = competencia, etc.
 function nodeLevel(nodeOrId: any) {
@@ -162,7 +166,7 @@ const newCapName = ref('');
 const newCapDescription = ref('');
 const newCapType = ref('');
 const newCapCategory = ref('');
-const newCapImportance = ref<number | null>(3);
+const newCapImportance = ref<number>(3);
 // pivot fields
 const pivotStrategicRole = ref('target');
 const pivotStrategicWeight = ref<number | null>(10);
@@ -245,8 +249,10 @@ const showScenarioRaw = ref(false);
 // editing focused node / pivot
 const editCapName = ref('');
 const editCapDescription = ref('');
-const editCapImportance = ref<number | null>(null);
+const editCapImportance = ref<number | undefined>(undefined);
 const editCapLevel = ref<number | null>(null);
+const editCapType = ref('');
+const editCapCategory = ref('');
 const ee = ref<number | null>(null);
 
 const editPivotStrategicRole = ref('target');
@@ -856,7 +862,7 @@ watch(focusedNode, (nv) => {
     if (!nv) {
         editCapName.value = '';
         editCapDescription.value = '';
-        editCapImportance.value = null;
+        editCapImportance.value = undefined;
         editCapLevel.value = null;
         editPivotStrategicRole.value = 'target';
         editPivotStrategicWeight.value = 10;
@@ -869,7 +875,7 @@ watch(focusedNode, (nv) => {
     // populate from focused node and its raw payload if present
     editCapName.value = (nv as any).name ?? '';
     editCapDescription.value = (nv as any).description ?? (nv as any).raw?.description ?? '';
-    editCapImportance.value = (nv as any).importance ?? (nv as any).raw?.importance ?? null;
+    editCapImportance.value = (nv as any).importance ?? (nv as any).raw?.importance ?? undefined;
     editCapLevel.value = (nv as any).level ?? null;
 
     // pivot values: try several locations
@@ -931,12 +937,14 @@ watch(selectedChild, (nv) => {
 
 function resetFocusedEdits() {
     // reset edits to current focusedNode state
-    if (focusedNode.value) {
+        if (focusedNode.value) {
         const f = focusedNode.value as any;
         editCapName.value = f.name ?? '';
         editCapDescription.value = f.description ?? f.raw?.description ?? '';
-        editCapImportance.value = f.importance ?? f.raw?.importance ?? null;
+        editCapImportance.value = f.importance ?? f.raw?.importance ?? undefined;
         editCapLevel.value = f.level ?? null;
+        editCapType.value = f.type ?? f.raw?.type ?? '';
+        editCapCategory.value = f.category ?? f.raw?.category ?? '';
         editPivotStrategicRole.value = f.strategic_role ?? f.raw?.strategic_role ?? 'target';
         editPivotStrategicWeight.value = f.raw?.strategic_weight ?? 10;
         editPivotPriority.value = f.raw?.priority ?? 1;
@@ -2008,6 +2016,22 @@ const dialogThemeClass = computed(() => (sidebarTheme.value === 'dark' ? 'dialog
 function toggleSidebarTheme() {
     sidebarTheme.value = sidebarTheme.value === 'light' ? 'dark' : 'light';
 }
+
+// form ref for capability/capacity modal
+const capForm = ref(null as any);
+
+// best-effort computed: true when form is present and invalid
+const capFormInvalid = computed(() => {
+    try {
+        const f = capForm.value as any;
+        if (!f) return false;
+        if (typeof f.valid === 'boolean') return !f.valid;
+        if (typeof f.isValid === 'boolean') return !f.isValid;
+        return false;
+    } catch (err: unknown) {
+        return false;
+    }
+});
 
 // visible when not collapsed; when collapsed the sidebar shows a narrow tab
 const nodeSidebarVisible = computed(() => {
@@ -3360,7 +3384,9 @@ if (!edges.value) edges.value = [];
             </v-menu>
 
             <!-- Reemplazo: mostrar detalles en modal en lugar de panel lateral -->
-            <v-dialog v-model="showSidebar" max-width="980" persistent scrollable transition="scale-transition">
+            <v-dialog v-model="showSidebar" max-width="980" persistent scrollable transition="scale-transition"
+                      content-class="capability-dialog" role="dialog" aria-modal="true"
+                      :aria-label="displayNode ? `Detalles: ${displayNode.name}` : 'Detalle de elemento'">
                 <v-card :class="dialogThemeClass">
                     <v-card-title class="d-flex justify-space-between align-center">
                         <strong>{{ displayNode ? displayNode.name : (showSidebar ? 'Escenario' : 'Detalle') }}</strong>
@@ -3384,29 +3410,27 @@ if (!edges.value) edges.value = [];
                                 <template v-if="(displayNode as any).skills || (displayNode as any).compId">
                                     <div style="position:relative;">
                                         <div style="max-height:360px; overflow:auto; padding-right:12px;">
-                                            <v-form>
-                                                <v-text-field v-model="editChildName" label="Nombre" required />
-                                                <v-textarea v-model="editChildDescription" label="Descripción" rows="3" />
-                                                <div style="display:flex; gap:8px">
-                                                    <v-btn small color="primary" @click="showCreateSkillDialog">Crear nueva skill</v-btn>
-                                                    <v-btn small color="secondary" @click="openSelectSkillDialog">Seleccionar skill existente</v-btn>
-                                                    <v-text-field v-model="editChildReadiness" label="Readiness" type="number" style="flex:1" />
-                                                </div>
+                                            <v-form ref="capForm" @submit.prevent>
+                                                <div style="display:grid; gap:12px; grid-template-columns: 1fr 1fr; align-items:start;">
+                                                    <v-text-field v-model="editChildName" label="Nombre" required />
+                                                    <v-text-field v-model="editChildReadiness" label="Readiness" type="number" />
+                                                    <v-textarea v-model="editChildDescription" label="Descripción" rows="3" style="grid-column: 1 / -1;" />
 
-                                                <div style="margin-top:12px; font-weight:700">Atributos de la relación con la capacidad</div>
-                                                <div style="display:flex; gap:8px">
-                                                    <v-text-field v-model="editChildPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
-                                                    <v-text-field v-model="editChildPivotPriority" label="Priority" type="number" style="flex:1" />
-                                                </div>
-                                                <v-text-field v-model="editChildPivotRequiredLevel" label="Required level" type="number" />
-                                                <v-checkbox v-model="editChildPivotIsCritical" label="Is critical" />
-                                                <v-textarea v-model="editChildPivotRationale" label="Rationale" rows="2" />
+                                                    <div style="grid-column: 1 / -1; font-weight:700; margin-top:6px">Atributos de la relación con la capacidad</div>
+                                                    <v-text-field v-model="editChildPivotStrategicWeight" label="Strategic weight" type="number" />
+                                                    <v-text-field v-model="editChildPivotPriority" label="Priority" type="number" />
 
-                                                <div style="display:flex; gap:8px; margin-top:12px">
-                                                    <v-btn color="error" text @click="selectedChild = null">Cerrar</v-btn>
-                                                    <v-spacer />
-                                                    <v-btn color="primary" @click="saveSelectedChild">Guardar</v-btn>
-                                                    <v-btn text @click="(selectedChild = null, resetFocusedEdits())">Cancelar</v-btn>
+                                                    <v-text-field v-model="editChildPivotRequiredLevel" label="Required level" type="number" />
+                                                    <v-checkbox v-model="editChildPivotIsCritical" label="Is critical" />
+
+                                                    <v-textarea v-model="editChildPivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1;" />
+
+                                                    <div style="display:flex; gap:8px; grid-column: 1 / -1; margin-top:8px">
+                                                        <v-btn color="error" text @click="selectedChild = null">Cerrar</v-btn>
+                                                        <v-spacer />
+                                                        <v-btn color="primary" @click="saveSelectedChild" :loading="savingNode" :disabled="savingNode || capFormInvalid">Guardar</v-btn>
+                                                        <v-btn text @click="(selectedChild = null, resetFocusedEdits())">Cancelar</v-btn>
+                                                    </div>
                                                 </div>
                                             </v-form>
                                         </div>
@@ -3420,29 +3444,35 @@ if (!edges.value) edges.value = [];
                                             <v-btn small color="secondary" @click="openAddExistingCompDialog">Agregar existente</v-btn>
                                         </div>
                                         <div style="max-height:360px; overflow:auto; padding-right:12px;">
-                                            <v-form>
-                                                <v-text-field v-model="editCapName" label="Nombre" required />
-                                                <v-textarea v-model="editCapDescription" label="Descripción" rows="3" />
-                                                <div style="display:flex; gap:8px">
-                                                    <v-text-field v-model="editCapImportance" label="Importancia" type="number" style="flex:1" />
-                                                    <v-text-field v-model="editCapLevel" label="Nivel" type="number" style="flex:1" />
-                                                </div>
+                                            <v-form ref="capForm" @submit.prevent>
+                                                <div style="display:grid; gap:12px; grid-template-columns: 1fr 1fr; align-items:start;">
+                                                    <v-text-field v-model="editCapName" label="Nombre" required />
+                                                    <div>
+                                                        <v-slider v-model="editCapImportance" label="Importancia" :min="1" :max="3" :step="1" color="primary" :ticks="tickLabels" show-ticks="always"/>
+                                                    </div>
 
-                                                <div style="margin-top:12px; font-weight:700">Atributos de la relación con el escenario</div>
-                                                <v-select v-model="editPivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
-                                                <div style="display:flex; gap:8px">
-                                                    <v-text-field v-model="editPivotStrategicWeight" label="Strategic weight" type="number" style="flex:1" />
-                                                    <v-text-field v-model="editPivotPriority" label="Priority" type="number" style="flex:1" />
-                                                </div>
-                                                <v-text-field v-model="editPivotRequiredLevel" label="Required level" type="number" />
-                                                <v-checkbox v-model="editPivotIsCritical" label="Is critical" />
-                                                <v-textarea v-model="editPivotRationale" label="Rationale" rows="2" />
+                                                    <v-text-field v-model="editCapType" label="Tipo" />
+                                                    <v-text-field v-model="editCapCategory" label="Categoría" />
 
-                                                <div style="display:flex; gap:8px; margin-top:12px">
-                                                    <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar</v-btn>
-                                                    <v-spacer />
-                                                    <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode">Guardar</v-btn>
-                                                    <v-btn text @click="resetFocusedEdits">Cancelar</v-btn>
+                                                    <v-textarea v-model="editCapDescription" label="Descripción" rows="3" style="grid-column: 1 / -1;" />
+
+                                                    <div style="grid-column: 1 / -1; font-weight:700; margin-top:6px">Atributos para el escenario (scenario_capabilities)</div>
+                                                    <v-select v-model="editPivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
+
+                                                    <v-text-field v-model="editPivotStrategicWeight" label="Strategic weight" type="number" />
+                                                    <v-text-field v-model="editPivotPriority" label="Priority (1-5)" type="number" />
+
+                                                    <v-text-field v-model="editPivotRequiredLevel" label="Required level (1-5)" type="number" />
+                                                    <v-checkbox v-model="editPivotIsCritical" label="Is critical" />
+
+                                                    <v-textarea v-model="editPivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1;" />
+
+                                                    <div style="display:flex; gap:8px; grid-column: 1 / -1; margin-top:8px">
+                                                        <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar</v-btn>
+                                                        <v-spacer />
+                                                        <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode" :disabled="savingNode || capFormInvalid">Guardar</v-btn>
+                                                        <v-btn text @click="resetFocusedEdits">Cancelar</v-btn>
+                                                    </div>
                                                 </div>
                                             </v-form>
                                         </div>
@@ -3559,7 +3589,11 @@ if (!edges.value) edges.value = [];
                             <v-text-field v-model="newCapName" label="Nombre" required />
                             <v-text-field v-model="newCapType" label="Tipo" />
                             <v-text-field v-model="newCapCategory" label="Categoría" />
-                            <v-text-field v-model="newCapImportance" label="Importancia (1-5)" type="number" />
+                            <div>
+                                <v-slider v-model="newCapImportance" label="Importancia:" :min="1" :max="3" :step="1" color="green" :ticks="tickLabels"
+      show-ticks="always"/>
+                                <div class="text-xs" style="margin-top:6px">Valor: {{ newCapImportance ?? '-' }}</div>
+                            </div>
                             <v-textarea v-model="newCapDescription" label="Descripción" rows="3" style="grid-column: 1 / -1" />
                         </div>
 
@@ -3603,6 +3637,13 @@ if (!edges.value) edges.value = [];
     display: flex;
     flex-direction: column;
     color: #ffffff;
+}
+
+/* Styles for capability dialog content */
+.capability-dialog {
+    padding: 8px !important;
+    box-sizing: border-box;
+    max-width: 980px;
 }
 
 .prototype-map-root::before {
