@@ -2651,7 +2651,9 @@ if (!edges.value) edges.value = [];
 </script>
 
 <template>
-    <div class="prototype-map-root" ref="mapRoot" :class="{ 'no-animations': noAnimations }">
+    <div>
+
+        <div class="prototype-map-root" ref="mapRoot" :class="{ 'no-animations': noAnimations }">
         <div
             class="map-controls"
             style="
@@ -2662,9 +2664,7 @@ if (!edges.value) edges.value = [];
             "
         >
             <!-- top control removed; 'Crear capacidad' integrated next to home control -->
-            <div v-if="props.scenario && props.scenario.id">
-                Escenario: {{ props.scenario?.name || '—' }}
-            </div>
+            <!-- título principal mostrado arriba -->
             <!-- Position controls removed: positions are saved/reset by default -->
             <!-- 'Volver a la vista inicial' integrado en la esfera del escenario y en el borde derecho del diagrama -->
                         <!-- extra soft halo/gloss to ensure bubble effect is visible on all nodes -->
@@ -2862,7 +2862,7 @@ if (!edges.value) edges.value = [];
                 <rect
                     x="1"
                     y="1"
-                    :width="width - 2"
+                    :width="width - 4"
                     :height="height - 2"
                     rx="12"
                     ry="12"
@@ -2870,10 +2870,9 @@ if (!edges.value) edges.value = [];
                     stroke="rgba(255,255,255,0.04)"
                     stroke-width="1"
                     filter="url(#softGlow)"
-                />
-                
+                />               
 
-                <!-- edges -->
+                <!-- edges and nodes group -->
                 <g class="viewport-group" :style="viewportStyle">
                     <!-- edges -->
                     <g class="edges">
@@ -2904,7 +2903,6 @@ if (!edges.value) edges.value = [];
                         <circle r="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)"/>
                         <title>Crear capacidad</title>
                         <text x="0" y="4" text-anchor="middle" font-size="16" fill="#dbeafe" style="font-weight:700">+</text>
-                    </g>
                     </g>
                     <!-- scenario -> capability edges (distinct group so we can style/animate) -->
                     <g class="scenario-edges">
@@ -3014,7 +3012,6 @@ if (!edges.value) edges.value = [];
                     </g>
 
                     <!-- nodes -->
-                    <g class="nodes">
                     <!-- scenario/origin node (optional) -->
                     <g
                         v-if="scenarioNode"
@@ -3254,7 +3251,15 @@ if (!edges.value) edges.value = [];
                         <title>Restaurar vista</title>
                         <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">↺</text>
                     </g>
-                </g>
+                    </g>
+
+                <!-- Integrated title overlay (renders on top of diagram) -->
+                <foreignObject x="12" y="8" :width="Math.min(420, width - 48)" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="svg-title-fo">
+                        <div class="svg-title-text">Escenario: {{ props.scenario?.name || '—' }}</div>
+                    </div>
+                </foreignObject>
+
             </svg>
 
             <!-- Context menu overlay (right-click) replaced with Vuetify v-menu -->
@@ -3530,6 +3535,7 @@ if (!edges.value) edges.value = [];
                 <!-- debug controls removed -->
         </div>
     </div>
+</div>
 </template>
 
 <style scoped>
@@ -4017,6 +4023,27 @@ if (!edges.value) edges.value = [];
 .dialog-dark .v-card-text,
 .dialog-light .v-card-text {
     padding: 12px 18px 18px 18px;
+}
+
+/* Integrated SVG title styles */
+.svg-title-fo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* avoid intercepting map interactions */
+}
+.svg-title-text {
+    pointer-events: auto; /* allow hover tooltip if needed */
+    background: rgba(255,255,255,0.04);
+    color: #ffffff;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 8px 30px rgba(2,6,23,0.45);
+    backdrop-filter: blur(6px);
 }
 
 </style>

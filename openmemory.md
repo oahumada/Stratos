@@ -72,6 +72,13 @@ Esta entrada sirve como referencia para nombres de rutas, directorios y componen
 - Decisión clave: mantener la lógica D3 existente; usar `defs` SVG para estilos visuales (gradiente radial + sombra); no cambiar API ni persistencia.
 - Archivos modificados: Index.vue (visual + ligeras señales `is_critical` en nodos), openmemory.md (registro).
 
+### Cambio: Título integrado en diagrama (Index.vue)
+
+- **Qué:** Se movió la cabecera externa del componente y el título ahora se renderiza dentro del lienzo SVG usando un `foreignObject` centrado en la parte superior del mapa. Esto aprovecha el espacio superior que antes quedaba en blanco y mantiene el título visible durante el pan/zoom.
+- **Dónde:** `src/resources/js/pages/ScenarioPlanning/Index.vue` — reemplazo de la etiqueta `<header>` por un `foreignObject` dentro del `<svg>` y estilos asociados.
+- **Por qué:** Aprovechar el espacio superior para presentación del título y reducir el padding externo; mejora estética y hace el título parte del contexto visual del diagrama.
+- **Fecha:** 2026-01-28
+
 ## Memoria: Cambios de la sesión 2026-01-27 (Visual tuning & configuraciones)
 
 - **Qué:** Ajustes visuales y de layout en `src/resources/js/pages/ScenarioPlanning/Index.vue` para mejorar la separación entre nodos padre/hijos y la curvatura de los conectores. Se centralizaron parámetros visuales en la nueva prop `visualConfig` y se añadió `capabilityChildrenOffset` como prop aislada para control fino.
