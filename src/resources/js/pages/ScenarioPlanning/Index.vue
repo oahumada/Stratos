@@ -832,11 +832,30 @@ watch(focusedNode, (nv) => {
     editPivotRationale.value = (nv as any).raw?.rationale ?? '';
     editPivotRequiredLevel.value = (nv as any).raw?.required_level ?? (nv as any).required ?? 3;
     editPivotIsCritical.value = !!((nv as any).raw?.is_critical || (nv as any).is_critical);
+    // Ensure grandChild nodes (skills) are collapsed when focus changes to a different capability
+    try {
+        const sel = selectedChild.value;
+        if (!nv) {
+            // no focused node => clear grandchildren (animated)
+            collapseGrandChildren();
+            selectedChild.value = null;
+        } else if (sel) {
+            // if the selectedChild does not belong to the new focused node, collapse skills
+            const parentEdge = childEdges.value.find((e) => e.target === (sel as any).id);
+            const parentId = parentEdge ? parentEdge.source : null;
+            if (parentId !== (nv as any).id) {
+                collapseGrandChildren();
+                selectedChild.value = null;
+            }
+        }
+    } catch (err: unknown) { void err; }
 });
 
 // populate selectedChild edit fields when selection changes
 watch(selectedChild, (nv) => {
     if (!nv) {
+        // clear any expanded skills when selection cleared
+        try { collapseGrandChildren(); } catch (err: unknown) { void err; }
         editChildName.value = '';
         editChildDescription.value = '';
         editChildReadiness.value = null;
@@ -1630,8 +1649,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             }
             // If clicking a competency and its skills are shown, collapse them
             if (lvl === 2 && selectedChild.value && selectedChild.value.id === (node as any).id && grandChildNodes.value.length > 0) {
-                grandChildNodes.value = [];
-                grandChildEdges.value = [];
+                collapseGrandChildren();
                 // keep selectedChild focused but clear skills
                 return;
             }
@@ -1876,8 +1894,8 @@ const closeTooltip = () => {
     focusedNode.value = null;
     childNodes.value = [];
     childEdges.value = [];
-    grandChildNodes.value = [];
-    grandChildEdges.value = [];
+    // animate collapse of skills when tooltip closes
+    try { collapseGrandChildren(); } catch (err: unknown) { void err; }
     selectedChild.value = null;
     // restore original node positions if we have them
     if (originalPositions.value && originalPositions.value.size > 0) {
@@ -2144,6 +2162,29 @@ function expandSkills(node: any, initialPos?: { x: number; y: number }) {
             nextTick(() => { grandChildNodes.value.forEach((g: any) => { delete g.animTargetX; delete g.animTargetY; delete g.animDelay; delete g.animFilter; }); });
         }, 140);
     });
+}
+
+// Animación de colapso para nodos nietos (skills).
+function collapseGrandChildren(animated = true, duration = 160) {
+    try {
+        if (!animated) {
+            grandChildNodes.value = [];
+            grandChildEdges.value = [];
+            return;
+        }
+        if (!Array.isArray(grandChildNodes.value) || grandChildNodes.value.length === 0) {
+            grandChildEdges.value = [];
+            return;
+        }
+        // Trigger visual departure: shrink + fade + subtle blur
+        grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, animScale: 0.8, animOpacity: 0, animFilter: 'blur(6px)' }));
+        // fade edges immediately (keep nodes animating)
+        try { grandChildEdges.value = []; } catch (err: unknown) { void err; }
+        // remove nodes after animation finishes
+        setTimeout(() => {
+            try { grandChildNodes.value = []; } catch (err: unknown) { void err; }
+        }, duration + 20);
+    } catch (err: unknown) { void err; }
 }
 
 // clamp child node Y positions when setting them to avoid placing nodes outside viewport
@@ -3129,8 +3170,16 @@ if (!edges.value) edges.value = [];
                             @click.stop="(e) => handleSkillClick(s, e)"
                         >
                             <title>{{ s.name }}</title>
-                            <circle class="node-circle" :r="14" fill="#16324a" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
-                            <circle class="node-iridescence" :r="14" fill="url(#iridescentGrad)" opacity="0.12" style="mix-blend-mode: screen" />
+                            <!-- skill bubble base -->
+                            <circle class="node-circle" :r="14" fill="#0F8CA8" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
+                            <!-- iridescent sheen -->
+                            <circle class="node-iridescence" :r="14" fill="url(#iridescentGrad)" opacity="0.14" style="mix-blend-mode: screen" />
+                            <!-- small glossy rim to enhance bubble feel -->
+                            <circle class="node-rim skill-rim" :r="14" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
+                            <!-- subtle outer gloss + soft glow -->
+                            <circle class="node-gloss skill-gloss" :r="16" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="3" filter="url(#softGlow)" />
+                            <!-- tiny specular reflection -->
+                            <ellipse class="node-reflection skill-reflection" cx="-5" cy="-5" rx="5" ry="3" fill="#ffffff" fill-opacity="0.12" transform="rotate(-22)" filter="url(#specular)" />
                             <text :x="0" :y="4" text-anchor="middle" class="node-label" style="font-size:10px">{{ s.name }}</text>
                         </g>
                     </g>
@@ -3662,6 +3711,32 @@ if (!edges.value) edges.value = [];
 .child-edge {
     stroke-dasharray: none;
     opacity: 0.95;
+}
+
+/* Skill node specific styles (scaled bubble) */
+.skill-node .node-circle {
+    transition: transform 220ms ease, filter 180ms ease;
+    fill: #16324a;
+}
+.skill-node .node-iridescence {
+    pointer-events: none;
+    opacity: 0.14;
+    mix-blend-mode: screen;
+}
+.skill-node .skill-reflection {
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+}
+.skill-node .skill-rim {
+    pointer-events: none;
+    transition: stroke-opacity 160ms ease;
+}
+.skill-node .skill-gloss {
+    pointer-events: none;
+}
+.skill-node .node-label {
+    font-size: 10px;
+    font-weight: 600;
 }
 
 /* make child edges more visible with subtle glow */
