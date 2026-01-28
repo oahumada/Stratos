@@ -2178,12 +2178,18 @@ function collapseGrandChildren(animated = true, duration = 160) {
         }
         // Trigger visual departure: shrink + fade + subtle blur
         grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, animScale: 0.8, animOpacity: 0, animFilter: 'blur(6px)' }));
-        // fade edges immediately (keep nodes animating)
-        try { grandChildEdges.value = []; } catch (err: unknown) { void err; }
+        // fade edges (animate stroke-opacity) and clear after animation
+        try {
+            grandChildEdges.value = grandChildEdges.value.map((ed: any) => ({ ...ed, animOpacity: 0 }));
+        } catch (err: unknown) { void err; }
+        setTimeout(() => {
+            try { grandChildEdges.value = []; } catch (err: unknown) { void err; }
+        }, duration + 20);
         // remove nodes after animation finishes
         setTimeout(() => {
             try { grandChildNodes.value = []; } catch (err: unknown) { void err; }
         }, duration + 20);
+        try { /* edges will be removed after opacity animation above */ } catch (err: unknown) { void err; }
     } catch (err: unknown) { void err; }
 }
 
@@ -2955,7 +2961,8 @@ if (!edges.value) edges.value = [];
                             stroke-linecap="round"
                             fill="none"
                             filter="url(#edgeGlow)"
-                            stroke-opacity="0.98"
+                            :stroke-opacity="e.animOpacity ?? 0.98"
+                            :style="{ transition: 'stroke-opacity 180ms ease' }"
                             marker-end="url(#childArrow)"
                         />
 
@@ -2973,7 +2980,8 @@ if (!edges.value) edges.value = [];
                             stroke-width="2"
                             stroke-linecap="round"
                             filter="url(#edgeGlow)"
-                            stroke-opacity="0.98"
+                            :stroke-opacity="e.animOpacity ?? 0.98"
+                            :style="{ transition: 'stroke-opacity 180ms ease' }"
                             marker-end="url(#childArrow)"
                         />
                     </g>
