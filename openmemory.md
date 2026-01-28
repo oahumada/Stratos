@@ -66,6 +66,22 @@ Esta entrada sirve como referencia para nombres de rutas, directorios y componen
 - Decisión clave: mantener la lógica D3 existente; usar `defs` SVG para estilos visuales (gradiente radial + sombra); no cambiar API ni persistencia.
 - Archivos modificados: Index.vue (visual + ligeras señales `is_critical` en nodos), openmemory.md (registro).
 
+## Memoria: Cambios de la sesión 2026-01-27 (Visual tuning & configuraciones)
+
+- **Qué:** Ajustes visuales y de layout en `src/resources/js/pages/ScenarioPlanning/Index.vue` para mejorar la separación entre nodos padre/hijos y la curvatura de los conectores. Se centralizaron parámetros visuales en la nueva prop `visualConfig` y se añadió `capabilityChildrenOffset` como prop aislada para control fino.
+- **Por qué:** Facilitar tuning rápido de la visualización desde la invocación del componente y reducir constantes dispersas en el archivo.
+- **Cambios principales:**
+  - Añadida prop `visualConfig` (valores por defecto: `nodeRadius`, `focusRadius`, `scenarioOffset`, `childDrop`, `skillDrop`, `edge.baseDepth`, `edge.curveFactor`, `edge.spreadOffset`).
+  - `expandCompetencies` y `expandSkills` ahora consultan `visualConfig` y `capabilityChildrenOffset` para posicionamiento vertical de hijos.
+  - `edgeRenderFor` y `edgeEndpoint` adaptan la profundidad de curva según distancia y `visualConfig.edge.curveFactor`.
+  - Se preservaron los `marker-end` existentes (`#childArrow`) para mantener las flechas en los conectores.
+- **Archivos modificados:**
+  - `src/resources/js/pages/ScenarioPlanning/Index.vue` (prop `visualConfig`, uso en `expandCompetencies`, `expandSkills`, `edgeRenderFor`, `centerOnNode` y ajustes visuales).
+- **Estado Git local:** cambios aplicados en branch `feature/workforce-planning-scenario-modeling` (commits locales pendientes de push). Intento de fetch/push falló por autenticación remota (usar SSH o PAT para sincronizar).
+- **Próximos pasos guardados:** continuar mañana con la implementación del `NodeContextMenu` y los modales para crear/asociar competencias/skills (ver TODO list actualizada en repo).
+- **Fecha:** 2026-01-27
+
+
 ### Comportamiento: Mostrar Guardar/Reset sólo cuando hay cambios
 
 - Qué: Añadida bandera reactiva `positionsDirty` para mostrar los botones `Guardar` y `Reset` únicamente cuando el usuario ha movido nodos (posiciones sin guardar).
