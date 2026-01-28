@@ -219,6 +219,26 @@ const breadcrumbTitle = computed(() => {
     }
     return parts.join('  ›  ');
 });
+// Breadcrumb parts as an array for multi-line rendering
+const breadcrumbParts = computed(() => {
+    const parts: string[] = [];
+    try {
+        const sName = props.scenario?.name || '—';
+        parts.push(`Escenario: ${sName}`);
+        if (focusedNode.value) {
+            const fName = (focusedNode.value as any)?.name || '—';
+            parts.push(`Capacidad: ${fName}`);
+        }
+        if (selectedChild.value) {
+            const c = selectedChild.value as any;
+            const cName = c?.name || c?.raw?.name || c?.compName || '—';
+            parts.push(`Competencia: ${cName}`);
+        }
+    } catch (err: unknown) {
+        return [`Escenario: ${props.scenario?.name || '—'}`];
+    }
+    return parts;
+});
 // raw capability-tree fetched from API (for debugging / inspection)
 const capabilityTreeRaw = ref<any | null>(null);
 const showScenarioRaw = ref(false);
@@ -3279,7 +3299,11 @@ if (!edges.value) edges.value = [];
                 <!-- Integrated title overlay (renders on top of diagram) -->
                 <foreignObject x="12" y="8" :width="Math.min(420, width - 48)" height="40">
                     <div xmlns="http://www.w3.org/1999/xhtml" class="svg-title-fo">
-                        <div class="svg-title-text">{{ breadcrumbTitle }}</div>
+                        <div class="svg-title-text">
+                            <template v-for="(part, idx) in breadcrumbParts" :key="`breadcrumb-${idx}`">
+                                <div class="svg-title-line">{{ part }}</div>
+                            </template>
+                        </div>
                     </div>
                 </foreignObject>
 
@@ -4067,6 +4091,23 @@ if (!edges.value) edges.value = [];
     font-size: 14px;
     box-shadow: 0 8px 30px rgba(2,6,23,0.45);
     backdrop-filter: blur(6px);
+}
+.svg-title-line {
+    line-height: 1.05;
+}
+.svg-title-text .svg-title-line:first-child {
+    font-size: 14px;
+    font-weight: 800;
+}
+.svg-title-text .svg-title-line:nth-child(2) {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.92;
+}
+.svg-title-text .svg-title-line:nth-child(3) {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.9;
 }
 
 </style>
