@@ -29,6 +29,8 @@ interface Props {
         vSpacing?: number;
         // vertical offset (px) from parent capability to first row of competencies
         parentOffset?: number;
+        // small drop/padding applied specifically to skill rows under competencies
+        skillDrop?: number;
     };
     // optional: explicit top-level override (px) for parent->children distance
     capabilityChildrenOffset?: number;
@@ -44,6 +46,8 @@ interface Props {
         // small drops to push children/skills lower
         childDrop?: number;
         skillDrop?: number;
+        // explicit override for capability->children offset (pixels)
+        capabilityChildrenOffset?: number;
         // edge config
         edge?: {
             baseDepth?: number;
@@ -2017,7 +2021,7 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     const verticalOffset = (typeof props.visualConfig?.capabilityChildrenOffset === 'number')
         ? props.visualConfig!.capabilityChildrenOffset!
         : (typeof props.capabilityChildrenOffset === 'number' ? props.capabilityChildrenOffset : (props.competencyLayout?.parentOffset ?? defaultParentOffset));
-    const CHILD_DROP = props.visualConfig?.childDrop ?? props.competencyLayout?.childDrop ?? 18;
+    const CHILD_DROP = props.visualConfig?.childDrop ?? props.competencyLayout?.skillDrop ?? 18;
     const topY = Math.round(parentY + verticalOffset + CHILD_DROP);
 
     const rows = opts.rows ?? props.competencyLayout?.rows ?? DEFAULT_COMPETENCY_LAYOUT.rows;
