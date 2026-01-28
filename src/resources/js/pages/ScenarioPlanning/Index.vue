@@ -69,6 +69,8 @@ function restoreView() {
     childNodes.value = [];
     childEdges.value = [];
     selectedChild.value = null;
+    // ensure any expanded skills are collapsed as well
+    try { collapseGrandChildren(); } catch (err: unknown) { void err; }
     // clear render flags
     nodes.value = nodes.value.map((n: any) => ({ ...n, visible: true }));
     // restore original positions if present
@@ -1362,6 +1364,11 @@ function groupedIndexForEdge(e: Edge) {
         return Math.max(0, candidates.findIndex((c) => c === e));
     } catch (err: unknown) { void err; }
     return 0;
+}
+
+// Helper to safely read optional animation opacity from edge objects (some edges carry runtime-only props)
+function edgeAnimOpacity(e: Edge) {
+    return ((e as any).animOpacity ?? 0.98) as number;
 }
 
 // Construye los puntos o path para una arista según el modo seleccionado
@@ -2961,7 +2968,7 @@ if (!edges.value) edges.value = [];
                             stroke-linecap="round"
                             fill="none"
                             filter="url(#edgeGlow)"
-                            :stroke-opacity="e.animOpacity ?? 0.98"
+                            :stroke-opacity="edgeAnimOpacity(e)"
                             :style="{ transition: 'stroke-opacity 180ms ease' }"
                             marker-end="url(#childArrow)"
                         />
@@ -2980,7 +2987,7 @@ if (!edges.value) edges.value = [];
                             stroke-width="2"
                             stroke-linecap="round"
                             filter="url(#edgeGlow)"
-                            :stroke-opacity="e.animOpacity ?? 0.98"
+                            :stroke-opacity="edgeAnimOpacity(e)"
                             :style="{ transition: 'stroke-opacity 180ms ease' }"
                             marker-end="url(#childArrow)"
                         />
