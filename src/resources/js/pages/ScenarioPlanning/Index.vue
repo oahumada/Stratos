@@ -196,6 +196,23 @@ const showSidebar = ref(false);
 // while `focusedNode` remains the parent capability (so layout treats parent as focused).
 const selectedChild = ref<any>(null);
 const loadingSkills = ref(false);
+// Breadcrumb title computed: muestra la entidad actualmente seleccionada
+const breadcrumbTitle = computed(() => {
+    try {
+        if (selectedChild.value) {
+            // child node may store name in different places depending on source
+            const name = (selectedChild.value as any)?.name || (selectedChild.value as any)?.raw?.name || (selectedChild.value as any)?.compName || '—';
+            return `Competencia: ${name}`;
+        }
+        if (focusedNode.value) {
+            const fname = (focusedNode.value as any)?.name || '—';
+            return `Capacidad: ${fname}`;
+        }
+        return `Escenario: ${props.scenario?.name || '—'}`;
+    } catch (err: unknown) {
+        return `Escenario: ${props.scenario?.name || '—'}`;
+    }
+});
 // raw capability-tree fetched from API (for debugging / inspection)
 const capabilityTreeRaw = ref<any | null>(null);
 const showScenarioRaw = ref(false);
@@ -3256,7 +3273,7 @@ if (!edges.value) edges.value = [];
                 <!-- Integrated title overlay (renders on top of diagram) -->
                 <foreignObject x="12" y="8" :width="Math.min(420, width - 48)" height="40">
                     <div xmlns="http://www.w3.org/1999/xhtml" class="svg-title-fo">
-                        <div class="svg-title-text">Escenario: {{ props.scenario?.name || '—' }}</div>
+                        <div class="svg-title-text">{{ breadcrumbTitle }}</div>
                     </div>
                 </foreignObject>
 
