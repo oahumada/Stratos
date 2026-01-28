@@ -994,6 +994,7 @@ async function saveFocusedNode() {
             position_y: (focusedNode.value as any).y ?? undefined,
         };
         try {
+            console.debug('[saveFocusedNode] PATCH /api/capabilities/' + id, capPayload);
             await api.patch(`/api/capabilities/${id}`, capPayload);
             showSuccess('Capacidad actualizada');
         } catch (errCap: unknown) {
@@ -1001,6 +1002,7 @@ async function saveFocusedNode() {
             try {
                 const _err: any = errCap as any;
                 const status = _err?.response?.status ?? null;
+                console.error('[saveFocusedNode] error PATCH /api/capabilities/' + id, _err?.response?.data ?? _err);
                 if (status !== 404) {
                     showError(_err?.response?.data?.message || 'Error actualizando capacidad');
                 }
@@ -1020,9 +1022,11 @@ async function saveFocusedNode() {
         };
         try {
             // preferred: PATCH to scenario-specific pivot endpoint
+            console.debug('[saveFocusedNode] PATCH /api/strategic-planning/scenarios/' + (props.scenario?.id ?? 'undefined') + '/capabilities/' + id, pivotPayload);
             await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`, pivotPayload);
             showSuccess('Relación escenario–capacidad actualizada');
         } catch (errPivot: unknown) {
+            console.error('[saveFocusedNode] error PATCH pivot', (errPivot as any)?.response?.data ?? errPivot);
             try {
                 // fallback: POST to create association (if missing) — server inserts only if not exists
                 await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities`, {
@@ -1040,6 +1044,7 @@ async function saveFocusedNode() {
                 });
                 showSuccess('Relación actualizada (fallback)');
             } catch (err2: unknown) {
+                console.error('[saveFocusedNode] error POST pivot fallback', (err2 as any)?.response?.data ?? err2);
                 // final fallback: inform user
                 void err2;
                 showError('No se pudo actualizar la relación. Verifica el backend.');
@@ -1177,6 +1182,7 @@ async function saveNewCapability() {
             is_critical: !!pivotIsCritical.value,
         };
 
+        console.debug('[saveNewCapability] POST /api/strategic-planning/scenarios/' + props.scenario.id + '/capabilities', payload);
         const res: any = await api.post(`/api/strategic-planning/scenarios/${props.scenario.id}/capabilities`, payload);
         const created = res?.data ?? res;
         showSuccess('Capacidad creada y asociada al escenario');
@@ -2477,6 +2483,7 @@ async function saveSelectedChild() {
             readiness: editChildReadiness.value,
             skills: (editChildSkills.value || '').split(',').map((s) => s.trim()).filter((s) => s),
         };
+            console.debug('[saveSelectedChild] compPayload', compPayload);
         if (child.compId || child.compId === 0 || (child.raw && child.raw.id)) {
             const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
             try { await api.patch(`/api/competencies/${compId}`, compPayload); } catch (err: unknown) { void err; }
@@ -2494,6 +2501,7 @@ async function saveSelectedChild() {
                 is_critical: !!editChildPivotIsCritical.value,
                 rationale: editChildPivotRationale.value,
             };
+                console.debug('[saveSelectedChild] pivotPayload', pivotPayload, 'parentId', parentId, 'compId', compId);
             try { await api.patch(`/api/capabilities/${parentId}/competencies/${compId}`, pivotPayload); } catch (err: unknown) { void err; }
         }
 

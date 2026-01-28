@@ -77,6 +77,11 @@ class ScenarioController extends Controller
                 'id' => $capability->id,
                 'name' => $capability->name,
                 'strategic_role' => $capability->pivot->strategic_role ?? null,
+                'strategic_weight' => $capability->pivot->strategic_weight ?? null,
+                'priority' => $capability->pivot->priority ?? null,
+                'rationale' => $capability->pivot->rationale ?? null,
+                'required_level' => $capability->pivot->required_level ?? null,
+                'is_critical' => $capability->pivot->is_critical ?? null,
                 'is_incubating' => $capability->isIncubating(),
                 'readiness' => round($this->analytics->calculateCapabilityReadiness($id, $capability->id) * 100, 1),
                 'competencies' => $capability->competencies->map(function ($comp) use ($id) {
@@ -85,6 +90,14 @@ class ScenarioController extends Controller
                         'name' => $comp->name,
                         'description' => $comp->description ?? null,
                         'readiness' => round($this->analytics->calculateCompetencyReadiness($id, $comp->id) * 100, 1),
+                        // include pivot attributes for capability<->competency relation so frontend can show/edit them
+                        'pivot' => [
+                            'strategic_weight' => $comp->pivot->strategic_weight ?? null,
+                            'priority' => $comp->pivot->priority ?? null,
+                            'required_level' => $comp->pivot->required_level ?? null,
+                            'is_critical' => $comp->pivot->is_critical ?? null,
+                            'rationale' => $comp->pivot->rationale ?? null,
+                        ],
                         'skills' => $comp->skills->map(function ($skill) use ($id) {
                             return [
                                 'id' => $skill->id,
