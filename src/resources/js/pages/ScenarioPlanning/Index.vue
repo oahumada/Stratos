@@ -97,6 +97,32 @@ const tickLabels = {
     2: '2',
     3: '3',
   }
+const tickLabelsRequired ={
+    1: '1',
+    2: '2',
+    3: '3',
+    4: '4',
+    5: '5',
+    6: '6',
+    7: '7',
+    8: '8',
+    9: '9',
+    10: '10',
+}
+const tickLabelsPriority = {
+    1: '1',
+    2: '2',
+    3: '3',
+    4: '4',
+    5: '5',
+}
+const tickLabelsLevel = {
+    1: '1',
+    2: '2',
+    3: '3',
+    4: '4',
+    5: '5',
+}
 // Dev helper: calcular el nivel (profundidad) de un nodo.
 // Nivel 0 = escenario, Nivel 1 = capacidad, Nivel 2 = competencia, etc.
 function nodeLevel(nodeOrId: any) {
@@ -169,10 +195,10 @@ const newCapCategory = ref('');
 const newCapImportance = ref<number>(3);
 // pivot fields
 const pivotStrategicRole = ref('target');
-const pivotStrategicWeight = ref<number | null>(10);
-const pivotPriority = ref<number | null>(1);
+const pivotStrategicWeight = ref<number | undefined>(10);
+const pivotPriority = ref<number | undefined>(1);
 const pivotRationale = ref('');
-const pivotRequiredLevel = ref<number | null>(3);
+const pivotRequiredLevel = ref<number | undefined>(3);
 const pivotIsCritical = ref(false);
 const creating = ref(false);
 const api = useApi();
@@ -256,10 +282,10 @@ const editCapCategory = ref('');
 const ee = ref<number | null>(null);
 
 const editPivotStrategicRole = ref('target');
-const editPivotStrategicWeight = ref<number | null>(10);
-const editPivotPriority = ref<number | null>(1);
+const editPivotStrategicWeight = ref<number | undefined>(10);
+const editPivotPriority = ref<number | undefined>(1);
 const editPivotRationale = ref('');
-const editPivotRequiredLevel = ref<number | null>(3);
+const editPivotRequiredLevel = ref<number | undefined>(3);
 const editPivotIsCritical = ref(false);
 const savingNode = ref(false);
 // Competency creation/attach UI state
@@ -268,7 +294,7 @@ const addExistingCompDialogVisible = ref(false);
 const availableExistingCompetencies = ref<any[]>([]);
 const newCompName = ref('');
 const newCompDescription = ref('');
-const newCompReadiness = ref<number | null>(null);
+const newCompReadiness = ref<number | undefined>(undefined);
 const newCompSkills = ref('');
 const addExistingSelection = ref<number | null>(null);
 
@@ -519,9 +545,9 @@ const editChildName = ref('');
 const editChildDescription = ref('');
 const editChildReadiness = ref<number | null>(null);
 const editChildSkills = ref('');
-const editChildPivotStrategicWeight = ref<number | null>(10);
-const editChildPivotPriority = ref<number | null>(1);
-const editChildPivotRequiredLevel = ref<number | null>(3);
+const editChildPivotStrategicWeight = ref<number | undefined>(10);
+const editChildPivotPriority = ref<number | undefined>(1);
+const editChildPivotRequiredLevel = ref<number | undefined>(3);
 const editChildPivotIsCritical = ref(false);
 const editChildPivotRationale = ref('');
 // Temporarily disable CSS animations for level-2 clicks
@@ -3417,10 +3443,19 @@ if (!edges.value) edges.value = [];
                                                     <v-textarea v-model="editChildDescription" label="Descripción" rows="3" style="grid-column: 1 / -1;" />
 
                                                     <div style="grid-column: 1 / -1; font-weight:700; margin-top:6px">Atributos de la relación con la capacidad</div>
-                                                    <v-text-field v-model="editChildPivotStrategicWeight" label="Strategic weight" type="number" />
-                                                    <v-text-field v-model="editChildPivotPriority" label="Priority" type="number" />
+                                                    <div>
+                                                        <v-slider v-model="editChildPivotStrategicWeight" label="Strategic weight" :min="1" :max="10" :step="1" color="primary"/>
+                                                        <div class="text-xs" style="margin-top:6px">Valor: {{ editChildPivotStrategicWeight ?? '-' }}</div>
+                                                    </div>
+                                                    <div>
+                                                        <v-slider v-model="editChildPivotPriority" label="Priority" :min="1" :max="5" :step="1" color="orange"/>
+                                                        <div class="text-xs" style="margin-top:6px">Valor: {{ editChildPivotPriority ?? '-' }}</div>
+                                                    </div>
 
-                                                    <v-text-field v-model="editChildPivotRequiredLevel" label="Required level" type="number" />
+                                                    <div>
+                                                        <v-slider v-model="editChildPivotRequiredLevel" label="Required level" :min="1" :max="5" :step="1" color="teal"/>
+                                                        <div class="text-xs" style="margin-top:6px">Valor: {{ editChildPivotRequiredLevel ?? '-' }}</div>
+                                                    </div>
                                                     <v-checkbox v-model="editChildPivotIsCritical" label="Is critical" />
 
                                                     <v-textarea v-model="editChildPivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1;" />
@@ -3441,7 +3476,11 @@ if (!edges.value) edges.value = [];
                                     <div style="position:relative;">
                                         <div style="display:flex; gap:8px; margin-bottom:8px">
                                             <v-btn small color="primary" @click="showCreateCompDialog">Crear competencia</v-btn>
-                                            <v-btn small color="secondary" @click="openAddExistingCompDialog">Agregar existente</v-btn>
+                                            <v-btn small color="primary" @click="openAddExistingCompDialog">Agregar existente</v-btn>
+                                            <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar nodo</v-btn>
+                                            <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode" :disabled="savingNode || capFormInvalid">Guardar</v-btn>
+                                            <v-btn text color="primary" @click="resetFocusedEdits">Cancelar</v-btn>
+
                                         </div>
                                         <div style="max-height:360px; overflow:auto; padding-right:12px;">
                                             <v-form ref="capForm" @submit.prevent>
@@ -3459,20 +3498,19 @@ if (!edges.value) edges.value = [];
                                                     <div style="grid-column: 1 / -1; font-weight:700; margin-top:6px">Atributos para el escenario (scenario_capabilities)</div>
                                                     <v-select v-model="editPivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
 
-                                                    <v-text-field v-model="editPivotStrategicWeight" label="Strategic weight" type="number" />
-                                                    <v-text-field v-model="editPivotPriority" label="Priority (1-5)" type="number" />
+                                                    <div>
+                                                        <v-slider v-model="editPivotStrategicWeight" label="Strategic weight" :min="1" :max="10" :step="1" color="primary" :ticks="tickLabelsRequired" show-ticks="always"/>
+                                                    </div>
+                                                    <div>
+                                                        <v-slider v-model="editPivotPriority" label="Priority (1-5)" :min="1" :max="5" :step="1" color="orange" :ticks="tickLabelsPriority" show-ticks="always"/>
+                                                    </div>
 
-                                                    <v-text-field v-model="editPivotRequiredLevel" label="Required level (1-5)" type="number" />
-                                                    <v-checkbox v-model="editPivotIsCritical" label="Is critical" />
+                                                    <div>
+                                                        <v-slider v-model="editPivotRequiredLevel" label="Required level (1-5)" :min="1" :max="5" :step="1" color="teal" :ticks="tickLabelsLevel" show-ticks="always"/>
+                                                    </div>
+                                                    <v-switch v-model="editPivotIsCritical" label="Is critical" />
 
                                                     <v-textarea v-model="editPivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1;" />
-
-                                                    <div style="display:flex; gap:8px; grid-column: 1 / -1; margin-top:8px">
-                                                        <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar</v-btn>
-                                                        <v-spacer />
-                                                        <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode" :disabled="savingNode || capFormInvalid">Guardar</v-btn>
-                                                        <v-btn text @click="resetFocusedEdits">Cancelar</v-btn>
-                                                    </div>
                                                 </div>
                                             </v-form>
                                         </div>
@@ -3601,9 +3639,18 @@ if (!edges.value) edges.value = [];
                             <div style="font-weight:700; margin-bottom:6px">Atributos para el escenario (scenario_capabilities)</div>
                             <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
                                 <v-select v-model="pivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
-                                <v-text-field v-model="pivotStrategicWeight" label="Strategic weight" type="number" />
-                                <v-text-field v-model="pivotPriority" label="Priority (1-5)" type="number" />
-                                <v-text-field v-model="pivotRequiredLevel" label="Required level (1-5)" type="number" />
+                                <div>
+                                    <v-slider v-model="pivotStrategicWeight" label="Strategic weight" :min="1" :max="10" :step="1" color="primary"/>
+                                    <div class="text-xs" style="margin-top:6px">Valor: {{ pivotStrategicWeight ?? '-' }}</div>
+                                </div>
+                                <div>
+                                    <v-slider v-model="pivotPriority" label="Priority (1-5)" :min="1" :max="5" :step="1" color="orange"/>
+                                    <div class="text-xs" style="margin-top:6px">Valor: {{ pivotPriority ?? '-' }}</div>
+                                </div>
+                                <div>
+                                    <v-slider v-model="pivotRequiredLevel" label="Required level (1-5)" :min="1" :max="5" :step="1" color="teal"/>
+                                    <div class="text-xs" style="margin-top:6px">Valor: {{ pivotRequiredLevel ?? '-' }}</div>
+                                </div>
                                 <v-checkbox v-model="pivotIsCritical" label="Is critical" />
                                 <v-textarea v-model="pivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1" />
                             </div>

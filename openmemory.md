@@ -72,6 +72,14 @@ Esta entrada sirve como referencia para nombres de rutas, directorios y componen
 - Decisión clave: mantener la lógica D3 existente; usar `defs` SVG para estilos visuales (gradiente radial + sombra); no cambiar API ni persistencia.
 - Archivos modificados: Index.vue (visual + ligeras señales `is_critical` en nodos), openmemory.md (registro).
 
+### Cambio UI: Sliders para atributos pivot (strategic weight, priority, required level)
+
+- Qué: Reemplazo de inputs numéricos por controles `v-slider` en el modal de capacidades y formularios relacionados para los atributos de pivot: `strategic_weight` (1-10), `priority` (1-5) y `required_level` (1-5).
+- Dónde: `src/resources/js/pages/ScenarioPlanning/Index.vue` — afectado en los formularios de creación (`Crear capacidad`), edición del nodo y edición de competencias.
+- Por qué: Mejorar la usabilidad y coherencia visual con el control existente `Importancia` (slider), evitando entradas manuales fuera de rango y ofreciendo feedback inmediato del valor seleccionado.
+- Fecha: 2026-01-28
+- Archivos modificados: `src/resources/js/pages/ScenarioPlanning/Index.vue`
+
 ### Cambio: Título integrado en diagrama (Index.vue)
 
 - **Qué:** Se movió la cabecera externa del componente y el título ahora se renderiza dentro del lienzo SVG usando un `foreignObject` centrado en la parte superior del mapa. Esto aprovecha el espacio superior que antes quedaba en blanco y mantiene el título visible durante el pan/zoom.
