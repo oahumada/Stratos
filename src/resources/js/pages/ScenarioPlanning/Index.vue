@@ -1327,6 +1327,33 @@ async function reorderNodes() {
     }
 }
 
+// Apply reorder layout locally without persisting positions to server.
+function applyLocalReorder() {
+    const total = nodes.value.length;
+    if (!total) return;
+    const scenario = scenarioNode.value ? { id: scenarioNode.value.id, x: scenarioNode.value.x, y: scenarioNode.value.y } : undefined;
+    try {
+        console.debug('[applyLocalReorder] before - count:', nodes.value.length);
+    } catch (err: unknown) { void err; }
+    nodes.value = reorderNodesHelper(
+        nodes.value.map((n: any) => ({ ...n, name: n.name ?? n.raw?.name ?? '' } as any)),
+        width.value,
+        height.value,
+        scenario,
+    ) as unknown as Array<NodeItem>;
+    try {
+        console.debug('[applyLocalReorder] after - count:', nodes.value.length);
+    } catch (err: unknown) { void err; }
+    // mark positionsDirty false because we didn't persist
+    positionsDirty.value = false;
+    // clear any expanded children so layout looks consistent
+    try {
+        focusedNode.value = null;
+        childNodes.value = [];
+        childEdges.value = [];
+    } catch (err: unknown) { void err; }
+}
+
 function nodeRenderShift(n: any) {
     // New behavior: when a node is focused, place other nodes in fixed left/right columns
     if (!focusedNode.value) return 0;
@@ -2529,6 +2556,8 @@ const loadTreeFromApi = async (scenarioId?: number) => {
         nodes.value = [];
     } finally {
         loaded.value = true;
+        // ensure nodes are ordered after API load
+        try { applyLocalReorder(); } catch (err: unknown) { void err; }
     }
 };
 
@@ -2572,6 +2601,9 @@ onMounted(() => {
         } catch (err: unknown) {
             void err;
         }
+        // apply local reorder so nodes appear ordered on initial load (no save)
+        try { applyLocalReorder(); } catch (err: unknown) { void err; }
+        
         return;
     }
     // otherwise fetch capability tree from API
@@ -2661,6 +2693,7 @@ watch(
             buildNodesFromItems(caps);
             buildEdgesFromItems(caps);
             loaded.value = true;
+            try { applyLocalReorder(); } catch (err: unknown) { void err; }
         } else {
             void loadTreeFromApi((nv as any).id);
         }
