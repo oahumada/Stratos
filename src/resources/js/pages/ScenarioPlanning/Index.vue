@@ -196,22 +196,28 @@ const showSidebar = ref(false);
 // while `focusedNode` remains the parent capability (so layout treats parent as focused).
 const selectedChild = ref<any>(null);
 const loadingSkills = ref(false);
-// Breadcrumb title computed: muestra la entidad actualmente seleccionada
+// Breadcrumb computed: construye la ruta completa disponible
 const breadcrumbTitle = computed(() => {
+    const parts: string[] = [];
     try {
-        if (selectedChild.value) {
-            // child node may store name in different places depending on source
-            const name = (selectedChild.value as any)?.name || (selectedChild.value as any)?.raw?.name || (selectedChild.value as any)?.compName || '—';
-            return `Competencia: ${name}`;
-        }
+        const sName = props.scenario?.name || '—';
+        parts.push(`Escenario: ${sName}`);
+
         if (focusedNode.value) {
-            const fname = (focusedNode.value as any)?.name || '—';
-            return `Capacidad: ${fname}`;
+            const fName = (focusedNode.value as any)?.name || '—';
+            parts.push(`Capacidad: ${fName}`);
         }
-        return `Escenario: ${props.scenario?.name || '—'}`;
+
+        if (selectedChild.value) {
+            const c = selectedChild.value as any;
+            const cName = c?.name || c?.raw?.name || c?.compName || '—';
+            parts.push(`Competencia: ${cName}`);
+        }
     } catch (err: unknown) {
+        // fallback to scenario only
         return `Escenario: ${props.scenario?.name || '—'}`;
     }
+    return parts.join('  ›  ');
 });
 // raw capability-tree fetched from API (for debugging / inspection)
 const capabilityTreeRaw = ref<any | null>(null);
