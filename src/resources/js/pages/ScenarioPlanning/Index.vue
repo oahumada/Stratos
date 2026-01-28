@@ -996,8 +996,17 @@ async function saveFocusedNode() {
         try {
             await api.patch(`/api/capabilities/${id}`, capPayload);
             showSuccess('Capacidad actualizada');
-        } catch (err: unknown) {
-            // ignore if endpoint missing; leave server to handle via other flows
+        } catch (errCap: unknown) {
+            // If endpoint missing (404) we silently continue; otherwise surface error
+            try {
+                const _err: any = errCap as any;
+                const status = _err?.response?.status ?? null;
+                if (status !== 404) {
+                    showError(_err?.response?.data?.message || 'Error actualizando capacidad');
+                }
+            } catch (errInner: unknown) {
+                void errInner;
+            }
         }
 
         // 2) attempt to update pivot via best-effort PATCH endpoint
