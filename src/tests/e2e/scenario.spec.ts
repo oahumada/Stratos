@@ -99,7 +99,7 @@ test('scenario map - click capability expands children and centers selected node
       if (html) await testInfo.attach('error-html', { body: html, contentType: 'text/html' });
       if (consoleLogs.length) await testInfo.attach('console-logs', { body: consoleLogs.join('\n'), contentType: 'text/plain' });
       if (pageErrors.length) await testInfo.attach('page-errors', { body: pageErrors.join('\n'), contentType: 'text/plain' });
-    } catch (attachErr) {
+    } catch {
       // ignore attachment errors
     }
     throw err;

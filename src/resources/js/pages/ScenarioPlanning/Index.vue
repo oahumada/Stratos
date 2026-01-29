@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import * as d3 from 'd3';
@@ -1478,7 +1479,7 @@ function edgeEndpoint(e: Edge, forTarget = true) {
         const id = forTarget ? e.target : e.source;
         const n = renderedNodeById(id);
         if (!n) return { x: undefined, y: undefined } as any;
-        let x = n.x;
+        const x = n.x;
         let y = n.y;
         // si es el target y corresponde a un child node (id negativo), ajustar para evitar solapamiento
         if (forTarget && id < 0) {
@@ -3135,59 +3136,61 @@ if (!edges.value) edges.value = [];
                     <!-- child edges: conexiones entre la capacidad seleccionada y sus competencias -->
                     <g class="child-edges">
                         <!-- curva (modo 2) -->
-                        <path
-                            v-if="childEdgeMode === 2"
-                            v-for="(e, idx) in childEdges"
-                            :key="`child-edge-path-${idx}`"
-                            :d="edgeRenderFor(e).d"
-                            class="edge-line child-edge"
-                            stroke="url(#childGrad)"
-                            stroke-width="4"
-                            stroke-linecap="round"
-                            fill="none"
-                            filter="url(#edgeGlow)"
-                            stroke-opacity="0.98"
-                            marker-end="url(#childArrow)"
-                        />
+                        <template v-if="childEdgeMode === 2">
+                            <path
+                                v-for="(e, idx) in childEdges"
+                                :key="`child-edge-path-${idx}`"
+                                :d="edgeRenderFor(e).d"
+                                class="edge-line child-edge"
+                                stroke="url(#childGrad)"
+                                stroke-width="4"
+                                stroke-linecap="round"
+                                fill="none"
+                                filter="url(#edgeGlow)"
+                                stroke-opacity="0.98"
+                                marker-end="url(#childArrow)"
+                            />
+                        </template>
 
                         <!-- líneas simples / modos no-curva -->
-                        <line
-                            v-else
-                            v-for="(e, idx) in childEdges"
-                            :key="`child-edge-line-${idx}`"
-                            :x1="edgeRenderFor(e).x1 ?? undefined"
-                            :y1="edgeRenderFor(e).y1 ?? undefined"
-                            :x2="edgeRenderFor(e).x2 ?? undefined"
-                            :y2="edgeRenderFor(e).y2 ?? undefined"
-                            class="edge-line child-edge"
-                            stroke="url(#childGrad)"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            filter="url(#edgeGlow)"
-                            stroke-opacity="0.98"
-                            marker-end="url(#childArrow)"
-                        />
+                        <template v-else>
+                            <line
+                                v-for="(e, idx) in childEdges"
+                                :key="`child-edge-line-${idx}`"
+                                :x1="edgeRenderFor(e).x1 ?? undefined"
+                                :y1="edgeRenderFor(e).y1 ?? undefined"
+                                :x2="edgeRenderFor(e).x2 ?? undefined"
+                                :y2="edgeRenderFor(e).y2 ?? undefined"
+                                class="edge-line child-edge"
+                                stroke="url(#childGrad)"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                filter="url(#edgeGlow)"
+                                stroke-opacity="0.98"
+                                marker-end="url(#childArrow)"
+                            />
+                        </template>
                     </g>
 
                     <!-- grandchild edges: conexiones entre la competencia seleccionada y sus skills (mismo estilo que child-edges) -->
                     <g class="grandchild-edges">
                         <!-- curva (modo 2) -->
-                        <path
-                            v-if="childEdgeMode === 2"
-                            v-for="(e, idx) in grandChildEdges"
-                            :key="`grandchild-edge-path-${idx}`"
-                            :d="edgeRenderFor(e).d"
-                            class="edge-line child-edge"
-                            stroke="url(#childGrad)"
-                            stroke-width="4"
-                            stroke-linecap="round"
-                            fill="none"
-                            filter="url(#edgeGlow)"
-                            :stroke-opacity="edgeAnimOpacity(e)"
-                            :style="{ transition: 'stroke-opacity 180ms ease' }"
-                            marker-end="url(#childArrow)"
-                        />
-
+                        <template v-if="childEdgeMode === 2">
+                            <path
+                                v-for="(e, idx) in grandChildEdges"
+                                :key="`grandchild-edge-path-${idx}`"
+                                :d="edgeRenderFor(e).d"
+                                class="edge-line child-edge"
+                                stroke="url(#childGrad)"
+                                stroke-width="4"
+                                stroke-linecap="round"
+                                fill="none"
+                                filter="url(#edgeGlow)"
+                                :stroke-opacity="edgeAnimOpacity(e)"
+                                :style="{ transition: 'stroke-opacity 180ms ease' }"
+                                marker-end="url(#childArrow)"
+                            />
+                        </template>
                         <!-- líneas simples / modos no-curva -->
                         <line
                             v-else

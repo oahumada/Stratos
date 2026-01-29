@@ -29,7 +29,46 @@ class ScenarioController extends Controller
      */
     public function getIQ($id)
     {
-        $metrics = $this->analytics->calculateScenarioIQ($id);
+        $scenario = Scenario::with('capabilities.competencies.skills')->findOrFail($id);
+
+        $capCount = $scenario->capabilities->count();
+        $totalCapReadiness = 0;
+        $totalCompReadiness = 0;
+        $totalSkillReadiness = 0;
+        $compCount = 0;
+        $skillCount = 0;
+
+        foreach ($scenario->capabilities as $cap) {
+            $capReady = $this->analytics->calculateCapabilityReadiness($id, $cap->id) ?? 0;
+            $totalCapReadiness += $capReady;
+
+            foreach ($cap->competencies as $comp) {
+                $compReady = $this->analytics->calculateCompetencyReadiness($id, $comp->id) ?? 0;
+                $totalCompReadiness += $compReady;
+                $compCount++;
+
+                foreach ($comp->skills as $skill) {
+                    $skillReady = $this->analytics->calculateSkillReadiness($id, $skill->id) ?? 0;
+                    $totalSkillReadiness += $skillReady;
+                    $skillCount++;
+                }
+            }
+        }
+
+        $avgCap = $capCount ? ($totalCapReadiness / $capCount) : 0;
+        $avgComp = $compCount ? ($totalCompReadiness / $compCount) : 0;
+        $avgSkill = $skillCount ? ($totalSkillReadiness / $skillCount) : 0;
+
+        $metrics = [
+            'scenario_id' => $scenario->id,
+            'capability_count' => $capCount,
+            'competency_count' => $compCount,
+            'skill_count' => $skillCount,
+            'avg_capability_readiness_pct' => round($avgCap * 100, 1),
+            'avg_competency_readiness_pct' => round($avgComp * 100, 1),
+            'avg_skill_readiness_pct' => round($avgSkill * 100, 1),
+        ];
+
         return response()->json($metrics);
     }
 
