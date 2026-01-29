@@ -2437,10 +2437,11 @@ async function createAndAttachComp() {
         const created = res?.data ?? res;
         // attach to capability via best-effort endpoint
         try {
-            await api.post(`/api/capabilities/${capId}/competencies`, { competency_id: created.id });
+            // prefer scenario-scoped endpoint so pivot includes scenario attributes
+            await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${capId}/competencies`, { competency_id: created.id });
         } catch (err: unknown) {
-            // fallback: try pivot endpoint on scenario if available
-            try { await api.post(`/api/strategic-planning/capabilities/${capId}/competencies`, { competency_id: created.id }); } catch (err: unknown) { void err; }
+            // fallback to capability-scoped endpoint if present
+            try { await api.post(`/api/capabilities/${capId}/competencies`, { competency_id: created.id }); } catch (err: unknown) { void err; }
         }
         createCompDialogVisible.value = false;
         // refresh tree and expand parent
@@ -2459,16 +2460,26 @@ async function attachExistingComp() {
     if (!displayNode.value || !((displayNode.value as any).id)) return showError('Seleccione una capacidad');
     if (!addExistingSelection.value) return showError('Seleccione una competencia existente');
     const capId = (displayNode.value as any).id;
-    try {
-        await api.post(`/api/capabilities/${capId}/competencies`, { competency_id: addExistingSelection.value });
-        addExistingCompDialogVisible.value = false;
-        await loadTreeFromApi(props.scenario?.id);
-        const parent = nodeById(capId);
-        if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
-        showSuccess('Competencia asociada correctamente');
-    } catch (err: unknown) {
-        showError('Error asociando competencia');
-    }
+        try {
+            await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${capId}/competencies`, { competency_id: addExistingSelection.value });
+            addExistingCompDialogVisible.value = false;
+            await loadTreeFromApi(props.scenario?.id);
+            const parent = nodeById(capId);
+            if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
+            showSuccess('Competencia asociada correctamente');
+        } catch (err: unknown) {
+            // fallback: try capability-scoped endpoint
+            try {
+                await api.post(`/api/capabilities/${capId}/competencies`, { competency_id: addExistingSelection.value });
+                addExistingCompDialogVisible.value = false;
+                await loadTreeFromApi(props.scenario?.id);
+                const parent = nodeById(capId);
+                if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
+                showSuccess('Competencia asociada correctamente');
+            } catch (err2: unknown) {
+                showError('Error asociando competencia');
+            }
+        }
 }
 
 // Save edits for selectedChild (competency and pivot)
@@ -2502,7 +2513,17 @@ async function saveSelectedChild() {
                 rationale: editChildPivotRationale.value,
             };
                 console.debug('[saveSelectedChild] pivotPayload', pivotPayload, 'parentId', parentId, 'compId', compId);
-            try { await api.patch(`/api/capabilities/${parentId}/competencies/${compId}`, pivotPayload); } catch (err: unknown) { void err; }
+            try {
+                // preferred: update pivot within scenario context so we update scenario-specific attributes
+                await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${parentId}/competencies/${compId}`, pivotPayload);
+            } catch (err: unknown) {
+                // fallback to capability-scoped endpoint if available
+                try {
+                    await api.patch(`/api/capabilities/${parentId}/competencies/${compId}`, pivotPayload);
+                } catch (err2: unknown) {
+                    void err2;
+                }
+            }
         }
 
         // refresh and re-open parent expansion
@@ -3403,7 +3424,7 @@ if (!edges.value) edges.value = [];
                                 </v-list-item-icon>
                                 <v-list-item-title>Ver detalles</v-list-item-title>
                             </v-list-item>
-                            <v-list-item @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()" class="node-context-item">
+                            <!-- <v-list-item @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()" class="node-context-item">
                                 <v-list-item-icon>
                                     <v-icon icon="mdi-plus" />  
                                 </v-list-item-icon>
@@ -3420,7 +3441,7 @@ if (!edges.value) edges.value = [];
                                     <v-icon icon="mdi-delete-outline" />
                                 </v-list-item-icon>
                                 <v-list-item-title class="text-error">Eliminar nodo</v-list-item-title>
-                            </v-list-item>
+                            </v-list-item> -->
                         </v-list>
                     </div>
                 </template>

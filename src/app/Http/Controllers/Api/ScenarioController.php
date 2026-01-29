@@ -76,6 +76,10 @@ class ScenarioController extends Controller
             return [
                 'id' => $capability->id,
                 'name' => $capability->name,
+                'description' => $capability->description ?? null,
+                'importance' => $capability->importance ?? null,
+                'position_x' => $capability->position_x ?? null,
+                'position_y' => $capability->position_y ?? null,
                 'strategic_role' => $capability->pivot->strategic_role ?? null,
                 'strategic_weight' => $capability->pivot->strategic_weight ?? null,
                 'priority' => $capability->pivot->priority ?? null,

@@ -139,6 +139,14 @@ Nota: Este cambio es puramente visual (SVG/defs/CSS). La lógica D3 y el layout 
 - Se instaló `@types/d3` localmente en `src` (devDependency) para eliminar aviso de "No se encontró ningún archivo de declaración para el módulo 'd3'".
 - Si TypeScript sigue reportando errores, alternativa rápida: agregar `src/types/d3.d.ts` con `declare module 'd3';`.
 
+## Tests añadidos (2026-01-28)
+
+- **CapabilityUpdateTest**: nuevo archivo de pruebas backend en `src/tests/Feature/CapabilityUpdateTest.php` con dos tests:
+  - `test_update_capability_entity_via_api`: PATCH a `/api/capabilities/{id}` y aserciones en la tabla `capabilities`.
+  - `test_update_scenario_capability_pivot_via_api`: crea asociación inicial y PATCH a `/api/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}` para actualizar campos pivot en `scenario_capabilities`.
+
+Estas pruebas fueron añadidas para cubrir la edición/actualización de registros de capacidades y sus atributos de escenario (pivot).
+
 ## Próximos pasos recomendados (plan corto)
 
 1. Ejecutar `npm run lint` y `npm run format` para aplicar estilo a `Index.vue`.
@@ -175,6 +183,7 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 - **Qué:** Decisión de testing integrada en el proyecto.
 - **Stack de pruebas:**
   - Backend: `Pest` (PHP) — ya en uso para pruebas de API y lógica del servidor.
+    - Nota: las pruebas backend usan **Pest**, no **PHPUnit**; los tests están escritos con sintaxis Pest/PHP.
   - Frontend unit/integration: `Vitest` + `@vue/test-utils` para composables y componentes Vue.
   - Frontend E2E/funcionales: `Playwright` para pruebas end-to-end (multi-navegador) — cobertura de flujos complejos (D3 interactions, drag/drop, centering, sidebar).
 - **Enfoque:** Desarrollo orientado por pruebas (TDD) cuando sea práctico: empezar por tests unitarios/componente para la lógica (`useNodeNavigation`, `expandCompetencies`) y luego añadir pruebas E2E con Playwright para flujos críticos (ej. crear/adjuntar/centrar/guardar).
