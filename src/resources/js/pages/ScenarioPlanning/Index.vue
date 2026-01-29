@@ -990,11 +990,16 @@ function resetFocusedEdits() {
         editCapType.value = f.type ?? f.raw?.type ?? '';
         editCapCategory.value = f.category ?? f.raw?.category ?? '';
         editPivotStrategicRole.value = f.strategic_role ?? f.raw?.strategic_role ?? 'target';
-        editPivotStrategicWeight.value = f.raw?.strategic_weight ?? 10;
-        editPivotPriority.value = f.raw?.priority ?? 1;
-        editPivotRationale.value = f.raw?.rationale ?? '';
-        editPivotRequiredLevel.value = f.raw?.required_level ?? f.required ?? 3;
-        editPivotIsCritical.value = !!(f.raw?.is_critical || f.is_critical);
+        // Normalize pivot sources: pivot may live under several keys depending on backend
+        const raw = f.raw ?? {};
+        let pivotSrc: any = raw.pivot ?? raw.scenario_capabilities ?? raw.scenario_capability ?? raw._pivot ?? null;
+        if (Array.isArray(pivotSrc)) pivotSrc = pivotSrc[0] ?? null;
+        editPivotStrategicWeight.value =
+            (f.strategic_weight ?? pivotSrc?.strategic_weight ?? raw.strategic_weight) ?? 10;
+        editPivotPriority.value = (f.priority ?? pivotSrc?.priority ?? raw.priority) ?? 1;
+        editPivotRationale.value = (f.rationale ?? pivotSrc?.rationale ?? raw.rationale) ?? '';
+        editPivotRequiredLevel.value = (f.required_level ?? pivotSrc?.required_level ?? raw.required_level ?? f.required) ?? 3;
+        editPivotIsCritical.value = !!(f.is_critical ?? pivotSrc?.is_critical ?? raw.is_critical ?? f.is_critical);
     }
 }
 
@@ -1164,6 +1169,8 @@ function createCapabilityClicked() {
     pivotRationale.value = '';
     pivotRequiredLevel.value = 3;
     pivotIsCritical.value = false;
+    // ensure scenario/sidebar is closed when opening the create-capability modal
+    showSidebar.value = false;
     createModalVisible.value = true;
 }
 
@@ -2664,6 +2671,30 @@ onMounted(async () => {
         const caps = (props.scenario as any).capabilities;
         // store incoming capabilities as raw payload for inspection
         capabilityTreeRaw.value = caps;
+        // if the provided capabilities do not include scenario-scoped pivot attributes
+        // (some list: strategic_weight, priority, required_level, is_critical, importance)
+        // then prefer to fetch the canonical capability-tree from the API so we get the
+        // scenario-specific attributes that the UI expects to display in modals.
+        const first = caps[0];
+        const hasPivot = !!first && (
+            first.strategic_weight !== undefined ||
+            first.priority !== undefined ||
+            first.required_level !== undefined ||
+            first.is_critical !== undefined ||
+            first.importance !== undefined ||
+            (first.raw && (first.raw.strategic_weight !== undefined || first.raw.priority !== undefined)) ||
+            (first.pivot && (first.pivot.strategic_weight !== undefined || first.pivot.priority !== undefined)) ||
+            (first.scenario_capabilities && Object.keys(first.scenario_capabilities).length > 0)
+        );
+        if (!hasPivot) {
+            // fetch canonical tree which includes pivot/entity attributes
+            await loadTreeFromApi(props.scenario.id);
+            // ensure positions and scenario node are initialized
+            setScenarioInitial();
+            try { await reorderNodes(); } catch (err: unknown) { void err; }
+            return;
+        }
+
         buildNodesFromItems(caps);
         buildEdgesFromItems(caps);
         // restore persisted UI state after nodes built
