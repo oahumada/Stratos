@@ -87,6 +87,142 @@ Esta entrada sirve como referencia para nombres de rutas, directorios y componen
 - **Por qué:** Aprovechar el espacio superior para presentación del título y reducir el padding externo; mejora estética y hace el título parte del contexto visual del diagrama.
 - **Fecha:** 2026-01-28
 
+## Memoria: Cambios de la sesión 2026-01-29 (Fix: Crear competencia en modal)
+
+### Problema identificado - Parte 1: Confusión de endpoints (RESUELTO)
+
+Cuando el usuario creaba una competencia desde el modal de capacidad, la competencia NO se guardaba ni se adjuntaba correctamente. Causa: frontend intentaba `POST /api/competencies` (endpoint que NO existe).
+
+### Problema identificado - Parte 2: Modelo de base de datos inconsistente (RESUELTO)
+
+El modelo **debería ser N:N con pivote** (una competencia puede ser compartida por múltiples capacidades), pero el código mantenía restos del modelo 1:N antiguo:
+
+- Tabla `competencies` tenía FK directo `capability_id`
+- Tabla `capability_competencies` también vinculaba competencias a capacidades
+- Esto causaba redundancia y confusión sobre cuál relación era la "correcta"
+
+### Soluciones implementadas
+
+**Cambio arquitectónico importante: Pasar de 1:N a N:N con pivote**
+
+**Frontend:** `src/resources/js/pages/ScenarioPlanning/Index.vue`
+
+- ✅ Limpiar `selectedChild.value` en `contextCreateChild()`
+- ✅ Función `resetCompetencyForm()` y watchers para limpiar campos
+- ✅ Reescribir `createAndAttachComp()` para usar endpoint único:
+  ```javascript
+  POST /api/strategic-planning/scenarios/{scenarioId}/capabilities/{capId}/competencies
+  { competency: { name, description }, required_level, ... }
+  ```
+
+**Backend:** Nuevas migraciones y modelos
+
+1. **Nueva migración:** `2026_01_29_120000_remove_capability_id_from_competencies.php`
+   - Elimina FK `capability_id` de tabla `competencies`
+   - Elimina índices relacionados
+   - La relación será SOLO vía pivote
+
+2. **Modelo Competency:** `app/Models/Competency.php`
+   - ✅ Remover `belongsTo(Capability)`
+   - ✅ Agregar `belongsToMany(Capability::class)` vía pivote `capability_competencies`
+   - ✅ Actualizar `fillable` para remover `capability_id`
+
+3. **Modelo Capability:** `app/Models/Capability.php`
+   - ✅ Cambiar `hasMany(Competency)` a `belongsToMany(Competency)` vía pivote
+   - ✅ Ahora soporta N:N correctamente
+
+4. **ScenarioController::getCapabilityTree()** `app/Http/Controllers/Api/ScenarioController.php`
+   - ✅ Actualizar eager loading para filtrar competencias por escenario en el pivote:
+     ```php
+     'capabilities.competencies' => function ($qc) {
+         $qc->wherePivot('scenario_id', $scenarioId);
+     }
+     ```
+
+5. **Endpoint backend:** `routes/api.php`
+   - ✅ Remover asignación de `'capability_id'` al crear competencia nueva
+   - ✅ La vinculación es SOLO vía pivote `capability_competencies`
+
+### Archivos modificados
+
+- `src/resources/js/pages/ScenarioPlanning/Index.vue` (frontend)
+- `src/routes/api.php` (endpoint cleanup)
+- `src/app/Models/Competency.php` (relación N:N)
+- `src/app/Models/Capability.php` (relación N:N)
+- `src/app/Http/Controllers/Api/ScenarioController.php` (eager loading)
+- `src/database/migrations/2026_01_29_120000_remove_capability_id_from_competencies.php` (nueva migración)
+
+### Beneficio arquitectónico
+
+- Una competencia puede ser compartida entre múltiples capacidades
+- Cada relación scenario-capability-competency puede tener atributos de pivote específicos
+- Flexibilidad para reutilizar competencias sin duplicación
+
+### Fecha
+
+2026-01-29
+
+### Git Metadata
+
+- `git_repo_name`: oahumada/Stratos
+- `git_branch`: feature/workforce-planning-scenario-modeling
+- `git_commit_hash`: (pending commit)
+
+## Memoria: Cambios de la sesión 2026-01-29 (Fix: Crear competencia en modal)
+
+### Problema identificado
+
+Cuando el usuario creaba una competencia desde el modal de capacidad, la competencia NO se guardaba ni se adjuntaba correctamente. Hay dos causas raíz:
+
+1. **Confusión de relaciones:** El código asumía dos vías de vincular competencias:
+   - Directa: vía `capability_id` en tabla `competencies`
+   - Pivot: vía tabla `capability_competencies` con scenario-specific data
+
+   Pero el frontend intentaba:
+   - `POST /api/competencies` (endpoint que NO existe) → Error 404
+   - Luego `POST /api/.../competencies` (fallback)
+
+2. **Estado mal limpiado:** Cuando se abría el modal de crear competencia:
+   - `selectedChild.value` no se limpiaba
+   - Si había una competencia seleccionada antes, `displayNode = selectedChild ?? focusedNode` usaba el child viejo
+   - Los campos del formulario no se reseteaban después de crear
+
+### Soluciones implementadas
+
+**Frontend:** `src/resources/js/pages/ScenarioPlanning/Index.vue`
+
+- ✅ Limpiar `selectedChild.value = null` en `contextCreateChild()` (línea ~424)
+- ✅ Crear función `resetCompetencyForm()` (línea ~321)
+- ✅ Llamar reset después de crear exitosamente (línea ~2506)
+- ✅ Agregar watcher para limpiar campos al cerrar modal (línea ~998)
+- ✅ Reescribir `createAndAttachComp()` para usar endpoint único y correcto:
+  - Antes: dos llamadas (`POST /api/competencies` + fallback)
+  - Ahora: una sola `POST /api/strategic-planning/scenarios/{scenarioId}/capabilities/{capId}/competencies`
+  - Payload único: `{ competency: { name, description }, required_level, ... }`
+
+**Backend:** `src/routes/api.php`
+
+- ✅ Eliminar ruta duplicada (línea 97-128, que solo soportaba crear competencia sin pivot)
+- ✅ Mantener ruta completa (línea 99, ahora única) que soporta:
+  - `competency_id`: vincular competencia existente
+  - `competency: { name, description }`: crear nueva en una transacción
+  - Pivot attributes: `required_level`, `weight`, `rationale`, `is_required`
+
+### Archivos modificados
+
+- `src/resources/js/pages/ScenarioPlanning/Index.vue` (frontend form fix)
+- `src/routes/api.php` (backend route cleanup)
+
+### Fecha
+
+2026-01-29
+
+### Git Metadata
+
+- `git_repo_name`: oahumada/Stratos
+- `git_branch`: feature/workforce-planning-scenario-modeling
+- `git_commit_hash`: (pending commit)
+
 ## Memoria: Cambios de la sesión 2026-01-27 (Visual tuning & configuraciones)
 
 - **Qué:** Ajustes visuales y de layout en `src/resources/js/pages/ScenarioPlanning/Index.vue` para mejorar la separación entre nodos padre/hijos y la curvatura de los conectores. Se centralizaron parámetros visuales en la nueva prop `visualConfig` y se añadió `capabilityChildrenOffset` como prop aislada para control fino.

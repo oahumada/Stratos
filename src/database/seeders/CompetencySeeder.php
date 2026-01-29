@@ -18,7 +18,8 @@ class CompetencySeeder extends Seeder
         }
 
         foreach ($caps as $cap) {
-            $existing = Competency::where('capability_id', $cap->id)->count();
+            // Check if capability already has competencies attached (via pivot)
+            $existing = $cap->competencies()->count();
             if ($existing >= 1) {
                 $this->command->info("Capability {$cap->id} already has {$existing} competencies, skipping");
                 continue;
@@ -29,9 +30,9 @@ class CompetencySeeder extends Seeder
 
             for ($i = 1; $i <= $count; $i++) {
                 $name = $cap->name . ' - Competency ' . $i;
+                // Create competency WITHOUT capability_id (N:N model)
                 $comp = Competency::create([
                     'organization_id' => $cap->organization_id,
-                    'capability_id' => $cap->id,
                     'name' => $name,
                     'description' => 'Auto-seeded competency for ' . $cap->name,
                 ]);

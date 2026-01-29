@@ -33,7 +33,7 @@ class CapabilityUpdateTest extends TestCase
         ];
 
         $response = $this->actingAs($this->user)
-            ->patchJson("//api/capabilities/{$cap->id}", $payload);
+            ->patchJson("/api/capabilities/{$cap->id}", $payload);
 
         $response->assertStatus(200)->assertJson(['success' => true]);
 
@@ -68,7 +68,7 @@ class CapabilityUpdateTest extends TestCase
         ];
 
         $response = $this->actingAs($this->user)
-            ->patchJson("//api/strategic-planning/scenarios/{$scenario->id}/capabilities/{$cap->id}", $pivotPayload);
+            ->patchJson("/api/strategic-planning/scenarios/{$scenario->id}/capabilities/{$cap->id}", $pivotPayload);
 
         $response->assertStatus(200)->assertJson(['success' => true]);
 
@@ -89,7 +89,7 @@ class CapabilityUpdateTest extends TestCase
 
         // Create capability via API under the scenario so it appears in capability-tree
         $createRes = $this->actingAs($this->user)
-            ->postJson("//api/strategic-planning/scenarios/{$scenario->id}/capabilities", [
+            ->postJson("/api/strategic-planning/scenarios/{$scenario->id}/capabilities", [
                 'name' => 'Tree Cap',
                 'description' => 'Created via API',
                 'importance' => 4,
@@ -104,12 +104,12 @@ class CapabilityUpdateTest extends TestCase
 
         // Update importance on capability entity
         $this->actingAs($this->user)
-            ->patchJson("//api/capabilities/{$capId}", ['importance' => 9])
+            ->patchJson("/api/capabilities/{$capId}", ['importance' => 9])
             ->assertStatus(200)->assertJson(['success' => true]);
 
         // Fetch capability-tree for scenario and assert importance updated
         $res = $this->actingAs($this->user)
-            ->getJson("//api/strategic-planning/scenarios/{$scenario->id}/capability-tree")
+            ->getJson("/api/strategic-planning/scenarios/{$scenario->id}/capability-tree")
             ->assertStatus(200)
             ->json();
 
@@ -131,7 +131,7 @@ class CapabilityUpdateTest extends TestCase
 
         // Ensure pivot exists via PATCH upsert
         $this->actingAs($this->user)
-            ->patchJson("//api/strategic-planning/scenarios/{$scenario->id}/capabilities/{$cap->id}", [
+            ->patchJson("/api/strategic-planning/scenarios/{$scenario->id}/capabilities/{$cap->id}", [
                 'strategic_weight' => 8,
                 'priority' => 2,
                 'rationale' => 'Pivot test',
@@ -141,7 +141,7 @@ class CapabilityUpdateTest extends TestCase
 
         // Fetch capability-tree for scenario and assert pivot values present
         $res = $this->actingAs($this->user)
-            ->getJson("//api/strategic-planning/scenarios/{$scenario->id}/capability-tree")
+            ->getJson("/api/strategic-planning/scenarios/{$scenario->id}/capability-tree")
             ->assertStatus(200)
             ->json();
 

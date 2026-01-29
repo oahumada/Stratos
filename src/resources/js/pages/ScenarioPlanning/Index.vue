@@ -310,12 +310,21 @@ const savingNode = ref(false);
 // Competency creation/attach UI state
 const createCompDialogVisible = ref(false);
 const addExistingCompDialogVisible = ref(false);
+const creatingComp = ref(false);
 const availableExistingCompetencies = ref<any[]>([]);
 const newCompName = ref('');
 const newCompDescription = ref('');
 const newCompReadiness = ref<number | undefined>(undefined);
 const newCompSkills = ref('');
 const addExistingSelection = ref<number | null>(null);
+
+// Helper function to reset competency form fields
+function resetCompetencyForm() {
+    newCompName.value = '';
+    newCompDescription.value = '';
+    newCompReadiness.value = undefined;
+    newCompSkills.value = '';
+}
 
 // Skill modal state (creación / selección)
 const createSkillDialogVisible = ref(false);
@@ -412,6 +421,10 @@ function contextCreateChild() {
     if (targetParent) {
         focusedNode.value = targetParent as NodeItem;
     }
+    // clear any previously selected child to ensure displayNode uses focusedNode (the target parent)
+    selectedChild.value = null;
+    // reset form fields before opening dialog
+    resetCompetencyForm();
     // open create-competency dialog
     createCompDialogVisible.value = true;
     closeContextMenu();
@@ -978,6 +991,13 @@ watch(selectedChild, (nv) => {
     editChildPivotRequiredLevel.value = pivot?.required_level ?? 3;
     editChildPivotIsCritical.value = !!pivot?.is_critical;
     editChildPivotRationale.value = pivot?.rationale ?? '';
+});
+
+// Watch createCompDialogVisible to reset form when modal closes
+watch(createCompDialogVisible, (isVisible) => {
+    if (!isVisible) {
+        resetCompetencyForm();
+    }
 });
 
 function resetFocusedEdits() {
@@ -2457,37 +2477,83 @@ async function fetchSkillsForCompetency(compId: number) {
 }
 
 async function createAndAttachComp() {
-    if (!displayNode.value || !((displayNode.value as any).id)) return showError('Seleccione una capacidad para asociar');
+    if (!displayNode.value || !((displayNode.value as any).id)) {
+        showError('Seleccione una capacidad para asociar');
+        return;
+    }
+    if (!props.scenario?.id) {
+        showError('Escenario no especificado');
+        return;
+    }
     const capId = (displayNode.value as any).id;
+    const scenarioId = props.scenario.id;
+    creatingComp.value = true;
     try {
+        console.debug('[createAndAttachComp] start', { scenarioId, capId, name: newCompName.value });
         await ensureCsrf();
+        // Single endpoint call that creates both competency and pivot record
+        // The backend endpoint accepts either competency_id (existing) or competency object (create new)
         const payload = {
-            name: newCompName.value,
-            description: newCompDescription.value,
-            readiness: newCompReadiness.value,
-            skills: (newCompSkills.value || '').split(',').map((s) => s.trim()).filter((s) => s),
+            competency: {
+                name: newCompName.value,
+                description: newCompDescription.value,
+            },
+            required_level: 3,
+            weight: 1,
+            rationale: '',
+            is_required: false,
         };
-        const res: any = await api.post('/api/competencies', payload);
-        const created = res?.data ?? res;
-        // attach to capability via best-effort endpoint
-        try {
-            // prefer scenario-scoped endpoint so pivot includes scenario attributes
-            await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${capId}/competencies`, { competency_id: created.id });
-        } catch (err: unknown) {
-            // fallback to capability-scoped endpoint if present
-            try { await api.post(`/api/capabilities/${capId}/competencies`, { competency_id: created.id }); } catch (err: unknown) { void err; }
-        }
+        const res: any = await api.post(`/api/strategic-planning/scenarios/${scenarioId}/capabilities/${capId}/competencies`, payload);
+        const result = res?.data ?? res;
+        console.debug('[createAndAttachComp] success', result);
+        
         createCompDialogVisible.value = false;
+        // reset form fields after success
+        resetCompetencyForm();
         // refresh tree and expand parent
-        await loadTreeFromApi(props.scenario?.id);
+        await loadTreeFromApi(scenarioId);
         const parent = nodeById(capId);
         if (parent) {
             expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
         }
         showSuccess('Competencia creada y asociada');
     } catch (err: unknown) {
+        console.error('[createAndAttachComp] error', err);
         showError('Error creando competencia');
+    } finally {
+        creatingComp.value = false;
     }
+}
+
+// Wrapper used by template to log clicks and call the real handler (helps debug clicks not firing)
+function onClickCreateAndAttachComp() {
+    try {
+        console.debug('[onClickCreateAndAttachComp] click', { name: newCompName.value, cap: displayNode.value?.id });
+    } catch (err) { void err; }
+
+    // quick client-side validation to give immediate feedback
+    if (!displayNode.value || !((displayNode.value as any).id)) {
+        showError('Seleccione una capacidad para asociar');
+        return;
+    }
+    if (!newCompName.value || !String(newCompName.value).trim()) {
+        showError('El nombre de la competencia es obligatorio');
+        return;
+    }
+
+    // ensure CSRF cookie present before mutating requests
+    creatingComp.value = true;
+    (async () => {
+        try {
+            await ensureCsrf();
+            await createAndAttachComp();
+        } catch (err) {
+            console.error('[onClickCreateAndAttachComp] handler error', err);
+            showError('Error al crear la competencia');
+        } finally {
+            creatingComp.value = false;
+        }
+    })();
 }
 
 async function attachExistingComp() {
@@ -3646,17 +3712,17 @@ if (!edges.value) edges.value = [];
                 <v-card :class="dialogThemeClass">
                     <v-card-title>Crear competencia</v-card-title>
                     <v-card-text>
-                        <v-form>
+                                        <v-form @submit.prevent>
                             <v-text-field v-model="newCompName" label="Nombre" required />
                             <v-textarea v-model="newCompDescription" label="Descripción" rows="3" />
                             <v-text-field v-model="newCompReadiness" label="Readiness" type="number" />
                             <v-textarea v-model="newCompSkills" label="Skills (coma-separadas)" rows="2" />
-                        </v-form>
+                                        </v-form>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer />
                         <v-btn text @click="createCompDialogVisible = false">Cancelar</v-btn>
-                        <v-btn color="primary" @click="createAndAttachComp">Crear y asociar</v-btn>
+                                        <v-btn color="primary" :loading="creatingComp" @click="onClickCreateAndAttachComp">Crear y asociar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -3726,7 +3792,7 @@ if (!edges.value) edges.value = [];
                             <v-text-field v-model="newCapType" label="Tipo" />
                             <v-text-field v-model="newCapCategory" label="Categoría" />
                             <div>
-                                <v-slider v-model="newCapImportance" label="Importancia (1-3):" :min="1" :max="3" :step="1" color="green" :ticks="tickLabels" show-ticks="always"/>
+                                <v-slider v-model="newCapImportance" label="Importancia (1-3):" :min="1" :max="3" :step="1" color="green" :ticks="tickLabelImportance" show-ticks="always"/>
                             </div>
                             <v-textarea v-model="newCapDescription" label="Descripción" rows="3" style="grid-column: 1 / -1" />
                         </div>

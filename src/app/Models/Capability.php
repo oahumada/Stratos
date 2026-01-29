@@ -23,7 +23,15 @@ class Capability extends Model
 
     public function competencies()
     {
-        return $this->hasMany(Competency::class, 'capability_id');
+        // Relación N:N vía tabla pivote capability_competencies
+        return $this->belongsToMany(
+            Competency::class,
+            'capability_competencies',
+            'capability_id',
+            'competency_id'
+        )
+            ->withPivot('scenario_id', 'required_level', 'weight', 'rationale', 'is_required', 'created_at', 'updated_at')
+            ->withTimestamps();
     }
 
     public function capabilityCompetencies()

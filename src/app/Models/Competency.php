@@ -11,11 +11,21 @@ class Competency extends Model
 
     protected $table = 'competencies';
 
-    protected $fillable = ['organization_id', 'capability_id', 'name', 'description'];
+    protected $fillable = ['organization_id', 'name', 'description'];
 
-    public function capability()
+    /**
+     * Relación N:N con Capabilities vía tabla pivote capability_competencies
+     */
+    public function capabilities()
     {
-        return $this->belongsTo(Capability::class);
+        return $this->belongsToMany(
+            Capability::class,
+            'capability_competencies',
+            'competency_id',
+            'capability_id'
+        )
+            ->withPivot('scenario_id', 'required_level', 'weight', 'rationale', 'is_required', 'created_at', 'updated_at')
+            ->withTimestamps();
     }
 
     public function skills()
@@ -35,3 +45,4 @@ class Competency extends Model
         return $this->hasMany(\App\Models\CapabilityCompetency::class, 'competency_id');
     }
 }
+

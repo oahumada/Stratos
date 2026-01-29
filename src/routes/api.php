@@ -94,77 +94,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
     Route::get('/strategic-planning/scenarios/{id}/capability-tree', [\App\Http\Controllers\Api\ScenarioController::class, 'getCapabilityTree']);
 
-    // Dev API: create a Competency under a Capability for the scenario (multi-tenant)
-    Route::post('/strategic-planning/capabilities/{id}/competencies', function (Illuminate\Http\Request $request, $id) {
-        $user = auth()->user();
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
-        }
-        $capability = App\Models\Capability::find($id);
-        if (!$capability) {
-            return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
-        }
-        // ensure capability belongs to user's organization (if capability has org)
-        // For now, rely on scenario-level tenant rules; set organization_id from user
-        $data = $request->only(['name', 'description', 'is_critical']);
-        if (empty($data['name'])) {
-            return response()->json(['success' => false, 'message' => 'Name is required'], 422);
-        }
-        $comp = App\Models\Competency::create([
-            'organization_id' => $user->organization_id ?? null,
-            'capability_id' => $capability->id,
-            'name' => $data['name'],
-            'description' => $data['description'] ?? null,
-        ]);
-
-        return response()->json(['success' => true, 'data' => $comp], 201);
-    });
-
     // Dev API: manage capability_competencies pivot (competency assignments per capability per scenario)
-    Route::post('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
-        $user = auth()->user();
-        if (!$user)
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
-        $scenario = App\Models\Scenario::find($scenarioId);
-        if (!$scenario)
-            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
-        if ($scenario->organization_id !== ($user->organization_id ?? null))
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
-        $cap = App\Models\Capability::find($capabilityId);
-        if (!$cap)
-            return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
-        $competencyId = $request->input('competency_id');
-        $comp = App\Models\Competency::find($competencyId);
-        if (!$comp)
-            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
-
-        try {
-            $insert = [
-                'scenario_id' => $scenarioId,
-                'capability_id' => $capabilityId,
-                'competency_id' => $competencyId,
-                'required_level' => (int) $request->input('required_level', 3),
-                'weight' => $request->has('weight') ? (int) $request->input('weight') : null,
-                'rationale' => $request->input('rationale', null),
-                'is_required' => (bool) $request->input('is_required', false),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-            $exists = \DB::table('capability_competencies')
-                ->where('scenario_id', $scenarioId)
-                ->where('capability_id', $capabilityId)
-                ->where('competency_id', $competencyId)
-                ->exists();
-            if ($exists) {
-                return response()->json(['success' => false, 'message' => 'Relation already exists'], 409);
-            }
-            \DB::table('capability_competencies')->insert($insert);
-            return response()->json(['success' => true, 'data' => $insert]);
-        } catch (\Throwable $e) {
-            \Log::error('Error creating capability_competency: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Server error creating relation'], 500);
-        }
-    });
+    // Supports both creating new competencies and attaching existing ones
     Route::post('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
         $user = auth()->user();
         if (!$user)
@@ -194,14 +125,13 @@ Route::middleware('auth:sanctum')->group(function () {
                         throw new \Exception('Forbidden');
                     $createdCompetencyId = $comp->id;
                 } else {
-                    // Create new competency
+                    // Create new competency (without capability_id; the relationship is via the pivot table)
                     $payload = $request->input('competency', []);
                     $name = trim($payload['name'] ?? '');
                     if (empty($name))
                         throw new \Exception('Competency name is required');
                     $comp = App\Models\Competency::create([
                         'organization_id' => $user->organization_id ?? null,
-                        'capability_id' => $capabilityId,
                         'name' => $name,
                         'description' => $payload['description'] ?? null,
                     ]);
