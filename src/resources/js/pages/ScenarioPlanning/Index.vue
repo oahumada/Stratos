@@ -658,6 +658,41 @@ const followScenario = ref<boolean>(false);
 // Transition timing used by `.node-group` CSS (keep in sync with CSS)
 const TRANSITION_MS = 420;
 const TRANSITION_BUFFER = 60; // small buffer to ensure browser finished
+
+// ===== CENTRALIZED LAYOUT CONFIG - Tuneable from one place =====
+const LAYOUT_CONFIG = {
+    // Competency node layout (radial mode when >5 nodes with selection)
+    competency: {
+        radial: {
+            radius: 240, // distance from center to other competencies
+            selectedOffsetY: 40, // vertical offset for selected node to leave room for skills
+            startAngle: -Math.PI / 4, // -45° (bottom-left)
+            endAngle: (5 * Math.PI) / 4, // 225° (covers lower 3/4 of circle)
+        },
+        spacing: {
+            hSpacing: 100, // matrix layout horizontal
+            vSpacing: 80, // matrix layout vertical
+            parentOffset: 150, // distance below parent
+        },
+    },
+    // Skill node layout (radial mode when >4 skills)
+    skill: {
+        maxDisplay: 10, // maximum skills to show
+        radial: {
+            radius: 160, // distance from competency center
+            startAngle: -Math.PI / 6, // -30°
+            endAngle: (7 * Math.PI) / 6, // 210° (covers lower 2/3 of circle)
+            offsetY: 120, // vertical offset from competency
+        },
+        linear: {
+            // Used for <=4 skills
+            hSpacing: 100,
+            vSpacing: 60,
+        },
+    },
+};
+// ===== END LAYOUT CONFIG =====
+
 function wait(ms: number) {
     return new Promise((res) => setTimeout(res, ms));
 }
@@ -1955,10 +1990,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     centerOnNode(parentNode, prev);
                     const parentLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
                     await Promise.race([waitForTransitionForNode(parentNode.id), wait(parentLead)]);
+                    // Assign selectedChild BEFORE expandCompetencies so radial layout can detect it
+                    selectedChild.value = node as any;
                     expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
                 }
 
-                selectedChild.value = node as any;
                 if (parentNode) focusedNode.value = parentNode; else focusedNode.value = node as any;
 
                 try { const cid = (selectedChild.value as any)?.id ?? (node as any)?.id; if (cid != null) showOnlySelectedAndParent(cid, true); } catch (err: unknown) { void err; }
@@ -2365,9 +2401,49 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
 
     const rows = opts.rows ?? props.competencyLayout?.rows ?? DEFAULT_COMPETENCY_LAYOUT.rows;
     const cols = opts.cols ?? props.competencyLayout?.cols ?? DEFAULT_COMPETENCY_LAYOUT.cols;
-    const hSpacing = props.competencyLayout?.hSpacing ?? DEFAULT_COMPETENCY_LAYOUT.hSpacing;
-    const vSpacing = props.competencyLayout?.vSpacing ?? DEFAULT_COMPETENCY_LAYOUT.vSpacing;
-    const positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing, vSpacing });
+    let hSpacing = props.competencyLayout?.hSpacing ?? DEFAULT_COMPETENCY_LAYOUT.hSpacing;
+    let vSpacing = props.competencyLayout?.vSpacing ?? DEFAULT_COMPETENCY_LAYOUT.vSpacing;
+
+    // Detect if there's a selected child (focusedNode is one of the competencies)
+    const selectedChildCompId = selectedChild.value?.compId ?? null;
+    const hasSelectedChild = selectedChildCompId !== null && toShow.some((c: any) => c.id === selectedChildCompId);
+
+    // If selected child exists and many nodes (>5), use radial layout to prevent overlaps
+    let positions: any[] = [];
+    if (hasSelectedChild && toShow.length > 5) {
+        // Radial layout: selected in center, others distributed around (avoiding top where parent is)
+        const selectedIdx = toShow.findIndex((c: any) => c.id === selectedChildCompId);
+        const radius = LAYOUT_CONFIG.competency.radial.radius;
+        const selectedOffsetY = LAYOUT_CONFIG.competency.radial.selectedOffsetY;
+        const otherCount = toShow.length - 1; // number of non-selected nodes
+        
+        // Distribute nodes in lower semicircle + sides (from startAngle to endAngle)
+        const startAngle = LAYOUT_CONFIG.competency.radial.startAngle;
+        const endAngle = LAYOUT_CONFIG.competency.radial.endAngle;
+        const angleRange = endAngle - startAngle;
+        const angleStep = angleRange / otherCount;
+
+        positions = toShow.map((c: any, i: number) => {
+            if (i === selectedIdx) {
+                // Selected node stays in center, offset down to leave room for skills
+                return { x: cx, y: topY + selectedOffsetY };
+            }
+            // Others positioned radially, avoiding top
+            const otherIdx = i > selectedIdx ? i - 1 : i;
+            const angle = startAngle + otherIdx * angleStep;
+            const x = Math.round(cx + radius * Math.cos(angle));
+            const y = Math.round(topY + radius * Math.sin(angle));
+            return { x, y };
+        });
+    } else {
+        // Matrix layout for normal/default case or <5 nodes
+        if (toShow.length > 5) {
+            // Expand spacing to avoid overlaps when no selection
+            hSpacing = Math.round(hSpacing * 1.3);
+            vSpacing = Math.round(vSpacing * 1.4);
+        }
+        positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing, vSpacing });
+    }
 
         const builtChildren: Array<any> = [];
     toShow.forEach((c: any, i: number) => {
@@ -2426,22 +2502,42 @@ function expandSkills(node: any, initialPos?: { x: number; y: number }) {
     grandChildEdges.value = [];
     const skills = Array.isArray(node.skills) ? node.skills : (node.raw?.skills ?? []);
     if (!Array.isArray(skills) || skills.length === 0) return;
-    const limit = Math.min(skills.length, 12);
+    const limit = LAYOUT_CONFIG.skill.maxDisplay;
     const toShow = skills.slice(0, limit);
     const cx = node.x ?? Math.round(width.value / 2);
     const parentY = node.y ?? Math.round(height.value / 2);
-    const SKILL_PARENT_OFFSET = 80;
+    const SKILL_PARENT_OFFSET = LAYOUT_CONFIG.skill.radial.offsetY;
     const SKILL_DROP_EXTRA = props.visualConfig?.skillDrop ?? props.competencyLayout?.skillDrop ?? 18;
     const topY = Math.round(parentY + SKILL_PARENT_OFFSET + SKILL_DROP_EXTRA);
-    const rows = Math.min(2, Math.ceil(toShow.length / 6));
-    const cols = Math.min(6, toShow.length);
-    const positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: 80, vSpacing: 56 });
+    
+    // Radial layout for skills (below and around the selected competency)
+    let positions: any[] = [];
+    if (toShow.length > 4) {
+        // For >4 skills, use radial distribution below
+        const radius = LAYOUT_CONFIG.skill.radial.radius;
+        const startAngle = LAYOUT_CONFIG.skill.radial.startAngle;
+        const endAngle = LAYOUT_CONFIG.skill.radial.endAngle;
+        const angleRange = endAngle - startAngle;
+        const angleStep = angleRange / Math.max(1, toShow.length - 1);
+        
+        positions = toShow.map((sk: any, i: number) => {
+            const angle = startAngle + i * angleStep;
+            const x = Math.round(cx + radius * Math.cos(angle));
+            const y = Math.round(topY + radius * Math.sin(angle));
+            return { x, y };
+        });
+    } else {
+        // For <=4 skills, use simple linear layout
+        const rows = 1;
+        const cols = Math.min(4, toShow.length);
+        positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: LAYOUT_CONFIG.skill.linear.hSpacing, vSpacing: LAYOUT_CONFIG.skill.linear.vSpacing });
+    }
 
     const built: any[] = [];
     toShow.forEach((sk: any, i: number) => {
         const pos = positions[i] || { x: cx, y: topY };
         const id = -(Math.abs(node.id) * 100000 + i + 1);
-        const delay = Math.max(0, Math.floor(i / cols) * 20 + (i % cols) * 8);
+        const delay = Math.max(0, Math.floor(i / 4) * 20 + (i % 4) * 8);
         const item = {
             id,
             name: sk.name ?? sk,
@@ -3769,7 +3865,16 @@ if (!edges.value) edges.value = [];
                                                 </div>
                                                 <div style="display:grid; gap:12px; grid-template-columns: 1fr 1fr; align-items:start;">
                                                     <v-text-field v-model="editChildName" label="Nombre" required />
-                                                    <v-text-field v-model="editChildReadiness" label="Readiness" type="number" />
+                                                    <div>
+                                                        <v-text-field 
+                                                            v-model="editChildReadiness" 
+                                                            label="Readiness (%)" 
+                                                            type="number" 
+                                                            readonly 
+                                                            hint="Calculado automáticamente por el sistema basado en evaluaciones y niveles"
+                                                            persistent-hint
+                                                        />
+                                                    </div>
                                                     <v-textarea v-model="editChildDescription" label="Descripción" rows="3" style="grid-column: 1 / -1;" />
 
                                                     <div style="grid-column: 1 / -1; font-weight:700; margin-top:6px">Atributos de la relación con la capacidad</div>

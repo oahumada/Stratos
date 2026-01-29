@@ -518,8 +518,9 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 **Qué:** Se expandió y mejoró significativamente la suite de tests `CapabilityCompetencyTest.php` para validar toda la integración frontend-backend de creación y gestión de competencias dentro de una capability.
 
 **Tests añadidos (9 total):**
+
 1. CREATE - Vincular competencia existente
-2. CREATE - Nueva competencia desde capability  
+2. CREATE - Nueva competencia desde capability
 3. CREATE - Todos los campos se guardan
 4. CREATE - Valores por defecto
 5. CREATE - Prevenir duplicados
@@ -529,15 +530,184 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 9. SECURITY - DELETE bloqueado por org
 
 **Estadísticas:**
+
 - Tests: **9 passing**
 - Assertions: **38 total**
 - Duration: **4.17s**
 
 **Documentación creada:**
+
 1. `docs/GUIA_TESTS_CAPABILITY_COMPETENCY.md` - Guía detallada de cada test con patrones reutilizables
 2. `docs/DEBUG_TESTS_CAPABILITY_COMPETENCY.md` - Troubleshooting y herramientas de debugging
 
 **Metadata:**
+
 - `git_repo_name`: oahumada/Stratos
 - `git_branch`: feature/workforce-planning-scenario-modeling
+- Fecha: 2026-01-29
+
+## Fix: Competency Edit Modal - Saving not persisting (2026-01-29)
+
+### Problema raíz identificado
+
+El modal de edición de Competencias NO guardaba cambios. Causas múltiples:
+
+1. **Endpoint faltante:** Frontend intentaba `PATCH /api/competencies/{id}` que NO existía
+   - Solo existía: `PATCH /api/strategic-planning/scenarios/{scenarioId}/capabilities/{parentId}/competencies/{compId}` (para pivot)
+   - Faltaba: Endpoint independiente para actualizar la competencia misma (name, description, skills)
+
+2. **Campo no guardable:** `readiness` es **calculado dinámicamente** en el backend, no una columna en BD
+   - No existe en tabla `competencies`
+   - Se calcula llamando `calculateCompetencyReadiness()` en el controlador `getCapabilityTree()`
+   - El frontend intentaba guardar este campo, pero no puede existir en la tabla
+
+3. **Falta de logging:** Los errores PATCH se ocultaban con `catch (err) { void err; }` sin logs, imposibilitando debug
+
+### Soluciones implementadas
+
+**Backend:** `src/routes/api.php`
+
+- ✅ Creado endpoint `GET /api/competencies/{id}` — obtiene competencia con datos frescos
+- ✅ Creado endpoint `PATCH /api/competencies/{id}` — actualiza `name`, `description`, `skills` (rechaza `readiness`)
+- ✅ Ambos endpoints incluyen validación multi-tenant y manejo de errores explícito
+
+**Frontend:** `src/resources/js/pages/ScenarioPlanning/Index.vue`
+
+- ✅ Mejorado `saveSelectedChild()` con logs de debug en cada paso (payload, PATCH call, response)
+- ✅ Removido `readiness` del payload de competencia (`editChildReadiness` es solo-lectura)
+- ✅ Actualizado error handling para mostrar mensajes específicos al usuario
+- ✅ Ahora solo envía campos editables: `name`, `description`, `skills`
+
+### Archivos modificados
+
+1. `src/routes/api.php` — Agregó GET + PATCH para competencias (31 líneas)
+2. `src/resources/js/pages/ScenarioPlanning/Index.vue` — Mejoró `saveSelectedChild()` con logs y payload correcto
+
+### Validación
+
+✅ `npm run lint` — Sin errores sintácticos
+✅ Logs en consola confirman que PATCH se ejecuta exitosamente
+
+### Comportamiento después del fix
+
+1. Usuario edita nombre/descripción en modal de competencia
+2. Hace click "Guardar"
+3. `saveSelectedChild()` llama `PATCH /api/competencies/{compId}` con `{ name, description, skills }`
+4. Endpoint valida org y actualiza tabla
+5. Luego refresca árbol y merge de datos frescos
+6. Modal muestra cambios actualizados sin requerir refresh manual
+
+### Aprendizaje clave
+
+**Campos calculados vs persistidos:** Readiness es una **métrica calculada** (como un índice), no un **campo almacenado**. Esto es el diseño correcto: permite que readiness se recalcule automáticamente a partir de datos frescos sin mantener denormalización.
+
+**Endpoint granularidad:** Fue necesario crear dos niveles de endpoints:
+
+- `PATCH /api/competencies/{id}` — Actualizar entidad (guardable)
+- `PATCH /api/.../competencies/{compId}` — Actualizar pivot/relación (atributos escenario-específicos)
+
+**Metadata:**
+
+- `git_repo_name`: oahumada/Stratos
+- `git_branch`: feature/workforce-planning-scenario-modeling
+- `git_commit_hash`: 61baa7e9 (commit posterior al lint)
+- Fecha: 2026-01-29
+
+## Implementación: Layout Radial para Competencias y Skills (2026-01-29)
+
+### Qué se implementó
+
+Layout radial adaptativo para distribuir nodos competencia y skills sin solapamiento cuando hay muchos:
+
+**Competencias:**
+
+- **>5 nodos con uno seleccionado** → Radial (seleccionado en centro, otros distribuidos semicírculo inferior)
+- **≤5 nodos** → Matriz tradicional
+
+**Skills:**
+
+- **>4 skills** → Radial (distribuido en semicírculo abajo de competencia)
+- **≤4 skills** → Lineal (fila simple)
+
+### Características clave
+
+✅ **Primer clic funciona:** `selectedChild.value` se asigna ANTES de `expandCompetencies` para que detecte selección inmediatamente
+
+✅ **Evita traslapes:** Competencias usan radio 240px, skills 160px
+
+✅ **Respeta jerarquía visual:** Nodos no aparecen arriba tapando padre, solo abajo/lados
+
+✅ **Espacio para anidación:** Competencia seleccionada se desplaza 40px abajo para que skills entren debajo
+
+✅ **Configuración centralizada:** Objeto `LAYOUT_CONFIG` (línea ~662) con todos los parámetros tunables
+
+### Parámetros principales
+
+```javascript
+LAYOUT_CONFIG.competency.radial = {
+  radius: 240, // Distancia competencias no-seleccionadas
+  selectedOffsetY: 40, // Espacio vertical para skills
+  startAngle: -Math.PI / 4, // -45° (bottom-left)
+  endAngle: (5 * Math.PI) / 4, // 225° (bottom-right, sin top)
+};
+
+LAYOUT_CONFIG.skill.radial = {
+  radius: 160, // Distancia skills de competencia
+  offsetY: 120, // Espacio vertical desde competencia
+  startAngle: -Math.PI / 6, // -30°
+  endAngle: (7 * Math.PI) / 6, // 210° (2/3 inferior)
+};
+```
+
+### Archivos modificados
+
+1. `src/resources/js/pages/ScenarioPlanning/Index.vue`
+   - Línea ~662: `LAYOUT_CONFIG` (nueva)
+   - Función `expandCompetencies`: Layout radial + matrix
+   - Función `expandSkills`: Layout radial + linear
+   - Handler click competencias: `selectedChild` antes de expand
+
+2. `docs/LAYOUT_CONFIG_SCENARIO_PLANNING_GUIDE.md` (nueva)
+   - Guía completa de ajuste
+   - Ejemplos de valores
+   - Tips de debugging
+
+### Validación
+
+✅ `npm run lint` — Sin errores
+✅ Visual en navegador — Layout radial activo en primer clic
+✅ Sin traslapes — Competencias y skills bien distribuidas
+
+### Cómo probar cambios
+
+1. Abre `src/resources/js/pages/ScenarioPlanning/Index.vue`
+2. Ubica `const LAYOUT_CONFIG = {` (línea ~662)
+3. Ajusta valores (ej: `radius: 240 → 280`)
+4. Guarda archivo
+5. Navegador recarga automáticamente (Vite)
+6. Expande capacidad con 10+ competencias y selecciona una
+
+### Valores recomendados por escenario
+
+| Escenario       | Competency.radius | Skill.radius | Skill.offsetY |
+| --------------- | ----------------- | ------------ | ------------- |
+| Compacto        | 180               | 120          | 100           |
+| Normal (actual) | 240               | 160          | 120           |
+| Amplio          | 300               | 200          | 140           |
+
+### Aprendizajes clave
+
+1. **Orden de ejecución importa:** `selectedChild` debe actualizarse ANTES de `expandCompetencies` para que el layout radial lo detecte en el primer clic
+
+2. **Ángulos para evitar traslapes:** Usar semicírculo inferior (-45° a 225°) evita que nodos tapen el padre arriba
+
+3. **Anidación requiere espacio:** `selectedOffsetY` debe ser positivo (40-80) para dejar espacio a las skills debajo
+
+4. **Centralización reduce bugs:** Todos los parámetros en un solo objeto facilita iteración y testing sin tocar lógica
+
+**Metadata:**
+
+- `git_repo_name`: oahumada/Stratos
+- `git_branch`: feature/workforce-planning-scenario-modeling
+- `git_commit_hash`: (local edits)
 - Fecha: 2026-01-29
