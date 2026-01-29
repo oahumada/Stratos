@@ -26,7 +26,7 @@ class StrategicPlanningScenariosTest extends TestCase
     public function test_create_workforce_scenario(): void
     {
         $response = $this->actingAs($this->user)
-            ->postJson('//api/workforce-planning/workforce-scenarios', [
+            ->postJson('/api/strategic-planning/scenarios', [
                 'name' => 'Test Scenario',
                 'description' => 'Test Description',
                 'scenario_type' => 'growth',
@@ -61,7 +61,7 @@ class StrategicPlanningScenariosTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-            ->getJson("//api/workforce-planning/workforce-scenarios/{$scenario->id}");
+            ->getJson("/api/strategic-planning/scenarios/{$scenario->id}");
 
         $response->assertForbidden();
     }
@@ -77,7 +77,7 @@ class StrategicPlanningScenariosTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-            ->getJson('//api/workforce-planning/workforce-scenarios');
+            ->getJson('/api/strategic-planning/scenarios');
 
         $response->assertOk()
             ->assertJsonCount(3, 'data');
@@ -99,7 +99,7 @@ class StrategicPlanningScenariosTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-            ->postJson("//api/workforce-planning/workforce-scenarios/{$template->id}/instantiate-from-template", [
+            ->postJson("/api/strategic-planning/scenarios/{$template->id}/instantiate-from-template", [
                 'name' => 'Custom Implementation',
                 'horizon_months' => 18,
             ]);
@@ -130,7 +130,7 @@ class StrategicPlanningScenariosTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-            ->postJson("//api/workforce-planning/workforce-scenarios/{$scenario->id}/calculate-gaps");
+            ->postJson("/api/strategic-planning/scenarios/{$scenario->id}/calculate-gaps");
 
         $response->assertOk()
             ->assertJsonStructure([
@@ -158,7 +158,7 @@ class StrategicPlanningScenariosTest extends TestCase
         ]);
 
         $response = $this->actingAs($otherUser)
-            ->patchJson("//api/workforce-planning/workforce-scenarios/{$scenario->id}", [
+            ->patchJson("/api/strategic-planning/scenarios/{$scenario->id}", [
                 'name' => 'Updated Name',
             ]);
 
@@ -178,7 +178,7 @@ class StrategicPlanningScenariosTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-            ->getJson('//api/workforce-planning/workforce-scenarios?status=draft');
+            ->getJson('/api/strategic-planning/scenarios?status=draft');
 
         $response->assertOk()
             ->assertJsonCount(2, 'data');

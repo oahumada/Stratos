@@ -10,11 +10,10 @@ class Scenario extends Model
 {
     use HasFactory;
 
-    // Use canonical table for seeding and core operations. Compatibility
-    // with `workforce_planning_scenarios` is provided by DB triggers.
+    // Canonical table: `scenarios`. Note: DB view `workforce_planning_scenarios` provides backwards compatibility.
     protected $table = 'scenarios';
 
-    protected $fillable = ['organization_id', 'name', 'code', 'description', 'kpis', 'start_date', 'end_date', 'horizon_months', 'fiscal_year', 'scope_type', 'scope_notes', 'status', 'approved_at', 'approved_by', 'assumptions', 'owner_user_id', 'sponsor_user_id', 'created_by', 'updated_by'];
+    protected $fillable = ['organization_id', 'name', 'code', 'description', 'kpis', 'start_date', 'end_date', 'horizon_months', 'fiscal_year', 'scope_type', 'scope_notes', 'status', 'approved_at', 'approved_by', 'assumptions', 'owner_user_id', 'sponsor_user_id', 'created_by', 'updated_by', 'template_id'];
 
     protected $casts = [
         'kpis' => 'array',

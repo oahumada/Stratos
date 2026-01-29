@@ -17,7 +17,7 @@ class StoreScenarioComparisonRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
             'scenario_ids' => 'required|array|min:2|max:5',
-            'scenario_ids.*' => 'integer|exists:workforce_planning_scenarios,id',
+            'scenario_ids.*' => 'integer|exists:scenarios,id',
             'comparison_criteria' => 'nullable|array',
             'comparison_criteria.*' => 'in:cost,time,risk,coverage',
         ];

@@ -608,42 +608,16 @@ Route::post('/strategic-planning/scenarios/{id}/capability-tree/save-positions',
     return response()->json(['status' => 'ok', 'updated' => $updated, 'inserted' => $inserted]);
 });
 
-// Dev-only endpoint removed: use canonical `/strategic-planning/scenarios` with auth:sanctum
-
-// Backwards-compatible v1 API aliases for workforce-planning (tests and older clients)
-// NOTE: temporalmente deshabilitadas hasta migrar el frontend a las rutas canónicas.
-Route::prefix('v1')->group(function () {
-    Route::prefix('workforce-planning')->group(function () {
-        Route::get('workforce-scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
-        Route::post('workforce-scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'store']);
-        Route::get('workforce-scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
-        Route::patch('workforce-scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'updateScenario']);
-        Route::post('workforce-scenarios/{template_id}/instantiate-from-template', [\App\Http\Controllers\Api\ScenarioController::class, 'instantiateFromTemplate']);
-        Route::post('workforce-scenarios/{id}/calculate-gaps', [\App\Http\Controllers\Api\ScenarioController::class, 'calculateGaps']);
-        Route::post('workforce-scenarios/{id}/refresh-suggested-strategies', [\App\Http\Controllers\Api\ScenarioController::class, 'refreshSuggestedStrategies']);
-        Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
-
-        // Backwards-compatible aliases for the canonical strategic-planning endpoints
-        Route::get('strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
-        Route::get('strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
-    });
-});
-
-// Backwards-compatible aliases WITHOUT /v1 prefix so legacy tests/clients using
-// `/api/workforce-planning/...` continue to work during migration.
-Route::prefix('workforce-planning')->group(function () {
-    Route::get('workforce-scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
-    Route::post('workforce-scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'store']);
-    Route::get('workforce-scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
-    Route::patch('workforce-scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'updateScenario']);
-    Route::post('workforce-scenarios/{template_id}/instantiate-from-template', [\App\Http\Controllers\Api\ScenarioController::class, 'instantiateFromTemplate']);
-    Route::post('workforce-scenarios/{id}/calculate-gaps', [\App\Http\Controllers\Api\ScenarioController::class, 'calculateGaps']);
-    Route::post('workforce-scenarios/{id}/refresh-suggested-strategies', [\App\Http\Controllers\Api\ScenarioController::class, 'refreshSuggestedStrategies']);
+// Canonical Strategic Planning API - Normalized naming (replaced workforce-planning)
+Route::prefix('strategic-planning')->group(function () {
+    Route::get('scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
+    Route::post('scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'store']);
+    Route::get('scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
+    Route::patch('scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'updateScenario']);
+    Route::post('scenarios/{template_id}/instantiate-from-template', [\App\Http\Controllers\Api\ScenarioController::class, 'instantiateFromTemplate']);
+    Route::post('scenarios/{id}/calculate-gaps', [\App\Http\Controllers\Api\ScenarioController::class, 'calculateGaps']);
+    Route::post('scenarios/{id}/refresh-suggested-strategies', [\App\Http\Controllers\Api\ScenarioController::class, 'refreshSuggestedStrategies']);
     Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
-
-    // Also provide compatibility aliases
-    Route::get('strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
-    Route::get('strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
 });
 
 // Catálogos dinámicos para selectores

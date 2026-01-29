@@ -267,18 +267,14 @@ class ScenarioController extends Controller
         }
         $data['organization_id'] = $user->organization_id;
         $data['created_by'] = $user->id;
-        $data['created_at'] = now()->toDateTimeString();
-        $data['updated_at'] = now()->toDateTimeString();
 
-        // Insert into legacy compatibility table to avoid strict 'scenarios' schema constraints
-        $id = DB::table('workforce_planning_scenarios')->insertGetId($data);
-
-        $scenario = (array) DB::table('workforce_planning_scenarios')->where('id', $id)->first();
+        // Use Eloquent to create scenario (triggers model events for code generation)
+        $scenario = Scenario::create($data);
 
         return response()->json([
             'success' => true,
             'message' => 'Scenario created',
-            'data' => $scenario,
+            'data' => $scenario->toArray(),
         ], 201);
     }
 
@@ -317,29 +313,30 @@ class ScenarioController extends Controller
             return response()->json(['success' => false, 'message' => 'Template not found'], 404);
         }
 
-        $data = [
-            'name' => $request->input('name'),
-            'organization_id' => (auth()->user() ? auth()->user()->organization_id : null),
-            'template_id' => $template->id,
-            'horizon_months' => $request->input('horizon_months', 12),
-            'scenario_type' => $template->type ?? 'template',
-        ];
         $user = auth()->user();
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
-        $data['created_at'] = now()->toDateTimeString();
-        $data['updated_at'] = now()->toDateTimeString();
 
-        $id = DB::table('workforce_planning_scenarios')->insertGetId($data);
-        $scenario = (array) DB::table('workforce_planning_scenarios')->where('id', $id)->first();
+        $data = [
+            'name' => $request->input('name'),
+            'organization_id' => $user->organization_id,
+            'template_id' => $template->id,
+            'horizon_months' => $request->input('horizon_months', 12),
+            'fiscal_year' => $request->input('fiscal_year', now()->year),
+            'scenario_type' => $template->type ?? 'template',
+            'created_by' => $user->id,
+        ];
+
+        // Use Eloquent to create scenario (triggers model events for code generation)
+        $scenario = Scenario::create($data);
 
         $skillDemands = $template->config['predefined_skills'] ?? [];
 
         return response()->json([
             'success' => true,
             'message' => 'Scenario instantiated from template',
-            'data' => array_merge($scenario, ['skill_demands' => $skillDemands, 'template_id' => $template->id]),
+            'data' => array_merge($scenario->toArray(), ['skill_demands' => $skillDemands, 'template_id' => $template->id]),
         ], 201);
     }
 
