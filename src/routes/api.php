@@ -341,6 +341,56 @@ Route::middleware('auth:sanctum')->group(function () {
         }
     });
 
+    // Dev API: retrieve a single Competency entity (multi-tenant safe)
+    Route::get('/competencies/{id}', function ($id) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $comp = App\Models\Competency::find($id);
+        if (!$comp) {
+            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        }
+        if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        return response()->json(['success' => true, 'data' => $comp->toArray()]);
+    });
+
+    // Dev API: update a Competency entity (multi-tenant safe)
+    Route::patch('/competencies/{id}', function (Illuminate\Http\Request $request, $id) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $comp = App\Models\Competency::find($id);
+        if (!$comp) {
+            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        }
+        if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        try {
+            // Only accept name, description, skills. 'readiness' is a calculated field and cannot be saved.
+            $data = $request->only(['name', 'description', 'skills']);
+            // Only set fields that are present
+            foreach ($data as $k => $v) {
+                if ($v !== null) {
+                    if ($k === 'skills' && is_array($v)) {
+                        $comp->skills()->sync($v);
+                    } else {
+                        $comp->{$k} = $v;
+                    }
+                }
+            }
+            $comp->save();
+            return response()->json(['success' => true, 'data' => $comp]);
+        } catch (\Throwable $e) {
+            \Log::error('Error updating competency ' . $id . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Server error updating competency'], 500);
+        }
+    });
+
     // Dev API: update pivot attributes for scenario_capabilities
     Route::patch('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
         $user = auth()->user();

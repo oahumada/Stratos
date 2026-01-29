@@ -2704,24 +2704,37 @@ async function saveSelectedChild() {
     if (!child) return showError('No hay competencia seleccionada');
     await ensureCsrf();
     try {
-        // update competency entity
+        // Find parent capability first (needed for pivot updates)
+        const parentEdge = childEdges.value.find((e) => e.target === child.id);
+        const parentId = parentEdge ? parentEdge.source : null;
+        const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
+
+        // 1) Update competency entity (name, description, skills - readiness is a calculated field, don't save)
         const compPayload: any = {
             name: editChildName.value,
             description: editChildDescription.value,
-            readiness: editChildReadiness.value,
             skills: (editChildSkills.value || '').split(',').map((s) => s.trim()).filter((s) => s),
         };
-            console.debug('[saveSelectedChild] compPayload', compPayload);
-        if (child.compId || child.compId === 0 || (child.raw && child.raw.id)) {
-            const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
-            try { await api.patch(`/api/competencies/${compId}`, compPayload); } catch (err: unknown) { void err; }
+        console.debug('[saveSelectedChild] compPayload (name, description, skills only; readiness is calculated)', compPayload, 'compId', compId);
+        console.debug('[saveSelectedChild] about to PATCH compId check:', !!compId);
+        if (compId) {
+            console.debug('[saveSelectedChild] INSIDE if (compId), about to call api.patch');
+            try {
+                const patchUrl = `/api/competencies/${compId}`;
+                console.debug('[saveSelectedChild] calling PATCH:', patchUrl, 'with payload:', compPayload);
+                const patchRes = await api.patch(patchUrl, compPayload);
+                console.debug('[saveSelectedChild] PATCH /api/competencies/' + compId + ' success, response:', patchRes);
+            } catch (errComp: unknown) {
+                console.error('[saveSelectedChild] ERROR in PATCH /api/competencies/' + compId, (errComp as any)?.response?.data ?? errComp);
+                showError('Error actualizando competencia: ' + ((errComp as any)?.response?.data?.message || (errComp as any)?.message || 'Unknown error'));
+                return;
+            }
+        } else {
+            console.warn('[saveSelectedChild] compId is falsy, skipping PATCH. child.compId=', child.compId, 'child.raw?.id=', child.raw?.id, 'child.id=', child.id);
         }
 
-        // update pivot (capability_competencies) if we can find parent
-        const parentEdge = childEdges.value.find((e) => e.target === child.id);
-        const parentId = parentEdge ? parentEdge.source : null;
-        if (parentId && (child.compId || child.raw?.id)) {
-            const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
+        // 2) Update pivot (capability_competencies) if we can find parent
+        if (parentId && compId) {
             const pivotPayload = {
                 strategic_weight: typeof editChildPivotStrategicWeight.value !== 'undefined' ? Number(editChildPivotStrategicWeight.value) : undefined,
                 priority: typeof editChildPivotPriority.value !== 'undefined' ? Number(editChildPivotPriority.value) : undefined,
@@ -2729,24 +2742,52 @@ async function saveSelectedChild() {
                 is_critical: !!editChildPivotIsCritical.value,
                 rationale: editChildPivotRationale.value,
             };
-                console.debug('[saveSelectedChild] pivotPayload', pivotPayload, 'parentId', parentId, 'compId', compId);
+            console.debug('[saveSelectedChild] pivotPayload', pivotPayload, 'parentId', parentId, 'compId', compId);
             try {
                 // preferred: update pivot within scenario context so we update scenario-specific attributes
                 const childRes: any = await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${parentId}/competencies/${compId}`, pivotPayload);
                 console.debug('[saveSelectedChild] PATCH child pivot response', childRes);
-            } catch (err: unknown) {
+            } catch (errPivot: unknown) {
                 // fallback to capability-scoped endpoint if available
                 try {
                     const childRes2: any = await api.patch(`/api/capabilities/${parentId}/competencies/${compId}`, pivotPayload);
                     console.debug('[saveSelectedChild] PATCH child pivot fallback response', childRes2);
                 } catch (err2: unknown) {
-                    void err2;
+                    console.error('[saveSelectedChild] error updating pivot', (err2 as any)?.response?.data ?? err2);
                 }
             }
         }
 
-        // refresh and re-open parent expansion
+        // Get authoritative competency entity (to ensure name, description, readiness are fresh)
+        let freshComp: any = null;
+        try {
+            if (compId) {
+                const compResp: any = await api.get(`/api/competencies/${compId}`);
+                freshComp = compResp?.data ?? compResp;
+            }
+        } catch (err: unknown) { void err; }
+
+        // Refresh tree from API (may reconstruct competencies differently than the PATCH response)
         await loadTreeFromApi(props.scenario?.id);
+
+        // After reload, merge authoritative competency fields into childNodes if we have them
+        try {
+            if (freshComp && typeof freshComp.id !== 'undefined' && parentId) {
+                const freshCompId = freshComp.id;
+                childNodes.value = childNodes.value.map((cn: any) => (cn.id === freshCompId || cn.compId === freshCompId ? { ...cn, name: freshComp.name ?? cn.name, description: freshComp.description ?? cn.description, readiness: freshComp.readiness ?? cn.readiness, raw: { ...(cn.raw ?? {}), ...(freshComp ?? {}) } } : cn));
+                if (selectedChild.value && (selectedChild.value.compId === freshCompId || selectedChild.value.id === freshCompId || selectedChild.value.raw?.id === freshCompId)) {
+                    selectedChild.value = { ...(selectedChild.value as any), name: freshComp.name ?? (selectedChild.value as any).name, description: freshComp.description ?? (selectedChild.value as any).description, readiness: freshComp.readiness ?? (selectedChild.value as any).readiness, raw: { ...((selectedChild.value as any).raw ?? {}), ...(freshComp ?? {}) } } as any;
+                    // Re-initialize edit fields from refreshed data
+                    try {
+                        editChildName.value = freshComp.name ?? editChildName.value;
+                        editChildDescription.value = freshComp.description ?? editChildDescription.value;
+                        editChildReadiness.value = freshComp.readiness ?? editChildReadiness.value;
+                    } catch (err: unknown) { void err; }
+                }
+            }
+        } catch (err: unknown) { void err; }
+
+        // Re-open parent expansion to show updated children
         if (parentId) {
             const parent = nodeById(parentId);
             if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
