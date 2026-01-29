@@ -14,6 +14,7 @@ class Skills extends Model
         'organization_id',
         'name',
         'category',
+        'complexity_level',
         'description',
         'is_critical',
         'scope_type',

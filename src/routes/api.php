@@ -297,6 +297,22 @@ Route::middleware('auth:sanctum')->group(function () {
         }
     });
 
+    // Dev API: retrieve a single Capability entity (multi-tenant safe)
+    Route::get('/capabilities/{id}', function ($id) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $cap = App\Models\Capability::find($id);
+        if (!$cap) {
+            return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
+        }
+        if (isset($cap->organization_id) && $cap->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        return response()->json(['success' => true, 'data' => $cap->toArray()]);
+    });
+
     // Dev API: update a Capability entity (multi-tenant safe)
     Route::patch('/capabilities/{id}', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();

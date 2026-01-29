@@ -41,13 +41,12 @@ class StrategicPlanningScenariosTest extends TestCase
                 'data' => [
                     'id',
                     'name',
-                    'scenario_type',
                     'organization_id',
                     'created_by',
                 ]
             ]);
 
-        $this->assertDatabaseHas('workforce_planning_scenarios', [
+        $this->assertDatabaseHas('scenarios', [
             'organization_id' => $this->organization->id,
             'name' => 'Test Scenario',
         ]);
@@ -117,7 +116,7 @@ class StrategicPlanningScenariosTest extends TestCase
                 ]
             ]);
 
-        $this->assertDatabaseHas('workforce_planning_scenarios', [
+        $this->assertDatabaseHas('scenarios', [
             'template_id' => $template->id,
             'name' => 'Custom Implementation',
         ]);

@@ -510,3 +510,34 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 - Memoria detallada de la sesión de 2026-01-22: [docs/MEMORY_ScenarioPlanning_2026-01-22.md](docs/MEMORY_ScenarioPlanning_2026-01-22.md)
 
 - Estado: memoria creada en `docs/MEMORY_ScenarioPlanning_2026-01-22.md` (confirmado 2026-01-22).
+
+---
+
+## Implementación registrada: Suite de Tests para Capability-Competency Integration (2026-01-29)
+
+**Qué:** Se expandió y mejoró significativamente la suite de tests `CapabilityCompetencyTest.php` para validar toda la integración frontend-backend de creación y gestión de competencias dentro de una capability.
+
+**Tests añadidos (9 total):**
+1. CREATE - Vincular competencia existente
+2. CREATE - Nueva competencia desde capability  
+3. CREATE - Todos los campos se guardan
+4. CREATE - Valores por defecto
+5. CREATE - Prevenir duplicados
+6. SECURITY - Multi-tenancy
+7. UPDATE - Modificar relación
+8. DELETE - Eliminar relación
+9. SECURITY - DELETE bloqueado por org
+
+**Estadísticas:**
+- Tests: **9 passing**
+- Assertions: **38 total**
+- Duration: **4.17s**
+
+**Documentación creada:**
+1. `docs/GUIA_TESTS_CAPABILITY_COMPETENCY.md` - Guía detallada de cada test con patrones reutilizables
+2. `docs/DEBUG_TESTS_CAPABILITY_COMPETENCY.md` - Troubleshooting y herramientas de debugging
+
+**Metadata:**
+- `git_repo_name`: oahumada/Stratos
+- `git_branch`: feature/workforce-planning-scenario-modeling
+- Fecha: 2026-01-29

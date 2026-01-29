@@ -300,6 +300,8 @@ const editCapType = ref('');
 const editCapCategory = ref('');
 const ee = ref<number | null>(null);
 
+
+
 const editPivotStrategicRole = ref('target');
 const editPivotStrategicWeight = ref<number | undefined>(10);
 const editPivotPriority = ref<number | undefined>(1);
@@ -386,9 +388,13 @@ function contextViewEdit() {
         selectedChild.value = node as any;
         const parentEdge = childEdges.value.find((e) => e.target === node.id);
         const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
-        if (parentNode) focusedNode.value = parentNode;
+        if (parentNode) {
+            // prefer canonical node from nodes[] to ensure `raw` and attributes are present
+            focusedNode.value = nodeById(parentNode.id) || parentNode;
+        }
     } else {
-        focusedNode.value = node as NodeItem;
+        // prefer canonical node from nodes[] to avoid missing fields when opened from context menu
+        focusedNode.value = nodeById((node as any).id) || (node as NodeItem);
         selectedChild.value = null;
     }
     // ensure sidebar opens with the selected/display node
@@ -936,6 +942,29 @@ watch(focusedNode, (nv) => {
     editCapImportance.value = (nv as any).importance ?? (nv as any).raw?.importance ?? undefined;
     editCapLevel.value = (nv as any).level ?? null;
 
+    // robust resolver (mirror behaviour in `resetFocusedEdits`) to handle
+    // different backend payload shapes so `type`/`category` are preserved
+    const resolveField = (key: string) => {
+        return (
+            (nv as any)[key] ??
+            (nv as any).raw?.[key] ??
+            (nv as any).raw?.attributes?.[key] ??
+            (nv as any).raw?.capability?.[key] ??
+            (nv as any).raw?.data?.[key] ??
+            (nv as any).raw?.entity?.[key] ??
+            ''
+        );
+    };
+
+    try {
+        const _t = resolveField('type');
+        editCapType.value = typeof _t === 'string' ? _t.toLowerCase() : (_t != null ? String(_t).toLowerCase() : '');
+    } catch (err: unknown) { editCapType.value = '' }
+    try {
+        const _c = resolveField('category');
+        editCapCategory.value = typeof _c === 'string' ? _c.toLowerCase() : (_c != null ? String(_c).toLowerCase() : '');
+    } catch (err: unknown) { editCapCategory.value = '' }
+
     // pivot values: try several locations
     editPivotStrategicRole.value = (nv as any).strategic_role ?? (nv as any).raw?.strategic_role ?? 'target';
     editPivotStrategicWeight.value = (nv as any).raw?.strategic_weight ?? 10;
@@ -1004,12 +1033,44 @@ function resetFocusedEdits() {
     // reset edits to current focusedNode state
         if (focusedNode.value) {
         const f = focusedNode.value as any;
+        // helper to robustly resolve a field from node or raw payload
+        const resolveField = (key: string) => {
+            return (
+                f[key] ??
+                f.raw?.[key] ??
+                f.raw?.attributes?.[key] ??
+                f.raw?.capability?.[key] ??
+                f.raw?.data?.[key] ??
+                f.raw?.entity?.[key] ??
+                ''
+            );
+        };
+
         editCapName.value = f.name ?? '';
         editCapDescription.value = f.description ?? f.raw?.description ?? '';
         editCapImportance.value = f.importance ?? f.raw?.importance ?? undefined;
         editCapLevel.value = f.level ?? null;
-        editCapType.value = f.type ?? f.raw?.type ?? '';
-        editCapCategory.value = f.category ?? f.raw?.category ?? '';
+        // normalize to match the v-select items (lowercase string values)
+        try {
+            const _t = resolveField('type');
+            editCapType.value = typeof _t === 'string' ? _t.toLowerCase() : (_t != null ? String(_t).toLowerCase() : '');
+        } catch (err: unknown) { editCapType.value = '' }
+        try {
+            const _c = resolveField('category');
+            editCapCategory.value = typeof _c === 'string' ? _c.toLowerCase() : (_c != null ? String(_c).toLowerCase() : '');
+        } catch (err: unknown) { editCapCategory.value = '' }
+        try {
+            // Provide more detailed inspection to diagnose missing type/category after tree refresh
+            const raw = f.raw ?? {};
+            let rawKeys: string[] = [];
+            try { rawKeys = Object.keys(raw); } catch (err: unknown) { rawKeys = []; }
+            console.debug('[resetFocusedEdits] resolved type=', editCapType.value, 'category=', editCapCategory.value);
+            console.debug('[resetFocusedEdits] raw keys=', rawKeys);
+            try { console.debug('[resetFocusedEdits] raw.capability=', raw?.capability); } catch (err: unknown) { void err; }
+            try { console.debug('[resetFocusedEdits] raw.scenario_capabilities=', raw?.scenario_capabilities); } catch (err: unknown) { void err; }
+            try { console.debug('[resetFocusedEdits] raw.pivot=', raw?.pivot); } catch (err: unknown) { void err; }
+            try { console.debug('[resetFocusedEdits] capabilityTreeRaw sample=', capabilityTreeRaw?.value ? (Array.isArray(capabilityTreeRaw.value) ? capabilityTreeRaw.value.find((x: any) => x.id == f.id) : capabilityTreeRaw.value) : null); } catch (err: unknown) { void err; }
+        } catch (err: unknown) { void err; }
         editPivotStrategicRole.value = f.strategic_role ?? f.raw?.strategic_role ?? 'target';
         // Normalize pivot sources: pivot may live under several keys depending on backend
         const raw = f.raw ?? {};
@@ -1037,14 +1098,25 @@ async function saveFocusedNode() {
             importance: typeof editCapImportance.value !== 'undefined' ? Number(editCapImportance.value) : undefined,
             position_x: (focusedNode.value as any).x ?? undefined,
             position_y: (focusedNode.value as any).y ?? undefined,
+            type: editCapType.value || undefined,
+            category: editCapCategory.value || undefined,
         };
+
         try {
             console.debug('[saveFocusedNode] PATCH /api/capabilities/' + id, capPayload);
             const capRes: any = await api.patch(`/api/capabilities/${id}`, capPayload);
             console.debug('[saveFocusedNode] PATCH /api/capabilities response', capRes);
             showSuccess('Capacidad actualizada');
+            // optimistic local update
+            try {
+                const fd = focusedNode.value as any;
+                if (fd) {
+                    fd.type = editCapType.value || fd.type;
+                    fd.category = editCapCategory.value || fd.category;
+                    fd.raw = { ...(fd.raw || {}), ...(capRes?.data ?? {}) };
+                }
+            } catch (err: unknown) { void err; }
         } catch (errCap: unknown) {
-            // If endpoint missing (404) we silently continue; otherwise surface error
             try {
                 const _err: any = errCap as any;
                 const status = _err?.response?.status ?? null;
@@ -1052,9 +1124,7 @@ async function saveFocusedNode() {
                 if (status !== 404) {
                     showError(_err?.response?.data?.message || 'Error actualizando capacidad');
                 }
-            } catch (errInner: unknown) {
-                void errInner;
-            }
+            } catch (errInner: unknown) { void errInner; }
         }
 
         // 2) attempt to update pivot via best-effort PATCH endpoint
@@ -1066,22 +1136,21 @@ async function saveFocusedNode() {
             required_level: typeof editPivotRequiredLevel.value !== 'undefined' ? Number(editPivotRequiredLevel.value) : undefined,
             is_critical: !!editPivotIsCritical.value,
         };
+
         try {
-            // preferred: PATCH to scenario-specific pivot endpoint
-            console.debug('[saveFocusedNode] PATCH /api/strategic-planning/scenarios/' + (props.scenario?.id ?? 'undefined') + '/capabilities/' + id, pivotPayload);
-            const pivotRes: any = await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`, pivotPayload);
-            console.debug('[saveFocusedNode] PATCH pivot response', pivotRes);
+            console.debug('[saveFocusedNode] PATCH pivot', { scenarioId: props.scenario?.id, id, pivotPayload });
+            await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`, pivotPayload);
             showSuccess('Relación escenario–capacidad actualizada');
         } catch (errPivot: unknown) {
             console.error('[saveFocusedNode] error PATCH pivot', (errPivot as any)?.response?.data ?? errPivot);
             try {
-                // fallback: POST to create association (if missing) — server inserts only if not exists
+                // fallback: POST to create association (if missing)
                 await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities`, {
                     name: editCapName.value,
                     description: editCapDescription.value || '',
                     importance: editCapImportance.value ?? 3,
-                    type: null,
-                    category: null,
+                    type: editCapType.value ?? null,
+                    category: editCapCategory.value ?? null,
                     strategic_role: pivotPayload.strategic_role,
                     strategic_weight: pivotPayload.strategic_weight,
                     priority: pivotPayload.priority,
@@ -1092,21 +1161,57 @@ async function saveFocusedNode() {
                 showSuccess('Relación actualizada (fallback)');
             } catch (err2: unknown) {
                 console.error('[saveFocusedNode] error POST pivot fallback', (err2 as any)?.response?.data ?? err2);
-                // final fallback: inform user
-                void err2;
                 showError('No se pudo actualizar la relación. Verifica el backend.');
             }
         }
 
-        // after successful ops, refresh tree and restore focus without losing center position
+        // update local node immediately so UI reflects changes
+        try {
+            const nid = (focusedNode.value as any)?.id ?? id;
+            nodes.value = nodes.value.map((n: any) => {
+                if (n.id === nid) {
+                    const updatedRaw = { ...(n.raw ?? {}), type: editCapType.value ?? (n.raw?.type ?? null), category: editCapCategory.value ?? (n.raw?.category ?? null) };
+                    return { ...n, type: editCapType.value ?? n.type, category: editCapCategory.value ?? n.category, raw: updatedRaw } as any;
+                }
+                return n;
+            });
+            if (focusedNode.value && (focusedNode.value as any).id === id) {
+                focusedNode.value = {
+                    ...(focusedNode.value as any),
+                    type: editCapType.value ?? (focusedNode.value as any).type,
+                    category: editCapCategory.value ?? (focusedNode.value as any).category,
+                    raw: { ...((focusedNode.value as any).raw ?? {}), type: editCapType.value ?? (focusedNode.value as any).raw?.type, category: editCapCategory.value ?? (focusedNode.value as any).raw?.category },
+                } as any;
+            }
+        } catch (err: unknown) { void err; }
+
+        // fetch authoritative capability entity from API (if available). We'll merge
+        // it into local nodes AFTER reloading the capability-tree to avoid the
+        // tree refresh overwriting the authoritative fields.
+        let freshCap: any = null;
+        try {
+            const capResp: any = await api.get(`/api/capabilities/${id}`);
+            freshCap = capResp?.data ?? capResp;
+        } catch (err: unknown) { void err; }
+
         const focusedId = focusedNode.value ? (focusedNode.value as any).id : null;
         await loadTreeFromApi(props.scenario?.id);
+        // After reloading canonical tree, merge authoritative entity fields if we fetched them
+        try {
+            if (freshCap && typeof freshCap.id !== 'undefined') {
+                nodes.value = nodes.value.map((n: any) => (n.id === Number(freshCap.id) ? { ...n, type: freshCap.type ?? n.type, category: freshCap.category ?? n.category, raw: { ...(n.raw ?? {}), ...(freshCap ?? {}) } } : n));
+                if (focusedNode.value && (focusedNode.value as any).id === Number(freshCap.id)) {
+                    focusedNode.value = { ...((focusedNode.value as any) || {}), type: freshCap.type ?? (focusedNode.value as any).type, category: freshCap.category ?? (focusedNode.value as any).category, raw: { ...((focusedNode.value as any).raw ?? {}), ...(freshCap ?? {}) } } as any;
+                    try { resetFocusedEdits(); } catch (err: unknown) { void err; }
+                }
+            }
+        } catch (err: unknown) { void err; }
+        try { console.debug('[saveFocusedNode] after refresh, focusedId=', focusedId, 'nodeById=', nodeById(focusedId)); } catch (err: unknown) { void err; }
         if (focusedId != null) {
             const restored = nodeById(focusedId);
             if (restored) {
-                // set focused node to the refreshed object and re-center it
                 focusedNode.value = restored as any;
-                // allow DOM update then center to ensure visual centering
+                try { resetFocusedEdits(); } catch (err: unknown) { void err; }
                 await nextTick();
                 centerOnNode(restored as NodeItem);
             }
@@ -1536,45 +1641,51 @@ function edgeAnimOpacity(e: Edge) {
 
 // Construye los puntos o path para una arista según el modo seleccionado
     function edgeRenderFor(e: Edge) {
-    const start = edgeEndpoint(e, false);
-    const end = edgeEndpoint(e, true);
-    const x1 = start.x; const y1 = start.y; const x2 = end.x; const y2 = end.y;
-    const mode = childEdgeMode.value;
-        // modo curva
-        if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
-            // detectar si la arista apunta a un grandChild (skill) para usar parámetros específicos
-            const isGrand = !!grandChildNodeById(e.target) || !!grandChildNodeById(e.source) || grandChildEdges.value.includes(e as any);
-            // control point adaptativo para curvas más pronunciadas, configurable via props.visualConfig.edge
-            const baseDepth = isGrand ? (props.visualConfig?.edgeSkill?.baseDepth ?? 28) : (props.visualConfig?.edge?.baseDepth ?? 40);
-            const curveFactor = isGrand ? (props.visualConfig?.edgeSkill?.curveFactor ?? 0.30) : (props.visualConfig?.edge?.curveFactor ?? 0.35);
-            const distance = Math.abs((y2 ?? 0) - (y1 ?? 0));
-            const depth = Math.max(baseDepth, Math.round(distance * curveFactor) + baseDepth);
-            const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) + depth;
-            const d = `M ${x1} ${y1} C ${x1} ${cpY} ${x2} ${cpY} ${x2} ${y2}`;
-            return { isPath: true, d } as any;
+    try {
+        const start = edgeEndpoint(e, false);
+        const end = edgeEndpoint(e, true);
+        const x1 = start.x; const y1 = start.y; const x2 = end.x; const y2 = end.y;
+        const mode = childEdgeMode.value;
+            // modo curva
+            if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
+                // detectar si la arista apunta a un grandChild (skill) para usar parámetros específicos
+                const isGrand = !!grandChildNodeById(e.target) || !!grandChildNodeById(e.source) || grandChildEdges.value.includes(e as any);
+                // control point adaptativo para curvas más pronunciadas, configurable via props.visualConfig.edge
+                const baseDepth = isGrand ? (props.visualConfig?.edgeSkill?.baseDepth ?? 28) : (props.visualConfig?.edge?.baseDepth ?? 40);
+                const curveFactor = isGrand ? (props.visualConfig?.edgeSkill?.curveFactor ?? 0.30) : (props.visualConfig?.edge?.curveFactor ?? 0.35);
+                const distance = Math.abs((y2 ?? 0) - (y1 ?? 0));
+                const depth = Math.max(baseDepth, Math.round(distance * curveFactor) + baseDepth);
+                const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) + depth;
+                const d = `M ${x1} ${y1} C ${x1} ${cpY} ${x2} ${cpY} ${x2} ${y2}`;
+                return { isPath: true, d } as any;
+            }
+        // modo spread: desplazar X del target según índice en grupo
+        if (mode === 3 && typeof x1 === 'number' && typeof x2 === 'number') {
+            const idx = groupedIndexForEdge(e);
+            // use candidates from both childEdges and grandChildEdges so grouping keeps consistent spacing
+            const candidates = childEdges.value.concat(grandChildEdges.value).filter((ed) => {
+                const rt = renderedNodeById(ed.target);
+                const r = renderedNodeById(e.target);
+                return ed.source === e.source && rt && r && Math.abs((rt.x ?? 0) - (r.x ?? 0)) <= 8;
+            });
+            const centerOffset = ((idx - (candidates.length - 1) / 2) * (props.visualConfig?.edge?.spreadOffset ?? 18));
+            return { isPath: false, x1, y1, x2: (x2 ?? 0) + centerOffset, y2 } as any;
         }
-    // modo spread: desplazar X del target según índice en grupo
-    if (mode === 3 && typeof x1 === 'number' && typeof x2 === 'number') {
-        const idx = groupedIndexForEdge(e);
-        // use candidates from both childEdges and grandChildEdges so grouping keeps consistent spacing
-        const candidates = childEdges.value.concat(grandChildEdges.value).filter((ed) => {
-            const rt = renderedNodeById(ed.target);
-            const r = renderedNodeById(e.target);
-            return ed.source === e.source && rt && r && Math.abs((rt.x ?? 0) - (r.x ?? 0)) <= 8;
-        });
-        const centerOffset = ((idx - (candidates.length - 1) / 2) * (props.visualConfig?.edge?.spreadOffset ?? 18));
-        return { isPath: false, x1, y1, x2: (x2 ?? 0) + centerOffset, y2 } as any;
+        // modo gap grande: aumentar el desplazamiento vertical del target
+        if (mode === 1 && typeof x1 === 'number' && typeof x2 === 'number') {
+            // reduce the gap adjustment for skill nodes (smaller radius)
+            const isGrand = !!grandChildNodeById(e.target);
+            const childRadius = isGrand ? 14 : 20;
+            const y2adj = (y2 ?? 0) - (childRadius - 2);
+            return { isPath: false, x1, y1, x2, y2: y2adj } as any;
+        }
+        // modo por defecto: offset pequeño
+        return { isPath: false, x1, y1, x2, y2 } as any;
+    } catch (err: unknown) {
+        void err;
+        // On error return a safe fallback shape indicating no valid geometry
+        return { isPath: false, x1: undefined, y1: undefined, x2: undefined, y2: undefined } as any;
     }
-    // modo gap grande: aumentar el desplazamiento vertical del target
-    if (mode === 1 && typeof x1 === 'number' && typeof x2 === 'number') {
-        // reduce the gap adjustment for skill nodes (smaller radius)
-        const isGrand = !!grandChildNodeById(e.target);
-        const childRadius = isGrand ? 14 : 20;
-        const y2adj = (y2 ?? 0) - (childRadius - 2);
-        return { isPath: false, x1, y1, x2, y2: y2adj } as any;
-    }
-    // modo por defecto: offset pequeño
-    return { isPath: false, x1, y1, x2, y2 } as any;
 }
 
 // Devuelve un path curvo para aristas scenario->capability (configurable por props.scenarioEdgeCurveDepth)
@@ -1649,6 +1760,8 @@ function buildNodesFromItems(items: any[]) {
             importance: it.importance ?? it.rank ?? null,
             level: it.level ?? null,
             required: it.required ?? null,
+            type: it.type ?? it.raw?.type ?? null,
+            category: it.category ?? it.raw?.category ?? null,
             raw: it,
         } as any;
     });
@@ -1664,6 +1777,8 @@ function buildNodesFromItems(items: any[]) {
         importance: m.importance,
         level: m.level,
         required: m.required,
+        type: m.type,
+        category: m.category,
         raw: m.raw,
     }));
     // initialize scenario node after building nodes
@@ -2713,6 +2828,7 @@ const loadTreeFromApi = async (scenarioId?: number) => {
         const items = (tree as any) || [];
         // keep raw payload for debugging / inspection in sidebar
         capabilityTreeRaw.value = items;
+        try { console.debug('[loadTreeFromApi] fetched tree for scenario', scenarioId, 'items_count=', Array.isArray(items) ? items.length : 'na', items); } catch (err: unknown) { void err; }
         // capability-tree response received
         buildNodesFromItems(items);
         // ensure edges are rebuilt from the fetched items
@@ -3654,8 +3770,8 @@ if (!edges.value) edges.value = [];
                                                         <v-slider v-model="editCapImportance" label="Importancia" :min="1" :max="3" :step="1" color="primary" :ticks="tickLabelImportance" show-ticks="always"/>
                                                     </div>
 
-                                                    <v-text-field v-model="editCapType" label="Tipo" />
-                                                    <v-text-field v-model="editCapCategory" label="Categoría" />
+                                                    <v-select v-model="editCapType" :items="['technical','behavioral','strategic']" label="Tipo" />
+                                                    <v-select v-model="editCapCategory" :items="['technical','leadership','business','operational']" label="Categoría" />
 
                                                     <v-textarea v-model="editCapDescription" label="Descripción" rows="3" style="grid-column: 1 / -1;" />
 
@@ -3788,9 +3904,9 @@ if (!edges.value) edges.value = [];
                     <v-card-title>Crear capacidad</v-card-title>
                     <v-card-text>
                         <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
-                            <v-text-field v-model="newCapName" label="Nombre" required />
-                            <v-text-field v-model="newCapType" label="Tipo" />
-                            <v-text-field v-model="newCapCategory" label="Categoría" />
+                            <v-text-field v-model="newCapName" label="NombreXX" required />
+                            <v-select v-model="newCapType" :items="['technical', 'behavioral', 'strategic']" label="Tipo" />
+                            <v-select v-model="newCapCategory" :items="['technical', 'leadership', 'business', 'operational']" label="Categoría" />
                             <div>
                                 <v-slider v-model="newCapImportance" label="Importancia (1-3):" :min="1" :max="3" :step="1" color="green" :ticks="tickLabelImportance" show-ticks="always"/>
                             </div>

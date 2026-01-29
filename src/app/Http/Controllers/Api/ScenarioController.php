@@ -123,6 +123,8 @@ class ScenarioController extends Controller
         $tree = $scenario->capabilities->map(function ($capability) use ($id) {
             return [
                 'id' => $capability->id,
+                'type' => $capability->type ?? null,
+                'category' => $capability->category ?? null,
                 'name' => $capability->name,
                 'description' => $capability->description ?? null,
                 'importance' => $capability->importance ?? null,

@@ -10,9 +10,52 @@
         {
             "key": "category",
             "label": "Category",
+            "type": "select",
+            "placeholder": "Select a category",
+            "rules": ["required"],
+            "items": [
+                { "id": "technical", "name": "Technical" },
+                { "id": "soft", "name": "Soft Skills" },
+                { "id": "business", "name": "Business" },
+                { "id": "language", "name": "Language" }
+            ]
+        },
+        {
+            "key": "complexity_level",
+            "label": "Complexity Level",
+            "type": "select",
+            "placeholder": "Select complexity level",
+            "rules": [],
+            "items": [
+                { "id": "operative", "name": "Operative" },
+                { "id": "tactical", "name": "Tactical" },
+                { "id": "strategic", "name": "Strategic" }
+            ]
+        },
+        {
+            "key": "scope_type",
+            "label": "Scope Type",
+            "type": "select",
+            "placeholder": "Select scope type",
+            "rules": [],
+            "items": [
+                { "id": "transversal", "name": "Transversal" },
+                { "id": "domain", "name": "Domain" },
+                { "id": "specific", "name": "Specific" }
+            ]
+        },
+        {
+            "key": "domain_tag",
+            "label": "Domain Tag",
             "type": "text",
-            "placeholder": "e.g., Technical, Soft Skills, Management",
-            "rules": ["required"]
+            "placeholder": "e.g., Sales, IT, Legal, Marketing",
+            "rules": []
+        },
+        {
+            "key": "is_critical",
+            "label": "Is Critical",
+            "type": "switch",
+            "rules": []
         },
         {
             "key": "description",
