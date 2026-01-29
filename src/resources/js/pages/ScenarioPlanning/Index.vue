@@ -202,6 +202,24 @@ const pivotRequiredLevel = ref<number | undefined>(3);
 const pivotIsCritical = ref(false);
 const creating = ref(false);
 const api = useApi();
+// Ensure CSRF cookie for Laravel Sanctum is present before mutating requests
+async function ensureCsrf() {
+    try {
+        const hasXsrf = document.cookie.includes('XSRF-TOKEN=');
+        console.debug('[ensureCsrf] has XSRF-TOKEN cookie?', hasXsrf);
+        if (!hasXsrf) {
+            // call Sanctum endpoint to set cookie
+            try {
+                await api.api.get('/sanctum/csrf-cookie');
+                console.debug('[ensureCsrf] fetched /sanctum/csrf-cookie');
+            } catch (e) {
+                console.warn('[ensureCsrf] failed to fetch csrf-cookie', e);
+            }
+        }
+    } catch (err) {
+        void err;
+    }
+}
 const loaded = ref(false);
 const nodes = ref<Array<NodeItem>>([]);
 const edges = ref<Array<Edge>>([]);
@@ -984,18 +1002,20 @@ async function saveFocusedNode() {
     if (!focusedNode.value) return;
     const id = (focusedNode.value as any).id;
     savingNode.value = true;
+    await ensureCsrf();
     try {
         // 1) attempt to update capability entity (if endpoint exists)
         const capPayload: any = {
             name: editCapName.value,
             description: editCapDescription.value,
-            importance: editCapImportance.value,
+            importance: typeof editCapImportance.value !== 'undefined' ? Number(editCapImportance.value) : undefined,
             position_x: (focusedNode.value as any).x ?? undefined,
             position_y: (focusedNode.value as any).y ?? undefined,
         };
         try {
             console.debug('[saveFocusedNode] PATCH /api/capabilities/' + id, capPayload);
-            await api.patch(`/api/capabilities/${id}`, capPayload);
+            const capRes: any = await api.patch(`/api/capabilities/${id}`, capPayload);
+            console.debug('[saveFocusedNode] PATCH /api/capabilities response', capRes);
             showSuccess('Capacidad actualizada');
         } catch (errCap: unknown) {
             // If endpoint missing (404) we silently continue; otherwise surface error
@@ -1014,16 +1034,17 @@ async function saveFocusedNode() {
         // 2) attempt to update pivot via best-effort PATCH endpoint
         const pivotPayload = {
             strategic_role: editPivotStrategicRole.value,
-            strategic_weight: editPivotStrategicWeight.value,
-            priority: editPivotPriority.value,
+            strategic_weight: typeof editPivotStrategicWeight.value !== 'undefined' ? Number(editPivotStrategicWeight.value) : undefined,
+            priority: typeof editPivotPriority.value !== 'undefined' ? Number(editPivotPriority.value) : undefined,
             rationale: editPivotRationale.value,
-            required_level: editPivotRequiredLevel.value,
+            required_level: typeof editPivotRequiredLevel.value !== 'undefined' ? Number(editPivotRequiredLevel.value) : undefined,
             is_critical: !!editPivotIsCritical.value,
         };
         try {
             // preferred: PATCH to scenario-specific pivot endpoint
             console.debug('[saveFocusedNode] PATCH /api/strategic-planning/scenarios/' + (props.scenario?.id ?? 'undefined') + '/capabilities/' + id, pivotPayload);
-            await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`, pivotPayload);
+            const pivotRes: any = await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`, pivotPayload);
+            console.debug('[saveFocusedNode] PATCH pivot response', pivotRes);
             showSuccess('Relación escenario–capacidad actualizada');
         } catch (errPivot: unknown) {
             console.error('[saveFocusedNode] error PATCH pivot', (errPivot as any)?.response?.data ?? errPivot);
@@ -1166,24 +1187,26 @@ async function saveNewCapability() {
     if (!props.scenario || !props.scenario.id) return showError('Escenario no seleccionado');
     if (!newCapName.value || !newCapName.value.trim()) return showError('El nombre es obligatorio');
     creating.value = true;
+    await ensureCsrf();
     try {
         const payload: any = {
             name: newCapName.value.trim(),
             description: newCapDescription.value || null,
-            importance: newCapImportance.value ?? 3,
+            importance: typeof newCapImportance.value !== 'undefined' ? Number(newCapImportance.value) : 3,
             type: newCapType.value || null,
             category: newCapCategory.value || null,
             // pivot attributes
             strategic_role: pivotStrategicRole.value,
-            strategic_weight: pivotStrategicWeight.value ?? 10,
-            priority: pivotPriority.value ?? 1,
+            strategic_weight: typeof pivotStrategicWeight.value !== 'undefined' ? Number(pivotStrategicWeight.value) : 10,
+            priority: typeof pivotPriority.value !== 'undefined' ? Number(pivotPriority.value) : 1,
             rationale: pivotRationale.value || null,
-            required_level: pivotRequiredLevel.value ?? 3,
+            required_level: typeof pivotRequiredLevel.value !== 'undefined' ? Number(pivotRequiredLevel.value) : 3,
             is_critical: !!pivotIsCritical.value,
         };
 
         console.debug('[saveNewCapability] POST /api/strategic-planning/scenarios/' + props.scenario.id + '/capabilities', payload);
         const res: any = await api.post(`/api/strategic-planning/scenarios/${props.scenario.id}/capabilities`, payload);
+        console.debug('[saveNewCapability] POST response', res);
         const created = res?.data ?? res;
         showSuccess('Capacidad creada y asociada al escenario');
         // Optimistic update: add the created capability to the local nodes immediately
@@ -2460,6 +2483,7 @@ async function attachExistingComp() {
     if (!displayNode.value || !((displayNode.value as any).id)) return showError('Seleccione una capacidad');
     if (!addExistingSelection.value) return showError('Seleccione una competencia existente');
     const capId = (displayNode.value as any).id;
+        await ensureCsrf();
         try {
             await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${capId}/competencies`, { competency_id: addExistingSelection.value });
             addExistingCompDialogVisible.value = false;
@@ -2486,6 +2510,7 @@ async function attachExistingComp() {
 async function saveSelectedChild() {
     const child = selectedChild.value;
     if (!child) return showError('No hay competencia seleccionada');
+    await ensureCsrf();
     try {
         // update competency entity
         const compPayload: any = {
@@ -2506,20 +2531,22 @@ async function saveSelectedChild() {
         if (parentId && (child.compId || child.raw?.id)) {
             const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
             const pivotPayload = {
-                strategic_weight: editChildPivotStrategicWeight.value,
-                priority: editChildPivotPriority.value,
-                required_level: editChildPivotRequiredLevel.value,
+                strategic_weight: typeof editChildPivotStrategicWeight.value !== 'undefined' ? Number(editChildPivotStrategicWeight.value) : undefined,
+                priority: typeof editChildPivotPriority.value !== 'undefined' ? Number(editChildPivotPriority.value) : undefined,
+                required_level: typeof editChildPivotRequiredLevel.value !== 'undefined' ? Number(editChildPivotRequiredLevel.value) : undefined,
                 is_critical: !!editChildPivotIsCritical.value,
                 rationale: editChildPivotRationale.value,
             };
                 console.debug('[saveSelectedChild] pivotPayload', pivotPayload, 'parentId', parentId, 'compId', compId);
             try {
                 // preferred: update pivot within scenario context so we update scenario-specific attributes
-                await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${parentId}/competencies/${compId}`, pivotPayload);
+                const childRes: any = await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${parentId}/competencies/${compId}`, pivotPayload);
+                console.debug('[saveSelectedChild] PATCH child pivot response', childRes);
             } catch (err: unknown) {
                 // fallback to capability-scoped endpoint if available
                 try {
-                    await api.patch(`/api/capabilities/${parentId}/competencies/${compId}`, pivotPayload);
+                    const childRes2: any = await api.patch(`/api/capabilities/${parentId}/competencies/${compId}`, pivotPayload);
+                    console.debug('[saveSelectedChild] PATCH child pivot fallback response', childRes2);
                 } catch (err2: unknown) {
                     void err2;
                 }
@@ -3421,8 +3448,9 @@ if (!edges.value) edges.value = [];
                             <v-list-item @click="contextViewEdit" class="node-context-item">
                                 <v-list-item-icon>
                                     <v-icon icon="mdi-eye-outline" />
+                                    Ver Detalles
+                                    
                                 </v-list-item-icon>
-                                <v-list-item-title>Ver detalles</v-list-item-title>
                             </v-list-item>
                             <!-- <v-list-item @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()" class="node-context-item">
                                 <v-list-item-icon>

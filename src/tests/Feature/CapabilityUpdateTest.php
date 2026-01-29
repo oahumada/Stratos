@@ -123,4 +123,37 @@ class CapabilityUpdateTest extends TestCase
         }
         $this->assertTrue($found, 'Capability not present in capability-tree');
     }
+
+    public function test_pivot_reflected_in_capability_tree()
+    {
+        $scenario = Scenario::create(['organization_id' => $this->organization->id, 'name' => 'S-pivot-tree', 'horizon_months' => 6, 'fiscal_year' => 2026, 'created_by' => $this->user->id]);
+        $cap = Capability::create(['organization_id' => $this->organization->id, 'name' => 'Pivot Tree Cap']);
+
+        // Ensure pivot exists via PATCH upsert
+        $this->actingAs($this->user)
+            ->patchJson("//api/strategic-planning/scenarios/{$scenario->id}/capabilities/{$cap->id}", [
+                'strategic_weight' => 8,
+                'priority' => 2,
+                'rationale' => 'Pivot test',
+                'required_level' => 4,
+                'is_critical' => 0,
+            ])->assertStatus(200)->assertJson(['success' => true]);
+
+        // Fetch capability-tree for scenario and assert pivot values present
+        $res = $this->actingAs($this->user)
+            ->getJson("//api/strategic-planning/scenarios/{$scenario->id}/capability-tree")
+            ->assertStatus(200)
+            ->json();
+
+        $found = false;
+        foreach ($res as $item) {
+            if (isset($item['id']) && $item['id'] == $cap->id) {
+                $found = true;
+                $this->assertEquals(8, $item['strategic_weight']);
+                $this->assertEquals(2, $item['priority']);
+                break;
+            }
+        }
+        $this->assertTrue($found, 'Capability not present in capability-tree');
+    }
 }
