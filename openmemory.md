@@ -328,6 +328,26 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
   - Para E2E se usará `npm run dev` en entorno local o un server de pruebas con datos seed; Playwright tests aceptan `BASE_URL` para apuntar a diferentes servidores.
   - Añadir pasos a CI para ejecutar: `composer test` (Pest), `npm run test:unit` (Vitest), `npm run test:e2e` (Playwright headless). Preferir Playwright oficial images/actions en CI.
 
+  ### Metodología de testing - Memoria del proyecto
+
+  Esta entrada documenta la metodología acordada para las pruebas frontend-backend en `oahumada/Stratos` y debe ser consultada al diseñar nuevos tests o pipelines de CI.
+
+  - Propósito: asegurar que el frontend envía los payloads y headers esperados, que el backend pasa sus pruebas unitarias/feature (Pest) y que los flujos E2E críticos están cubiertos.
+  - Alcance: cubrir componentes UI críticos (formularios, modal create/attach, diagram interactions), composables (p. ej. `useNodeNavigation`), y flujos completos (create → attach → center → save).
+  - Stack recomendado:
+    - Backend: Pest (PHP) — ya usado para pruebas CRUD.
+    - Frontend unit/integration: Vitest + @vue/test-utils + msw (para mocks de red en tests de componentes).
+    - Frontend E2E: Playwright (usar `BASE_URL` para apuntar a servidores de prueba).
+  - Orden de ejecución en CI: 1) `composer test` (Pest) → 2) `npm run test:unit` (Vitest) → 3) `npm run test:e2e` (Playwright headless).
+  - Buenas prácticas:
+    - Usar DB de pruebas seedada para E2E o mockear respuestas en tests de componentes.
+    - Interceptar y validar solicitudes en E2E (Playwright) para comprobar body y headers.
+    - Evitar datos frágiles en pruebas; usar fixtures y limpiar estado entre tests.
+    - Validar payloads/inputs en backend y no confiar en validaciones cliente.
+    - Documentar en `docs/` los endpoints y shapes esperados para facilitar tests contractuales.
+
+  > Nota: esta metodología ya se registró internamente como preferencia del proyecto y puede ser persistida en la memoria del equipo para referencia futura.
+
 ## Memoria: Sesión 2026-01-23
 
 - **Resumen corto:** Implementé el endpoint backend para asignar competencias a capacidades por escenario (`capability_competencies`) que acepta `competency_id` o crea una nueva `competency` y la asocia, creé la migración/modelo para la pivot, añadí tests Feature que cubren ambos flujos y verifiqué que los tests pasan localmente.
