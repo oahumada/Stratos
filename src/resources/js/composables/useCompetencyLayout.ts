@@ -124,3 +124,17 @@ export function computeSidesPositions(count: number, cx: number, parentY: number
 }
 
 export default {};
+
+// Decide layout helper: centraliza la heurística que antes estaba en `Index.vue`.
+export function decideCompetencyLayout(layoutOpt: 'auto' | 'radial' | 'matrix' | 'sides' | undefined, hasSelectedChild: boolean, childCount: number, configDefault = 'auto') {
+  // explicit override
+  if (layoutOpt && layoutOpt !== 'auto') return layoutOpt;
+  const def = configDefault ?? 'auto';
+  if (def !== 'auto') return def as any;
+
+  // Heurística actualizada: cuando hay una child seleccionada y varios hijos, preferir 'sides'
+  // (reemplaza la elección previa 'radial' por 'sides' para mejores transiciones)
+  if (hasSelectedChild && childCount > 3) return 'sides';
+  // por defecto usar matriz
+  return 'matrix';
+}

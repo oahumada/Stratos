@@ -5,7 +5,7 @@ import { useNotification } from '@/composables/useNotification';
 import * as d3 from 'd3';
 import { onMounted, ref, watch, onBeforeUnmount, computed, nextTick } from 'vue';
 import { computeMatrixPositions } from '@/composables/useNodeNavigation';
-import { chooseMatrixVariant, computeCompetencyMatrixPositions, computeSidesPositions } from '@/composables/useCompetencyLayout';
+import { chooseMatrixVariant, computeCompetencyMatrixPositions, computeSidesPositions, decideCompetencyLayout } from '@/composables/useCompetencyLayout';
 import type { CSSProperties } from 'vue';
 import type { NodeItem, Edge, ConnectionPayload } from '@/types/brain';
 interface Props {
@@ -683,7 +683,7 @@ const LAYOUT_CONFIG = {
     // Radial mode activates when >5 nodes with one selected
     competency: {
         radial: {
-            radius: 200, // distance from center to other competencies
+            radius: 150, // distance from center to other competencies
             selectedOffsetY:20, // vertical offset for selected node to leave room for skills
             startAngle: -Math.PI / 4, // -45° (bottom-left)
             endAngle: (5 * Math.PI) / 4, // 225° (covers lower 3/4 of circle)
@@ -713,7 +713,7 @@ const LAYOUT_CONFIG = {
         // Capability -> Competency curved edge
         edge: {
             baseDepth: 40, // base curve depth (px)
-            curveFactor: 0.35, // multiplier: curve = baseDepth + (distance * curveFactor)
+            curveFactor: 0.25, // multiplier: curve = baseDepth + (distance * curveFactor)
             spreadOffset: 18, // offset for parallel curves
         },
     },
@@ -1091,6 +1091,12 @@ watch(selectedChild, (nv) => {
         editChildPivotRationale.value = '';
         return;
     }
+    // Recompute competency child positions using existing positions as start
+    try {
+        if (focusedNode.value) {
+            expandCompetencies(focusedNode.value as NodeItem, { x: focusedNode.value.x ?? 0, y: focusedNode.value.y ?? 0 }, { layout: 'auto' });
+        }
+    } catch (err: unknown) { void err; }
     editChildName.value = nv.name ?? nv.raw?.name ?? '';
     editChildDescription.value = nv.description ?? nv.raw?.description ?? '';
     editChildReadiness.value = nv.readiness ?? nv.raw?.readiness ?? null;
@@ -2117,8 +2123,9 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     try {
                         const compCount = Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0;
                         if (compCount >= 4) {
-                            console.debug && console.debug('[expandCompetencies.call] source=handleNodeClick (matrix)', { nodeId: parentNode?.id, comps: compCount });
-                            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: 'matrix' });
+                            console.debug && console.debug('[expandCompetencies.call] source=handleNodeClick (auto)', { nodeId: parentNode?.id, comps: compCount });
+                            // Use 'auto' so expandCompetencies can choose radial when a child is selected
+                            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: 'auto' });
                         } else {
                             // keep positions for small counts
                             console.debug && console.debug('[expandCompetencies.call] skipped (<4 competencies)', { nodeId: parentNode?.id, comps: compCount });
@@ -2590,11 +2597,10 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
         cols = variantChoice.cols;
     } catch (err: unknown) { void err; }
 
-    // Decide layout: explicit option overrides visualConfig/layout config, 'auto' uses heuristic
+    // Decide layout: explicit option overrides visualConfig/layout config, 'auto' uses centralized heuristic
     const configDefaultLayout = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.defaultLayout) ? LAYOUT_CONFIG.competency.defaultLayout : 'auto';
     // Use provided option or fallback to the centralized default; avoid referencing a non-existent prop
-    let layout = opts.layout ?? configDefaultLayout;
-    if (layout === 'auto') layout = (hasSelectedChild && toShow.length > 3) ? 'radial' : 'matrix';
+    let layout = decideCompetencyLayout(opts.layout, hasSelectedChild, toShow.length, configDefaultLayout);
     console.debug('[expandCompetencies] hasSelectedChild:', hasSelectedChild, 'layout:', layout);
 
     let positions: any[] = [];
@@ -2654,13 +2660,14 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
         const pos = positions[i] || { x: cx, y: topY };
         const id = -(node.id * 1000 + i + 1);
         const delay = Math.max(0, Math.floor(i / cols) * 30 + (i % cols) * 12 + Math.round((Math.random() - 0.5) * 30));
+        const existingPos = childNodes.value.find((ch: any) => ch.compId === (c.id ?? null));
         const child = {
             id,
             compId: c.id ?? null,
             name: c.name ?? c,
             displayName: wrapLabel(c.name ?? c, 14),
-            x: initialParentPos?.x ?? (node.x ?? cx),
-            y: initialParentPos?.y ?? (node.y ?? parentY),
+            x: (existingPos ? existingPos.x : (initialParentPos?.x ?? (node.x ?? cx))),
+            y: (existingPos ? existingPos.y : (initialParentPos?.y ?? (node.y ?? parentY))),
             animScale: 0.84,
             animOpacity: 0,
             animDelay: delay,
