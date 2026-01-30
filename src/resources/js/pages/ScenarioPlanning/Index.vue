@@ -5,6 +5,7 @@ import { useNotification } from '@/composables/useNotification';
 import * as d3 from 'd3';
 import { onMounted, ref, watch, onBeforeUnmount, computed, nextTick } from 'vue';
 import { computeMatrixPositions } from '@/composables/useNodeNavigation';
+import { chooseMatrixVariant, computeCompetencyMatrixPositions, computeSidesPositions } from '@/composables/useCompetencyLayout';
 import type { CSSProperties } from 'vue';
 import type { NodeItem, Edge, ConnectionPayload } from '@/types/brain';
 interface Props {
@@ -2581,13 +2582,13 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     const selectedChildCompId = selectedChild.value?.compId ?? null;
     const hasSelectedChild = selectedChildCompId !== null && toShow.some((c: any) => c.id === selectedChildCompId);
 
-    // If count falls into configured matrixVariants, force rows/cols accordingly
+    // If count falls into configured matrixVariants, use composable to choose rows/cols
     const matrixVariants = (LAYOUT_CONFIG.competency && Array.isArray(LAYOUT_CONFIG.competency.matrixVariants)) ? LAYOUT_CONFIG.competency.matrixVariants : [];
-    const variant = matrixVariants.find((v: any) => toShow.length >= v.min && toShow.length <= v.max);
-    if (variant) {
-        rows = variant.rows;
-        cols = variant.cols;
-    }
+    try {
+        const variantChoice = chooseMatrixVariant(toShow.length, matrixVariants, maxDisplay);
+        rows = variantChoice.rows;
+        cols = variantChoice.cols;
+    } catch (err: unknown) { void err; }
 
     // Decide layout: explicit option overrides visualConfig/layout config, 'auto' uses heuristic
     const configDefaultLayout = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.defaultLayout) ? LAYOUT_CONFIG.competency.defaultLayout : 'auto';
@@ -2625,52 +2626,17 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
         });
     } else if (layout === 'sides') {
         console.debug('[expandCompetencies] Using SIDES layout');
-            // SIDES layout: optionally keep the selected child centered (near parent)
+        try {
             const selectedIdx = toShow.findIndex((c: any) => c.id === selectedChildCompId);
-            const others = toShow.filter((c: any) => c.id !== selectedChildCompId);
             const colOffset = Math.max(220, Math.round(hSpacing * 1.6));
-            const leftX = cx - colOffset;
-            const rightX = cx + colOffset;
-            const selectedCenterOffsetY = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.radial && LAYOUT_CONFIG.competency.radial.selectedOffsetY) ? LAYOUT_CONFIG.competency.radial.selectedOffsetY : 40;
-            // Move the selected child closer to the parent by a configurable multiplier (default 0.75)
-            const sidesMultiplier = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.sides && typeof LAYOUT_CONFIG.competency.sides.selectedOffsetMultiplier === 'number') ? LAYOUT_CONFIG.competency.sides.selectedOffsetMultiplier : 0.75;
-            const adjustedSelectedCenterOffsetY = Math.round(selectedCenterOffsetY * sidesMultiplier);
-
-            if (selectedIdx >= 0) {
-                // Reserve center for selected child; distribute others left/right
-                const leftCount = Math.floor(others.length / 2);
-                const rightCount = others.length - leftCount;
-                const leftStartY = topY - Math.floor((leftCount - 1) / 2) * vSpacing;
-                const rightStartY = topY - Math.floor((rightCount - 1) / 2) * vSpacing;
-                let li = 0;
-                let ri = 0;
-                positions = toShow.map((c: any) => {
-                    if (c.id === selectedChildCompId) {
-                        return { x: cx, y: topY + adjustedSelectedCenterOffsetY };
-                    }
-                    if (li < leftCount) {
-                        const pos = { x: leftX, y: leftStartY + li * vSpacing };
-                        li += 1;
-                        return pos;
-                    }
-                    const pos = { x: rightX, y: rightStartY + ri * vSpacing };
-                    ri += 1;
-                    return pos;
-                });
-            } else {
-                // No selected child: simple split
-                const leftCount = Math.floor(toShow.length / 2);
-                const rightCount = toShow.length - leftCount;
-                const leftStartY = topY - Math.floor((leftCount - 1) / 2) * vSpacing;
-                const rightStartY = topY - Math.floor((rightCount - 1) / 2) * vSpacing;
-                positions = toShow.map((c: any, i: number) => {
-                    if (i < leftCount) {
-                        return { x: leftX, y: leftStartY + i * vSpacing };
-                    }
-                    const nri = i - leftCount;
-                    return { x: rightX, y: rightStartY + nri * vSpacing };
-                });
-            }
+            const sidesOpts = {
+                hSpacing: colOffset,
+                vSpacing,
+                parentOffset: verticalOffset + CHILD_DROP,
+                selectedOffsetMultiplier: (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.sides && typeof LAYOUT_CONFIG.competency.sides.selectedOffsetMultiplier === 'number') ? LAYOUT_CONFIG.competency.sides.selectedOffsetMultiplier : 0.75,
+            };
+            positions = computeSidesPositions(toShow.length, cx, parentY, sidesOpts, selectedIdx >= 0 ? selectedIdx : null);
+        } catch (err: unknown) { console.debug('sides layout compute failed', err); positions = []; }
     } else {
         // Matrix layout for normal/default case or <5 nodes
         console.debug('[expandCompetencies] Using MATRIX layout (rows:', rows, 'cols:', cols, 'hSpacing:', hSpacing, 'vSpacing:', vSpacing, ')');
@@ -2680,7 +2646,7 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
             vSpacing = Math.round(vSpacing * 1.4);
             console.debug('[expandCompetencies] Expanded spacing for >5 nodes without selection');
         }
-        positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing, vSpacing });
+        positions = computeCompetencyMatrixPositions(toShow.length, cx, topY, rows, cols, hSpacing, vSpacing);
     }
 
         const builtChildren: Array<any> = [];
