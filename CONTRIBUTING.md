@@ -2,7 +2,7 @@
 
 Gracias por contribuir a Stratos. Este archivo explica el flujo TDD recomendado y cómo ejecutar pruebas localmente antes de abrir un PR.
 
-1) Preparación del entorno
+1. Preparación del entorno
 
 ```bash
 # Instalar deps backend
@@ -19,7 +19,7 @@ php artisan key:generate
 php artisan migrate --force
 ```
 
-2) Flujo TDD local rápido
+2. Flujo TDD local rápido
 
 - Ejecuta pruebas unitarias de backend durante el desarrollo:
 
@@ -35,7 +35,7 @@ cd src
 npx vitest --watch resources/js
 ```
 
-3) Pre-push hooks
+3. Pre-push hooks
 
 El repositorio incluye hooks Husky para prevenir pushes con tests rotos. Instálalos con:
 
@@ -46,7 +46,7 @@ npm run prepare
 
 El hook `pre-push` ejecuta `composer test` y `npm run test:unit`. Si las pruebas fallan, el push se bloqueará.
 
-4) Recomendaciones de PR
+4. Recomendaciones de PR
 
 - Ejecuta `composer test` y `npm run test:unit` antes de abrir PR.
 - Describe los pasos para reproducir cualquier cambio visual (screenshots, pasos manuales).

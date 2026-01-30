@@ -25,7 +25,7 @@ Variables / Secrets recomendadas en GitHub:
 
 Comandos locales (desde la raíz del repo):
 
-1) Backend (Laravel / Pest)
+1. Backend (Laravel / Pest)
 
 ```bash
 cd src
@@ -42,7 +42,7 @@ php artisan migrate --force
 vendor/bin/pest
 ```
 
-2) Frontend unit tests (Vitest)
+2. Frontend unit tests (Vitest)
 
 ```bash
 cd src
@@ -50,7 +50,7 @@ npm ci
 npx vitest run resources/js
 ```
 
-3) Playwright E2E (local)
+3. Playwright E2E (local)
 
 ```bash
 cd src
@@ -76,8 +76,8 @@ Smoke tests Playwright:
 - Marca las pruebas rápidas que deben ejecutarse en PRs con la etiqueta `@smoke` en la descripción del test. Ejemplo:
 
 ```ts
-test('@smoke smoke: capability expands', async ({ page }) => {
-	// ...
+test("@smoke smoke: capability expands", async ({ page }) => {
+  // ...
 });
 ```
 
