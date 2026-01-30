@@ -4,42 +4,88 @@
 
 Este documento explica cómo ajustar el layout (posicionamiento) de nodos en el mapa de **Scenario Planning** (Capacidades → Competencias → Skills) de forma centralizada y sin tocar la lógica del código.
 
-**Ubicación del archivo:** `src/resources/js/pages/ScenarioPlanning/Index.vue` (línea ~662)
+**Ubicación del archivo:** `src/resources/js/pages/ScenarioPlanning/Index.vue` (línea ~663)
 
 ---
 
 ## Estructura del LAYOUT_CONFIG
 
-El objeto `LAYOUT_CONFIG` controla todo el posicionamiento de los tres niveles:
+El objeto `LAYOUT_CONFIG` controla todo el posicionamiento y comportamiento de los tres niveles:
 
 ```javascript
 const LAYOUT_CONFIG = {
-  competency: { ... },  // Configuración de nodos competencia
-  skill: { ... }        // Configuración de nodos skills
+  capability: { ... },   // Configuración de nodos capacidad (raíz)
+  competency: { ... },   // Configuración de nodos competencia
+  skill: { ... }         // Configuración de nodos skills
 };
 ```
 
 ---
 
-## 1. Configuración de Competencias (`competency`)
+## 1. Configuración de Capacidades (`capability`)
 
-### 1.1 Layout Radial (>5 competencias con una seleccionada)
+### 1.1 Layout General (Matriz D3)
+
+Las capacidades se distribuyen usando simulación de fuerzas D3 en matriz, con parámetros configurables.
+
+```javascript
+capability: {
+  spacing: {
+    hSpacing: 100,    // ← Espaciado horizontal en la matriz
+    vSpacing: 80,     // ← Espaciado vertical en la matriz
+  },
+  forces: {
+    linkDistance: 120,      // ← Distancia deseada entre nodos conectados
+    linkStrength: 0.5,      // ← Fuerza del tirón (0-1, más alto = más fuerte)
+    chargeStrength: -220,   // ← Repulsión entre nodos (negativo = repulsión)
+  },
+  scenarioEdgeDepth: 90,    // ← Curvatura de aristas Scenario → Capability
+}
+```
+
+#### Parámetros Spacing:
+
+| Parámetro  | Rango  | Efecto                                                         |
+| ---------- | ------ | -------------------------------------------------------------- |
+| `hSpacing` | 80-150 | Distancia horizontal entre capacidades. Aumenta si se solapan  |
+| `vSpacing` | 60-120 | Distancia vertical entre filas. Aumenta para mejor legibilidad |
+
+#### Parámetros Forces (Simulación D3):
+
+| Parámetro        | Rango      | Efecto                                                               |
+| ---------------- | ---------- | -------------------------------------------------------------------- |
+| `linkDistance`   | 80-200     | Distancia que "prefieren" tener conectados. Aumenta para más espacio |
+| `linkStrength`   | 0.1-0.9    | Cuán fuerte es el tirón entre nodos. Disminuye si tiemblan mucho     |
+| `chargeStrength` | -300 a -50 | Repulsión entre nodos. Más negativo = más repulsión                  |
+
+#### Parámetro Edge:
+
+| Parámetro           | Rango  | Efecto                                                             |
+| ------------------- | ------ | ------------------------------------------------------------------ |
+| `scenarioEdgeDepth` | 40-150 | Curvatura de aristas Scenario → Capability. Aumenta para más curva |
+
+---
+
+## 2. Configuración de Competencias (`competency`)
+
+### 2.1 Layout Radial (>5 competencias con una seleccionada)
 
 Cuando hay **más de 5 competencias y seleccionas una**, se activa el layout radial automáticamente.
 
 ```javascript
 competency: {
   radial: {
-    radius: 240,              // ← DISTANCIA del centro a otros nodos
-    selectedOffsetY: 40,      // ← ESPACIO VERTICAL para la competencia seleccionada
+    radius: 140,              // ← DISTANCIA del centro a otros nodos
+    selectedOffsetY: 10,      // ← ESPACIO VERTICAL para la competencia seleccionada
     startAngle: -Math.PI / 4, // ← Ángulo inicio (-45°, esquina inferior-izquierda)
     endAngle: (5 * Math.PI) / 4, // ← Ángulo fin (225°, evita tapa del padre arriba)
   },
-  ...
+  spacing: { ... },
+  edge: { ... }
 }
 ```
 
-#### Parámetros:
+#### Parámetros Radial:
 
 | Parámetro         | Rango   | Efecto                                                                                    |
 | ----------------- | ------- | ----------------------------------------------------------------------------------------- |
@@ -87,11 +133,39 @@ spacing: {
 | `vSpacing`     | 40-150  | Distancia vertical entre filas                 |
 | `parentOffset` | 100-250 | Cuán lejos debajo del padre comienza la matriz |
 
+### 2.2 Curvatura de Aristas (Capability → Competency)
+
+Las aristas que conectan capacidades con competencias se pueden hacer curvas. Este parámetro controla su curvatura:
+
+```javascript
+competency: {
+  edge: {
+    baseDepth: 40,       // ← Curvatura mínima (px)
+    curveFactor: 0.35,   // ← Multiplicador de distancia (cuanto más separados, más curvos)
+    spreadOffset: 18,    // ← Desplazamiento cuando hay aristas paralelas
+  }
+}
+```
+
+#### Parámetros Edge:
+
+| Parámetro      | Rango   | Efecto                                                                                          |
+| -------------- | ------- | ----------------------------------------------------------------------------------------------- |
+| `baseDepth`    | 10-80   | Curvatura mínima en px. Aumenta para arcos más pronunciados                                     |
+| `curveFactor`  | 0.1-0.8 | Multiplicador: `curve = baseDepth + (distancia × curveFactor)`. Más alto = más curvas dinámicas |
+| `spreadOffset` | 0-30    | Cuando hay varias aristas paralelas, cuánto desplazarlas para no solapearse                     |
+
+#### Ejemplos:
+
+- **Arcos suaves:** `baseDepth: 25, curveFactor: 0.2`
+- **Arcos pronunciados:** `baseDepth: 60, curveFactor: 0.5`
+- **Recto:** `baseDepth: 0, curveFactor: 0`
+
 ---
 
-## 2. Configuración de Skills (`skill`)
+## 3. Configuración de Skills (`skill`)
 
-### 2.1 Display Limit
+### 3.1 Display Limit
 
 ```javascript
 skill: {
@@ -99,7 +173,7 @@ skill: {
 }
 ```
 
-### 2.2 Layout Radial (>4 skills)
+### 3.2 Layout Radial (>4 skills)
 
 Cuando una competencia tiene **más de 4 skills**, se distribuyen en semicírculo:
 
@@ -125,7 +199,7 @@ radial: {
 offsetY: 120 → 150  // Aumentar separación vertical
 ```
 
-### 2.3 Layout Linear (≤4 skills)
+### 3.3 Layout Linear (≤4 skills)
 
 Para 4 o menos skills, se alinean en fila:
 

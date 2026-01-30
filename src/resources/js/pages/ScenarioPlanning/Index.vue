@@ -681,7 +681,7 @@ const LAYOUT_CONFIG = {
     // Radial mode activates when >5 nodes with one selected
     competency: {
         radial: {
-            radius: 340, // distance from center to other competencies
+            radius: 300, // distance from center to other competencies
             selectedOffsetY: 10, // vertical offset for selected node to leave room for skills
             startAngle: -Math.PI / 4, // -45° (bottom-left)
             endAngle: (5 * Math.PI) / 4, // 225° (covers lower 3/4 of circle)
