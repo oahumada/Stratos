@@ -3,6 +3,9 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "cypress:open": "cypress open",
+        "cypress:run": "cypress run",
+        "test:acceptance": "cypress run",
         "build": "vite build",
         "build:ssr": "vite build && vite build --ssr",
         "dev": "vite",
@@ -21,6 +24,7 @@
         "release:major": "cd .. && ./scripts/release.sh major"
     },
     "devDependencies": {
+        "cypress": "^12.17.0",
         "@commitlint/config-conventional": "^20.2.0",
         "@eslint/js": "^9.19.0",
         "@laravel/vite-plugin-wayfinder": "^0.1.3",
