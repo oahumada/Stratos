@@ -331,7 +331,6 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
   ### Metodología de testing - Memoria del proyecto
 
   Esta entrada documenta la metodología acordada para las pruebas frontend-backend en `oahumada/Stratos` y debe ser consultada al diseñar nuevos tests o pipelines de CI.
-
   - Propósito: asegurar que el frontend envía los payloads y headers esperados, que el backend pasa sus pruebas unitarias/feature (Pest) y que los flujos E2E críticos están cubiertos.
   - Alcance: cubrir componentes UI críticos (formularios, modal create/attach, diagram interactions), composables (p. ej. `useNodeNavigation`), y flujos completos (create → attach → center → save).
   - Stack recomendado:
