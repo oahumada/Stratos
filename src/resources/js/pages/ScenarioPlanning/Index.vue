@@ -683,6 +683,12 @@ const LAYOUT_CONFIG = {
             startAngle: -Math.PI / 4, // -45° (bottom-left)
             endAngle: (5 * Math.PI) / 4, // 225° (covers lower 3/4 of circle)
         },
+        // Sides-specific tuning (used when layout === 'sides')
+        sides: {
+            // multiplier applied to the selected node vertical offset when using `sides` layout
+            // value <1 moves the selected node closer to the parent; default 0.75 (25% closer)
+            selectedOffsetMultiplier: 0.75,
+        },
         // default layout: 'auto' = use heuristic, or 'radial'|'matrix'|'sides'
         defaultLayout: 'auto',
         spacing: {
@@ -2592,8 +2598,9 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
             const leftX = cx - colOffset;
             const rightX = cx + colOffset;
             const selectedCenterOffsetY = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.radial && LAYOUT_CONFIG.competency.radial.selectedOffsetY) ? LAYOUT_CONFIG.competency.radial.selectedOffsetY : 40;
-            // Move the selected child 25% closer to the parent (subir 25%) to avoid overlap but keep it near center
-            const adjustedSelectedCenterOffsetY = Math.round(selectedCenterOffsetY * 0.75);
+            // Move the selected child closer to the parent by a configurable multiplier (default 0.75)
+            const sidesMultiplier = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.sides && typeof LAYOUT_CONFIG.competency.sides.selectedOffsetMultiplier === 'number') ? LAYOUT_CONFIG.competency.sides.selectedOffsetMultiplier : 0.75;
+            const adjustedSelectedCenterOffsetY = Math.round(selectedCenterOffsetY * sidesMultiplier);
 
             if (selectedIdx >= 0) {
                 // Reserve center for selected child; distribute others left/right
