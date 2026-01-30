@@ -1,27 +1,39 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { shallowMount } from '@vue/test-utils';
-import ScenarioPlanning from '../ScenarioPlanning/Index.vue';
+import { describe, it, expect } from 'vitest';
+import { computeMatrixPositions } from '@/composables/useNodeNavigation';
 
-describe('ScenarioPlanning Index (smoke)', () => {
-  let wrapper: any;
+describe('computeMatrixPositions', () => {
+  it('centers rows and respects spacing', () => {
+    const total = 8;
+    const cx = 400;
+    const topY = 100;
+    const hSpacing = 100;
+    const vSpacing = 80;
+    const rows = 2;
+    const cols = 5;
+    const positions = computeMatrixPositions(total, cx, topY, { rows, cols, hSpacing, vSpacing });
 
-  beforeEach(() => {
-    wrapper = shallowMount(ScenarioPlanning, {
-      props: {
-        scenario: { id: 1, name: 'S1', capabilities: [] },
-        visualConfig: { nodeRadius: 20 },
-      },
-      // shallowMount to avoid heavy DOM from d3 rendering; focus on component lifecycle
-    });
+    // Expect number of positions equal to total (<= rows*cols)
+    expect(positions.length).toBe(8);
+
+    // Check Y values: should use topY and topY+vSpacing
+    const ys = Array.from(new Set(positions.map((p) => p.y))).sort((a, b) => a - b);
+    expect(ys.length).toBe(2);
+    expect(ys[0]).toBe(topY);
+    expect(ys[1]).toBe(topY + vSpacing);
+
+    // In first row (5 items) x positions should be increasing left->right
+    const firstRow = positions.slice(0, 5).map((p) => p.x);
+    for (let i = 1; i < firstRow.length; i++) {
+      expect(firstRow[i]).toBeGreaterThan(firstRow[i - 1]);
+    }
   });
 
-  it('mounts and exposes expected props', () => {
-    expect(wrapper.exists()).toBe(true);
-    expect(wrapper.props().scenario).toBeTruthy();
-    expect(wrapper.props().visualConfig.nodeRadius).toBe(20);
+  it('truncates to rows*cols when total is larger', () => {
+    const total = 14; // larger than 2x5
+    const cx = 500;
+    const topY = 200;
+    const positions = computeMatrixPositions(total, cx, topY, { rows: 2, cols: 5, hSpacing: 120, vSpacing: 100 });
+    expect(positions.length).toBe(10); // truncated to 2*5
   });
-
-  // TODO: Add focused unit tests that exercise `expandCompetencies` behaviour.
-  // - Simulate clicks on capability nodes (update when selectors are finalized)
-  // - Validate that `visualConfig` overrides (e.g., maxDisplay) affect layout selection
 });
+
