@@ -250,6 +250,11 @@ Route::middleware('auth:sanctum')->group(function () {
             if (empty($data['name'])) {
                 return response()->json(['success' => false, 'message' => 'Name is required'], 422);
             }
+            // Create capability WITHOUT setting `discovered_in_scenario_id` here so
+            // the route can control the pivot insertion with the provided pivot fields.
+            // The Capability model has a booted() hook that inserts a pivot when
+            // `discovered_in_scenario_id` is set; creating without it avoids an
+            // early insert with defaults.
             $cap = App\Models\Capability::create([
                 'organization_id' => $user->organization_id ?? null,
                 'name' => $data['name'],
@@ -257,7 +262,6 @@ Route::middleware('auth:sanctum')->group(function () {
                 // importance column is NOT NULL in sqlite; default defined in migration.
                 // Avoid inserting explicit NULL which violates constraint — use default 3 when missing.
                 'importance' => isset($data['importance']) ? $data['importance'] : 3,
-                'discovered_in_scenario_id' => $scenario->id,
             ]);
 
             // Insert relationship-specific attributes into pivot `scenario_capabilities`.
@@ -355,6 +359,51 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
         return response()->json(['success' => true, 'data' => $comp->toArray()]);
+    });
+
+    // Dev API: create a Competency entity (multi-tenant safe)
+    Route::post('/competencies', function (Illuminate\Http\Request $request) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $name = trim($request->input('name', ''));
+        if (empty($name)) {
+            return response()->json(['success' => false, 'message' => 'Name is required'], 422);
+        }
+        try {
+            $comp = App\Models\Competency::create([
+                'organization_id' => $user->organization_id ?? null,
+                'name' => $name,
+                'description' => $request->input('description', null),
+            ]);
+            return response()->json(['success' => true, 'data' => $comp], 201);
+        } catch (\Throwable $e) {
+            \Log::error('Error creating competency: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Server error creating competency'], 500);
+        }
+    });
+
+    // Dev API: delete a Competency entity (multi-tenant safe)
+    Route::delete('/competencies/{id}', function (Illuminate\Http\Request $request, $id) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+        $comp = App\Models\Competency::find($id);
+        if (!$comp) {
+            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        }
+        if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        try {
+            $comp->delete();
+            return response()->json(['success' => true, 'message' => 'Competency deleted']);
+        } catch (\Throwable $e) {
+            \Log::error('Error deleting competency ' . $id . ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Server error deleting competency'], 500);
+        }
     });
 
     // Dev API: update a Competency entity (multi-tenant safe)
