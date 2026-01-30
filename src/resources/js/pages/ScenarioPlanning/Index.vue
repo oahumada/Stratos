@@ -65,6 +65,8 @@ interface Props {
 }
 
 function restoreView() {
+    // Capture current focused node (if any) before clearing state so we can reuse it for restoration
+    const parentNode = focusedNode.value as NodeItem | null;
     // Clear focused state and visibility flags; restore original positions if available
     focusedNode.value = null;
     childNodes.value = [];
@@ -74,14 +76,16 @@ function restoreView() {
     try { collapseGrandChildren(); } catch (err: unknown) { void err; }
     // clear render flags
     nodes.value = nodes.value.map((n: any) => ({ ...n, visible: true }));
-    // Choose sides layout when parent has more than 5 competencies; otherwise keep matrix to preserve positions
-    try {
-        const compCount = Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0;
-        const layoutForClick = compCount > 5 ? 'sides' : 'matrix';
-        expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: layoutForClick as any });
-    } catch (err: unknown) {
-        // fallback to default behaviour
-        expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
+    // If we had a parent node, decide layout based on its competency count and expand
+    if (parentNode) {
+        try {
+            const compCount = Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0;
+            const layoutForClick = compCount > 5 ? 'sides' : 'matrix';
+            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: layoutForClick as any });
+        } catch (err: unknown) {
+            // fallback to default behaviour
+            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
+        }
     }
     viewX.value = 0;
     viewY.value = 0;
@@ -2581,22 +2585,51 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
         });
     } else if (layout === 'sides') {
         console.debug('[expandCompetencies] Using SIDES layout');
-        // Split into two columns (left/right) around parent X
-        const leftCount = Math.floor(toShow.length / 2);
-        const rightCount = toShow.length - leftCount;
-        const colOffset = Math.max(220, Math.round(hSpacing * 1.6));
-        const leftX = cx - colOffset;
-        const rightX = cx + colOffset;
-        // Vertical distribution centered at topY
-        const leftStartY = topY - Math.floor((leftCount - 1) / 2) * vSpacing;
-        const rightStartY = topY - Math.floor((rightCount - 1) / 2) * vSpacing;
-        positions = toShow.map((c: any, i: number) => {
-            if (i < leftCount) {
-                return { x: leftX, y: leftStartY + i * vSpacing };
+            // SIDES layout: optionally keep the selected child centered (near parent)
+            const selectedIdx = toShow.findIndex((c: any) => c.id === selectedChildCompId);
+            const others = toShow.filter((c: any) => c.id !== selectedChildCompId);
+            const colOffset = Math.max(220, Math.round(hSpacing * 1.6));
+            const leftX = cx - colOffset;
+            const rightX = cx + colOffset;
+            const selectedCenterOffsetY = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.radial && LAYOUT_CONFIG.competency.radial.selectedOffsetY) ? LAYOUT_CONFIG.competency.radial.selectedOffsetY : 40;
+            // Move the selected child 25% closer to the parent (subir 25%) to avoid overlap but keep it near center
+            const adjustedSelectedCenterOffsetY = Math.round(selectedCenterOffsetY * 0.75);
+
+            if (selectedIdx >= 0) {
+                // Reserve center for selected child; distribute others left/right
+                const leftCount = Math.floor(others.length / 2);
+                const rightCount = others.length - leftCount;
+                const leftStartY = topY - Math.floor((leftCount - 1) / 2) * vSpacing;
+                const rightStartY = topY - Math.floor((rightCount - 1) / 2) * vSpacing;
+                let li = 0;
+                let ri = 0;
+                positions = toShow.map((c: any) => {
+                    if (c.id === selectedChildCompId) {
+                        return { x: cx, y: topY + adjustedSelectedCenterOffsetY };
+                    }
+                    if (li < leftCount) {
+                        const pos = { x: leftX, y: leftStartY + li * vSpacing };
+                        li += 1;
+                        return pos;
+                    }
+                    const pos = { x: rightX, y: rightStartY + ri * vSpacing };
+                    ri += 1;
+                    return pos;
+                });
+            } else {
+                // No selected child: simple split
+                const leftCount = Math.floor(toShow.length / 2);
+                const rightCount = toShow.length - leftCount;
+                const leftStartY = topY - Math.floor((leftCount - 1) / 2) * vSpacing;
+                const rightStartY = topY - Math.floor((rightCount - 1) / 2) * vSpacing;
+                positions = toShow.map((c: any, i: number) => {
+                    if (i < leftCount) {
+                        return { x: leftX, y: leftStartY + i * vSpacing };
+                    }
+                    const nri = i - leftCount;
+                    return { x: rightX, y: rightStartY + nri * vSpacing };
+                });
             }
-            const ri = i - leftCount;
-            return { x: rightX, y: rightStartY + ri * vSpacing };
-        });
     } else {
         // Matrix layout for normal/default case or <5 nodes
         console.debug('[expandCompetencies] Using MATRIX layout (rows:', rows, 'cols:', cols, 'hSpacing:', hSpacing, 'vSpacing:', vSpacing, ')');
