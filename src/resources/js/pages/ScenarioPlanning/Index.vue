@@ -661,21 +661,46 @@ const TRANSITION_BUFFER = 60; // small buffer to ensure browser finished
 
 // ===== CENTRALIZED LAYOUT CONFIG - Tuneable from one place =====
 const LAYOUT_CONFIG = {
-    // Competency node layout (radial mode when >5 nodes with selection)
+    // ===== CAPABILITY NODE LAYOUT (parent level) =====
+    capability: {
+        spacing: {
+            hSpacing: 100, // horizontal spacing in matrix layout
+            vSpacing: 80, // vertical spacing in matrix layout
+        },
+        // Force simulation for D3 layout engine
+        forces: {
+            linkDistance: 120, // distance between connected nodes
+            linkStrength: 0.5, // 0-1, how much links pull nodes
+            chargeStrength: -220, // negative = repulsion, pushes nodes apart
+        },
+        // Scenario -> Capability curved edge
+        scenarioEdgeDepth: 90, // curvature depth (px)
+    },
+
+    // ===== COMPETENCY NODE LAYOUT (child level) =====
+    // Radial mode activates when >5 nodes with one selected
     competency: {
         radial: {
-            radius: 240, // distance from center to other competencies
-            selectedOffsetY: 40, // vertical offset for selected node to leave room for skills
+            radius: 340, // distance from center to other competencies
+            selectedOffsetY: 10, // vertical offset for selected node to leave room for skills
             startAngle: -Math.PI / 4, // -45° (bottom-left)
             endAngle: (5 * Math.PI) / 4, // 225° (covers lower 3/4 of circle)
         },
         spacing: {
             hSpacing: 100, // matrix layout horizontal
-            vSpacing: 80, // matrix layout vertical
-            parentOffset: 150, // distance below parent
+            vSpacing: 40, // matrix layout vertical
+            parentOffset: 10, // distance below parent capability
+        },
+        // Capability -> Competency curved edge
+        edge: {
+            baseDepth: 40, // base curve depth (px)
+            curveFactor: 0.35, // multiplier: curve = baseDepth + (distance * curveFactor)
+            spreadOffset: 18, // offset for parallel curves
         },
     },
-    // Skill node layout (radial mode when >4 skills)
+
+    // ===== SKILL NODE LAYOUT (grandchild level) =====
+    // Radial mode activates when >4 skills
     skill: {
         maxDisplay: 10, // maximum skills to show
         radial: {
@@ -685,13 +710,18 @@ const LAYOUT_CONFIG = {
             offsetY: 120, // vertical offset from competency
         },
         linear: {
-            // Used for <=4 skills
-            hSpacing: 100,
-            vSpacing: 60,
+            hSpacing: 100, // Used for <=4 skills (horizontal)
+            vSpacing: 60, // Used for <=4 skills (vertical)
+        },
+        // Competency -> Skill curved edge
+        edge: {
+            baseDepth: 20, // base curve depth (px)
+            curveFactor: 0.25, // multiplier: curve = baseDepth + (distance * curveFactor)
+            spreadOffset: 10, // offset for parallel curves
         },
     },
 };
-// ===== END LAYOUT CONFIG =====
+// ===== END LAYOUT CONFIG ===== All layout parameters centralized here for easy tuning
 
 function wait(ms: number) {
     return new Promise((res) => setTimeout(res, ms));
@@ -1685,9 +1715,9 @@ function edgeAnimOpacity(e: Edge) {
             if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
                 // detectar si la arista apunta a un grandChild (skill) para usar parámetros específicos
                 const isGrand = !!grandChildNodeById(e.target) || !!grandChildNodeById(e.source) || grandChildEdges.value.includes(e as any);
-                // control point adaptativo para curvas más pronunciadas, configurable via props.visualConfig.edge
-                const baseDepth = isGrand ? (props.visualConfig?.edgeSkill?.baseDepth ?? 28) : (props.visualConfig?.edge?.baseDepth ?? 40);
-                const curveFactor = isGrand ? (props.visualConfig?.edgeSkill?.curveFactor ?? 0.30) : (props.visualConfig?.edge?.curveFactor ?? 0.35);
+                // control point adaptativo para curvas más pronunciadas, configurable via LAYOUT_CONFIG
+                const baseDepth = isGrand ? LAYOUT_CONFIG.skill.edge.baseDepth : LAYOUT_CONFIG.competency.edge.baseDepth;
+                const curveFactor = isGrand ? LAYOUT_CONFIG.skill.edge.curveFactor : LAYOUT_CONFIG.competency.edge.curveFactor;
                 const distance = Math.abs((y2 ?? 0) - (y1 ?? 0));
                 const depth = Math.max(baseDepth, Math.round(distance * curveFactor) + baseDepth);
                 const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) + depth;
@@ -1703,7 +1733,7 @@ function edgeAnimOpacity(e: Edge) {
                 const r = renderedNodeById(e.target);
                 return ed.source === e.source && rt && r && Math.abs((rt.x ?? 0) - (r.x ?? 0)) <= 8;
             });
-            const centerOffset = ((idx - (candidates.length - 1) / 2) * (props.visualConfig?.edge?.spreadOffset ?? 18));
+            const centerOffset = ((idx - (candidates.length - 1) / 2) * (isGrand ? LAYOUT_CONFIG.skill.edge.spreadOffset : LAYOUT_CONFIG.competency.edge.spreadOffset));
             return { isPath: false, x1, y1, x2: (x2 ?? 0) + centerOffset, y2 } as any;
         }
         // modo gap grande: aumentar el desplazamiento vertical del target
@@ -1723,13 +1753,13 @@ function edgeAnimOpacity(e: Edge) {
     }
 }
 
-// Devuelve un path curvo para aristas scenario->capability (configurable por props.scenarioEdgeCurveDepth)
+// Devuelve un path curvo para aristas scenario->capability (configurable por LAYOUT_CONFIG.capability.scenarioEdgeDepth)
 function scenarioEdgePath(e: Edge) {
     try {
         const s = renderedNodeById(e.source);
         const t = renderedNodeById(e.target);
         if (!s || !t || typeof s.x !== 'number' || typeof t.x !== 'number') return '';
-        const depth = props.scenarioEdgeCurveDepth ?? + 40;
+        const depth = LAYOUT_CONFIG.capability.scenarioEdgeDepth;
         const cpY = Math.min((s.y ?? 0), (t.y ?? 0)) + depth;
         return `M ${s.x} ${s.y} C ${s.x} ${cpY} ${t.x} ${cpY} ${t.x} ${t.y}`;
     } catch (err: unknown) { void err; }
@@ -1878,10 +1908,10 @@ function runForceLayout() {
                 (d3 as any)
                     .forceLink(simLinks)
                     .id((d: any) => d.id)
-                    .distance(120)
-                    .strength(0.5),
+                    .distance(LAYOUT_CONFIG.capability.forces.linkDistance)
+                    .strength(LAYOUT_CONFIG.capability.forces.linkStrength),
             )
-            .force('charge', (d3 as any).forceManyBody().strength(-220))
+            .force('charge', (d3 as any).forceManyBody().strength(LAYOUT_CONFIG.capability.forces.chargeStrength))
             .force('center', (d3 as any).forceCenter(width.value / 2, height.value / 2));
 
         // run a fixed number of synchronous ticks to stabilise layout
@@ -3329,9 +3359,9 @@ if (!edges.value) edges.value = [];
                         </feMerge>
                     </filter>
 
-                    <!-- arrow marker for child edges -->
-                    <marker id="childArrow" markerUnits="strokeWidth" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-                        <path d="M0,0 L8,4 L0,8 z" fill="url(#childGrad)" />
+                    <!-- dot marker for child edges -->
+                    <marker id="childArrow" markerUnits="strokeWidth" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                        <circle cx="4" cy="4" r="2.5" fill="url(#childGrad)" />
                     </marker>
 
                     <!-- arrow marker for scenario edges -->
