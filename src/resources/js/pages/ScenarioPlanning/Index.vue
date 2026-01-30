@@ -80,8 +80,12 @@ function restoreView() {
     if (parentNode) {
         try {
             const compCount = Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0;
-            const layoutForClick = compCount > 5 ? 'sides' : 'matrix';
-            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: layoutForClick as any });
+            if (compCount >= 4) {
+                // use matrix layout for 4 or more nodes (matrixVariants will select 4x2 or 5x2)
+                expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: 'matrix' as any });
+            } else {
+                expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
+            }
         } catch (err: unknown) {
             // fallback to default behaviour
             expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
@@ -691,6 +695,15 @@ const LAYOUT_CONFIG = {
         },
         // default layout: 'auto' = use heuristic, or 'radial'|'matrix'|'sides'
         defaultLayout: 'auto',
+        // maximum number of competency nodes to display (extra are truncated)
+        maxDisplay: 10,
+        // matrix sizing rules based on number of nodes
+        matrixVariants: [
+            // 4..8 nodes -> 4 cols x 2 rows
+            { min: 4, max: 8, rows: 2, cols: 4 },
+            // 9..10 nodes -> 5 cols x 2 rows
+            { min: 9, max: 10, rows: 2, cols: 5 },
+        ],
         spacing: {
             hSpacing: 100, // matrix layout horizontal
             vSpacing: 40, // matrix layout vertical
@@ -2099,16 +2112,15 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     try {
                         if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=handleNodeClick, target=parentNode', { nodeId: parentNode?.id, comps: Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0, opts: { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 }, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
                     } catch (err: unknown) { void err; }
-                    // Only rearrange children when there are more than 5 competencies
+                    // If parent has 4 or more competencies, show matrix layout (matrixVariants chooses 4x2 or 5x2)
                     try {
                         const compCount = Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0;
-                        if (compCount > 5) {
-                            const chosenLayout = 'sides';
-                            console.debug && console.debug('[expandCompetencies.call] source=handleNodeClick (conditional)', { nodeId: parentNode?.id, comps: compCount, chosenLayout });
-                            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: chosenLayout });
+                        if (compCount >= 4) {
+                            console.debug && console.debug('[expandCompetencies.call] source=handleNodeClick (matrix)', { nodeId: parentNode?.id, comps: compCount });
+                            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: 'matrix' });
                         } else {
-                            // Do not call expandCompetencies when 5 or fewer competencies to preserve positions
-                            console.debug && console.debug('[expandCompetencies.call] skipped (<=5 competencies)', { nodeId: parentNode?.id, comps: compCount });
+                            // keep positions for small counts
+                            console.debug && console.debug('[expandCompetencies.call] skipped (<4 competencies)', { nodeId: parentNode?.id, comps: compCount });
                         }
                     } catch (err: unknown) {
                         expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
@@ -2205,8 +2217,14 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=childClick, target=updatedParent', { nodeId: updatedParent?.id, comps: Array.isArray(updatedParent?.competencies) ? updatedParent!.competencies.length : 0, opts: parentPrevPos, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
             } catch (err: unknown) { void err; }
             try {
-                const chosenLayout = (Array.isArray(updatedParent?.competencies) && updatedParent!.competencies.length > 5) ? 'sides' : 'matrix';
-                expandCompetencies(updatedParent as NodeItem, parentPrevPos, { layout: chosenLayout });
+                const compCount = Array.isArray(updatedParent?.competencies) ? updatedParent!.competencies.length : 0;
+                if (compCount >= 4) {
+                    // for 4..8 -> 4x2, 9..maxDisplay -> 5x2 (handled inside expandCompetencies via matrixVariants)
+                    expandCompetencies(updatedParent as NodeItem, parentPrevPos, { layout: 'matrix' });
+                } else {
+                    // keep default behavior for small counts to preserve positions
+                    expandCompetencies(updatedParent as NodeItem, parentPrevPos);
+                }
             } catch (err: unknown) {
                 expandCompetencies(updatedParent as NodeItem, parentPrevPos);
             }
@@ -2259,12 +2277,16 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 try {
                     if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=childClick.grandchildren, target=freshChild', { nodeId: freshChild?.id, comps: Array.isArray(freshChild?.competencies) ? freshChild!.competencies.length : 0, opts: parentPrevPos, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
                 } catch (err: unknown) { void err; }
-                try {
-                    const chosenLayout = (Array.isArray(freshChild?.competencies) && freshChild!.competencies.length > 5) ? 'sides' : 'matrix';
-                    expandCompetencies(freshChild as NodeItem, parentPrevPos, { layout: chosenLayout });
-                } catch (err: unknown) {
-                    expandCompetencies(freshChild as NodeItem, parentPrevPos);
-                }
+                    try {
+                        const compCount = Array.isArray(freshChild?.competencies) ? freshChild!.competencies.length : 0;
+                        if (compCount >= 4) {
+                            expandCompetencies(freshChild as NodeItem, parentPrevPos, { layout: 'matrix' });
+                        } else {
+                            expandCompetencies(freshChild as NodeItem, parentPrevPos);
+                        }
+                    } catch (err: unknown) {
+                        expandCompetencies(freshChild as NodeItem, parentPrevPos);
+                    }
             }
         } else {
             // fallback: treat as normal node click
@@ -2526,8 +2548,12 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     childEdges.value = [];
     const comps = (node as any).competencies ?? [];
     if (!Array.isArray(comps) || comps.length === 0) return;
-    const limit = Math.min(opts.limit ?? 10, 10);
+    const maxDisplay = (LAYOUT_CONFIG.competency && typeof LAYOUT_CONFIG.competency.maxDisplay === 'number') ? LAYOUT_CONFIG.competency.maxDisplay : 10;
+    const limit = Math.min(opts.limit ?? maxDisplay, maxDisplay);
     const toShow = comps.slice(0, limit);
+    if (comps.length > maxDisplay) {
+        try { showError && showError(`Solo se muestran hasta ${maxDisplay} competencias`); } catch (err: unknown) { void err; }
+    }
 
     console.debug('[expandCompetencies] count:', toShow.length, 'selectedChild:', selectedChild.value ? 'YES' : 'NO');
 
@@ -2546,14 +2572,22 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     const CHILD_DROP = props.visualConfig?.childDrop ?? props.competencyLayout?.skillDrop ?? 18;
     const topY = Math.round(parentY + verticalOffset + CHILD_DROP);
 
-    const rows = opts.rows ?? props.competencyLayout?.rows ?? DEFAULT_COMPETENCY_LAYOUT.rows;
-    const cols = opts.cols ?? props.competencyLayout?.cols ?? DEFAULT_COMPETENCY_LAYOUT.cols;
+    let rows = opts.rows ?? props.competencyLayout?.rows ?? DEFAULT_COMPETENCY_LAYOUT.rows;
+    let cols = opts.cols ?? props.competencyLayout?.cols ?? DEFAULT_COMPETENCY_LAYOUT.cols;
     let hSpacing = props.competencyLayout?.hSpacing ?? DEFAULT_COMPETENCY_LAYOUT.hSpacing;
     let vSpacing = props.competencyLayout?.vSpacing ?? DEFAULT_COMPETENCY_LAYOUT.vSpacing;
 
     // Detect if there's a selected child (focusedNode is one of the competencies)
     const selectedChildCompId = selectedChild.value?.compId ?? null;
     const hasSelectedChild = selectedChildCompId !== null && toShow.some((c: any) => c.id === selectedChildCompId);
+
+    // If count falls into configured matrixVariants, force rows/cols accordingly
+    const matrixVariants = (LAYOUT_CONFIG.competency && Array.isArray(LAYOUT_CONFIG.competency.matrixVariants)) ? LAYOUT_CONFIG.competency.matrixVariants : [];
+    const variant = matrixVariants.find((v: any) => toShow.length >= v.min && toShow.length <= v.max);
+    if (variant) {
+        rows = variant.rows;
+        cols = variant.cols;
+    }
 
     // Decide layout: explicit option overrides visualConfig/layout config, 'auto' uses heuristic
     const configDefaultLayout = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.defaultLayout) ? LAYOUT_CONFIG.competency.defaultLayout : 'auto';
