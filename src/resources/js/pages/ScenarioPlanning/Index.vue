@@ -74,21 +74,14 @@ function restoreView() {
     try { collapseGrandChildren(); } catch (err: unknown) { void err; }
     // clear render flags
     nodes.value = nodes.value.map((n: any) => ({ ...n, visible: true }));
-    // restore original positions if present
-    if (originalPositions.value && originalPositions.value.size > 0) {
-        nodes.value = nodes.value.map((n) => {
-            const p = originalPositions.value.get(n.id);
-            if (p) return { ...n, x: p.x, y: p.y } as any;
-            return n;
-        });
-        if (scenarioNode.value) {
-            const sp = originalPositions.value.get(scenarioNode.value.id);
-            if (sp) {
-                scenarioNode.value.x = sp.x;
-                scenarioNode.value.y = sp.y;
-            }
-        }
-        originalPositions.value.clear();
+    // Choose sides layout when parent has more than 5 competencies; otherwise keep matrix to preserve positions
+    try {
+        const compCount = Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0;
+        const layoutForClick = compCount > 5 ? 'sides' : 'matrix';
+        expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: layoutForClick as any });
+    } catch (err: unknown) {
+        // fallback to default behaviour
+        expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
     }
     viewX.value = 0;
     viewY.value = 0;
@@ -681,15 +674,17 @@ const LAYOUT_CONFIG = {
     // Radial mode activates when >5 nodes with one selected
     competency: {
         radial: {
-            radius: 300, // distance from center to other competencies
-            selectedOffsetY: 10, // vertical offset for selected node to leave room for skills
+            radius: 200, // distance from center to other competencies
+            selectedOffsetY:20, // vertical offset for selected node to leave room for skills
             startAngle: -Math.PI / 4, // -45° (bottom-left)
             endAngle: (5 * Math.PI) / 4, // 225° (covers lower 3/4 of circle)
         },
+        // default layout: 'auto' = use heuristic, or 'radial'|'matrix'|'sides'
+        defaultLayout: 'auto',
         spacing: {
             hSpacing: 100, // matrix layout horizontal
             vSpacing: 40, // matrix layout vertical
-            parentOffset: 10, // distance below parent capability
+            parentOffset: 5, // distance below parent capability
         },
         // Capability -> Competency curved edge
         edge: {
@@ -1287,60 +1282,130 @@ async function saveFocusedNode() {
 }
 
 async function deleteFocusedNode() {
-    if (!focusedNode.value) return;
-    let id = (focusedNode.value as any).id;
-    // if a child node (negative id), find its parent capability id
-    if (typeof id === 'number' && id < 0) {
-        const parentEdge = childEdges.value.find((e) => e.target === id);
-        if (parentEdge) id = parentEdge.source;
+    if (!focusedNode.value && !selectedChild.value) return;
+    
+    // Determine which node to delete
+    const nodeToDelete = selectedChild.value || focusedNode.value;
+    if (!nodeToDelete) return;
+    
+    const id = (nodeToDelete as any).id;
+    const isChild = typeof id === 'number' && id < 0;
+    
+    // Debug log
+    console.debug('[deleteFocusedNode] selectedChild:', selectedChild.value ? 'YES' : 'NO', 'id:', id, 'isChild:', isChild);
+    
+    // For child nodes, use the compId or absolute value, NOT the parent
+    let compId: number | null = null;
+    if (isChild) {
+        compId = (nodeToDelete as any).compId ?? Math.abs(id);
     }
-    // confirm destructive action
-    const ok = window.confirm('¿Eliminar esta capacidad y su relación con el escenario? Esta acción es irreversible.');
+    
+    // Determine what we're deleting
+    const isCompetency = isChild || selectedChild.value !== null;
+    const nodeName = isCompetency ? 'competencia' : 'capacidad';
+    const confirmMsg = isCompetency 
+        ? '¿Eliminar esta competencia? Esta acción es irreversible.'
+        : '¿Eliminar esta capacidad y su relación con el escenario? Esta acción es irreversible.';
+    
+    console.debug('[deleteFocusedNode] isCompetency:', isCompetency, 'nodeName:', nodeName, 'compId:', compId);
+    
+    // Confirm destructive action
+    const ok = window.confirm(confirmMsg);
     if (!ok) return;
+    
     savingNode.value = true;
     try {
-        let pivotErrStatus: number | null = null;
-        let capErrStatus: number | null = null;
-        // 1) attempt to delete pivot relation first (best-effort)
-        try {
-            await api.delete(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`);
-        } catch (e: unknown) {
-            const _e: any = e as any;
-            pivotErrStatus = _e?.response?.status ?? null;
-        }
-
-        // 2) attempt to delete capability entity
-        try {
-            await api.delete(`/api/capabilities/${id}`);
-            // remove locally if present
-            nodes.value = nodes.value.filter((n) => n.id !== id);
-            // remove any childNodes and edges referencing this capability
-            childNodes.value = childNodes.value.filter((c) => !(c.__parentId === id || c.parentId === id || (c.raw && c.raw.capability_id === id)));
-            edges.value = edges.value.filter((e) => e.source !== id && e.target !== id);
-            childEdges.value = childEdges.value.filter((e) => e.source !== id && e.target !== id);
-        } catch (e: unknown) {
-            const _e: any = e as any;
-            capErrStatus = _e?.response?.status ?? null;
-        }
-
-        // If both endpoints returned 404 (not found), assume backend doesn't expose delete and remove locally
-        if ((pivotErrStatus === 404 || pivotErrStatus === null) && (capErrStatus === 404 || capErrStatus === null)) {
-            // remove locally anyway
-            nodes.value = nodes.value.filter((n) => n.id !== id);
-            childNodes.value = childNodes.value.filter((c) => !(c.__parentId === id || c.parentId === id || (c.raw && c.raw.capability_id === id)));
-            edges.value = edges.value.filter((e) => e.source !== id && e.target !== id);
-            childEdges.value = childEdges.value.filter((e) => e.source !== id && e.target !== id);
-            showError('Eliminado localmente. El backend no expone endpoints DELETE; implementar API para eliminación permanente.');
+        if (isCompetency) {
+            // DELETE COMPETENCY (child node)
+            const deleteId = compId || Math.abs(id);
+            console.debug('[deleteFocusedNode] Deleting competency with ID:', deleteId);
+            
+            // Get the parent capability ID
+            const parentEdge = childEdges.value.find((e) => e.target === id);
+            const capabilityId = parentEdge ? parentEdge.source : focusedNode.value?.id;
+            
+            console.debug('[deleteFocusedNode] Parent capability ID:', capabilityId);
+            
+            if (!capabilityId) {
+                showError('No se puede determinar la capacidad padre');
+                savingNode.value = false;
+                return;
+            }
+            
+            try {
+                const res = await api.delete(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${capabilityId}/competencies/${deleteId}`);
+                console.debug('[deleteFocusedNode] DELETE competency response:', res);
+            } catch (e: unknown) {
+                const _e: any = e as any;
+                console.debug('[deleteFocusedNode] DELETE competency error status:', _e?.response?.status);
+                if (_e?.response?.status !== 404) throw e;
+                // 404 = backend doesn't expose delete, remove locally
+            }
+            
+            // Remove from local state
+            childNodes.value = childNodes.value.filter((c) => {
+                const cId = c.compId ?? Math.abs(c.id);
+                return cId !== deleteId;
+            });
+            childEdges.value = childEdges.value.filter((e) => e.target !== id && e.source !== id);
+            grandChildNodes.value = grandChildNodes.value.filter((g) => {
+                // Remove skills associated with this competency
+                return g.parentId !== deleteId && g.parentId !== id;
+            });
+            grandChildEdges.value = grandChildEdges.value.filter((e) => e.source !== id && e.target !== id);
+            
+            console.debug('[deleteFocusedNode] Competency deleted locally');
+            showSuccess('Competencia eliminada');
         } else {
-            showSuccess('Capacidad y relación eliminadas');
+            // DELETE CAPABILITY (parent node)
+            console.debug('[deleteFocusedNode] Deleting capability with ID:', id);
+            let pivotErrStatus: number | null = null;
+            let capErrStatus: number | null = null;
+            
+            // 1) attempt to delete pivot relation first (best-effort)
+            try {
+                await api.delete(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`);
+            } catch (e: unknown) {
+                const _e: any = e as any;
+                pivotErrStatus = _e?.response?.status ?? null;
+            }
+
+            // 2) attempt to delete capability entity
+            try {
+                await api.delete(`/api/capabilities/${id}`);
+                // remove locally if present
+                nodes.value = nodes.value.filter((n) => n.id !== id);
+                // remove any childNodes and edges referencing this capability
+                childNodes.value = childNodes.value.filter((c) => !(c.__parentId === id || c.parentId === id || (c.raw && c.raw.capability_id === id)));
+                edges.value = edges.value.filter((e) => e.source !== id && e.target !== id);
+                childEdges.value = childEdges.value.filter((e) => e.source !== id && e.target !== id);
+            } catch (e: unknown) {
+                const _e: any = e as any;
+                capErrStatus = _e?.response?.status ?? null;
+            }
+
+            // If both endpoints returned 404 (not found), assume backend doesn't expose delete and remove locally
+            if ((pivotErrStatus === 404 || pivotErrStatus === null) && (capErrStatus === 404 || capErrStatus === null)) {
+                // remove locally anyway
+                nodes.value = nodes.value.filter((n) => n.id !== id);
+                childNodes.value = childNodes.value.filter((c) => !(c.__parentId === id || c.parentId === id || (c.raw && c.raw.capability_id === id)));
+                edges.value = edges.value.filter((e) => e.source !== id && e.target !== id);
+                childEdges.value = childEdges.value.filter((e) => e.source !== id && e.target !== id);
+                showError('Eliminado localmente. El backend no expone endpoints DELETE; implementar API para eliminación permanente.');
+            } else {
+                showSuccess('Capacidad y relación eliminadas');
+            }
         }
 
-        // refresh tree (best-effort)
+        // Refresh tree (best-effort)
         await loadTreeFromApi(props.scenario?.id);
-        // clear focus
+        
+        // Clear focus and selection
         focusedNode.value = null;
+        selectedChild.value = null;
     } catch (err: unknown) {
-        showError('Error al eliminar la capacidad');
+        console.error('[deleteFocusedNode] Error:', err);
+        showError(`Error al eliminar ${nodeName}`);
     } finally {
         savingNode.value = false;
     }
@@ -1711,10 +1776,10 @@ function edgeAnimOpacity(e: Edge) {
         const end = edgeEndpoint(e, true);
         const x1 = start.x; const y1 = start.y; const x2 = end.x; const y2 = end.y;
         const mode = childEdgeMode.value;
+        // detectar si la arista apunta a un grandChild (skill) para parámetros específicos
+        const isGrand = !!grandChildNodeById(e.target) || !!grandChildNodeById(e.source) || grandChildEdges.value.includes(e as any);
             // modo curva
             if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
-                // detectar si la arista apunta a un grandChild (skill) para usar parámetros específicos
-                const isGrand = !!grandChildNodeById(e.target) || !!grandChildNodeById(e.source) || grandChildEdges.value.includes(e as any);
                 // control point adaptativo para curvas más pronunciadas, configurable via LAYOUT_CONFIG
                 const baseDepth = isGrand ? LAYOUT_CONFIG.skill.edge.baseDepth : LAYOUT_CONFIG.competency.edge.baseDepth;
                 const curveFactor = isGrand ? LAYOUT_CONFIG.skill.edge.curveFactor : LAYOUT_CONFIG.competency.edge.curveFactor;
@@ -1739,7 +1804,6 @@ function edgeAnimOpacity(e: Edge) {
         // modo gap grande: aumentar el desplazamiento vertical del target
         if (mode === 1 && typeof x1 === 'number' && typeof x2 === 'number') {
             // reduce the gap adjustment for skill nodes (smaller radius)
-            const isGrand = !!grandChildNodeById(e.target);
             const childRadius = isGrand ? 14 : 20;
             const y2adj = (y2 ?? 0) - (childRadius - 2);
             return { isPath: false, x1, y1, x2, y2: y2adj } as any;
@@ -2022,7 +2086,23 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     await Promise.race([waitForTransitionForNode(parentNode.id), wait(parentLead)]);
                     // Assign selectedChild BEFORE expandCompetencies so radial layout can detect it
                     selectedChild.value = node as any;
-                    expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
+                    try {
+                        if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=handleNodeClick, target=parentNode', { nodeId: parentNode?.id, comps: Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0, opts: { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 }, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
+                    } catch (err: unknown) { void err; }
+                    // Only rearrange children when there are more than 5 competencies
+                    try {
+                        const compCount = Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0;
+                        if (compCount > 5) {
+                            const chosenLayout = 'sides';
+                            console.debug && console.debug('[expandCompetencies.call] source=handleNodeClick (conditional)', { nodeId: parentNode?.id, comps: compCount, chosenLayout });
+                            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: chosenLayout });
+                        } else {
+                            // Do not call expandCompetencies when 5 or fewer competencies to preserve positions
+                            console.debug && console.debug('[expandCompetencies.call] skipped (<=5 competencies)', { nodeId: parentNode?.id, comps: compCount });
+                        }
+                    } catch (err: unknown) {
+                        expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
+                    }
                 }
 
                 if (parentNode) focusedNode.value = parentNode; else focusedNode.value = node as any;
@@ -2111,7 +2191,15 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             await Promise.race([waitForTransitionForNode(parentNode.id), wait(parentLead)]);
             // rebuild children under the parent (positions will use updated parent coords)
             const updatedParent = nodeById(parentNode.id) || parentNode;
-            expandCompetencies(updatedParent as NodeItem, parentPrevPos);
+            try {
+                if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=childClick, target=updatedParent', { nodeId: updatedParent?.id, comps: Array.isArray(updatedParent?.competencies) ? updatedParent!.competencies.length : 0, opts: parentPrevPos, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
+            } catch (err: unknown) { void err; }
+            try {
+                const chosenLayout = (Array.isArray(updatedParent?.competencies) && updatedParent!.competencies.length > 5) ? 'sides' : 'matrix';
+                expandCompetencies(updatedParent as NodeItem, parentPrevPos, { layout: chosenLayout });
+            } catch (err: unknown) {
+                expandCompetencies(updatedParent as NodeItem, parentPrevPos);
+            }
             // find the freshly created child node by id
             const freshChild = childNodeById(node.id);
             // set selected child for sidebar and keep focusedNode as parent so layout remains stable
@@ -2158,7 +2246,15 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 const childId = (freshChild as NodeItem).id;
                 const childLead = Math.max(0, Math.round(TRANSITION_MS * 0.5));
                 await Promise.race([waitForTransitionForNode(childId), wait(childLead)]);
-                expandCompetencies(freshChild as NodeItem, parentPrevPos);
+                try {
+                    if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=childClick.grandchildren, target=freshChild', { nodeId: freshChild?.id, comps: Array.isArray(freshChild?.competencies) ? freshChild!.competencies.length : 0, opts: parentPrevPos, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
+                } catch (err: unknown) { void err; }
+                try {
+                    const chosenLayout = (Array.isArray(freshChild?.competencies) && freshChild!.competencies.length > 5) ? 'sides' : 'matrix';
+                    expandCompetencies(freshChild as NodeItem, parentPrevPos, { layout: chosenLayout });
+                } catch (err: unknown) {
+                    expandCompetencies(freshChild as NodeItem, parentPrevPos);
+                }
             }
         } else {
             // fallback: treat as normal node click
@@ -2169,6 +2265,9 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             const nodeLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
             await Promise.race([waitForTransitionForNode(node.id), wait(nodeLead)]);
             updated = nodeById(node.id) || node;
+            try {
+                if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=childClick.fallback, target=updated', { nodeId: updated?.id, comps: Array.isArray(updated?.competencies) ? updated!.competencies.length : 0, opts: nodePrevPos, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
+            } catch (err: unknown) { void err; }
             expandCompetencies(updated as NodeItem, nodePrevPos);
         }
     } else {
@@ -2200,12 +2299,18 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 await Promise.race([waitForTransitionForNode(selected.id), wait(centeredLead)]);
                 // then expand competencies using the updated focused node coordinates (limit to 10 in 2x5)
                 updated = nodeById(selected.id) || selected;
+                try {
+                    if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=capabilityClick, target=updated', { nodeId: updated?.id, comps: Array.isArray(updated?.competencies) ? updated!.competencies.length : 0, opts: { limit: 10, rows: 2, cols: 5 }, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
+                } catch (err: unknown) { void err; }
                 expandCompetencies(updated as NodeItem, nodePrevPos, { limit: 10, rows: 2, cols: 5 });
             } catch (err: unknown) {
                 // fallback: original flow
                 const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
                 await Promise.race([waitForTransitionForNode(node.id), wait(centeredLead)]);
                 updated = nodeById(node.id) || node;
+                try {
+                    if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=capabilityClick.fallback, target=updated', { nodeId: updated?.id, comps: Array.isArray(updated?.competencies) ? updated!.competencies.length : 0, opts: nodePrevPos, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
+                } catch (err: unknown) { void err; }
                 expandCompetencies(updated as NodeItem, nodePrevPos);
             }
     }
@@ -2406,13 +2511,15 @@ function handleSkillClick(skill: any, event?: MouseEvent) {
 
 // Fullscreen toggle removed: UX disabled. We rely only on the browser Fullscreen API when used externally.
 
-function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: number }, opts: { limit?: number; rows?: number; cols?: number } = {}) {
+function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: number }, opts: { limit?: number; rows?: number; cols?: number; layout?: 'auto' | 'radial' | 'matrix' | 'sides' } = {}) {
     childNodes.value = [];
     childEdges.value = [];
     const comps = (node as any).competencies ?? [];
     if (!Array.isArray(comps) || comps.length === 0) return;
     const limit = Math.min(opts.limit ?? 10, 10);
     const toShow = comps.slice(0, limit);
+
+    console.debug('[expandCompetencies] count:', toShow.length, 'selectedChild:', selectedChild.value ? 'YES' : 'NO');
 
     // Use matrix layout (default 2 rows x 5 cols) centered under parent's x
     const cx = node.x ?? Math.round(width.value / 2);
@@ -2438,9 +2545,16 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     const selectedChildCompId = selectedChild.value?.compId ?? null;
     const hasSelectedChild = selectedChildCompId !== null && toShow.some((c: any) => c.id === selectedChildCompId);
 
-    // If selected child exists and many nodes (>5), use radial layout to prevent overlaps
+    // Decide layout: explicit option overrides visualConfig/layout config, 'auto' uses heuristic
+    const configDefaultLayout = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.defaultLayout) ? LAYOUT_CONFIG.competency.defaultLayout : 'auto';
+    // Use provided option or fallback to the centralized default; avoid referencing a non-existent prop
+    let layout = opts.layout ?? configDefaultLayout;
+    if (layout === 'auto') layout = (hasSelectedChild && toShow.length > 3) ? 'radial' : 'matrix';
+    console.debug('[expandCompetencies] hasSelectedChild:', hasSelectedChild, 'layout:', layout);
+
     let positions: any[] = [];
-    if (hasSelectedChild && toShow.length > 5) {
+    if (layout === 'radial') {
+        console.debug('[expandCompetencies] Using RADIAL layout');
         // Radial layout: selected in center, others distributed around (avoiding top where parent is)
         const selectedIdx = toShow.findIndex((c: any) => c.id === selectedChildCompId);
         const radius = LAYOUT_CONFIG.competency.radial.radius;
@@ -2465,12 +2579,32 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
             const y = Math.round(topY + radius * Math.sin(angle));
             return { x, y };
         });
+    } else if (layout === 'sides') {
+        console.debug('[expandCompetencies] Using SIDES layout');
+        // Split into two columns (left/right) around parent X
+        const leftCount = Math.floor(toShow.length / 2);
+        const rightCount = toShow.length - leftCount;
+        const colOffset = Math.max(220, Math.round(hSpacing * 1.6));
+        const leftX = cx - colOffset;
+        const rightX = cx + colOffset;
+        // Vertical distribution centered at topY
+        const leftStartY = topY - Math.floor((leftCount - 1) / 2) * vSpacing;
+        const rightStartY = topY - Math.floor((rightCount - 1) / 2) * vSpacing;
+        positions = toShow.map((c: any, i: number) => {
+            if (i < leftCount) {
+                return { x: leftX, y: leftStartY + i * vSpacing };
+            }
+            const ri = i - leftCount;
+            return { x: rightX, y: rightStartY + ri * vSpacing };
+        });
     } else {
         // Matrix layout for normal/default case or <5 nodes
+        console.debug('[expandCompetencies] Using MATRIX layout (rows:', rows, 'cols:', cols, 'hSpacing:', hSpacing, 'vSpacing:', vSpacing, ')');
         if (toShow.length > 5) {
             // Expand spacing to avoid overlaps when no selection
             hSpacing = Math.round(hSpacing * 1.3);
             vSpacing = Math.round(vSpacing * 1.4);
+            console.debug('[expandCompetencies] Expanded spacing for >5 nodes without selection');
         }
         positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing, vSpacing });
     }
