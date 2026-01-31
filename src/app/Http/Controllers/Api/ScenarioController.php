@@ -108,6 +108,7 @@ class ScenarioController extends Controller
     public function getCapabilityTree($id)
     {
         $scenarioId = $id; // Store the scenario ID to use in closures
+        try { \Log::info("GET capability-tree called", ['scenario_id' => $scenarioId, 'user_id' => auth()->id() ?? null]); } catch (\Throwable $e) { /* ignore logging failures */ }
         $scenario = Scenario::with([
             'capabilities' => function ($q) use ($scenarioId) {
                 $q->with([
@@ -131,7 +132,7 @@ class ScenarioController extends Controller
                 'position_x' => $capability->position_x ?? null,
                 'position_y' => $capability->position_y ?? null,
                 'strategic_role' => $capability->pivot?->strategic_role ?? null,
-                'strategic_weight' => $capability->pivot?->strategic_weight ?? null,
+                'strategic_weight' => $capability->pivot?->strategic_weight ?? $capability->pivot?->weight ?? null,
                 'priority' => $capability->pivot?->priority ?? null,
                 'rationale' => $capability->pivot?->rationale ?? null,
                 'required_level' => $capability->pivot?->required_level ?? null,
@@ -146,7 +147,7 @@ class ScenarioController extends Controller
                         'readiness' => round($this->analytics->calculateCompetencyReadiness($id, $comp->id) * 100, 1),
                         // include pivot attributes for capability<->competency relation so frontend can show/edit them
                         'pivot' => [
-                            'strategic_weight' => $comp->pivot?->strategic_weight ?? null,
+                            'strategic_weight' => $comp->pivot?->strategic_weight ?? $comp->pivot?->weight ?? null,
                             'priority' => $comp->pivot?->priority ?? null,
                             'required_level' => $comp->pivot?->required_level ?? null,
                             'is_critical' => $comp->pivot?->is_critical ?? null,
@@ -165,6 +166,11 @@ class ScenarioController extends Controller
                 })
             ];
         });
+
+        try {
+            $count = is_countable($tree) ? count($tree) : 0;
+            \Log::info('Returning capability-tree', ['scenario_id' => $scenarioId, 'items' => $count]);
+        } catch (\Throwable $e) { /* ignore logging failures */ }
 
         return response()->json($tree);
     }

@@ -14,8 +14,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CapabilitySeeder::class,
             DemoSeeder::class,
-           // ScenarioTemplateSeeder::class,
-           // WorkforcePlanningSeeder::class,
+                // Seed demo data first, then scenario-specific seeders
+            ScenarioSeeder::class,
+            // ScenarioTemplateSeeder::class,
+            // WorkforcePlanningSeeder::class,
         ]);
     }
 }

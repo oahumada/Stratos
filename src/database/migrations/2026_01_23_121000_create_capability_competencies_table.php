@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->foreignId('capability_id')->constrained('capabilities')->onDelete('cascade');
             $table->foreignId('competency_id')->constrained('competencies')->onDelete('cascade');
             $table->unsignedSmallInteger('required_level')->default(3);
+            $table->unsignedSmallInteger('priority')->nullable();
             $table->unsignedSmallInteger('weight')->nullable();
             $table->text('rationale')->nullable();
             $table->boolean('is_required')->default(false);

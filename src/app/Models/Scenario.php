@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Schema;
 use App\Models\Capability;
 
 class Scenario extends Model
@@ -26,8 +27,16 @@ class Scenario extends Model
     public function capabilities()
     {
         return $this->belongsToMany(Capability::class, 'scenario_capabilities', 'scenario_id', 'capability_id')
-            ->withPivot(['required_level', 'is_critical', 'strategic_role', 'strategic_weight', 'priority', 'rationale'])
+            ->withPivot($this->scenarioCapabilityPivotColumns())
             ->withTimestamps();
+    }
+
+    private function scenarioCapabilityPivotColumns(): array
+    {
+        $candidates = ['required_level', 'is_critical', 'strategic_role', 'strategic_weight', 'priority', 'rationale'];
+        return array_values(array_filter($candidates, function ($col) {
+            return Schema::hasColumn('scenario_capabilities', $col);
+        }));
     }
 
     // Backwards-compatible alias used by some controllers

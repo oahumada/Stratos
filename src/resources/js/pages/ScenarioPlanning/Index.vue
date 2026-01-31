@@ -3149,9 +3149,12 @@ async function saveSelectedChild() {
         // 2) Update pivot (capability_competencies) if we can find parent
         if (parentId && compId) {
             const pivotPayload = {
-                strategic_weight: typeof editChildPivotStrategicWeight.value !== 'undefined' ? Number(editChildPivotStrategicWeight.value) : undefined,
+                weight: typeof editChildPivotStrategicWeight.value !== 'undefined' ? Number(editChildPivotStrategicWeight.value) : undefined,
                 priority: typeof editChildPivotPriority.value !== 'undefined' ? Number(editChildPivotPriority.value) : undefined,
                 required_level: typeof editChildPivotRequiredLevel.value !== 'undefined' ? Number(editChildPivotRequiredLevel.value) : undefined,
+                // UI uses `is_critical` checkbox, but backend pivot expects `is_required`.
+                // Send both for compatibility: primary is `is_required` so server updates expected column.
+                is_required: !!editChildPivotIsCritical.value,
                 is_critical: !!editChildPivotIsCritical.value,
                 rationale: editChildPivotRationale.value,
             };

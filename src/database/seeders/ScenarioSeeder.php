@@ -11,6 +11,7 @@ use App\Models\ScenarioCapability;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleSkill;
 use App\Models\PersonRoleSkill;
+use App\Models\Roles;
 use Illuminate\Support\Facades\DB;
 
 class ScenarioSeeder extends Seeder
@@ -19,61 +20,93 @@ class ScenarioSeeder extends Seeder
     {
         $orgId = 1;
 
-        // 1. Crear Escenario
-        $scenario = Scenario::create([
-            'organization_id' => $orgId,
-            'name' => 'Adopción de IA Generativa 2026',
-            'description' => 'Plan estratégico para integrar GenAI en el ciclo de vida de producto.',
-            'horizon_months' => 18,
-            'fiscal_year' => now()->year,
-            'created_by' => 1,
-            'updated_by' => 1,
-            'owner_user_id' => 1,
-            'status' => 'draft',
-            'assumptions' => ['tech_stack' => 'OpenAI/Anthropic', 'budget_approved' => true]
-        ]);
+        // 1. Crear Escenario (idempotente)
+        $scenario = Scenario::firstOrCreate(
+            ['organization_id' => $orgId, 'name' => 'Adopción de IA Generativa 2026'],
+            [
+                'description' => 'Plan estratégico para integrar GenAI en el ciclo de vida de producto.',
+                'horizon_months' => 18,
+                'fiscal_year' => now()->year,
+                'created_by' => 1,
+                'updated_by' => 1,
+                'owner_user_id' => 1,
+                'status' => 'draft',
+                'assumptions' => ['tech_stack' => 'OpenAI/Anthropic', 'budget_approved' => true]
+            ]
+        );
 
         // 2. Crear Capability (Incubada)
-        $cap = Capability::create([
-            'organization_id' => $orgId,
-            'name' => 'AI-Enabled Product Development',
-            'category' => 'technical',
-            'discovered_in_scenario_id' => $scenario->id
-        ]);
+        // 2. Crear/obtener Capability (idempotente)
+        $cap = Capability::firstOrCreate(
+            ['organization_id' => $orgId, 'name' => 'AI-Enabled Product Development'],
+            ['category' => 'technical', 'discovered_in_scenario_id' => $scenario->id]
+        );
 
-        ScenarioCapability::create([
-            'scenario_id' => $scenario->id,
-            'capability_id' => $cap->id,
-            'strategic_role' => 'target',
-            'strategic_weight' => 80,
-            'priority' => 5
-        ]);
+        // Asociar capability al scenario si no existe
+        $scenarioCap = ScenarioCapability::firstOrCreate(
+            ['scenario_id' => $scenario->id, 'capability_id' => $cap->id],
+            ['strategic_role' => 'target', 'strategic_weight' => 80, 'priority' => 5]
+        );
 
         // 3. Crear Competencia
-        $comp = Competency::create([
-            'organization_id' => $orgId,
-            'capability_id' => $cap->id,
-            'name' => 'AI Technical Implementation'
-        ]);
+        $comp = Competency::firstOrCreate(
+            ['organization_id' => $orgId, 'name' => 'AI Technical Implementation'],
+            ['description' => 'Competency for AI technical implementation']
+        );
 
         // 4. Crear Skills (Una existente, una incubada)
         $skillExistente = 1; // Asumiendo ID 1 es Python
-        $skillIncubada = DB::table('skills')->insertGetId([
-            'name' => 'Prompt Engineering',
-            'maturity_status' => 'emerging',
-            'discovered_in_scenario_id' => $scenario->id,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        $skillIncubadaId = DB::table('skills')->where('name', 'Prompt Engineering')->value('id');
+        if (!$skillIncubadaId) {
+            $skillData = [
+                'name' => 'Prompt Engineering',
+                'organization_id' => $orgId,
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+            // Add optional columns only if present in schema
+            if (\Illuminate\Support\Facades\Schema::hasColumn('skills', 'maturity_status')) {
+                $skillData['maturity_status'] = 'emerging';
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('skills', 'complexity_level')) {
+                $skillData['complexity_level'] = 'tactical';
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('skills', 'lifecycle_status')) {
+                $skillData['lifecycle_status'] = 'active';
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('skills', 'category')) {
+                $skillData['category'] = 'technical';
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('skills', 'scope_type')) {
+                $skillData['scope_type'] = 'domain';
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('skills', 'is_critical')) {
+                $skillData['is_critical'] = false;
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('skills', 'discovered_in_scenario_id')) {
+                $skillData['discovered_in_scenario_id'] = $scenario->id;
+            }
+            $skillIncubadaId = DB::table('skills')->insertGetId($skillData);
+        }
 
-        CompetencySkill::create(['competency_id' => $comp->id, 'skill_id' => $skillExistente, 'weight' => 40]);
-        CompetencySkill::create(['competency_id' => $comp->id, 'skill_id' => $skillIncubada, 'weight' => 60]);
+        // Asociar skills a competency si no existen
+        if (!CompetencySkill::where(['competency_id' => $comp->id, 'skill_id' => $skillExistente])->exists()) {
+            CompetencySkill::create(['competency_id' => $comp->id, 'skill_id' => $skillExistente, 'weight' => 40]);
+        }
+        if (!CompetencySkill::where(['competency_id' => $comp->id, 'skill_id' => $skillIncubadaId])->exists()) {
+            CompetencySkill::create(['competency_id' => $comp->id, 'skill_id' => $skillIncubadaId, 'weight' => 60]);
+        }
 
         // 5. Definir Demanda para un Rol (Fase 2)
-        $roleId = 10; // Asumiendo Product Manager
-        ScenarioRole::create([
+        // Ensure a role exists (Product Manager) and use its id
+        $role = Roles::firstOrCreate(
+            ['name' => 'Product Manager', 'organization_id' => $orgId],
+            ['description' => 'Auto-seeded role']
+        );
+        ScenarioRole::firstOrCreate([
             'scenario_id' => $scenario->id,
-            'role_id' => $roleId,
+            'role_id' => $role->id,
+        ], [
             'role_change' => 'evolve'
         ]);
 

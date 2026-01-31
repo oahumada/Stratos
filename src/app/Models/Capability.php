@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class Capability extends Model
 {
@@ -30,8 +31,16 @@ class Capability extends Model
             'capability_id',
             'competency_id'
         )
-            ->withPivot('scenario_id', 'required_level', 'weight', 'rationale', 'is_required', 'created_at', 'updated_at')
+            ->withPivot($this->capabilityCompetencyPivotColumns())
             ->withTimestamps();
+    }
+
+    private function capabilityCompetencyPivotColumns(): array
+    {
+        $cols = ['scenario_id', 'required_level', 'weight', 'strategic_weight', 'priority', 'rationale', 'is_required', 'created_at', 'updated_at'];
+        return array_values(array_filter($cols, function ($c) {
+            return Schema::hasColumn('capability_competencies', $c);
+        }));
     }
 
     public function capabilityCompetencies()
