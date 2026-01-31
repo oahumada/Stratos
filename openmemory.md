@@ -194,6 +194,7 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
 - ✅ Limpiar `selectedChild.value = null` en `contextCreateChild()` (línea ~424)
 - ✅ Crear función `resetCompetencyForm()` (línea ~321)
 - ✅ Llamar reset después de crear exitosamente (línea ~2506)
+- ✅ Añadida creación/adjunto automático de `skills` desde el modal de creación de competencia: `createAndAttachComp()` ahora procesa `newCompSkills` (coma-separadas) y llama a `createAndAttachSkillForComp(compId, payload)` para crear y asociar cada skill nueva.
 - ✅ Agregar watcher para limpiar campos al cerrar modal (línea ~998)
 - ✅ Reescribir `createAndAttachComp()` para usar endpoint único y correcto:
   - Antes: dos llamadas (`POST /api/competencies` + fallback)

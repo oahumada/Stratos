@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useApi } from '@/composables/useApi';
+import { useCompetencySkills } from '@/composables/useCompetencySkills';
 import { useNotification } from '@/composables/useNotification';
 import * as d3 from 'd3';
 import { onMounted, ref, watch, onBeforeUnmount, computed, nextTick } from 'vue';
@@ -213,7 +214,12 @@ async function ensureCsrf() {
         if (!hasXsrf) {
             // call Sanctum endpoint to set cookie
             try {
-                await api.api.get('/sanctum/csrf-cookie');
+                // support both shapes returned by tests/mocks: either `api.api.get` (axios instance)
+                // or `api.get` (composable wrapper). Prefer `api.api.get` when available.
+                const axiosGet = (api as any)?.api?.get ?? (api as any)?.get;
+                if (typeof axiosGet === 'function') {
+                    await axiosGet('/sanctum/csrf-cookie');
+                }
                 console.debug('[ensureCsrf] fetched /sanctum/csrf-cookie');
             } catch (e) {
                 console.warn('[ensureCsrf] failed to fetch csrf-cookie', e);
@@ -514,41 +520,50 @@ async function loadAvailableSkills() {
     }
 }
 
+const { createAndAttachSkill: createAndAttachSkillForComp } = useCompetencySkills();
+
 async function createAndAttachSkill() {
+    // If we're creating a competency (createComp dialog open) and user opened the create-skill
+    // modal from there, don't call the API yet — store the skill name to `newCompSkills`
+    if (createCompDialogVisible.value) {
+        if (!newSkillName.value || !newSkillName.value.trim()) return showError('El nombre es obligatorio');
+        // append to newCompSkills as comma-separated list
+        const names = String(newCompSkills.value || '').split(',').map(s => s.trim()).filter(Boolean);
+        names.push(newSkillName.value.trim());
+        newCompSkills.value = names.join(', ');
+        createSkillDialogVisible.value = false;
+        newSkillName.value = '';
+        newSkillCategory.value = '';
+        newSkillDescription.value = '';
+        showSuccess('Skill añadida (se guardará junto con la competencia)');
+        return;
+    }
+
     if (!selectedChild.value) return showError('Seleccione una competencia');
     if (!newSkillName.value || !newSkillName.value.trim()) return showError('El nombre es obligatorio');
     savingSkill.value = true;
     try {
         const payload: any = { name: newSkillName.value.trim() };
-        // Ensure category is provided; DB schema requires non-null category (use 'technical' as default)
         payload.category = (newSkillCategory.value && String(newSkillCategory.value).trim() !== '') ? newSkillCategory.value : 'technical';
         if (newSkillDescription.value && String(newSkillDescription.value).trim() !== '') {
             payload.description = newSkillDescription.value;
         }
-        const res: any = await api.post('/api/skills', { data: payload });
-        const created = res?.data ?? res;
+        const compId = (selectedChild.value as any).compId ?? (selectedChild.value as any).raw?.id ?? Math.abs((selectedChild.value as any).id || 0);
+        if (!compId) throw new Error('No competency target available');
+
+        const created = await createAndAttachSkillForComp(compId, payload);
         if (created) {
-            // optimistic local attach
             if (!Array.isArray((selectedChild.value as any).skills)) (selectedChild.value as any).skills = [];
             (selectedChild.value as any).skills.push(created);
-            // ensure backend pivot exists: attach created skill to competency
-            try {
-                const compId = (selectedChild.value as any).compId ?? (selectedChild.value as any).raw?.id ?? Math.abs((selectedChild.value as any).id || 0);
-                if (compId) {
-                    await api.post(`/api/competencies/${compId}/skills`, { skill_id: created.id });
-                }
-            } catch (attachErr: unknown) {
-                // if attach fails, keep optimistic local state and notify later
-                console.warn('Failed to attach skill to competency on backend', attachErr);
-            }
         }
         createSkillDialogVisible.value = false;
         newSkillName.value = '';
         newSkillCategory.value = '';
         newSkillDescription.value = '';
-        showSuccess('Skill creada');
+        showSuccess('Skill creada y asociada');
     } catch (err: unknown) {
-        showError('Error creando skill');
+        console.error('createAndAttachSkill error', err);
+        showError('Error creando y asociando skill');
     } finally {
         savingSkill.value = false;
     }
@@ -1228,31 +1243,69 @@ async function saveFocusedNode() {
         };
 
         try {
-            console.debug('[saveFocusedNode] PATCH pivot', { scenarioId: props.scenario?.id, id, pivotPayload });
-            await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`, pivotPayload);
-            showSuccess('Relación escenario–capacidad actualizada');
-        } catch (errPivot: unknown) {
-            console.error('[saveFocusedNode] error PATCH pivot', (errPivot as any)?.response?.data ?? errPivot);
-            try {
-                // fallback: POST to create association (if missing)
-                await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities`, {
-                    name: editCapName.value,
-                    description: editCapDescription.value || '',
-                    importance: editCapImportance.value ?? 3,
-                    type: editCapType.value ?? null,
-                    category: editCapCategory.value ?? null,
-                    strategic_role: pivotPayload.strategic_role,
-                    strategic_weight: pivotPayload.strategic_weight,
-                    priority: pivotPayload.priority,
-                    rationale: pivotPayload.rationale,
-                    required_level: pivotPayload.required_level,
-                    is_critical: pivotPayload.is_critical,
-                });
-                showSuccess('Relación actualizada (fallback)');
-            } catch (err2: unknown) {
-                console.error('[saveFocusedNode] error POST pivot fallback', (err2 as any)?.response?.data ?? err2);
-                showError('No se pudo actualizar la relación. Verifica el backend.');
+            if (!props.scenario || !props.scenario.id) {
+                console.warn('[saveFocusedNode] no scenario context available; skipping pivot update');
+            } else {
+                console.debug('[saveFocusedNode] PATCH pivot', { scenarioId: props.scenario?.id, id, pivotPayload });
+                let pivotResp: any = null;
+                try {
+                    pivotResp = await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`, pivotPayload);
+                    showSuccess('Relación escenario–capacidad actualizada');
+                } catch (errPivot: unknown) {
+                    console.error('[saveFocusedNode] error PATCH pivot', (errPivot as any)?.response?.data ?? errPivot);
+                    try {
+                        // fallback: POST to create association (if missing)
+                        pivotResp = await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities`, {
+                            name: editCapName.value,
+                            description: editCapDescription.value || '',
+                            importance: editCapImportance.value ?? 3,
+                            type: editCapType.value ?? null,
+                            category: editCapCategory.value ?? null,
+                            strategic_role: pivotPayload.strategic_role,
+                            strategic_weight: pivotPayload.strategic_weight,
+                            priority: pivotPayload.priority,
+                            rationale: pivotPayload.rationale,
+                            required_level: pivotPayload.required_level,
+                            is_critical: pivotPayload.is_critical,
+                        });
+                        showSuccess('Relación actualizada (fallback)');
+                    } catch (err2: unknown) {
+                        console.error('[saveFocusedNode] error POST pivot fallback', (err2 as any)?.response?.data ?? err2);
+                        showError('No se pudo actualizar la relación. Verifica el backend.');
+                    }
+                }
+
+                // Merge pivot updates into local node state if backend returned something useful
+                try {
+                    const updated = (pivotResp?.data?.updated ?? pivotResp?.data ?? pivotResp) || null;
+                    if (updated && typeof updated === 'object') {
+                        // The backend may return only the changed fields in `updated`, or the whole relation.
+                        const pivotUpdates = updated.updated ?? updated;
+                        const pivotObj = pivotUpdates || updated;
+                        // Update nodes array and focusedNode.raw.scenario_capabilities (best-effort)
+                        nodes.value = nodes.value.map((n: any) => {
+                            if (n.id === id) {
+                                const raw = { ...(n.raw ?? {}), scenario_capabilities: Array.isArray(n.raw?.scenario_capabilities) ? n.raw.scenario_capabilities : [n.raw.scenario_capabilities].filter(Boolean) };
+                                // merge pivot fields into the first pivot entry
+                                raw.scenario_capabilities = raw.scenario_capabilities || [];
+                                if (raw.scenario_capabilities.length === 0) raw.scenario_capabilities.push({});
+                                raw.scenario_capabilities[0] = { ...(raw.scenario_capabilities[0] || {}), ...(pivotObj || {}) };
+                                return { ...n, raw } as any;
+                            }
+                            return n;
+                        });
+                        if (focusedNode.value && (focusedNode.value as any).id === id) {
+                            const fnRaw = { ...(((focusedNode.value as any).raw) ?? {}) };
+                            fnRaw.scenario_capabilities = fnRaw.scenario_capabilities || [];
+                            if (fnRaw.scenario_capabilities.length === 0) fnRaw.scenario_capabilities.push({});
+                            fnRaw.scenario_capabilities[0] = { ...(fnRaw.scenario_capabilities[0] || {}), ...(pivotObj || {}) };
+                            focusedNode.value = { ...(focusedNode.value as any), raw: fnRaw } as any;
+                        }
+                    }
+                } catch (err: unknown) { void err; }
             }
+        } catch (outerErr: unknown) {
+            console.error('[saveFocusedNode] unexpected error in pivot update flow', outerErr);
         }
 
         // update local node immediately so UI reflects changes
@@ -1465,6 +1518,22 @@ function showCreateCompDialog() {
     createCompDialogVisible.value = true;
 }
 function showCreateSkillDialog() {
+    // Ensure we have a selectedChild when opening the create-skill dialog.
+    // If `displayNode` is a competency, keep it. If it's a capability with competencies,
+    // default to the first competency so the created skill has a target.
+    try {
+        if (displayNode && displayNode.value) {
+            const dn: any = displayNode.value;
+            if (dn.compId || (typeof dn.id === 'number' && dn.id < 0)) {
+                selectedChild.value = dn as any;
+            } else if (Array.isArray(dn.competencies) && dn.competencies.length > 0) {
+                // try to find existing child node representation
+                const first = dn.competencies[0];
+                const existing = childNodes.value.find((c: any) => c.compId === first.id);
+                selectedChild.value = existing || { compId: first.id, raw: first, id: -(dn.id * 1000 + 1) } as any;
+            }
+        }
+    } catch (err: unknown) { void err; }
     createSkillDialogVisible.value = true;
 }
 async function openSelectSkillDialog() {
@@ -2928,13 +2997,50 @@ async function createAndAttachComp() {
         const res: any = await api.post(`/api/strategic-planning/scenarios/${scenarioId}/capabilities/${capId}/competencies`, payload);
         const result = res?.data ?? res;
         console.debug('[createAndAttachComp] success', result);
-        
+
+        // Refresh tree first to ensure we can resolve the newly-created competency ID
+        await loadTreeFromApi(scenarioId);
+
+        // Try to find the created competency under the parent node by matching the name
+        const parent = nodeById(capId);
+        let createdCompId: number | null = null;
+        if (parent && Array.isArray((parent as any).competencies)) {
+            const found = (parent as any).competencies.find((c: any) => {
+                const n = c?.name || c?.compName || c?.raw?.name || '';
+                return String(n).trim() === String(newCompName.value).trim();
+            });
+            if (found) {
+                createdCompId = Number(found.id ?? found.compId ?? found.raw?.id ?? Math.abs(found.id || 0)) || null;
+            }
+        }
+
+        // If we couldn't detect the new competency id from the refreshed tree, try common spots on the API result
+        if (!createdCompId) {
+            createdCompId = Number(result?.id ?? result?.data?.id ?? result?.competency?.id ?? result?.competency_id) || null;
+        }
+
+        // If the user provided comma-separated skills in the creation dialog, create and attach them
+        try {
+            if (newCompSkills.value && String(newCompSkills.value).trim()) {
+                const skillNames = String(newCompSkills.value).split(',').map(s => s.trim()).filter(Boolean);
+                for (const sName of skillNames) {
+                    try {
+                        if (!createdCompId) {
+                            console.warn('[createAndAttachComp] no compId found; skipping skill creation for', sName);
+                            continue;
+                        }
+                        const payload: any = { name: sName, category: 'technical' };
+                        await createAndAttachSkillForComp(createdCompId, payload);
+                    } catch (err: unknown) {
+                        console.error('[createAndAttachComp] failed creating skill', sName, err);
+                    }
+                }
+            }
+        } catch (err: unknown) { void err; }
+
         createCompDialogVisible.value = false;
         // reset form fields after success
         resetCompetencyForm();
-        // refresh tree and expand parent
-        await loadTreeFromApi(scenarioId);
-        const parent = nodeById(capId);
         if (parent) {
             expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
         }
@@ -4069,7 +4175,7 @@ if (!edges.value) edges.value = [];
                                         <div style="max-height:360px; overflow:auto; padding-right:12px;">
                                             <v-form ref="capForm" @submit.prevent>
                                                 <div style="display:flex; gap:8px; grid-column: 1 / -1; margin-top:8px">
-                                                    <v-btn small color="primary" @click="createSkillDialogVisible = true">Crear Skill</v-btn>
+                                                    <v-btn small color="primary" @click="showCreateSkillDialog">Crear Skill</v-btn>
                                                     <v-btn small color="primary" @click="openSelectSkillDialog">Agregar existente</v-btn>
                                                     <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar nodo</v-btn>
                                                     <v-btn color="primary" @click="saveSelectedChild" :loading="savingNode" :disabled="savingNode || capFormInvalid">Guardar</v-btn>

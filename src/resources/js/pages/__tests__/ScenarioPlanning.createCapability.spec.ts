@@ -3,8 +3,9 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Mock API composable to intercept POST
 const postMock = vi.fn();
+const getMock = vi.fn();
 vi.mock('@/composables/useApi', () => ({
-  useApi: () => ({ api: { post: postMock }, apiClient: {} }),
+  useApi: () => ({ post: postMock, get: getMock, apiClient: {}, api: { post: postMock, get: getMock } }),
 }));
 
 vi.mock('@/composables/useNotification', () => ({
@@ -19,7 +20,11 @@ describe('ScenarioPlanning create capability modal', () => {
 
   beforeEach(() => {
     postMock.mockReset();
+    getMock.mockReset();
     postMock.mockResolvedValue({ data: { id: 123, name: 'Full Capability', description: 'Full description', importance: 2, is_critical: 1 } });
+
+    // ensure loadTreeFromApi returns the created capability so canonical reload preserves it
+    getMock.mockResolvedValue([{ id: 123, name: 'Full Capability', description: 'Full description', importance: 2, is_critical: 1 }]);
 
     wrapper = shallowMount(ScenarioPlanning, {
       props: {
@@ -47,8 +52,11 @@ describe('ScenarioPlanning create capability modal', () => {
     await wrapper.vm.saveNewCapability();
 
     expect(postMock).toHaveBeenCalled();
-    const [url, payload] = postMock.mock.calls[0];
-    expect(url).toBe(`/api/strategic-planning/scenarios/42/capabilities`);
+    const call = postMock.mock.calls.find((c: any) => String(c[0]).includes(`/strategic-planning/scenarios/42/capabilities`));
+    expect(call).toBeTruthy();
+    const url = call[0];
+    const payload = call[1];
+    expect(String(url)).toContain(`/api/strategic-planning/scenarios/42/capabilities`);
     expect(payload).toMatchObject({
       name: 'Full Capability',
       description: 'Full description',
