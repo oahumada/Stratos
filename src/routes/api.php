@@ -229,20 +229,24 @@ Route::middleware('auth:sanctum')->group(function () {
             $update['strategic_weight'] = $request->input('weight');
         }
         // Also accept `is_critical` from UI and map to pivot's `is_required` boolean.
-        if ($request->has('is_critical') && ! $request->has('is_required')) {
+        if ($request->has('is_critical') && !$request->has('is_required')) {
             $update['is_required'] = $request->input('is_critical');
         }
 
         // Normalize weight field to whatever column exists in DB to support different snapshots.
         if (array_key_exists('strategic_weight', $update)) {
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'strategic_weight')
-                && \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'weight')) {
+            if (
+                !\Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'strategic_weight')
+                && \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'weight')
+            ) {
                 $update['weight'] = $update['strategic_weight'];
                 unset($update['strategic_weight']);
             }
         } elseif (array_key_exists('weight', $update)) {
-            if (!\Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'weight')
-                && \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'strategic_weight')) {
+            if (
+                !\Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'weight')
+                && \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'strategic_weight')
+            ) {
                 $update['strategic_weight'] = $update['weight'];
                 unset($update['weight']);
             }

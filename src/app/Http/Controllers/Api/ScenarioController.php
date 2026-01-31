@@ -108,7 +108,10 @@ class ScenarioController extends Controller
     public function getCapabilityTree($id)
     {
         $scenarioId = $id; // Store the scenario ID to use in closures
-        try { \Log::info("GET capability-tree called", ['scenario_id' => $scenarioId, 'user_id' => auth()->id() ?? null]); } catch (\Throwable $e) { /* ignore logging failures */ }
+        try {
+            \Log::info("GET capability-tree called", ['scenario_id' => $scenarioId, 'user_id' => auth()->id() ?? null]);
+        } catch (\Throwable $e) { /* ignore logging failures */
+        }
         $scenario = Scenario::with([
             'capabilities' => function ($q) use ($scenarioId) {
                 $q->with([
@@ -170,7 +173,8 @@ class ScenarioController extends Controller
         try {
             $count = is_countable($tree) ? count($tree) : 0;
             \Log::info('Returning capability-tree', ['scenario_id' => $scenarioId, 'items' => $count]);
-        } catch (\Throwable $e) { /* ignore logging failures */ }
+        } catch (\Throwable $e) { /* ignore logging failures */
+        }
 
         return response()->json($tree);
     }
