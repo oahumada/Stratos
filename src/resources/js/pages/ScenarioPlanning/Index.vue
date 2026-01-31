@@ -775,8 +775,38 @@ const LAYOUT_CONFIG = {
             spreadOffset: 10, // offset for parallel curves
         },
     },
+
+    // ===== Animations, node defaults and clamps (centralized) =====
+    animations: {
+        // JS timing values (ms)
+        competencyEntryFinalize: 160,
+        skillEntryFinalize: 140,
+        collapseDuration: 160,
+        // stagger / sequencing
+        competencyStaggerRow: 30,
+        competencyStaggerCol: 12,
+        competencyStaggerRandom: 30,
+        skillStaggerRow: 20,
+        skillStaggerCol: 8,
+        // fallback lead factor used when racing transition vs wait
+        leadFactor: 0.6,
+    },
+
+    node: {
+        radius: 34,
+        focusRadius: 44,
+    },
+
+    clamp: {
+        minY: 40,
+        bottomPadding: 40,
+        minViewportHeight: 120,
+    },
 };
 // ===== END LAYOUT CONFIG ===== All layout parameters centralized here for easy tuning
+// ===== END LAYOUT CONFIG ===== All layout parameters centralized here for easy tuning
+
+// Animations, node defaults and clamps have been moved into the main LAYOUT_CONFIG object above.
 
 function wait(ms: number) {
     return new Promise((res) => setTimeout(res, ms));
@@ -2220,6 +2250,8 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
                 if (parentNode) {
                     const prev = focusedNode.value ? { ...focusedNode.value } : undefined;
+                    // Immediately clear any existing expanded skills so they don't linger
+                    try { collapseGrandChildren(); } catch (err: unknown) { void err; }
                     centerOnNode(parentNode, prev);
                     const parentLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
                     await Promise.race([waitForTransitionForNode(parentNode.id), wait(parentLead)]);
@@ -2800,7 +2832,7 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     toShow.forEach((c: any, i: number) => {
         const pos = positions[i] || { x: cx, y: topY };
         const id = -(node.id * 1000 + i + 1);
-        const delay = Math.max(0, Math.floor(i / cols) * 30 + (i % cols) * 12 + Math.round((Math.random() - 0.5) * 30));
+        const delay = Math.max(0, Math.floor(i / cols) * (LAYOUT_CONFIG.animations.competencyStaggerRow ?? 30) + (i % cols) * (LAYOUT_CONFIG.animations.competencyStaggerCol ?? 12) + Math.round((Math.random() - 0.5) * (LAYOUT_CONFIG.animations.competencyStaggerRandom ?? 30)));
         const existingPos = childNodes.value.find((ch: any) => ch.compId === (c.id ?? null));
         const child = {
             id,
@@ -2841,7 +2873,7 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
             nextTick(() => {
                 childNodes.value.forEach((ch: any) => { delete ch.animTargetX; delete ch.animTargetY; delete ch.animDelay; delete ch.animFilter; });
             });
-        }, 160);
+        }, LAYOUT_CONFIG.animations.competencyEntryFinalize ?? 160);
     });
 }
 
@@ -2920,7 +2952,7 @@ function expandSkills(node: any, initialPos?: { x: number; y: number }, opts: { 
     toShow.forEach((sk: any, i: number) => {
         const pos = positions[i] || { x: cx, y: topY };
         const id = -(Math.abs(node.id) * 100000 + i + 1);
-        const delay = Math.max(0, Math.floor(i / 4) * 20 + (i % 4) * 8);
+        const delay = Math.max(0, Math.floor(i / 4) * (LAYOUT_CONFIG.animations.skillStaggerRow ?? 20) + (i % 4) * (LAYOUT_CONFIG.animations.skillStaggerCol ?? 8));
         const item = {
             id,
             name: sk.name ?? sk,
@@ -2942,13 +2974,14 @@ function expandSkills(node: any, initialPos?: { x: number; y: number }, opts: { 
         setTimeout(() => {
             grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, animScale: 1 }));
             nextTick(() => { grandChildNodes.value.forEach((g: any) => { delete g.animTargetX; delete g.animTargetY; delete g.animDelay; delete g.animFilter; }); });
-        }, 140);
+        }, LAYOUT_CONFIG.animations.skillEntryFinalize ?? 140);
     });
 }
 
 // Animación de colapso para nodos nietos (skills).
-function collapseGrandChildren(animated = true, duration = 80) {
+function collapseGrandChildren(animated = false, duration?: number) {
     try {
+        duration = typeof duration === 'number' ? duration : (LAYOUT_CONFIG.animations.collapseDuration ?? 10);
         if (!animated) {
             grandChildNodes.value = [];
             grandChildEdges.value = [];
@@ -2977,8 +3010,10 @@ function collapseGrandChildren(animated = true, duration = 80) {
 
 // clamp child node Y positions when setting them to avoid placing nodes outside viewport
 function clampY(y: number) {
-    const minY = 40;
-    const maxY = Math.max(120, height.value - 40);
+    const minY = (LAYOUT_CONFIG.clamp && typeof LAYOUT_CONFIG.clamp.minY === 'number') ? LAYOUT_CONFIG.clamp.minY : 40;
+    const bottomPadding = (LAYOUT_CONFIG.clamp && typeof LAYOUT_CONFIG.clamp.bottomPadding === 'number') ? LAYOUT_CONFIG.clamp.bottomPadding : 40;
+    const minViewportHeight = (LAYOUT_CONFIG.clamp && typeof LAYOUT_CONFIG.clamp.minViewportHeight === 'number') ? LAYOUT_CONFIG.clamp.minViewportHeight : 120;
+    const maxY = Math.max(minViewportHeight, height.value - bottomPadding);
     return Math.min(Math.max(y, minY), maxY);
 }
 
