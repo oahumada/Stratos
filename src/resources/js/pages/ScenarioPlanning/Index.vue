@@ -751,6 +751,12 @@ const LAYOUT_CONFIG = {
         },
         // default layout selection for skills: 'auto'|'radial'|'matrix'|'sides'
         defaultLayout: 'auto',
+        // matrix sizing rules for skills (mirror competencies but with 2..4 -> 1x4)
+        matrixVariants: [
+            { min: 2, max: 4, rows: 1, cols: 4 },
+            { min: 5, max: 8, rows: 2, cols: 4 },
+            { min: 9, max: 10, rows: 2, cols: 5 },
+        ],
         // sides tuning for skills (used when layout === 'sides')
         sides: {
             hSpacing: 120,
@@ -2896,10 +2902,18 @@ function expandSkills(node: any, initialPos?: { x: number; y: number }, opts: { 
             positions = computeSidesPositions(toShow.length, cx, parentY, sidesOpts, null);
         } catch (err: unknown) { void err; positions = []; }
     } else {
-        // matrix / linear layout (default for small counts)
-        const rows = 1;
-        const cols = Math.min(4, toShow.length);
-        positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: LAYOUT_CONFIG.skill.linear.hSpacing, vSpacing: LAYOUT_CONFIG.skill.linear.vSpacing });
+        // matrix / linear layout (use matrixVariants to choose rows/cols similar to competencies)
+        const matrixVariants = (LAYOUT_CONFIG.skill && (LAYOUT_CONFIG.skill as any).matrixVariants) ? (LAYOUT_CONFIG.skill as any).matrixVariants : (LAYOUT_CONFIG.competency && (LAYOUT_CONFIG.competency as any).matrixVariants) ? (LAYOUT_CONFIG.competency as any).matrixVariants : [];
+        try {
+            const variant = chooseMatrixVariant(toShow.length, matrixVariants, LAYOUT_CONFIG.skill.maxDisplay);
+            const rows = variant.rows;
+            const cols = variant.cols;
+            positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: LAYOUT_CONFIG.skill.linear.hSpacing, vSpacing: LAYOUT_CONFIG.skill.linear.vSpacing });
+        } catch (err: unknown) {
+            const rows = 1;
+            const cols = Math.min(4, toShow.length);
+            positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: LAYOUT_CONFIG.skill.linear.hSpacing, vSpacing: LAYOUT_CONFIG.skill.linear.vSpacing });
+        }
     }
 
     const built: any[] = [];
