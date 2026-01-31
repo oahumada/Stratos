@@ -49,6 +49,8 @@ interface Props {
         // small drops to push children/skills lower
         childDrop?: number;
         skillDrop?: number;
+        // optional layout selection specifically for skills ('auto' | 'radial' | 'matrix' | 'sides')
+        skillLayout?: 'auto' | 'radial' | 'matrix' | 'sides';
         // explicit override for capability->children offset (pixels)
         capabilityChildrenOffset?: number;
         // edge config
@@ -686,7 +688,7 @@ const LAYOUT_CONFIG = {
         },
         // Force simulation for D3 layout engine
         forces: {
-            linkDistance: 120, // distance between connected nodes
+            linkDistance: 100, // distance between connected nodes
             linkStrength: 0.5, // 0-1, how much links pull nodes
             chargeStrength: -220, // negative = repulsion, pushes nodes apart
         },
@@ -699,7 +701,7 @@ const LAYOUT_CONFIG = {
     competency: {
         radial: {
             radius: 150, // distance from center to other competencies
-            selectedOffsetY:20, // vertical offset for selected node to leave room for skills
+            selectedOffsetY:10, // vertical offset for selected node to leave room for skills
             startAngle: -Math.PI / 4, // -45° (bottom-left)
             endAngle: (5 * Math.PI) / 4, // 225° (covers lower 3/4 of circle)
         },
@@ -725,7 +727,7 @@ const LAYOUT_CONFIG = {
         spacing: {
             hSpacing: 100, // matrix layout horizontal
             vSpacing: 40, // matrix layout vertical
-            parentOffset: 5, // distance below parent capability
+            parentOffset: 25, // distance below parent capability
         },
         // Capability -> Competency curved edge
         edge: {
@@ -740,10 +742,21 @@ const LAYOUT_CONFIG = {
     skill: {
         maxDisplay: 10, // maximum skills to show
         radial: {
-            radius: 160, // distance from competency center
+            radius: 120, // distance from competency center
             startAngle: -Math.PI / 6, // -30°
             endAngle: (7 * Math.PI) / 6, // 210° (covers lower 2/3 of circle)
+            // multiplier to scale offsetY (simple relative adjustment). 0 = absolute, 0.2 = +20%
+            offsetFactor: 0,
             offsetY: 120, // vertical offset from competency
+        },
+        // default layout selection for skills: 'auto'|'radial'|'matrix'|'sides'
+        defaultLayout: 'auto',
+        // sides tuning for skills (used when layout === 'sides')
+        sides: {
+            hSpacing: 120,
+            vSpacing: 70,
+            parentOffset: 80,
+            selectedOffsetMultiplier: 0.75,
         },
         linear: {
             hSpacing: 100, // Used for <=4 skills (horizontal)
@@ -752,7 +765,7 @@ const LAYOUT_CONFIG = {
         // Competency -> Skill curved edge
         edge: {
             baseDepth: 20, // base curve depth (px)
-            curveFactor: 0.25, // multiplier: curve = baseDepth + (distance * curveFactor)
+            curveFactor: 0.45, // multiplier: curve = baseDepth + (distance * curveFactor)
             spreadOffset: 10, // offset for parallel curves
         },
     },
@@ -802,6 +815,25 @@ function waitForTransitionForNode(nodeId: number | string, timeoutMs = TRANSITIO
             el.addEventListener('transitionend', onEnd as EventListener);
         }
     });
+}
+
+// Devuelve la posición (coordenadas del mapa) del centro del nodo leyendo el DOM
+function getNodeMapCenter(nodeId: number | string) {
+    try {
+        if (!mapRoot.value) return undefined;
+        const sel = `[data-node-id="${nodeId}"]`;
+        const el = document.querySelector(sel) as Element | null;
+        if (!el) return undefined;
+        const mapRect = mapRoot.value.getBoundingClientRect();
+        const nodeRect = el.getBoundingClientRect();
+        const xScreen = (nodeRect.left + nodeRect.width / 2) - mapRect.left;
+        const yScreen = (nodeRect.top + nodeRect.height / 2) - mapRect.top;
+        const scale = (viewScale.value || 1);
+        const xMap = Math.round((xScreen - (viewX.value || 0)) / scale);
+        const yMap = Math.round((yScreen - (viewY.value || 0)) / scale);
+        return { x: xMap, y: yMap };
+    } catch (err: unknown) { void err; }
+    return undefined;
 }
 
 const originalPositions = ref<Map<number, { x: number; y: number }>>(new Map());
@@ -2194,9 +2226,9 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     try {
                         const compCount = Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0;
                         if (compCount >= 4) {
-                            console.debug && console.debug('[expandCompetencies.call] source=handleNodeClick (auto)', { nodeId: parentNode?.id, comps: compCount });
-                            // Use 'auto' so expandCompetencies can choose radial when a child is selected
-                            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: 'auto' });
+                            console.debug && console.debug('[expandCompetencies.call] source=handleNodeClick (sides)', { nodeId: parentNode?.id, comps: compCount });
+                            // TEST: Force 'sides' layout to compare distribution vs radial/matrix
+                            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: 'sides' });
                         } else {
                             // keep positions for small counts
                             console.debug && console.debug('[expandCompetencies.call] skipped (<4 competencies)', { nodeId: parentNode?.id, comps: compCount });
@@ -2228,13 +2260,45 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     const compId = comp.compId ?? comp.raw?.id ?? Math.abs(comp.id || 0);
                     const existingSkills = Array.isArray(comp.skills) ? comp.skills : (comp.raw?.skills ?? []);
                     if ((existingSkills && existingSkills.length > 0) || compId) {
-                        if (existingSkills && existingSkills.length > 0) {
+                            if (existingSkills && existingSkills.length > 0) {
+                            try {
+                            // Ensure parent finished its CSS transition and DOM reflects final position
+                            if (parentNode && parentNode.id != null) {
+                                const pid = parentNode.id;
+                                await waitForTransitionForNode(pid);
+                                await wait(10);
+                                const domPos = getNodeMapCenter(pid);
+                                const renderedPos = renderedNodeById(pid) ?? { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 };
+                                console.debug && console.debug('[expandSkills.debug] parentId=', pid, 'domPos=', domPos, 'renderedPos=', renderedPos, 'modelPos=', { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                                // Prefer rendered X (align with render pipeline) but DOM Y (visual position)
+                                const preferred = (renderedPos && domPos) ? { x: renderedPos.x, y: domPos.y } : (renderedPos ?? domPos);
+                                expandSkills(comp, preferred);
+                            } else {
+                                // fallback when parentNode is not available
+                                expandSkills(comp, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                            }
+                            } catch (err: unknown) {
                             expandSkills(comp, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                            }
                         } else if (compId) {
                             try {
                                 const skills = await fetchSkillsForCompetency(Number(compId));
                                 try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (err: unknown) { void err; }
-                                expandSkills(selectedChild.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                                try {
+                                    // capture parent id before awaiting so TypeScript knows it can't become null across await
+                                    const pid = parentNode && parentNode.id != null ? parentNode.id : null;
+                                    if (pid == null) throw new Error('missing parent id');
+                                    await waitForTransitionForNode(pid);
+                                    await wait(40);
+                                    const domPos = getNodeMapCenter(pid);
+                                    const renderedPos = renderedNodeById(pid) ?? { x: parentNode?.x, y: parentNode?.y };
+                                    console.debug && console.debug('[expandSkills.debug] parentId=', pid, 'domPos=', domPos, 'renderedPos=', renderedPos, 'modelPos=', { x: parentNode?.x, y: parentNode?.y });
+                                    // Prefer rendered X (align with render pipeline) but DOM Y (visual position)
+                                    const preferred = (renderedPos && domPos) ? { x: renderedPos.x, y: domPos.y } : (renderedPos ?? domPos);
+                                    expandSkills(selectedChild.value, preferred);
+                                } catch (err: unknown) {
+                                    expandSkills(selectedChild.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                                }
                             } catch (err: unknown) { void err; }
                         }
                     }
@@ -2779,37 +2843,60 @@ function grandChildNodeById(id: number) {
     return grandChildNodes.value.find((n) => n.id === id) || null;
 }
 
-function expandSkills(node: any, initialPos?: { x: number; y: number }) {
+function expandSkills(node: any, initialPos?: { x: number; y: number }, opts: { layout?: 'auto' | 'radial' | 'matrix' | 'sides' } = {}) {
     grandChildNodes.value = [];
     grandChildEdges.value = [];
     const skills = Array.isArray(node.skills) ? node.skills : (node.raw?.skills ?? []);
     if (!Array.isArray(skills) || skills.length === 0) return;
     const limit = LAYOUT_CONFIG.skill.maxDisplay;
     const toShow = skills.slice(0, limit);
-    const cx = node.x ?? Math.round(width.value / 2);
-    const parentY = node.y ?? Math.round(height.value / 2);
-    const SKILL_PARENT_OFFSET = LAYOUT_CONFIG.skill.radial.offsetY;
+    // Allow caller to provide the parent's final map coords via initialPos (from getNodeMapCenter)
+    // Otherwise prefer the rendered coordinates (renderedNodeById) so radial layout matches actual render positions
+    const renderedParent = renderedNodeById(node.id) ?? undefined;
+    const cx = (initialPos && typeof initialPos.x === 'number')
+        ? initialPos.x
+        : (renderedParent && typeof renderedParent.x === 'number')
+            ? renderedParent.x
+            : (node.x ?? Math.round(width.value / 2));
+    const parentY = (initialPos && typeof initialPos.y === 'number')
+        ? initialPos.y
+        : (renderedParent && typeof renderedParent.y === 'number')
+            ? renderedParent.y
+            : (node.y ?? Math.round(height.value / 2));
+    const SKILL_PARENT_OFFSET_BASE = LAYOUT_CONFIG.skill.radial.offsetY;
+    const SKILL_PARENT_OFFSET = Math.round(SKILL_PARENT_OFFSET_BASE * (1 + (LAYOUT_CONFIG.skill.radial.offsetFactor ?? 0)));
     const SKILL_DROP_EXTRA = props.visualConfig?.skillDrop ?? props.competencyLayout?.skillDrop ?? 18;
     const topY = Math.round(parentY + SKILL_PARENT_OFFSET + SKILL_DROP_EXTRA);
     
-    // Radial layout for skills (below and around the selected competency)
+    // Decide layout for skills (support 'auto'|'radial'|'matrix'|'sides')
+    const layoutOpt = opts?.layout ?? (props.visualConfig?.skillLayout as any) ?? undefined;
+    const configDefaultLayout = (LAYOUT_CONFIG.skill && (LAYOUT_CONFIG.skill as any).defaultLayout) ? (LAYOUT_CONFIG.skill as any).defaultLayout : 'auto';
+    const layout = decideCompetencyLayout(layoutOpt as any, false, toShow.length, configDefaultLayout as any);
+    console.debug && console.debug('[expandSkills] layout:', layout, 'count:', toShow.length);
+
+    // Compute positions according to chosen layout
     let positions: any[] = [];
-    if (toShow.length > 4) {
-        // For >4 skills, use radial distribution below
+    if (layout === 'radial') {
+        // radial distribution
         const radius = LAYOUT_CONFIG.skill.radial.radius;
         const startAngle = LAYOUT_CONFIG.skill.radial.startAngle;
         const endAngle = LAYOUT_CONFIG.skill.radial.endAngle;
         const angleRange = endAngle - startAngle;
         const angleStep = angleRange / Math.max(1, toShow.length - 1);
-        
         positions = toShow.map((sk: any, i: number) => {
             const angle = startAngle + i * angleStep;
             const x = Math.round(cx + radius * Math.cos(angle));
             const y = Math.round(topY + radius * Math.sin(angle));
             return { x, y };
         });
+    } else if (layout === 'sides') {
+        // sides layout (left/right)
+        const sidesOpts = (LAYOUT_CONFIG.skill as any).sides ?? { hSpacing: 120, vSpacing: 70, parentOffset: 80, selectedOffsetMultiplier: 0.75 };
+        try {
+            positions = computeSidesPositions(toShow.length, cx, parentY, sidesOpts, null);
+        } catch (err: unknown) { void err; positions = []; }
     } else {
-        // For <=4 skills, use simple linear layout
+        // matrix / linear layout (default for small counts)
         const rows = 1;
         const cols = Math.min(4, toShow.length);
         positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: LAYOUT_CONFIG.skill.linear.hSpacing, vSpacing: LAYOUT_CONFIG.skill.linear.vSpacing });
