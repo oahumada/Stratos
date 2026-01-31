@@ -342,6 +342,9 @@ function resetCompetencyForm() {
 const createSkillDialogVisible = ref(false);
 const selectSkillDialogVisible = ref(false);
 const availableSkills = ref<any[]>([]);
+// Skill detail modal state
+const skillDetailDialogVisible = ref(false);
+const selectedSkillDetail = ref<any>(null);
 const selectedSkillId = ref<number | null>(null);
 const newSkillName = ref('');
 const newSkillCategory = ref('');
@@ -709,10 +712,12 @@ const LAYOUT_CONFIG = {
         sides: {
             // multiplier applied to the selected node vertical offset when using `sides` layout
             // value <1 moves the selected node closer to the parent; default 0.75 (25% closer)
-            selectedOffsetMultiplier: 0.5,
+            selectedOffsetMultiplier: 0.75,
         },
         // default layout: 'auto' = use heuristic, or 'radial'|'matrix'|'sides'
         defaultLayout: 'auto',
+        // default vertical offset (px) from parent capability to competencies when no prop overrides
+        parentOffset: 10,
         // maximum number of competency nodes to display (extra are truncated)
         maxDisplay: 10,
         // matrix sizing rules based on number of nodes
@@ -726,13 +731,13 @@ const LAYOUT_CONFIG = {
         ],
         spacing: {
             hSpacing: 100, // matrix layout horizontal
-            vSpacing: 40, // matrix layout vertical
-            parentOffset: 25, // distance below parent capability
+            vSpacing: 20, // matrix layout vertical
+            parentOffset: 20, // distance below parent capability
         },
         // Capability -> Competency curved edge
         edge: {
             baseDepth: 40, // base curve depth (px)
-            curveFactor: 0.25, // multiplier: curve = baseDepth + (distance * curveFactor)
+            curveFactor: 0.45, // multiplier: curve = baseDepth + (distance * curveFactor)
             spreadOffset: 18, // offset for parallel curves
         },
     },
@@ -742,11 +747,11 @@ const LAYOUT_CONFIG = {
     skill: {
         maxDisplay: 10, // maximum skills to show
         radial: {
-            radius: 120, // distance from competency center
+            radius: 100, // distance from competency center
             startAngle: -Math.PI / 6, // -30°
             endAngle: (7 * Math.PI) / 6, // 210° (covers lower 2/3 of circle)
             // multiplier to scale offsetY (simple relative adjustment). 0 = absolute, 0.2 = +20%
-            offsetFactor: 0,
+            offsetFactor: 0.6,
             offsetY: 120, // vertical offset from competency
         },
         // default layout selection for skills: 'auto'|'radial'|'matrix'|'sides'
@@ -779,9 +784,9 @@ const LAYOUT_CONFIG = {
     // ===== Animations, node defaults and clamps (centralized) =====
     animations: {
         // JS timing values (ms)
-        competencyEntryFinalize: 160,
-        skillEntryFinalize: 140,
-        collapseDuration: 160,
+        competencyEntryFinalize: 80,
+        skillEntryFinalize: 70,
+        collapseDuration: 10,
         // stagger / sequencing
         competencyStaggerRow: 30,
         competencyStaggerCol: 12,
@@ -2707,8 +2712,7 @@ function onPanelPointerUp() {
 // Handle clicks on an individual skill node (optional: open a small detail or select)
 function handleSkillClick(skill: any, event?: MouseEvent) {
     try {
-        // Open the selectedChild sidebar if we have a parent competency
-        // Find parent competency by edge
+        // Find parent competency by edge and set it as selected
         const parentEdge = grandChildEdges.value.find((e) => e.target === skill.id);
         const parentComp = parentEdge ? childNodeById(parentEdge.source) : null;
         if (parentComp) {
@@ -2717,8 +2721,11 @@ function handleSkillClick(skill: any, event?: MouseEvent) {
             const parentOfCompEdge = childEdges.value.find((e) => e.target === parentComp.id);
             if (parentOfCompEdge) focusedNode.value = nodeById(parentOfCompEdge.source);
         }
-        // open skill creation modal? Instead, open sidebar to view/edit selected child
-        showSidebar.value = true;
+        // Open a skill-detail modal showing attributes for the clicked skill
+        try {
+            selectedSkillDetail.value = (skill && (skill.raw ?? skill)) || skill;
+            skillDetailDialogVisible.value = true;
+        } catch (errInner: unknown) { void errInner; }
             } catch (err: unknown) { void err; }
 }
 
@@ -2743,9 +2750,9 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     // place matrix top starting approximately below parent (use parent's y + offset)
     const parentY = node.y ?? Math.round(height.value / 2);
     // Defaults for competency layout (level-1 friendly defaults)
-    const DEFAULT_COMPETENCY_LAYOUT = { rows: 1, cols: 4, hSpacing: 100, vSpacing: 80, parentOffset: 150 };
+    const DEFAULT_COMPETENCY_LAYOUT = { rows: 1, cols: 4, hSpacing: 100, vSpacing: 80 };
     // allow smaller offset for fake/temporary nodes (negative ids)
-    const defaultParentOffset = (node.id != null && node.id < 0) ? 80 : DEFAULT_COMPETENCY_LAYOUT.parentOffset;
+    const defaultParentOffset = (node.id != null && node.id < 0) ? 80 : (LAYOUT_CONFIG.competency?.parentOffset ?? 150);
     // priority: visualConfig override > top-level prop > competencyLayout prop > default per-node fallback
     const verticalOffset = (typeof props.visualConfig?.capabilityChildrenOffset === 'number')
         ? props.visualConfig!.capabilityChildrenOffset!
@@ -4484,6 +4491,48 @@ if (!edges.value) edges.value = [];
                         <v-spacer />
                         <v-btn text @click="selectSkillDialogVisible = false">Cancelar</v-btn>
                         <v-btn color="primary" :loading="attachingSkill" @click="attachExistingSkill">Asociar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <!-- Skill detail dialog -->
+            <v-dialog v-model="skillDetailDialogVisible" max-width="640" transition="scale-transition">
+                <v-card :class="dialogThemeClass">
+                    <v-card-title>Detalle de la skill</v-card-title>
+                    <v-card-text>
+                        <div v-if="selectedSkillDetail">
+                            <v-list dense>
+                                <v-list-item>
+                                    <v-list-item-content>
+                                        <v-list-item-title class="font-weight-medium">Nombre</v-list-item-title>
+                                        <v-list-item-subtitle>{{ selectedSkillDetail.name || selectedSkillDetail.title || '-' }}</v-list-item-subtitle>
+                                    </v-list-item-content>
+                                </v-list-item>
+                                <v-list-item>
+                                    <v-list-item-content>
+                                        <v-list-item-title class="font-weight-medium">Categoría</v-list-item-title>
+                                        <v-list-item-subtitle>{{ selectedSkillDetail.category || selectedSkillDetail.type || '-' }}</v-list-item-subtitle>
+                                    </v-list-item-content>
+                                </v-list-item>
+                                <v-list-item>
+                                    <v-list-item-content>
+                                        <v-list-item-title class="font-weight-medium">Descripción</v-list-item-title>
+                                        <v-list-item-subtitle style="white-space:pre-wrap">{{ selectedSkillDetail.description || '-' }}</v-list-item-subtitle>
+                                    </v-list-item-content>
+                                </v-list-item>
+                                <v-list-item>
+                                    <v-list-item-content>
+                                        <v-list-item-title class="font-weight-medium">ID</v-list-item-title>
+                                        <v-list-item-subtitle>{{ selectedSkillDetail.id ?? selectedSkillDetail.skill_id ?? '-' }}</v-list-item-subtitle>
+                                    </v-list-item-content>
+                                </v-list-item>
+                            </v-list>
+                        </div>
+                        <div v-else>No hay información de la skill.</div>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="skillDetailDialogVisible = false">Cerrar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
