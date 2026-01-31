@@ -345,6 +345,22 @@ const availableSkills = ref<any[]>([]);
 // Skill detail modal state
 const skillDetailDialogVisible = ref(false);
 const selectedSkillDetail = ref<any>(null);
+// Editable fields for skill modal
+const skillEditName = ref('');
+const skillEditDescription = ref('');
+const skillEditCategory = ref('technical');
+const skillEditComplexityLevel = ref('tactical');
+const skillEditScopeType = ref('domain');
+const skillEditDomainTag = ref('');
+const skillEditIsCritical = ref(false);
+
+// Pivot editable fields (capability_competencies) when skill viewed within a competency/capability
+const skillPivotRequiredLevel = ref<number | undefined>(undefined);
+const skillPivotPriority = ref<number | undefined>(undefined);
+const skillPivotWeight = ref<number | undefined>(undefined);
+const skillPivotRationale = ref('');
+const skillPivotIsRequired = ref(false);
+const savingSkillDetail = ref(false);
 const selectedSkillId = ref<number | null>(null);
 const newSkillName = ref('');
 const newSkillCategory = ref('');
@@ -2724,10 +2740,150 @@ function handleSkillClick(skill: any, event?: MouseEvent) {
         // Open a skill-detail modal showing attributes for the clicked skill
         try {
             selectedSkillDetail.value = (skill && (skill.raw ?? skill)) || skill;
+            // populate editable refs from selectedSkillDetail
+            const s = selectedSkillDetail.value || {};
+            skillEditName.value = s.name ?? '';
+            skillEditDescription.value = s.description ?? '';
+            skillEditCategory.value = s.category ?? skillEditCategory.value;
+            skillEditComplexityLevel.value = s.complexity_level ?? skillEditComplexityLevel.value;
+            skillEditScopeType.value = s.scope_type ?? skillEditScopeType.value;
+            skillEditDomainTag.value = s.domain_tag ?? '';
+            skillEditIsCritical.value = !!s.is_critical;
+
+            // Try to populate pivot values (capability_competencies) from selectedChild/focusedNode
+            try {
+                const comp = selectedChild.value as any;
+                const parentCap = focusedNode.value as any;
+                if (comp && parentCap && props.scenario && props.scenario.id) {
+                    // attempt to find pivot in comp.raw.pivot or in parentCap.raw.scenario_capabilities
+                    let pivot: any = comp.raw?.pivot ?? comp.raw?.capability_pivot ?? null;
+                    if (!pivot && Array.isArray(parentCap?.raw?.scenario_capabilities)) {
+                        pivot = parentCap.raw.scenario_capabilities.find((p: any) => Number(p.competency_id ?? p.id ?? 0) === Number(comp.compId ?? comp.raw?.id ?? Math.abs(comp.id || 0)));
+                    }
+                    if (pivot) {
+                        skillPivotRequiredLevel.value = pivot.required_level ?? pivot.required ?? skillPivotRequiredLevel.value;
+                        skillPivotPriority.value = pivot.priority ?? skillPivotPriority.value;
+                        skillPivotWeight.value = pivot.strategic_weight ?? pivot.weight ?? skillPivotWeight.value;
+                        skillPivotRationale.value = pivot.rationale ?? '';
+                        skillPivotIsRequired.value = !!(pivot.is_required ?? pivot.is_critical ?? false);
+                    } else {
+                        // fallback to empty defaults
+                        skillPivotRequiredLevel.value = undefined;
+                        skillPivotPriority.value = undefined;
+                        skillPivotWeight.value = undefined;
+                        skillPivotRationale.value = '';
+                        skillPivotIsRequired.value = false;
+                    }
+                }
+            } catch (errP: unknown) { void errP; }
+
             skillDetailDialogVisible.value = true;
         } catch (errInner: unknown) { void errInner; }
             } catch (err: unknown) { void err; }
 }
+
+// Save skill edits + optional pivot edits
+async function saveSkillDetail() {
+    if (!selectedSkillDetail.value) return showError('No hay skill seleccionada');
+    const skillId = selectedSkillDetail.value.id ?? null;
+    if (!skillId) return showError('Skill no tiene id');
+    savingSkillDetail.value = true;
+    try {
+        const skillPayload: any = {
+            name: skillEditName.value?.trim() ?? undefined,
+            description: skillEditDescription.value?.trim() ?? undefined,
+            category: skillEditCategory.value,
+            complexity_level: skillEditComplexityLevel.value,
+            scope_type: skillEditScopeType.value,
+            domain_tag: skillEditDomainTag.value?.trim() ?? undefined,
+            is_critical: !!skillEditIsCritical.value,
+        };
+        // remove undefined keys
+        Object.keys(skillPayload).forEach((k) => skillPayload[k] === undefined && delete skillPayload[k]);
+        // update skill entity
+        try {
+            await api.patch(`/api/skills/${skillId}`, skillPayload);
+            showSuccess('Skill actualizada');
+        } catch (err: unknown) {
+            console.error('saveSkillDetail - skill patch error', err);
+            showError('Error guardando skill');
+            throw err;
+        }
+
+        // attempt to save pivot (capability_competencies) if we can identify context
+        try {
+            const comp = selectedChild.value as any;
+            const parentCap = focusedNode.value as any;
+            const scenarioId = props.scenario?.id ?? null;
+            const compId = comp?.compId ?? comp?.raw?.id ?? Math.abs(comp?.id || 0);
+            const capId = parentCap?.id ?? parentCap?.raw?.id ?? null;
+            if (scenarioId && capId && compId) {
+                const pivotPayload: any = {
+                    required_level: skillPivotRequiredLevel.value,
+                    priority: skillPivotPriority.value,
+                    strategic_weight: skillPivotWeight.value,
+                    weight: skillPivotWeight.value,
+                    rationale: skillPivotRationale.value?.trim() ?? undefined,
+                    is_required: !!skillPivotIsRequired.value,
+                };
+                Object.keys(pivotPayload).forEach((k) => pivotPayload[k] === undefined && delete pivotPayload[k]);
+                if (Object.keys(pivotPayload).length > 0) {
+                    // Primary endpoint: scenario-scoped capability->competency update
+                    try {
+                        await api.patch(`/api/strategic-planning/scenarios/${scenarioId}/capabilities/${capId}/competencies/${compId}`, pivotPayload);
+                        showSuccess('Atributos de competencia actualizados');
+                    } catch (errPrimary: unknown) {
+                        // fallback: try pivot-specific endpoint if pivot had id
+                        const pivotId = comp?.raw?.pivot?.id ?? comp?.raw?.capability_pivot?.id ?? null;
+                        if (pivotId) {
+                            try {
+                                await api.patch(`/api/capability-competencies/${pivotId}`, pivotPayload);
+                                showSuccess('Atributos de competencia actualizados (pivot)');
+                            } catch (errPivot: unknown) {
+                                console.error('saveSkillDetail - pivot patch fallback failed', errPivot);
+                                showError('Error guardando atributos de competencia');
+                            }
+                        } else {
+                            console.error('saveSkillDetail - pivot patch primary failed', errPrimary);
+                            showError('Error guardando atributos de competencia');
+                        }
+                    }
+                }
+            }
+        } catch (errPivotAll: unknown) { void errPivotAll; }
+
+        // Refresh local selected skill details
+        try {
+            const refreshed: any = await api.get(`/api/skills/${skillId}`);
+            selectedSkillDetail.value = refreshed?.data ?? refreshed ?? selectedSkillDetail.value;
+        } catch (errRef: unknown) { void errRef; }
+
+        skillDetailDialogVisible.value = false;
+    } catch (errAll: unknown) {
+        // already reported
+    } finally {
+        savingSkillDetail.value = false;
+    }
+}
+
+// Clear edit refs when dialog closes
+watch(skillDetailDialogVisible, (v) => {
+    if (!v) {
+        selectedSkillDetail.value = null;
+        skillEditName.value = '';
+        skillEditDescription.value = '';
+        skillEditCategory.value = 'technical';
+        skillEditComplexityLevel.value = 'tactical';
+        skillEditScopeType.value = 'domain';
+        skillEditDomainTag.value = '';
+        skillEditIsCritical.value = false;
+        skillPivotRequiredLevel.value = undefined;
+        skillPivotPriority.value = undefined;
+        skillPivotWeight.value = undefined;
+        skillPivotRationale.value = '';
+        skillPivotIsRequired.value = false;
+    }
+});
 
 // Fullscreen toggle removed: UX disabled. We rely only on the browser Fullscreen API when used externally.
 
@@ -4495,44 +4651,48 @@ if (!edges.value) edges.value = [];
                 </v-card>
             </v-dialog>
 
-            <!-- Skill detail dialog -->
-            <v-dialog v-model="skillDetailDialogVisible" max-width="640" transition="scale-transition">
+            <!-- Skill detail dialog (editable) -->
+            <v-dialog v-model="skillDetailDialogVisible" max-width="720" transition="scale-transition">
                 <v-card :class="dialogThemeClass">
                     <v-card-title>Detalle de la skill</v-card-title>
                     <v-card-text>
                         <div v-if="selectedSkillDetail">
-                            <v-list dense>
-                                <v-list-item>
-                                    <v-list-item-content>
-                                        <v-list-item-title class="font-weight-medium">Nombre</v-list-item-title>
-                                        <v-list-item-subtitle>{{ selectedSkillDetail.name || selectedSkillDetail.title || '-' }}</v-list-item-subtitle>
-                                    </v-list-item-content>
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-list-item-content>
-                                        <v-list-item-title class="font-weight-medium">Categoría</v-list-item-title>
-                                        <v-list-item-subtitle>{{ selectedSkillDetail.category || selectedSkillDetail.type || '-' }}</v-list-item-subtitle>
-                                    </v-list-item-content>
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-list-item-content>
-                                        <v-list-item-title class="font-weight-medium">Descripción</v-list-item-title>
-                                        <v-list-item-subtitle style="white-space:pre-wrap">{{ selectedSkillDetail.description || '-' }}</v-list-item-subtitle>
-                                    </v-list-item-content>
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-list-item-content>
-                                        <v-list-item-title class="font-weight-medium">ID</v-list-item-title>
-                                        <v-list-item-subtitle>{{ selectedSkillDetail.id ?? selectedSkillDetail.skill_id ?? '-' }}</v-list-item-subtitle>
-                                    </v-list-item-content>
-                                </v-list-item>
-                            </v-list>
+                            <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
+                                <v-text-field v-model="skillEditName" label="Nombre" required />
+                                <v-select v-model="skillEditCategory" :items="['technical','behavioral','domain']" label="Categoría" />
+                                <v-select v-model="skillEditComplexityLevel" :items="['basic','tactical','strategic']" label="Nivel de complejidad" />
+                                <v-text-field v-model="skillEditDomainTag" label="Tag de dominio" />
+                                <v-select v-model="skillEditScopeType" :items="['domain','global','local']" label="Scope" />
+                                <v-textarea v-model="skillEditDescription" label="Descripción" rows="3" style="grid-column: 1 / -1" />
+                            </div>
+
+                            <!-- Pivot (capability_competencies) editable section when available -->
+                            <div v-if="selectedChild && focusedNode" style="margin-top:14px">
+                                <div style="font-weight:700; margin-bottom:6px">Atributos de la relación con la competencia</div>
+                                <div>
+                                    <v-slider v-model="skillPivotWeight" label="Peso estratégico (1-10)" :min="1" :max="10" :step="1" color="primary" :ticks="tickLabelStrategic" show-ticks="always"/>
+                                </div>
+                                <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
+                                    <div>
+                                        <v-slider v-model="skillPivotPriority" label="Prioridad (1-5)" :min="1" :max="5" :step="1" color="orange" :ticks="tickLabelPriority" show-ticks="always"/>
+                                    </div>
+
+                                    <div>
+                                        <v-slider v-model="skillPivotRequiredLevel" label="Nivel requerido (1-5)" :min="1" :max="5" :step="1" color="teal" :ticks="tickLabelRequiredLevel" show-ticks="always"/>
+                                    </div>
+                                    <div>
+                                    <v-switch v-model="skillPivotIsRequired" color="success" label="Es crítica" />
+                                    <v-textarea v-model="skillPivotRationale" label="Justificación" rows="2" style="grid-column: 1 / -1;" />
+                                </div>
+                                </div>
+                            </div>
                         </div>
                         <div v-else>No hay información de la skill.</div>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer />
-                        <v-btn text @click="skillDetailDialogVisible = false">Cerrar</v-btn>
+                        <v-btn text @click="skillDetailDialogVisible = false">Cancelar</v-btn>
+                        <v-btn color="primary" :loading="savingSkillDetail" @click="saveSkillDetail">Guardar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
