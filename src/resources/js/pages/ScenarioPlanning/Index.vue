@@ -709,7 +709,7 @@ const LAYOUT_CONFIG = {
         sides: {
             // multiplier applied to the selected node vertical offset when using `sides` layout
             // value <1 moves the selected node closer to the parent; default 0.75 (25% closer)
-            selectedOffsetMultiplier: 0.75,
+            selectedOffsetMultiplier: 0.5,
         },
         // default layout: 'auto' = use heuristic, or 'radial'|'matrix'|'sides'
         defaultLayout: 'auto',
@@ -753,8 +753,8 @@ const LAYOUT_CONFIG = {
         defaultLayout: 'auto',
         // matrix sizing rules for skills (mirror competencies but with 2..4 -> 1x4)
         matrixVariants: [
-            { min: 2, max: 4, rows: 1, cols: 4 },
-            { min: 5, max: 8, rows: 2, cols: 4 },
+            { min: 2, max: 3, rows: 1, cols: 3 },
+            { min: 4, max: 8, rows: 2, cols: 4 },
             { min: 9, max: 10, rows: 2, cols: 5 },
         ],
         // sides tuning for skills (used when layout === 'sides')
@@ -2947,7 +2947,7 @@ function expandSkills(node: any, initialPos?: { x: number; y: number }, opts: { 
 }
 
 // Animación de colapso para nodos nietos (skills).
-function collapseGrandChildren(animated = true, duration = 160) {
+function collapseGrandChildren(animated = true, duration = 80) {
     try {
         if (!animated) {
             grandChildNodes.value = [];
@@ -2966,11 +2966,11 @@ function collapseGrandChildren(animated = true, duration = 160) {
         } catch (err: unknown) { void err; }
         setTimeout(() => {
             try { grandChildEdges.value = []; } catch (err: unknown) { void err; }
-        }, duration + 20);
+        }, duration + 10);
         // remove nodes after animation finishes
         setTimeout(() => {
             try { grandChildNodes.value = []; } catch (err: unknown) { void err; }
-        }, duration + 20);
+        }, duration + 10);
         try { /* edges will be removed after opacity animation above */ } catch (err: unknown) { void err; }
     } catch (err: unknown) { void err; }
 }
@@ -4626,7 +4626,7 @@ if (!edges.value) edges.value = [];
 
 .node-group {
     cursor: grab;
-    transition: transform 420ms cubic-bezier(.22,.9,.3,1), opacity 320ms ease, filter 360ms ease;
+    transition: transform 420ms cubic-bezier(.22,.9,.3,1), opacity 160ms ease, filter 180ms ease;
     transform-box: fill-box;
     transform-origin: center;
 }
