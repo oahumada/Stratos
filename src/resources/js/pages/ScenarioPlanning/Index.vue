@@ -715,6 +715,8 @@ const LAYOUT_CONFIG = {
         maxDisplay: 10,
         // matrix sizing rules based on number of nodes
         matrixVariants: [
+            // 2..3 nodes -> 3 cols x 1 row
+            { min: 2, max: 3, rows: 1, cols: 3 },
             // 4..8 nodes -> 4 cols x 2 rows
             { min: 4, max: 8, rows: 2, cols: 4 },
             // 9..10 nodes -> 5 cols x 2 rows
@@ -3636,9 +3638,9 @@ if (!edges.value) edges.value = [];
 
                     <!-- subtle gradient + glow for main edges -->
                     <linearGradient id="edgeGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#6fe7ff" stop-opacity="0.85" />
-                        <stop offset="60%" stop-color="#66b8ff" stop-opacity="0.7" />
-                        <stop offset="100%" stop-color="#9bd0ff" stop-opacity="0.55" />
+                        <stop offset="0%" stop-color="#09c8d2" stop-opacity="0.85" />
+                        <stop offset="60%" stop-color="#66b8ff" stop-opacity="0.6" />
+                        <stop offset="100%" stop-color="#9bd0ff" stop-opacity="0.45" />
                     </linearGradient>
 
                     <filter id="edgeGlow" x="-50%" y="-50%" width="200%" height="200%">
@@ -4035,7 +4037,7 @@ if (!edges.value) edges.value = [];
                     <!-- skill nodes (grandchildren) -->
                     <g class="skill-nodes">
                         <g
-                            v-for="s in grandChildNodes"
+                            v-for="(s) in grandChildNodes"
                             :key="s.id"
                             :style="{ transform: `translate(${s.x}px, ${s.y}px) scale(${s.animScale ?? 1})`, opacity: (s.animOpacity ?? 1) }"
                             class="node-group skill-node"
@@ -4604,9 +4606,9 @@ if (!edges.value) edges.value = [];
     transform-origin: center;
 }
 .scenario-node .scenario-icon .rose-outline {
-    fill: rgba(54, 46, 46, 0.08);
-    stroke: rgba(88, 173, 199, 0.432);
-    stroke-width: 0.6;
+    fill: rgba(211, 196, 196, 0.08);
+    stroke: rgba(201, 210, 213, 0.432);
+    stroke-width: 0.4;
 }
 .scenario-node .scenario-icon .rose-primary {
     fill: #5f82b9; /* north needle: changed from pink to blue */
@@ -4615,8 +4617,13 @@ if (!edges.value) edges.value = [];
     /* fill is provided by SVG gradient (compassNeedleGrad) */
 }
 .scenario-node .scenario-icon .rose-center {
-    fill: #03545a;
-    fill-opacity: 0.95;
+    fill: #03555b;
+}
+
+/* make the north/south compass needles more subtle */
+.scenario-node .scenario-icon .rose-primary,
+.scenario-node .scenario-icon .rose-secondary {
+    fill-opacity: 0.25;
 }
 
 /* animated scenario-edge: moving dash + soft pulse */

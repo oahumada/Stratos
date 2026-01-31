@@ -22,8 +22,8 @@ abstract class Repository implements RepositoryInterface
 
     public function store(Request $request)
     {
-        $query = $request->get('data');
-        Log::info('Store data:', $query);
+        $query = $request->get('data', $request->all());
+        Log::info('Store data:', is_array($query) ? $query : ['data' => $query]);
         try {
             $query = array_map(function ($value) {
                 return is_array($value) ? implode(',', $value) : $value;
@@ -35,10 +35,11 @@ abstract class Repository implements RepositoryInterface
                 Log::info('Added organization_id:', ['organization_id' => $query['organization_id']]);
             }
 
-            $request = $this->model->create($query);
+            $created = $this->model->create($query);
             return response()->json([
-                'message' => 'Registro creado con éxito',
-            ], 200);
+                'success' => true,
+                'data' => $created,
+            ], 201);
         } catch (QueryException $e) {
             Log::error('store', [$e]);
             return response()->json([
@@ -52,7 +53,7 @@ abstract class Repository implements RepositoryInterface
     {
         // Extract the 'id' from the incoming request data
         $id = $request->input('data.id');
-        Log::info($request->all());
+        Log::info('Request data:', is_array($request->all()) ? $request->all() : ['data' => $request->all()]);
 
         // Retrieve the data to update and log it
         $dataToUpdate = $request->input('data');
@@ -67,8 +68,7 @@ abstract class Repository implements RepositoryInterface
         try {
             // Retrieve the model instance or fail if not found
             $model = $this->model->findOrFail($id);
-            Log::info('Model found with ID: ' . $id);
-            Log::info('Model found with ID: ' . $model);
+            Log::info('Model found', ['id' => $id, 'class' => is_object($model) ? get_class($model) : gettype($model)]);
 
             // Update the model instance with the new data
             $model->fill($dataToUpdate);
