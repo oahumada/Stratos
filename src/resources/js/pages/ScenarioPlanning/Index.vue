@@ -616,6 +616,37 @@ async function attachExistingSkill() {
     }
 }
 
+// Remove a skill from the currently selected competency (best-effort)
+async function removeSkillFromCompetency(skill: any) {
+    if (!selectedChild.value) return showError('Seleccione una competencia');
+    const compId = (selectedChild.value as any).compId ?? (selectedChild.value as any).raw?.id ?? Math.abs((selectedChild.value as any).id || 0);
+    const skillId = skill?.id ?? skill?.raw?.id ?? null;
+    // try to find pivot id on the skill object
+    const pivotId = skill?.pivot?.id ?? skill?.raw?.pivot?.id ?? skill?.raw?.pivot_id ?? null;
+    try {
+        if (pivotId) {
+            await api.delete(`/api/competency-skills/${pivotId}`);
+        } else if (compId && skillId) {
+            // try delete via competency-scoped endpoint if backend exposes it
+            try {
+                await api.delete(`/api/competencies/${compId}/skills/${skillId}`);
+            } catch (e: unknown) {
+                // ignore and fallback to local remove
+            }
+        }
+        // remove locally if present
+        if (Array.isArray((selectedChild.value as any).skills)) {
+            (selectedChild.value as any).skills = (selectedChild.value as any).skills.filter((s: any) => (s.id ?? s.raw?.id ?? s) !== (skillId ?? skill));
+        }
+        // also remove from grandChildNodes if present
+        grandChildNodes.value = grandChildNodes.value.filter((g) => (g.id ?? g.raw?.id ?? g) !== (skillId ?? skill));
+        showSuccess('Skill eliminada de la competencia');
+    } catch (err: unknown) {
+        console.error('removeSkillFromCompetency error', err);
+        showError('Error eliminando skill');
+    }
+}
+
 // selectedChild edit fields (competency + pivot)
 const editChildName = ref('');
 const editChildDescription = ref('');
@@ -2812,10 +2843,39 @@ async function saveSkillDetail() {
 
         // attempt to save pivot (capability_competencies) if we can identify context
         try {
-            const comp = selectedChild.value as any;
-            const parentCap = focusedNode.value as any;
+            // First try: if the skill object itself carries a competency_skills pivot (skill attached to a competency),
+            // attempt to patch that pivot directly. This covers edits made from within a competency context.
+            try {
+                // Support both internal refs (.value) and unwrapped objects (tests may set plain values)
+                const unwrappedSkill: any = (typeof selectedSkillDetail !== 'undefined')
+                    ? (selectedSkillDetail.value ?? selectedSkillDetail)
+                    : null;
+                const skillPivotObj = unwrappedSkill?.pivot ?? unwrappedSkill?.raw?.pivot ?? null;
+                const compSkillPivotId = skillPivotObj?.id ?? skillPivotObj?.pivot_id ?? null;
+                const comp: any = (typeof selectedChild !== 'undefined') ? (selectedChild.value ?? selectedChild) : null;
+                // Build payload using available pivot fields (weight is the primary field on competency_skills)
+                if (compSkillPivotId) {
+                    const csPayload: any = {};
+                    if (skillPivotWeight.value !== undefined && skillPivotWeight.value !== null) csPayload.weight = skillPivotWeight.value;
+                    // remove undefined
+                    Object.keys(csPayload).forEach((k) => csPayload[k] === undefined && delete csPayload[k]);
+                    if (Object.keys(csPayload).length > 0) {
+                        try {
+                            await api.patch(`/api/competency-skills/${compSkillPivotId}`, csPayload);
+                            showSuccess('Atributos de relación skill-competencia actualizados');
+                        } catch (errCs: unknown) {
+                            console.error('saveSkillDetail - competency_skills patch failed', errCs);
+                            // don't throw here; continue to other pivot attempts
+                        }
+                    }
+                }
+            } catch (errCsAll: unknown) { void errCsAll; }
+
+                // Ensure we unwrap refs to actual objects (avoid returning the Ref itself)
+            const comp2: any = (selectedChild && typeof selectedChild === 'object') ? (selectedChild.value ?? null) : null;
+            const parentCap: any = (focusedNode && typeof focusedNode === 'object') ? (focusedNode.value ?? null) : null;
             const scenarioId = props.scenario?.id ?? null;
-            const compId = comp?.compId ?? comp?.raw?.id ?? Math.abs(comp?.id || 0);
+            const compId = comp2?.compId ?? comp2?.raw?.id ?? Math.abs(comp2?.id || 0);
             const capId = parentCap?.id ?? parentCap?.raw?.id ?? null;
             if (scenarioId && capId && compId) {
                 const pivotPayload: any = {
@@ -2834,7 +2894,7 @@ async function saveSkillDetail() {
                         showSuccess('Atributos de competencia actualizados');
                     } catch (errPrimary: unknown) {
                         // fallback: try pivot-specific endpoint if pivot had id
-                        const pivotId = comp?.raw?.pivot?.id ?? comp?.raw?.capability_pivot?.id ?? null;
+                        const pivotId = comp2?.raw?.pivot?.id ?? comp2?.raw?.capability_pivot?.id ?? null;
                         if (pivotId) {
                             try {
                                 await api.patch(`/api/capability-competencies/${pivotId}`, pivotPayload);
