@@ -9,6 +9,12 @@ import { computeMatrixPositions } from '@/composables/useNodeNavigation';
 import { chooseMatrixVariant, computeCompetencyMatrixPositions, computeSidesPositions, decideCompetencyLayout } from '@/composables/useCompetencyLayout';
 import type { CSSProperties } from 'vue';
 import type { NodeItem, Edge, ConnectionPayload } from '@/types/brain';
+
+// Composables refactorizados (Fase 1: modularización)
+import { useScenarioState } from '@/composables/useScenarioState';
+import { useScenarioAPI } from '@/composables/useScenarioAPI';
+import { useScenarioLayout } from '@/composables/useScenarioLayout';
+import { useScenarioEdges } from '@/composables/useScenarioEdges';
 interface Props {
     scenario?: {
         id?: number;
@@ -190,6 +196,47 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
     (e: 'createCapability'): void;
 }>();
+
+// ========== COMPOSABLE INITIALIZATION (Phase 1: Refactoring) ==========
+// Inicialización de composables refactorizados. La lógica sigue el mismo patrón
+// pero ahora está modularizada en composables reutilizables.
+const scenarioState = useScenarioState();
+const scenarioAPI = useScenarioAPI();
+const { 
+    runForceLayout 
+} = useScenarioLayout();
+const { 
+    injectState: injectEdgeState,
+    renderedNodeById: edgeRenderedNodeById,
+    isGrandChildNode,
+    childEdgeMode,
+} = useScenarioEdges();
+
+// Inyectar referencias de estado en el composable de edges
+// (edges necesita acceso a los nodos para calcular posiciones)
+onMounted(() => {
+    try {
+        injectEdgeState(childEdges as any, grandChildEdges as any, nodes as any, childNodes as any, grandChildNodes as any);
+    } catch (err) {
+        console.warn('[ScenarioPlanning] Error inyectando state en useScenarioEdges', err);
+    }
+});
+
+// Wrapper function: loadTreeFromApi del composable API
+// Asignamos a variable local para mantener compatibilidad con el resto del código
+const loadTreeFromApiWrapper = async (scenarioId?: number | string) => {
+    try {
+        const scenarioIdNum = typeof scenarioId === 'string' ? parseInt(scenarioId, 10) : scenarioId;
+        const treeData = await scenarioAPI.loadCapabilityTree(scenarioIdNum);
+        if (treeData && Array.isArray(treeData)) {
+            buildNodesFromItems(treeData);
+            loaded.value = true;
+        }
+    } catch (err) {
+        console.error('[loadTreeFromApi] Error cargando árbol de capacidades', err);
+        showError('Error cargando árbol de capacidades');
+    }
+};
 
 // Create-capability modal state
 const createModalVisible = ref(false);
@@ -381,12 +428,12 @@ const contextMenuTarget = ref<any | null>(null);
 const contextMenuIsChild = ref(false);
 const contextMenuEl = ref<HTMLElement | null>(null);
 
-// Modo de renderizado de aristas hijo: 0=offset pequeño,1=offset grande,2=curva,3=separación horizontal
-const childEdgeMode = ref(2);
+// Modo de renderizado de aristas hijo: delegado a useScenarioEdges (value inicial: 2=curve)
+// const childEdgeMode = ref(2); // ← Ahora viene de useScenarioEdges
 const childEdgeModeLabels = ['offset','gap-large','curve','spread'];
 
 function nextChildEdgeMode() {
-    childEdgeMode.value = (childEdgeMode.value + 1) % childEdgeModeLabels.length;
+    childEdgeMode.value = ((childEdgeMode.value + 1) % childEdgeModeLabels.length) as 0 | 1 | 2 | 3;
 }
 
 function openNodeContextMenu(node: any, ev: MouseEvent) {
@@ -1655,7 +1702,7 @@ async function saveFocusedNode() {
         } catch (err: unknown) { void err; }
 
         const focusedId = focusedNode.value ? (focusedNode.value as any).id : null;
-        await loadTreeFromApi(props.scenario?.id);
+        await loadTreeFromApiWrapper(props.scenario?.id);
         // After reloading canonical tree, merge authoritative entity fields if we fetched them
         try {
             if (freshCap && typeof freshCap.id !== 'undefined') {
@@ -1798,7 +1845,7 @@ async function deleteFocusedNode() {
         }
 
         // Refresh tree (best-effort)
-        await loadTreeFromApi(props.scenario?.id);
+        await loadTreeFromApiWrapper(props.scenario?.id);
         
         // Clear focus and selection
         focusedNode.value = null;
@@ -1970,7 +2017,7 @@ async function saveNewCapability() {
             void optErr;
         }
         // Refresh canonical tree from API to include pivot attributes and avoid drift
-        await loadTreeFromApi(props.scenario.id);
+        await loadTreeFromApiWrapper(props.scenario.id);
         // close modal and reset
         createModalVisible.value = false;
         newCapName.value = '';
@@ -2419,54 +2466,14 @@ function buildNodesFromItems(items: any[]) {
     // Only run force layout if some nodes originally had real coordinates.
     // When we intentionally ignore stored coords (default grid), do not run the simulation
     const hadAnyCoords = mapped.some((m: any) => !!m._hasCoords);
-    if (hadAnyCoords) runForceLayout();
+    if (hadAnyCoords && width.value && height.value) {
+        runForceLayout(nodes.value, edges.value, width.value, height.value);
+    }
     // store last items so we can recompute layout on resize
     lastItems = items;
 }
 
-function runForceLayout() {
-    try {
-        // prepare mutable nodes/links for simulation
-        const simNodes = nodes.value.map((n) => ({
-            id: n.id,
-            x: n.x || 0,
-            y: n.y || 0,
-        }));
-        const simLinks = edges.value.map((l) => ({
-            source: l.source,
-            target: l.target,
-        }));
-        const simulation = d3
-            .forceSimulation(simNodes as any)
-            .force(
-                'link',
-                (d3 as any)
-                    .forceLink(simLinks)
-                    .id((d: any) => d.id)
-                    .distance(LAYOUT_CONFIG.capability.forces.linkDistance)
-                    .strength(LAYOUT_CONFIG.capability.forces.linkStrength),
-            )
-            .force('charge', (d3 as any).forceManyBody().strength(LAYOUT_CONFIG.capability.forces.chargeStrength))
-            .force('center', (d3 as any).forceCenter(width.value / 2, height.value / 2));
-
-        // run a fixed number of synchronous ticks to stabilise layout
-        for (let i = 0; i < 300; i++) simulation.tick();
-        simulation.stop();
-
-        const pos = new Map(
-            simNodes.map((n: any) => [n.id, { x: Math.round(n.x), y: Math.round(n.y) }]),
-        );
-        // Preserve existing node metadata (competencies, description, flags) when applying positions
-        nodes.value = nodes.value.map((n: any) => {
-            const p = pos.get(n.id);
-            return { ...n, x: p?.x ?? n.x, y: p?.y ?? n.y } as any;
-        });
-    } catch (err: unknown) {
-        void err;
-        // if simulation fails, silently skip (fallback positions already set)
-        // console.warn('[PrototypeMap] force layout failed', err)
-    }
-}
+// runForceLayout is now imported from useScenarioLayout composable (line 206)
 
 function buildEdgesFromItems(items: any[]) {
     const result: Edge[] = [];
@@ -3189,7 +3196,7 @@ async function saveSkillDetail() {
         }
 
         // Reload the tree from API to get fresh data
-        await loadTreeFromApi(props.scenario?.id);
+        await loadTreeFromApiWrapper(props.scenario?.id);
 
         // After reload, restore the capability (focusedNode) and competency (selectedChild)
         if (currentCapId) {
@@ -3719,7 +3726,7 @@ async function createAndAttachComp() {
         console.debug('[createAndAttachComp] success', result);
 
         // Refresh tree first to ensure we can resolve the newly-created competency ID
-        await loadTreeFromApi(scenarioId);
+        await loadTreeFromApiWrapper(scenarioId);
 
         // Try to find the created competency under the parent node by matching the name
         const parent = nodeById(capId);
@@ -3812,7 +3819,7 @@ async function attachExistingComp() {
         try {
             await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${capId}/competencies`, { competency_id: addExistingSelection.value });
             addExistingCompDialogVisible.value = false;
-            await loadTreeFromApi(props.scenario?.id);
+            await loadTreeFromApiWrapper(props.scenario?.id);
             const parent = nodeById(capId);
             if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
             showSuccess('Competencia asociada correctamente');
@@ -3821,7 +3828,7 @@ async function attachExistingComp() {
             try {
                 await api.post(`/api/capabilities/${capId}/competencies`, { competency_id: addExistingSelection.value });
                 addExistingCompDialogVisible.value = false;
-                await loadTreeFromApi(props.scenario?.id);
+                await loadTreeFromApiWrapper(props.scenario?.id);
                 const parent = nodeById(capId);
                 if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
                 showSuccess('Competencia asociada correctamente');
@@ -3908,7 +3915,7 @@ async function saveSelectedChild() {
         } catch (err: unknown) { void err; }
 
         // Refresh tree from API (may reconstruct competencies differently than the PATCH response)
-        await loadTreeFromApi(props.scenario?.id);
+        await loadTreeFromApiWrapper(props.scenario?.id);
 
         // After reload, merge authoritative competency fields into childNodes if we have them
         try {
@@ -3995,35 +4002,8 @@ const savePositions = async () => {
     }
 };
 
-const loadTreeFromApi = async (scenarioId?: number) => {
-    if (!scenarioId) {
-        nodes.value = [];
-        loaded.value = true;
-        return;
-    }
-    try {
-        // fetch capability-tree for scenario
-        const tree = await api.get(
-            `/api/strategic-planning/scenarios/${scenarioId}/capability-tree`,
-        );
-        const items = (tree as any) || [];
-        // keep raw payload for debugging / inspection in sidebar
-        capabilityTreeRaw.value = items;
-        try { console.debug('[loadTreeFromApi] fetched tree for scenario', scenarioId, 'items_count=', Array.isArray(items) ? items.length : 'na', items); } catch (err: unknown) { void err; }
-        // capability-tree response received
-        buildNodesFromItems(items);
-        // ensure edges are rebuilt from the fetched items
-        buildEdgesFromItems(items);
-    } catch (err: unknown) {
-        void err;
-        // error loading capability-tree
-        nodes.value = [];
-    } finally {
-        loaded.value = true;
-        // ensure nodes are ordered after API load (persist layout)
-        try { await reorderNodes(); } catch (err: unknown) { void err; }
-    }
-};
+// Función loadTreeFromApi original eliminada - ahora usamos loadTreeFromApiWrapper del bloque de inicialización
+// que integra useScenarioAPI.loadCapabilityTree()
 
 onMounted(async () => {
     // expose helper for quick debugging in browser console
@@ -4054,7 +4034,7 @@ onMounted(async () => {
         );
         if (!hasPivot) {
             // fetch canonical tree which includes pivot/entity attributes
-            await loadTreeFromApi(props.scenario.id);
+            await loadTreeFromApiWrapper(props.scenario.id);
             // ensure positions and scenario node are initialized
             setScenarioInitial();
             try { await reorderNodes(); } catch (err: unknown) { void err; }
@@ -4094,7 +4074,7 @@ onMounted(async () => {
         return;
     }
     // otherwise fetch capability tree from API
-    void loadTreeFromApi(props.scenario?.id);
+    void loadTreeFromApiWrapper(props.scenario?.id);
 
     // initialize responsive sizing and observe container
     const el = mapRoot.value as HTMLElement | null;
@@ -4186,7 +4166,7 @@ watch(
             loaded.value = true;
             try { void reorderNodes(); } catch (err: unknown) { void err; }
         } else {
-            void loadTreeFromApi((nv as any).id);
+            void loadTreeFromApiWrapper((nv as any).id);
         }
     },
     { immediate: false },
@@ -5002,7 +4982,7 @@ if (!edges.value) edges.value = [];
                                 <div style="margin-top:6px"><strong>Estado:</strong> {{ props.scenario?.status ?? '—' }} • <strong>Año fiscal:</strong> {{ props.scenario?.fiscal_year ?? '—' }}</div>
                                 <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
                                     <v-btn small color="secondary" @click="showScenarioRaw = !showScenarioRaw">{{ showScenarioRaw ? 'Ocultar JSON' : 'Ver JSON crudo' }}</v-btn>
-                                    <v-btn small text @click="() => { void loadTreeFromApi(props.scenario?.id); }">Refrescar árbol</v-btn>
+                                    <v-btn small text @click="() => { void loadTreeFromApiWrapper(props.scenario?.id); }">Refrescar árbol</v-btn>
                                 </div>
                                 <div v-if="showScenarioRaw" style="margin-top:12px; max-height:420px; overflow:auto; background:rgba(0,0,0,0.04); padding:8px; border-radius:6px">
                                     <pre style="white-space:pre-wrap; word-break:break-word">{{ capabilityTreeRaw ? JSON.stringify(capabilityTreeRaw, null, 2) : 'No hay datos cargados. Pulsa "Refrescar árbol".' }}</pre>
@@ -5407,9 +5387,7 @@ if (!edges.value) edges.value = [];
 .scenario-node .scenario-icon .rose-primary {
     fill: #5f82b9; /* north needle: changed from pink to blue */
 }
-.scenario-node .scenario-icon .rose-secondary {
-    /* fill is provided by SVG gradient (compassNeedleGrad) */
-}
+/* .scenario-node .scenario-icon .rose-secondary - fill provided by SVG gradient (compassNeedleGrad) */
 .scenario-node .scenario-icon .rose-center {
     fill: #03555b;
 }
