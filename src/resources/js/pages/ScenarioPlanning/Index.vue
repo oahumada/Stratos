@@ -4168,12 +4168,14 @@ watch(
 );
 
 // react to scenario prop updates (e.g., loaded after mount)
+// Note: Using deep: false - only react when the prop reference changes (Inertia reload),
+// not when we mutate nested data locally (e.g., skill deletion)
 watch(
     () => props.scenario,
-    (nv) => {
+    (nv, ov) => {
         if (!nv) return;
-        // Skip rebuild if we're in the middle of a local mutation (e.g., skill deletion)
-        if (suppressWatcherLayout.value) return;
+        // Skip if same reference (local mutation, not Inertia update)
+        if (nv === ov) return;
         if (
             Array.isArray((nv as any).capabilities) &&
             (nv as any).capabilities.length > 0
@@ -4187,7 +4189,7 @@ watch(
             void loadTreeFromApi((nv as any).id);
         }
     },
-    { immediate: false, deep: true },
+    { immediate: false },
 );
 
 // keep scenario name in sync when scenario prop changes

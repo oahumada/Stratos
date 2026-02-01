@@ -510,7 +510,7 @@ Route::middleware('auth:sanctum')->group(function () {
         if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
-        
+
         // Check the skill exists and belongs to user's organization
         $skill = App\Models\Skill::find($skillId);
         if (!$skill) {
@@ -519,7 +519,7 @@ Route::middleware('auth:sanctum')->group(function () {
         if (isset($skill->organization_id) && $skill->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
-        
+
         // Log the deletion attempt
         \Log::info('[DELETE /competencies/{competencyId}/skills/{skillId}]', [
             'competencyId' => $competencyId,
@@ -533,12 +533,12 @@ Route::middleware('auth:sanctum')->group(function () {
             \DB::table('competency_skills')
                 ->where('skill_id', $skillId)
                 ->delete();
-            
+
             \Log::info('[DELETE] Removed all competency_skills relations for skill:', ['skillId' => $skillId]);
-            
+
             // Then delete the skill itself
             $deleted = $skill->delete();
-            
+
             \Log::info('[DELETE] Skill deletion result:', ['deleted' => $deleted, 'skillId' => $skillId]);
 
             if (!$deleted) {

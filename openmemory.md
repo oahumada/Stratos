@@ -39,12 +39,14 @@ Route::delete('/competencies/{competencyId}/skills/{skillId}', function(...) {
 **Problema resuelto:** El watcher de `selectedChild` llama a `expandCompetencies()` que reconstruye datos desde `focusedNode.competencies[].skills`. Si solo se actualizaba `selectedChild.skills`, la skill reaparecía. La solución fue actualizar TODAS las fuentes de datos simultáneamente.
 
 **Ubicación de código:**
+
 - Endpoint: `src/routes/api.php` líneas ~500-555
 - Función frontend: `removeSkillFromCompetency()` en Index.vue
 - Template árbol skills: línea ~4727 `v-for="(s) in grandChildNodes"`
 - Diálogo detalle skill con botón Borrar: línea ~5061
 
 **CSRF:** API routes excluidas de CSRF validation en `bootstrap/app.php`:
+
 ```php
 $middleware->validateCsrfTokens(except: ['/api/*']);
 ```
