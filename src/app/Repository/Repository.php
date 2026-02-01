@@ -52,14 +52,16 @@ abstract class Repository implements RepositoryInterface
 
     public function update(Request $request)
     {
-        // Extract the 'id' from the incoming request data
-        $id = $request->input('data.id');
-        Log::info('Request data:', is_array($request->all()) ? $request->all() : ['data' => $request->all()]);
+        // Get the data payload: prioritize 'data' key, fallback to all request data
+        $allData = $request->get('data', $request->all());
+        Log::info('Request data:', is_array($allData) ? $allData : ['data' => $allData]);
 
-        // Retrieve the data to update and log it
-        $dataToUpdate = $request->input('data');
-        //Log::info('Incoming data for update: ', $dataToUpdate);
-
+        // Extract the 'id' from the payload
+        $id = $allData['id'] ?? null;
+        
+        // Retrieve the data to update
+        $dataToUpdate = $allData;
+        
         // Remove the 'id' key to prepare for updating the model
         unset($dataToUpdate['id']);
 

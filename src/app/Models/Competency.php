@@ -40,8 +40,16 @@ class Competency extends Model
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'competency_skills', 'competency_id', 'skill_id')
-            ->withPivot('weight', 'priority', 'required_level', 'rationale', 'is_required')
+            ->withPivot($this->competencySkillPivotColumns())
             ->withTimestamps();
+    }
+
+    private function competencySkillPivotColumns(): array
+    {
+        $cols = ['weight', 'priority', 'required_level', 'rationale', 'is_required'];
+        return array_values(array_filter($cols, function ($c) {
+            return Schema::hasColumn('competency_skills', $c);
+        }));
     }
 
     public function competencySkills()

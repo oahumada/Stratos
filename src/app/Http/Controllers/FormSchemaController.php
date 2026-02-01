@@ -115,12 +115,16 @@ class FormSchemaController extends Controller
     {
         try {
             $this->initializeForModel($modelName);
-            // If the route provided an $id but the request body did not include it,
-            // merge it into the expected 'data.id' payload so repository->update can find it.
-            if ($id !== null && $request->input('data.id') === null) {
-                $data = $request->input('data', []);
-                $data['id'] = $id;
-                $request->merge(['data' => $data]);
+            
+            // Ensure the ID is present in the request payload.
+            // If the route provides an $id, inject it into the payload at the top level
+            // so that Repository::update() can extract it via $allData['id'].
+            if ($id !== null) {
+                $data = $request->get('data', $request->all());
+                if (!isset($data['id'])) {
+                    $data['id'] = $id;
+                    $request->merge(['data' => $data]); // also merge at 'data' key for compatibility
+                }
             }
 
             return $this->repository->update($request);
