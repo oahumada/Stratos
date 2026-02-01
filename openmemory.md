@@ -9,6 +9,12 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Fecha: 2026-01-19
 - la carpeta del proyecto es /src
 
+### Cambios recientes - Modelado de Skills
+
+- Se consolidó el modelo de habilidades a nombre singular `Skill`.
+- `app/Models/Skills.php` fue reemplazado por un alias (`class Skills extends Skill`) para compatibilidad retroactiva; se planea eliminar el archivo tras actualizar el autoload (`composer dump-autoload`) y verificar no hay referencias restantes.
+  - Fecha: 2026-01-29
+
 ## Preferencias del usuario
 
 - **Proyecto (específico):** Ejecutar comandos, scripts y pruebas desde la carpeta `src` (por ejemplo, `cd src && npm test` o `cd src && php artisan test`).

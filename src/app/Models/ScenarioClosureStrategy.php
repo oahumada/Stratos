@@ -43,7 +43,7 @@ class ScenarioClosureStrategy extends Model
 
     public function skill(): BelongsTo
     {
-        return $this->belongsTo(Skills::class);
+        return $this->belongsTo(Skill::class);
     }
 
     public function assignedUser(): BelongsTo

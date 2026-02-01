@@ -2815,6 +2815,16 @@ function handleSkillClick(skill: any, event?: MouseEvent) {
 
 // Save skill edits + optional pivot edits
 async function saveSkillDetail() {
+    // Debug: trace invocation and key state to help diagnose "botón no hace nada" en runtime
+    try {
+        console.debug('[saveSkillDetail] invoked', {
+            selectedSkillDetail: selectedSkillDetail?.value ?? null,
+            skillEditName: skillEditName?.value ?? null,
+            selectedChild: selectedChild?.value ?? null,
+            focusedNode: focusedNode?.value ?? null,
+        });
+    } catch (errDbg: unknown) { void errDbg; }
+
     if (!selectedSkillDetail.value) return showError('No hay skill seleccionada');
     const skillId = selectedSkillDetail.value.id ?? null;
     if (!skillId) return showError('Skill no tiene id');
@@ -2833,10 +2843,12 @@ async function saveSkillDetail() {
         Object.keys(skillPayload).forEach((k) => skillPayload[k] === undefined && delete skillPayload[k]);
         // update skill entity
         try {
+            // Ensure CSRF cookie (Sanctum) is present before mutating requests
+            try { await ensureCsrf(); } catch (e) { /* proceed, server may not require it */ }
             await api.patch(`/api/skills/${skillId}`, skillPayload);
             showSuccess('Skill actualizada');
         } catch (err: unknown) {
-            console.error('saveSkillDetail - skill patch error', err);
+            try { console.error('saveSkillDetail - skill patch error', err, (err as any)?.response?.data); } catch (e) { console.error('saveSkillDetail - skill patch error', err); }
             showError('Error guardando skill');
             throw err;
         }
@@ -2922,6 +2934,7 @@ async function saveSkillDetail() {
     } catch (errAll: unknown) {
         // already reported
     } finally {
+        try { console.debug('[saveSkillDetail] finished, savingSkillDetail:', savingSkillDetail.value); } catch (e) { void e; }
         savingSkillDetail.value = false;
     }
 }
@@ -2943,6 +2956,14 @@ watch(skillDetailDialogVisible, (v) => {
         skillPivotRationale.value = '';
         skillPivotIsRequired.value = false;
     }
+});
+
+// Expose saveSkillDetail for debugging from browser console
+onMounted(() => {
+    try { (window as any).__saveSkillDetail = saveSkillDetail; } catch (e) { void e; }
+});
+onBeforeUnmount(() => {
+    try { delete (window as any).__saveSkillDetail; } catch (e) { void e; }
 });
 
 // Fullscreen toggle removed: UX disabled. We rely only on the browser Fullscreen API when used externally.

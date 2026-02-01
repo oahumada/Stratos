@@ -65,7 +65,7 @@ class People extends Model
 
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skills::class, 'people_role_skills', 'people_id', 'skill_id')
+        return $this->belongsToMany(Skill::class, 'people_role_skills', 'people_id', 'skill_id')
             ->wherePivot('is_active', true)
             ->withPivot(
                 'role_id',

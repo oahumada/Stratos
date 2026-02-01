@@ -118,7 +118,7 @@ class FormSchemaController extends Controller
     }
 
     /**
-     * Mostrar registros para FormSchema (filtrados por paciente_id)
+     * Mostrar registros para FormSchema (filtrados por )
      * Usa eager loading automático para optimizar la carga de relaciones
      */
     public function show(Request $request, string $modelName, $id = null)
@@ -177,14 +177,14 @@ class FormSchemaController extends Controller
     {
         try {
             $this->initializeForModel($modelName);
-            
+
             if (method_exists($this->repository, 'search')) {
                 return $this->repository->search($id ?? $request);
             }
-            
+
             // Fallback a search
             return $this->search($request, $modelName);
-            
+
         } catch (\Exception $e) {
             Log::error("Error in FormSchemaController::search for {$modelName}: " . $e->getMessage());
             return response()->json([

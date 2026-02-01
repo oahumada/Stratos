@@ -39,8 +39,8 @@ class Competency extends Model
 
     public function skills()
     {
-        return $this->belongsToMany(Skills::class, 'competency_skills', 'competency_id', 'skill_id')
-            ->withPivot('weight')
+        return $this->belongsToMany(Skill::class, 'competency_skills', 'competency_id', 'skill_id')
+            ->withPivot('weight', 'priority', 'required_level', 'rationale', 'is_required')
             ->withTimestamps();
     }
 

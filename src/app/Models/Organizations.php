@@ -22,7 +22,7 @@ class Organizations extends Model
 
     public function skills(): HasMany
     {
-        return $this->hasMany(Skills::class);
+        return $this->hasMany(Skill::class);
     }
 
     public function roles(): HasMany

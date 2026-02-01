@@ -4,8 +4,9 @@ namespace App\Repository;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+// Schema not required for primary-key lookups
 use Illuminate\Database\Eloquent\Model;
-use illuminate\Database\QueryException;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Response;
 use App\Helpers\Tools;
@@ -196,51 +197,47 @@ abstract class Repository implements RepositoryInterface
     public function show(Request $request, $id)
     {
         Log::info($id);
-        $paciente_id = $id;
         try {
-            if ($paciente_id && is_numeric($paciente_id)) {
-                $query = $this->model->query();
-                Log::info('Current Model: ' . get_class($this->model));
-                $withRelations = $request->input('withRelations', []);
-                Log::info($withRelations);
+            $query = $this->model->query();
+            Log::info('Current Model: ' . get_class($this->model));
+            $withRelations = $request->input('withRelations', []);
+            Log::info($withRelations);
 
-                // Add eager loading with error handling
-                if (!empty($withRelations)) {
-                    $validRelations = [];
-                    $modelInstance = new $this->model;
+            // Add eager loading with error handling
+            if (!empty($withRelations)) {
+                $validRelations = [];
+                $modelInstance = new $this->model;
 
-                    foreach ($withRelations as $relation) {
-                        if (method_exists($modelInstance, $relation)) {
-                            $validRelations[] = $relation;
-                        } else {
-                            Log::warning("Invalid relation attempted: $relation");
-                        }
-                    }
-
-                    try {
-                        $query->with($validRelations);
-                    } catch (\Exception $e) {
-                        Log::error('Eager loading failed: ' . $e->getMessage());
-                        Log::error('Failed relations: ' . json_encode($withRelations));
+                foreach ($withRelations as $relation) {
+                    if (method_exists($modelInstance, $relation)) {
+                        $validRelations[] = $relation;
+                    } else {
+                        Log::warning("Invalid relation attempted: $relation");
                     }
                 }
 
-                // Filter by paciente_id
-                $query->where('paciente_id', $paciente_id);
-
-                // MOVE LOGGING HERE - AFTER ALL QUERY CONDITIONS
-                Log::info('Final Query: ' . $query->toSql());
-                Log::info('Query Bindings: ' . json_encode($query->getBindings()));
-
-                $results = $query->get();
-                Log::info($results);
-
-                return response()->json([
-                    'result' => 'success',
-                    'data' => $results,
-                    'message' => 'Registros cargados exitosamente'
-                ]);
+                try {
+                    $query->with($validRelations);
+                } catch (\Exception $e) {
+                    Log::error('Eager loading failed: ' . $e->getMessage());
+                    Log::error('Failed relations: ' . json_encode($withRelations));
+                }
             }
+
+            $query->where($this->model->getKeyName(), $id);
+
+            // MOVE LOGGING HERE - AFTER ALL QUERY CONDITIONS
+            Log::info('Final Query: ' . $query->toSql());
+            Log::info('Query Bindings: ' . json_encode($query->getBindings()));
+
+            $results = $query->get();
+            Log::info($results);
+
+            return response()->json([
+                'result' => 'success',
+                'data' => $results,
+                'message' => 'Registros cargados exitosamente'
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener el registro',

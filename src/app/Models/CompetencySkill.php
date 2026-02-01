@@ -20,6 +20,7 @@ class CompetencySkill extends Model
 
     public function skill()
     {
-        return $this->belongsTo(Skills::class, 'skill_id');
+        return $this->belongsTo(Skill::class, 'skill_id');
     }
 }
+return $this->belongsTo(Skill::class, 'skill_id');
