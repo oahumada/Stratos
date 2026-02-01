@@ -10,6 +10,24 @@ config.global.config.compilerOptions = {
   isCustomElement: (tag: string) => tag.startsWith('v-'),
 }
 
+// Global simple stubs for common Vuetify components so tests don't need
+// to register them per-mount. These render slots as basic HTML elements
+// which makes DOM-based assertions straightforward.
+config.global.components = {
+  ...(config.global.components || {}),
+  'v-btn': { template: '<button><slot/></button>' },
+  'v-dialog': { template: '<div><slot/></div>' },
+  'v-card': { template: '<div><slot/></div>' },
+  'v-card-actions': { template: '<div><slot/></div>' },
+  'v-card-text': { template: '<div><slot/></div>' },
+  'v-card-title': { template: '<div><slot/></div>' },
+  'v-text-field': { template: '<input />' },
+  'v-form': { template: '<form><slot/></form>' },
+  'v-row': { template: '<div><slot/></div>' },
+  'v-col': { template: '<div><slot/></div>' },
+  'v-slider': { template: '<input type="range" />' },
+}
+
 // Default centralized mock for `useApi`. Tests can replace
 // `global.__VITEST_MOCK_API` before mounting components to inject their
 // own spies/mocks. The module factory reads the global at runtime so tests
