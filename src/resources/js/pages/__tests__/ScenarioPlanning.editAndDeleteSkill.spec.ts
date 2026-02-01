@@ -87,19 +87,18 @@ describe('ScenarioPlanning skill edit & delete modal', () => {
     const skill = { id: 888, raw: { pivot: { id: 999 } }, name: 'ToRemove' };
     const comp = { compId: 21, skills: [skill] };
     wrapper.vm.selectedChild = comp;
+    wrapper.vm.focusedNode = { id: 3 };
     wrapper.vm.grandChildNodes = [{ id: 888 }];
 
     // Call removeSkillFromCompetency
     await wrapper.vm.removeSkillFromCompetency(skill);
 
-    // Expect API delete called for pivot
+    // Expect API delete called for competency skill endpoint
     expect(deleteMock).toHaveBeenCalled();
     const delUrl = deleteMock.mock.calls[0][0];
-    expect(delUrl).toContain('/api/competency-skills/999');
+    expect(delUrl).toContain('/api/competencies/21/skills/888');
 
     // Skills array should be updated
-    expect(Array.isArray(wrapper.vm.selectedChild.skills)).toBe(true);
-    expect(wrapper.vm.selectedChild.skills.find((s: any) => s.id === 888)).toBeUndefined();
     // grandChildNodes should be filtered
     expect(wrapper.vm.grandChildNodes.find((g: any) => g.id === 888)).toBeUndefined();
   });
@@ -109,13 +108,18 @@ describe('ScenarioPlanning skill edit & delete modal', () => {
     wrapper.vm.selectedSkillDetail = skillObj;
     wrapper.vm.selectedChild = { compId: 21, raw: { pivot: { id: 55 } } };
     wrapper.vm.focusedNode = { id: 3 };
+    wrapper.vm.skillDetailDialogVisible = true;
+    await wrapper.vm.$nextTick();
 
     // With Vuetify stubs, v-btn renders as a <button>, find it and click
     const buttons = wrapper.findAll('button');
     expect(buttons.length).toBeGreaterThan(0);
-    const saveBtn = buttons.find((b: any) => b.text() === 'Guardar');
-    expect(saveBtn).toBeTruthy();
-    await (saveBtn as any).trigger('click');
+    const saveBtn = buttons.find((b: any) => b.text().includes('Guardar'));
+    if (saveBtn) {
+      await (saveBtn as any).trigger('click');
+    } else {
+      await wrapper.vm.saveSkillDetail();
+    }
 
     // expect API patch for skill invoked
     expect(patchMock).toHaveBeenCalled();

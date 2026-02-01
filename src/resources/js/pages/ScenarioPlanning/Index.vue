@@ -3,7 +3,6 @@
 import { useApi } from '@/composables/useApi';
 import { useCompetencySkills } from '@/composables/useCompetencySkills';
 import { useNotification } from '@/composables/useNotification';
-import * as d3 from 'd3';
 import { onMounted, ref, watch, onBeforeUnmount, computed, nextTick } from 'vue';
 import { computeMatrixPositions } from '@/composables/useNodeNavigation';
 import { chooseMatrixVariant, computeCompetencyMatrixPositions, computeSidesPositions, decideCompetencyLayout } from '@/composables/useCompetencyLayout';
@@ -203,7 +202,13 @@ const emit = defineEmits<{
 const scenarioState = useScenarioState();
 const scenarioAPI = useScenarioAPI();
 const { 
-    runForceLayout 
+    runForceLayout,
+    expandSkills: expandSkillsFromLayout,
+    expandCompetencies: expandCompetenciesFromLayout,
+    centerOnNode: centerOnNodeFromLayout,
+    collapseGrandChildren: collapseGrandChildrenFromLayout,
+    LAYOUT_CONFIG,
+    clampY: clampYFromLayout
 } = useScenarioLayout();
 const { 
     injectState: injectEdgeState,
@@ -633,7 +638,12 @@ async function createAndAttachSkill() {
         // Expand skills to show the newly created skill immediately (consistent with competencies pattern)
         // Do this BEFORE clearing fields to ensure proper DOM updates
         if (selectedChild.value) {
-            expandSkills(selectedChild.value, undefined, { layout: 'auto' });
+            const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, undefined, { layout: 'auto' }, height.value);
+            grandChildNodes.value = result.grandChildNodes;
+            grandChildEdges.value = result.grandChildEdges;
+            nextTick(() => {
+                grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+            });
         }
         
         // Mostrar alerta de éxito pero NO cerrar el modal
@@ -689,7 +699,12 @@ async function attachExistingSkill() {
         // Expand skills to show the newly attached skill immediately
         // Do this BEFORE closing the modal to ensure proper DOM updates
         if (selectedChild.value) {
-            expandSkills(selectedChild.value, undefined, { layout: 'auto' });
+            const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, undefined, { layout: 'auto' }, height.value);
+            grandChildNodes.value = result.grandChildNodes;
+            grandChildEdges.value = result.grandChildEdges;
+            nextTick(() => {
+                grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+            });
         }
         
         selectSkillDialogVisible.value = false;
@@ -967,137 +982,8 @@ const followScenario = ref<boolean>(false);
 const TRANSITION_MS = 420;
 const TRANSITION_BUFFER = 60; // small buffer to ensure browser finished
 
-// ===== CENTRALIZED LAYOUT CONFIG - Tuneable from one place =====
-const LAYOUT_CONFIG = {
-    // ===== CAPABILITY NODE LAYOUT (parent level) =====
-    capability: {
-        spacing: {
-            hSpacing: 100, // horizontal spacing in matrix layout
-            vSpacing: 80, // vertical spacing in matrix layout
-        },
-        // Force simulation for D3 layout engine
-        forces: {
-            linkDistance: 100, // distance between connected nodes
-            linkStrength: 0.5, // 0-1, how much links pull nodes
-            chargeStrength: -220, // negative = repulsion, pushes nodes apart
-        },
-        // Scenario -> Capability curved edge
-        scenarioEdgeDepth: 90, // curvature depth (px)
-    },
-
-    // ===== COMPETENCY NODE LAYOUT (child level) =====
-    // Radial mode activates when >5 nodes with one selected
-    competency: {
-        radial: {
-            radius: 150, // distance from center to other competencies
-            selectedOffsetY:10, // vertical offset for selected node to leave room for skills
-            startAngle: -Math.PI / 4, // -45° (bottom-left)
-            endAngle: (5 * Math.PI) / 4, // 225° (covers lower 3/4 of circle)
-        },
-        // Sides-specific tuning (used when layout === 'sides')
-        sides: {
-            // multiplier applied to the selected node vertical offset when using `sides` layout
-            // value <1 moves the selected node closer to the parent; default 0.75 (25% closer)
-            selectedOffsetMultiplier: 0.75,
-        },
-        // default layout: 'auto' = use heuristic, or 'radial'|'matrix'|'sides'
-        defaultLayout: 'auto',
-        // default vertical offset (px) from parent capability to competencies when no prop overrides
-        parentOffset: 10,
-        // maximum number of competency nodes to display (extra are truncated)
-        maxDisplay: 10,
-        // matrix sizing rules based on number of nodes
-        matrixVariants: [
-            // 2..3 nodes -> 3 cols x 1 row
-            { min: 2, max: 3, rows: 1, cols: 3 },
-            // 4..8 nodes -> 4 cols x 2 rows
-            { min: 4, max: 8, rows: 2, cols: 4 },
-            // 9..10 nodes -> 5 cols x 2 rows
-            { min: 9, max: 10, rows: 2, cols: 5 },
-        ],
-        spacing: {
-            hSpacing: 100, // matrix layout horizontal
-            vSpacing: 20, // matrix layout vertical
-            parentOffset: 20, // distance below parent capability
-        },
-        // Capability -> Competency curved edge
-        edge: {
-            baseDepth: 40, // base curve depth (px)
-            curveFactor: 0.45, // multiplier: curve = baseDepth + (distance * curveFactor)
-            spreadOffset: 18, // offset for parallel curves
-        },
-    },
-
-    // ===== SKILL NODE LAYOUT (grandchild level) =====
-    // Radial mode activates when >4 skills
-    skill: {
-        maxDisplay: 10, // maximum skills to show
-        radial: {
-            radius: 100, // distance from competency center
-            startAngle: -Math.PI / 6, // -30°
-            endAngle: (7 * Math.PI) / 6, // 210° (covers lower 2/3 of circle)
-            // multiplier to scale offsetY (simple relative adjustment). 0 = absolute, 0.2 = +20%
-            offsetFactor: 0.6,
-            offsetY: 120, // vertical offset from competency
-        },
-        // default layout selection for skills: 'auto'|'radial'|'matrix'|'sides'
-        defaultLayout: 'auto',
-        // matrix sizing rules for skills (mirror competencies but with 2..4 -> 1x4)
-        matrixVariants: [
-            { min: 2, max: 3, rows: 1, cols: 3 },
-            { min: 4, max: 8, rows: 2, cols: 4 },
-            { min: 9, max: 10, rows: 2, cols: 5 },
-        ],
-        // sides tuning for skills (used when layout === 'sides')
-        sides: {
-            hSpacing: 120,
-            vSpacing: 70,
-            parentOffset: 80,
-            selectedOffsetMultiplier: 0.75,
-        },
-        linear: {
-            hSpacing: 100, // Used for <=4 skills (horizontal)
-            vSpacing: 60, // Used for <=4 skills (vertical)
-        },
-        // Competency -> Skill curved edge
-        edge: {
-            baseDepth: 20, // base curve depth (px)
-            curveFactor: 0.45, // multiplier: curve = baseDepth + (distance * curveFactor)
-            spreadOffset: 10, // offset for parallel curves
-        },
-    },
-
-    // ===== Animations, node defaults and clamps (centralized) =====
-    animations: {
-        // JS timing values (ms)
-        competencyEntryFinalize: 80,
-        skillEntryFinalize: 70,
-        collapseDuration: 10,
-        // stagger / sequencing
-        competencyStaggerRow: 30,
-        competencyStaggerCol: 12,
-        competencyStaggerRandom: 30,
-        skillStaggerRow: 20,
-        skillStaggerCol: 8,
-        // fallback lead factor used when racing transition vs wait
-        leadFactor: 0.6,
-    },
-
-    node: {
-        radius: 34,
-        focusRadius: 44,
-    },
-
-    clamp: {
-        minY: 40,
-        bottomPadding: 40,
-        minViewportHeight: 120,
-    },
-};
-// ===== END LAYOUT CONFIG ===== All layout parameters centralized here for easy tuning
-// ===== END LAYOUT CONFIG ===== All layout parameters centralized here for easy tuning
-
-// Animations, node defaults and clamps have been moved into the main LAYOUT_CONFIG object above.
+// NOTA: LAYOUT_CONFIG ahora viene del composable useScenarioLayout
+// La siguiente declaración se elimina para evitar redeclaración
 
 function wait(ms: number) {
     return new Promise((res) => setTimeout(res, ms));
@@ -1283,7 +1169,7 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
                 const n = group[i];
                 const proposedY = startY + i * spacing;
                 n.x = targetX;
-                n.y = clampY(proposedY);
+                n.y = clampYFromLayout(proposedY);
             }
             return;
         }
@@ -1306,7 +1192,7 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
                 const n = colItems[i];
                 const proposedY = startY + i * colSpacing;
                 n.x = Math.min(Math.max(32, colX), Math.max(48, width.value - 32));
-                n.y = clampY(proposedY);
+                n.y = clampYFromLayout(proposedY);
             }
         }
     };
@@ -1322,7 +1208,7 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
         const matched = leftGroup.find((m) => m.id === n.id) || rightGroup.find((m) => m.id === n.id);
         if (matched) return { ...n, x: matched.x, y: matched.y } as any;
         // fallback: clamp existing
-        return { ...n, x: Math.min(Math.max(48, n.x ?? centerX), Math.max(160, width.value - 48)), y: clampY(n.y ?? centerY) } as any;
+        return { ...n, x: Math.min(Math.max(48, n.x ?? centerX), Math.max(160, width.value - 48)), y: clampYFromLayout(n.y ?? centerY) } as any;
     });
 
     // Position scenario node (if following) relative to focused node
@@ -2230,7 +2116,7 @@ function renderedNodeById(id: number) {
     const n = nodeById(id);
     if (!n) return null;
     // ensure we pass a number to clampY (avoid undefined)
-    return { x: renderNodeX(n), y: clampY(n.y ?? 0) } as any;
+    return { x: renderNodeX(n), y: clampYFromLayout(n.y ?? 0) } as any;
 }
 
 // Returns true if the given edge's target node is approximately centered horizontally
@@ -2446,12 +2332,12 @@ function buildNodesFromItems(items: any[]) {
                 if (dist < MIN_ORIGIN_SEPARATION) {
                     // push node downwards preferentially; if directly above, nudge down
                     if (dist === 0) {
-                        return { ...n, x: n.x, y: clampY(sy + MIN_ORIGIN_SEPARATION) } as any;
+                        return { ...n, x: n.x, y: clampYFromLayout(sy + MIN_ORIGIN_SEPARATION) } as any;
                     }
                     const scale = MIN_ORIGIN_SEPARATION / Math.max(1, dist);
                     const newX = Math.round(sx + dx * scale);
                     const newY = Math.round(sy + dy * scale);
-                    return { ...n, x: newX, y: clampY(newY) } as any;
+                    return { ...n, x: newX, y: clampYFromLayout(newY) } as any;
                 }
                 return n;
             });
@@ -2619,13 +2505,28 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                 console.debug && console.debug('[expandSkills.debug] parentId=', pid, 'domPos=', domPos, 'renderedPos=', renderedPos, 'modelPos=', { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
                                 // Prefer rendered X (align with render pipeline) but DOM Y (visual position)
                                 const preferred = (renderedPos && domPos) ? { x: renderedPos.x, y: domPos.y } : (renderedPos ?? domPos);
-                                expandSkills(comp, preferred);
+                                const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
+                                grandChildNodes.value = result.grandChildNodes;
+                                grandChildEdges.value = result.grandChildEdges;
+                                nextTick(() => {
+                                    grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+                                });
                             } else {
                                 // fallback when parentNode is not available
-                                expandSkills(comp, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                                const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 }, { layout: 'auto' }, height.value);
+                                grandChildNodes.value = result.grandChildNodes;
+                                grandChildEdges.value = result.grandChildEdges;
+                                nextTick(() => {
+                                    grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+                                });
                             }
                             } catch (err: unknown) {
-                            expandSkills(comp, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                            const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 }, { layout: 'auto' }, height.value);
+                            grandChildNodes.value = result.grandChildNodes;
+                            grandChildEdges.value = result.grandChildEdges;
+                            nextTick(() => {
+                                grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+                            });
                             }
                         } else if (compId) {
                             try {
@@ -2642,9 +2543,19 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                     console.debug && console.debug('[expandSkills.debug] parentId=', pid, 'domPos=', domPos, 'renderedPos=', renderedPos, 'modelPos=', { x: parentNode?.x, y: parentNode?.y });
                                     // Prefer rendered X (align with render pipeline) but DOM Y (visual position)
                                     const preferred = (renderedPos && domPos) ? { x: renderedPos.x, y: domPos.y } : (renderedPos ?? domPos);
-                                    expandSkills(selectedChild.value, preferred);
+                                    const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
+                                    grandChildNodes.value = result.grandChildNodes;
+                                    grandChildEdges.value = result.grandChildEdges;
+                                    nextTick(() => {
+                                        grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+                                    });
                                 } catch (err: unknown) {
-                                    expandSkills(selectedChild.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                                    const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 }, { layout: 'auto' }, height.value);
+                                    grandChildNodes.value = result.grandChildNodes;
+                                    grandChildEdges.value = result.grandChildEdges;
+                                    nextTick(() => {
+                                        grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+                                    });
                                 }
                             } catch (err: unknown) { void err; }
                         }
@@ -3233,7 +3144,12 @@ async function saveSkillDetail() {
                         }
 
                         // Re-expand skills to show updated data with proper layout
-                        expandSkills(selectedChild.value, undefined, { layout: currentLayout });
+                        const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, undefined, { layout: currentLayout }, height.value);
+                        grandChildNodes.value = result.grandChildNodes;
+                        grandChildEdges.value = result.grandChildEdges;
+                        nextTick(() => {
+                            grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+                        });
                     }
                 }
             }
@@ -3422,7 +3338,7 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
             animDelay: delay,
             animFilter: 'blur(6px) drop-shadow(0 10px 18px rgba(2,6,23,0.36))',
             animTargetX: pos.x,
-            animTargetY: clampY(pos.y),
+            animTargetY: clampYFromLayout(pos.y),
             is_critical: false,
             description: c.description ?? null,
             readiness: c.readiness ?? null,
@@ -3457,6 +3373,9 @@ function grandChildNodeById(id: number) {
     return grandChildNodes.value.find((n) => n.id === id) || null;
 }
 
+// NOTA: expandSkills ahora viene del composable useScenarioLayout
+// La siguiente función se mantiene comentada para referencia histórica
+/*
 function expandSkills(node: any, initialPos?: { x: number; y: number }, opts: { layout?: 'auto' | 'radial' | 'matrix' | 'sides' } = {}) {
     grandChildNodes.value = [];
     grandChildEdges.value = [];
@@ -3538,7 +3457,7 @@ function expandSkills(node: any, initialPos?: { x: number; y: number }, opts: { 
             animOpacity: 0,
             animDelay: delay,
             animTargetX: pos.x,
-            animTargetY: clampY(pos.y),
+            animTargetY: clampYFromLayout(pos.y),
             raw: sk,
         } as any;
         built.push(item);
@@ -3553,6 +3472,8 @@ function expandSkills(node: any, initialPos?: { x: number; y: number }, opts: { 
         }, LAYOUT_CONFIG.animations.skillEntryFinalize ?? 140);
     });
 }
+*/
+
 
 // Animación de colapso para nodos nietos (skills).
 function collapseGrandChildren(animated = false, duration?: number) {
@@ -3584,7 +3505,9 @@ function collapseGrandChildren(animated = false, duration?: number) {
     } catch (err: unknown) { void err; }
 }
 
-// clamp child node Y positions when setting them to avoid placing nodes outside viewport
+// NOTA: clampY ahora viene del composable useScenarioLayout
+// La siguiente función se elimina para evitar redeclaración
+/*
 function clampY(y: number) {
     const minY = (LAYOUT_CONFIG.clamp && typeof LAYOUT_CONFIG.clamp.minY === 'number') ? LAYOUT_CONFIG.clamp.minY : 40;
     const bottomPadding = (LAYOUT_CONFIG.clamp && typeof LAYOUT_CONFIG.clamp.bottomPadding === 'number') ? LAYOUT_CONFIG.clamp.bottomPadding : 40;
@@ -3592,6 +3515,7 @@ function clampY(y: number) {
     const maxY = Math.max(minViewportHeight, height.value - bottomPadding);
     return Math.min(Math.max(y, minY), maxY);
 }
+*/
 
 function startDrag(node: any, event: PointerEvent) {
     dragging.value = node;

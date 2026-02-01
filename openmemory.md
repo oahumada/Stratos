@@ -11,6 +11,25 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 ### Implementación: Eliminación completa de Skills en ScenarioPlanning (2026-02-01)
 
+### Testing: Suite de composables e integración ScenarioPlanning (2026-02-01)
+
+**Objetivo:** cubrir unit tests y tests de integración para los composables refactorizados y el flujo completo Capability → Competency → Skill.
+
+**Archivos de tests agregados:**
+
+- `src/resources/js/composables/__tests__/useScenarioState.spec.ts`
+- `src/resources/js/composables/__tests__/useScenarioAPI.spec.ts`
+- `src/resources/js/composables/__tests__/useScenarioLayout.spec.ts`
+- `src/resources/js/composables/__tests__/useScenarioEdges.spec.ts`
+- `src/resources/js/composables/__tests__/useScenarioComposablesIntegration.spec.ts`
+- `src/resources/js/pages/__tests__/ScenarioPlanning.composablesIntegration.spec.ts`
+
+**Notas:**
+
+- `useScenarioAPI.loadCapabilityTree()` puede devolver `{ capabilities: [...] }` o un array directo; los tests aceptan ambos formatos.
+- `removeSkillFromCompetency()` usa endpoint `/api/competencies/{competencyId}/skills/{skillId}`.
+- La suite completa pasa con `npm run test:unit` (warnings de Vuetify no bloquean).
+
 **Comportamiento implementado:** Al eliminar una skill desde el mapa, se elimina COMPLETAMENTE de la base de datos, no solo la relación pivot.
 
 **Endpoint Backend** (`src/routes/api.php` líneas ~500-555):
