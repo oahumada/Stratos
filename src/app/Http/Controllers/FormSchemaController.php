@@ -115,7 +115,7 @@ class FormSchemaController extends Controller
     {
         try {
             $this->initializeForModel($modelName);
-            
+
             // Ensure the ID is present in the request payload.
             // If the route provides an $id, inject it into the payload at the top level
             // so that Repository::update() can extract it via $allData['id'].

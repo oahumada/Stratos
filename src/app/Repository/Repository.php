@@ -58,10 +58,10 @@ abstract class Repository implements RepositoryInterface
 
         // Extract the 'id' from the payload
         $id = $allData['id'] ?? null;
-        
+
         // Retrieve the data to update
         $dataToUpdate = $allData;
-        
+
         // Remove the 'id' key to prepare for updating the model
         unset($dataToUpdate['id']);
 

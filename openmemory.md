@@ -32,11 +32,13 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 **Problema:** Aunque PATCH `/api/skills/32` retornaba 200 OK con "Model updated successfully", los cambios NO se guardaban en la BD.
 
 **Raíz:** El patrón usado en `store(Request)` era:
+
 ```php
 $query = $request->get('data', $request->all());  // Get 'data' key OR fallback to all()
 ```
 
 Pero `update(Request)` estaba leyendo:
+
 ```php
 $id = $request->input('data.id');        // Null si no existe 'data' key
 $dataToUpdate = $request->input('data'); // Null si no existe 'data' key
@@ -45,7 +47,9 @@ $dataToUpdate = $request->input('data'); // Null si no existe 'data' key
 El frontend envía `{"name": "..."}` directamente (sin `data` wrapper), entonces `dataToUpdate` quedaba null/empty, y `fill([])` no hacía nada.
 
 **Solución implementada (2026-02-01 23:05):**
+
 1. **Repository::update()** — Aplicar mismo patrón que `store()`:
+
    ```php
    $allData = $request->get('data', $request->all());  // Fallback a $request->all()
    $id = $allData['id'] ?? null;
@@ -65,10 +69,12 @@ El frontend envía `{"name": "..."}` directamente (sin `data` wrapper), entonces
    ```
 
 **Archivos modificados:**
+
 - `src/app/Repository/Repository.php` — Líneas 54-63 (update method)
 - `src/app/Http/Controllers/FormSchemaController.php` — Líneas 115-127 (update method)
 
 **Verificación post-fix:**
+
 ```
 BEFORE:  Skill 32 name = "Final Updated Name"
 PATCH:   curl -X PATCH '/api/skills/32' -d '{"name":"Skill Updated 23:05:34"}'
@@ -76,6 +82,7 @@ AFTER:   Skill 32 name = "Skill Updated 23:05:34" ✅ (verificado en sqlite3)
 ```
 
 **Impacto:**
+
 - ✅ PATCH `/api/skills/{id}` ahora persiste cambios en BD.
 - ✅ Save button en modal de Skill funciona end-to-end.
 - ✅ Compatible con ambos formatos de payload: `{data: {...}}` y `{...}` directo.
