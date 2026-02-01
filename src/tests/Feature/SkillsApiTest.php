@@ -41,8 +41,8 @@ class SkillsApiTest extends TestCase
         $response = $this->actingAs($this->user)
             ->postJson('/api/skills', $payload);
 
-        $response->assertStatus(200)
-            ->assertJsonFragment(['message' => 'Registro creado con éxito']);
+        $response->assertStatus(201)
+            ->assertJsonPath('success', true);
 
         $this->assertDatabaseHas('skills', [
             'name' => 'Test Skill X',

@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Capability;
 use App\Models\Competency;
-use App\Models\Skills;
+use App\Models\Skill;
 
 class CompetencySeeder extends Seeder
 {
@@ -26,7 +26,7 @@ class CompetencySeeder extends Seeder
             }
 
             $count = rand(1, 3);
-            $skillPool = Skills::where('capability_id', $cap->id)->get();
+            $skillPool = Skill::where('capability_id', $cap->id)->get();
 
             for ($i = 1; $i <= $count; $i++) {
                 $name = $cap->name . ' - Competency ' . $i;

@@ -68,7 +68,7 @@ class PeopleRoleSkillsSeeder extends Seeder
             $expiresAt = (clone $evaluatedAt)->addMonths(6);
 
             // Crear registro en people_role_skills
-            PeopleRoleSkills::create([
+            PeopleRoleSkill::create([
                 'people_id' => $peopleSkill->people_id,
                 'role_id' => $peopleSkill->role_id,
                 'skill_id' => $peopleSkill->skill_id,

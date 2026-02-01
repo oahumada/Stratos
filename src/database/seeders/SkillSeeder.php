@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Organizations;
-use App\Models\Skills;
+use App\Models\Skill;
 use App\Models\Capability;
 use Database\Seeders\CapabilitySeeder;
 use Illuminate\Database\Seeder;
@@ -85,7 +85,7 @@ class SkillSeeder extends Seeder
                 $cap = $capabilities->random();
             }
 
-            Skills::create([
+            Skill::create([
                 'organization_id' => $org->id,
                 'capability_id' => $cap->id,
                 ...$skill,

@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Organizations;
 use App\Models\User;
 use App\Models\Competency;
-use App\Models\Skills;
+use App\Models\Skill;
 use App\Models\Capability;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -30,8 +30,8 @@ class CompetencySkillsApiTest extends TestCase
         $capability = Capability::create(['organization_id' => $this->organization->id, 'name' => 'Cap Test A']);
         $comp = Competency::create(['organization_id' => $this->organization->id, 'capability_id' => $capability->id, 'name' => 'Comp A']);
 
-        $s1 = Skills::create(['organization_id' => $this->organization->id, 'name' => 'Skill One', 'category' => 'general']);
-        $s2 = Skills::create(['organization_id' => $this->organization->id, 'name' => 'Skill Two', 'category' => 'general']);
+        $s1 = Skill::create(['organization_id' => $this->organization->id, 'name' => 'Skill One', 'category' => 'general']);
+        $s2 = Skill::create(['organization_id' => $this->organization->id, 'name' => 'Skill Two', 'category' => 'general']);
 
         DB::table('competency_skills')->insert([
             ['competency_id' => $comp->id, 'skill_id' => $s1->id, 'weight' => 10, 'created_at' => now(), 'updated_at' => now()],
@@ -51,7 +51,7 @@ class CompetencySkillsApiTest extends TestCase
     {
         $capability = Capability::create(['organization_id' => $this->organization->id, 'name' => 'Cap Test B']);
         $comp = Competency::create(['organization_id' => $this->organization->id, 'capability_id' => $capability->id, 'name' => 'Comp B']);
-        $skill = Skills::create(['organization_id' => $this->organization->id, 'name' => 'Attach Skill', 'category' => 'general']);
+        $skill = Skill::create(['organization_id' => $this->organization->id, 'name' => 'Attach Skill', 'category' => 'general']);
 
         $response = $this->actingAs($this->user)
             ->postJson("/api/competencies/{$comp->id}/skills", ['skill_id' => $skill->id]);
@@ -83,7 +83,7 @@ class CompetencySkillsApiTest extends TestCase
             'organization_id' => $this->organization->id,
         ]);
 
-        $skill = Skills::where('name', 'New Skill X')->first();
+        $skill = Skill::where('name', 'New Skill X')->first();
         $this->assertNotNull($skill);
 
         $this->assertDatabaseHas('competency_skills', [

@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Capability;
-use App\Models\Skills;
+use App\Models\Skill;
 use App\Models\Organizations;
 use Illuminate\Support\Str;
 
@@ -37,13 +37,13 @@ class CapabilitySeeder extends Seeder
                 ]);
 
                 // Try to attach existing skills from this organization
-                $skills = Skills::where('organization_id', $org->id)->inRandomOrder()->limit(3)->get();
+                $skills = Skill::where('organization_id', $org->id)->inRandomOrder()->limit(3)->get();
 
                 if ($skills->isEmpty()) {
                     // create a couple of sample skills for the capability
                     $created = [];
                     for ($i = 1; $i <= 3; $i++) {
-                        $created[] = Skills::create([
+                        $created[] = Skill::create([
                             'organization_id' => $org->id,
                             'name' => "$name Skill $i",
                             'description' => "$desc - sample skill $i",

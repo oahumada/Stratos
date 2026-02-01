@@ -617,7 +617,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 $createdSkill = null;
 
                 if ($skillId) {
-                    $skill = App\Models\Skills::find($skillId);
+                    $skill = App\Models\Skill::find($skillId);
                     if (!$skill)
                         throw new \Exception('Skill not found');
                     if (isset($skill->organization_id) && $skill->organization_id !== ($user->organization_id ?? null))
@@ -628,7 +628,7 @@ Route::middleware('auth:sanctum')->group(function () {
                     $name = trim($payload['name'] ?? '');
                     if (empty($name))
                         throw new \Exception('Skill name is required');
-                    $createdSkill = App\Models\Skills::create([
+                    $createdSkill = App\Models\Skill::create([
                         'organization_id' => $user->organization_id ?? null,
                         'name' => $name,
                         'description' => $payload['description'] ?? null,

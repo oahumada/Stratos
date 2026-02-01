@@ -5,7 +5,7 @@ use App\Models\User;
 use App\Models\StrategicPlanningScenarios;
 use App\Models\ScenarioTemplate;
 use App\Models\ScenarioSkillDemand;
-use App\Models\Skills;
+use App\Models\Skill;
 use App\Services\ScenarioService;
 
 beforeEach(function () {
@@ -121,7 +121,7 @@ test('it calculates gaps with expected structure', function () {
         'created_by' => $this->user->id,
     ]);
 
-    $skill = Skills::create([
+    $skill = Skill::create([
         'organization_id' => $this->organization->id,
         'name' => 'Python',
         'category' => 'technical',
@@ -163,7 +163,7 @@ test('it generates suggested strategies', function () {
         'created_by' => $this->user->id,
     ]);
 
-    $skill = Skills::create([
+    $skill = Skill::create([
         'organization_id' => $this->organization->id,
         'name' => 'JavaScript',
         'category' => 'technical',

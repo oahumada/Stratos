@@ -355,7 +355,7 @@ class WorkforcePlanningSeeder extends Seeder
 
         foreach ($skillGapsData as $data) {
             // Check if skill exists before inserting
-            if (\App\Models\Skills::find($data['skill_id'])) {
+            if (\App\Models\Skill::find($data['skill_id'])) {
                 WorkforcePlanningSkillGap::updateOrCreate(
                     ['scenario_id' => $data['scenario_id'], 'skill_id' => $data['skill_id'], 'department_id' => $data['department_id']],
                     $data

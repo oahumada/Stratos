@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Organizations;
 use App\Models\User;
 use App\Models\Competency;
-use App\Models\Skills;
+use App\Models\Skill;
 use App\Models\Capability;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -56,7 +56,7 @@ class SkillCrudApiTest extends TestCase
 
     public function test_update_skill_via_formschema_updates_fields()
     {
-        $skill = Skills::create([
+        $skill = Skill::create([
             'organization_id' => $this->organization->id,
             'name' => 'Skill To Update',
             'category' => 'general',
@@ -96,7 +96,7 @@ class SkillCrudApiTest extends TestCase
         $capability = Capability::create(['organization_id' => $this->organization->id, 'name' => 'Cap Sync']);
         $comp = Competency::create(['organization_id' => $this->organization->id, 'capability_id' => $capability->id, 'name' => 'Comp Sync']);
 
-        $skill = Skills::create(['organization_id' => $this->organization->id, 'name' => 'S for Pivot', 'category' => 'general']);
+        $skill = Skill::create(['organization_id' => $this->organization->id, 'name' => 'S for Pivot', 'category' => 'general']);
 
         // attach initial pivot
         DB::table('competency_skills')->insert([
@@ -131,7 +131,7 @@ class SkillCrudApiTest extends TestCase
         $capability = Capability::create(['organization_id' => $this->organization->id, 'name' => 'Cap Del']);
         $comp = Competency::create(['organization_id' => $this->organization->id, 'capability_id' => $capability->id, 'name' => 'Comp Del']);
 
-        $skill = Skills::create(['organization_id' => $this->organization->id, 'name' => 'Skill To Delete', 'category' => 'general']);
+        $skill = Skill::create(['organization_id' => $this->organization->id, 'name' => 'Skill To Delete', 'category' => 'general']);
 
         DB::table('competency_skills')->insert([
             'competency_id' => $comp->id,

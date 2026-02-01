@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Organizations;
 use App\Models\User;
-use App\Models\Skills;
+use App\Models\Skill;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -57,7 +57,7 @@ class SkillsFullTest extends TestCase
 
     public function test_update_skill_updates_all_fields()
     {
-        $skill = Skills::create([
+        $skill = Skill::create([
             'organization_id' => $this->organization->id,
             'name' => 'Old Skill',
             'category' => 'legacy',
