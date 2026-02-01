@@ -105,13 +105,13 @@ describe('Composables Integration - Complete Workflow', () => {
       state.nodes.value = tree.map((cap: any) => ({
         id: cap.id,
         name: cap.name,
-        type: 'capability',
-        x: cap.x ?? 0,
-        y: cap.y ?? 0,
+        x: Number(cap.x) || 0,
+        y: Number(cap.y) || 0,
+        type: 'capability' as const,
       }));
 
       expect(state.nodes.value).toHaveLength(1);
-      expect(state.nodes.value[0].type).toBe('capability');
+      expect((state.nodes.value[0] as any).type).toBe('capability');
     });
 
     it('marks scenario as loaded', () => {
@@ -128,9 +128,9 @@ describe('Composables Integration - Complete Workflow', () => {
       state.nodes.value = tree.map((cap: any) => ({
         id: cap.id,
         name: cap.name,
-        type: 'capability',
-        x: cap.x ?? 0,
-        y: cap.y ?? 0,
+        x: Number(cap.x) || 0,
+        y: Number(cap.y) || 0,
+        type: 'capability' as const,
       }));
     });
 
@@ -154,8 +154,8 @@ describe('Composables Integration - Complete Workflow', () => {
         id: c.id,
         name: c.name,
         type: 'competency',
-        x: capability.x + 100,
-        y: capability.y,
+        x: (capability?.x ?? 0) + 100,
+        y: capability?.y ?? 0,
       }));
 
       expect(state.childNodes.value).toHaveLength(2);
@@ -195,9 +195,9 @@ describe('Composables Integration - Complete Workflow', () => {
       state.nodes.value = tree.map((cap: any) => ({
         id: cap.id,
         name: cap.name,
-        type: 'capability',
-        x: cap.x ?? 0,
-        y: cap.y ?? 0,
+        x: Number(cap.x) || 0,
+        y: Number(cap.y) || 0,
+        type: 'capability' as const,
       }));
 
       // Expand competencies
@@ -209,8 +209,8 @@ describe('Composables Integration - Complete Workflow', () => {
         id: c.id,
         name: c.name,
         type: 'competency',
-        x: capability.x + 100,
-        y: capability.y,
+        x: (capability?.x ?? 0) + 100,
+        y: capability?.y ?? 0,
       }));
 
       state.focusedNode.value = capability;
@@ -219,7 +219,7 @@ describe('Composables Integration - Complete Workflow', () => {
 
     it('selects competency for expansion', () => {
       expect(state.selectedChild.value).toBeDefined();
-      expect(state.selectedChild.value?.type).toBe('competency');
+      expect((state.selectedChild.value as any)?.type).toBe('competency');
     });
 
     it('creates grandchild nodes from skills', () => {
@@ -233,8 +233,8 @@ describe('Composables Integration - Complete Workflow', () => {
         id: s.id,
         name: s.name,
         type: 'skill',
-        x: (competency?.x || 0) + 80,
-        y: (competency?.y || 0),
+        x: (competency?.x ?? 0) + 80,
+        y: (competency?.y ?? 0),
       }));
 
       expect(state.grandChildNodes.value).toHaveLength(2);
@@ -290,16 +290,33 @@ describe('Composables Integration - Complete Workflow', () => {
     beforeEach(() => {
       // Setup nodes for edge rendering
       state.nodes.value = [
-        { id: 1, type: 'capability', x: 100, y: 100, name: 'Cap 1' },
+        { id: 1, x: 100, y: 100, name: 'Cap 1' } as any,
       ];
       state.childNodes.value = [
-        { id: 10, type: 'competency', x: 200, y: 100, name: 'Comp 1' },
-        { id: 11, type: 'competency', x: 300, y: 150, name: 'Comp 2' },
+        { id: 10, x: 200, y: 100, name: 'Comp 1' } as any,
+        { id: 11, x: 300, y: 150, name: 'Comp 2' } as any,
       ];
       state.childEdges.value = [
         { source: 1, target: 10 },
         { source: 1, target: 11 },
       ];
+
+      // Ensure nodes have numeric x/y (not null) before injecting
+      state.nodes.value = state.nodes.value.map(n => ({
+        ...n,
+        x: n.x ?? 0,
+        y: n.y ?? 0,
+      }));
+      state.childNodes.value = state.childNodes.value.map(n => ({
+        ...n,
+        x: n.x ?? 0,
+        y: n.y ?? 0,
+      }));
+      state.grandChildNodes.value = state.grandChildNodes.value.map(n => ({
+        ...n,
+        x: n.x ?? 0,
+        y: n.y ?? 0,
+      }));
 
       // Inject state into edges composable
       edges.injectState(
@@ -348,8 +365,8 @@ describe('Composables Integration - Complete Workflow', () => {
         id: cap.id,
         name: cap.name,
         type: 'capability',
-        x: cap.x ?? 100,
-        y: cap.y ?? 100,
+        x: Number(cap.x) || 100,
+        y: Number(cap.y) || 100,
       }));
 
       expect(state.nodes.value).toHaveLength(1);

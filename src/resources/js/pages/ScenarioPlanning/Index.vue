@@ -966,10 +966,41 @@ const savedFocusedNodeId = ref<number | null>(null);
 const viewX = ref(0);
 const viewY = ref(0);
 const viewScale = ref(1);
+const MIN_ZOOM = 0.3;
+const MAX_ZOOM = 3;
+const ZOOM_SPEED = 0.1;
+
 const viewportStyle = computed(() => ({
     transform: `translate(${viewX.value}px, ${viewY.value}px) scale(${viewScale.value})`,
     transformOrigin: '0 0',
 }));
+
+// Zoom handler: Ctrl + Wheel to zoom
+function handleZoom(event: WheelEvent) {
+    if (!event.ctrlKey) return;
+    
+    event.preventDefault();
+    
+    // Posición del cursor relativa al SVG
+    const svg = event.currentTarget as SVGSVGElement;
+    const rect = svg.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    
+    // Convertir a coordenadas del viewport (antes del zoom)
+    const viewportX = (mouseX - viewX.value) / viewScale.value;
+    const viewportY = (mouseY - viewY.value) / viewScale.value;
+    
+    // Nuevo zoom
+    const delta = event.deltaY > 0 ? -ZOOM_SPEED : ZOOM_SPEED;
+    const newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, viewScale.value + delta));
+    
+    // Ajustar pan para mantener el cursor en el mismo lugar
+    viewX.value = mouseX - viewportX * newScale;
+    viewY.value = mouseY - viewportY * newScale;
+    
+    viewScale.value = newScale;
+}
 
 // displayNode: prefer `selectedChild` (a competency) for sidebar details, otherwise the focused capability
 const displayNode = computed(() => selectedChild.value ?? focusedNode.value);
@@ -4167,6 +4198,7 @@ if (!edges.value) edges.value = [];
                 :viewBox="`0 0 ${width} ${height}`"
                 class="map-canvas"
                 style="touch-action: none"
+                @wheel="handleZoom"
             >
                 <defs>
                     <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
@@ -4317,6 +4349,32 @@ if (!edges.value) edges.value = [];
                             <feMergeNode in="SourceGraphic" />
                         </feMerge>
                     </filter>
+
+                    <!-- Competency node gradients -->
+                    <radialGradient id="competencyGrad" cx="30%" cy="25%" r="70%">
+                        <stop offset="0%" stop-color="#16B7E8" stop-opacity="0.85" />
+                        <stop offset="50%" stop-color="#039B8E" stop-opacity="0.95" />
+                        <stop offset="100%" stop-color="#21A7B6" stop-opacity="1" />
+                    </radialGradient>
+
+                    <radialGradient id="competencySelectedGrad" cx="30%" cy="25%" r="70%">
+                        <stop offset="0%" stop-color="#D9F0EF" stop-opacity="0.95" />
+                        <stop offset="50%" stop-color="#3BB6BC" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#167780" stop-opacity="1" />
+                    </radialGradient>
+
+                    <!-- Skill node gradients -->
+                    <radialGradient id="skillGrad" cx="30%" cy="25%" r="70%">
+                        <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.85" />
+                        <stop offset="50%" stop-color="#10b981" stop-opacity="0.95" />
+                        <stop offset="100%" stop-color="#047857" stop-opacity="1" />
+                    </radialGradient>
+
+                    <radialGradient id="skillSelectedGrad" cx="30%" cy="25%" r="70%">
+                        <stop offset="0%" stop-color="#a7f3d0" stop-opacity="0.95" />
+                        <stop offset="50%" stop-color="#0CBEBE" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#08959F" stop-opacity="1" />
+                    </radialGradient>
                 </defs>
 
                 <!-- subtle background rect for contrast (rounded + border/glow) -->
@@ -4607,7 +4665,7 @@ if (!edges.value) edges.value = [];
                         <g
                             v-for="c in childNodes"
                             :key="c.id"
-                            :style="{ transform: `translate(${c.x}px, ${c.y}px) scale(${c.animScale ?? 1})`, opacity: (c.animOpacity ?? 1), transitionDelay: (c.animDelay ? c.animDelay + 'ms' : undefined), filter: c.animFilter ? c.animFilter : undefined }"
+                            :style="{ transform: `translate(${c.x}px, ${c.y}px) scale(${c.animScale ?? 1})`, opacity: (c.animOpacity ?? 0.88), transitionDelay: (c.animDelay ? c.animDelay + 'ms' : undefined), filter: c.animFilter ? c.animFilter : undefined }"
                                 class="node-group child-node"
                             :data-node-id="c.id"
                             @click.stop="(e) => handleNodeClick(c, e)"
@@ -4617,10 +4675,9 @@ if (!edges.value) edges.value = [];
                             <circle
                                 class="node-circle"
                                 :r="20"
-                                fill="#2b2b2b"
-                                stroke="#ffffff"
-                                stroke-opacity="0.06"
-                                stroke-width="1"
+                                :fill="c.id === selectedChild?.id ? 'url(#competencySelectedGrad)' : 'url(#competencyGrad)'"
+                                :stroke="c.id === selectedChild?.id ? 'rgba(167, 139, 250, 0.8)' : 'rgba(124, 58, 237, 0.5)'"
+                                stroke-width="1.5"
                             />
                             <!-- child node: iridescent sheen + small reflection to match bubble style -->
                             <circle
@@ -4669,14 +4726,20 @@ if (!edges.value) edges.value = [];
                         <g
                             v-for="(s) in grandChildNodes"
                             :key="s.id"
-                            :style="{ transform: `translate(${s.x}px, ${s.y}px) scale(${s.animScale ?? 1})`, opacity: (s.animOpacity ?? 1) }"
+                            :style="{ transform: `translate(${s.x}px, ${s.y}px) scale(${s.animScale ?? 1})`, opacity: (s.animOpacity ?? 0.85) }"
                             class="node-group skill-node"
                             :data-node-id="s.id"
                             @click.stop="(e) => handleSkillClick(s, e)"
                         >
                             <title>{{ s.name }}</title>
                             <!-- skill bubble base -->
-                            <circle class="node-circle" :r="14" fill="#0F8CA8" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
+                            <circle 
+                                class="node-circle" 
+                                :r="14" 
+                                fill="url(#skillGrad)" 
+                                :stroke="'rgba(16, 185, 129, 0.5)'" 
+                                stroke-width="1" 
+                            />
                             <!-- iridescent sheen -->
                             <circle class="node-iridescence" :r="14" fill="url(#iridescentGrad)" opacity="0.14" style="mix-blend-mode: screen" />
                             <!-- small glossy rim to enhance bubble feel -->
@@ -4697,7 +4760,7 @@ if (!edges.value) edges.value = [];
                         @click.stop="reorderNodes"
                         style="cursor: pointer"
                     >
-                        <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
+                        <circle r="12" fill="rgba(182, 221, 77, 0.04)" stroke="rgba(255,255,255,0.06)"/>
                         <title>Reordenar nodos</title>
                         <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">R</text>
                     </g>
@@ -5199,7 +5262,7 @@ if (!edges.value) edges.value = [];
 
 /* visual improvements */
 .edge-line {
-    stroke: rgba(255, 255, 255, 0.12);
+    stroke: rgba(232, 191, 191, 0.12);
     stroke-width: 1.5;
     transition:
         stroke 0.12s ease,
@@ -5333,7 +5396,7 @@ if (!edges.value) edges.value = [];
 }
 
 .child-node .node-circle {
-    fill: #3e5069;
+    /* fill: #3e5069; */  /* Removed: now uses SVG gradient */
 }
 
 .child-iridescence {
@@ -5355,7 +5418,7 @@ if (!edges.value) edges.value = [];
 /* Skill node specific styles (scaled bubble) */
 .skill-node .node-circle {
     transition: transform 220ms ease, filter 180ms ease;
-    fill: #16324a;
+    /* fill: #16324a; */  /* Removed: now uses SVG gradient */
 }
 .skill-node .node-iridescence {
     pointer-events: none;

@@ -14,34 +14,34 @@ import type { NodeItem, Edge } from '@/types/brain';
 // Centralized layout configuration
 export const LAYOUT_CONFIG = {
   capability: {
-    spacing: { hSpacing: 100, vSpacing: 80 },
+    spacing: { hSpacing: 100, vSpacing: 20 },
     forces: { linkDistance: 100, linkStrength: 0.5, chargeStrength: -220 },
     scenarioEdgeDepth: 90,
   },
   competency: {
-    radial: { radius: 150, selectedOffsetY: 10, startAngle: -Math.PI / 4, endAngle: (5 * Math.PI) / 4 },
+    radial: { radius: 150, selectedOffsetY: -10, startAngle: -Math.PI / 4, endAngle: (5 * Math.PI) / 4 },
     sides: { selectedOffsetMultiplier: 0.75 },
     defaultLayout: 'auto' as 'auto' | 'radial' | 'matrix' | 'sides',
-    parentOffset: 10,
+    parentOffset: 40,
     maxDisplay: 10,
     matrixVariants: [
       { min: 2, max: 3, rows: 1, cols: 3 },
       { min: 4, max: 8, rows: 2, cols: 4 },
       { min: 9, max: 10, rows: 2, cols: 5 },
     ],
-    spacing: { hSpacing: 100, vSpacing: 20, parentOffset: 20 },
+    spacing: { hSpacing: 100, vSpacing: 2, parentOffset: 2 },
     edge: { baseDepth: 40, curveFactor: 0.45, spreadOffset: 18 },
   },
   skill: {
     maxDisplay: 10,
-    radial: { radius: 100, startAngle: -Math.PI / 6, endAngle: (7 * Math.PI) / 6, offsetFactor: 0.6, offsetY: 120 },
+    radial: { radius: 100, startAngle: -Math.PI / 6, endAngle: (7 * Math.PI) / 6, offsetFactor: 0.4, offsetY: 120 },
     defaultLayout: 'auto' as 'auto' | 'radial' | 'matrix' | 'sides',
     matrixVariants: [
       { min: 2, max: 3, rows: 1, cols: 3 },
       { min: 4, max: 8, rows: 2, cols: 4 },
       { min: 9, max: 10, rows: 2, cols: 5 },
     ],
-    sides: { hSpacing: 120, vSpacing: 70, parentOffset: 80, selectedOffsetMultiplier: 0.75 },
+    sides: { hSpacing: 120, vSpacing: 60, parentOffset: 80, selectedOffsetMultiplier: 0.75 },
     linear: { hSpacing: 100, vSpacing: 60 },
     edge: { baseDepth: 20, curveFactor: 0.45, spreadOffset: 10 },
   },
@@ -56,7 +56,12 @@ export const LAYOUT_CONFIG = {
     skillStaggerCol: 8,
     leadFactor: 0.6,
   },
-  node: { radius: 34, focusRadius: 44 },
+  node: { 
+    radius: 34, 
+    focusRadius: 44,
+    competencyOpacity: 0.6,  // Opacidad de competency para efecto burbuja
+    skillOpacity: 0.6,        // Opacidad de skill para efecto burbuja
+  },
   clamp: { minY: 40, bottomPadding: 40, minViewportHeight: 120 },
 };
 

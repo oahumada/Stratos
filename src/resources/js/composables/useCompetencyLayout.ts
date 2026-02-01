@@ -94,7 +94,8 @@ export function computeSidesPositions(count: number, cx: number, parentY: number
     // distance to topY for others
     const otherDists = othersPos.map((p) => Math.abs(p.y - topY));
     const minOtherDist = otherDists.length ? Math.min(...otherDists) : Math.round(vSpacing);
-    const selY = topY + Math.round(minOtherDist * selectedOffsetMultiplier);
+    // Use a much smaller offset to bring selected node closer to parent
+    const selY = parentY + Math.round(parentOffset * 0.8);
 
     // now build final positions preserving indices
     let lsi2 = 0;
