@@ -582,9 +582,15 @@ async function createAndAttachSkill() {
         newSkillCategory.value = '';
         newSkillDescription.value = '';
         showSuccess('Skill creada y asociada');
+        
+        // Expand skills to show the newly created skill immediately (consistent with competencies pattern)
+        if (selectedChild.value) {
+            expandSkills(selectedChild.value, undefined, { layout: 'auto' });
+        }
     } catch (err: unknown) {
         console.error('createAndAttachSkill error', err);
-        showError('Error creando y asociando skill');
+        const errorMsg = (err as any)?.response?.data?.message || (err as any)?.message || 'Error creando y asociando skill';
+        showError(errorMsg);
     } finally {
         savingSkill.value = false;
     }
@@ -609,6 +615,11 @@ async function attachExistingSkill() {
         selectSkillDialogVisible.value = false;
         selectedSkillId.value = null;
         showSuccess('Skill asociada');
+        
+        // Expand skills to show the newly attached skill immediately
+        if (selectedChild.value) {
+            expandSkills(selectedChild.value, undefined, { layout: 'auto' });
+        }
     } catch (err: unknown) {
         showError('Error asociando skill');
     } finally {
@@ -1658,22 +1669,59 @@ function showCreateCompDialog() {
     createCompDialogVisible.value = true;
 }
 function showCreateSkillDialog() {
-    // Ensure we have a selectedChild when opening the create-skill dialog.
-    // If `displayNode` is a competency, keep it. If it's a capability with competencies,
-    // default to the first competency so the created skill has a target.
+    // Ensure we have a selectedChild (competency) when opening the create-skill dialog.
+    // Similar logic to showCreateCompDialog but for skills: ensure correct competency context.
     try {
-        if (displayNode.value && displayNode.value) {
-            const dn: any = displayNode.value;
-            if (dn.compId || (typeof dn.id === 'number' && dn.id < 0)) {
-                selectedChild.value = dn as any;
-            } else if (Array.isArray(dn.competencies) && dn.competencies.length > 0) {
-                // try to find existing child node representation
-                const first = dn.competencies[0];
-                const existing = childNodes.value.find((c: any) => c.compId === first.id);
-                selectedChild.value = existing || { compId: first.id, raw: first, id: -(dn.id * 1000 + 1) } as any;
+        const dn: any = displayNode.value;
+        
+        // If displayNode is a competency, use it
+        if (dn && (dn.compId || (typeof dn.id === 'number' && dn.id < 0))) {
+            selectedChild.value = dn as any;
+        } 
+        // If displayNode is a capability with competencies, default to first competency
+        else if (dn && Array.isArray(dn.competencies) && dn.competencies.length > 0) {
+            const first = dn.competencies[0];
+            const existing = childNodes.value.find((c: any) => c.compId === first.id);
+            selectedChild.value = existing || { compId: first.id, raw: first, id: -(dn.id * 1000 + 1) } as any;
+        }
+        // If displayNode is a skill, find its parent competency
+        else if (dn && dn.skillId) {
+            // Find parent competency from edges
+            const parentEdge = grandChildEdges.value?.find((e: any) => e.target === dn.id);
+            if (parentEdge) {
+                const parentComp = childNodes.value.find((c: any) => c.id === parentEdge.source);
+                if (parentComp) {
+                    selectedChild.value = parentComp as any;
+                } else {
+                    console.warn('[showCreateSkillDialog] parent competency not found in childNodes');
+                }
             }
         }
-    } catch (err: unknown) { void err; }
+        // If still no selectedChild and we have one already selected, check if it's a competency
+        else if (selectedChild.value) {
+            const sc: any = selectedChild.value;
+            // If current selectedChild is NOT a competency (e.g., it's a skill), find its parent
+            if (sc.skillId) {
+                const parentEdge = grandChildEdges.value?.find((e: any) => e.target === sc.id);
+                if (parentEdge) {
+                    const parentComp = childNodes.value.find((c: any) => c.id === parentEdge.source);
+                    if (parentComp) {
+                        selectedChild.value = parentComp as any;
+                    }
+                }
+            }
+            // If it's already a competency, keep it
+        }
+        
+        // Final validation: ensure selectedChild is a competency, not a skill
+        if (selectedChild.value && (selectedChild.value as any).skillId) {
+            console.warn('[showCreateSkillDialog] selectedChild is a skill, not a competency. Clearing.');
+            selectedChild.value = null;
+        }
+    } catch (err: unknown) { 
+        console.error('[showCreateSkillDialog] error setting context:', err);
+    }
+    
     createSkillDialogVisible.value = true;
 }
 async function openSelectSkillDialog() {

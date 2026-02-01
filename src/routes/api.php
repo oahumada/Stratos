@@ -628,13 +628,25 @@ Route::middleware('auth:sanctum')->group(function () {
                     $name = trim($payload['name'] ?? '');
                     if (empty($name))
                         throw new \Exception('Skill name is required');
-                    $createdSkill = App\Models\Skill::create([
-                        'organization_id' => $user->organization_id ?? null,
-                        'name' => $name,
-                        'description' => $payload['description'] ?? null,
-                        'category' => $payload['category'] ?? null,
-                    ]);
-                    $skillToAttach = $createdSkill;
+                    
+                    // Buscar skill existente con el mismo nombre en la organización
+                    $existingSkill = App\Models\Skill::where('organization_id', $user->organization_id ?? null)
+                        ->where('name', $name)
+                        ->first();
+                    
+                    if ($existingSkill) {
+                        // Skill duplicada - informar al usuario
+                        throw new \Exception('Skill duplicada: Ya existe una skill con el nombre "' . $name . '". Use una existente o cree una con nombre diferente.');
+                    } else {
+                        // Crear nueva skill
+                        $createdSkill = App\Models\Skill::create([
+                            'organization_id' => $user->organization_id ?? null,
+                            'name' => $name,
+                            'description' => $payload['description'] ?? null,
+                            'category' => $payload['category'] ?? null,
+                        ]);
+                        $skillToAttach = $createdSkill;
+                    }
                 }
 
                 // Avoid duplicate pivot
@@ -662,6 +674,8 @@ Route::middleware('auth:sanctum')->group(function () {
                 return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
             if (str_contains($e->getMessage(), 'Skill name is required'))
                 return response()->json(['success' => false, 'message' => 'Skill name is required'], 422);
+            if (str_contains($e->getMessage(), 'Skill duplicada:'))
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 409);
             \Log::error('Error attaching skill to competency: ' . $e->getMessage(), ['competency_id' => $id]);
             return response()->json(['success' => false, 'message' => 'Server error attaching skill'], 500);
         }
