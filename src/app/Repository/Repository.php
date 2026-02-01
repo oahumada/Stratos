@@ -79,6 +79,20 @@ abstract class Repository implements RepositoryInterface
 
             return response()->json(['message' => 'Model updated successfully.'], 200);
         } catch (ModelNotFoundException $e) {
+            Log::warning('Model not found for ID using default query: ' . $id . '. Attempting without global scopes.');
+            try {
+                // Try to find the model bypassing global scopes (e.g., organization/paciente scopes)
+                $model = $this->model->newQueryWithoutScopes()->find($id);
+                if ($model) {
+                    Log::info('Model found without scopes, proceeding to update.', ['id' => $id]);
+                    $model->fill($dataToUpdate);
+                    $model->save();
+                    return response()->json(['message' => 'Model updated successfully (no scopes).'], 200);
+                }
+            } catch (\Exception $inner) {
+                Log::error('Fallback query failed for ID: ' . $id, ['error' => $inner->getMessage()]);
+            }
+
             Log::error('Model not found for ID: ' . $id);
             return response()->json(['error' => 'Model not found.'], 404);
         } catch (\Exception $e) {

@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Models\Skills;
+use App\Models\Skill;
 use Illuminate\Http\Request;
 use App\Helpers\Tools;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +11,7 @@ class SkillsRepository extends Repository
 {
     public function __construct()
     {
-        parent::__construct(new Skills());
+        parent::__construct(new Skill());
     }
 
     /**

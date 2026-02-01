@@ -9,11 +9,23 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Fecha: 2026-01-19
 - la carpeta del proyecto es /src
 
-### Cambios recientes - Modelado de Skills
+### Cambios recientes - Consolidación de modelo Skills
 
-- Se consolidó el modelo de habilidades a nombre singular `Skill`.
-- `app/Models/Skills.php` fue reemplazado por un alias (`class Skills extends Skill`) para compatibilidad retroactiva; se planea eliminar el archivo tras actualizar el autoload (`composer dump-autoload`) y verificar no hay referencias restantes.
-  - Fecha: 2026-01-29
+- **Resuelto (2026-02-01):** Se consolidó el modelo de habilidades a nombre singular `Skill` (Laravel convention).
+- **Raíz del bug 404:** El sistema genérico FormSchema pasaba `{id}` en la URL pero no lo inyectaba en el body `data.id` que espera `Repository::update()`.
+- **Solución implementada:**
+  - Eliminado archivo alias `app/Models/Skills.php` (era una clase que heredaba de `Skill`).
+  - Actualizado `FormSchemaController::update()` para aceptar `$id` de ruta y fusionarlo en `data.id` si falta.
+  - Actualizado rutas PUT/PATCH en `routes/form-schema-complete.php` para pasar `$id` al controlador.
+  - Añadida robustez en `initializeForModel()` para intentar singular/plural alternos si clase no existe.
+  - Ejecutado `composer dump-autoload -o` y confirmado PATCH `/api/skills/{id}` → 200 OK.
+- **Cambios de archivo:**
+  - Eliminado: `src/app/Models/Skills.php`
+  - Modificado: `src/app/Repository/Repository.php` (fallback newQueryWithoutScopes)
+  - Modificado: `src/app/Http/Controllers/FormSchemaController.php` (inyección de $id, fallback en initializeForModel)
+  - Modificado: `src/routes/form-schema-complete.php` (pasar $id a update)
+  - Actualizado: `src/app/Models/ScenarioSkill.php` (Skill::class en lugar de Skills::class)
+- **Fecha de resolución:** 2026-02-01 01:22:39
 
 ## Preferencias del usuario
 

@@ -53,13 +53,13 @@ Route::group([], function () use ($formSchemaModels) {
         // PUT /api/{route-name}/{id} - Actualizar (update)
         Route::put("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
             $controller = new FormSchemaController();
-            return $controller->update($request, $modelName);
+            return $controller->update($request, $modelName, $id);
         })->name("api.{$routeName}.update");
 
         // PATCH /api/{route-name}/{id} - Actualizar parcial
         Route::patch("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
             $controller = new FormSchemaController();
-            return $controller->update($request, $modelName);
+            return $controller->update($request, $modelName, $id);
         })->name("api.{$routeName}.patch");
 
         // DELETE /api/{route-name}/{id} - Eliminar (destroy)
