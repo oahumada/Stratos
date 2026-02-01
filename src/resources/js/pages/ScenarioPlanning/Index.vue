@@ -1637,6 +1637,24 @@ function createCapabilityClicked() {
 
 // Dialog helpers to centralize open/close logic
 function showCreateCompDialog() {
+    try {
+        const dn: any = displayNode.value;
+        // If displayNode is a competency, ensure we focus its parent capability
+        if (dn && (dn.compId || (typeof dn.id === 'number' && dn.id < 0))) {
+            const parentEdge = childEdges.value.find((e) => e.target === dn.id);
+            const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
+            if (parentNode) focusedNode.value = parentNode as any;
+        } else if (dn && (dn.id != null)) {
+            focusedNode.value = nodeById(dn.id) || (dn as any);
+        } else if (selectedChild.value) {
+            const childId = (selectedChild.value as any)?.id ?? null;
+            const parentEdge = childId != null ? childEdges.value.find((e) => e.target === childId) : null;
+            const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
+            if (parentNode) focusedNode.value = parentNode as any;
+        }
+    } catch (err: unknown) { void err; }
+    // Force capability context for creation
+    selectedChild.value = null;
     createCompDialogVisible.value = true;
 }
 function showCreateSkillDialog() {
@@ -1644,7 +1662,7 @@ function showCreateSkillDialog() {
     // If `displayNode` is a competency, keep it. If it's a capability with competencies,
     // default to the first competency so the created skill has a target.
     try {
-        if (displayNode && displayNode.value) {
+        if (displayNode.value && displayNode.value) {
             const dn: any = displayNode.value;
             if (dn.compId || (typeof dn.id === 'number' && dn.id < 0)) {
                 selectedChild.value = dn as any;
@@ -2859,12 +2877,12 @@ async function saveSkillDetail() {
             // attempt to patch that pivot directly. This covers edits made from within a competency context.
             try {
                 // Support both internal refs (.value) and unwrapped objects (tests may set plain values)
-                const unwrappedSkill: any = (typeof selectedSkillDetail !== 'undefined')
+                const unwrappedSkill: any = (typeof selectedSkillDetail.value !== 'undefined')
                     ? (selectedSkillDetail.value ?? selectedSkillDetail)
                     : null;
                 const skillPivotObj = unwrappedSkill?.pivot ?? unwrappedSkill?.raw?.pivot ?? null;
                 const compSkillPivotId = skillPivotObj?.id ?? skillPivotObj?.pivot_id ?? null;
-                const comp: any = (typeof selectedChild !== 'undefined') ? (selectedChild.value ?? selectedChild) : null;
+                const comp: any = (typeof selectedChild.value !== 'undefined') ? (selectedChild.value ?? selectedChild) : null;
                 // Build payload using available pivot fields (weight is the primary field on competency_skills)
                 if (compSkillPivotId) {
                     const csPayload: any = {};
@@ -2884,8 +2902,8 @@ async function saveSkillDetail() {
             } catch (errCsAll: unknown) { void errCsAll; }
 
                 // Ensure we unwrap refs to actual objects (avoid returning the Ref itself)
-            const comp2: any = (selectedChild && typeof selectedChild === 'object') ? (selectedChild.value ?? null) : null;
-            const parentCap: any = (focusedNode && typeof focusedNode === 'object') ? (focusedNode.value ?? null) : null;
+            const comp2: any = (selectedChild.value && typeof selectedChild.value === 'object') ? (selectedChild.value ?? null) : null;
+            const parentCap: any = (focusedNode.value && typeof focusedNode.value === 'object') ? (focusedNode.value ?? null) : null;
             const scenarioId = props.scenario?.id ?? null;
             const compId = comp2?.compId ?? comp2?.raw?.id ?? Math.abs(comp2?.id || 0);
             const capId = parentCap?.id ?? parentCap?.raw?.id ?? null;
@@ -2924,11 +2942,68 @@ async function saveSkillDetail() {
             }
         } catch (errPivotAll: unknown) { void errPivotAll; }
 
-        // Refresh local selected skill details
+        // Save references to current context before reload
+        const currentCompId = selectedChild.value?.compId ?? selectedChild.value?.id ?? selectedChild.value?.raw?.id ?? null;
+        const currentCapId = focusedNode.value?.id ?? focusedNode.value?.raw?.id ?? null;
+        const currentLayout = (selectedChild.value as any)?.skillsLayout ?? 'auto';
+
+        // Refresh skill entity from API (authoritative source)
+        let freshSkill: any = null;
         try {
-            const refreshed: any = await api.get(`/api/skills/${skillId}`);
-            selectedSkillDetail.value = refreshed?.data ?? refreshed ?? selectedSkillDetail.value;
-        } catch (errRef: unknown) { void errRef; }
+            const skillResp: any = await api.get(`/api/skills/${skillId}`);
+            freshSkill = skillResp?.data ?? skillResp;
+        } catch (errRef: unknown) { 
+            console.error('Failed to refresh skill after save', errRef);
+        }
+
+        // Reload the tree from API to get fresh data
+        await loadTreeFromApi(props.scenario?.id);
+
+        // After reload, restore the capability (focusedNode) and competency (selectedChild)
+        if (currentCapId) {
+            const restoredCap = nodeById(currentCapId);
+            if (restoredCap) {
+                focusedNode.value = restoredCap;
+                
+                // Re-expand competencies under this capability
+                expandCompetencies(restoredCap, { x: restoredCap.x ?? 0, y: restoredCap.y ?? 0 });
+                
+                // Restore selectedChild from the newly expanded childNodes
+                if (currentCompId) {
+                    const restoredComp = childNodes.value.find((cn: any) => 
+                        cn.id === currentCompId || cn.compId === currentCompId
+                    );
+                    if (restoredComp) {
+                        selectedChild.value = restoredComp;
+
+                        // Update the skill in the competency's skills array
+                        if (freshSkill && Array.isArray((selectedChild.value as any).skills)) {
+                            const skillIndex = (selectedChild.value as any).skills.findIndex((s: any) => 
+                                (s.id ?? s.raw?.id) === skillId
+                            );
+                            if (skillIndex !== -1) {
+                                const existingPivot = (selectedChild.value as any).skills[skillIndex].pivot 
+                                    ?? (selectedChild.value as any).skills[skillIndex].raw?.pivot 
+                                    ?? null;
+                                (selectedChild.value as any).skills[skillIndex] = {
+                                    ...freshSkill,
+                                    pivot: existingPivot,
+                                    raw: { ...freshSkill, pivot: existingPivot }
+                                };
+                            }
+                        }
+
+                        // Re-expand skills to show updated data with proper layout
+                        expandSkills(selectedChild.value, undefined, { layout: currentLayout });
+                    }
+                }
+            }
+        }
+
+        // Update selectedSkillDetail with fresh data
+        if (freshSkill) {
+            selectedSkillDetail.value = freshSkill;
+        }
 
         skillDetailDialogVisible.value = false;
     } catch (errAll: unknown) {
@@ -3017,7 +3092,7 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     // Decide layout: explicit option overrides visualConfig/layout config, 'auto' uses centralized heuristic
     const configDefaultLayout = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.defaultLayout) ? LAYOUT_CONFIG.competency.defaultLayout : 'auto';
     // Use provided option or fallback to the centralized default; avoid referencing a non-existent prop
-    let layout = decideCompetencyLayout(opts.layout, hasSelectedChild, toShow.length, configDefaultLayout);
+    const layout = decideCompetencyLayout(opts.layout, hasSelectedChild, toShow.length, configDefaultLayout);
     console.debug('[expandCompetencies] hasSelectedChild:', hasSelectedChild, 'layout:', layout);
 
     let positions: any[] = [];
@@ -3350,7 +3425,20 @@ async function fetchSkillsForCompetency(compId: number) {
 }
 
 async function createAndAttachComp() {
-    if (!displayNode.value || !((displayNode.value as any).id)) {
+    // Resolve capability context robustly (avoid using a selected competency as parent)
+    let parentCap: any = focusedNode.value ?? null;
+    if (!parentCap && selectedChild.value) {
+        const childId = (selectedChild.value as any)?.id ?? null;
+        const parentEdge = childId != null ? childEdges.value.find((e) => e.target === childId) : null;
+        parentCap = parentEdge ? nodeById(parentEdge.source) : null;
+    }
+    if (!parentCap && displayNode.value) {
+        parentCap = displayNode.value as any;
+    }
+
+    const resolvedCapId = parentCap?.id ?? parentCap?.raw?.id ?? null;
+
+    if (!resolvedCapId || Number(resolvedCapId) <= 0) {
         showError('Seleccione una capacidad para asociar');
         return;
     }
@@ -3358,7 +3446,7 @@ async function createAndAttachComp() {
         showError('Escenario no especificado');
         return;
     }
-    const capId = (displayNode.value as any).id;
+    const capId = resolvedCapId;
     const scenarioId = props.scenario.id;
     creatingComp.value = true;
     try {
@@ -3505,12 +3593,16 @@ async function saveSelectedChild() {
         const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
 
         // 1) Update competency entity (name, description, skills - readiness is a calculated field, don't save)
+        // Extract skill IDs from child.skills array (which contains skill objects with id property)
+        const skillIds = Array.isArray(child.skills) 
+            ? child.skills.map((s: any) => s.id ?? s.raw?.id ?? s).filter((id: any) => typeof id === 'number')
+            : [];
         const compPayload: any = {
             name: editChildName.value,
             description: editChildDescription.value,
-            skills: (editChildSkills.value || '').split(',').map((s) => s.trim()).filter((s) => s),
+            skills: skillIds,
         };
-        console.debug('[saveSelectedChild] compPayload (name, description, skills only; readiness is calculated)', compPayload, 'compId', compId);
+        console.debug('[saveSelectedChild] compPayload (name, description, skills only; readiness is calculated)', compPayload, 'compId', compId, 'skillIds extracted from child.skills:', skillIds);
         console.debug('[saveSelectedChild] about to PATCH compId check:', !!compId);
         if (compId) {
             console.debug('[saveSelectedChild] INSIDE if (compId), about to call api.patch');

@@ -76,8 +76,8 @@ export function computeSidesPositions(count: number, cx: number, parentY: number
     const leftYsSel = buildYs(leftCountSel).reverse();
     const rightYsSel = buildYs(rightCountSel);
 
-    let lsi = 0;
-    let rsi = 0;
+    const lsi = 0;
+    const rsi = 0;
     // Precompute others' positions so we can derive a sensible selected offset
     const othersPos: Array<{ x: number; y: number }> = [];
     let tmpL = 0;

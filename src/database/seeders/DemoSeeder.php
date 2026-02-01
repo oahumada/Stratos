@@ -25,10 +25,10 @@ class DemoSeeder extends Seeder
     public function run(): void
     {
         $this->command->info('🚀 Iniciando DemoSeeder...');
-        
+
         // Limpiar tablas en orden inverso a las foreign keys
         $this->command->info('🧹 Limpiando tablas...');
-        
+
         // SQLite usa PRAGMA en lugar de SET FOREIGN_KEY_CHECKS
         $driver = DB::getDriverName();
         if ($driver === 'sqlite') {
@@ -36,7 +36,7 @@ class DemoSeeder extends Seeder
         } else {
             DB::statement('SET FOREIGN_KEY_CHECKS=0');
         }
-        
+
         DevelopmentPath::truncate();
         Application::truncate();
         JobOpening::truncate();
@@ -48,13 +48,13 @@ class DemoSeeder extends Seeder
         User::truncate();
         Organizations::truncate();
         DB::table('skill_level_definitions')->truncate();
-        
+
         if ($driver === 'sqlite') {
             DB::statement('PRAGMA foreign_keys = ON');
         } else {
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
         }
-        
+
         $this->command->info('✅ Tablas limpiadas');
         $this->command->newLine();
 

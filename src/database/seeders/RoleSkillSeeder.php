@@ -81,7 +81,7 @@ class RoleSkillSeeder extends Seeder
 
         foreach ($rolesSkillsData as $roleName => $skillsData) {
             $role = Roles::where('name', $roleName)->first();
-            
+
             if (!$role) {
                 continue;
             }

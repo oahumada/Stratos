@@ -89,6 +89,19 @@ AFTER:   Skill 32 name = "Skill Updated 23:05:34" ✅ (verificado en sqlite3)
 
 **Nota:** Este fix aplica a TODO endpoint genérico FormSchema (no solo Skills). Beneficia a 80+ modelos que usan Repository genérico.
 
+### Fix: Crear competencias repetidas (skills + pivote)
+
+**Problema:** Al crear una competencia más de una vez desde el mapa, el guardado de skills y del pivote podía fallar porque la lógica tomaba la competencia seleccionada como si fuera la capacidad padre.
+
+**Solución implementada (2026-02-01):**
+
+- Al abrir el modal de crear competencia, forzar el contexto a la capacidad padre (limpiar `selectedChild`).
+- En `createAndAttachComp()`, resolver de forma robusta la capacidad (`focusedNode` → parent por `childEdges` → `displayNode`) y rechazar IDs inválidos.
+
+**Archivos modificados:**
+
+- `src/resources/js/pages/ScenarioPlanning/Index.vue`
+
 ## Preferencias del usuario
 
 - **Proyecto (específico):** Ejecutar comandos, scripts y pruebas desde la carpeta `src` (por ejemplo, `cd src && npm test` o `cd src && php artisan test`).
