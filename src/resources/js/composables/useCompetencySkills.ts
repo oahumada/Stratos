@@ -6,15 +6,25 @@ export function useCompetencySkills() {
   async function createAndAttachSkill(compId: number | string, skillPayload: any) {
     if (!compId) throw new Error('compId required');
     // backend endpoint accepts { skill: { ... } } to create and attach in transaction
-    const res: any = await post(`/api/competencies/${compId}/skills`, { skill: skillPayload });
-    return res?.data ?? res;
+    try {
+      const res: any = await post(`/api/competencies/${compId}/skills`, { skill: skillPayload });
+      return res?.data ?? res;
+    } catch (err: any) {
+      // Re-lanzar el error para que se capture en el componente
+      throw err;
+    }
   }
 
   async function attachExistingSkill(compId: number | string, skillId: number) {
     if (!compId) throw new Error('compId required');
     if (!skillId) throw new Error('skillId required');
-    const res: any = await post(`/api/competencies/${compId}/skills`, { skill_id: skillId });
-    return res?.data ?? res;
+    try {
+      const res: any = await post(`/api/competencies/${compId}/skills`, { skill_id: skillId });
+      return res?.data ?? res;
+    } catch (err: any) {
+      // Re-lanzar el error para que se capture en el componente
+      throw err;
+    }
   }
 
   async function listSkillsForCompetency(compId: number | string) {

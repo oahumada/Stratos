@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        // Excluir rutas de API del CSRF (Sanctum las maneja via bearer tokens)
+        $middleware->validateCsrfTokens(except: [
+            '/api/*',
+        ]);
+
         // Agregar Sanctum middleware para SPA
         $middleware->api(prepend: [
             EnsureFrontendRequestsAreStateful::class,

@@ -9,6 +9,48 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Fecha: 2026-01-19
 - la carpeta del proyecto es /src
 
+### Implementación: Eliminación completa de Skills en ScenarioPlanning (2026-02-01)
+
+**Comportamiento implementado:** Al eliminar una skill desde el mapa, se elimina COMPLETAMENTE de la base de datos, no solo la relación pivot.
+
+**Endpoint Backend** (`src/routes/api.php` líneas ~500-555):
+
+```php
+Route::delete('/competencies/{competencyId}/skills/{skillId}', function(...) {
+    // 1. Verifica autenticación y organización
+    // 2. Elimina TODAS las relaciones en competency_skills para esa skill
+    DB::table('competency_skills')->where('skill_id', $skillId)->delete();
+    // 3. Elimina la skill de la tabla skills
+    $skill->delete();
+});
+```
+
+**Función Frontend** (`src/resources/js/pages/ScenarioPlanning/Index.vue`):
+
+`removeSkillFromCompetency()` actualiza TODAS las fuentes de datos locales:
+
+1. `selectedChild.value.skills`
+2. `selectedChild.value.raw.skills`
+3. `focusedNode.value.competencies[].skills`
+4. `childNodes[].skills` y `childNodes[].raw.skills`
+5. `availableSkills` (catálogo global)
+6. `grandChildNodes` (árbol visual SVG)
+
+**Problema resuelto:** El watcher de `selectedChild` llama a `expandCompetencies()` que reconstruye datos desde `focusedNode.competencies[].skills`. Si solo se actualizaba `selectedChild.skills`, la skill reaparecía. La solución fue actualizar TODAS las fuentes de datos simultáneamente.
+
+**Ubicación de código:**
+- Endpoint: `src/routes/api.php` líneas ~500-555
+- Función frontend: `removeSkillFromCompetency()` en Index.vue
+- Template árbol skills: línea ~4727 `v-for="(s) in grandChildNodes"`
+- Diálogo detalle skill con botón Borrar: línea ~5061
+
+**CSRF:** API routes excluidas de CSRF validation en `bootstrap/app.php`:
+```php
+$middleware->validateCsrfTokens(except: ['/api/*']);
+```
+
+---
+
 ### Fix: Crear skills repetidas (mismo bug que competencias)
 
 **Problema:** Al crear una skill más de una vez desde el mapa, el guardado podía fallar porque la lógica tomaba el contexto incorrecto (similar al bug de competencias).

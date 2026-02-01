@@ -251,6 +251,8 @@ const scenarioEdges = ref<Array<Edge>>([]);
 const grandChildNodes = ref<Array<any>>([]);
 const grandChildEdges = ref<Array<Edge>>([]);
 const showSidebar = ref(false);
+// Flag to suppress watcher re-layout during skill deletion
+const suppressWatcherLayout = ref(false);
 // selectedChild: when a competency (level-2) is clicked we keep it here
 // while `focusedNode` remains the parent capability (so layout treats parent as focused).
 const selectedChild = ref<any>(null);
@@ -342,6 +344,9 @@ function resetCompetencyForm() {
 const createSkillDialogVisible = ref(false);
 const selectSkillDialogVisible = ref(false);
 const availableSkills = ref<any[]>([]);
+const skillCreationError = ref<string | null>(null);
+const skillCreationSuccess = ref<string | null>(null);
+const selectedSkillForDeletion = ref<any>(null);
 // Skill detail modal state
 const skillDetailDialogVisible = ref(false);
 const selectedSkillDetail = ref<any>(null);
@@ -577,20 +582,41 @@ async function createAndAttachSkill() {
             if (!Array.isArray((selectedChild.value as any).skills)) (selectedChild.value as any).skills = [];
             (selectedChild.value as any).skills.push(created);
         }
-        createSkillDialogVisible.value = false;
-        newSkillName.value = '';
-        newSkillCategory.value = '';
-        newSkillDescription.value = '';
-        showSuccess('Skill creada y asociada');
         
         // Expand skills to show the newly created skill immediately (consistent with competencies pattern)
+        // Do this BEFORE clearing fields to ensure proper DOM updates
         if (selectedChild.value) {
             expandSkills(selectedChild.value, undefined, { layout: 'auto' });
         }
+        
+        // Mostrar alerta de éxito pero NO cerrar el modal
+        skillCreationSuccess.value = `Skill "${newSkillName.value}" creada y asociada correctamente`;
+        
+        // Limpiar campos para siguiente creación
+        newSkillName.value = '';
+        newSkillCategory.value = '';
+        newSkillDescription.value = '';
+        
+        // Scroll to top of form to show success message
+        await nextTick();
+        const formElement = document.querySelector('[data-skill-form]');
+        if (formElement) {
+            formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     } catch (err: unknown) {
         console.error('createAndAttachSkill error', err);
-        const errorMsg = (err as any)?.response?.data?.message || (err as any)?.message || 'Error creando y asociando skill';
-        showError(errorMsg);
+        let errorMsg = 'Error creando y asociando skill';
+        
+        // Extraer mensaje de error de diferentes estructuras posibles
+        if ((err as any)?.response?.data?.message) {
+            errorMsg = (err as any).response.data.message;
+        } else if ((err as any)?.message) {
+            errorMsg = (err as any).message;
+        } else if (typeof err === 'string') {
+            errorMsg = err;
+        }
+        
+        skillCreationError.value = errorMsg;
     } finally {
         savingSkill.value = false;
     }
@@ -612,14 +638,16 @@ async function attachExistingSkill() {
                 (selectedChild.value as any).skills.push(found);
             }
         }
-        selectSkillDialogVisible.value = false;
-        selectedSkillId.value = null;
-        showSuccess('Skill asociada');
         
         // Expand skills to show the newly attached skill immediately
+        // Do this BEFORE closing the modal to ensure proper DOM updates
         if (selectedChild.value) {
             expandSkills(selectedChild.value, undefined, { layout: 'auto' });
         }
+        
+        selectSkillDialogVisible.value = false;
+        selectedSkillId.value = null;
+        showSuccess('Skill asociada');
     } catch (err: unknown) {
         showError('Error asociando skill');
     } finally {
@@ -627,34 +655,187 @@ async function attachExistingSkill() {
     }
 }
 
-// Remove a skill from the currently selected competency (best-effort)
-async function removeSkillFromCompetency(skill: any) {
-    if (!selectedChild.value) return showError('Seleccione una competencia');
-    const compId = (selectedChild.value as any).compId ?? (selectedChild.value as any).raw?.id ?? Math.abs((selectedChild.value as any).id || 0);
-    const skillId = skill?.id ?? skill?.raw?.id ?? null;
-    // try to find pivot id on the skill object
-    const pivotId = skill?.pivot?.id ?? skill?.raw?.pivot?.id ?? skill?.raw?.pivot_id ?? null;
+// Delete the currently selected skill from the modal
+async function deleteSelectedSkill() {
+    const skill = selectedSkillForDeletion.value;
+    if (!skill) return showError('No hay skill seleccionada para borrar');
+    
     try {
+        // Find the parent competency
+        let parentComp = selectedChild.value;
+        
+        // If selectedChild is not set, try to find it from edges
+        if (!parentComp && skill.id) {
+            const parentEdge = grandChildEdges.value?.find((e: any) => 
+                e.target === skill.id || e.target === `skill-${skill.id}`
+            );
+            if (parentEdge) {
+                const compId = typeof parentEdge.source === 'string' 
+                    ? parseInt(String(parentEdge.source).replace('comp-', ''))
+                    : parentEdge.source;
+                parentComp = childNodes.value.find((c: any) => c.id === compId);
+            }
+        }
+        
+        if (!parentComp) {
+            return showError('No se encontró la competencia padre de esta skill');
+        }
+        
+        // Now delete it
+        const compId = (parentComp as any).compId ?? (parentComp as any).raw?.id ?? Math.abs((parentComp as any).id || 0);
+        const skillId = skill.id ?? skill.raw?.id ?? null;
+        const pivotId = skill.pivot?.id ?? skill.raw?.pivot?.id ?? skill.raw?.pivot_id ?? null;
+        
         if (pivotId) {
             await api.delete(`/api/competency-skills/${pivotId}`);
         } else if (compId && skillId) {
-            // try delete via competency-scoped endpoint if backend exposes it
             try {
                 await api.delete(`/api/competencies/${compId}/skills/${skillId}`);
             } catch (e: unknown) {
-                // ignore and fallback to local remove
+                console.error('Error deleting via competency endpoint:', e);
             }
         }
-        // remove locally if present
-        if (Array.isArray((selectedChild.value as any).skills)) {
-            (selectedChild.value as any).skills = (selectedChild.value as any).skills.filter((s: any) => (s.id ?? s.raw?.id ?? s) !== (skillId ?? skill));
+        
+        // Remove locally
+        if (Array.isArray((parentComp as any).skills)) {
+            (parentComp as any).skills = (parentComp as any).skills.filter((s: any) => 
+                (s.id ?? s.raw?.id ?? s) !== (skillId ?? skill)
+            );
         }
-        // also remove from grandChildNodes if present
-        grandChildNodes.value = grandChildNodes.value.filter((g) => (g.id ?? g.raw?.id ?? g) !== (skillId ?? skill));
-        showSuccess('Skill eliminada de la competencia');
+        
+        // Remove from grandChildNodes
+        grandChildNodes.value = grandChildNodes.value.filter((g) => 
+            (g.id ?? g.raw?.id ?? g) !== (skillId ?? skill)
+        );
+        
+        // Close modal and reset
+        createSkillDialogVisible.value = false;
+        selectedSkillForDeletion.value = null;
+        focusedNode.value = null;
+        
+        showSuccess('Skill eliminada correctamente');
+    } catch (err: unknown) {
+        console.error('deleteSelectedSkill error:', err);
+        showError('Error eliminando la skill');
+    }
+}
+
+// Remove a skill from the currently selected competency (best-effort)
+async function removeSkillFromCompetency(skill?: any) {
+    const skillToDelete = skill ?? selectedSkillDetail.value;
+    if (!skillToDelete) return showError('No hay skill seleccionada');
+    if (!selectedChild.value) return showError('Seleccione una competencia');
+    if (!focusedNode.value) return showError('Seleccione una capacidad');
+    
+    // Suppress watcher re-layout during deletion to avoid visual thrashing
+    suppressWatcherLayout.value = true;
+    
+    // Get the REAL competency ID from raw or compId (not the negative temporary ID)
+    const realCompetencyId = (selectedChild.value as any).raw?.id ?? (selectedChild.value as any).compId ?? (selectedChild.value as any).id;
+    const capabilityId = focusedNode.value?.id;
+    const skillId = skillToDelete?.id ?? skillToDelete?.raw?.id ?? null;
+    
+    console.debug('[removeSkillFromCompetency]', { realCompetencyId, capabilityId, skillId, skillToDelete });
+    
+    savingSkillDetail.value = true;
+    try {
+        let apiDeleted = false;
+        
+        // Delete via the competency_skills endpoint
+        if (realCompetencyId && skillId) {
+            console.debug('[removeSkillFromCompetency] Attempting DELETE:', {
+                endpoint: `/api/competencies/${realCompetencyId}/skills/${skillId}`,
+                realCompetencyId,
+                skillId
+            });
+            try {
+                const response = await api.delete(`/api/competencies/${realCompetencyId}/skills/${skillId}`);
+                apiDeleted = true;
+                console.debug('[removeSkillFromCompetency] SUCCESS: Deleted via backend', response);
+            } catch (e: unknown) {
+                console.debug('[removeSkillFromCompetency] FAILED: backend delete:', e);
+            }
+        }
+        
+        // Helper to filter out the skill from an array
+        const filterSkill = (arr: any[]) => arr.filter((s: any) => {
+            const sId = s.id ?? s.raw?.id;
+            return sId !== skillId;
+        });
+        
+        // Remove from ALL data sources to prevent re-population
+        // 1. selectedChild.value.skills
+        if (Array.isArray((selectedChild.value as any).skills)) {
+            const before = (selectedChild.value as any).skills.length;
+            (selectedChild.value as any).skills = filterSkill((selectedChild.value as any).skills);
+            const after = (selectedChild.value as any).skills.length;
+            console.debug('[removeSkillFromCompetency] selectedChild.skills filtered:', { before, after });
+        }
+        
+        // 2. selectedChild.value.raw.skills (the original data source)
+        if (Array.isArray((selectedChild.value as any).raw?.skills)) {
+            (selectedChild.value as any).raw.skills = filterSkill((selectedChild.value as any).raw.skills);
+            console.debug('[removeSkillFromCompetency] selectedChild.raw.skills filtered');
+        }
+        
+        // 3. focusedNode.value.competencies[].skills (source for expandCompetencies)
+        const competencies = (focusedNode.value as any)?.competencies;
+        if (Array.isArray(competencies)) {
+            const comp = competencies.find((c: any) => c.id === realCompetencyId);
+            if (comp && Array.isArray(comp.skills)) {
+                comp.skills = filterSkill(comp.skills);
+                console.debug('[removeSkillFromCompetency] focusedNode.competencies[].skills filtered');
+            }
+        }
+        
+        // 4. childNodes (the rendered competency nodes) - update matching node
+        const childNode = childNodes.value.find((c: any) => c.compId === realCompetencyId);
+        if (childNode) {
+            if (Array.isArray(childNode.skills)) {
+                childNode.skills = filterSkill(childNode.skills);
+            }
+            if (Array.isArray(childNode.raw?.skills)) {
+                childNode.raw.skills = filterSkill(childNode.raw.skills);
+            }
+            console.debug('[removeSkillFromCompetency] childNodes[].skills filtered');
+        }
+        
+        // 5. Remove from availableSkills (global catalog) since skill is deleted from DB
+        if (Array.isArray(availableSkills.value)) {
+            availableSkills.value = availableSkills.value.filter((s: any) => s.id !== skillId);
+            console.debug('[removeSkillFromCompetency] availableSkills filtered');
+        }
+        
+        // Remove from grandChildNodes using raw.id from the skill object (para que desaparezca del árbol)
+        const beforeGrand = grandChildNodes.value.length;
+        grandChildNodes.value = grandChildNodes.value.filter((g) => {
+            // Check all possible ID locations: skillId property, raw.id, or the generated node id
+            const nodeSkillId = g.skillId ?? g.raw?.id ?? g.raw?.raw?.id;
+            const match = nodeSkillId === skillId || g.id === skillId;
+            if (match) {
+                console.debug('[removeSkillFromCompetency] Removing from tree:', { gId: g.id, nodeSkillId, skillId, skillIdProp: g.skillId });
+            }
+            return !match;
+        });
+        const afterGrand = grandChildNodes.value.length;
+        console.debug('[removeSkillFromCompetency] Tree skills filtered:', { beforeGrand, afterGrand, removed: beforeGrand - afterGrand, skillIdToRemove: skillId });
+        
+        // Force Vue to re-render by using nextTick
+        await nextTick();
+        console.debug('[removeSkillFromCompetency] After nextTick, grandChildNodes count:', grandChildNodes.value.length);
+        
+        // Close dialogs
+        skillDetailDialogVisible.value = false;
+        selectedSkillDetail.value = null;
+        
+        showSuccess('Skill eliminada correctamente');
     } catch (err: unknown) {
         console.error('removeSkillFromCompetency error', err);
         showError('Error eliminando skill');
+    } finally {
+        savingSkillDetail.value = false;
+        // Re-enable watcher layout after deletion completes
+        suppressWatcherLayout.value = false;
     }
 }
 
@@ -1240,11 +1421,14 @@ watch(selectedChild, (nv) => {
         return;
     }
     // Recompute competency child positions using existing positions as start
-    try {
-        if (focusedNode.value) {
-            expandCompetencies(focusedNode.value as NodeItem, { x: focusedNode.value.x ?? 0, y: focusedNode.value.y ?? 0 }, { layout: 'auto' });
-        }
-    } catch (err: unknown) { void err; }
+    // Skip if we're in the middle of a skill deletion to avoid layout thrash
+    if (!suppressWatcherLayout.value) {
+        try {
+            if (focusedNode.value) {
+                expandCompetencies(focusedNode.value as NodeItem, { x: focusedNode.value.x ?? 0, y: focusedNode.value.y ?? 0 }, { layout: 'auto' });
+            }
+        } catch (err: unknown) { void err; }
+    }
     editChildName.value = nv.name ?? nv.raw?.name ?? '';
     editChildDescription.value = nv.description ?? nv.raw?.description ?? '';
     editChildReadiness.value = nv.readiness ?? nv.raw?.readiness ?? null;
@@ -3081,6 +3265,24 @@ watch(skillDetailDialogVisible, (v) => {
     }
 });
 
+// Limpiar mensajes al abrir/cerrar diálogo de crear skill
+watch(createSkillDialogVisible, (visible) => {
+    if (visible) {
+        // When opening, check if displayNode is a skill
+        const node = displayNode.value;
+        if (node && (node.skillId || (typeof node.id === 'number' && node.id > 0))) {
+            selectedSkillForDeletion.value = node;
+        } else {
+            selectedSkillForDeletion.value = null;
+        }
+    } else {
+        // When closing, clean up
+        skillCreationError.value = null;
+        skillCreationSuccess.value = null;
+        selectedSkillForDeletion.value = null;
+    }
+});
+
 // Expose saveSkillDetail for debugging from browser console
 onMounted(() => {
     try { (window as any).__saveSkillDetail = saveSkillDetail; } catch (e) { void e; }
@@ -3970,6 +4172,8 @@ watch(
     () => props.scenario,
     (nv) => {
         if (!nv) return;
+        // Skip rebuild if we're in the middle of a local mutation (e.g., skill deletion)
+        if (suppressWatcherLayout.value) return;
         if (
             Array.isArray((nv as any).capabilities) &&
             (nv as any).capabilities.length > 0
@@ -4836,7 +5040,25 @@ if (!edges.value) edges.value = [];
                 <v-card :class="dialogThemeClass">
                     <v-card-title>Crear nueva skill</v-card-title>
                     <v-card-text>
-                        <v-form>
+                        <v-alert
+                            v-if="skillCreationSuccess"
+                            type="success"
+                            closable
+                            class="mb-4"
+                            @click:close="skillCreationSuccess = null"
+                        >
+                            {{ skillCreationSuccess }}
+                        </v-alert>
+                        <v-alert
+                            v-if="skillCreationError"
+                            type="error"
+                            closable
+                            class="mb-4"
+                            @click:close="skillCreationError = null"
+                        >
+                            {{ skillCreationError }}
+                        </v-alert>
+                        <v-form data-skill-form>
                             <v-text-field v-model="newSkillName" label="Nombre" required />
                             <v-text-field v-model="newSkillCategory" label="Categoría" />
                             <v-textarea v-model="newSkillDescription" label="Descripción" rows="3" />
@@ -4844,7 +5066,7 @@ if (!edges.value) edges.value = [];
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer />
-                        <v-btn text @click="createSkillDialogVisible = false">Cancelar</v-btn>
+                        <v-btn text @click="createSkillDialogVisible = false">Cerrar</v-btn>
                         <v-btn color="primary" :loading="savingSkill" @click="createAndAttachSkill">Crear y asociar</v-btn>
                     </v-card-actions>
                 </v-card>
@@ -4876,8 +5098,14 @@ if (!edges.value) edges.value = [];
             <v-dialog v-model="skillDetailDialogVisible" max-width="720" transition="scale-transition">
                 <v-card :class="dialogThemeClass">
                     <v-card-title>Detalle de la skill</v-card-title>
+                    
                     <v-card-text>
                         <div v-if="selectedSkillDetail">
+                            <div style="display:flex; gap:8px; grid-column:1/-1; margin-top:8px">
+                            <v-btn text @click="skillDetailDialogVisible = false">Cancelar</v-btn>
+                            <v-btn color="primary" :loading="savingSkillDetail" @click="saveSkillDetail">Guardar</v-btn>
+                            <v-btn color="error" :loading="savingSkillDetail" @click="removeSkillFromCompetency(selectedSkillDetail)">Borrar</v-btn>
+                            </div>
                             <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
                                 <v-text-field v-model="skillEditName" label="Nombre" required />
                                 <v-select v-model="skillEditCategory" :items="['technical','behavioral','domain']" label="Categoría" />
@@ -4912,8 +5140,6 @@ if (!edges.value) edges.value = [];
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer />
-                        <v-btn text @click="skillDetailDialogVisible = false">Cancelar</v-btn>
-                        <v-btn color="primary" :loading="savingSkillDetail" @click="saveSkillDetail">Guardar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>

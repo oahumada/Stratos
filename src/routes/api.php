@@ -496,6 +496,66 @@ Route::middleware('auth:sanctum')->group(function () {
         }
     });
 
+    // Dev API: delete a CompetencySkill relation (remove a skill from a competency)
+    Route::delete('/competencies/{competencyId}/skills/{skillId}', function (Illuminate\Http\Request $request, $competencyId, $skillId) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $comp = App\Models\Competency::find($competencyId);
+        if (!$comp) {
+            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        }
+        if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        
+        // Check the skill exists and belongs to user's organization
+        $skill = App\Models\Skill::find($skillId);
+        if (!$skill) {
+            return response()->json(['success' => false, 'message' => 'Skill not found'], 404);
+        }
+        if (isset($skill->organization_id) && $skill->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        
+        // Log the deletion attempt
+        \Log::info('[DELETE /competencies/{competencyId}/skills/{skillId}]', [
+            'competencyId' => $competencyId,
+            'skillId' => $skillId,
+            'user_id' => $user->id,
+        ]);
+
+        // Delete the skill completely (cascade will remove pivot records)
+        try {
+            // First remove from pivot table (competency_skills)
+            \DB::table('competency_skills')
+                ->where('skill_id', $skillId)
+                ->delete();
+            
+            \Log::info('[DELETE] Removed all competency_skills relations for skill:', ['skillId' => $skillId]);
+            
+            // Then delete the skill itself
+            $deleted = $skill->delete();
+            
+            \Log::info('[DELETE] Skill deletion result:', ['deleted' => $deleted, 'skillId' => $skillId]);
+
+            if (!$deleted) {
+                return response()->json(['success' => false, 'message' => 'Could not delete skill'], 400);
+            }
+
+            return response()->json(['success' => true, 'message' => 'Skill deleted successfully']);
+        } catch (\Throwable $e) {
+            \Log::error('Error deleting skill: ' . $e->getMessage(), [
+                'exception' => $e,
+                'competencyId' => $competencyId,
+                'skillId' => $skillId,
+            ]);
+            return response()->json(['success' => false, 'message' => 'Server error deleting skill', 'error' => $e->getMessage()], 500);
+        }
+    });
+
     // Dev API: update pivot attributes for scenario_capabilities
     Route::patch('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
         $user = auth()->user();
@@ -628,12 +688,12 @@ Route::middleware('auth:sanctum')->group(function () {
                     $name = trim($payload['name'] ?? '');
                     if (empty($name))
                         throw new \Exception('Skill name is required');
-                    
+
                     // Buscar skill existente con el mismo nombre en la organización
                     $existingSkill = App\Models\Skill::where('organization_id', $user->organization_id ?? null)
                         ->where('name', $name)
                         ->first();
-                    
+
                     if ($existingSkill) {
                         // Skill duplicada - informar al usuario
                         throw new \Exception('Skill duplicada: Ya existe una skill con el nombre "' . $name . '". Use una existente o cree una con nombre diferente.');
