@@ -1,14 +1,14 @@
 {
-  "endpoints": {
-    "index": "/api/people",
-    "apiUrl": "/api/people"
-  },
-  "detail": true,
-  "titulo": "Gestión de Personas",
-  "descripcion": "Gestionar personas y sus habilidades",
-  "permisos": {
-    "crear": true,
-    "editar": true,
-    "eliminar": true
-  }
+    "endpoints": {
+        "index": "/api/people",
+        "apiUrl": "/api/people"
+    },
+    "detail": true,
+    "titulo": "Gestión de Personas",
+    "descripcion": "Gestionar personas y sus habilidades",
+    "permisos": {
+        "crear": true,
+        "editar": true,
+        "eliminar": true
+    }
 }

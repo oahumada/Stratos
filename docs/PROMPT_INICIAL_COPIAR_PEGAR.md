@@ -8,11 +8,11 @@
 
 Eres una IA asistente de codificación trabajando en un proyecto real:
 
-- **Proyecto:** TalentIA (gestión de talento + competencias + career path)
+- **Proyecto:** Strato (gestión de talento + competencias + career path)
 - **Stack:** Laravel 12 + Vue 3 + TypeScript + Inertia.js + Vuetify
-- **Repositorio:** oahumada/TalentIA (rama: Vuetify)
+- **Repositorio:** oahumada/Strato (rama: Vuetify)
 - **Estado:** MVP backend COMPLETADO (Días 1-5 = 17 endpoints), frontend EN PROGRESO
-- **Workspace:** /workspaces/talentia/src/
+- **Workspace:** /workspaces/Strato/src/
 
 **IMPORTANTE:** Yo (la IA) no tengo memoria entre chats. Cada conversación es nueva. Este prompt restaura el contexto necesario para que sea efectivo inmediatamente.
 
@@ -25,7 +25,7 @@ Antes de responder cualquier pregunta sobre desarrollo, consulta estos archivos 
 ### 1. **ESTADO ACTUAL** (5 minutos de lectura)
 
 ```
-/workspaces/talentia/src/docs/memories.md
+/workspaces/Strato/src/docs/memories.md
 ```
 
 **¿Qué contiene?** Contexto de negocio, modelos, relaciones, BD schema
@@ -40,7 +40,7 @@ Antes de responder cualquier pregunta sobre desarrollo, consulta estos archivos 
 ### 2. **PLAN DEL MÓDULO ACTUAL** (3 minutos)
 
 ```
-/workspaces/talentia/src/docs/PLAN_DIA_[N].md
+/workspaces/Strato/src/docs/PLAN_DIA_[N].md
 ```
 
 (Donde [N] es el día en que estamos: 6, 7, 8, etc.)
@@ -57,7 +57,7 @@ Antes de responder cualquier pregunta sobre desarrollo, consulta estos archivos 
 ### 3. **API ENDPOINTS DOCUMENTADOS** (2 minutos)
 
 ```
-/workspaces/talentia/src/docs/dia5_api_endpoints.md
+/workspaces/Strato/src/docs/dia5_api_endpoints.md
 ```
 
 **¿Qué contiene?** Lista de todos los 17 endpoints MVP (métodos, rutas, respuestas)
@@ -71,7 +71,7 @@ Antes de responder cualquier pregunta sobre desarrollo, consulta estos archivos 
 ### 4. **LECCIONES APRENDIDAS** (referencia preventiva)
 
 ```
-/workspaces/talentia/src/docs/LECCIONES_APRENDIDAS_DIA1_5.md
+/workspaces/Strato/src/docs/LECCIONES_APRENDIDAS_DIA1_5.md
 ```
 
 **¿Qué contiene?** Qué funcionó bien, qué falló, qué evitar
@@ -85,7 +85,7 @@ Antes de responder cualquier pregunta sobre desarrollo, consulta estos archivos 
 ### 5. **GUÍA DE DESARROLLO** (arquitectura del proceso)
 
 ```
-/workspaces/talentia/src/docs/GUIA_DESARROLLO_ESTRUCTURADO.md
+/workspaces/Strato/src/docs/GUIA_DESARROLLO_ESTRUCTURADO.md
 ```
 
 **¿Qué contiene?** Cómo se estructura el desarrollo, convenciones, templates
@@ -99,7 +99,7 @@ Antes de responder cualquier pregunta sobre desarrollo, consulta estos archivos 
 ### 6. **ANÁLISIS DÍA 6 (Frontend)** - Si estamos en Día 6+
 
 ```
-/workspaces/talentia/src/docs/DIA6_ANALISIS_ARQUITECTURA_FRONTEND.md
+/workspaces/Strato/src/docs/DIA6_ANALISIS_ARQUITECTURA_FRONTEND.md
 ```
 
 **¿Qué contiene?** Análisis detallado de apiHelper.ts, FormSchema, FormData, patrón config-driven
@@ -114,7 +114,7 @@ Antes de responder cualquier pregunta sobre desarrollo, consulta estos archivos 
 ### 7. **PLAN DÍA 6** - Si estamos en Día 6+
 
 ```
-/workspaces/talentia/src/docs/DIA6_PLAN_ACCION.md
+/workspaces/Strato/src/docs/DIA6_PLAN_ACCION.md
 ```
 
 **¿Qué contiene?** Tasks específicos del Día 6, checkpoints horarios, criterios de éxito
@@ -212,7 +212,7 @@ Ahora sí, procedo con la tarea sabiendo exactamente dónde estamos.
 ## 📋 ESTRUCTURA ESPERADA DE ARCHIVOS
 
 ```
-/workspaces/talentia/src/
+/workspaces/Strato/src/
 ├── app/
 │   ├── Actions/           # Actions (form submissions)
 │   ├── Http/
@@ -343,7 +343,7 @@ Al inicio de cada chat, pega este texto completo o:
 **Opción Rápida (60 segundos):**
 
 ```
-Estamos en TalentIA, Día [N] de [Módulo].
+Estamos en Strato, Día [N] de [Módulo].
 Revisa: PLAN_DIA_[N].md y memories.md
 ¿Cuál es la tarea?
 ```

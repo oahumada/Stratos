@@ -10,7 +10,7 @@ use App\Models\People;
 use App\Models\RoleSkill;
 use App\Models\PeopleRoleSkills;
 use App\Models\Roles;
-use App\Models\Skills;
+use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -25,10 +25,10 @@ class DemoSeeder extends Seeder
     public function run(): void
     {
         $this->command->info('🚀 Iniciando DemoSeeder...');
-        
+
         // Limpiar tablas en orden inverso a las foreign keys
         $this->command->info('🧹 Limpiando tablas...');
-        
+
         // SQLite usa PRAGMA en lugar de SET FOREIGN_KEY_CHECKS
         $driver = DB::getDriverName();
         if ($driver === 'sqlite') {
@@ -36,25 +36,25 @@ class DemoSeeder extends Seeder
         } else {
             DB::statement('SET FOREIGN_KEY_CHECKS=0');
         }
-        
+
         DevelopmentPath::truncate();
         Application::truncate();
         JobOpening::truncate();
         RoleSkill::truncate();
-        PeopleRoleSkills::truncate();
+        PeopleRoleSkill::truncate();
         People::truncate();
-        Skills::truncate();
+        Skill::truncate();
         Roles::truncate();
         User::truncate();
         Organizations::truncate();
         DB::table('skill_level_definitions')->truncate();
-        
+
         if ($driver === 'sqlite') {
             DB::statement('PRAGMA foreign_keys = ON');
         } else {
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
         }
-        
+
         $this->command->info('✅ Tablas limpiadas');
         $this->command->newLine();
 
@@ -74,9 +74,9 @@ class DemoSeeder extends Seeder
         $this->command->info('🎯 Creando skills...');
         $this->call(SkillSeeder::class);
 
-        // 4. Skills (antes de Roles para las relaciones)
-        $this->command->info('🎯 Creando skills...');
-        $this->call(SkillSeeder::class);
+        // 4.1 Competencies (attach competencies to capabilities using existing skills)
+        $this->command->info('🏷️  Creando competencias (competencies) para capabilities...');
+        $this->call(CompetencySeeder::class);
 
         // 5. Roles
         $this->command->info('👔 Creando roles...');

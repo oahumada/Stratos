@@ -4,8 +4,9 @@ namespace App\Repository;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+// Schema not required for primary-key lookups
 use Illuminate\Database\Eloquent\Model;
-use illuminate\Database\QueryException;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Response;
 use App\Helpers\Tools;
@@ -22,8 +23,8 @@ abstract class Repository implements RepositoryInterface
 
     public function store(Request $request)
     {
-        $query = $request->get('data');
-        Log::info('Store data:', $query);
+        $query = $request->get('data', $request->all());
+        Log::info('Store data:', is_array($query) ? $query : ['data' => $query]);
         try {
             $query = array_map(function ($value) {
                 return is_array($value) ? implode(',', $value) : $value;
@@ -35,10 +36,11 @@ abstract class Repository implements RepositoryInterface
                 Log::info('Added organization_id:', ['organization_id' => $query['organization_id']]);
             }
 
-            $request = $this->model->create($query);
+            $created = $this->model->create($query);
             return response()->json([
-                'message' => 'Registro creado con éxito',
-            ], 200);
+                'success' => true,
+                'data' => $created,
+            ], 201);
         } catch (QueryException $e) {
             Log::error('store', [$e]);
             return response()->json([
@@ -50,13 +52,15 @@ abstract class Repository implements RepositoryInterface
 
     public function update(Request $request)
     {
-        // Extract the 'id' from the incoming request data
-        $id = $request->input('data.id');
-        Log::info($request->all());
+        // Get the data payload: prioritize 'data' key, fallback to all request data
+        $allData = $request->get('data', $request->all());
+        Log::info('Request data:', is_array($allData) ? $allData : ['data' => $allData]);
 
-        // Retrieve the data to update and log it
-        $dataToUpdate = $request->input('data');
-        //Log::info('Incoming data for update: ', $dataToUpdate);
+        // Extract the 'id' from the payload
+        $id = $allData['id'] ?? null;
+
+        // Retrieve the data to update
+        $dataToUpdate = $allData;
 
         // Remove the 'id' key to prepare for updating the model
         unset($dataToUpdate['id']);
@@ -67,8 +71,7 @@ abstract class Repository implements RepositoryInterface
         try {
             // Retrieve the model instance or fail if not found
             $model = $this->model->findOrFail($id);
-            Log::info('Model found with ID: ' . $id);
-            Log::info('Model found with ID: ' . $model);
+            Log::info('Model found', ['id' => $id, 'class' => is_object($model) ? get_class($model) : gettype($model)]);
 
             // Update the model instance with the new data
             $model->fill($dataToUpdate);
@@ -78,6 +81,20 @@ abstract class Repository implements RepositoryInterface
 
             return response()->json(['message' => 'Model updated successfully.'], 200);
         } catch (ModelNotFoundException $e) {
+            Log::warning('Model not found for ID using default query: ' . $id . '. Attempting without global scopes.');
+            try {
+                // Try to find the model bypassing global scopes (e.g., organization/paciente scopes)
+                $model = $this->model->newQueryWithoutScopes()->find($id);
+                if ($model) {
+                    Log::info('Model found without scopes, proceeding to update.', ['id' => $id]);
+                    $model->fill($dataToUpdate);
+                    $model->save();
+                    return response()->json(['message' => 'Model updated successfully (no scopes).'], 200);
+                }
+            } catch (\Exception $inner) {
+                Log::error('Fallback query failed for ID: ' . $id, ['error' => $inner->getMessage()]);
+            }
+
             Log::error('Model not found for ID: ' . $id);
             return response()->json(['error' => 'Model not found.'], 404);
         } catch (\Exception $e) {
@@ -196,51 +213,47 @@ abstract class Repository implements RepositoryInterface
     public function show(Request $request, $id)
     {
         Log::info($id);
-        $paciente_id = $id;
         try {
-            if ($paciente_id && is_numeric($paciente_id)) {
-                $query = $this->model->query();
-                Log::info('Current Model: ' . get_class($this->model));
-                $withRelations = $request->input('withRelations', []);
-                Log::info($withRelations);
+            $query = $this->model->query();
+            Log::info('Current Model: ' . get_class($this->model));
+            $withRelations = $request->input('withRelations', []);
+            Log::info($withRelations);
 
-                // Add eager loading with error handling
-                if (!empty($withRelations)) {
-                    $validRelations = [];
-                    $modelInstance = new $this->model;
+            // Add eager loading with error handling
+            if (!empty($withRelations)) {
+                $validRelations = [];
+                $modelInstance = new $this->model;
 
-                    foreach ($withRelations as $relation) {
-                        if (method_exists($modelInstance, $relation)) {
-                            $validRelations[] = $relation;
-                        } else {
-                            Log::warning("Invalid relation attempted: $relation");
-                        }
-                    }
-
-                    try {
-                        $query->with($validRelations);
-                    } catch (\Exception $e) {
-                        Log::error('Eager loading failed: ' . $e->getMessage());
-                        Log::error('Failed relations: ' . json_encode($withRelations));
+                foreach ($withRelations as $relation) {
+                    if (method_exists($modelInstance, $relation)) {
+                        $validRelations[] = $relation;
+                    } else {
+                        Log::warning("Invalid relation attempted: $relation");
                     }
                 }
 
-                // Filter by paciente_id
-                $query->where('paciente_id', $paciente_id);
-
-                // MOVE LOGGING HERE - AFTER ALL QUERY CONDITIONS
-                Log::info('Final Query: ' . $query->toSql());
-                Log::info('Query Bindings: ' . json_encode($query->getBindings()));
-
-                $results = $query->get();
-                Log::info($results);
-
-                return response()->json([
-                    'result' => 'success',
-                    'data' => $results,
-                    'message' => 'Registros cargados exitosamente'
-                ]);
+                try {
+                    $query->with($validRelations);
+                } catch (\Exception $e) {
+                    Log::error('Eager loading failed: ' . $e->getMessage());
+                    Log::error('Failed relations: ' . json_encode($withRelations));
+                }
             }
+
+            $query->where($this->model->getKeyName(), $id);
+
+            // MOVE LOGGING HERE - AFTER ALL QUERY CONDITIONS
+            Log::info('Final Query: ' . $query->toSql());
+            Log::info('Query Bindings: ' . json_encode($query->getBindings()));
+
+            $results = $query->get();
+            Log::info($results);
+
+            return response()->json([
+                'result' => 'success',
+                'data' => $results,
+                'message' => 'Registros cargados exitosamente'
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener el registro',

@@ -191,7 +191,7 @@ resources/js/pages/
     "version": "1.0",
     "author": "Omar",
     "lastUpdated": "2025-12-31",
-    "description": "Gestión de peopleas en sistema TalentIA"
+    "description": "Gestión de peopleas en sistema Strato"
   }
 }
 ```

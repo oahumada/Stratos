@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
+Route::get('/scenario-demo', function () {
+    return Inertia::render('ScenarioDemo');
+});
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
@@ -49,5 +53,23 @@ Route::get('/learning-paths', function () {
 Route::get('/marketplace', function () {
     return Inertia::render('Marketplace/Index');
 })->middleware(['auth', 'verified'])->name('marketplace.index');
+
+// Alias routes for new frontend naming: /scenario-planning
+Route::get('/scenario-planning', function () {
+    return Inertia::render('ScenarioPlanning/ScenarioList');
+})->middleware(['auth', 'verified'])->name('scenario-planning.index');
+
+Route::get('/scenario-planning/{id}', function ($id) {
+    return Inertia::render('ScenarioPlanning/ScenarioDetail', ['id' => $id]);
+})->middleware(['auth', 'verified'])->name('scenario-planning.show');
+
+// Backwards-compatibility aliases: /strategic-planning -> /scenario-planning
+Route::get('/strategic-planning', function () {
+    return Inertia::render('ScenarioPlanning/ScenarioList');
+})->middleware(['auth', 'verified'])->name('strategic-planning.index');
+
+Route::get('/strategic-planning/{id}', function ($id) {
+    return Inertia::render('ScenarioPlanning/ScenarioDetail', ['id' => $id]);
+})->middleware(['auth', 'verified'])->name('strategic-planning.show');
 
 require __DIR__ . '/settings.php';

@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class BarsLevel extends Model
+{
+    use HasFactory;
+
+    protected $table = 'bars_levels';
+
+    protected $fillable = ['skill_id', 'level', 'level_name', 'behavioral_description'];
+
+    // Relaciones
+    public function skill()
+    {
+        return $this->belongsTo(Skill::class);
+    }
+
+    public function responses()
+    {
+        return $this->hasMany(EvaluationResponse::class);
+    }
+}

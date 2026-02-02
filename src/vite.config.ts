@@ -36,4 +36,11 @@ export default defineConfig({
             host: 'localhost',
         },
     },
+    // Ensure d3 is pre-bundled and not treated as external during SSR
+    optimizeDeps: {
+        include: ['d3'],
+    },
+    ssr: {
+        noExternal: ['d3'],
+    },
 });

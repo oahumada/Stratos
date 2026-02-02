@@ -30,6 +30,24 @@ class PeopleRoleSkills extends Model
         'required_level' => 'integer',
     ];
 
+    /**
+     * Compatibilidad: algunos fixtures/tests usan la columna 'level' en lugar de
+     * 'current_level' al adjuntar pivotes. Devolver 'level' como fallback.
+     */
+    public function getCurrentLevelAttribute($value)
+    {
+        // If a legacy 'level' column was provided (e.g. tests/fixtures), prefer it
+        if (array_key_exists('level', $this->attributes) && $this->attributes['level'] !== null) {
+            return (int) $this->attributes['level'];
+        }
+
+        if (!is_null($value) && $value !== '') {
+            return (int) $value;
+        }
+
+        return 0;
+    }
+
     // Relaciones
     public function person(): BelongsTo
     {
@@ -43,7 +61,7 @@ class PeopleRoleSkills extends Model
 
     public function skill(): BelongsTo
     {
-        return $this->belongsTo(Skills::class, 'skill_id');
+        return $this->belongsTo(Skill::class, 'skill_id');
     }
 
     public function evaluator(): BelongsTo

@@ -153,7 +153,7 @@ API ENDPOINTS A USAR:
 
 ### **FASE 2: El Diferenciador (Días 4-5) - Gap Analysis ⭐⭐⭐**
 
-**Objetivo:** Visualizar brechas de skills (core de TalentIA)
+**Objetivo:** Visualizar brechas de skills (core de Strato)
 
 #### **Día 4: Gap Analysis - Estructura & Visuals**
 

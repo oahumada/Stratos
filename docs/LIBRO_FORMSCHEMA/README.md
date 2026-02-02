@@ -16,7 +16,7 @@ Este es un **libro técnico profesional** que documenta el **FormSchema Pattern*
 - ✅ **Frontend dinámica** (Vue 3 components reutilizables)
 - ✅ **Backend genérico** (Laravel controller polimórfico)
 - ✅ **Configuración declarativa** (JSON-driven)
-- ✅ **Escalabilidad comprobada** (usado en TalentIA MVP)
+- ✅ **Escalabilidad comprobada** (usado en Strato MVP)
 
 ---
 
@@ -165,7 +165,7 @@ Después de leer, serás capaz de:
 
 ---
 
-## Implementación en TalentIA
+## Implementación en Strato
 
 Este patrón fue **probado en el mundo real** con:
 
@@ -307,7 +307,7 @@ Este libro está bajo **licencia MIT**:
 ## Contacto
 
 **Autor:** Omar  
-**Email:** omar@talentia.local  
+**Email:** omar@Strato.local  
 **GitHub:** [@omardev](https://github.com/omardev)  
 **LinkedIn:** [Omar Developer](https://linkedin.com)
 
@@ -317,7 +317,7 @@ Este libro está bajo **licencia MIT**:
 
 ### v1.0 (31 Diciembre 2025)
 - ✅ Publicación inicial de 10 capítulos
-- ✅ Basado en implementación real de TalentIA
+- ✅ Basado en implementación real de Strato
 - ✅ 100+ ejemplos de código
 - ✅ 15+ diagramas ASCII
 

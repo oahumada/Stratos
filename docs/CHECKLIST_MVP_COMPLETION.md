@@ -1,4 +1,4 @@
-# MVP Completion Checklist - TalentIA
+# MVP Completion Checklist - Strato
 
 **Last Updated:** 2025-12-31  
 **Days Completed:** 5/7  
@@ -114,7 +114,7 @@
     - ✅ 17 total API endpoints
 - ✅ Create documentation
     - ✅ [dia5_api_endpoints.md](dia5_api_endpoints.md)
-    - ✅ [TalentIA_API_Postman.json](TalentIA_API_Postman.json)
+    - ✅ [Strato_API_Postman.json](Strato_API_Postman.json)
 - ✅ Update project status
     - ✅ [estado_actual_mvp.md](estado_actual_mvp.md)
     - ✅ [dia5_resumen_entrega.md](dia5_resumen_entrega.md)
@@ -272,7 +272,7 @@
 - ✅ dia3_servicios_logica_negocio.md
 - ✅ dia3_comandos_uso.md
 - ✅ dia5_api_endpoints.md (17 endpoints documented)
-- ✅ TalentIA_API_Postman.json (Postman collection)
+- ✅ Strato_API_Postman.json (Postman collection)
 - ✅ estado_actual_mvp.md (updated status)
 - ✅ dia5_resumen_entrega.md (delivery summary)
 

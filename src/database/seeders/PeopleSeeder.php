@@ -7,7 +7,8 @@ use App\Models\People;
 use App\Models\PeopleRoleSkills;
 use App\Models\RoleSkill;
 use App\Models\Roles;
-use App\Models\Skills;
+use App\Models\Skill;
+use App\Models\Departments;
 use Illuminate\Database\Seeder;
 
 class PeopleSeeder extends Seeder
@@ -16,7 +17,8 @@ class PeopleSeeder extends Seeder
     {
         $org = Organizations::first();
         $roles = Roles::all();
-        $skills = Skills::all();
+        $skills = Skill::all();
+        $department = Departments::first();
 
         $firstNames = ['Carlos', 'María', 'Juan', 'Ana', 'Pedro', 'Laura', 'Miguel', 'Sandra', 'Roberto', 'Elena', 'Fernando', 'Patricia', 'Diego', 'Beatriz', 'Andrés', 'Gabriela', 'Javier', 'Claudia', 'Ricardo', 'Verónica'];
         $lastNames = ['García', 'López', 'Martínez', 'Rodríguez', 'Pérez', 'Sánchez', 'González', 'Fernández', 'Torres', 'Ramírez'];
@@ -34,7 +36,7 @@ class PeopleSeeder extends Seeder
                 'last_name' => $lastName,
                 'email' => $email,
                 'role_id' => $currentRole->id,
-                'department_id' =>  $currentRole->id,
+                'department_id' => $department ? $department->id : null,
                 'hire_date' => now()->subMonths(rand(3, 60)),
                 'photo_url' => "https://api.dicebear.com/7.x/avataaars/svg?seed={$email}",
             ]);
@@ -47,7 +49,7 @@ class PeopleSeeder extends Seeder
             // Estas son las skills que DEBE tener para cumplir su rol
             $roleSkills = RoleSkill::where('role_id', $currentRole->id)->get();
             foreach ($roleSkills as $roleSkill) {
-                PeopleRoleSkills::create([
+                PeopleRoleSkill::create([
                     'people_id' => $people->id,
                     'role_id' => $currentRole->id,
                     'skill_id' => $roleSkill->skill_id,
@@ -78,13 +80,13 @@ class PeopleSeeder extends Seeder
             $additionalSkills = $skills->random(rand(2, 4));
             foreach ($additionalSkills as $skill) {
                 // Verificar que no esté duplicada (evita que skill del rol aparezca 2 veces)
-                $exists = PeopleRoleSkills::where('people_id', $people->id)
+                $exists = PeopleRoleSkill::where('people_id', $people->id)
                     ->where('skill_id', $skill->id)
                     ->where('is_active', true)
                     ->exists();
-                
+
                 if (!$exists) {
-                    PeopleRoleSkills::create([
+                    PeopleRoleSkill::create([
                         'people_id' => $people->id,
                         'role_id' => $currentRole->id,
                         'skill_id' => $skill->id,

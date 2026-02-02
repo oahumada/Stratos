@@ -1,6 +1,6 @@
-import { defineStore } from "pinia";
-import { initSanctum } from "@/apiHelper";
-import { usePage } from "@inertiajs/vue3";
+import { initSanctum } from '@/apiHelper';
+import { usePage } from '@inertiajs/vue3';
+import { defineStore } from 'pinia';
 
 // Define a User type if not already imported
 type User = {
@@ -10,7 +10,7 @@ type User = {
     // Add other user properties as needed
 };
 
-export const useAuthStore = defineStore("auth", {
+export const useAuthStore = defineStore('auth', {
     state: () => ({
         user: null as User | null,
         isAuthenticated: false,
@@ -42,7 +42,7 @@ export const useAuthStore = defineStore("auth", {
                     this.user = userFromPage;
                     this.isAuthenticated = true;
                     console.log(
-                        "Auth initialized with user:",
+                        'Auth initialized with user:',
                         userFromPage.email,
                     );
                 } else {
@@ -51,7 +51,7 @@ export const useAuthStore = defineStore("auth", {
 
                 this.authInitialized = true;
             } catch (error) {
-                console.error("Error initializing auth:", error);
+                console.error('Error initializing auth:', error);
                 this.logout();
             } finally {
                 this.isLoading = false;
@@ -70,9 +70,9 @@ export const useAuthStore = defineStore("auth", {
                 // NUEVO: Esperar un momento para que se sincronicen los tokens
                 await new Promise((resolve) => setTimeout(resolve, 100));
 
-                console.log("User logged in:", user.email);
+                console.log('User logged in:', user.email);
             } catch (error) {
-                console.error("Login error:", error);
+                console.error('Login error:', error);
                 throw error;
             }
         },
@@ -92,9 +92,9 @@ export const useAuthStore = defineStore("auth", {
                 this.isAuthenticated = true;
                 this.authInitialized = true;
 
-                console.log("Auth reinitialized after login:", user.email);
+                console.log('Auth reinitialized after login:', user.email);
             } catch (error) {
-                console.error("Reinitialize error:", error);
+                console.error('Reinitialize error:', error);
                 throw error;
             } finally {
                 this.isLoading = false;
@@ -104,7 +104,7 @@ export const useAuthStore = defineStore("auth", {
         // NUEVO: Método para verificar y refrescar auth cuando sea necesario
         async ensureAuthValid() {
             if (!this.isAuthenticated || !this.authInitialized) {
-                console.log("Auth not valid, reinitializing...");
+                console.log('Auth not valid, reinitializing...');
                 await this.initializeAuth();
             }
             return this.isAuthenticated;
@@ -112,21 +112,21 @@ export const useAuthStore = defineStore("auth", {
 
         // NUEVO: Método para manejar errores de auth desde cualquier lugar
         async handleAuthError(error: any) {
-            console.error("Auth error occurred:", error);
+            console.error('Auth error occurred:', error);
 
             if (
                 error.response?.status === 401 ||
                 error.response?.status === 419
             ) {
-                console.log("Critical auth error, logging out...");
+                console.log('Critical auth error, logging out...');
                 this.logout();
 
                 // Redirigir al login si es necesario
                 if (
-                    typeof window !== "undefined" &&
-                    window.location.pathname !== "/login"
+                    typeof window !== 'undefined' &&
+                    window.location.pathname !== '/login'
                 ) {
-                    window.location.href = "/login";
+                    window.location.href = '/login';
                 }
             }
         },
@@ -138,12 +138,12 @@ export const useAuthStore = defineStore("auth", {
             this.authInitialized = false;
 
             // Limpiar tokens del localStorage si los usas
-            if (typeof window !== "undefined") {
-                localStorage.removeItem("auth_token");
-                sessionStorage.removeItem("auth_token");
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('auth_token');
+                sessionStorage.removeItem('auth_token');
             }
 
-            console.log("User logged out completely");
+            console.log('User logged out completely');
         },
 
         updateUser(user: any) {
@@ -151,10 +151,10 @@ export const useAuthStore = defineStore("auth", {
                 // VERIFICAR: Asegurar que el user tenga ID
                 if (user && user.id) {
                     this.user = { ...this.user, ...user };
-                    console.log("User updated with ID:", user.id);
+                    console.log('User updated with ID:', user.id);
                 } else {
                     console.error(
-                        "Attempting to update user without ID:",
+                        'Attempting to update user without ID:',
                         user,
                     );
                     this.user = user;

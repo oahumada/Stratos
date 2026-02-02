@@ -1,9 +1,9 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia';
 
-export const useDataStore = defineStore("DataStore", {
+export const useDataStore = defineStore('DataStore', {
     state: () => ({
-        selected: {},
-        userSelected: {},
+        selected: {} as object,
+        userSelected: {} as object,
         pacienteSelected: [],
     }),
     getters: {
@@ -11,7 +11,7 @@ export const useDataStore = defineStore("DataStore", {
         getPacienteSelected: (state) => state.pacienteSelected,
     },
     actions: {
-        async setUserSelected(user: {}) {
+        async setUserSelected(user: object) {
             this.userSelected = user;
         },
         async setPaciente(paciente = null) {
@@ -20,11 +20,11 @@ export const useDataStore = defineStore("DataStore", {
             }
             return this.pacienteSelected;
         },
-        
+
         async clearServerCatalogs() {
             try {
-                const { post } = await import("@/apiHelper");
-                await post("/api/catalogs/clear-cache");
+                const { post } = await import('@/apiHelper');
+                await post('/api/catalogs/clear-cache');
                 console.log('Server catalogs cache cleared');
             } catch (error) {
                 console.error('Error clearing server cache:', error);
@@ -32,4 +32,3 @@ export const useDataStore = defineStore("DataStore", {
         },
     },
 });
-            

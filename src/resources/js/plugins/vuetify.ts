@@ -1,10 +1,10 @@
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-import { aliases, mdi } from 'vuetify/iconsets/mdi'
-import { themeOptions } from '@/composables/useTheme'
-import '@mdi/font/css/materialdesignicons.css'
-import 'vuetify/styles'
+import { themeOptions } from '@/composables/useTheme';
+import '@mdi/font/css/materialdesignicons.css';
+import { createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
+import { aliases, mdi } from 'vuetify/iconsets/mdi';
+import 'vuetify/styles';
 
 // Fuente única de paletas: construimos los temas de Vuetify a partir de themeOptions
 const basePalette = {
@@ -15,7 +15,7 @@ const basePalette = {
     warning: '#ff9800',
     background: '#f5f7fa',
     surface: '#ffffff',
-}
+};
 
 const themes = themeOptions.reduce<Record<string, any>>((acc, theme) => {
     acc[theme.name] = {
@@ -25,11 +25,11 @@ const themes = themeOptions.reduce<Record<string, any>>((acc, theme) => {
             primary: theme.colors.primary,
             secondary: theme.colors.secondary,
         },
-    }
-    return acc
-}, {})
+    };
+    return acc;
+}, {});
 
-const defaultTheme = localStorage.getItem('app-theme') || 'purple'
+const defaultTheme = localStorage.getItem('app-theme') || 'purple';
 
 export default createVuetify({
     components,
@@ -45,4 +45,4 @@ export default createVuetify({
         defaultTheme,
         themes,
     },
-})
+});

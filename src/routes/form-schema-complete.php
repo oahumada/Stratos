@@ -53,13 +53,13 @@ Route::group([], function () use ($formSchemaModels) {
         // PUT /api/{route-name}/{id} - Actualizar (update)
         Route::put("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
             $controller = new FormSchemaController();
-            return $controller->update($request, $modelName);
+            return $controller->update($request, $modelName, $id);
         })->name("api.{$routeName}.update");
 
         // PATCH /api/{route-name}/{id} - Actualizar parcial
         Route::patch("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
             $controller = new FormSchemaController();
-            return $controller->update($request, $modelName);
+            return $controller->update($request, $modelName, $id);
         })->name("api.{$routeName}.patch");
 
         // DELETE /api/{route-name}/{id} - Eliminar (destroy)
@@ -109,18 +109,18 @@ foreach ($formSchemaModels as $modelName => $routeName) {
     // Convertir route-name de FormSchema (kebab-case) a consulta (snake_case)
 //    $consultaRouteName = str_replace('_', '-', $routeName);
     $consultaRouteName = $routeName;
-    
+
     // Ruta principal de consulta (GET /consulta/{route-name})
     Route::get("consulta/{$consultaRouteName}", function () use ($modelName) {
         // Determinar el componente Vue basado en el modelo
         $vueComponent = 'subpages/consultas/Consulta' . $modelName . 'Generic';
-        
+
         // Si no existe el componente genérico, usar el componente original
         $componentPath = resource_path("js/pages/{$vueComponent}.vue");
         if (!file_exists($componentPath)) {
             $vueComponent = 'subpages/consultas/Consulta' . $modelName;
         }
-        
+
         return Inertia::render($vueComponent);
     })->name($consultaRouteName . '.consulta');
 }

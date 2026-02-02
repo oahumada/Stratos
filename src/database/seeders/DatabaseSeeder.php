@@ -11,6 +11,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(DemoSeeder::class);
+        $this->call([
+            CapabilitySeeder::class,
+            DemoSeeder::class,
+                // Seed demo data first, then scenario-specific seeders
+            ScenarioSeeder::class,
+            // ScenarioTemplateSeeder::class,
+            // WorkforcePlanningSeeder::class,
+        ]);
     }
 }

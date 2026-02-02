@@ -21,7 +21,33 @@ class FormSchemaController extends Controller
         $this->modelClass = "App\\Models\\{$modelName}";
         $this->repositoryClass = "App\\Repository\\{$modelName}Repository";
 
-        // Verificar que las clases existan
+        // Verificar que las clases existan; si no, intentar formas singular/plural alternas
+        if (!class_exists($this->modelClass)) {
+            // Try singular (trim trailing 's')
+            $altModelName = rtrim($modelName, 's');
+            $altModelClass = "App\\Models\\{$altModelName}";
+            if (class_exists($altModelClass)) {
+                $this->modelClass = $altModelClass;
+                // adjust repository class to match available repository (plural/singular)
+                $altRepoClass = "App\\Repository\\{$altModelName}Repository";
+                if (class_exists($altRepoClass)) {
+                    $this->repositoryClass = $altRepoClass;
+                }
+            } else {
+                // Try plural (append 's') only if not already plural
+                $altModelName2 = $modelName . 's';
+                $altModelClass2 = "App\\Models\\{$altModelName2}";
+                if (class_exists($altModelClass2)) {
+                    $this->modelClass = $altModelClass2;
+                    $altRepoClass2 = "App\\Repository\\{$altModelName2}Repository";
+                    if (class_exists($altRepoClass2)) {
+                        $this->repositoryClass = $altRepoClass2;
+                    }
+                }
+            }
+        }
+
+        // Final verification
         if (!class_exists($this->modelClass)) {
             throw new \Exception("Model class {$this->modelClass} not found");
         }
@@ -85,10 +111,22 @@ class FormSchemaController extends Controller
     /**
      * Actualizar un registro existente
      */
-    public function update(Request $request, string $modelName)
+    public function update(Request $request, string $modelName, $id = null)
     {
         try {
             $this->initializeForModel($modelName);
+
+            // Ensure the ID is present in the request payload.
+            // If the route provides an $id, inject it into the payload at the top level
+            // so that Repository::update() can extract it via $allData['id'].
+            if ($id !== null) {
+                $data = $request->get('data', $request->all());
+                if (!isset($data['id'])) {
+                    $data['id'] = $id;
+                    $request->merge(['data' => $data]); // also merge at 'data' key for compatibility
+                }
+            }
+
             return $this->repository->update($request);
         } catch (\Exception $e) {
             Log::error("Error in FormSchemaController::update for {$modelName}: " . $e->getMessage());
@@ -118,7 +156,7 @@ class FormSchemaController extends Controller
     }
 
     /**
-     * Mostrar registros para FormSchema (filtrados por paciente_id)
+     * Mostrar registros para FormSchema (filtrados por )
      * Usa eager loading automático para optimizar la carga de relaciones
      */
     public function show(Request $request, string $modelName, $id = null)
@@ -177,14 +215,14 @@ class FormSchemaController extends Controller
     {
         try {
             $this->initializeForModel($modelName);
-            
+
             if (method_exists($this->repository, 'search')) {
                 return $this->repository->search($id ?? $request);
             }
-            
+
             // Fallback a search
             return $this->search($request, $modelName);
-            
+
         } catch (\Exception $e) {
             Log::error("Error in FormSchemaController::search for {$modelName}: " . $e->getMessage());
             return response()->json([

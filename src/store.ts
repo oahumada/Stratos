@@ -2,8 +2,8 @@ import { defineStore } from "pinia";
 
 export const useDataStore = defineStore("DataStore", {
     state: () => ({
-        selected: {},
-        userSelected: {},
+        selected: {} as object,
+        userSelected: {} as object,
         pacienteSelected: [],
     }),
     getters: {
@@ -11,7 +11,7 @@ export const useDataStore = defineStore("DataStore", {
         getPacienteSelected: (state) => state.pacienteSelected,
     },
     actions: {
-        async setUserSelected(user: {}) {
+        async setUserSelected(user: object) {
             this.userSelected = user;
         },
         async setPaciente(paciente = null) {

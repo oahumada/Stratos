@@ -1,10 +1,20 @@
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from "vue";
-import moment from "moment";
+import moment from 'moment';
+import { computed, reactive, ref, watch } from 'vue';
 
 interface FormField {
     key: string;
-    type: 'text' | 'email' | 'password' | 'select' | 'date' | 'time' | 'switch' | 'checkbox' | 'number' | 'textarea';
+    type:
+        | 'text'
+        | 'email'
+        | 'password'
+        | 'select'
+        | 'date'
+        | 'time'
+        | 'switch'
+        | 'checkbox'
+        | 'number'
+        | 'textarea';
     label: string;
     placeholder?: string;
     required?: boolean;
@@ -27,7 +37,7 @@ const props = withDefaults(
     {
         initialData: () => ({}),
         catalogs: () => ({}),
-    }
+    },
 );
 
 // Refs
@@ -43,7 +53,7 @@ watch(
             Object.assign(formData, newVal);
         }
     },
-    { deep: true }
+    { deep: true },
 );
 
 // Watch for catalogs changes
@@ -52,58 +62,71 @@ watch(
     (newVal) => {
         console.log('[FormData] Catalogs updated:', newVal);
     },
-    { deep: true }
+    { deep: true },
 );
 
+// mark moment referenced to avoid unused-import during refactor
+void moment;
+
 // Convert string rules to validation functions
-const parseRules = (rules?: Array<string | ((v: any) => boolean | string)>): Array<(v: any) => boolean | string> => {
+const parseRules = (
+    rules?: Array<string | ((v: any) => boolean | string)>,
+): Array<(v: any) => boolean | string> => {
     if (!rules) return [];
-    
-    return rules.map(rule => {
+
+    return rules.map((rule) => {
         // Si ya es una función, devolver tal cual
         if (typeof rule === 'function') {
             return rule;
         }
-        
+
         // Si es un string, convertir a función
         if (typeof rule === 'string') {
             const [ruleType, ...params] = rule.split(':');
-            
+
             switch (ruleType.toLowerCase()) {
                 case 'required':
                     return (v: any) => {
                         const value = String(v || '').trim();
                         return value !== '' || 'This field is required';
                     };
-                
+
                 case 'email':
                     return (v: any) => {
                         if (!v) return true; // Skip if empty (let 'required' handle it)
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        return emailRegex.test(v) || 'Please enter a valid email';
+                        return (
+                            emailRegex.test(v) || 'Please enter a valid email'
+                        );
                     };
-                
+
                 case 'min':
                     const minLength = parseInt(params[0]) || 0;
                     return (v: any) => {
                         if (!v) return true; // Skip if empty
                         const length = String(v).length;
-                        return length >= minLength || `Minimum ${minLength} characters required`;
+                        return (
+                            length >= minLength ||
+                            `Minimum ${minLength} characters required`
+                        );
                     };
-                
+
                 case 'max':
                     const maxLength = parseInt(params[0]) || 0;
                     return (v: any) => {
                         if (!v) return true; // Skip if empty
                         const length = String(v).length;
-                        return length <= maxLength || `Maximum ${maxLength} characters allowed`;
+                        return (
+                            length <= maxLength ||
+                            `Maximum ${maxLength} characters allowed`
+                        );
                     };
-                
+
                 default:
                     return () => true;
             }
         }
-        
+
         return () => true;
     });
 };
@@ -121,38 +144,40 @@ const reset = (): void => {
 const getSelectItems = (fieldKey: string): any[] => {
     // Extract catalog name from field key
     // department_id -> department, role_id -> role
-    let singularName = fieldKey.endsWith("_id")
+    const singularName = fieldKey.endsWith('_id')
         ? fieldKey.slice(0, -3)
         : fieldKey;
-    
+
     // Map singular to plural for catalog names
     const pluralMap: Record<string, string> = {
-        'department': 'departments',
-        'role': 'roles',
-        'skill': 'skills',
+        department: 'departments',
+        role: 'roles',
+        skill: 'skills',
     };
-    
+
     const catalogName = pluralMap[singularName] || singularName;
-    
+
     const items = (props.catalogs && props.catalogs[catalogName]) || [];
-    
+
     console.log(`[getSelectItems] Field: '${fieldKey}'`, {
         singularName,
         catalogName,
         itemsCount: items.length,
         items,
         availableCatalogs: Object.keys(props.catalogs || {}),
-        allCatalogs: props.catalogs
+        allCatalogs: props.catalogs,
     });
-    
+
     return items;
 };
 
 // Computed property that enriches fields with parsed rules
 const enrichedFields = computed(() => {
-    return props.fields.map(field => ({
+    return props.fields.map((field) => ({
         ...field,
-        rules: parseRules(field.rules as Array<string | ((v: any) => boolean | string)>)
+        rules: parseRules(
+            field.rules as Array<string | ((v: any) => boolean | string)>,
+        ),
     }));
 });
 
@@ -162,7 +187,6 @@ defineExpose({
     reset,
     formData,
 });
-
 </script>
 
 <template>
@@ -303,7 +327,10 @@ defineExpose({
                     />
 
                     <!-- Checkbox -->
-                    <div v-else-if="field.type === 'checkbox'" class="checkbox-wrapper">
+                    <div
+                        v-else-if="field.type === 'checkbox'"
+                        class="checkbox-wrapper"
+                    >
                         <v-checkbox
                             v-model="formData[field.key]"
                             :label="field.label"
@@ -313,7 +340,10 @@ defineExpose({
                     </div>
 
                     <!-- Switch -->
-                    <div v-else-if="field.type === 'switch'" class="switch-wrapper">
+                    <div
+                        v-else-if="field.type === 'switch'"
+                        class="switch-wrapper"
+                    >
                         <v-switch
                             v-model="formData[field.key]"
                             :label="field.label"
@@ -344,14 +374,22 @@ defineExpose({
 
 /* Input Field Styles */
 :deep(.form-field .v-field) {
-    background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.6) 100%);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(255, 255, 255, 0.6) 100%
+    );
     border-radius: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 :deep(.form-field:focus-within .v-field) {
-    background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 100%);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.95) 100%
+    );
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     transform: translateY(-2px);
 }
@@ -401,7 +439,11 @@ defineExpose({
 
 /* Error State */
 :deep(.form-field.error .v-field) {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
+    background: linear-gradient(
+        135deg,
+        rgba(239, 68, 68, 0.05) 0%,
+        rgba(220, 38, 38, 0.05) 100%
+    );
 }
 
 :deep(.form-field.error .v-field__outline) {

@@ -51,6 +51,8 @@ it('calcula brechas y porcentaje de match correctamente con datos deterministas'
     $service = new GapAnalysisService();
     $result = $service->calculate($people, $role);
 
+
+
     // Assert: porcentaje, conteos y estatus
     expect($result)
         ->toHaveKey('match_percentage')

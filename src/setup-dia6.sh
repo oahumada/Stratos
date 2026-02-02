@@ -2,7 +2,7 @@
 
 # 🚀 Setup Día 6 - Compilar y servir frontend
 
-cd /workspaces/talentia/src
+cd /workspaces/Strato/src
 
 echo "📦 Installing dependencies..."
 npm install

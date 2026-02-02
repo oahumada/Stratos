@@ -1,16 +1,16 @@
 [
-  {
-    "field": "department_id",
-    "type": "select",
-    "label": "Departmento",
-    "placeholder": "Seleccione el departamento",
-    "catalogKey": "departments"
-  },
-  {
-    "field": "role_id",
-    "type": "select",
-    "label": "Rol",
-    "placeholder": "Seleccione el rol",
-    "catalogKey": "roles"
-  }
+    {
+        "field": "department_id",
+        "type": "select",
+        "label": "Departmento",
+        "placeholder": "Seleccione el departamento",
+        "catalogKey": "departments"
+    },
+    {
+        "field": "role_id",
+        "type": "select",
+        "label": "Rol",
+        "placeholder": "Seleccione el rol",
+        "catalogKey": "roles"
+    }
 ]

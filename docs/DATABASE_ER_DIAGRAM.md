@@ -1,4 +1,4 @@
-# 📊 Diagrama Entidad-Relación (ER) - Base de Datos TalentIA
+# 📊 Diagrama Entidad-Relación (ER) - Base de Datos Strato
 
 **Fecha:** 1 Enero 2026  
 **Versión:** 1.0  
@@ -8,7 +8,7 @@
 
 ## 📋 Descripción General
 
-Base de datos SQLite con arquitectura relacional para la plataforma de gestión de talento TalentIA. Implementa el modelo de **Skills** por **Roles** usando una tabla pivot `role_skills`.
+Base de datos SQLite con arquitectura relacional para la plataforma de gestión de talento Strato. Implementa el modelo de **Skills** por **Roles** usando una tabla pivot `role_skills`.
 
 ---
 
@@ -320,19 +320,19 @@ ORDER BY r.name;
 
 ### Ubicación
 ```
-/home/omar/TalentIA/src/database/database.sqlite
+/home/omar/Strato/src/database/database.sqlite
 ```
 
 ### Herramientas Disponibles
 
 **CLI (Línea de Comandos)**
 ```bash
-sqlite3 /home/omar/TalentIA/src/database/database.sqlite
+sqlite3 /home/omar/Strato/src/database/database.sqlite
 ```
 
 **Interfaz Gráfica (si tienes display)**
 ```bash
-sqlitebrowser /home/omar/TalentIA/src/database/database.sqlite
+sqlitebrowser /home/omar/Strato/src/database/database.sqlite
 ```
 
 ---

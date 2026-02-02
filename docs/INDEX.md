@@ -1,4 +1,4 @@
-# 📚 Documentación TalentIA
+# 📚 Documentación Strato
 
 Índice centralizado de toda la documentación del proyecto.
 
@@ -47,7 +47,7 @@
 
 ### Autenticación (Sanctum)
 
-- **[AUTH_SANCTUM_COMPLETA.md](AUTH_SANCTUM_COMPLETA.md)** - ⭐ Guía completa Sanctum en TalentIA
+- **[AUTH_SANCTUM_COMPLETA.md](AUTH_SANCTUM_COMPLETA.md)** - ⭐ Guía completa Sanctum en Strato
   - Estado actual de la configuración
   - Cómo funciona el flujo de autenticación
   - Solución de problemas
@@ -121,6 +121,7 @@
   - Casos de uso con ejemplos SQL
 
 **Script de Verificación:**
+
 ```bash
 ./verify-people-role-skills.sh  # Verifica implementación completa
 ```
@@ -163,6 +164,7 @@
 
 - **[MODULE_TASKFORCE.md](MODULE_TASKFORCE.md)** - Análisis completo del módulo (referencia)
 - **[WORKFORCE_PLANNING_GUIA.md](WORKFORCE_PLANNING_GUIA.md)** - Guía rápida de implementación ⭐ COMIENZA AQUÍ
+- **[memories_workforce_planning.md](memories_workforce_planning.md)** - Resumen operativo y pasos Postman (últimas modificaciones)
 
 ---
 
@@ -215,20 +217,16 @@
 ## 🚀 Cómo Usar Esta Documentación
 
 1. **Si es tu primer día:**
-
    - Lee [QUICK_START.md](QUICK_START.md)
    - Luego [memories.md](memories.md)
 
 2. **Si necesitas hacer un commit:**
-
    - [GUIA_COMMITS_SEMANTICOS.md](GUIA_COMMITS_SEMANTICOS.md)
 
 3. **Si necesitas hacer un release:**
-
    - [GUIA_VERSIONADO_CHANGELOG.md](GUIA_VERSIONADO_CHANGELOG.md)
 
 4. **Si necesitas entender la arquitectura:**
-
    - [DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md](DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md)
 
 5. **Si algo no funciona:**
@@ -247,4 +245,35 @@ Estado:               ✅ Centralizada en /docs
 
 ---
 
-**Última actualización:** 28 de Diciembre, 2025
+**Última actualización:** 14 Enero 2026
+
+## **Frontend QA**
+
+- **Ámbito:** Checklist para validar visuales e interacción del frontend, con foco en la página Scenario Planning.
+- **Componente principal:** [src/resources/js/pages/ScenarioPlanning/Index.vue](src/resources/js/pages/ScenarioPlanning/Index.vue)
+- **Comprobaciones rápidas:**
+  - **Arranque:** Ejecutar backend y frontend en modo desarrollo:
+
+    ```bash
+    composer run dev  # backend (si aplica)
+    npm install
+    npm run dev       # frontend (Vite)
+    ```
+
+  - **Abrir página:** Navegar a la ruta Scenario Planning en la app y verificar carga correcta.
+  - **Render SVG:** Verificar gradientes, glow y que no aparezcan warnings tipo "Error in parsing value for 'opacity'" en consola.
+  - **Interacción:** Arrastrar nodos, soltar y comprobar que la acción `savePositions` realiza la petición correcta en la pestaña Network.
+  - **Consola:** Sin errores JS ni warnings D3 en la consola del navegador.
+  - **Responsivo:** Probar en desktop / tablet / mobile (anchos típicos) y verificar que el canvas se redibuja correctamente.
+  - **Performance:** Comprobar que la simulación D3 no causa UI jank en escenarios normales (~50-200 nodos).
+  - **Tests & Formateo:** Ejecutar pruebas y formateo:
+
+    ```bash
+    composer test tests/Path/IfAny --filter ScenarioPlanning
+    npx prettier --no-plugin-search --write "src/**/*.{js,ts,vue,css,scss,json,md}"
+    npx eslint "src/**/*.{js,ts,vue}" --fix
+    ```
+
+- **Referencias:** [docs/GUIA_STRATOS_CEREBRO.txt](docs/GUIA_STRATOS_CEREBRO.txt) (guía del subsistema Cerebro).
+
+- **Notas:** Si detectas discrepancias (payloads, rutas API, o comportamiento visual), crea un issue y añade en la descripción: pasos reproducibles, capturas de pantalla y salida de consola.

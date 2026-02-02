@@ -5,19 +5,29 @@ import type { User } from '@/types';
 import { computed } from 'vue';
 
 interface Props {
-    user: User;
+    user?: User | null;
     showEmail?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     showEmail: false,
+    user: null,
 });
 
 const { getInitials } = useInitials();
 
-// Compute whether we should show the avatar image
+// Provide a safe computed `user` so template never crashes when prop is null
+const user = computed(() => {
+    return (props.user ?? {
+        name: 'Usuario',
+        email: '',
+        avatar: '',
+    }) as User;
+});
+
+// Compute whether we should show the avatar image (safe access)
 const showAvatar = computed(
-    () => props.user.avatar && props.user.avatar !== '',
+    () => !!user.value.avatar && user.value.avatar !== '',
 );
 </script>
 

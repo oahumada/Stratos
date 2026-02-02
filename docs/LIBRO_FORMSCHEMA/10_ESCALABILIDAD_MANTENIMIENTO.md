@@ -8,7 +8,7 @@
 
 ## Introducción: De MVP a Producción
 
-TalentIA demostró que FormSchema Pattern escala de MVP (Days 1-7) a sistema completo. Este capítulo documenta cómo mantener la calidad mientras creces.
+Strato demostró que FormSchema Pattern escala de MVP (Days 1-7) a sistema completo. Este capítulo documenta cómo mantener la calidad mientras creces.
 
 ---
 
@@ -581,7 +581,7 @@ jobs:
 
 ---
 
-## 5. Lecciones Aprendidas en TalentIA
+## 5. Lecciones Aprendidas en Strato
 
 ### ✅ Lo que funcionó bien:
 
@@ -684,7 +684,7 @@ Sistema web donde:
 
 ## Conclusión: Un Patrón Maduro
 
-FormSchema Pattern en TalentIA demostró:
+FormSchema Pattern en Strato demostró:
 
 - ✅ **Rapidez:** MVP en 7 días
 - ✅ **Escalabilidad:** Pasar de 4 a N modelos sin cambios core

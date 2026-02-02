@@ -12,7 +12,7 @@ clear
 
 echo -e "${CYAN}"
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║          TALENTIA - DATABASE VISUALIZATION TOOL            ║"
+echo "║          Strato - DATABASE VISUALIZATION TOOL            ║"
 echo "║            Diagrama Entidad-Relación (ER)                  ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
@@ -58,7 +58,7 @@ echo "  ${BLUE}GROUP BY rs.role_id;${NC}"
 echo "  ${BLUE}QUERY${NC}"
 echo ""
 echo -e "${YELLOW}📁 Ubicación Base de Datos:${NC}"
-echo "  ${CYAN}/home/omar/TalentIA/src/database/database.sqlite${NC}"
+echo "  ${CYAN}/home/omar/Strato/src/database/database.sqlite${NC}"
 echo ""
 echo -e "${YELLOW}✅ Verificación Rápida:${NC}"
 

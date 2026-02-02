@@ -1,52 +1,52 @@
 {
-  "headers": [
-    {
-      "text": "Lastname",
-      "value": "last_name",
-      "sortable": true
-    },
-    {
-      "text": "Firstname",
-      "value": "first_name",
-      "sortable": true
-    },
-    {
-      "text": "Email",
-      "value": "email",
-      "sortable": true
-    },
-    {
-      "text": "Department",
-      "value": "department.name",
-      "sortable": true,
-      "key": "department_id"
-    },
-    {
-      "text": "Role",
-      "value": "role.name",
-      "sortable": false,
-      "key": "role_id"
-    },
-    {
-      "text": "Skills",
-      "value": "skills_count",
-      "sortable": true
-    },
-    {
-      "text": "Hired",
-      "value": "hire_date",
-      "type": "date",
-      "sortable": true
-    },
-    {
-      "text": "Actions",
-      "value": "actions",
-      "sortable": false
+    "headers": [
+        {
+            "text": "Lastname",
+            "value": "last_name",
+            "sortable": true
+        },
+        {
+            "text": "Firstname",
+            "value": "first_name",
+            "sortable": true
+        },
+        {
+            "text": "Email",
+            "value": "email",
+            "sortable": true
+        },
+        {
+            "text": "Department",
+            "value": "department.name",
+            "sortable": true,
+            "key": "department_id"
+        },
+        {
+            "text": "Role",
+            "value": "role.name",
+            "sortable": false,
+            "key": "role_id"
+        },
+        {
+            "text": "Skills",
+            "value": "skills_count",
+            "sortable": true
+        },
+        {
+            "text": "Hired",
+            "value": "hire_date",
+            "type": "date",
+            "sortable": true
+        },
+        {
+            "text": "Actions",
+            "value": "actions",
+            "sortable": false
+        }
+    ],
+    "options": {
+        "dense": false,
+        "itemsPerPage": 10,
+        "showSelect": false
     }
-  ],
-  "options": {
-    "dense": false,
-    "itemsPerPage": 10,
-    "showSelect": false
-  }
 }

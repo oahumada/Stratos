@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Roles extends Model
 {
     protected $table = 'roles';
-    
+
     protected $fillable = ['organization_id', 'name', 'level', 'description'];
 
     protected $casts = [
@@ -34,7 +34,7 @@ class Roles extends Model
 
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skills::class, 'role_skills', 'role_id', 'skill_id')
+        return $this->belongsToMany(Skill::class, 'role_skills', 'role_id', 'skill_id')
             ->withPivot('required_level', 'is_critical')
             ->withTimestamps();
     }

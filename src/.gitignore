@@ -10,6 +10,10 @@
 /resources/js/routes
 /resources/js/wayfinder
 /vendor
+/test-results
+/playwright-report
+/tests/_output
+/tests/_support/Helper/Acceptance
 .DS_Store
 .env
 .env.backup

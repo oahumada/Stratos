@@ -3,14 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Roles;
-use App\Models\Skills;
+use App\Models\Skill;
 use Illuminate\Database\Seeder;
 
 class RoleSkillSeeder extends Seeder
 {
     public function run(): void
     {
-        $skills = Skills::all();
+        $skills = Skill::all();
 
         $rolesSkillsData = [
             'Backend Developer' => [
@@ -81,7 +81,7 @@ class RoleSkillSeeder extends Seeder
 
         foreach ($rolesSkillsData as $roleName => $skillsData) {
             $role = Roles::where('name', $roleName)->first();
-            
+
             if (!$role) {
                 continue;
             }

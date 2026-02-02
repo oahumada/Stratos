@@ -1,4 +1,4 @@
-# 🎉 TalentIA MVP - Status Ejecutivo (Día 5 Completado)
+# 🎉 Strato MVP - Status Ejecutivo (Día 5 Completado)
 
 **Fecha:** 31 Diciembre 2025  
 **Horas Invertidas:** 18-20 horas en 5 días  
@@ -75,7 +75,7 @@ Marketplace:
 #### Documentación Completa ✅
 
 - ✅ [dia5_api_endpoints.md](docs/dia5_api_endpoints.md) - 17 endpoints con ejemplos cURL
-- ✅ [TalentIA_API_Postman.json](docs/TalentIA_API_Postman.json) - Colección Postman completa
+- ✅ [Strato_API_Postman.json](docs/Strato_API_Postman.json) - Colección Postman completa
 - ✅ [CHECKLIST_MVP_COMPLETION.md](docs/CHECKLIST_MVP_COMPLETION.md) - Verificación
 - ✅ [DIA6_GUIA_INICIO_FRONTEND.md](docs/DIA6_GUIA_INICIO_FRONTEND.md) - Cómo empezar frontend
 - ✅ [MODULE_TASKFORCE.md](docs/MODULE_TASKFORCE.md) - Nuevo módulo Workforce Planning
@@ -145,7 +145,7 @@ MVP Total       ███████████████████░░�
 ### 1. Iniciar API Server
 
 ```bash
-cd /workspaces/talentia/src
+cd /workspaces/Strato/src
 php artisan serve --port=8000
 ```
 
@@ -153,7 +153,7 @@ php artisan serve --port=8000
 
 **Opción A - Postman:**
 
-- Importar `docs/TalentIA_API_Postman.json`
+- Importar `docs/Strato_API_Postman.json`
 - Base URL: http://localhost:8000
 - Ejecutar requests
 
@@ -202,7 +202,7 @@ php artisan candidates:rank 1
 
 ### Para Testing
 
-- **[TalentIA_API_Postman.json](docs/TalentIA_API_Postman.json)** - Colección Postman
+- **[Strato_API_Postman.json](docs/Strato_API_Postman.json)** - Colección Postman
 
 ### Histórico de Desarrollo
 

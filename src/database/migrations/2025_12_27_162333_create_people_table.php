@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('people', function (Blueprint $table) {
             $table->id();
             $table->foreignId('organization_id')->constrained();
+            $table->string('external_id')->nullable();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('first_name');
             $table->string('last_name');
@@ -21,11 +22,12 @@ return new class extends Migration
             $table->foreignId('role_id')->nullable()->constrained('roles')->nullOnDelete();
             $table->foreignId('department_id')->nullable()->after('role_id')->constrained('departments')->nullOnDelete();
             $table->date('hire_date')->nullable();
+            $table->date('termination_date')->nullable();
+            $table->string('status')->default('active');
             $table->string('photo_url')->nullable();
             $table->softDeletes();
-            $table->timestamps();
-            $table->unique(['organization_id', 'email']);
             $table->index('department_id');
+            $table->timestamps();
         });
     }
 

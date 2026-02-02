@@ -1,0 +1,24 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "[husky] pre-push: running quick test suite (Pest + Vitest)"
+
+# Run PHP tests (Pest). Assumes composer deps installed.
+cd src || exit 1
+if [ -f composer.json ]; then
+  echo "Running Pest..."
+  composer test || {
+    echo "Pest failed - aborting push"
+    exit 1
+  }
+else
+  echo "composer.json not found in src; skipping Pest"
+fi
+
+echo "Running frontend unit tests (Vitest)..."
+npm run test:unit || {
+  echo "Vitest failed - aborting push"
+  exit 1
+}
+
+echo "[husky] pre-push: tests passed"

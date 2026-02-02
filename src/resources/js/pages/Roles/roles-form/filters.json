@@ -1,8 +1,8 @@
 [
-  {
-    "field": "name",
-    "type": "text",
-    "label": "Role Name",
-    "placeholder": "Search by role name"
-  }
+    {
+        "field": "name",
+        "type": "text",
+        "label": "Role Name",
+        "placeholder": "Search by role name"
+    }
 ]

@@ -218,7 +218,7 @@ Error handling: 422, 419, 401 ✅
 
 ```
 ┌──────────────────────────────────────────┐
-│        ARQUITECTURA TALENTIA CRUD        │
+│        ARQUITECTURA Strato CRUD        │
 ├──────────────────────────────────────────┤
 │                                          │
 │  Funcionalidad     ████████░ 9/10       │

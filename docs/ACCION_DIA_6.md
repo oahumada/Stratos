@@ -51,7 +51,7 @@
 ```
 1. Abre Postman
 2. Click en "Import"
-3. Selecciona: docs/TalentIA_API_Postman.json
+3. Selecciona: docs/Strato_API_Postman.json
 4. Ejecuta requests
 ```
 
@@ -120,7 +120,7 @@ Ver: [MODULE_TASKFORCE.md](docs/MODULE_TASKFORCE.md)
 ### Paso 1: Verificar Backend Funcionando
 
 ```bash
-cd /workspaces/talentia/src
+cd /workspaces/Strato/src
 php artisan serve --port=8000
 # Debería ver: "Server running on http://127.0.0.1:8000"
 ```

@@ -218,7 +218,7 @@ CUANDO TE PIERDES:
 
 ---
 
-## 📁 ARCHIVOS CLAVE EN `/workspaces/talentia/src/docs/`
+## 📁 ARCHIVOS CLAVE EN `/workspaces/Strato/src/docs/`
 
 ```
 OPERACIONAL (Usa DIARIAMENTE):

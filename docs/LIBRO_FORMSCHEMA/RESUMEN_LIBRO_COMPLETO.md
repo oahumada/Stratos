@@ -106,7 +106,7 @@
 - Testing strategy (3 niveles)
 - Performance optimization
 - CI/CD integration
-- Lecciones aprendidas de TalentIA
+- Lecciones aprendidas de Strato
 - Evolución futura del patrón
 
 ---
@@ -154,9 +154,9 @@ Cada capítulo está orientado a diferentes roles:
 
 ---
 
-## 🔧 Implementación en TalentIA
+## 🔧 Implementación en Strato
 
-FormSchema Pattern se demostró en TalentIA con:
+FormSchema Pattern se demostró en Strato con:
 
 ```
 Frontend Pages Implementadas:
@@ -205,7 +205,7 @@ Tiempo: 7 días para MVP
 
 ## 🚀 Próximos Pasos
 
-### Para el Proyecto TalentIA:
+### Para el Proyecto Strato:
 
 - [ ] Implementar Chapter 08 cases en proyecto real
 - [ ] Agregar testing completo (Cap 10)
@@ -277,7 +277,7 @@ Después de leer este libro, deberías ser capaz de:
 
 Este libro fue posible gracias a:
 
-- TalentIA project que validó el patrón
+- Strato project que validó el patrón
 - Laravel community (Eloquent, Migrations)
 - Vue community (Composition API, Reactivity)
 - SOLID principles y Clean Architecture

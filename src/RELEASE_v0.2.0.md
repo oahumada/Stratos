@@ -85,7 +85,7 @@ Pushed a GitHub: ✅
 ### En GitHub
 
 ```
-https://github.com/oahumada/TalentIA/releases/tag/v0.2.0
+https://github.com/oahumada/Strato/releases/tag/v0.2.0
 ```
 
 ### Commits Incluidos

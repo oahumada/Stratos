@@ -1,4 +1,4 @@
-# Versionado Semántico y Changelog - TalentIA
+# Versionado Semántico y Changelog - Strato
 
 ## 📊 Visión General
 
@@ -43,7 +43,7 @@ Ejemplo:
 
 ```
 ═══════════════════════════════════════════════════════════════
-  🚀 Asistente de Releases - TalentIA
+  🚀 Asistente de Releases - Strato
 ═══════════════════════════════════════════════════════════════
 
 📌 Versión actual: 1.0.0
@@ -91,7 +91,7 @@ Rama: MVP
 CHANGELOG actualizado: CHANGELOG.md
 
 📎 Enlace del release:
-https://github.com/oahumada/TalentIA/releases/tag/v1.1.0
+https://github.com/oahumada/Strato/releases/tag/v1.1.0
 
 🎉 ¡Release listo!
 ```
@@ -173,7 +173,7 @@ git checkout v1.0.0
 Los releases aparecen en:
 
 ```
-https://github.com/oahumada/TalentIA/releases
+https://github.com/oahumada/Strato/releases
 ```
 
 Cada tag automáticamente crea un "Release" en GitHub con:

@@ -329,7 +329,7 @@ $formSchemaModels = [
 ];
 ```
 
-**En TalentIA actual:** Mixto (INCONSISTENCIA antes de consolidación)
+**En Strato actual:** Mixto (INCONSISTENCIA antes de consolidación)
 
 ```php
 // ANTES (Problema)

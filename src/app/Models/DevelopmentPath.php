@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DevelopmentPath extends Model
 {
     use SoftDeletes;
-    
+
     protected $fillable = [
+        'action_title',
         'organization_id',
         'people_id',
         'target_role_id',
@@ -51,5 +52,15 @@ class DevelopmentPath extends Model
     public function targetRole(): BelongsTo
     {
         return $this->belongsTo(Roles::class, 'target_role_id');
+    }
+
+    public function actions()
+    {
+        return $this->hasMany(DevelopmentAction::class)->orderBy('order');
+    }
+
+    public function evaluation()
+    {
+        return $this->belongsTo(Evaluation::class);
     }
 }

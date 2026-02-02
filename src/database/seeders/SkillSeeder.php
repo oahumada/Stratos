@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Organizations;
-use App\Models\Skills;
+use App\Models\Skill;
+use App\Models\Capability;
+use Database\Seeders\CapabilitySeeder;
 use Illuminate\Database\Seeder;
 
 class SkillSeeder extends Seeder
@@ -11,6 +13,16 @@ class SkillSeeder extends Seeder
     public function run(): void
     {
         $org = Organizations::first();
+
+        if (!$org) {
+            $org = Organizations::create(['name' => 'Demo Org', 'subdomain' => 'demo-org']);
+        }
+
+        $capabilities = Capability::where('organization_id', $org->id)->get();
+        if ($capabilities->isEmpty()) {
+            $this->call(CapabilitySeeder::class);
+            $capabilities = Capability::where('organization_id', $org->id)->get();
+        }
 
         $skillsData = [
             // Technical Skills (12)
@@ -50,9 +62,32 @@ class SkillSeeder extends Seeder
             ['name' => 'Data Analysis', 'category' => 'business', 'description' => 'Interpreting data to drive business decisions', 'is_critical' => false],
         ];
 
+        // map categories to preferred capability name fragments to improve assignment
+        $categoryMap = [
+            'technical' => ['Software', 'Cloud', 'Engineering'],
+            'soft' => ['Leadership', 'Communication'],
+            'business' => ['Product', 'Data', 'Business'],
+            'language' => ['Language'],
+        ];
+
         foreach ($skillsData as $skill) {
-            Skills::create([
+            // try to find a capability matching category heuristics
+            $cap = null;
+            $fragments = $categoryMap[$skill['category']] ?? [];
+            foreach ($fragments as $frag) {
+                $cap = $capabilities->firstWhere('name', 'like', "%$frag%");
+                if ($cap)
+                    break;
+            }
+
+            // fallback to random capability
+            if (!$cap) {
+                $cap = $capabilities->random();
+            }
+
+            Skill::create([
                 'organization_id' => $org->id,
+                'capability_id' => $cap->id,
                 ...$skill,
             ]);
         }

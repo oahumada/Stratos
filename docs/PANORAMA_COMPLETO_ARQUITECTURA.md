@@ -1,4 +1,4 @@
-# 🎯 PANORAMA COMPLETO ARQUITECTURA TALENTIA
+# 🎯 PANORAMA COMPLETO ARQUITECTURA Strato
 
 ## Análisis Integrado: Frontend CRUD + Backend Genérico + Testing
 
@@ -14,7 +14,7 @@ Tu arquitectura CRUD es **8.5/10** y está lista para producción con algunos aj
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      TALENTIA STACK                         │
+│                      Strato STACK                         │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  FRONTEND               │  BACKEND                │ TESTING  │

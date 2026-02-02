@@ -1,4 +1,4 @@
-# 🔐 Guía Completa: Autenticación Sanctum en TalentIA
+# 🔐 Guía Completa: Autenticación Sanctum en Strato
 
 **Status**: ✅ Ya configurado en el proyecto  
 **Fecha**: 28 Diciembre 2025  
@@ -10,7 +10,7 @@
 
 ### ✅ Configuración Completada
 
-En TalentIA, Sanctum **YA ESTÁ CONFIGURADO Y FUNCIONANDO**:
+En Strato, Sanctum **YA ESTÁ CONFIGURADO Y FUNCIONANDO**:
 
 ```
 ✅ Backend (Laravel 12):
@@ -229,7 +229,7 @@ curl -X GET http://localhost:8000/api/People \
 
 ### Postman
 
-1. Crear colección "TalentIA"
+1. Crear colección "Strato"
 2. Variable: `base_url = http://localhost:8000`
 3. Agregar request POST login:
    ```
@@ -258,8 +258,8 @@ SANCTUM_STATEFUL_DOMAINS=localhost:3000,localhost:8000
 # .env
 APP_DEBUG=false
 SESSION_LIFETIME=1440  # 24 horas
-SANCTUM_STATEFUL_DOMAINS=talentia.app,www.talentia.app
-CORS_ALLOWED_ORIGINS=https://talentia.app
+SANCTUM_STATEFUL_DOMAINS=Strato.app,www.Strato.app
+CORS_ALLOWED_ORIGINS=https://Strato.app
 ```
 
 ---
@@ -344,7 +344,7 @@ window.location.href = "/login";
 
 ## 🎓 Resumen
 
-**En TalentIA:**
+**En Strato:**
 
 ✅ **Sanctum está 100% funcional**
 
@@ -363,5 +363,5 @@ window.location.href = "/login";
 ---
 
 **Autor**: GitHub Copilot  
-**Versión**: TalentIA MVP Día 6  
+**Versión**: Strato MVP Día 6  
 **Status**: ✅ Producción Ready

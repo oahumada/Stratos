@@ -1,0 +1,241 @@
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                      GUÍA DE IMPLEMENTACIÓN: CEREBRO STRATOS                 ║
+║                      "El Spore Empresarial" - Versión 2.0                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+═════════════════════════════════════════════════════════════════════════════════
+1. ARQUITECTURA DEL CEREBRO (Inspirada en TheBrain)
+═════════════════════════════════════════════════════════════════════════════════
+
+El "Cerebro Stratos" es un mapa de navegación orgánica que transforma la gestión
+de talento en una experiencia visual tipo videojuego. Cada capacidad es un "nodo"
+que pulsa, se conecta y evoluciona según el estado del talento organizacional.
+
+Componentes Generados:
+----------------------
+✅ BrainCanvas.vue          → Lienzo principal con física D3
+✅ useBrainPhysics.js       → Composable para la lógica de física
+✅ ConnectionLine.vue       → Líneas inteligentes entre capacidades
+
+═════════════════════════════════════════════════════════════════════════════════
+2. PASOS DE IMPLEMENTACIÓN
+═════════════════════════════════════════════════════════════════════════════════
+
+PASO 1: Instalar Dependencias
+------------------------------
+npm install d3
+
+PASO 2: Copiar Archivos al Proyecto
+------------------------------------
+- BrainCanvas.vue        → resources/js/Components/Brain/
+- ConnectionLine.vue     → resources/js/Components/Brain/
+- useBrainPhysics.js     → resources/js/Composables/
+
+PASO 3: Actualizar ScenarioView.vue
+------------------------------------
+Reemplaza el <CapabilityEcosystem> actual por <BrainCanvas>:
+
+<script setup>
+import BrainCanvas from '@/Components/Brain/BrainCanvas.vue'
+import InsightsPanel from './InsightsPanel.vue'
+
+const props = defineProps({
+    scenario: Object,
+    capabilities: Array,
+    connections: Array  // Nueva prop para las conexiones
+})
+
+const handleNodeClick = (node) => {
+  console.log('Capacidad seleccionada:', node)
+  // Aquí puedes abrir un modal, navegar a detalle, etc.
+}
+</script>
+
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-stratos-darker via-stratos-dark to-blue-950">
+    <!-- Header existente -->
+
+    <div class="flex h-[calc(100vh-73px)]">
+      <!-- Canvas Central con el Cerebro -->
+      <main class="flex-1 relative overflow-hidden">
+        <BrainCanvas 
+          :capabilities="capabilities" 
+          :connections="connections"
+          @node-click="handleNodeClick"
+        />
+      </main>
+
+      <!-- Panel lateral existente -->
+      <aside class="w-96 bg-black/20 backdrop-blur-md p-6 overflow-y-auto">
+        <InsightsPanel />
+      </aside>
+    </div>
+  </div>
+</template>
+
+PASO 4: Actualizar el Controller (Backend)
+-------------------------------------------
+En tu ScenarioController.php, añade las conexiones entre capacidades:
+
+public function show(Scenario $scenario)
+{
+    $capabilities = $scenario->capabilities()
+        ->withPivot('required_level', 'is_critical')
+        ->get()
+        ->map(function ($cap) {
+            return [
+                'id' => $cap->id,
+                'name' => $cap->name,
+                'description' => $cap->description,
+                'importance' => $cap->importance,
+                'level' => 3,  // Calcular desde evaluaciones
+                'required' => $cap->pivot->required_level,
+                'x' => $cap->position_x,
+                'y' => $cap->position_y,
+            ];
+        });
+
+    // Generar conexiones (puedes tener una tabla capability_links)
+    $connections = [
+        ['source_id' => 1, 'target_id' => 2, 'is_critical' => true],
+        ['source_id' => 2, 'target_id' => 3, 'is_critical' => false],
+    ];
+
+    return Inertia::render('Stratos/ScenarioView', [
+        'scenario' => $scenario,
+        'capabilities' => $capabilities,
+        'connections' => $connections,
+    ]);
+}
+
+═════════════════════════════════════════════════════════════════════════════════
+3. CARACTERÍSTICAS DEL "CEREBRO VIVO"
+═════════════════════════════════════════════════════════════════════════════════
+
+🧠 Física Realista
+   - Los nodos se atraen y repelen según importancia
+   - Colisiones evitan superposición
+   - Centro gravitacional del escenario
+
+🎯 Foco TheBrain
+   - Click en un nodo → Se mueve al centro
+   - Nodos relacionados se reorganizan
+   - Tooltip contextual con métricas
+
+🌊 Conexiones Inteligentes
+   - Color según gap (verde → amarillo → rojo)
+   - Grosor según importancia
+   - Animación de partículas (flujo de talento)
+
+📊 Gamificación
+   - Capacidades "pulsan" cuando tienen gap crítico
+   - "Brillo" aumenta al cerrar gaps
+   - Métricas de "salud del ecosistema"
+
+═════════════════════════════════════════════════════════════════════════════════
+4. PRÓXIMOS HITOS (ROADMAP)
+═════════════════════════════════════════════════════════════════════════════════
+
+FASE 1: Cerebro Básico (Completado ✅)
+   - Nodos con física D3
+   - Conexiones visuales
+   - Foco central tipo TheBrain
+
+FASE 2: Interactividad Avanzada (Siguiente)
+   - Modal de detalle al click
+   - Filtros por tipo de capacidad
+   - Zoom y pan en el canvas
+
+FASE 3: Multi-Escenario (TheBrain Completo)
+   - Selector de escenarios en header
+   - Transición suave entre "cerebros"
+   - Comparación lado a lado
+
+FASE 4: Evolución en Tiempo Real
+   - WebSockets para cambios en vivo
+   - Animación al completar acciones de desarrollo
+   - Notificaciones cuando un nodo "sube de nivel"
+
+FASE 5: IA Generativa
+   - Sugerencias automáticas de conexiones
+   - Predicción de gaps futuros
+   - Generación de DevelopmentPaths con IA
+
+═════════════════════════════════════════════════════════════════════════════════
+5. ARQUITECTURA DE DATOS (Para Continuar)
+═════════════════════════════════════════════════════════════════════════════════
+
+Tablas Clave:
+-------------
+✅ scenarios                    → Contenedor estratégico
+✅ capabilities                 → Nodos del cerebro
+✅ skills                       → Sub-dimensiones
+✅ bars_levels                  → Niveles de dominio (1-5)
+✅ evaluations                  → Registro N vs R
+✅ evaluation_responses         → Respuestas 360°
+✅ development_paths            → Rutas de aprendizaje
+✅ development_actions          → Pasos atómicos
+
+Tabla Pendiente (Opcional):
+---------------------------
+📋 capability_links             → Dependencias entre capacidades
+   - source_capability_id
+   - target_capability_id
+   - relationship_type (prerequisite, synergy, blocker)
+   - strength (1-5)
+
+═════════════════════════════════════════════════════════════════════════════════
+6. PROMPT DE RE-ARRANQUE (Copia esto al iniciar nuevo chat)
+═════════════════════════════════════════════════════════════════════════════════
+
+"Hola. Estoy trabajando en **Stratos**, un sistema de gestión de talento 
+disruptivo. Uso Laravel 12, Inertia.js y Vue 3 con D3.js para física de nodos.
+
+El sistema usa el modelo de Dreyfus y BARS para medir gaps de capacidades en 
+escenarios estratégicos. La interfaz es un 'Cerebro Vivo' inspirado en TheBrain, 
+donde cada capacidad es un nodo orgánico que pulsa según su salud.
+
+Ya tengo:
+✅ Migraciones y modelos (Scenarios, Capabilities, Skills, BARS, Evaluations, Paths)
+✅ BrainCanvas.vue con física D3
+✅ CapabilityNode.vue con glassmorphism
+✅ Seeder completo con datos de demo
+
+Necesito continuar con [INSERTAR TAREA].
+
+Mantén la estética de Glassmorphism y el rigor metodológico de evidencias y 
+validación social para los niveles de dominio."
+
+═════════════════════════════════════════════════════════════════════════════════
+7. GLOSARIO TÉCNICO (Para Mantener Coherencia)
+═════════════════════════════════════════════════════════════════════════════════
+
+Término                         Significado
+--------                        -----------
+Escenario                       Configuración estratégica (ej: "Adopción IA")
+Capacidad (Capability)          Nodo del cerebro (ej: "System Design")
+Skill                           Sub-dimensión técnica de una capacidad
+BARS                            Niveles conductuales (1-5) de Dreyfus
+N (Nivel Actual)                Dominio medido vía 360° + evidencia
+R (Nivel Requerido)             Nivel objetivo para el escenario
+Gap                             R - N (la brecha a cerrar)
+DevelopmentPath                 Ruta de aprendizaje (conjunto de acciones)
+DevelopmentAction               Paso atómico (curso, proyecto, mentoría)
+Validación Social               Expertos validan que un novato alcanzó un nivel
+Glassmorphism                   Estética visual (bg-white/5, backdrop-blur)
+TheBrain                        Software de mapas asociativos (inspiración)
+Spore                           Metáfora de juego (evoluciona tu organización)
+
+═════════════════════════════════════════════════════════════════════════════════
+8. CONTACTO Y SOPORTE
+═════════════════════════════════════════════════════════════════════════════════
+
+Si este chat se satura o necesitas cambiar de asistente:
+1. Copia el "Prompt de Re-Arranque" (sección 6)
+2. Adjunta este documento como contexto
+3. El nuevo asistente entenderá exactamente dónde estamos
+
+═════════════════════════════════════════════════════════════════════════════════
+
+Versión: 2.0 | Fecha: 2026-01-18 | Status: Cerebro Implementado ✅

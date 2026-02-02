@@ -1,29 +1,29 @@
-import axios from "axios";
+import axios from 'axios';
 
 // Determinar la URL base según el entorno
 const getBaseUrl = () => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
-        if (hostname === "esalud.appchain.cl") {
-            return "https://esalud.appchain.cl";
+        if (hostname === 'esalud.appchain.cl') {
+            return 'https://esalud.appchain.cl';
         }
     }
-    return ""; // Para desarrollo local usa rutas relativas
+    return ''; // Para desarrollo local usa rutas relativas
 };
 
 const BASE_URL = getBaseUrl();
 
 // Configurar axios con las configuraciones base
 axios.defaults.withCredentials = true;
-axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 // Interceptor para agregar CSRF token automáticamente
 axios.interceptors.request.use((config) => {
     const token = document
         .querySelector('meta[name="csrf-token"]')
-        ?.getAttribute("content");
+        ?.getAttribute('content');
     if (token) {
-        config.headers["X-CSRF-TOKEN"] = token;
+        config.headers['X-CSRF-TOKEN'] = token;
     }
     return config;
 });
@@ -52,7 +52,7 @@ axios.interceptors.response.use(
 
         // Manejar error 419 (CSRF token mismatch)
         if (error.response?.status === 419 && !originalRequest._retry) {
-            console.warn("CSRF token mismatch (419), handling...");
+            console.warn('CSRF token mismatch (419), handling...');
 
             if (isRefreshingAuth) {
                 // Si ya se está refreshing, agregar a la cola
@@ -71,41 +71,41 @@ axios.interceptors.response.use(
             isRefreshingAuth = true;
 
             try {
-                console.log("Refreshing authentication tokens...");
+                console.log('Refreshing authentication tokens...');
                 await initSanctum();
                 await new Promise((resolve) => setTimeout(resolve, 300));
 
                 const token = document
                     .querySelector('meta[name="csrf-token"]')
-                    ?.getAttribute("content");
+                    ?.getAttribute('content');
                 if (token) {
-                    originalRequest.headers["X-CSRF-TOKEN"] = token;
+                    originalRequest.headers['X-CSRF-TOKEN'] = token;
 
                     // Actualizar header por defecto para futuras requests
-                    axios.defaults.headers.common["X-CSRF-TOKEN"] = token;
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
 
-                    console.log("Auth tokens refreshed successfully");
+                    console.log('Auth tokens refreshed successfully');
                     processQueue(null, token);
                     return axios(originalRequest);
                 } else {
-                    throw new Error("No CSRF token available after refresh");
+                    throw new Error('No CSRF token available after refresh');
                 }
             } catch (refreshError) {
-                console.error("Auth refresh failed:", refreshError);
+                console.error('Auth refresh failed:', refreshError);
                 processQueue(refreshError, null);
 
                 // Si falla el refresh, puede ser que la sesión expiró
                 try {
-                    const { useAuthStore } = await import("@/stores/authStore");
+                    const { useAuthStore } = await import('@/stores/authStore');
                     const authStore = useAuthStore();
                     authStore.logout();
 
                     // Opcional: redirigir al login
-                    if (typeof window !== "undefined") {
-                        window.location.href = "/login";
+                    if (typeof window !== 'undefined') {
+                        window.location.href = '/login';
                     }
                 } catch (importError) {
-                    console.error("Error importing auth store:", importError);
+                    console.error('Error importing auth store:', importError);
                 }
 
                 return Promise.reject(refreshError);
@@ -116,21 +116,21 @@ axios.interceptors.response.use(
 
         // Manejar error 401 (Unauthorized)
         if (error.response?.status === 401) {
-            console.warn("Unauthorized request (401), clearing auth state");
+            console.warn('Unauthorized request (401), clearing auth state');
             try {
-                const { useAuthStore } = await import("@/stores/authStore");
+                const { useAuthStore } = await import('@/stores/authStore');
                 const authStore = useAuthStore();
                 authStore.logout();
 
                 // Redirigir al login si estamos en el browser
                 if (
-                    typeof window !== "undefined" &&
-                    window.location.pathname !== "/login"
+                    typeof window !== 'undefined' &&
+                    window.location.pathname !== '/login'
                 ) {
-                    window.location.href = "/login";
+                    window.location.href = '/login';
                 }
             } catch (importError) {
-                console.error("Error importing auth store:", importError);
+                console.error('Error importing auth store:', importError);
             }
         }
 
@@ -144,12 +144,12 @@ export const initSanctum = async () => {
         // Obtener CSRF cookie de Sanctum
         await axios.get(`${BASE_URL}/sanctum/csrf-cookie`, {
             headers: {
-                'Accept': 'application/json',
-            }
+                Accept: 'application/json',
+            },
         });
-        console.log("Sanctum initialized successfully");
+        console.log('Sanctum initialized successfully');
     } catch (error) {
-        console.error("Error al inicializar Sanctum:", error);
+        console.error('Error al inicializar Sanctum:', error);
     }
 };
 
@@ -158,9 +158,9 @@ export const forceSanctumRefresh = async () => {
     try {
         // Limpiar cookies existentes de sanctum
         document.cookie =
-            "XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            'XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie =
-            "laravel_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            'laravel_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 
         // Esperar un momento
         await new Promise((resolve) => setTimeout(resolve, 100));
@@ -171,16 +171,16 @@ export const forceSanctumRefresh = async () => {
         // Esperar más tiempo para sincronización
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        console.log("Sanctum aggressively refreshed");
+        console.log('Sanctum aggressively refreshed');
     } catch (error) {
-        console.error("Error in forceSanctumRefresh:", error);
+        console.error('Error in forceSanctumRefresh:', error);
         throw error;
     }
 };
 
 // Métodos CRUD genéricos
 export const get = async (url: string, params = {}) => {
-    console.log("params =>", params);
+    console.log('params =>', params);
     try {
         const result = await axios.get(url, { params });
         return result.data;
@@ -230,8 +230,8 @@ export const search = async (url: string, data = {}) => {
     try {
         // Inicializar Sanctum para obtener CSRF cookie
         await initSanctum();
-        console.log("url =>", url);
-        console.log("data =>", data);
+        console.log('url =>', url);
+        console.log('data =>', data);
 
         // Enviar los datos directamente con la estructura que espera el backend
         const result = await axios.post(url, { data });
@@ -243,9 +243,9 @@ export const search = async (url: string, data = {}) => {
 
 // Mostrar registros para un usuario - Show
 export async function show(url: string, id: number, params = {}) {
-    console.log("params =>", params);
+    console.log('params =>', params);
     try {
-        const result = await axios.get(url + "/" + id, { params });
+        const result = await axios.get(url + '/' + id, { params });
         return result.data;
     } catch (error) {
         throw error;

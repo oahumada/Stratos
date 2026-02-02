@@ -28,6 +28,6 @@ class RoleSkill extends Model
 
     public function skill(): BelongsTo
     {
-        return $this->belongsTo(Skills::class, 'skill_id');
+        return $this->belongsTo(Skill::class, 'skill_id');
     }
 }

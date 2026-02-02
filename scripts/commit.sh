@@ -79,7 +79,7 @@ suggest_commit_type() {
 }
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
-echo -e "${BLUE}  Asistente de Commits Semánticos - TalentIA${NC}"
+echo -e "${BLUE}  Asistente de Commits Semánticos - Strato${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar si hay cambios preparados

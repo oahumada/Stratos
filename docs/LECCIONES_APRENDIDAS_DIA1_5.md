@@ -136,7 +136,7 @@ Técnicos:        dia3_services_logica_negocio.md (especificación)
 Managers:        STATUS_EJECUTIVO_DIA5.md (resumen visual)
 Operadores:      CHEATSHEET_COMANDOS.md (referencia rápida)
 Nuevos miembros: DIA6_GUIA_INICIO_FRONTEND.md (tutorial)
-Testers:         TalentIA_API_Postman.json (collection)
+Testers:         Strato_API_Postman.json (collection)
 ```
 
 **Lección:** No existe "un documento perfecto". Necesitas múltiples.

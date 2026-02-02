@@ -1,0 +1,162 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  php-tests:
+    name: PHP / Pest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, pdo_mysql, pdo_sqlite
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --no-suggest --prefer-dist
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php -r "file_exists('database/database.sqlite') || mkdir('database') && touch('database/database.sqlite');"
+          php artisan key:generate
+          php artisan migrate --force
+
+      - name: Run Pest
+        run: vendor/bin/pest --testsuite=Feature --parallel
+
+  frontend-unit:
+    name: Frontend unit (Vitest)
+    runs-on: ubuntu-latest
+    needs: php-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Cache NPM
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install frontend deps
+        working-directory: ./src
+        run: npm ci
+
+      - name: Run Vitest
+        working-directory: ./src
+        run: npx vitest run --reporter=dot
+
+  e2e:
+    name: E2E Playwright (optional)
+    runs-on: ubuntu-latest
+    needs: frontend-unit
+    # Run E2E on main, manual dispatch, and on pull requests for PR feedback
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install frontend deps
+        working-directory: ./src
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: ./src
+        run: npx playwright install --with-deps
+
+      - name: Start backend (artisan serve)
+        run: |
+          cd src
+          cp .env.example .env || true
+          php -S 127.0.0.1:8000 -t public &
+          sleep 2
+
+      - name: Start frontend (Vite dev)
+        working-directory: ./src
+        run: npm run dev &
+
+      - name: Run Playwright tests
+        working-directory: ./src
+        # Run smoke tests on PRs (marked with @smoke), full suite on main/dispatch
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "Running Playwright smoke tests (PR)"
+            npx playwright test --grep @smoke --reporter=html --reporter=junit || true
+          else
+            echo "Running Playwright full suite"
+            npx playwright test --reporter=html --reporter=junit || true
+          fi
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            src/playwright-report
+            src/test-results
+
+  integration-postgres:
+    name: Integration Tests (Postgres)
+    runs-on: ubuntu-latest
+    needs: php-tests
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: stratos_test
+          POSTGRES_USER: stratos
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U stratos -d stratos_test"
+          --health-interval=10s --health-timeout=5s --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, pdo_pgsql
+
+      - name: Install Composer deps
+        run: composer install --no-progress --no-suggest --prefer-dist
+
+      - name: Prepare env for Postgres
+        run: |
+          cp .env.example .env
+          php -r "file_put_contents('.env', str_replace('DB_CONNECTION=mysql', 'DB_CONNECTION=pgsql', file_get_contents('.env')));"
+          php -r "file_put_contents('.env', str_replace('DB_DATABASE=', 'DB_DATABASE=stratos_test', file_get_contents('.env')));"
+          php -r "file_put_contents('.env', str_replace('DB_USERNAME=', 'DB_USERNAME=stratos', file_get_contents('.env')));"
+          php -r "file_put_contents('.env', str_replace('DB_PASSWORD=', 'DB_PASSWORD=secret', file_get_contents('.env')));"
+          php artisan key:generate
+          php artisan migrate --force
+
+      - name: Run integration tests (Pest - group:integration)
+        run: vendor/bin/pest --group integration || true

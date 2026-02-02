@@ -1,60 +1,46 @@
 {
-  "fields": [
-    {
-      "key": "first_name",
-      "label": "First Name",
-      "type": "text",
-      "placeholder": "Enter first name",
-      "rules": [
-        "required",
-        "min:2"
-      ]
-    },
-    {
-      "key": "last_name",
-      "label": "Last Name",
-      "type": "text",
-      "placeholder": "Enter last name",
-      "rules": [
-        "required",
-        "min:2"
-      ]
-    },
-    {
-      "key": "email",
-      "label": "Email",
-      "type": "email",
-      "placeholder": "Enter email address",
-      "rules": [
-        "required",
-        "email"
-      ]
-    },
-    {
-      "key": "department_id",
-      "label": "Department",
-      "type": "select",
-      "placeholder": "Select a department",
-      "rules": [
-        "required"
-      ]
-    },
-    {
-      "key": "role_id",
-      "label": "Role",
-      "type": "select",
-      "placeholder": "Select a role",
-      "rules": []
-    },
-    {
-      "key": "hire_date",
-      "label": "Hire Date",
-      "type": "date",
-      "rules": []
-    }
-  ],
-  "catalogs": [
-    "roles",
-    "departments"
-  ]
+    "fields": [
+        {
+            "key": "first_name",
+            "label": "First Name",
+            "type": "text",
+            "placeholder": "Enter first name",
+            "rules": ["required", "min:2"]
+        },
+        {
+            "key": "last_name",
+            "label": "Last Name",
+            "type": "text",
+            "placeholder": "Enter last name",
+            "rules": ["required", "min:2"]
+        },
+        {
+            "key": "email",
+            "label": "Email",
+            "type": "email",
+            "placeholder": "Enter email address",
+            "rules": ["required", "email"]
+        },
+        {
+            "key": "department_id",
+            "label": "Department",
+            "type": "select",
+            "placeholder": "Select a department",
+            "rules": ["required"]
+        },
+        {
+            "key": "role_id",
+            "label": "Role",
+            "type": "select",
+            "placeholder": "Select a role",
+            "rules": []
+        },
+        {
+            "key": "hire_date",
+            "label": "Hire Date",
+            "type": "date",
+            "rules": []
+        }
+    ],
+    "catalogs": ["roles", "departments"]
 }

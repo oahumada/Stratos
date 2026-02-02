@@ -6,7 +6,7 @@ use App\Models\DevelopmentPath;
 use App\Models\Organizations;
 use App\Models\People;
 use App\Models\Roles;
-use App\Models\Skills;
+use App\Models\Skill;
 use Illuminate\Database\Seeder;
 
 class DevelopmentPathSeeder extends Seeder
@@ -16,13 +16,14 @@ class DevelopmentPathSeeder extends Seeder
         $org = Organizations::first();
         $people = People::first();
         $targetRole = Roles::where('name', 'Senior Full Stack Developer')->first();
-        $skills = Skills::all();
+        $skills = Skill::all();
 
         if (!$people || !$targetRole) {
             return;
         }
 
         DevelopmentPath::create([
+            'action_title' => 'Personal development plan',
             'organization_id' => $org->id,
             'people_id' => $people->id,
             'target_role_id' => $targetRole->id,

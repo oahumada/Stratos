@@ -1,0 +1,49 @@
+name: Playwright E2E
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    # Only run if E2E_BASE_URL secret is provided (so CI doesn't try to start full app here)
+    if: secrets.E2E_BASE_URL
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: src
+        run: |
+          npm ci
+
+      - name: Install Playwright browsers
+        working-directory: src
+        run: |
+          npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        working-directory: src
+        env:
+          BASE_URL: ${{ secrets.E2E_BASE_URL }}
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+        run: |
+          npx playwright test --config=playwright.config.ts --reporter=github
+
+  skip-note:
+    name: Playwright skipped
+    runs-on: ubuntu-latest
+    if: !secrets.E2E_BASE_URL
+    steps:
+      - name: Skip
+        run: echo "Skipping Playwright E2E: set secret E2E_BASE_URL to run these tests."

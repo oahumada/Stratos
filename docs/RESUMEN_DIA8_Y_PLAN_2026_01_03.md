@@ -155,7 +155,7 @@
 
 ### Tarea 1.1: Instalar Chart.js (15 min)
 ```bash
-cd /home/omar/TalentIA
+cd /home/omar/Strato
 npm install chart.js vue-chartjs
 ```
 

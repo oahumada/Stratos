@@ -15,7 +15,7 @@ MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
-echo -e "${BLUE}  🚀 Asistente de Releases - TalentIA${NC}"
+echo -e "${BLUE}  🚀 Asistente de Releases - Strato${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar que no hay cambios sin commitear
@@ -110,7 +110,7 @@ if [ "$push_confirm" = "y" ] || [ "$push_confirm" = "Y" ]; then
     
     # Mostrar link de GitHub
     echo -e "${YELLOW}📎 Enlace del release:${NC}"
-    echo -e "${CYAN}https://github.com/oahumada/TalentIA/releases/tag/${TAG}${NC}\n"
+    echo -e "${CYAN}https://github.com/oahumada/Strato/releases/tag/${TAG}${NC}\n"
 else
     echo -e "${YELLOW}⚠️  Push cancelado${NC}"
     echo -e "${CYAN}Los cambios están locales. Haz push manualmente:${NC}"
