@@ -22,6 +22,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 **Problema que resuelve:** En estructuras jerárquicas con múltiples representaciones reactivas (ej: `nodes[]`, `focusedNode`, `childNodes[]`, `grandChildNodes[]`), editar un nodo requiere actualizar TODAS las fuentes para evitar que datos antiguos reaparezcan al colapsar/expandir.
 
 **Estructura del árbol:**
+
 ```
 Capability (nodes[])
   └── Competency (childNodes[])
@@ -29,6 +30,7 @@ Capability (nodes[])
 ```
 
 **Fuentes de datos (de hoja a raíz):**
+
 ```
 grandChildNodes.value[]                 ← Nodos renderizados (skills)
 selectedChild.value.skills[]            ← Skills de competencia seleccionada
@@ -84,17 +86,20 @@ await hierarchicalUpdate.update('skill', freshSkill, compId);
 ```
 
 **Funciones refactorizadas:**
+
 - `saveSkillDetail()` → usa `hierarchicalUpdate.update('skill', ...)`
 - `saveSelectedChild()` → usa `hierarchicalUpdate.update('competency', ...)`
 - `removeSkillFromCompetency()` → usa `hierarchicalUpdate.remove('skill', ...)`
 
 **Beneficios:**
+
 1. **DRY:** Lógica centralizada, sin código duplicado
 2. **Consistencia:** Garantiza actualización de todas las fuentes
 3. **Mantenibilidad:** Cambios en un solo lugar
 4. **Extensibilidad:** Fácil agregar `removeCompetency`, `addSkill`, etc.
 
 **Patrón clave:**
+
 > Cuando modificas un nodo hoja en un árbol reactivo, actualiza HACIA ARRIBA hasta la raíz.
 
 ---
@@ -755,6 +760,11 @@ Estas pruebas fueron añadidas para cubrir la edición/actualización de registr
 
 - Cambio: Mejora visual `PrototypeMap` (Index.vue).
 - Branch: feature/workforce-planning-scenario-modeling
+- Autor (local): cambios aplicados desde esta sesión de Copilot/IDE.
+
+- Cambio: Ajuste de altura del mapa embebido en `ScenarioDetail` (reduce tamaño y fuerza `prototype-map-root` a ocupar el contenedor).
+- Branch: feature/scenario-planning/paso-2
+- Archivos: `src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue`
 - Autor (local): cambios aplicados desde esta sesión de Copilot/IDE.
 
 ---

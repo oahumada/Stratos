@@ -556,26 +556,369 @@ void handleVersionSelected;
 void calculateGaps;
 void refreshStrategies;
 
+// Definición de los 7 pasos del workflow
+const stepperItems = [
+    { value: 1, title: 'Mapa', icon: 'mdi-map', subtitle: 'Visualización del escenario' },
+    { value: 2, title: 'Brechas', icon: 'mdi-chart-box-outline', subtitle: 'Análisis de gaps' },
+    { value: 3, title: 'Estrategias', icon: 'mdi-strategy', subtitle: 'Cierre de brechas' },
+    { value: 4, title: 'Workforce', icon: 'mdi-account-group', subtitle: 'Plan de personal' },
+    { value: 5, title: 'Pronósticos', icon: 'mdi-chart-timeline-variant', subtitle: 'Roles futuros' },
+    { value: 6, title: 'Comparar', icon: 'mdi-compare', subtitle: 'Versiones' },
+    { value: 7, title: 'Dashboard', icon: 'mdi-view-dashboard', subtitle: 'Resumen' },
+];
+
+const currentStepInfo = computed(() => stepperItems.find(s => s.value === currentStep.value) || stepperItems[0]);
+
+const goBack = () => {
+    router.visit('/scenario-planning');
+};
+
+const goToStep = (step: number) => {
+    if (step >= 1 && step <= stepperItems.length) {
+        currentStep.value = step;
+        // Actualizar URL con el step actual
+        const url = new URL(window.location.href);
+        url.searchParams.set('step', String(step));
+        window.history.replaceState({}, '', url.toString());
+    }
+};
+
+const nextStep = () => {
+    if (currentStep.value < stepperItems.length) {
+        goToStep(currentStep.value + 1);
+    }
+};
+
+const prevStep = () => {
+    if (currentStep.value > 1) {
+        goToStep(currentStep.value - 1);
+    }
+};
+
+// Parsear step desde query param
+const parseInitialStep = () => {
+    try {
+        const url = new URL(window.location.href);
+        const stepParam = url.searchParams.get('step');
+        const viewParam = url.searchParams.get('view');
+        
+        // Si viene con ?view=map, ir al paso 1
+        if (viewParam === 'map') {
+            currentStep.value = 1;
+            return;
+        }
+        
+        if (stepParam) {
+            const stepNum = parseInt(stepParam, 10);
+            if (stepNum >= 1 && stepNum <= stepperItems.length) {
+                currentStep.value = stepNum;
+            }
+        }
+    } catch (e) {
+        void e;
+    }
+};
+
 onMounted(() => {
+    parseInitialStep();
     loadScenario();
 });
 </script>
 
 <template>
-    <div>
-        <template v-if="viewMode === 'map'">
-            <PrototypeMap :scenario="scenario ?? undefined" />
-        </template>
-        <template v-else>
-            <v-container fluid class="scenario-detail">
-                <v-row>
-                    <v-col cols="12">
-                        <h2>Detalle del escenario</h2>
-                        <p v-if="scenario">{{ scenario.name }}</p>
-                        <p v-else>Seleccione un escenario para ver detalles.</p>
+    <v-app>
+    <div class="scenario-detail-wrapper">
+        <!-- Header con navegación (usando v-sheet en lugar de v-app-bar) -->
+        <v-sheet color="surface" class="border-b" style="position: sticky; top: 0; z-index: 10;">
+            <v-container fluid class="pa-2">
+                <v-row no-gutters align="center">
+                    <v-col cols="auto">
+                        <v-btn icon="mdi-arrow-left" variant="text" @click="goBack" />
+                    </v-col>
+                    
+                    <v-col v-if="scenario" cols="auto" class="flex-grow-1 d-flex align-center gap-2">
+                        <span class="font-weight-medium">{{ scenario.name }}</span>
+                        <v-chip 
+                            v-if="scenario.decision_status" 
+                            size="x-small" 
+                            :color="scenario.decision_status === 'approved' ? 'success' : scenario.decision_status === 'rejected' ? 'error' : 'warning'"
+                        >
+                            {{ scenario.decision_status }}
+                        </v-chip>
+                    </v-col>
+                    
+                    <v-col v-else cols="auto" class="flex-grow-1">
+                        <v-skeleton-loader type="text" width="200" />
+                    </v-col>
+
+                    <v-col cols="auto" class="d-flex gap-2 align-center">
+                        <v-chip variant="tonal" color="primary" size="small">
+                            Paso {{ currentStep }}/{{ stepperItems.length }}
+                        </v-chip>
+                        <v-btn 
+                            icon="mdi-history" 
+                            variant="text" 
+                            size="small"
+                            @click="openVersionHistory"
+                            title="Historial de versiones"
+                        />
                     </v-col>
                 </v-row>
             </v-container>
-        </template>
+        </v-sheet>
+
+        <!-- Stepper horizontal compacto -->
+        <v-sheet color="grey-lighten-4" class="py-1 px-2 border-b stepper-nav">
+            <div class="d-flex justify-center align-center gap-1 flex-wrap">
+                <v-btn
+                    v-for="step in stepperItems"
+                    :key="step.value"
+                    :variant="currentStep === step.value ? 'flat' : 'text'"
+                    :color="currentStep === step.value ? 'primary' : 'default'"
+                    size="small"
+                    :prepend-icon="step.icon"
+                    @click="goToStep(step.value)"
+                    class="step-btn"
+                >
+                    <span class="d-none d-md-inline">{{ step.title }}</span>
+                    <span class="d-md-none">{{ step.value }}</span>
+                </v-btn>
+            </div>
+        </v-sheet>
+
+        <!-- Contenido del step actual -->
+        <div class="scenario-content">
+            <v-progress-linear v-if="loading" indeterminate color="primary" />
+            
+            <template v-else-if="scenario">
+                <!-- Step 1: Mapa de Escenario -->
+                <div v-show="currentStep === 1" class="step-content step-map">
+                    <PrototypeMap :scenario="scenario" />
+                </div> 
+
+                <!-- Step 2: Análisis de Brechas -->
+                <div v-show="currentStep === 2" class="step-content">
+                    <v-container>
+                        <v-card>
+                            <v-card-title>
+                                <v-icon class="mr-2">mdi-chart-box-outline</v-icon>
+                                Análisis de Brechas
+                            </v-card-title>
+                            <v-card-text>
+                                <v-alert type="info" variant="tonal" class="mb-4">
+                                    Identifica gaps en skills y competencias entre el estado actual y el objetivo.
+                                </v-alert>
+                                <v-btn color="primary" @click="calculateGaps" :loading="refreshing">
+                                    Calcular Brechas
+                                </v-btn>
+                            </v-card-text>
+                        </v-card>
+                    </v-container>
+                </div>
+
+                <!-- Step 3: Estrategias de Cierre -->
+                <div v-show="currentStep === 3" class="step-content">
+                    <v-container>
+                        <v-card>
+                            <v-card-title>
+                                <v-icon class="mr-2">mdi-strategy</v-icon>
+                                Estrategias de Cierre
+                            </v-card-title>
+                            <v-card-text>
+                                <v-alert type="info" variant="tonal" class="mb-4">
+                                    Define estrategias para cerrar las brechas identificadas (capacitación, contratación, etc.).
+                                </v-alert>
+                                <v-btn color="primary" @click="refreshStrategies" :loading="refreshing">
+                                    Generar Estrategias
+                                </v-btn>
+                            </v-card-text>
+                        </v-card>
+                    </v-container>
+                </div>
+
+                <!-- Step 4: Plan de Workforce -->
+                <div v-show="currentStep === 4" class="step-content">
+                    <v-container>
+                        <v-card>
+                            <v-card-title>
+                                <v-icon class="mr-2">mdi-account-group</v-icon>
+                                Plan de Workforce
+                            </v-card-title>
+                            <v-card-text>
+                                <v-alert type="info" variant="tonal">
+                                    Planifica los recursos humanos necesarios para ejecutar el escenario.
+                                </v-alert>
+                            </v-card-text>
+                        </v-card>
+                    </v-container>
+                </div>
+
+                <!-- Step 5: Pronóstico de Roles -->
+                <div v-show="currentStep === 5" class="step-content">
+                    <v-container>
+                        <v-card>
+                            <v-card-title>
+                                <v-icon class="mr-2">mdi-chart-timeline-variant</v-icon>
+                                Pronóstico de Roles
+                            </v-card-title>
+                            <v-card-text>
+                                <v-alert type="info" variant="tonal">
+                                    Proyecta las necesidades de roles a futuro basándose en el escenario.
+                                </v-alert>
+                            </v-card-text>
+                        </v-card>
+                    </v-container>
+                </div>
+
+                <!-- Step 6: Comparación -->
+                <div v-show="currentStep === 6" class="step-content">
+                    <v-container>
+                        <v-card>
+                            <v-card-title>
+                                <v-icon class="mr-2">mdi-compare</v-icon>
+                                Comparación de Escenarios
+                            </v-card-title>
+                            <v-card-text>
+                                <v-alert type="info" variant="tonal">
+                                    Compara diferentes versiones del escenario o escenarios alternativos.
+                                </v-alert>
+                            </v-card-text>
+                        </v-card>
+                    </v-container>
+                </div>
+
+                <!-- Step 7: Dashboard -->
+                <div v-show="currentStep === 7" class="step-content">
+                    <v-container>
+                        <v-card>
+                            <v-card-title>
+                                <v-icon class="mr-2">mdi-view-dashboard</v-icon>
+                                Dashboard Ejecutivo
+                            </v-card-title>
+                            <v-card-text>
+                                <v-alert type="info" variant="tonal">
+                                    Resumen ejecutivo y KPIs del escenario.
+                                </v-alert>
+                            </v-card-text>
+                        </v-card>
+                    </v-container>
+                </div>
+            </template>
+
+            <template v-else>
+                <v-container>
+                    <v-alert type="error" variant="tonal">
+                        No se pudo cargar el escenario.
+                    </v-alert>
+                </v-container>
+            </template>
+        </div>
+
+        <!-- Footer con navegación entre steps (usando v-sheet) -->
+        <v-sheet color="surface" class="border-t" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;">
+            <v-container fluid class="pa-2">
+                <v-row no-gutters align="center">
+                    <v-col cols="4">
+                        <v-btn
+                            v-if="currentStep > 1"
+                            variant="text"
+                            size="small"
+                            prepend-icon="mdi-chevron-left"
+                            @click="prevStep"
+                        >
+                            <span class="d-none d-sm-inline">{{ stepperItems[currentStep - 2]?.title }}</span>
+                            <span class="d-sm-none">Anterior</span>
+                        </v-btn>
+                    </v-col>
+                    
+                    <v-col cols="4" class="text-center">
+                        <span class="text-caption text-medium-emphasis">
+                            {{ currentStepInfo.title }}: {{ currentStepInfo.subtitle }}
+                        </span>
+                    </v-col>
+                    
+                    <v-col cols="4" class="text-right">
+                        <v-btn
+                            v-if="currentStep < stepperItems.length"
+                            variant="tonal"
+                            color="primary"
+                            size="small"
+                            append-icon="mdi-chevron-right"
+                            @click="nextStep"
+                        >
+                            <span class="d-none d-sm-inline">{{ stepperItems[currentStep]?.title }}</span>
+                            <span class="d-sm-none">Siguiente</span>
+                        </v-btn>
+                        <v-btn
+                            v-else
+                            variant="flat"
+                            color="success"
+                            size="small"
+                            prepend-icon="mdi-check"
+                            @click="goBack"
+                        >
+                            Finalizar
+                        </v-btn>
+                    </v-col>
+                </v-row>
+            </v-container>
+        </v-sheet>
+
+        <!-- Modales -->
+        <VersionHistoryModal
+            v-if="scenarioId && scenarioId > 0 && scenario"
+            ref="versionHistoryRef"
+            :scenario-id="scenarioId"
+            :version-group-id="scenario.version_group_id || ''"
+            :current-version="scenario.version_number || 1"
+            @version-selected="handleVersionSelected"
+        />
+        <StatusTimeline
+            v-if="scenarioId && scenarioId > 0"
+            ref="statusTimelineRef"
+            :scenario-id="scenarioId"
+            @status-changed="handleStatusChanged"
+        />
     </div>
+    </v-app>
 </template>
+
+<style scoped>
+.scenario-detail-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.stepper-nav {
+    position: sticky;
+    top: 56px;
+    z-index: 9;
+}
+
+.step-btn {
+    min-width: auto;
+}
+
+.scenario-content {
+    flex: 1;
+    overflow: auto;
+    padding-bottom: 80px;
+    padding-top: 10px;
+}
+
+.step-content {
+    min-height: auto;
+}
+
+.step-map {
+    height: min(70vh, 640px);
+    min-height: 420px;
+    padding: 0;
+}
+
+.step-map :deep(.prototype-map-root) {
+    height: 100%;
+    max-height: 100%;
+}
+</style>

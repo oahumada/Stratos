@@ -4077,23 +4077,22 @@ if (!edges.value) edges.value = [];
 
 <template>
     <div>
-
         <div class="prototype-map-root" ref="mapRoot" :class="{ 'no-animations': noAnimations }">
-        <div
+        <!-- <div
             class="map-controls"
             style="
-                margin-bottom: 2px;
+                margin-bottom: 1px;
                 display: flex;
                 gap: 2px;
                 align-items: center;
             "
-        >
+        > -->
             <!-- top control removed; 'Crear capacidad' integrated next to home control -->
             <!-- título principal mostrado arriba -->
             <!-- Position controls removed: positions are saved/reset by default -->
             <!-- 'Volver a la vista inicial' integrado en la esfera del escenario y en el borde derecho del diagrama -->
                         <!-- extra soft halo/gloss to ensure bubble effect is visible on all nodes -->
-                        <circle
+                      <!--   <circle
                             class="node-gloss"
                             r="36"
                             fill="none"
@@ -4101,9 +4100,9 @@ if (!edges.value) edges.value = [];
                             stroke-opacity="0.04"
                             stroke-width="6"
                             filter="url(#softGlow)"
-                        />
+                        /> -->
             <!-- fullscreen button removed (disabled for now) -->
-            <v-btn
+            <!-- <v-btn
                 small
                 :variant="followScenario ? 'tonal' : 'text'"
                 :color="followScenario ? 'primary' : undefined"
@@ -4111,8 +4110,8 @@ if (!edges.value) edges.value = [];
                 :title="followScenario ? 'Seguir origen: activado' : 'Seguir origen: desactivado'"
             >
                 Seguir origen
-            </v-btn>
-        </div>
+            </v-btn> 
+        </div>-->
         <div v-if="!loaded">Cargando mapa...</div>
         <div v-else>
             <svg
@@ -4744,24 +4743,7 @@ if (!edges.value) edges.value = [];
                                     Ver Detalles
                                 </v-list-item-icon>
                             </v-list-item>
-                            <!-- <v-list-item @click="contextMenuIsChild ? contextCreateSkill() : contextCreateChild()" class="node-context-item">
-                                <v-list-item-icon>
-                                    <v-icon icon="mdi-plus" />  
-                                </v-list-item-icon>
-                                <v-list-item-title>{{ contextMenuIsChild ? 'Crear skill' : 'Crear competencia' }}</v-list-item-title>
-                            </v-list-item>
-                            <v-list-item v-if="contextMenuIsChild" @click="contextAttachExistingSkill" class="node-context-item">
-                                <v-list-item-icon>
-                                    <v-icon icon="mdi-link-variant" />
-                                </v-list-item-icon>
-                                <v-list-item-title>Agregar skill existente</v-list-item-title>
-                            </v-list-item>
-                            <v-list-item @click="contextDeleteNode" class="node-context-item">
-                                <v-list-item-icon>
-                                    <v-icon icon="mdi-delete-outline" />
-                                </v-list-item-icon>
-                                <v-list-item-title class="text-error">Eliminar nodo</v-list-item-title>
-                            </v-list-item> -->
+    
                         </v-list>
                     </div>
                 </template>
@@ -5106,11 +5088,11 @@ if (!edges.value) edges.value = [];
 
 <style scoped>
 .prototype-map-root {
-    padding: 16px;
+    padding: 2px;
     position: relative;
     /* use viewport-aware height so the component adapts to screen size */
     height: calc(100vh - 120px);
-    max-height: calc(100vh - 72px);
+    max-height: calc(50vh - 72px);
     display: flex;
     flex-direction: column;
     color: #ffffff;
@@ -5186,7 +5168,7 @@ if (!edges.value) edges.value = [];
 /* visual improvements */
 .edge-line {
     stroke: rgba(232, 191, 191, 0.12);
-    stroke-width: 1.5;
+    stroke-width: 2;
     transition:
         stroke 0.12s ease,
         stroke-width 0.12s ease,
@@ -5200,6 +5182,7 @@ if (!edges.value) edges.value = [];
     flex: 1 1 auto;
     height: auto;
     min-height: 260px;
+    max-height: 480px;
 }
 
 /* smooth pan/zoom transitions for viewport group */
