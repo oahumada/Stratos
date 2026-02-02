@@ -9,6 +9,96 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Fecha: 2026-01-19
 - la carpeta del proyecto es /src
 
+---
+
+## Composables del Proyecto
+
+### useHierarchicalUpdate (2026-02-02)
+
+**Archivo:** `src/resources/js/composables/useHierarchicalUpdate.ts`
+
+**Propósito:** Composable para actualizar datos jerárquicos en árboles reactivos Vue. Garantiza que todas las fuentes de datos se actualicen consistentemente desde el nodo hoja hasta la raíz.
+
+**Problema que resuelve:** En estructuras jerárquicas con múltiples representaciones reactivas (ej: `nodes[]`, `focusedNode`, `childNodes[]`, `grandChildNodes[]`), editar un nodo requiere actualizar TODAS las fuentes para evitar que datos antiguos reaparezcan al colapsar/expandir.
+
+**Estructura del árbol:**
+```
+Capability (nodes[])
+  └── Competency (childNodes[])
+        └── Skill (grandChildNodes[])
+```
+
+**Fuentes de datos (de hoja a raíz):**
+```
+grandChildNodes.value[]                 ← Nodos renderizados (skills)
+selectedChild.value.skills[]            ← Skills de competencia seleccionada
+childNodes.value[].skills[]             ← Skills en nodos de competencia
+focusedNode.value.competencies[].skills ← Fuente para expandCompetencies()
+nodes.value[].competencies[].skills     ← Fuente raíz
+```
+
+**API del Composable:**
+
+```typescript
+import { useHierarchicalUpdate } from '@/composables/useHierarchicalUpdate';
+
+// Instanciar con las refs del componente
+const hierarchicalUpdate = useHierarchicalUpdate(
+    { nodes, focusedNode, childNodes, selectedChild, grandChildNodes },
+    { wrapLabel, debug: false }
+);
+
+// Métodos disponibles:
+
+// Actualizar skill en todas las fuentes
+await hierarchicalUpdate.update('skill', freshSkillData, competencyId);
+
+// Actualizar competencia en todas las fuentes
+await hierarchicalUpdate.update('competency', freshCompData, capabilityId?);
+
+// Actualizar capability en todas las fuentes
+await hierarchicalUpdate.update('capability', freshCapData);
+
+// Eliminar skill de todas las fuentes
+await hierarchicalUpdate.remove('skill', skillId, competencyId);
+
+// Métodos específicos también disponibles:
+hierarchicalUpdate.updateSkill(freshSkill, competencyId);
+hierarchicalUpdate.updateCompetency(freshComp, capabilityId?);
+hierarchicalUpdate.updateCapability(freshCap);
+hierarchicalUpdate.removeSkill(skillId, competencyId);
+```
+
+**Uso en Index.vue:**
+
+```typescript
+// Antes (80+ líneas duplicadas por función):
+grandChildNodes.value = grandChildNodes.value.map(...)
+selectedChild.value = { ...selectedChild.value, skills: ... }
+childNodes.value = childNodes.value.map(...)
+focusedNode.value.competencies[].skills = ...
+nodes.value = nodes.value.map(...)
+
+// Después (1 línea):
+await hierarchicalUpdate.update('skill', freshSkill, compId);
+```
+
+**Funciones refactorizadas:**
+- `saveSkillDetail()` → usa `hierarchicalUpdate.update('skill', ...)`
+- `saveSelectedChild()` → usa `hierarchicalUpdate.update('competency', ...)`
+- `removeSkillFromCompetency()` → usa `hierarchicalUpdate.remove('skill', ...)`
+
+**Beneficios:**
+1. **DRY:** Lógica centralizada, sin código duplicado
+2. **Consistencia:** Garantiza actualización de todas las fuentes
+3. **Mantenibilidad:** Cambios en un solo lugar
+4. **Extensibilidad:** Fácil agregar `removeCompetency`, `addSkill`, etc.
+
+**Patrón clave:**
+> Cuando modificas un nodo hoja en un árbol reactivo, actualiza HACIA ARRIBA hasta la raíz.
+
+---
+
 ### Implementación: Eliminación completa de Skills en ScenarioPlanning (2026-02-01)
 
 ### Testing: Suite de composables e integración ScenarioPlanning (2026-02-01)

@@ -15,6 +15,28 @@
  * - selectedChild: currently selected competency
  * - focusedNode: currently focused capability
  * - nodes: root capabilities array
+ * 
+ * @example
+ * ```typescript
+ * import { useHierarchicalUpdate } from '@/composables/useHierarchicalUpdate';
+ * 
+ * // Setup with component refs
+ * const hierarchicalUpdate = useHierarchicalUpdate(
+ *     { nodes, focusedNode, childNodes, selectedChild, grandChildNodes },
+ *     { wrapLabel, debug: false }
+ * );
+ * 
+ * // Update a skill across all data sources
+ * await hierarchicalUpdate.update('skill', freshSkillData, competencyId);
+ * 
+ * // Update a competency
+ * await hierarchicalUpdate.update('competency', freshCompData);
+ * 
+ * // Remove a skill
+ * await hierarchicalUpdate.remove('skill', skillId, competencyId);
+ * ```
+ * 
+ * @see openmemory.md for detailed documentation
  */
 
 import { type Ref, nextTick } from 'vue';
