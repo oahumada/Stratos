@@ -269,6 +269,104 @@ AFTER:   Skill 32 name = "Skill Updated 23:05:34" ✅ (verificado en sqlite3)
 
 **Nota:** Este fix aplica a TODO endpoint genérico FormSchema (no solo Skills). Beneficia a 80+ modelos que usan Repository genérico.
 
+### Fix: Reactividad en Estructuras Jerárquicas Vue - Actualizar Todas las Fuentes de Datos (2026-02-02)
+
+**Problema:** Al editar un skill en ScenarioPlanning, los cambios se guardaban en BD pero se perdían al colapsar y re-expandir la competencia padre.
+
+**Diagnóstico:** El sistema tenía múltiples copias de los mismos datos en diferentes niveles:
+
+```
+nodes.value[].competencies[].skills     ← Fuente raíz (capabilities array)
+focusedNode.value.competencies[].skills ← Referencia al nodo expandido
+childNodes.value[].skills               ← Nodos renderizados (competencias)
+grandChildNodes.value[]                 ← Nodos renderizados (skills)
+```
+
+**Causa raíz:** Solo se actualizaban los niveles de UI (`childNodes`, `grandChildNodes`) pero NO la fuente original (`focusedNode.competencies`). Cuando se colapsaba y re-expandía, `expandCompetencies()` leía de la fuente no actualizada y recreaba nodos con datos antiguos.
+
+**Flujo del bug:**
+
+```
+Usuario edita skill → API guarda ✓ → grandChildNodes actualizado ✓ → childNodes actualizado ✓
+Usuario colapsa competencia → childNodes se limpia
+Usuario re-expande → expandCompetencies() lee de focusedNode.competencies[].skills
+                     ↓
+                     focusedNode NO fue actualizado → datos antiguos reaparecen
+```
+
+**Solución implementada:**
+
+En `saveSkillDetail()`, actualizar TODOS los niveles hacia arriba hasta la raíz:
+
+```typescript
+// 1. UI inmediato
+grandChildNodes.value = grandChildNodes.value.map(...)
+
+// 2. Estado seleccionado
+selectedChild.value = { ...selectedChild.value, skills: updatedSkills }
+
+// 3. Nodos intermedios
+childNodes.value = childNodes.value.map(...)
+
+// 4. CRÍTICO: Fuente del nodo expandido (antes faltaba)
+const competencies = (focusedNode.value as any)?.competencies;
+if (Array.isArray(competencies)) {
+    const compInParent = competencies.find((c: any) => c.id === realCompId);
+    if (compInParent && Array.isArray(compInParent.skills)) {
+        compInParent.skills = compInParent.skills.map((s: any) => {
+            if ((s.id ?? s.raw?.id) === freshSkillId) {
+                return { ...freshSkill, pivot: s.pivot ?? s.raw?.pivot };
+            }
+            return s;
+        });
+    }
+}
+
+// 5. Fuente raíz (antes faltaba)
+nodes.value = nodes.value.map((n: any) => {
+    if (Array.isArray(n.competencies)) {
+        const comp = n.competencies.find((c: any) => c.id === realCompId);
+        if (comp && Array.isArray(comp.skills)) {
+            comp.skills = comp.skills.map(...);
+        }
+    }
+    return n;
+});
+```
+
+**Archivos modificados:**
+
+- `src/resources/js/pages/ScenarioPlanning/Index.vue` - función `saveSkillDetail()` (líneas ~3213-3245)
+
+**Patrón de debugging aplicado:**
+
+1. Verificar que API guarda correctamente ✓
+2. Verificar que UI se actualiza inmediatamente ✓
+3. Identificar CUÁNDO falla (colapsar/expandir = re-creación de nodos)
+4. Trazar qué función re-crea los nodos (`expandCompetencies`)
+5. Identificar de dónde LEE esa función (`node.competencies` = `focusedNode.value.competencies`)
+6. Actualizar ESA fuente
+
+**Regla de oro para árboles reactivos:**
+
+> Cuando modificas un nodo hoja, actualiza HACIA ARRIBA hasta la raíz.
+
+**Vue reactivity tip:**
+
+```typescript
+// ❌ Puede no disparar re-render
+comp.skills[0].name = "nuevo";
+
+// ✅ Reemplazar array completo con map()
+comp.skills = comp.skills.map((s) =>
+  s.id === id ? { ...s, name: "nuevo" } : s,
+);
+```
+
+**Aplicabilidad:** Este patrón aplica a cualquier estructura jerárquica con múltiples representaciones: árboles de carpetas, organigramas, menús anidados, configuraciones en cascada, etc.
+
+**Referencia cruzada:** El código de `removeSkillFromCompetency()` ya implementaba este patrón correctamente (actualiza `focusedNode.competencies[].skills`). La solución fue replicar ese mismo patrón en `saveSkillDetail()`.
+
 ### Fix: Crear competencias repetidas (skills + pivote)
 
 **Problema:** Al crear una competencia más de una vez desde el mapa, el guardado de skills y del pivote podía fallar porque la lógica tomaba la competencia seleccionada como si fuera la capacidad padre.

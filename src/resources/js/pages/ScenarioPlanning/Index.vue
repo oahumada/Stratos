@@ -3,6 +3,7 @@
 import { useApi } from '@/composables/useApi';
 import { useCompetencySkills } from '@/composables/useCompetencySkills';
 import { useNotification } from '@/composables/useNotification';
+import { useHierarchicalUpdate } from '@/composables/useHierarchicalUpdate';
 import { onMounted, ref, watch, onBeforeUnmount, computed, nextTick } from 'vue';
 import { computeMatrixPositions } from '@/composables/useNodeNavigation';
 import { chooseMatrixVariant, computeCompetencyMatrixPositions, computeSidesPositions, decideCompetencyLayout } from '@/composables/useCompetencyLayout';
@@ -309,6 +310,14 @@ const suppressWatcherLayout = ref(false);
 // while `focusedNode` remains the parent capability (so layout treats parent as focused).
 const selectedChild = ref<any>(null);
 const loadingSkills = ref(false);
+
+// Hierarchical update manager for consistent data updates across all levels
+// Pattern: update leaf → update upward to root
+const hierarchicalUpdate = useHierarchicalUpdate(
+    { nodes, focusedNode, childNodes, selectedChild, grandChildNodes },
+    { wrapLabel, debug: false }
+);
+
 // Breadcrumb computed: construye la ruta completa disponible
 const breadcrumbTitle = computed(() => {
     const parts: string[] = [];
@@ -827,72 +836,14 @@ async function removeSkillFromCompetency(skill?: any) {
             }
         }
         
-        // Helper to filter out the skill from an array
-        const filterSkill = (arr: any[]) => arr.filter((s: any) => {
-            const sId = s.id ?? s.raw?.id;
-            return sId !== skillId;
-        });
+        // Use composable to remove skill from all data sources (leaf to root)
+        await hierarchicalUpdate.remove('skill', skillId, realCompetencyId);
         
-        // Remove from ALL data sources to prevent re-population
-        // 1. selectedChild.value.skills
-        if (Array.isArray((selectedChild.value as any).skills)) {
-            const before = (selectedChild.value as any).skills.length;
-            (selectedChild.value as any).skills = filterSkill((selectedChild.value as any).skills);
-            const after = (selectedChild.value as any).skills.length;
-            console.debug('[removeSkillFromCompetency] selectedChild.skills filtered:', { before, after });
-        }
-        
-        // 2. selectedChild.value.raw.skills (the original data source)
-        if (Array.isArray((selectedChild.value as any).raw?.skills)) {
-            (selectedChild.value as any).raw.skills = filterSkill((selectedChild.value as any).raw.skills);
-            console.debug('[removeSkillFromCompetency] selectedChild.raw.skills filtered');
-        }
-        
-        // 3. focusedNode.value.competencies[].skills (source for expandCompetencies)
-        const competencies = (focusedNode.value as any)?.competencies;
-        if (Array.isArray(competencies)) {
-            const comp = competencies.find((c: any) => c.id === realCompetencyId);
-            if (comp && Array.isArray(comp.skills)) {
-                comp.skills = filterSkill(comp.skills);
-                console.debug('[removeSkillFromCompetency] focusedNode.competencies[].skills filtered');
-            }
-        }
-        
-        // 4. childNodes (the rendered competency nodes) - update matching node
-        const childNode = childNodes.value.find((c: any) => c.compId === realCompetencyId);
-        if (childNode) {
-            if (Array.isArray(childNode.skills)) {
-                childNode.skills = filterSkill(childNode.skills);
-            }
-            if (Array.isArray(childNode.raw?.skills)) {
-                childNode.raw.skills = filterSkill(childNode.raw.skills);
-            }
-            console.debug('[removeSkillFromCompetency] childNodes[].skills filtered');
-        }
-        
-        // 5. Remove from availableSkills (global catalog) since skill is deleted from DB
+        // Also remove from availableSkills (global catalog) since skill is deleted from DB
         if (Array.isArray(availableSkills.value)) {
             availableSkills.value = availableSkills.value.filter((s: any) => s.id !== skillId);
             console.debug('[removeSkillFromCompetency] availableSkills filtered');
         }
-        
-        // Remove from grandChildNodes using raw.id from the skill object (para que desaparezca del árbol)
-        const beforeGrand = grandChildNodes.value.length;
-        grandChildNodes.value = grandChildNodes.value.filter((g) => {
-            // Check all possible ID locations: skillId property, raw.id, or the generated node id
-            const nodeSkillId = g.skillId ?? g.raw?.id ?? g.raw?.raw?.id;
-            const match = nodeSkillId === skillId || g.id === skillId;
-            if (match) {
-                console.debug('[removeSkillFromCompetency] Removing from tree:', { gId: g.id, nodeSkillId, skillId, skillIdProp: g.skillId });
-            }
-            return !match;
-        });
-        const afterGrand = grandChildNodes.value.length;
-        console.debug('[removeSkillFromCompetency] Tree skills filtered:', { beforeGrand, afterGrand, removed: beforeGrand - afterGrand, skillIdToRemove: skillId });
-        
-        // Force Vue to re-render by using nextTick
-        await nextTick();
-        console.debug('[removeSkillFromCompetency] After nextTick, grandChildNodes count:', grandChildNodes.value.length);
         
         // Close dialogs
         skillDetailDialogVisible.value = false;
@@ -2490,7 +2441,12 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     const parentLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
                     await Promise.race([waitForTransitionForNode(parentNode.id), wait(parentLead)]);
                     // Assign selectedChild BEFORE expandCompetencies so radial layout can detect it
-                    selectedChild.value = node as any;
+                    // Look up the updated node from childNodes.value to ensure we have fresh data
+                    const nodeId = (node as any).id ?? (node as any).compId ?? (node as any).raw?.id;
+                    const updatedNode = childNodes.value.find((cn: any) => 
+                        cn.id === nodeId || cn.compId === nodeId || cn.raw?.id === nodeId
+                    ) ?? node;
+                    selectedChild.value = updatedNode as any;
                     try {
                         if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=handleNodeClick, target=parentNode', { nodeId: parentNode?.id, comps: Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0, opts: { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 }, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
                     } catch (err: unknown) { void err; }
@@ -2530,20 +2486,36 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 try {
                     const comp = selectedChild.value as any;
                     const compId = comp.compId ?? comp.raw?.id ?? Math.abs(comp.id || 0);
-                    const existingSkills = Array.isArray(comp.skills) ? comp.skills : (comp.raw?.skills ?? []);
+                    
+                    // Get the most recent node from childNodes.value to ensure we have updated skills
+                    const updatedComp = childNodes.value.find((cn: any) => 
+                        cn.id === compId || cn.compId === compId || cn.raw?.id === compId
+                    ) ?? comp;
+                    
+                    // Force updatedComp to use the fresh skills by creating a new object
+                    const freshComp = {
+                        ...updatedComp,
+                        skills: updatedComp.skills,
+                        raw: {
+                            ...(updatedComp.raw ?? {}),
+                            skills: updatedComp.skills  // Override raw.skills with fresh data
+                        }
+                    };
+                    
+                    const existingSkills = Array.isArray(freshComp.skills) ? freshComp.skills : (freshComp.raw?.skills ?? []);
                     if ((existingSkills && existingSkills.length > 0) || compId) {
                             if (existingSkills && existingSkills.length > 0) {
                             try {
                             // Ensure comp finished its CSS transition and DOM reflects final position
-                            if (comp && comp.id != null) {
-                                const pid = comp.id;
+                            if (freshComp && freshComp.id != null) {
+                                const pid = freshComp.id;
                                 await waitForTransitionForNode(pid);
                                 await wait(10);
                                 const domPos = getNodeMapCenter(pid);
-                                const renderedPos = renderedNodeById(pid) ?? { x: comp?.x ?? 0, y: comp?.y ?? 0 };
+                                const renderedPos = renderedNodeById(pid) ?? { x: freshComp?.x ?? 0, y: freshComp?.y ?? 0 };
                                 // Prefer rendered X (align with render pipeline) but DOM Y (visual position)
                                 const preferred = (renderedPos && domPos) ? { x: renderedPos.x, y: domPos.y } : (renderedPos ?? domPos);
-                                const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
+                                const result = expandSkillsFromLayout(freshComp, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
                                 grandChildNodes.value = result.grandChildNodes;
                                 grandChildEdges.value = result.grandChildEdges;
                                 nextTick(() => {
@@ -2551,7 +2523,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                 });
                             } else {
                                 // fallback when parentNode is not available
-                                const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, { x: comp.x ?? 0, y: comp.y ?? 0 }, { layout: 'auto' }, height.value);
+                                const result = expandSkillsFromLayout(freshComp, grandChildNodes.value, grandChildEdges.value, { x: freshComp.x ?? 0, y: freshComp.y ?? 0 }, { layout: 'auto' }, height.value);
                                 grandChildNodes.value = result.grandChildNodes;
                                 grandChildEdges.value = result.grandChildEdges;
                                 nextTick(() => {
@@ -3134,101 +3106,25 @@ async function saveSkillDetail() {
             }
         } catch (errPivotAll: unknown) { void errPivotAll; }
 
-        // Save references to current context before reload
-        const currentCompId = selectedChild.value?.compId ?? selectedChild.value?.id ?? selectedChild.value?.raw?.id ?? null;
-        const currentCapId = focusedNode.value?.id ?? focusedNode.value?.raw?.id ?? null;
-        const currentLayout = (selectedChild.value as any)?.skillsLayout ?? 'auto';
-
         // Refresh skill entity from API (authoritative source)
         let freshSkill: any = null;
         try {
             const skillResp: any = await api.get(`/api/skills/${skillId}`);
-            freshSkill = skillResp?.data ?? skillResp;
+            let data = skillResp?.data ?? skillResp;
+            // API returns array, extract first element if needed
+            freshSkill = Array.isArray(data) ? data[0] : data;
         } catch (errRef: unknown) { 
             console.error('Failed to refresh skill after save', errRef);
         }
 
-        // Reload the tree from API to get fresh data
-        await loadTreeFromApiWrapper(props.scenario?.id);
+        // Update skill data using hierarchical update composable
+        if (freshSkill && typeof freshSkill.id !== 'undefined') {
+            const realCompId = (selectedChild.value as any)?.compId ?? (selectedChild.value as any)?.raw?.id;
+            
+            // Use composable to update all data sources (leaf to root)
+            await hierarchicalUpdate.update('skill', freshSkill, realCompId);
 
-        // After reload, merge fresh skill data into grandChildNodes and selectedChild.skills
-        try {
-            if (freshSkill && typeof freshSkill.id !== 'undefined') {
-                const freshSkillId = freshSkill.id;
-                
-                // Update grandChildNodes directly (same pattern as competency)
-                grandChildNodes.value = grandChildNodes.value.map((gn: any) => {
-                    const gnId = gn.id ?? gn.raw?.id;
-                    const gnRawId = gn.raw?.id;
-                    if (gnRawId === freshSkillId || gnId === freshSkillId) {
-                        return { 
-                            ...gn, 
-                            name: freshSkill.name ?? gn.name,
-                            raw: { ...(gn.raw ?? {}), ...freshSkill }
-                        };
-                    }
-                    return gn;
-                });
-                
-                // Update selectedChild.skills array (same pattern as competency)
-                if (selectedChild.value && Array.isArray((selectedChild.value as any).skills)) {
-                    (selectedChild.value as any).skills = (selectedChild.value as any).skills.map((s: any) => {
-                        const sId = s.id ?? s.raw?.id;
-                        if (sId === freshSkillId) {
-                            const existingPivot = s.pivot ?? s.raw?.pivot ?? null;
-                            return {
-                                ...freshSkill,
-                                pivot: existingPivot,
-                                raw: { ...freshSkill, pivot: existingPivot }
-                            };
-                        }
-                        return s;
-                    });
-                }
-            }
-        } catch (errFreshSkill: unknown) { 
-            console.error('Failed to update skill in grandChildNodes', errFreshSkill);
-        }
-
-        // After reload, restore the capability (focusedNode) and competency (selectedChild)
-        if (currentCapId) {
-            const restoredCap = nodeById(currentCapId);
-            if (restoredCap) {
-                focusedNode.value = restoredCap;
-                
-                // Re-expand competencies under this capability
-                expandCompetencies(restoredCap, { x: restoredCap.x ?? 0, y: restoredCap.y ?? 0 });
-                
-                // Restore selectedChild from the newly expanded childNodes
-                if (currentCompId) {
-                    const restoredComp = childNodes.value.find((cn: any) => 
-                        cn.id === currentCompId || cn.compId === currentCompId
-                    );
-                    if (restoredComp) {
-                        selectedChild.value = restoredComp;
-
-                        // Wait for competency to be rendered in DOM before expanding skills
-                        await nextTick();
-                        await waitForTransitionForNode(restoredComp.id ?? restoredComp.compId);
-
-                        // Re-expand skills to show updated data with proper layout
-                        const compId = (selectedChild.value as any).id;
-                        const domPos = getNodeMapCenter(compId);
-                        const renderedComp = renderedNodeById(compId) ?? selectedChild.value;
-                        const preferred = (renderedComp && domPos) ? { x: renderedComp.x, y: domPos.y } : (renderedComp ?? domPos);
-                        const result = expandSkillsFromLayout(selectedChild.value, [], [], preferred, { layout: currentLayout }, height.value);
-                        grandChildNodes.value = result.grandChildNodes;
-                        grandChildEdges.value = result.grandChildEdges;
-                        nextTick(() => {
-                            grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
-                        });
-                    }
-                }
-            }
-        }
-
-        // Update selectedSkillDetail with fresh data
-        if (freshSkill) {
+            // Update selectedSkillDetail with fresh data
             selectedSkillDetail.value = freshSkill;
         }
 
@@ -3910,31 +3806,17 @@ async function saveSelectedChild() {
             }
         } catch (err: unknown) { void err; }
 
-        // Refresh tree from API (may reconstruct competencies differently than the PATCH response)
-        await loadTreeFromApiWrapper(props.scenario?.id);
-
-        // After reload, merge authoritative competency fields into childNodes if we have them
-        try {
-            if (freshComp && typeof freshComp.id !== 'undefined' && parentId) {
-                const freshCompId = freshComp.id;
-                childNodes.value = childNodes.value.map((cn: any) => (cn.id === freshCompId || cn.compId === freshCompId ? { ...cn, name: freshComp.name ?? cn.name, description: freshComp.description ?? cn.description, readiness: freshComp.readiness ?? cn.readiness, raw: { ...(cn.raw ?? {}), ...(freshComp ?? {}) } } : cn));
-                if (selectedChild.value && (selectedChild.value.compId === freshCompId || selectedChild.value.id === freshCompId || selectedChild.value.raw?.id === freshCompId)) {
-                    selectedChild.value = { ...(selectedChild.value as any), name: freshComp.name ?? (selectedChild.value as any).name, description: freshComp.description ?? (selectedChild.value as any).description, readiness: freshComp.readiness ?? (selectedChild.value as any).readiness, raw: { ...((selectedChild.value as any).raw ?? {}), ...(freshComp ?? {}) } } as any;
-                    // Re-initialize edit fields from refreshed data
-                    try {
-                        editChildName.value = freshComp.name ?? editChildName.value;
-                        editChildDescription.value = freshComp.description ?? editChildDescription.value;
-                        editChildReadiness.value = freshComp.readiness ?? editChildReadiness.value;
-                    } catch (err: unknown) { void err; }
-                }
-            }
-        } catch (err: unknown) { void err; }
-
-        // Re-open parent expansion to show updated children
-        if (parentId) {
-            const parent = nodeById(parentId);
-            if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
+        // Update competency data using hierarchical update composable
+        if (freshComp && typeof freshComp.id !== 'undefined') {
+            // Use composable to update all data sources (leaf to root)
+            await hierarchicalUpdate.update('competency', freshComp, parentId ?? undefined);
+            
+            // Re-initialize edit fields from refreshed data
+            editChildName.value = freshComp.name ?? editChildName.value;
+            editChildDescription.value = freshComp.description ?? editChildDescription.value;
+            editChildReadiness.value = freshComp.readiness ?? editChildReadiness.value;
         }
+
         showSuccess('Competencia actualizada');
     } catch (err: unknown) {
         void err;
@@ -4766,7 +4648,7 @@ if (!edges.value) edges.value = [];
                     <g class="skill-nodes">
                         <g
                             v-for="(s) in grandChildNodes"
-                            :key="s.id"
+                            :key="`${s.id}-${s.name}-${s.raw?.id}`"
                             :style="{ transform: `translate(${s.x}px, ${s.y}px) scale(${s.animScale ?? 1})`, opacity: (s.animOpacity ?? 0.85) }"
                             class="node-group skill-node"
                             :data-node-id="s.id"
