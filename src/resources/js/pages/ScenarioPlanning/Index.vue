@@ -638,7 +638,11 @@ async function createAndAttachSkill() {
         // Expand skills to show the newly created skill immediately (consistent with competencies pattern)
         // Do this BEFORE clearing fields to ensure proper DOM updates
         if (selectedChild.value) {
-            const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, undefined, { layout: 'auto' }, height.value);
+            const compId = (selectedChild.value as any).id;
+            const domPos = getNodeMapCenter(compId);
+            const renderedComp = renderedNodeById(compId) ?? selectedChild.value;
+            const preferred = (renderedComp && domPos) ? { x: renderedComp.x, y: domPos.y } : (renderedComp ?? domPos);
+            const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
             grandChildNodes.value = result.grandChildNodes;
             grandChildEdges.value = result.grandChildEdges;
             nextTick(() => {
@@ -699,7 +703,11 @@ async function attachExistingSkill() {
         // Expand skills to show the newly attached skill immediately
         // Do this BEFORE closing the modal to ensure proper DOM updates
         if (selectedChild.value) {
-            const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, undefined, { layout: 'auto' }, height.value);
+            const compId = (selectedChild.value as any).id;
+            const domPos = getNodeMapCenter(compId);
+            const renderedComp = renderedNodeById(compId) ?? selectedChild.value;
+            const preferred = (renderedComp && domPos) ? { x: renderedComp.x, y: domPos.y } : (renderedComp ?? domPos);
+            const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
             grandChildNodes.value = result.grandChildNodes;
             grandChildEdges.value = result.grandChildEdges;
             nextTick(() => {
@@ -2526,14 +2534,13 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     if ((existingSkills && existingSkills.length > 0) || compId) {
                             if (existingSkills && existingSkills.length > 0) {
                             try {
-                            // Ensure parent finished its CSS transition and DOM reflects final position
-                            if (parentNode && parentNode.id != null) {
-                                const pid = parentNode.id;
+                            // Ensure comp finished its CSS transition and DOM reflects final position
+                            if (comp && comp.id != null) {
+                                const pid = comp.id;
                                 await waitForTransitionForNode(pid);
                                 await wait(10);
                                 const domPos = getNodeMapCenter(pid);
-                                const renderedPos = renderedNodeById(pid) ?? { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 };
-                                console.debug && console.debug('[expandSkills.debug] parentId=', pid, 'domPos=', domPos, 'renderedPos=', renderedPos, 'modelPos=', { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 });
+                                const renderedPos = renderedNodeById(pid) ?? { x: comp?.x ?? 0, y: comp?.y ?? 0 };
                                 // Prefer rendered X (align with render pipeline) but DOM Y (visual position)
                                 const preferred = (renderedPos && domPos) ? { x: renderedPos.x, y: domPos.y } : (renderedPos ?? domPos);
                                 const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
@@ -2544,7 +2551,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                 });
                             } else {
                                 // fallback when parentNode is not available
-                                const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 }, { layout: 'auto' }, height.value);
+                                const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, { x: comp.x ?? 0, y: comp.y ?? 0 }, { layout: 'auto' }, height.value);
                                 grandChildNodes.value = result.grandChildNodes;
                                 grandChildEdges.value = result.grandChildEdges;
                                 nextTick(() => {
@@ -2552,7 +2559,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                 });
                             }
                             } catch (err: unknown) {
-                            const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 }, { layout: 'auto' }, height.value);
+                            const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, { x: comp.x ?? 0, y: comp.y ?? 0 }, { layout: 'auto' }, height.value);
                             grandChildNodes.value = result.grandChildNodes;
                             grandChildEdges.value = result.grandChildEdges;
                             nextTick(() => {
@@ -2581,7 +2588,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                         grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
                                     });
                                 } catch (err: unknown) {
-                                    const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 }, { layout: 'auto' }, height.value);
+                                    const compId = (selectedChild.value as any).id;
+                                    const domPos = getNodeMapCenter(compId);
+                                    const renderedComp = renderedNodeById(compId) ?? selectedChild.value;
+                                    const preferred = (renderedComp && domPos) ? { x: renderedComp.x, y: domPos.y } : (renderedComp ?? domPos);
+                                    const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
                                     grandChildNodes.value = result.grandChildNodes;
                                     grandChildEdges.value = result.grandChildEdges;
                                     nextTick(() => {
@@ -3140,6 +3151,45 @@ async function saveSkillDetail() {
         // Reload the tree from API to get fresh data
         await loadTreeFromApiWrapper(props.scenario?.id);
 
+        // After reload, merge fresh skill data into grandChildNodes and selectedChild.skills
+        try {
+            if (freshSkill && typeof freshSkill.id !== 'undefined') {
+                const freshSkillId = freshSkill.id;
+                
+                // Update grandChildNodes directly (same pattern as competency)
+                grandChildNodes.value = grandChildNodes.value.map((gn: any) => {
+                    const gnId = gn.id ?? gn.raw?.id;
+                    const gnRawId = gn.raw?.id;
+                    if (gnRawId === freshSkillId || gnId === freshSkillId) {
+                        return { 
+                            ...gn, 
+                            name: freshSkill.name ?? gn.name,
+                            raw: { ...(gn.raw ?? {}), ...freshSkill }
+                        };
+                    }
+                    return gn;
+                });
+                
+                // Update selectedChild.skills array (same pattern as competency)
+                if (selectedChild.value && Array.isArray((selectedChild.value as any).skills)) {
+                    (selectedChild.value as any).skills = (selectedChild.value as any).skills.map((s: any) => {
+                        const sId = s.id ?? s.raw?.id;
+                        if (sId === freshSkillId) {
+                            const existingPivot = s.pivot ?? s.raw?.pivot ?? null;
+                            return {
+                                ...freshSkill,
+                                pivot: existingPivot,
+                                raw: { ...freshSkill, pivot: existingPivot }
+                            };
+                        }
+                        return s;
+                    });
+                }
+            }
+        } catch (errFreshSkill: unknown) { 
+            console.error('Failed to update skill in grandChildNodes', errFreshSkill);
+        }
+
         // After reload, restore the capability (focusedNode) and competency (selectedChild)
         if (currentCapId) {
             const restoredCap = nodeById(currentCapId);
@@ -3157,25 +3207,16 @@ async function saveSkillDetail() {
                     if (restoredComp) {
                         selectedChild.value = restoredComp;
 
-                        // Update the skill in the competency's skills array
-                        if (freshSkill && Array.isArray((selectedChild.value as any).skills)) {
-                            const skillIndex = (selectedChild.value as any).skills.findIndex((s: any) => 
-                                (s.id ?? s.raw?.id) === skillId
-                            );
-                            if (skillIndex !== -1) {
-                                const existingPivot = (selectedChild.value as any).skills[skillIndex].pivot 
-                                    ?? (selectedChild.value as any).skills[skillIndex].raw?.pivot 
-                                    ?? null;
-                                (selectedChild.value as any).skills[skillIndex] = {
-                                    ...freshSkill,
-                                    pivot: existingPivot,
-                                    raw: { ...freshSkill, pivot: existingPivot }
-                                };
-                            }
-                        }
+                        // Wait for competency to be rendered in DOM before expanding skills
+                        await nextTick();
+                        await waitForTransitionForNode(restoredComp.id ?? restoredComp.compId);
 
                         // Re-expand skills to show updated data with proper layout
-                        const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, undefined, { layout: currentLayout }, height.value);
+                        const compId = (selectedChild.value as any).id;
+                        const domPos = getNodeMapCenter(compId);
+                        const renderedComp = renderedNodeById(compId) ?? selectedChild.value;
+                        const preferred = (renderedComp && domPos) ? { x: renderedComp.x, y: domPos.y } : (renderedComp ?? domPos);
+                        const result = expandSkillsFromLayout(selectedChild.value, [], [], preferred, { layout: currentLayout }, height.value);
                         grandChildNodes.value = result.grandChildNodes;
                         grandChildEdges.value = result.grandChildEdges;
                         nextTick(() => {
@@ -4281,7 +4322,7 @@ if (!edges.value) edges.value = [];
                     <!-- gradient for child edges -->
                     <linearGradient id="childGrad" x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stop-color="#7dd3fc" stop-opacity="1" />
-                        <stop offset="100%" stop-color="#60a5fa" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#04234A" stop-opacity="1" />
                     </linearGradient>
 
                     <!-- gradient for scenario->child edges (distinct visual) -->
@@ -4313,10 +4354,10 @@ if (!edges.value) edges.value = [];
                         </feMerge>
                     </filter>
 
-                    <!-- dot marker for child edges -->
-                    <marker id="childArrow" markerUnits="strokeWidth" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-                        <circle cx="4" cy="4" r="2.5" fill="url(#childGrad)" />
-                    </marker>
+                    <!-- arrow marker for child edges -->
+                   <!--  <marker id="childArrow" markerUnits="strokeWidth" markerWidth="4" markerHeight="4" refX="9" refY="5" orient="auto">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="url(#childGrad)" />
+                    </marker> -->
 
                     <!-- arrow marker for scenario edges -->
                     <!-- scenario arrow removed: prefer clean lines without arrowheads -->
@@ -5303,17 +5344,17 @@ if (!edges.value) edges.value = [];
         transform 0.12s ease;
 }
 
-/* SVG text labels should be white for better contrast */
+/* SVG text labels - tamaño configurado en LAYOUT_CONFIG.capability.text (12px) */
 .node-label {
     fill: #ffffff;
     fill-opacity: 1;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 12px; /* LAYOUT_CONFIG.capability.text.fontSize */
     dominant-baseline: hanging;
 }
 
 .node-group.small .node-label {
-    font-size: 10px;
+    font-size: 10px; /* LAYOUT_CONFIG.competency.text.fontSize */
 }
 
 /* scale down non-selected nodes smoothly via CSS transform */
@@ -5437,7 +5478,7 @@ if (!edges.value) edges.value = [];
     pointer-events: none;
 }
 .skill-node .node-label {
-    font-size: 10px;
+    font-size: 10px; /* LAYOUT_CONFIG.skill.text.fontSize */
     font-weight: 600;
 }
 
