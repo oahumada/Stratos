@@ -12,7 +12,7 @@ class ScenarioRole extends Model
     // Some migrations use 'scenario_roles' and some 'scenario_role'
     protected $table = 'scenario_roles';
 
-    protected $fillable = ['scenario_id', 'role_id', 'role_change', 'impact_level', 'evolution_type', 'rationale', 'strategic_role', 'impact_level'];
+    protected $fillable = ['scenario_id', 'role_id', 'fte', 'role_change', 'impact_level', 'evolution_type', 'rationale', 'strategic_role', 'impact_level'];
 
     public function scenario()
     {

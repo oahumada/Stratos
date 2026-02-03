@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\Api\ScenarioController;
 
 Route::get('/scenario-demo', function () {
     return Inertia::render('ScenarioDemo');
@@ -71,5 +72,12 @@ Route::get('/strategic-planning', function () {
 Route::get('/strategic-planning/{id}', function ($id) {
     return Inertia::render('ScenarioPlanning/ScenarioDetail', ['id' => $id]);
 })->middleware(['auth', 'verified'])->name('strategic-planning.show');
+
+Route::prefix('scenarios')->group(function () {
+    Route::get('{id}/iq', [ScenarioController::class, 'getIQ']);
+    Route::get('{id}/roles/{roleId}/competency-gaps', [ScenarioController::class, 'getCompetencyGaps']);
+    Route::post('{id}/roles/{roleId}/derive-skills', [ScenarioController::class, 'deriveSkills']);
+    Route::post('{id}/derive-all-skills', [ScenarioController::class, 'deriveAllSkills']);
+});
 
 require __DIR__ . '/settings.php';

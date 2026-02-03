@@ -865,6 +865,18 @@ Route::prefix('strategic-planning')->group(function () {
     Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
 });
 
+// PASO 2: Roles ↔ Competencies Mapping
+Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group(function () {
+    Route::get('data', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getMatrixData']);
+    Route::post('mappings', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'saveMapping']);
+    Route::delete('mappings/{mappingId}', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'deleteMapping']);
+    Route::post('roles', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'addRole']);
+    Route::get('role-forecasts', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getRoleForecasts']);
+    Route::get('skill-gaps-matrix', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getSkillGapsMatrix']);
+    Route::get('matching-results', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getMatchingResults']);
+    Route::get('succession-plans', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getSuccessionPlans']);
+});
+
 // Catálogos dinámicos para selectores
 Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');
 require __DIR__ . '/form-schema-complete.php';

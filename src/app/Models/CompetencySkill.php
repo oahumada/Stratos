@@ -23,4 +23,4 @@ class CompetencySkill extends Model
         return $this->belongsTo(Skill::class, 'skill_id');
     }
 }
-return $this->belongsTo(Skill::class, 'skill_id');
+

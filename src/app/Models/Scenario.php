@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Schema;
 use App\Models\Capability;
 
@@ -68,6 +69,21 @@ class Scenario extends Model
     public function owner()
     {
         return $this->belongsTo(\App\Models\User::class, 'owner_user_id');
+    }
+
+    public function scenarioRoles(): HasMany
+    {
+        return $this->hasMany(\App\Models\ScenarioRole::class);
+    }
+
+    public function scenarioRoleCompetencies(): HasMany
+    {
+        return $this->hasMany(\App\Models\ScenarioRoleCompetency::class);
+    }
+
+    public function scenarioRoleSkills(): HasMany
+    {
+        return $this->hasMany(ScenarioRoleSkill::class);
     }
 
     public function statusEvents()

@@ -10,18 +10,24 @@ use App\Repository\ScenarioRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use App\Services\ScenarioAnalyticsService;
+use App\Services\RoleSkillDerivationService;
 use Inertia\Inertia;
 use App\Models\ScenarioTemplate;
 
 class ScenarioController extends Controller
 {
     protected $analytics;
+    protected $derivation;
 
     public function __construct(
         private ScenarioRepository $scenarioRepo,
-        private ScenarioAnalysisService $analysisService
+        private ScenarioAnalysisService $analysisService,
+        ScenarioAnalyticsService $analytics,
+        RoleSkillDerivationService $derivation
     ) {
-        $this->analytics = $analysisService;
+        $this->analytics = $analytics;
+        $this->derivation = $derivation;
     }
 
     /**
@@ -67,9 +73,36 @@ class ScenarioController extends Controller
             'avg_capability_readiness_pct' => round($avgCap * 100, 1),
             'avg_competency_readiness_pct' => round($avgComp * 100, 1),
             'avg_skill_readiness_pct' => round($avgSkill * 100, 1),
+            $this->analytics->calculateScenarioIQ($id)
         ];
 
         return response()->json($metrics);
+    }
+
+    /**
+     * POST /api/scenarios/{id}/roles/{roleId}/derive-skills
+     * Deriva skills desde competencias para un rol específico
+     */
+    public function deriveSkills($id, $roleId)
+    {
+        $result = $this->derivation->deriveSkillsFromCompetencies($id, $roleId);
+        return response()->json([
+            'message' => 'Skills derivadas exitosamente',
+            'stats' => $result
+        ]);
+    }
+
+    /**
+     * POST /api/scenarios/{id}/derive-all-skills
+     * Deriva skills para todos los roles del escenario
+     */
+    public function deriveAllSkills($id)
+    {
+        $results = $this->derivation->deriveAllSkillsForScenario($id);
+        return response()->json([
+            'message' => 'Skills derivadas para todos los roles',
+            'results' => $results
+        ]);
     }
 
     /**

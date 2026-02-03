@@ -22,6 +22,8 @@ const form = ref({
     scope_type: 'organization_wide',
     owner_user_id: null as number | null,
     sponsor_user_id: null as number | null,
+    fiscal_year: null as number | null,
+    strategic_context: '',
 });
 
 const planData = ref<any>(null);
