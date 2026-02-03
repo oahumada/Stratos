@@ -929,6 +929,13 @@ const MIN_ZOOM = 0.3;
 const MAX_ZOOM = 3;
 const ZOOM_SPEED = 0.1;
 
+// Pan state (mouse drag)
+const isPanning = ref(false);
+const panStartX = ref(0);
+const panStartY = ref(0);
+const panStartViewX = ref(0);
+const panStartViewY = ref(0);
+
 const viewportStyle = computed(() => ({
     transform: `translate(${viewX.value}px, ${viewY.value}px) scale(${viewScale.value})`,
     transformOrigin: '0 0',
@@ -959,6 +966,42 @@ function handleZoom(event: WheelEvent) {
     viewY.value = mouseY - viewportY * newScale;
     
     viewScale.value = newScale;
+}
+
+// Pan handlers: Left mouse button drag to pan
+function handleMouseDown(event: MouseEvent) {
+    // Ignorar si es clic derecho o si el target es un nodo/elemento interactivo
+    if (event.button !== 0) return;
+    
+    const target = event.target as HTMLElement;
+    // No iniciar pan si se hace clic en elementos interactivos
+    if (target.closest('.node-group, button, input, [data-interactive]')) return;
+    
+    isPanning.value = true;
+    panStartX.value = event.clientX;
+    panStartY.value = event.clientY;
+    panStartViewX.value = viewX.value;
+    panStartViewY.value = viewY.value;
+    
+    // Cambiar cursor para indicar pan
+    (event.currentTarget as SVGSVGElement).style.cursor = 'grabbing';
+}
+
+function handleMouseMove(event: MouseEvent) {
+    if (!isPanning.value) return;
+    
+    const deltaX = event.clientX - panStartX.value;
+    const deltaY = event.clientY - panStartY.value;
+    
+    viewX.value = panStartViewX.value + deltaX;
+    viewY.value = panStartViewY.value + deltaY;
+}
+
+function handleMouseUp(event: MouseEvent) {
+    if (!isPanning.value) return;
+    
+    isPanning.value = false;
+    (event.currentTarget as SVGSVGElement).style.cursor = 'default';
 }
 
 // displayNode: prefer `selectedChild` (a competency) for sidebar details, otherwise the focused capability
@@ -4119,8 +4162,12 @@ if (!edges.value) edges.value = [];
                 :height="height"
                 :viewBox="`0 0 ${width} ${height}`"
                 class="map-canvas"
-                style="touch-action: none"
+                style="touch-action: none; cursor: grab"
                 @wheel="handleZoom"
+                @mousedown="handleMouseDown"
+                @mousemove="handleMouseMove"
+                @mouseup="handleMouseUp"
+                @mouseleave="handleMouseUp"
             >
                 <defs>
                     <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">

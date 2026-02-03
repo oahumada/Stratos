@@ -305,13 +305,40 @@ class ScenarioController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $data = $request->only(['name', 'description', 'scenario_type', 'horizon_months', 'fiscal_year']);
+        // Validar datos de entrada
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'scenario_type' => 'nullable|string',
+            'horizon_months' => 'nullable|integer|min:1',
+            'planning_horizon_months' => 'nullable|integer|min:1', // Alias para compatibilidad frontend
+            'fiscal_year' => 'nullable|integer',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'code' => 'nullable|string|max:50',
+            'owner_user_id' => 'nullable|integer',
+        ]);
+
         $user = auth()->user();
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
-        $data['organization_id'] = $user->organization_id;
-        $data['created_by'] = $user->id;
+
+        // Preparar datos para crear scenario
+        $data = [
+            'organization_id' => $user->organization_id,
+            'created_by' => $user->id,
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? '',  // Proporcionar string vacío si viene null
+            'scenario_type' => $validated['scenario_type'] ?? 'transformation',
+            // Usar horizon_months si viene, sino planning_horizon_months, sino 12 como default
+            'horizon_months' => $validated['horizon_months'] ?? $validated['planning_horizon_months'] ?? 12,
+            'fiscal_year' => $validated['fiscal_year'] ?? (int) date('Y'),  // Default al año actual si no se proporciona
+            'start_date' => ($validated['start_date'] ?? null) ? \Carbon\Carbon::parse($validated['start_date'])->toDateString() : now()->toDateString(),
+            'end_date' => ($validated['end_date'] ?? null) ? \Carbon\Carbon::parse($validated['end_date'])->toDateString() : now()->addMonths(12)->toDateString(),
+            'code' => $validated['code'] ?? ('SCN-' . strtoupper(substr(md5(uniqid()), 0, 8))),
+            'owner_user_id' => $validated['owner_user_id'] ?? $user->id,
+        ];
 
         // Use Eloquent to create scenario (triggers model events for code generation)
         $scenario = Scenario::create($data);

@@ -11,7 +11,7 @@ import type {
 
 export function useWorkforcePlanning() {
     const api = useApi();
-    const base = '/api/strategic-planning/workforce-plans';
+    const base = '/api/strategic-planning/scenarios';
 
     const listPlans = (params?: any) => api.get(base, params);
     const createPlan = (payload: Partial<WorkforcePlan>) =>

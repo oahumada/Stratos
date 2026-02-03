@@ -16,13 +16,13 @@ const loading = ref(false);
 const form = ref({
     name: '',
     description: '',
-    start_date: '',
-    end_date: '',
+    start_date: new Date().toISOString().split('T')[0],  // Hoy
+    end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],  // Hoy + 1 año
     planning_horizon_months: 12,
     scope_type: 'organization_wide',
     owner_user_id: null as number | null,
     sponsor_user_id: null as number | null,
-    fiscal_year: null as number | null,
+    fiscal_year: new Date().getFullYear(),  // Año actual
     strategic_context: '',
 });
 
