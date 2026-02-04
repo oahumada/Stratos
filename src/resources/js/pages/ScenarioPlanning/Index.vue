@@ -3153,7 +3153,7 @@ async function saveSkillDetail() {
         let freshSkill: any = null;
         try {
             const skillResp: any = await api.get(`/api/skills/${skillId}`);
-            let data = skillResp?.data ?? skillResp;
+            const data = skillResp?.data ?? skillResp;
             // API returns array, extract first element if needed
             freshSkill = Array.isArray(data) ? data[0] : data;
         } catch (errRef: unknown) { 
@@ -5228,8 +5228,8 @@ if (!edges.value) edges.value = [];
     width: 100%;
     flex: 1 1 auto;
     height: auto;
-    min-height: 260px;
-    max-height: 480px;
+    min-height: 400px;
+    min-height: 600px;
 }
 
 /* smooth pan/zoom transitions for viewport group */

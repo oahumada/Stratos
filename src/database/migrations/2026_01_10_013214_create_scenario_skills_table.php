@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('scenario_skills', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('scenario_id')->constrained('workforce_planning_scenarios')->cascadeOnDelete();
+            $table->foreignId('scenario_id')->constrained('scenarios')->cascadeOnDelete();
             $table->foreignId('skill_id')->constrained('skills')->cascadeOnDelete();
             $table->enum('strategic_role', ['target', 'accelerator', 'sunset', 'watch', 'secondary'])->default('secondary');
             $table->integer('priority')->default(0);

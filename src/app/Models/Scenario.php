@@ -12,7 +12,7 @@ class Scenario extends Model
 {
     use HasFactory;
 
-    // Canonical table: `scenarios`. Note: DB view `workforce_planning_scenarios` provides backwards compatibility.
+    // Canonical table: `scenarios`. Legacy compatibility view `workforce_planning_scenarios` is deprecated.
     protected $table = 'scenarios';
 
     protected $fillable = ['organization_id', 'name', 'code', 'description', 'kpis', 'start_date', 'end_date', 'horizon_months', 'fiscal_year', 'scope_type', 'scope_notes', 'status', 'approved_at', 'approved_by', 'assumptions', 'owner_user_id', 'sponsor_user_id', 'created_by', 'updated_by', 'template_id'];

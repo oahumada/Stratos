@@ -261,8 +261,8 @@ export function useScenarioLayout() {
 
         let rows = opts.rows ?? 1;
         let cols = opts.cols ?? 4;
-        let hSpacing = LAYOUT_CONFIG.competency.spacing.hSpacing;
-        let vSpacing = LAYOUT_CONFIG.competency.spacing.vSpacing;
+        const hSpacing = LAYOUT_CONFIG.competency.spacing.hSpacing;
+        const vSpacing = LAYOUT_CONFIG.competency.spacing.vSpacing;
 
         const matrixVariants = LAYOUT_CONFIG.competency.matrixVariants;
         try {

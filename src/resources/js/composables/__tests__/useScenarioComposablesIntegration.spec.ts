@@ -349,7 +349,7 @@ describe('Composables Integration - Complete Workflow', () => {
 
     it('switches between edge render modes', () => {
       // Test mode switching
-      for (let mode of [0, 1, 2, 3] as const) {
+      for (const mode of [0, 1, 2, 3] as const) {
         edges.childEdgeMode.value = mode;
         expect(edges.childEdgeMode.value).toBe(mode);
       }

@@ -114,8 +114,11 @@ Orquesta decisiones de dotación: talento interno → mercado externo → desarr
 
 ### Tablas Nuevas Requeridas
 
-#### 1. `workforce_planning_scenarios`
+> Nota: esta sección documenta el diseño histórico del módulo. En la implementación actual la tabla canónica es `scenarios` (ver `src/app/Models/Scenario.php`). La nomenclatura `workforce_planning_scenarios` se mantiene aquí por trazabilidad histórica, pero está deprecada y no debe usarse en nuevo código.
+
+#### 1. (Histórico) `workforce_planning_scenarios`
 ```sql
+-- Diseñado históricamente como contenedor de escenarios. Use `scenarios` en la implementación actual.
 CREATE TABLE workforce_planning_scenarios (
   id BIGINT PRIMARY KEY,
   organization_id BIGINT NOT NULL,

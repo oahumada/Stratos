@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('scenario_role_skills', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('scenario_id')->constrained('workforce_planning_scenarios')->cascadeOnDelete();
+            $table->foreignId('scenario_id')->constrained('scenarios')->cascadeOnDelete();
             $table->foreignId('role_id')->constrained('roles')->cascadeOnDelete();
             $table->foreignId('skill_id')->constrained('skills')->cascadeOnDelete();
             $table->integer('required_level')->default(1);

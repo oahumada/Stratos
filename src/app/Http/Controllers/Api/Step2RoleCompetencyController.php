@@ -44,9 +44,23 @@ class Step2RoleCompetencyController extends Controller
             ->get();
 
         // Competencias disponibles (sin filtro de escenario, son globales)
-        $competencies = \App\Models\Competency::where('organization_id', auth()->user()->organization_id)
-            ->select('id', 'name')
-            ->orderBy('name')
+        // Incluimos `category` para que el frontend pueda agrupar por capacidad
+        // Obtener competencias junto con la capacidad (capability) asociada
+        // para agrupar en el frontend por la capacidad del pivote `capability_competencies`.
+        // Nota: una competencia puede estar asociada a varias capacidades; la devolveremos
+        // una fila por asociación (competency + capability).
+        $competencies = \DB::table('competencies')
+            ->join('capability_competencies', 'competencies.id', '=', 'capability_competencies.competency_id')
+            ->join('capabilities', 'capability_competencies.capability_id', '=', 'capabilities.id')
+            ->where('competencies.organization_id', auth()->user()->organization_id)
+            ->select(
+                'competencies.id',
+                'competencies.name',
+                'capability_competencies.capability_id',
+                \DB::raw("COALESCE(capabilities.name, 'General') as capability_name")
+            )
+            ->orderBy('capability_name')
+            ->orderBy('competencies.name')
             ->get();
 
         // Mappings: Qué competencias están asignadas a cada rol

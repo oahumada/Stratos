@@ -1850,6 +1850,34 @@ export function useProjectCrud() {
 - Impact: Tests can't execute RefreshDatabase (migration fails)
 - Solution needed: Fix or comment out problematic migration
 
+## Implementation: Step 2 Roles/Competencias Matrix in ScenarioDetail.vue Stepper
+
+**What was changed:**
+
+- Stepper title: Updated to reflect "Roles/Competencias Matrix"
+- Icon: Changed to appropriate icon for matrix/step 2
+- Content: Integrated RoleCompetencyMatrix component
+
+**Why it was changed:**
+
+- Alignment with workforce planning methodology: Step 2 focuses on mapping roles to competencies as per the planning process
+
+**How it was implemented:**
+
+- Component integration: Added RoleCompetencyMatrix component to the stepper content
+- Vue Composition API used for state management
+- Integrated with existing stepper structure in ScenarioDetail.vue
+
+**Current status:**
+
+- Completed implementation: Step 2 is fully functional in the stepper interface
+
+**Metadata:**
+
+- Git Repo: oahumada/Stratos
+- Branch: feature/scenario-planning/paso-2
+- Commit: 7c94831670e0c767b30361771cc9265b7c79bce2
+
 ### Summary
 
 - **Total Test Lines:** 1,864 (540 Pest + 1,324 Vitest)

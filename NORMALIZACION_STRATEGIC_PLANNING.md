@@ -54,7 +54,7 @@ grep -c "strategic-planning\|scenarios" src/resources/js/actions/App/Http/Contro
 
 ### Backend API
 - Las rutas canónicas son ahora las únicas disponibles
-- **Nota:** La tabla `workforce_planning_scenarios` sigue existiendo como vista de compatibilidad (triggers en BD)
+- **Nota:** La tabla/vista `workforce_planning_scenarios` era una compatibilidad histórica y está deprecada. Las migraciones de compatibilidad se han convertido en no-op y no debe confiarse en su existencia en entornos de desarrollo o CI. Use la tabla canónica `scenarios`.
 - Los modelos usan tabla canónica `scenarios`
 
 ## Pruebas Pendientes
@@ -63,5 +63,5 @@ grep -c "strategic-planning\|scenarios" src/resources/js/actions/App/Http/Contro
 
 ## Notas
 - La tabla `scenarios` es canónica (fuente de verdad)
-- La vista `workforce_planning_scenarios` mantiene compatibilidad de BD (legacy)
-- Los comentarios en migraciones no se actualizaron (migraciones son inmutables)
+- La vista/tabla `workforce_planning_scenarios` está deprecada: las migraciones de compatibilidad ahora son no-op y la vista puede no existir en entornos locales.
+- Los comentarios en migraciones históricas se conservaron para trazabilidad; las migraciones modificadas en este branch han sido convertidas a no-op para evitar recrear estructuras obsoletas.

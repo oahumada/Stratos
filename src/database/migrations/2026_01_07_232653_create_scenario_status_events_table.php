@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('scenario_status_events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('scenario_id')->constrained('workforce_planning_scenarios')->onDelete('cascade');
+            $table->foreignId('scenario_id')->constrained('scenarios')->onDelete('cascade');
             
             // Transición de estados de decisión
             $table->string('from_decision_status', 50)->nullable();

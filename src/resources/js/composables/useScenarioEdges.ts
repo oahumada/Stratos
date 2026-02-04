@@ -37,11 +37,11 @@ export function useScenarioEdges() {
     const childEdgeMode = ref<0 | 1 | 2 | 3>(2); // Default: curva (2)
     
     // Referencias a datos necesarios (inyectadas desde Index.vue)
-    let childEdges: Ref<Edge[]> = ref([]);
-    let grandChildEdges: Ref<Edge[]> = ref([]);
-    let nodes: Ref<Node[]> = ref([]);
-    let childNodes: Ref<Node[]> = ref([]);
-    let grandChildNodes: Ref<Node[]> = ref([]);
+    const childEdges: Ref<Edge[]> = ref([]);
+    const grandChildEdges: Ref<Edge[]> = ref([]);
+    const nodes: Ref<Node[]> = ref([]);
+    const childNodes: Ref<Node[]> = ref([]);
+    const grandChildNodes: Ref<Node[]> = ref([]);
 
     // Inyectar referencias de estado externo (desde Index.vue o composables de estado)
     // Llamar en el setup() de Index.vue antes de usar funciones de renderizado
@@ -52,11 +52,11 @@ export function useScenarioEdges() {
         injectedChildNodes: Ref<Node[]>,
         injectedGrandChildNodes: Ref<Node[]>,
     ) {
-        childEdges = injectedChildEdges;
-        grandChildEdges = injectedGrandChildEdges;
-        nodes = injectedNodes;
-        childNodes = injectedChildNodes;
-        grandChildNodes = injectedGrandChildNodes;
+        childEdges.value = injectedChildEdges;
+        grandChildEdges.value = injectedGrandChildEdges;
+        nodes.value = injectedNodes;
+        childNodes.value = injectedChildNodes;
+        grandChildNodes.value = injectedGrandChildNodes;
     }
 
     /**

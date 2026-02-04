@@ -52,7 +52,7 @@ return new class extends Migration {
                 $table->boolean('is_current_version')->default(true)->after('version_number');
                 $table->index(['version_group_id', 'is_current_version']);
                 $table->foreignId('parent_id')->nullable()->after('organization_id')
-                    ->constrained('workforce_planning_scenarios')->nullOnDelete();
+                    ->constrained('scenarios')->nullOnDelete();
                 $table->index('parent_id');
                 // Scope/Alcance
                 $table->enum('f', ['organization', 'department', 'role_family'])

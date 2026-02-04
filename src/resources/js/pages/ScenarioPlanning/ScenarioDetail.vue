@@ -7,6 +7,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { router, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
 import PrototypeMap from './Index.vue';
+import RoleCompetencyMatrix from '@/components/WorkforcePlanning/Step2/RoleCompetencyMatrix.vue';
 
 type Props = {
     id: number | string;
@@ -130,7 +131,7 @@ const statusTimelineRef = ref<InstanceType<typeof StatusTimeline> | null>(null);
 const scenarioId = computed(() => {
     const value =
         typeof props.id === 'string' ? parseInt(props.id, 10) : props.id;
-    return value || 0;
+    return isNaN(value) ? 0 : value;
 });
 
 // detect optional view mode from querystring (e.g., ?view=map)
@@ -559,7 +560,7 @@ void refreshStrategies;
 // Definición de los 7 pasos del workflow
 const stepperItems = [
     { value: 1, title: 'Mapa', icon: 'mdi-map', subtitle: 'Visualización del escenario' },
-    { value: 2, title: 'Brechas', icon: 'mdi-chart-box-outline', subtitle: 'Análisis de gaps' },
+    { value: 2, title: 'Mapeo', icon: 'mdi-table', subtitle: 'Roles ↔ Competencias' },
     { value: 3, title: 'Estrategias', icon: 'mdi-strategy', subtitle: 'Cierre de brechas' },
     { value: 4, title: 'Workforce', icon: 'mdi-account-group', subtitle: 'Plan de personal' },
     { value: 5, title: 'Pronósticos', icon: 'mdi-chart-timeline-variant', subtitle: 'Roles futuros' },
@@ -696,24 +697,15 @@ onMounted(() => {
                     <PrototypeMap :scenario="scenario" />
                 </div> 
 
-                <!-- Step 2: Análisis de Brechas -->
-                <div v-show="currentStep === 2" class="step-content">
-                    <v-container>
-                        <v-card>
-                            <v-card-title>
-                                <v-icon class="mr-2">mdi-chart-box-outline</v-icon>
-                                Análisis de Brechas
-                            </v-card-title>
-                            <v-card-text>
-                                <v-alert type="info" variant="tonal" class="mb-4">
-                                    Identifica gaps en skills y competencias entre el estado actual y el objetivo.
-                                </v-alert>
-                                <v-btn color="primary" @click="calculateGaps" :loading="refreshing">
-                                    Calcular Brechas
-                                </v-btn>
-                            </v-card-text>
-                        </v-card>
-                    </v-container>
+                <!-- Step 2: Mapeo Roles-Competencias -->
+                <div v-if="currentStep === 2" class="step-content">
+                    <div v-if="scenarioId > 0">
+                            <RoleCompetencyMatrix :scenario-id="scenarioId" :key="`rcm-${scenarioId}-${currentStep}`" />
+                    </div>
+                    <div v-else class="flex justify-center py-8">
+                        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                        <span class="ml-2">Cargando escenario...</span>
+                    </div>
                 </div>
 
                 <!-- Step 3: Estrategias de Cierre -->

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('scenario_role', function (Blueprint $table) {
             $table->id();
             $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('scenario_id')->constrained('workforce_planning_scenarios')->cascadeOnDelete();
+            $table->foreignId('scenario_id')->constrained('scenarios')->cascadeOnDelete();
             $table->foreignId('role_id')->constrained('roles')->cascadeOnDelete();
             $table->enum('strategic_role', ['primary', 'secondary', 'tertiary'])->default('secondary'); 
             $table->timestamps();

@@ -66,7 +66,10 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
     return competencies.value.map((c) => ({
       id: c.id,
       name: c.name,
-      category: c.category,
+      // API now returns capability association via pivot: capability_id + capability_name
+      capability_id: c.capability_id ?? null,
+      capability_name: c.capability_name ?? c.category ?? 'General',
+      category: c.category ?? null,
     }));
   });
 

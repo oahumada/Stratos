@@ -41,14 +41,11 @@
     </div>
   </div>
 
-  <div v-else class="cell-empty h-full flex items-center justify-center">
-    <v-btn
-      icon="mdi-plus-circle"
-      size="x-small"
-      variant="text"
-      color="gray"
-      @click.stop="$emit('edit')"
-    />
+  <div v-else class="cell-empty h-full flex items-center justify-center cursor-pointer hover:bg-blue-50 transition-colors border-2 border-dashed border-gray-300 hover:border-blue-300 rounded" @click.stop="$emit('edit')">
+    <div class="text-center">
+      <v-icon icon="mdi-plus-circle" class="text-gray-400 hover:text-blue-500 mb-1" />
+      <div class="text-xs text-gray-500">Click para asignar</div>
+    </div>
   </div>
 </template>
 
@@ -68,7 +65,6 @@ interface Emits {
   (e: 'remove'): void;
 }
 
-defineProps<Props>();
 defineEmits<Emits>();
 
 const stateIcon = computed(() => {
