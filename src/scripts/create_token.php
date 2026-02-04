@@ -6,7 +6,7 @@ $kernel->bootstrap();
 
 $email = $argv[1] ?? 'admin@example.com';
 $user = \App\Models\User::where('email', $email)->first();
-if (! $user) {
+if (!$user) {
     echo "NOUSER\n";
     exit(1);
 }

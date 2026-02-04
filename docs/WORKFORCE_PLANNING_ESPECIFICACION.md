@@ -24,6 +24,7 @@
 ## Descripción General
 
 El módulo **Workforce Planning** es un sistema integrado que conecta:
+
 - **Hoy:** Skills actuales + Talento interno + Capacidades presentes
 - **Futuro:** Demandas del negocio + Roles emergentes + Transformaciones
 
@@ -34,6 +35,7 @@ Orquesta decisiones de dotación: talento interno → mercado externo → desarr
 ## Objetivos y Alcance
 
 ### Objetivos Principales
+
 1. Anticipar necesidades de talento en horizonte 12-36 meses
 2. Maximizar cobertura con talento interno (marketplace)
 3. Optimizar reclutamiento externo basado en brechas reales
@@ -42,6 +44,7 @@ Orquesta decisiones de dotación: talento interno → mercado externo → desarr
 6. Planificar desvinculaciones de manera estratégica
 
 ### Alcance
+
 ```
 ✅ Incluido en MVP Fase 2:
    - Bloques 1-4 (Base estratégica, Oferta interna, Demanda futura, Matching)
@@ -117,6 +120,7 @@ Orquesta decisiones de dotación: talento interno → mercado externo → desarr
 > Nota: esta sección documenta el diseño histórico del módulo. En la implementación actual la tabla canónica es `scenarios` (ver `src/app/Models/Scenario.php`). La nomenclatura `workforce_planning_scenarios` se mantiene aquí por trazabilidad histórica, pero está deprecada y no debe usarse en nuevo código.
 
 #### 1. (Histórico) `workforce_planning_scenarios`
+
 ```sql
 -- Diseñado históricamente como contenedor de escenarios. Use `scenarios` en la implementación actual.
 CREATE TABLE workforce_planning_scenarios (
@@ -130,13 +134,14 @@ CREATE TABLE workforce_planning_scenarios (
   created_by BIGINT,                    -- Usuario que creó
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
-  
+
   FOREIGN KEY (organization_id) REFERENCES organizations(id),
   FOREIGN KEY (created_by) REFERENCES users(id)
 );
 ```
 
 #### 2. `workforce_planning_role_forecasts`
+
 ```sql
 CREATE TABLE workforce_planning_role_forecasts (
   id BIGINT PRIMARY KEY,
@@ -144,26 +149,26 @@ CREATE TABLE workforce_planning_role_forecasts (
   role_id BIGINT NOT NULL,
   department_id BIGINT,
   location_id BIGINT,
-  
+
   -- Dotación proyectada
   headcount_current INT,                -- Dotación actual
   headcount_projected INT,              -- Dotación futura proyectada
   growth_rate DECIMAL(5,2),             -- % de crecimiento
   variance_reason TEXT,                 -- Justificación del cambio
-  
+
   -- Skills requeridas futuro
   critical_skills JSON,                 -- Array de skill_ids críticas
   emerging_skills JSON,                 -- Array de skill_ids emergentes
   declining_skills JSON,                -- Array de skill_ids en declive
-  
+
   -- Status
   status ENUM('draft', 'approved', 'archived'),
   approved_by BIGINT,
   approved_at TIMESTAMP,
-  
+
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
-  
+
   FOREIGN KEY (scenario_id) REFERENCES workforce_planning_scenarios(id),
   FOREIGN KEY (role_id) REFERENCES roles(id),
   FOREIGN KEY (department_id) REFERENCES departments(id)
@@ -171,32 +176,33 @@ CREATE TABLE workforce_planning_role_forecasts (
 ```
 
 #### 3. `workforce_planning_matches`
+
 ```sql
 CREATE TABLE workforce_planning_matches (
   id BIGINT PRIMARY KEY,
   scenario_id BIGINT NOT NULL,
   forecast_id BIGINT NOT NULL,
   person_id BIGINT NOT NULL,
-  
+
   -- Evaluación del match
   match_score DECIMAL(5,2),             -- 0-100
   skill_match DECIMAL(5,2),             -- Cobertura de skills requeridas
   readiness_level ENUM('immediate', 'short_term', 'long_term', 'not_ready'),
   gaps JSON,                            -- Array de skills con gap
-  
+
   -- Tipo de transición
   transition_type ENUM('promotion', 'lateral', 'reskilling', 'no_match'),
   transition_months INT,                -- Meses requeridos para la transición
   development_path_id BIGINT,           -- Link a learning path si aplica
-  
+
   -- Score de riesgo
   risk_score DECIMAL(5,2),              -- 0-100 (rotación, fit cultural, etc)
   risk_factors JSON,                    -- ["alto_costo", "baja_cultura_fit"]
-  
+
   recommendation TEXT,
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
-  
+
   FOREIGN KEY (scenario_id) REFERENCES workforce_planning_scenarios(id),
   FOREIGN KEY (forecast_id) REFERENCES workforce_planning_role_forecasts(id),
   FOREIGN KEY (person_id) REFERENCES people(id),
@@ -205,33 +211,34 @@ CREATE TABLE workforce_planning_matches (
 ```
 
 #### 4. `workforce_planning_skill_gaps`
+
 ```sql
 CREATE TABLE workforce_planning_skill_gaps (
   id BIGINT PRIMARY KEY,
   scenario_id BIGINT NOT NULL,
   department_id BIGINT,
   role_id BIGINT,
-  
+
   -- Skill
   skill_id BIGINT NOT NULL,
-  
+
   -- Gap analysis
   current_proficiency DECIMAL(3,1),     -- Nivel actual (0-10)
   required_proficiency DECIMAL(3,1),    -- Nivel requerido futuro (0-10)
   gap DECIMAL(3,1),                     -- required - current
-  
+
   -- Cobertura
   people_with_skill INT,                -- Cuántos en la org tienen esta skill
   coverage_percentage DECIMAL(5,2),     -- % de cobertura actual
-  
+
   priority ENUM('critical', 'high', 'medium', 'low'),
   remediation_strategy ENUM('training', 'hiring', 'reskilling', 'outsourcing'),
   estimated_cost DECIMAL(10,2),
   timeline_months INT,
-  
+
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
-  
+
   FOREIGN KEY (scenario_id) REFERENCES workforce_planning_scenarios(id),
   FOREIGN KEY (skill_id) REFERENCES skills(id),
   FOREIGN KEY (role_id) REFERENCES roles(id)
@@ -239,41 +246,42 @@ CREATE TABLE workforce_planning_skill_gaps (
 ```
 
 #### 5. `workforce_planning_succession_plans`
+
 ```sql
 CREATE TABLE workforce_planning_succession_plans (
   id BIGINT PRIMARY KEY,
   scenario_id BIGINT NOT NULL,
   role_id BIGINT NOT NULL,
   department_id BIGINT,
-  
+
   -- Rol crítico
   criticality_level ENUM('critical', 'important', 'standard'),
   impact_if_vacant TEXT,                -- Descripción del impacto
-  
+
   -- Sucesores potenciales
   primary_successor_id BIGINT,
   secondary_successor_id BIGINT,
   tertiary_successor_id BIGINT,
-  
+
   -- Status del sucesor principal
   primary_readiness_level ENUM('ready_now', 'ready_12m', 'ready_24m', 'not_ready'),
   primary_readiness_percentage INT,     -- 0-100
   primary_gap_json JSON,                -- Skills a desarrollar
-  
+
   -- Plan de desarrollo para sucesor
   development_plan_id BIGINT,           -- Link a development path
-  
+
   -- Riesgos
   succession_risk TEXT,
   mitigation_actions TEXT,
-  
+
   status ENUM('draft', 'approved', 'monitoring', 'executed', 'archived'),
   approved_by BIGINT,
   approved_at TIMESTAMP,
-  
+
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
-  
+
   FOREIGN KEY (scenario_id) REFERENCES workforce_planning_scenarios(id),
   FOREIGN KEY (role_id) REFERENCES roles(id),
   FOREIGN KEY (primary_successor_id) REFERENCES people(id),
@@ -284,43 +292,44 @@ CREATE TABLE workforce_planning_succession_plans (
 ```
 
 #### 6. `workforce_planning_analytics`
+
 ```sql
 CREATE TABLE workforce_planning_analytics (
   id BIGINT PRIMARY KEY,
   scenario_id BIGINT NOT NULL,
-  
+
   -- Métricas generales
   total_headcount_current INT,
   total_headcount_projected INT,
   net_growth INT,
-  
+
   -- Cobertura interna
   internal_coverage_percentage DECIMAL(5,2),    -- % cubierto con talento interno
   external_gap_percentage DECIMAL(5,2),         -- % que requiere reclutamiento
-  
+
   -- Skills
   total_skills_required INT,
   skills_with_gaps INT,
   critical_skills_at_risk INT,
-  
+
   -- Sucesión
   critical_roles INT,
   critical_roles_with_successor INT,
   succession_risk_percentage DECIMAL(5,2),
-  
+
   -- Estimaciones
   estimated_recruitment_cost DECIMAL(12,2),
   estimated_training_cost DECIMAL(12,2),
   estimated_external_hiring_months DECIMAL(4,1),
-  
+
   -- Riesgos
   high_risk_positions INT,
   medium_risk_positions INT,
-  
+
   calculated_at TIMESTAMP,
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
-  
+
   FOREIGN KEY (scenario_id) REFERENCES workforce_planning_scenarios(id)
 };
 ```
@@ -358,6 +367,7 @@ workforce_planning_succession_plans
 ## Endpoints API
 
 ### Authentication
+
 ```
 POST /api/auth/login
 POST /api/auth/logout
@@ -367,6 +377,7 @@ GET /api/auth/user
 ### Scenarios Management
 
 #### GET /api/workforce-planning/scenarios
+
 ```typescript
 // Query params: page, per_page, status, fiscal_year
 // Response
@@ -391,6 +402,7 @@ GET /api/auth/user
 ```
 
 #### POST /api/workforce-planning/scenarios
+
 ```typescript
 // Request
 {
@@ -404,6 +416,7 @@ GET /api/auth/user
 ```
 
 #### GET /api/workforce-planning/scenarios/{id}
+
 ```typescript
 // Response: Escenario completo con todas las relaciones
 {
@@ -426,6 +439,7 @@ GET /api/auth/user
 ```
 
 #### PUT /api/workforce-planning/scenarios/{id}
+
 ```typescript
 // Update scenario
 {
@@ -435,6 +449,7 @@ GET /api/auth/user
 ```
 
 #### DELETE /api/workforce-planning/scenarios/{id}
+
 ```
 // Soft delete / Archive
 ```
@@ -442,6 +457,7 @@ GET /api/auth/user
 ### Role Forecasts
 
 #### POST /api/workforce-planning/scenarios/{scenario_id}/role-forecasts
+
 ```typescript
 // Request
 {
@@ -459,16 +475,19 @@ GET /api/auth/user
 ```
 
 #### GET /api/workforce-planning/scenarios/{scenario_id}/role-forecasts
+
 ```
 List all forecasts for a scenario
 ```
 
 #### GET /api/workforce-planning/scenarios/{scenario_id}/role-forecasts/{forecast_id}
+
 ```
 Get specific forecast with related data
 ```
 
 #### PUT /api/workforce-planning/scenarios/{scenario_id}/role-forecasts/{forecast_id}
+
 ```
 Update forecast
 ```
@@ -476,6 +495,7 @@ Update forecast
 ### Matching & Cobertura Interna
 
 #### GET /api/workforce-planning/scenarios/{scenario_id}/matches
+
 ```typescript
 // Query params: role_id, department_id, sort_by (match_score), filter_by (readiness_level)
 // Response
@@ -486,27 +506,34 @@ Update forecast
       person: {
         id: 15,
         name: "Juan García",
-        current_role: "Mid-Level Developer"
+        current_role: "Mid-Level Developer",
       },
       target_role: {
         id: 5,
-        name: "Senior Developer"
+        name: "Senior Developer",
       },
       match_score: 85,
       skill_match: 90,
       readiness_level: "short_term",
       gaps: [
-        { skill_id: 3, skill_name: "Cloud Architecture", current: 5, required: 8, gap: 3 }
+        {
+          skill_id: 3,
+          skill_name: "Cloud Architecture",
+          current: 5,
+          required: 8,
+          gap: 3,
+        },
       ],
       transition_type: "promotion",
       transition_months: 6,
-      risk_score: 15
-    }
-  ]
+      risk_score: 15,
+    },
+  ];
 }
 ```
 
 #### POST /api/workforce-planning/scenarios/{scenario_id}/calculate-matches
+
 ```typescript
 // POST (sin body o con parámetros específicos)
 // Endpoint que triggerea el algoritmo de matching
@@ -514,6 +541,7 @@ Update forecast
 ```
 
 #### GET /api/workforce-planning/scenarios/{scenario_id}/skill-gaps
+
 ```typescript
 // Query params: priority, department_id
 // Response
@@ -523,7 +551,7 @@ Update forecast
       id: 1,
       skill: {
         id: 3,
-        name: "Kubernetes"
+        name: "Kubernetes",
       },
       current_proficiency: 4.5,
       required_proficiency: 7.5,
@@ -533,15 +561,16 @@ Update forecast
       priority: "critical",
       remediation_strategy: "training",
       estimated_cost: 15000,
-      timeline_months: 4
-    }
-  ]
+      timeline_months: 4,
+    },
+  ];
 }
 ```
 
 ### Succession Planning
 
 #### GET /api/workforce-planning/scenarios/{scenario_id}/succession-plans
+
 ```typescript
 // Query params: criticality_level, department_id, status
 // Response
@@ -567,6 +596,7 @@ Update forecast
 ```
 
 #### POST /api/workforce-planning/scenarios/{scenario_id}/succession-plans
+
 ```typescript
 {
   role_id: 10,
@@ -582,6 +612,7 @@ Update forecast
 ### Analytics
 
 #### GET /api/workforce-planning/scenarios/{scenario_id}/analytics
+
 ```typescript
 // Response
 {
@@ -605,6 +636,7 @@ Update forecast
 ```
 
 #### GET /api/workforce-planning/dashboard/summary
+
 ```typescript
 // Vista general de todos los escenarios activos
 {
@@ -626,6 +658,7 @@ Update forecast
 **Ubicación:** `src/resources/js/pages/WorkforcePlanning/Index.vue`
 
 **Estructura:**
+
 ```
 ┌─────────────────────────────────────────┐
 │ Header: "Workforce Planning"             │
@@ -684,6 +717,7 @@ Update forecast
 ### 2. Componentes Específicos
 
 #### WorkforcePlanning/ScenarioSelector.vue
+
 ```typescript
 // Props
 {
@@ -697,6 +731,7 @@ emit('create:scenario')
 ```
 
 #### WorkforcePlanning/OverviewDashboard.vue
+
 ```
 KPI Cards:
 - Total Headcount (Current vs Projected)
@@ -714,6 +749,7 @@ Charts:
 ```
 
 #### WorkforcePlanning/RoleForecastsTable.vue
+
 ```
 Columns:
 - Role Name
@@ -732,6 +768,7 @@ Features:
 ```
 
 #### WorkforcePlanning/MatchingResults.vue
+
 ```
 - Role selector
 - Results table:
@@ -749,6 +786,7 @@ Features:
 ```
 
 #### WorkforcePlanning/SuccessionPlanCard.vue
+
 ```
 Per Critical Role:
 - Role Name + Criticality
@@ -766,6 +804,7 @@ Actions:
 ```
 
 #### WorkforcePlanning/SkillGapsMatrix.vue
+
 ```
 Matrix:
 - Rows: Skills
@@ -791,6 +830,7 @@ Interactions:
 **US-WFP-1.1:** Como HR Manager, quiero ver el catálogo de roles y skills para entender qué estructura de talento tengo hoy.
 
 **Criterios:**
+
 - [x] Ver listado de roles organizacionales
 - [x] Ver diccionario de skills técnicas y conductuales
 - [x] Ver mapeo de roles ↔ skills requeridas
@@ -805,6 +845,7 @@ Interactions:
 **US-WFP-2.1:** Como HR Manager, quiero ver el perfil de skills de cada persona para identificar talento disponible.
 
 **Criterios:**
+
 - [x] Ver skill profile de cada persona
 - [x] Ver proficiency levels
 - [x] Identificar skills dominantes/emergentes/críticas
@@ -815,6 +856,7 @@ Interactions:
 **US-WFP-2.2:** Como Manager, quiero acceder al marketplace interno para publicar vacantes y ver candidatos sugeridos.
 
 **Criterios:**
+
 - [x] Crear publicación de vacante/rol interno
 - [x] Sistema sugiere candidatos internos por skills
 - [x] Ver ranking de candidatos con match score
@@ -829,6 +871,7 @@ Interactions:
 **US-WFP-3.1:** Como Planning Manager, quiero crear un escenario de demanda futura para proyectar necesidades de talento.
 
 **Criterios:**
+
 - [x] Crear nuevo escenario (Base/Conservador/Agresivo)
 - [x] Definir horizon (12/24/36 meses)
 - [x] Proyectar dotación por rol/área
@@ -840,6 +883,7 @@ Interactions:
 **US-WFP-3.2:** Como Strategy Head, quiero revisar y aprobar escenarios de demanda para validar alineación con negocio.
 
 **Criterios:**
+
 - [x] Ver escenarios en estado "pending_approval"
 - [x] Revisar proyecciones y justificaciones
 - [x] Aprobar o rechazar con comentarios
@@ -854,6 +898,7 @@ Interactions:
 **US-WFP-4.1:** Como HR Analyst, quiero ejecutar el algoritmo de matching para identificar cobertura interna.
 
 **Criterios:**
+
 - [x] Seleccionar escenario
 - [x] Calcular matches automáticamente
 - [x] Ver candidatos sugeridos por rol
@@ -865,6 +910,7 @@ Interactions:
 **US-WFP-4.2:** Como HR Manager, quiero ver el summary de cobertura interna para entender gaps externos.
 
 **Criterios:**
+
 - [x] Dashboard con % cobertura interna
 - [x] % que requiere reclutamiento externo
 - [x] Estimación de brecha por área/rol
@@ -879,6 +925,7 @@ Interactions:
 **US-WFP-4.3:** Como HR Analyst, quiero identificar brechas de skills críticas para planificar desarrollo.
 
 **Criterios:**
+
 - [x] Ver matriz de gaps (skills vs. cobertura)
 - [x] Prioridad de gaps (crítico/alto/medio/bajo)
 - [x] Personas por skill actual/requerida
@@ -894,6 +941,7 @@ Interactions:
 **US-WFP-4.4:** Como HR Manager, quiero crear planes de sucesión para roles críticos para asegurar continuidad.
 
 **Criterios:**
+
 - [x] Identificar roles críticos
 - [x] Asignar sucesores potenciales (primario/secundario/terciario)
 - [x] Evaluar readiness level de sucesores
@@ -905,6 +953,7 @@ Interactions:
 **US-WFP-4.5:** Como Executive, quiero ver el status de sucesión en roles críticos para gestionar riesgos.
 
 **Criterios:**
+
 - [x] Dashboard de sucesión
 - [x] Roles críticos sin sucesor
 - [x] Readiness timeline
@@ -920,6 +969,7 @@ Interactions:
 **US-WFP-5.1:** Como Executive, quiero ver el dashboard consolidado de Workforce Planning para tomar decisiones estratégicas.
 
 **Criterios:**
+
 - [x] KPIs principales (headcount, gaps, succession, costs)
 - [x] Gráficos de cobertura interna vs externa
 - [x] Skills en riesgo
@@ -1033,11 +1083,13 @@ Interactions:
 ### Con People/Skills (Existente)
 
 **Conexión:**
+
 - People.skills → workforce_planning_matches
 - Skills.proficiency_levels → match calculation
 - PeopleRoleSkills → skill profile construction
 
 **API Calls:**
+
 ```typescript
 // Get person skill profile
 GET /api/people/{person_id}/skills
@@ -1051,10 +1103,12 @@ GET /api/skills/{skill_id}/people?proficiency_level=advanced
 ### Con Roles (Existente)
 
 **Conexión:**
+
 - Roles.skills_required → forecast demands
 - Roles.level → succession planning
 
 **API Calls:**
+
 ```typescript
 // Get role details
 GET /api/roles/{role_id}
@@ -1067,34 +1121,42 @@ GET /api/roles?department_id={id}
 ### Con Development Paths (Existente)
 
 **Conexión:**
+
 - DevelopmentPath → workforce_planning_matches
 - DevelopmentPath → succession_plans
 - DevelopmentPath.skills → gap remediation
 
 **API Calls:**
+
 ```typescript
 // Create dev path para matched person
-POST /api/development-paths
+POST / api / development - paths;
 {
-  person_id, target_role_id, skills_to_develop
+  (person_id, target_role_id, skills_to_develop);
 }
 
 // Link dev path a succession plan
-PUT /api/workforce-planning/scenarios/{id}/succession-plans/{id}
-{ development_plan_id: 123 }
+PUT / api / workforce -
+  planning / scenarios / { id } / succession -
+  plans / { id };
+{
+  development_plan_id: 123;
+}
 ```
 
 ### Con Dashboard (Existente)
 
 **Integración:**
+
 - Dashboard.Analytics mostrará widget de "Workforce Planning Summary"
 - Links a scenarios activos
 - Alertas de succession risk, skill gaps críticas
 
 **Widget:**
+
 ```vue
 <!-- Dashboard.vue -->
-<WorkforcePlanningWidget 
+<WorkforcePlanningWidget
   v-if="user.has_role('HR_MANAGER')"
   :summary="workforceSummary"
 />
@@ -1104,17 +1166,17 @@ PUT /api/workforce-planning/scenarios/{id}/succession-plans/{id}
 
 ## Timeline Estimado (MVP Fase 2)
 
-| Componente | Estimación | Notas |
-|-----------|-----------|-------|
-| Base de Datos | 3 pts | Migraciones + seeders |
-| APIs Backend | 21 pts | Controllers, services, repos |
-| Frontend Index | 13 pts | Tabs, componentes principales |
-| Matching Algoritmo | 13 pts | Logic core, tests |
-| Succession Planning | 8 pts | Componentes, crud |
-| Analytics | 8 pts | Dashboard, charts |
-| Tests | 13 pts | Unit, integration, E2E |
-| Documentación | 5 pts | Docs, API docs |
-| **TOTAL** | **84 pts** | ~2-3 sprints @ 30pts/sprint |
+| Componente          | Estimación | Notas                         |
+| ------------------- | ---------- | ----------------------------- |
+| Base de Datos       | 3 pts      | Migraciones + seeders         |
+| APIs Backend        | 21 pts     | Controllers, services, repos  |
+| Frontend Index      | 13 pts     | Tabs, componentes principales |
+| Matching Algoritmo  | 13 pts     | Logic core, tests             |
+| Succession Planning | 8 pts      | Componentes, crud             |
+| Analytics           | 8 pts      | Dashboard, charts             |
+| Tests               | 13 pts     | Unit, integration, E2E        |
+| Documentación       | 5 pts      | Docs, API docs                |
+| **TOTAL**           | **84 pts** | ~2-3 sprints @ 30pts/sprint   |
 
 ---
 
