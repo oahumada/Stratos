@@ -145,13 +145,33 @@ const handleSave = async () => {
   }
 };
 
-// Load available roles on mount
+// Load available roles: prefer API `/api/roles`, fallback to Inertia page props
 const loadAvailableRoles = async () => {
   try {
-    const page = usePage();
-    availableRoles.value = (page.props as any).roles || [];
+    // Try API first
+    try {
+      const r = await fetch('/api/roles');
+      if (r.ok) {
+        const body = await r.json();
+        // API may return { data: [...] } or an array
+        availableRoles.value = Array.isArray(body?.data) ? body.data : (Array.isArray(body) ? body : body?.data ?? []);
+        return;
+      }
+    } catch (errApi) {
+      // ignore and fallback to page props
+    }
+
+    // Fallback: use Inertia page props if provided server-side
+    try {
+      const page = usePage();
+      availableRoles.value = (page.props as any).roles || [];
+    } catch (err) {
+      console.error('Error loading roles from page props:', err);
+      availableRoles.value = [];
+    }
   } catch (err) {
     console.error('Error loading roles:', err);
+    availableRoles.value = [];
   }
 };
 
