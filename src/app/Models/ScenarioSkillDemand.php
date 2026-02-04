@@ -48,7 +48,7 @@ class ScenarioSkillDemand extends Model
 
     public function role(): BelongsTo
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Roles::class);
     }
 
     // Métodos auxiliares

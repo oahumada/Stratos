@@ -25,38 +25,58 @@
         <!-- State Selection -->
         <div class="mb-6">
           <label class="block text-sm font-semibold mb-3">
-            Seleccionar estado:
+            Seleccionar estado (una única opción):
           </label>
-          <div class="space-y-3">
-            <div class="flex items-center">
+          <v-radio-group
+            v-model="formData.change_type"
+            column
+            class="mt-4"
+          >
+            <div class="p-3 border border-gray-200 rounded mb-2 hover:bg-gray-50 cursor-pointer">
               <v-radio
-                v-model="formData.change_type"
                 value="maintenance"
-                label="✅ Mantención (Sin cambios esperados)"
-              />
+                class="mb-1"
+              >
+                <template #label>
+                  <span class="font-medium">Mantención</span>
+                  <span class="text-xs text-gray-500 ml-2">(Sin cambios esperados)</span>
+                </template>
+              </v-radio>
             </div>
-            <div class="flex items-center">
+            <div class="p-3 border border-gray-200 rounded mb-2 hover:bg-gray-50 cursor-pointer">
               <v-radio
-                v-model="formData.change_type"
                 value="transformation"
-                label="🔄 Transformación (Requiere upskilling)"
-              />
+                class="mb-1"
+              >
+                <template #label>
+                  <span class="font-medium">Transformación</span>
+                  <span class="text-xs text-gray-500 ml-2">(Requiere upskilling)</span>
+                </template>
+              </v-radio>
             </div>
-            <div class="flex items-center">
+            <div class="p-3 border border-gray-200 rounded mb-2 hover:bg-gray-50 cursor-pointer">
               <v-radio
-                v-model="formData.change_type"
                 value="enrichment"
-                label="📈 Enriquecimiento (Nueva o mejorada)"
-              />
+                class="mb-1"
+              >
+                <template #label>
+                  <span class="font-medium">Enriquecimiento</span>
+                  <span class="text-xs text-gray-500 ml-2">(Nueva o mejorada)</span>
+                </template>
+              </v-radio>
             </div>
-            <div class="flex items-center">
+            <div class="p-3 border border-gray-200 rounded mb-2 hover:bg-gray-50 cursor-pointer">
               <v-radio
-                v-model="formData.change_type"
                 value="extinction"
-                label="📉 Extinción (Desaparecerá)"
-              />
+                class="mb-1"
+              >
+                <template #label>
+                  <span class="font-medium">Extinción</span>
+                  <span class="text-xs text-gray-500 ml-2">(Desaparecerá)</span>
+                </template>
+              </v-radio>
             </div>
-          </div>
+          </v-radio-group>
         </div>
 
         <!-- Conditional Fields -->

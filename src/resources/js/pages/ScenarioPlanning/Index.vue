@@ -254,6 +254,79 @@ const newCapCategory = ref('');
 const newCapImportance = ref<number>(3);
 // pivot fields
 const pivotStrategicRole = ref('target');
+
+// Roles coming from Step2 matrix (scenario-specific roles). Populated via API when available.
+const scenarioStep2Roles = ref<string[]>([]);
+
+async function loadStep2RolesFromApi(scenarioId?: number | string) {
+    try {
+        if (!scenarioId) {
+            scenarioStep2Roles.value = [];
+            return;
+        }
+        const id = typeof scenarioId === 'string' ? parseInt(scenarioId, 10) : scenarioId;
+        // Try Wayfinder/legacy endpoint for step2 data which includes `roles`
+        const resp = await (api as any).get(`/api/scenarios/${id}/step2/data`);
+        const body = resp?.data ?? resp;
+        const r = Array.isArray(body?.roles) ? body.roles : [];
+        // Map to simple role-name strings for the v-select
+        scenarioStep2Roles.value = r.map((it: any) => it.role_name ?? it.name ?? String(it.role_id ?? it.id ?? ''));
+    } catch (err) {
+        console.debug('[loadStep2RolesFromApi] failed to fetch step2 roles', err);
+        scenarioStep2Roles.value = [];
+    }
+}
+
+// Normalize input (array of mixed shapes) to array of unique role-name strings.
+function normalizeRoleList(input: any): string[] {
+    if (!Array.isArray(input)) return [];
+    const out: string[] = [];
+    for (const it of input) {
+        if (!it && it !== 0) continue;
+        let name = null as string | null;
+        if (typeof it === 'string') name = it;
+        else if (typeof it === 'number') name = String(it);
+        else if (it?.role_name) name = it.role_name;
+        else if (it?.name) name = it.name;
+        else if (it?.label) name = it.label;
+        else if (it?.id) name = String(it.id);
+        if (name != null) {
+            const n = String(name).trim();
+            if (n && !out.includes(n)) out.push(n);
+        }
+    }
+    return out;
+}
+
+// Compute available strategic role options by combining (in order):
+// 1) explicit scenario strategic roles (if any),
+// 2) roles fetched from Step2 API for the scenario,
+// 3) historical defaults.
+const strategicRoleOptions = computed(() => {
+    const s = props.scenario as any;
+    const scenarioProvided = normalizeRoleList(s?.strategic_roles ?? s?.roles ?? s?.available_roles ?? []);
+    const apiProvided = normalizeRoleList(scenarioStep2Roles.value ?? []);
+
+    // Merge preserving order: scenarioProvided first, then apiProvided, then defaults; dedupe
+    const merged: string[] = [];
+    for (const r of scenarioProvided) if (!merged.includes(r)) merged.push(r);
+    for (const r of apiProvided) if (!merged.includes(r)) merged.push(r);
+    const defaults = ['target', 'watch', 'sunset'];
+    for (const r of defaults) if (!merged.includes(r)) merged.push(r);
+    return merged;
+});
+
+// Load Step2 roles when scenario changes (if scenario doesn't already provide roles)
+watch(() => props.scenario?.id, (nv) => {
+    if (!nv) return;
+    try {
+        const s = props.scenario as any;
+        const cand = s?.strategic_roles ?? s?.roles ?? s?.available_roles ?? null;
+        if (!Array.isArray(cand) || cand.length === 0) {
+            void loadStep2RolesFromApi(nv);
+        }
+    } catch (err) { void err; }
+});
 const pivotStrategicWeight = ref<number | undefined>(10);
 const pivotPriority = ref<number | undefined>(1);
 const pivotRationale = ref('');
@@ -4889,7 +4962,7 @@ if (!edges.value) edges.value = [];
                                                     <v-textarea v-model="editCapDescription" label="Descripción" rows="3" style="grid-column: 1 / -1;" />
 
                                                     <div style="grid-column: 1 / -1; font-weight:700; margin-top:6px">Atributos para el escenario (scenario_capabilities)</div>
-                                                    <v-select v-model="editPivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
+                                                    <v-select v-model="editPivotStrategicRole" :items="strategicRoleOptions" label="Strategic role" />
 
                                                     <div>
                                                         <v-slider v-model="editPivotStrategicWeight" label="Strategic weight" :min="1" :max="10" :step="1" color="primary" :ticks="tickLabelStrategic" show-ticks="always"/>
@@ -5097,7 +5170,7 @@ if (!edges.value) edges.value = [];
                         <div class="mt-3" style="margin-top:12px">
                             <div style="font-weight:700; margin-bottom:6px">Atributos para el escenario (scenario_capabilities)</div>
                             <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
-                                <v-select v-model="pivotStrategicRole" :items="['target','watch','sunset']" label="Strategic role" />
+                                <v-select v-model="pivotStrategicRole" :items="strategicRoleOptions" label="Strategic role" />
                                 <div>
                                     <v-slider v-model="pivotStrategicWeight" label="Strategic weight (1-10)" :min="1" :max="10" :step="1" color="primary"/>
                                     <div class="text-xs" style="margin-top:6px">Valor: {{ pivotStrategicWeight ?? '-' }}</div>
@@ -5229,7 +5302,6 @@ if (!edges.value) edges.value = [];
     flex: 1 1 auto;
     height: auto;
     min-height: 400px;
-    min-height: 600px;
 }
 
 /* smooth pan/zoom transitions for viewport group */
