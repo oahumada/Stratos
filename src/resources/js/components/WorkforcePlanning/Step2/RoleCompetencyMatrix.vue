@@ -81,7 +81,7 @@
           <v-badge
             :content="countMappedInCategory(cat.name)"
             color="primary"
-            location="top-end"
+            location="top end"
             offset-x="-8"
             offset-y="-8"
           />
