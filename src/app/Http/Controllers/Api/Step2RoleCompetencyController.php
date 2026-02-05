@@ -66,7 +66,7 @@ class Step2RoleCompetencyController extends Controller
         // Mappings: Qué competencias están asignadas a cada rol
         $mappings = ScenarioRoleCompetency::where('scenario_id', $scenarioId)
             ->with(['role:id,name', 'competency:id,name'])
-            ->select('id', 'scenario_id', 'role_id', 'competency_id', 'required_level', 'is_core', 'change_type', 'rationale')
+            ->select('id', 'scenario_id', 'role_id', 'competency_id', 'competency_version_id', 'required_level', 'is_core', 'change_type', 'rationale')
             ->get();
 
         return response()->json([
@@ -95,6 +95,7 @@ class Step2RoleCompetencyController extends Controller
             'is_core' => 'boolean',
             'change_type' => 'required|string|in:maintenance,transformation,enrichment,extinction',
             'rationale' => 'nullable|string',
+            'competency_version_id' => 'nullable|integer|exists:competency_versions,id',
             'current_level' => 'nullable|integer|between:1,5',
             'timeline_months' => 'nullable|integer|in:6,12,18,24',
         ]);
@@ -111,6 +112,7 @@ class Step2RoleCompetencyController extends Controller
                     'is_core' => $validated['is_core'] ?? false,
                     'change_type' => $validated['change_type'],
                     'rationale' => $validated['rationale'],
+                    'competency_version_id' => $validated['competency_version_id'] ?? null,
                 ]
             );
 

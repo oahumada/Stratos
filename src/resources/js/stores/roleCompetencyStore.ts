@@ -23,6 +23,7 @@ export interface RoleCompetencyMapping {
   is_core: boolean;
   change_type: 'maintenance' | 'transformation' | 'enrichment' | 'extinction';
   rationale: string;
+  competency_version_id?: number | null;
 }
 
 export interface RowData {
@@ -115,6 +116,7 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
             is_core: mapping.is_core,
             change_type: mapping.change_type,
             rationale: mapping.rationale,
+            competency_version_id: (mapping as any).competency_version_id ?? null,
           }),
         }
       );

@@ -14,12 +14,14 @@ class ScenarioRoleCompetency extends Model
         'required_level',
         'is_core',
         'change_type',
-        'rationale'
+        'rationale',
+        'competency_version_id'
     ];
 
     protected $casts = [
         'is_core' => 'boolean'
     ];
+
 
     public function scenario(): BelongsTo
     {

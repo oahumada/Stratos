@@ -126,6 +126,10 @@
                 label="Proponer learning path automático"
               />
             </div>
+            <div class="mt-3">
+              <v-btn text @click="handleOpenTransform">Editar Transformación</v-btn>
+              <span v-if="formData.competency_version_id" class="text-sm text-gray-600 ml-2">Versión: {{ formData.competency_version_id }}</span>
+            </div>
           </div>
         </div>
 
@@ -236,6 +240,7 @@
             rows="3"
           />
         </div>
+        <TransformModal v-if="showTransform" :competencyId="props.competencyId" @transformed="handleTransformed" @close="showTransform = false" />
       </v-card-text>
 
       <v-card-actions class="flex justify-end gap-3 px-6 pb-4">
@@ -255,6 +260,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import TransformModal from '@/Pages/Scenario/TransformModal.vue';
+import { useTransformStore } from '@/stores/transformStore';
 
 interface Props {
   visible: boolean;
@@ -275,6 +282,10 @@ const emit = defineEmits<Emits>();
 
 const saving = ref(false);
 
+const showTransform = ref(false);
+
+const transformStore = useTransformStore();
+
 const formData = ref({
   id: null as number | null,
   change_type: 'maintenance' as
@@ -290,6 +301,7 @@ const formData = ref({
   extinction_timeline: 12,
   transition_plan: 'reskilling' as 'reskilling' | 'role_change' | 'devinculacion',
   suggest_learning_path: false,
+  competency_version_id: null as number | null,
 });
 
 const changeTypeLabel = (type: string) => {
@@ -318,7 +330,7 @@ watch(
   () => props.mapping,
   (mapping) => {
     if (mapping) {
-      formData.value = {
+        formData.value = {
         id: mapping.id,
         change_type: mapping.change_type || 'maintenance',
         required_level: mapping.required_level || 3,
@@ -329,9 +341,33 @@ watch(
         extinction_timeline: mapping.extinction_timeline || 12,
         transition_plan: mapping.transition_plan || 'reskilling',
         suggest_learning_path: mapping.suggest_learning_path || false,
+          competency_version_id: mapping.competency_version_id || null,
       };
     }
   },
   { immediate: true }
 );
+
+const handleOpenTransform = () => {
+  showTransform.value = true;
+};
+
+const handleTransformed = async (data: any) => {
+  const newVersionId = data?.id ?? data?.version_id ?? null;
+  if (newVersionId) {
+    formData.value.competency_version_id = newVersionId;
+  }
+  showTransform.value = false;
+  // Auto-save mapping using the new competency version
+  try {
+    emit('save', {
+      ...formData.value,
+      id: props.mapping?.id,
+      role_id: props.roleId,
+      competency_id: props.competencyId,
+    });
+  } catch (err) {
+    // noop - parent will handle errors
+  }
+};
 </script>
