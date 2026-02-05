@@ -358,16 +358,24 @@ const handleTransformed = async (data: any) => {
     formData.value.competency_version_id = newVersionId;
   }
   showTransform.value = false;
-  // Auto-save mapping using the new competency version
+  // Auto-save mapping using current formData and props
   try {
-    emit('save', {
-      ...formData.value,
-      id: props.mapping?.id,
+    const payload = {
+      id: formData.value.id,
       role_id: props.roleId,
       competency_id: props.competencyId,
-    });
+      required_level: formData.value.required_level,
+      is_core: formData.value.is_core,
+      change_type: formData.value.change_type,
+      rationale: formData.value.rationale,
+      competency_version_id: formData.value.competency_version_id,
+      timeline_months: formData.value.timeline_months,
+      current_level: formData.value.current_level,
+    };
+    emit('save', payload);
   } catch (err) {
-    // noop - parent will handle errors
+    // swallowing; UI save will still be available
+    console.error('Auto-save mapping failed', err);
   }
 };
 </script>
