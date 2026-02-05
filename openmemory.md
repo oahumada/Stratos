@@ -1001,6 +1001,38 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
   - `git_branch`: feature/workforce-planning-scenario-modeling
   - `fecha`: 2026-01-23
 
+    ## Memory: Implementation - Transform / Competency Versioning (2026-02-05)
+
+    **Tipo:** implementation
+
+    **Título:** Implementación Transform → Crear versiones de competencias y mapping Role↔Competency a versiones
+
+    **Ubicación:** Frontend: `src/resources/js/Pages/Scenario/TransformModal.vue`, `src/resources/js/components/BarsEditor.vue`, `src/resources/js/composables/useApi.ts`
+
+    **Propósito:** Permitir que la transformación de una competencia cree una nueva `competency_version` en backend y que los mappings rol↔competency guarden la referencia a la versión creada. Mejorar UX de edición BARS (modo estructurado + JSON robusto) y manejo de errores API (sanitizar respuestas HTML/no-JSON).
+
+    **Cambios clave realizados:**
+    - `TransformModal.vue`: arma payload con `metadata.bars`, `skill_ids` (existentes), `new_skills` (nombres) y `create_skills_incubated` (boolean). Envía POST a `/api/competencies/{id}/transform`.
+    - `BarsEditor.vue`: editor estructurado para BARS con modo JSON opcional; evita emitir JSON inválido y muestra errores de parseo; skills ahora como objetos `{ id?, name }` con typeahead y creación inline.
+    - `useApi.ts`: wrapper axios mejorado para detectar respuestas HTML/no-JSON y convertirlas en mensajes de error legibles (evita "Unexpected token '<'...").
+    - Seeders: varios seeders actualizados (`SkillSeeder`, `CapabilitySeeder`, `CompetencySeeder`, `DemoSeeder`, `PeopleSeeder`, `ScenarioSeeder`) para alinearse con el esquema actual (ej. eliminar uso de `skills.capability_id` y corregir nombres de modelos/variables). Esto permitió `php artisan migrate:fresh --seed` exitoso.
+
+    **Contracto esperado (frontend ↔ backend):**
+    - Request POST `/api/competencies/{id}/transform`:
+      - body: `{ metadata: { bars: ... }, skill_ids: [...], new_skills: [...], create_skills_incubated: true|false }`
+    - Response esperado: JSON con `competency_version` creado y opcionalmente `created_skills` (cada skill con `is_incubated` o metadata equivalente) para que UI muestre skills incubadas.
+
+    **Pruebas ejecutadas:**
+    - Unit: `resources/js/tests/unit/components/BarsEditor.spec.ts` — OK
+    - Integration: `resources/js/tests/e2e/TransformModal.integration.spec.ts` — OK (targeted run)
+
+    **Notas / próximos pasos recomendados:**
+    - Verificar en backend que el endpoint `POST /api/competencies/{id}/transform` crea la `competency_version` y devuelve la estructura `created_skills` con `is_incubated`.
+    - Preparar PR con cambios frontend + seeders + descripción del contrato transform.
+    - Ejecutar suite completa de tests en CI/local (`npx vitest run` desde `src` o `composer test`) y revisar fallos residuales.
+
+    **Git metadata:** se debe adjuntar al almacenar memoria (repo/branch/commit actual al momento de la operación).
+
 ---
 
 Registro creado automáticamente para dejar el estado listo para continuar mañana.

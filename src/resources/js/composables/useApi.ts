@@ -76,11 +76,33 @@ export function useApi() {
             }
             return response.data;
         } catch (err: any) {
-            error.value =
-                err.response?.data?.message ||
-                err.message ||
-                'An error occurred';
-            throw err;
+            // If the server returned HTML (e.g. error page), avoid surfacing raw HTML
+            let friendly = 'An error occurred';
+            if (err?.response) {
+                const d = err.response.data;
+                if (d && typeof d === 'object' && d.message) {
+                    friendly = d.message;
+                } else if (d && typeof d === 'string') {
+                    const s = d.trim();
+                    if (s.startsWith('<')) {
+                        // HTML response (likely a 500 error page)
+                        friendly = 'Server error (returned HTML). Check server logs for details.';
+                    } else {
+                        // Non-JSON string response — show a trimmed preview
+                        friendly = s.length > 200 ? s.slice(0, 200) + '...' : s;
+                    }
+                } else if (err.message) {
+                    friendly = err.message;
+                }
+            } else if (err.message) {
+                friendly = err.message;
+            }
+
+            error.value = friendly;
+            // Attach a sanitized message to the thrown error for callers
+            const thrown = err instanceof Error ? err : new Error(String(err));
+            (thrown as any).friendlyMessage = friendly;
+            throw thrown;
         } finally {
             isLoading.value = false;
         }

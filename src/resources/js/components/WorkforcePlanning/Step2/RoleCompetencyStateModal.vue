@@ -41,19 +41,18 @@
             <label class="block text-sm font-semibold">
               Seleccionar estado (una única opción):
             </label>
-            <v-tooltip location="top">
-              <template #activator="{ props: tooltipProps }">
-                <v-btn v-bind="tooltipProps" variant="text" size="small" class="text-sm text-gray-500">
-                  ?
-                </v-btn>
-              </template>
-              <div style="max-width:320px; white-space:normal;">
-                <p class="text-sm font-semibold">¿Diferencia entre Mantención y Transformación?</p>
-                <p class="text-xs text-gray-600 mt-1">Mantención: cambios en el mapeo (p. ej. subir nivel requerido).</p>
-                <p class="text-xs text-gray-600 mt-1">Transformación: cambios en la definición de la competencia (BARS, skills, nombre o descripción) que crearán una nueva versión.</p>
-                <p class="text-xs text-gray-600 mt-1">Si la competencia no tiene versiones, se creará la versión inicial 1.0 al guardar.</p>
-              </div>
-            </v-tooltip>
+            <div>
+              <v-tooltip location="top">
+                <template #activator="{ props: tooltipProps }">
+                  <v-btn v-bind="tooltipProps" variant="text" size="medium" class="text-info" aria-label="Leyenda tipo de asociación" @click="showLegend = true">
+                    <v-icon class="align-middle text-3xl text-info-darken-1">mdi-information-variant-circle</v-icon>
+                  </v-btn>
+                </template>
+                <span class="text-sm">ver información</span>
+              </v-tooltip>
+
+              <InfoLegend v-model="showLegend" title="Leyenda: Tipos de asociación" :items="legendItems" icon="mdi-information-variant-circle" />
+            </div>
           </div>
           <v-radio-group
             v-model="formData.change_type"
@@ -302,6 +301,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import TransformModal from '@/Pages/Scenario/TransformModal.vue';
+import InfoLegend from '@/components/Ui/InfoLegend.vue';
 import { useTransformStore } from '@/stores/transformStore';
 import { useRoleCompetencyStore } from '@/stores/roleCompetencyStore';
 
@@ -325,10 +325,18 @@ const emit = defineEmits<Emits>();
 const saving = ref(false);
 
 const showTransform = ref(false);
+const showLegend = ref(false);
 
 const transformStore = useTransformStore();
 const roleCompetencyStore = useRoleCompetencyStore();
 const versions = ref<any[]>([]);
+
+const legendItems = [
+  { title: 'Mantención', text: 'cambios pequeños en el mapeo (por ejemplo, ajustar nivel requerido) que no generan una nueva versión de la competencia.' },
+  { title: 'Transformación', text: 'cambios en la definición de la competencia (BARS, skills, nombre o descripción). Al guardar se creará una nueva versión de la competencia.' },
+  { title: 'Enriquecimiento', text: 'agregar o mejorar la competencia; puede generar una versión inicial si la competencia es nueva.' },
+  { title: 'Extinción', text: 'plan para descontinuar la competencia (se define timeline y plan de transición).' },
+];
 
 // Load versions for the competency and set sensible defaults
 async function loadVersions() {

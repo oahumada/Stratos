@@ -58,7 +58,6 @@
     <div v-else class="json-mode">
       <label>JSON</label>
       <textarea data-testid="json-textarea" v-model="text" @input="onInput" rows="8" :disabled="props.readOnly"></textarea>
-      <div v-if="parseError" style="color:#b91c1c;margin-top:6px;font-size:0.9rem">JSON error: {{ parseError }}</div>
     </div>
   </div>
 </template>
