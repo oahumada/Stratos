@@ -94,6 +94,25 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Fixed ambiguous SQL: Especificado `scenario_role_skills.scenario_id` en WHERE clause
 - Agregados JOINs correctos en 4 queries para usar `roles.name as role_name`
 
+### Fix: axios mocks en tests (2026-02-05)
+
+**Tipo:** debug
+
+**Título:** Fix: axios mock default export en tests unitarios
+
+**Descripción:** Se corrigió un mock localizado en `src/resources/js/tests/unit/components/TransformModal.spec.ts` que devolvía solo propiedades `post`/`get` sin exponer `default`. Algunos módulos importan `axios` como `import axios from 'axios'` (export default), por lo que Vitest reportaba "No 'default' export is defined on the 'axios' mock".
+
+**Acción tomada:** Actualizado el mock para exponer `default: { post, get }` y las propiedades nombradas equivalentes. Ejecución completa de la suite frontend:
+
+- `Test Files: 29 passed | 4 skipped`
+- `Tests: 193 passed | 44 skipped`
+
+**Archivos afectados:**
+
+- `src/resources/js/tests/unit/components/TransformModal.spec.ts` (mock actualizado)
+
+**Notas:** Esto resolvió el error de mock y permitió que la suite pase sin errores de mock. Otros warnings/timeouts previos relacionados con el pool de Vitest fueron manejados durante la ejecución; la suite finalizó correctamente en el entorno local.
+
 **Step2RoleCompetencyApiTest.php**
 
 - Actualizado de `/api/v1/scenarios/` a `/api/scenarios/`

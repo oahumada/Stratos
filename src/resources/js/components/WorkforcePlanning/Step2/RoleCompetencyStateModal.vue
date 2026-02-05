@@ -10,6 +10,11 @@
       </v-card-title>
 
       <v-card-text class="py-6">
+        <div v-if="notify.message" class="mb-4">
+          <v-alert :color="notify.color" variant="tonal" density="comfortable" dismissible>
+            {{ notify.message }}
+          </v-alert>
+        </div>
         <!-- Current State Display -->
         <div class="mb-6 p-4 bg-gray-50 rounded">
           <p class="text-sm text-gray-600 mb-2">Estado actual del rol:</p>
@@ -24,9 +29,24 @@
 
         <!-- State Selection -->
         <div class="mb-6">
-          <label class="block text-sm font-semibold mb-3">
-            Seleccionar estado (una única opción):
-          </label>
+          <div class="flex items-center gap-2 mb-3">
+            <label class="block text-sm font-semibold">
+              Seleccionar estado (una única opción):
+            </label>
+            <v-tooltip location="top">
+              <template #activator="{ props: tooltipProps }">
+                <v-btn v-bind="tooltipProps" variant="text" size="small" class="text-sm text-gray-500">
+                  ?
+                </v-btn>
+              </template>
+              <div style="max-width:320px; white-space:normal;">
+                <p class="text-sm font-semibold">¿Diferencia entre Mantención y Transformación?</p>
+                <p class="text-xs text-gray-600 mt-1">Mantención: cambios en el mapeo (p. ej. subir nivel requerido).</p>
+                <p class="text-xs text-gray-600 mt-1">Transformación: cambios en la definición de la competencia (BARS, skills, nombre o descripción) que crearán una nueva versión.</p>
+                <p class="text-xs text-gray-600 mt-1">Si la competencia no tiene versiones, se creará la versión inicial 1.0 al guardar.</p>
+              </div>
+            </v-tooltip>
+          </div>
           <v-radio-group
             v-model="formData.change_type"
             column
@@ -126,8 +146,8 @@
                 label="Proponer learning path automático"
               />
             </div>
-            <div class="mt-3">
-              <v-btn text @click="handleOpenTransform">Editar Transformación</v-btn>
+            <div class="mt-3" v-if="formData.change_type === 'transformation' || formData.change_type === 'enrichment'">
+              <v-btn text @click="handleOpenTransform">Editar Transformación (Crear versión)</v-btn>
               <span v-if="formData.competency_version_id" class="text-sm text-gray-600 ml-2">Versión: {{ formData.competency_version_id }}</span>
             </div>
           </div>
@@ -240,7 +260,7 @@
             rows="3"
           />
         </div>
-        <TransformModal v-if="showTransform" :competencyId="props.competencyId" @transformed="handleTransformed" @close="showTransform = false" />
+        <!-- TransformModal moved to a separate dialog to avoid nested dialogs and show BARS in its own modal -->
       </v-card-text>
 
       <v-card-actions class="flex justify-end gap-3 px-6 pb-4">
@@ -255,13 +275,27 @@
         </v-btn>
       </v-card-actions>
     </v-card>
-  </v-dialog>
+    </v-dialog>
+
+    <!-- Separate dialog for transformation (contains Bars/Transform form) -->
+    <v-dialog
+      :model-value="showTransform"
+      max-width="900px"
+      @update:model-value="(val) => (showTransform = val)"
+    >
+      <v-card>
+        <v-card-text>
+          <TransformModal :competencyId="props.competencyId" @transformed="handleTransformed" @close="showTransform = false" />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import TransformModal from '@/Pages/Scenario/TransformModal.vue';
 import { useTransformStore } from '@/stores/transformStore';
+import { useRoleCompetencyStore } from '@/stores/roleCompetencyStore';
 
 interface Props {
   visible: boolean;
@@ -285,6 +319,33 @@ const saving = ref(false);
 const showTransform = ref(false);
 
 const transformStore = useTransformStore();
+const roleCompetencyStore = useRoleCompetencyStore();
+const versions = ref<any[]>([]);
+
+// Load versions for the competency and set sensible defaults
+async function loadVersions() {
+  try {
+    const v = await transformStore.getVersions(props.competencyId);
+    versions.value = v || [];
+    // default selection logic
+    if (!props.mapping) {
+      // No mapping yet: if no versions -> creation/enrichment, else transformation
+      formData.value.change_type = versions.value.length > 0 ? 'transformation' : 'enrichment';
+    } else {
+      // Mapping exists: if versions exist prefer transformation default
+      if (!props.mapping.change_type && versions.value.length > 0) {
+        formData.value.change_type = 'transformation';
+      }
+    }
+  } catch (e) {
+    versions.value = [];
+  }
+}
+
+// Run on mount and when competencyId changes
+loadVersions();
+watch(() => props.competencyId, () => loadVersions());
+const notify = ref({ message: '', color: '' });
 
 const formData = ref({
   id: null as number | null,
@@ -315,6 +376,12 @@ const changeTypeLabel = (type: string) => {
 };
 
 const handleSave = async () => {
+  // If user requested a transformation but no version exists yet, open transform modal first
+  if (formData.value.change_type === 'transformation' && !formData.value.competency_version_id) {
+    showTransform.value = true;
+    return;
+  }
+
   saving.value = true;
   try {
     emit('save', {
@@ -373,6 +440,15 @@ const handleTransformed = async (data: any) => {
       current_level: formData.value.current_level,
     };
     emit('save', payload);
+    // Also perform the save here to get immediate feedback
+    try {
+      await roleCompetencyStore.saveMapping(payload as any);
+      notify.value = { message: 'Mapeo guardado correctamente', color: 'success' };
+      setTimeout(() => (notify.value.message = ''), 3000);
+    } catch (err: any) {
+      notify.value = { message: err?.message || 'Error guardando el mapeo', color: 'error' };
+      setTimeout(() => (notify.value.message = ''), 5000);
+    }
   } catch (err) {
     // swallowing; UI save will still be available
     console.error('Auto-save mapping failed', err);

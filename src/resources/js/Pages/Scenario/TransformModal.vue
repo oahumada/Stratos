@@ -1,6 +1,41 @@
 <template>
   <div class="transform-modal">
     <form @submit.prevent="submit">
+      <div class="transform-header">
+        <h3>{{ versions.length === 0 ? 'Crear versión 1.0' : 'Transformar competencia' }}</h3>
+        <p v-if="versions.length > 0" class="text-sm">Versiones existentes: {{ versions.length }}</p>
+      </div>
+
+      <div class="guide-toggle-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+        <div>
+          <strong>Guía rápida</strong>
+          <small class="text-sm text-gray-500" style="margin-left:0.5rem">(¿Necesitas más detalle?)</small>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <a href="/docs/COMIENZA_AQUI_WORKFORCE_PLANNING.md" target="_blank" rel="noopener" class="text-sm" style="color:#1f79ff">Guía completa</a>
+          <button type="button" class="btn-secondary" @click="showGuide = !showGuide">{{ showGuide ? 'Ocultar guía' : 'Mostrar guía' }}</button>
+        </div>
+      </div>
+      <div v-if="showGuide" class="guide-box">
+        <p class="guide-text">Rellena un <em>Nombre</em> y una <em>Descripción</em> para esta versión. El editor de <strong>BARS</strong> contiene cuatro secciones: Behaviour, Attitude, Responsibility y Skills. Describe ejemplos concretos y observables (p. ej. "Comunica ideas claramente", "Aplica metodologías ágiles"). Si estás creando la versión inicial (1.0), piensa en la definición base que usará este rol; si estás transformando, documenta los cambios esperados.</p>
+        <p class="guide-text"><em>Tip:</em> Usa el modo Estructurado para editar por secciones o JSON si quieres pegar un objeto completo.</p>
+        <div class="guide-box">
+          <strong>Guía rápida</strong>
+          <p class="guide-text"><strong>¿Para qué sirve esta pantalla?</strong> Para crear o transformar la definición de una competencia asociada a un rol. Al guardar se crea una nueva versión de la competencia (p. ej. 1.0, 1.1) que puede ser referenciada por mappings de roles. Esto permite mantener historial de definiciones y aplicar cambios sin romper referencias existentes.</p>
+          <p class="guide-text">Rellena un <em>Nombre</em> y una <em>Descripción</em>. En el editor de <strong>BARS</strong> define comportamientos observables y evidencia que describan la competencia en cuatro secciones: Behaviour, Attitude, Responsibility y Skills.</p>
+          <p class="guide-text"><em>Tip:</em> Usa el modo Estructurado para editar por secciones o JSON si quieres pegar un objeto completo.</p>
+          <div class="example-box">
+            <strong>Ejemplo (rol: Analista de Datos)</strong>
+            <pre class="example">{
+    "behaviour": ["Comunica resultados claramente","Documenta análisis"],
+    "attitude": ["Proactivo","Orientado a detalle"],
+    "responsibility": ["Mantener pipelines de datos","Revisar calidad de datos"],
+    "skills": ["SQL","Python","ETL"]
+  }</pre>
+            <p class="guide-text">En este ejemplo la versión define evidencias concretas y una lista de skills relevantes; al crear la versión se guarda esta definición y el mapping del rol puede apuntar a ella.</p>
+          </div>
+        </div>
+      </div>
       <div>
         <label for="transform-name">Nombre</label>
         <input id="transform-name" v-model="form.name" required />
@@ -9,12 +44,20 @@
         <label for="transform-desc">Descripción</label>
         <textarea id="transform-desc" v-model="form.description"></textarea>
       </div>
-          <div>
-            <BarsEditor v-model="form.bars" />
-          </div>
-          <div>
-            <button type="submit">Transformar</button>
-            <button type="button" @click="$emit('close')">Cancelar</button>
+      <div style="margin-top:0.5rem">
+        <label style="display:flex;align-items:center;gap:0.5rem">
+          <input type="checkbox" v-model="form.create_skills_incubated" />
+          <span>Crear skills en incubación</span>
+        </label>
+        <p class="text-sm text-gray-500" style="margin:0.25rem 0 0 1.8rem">Si está activado, las skills nuevas se crearán con estado 'incubation' cuando se cree la versión.</p>
+      </div>
+            <div class="bars-container">
+              <!-- Force structured mode and ensure editable fields are enabled -->
+              <BarsEditor v-model="form.bars" initialMode="structured" :readOnly="false" />
+            </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" @click="$emit('close')">Cancelar</button>
+            <button type="submit" class="btn-primary">{{ versions.length === 0 ? 'Crear versión 1.0' : 'Transformar' }}</button>
           </div>
     </form>
   </div>
@@ -31,7 +74,8 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const form = reactive({ name: '', description: '' })
+const form = reactive({ name: '', description: '', bars: null as any, create_skills_incubated: true })
+const showGuide = ref(true)
 const versions = ref<any[]>([])
 const loading = ref(false)
 const store = useTransformStore()
@@ -50,7 +94,23 @@ onMounted(async () => {
 
 async function submit() {
   try {
-    const data = await store.transformCompetency(props.competencyId, form)
+    // build payload: place bars inside metadata and separate skill ids/new skills
+    const bars = form.bars ?? null
+    const skillObjs = Array.isArray(bars?.skills) ? bars.skills : []
+    const skill_ids = skillObjs.filter((s: any) => s && s.id).map((s: any) => s.id)
+    const new_skills = skillObjs.filter((s: any) => s && !s.id).map((s: any) => s.name)
+    const payload: any = {
+      name: form.name,
+      description: form.description,
+      metadata: {
+        bars: bars,
+      },
+      create_skills_incubated: form.create_skills_incubated,
+    }
+    if (skill_ids.length) payload.skill_ids = skill_ids
+    if (new_skills.length) payload.new_skills = new_skills
+
+    const data = await store.transformCompetency(props.competencyId, payload)
     const v = await store.getVersions(props.competencyId)
     versions.value = v || []
     emit('transformed', data)
@@ -65,4 +125,16 @@ async function submit() {
 .transform-modal { padding: 1rem; }
 label { display:block; margin-top:0.5rem }
 input,textarea { width:100% }
+.bars-container { margin-top: 1rem; min-height: 260px; }
+/* ensure bars area can scroll and doesn't push footer content */
+.bars-container { max-height: 360px; overflow:auto; }
+
+.guide-box { background:#f8fafc; border-left:4px solid #cfe8ff; padding:0.75rem; margin-bottom:0.75rem; border-radius:4px }
+.guide-text { margin:0.25rem 0; color:#475569; font-size:0.9rem }
+.example-box { margin-top:0.5rem; background:#ffffff; border:1px solid #e6eefc; padding:0.5rem; border-radius:4px }
+.example { background:#0f1724; color:#e6f0ff; padding:0.5rem; border-radius:4px; font-size:0.85rem; overflow:auto }
+
+.modal-footer { display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem }
+.modal-footer .btn-primary { background:#1f79ff; color:white; padding:0.5rem 0.75rem; border-radius:4px; border:none }
+.modal-footer .btn-secondary { background:transparent; border:1px solid #ccc; padding:0.45rem 0.7rem; border-radius:4px }
 </style>

@@ -24,7 +24,7 @@ describe('TransformModal integration', () => {
     // initial GET for versions on mount
     ;(axios.get as any).mockResolvedValueOnce({ data: { data: [] } })
 
-    const { getByLabelText, getByText, getByTestId, emitted } = render(TransformModal as any, {
+    const { getByLabelText, getByRole, getByTestId, emitted } = render(TransformModal as any, {
       props: { competencyId: 123 }
     })
 
@@ -45,11 +45,11 @@ describe('TransformModal integration', () => {
     ;(axios.post as any).mockResolvedValueOnce({ data: { data: { id: 999, name: 'v1' } } })
     ;(axios.get as any).mockResolvedValueOnce({ data: { data: [{ id: 999 }] } })
 
-    const submitBtn = getByText('Transformar')
+    const submitBtn = getByRole('button', { name: /Transformar|Crear versión 1.0/ })
     await fireEvent.click(submitBtn)
 
     await waitFor(() => {
-      expect((axios.post as any)).toHaveBeenCalledWith('/api/competencies/123/transform', expect.objectContaining({ name: 'Transform Test' }))
+      expect((axios.post as any)).toHaveBeenCalledWith('/api/competencies/123/transform', expect.objectContaining({ name: 'Transform Test', create_skills_incubated: true }))
       const ev = emitted()['transformed']
       expect(ev).toBeTruthy()
       expect(ev[0][0]).toEqual({ id: 999, name: 'v1' })

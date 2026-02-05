@@ -15,6 +15,8 @@ describe('BarsEditor', () => {
     const ev = emitted()['update:modelValue']
     expect(ev).toBeTruthy()
     const last = ev[ev.length - 1][0]
-    expect(last.skills).toEqual(['Skill A'])
+    // BarsEditor now emits skills as objects { id?, name }
+    expect(Array.isArray(last.skills)).toBe(true)
+    expect(last.skills.map((s: any) => s.name)).toEqual(['Skill A'])
   })
 })

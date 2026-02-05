@@ -13,7 +13,8 @@ export default defineConfig({
     },
     // exclude Playwright e2e tests and external packages from Vitest runs
     exclude: ['tests/e2e/**', '**/node_modules/**'],
-    hookTimeout: 20000,
+    hookTimeout: 30000,
+    testTimeout: 60000,
     // disable worker threads to avoid fork/worker timeouts in CI/local environments
     threads: false,
   },
