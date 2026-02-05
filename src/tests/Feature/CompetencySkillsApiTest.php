@@ -30,8 +30,8 @@ class CompetencySkillsApiTest extends TestCase
         $capability = Capability::create(['organization_id' => $this->organization->id, 'name' => 'Cap Test A']);
         $comp = Competency::create(['organization_id' => $this->organization->id, 'capability_id' => $capability->id, 'name' => 'Comp A']);
 
-        $s1 = Skill::create(['organization_id' => $this->organization->id, 'name' => 'Skill One', 'category' => 'general']);
-        $s2 = Skill::create(['organization_id' => $this->organization->id, 'name' => 'Skill Two', 'category' => 'general']);
+        $s1 = Skill::create(['organization_id' => $this->organization->id, 'name' => 'Skill One', 'category' => 'technical']);
+        $s2 = Skill::create(['organization_id' => $this->organization->id, 'name' => 'Skill Two', 'category' => 'technical']);
 
         DB::table('competency_skills')->insert([
             ['competency_id' => $comp->id, 'skill_id' => $s1->id, 'weight' => 10, 'created_at' => now(), 'updated_at' => now()],
@@ -51,7 +51,7 @@ class CompetencySkillsApiTest extends TestCase
     {
         $capability = Capability::create(['organization_id' => $this->organization->id, 'name' => 'Cap Test B']);
         $comp = Competency::create(['organization_id' => $this->organization->id, 'capability_id' => $capability->id, 'name' => 'Comp B']);
-        $skill = Skill::create(['organization_id' => $this->organization->id, 'name' => 'Attach Skill', 'category' => 'general']);
+        $skill = Skill::create(['organization_id' => $this->organization->id, 'name' => 'Attach Skill', 'category' => 'technical']);
 
         $response = $this->actingAs($this->user)
             ->postJson("/api/competencies/{$comp->id}/skills", ['skill_id' => $skill->id]);
@@ -70,7 +70,7 @@ class CompetencySkillsApiTest extends TestCase
         $comp = Competency::create(['organization_id' => $this->organization->id, 'capability_id' => $capability->id, 'name' => 'Comp C']);
 
         $payload = [
-            'skill' => ['name' => 'New Skill X', 'category' => 'domain'],
+            'skill' => ['name' => 'New Skill X', 'category' => 'technical'],
         ];
 
         $response = $this->actingAs($this->user)

@@ -1,12 +1,12 @@
 <template>
   <v-dialog
-    :model-value="visible"
+    :model-value="props.visible"
     max-width="700px"
     @update:model-value="$emit('close')"
   >
     <v-card>
       <v-card-title class="text-lg font-bold">
-        {{ competencyName }} - {{ roleName }}
+        {{ props.competencyName }} - {{ props.roleName }}
       </v-card-title>
 
       <v-card-text class="py-6">
@@ -19,11 +19,7 @@
         <div class="mb-6 p-4 bg-gray-50 rounded">
           <p class="text-sm text-gray-600 mb-2">Estado actual del rol:</p>
           <p class="font-semibold">
-            {{
-              mapping
-                ? changeTypeLabel(mapping.change_type)
-                : 'Sin asociación'
-            }}
+            {{ props.mapping ? changeTypeLabel(props.mapping.change_type) : 'Sin asociación' }}
           </p>
         </div>
 
@@ -42,14 +38,9 @@
               Seleccionar estado (una única opción):
             </label>
             <div>
-              <v-tooltip location="top">
-                <template #activator="{ props: tooltipProps }">
-                  <v-btn v-bind="tooltipProps" variant="text" size="medium" class="text-info" aria-label="Leyenda tipo de asociación" @click="showLegend = true">
-                    <v-icon class="align-middle text-3xl text-info-darken-1">mdi-information-variant-circle</v-icon>
-                  </v-btn>
-                </template>
-                <span class="text-sm">ver información</span>
-              </v-tooltip>
+              <v-btn variant="text" size="medium" class="text-info" aria-label="Leyenda tipo de asociación" title="ver información" @click="showLegend = true">
+                <v-icon class="align-middle text-3xl text-info-darken-1">mdi-information-variant-circle</v-icon>
+              </v-btn>
 
               <InfoLegend v-model="showLegend" title="Leyenda: Tipos de asociación" :items="legendItems" icon="mdi-information-variant-circle" />
             </div>
@@ -299,7 +290,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import TransformModal from '@/Pages/Scenario/TransformModal.vue';
 import InfoLegend from '@/components/Ui/InfoLegend.vue';
 import { useTransformStore } from '@/stores/transformStore';
@@ -359,7 +350,7 @@ async function loadVersions() {
 }
 
 // Run on mount and when competencyId changes
-loadVersions();
+onMounted(() => loadVersions());
 watch(() => props.competencyId, () => loadVersions());
 const notify = ref({ message: '', color: '' });
 const incubatedSkills = ref<any[]>([]);

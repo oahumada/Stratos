@@ -34,7 +34,7 @@ class SkillsApiTest extends TestCase
         $payload = [
             'data' => [
                 'name' => 'Test Skill X',
-                'category' => 'general',
+                'category' => 'technical',
             ],
         ];
 

@@ -27,7 +27,7 @@ class SkillsFullTest extends TestCase
         $payload = [
             'data' => [
                 'name' => 'End-to-end testing',
-                'category' => 'engineering',
+                'category' => 'technical',
                 'complexity_level' => 'strategic',
                 'description' => 'Tests full stack flows',
                 'is_critical' => true,
@@ -46,7 +46,7 @@ class SkillsFullTest extends TestCase
         $this->assertDatabaseHas('skills', [
             'name' => 'End-to-end testing',
             'organization_id' => $this->organization->id,
-            'category' => 'engineering',
+            'category' => 'technical',
             'complexity_level' => 'strategic',
             'description' => 'Tests full stack flows',
             'is_critical' => 1,
@@ -60,12 +60,12 @@ class SkillsFullTest extends TestCase
         $skill = Skill::create([
             'organization_id' => $this->organization->id,
             'name' => 'Old Skill',
-            'category' => 'legacy',
+            'category' => 'business',
         ]);
 
         $payload = [
             'name' => 'Updated Skill',
-            'category' => 'modern',
+            'category' => 'technical',
             'complexity_level' => 'tactical',
             'description' => 'Now updated',
             'is_critical' => false,
@@ -83,7 +83,7 @@ class SkillsFullTest extends TestCase
         $this->assertDatabaseHas('skills', [
             'id' => $skill->id,
             'name' => 'Updated Skill',
-            'category' => 'modern',
+            'category' => 'technical',
             'complexity_level' => 'tactical',
             'description' => 'Now updated',
             'is_critical' => 0,
