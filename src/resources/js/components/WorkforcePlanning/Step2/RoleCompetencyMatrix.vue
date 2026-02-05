@@ -30,11 +30,9 @@
         {{ store.error }}
       </v-alert>
     </div>
-    <div v-if="store.success" class="mb-4">
-      <v-alert type="success" closable @click:close="store.clearMessages()">
-        {{ store.success }}
-      </v-alert>
-    </div>
+    <v-snackbar v-model="showSuccess" color="success" timeout="2000">
+      {{ store.success }}
+    </v-snackbar>
 
     <!-- Loading -->
     <div v-if="store.loading" class="flex justify-center py-8">
@@ -52,81 +50,87 @@
             Haz click en cualquier celda para asignar una competencia a un rol.
             Las celdas vacías muestran un ícono + para indicar que se pueden asignar.
           </p>
+          <p class="text-sm text-blue-700 mt-2">
+            Paso 2 consiste en conectar competencias con roles y definir su transición
+            (mantención, transformación, enriquecimiento o extinción) de forma simple y visual.
+          </p>
         </div>
       </div>
     </div>
 
-    <div class="matrix-container overflow-x-auto">
-      <table class="matrix-table">
-        <thead>
-          <tr>
-            <!-- Rol header -->
-            <th class="sticky left-0 z-20 bg-gray-100 border-b border-gray-300">
-              <div class="w-48 p-3">
-                <strong>Rol</strong>
-              </div>
-            </th>
-
-            <!-- Group headers (por categoría/capacidad) -->
-            <th v-for="cat in categories" :key="cat.name" :colspan="collapsedCategories[cat.name] ? 1 : cat.count" class="border-b border-gray-300 bg-gray-50 sticky top-0 z-30">
-              <div class="p-2 flex items-center justify-between gap-2 w-full">
-                <span class="font-semibold text-gray-800">{{ cat.name }}</span>
-                <v-btn icon dense small class="min-w-0 p-0" @click.stop="toggleCategory(cat.name)" :title="collapsedCategories[cat.name] ? 'Expandir' : 'Colapsar'">
-                  <v-icon :icon="collapsedCategories[cat.name] ? 'mdi-chevron-down' : 'mdi-chevron-up'" />
-                </v-btn>
-              </div>
-            </th>
-          </tr>
-          <!-- Second header row: competency names (only when group expanded) -->
-          <tr v-if="true">
-            <th class="sticky left-0 bg-gray-100" style="z-index:25; top:48px;"></th>
-            <template v-for="cat in categories" :key="`sub-${cat.name}`">
-              <th v-for="comp in compsForRender(cat)" v-if="!collapsedCategories[cat.name]" :key="comp.id" class="border-b border-gray-300 bg-gray-50" style="position:sticky; top:48px; z-index:20;">
-                <div class="w-32 p-3 text-center">
-                  <div class="font-semibold text-sm">{{ comp.name }}</div>
-                  <div class="text-xs text-gray-500">{{ comp.capability_name || comp.category }}</div>
-                </div>
-              </th>
-              <th v-if="!collapsedCategories[cat.name] && cat.count > VISIBLE_LIMIT" class="border-b border-gray-300 bg-gray-50" style="position:sticky; top:48px; z-index:20;">
-                <div class="w-32 p-3 text-center">
-                  <v-btn text small @click.stop="expandedCategories[cat.name] = !expandedCategories[cat.name]">
-                    {{ expandedCategories[cat.name] ? 'Mostrar menos' : `+${cat.count - VISIBLE_LIMIT} más` }}
-                  </v-btn>
-                </div>
-              </th>
+    <!-- Tabs por categoría -->
+    <v-card>
+      <v-tabs
+        v-model="activeTab"
+        bg-color="gray-100"
+        class="border-b"
+      >
+        <v-tab 
+          v-for="(cat, idx) in categories" 
+          :key="cat.name" 
+          :value="idx"
+          :class="activeTab === idx ? 'bg-blue-50' : ''"
+        >
+          <v-tooltip :text="cat.name" location="top">
+            <template #activator="{ props: tooltipProps }">
+              <span v-bind="tooltipProps" class="tab-label text-truncate">
+                {{ cat.name }}
+              </span>
             </template>
-          </tr>
-        </thead>
+          </v-tooltip>
+          <v-badge
+            :content="countMappedInCategory(cat.name)"
+            color="primary"
+            location="top-end"
+            offset-x="-8"
+            offset-y="-8"
+          />
+        </v-tab>
+      </v-tabs>
 
-        <tbody>
-          <tr v-for="row in store.matrixRows" :key="row.roleId">
-            <!-- Role cell (sticky) -->
-            <td class="sticky left-0 z-10 bg-white border-b border-gray-200">
-              <div class="w-48 p-3 border-r border-gray-200">
-                <div class="font-semibold">{{ row.roleName }}</div>
-                <div class="text-xs text-gray-500">
-                  {{ row.fte }} FTE • {{ row.status }}
-                </div>
-              </div>
-            </td>
-
-            <!-- Competency cells grouped by category; collapsed groups render a summary cell -->
-            <template v-for="cat in categories" :key="`group-${row.roleId}-${cat.name}`">
-              <td v-if="collapsedCategories[cat.name]" :key="`summary-${row.roleId}-${cat.name}`" class="border-b border-gray-200 p-0">
-                <transition name="collapse-fade">
-                <div class="w-32 h-24 flex flex-col items-center justify-center border-r border-gray-200 p-2">
-                  <div class="text-sm font-medium">{{ countMappedInCategory(row, cat.name) }} / {{ cat.count }}</div>
-                  <div class="flex gap-1 mt-1">
-                    <span v-for="(v,k) in summaryForCategory(row, cat.name).counts" :key="k" v-if="v>0" class="text-xs px-1 py-0.5 rounded bg-gray-100">{{ k.charAt(0).toUpperCase() }}:{{ v }}</span>
+      <!-- Tab Content -->
+      <v-window v-model="activeTab" class="matrix-container">
+        <v-window-item v-for="(cat, idx) in categories" :key="cat.name" :value="idx">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th class="sticky left-0 z-20 bg-gray-100 border-b border-gray-300 role-column-header">
+                  <div class="w-48 p-3 flex items-center justify-between group">
+                    <strong>Rol</strong>
+                    <div class="cursor-col-resize opacity-0 group-hover:opacity-100 transition-opacity">⋮⋮</div>
                   </div>
-                  <div class="text-xs text-gray-500 mt-1" v-if="summaryForCategory(row, cat.name).avgLevel">
-                    Avg Lvl: {{ summaryForCategory(row, cat.name).avgLevel }}
+                </th>
+                <th v-for="comp in cat.comps" :key="comp.id" class="border-b border-gray-300 bg-gray-50">
+                  <div class="w-32 p-3 text-center">
+                    <v-tooltip :text="comp.name" location="top">
+                      <template #activator="{ props: tooltipProps }">
+                        <div v-bind="tooltipProps" class="font-semibold text-sm text-truncate comp-name">
+                          {{ comp.name }}
+                        </div>
+                      </template>
+                    </v-tooltip>
+                    <v-tooltip :text="comp.capability_name || comp.category" location="top">
+                      <template #activator="{ props: tooltipProps }">
+                        <div v-bind="tooltipProps" class="text-xs text-gray-500 text-truncate comp-capability">
+                          {{ comp.capability_name || comp.category }}
+                        </div>
+                      </template>
+                    </v-tooltip>
                   </div>
-                </div>
-                </transition>
-              </td>
-              <template v-else>
-                <td v-for="comp in compsForRender(cat)" :key="`${row.roleId}-${comp.id}`" class="border-b border-gray-200 p-0">
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in store.matrixRows" :key="row.roleId">
+                <td class="sticky left-0 z-10 bg-white border-b border-gray-200">
+                  <div class="w-48 p-3 border-r border-gray-200">
+                    <div class="font-semibold">{{ row.roleName }}</div>
+                    <div class="text-xs text-gray-500">
+                      {{ row.fte }} FTE • {{ row.status }}
+                    </div>
+                  </div>
+                </td>
+                <td v-for="comp in cat.comps" :key="`${row.roleId}-${comp.id}`" class="border-b border-gray-200 p-0">
                   <div
                     class="w-32 h-24 flex items-center justify-center cursor-pointer hover:bg-gray-50 border-r border-gray-200 transition"
                     @click="openEditModal(row.roleId, comp.id)"
@@ -142,12 +146,12 @@
                     />
                   </div>
                 </td>
-              </template>
-            </template>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              </tr>
+            </tbody>
+          </table>
+        </v-window-item>
+      </v-window>
+    </v-card>
     </div>
 
     <!-- Edit Modal -->
@@ -188,6 +192,7 @@ const store = useRoleCompetencyStore();
 
 const showEditModal = ref(false);
 const showAddRoleDialog = ref(false);
+const activeTab = ref(0);
 const selectedMapping = ref<{
   roleId: number;
   roleName: string;
@@ -195,28 +200,7 @@ const selectedMapping = ref<{
   competencyName: string;
   mapping: any;
 } | null>(null);
-
-// Group competencies by category (capacidad) and support collapsing groups
-const collapsedCategories = ref<Record<string, boolean>>({});
-
-// Persist collapsed/expanded state per scenario
-const storageKeyCollapsed = `rcm_collapsed_${props.scenarioId}`;
-const storageKeyExpanded = `rcm_expanded_${props.scenarioId}`;
-try {
-  const raw = localStorage.getItem(storageKeyCollapsed);
-  if (raw) collapsedCategories.value = JSON.parse(raw);
-} catch (e) {
-  // ignore
-}
-try {
-  const raw2 = localStorage.getItem(storageKeyExpanded);
-  if (raw2) expandedCategories.value = JSON.parse(raw2);
-} catch (e) {
-  // ignore
-}
-
-// Support 'show more' for large categories
-const expandedCategories = ref<Record<string, boolean>>({});
+const showSuccess = ref(false);
 
 const categories = computed(() => {
   const map: Record<string, any[]> = {};
@@ -228,77 +212,29 @@ const categories = computed(() => {
   return Object.keys(map).map((k) => ({ name: k, comps: map[k], count: map[k].length }));
 });
 
-const countMappedInCategory = (row: any, categoryName: string) => {
-  const comps = categories.value.find((c: any) => c.name === categoryName)?.comps || [];
-  let cnt = 0;
-  comps.forEach((comp: any) => {
-    if (row.mappings && row.mappings.get && row.mappings.get(comp.id)) cnt += 1;
-  });
-  return cnt;
-};
-
-// Toggle a category open exclusively: when opening a category, collapse others
-const toggleCategory = (name: string) => {
-  const isCollapsed = !!collapsedCategories.value[name];
-  // If currently collapsed, expand this and collapse others
-  if (isCollapsed) {
-    categories.value.forEach((c: any) => {
-      collapsedCategories.value[c.name] = c.name !== name;
+const countMappedInCategory = (categoryName: string) => {
+  let total = 0;
+  store.matrixRows.forEach((row: any) => {
+    const comps = categories.value.find((c: any) => c.name === categoryName)?.comps || [];
+    comps.forEach((comp: any) => {
+      if (row.mappings && row.mappings.get && row.mappings.get(comp.id)) {
+        total += 1;
+      }
     });
-  } else {
-    // If currently expanded, collapse it (so all collapsed)
-    collapsedCategories.value[name] = true;
-  }
-};
-
-const summaryForCategory = (row: any, categoryName: string) => {
-  const comps = categories.value.find((c: any) => c.name === categoryName)?.comps || [];
-  const summary: Record<string, number> = { maintenance: 0, transformation: 0, enrichment: 0, extinction: 0 };
-  let levelSum = 0;
-  let levelCount = 0;
-  comps.forEach((comp: any) => {
-    const m = row.mappings && row.mappings.get ? row.mappings.get(comp.id) : null;
-    if (m) {
-      const t = m.change_type || 'maintenance';
-      if (summary[t] !== undefined) summary[t] += 1;
-      if (m.required_level) { levelSum += m.required_level; levelCount += 1; }
-    }
   });
-  const avg = levelCount ? Math.round((levelSum / levelCount) * 10) / 10 : null;
-  return { counts: summary, avgLevel: avg };
-};
-
-// Save collapsed state when it changes
-watch(collapsedCategories, (val) => {
-  try { localStorage.setItem(storageKeyCollapsed, JSON.stringify(val)); } catch (e) { /* ignore */ }
-}, { deep: true });
-
-// Persist expanded categories as well
-watch(expandedCategories, (val) => {
-  try { localStorage.setItem(storageKeyExpanded, JSON.stringify(val)); } catch (e) { /* ignore */ }
-}, { deep: true });
-
-// When categories are loaded, if there's no persisted collapsed state, default to collapse all but first
-watch(categories, (cats) => {
-  if (!cats || !cats.length) return;
-  const hasPersisted = Object.keys(collapsedCategories.value || {}).length > 0;
-  if (!hasPersisted) {
-    const initial: Record<string, boolean> = {};
-    cats.forEach((c: any, idx: number) => { initial[c.name] = idx !== 0; });
-    collapsedCategories.value = initial;
-  }
-}, { immediate: true });
-
-// Helper for show-more (simpler virtualization)
-const VISIBLE_LIMIT = 10;
-const compsForRender = (cat: any) => {
-  if (expandedCategories.value[cat.name]) return cat.comps;
-  return cat.comps.slice(0, VISIBLE_LIMIT);
+  return total;
 };
 
 onMounted(async () => {
   await store.loadScenarioData(props.scenarioId);
 });
+
+watch(
+  () => store.success,
+  (val) => {
+    if (val) showSuccess.value = true;
+  }
+);
 
 const openEditModal = (roleId: number, competencyId: number) => {
   const role = store.roles.find((r) => r.role_id === roleId);
@@ -353,6 +289,7 @@ const handleAddRole = async (roleData: any) => {
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   background: white;
+  overflow-x: auto;
 }
 
 .matrix-table {
@@ -376,18 +313,37 @@ const handleAddRole = async (roleData: any) => {
   background: white;
 }
 
-/* Collapse animation */
-.collapse-fade-enter-active, .collapse-fade-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-.collapse-fade-enter-from, .collapse-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
-}
-.collapse-fade-enter-to, .collapse-fade-leave-from {
-  opacity: 1;
-  transform: translateY(0);
+.matrix-table .w-32 { min-width: 160px; }
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.matrix-table .w-32 { min-width: 160px; }
+.tab-label {
+  max-width: 140px;
+  display: inline-block;
+}
+
+.comp-name {
+  max-width: 140px;
+}
+
+.comp-capability {
+  max-width: 140px;
+}
+
+.role-column-header {
+  resize: horizontal;
+  overflow: hidden;
+}
+
+.cursor-col-resize {
+  cursor: col-resize;
+}
+
+:deep(.v-tab.bg-blue-50) {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
 </style>

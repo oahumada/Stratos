@@ -694,6 +694,18 @@ onMounted(() => {
             <template v-else-if="scenario">
                 <!-- Step 1: Mapa de Escenario -->
                 <div v-show="currentStep === 1" class="step-content step-map">
+                    <div class="mb-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+                        <div class="d-flex align-start gap-3">
+                            <v-icon icon="mdi-information" class="text-blue-600 mt-1" />
+                            <div>
+                                <h3 class="font-weight-semibold text-blue-800 mb-1">¿En qué consiste el Paso 1?</h3>
+                                <p class="text-body-2 text-blue-700 mb-0">
+                                    Diseñar el escenario definiendo capacidades estratégicas y competencias
+                                    (existentes o nuevas) que darán base al mapa del escenario.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                     <PrototypeMap :scenario="scenario" />
                 </div> 
 

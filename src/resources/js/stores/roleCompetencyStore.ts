@@ -56,7 +56,7 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
       status: role.role_change,
       mappings: new Map(
         mappings.value
-          .filter((m) => m.role_id === role.role_id)
+          .filter((m) => m.role_id === role.role_id && m.scenario_id === scenarioId.value)
           .map((m) => [m.competency_id, m])
       ),
     }));
