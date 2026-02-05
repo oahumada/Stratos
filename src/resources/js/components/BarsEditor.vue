@@ -58,6 +58,7 @@
     <div v-else class="json-mode">
       <label>JSON</label>
       <textarea data-testid="json-textarea" v-model="text" @input="onInput" rows="8" :disabled="props.readOnly"></textarea>
+      <div v-if="parseError" style="color:#b91c1c;margin-top:6px;font-size:0.9rem">JSON error: {{ parseError }}</div>
     </div>
   </div>
 </template>
@@ -82,6 +83,7 @@ const defaultBars = () => ({
 const bars = reactive<any>(props.modelValue ? normalize(props.modelValue) : defaultBars())
 
 const text = ref(JSON.stringify(props.modelValue ?? bars, null, 2))
+const parseError = ref<string | null>(null)
 
 function normalize(value: any) {
   if (!value) return defaultBars()
@@ -108,19 +110,41 @@ function normalize(value: any) {
 
 watch(() => props.modelValue, (v) => {
   if (mode.value === 'json') {
-    text.value = JSON.stringify(v ?? bars, null, 2)
+    text.value = JSON.stringify(v ?? structuredValue(), null, 2)
   } else {
     const n = normalize(v)
     Object.keys(n).forEach(k => { bars[k] = n[k] })
   }
 })
 
+// keep JSON text in sync when switching modes
+watch(mode, (m) => {
+  if (m === 'json') {
+    text.value = JSON.stringify(structuredValue(), null, 2)
+    parseError.value = null
+  } else {
+    // when going back to structured, try to parse current text and apply if valid
+    try {
+      const parsed = JSON.parse(text.value)
+      const n = normalize(parsed)
+      Object.keys(n).forEach(k => { bars[k] = n[k] })
+      emit('update:modelValue', structuredValue())
+      parseError.value = null
+    } catch (e) {
+      // leave structured values as-is and show no crash
+      parseError.value = null
+    }
+  }
+})
+
 function onInput() {
   try {
     const parsed = JSON.parse(text.value)
+    parseError.value = null
     emit('update:modelValue', parsed)
-  } catch (e) {
-    emit('update:modelValue', text.value)
+  } catch (e: any) {
+    // don't emit invalid JSON as the modelValue; set parse error for UI
+    parseError.value = e && e.message ? String(e.message) : 'Invalid JSON'
   }
 }
 
