@@ -119,6 +119,34 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 **Estructura del árbol:**
 
 ```
+
+## Memory: Component - BarsEditor (2026-02-05)
+
+**Tipo:** component
+
+**Título:** [Component] - BarsEditor
+
+**Ubicación:** src/resources/js/components/BarsEditor.vue
+
+**Propósito:** Editor para BARS (Behaviour, Attitude, Responsibility, Skills) usado por el modal de transformación (`TransformModal.vue`). Proveer UI estructurada y modo JSON para facilitar authoring y validación mínima en cliente.
+
+**Cambios realizados:**
+- Reemplazado editor JSON plano por UI estructurada con 4 secciones (behaviour, attitude, responsibility, skills).
+- Añadido modo alternable `Estructurado` / `JSON`.
+- Soporta añadir/eliminar ítems por sección; emite `update:modelValue` con estructura normalizada.
+- Normaliza entrada si `modelValue` llega como string JSON o como objeto incompleto.
+
+**Tests añadidos:**
+- `src/resources/js/tests/unit/components/BarsEditor.spec.ts` — prueba básica que verifica agregar una skill y la emisión de `update:modelValue` con el valor actualizado.
+
+**Motivo / decisiones:**
+- Facilitar edición de BARS sin obligar a escribir JSON crudo.
+- Mantener compatibilidad con consumos existentes (acepta JSON string o estructura objeto).
+
+**Notas futuras:**
+- Agregar validaciones más estrictas (schema), mensajes UI y preview en modal `TransformModal.vue`.
+- Integrar tests E2E para flujo completo (abrir modal → editar BARS → enviar transformación → verificar versión creada).
+
 Capability (nodes[])
   └── Competency (childNodes[])
         └── Skill (grandChildNodes[])
