@@ -372,6 +372,7 @@ describe('RoleCompetencyStore', () => {
           rationale: '',
         },
       ];
+      store.scenarioId = 1;
       store.mappings = [
         {
           id: 1,

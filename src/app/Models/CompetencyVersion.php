@@ -12,7 +12,16 @@ class CompetencyVersion extends Model
     protected $table = 'competency_versions';
 
     protected $fillable = [
-        'organization_id', 'competency_id', 'version_group_id', 'name', 'description', 'effective_from', 'evolution_state', 'obsolescence_reason', 'metadata', 'created_by'
+        'organization_id',
+        'competency_id',
+        'version_group_id',
+        'name',
+        'description',
+        'effective_from',
+        'evolution_state',
+        'obsolescence_reason',
+        'metadata',
+        'created_by'
     ];
 
     protected $casts = [

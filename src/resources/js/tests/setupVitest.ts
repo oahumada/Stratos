@@ -7,7 +7,6 @@ config.global = config.global || {}
 config.global.config = config.global.config || {}
 config.global.config.compilerOptions = {
   ...(config.global.config.compilerOptions || {}),
-  isCustomElement: (tag: string) => tag.startsWith('v-'),
 }
 
 // Global simple stubs for common Vuetify components so tests don't need
@@ -26,6 +25,19 @@ config.global.components = {
   'v-row': { template: '<div><slot/></div>' },
   'v-col': { template: '<div><slot/></div>' },
   'v-slider': { template: '<input type="range" />' },
+  'v-list': { template: '<ul><slot/></ul>' },
+  'v-list-item': { template: '<li><slot/></li>' },
+  'v-list-item-icon': { template: '<span><slot/></span>' },
+  'v-list-item-title': { template: '<div><slot/></div>' },
+  'v-list-item-subtitle': { template: '<div><slot/></div>' },
+  'v-menu': { template: '<div><slot/></div>' },
+  'v-textarea': { template: '<textarea />' },
+  'v-checkbox': { template: '<input type="checkbox" />' },
+  'v-select': { template: '<select><slot/></select>' },
+  'v-switch': { template: '<input type="checkbox" />' },
+  'v-spacer': { template: '<div style="flex:1 1 auto" />' },
+  'v-alert': { template: '<div role="alert"><slot/></div>' },
+  'v-icon': { template: '<i class="v-icon"><slot/></i>' },
 }
 
 // Default centralized mock for `useApi`. Tests can replace

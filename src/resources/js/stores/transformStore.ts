@@ -7,5 +7,10 @@ export const useTransformStore = defineStore('transform', {
       const res = await axios.post(`/api/competencies/${competencyId}/transform`, payload);
       return res.data.data;
     }
+    ,
+    async getVersions(competencyId: number) {
+      const res = await axios.get(`/api/competencies/${competencyId}/versions`);
+      return res.data.data;
+    }
   }
 });

@@ -31,11 +31,13 @@ class ScenarioCapability extends Model
         static::created(function (self $pivot) {
             try {
                 $capability = $pivot->capability()->with('competencies')->first();
-                if (!$capability) return;
+                if (!$capability)
+                    return;
 
                 foreach ($capability->competencies as $comp) {
                     $exists = CompetencyVersion::where('competency_id', $comp->id)->exists();
-                    if ($exists) continue;
+                    if ($exists)
+                        continue;
 
                     CompetencyVersion::create([
                         'organization_id' => $comp->organization_id ?? $capability->organization_id ?? null,
@@ -50,7 +52,7 @@ class ScenarioCapability extends Model
                     ]);
                 }
             } catch (\Throwable $e) {
-                Log::error('Error creating competency_versions from scenario pivot: '.$e->getMessage(), ['pivot_id' => $pivot->id ?? null]);
+                Log::error('Error creating competency_versions from scenario pivot: ' . $e->getMessage(), ['pivot_id' => $pivot->id ?? null]);
             }
         });
     }

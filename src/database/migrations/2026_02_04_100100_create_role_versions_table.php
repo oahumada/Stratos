@@ -15,13 +15,13 @@ return new class extends Migration {
             $table->string('name');
             $table->text('description')->nullable();
             $table->date('effective_from')->nullable();
-            $table->enum('evolution_state', ['transformed','obsolescent','new_embryo','stable'])->default('stable');
+            $table->enum('evolution_state', ['transformed', 'obsolescent', 'new_embryo', 'stable'])->default('stable');
             $table->json('metadata')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
 
             $table->foreign('role_id')->references('id')->on('roles')->nullOnDelete();
-            $table->index(['organization_id','version_group_id']);
+            $table->index(['organization_id', 'version_group_id']);
         });
     }
 

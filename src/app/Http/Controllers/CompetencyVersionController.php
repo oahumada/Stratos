@@ -13,8 +13,10 @@ class CompetencyVersionController
     {
         $user = $request->user();
         $competency = Competency::find($competencyId);
-        if (!$competency) return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
-        if ($competency->organization_id !== ($user->organization_id ?? null)) return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        if (!$competency)
+            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        if ($competency->organization_id !== ($user->organization_id ?? null))
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
 
         $versions = CompetencyVersion::where('competency_id', $competency->id)->orderBy('created_at', 'desc')->get();
         return response()->json(['success' => true, 'data' => $versions]);
@@ -24,8 +26,10 @@ class CompetencyVersionController
     {
         $user = $request->user();
         $competency = Competency::find($competencyId);
-        if (!$competency) return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
-        if ($competency->organization_id !== ($user->organization_id ?? null)) return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        if (!$competency)
+            return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        if ($competency->organization_id !== ($user->organization_id ?? null))
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -54,8 +58,10 @@ class CompetencyVersionController
     {
         $user = $request->user();
         $cv = CompetencyVersion::find($id);
-        if (!$cv || $cv->competency_id != $competencyId) return response()->json(['success' => false, 'message' => 'Not found'], 404);
-        if ($cv->organization_id !== ($user->organization_id ?? null)) return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        if (!$cv || $cv->competency_id != $competencyId)
+            return response()->json(['success' => false, 'message' => 'Not found'], 404);
+        if ($cv->organization_id !== ($user->organization_id ?? null))
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         return response()->json(['success' => true, 'data' => $cv]);
     }
 
@@ -63,8 +69,10 @@ class CompetencyVersionController
     {
         $user = $request->user();
         $cv = CompetencyVersion::find($id);
-        if (!$cv || $cv->competency_id != $competencyId) return response()->json(['success' => false, 'message' => 'Not found'], 404);
-        if ($cv->organization_id !== ($user->organization_id ?? null)) return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        if (!$cv || $cv->competency_id != $competencyId)
+            return response()->json(['success' => false, 'message' => 'Not found'], 404);
+        if ($cv->organization_id !== ($user->organization_id ?? null))
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         $cv->delete();
         return response()->json(['success' => true]);
     }

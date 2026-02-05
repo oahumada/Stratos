@@ -12,7 +12,15 @@ class RoleVersion extends Model
     protected $table = 'role_versions';
 
     protected $fillable = [
-        'organization_id', 'role_id', 'version_group_id', 'name', 'description', 'effective_from', 'evolution_state', 'metadata', 'created_by'
+        'organization_id',
+        'role_id',
+        'version_group_id',
+        'name',
+        'description',
+        'effective_from',
+        'evolution_state',
+        'metadata',
+        'created_by'
     ];
 
     protected $casts = [

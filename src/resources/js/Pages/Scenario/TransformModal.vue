@@ -2,45 +2,63 @@
   <div class="transform-modal">
     <form @submit.prevent="submit">
       <div>
-        <label>Nombre</label>
-        <input v-model="form.name" required />
+        <label for="transform-name">Nombre</label>
+        <input id="transform-name" v-model="form.name" required />
       </div>
       <div>
-        <label>Descripción</label>
-        <textarea v-model="form.description"></textarea>
+        <label for="transform-desc">Descripción</label>
+        <textarea id="transform-desc" v-model="form.description"></textarea>
       </div>
-      <div>
-        <button type="submit">Transformar</button>
-        <button type="button" @click="$emit('close')">Cancelar</button>
-      </div>
+          <div>
+            <BarsEditor v-model="form.bars" />
+          </div>
+          <div>
+            <button type="submit">Transformar</button>
+            <button type="button" @click="$emit('close')">Cancelar</button>
+          </div>
     </form>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, reactive } from 'vue';
-import axios from 'axios';
+<script setup lang="ts">
+import { reactive, ref, onMounted } from 'vue'
+import { useTransformStore } from '@/stores/transformStore'
+import BarsEditor from '@/components/BarsEditor.vue'
 
-export default defineComponent({
-  props: {
-    competencyId: { type: Number, required: true }
-  },
-  setup(props, { emit }) {
-    const form = reactive({ name: '', description: '' });
+const props = defineProps<{ competencyId: number }>()
+const emit = defineEmits<{
+  (e: 'transformed', payload: any): void
+  (e: 'close'): void
+}>()
 
-    async function submit() {
-      try {
-        const res = await axios.post(`/api/competencies/${props.competencyId}/transform`, form);
-        emit('transformed', res.data.data);
-      } catch (err) {
-        console.error(err);
-        alert('Error al transformar');
-      }
-    }
+const form = reactive({ name: '', description: '' })
+const versions = ref<any[]>([])
+const loading = ref(false)
+const store = useTransformStore()
 
-    return { form, submit };
+onMounted(async () => {
+  loading.value = true
+  try {
+    const v = await store.getVersions(props.competencyId)
+    versions.value = v || []
+  } catch (err) {
+    // ignore
+  } finally {
+    loading.value = false
   }
-});
+})
+
+async function submit() {
+  try {
+    const data = await store.transformCompetency(props.competencyId, form)
+    const v = await store.getVersions(props.competencyId)
+    versions.value = v || []
+    emit('transformed', data)
+  } catch (err) {
+    console.error(err)
+    alert('Error al transformar')
+  }
+}
 </script>
 
 <style scoped>
