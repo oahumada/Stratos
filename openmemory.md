@@ -147,6 +147,12 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Agregar validaciones más estrictas (schema), mensajes UI y preview en modal `TransformModal.vue`.
 - Integrar tests E2E para flujo completo (abrir modal → editar BARS → enviar transformación → verificar versión creada).
 
+### Runbook: Backfill de competency_versions
+
+- Se añadió `docs/RUNBOOK_backfill.md` con pasos para ejecutar el backfill en staging: dry-run, --apply, verificación y rollback.
+- El comando es `php artisan backfill:competency-versions` (dry-run) y `php artisan backfill:competency-versions --apply` (apply).
+
+
 Capability (nodes[])
   └── Competency (childNodes[])
         └── Skill (grandChildNodes[])
