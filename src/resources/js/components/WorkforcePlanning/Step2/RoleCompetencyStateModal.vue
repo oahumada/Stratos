@@ -27,6 +27,14 @@
           </p>
         </div>
 
+        <!-- If transform created skills in incubation, show them here -->
+        <div v-if="incubatedSkills.length" class="mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+          <label class="block text-sm font-semibold mb-2">Skills creadas (incubación):</label>
+          <div class="flex flex-wrap gap-2">
+            <span v-for="s in incubatedSkills" :key="s.id || s.name" class="px-2 py-1 bg-yellow-100 text-sm rounded-full">{{ s.name }} <span class="text-xs text-gray-600" style="margin-left:6px">(incubation)</span></span>
+          </div>
+        </div>
+
         <!-- State Selection -->
         <div class="mb-6">
           <div class="flex items-center gap-2 mb-3">
@@ -346,6 +354,7 @@ async function loadVersions() {
 loadVersions();
 watch(() => props.competencyId, () => loadVersions());
 const notify = ref({ message: '', color: '' });
+const incubatedSkills = ref<any[]>([]);
 
 const formData = ref({
   id: null as number | null,
@@ -424,6 +433,11 @@ const handleTransformed = async (data: any) => {
   if (newVersionId) {
     formData.value.competency_version_id = newVersionId;
   }
+  // capture any created skills returned by the transform endpoint
+  const created = data?.created_skills ?? data?.createdSkills ?? []
+  incubatedSkills.value = Array.isArray(created)
+    ? created.filter((s: any) => s && (s.is_incubated === true || s.status === 'incubation'))
+    : []
   showTransform.value = false;
   // Auto-save mapping using current formData and props
   try {
@@ -455,3 +469,4 @@ const handleTransformed = async (data: any) => {
   }
 };
 </script>
+

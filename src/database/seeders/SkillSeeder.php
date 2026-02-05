@@ -85,11 +85,10 @@ class SkillSeeder extends Seeder
                 $cap = $capabilities->random();
             }
 
-            Skill::create([
+            // Create skill without capability_id column (capability relation is via pivots/competencies)
+            Skill::create(array_merge([
                 'organization_id' => $org->id,
-                'capability_id' => $cap->id,
-                ...$skill,
-            ]);
+            ], $skill));
         }
     }
 }

@@ -48,7 +48,6 @@ class CapabilitySeeder extends Seeder
                             'name' => "$name Skill $i",
                             'description' => "$desc - sample skill $i",
                             'complexity_level' => 'tactical',
-                            'capability_id' => $cap->id,
                             'lifecycle_status' => 'active',
                             'category' => 'technical',
                             'is_critical' => false,
@@ -56,9 +55,11 @@ class CapabilitySeeder extends Seeder
                         ]);
                     }
                 } else {
+                    // Existing skills found — do not attempt to set a non-existent
+                    // `capability_id` column on `skills`. Leave skills as-is; they
+                    // may be associated to capabilities via competencies/pivots.
                     foreach ($skills as $s) {
-                        $s->capability_id = $cap->id;
-                        $s->save();
+                        // keep existing skills, no DB change required
                     }
                 }
             }

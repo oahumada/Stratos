@@ -10,7 +10,7 @@ use App\Models\CompetencySkill;
 use App\Models\ScenarioCapability;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleSkill;
-use App\Models\PersonRoleSkill;
+use App\Models\PeopleRoleSkills;
 use App\Models\Roles;
 use Illuminate\Support\Facades\DB;
 
@@ -112,18 +112,19 @@ class ScenarioSeeder extends Seeder
 
         ScenarioRoleSkill::create([
             'scenario_id' => $scenario->id,
-            'role_id' => $roleId,
-            'skill_id' => $skillIncubada,
+            'role_id' => $role->id,
+            'skill_id' => $skillIncubadaId,
             'required_level' => 4,
             'change_type' => 'new'
         ]);
 
         // 6. Simular Oferta Real (Fase 3)
-        PersonRoleSkill::create([
-            'person_id' => 1,
-            'role_id' => $roleId,
-            'skill_id' => $skillIncubada,
+        PeopleRoleSkills::create([
+            'people_id' => 1,
+            'role_id' => $role->id,
+            'skill_id' => $skillIncubadaId,
             'current_level' => 2, // Genera un GAP
+            'evaluated_by' => 1,
             'evidence_source' => 'self_assessment'
         ]);
     }

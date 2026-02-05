@@ -49,7 +49,7 @@ class PeopleSeeder extends Seeder
             // Estas son las skills que DEBE tener para cumplir su rol
             $roleSkills = RoleSkill::where('role_id', $currentRole->id)->get();
             foreach ($roleSkills as $roleSkill) {
-                PeopleRoleSkill::create([
+                PeopleRoleSkills::create([
                     'people_id' => $people->id,
                     'role_id' => $currentRole->id,
                     'skill_id' => $roleSkill->skill_id,
@@ -80,13 +80,13 @@ class PeopleSeeder extends Seeder
             $additionalSkills = $skills->random(rand(2, 4));
             foreach ($additionalSkills as $skill) {
                 // Verificar que no esté duplicada (evita que skill del rol aparezca 2 veces)
-                $exists = PeopleRoleSkill::where('people_id', $people->id)
+                $exists = PeopleRoleSkills::where('people_id', $people->id)
                     ->where('skill_id', $skill->id)
                     ->where('is_active', true)
                     ->exists();
 
                 if (!$exists) {
-                    PeopleRoleSkill::create([
+                    PeopleRoleSkills::create([
                         'people_id' => $people->id,
                         'role_id' => $currentRole->id,
                         'skill_id' => $skill->id,

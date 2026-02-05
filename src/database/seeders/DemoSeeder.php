@@ -41,7 +41,7 @@ class DemoSeeder extends Seeder
         Application::truncate();
         JobOpening::truncate();
         RoleSkill::truncate();
-        PeopleRoleSkill::truncate();
+        PeopleRoleSkills::truncate();
         People::truncate();
         Skill::truncate();
         Roles::truncate();

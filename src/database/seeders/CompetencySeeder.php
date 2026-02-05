@@ -26,7 +26,9 @@ class CompetencySeeder extends Seeder
             }
 
             $count = rand(1, 3);
-            $skillPool = Skill::where('capability_id', $cap->id)->get();
+            // Skills are not directly scoped by capability in the current schema;
+            // use organization skills as a pool for attaching to competencies.
+            $skillPool = Skill::where('organization_id', $cap->organization_id)->get();
 
             for ($i = 1; $i <= $count; $i++) {
                 $name = $cap->name . ' - Competency ' . $i;

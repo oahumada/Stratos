@@ -33,7 +33,7 @@
               <template v-for="(s, i) in bars.skills" :key="i">
                 <!-- If readOnly, show chips; otherwise show editable input for each skill so users can edit existing entries -->
                 <div v-if="props.readOnly && s && s.name">
-                  <span class="skill-chip">{{ s.name }}</span>
+                  <span class="skill-chip">{{ displaySkillName(s) }}</span>
                 </div>
                 <div v-else>
                   <input :data-testid="`skills-${i}`" placeholder="Agregar skill..." v-model="bars.skills[i].name" @input="onStructuredChange" :disabled="props.readOnly" />
@@ -96,7 +96,12 @@ function normalize(value: any) {
     responsibility: Array.isArray(value.responsibility) ? value.responsibility.slice() : defaultBars().responsibility,
     // normalize skills: if items are strings turn into { name }
     skills: Array.isArray(value.skills)
-      ? value.skills.map((s: any) => (typeof s === 'string' ? { name: s } : s))
+      ? value.skills.map((s: any) => {
+          if (typeof s === 'string') return { name: s }
+          if (!s) return { name: '' }
+          const rawName = s.name ?? s.label ?? s.title ?? ''
+          return { id: s.id, name: typeof rawName === 'string' ? rawName : String(rawName) }
+        })
       : defaultBars().skills,
   }
 }
@@ -200,6 +205,15 @@ function commitSkillFromQuery() {
 function removeSkill(idx: number) {
   bars.skills.splice(idx, 1)
   emit('update:modelValue', structuredValue())
+}
+
+function displaySkillName(s: any) {
+  if (!s) return ''
+  if (typeof s === 'string') return s
+  if (s.name && typeof s.name === 'string') return s.name
+  if (s.label && typeof s.label === 'string') return s.label
+  if (s.title && typeof s.title === 'string') return s.title
+  return String(s)
 }
 
 const invalid = computed(() => {
