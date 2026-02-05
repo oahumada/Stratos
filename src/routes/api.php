@@ -357,6 +357,17 @@ Route::middleware('auth:sanctum')->group(function () {
         }
     });
 
+    // Competency versions CRUD
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('/competencies/{competencyId}/versions', [App\Http\Controllers\CompetencyVersionController::class, 'index']);
+        Route::post('/competencies/{competencyId}/versions', [App\Http\Controllers\CompetencyVersionController::class, 'store']);
+        Route::get('/competencies/{competencyId}/versions/{id}', [App\Http\Controllers\CompetencyVersionController::class, 'show']);
+        Route::delete('/competencies/{competencyId}/versions/{id}', [App\Http\Controllers\CompetencyVersionController::class, 'destroy']);
+    });
+
+    // Transform competency: create new competency_version from existing competency
+    Route::middleware(['auth:sanctum'])->post('/competencies/{competencyId}/transform', [App\Http\Controllers\TransformCompetencyController::class, 'transform']);
+
     // Dev API: retrieve a single Capability entity (multi-tenant safe)
     Route::get('/capabilities/{id}', function ($id) {
         $user = auth()->user();

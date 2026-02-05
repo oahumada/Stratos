@@ -61,5 +61,10 @@ class Competency extends Model
     {
         return $this->hasMany(\App\Models\CapabilityCompetency::class, 'competency_id');
     }
+
+    public function versions()
+    {
+        return $this->hasMany(\App\Models\CompetencyVersion::class, 'competency_id');
+    }
 }
 

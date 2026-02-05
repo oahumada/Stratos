@@ -63,4 +63,9 @@ class Roles extends Model
     {
         return $this->hasMany(PeopleRoleSkills::class, 'role_id');
     }
+
+    public function versions(): HasMany
+    {
+        return $this->hasMany(\App\Models\RoleVersion::class, 'role_id');
+    }
 }
