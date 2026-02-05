@@ -12,10 +12,13 @@
       </div>
 
       <v-card-text class="p-4 bg-white" style="font-size:16px; line-height:1.4;">
-        <div v-for="(it, idx) in items" :key="idx" class="mb-3">
-          <p class="mb-1"><strong>{{ it.title }}</strong>: {{ it.text }}</p>
-        </div>
-      </v-card-text>
+            <div v-for="(it, idx) in items" :key="idx" class="mb-3">
+              <p class="mb-1"><strong>{{ it.title }}</strong>: <span v-html="it.text"></span></p>
+              <div v-if="it.example" class="mt-2">
+                <pre class="info-example">{{ it.example }}</pre>
+              </div>
+            </div>
+          </v-card-text>
 
       <div class="px-4 pb-3 flex justify-end">
         <v-btn variant="text" @click="$emit('update:modelValue', false)">Cerrar</v-btn>
@@ -30,7 +33,7 @@ import { computed } from 'vue';
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
   title: { type: String, default: 'Información' },
-  items: { type: Array as () => Array<{ title: string; text: string }>, default: () => [] },
+  items: { type: Array as () => Array<{ title: string; text: string; example?: string }>, default: () => [] },
   icon: { type: String, default: 'mdi-information-variant-circle' },
   width: { type: [String, Number], default: 480 },
   stripeColor: { type: String, default: 'rgb(var(--v-theme-info))' },

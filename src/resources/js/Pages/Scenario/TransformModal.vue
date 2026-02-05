@@ -13,27 +13,10 @@
         </div>
         <div style="display:flex;gap:0.5rem;align-items:center">
           <a href="/docs/COMIENZA_AQUI_WORKFORCE_PLANNING.md" target="_blank" rel="noopener" class="text-sm" style="color:#1f79ff">Guía completa</a>
-          <button type="button" class="btn-secondary" @click="showGuide = !showGuide">{{ showGuide ? 'Ocultar guía' : 'Mostrar guía' }}</button>
-        </div>
-      </div>
-      <div v-if="showGuide" class="guide-box">
-        <p class="guide-text">Rellena un <em>Nombre</em> y una <em>Descripción</em> para esta versión. El editor de <strong>BARS</strong> contiene cuatro secciones: Behaviour, Attitude, Responsibility y Skills. Describe ejemplos concretos y observables (p. ej. "Comunica ideas claramente", "Aplica metodologías ágiles"). Si estás creando la versión inicial (1.0), piensa en la definición base que usará este rol; si estás transformando, documenta los cambios esperados.</p>
-        <p class="guide-text"><em>Tip:</em> Usa el modo Estructurado para editar por secciones o JSON si quieres pegar un objeto completo.</p>
-        <div class="guide-box">
-          <strong>Guía rápida</strong>
-          <p class="guide-text"><strong>¿Para qué sirve esta pantalla?</strong> Para crear o transformar la definición de una competencia asociada a un rol. Al guardar se crea una nueva versión de la competencia (p. ej. 1.0, 1.1) que puede ser referenciada por mappings de roles. Esto permite mantener historial de definiciones y aplicar cambios sin romper referencias existentes.</p>
-          <p class="guide-text">Rellena un <em>Nombre</em> y una <em>Descripción</em>. En el editor de <strong>BARS</strong> define comportamientos observables y evidencia que describan la competencia en cuatro secciones: Behaviour, Attitude, Responsibility y Skills.</p>
-          <p class="guide-text"><em>Tip:</em> Usa el modo Estructurado para editar por secciones o JSON si quieres pegar un objeto completo.</p>
-          <div class="example-box">
-            <strong>Ejemplo (rol: Analista de Datos)</strong>
-            <pre class="example">{
-    "behaviour": ["Comunica resultados claramente","Documenta análisis"],
-    "attitude": ["Proactivo","Orientado a detalle"],
-    "responsibility": ["Mantener pipelines de datos","Revisar calidad de datos"],
-    "skills": ["SQL","Python","ETL"]
-  }</pre>
-            <p class="guide-text">En este ejemplo la versión define evidencias concretas y una lista de skills relevantes; al crear la versión se guarda esta definición y el mapping del rol puede apuntar a ella.</p>
-          </div>
+          <v-btn variant="text" size="small" class="text-info" title="ver información" @click="showLegend = true">
+            <v-icon class="align-middle text-4xl text-info-darken-1">mdi-information-variant-circle</v-icon>
+          </v-btn>
+          <InfoLegend v-model="showLegend" title="Guía: Transformación / BARS" :items="legendItems" icon="mdi-information-variant-circle" />
         </div>
       </div>
       <div>
@@ -67,6 +50,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import { useTransformStore } from '@/stores/transformStore'
 import BarsEditor from '@/components/BarsEditor.vue'
+import InfoLegend from '@/components/Ui/InfoLegend.vue'
 
 const props = defineProps<{ competencyId: number }>()
 const emit = defineEmits<{
@@ -75,7 +59,31 @@ const emit = defineEmits<{
 }>()
 
 const form = reactive({ name: '', description: '', bars: null as any, create_skills_incubated: true })
-const showGuide = ref(true)
+const showLegend = ref(false)
+const legendItems = [
+  {
+    title: 'Descripción',
+    text: `¿Para qué sirve esta pantalla?</strong> Para crear o transformar la definición de una competencia asociada a un rol. Al guardar se crea una nueva versión de la competencia (p. ej. 1.0, 1.1) que puede ser referenciada por mappings de roles. Esto permite mantener historial de definiciones y aplicar cambios sin romper referencias existentes. Rellena un <em>Nombre</em> y una <em>Descripción</em> para esta versión. El editor <strong>BARS</strong> contiene cuatro secciones: <strong>Behaviour</strong>, <strong>Attitude</strong>, <strong>Responsibility</strong> y <strong>Skills</strong>. Describe ejemplos concretos y observables (p. ej. "Comunica ideas claramente", "Aplica metodologías ágiles").`,
+  },
+  {
+    title: 'Consejo',
+    text: `Usa el modo <strong>Estructurado</strong> para editar por secciones o <strong>JSON</strong> si vas a pegar una definición completa. Si estás creando la versión inicial (1.0), piensa en la definición base que usará este rol; si estás transformando, documenta los cambios esperados y evidencias.`,
+  },
+  {
+    title: 'Skills incubadas',
+    text: `Activa "Crear skills en incubación" para que las skills nuevas se creen con estado <code>incubation</code> al crear la versión. Estas aparecerán en el modal principal como "Skills creadas (incubación)" y pueden revisarse antes de cerrar.`,
+  },
+  {
+    title: 'Ejemplo (JSON)',
+    text: 'En este ejemplo la versión define evidencias concretas y una lista de skills relevantes; al crear la versión se guarda esta definición y el mapping del rol puede apuntar a ella. Ejemplo de payload BARS que se guardará en metadata.bars:',
+    example: `{
+  "behaviour": ["Comunica resultados claramente","Documenta análisis"],
+  "attitude": ["Proactivo","Orientado a detalle"],
+  "responsibility": ["Mantener pipelines de datos","Revisar calidad de datos"],
+  "skills": ["SQL","Python","ETL"]
+}`
+  },
+]
 const versions = ref<any[]>([])
 const loading = ref(false)
 const store = useTransformStore()

@@ -20,8 +20,8 @@
         <div class="items">
           <div v-if="key !== 'skills'">
             <div v-for="(item, idx) in bars[key]" :key="idx" class="item-row">
-              <input :data-testid="`${key}-${idx}`" :placeholder="titleFor(key) + ' item ' + (idx+1)" v-model="bars[key][idx]" @input="onStructuredChange" :disabled="props.readOnly" />
-              <button v-if="!props.readOnly" type="button" class="remove" @click="removeItem(key, idx)">Eliminar</button>
+              <input :data-testid="`${key}-${idx}`" :placeholder="`${titleFor(key)} item ${Number(idx)+1}`" v-model="bars[key][idx]" @input="onStructuredChange" :disabled="props.readOnly" />
+              <button v-if="!props.readOnly" type="button" class="remove" @click="removeItem(key, Number(idx))">Eliminar</button>
             </div>
             <div v-if="!props.readOnly" class="add-row">
               <button type="button" class="add" :data-testid="`add-${key}`" @click="addItem(key)">Agregar {{ titleFor(key) }}</button>
@@ -37,7 +37,7 @@
                 </div>
                 <div v-else>
                   <input :data-testid="`skills-${i}`" placeholder="Agregar skill..." v-model="bars.skills[i].name" @input="onStructuredChange" :disabled="props.readOnly" />
-                  <button v-if="!props.readOnly" type="button" class="remove" @click="removeSkill(i)">Eliminar</button>
+                  <button v-if="!props.readOnly" type="button" class="remove" @click="removeSkill(Number(i))">Eliminar</button>
                 </div>
                 <!-- Hidden legacy-bound input to satisfy older tests; use distinct test id to avoid collisions -->
                 <input v-if="!props.readOnly" :data-testid="`skills-hidden-${i}`" v-model="bars.skills[i].name" style="position: absolute; left: -9999px; width:1px; height:1px; opacity:0" aria-hidden="true" />

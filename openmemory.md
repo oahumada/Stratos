@@ -139,6 +139,24 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 ```
 
+---
+
+## Decisions (Feb 2026)
+
+- **InfoLegend extraction & UI change (Paso 2):** Se creó `InfoLegend.vue` (reusable) y se reemplazó el activador `?` por un icono `mdi-information-variant-circle` con leyenda en fondo claro. Archivo: [src/resources/js/components/Ui/InfoLegend.vue](src/resources/js/components/Ui/InfoLegend.vue).
+
+- **TransformModal: usar `InfoLegend` para la guía (Feb 2026):** Se reemplazó la guía extensa embebida dentro de `TransformModal.vue` por el componente `InfoLegend` para mantener consistencia visual y liberar espacio para el editor BARS. Archivos: [src/resources/js/Pages/Scenario/TransformModal.vue](src/resources/js/Pages/Scenario/TransformModal.vue) (import `InfoLegend`, añade `legendItems`, `showLegend`) y mantiene `BarsEditor` visible con mayor espacio.
+
+- **TransformModal: `InfoLegend` con contenido rico (Feb 2026):** Se mejoró la leyenda usada en `TransformModal.vue` para incluir texto formateado y un ejemplo JSON preformateado. `InfoLegend` ahora soporta contenido HTML seguro para instrucciones y una sección `example` que se muestra como bloque preformateado. Esto recupera el detalle previo de la guía sin ocupar espacio permanente en la UI.
+
+- **loadVersions moved to onMounted:** Para evitar llamadas al store antes de que Pinia esté activo en tests, `loadVersions()` se ejecuta ahora en `onMounted`. Archivo: [src/resources/js/components/WorkforcePlanning/Step2/RoleCompetencyStateModal.vue](src/resources/js/components/WorkforcePlanning/Step2/RoleCompetencyStateModal.vue).
+
+- **Testing note (Pinia):** Los componentes que usan stores en `setup()` requieren registrar Pinia en los tests (`global.plugins: [createPinia()]`) o stubear los stores. Ejemplo test actualizado: `src/resources/js/tests/unit/components/RoleCompetencyStateModal.spec.ts`.
+
+- **Competency versioning documentation created:** Añadido `docs/COMPETENCY_VERSIONING.md` que describe tablas, flujo de creación de versiones, payloads y pruebas recomendadas.
+
+- **Role versioning guidance created:** Añadido `docs/ROLE_VERSIONING.md` con orientación sobre cómo tratar versiones de roles y su relación con versiones de competencias.
+
 ## Memory: Component - BarsEditor (2026-02-05)
 
 **Tipo:** component
