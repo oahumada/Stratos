@@ -32,19 +32,31 @@ jobs:
           cache: 'npm'
 
       - name: Install Node Dependencies
+        working-directory: ./src
         run: npm ci
 
-      - name: Install Dependencies
+      - name: Install Composer Dependencies (src)
+        working-directory: ./src
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Copy Environment File
         run: cp .env.example .env
 
       - name: Generate Application Key
+        working-directory: ./src
         run: php artisan key:generate
 
+      - name: Prepare DB (sqlite) and run migrations + seeds
+        working-directory: ./src
+        run: |
+          php -r "file_exists('database/database.sqlite') || mkdir('database') && touch('database/database.sqlite');"
+          php artisan migrate --force
+          php artisan db:seed --class=DatabaseSeeder --force
+
       - name: Build Assets
+        working-directory: ./src
         run: npm run build
 
       - name: Tests
+        working-directory: ./src
         run: ./vendor/bin/pest

@@ -157,6 +157,14 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 - **Role versioning guidance created:** Añadido `docs/ROLE_VERSIONING.md` con orientación sobre cómo tratar versiones de roles y su relación con versiones de competencias.
 
+## CI Changes (2026-02-06)
+
+- **Archivo modificado:** `src/.github/workflows/tests.yml`
+- **Propósito:** Ejecutar migraciones y seeders en el directorio `src` antes de ejecutar los tests para asegurar que los datos demo y seeders requeridos (p.ej. `ScenarioSeeder`, `DemoSeeder`) estén presentes en entornos CI.
+- **Acción:** Añadido paso que crea `database/database.sqlite` si no existe, ejecuta `php artisan migrate --force` y `php artisan db:seed --class=DatabaseSeeder --force`. También se ajustaron los pasos de `npm ci`, `composer install` y `npm run build` para ejecutarse en `./src`.
+
+**Notas:** Esto resuelve fallos en CI relacionados con migraciones/seeds faltantes que afectan a tests que dependen de datos de `DatabaseSeeder`.
+
 ## Memory: Component - BarsEditor (2026-02-05)
 
 **Tipo:** component
