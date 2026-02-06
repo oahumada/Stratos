@@ -86,9 +86,11 @@ class SkillSeeder extends Seeder
             }
 
             // Create skill without capability_id column (capability relation is via pivots/competencies)
-            Skill::create(array_merge([
-                'organization_id' => $org->id,
-            ], $skill));
+            // Use firstOrCreate to make the seeder idempotent in CI/local runs
+            Skill::firstOrCreate(
+                ['organization_id' => $org->id, 'name' => $skill['name']],
+                array_merge(['organization_id' => $org->id], $skill)
+            );
         }
     }
 }
