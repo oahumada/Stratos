@@ -40,15 +40,16 @@ class ChangeSetController extends Controller
         return response()->json(['success' => true, 'preview' => $this->service->preview($cs)]);
     }
 
-    public function apply($id)
+    public function apply(Request $request, $id)
     {
         $cs = ChangeSet::findOrFail($id);
-        $user = auth()->user();
+        $user = $request->user();
         if ($cs->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
         $this->authorize('apply', $cs);
-        $applied = $this->service->apply($cs, $user);
+        $ignored = $request->input('ignored_indexes', []);
+        $applied = $this->service->apply($cs, $user, ['ignored_indexes' => $ignored]);
         return response()->json(['success' => true, 'data' => $applied]);
     }
 

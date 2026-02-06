@@ -120,7 +120,7 @@ async function submit() {
 
     // DEBUG: log payload so we can inspect it in browser console/network
     // Useful when backend returns 500 to verify payload shape
-    // eslint-disable-next-line no-console
+     
     console.debug('transform-payload', payload)
 
     const data = await store.transformCompetency(props.competencyId, payload)
@@ -129,7 +129,7 @@ async function submit() {
     emit('transformed', data)
   } catch (err) {
     // Show more detailed server error when available
-    // eslint-disable-next-line no-console
+     
     console.error('transform error', err)
     const axiosErr: any = err as any
     const serverMessage = axiosErr?.response?.data?.message || axiosErr?.response?.data || axiosErr?.message

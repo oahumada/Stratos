@@ -14,6 +14,7 @@
             <div class="op-actions">
               <button @click="toggle(i)">{{ collapsed[i] ? 'Mostrar' : 'Ocultar' }}</button>
               <button @click="ignoreOp(i)">Ignorar</button>
+              <button @click="revertOp(i)">{{ preview.ops[i] && preview.ops[i]._reverted ? 'Deshacer Revertir' : 'Revertir' }}</button>
             </div>
           </div>
           <transition name="fade">
@@ -21,6 +22,7 @@
               <pre>{{ formatOp(op) }}</pre>
               <div class="op-row-actions">
                 <button @click="copyOp(i)">Copiar op</button>
+                <span v-if="op._reverted" class="op-reverted">Revertida</span>
               </div>
             </div>
           </transition>
@@ -94,6 +96,25 @@ export default defineComponent({
       return fmt(clone);
     };
 
+    const revertOp = (i: number) => {
+      if (!preview.value || !Array.isArray(preview.value.ops)) return;
+      const op = preview.value.ops[i];
+      if (!op) return;
+      // toggle reverted flag in-place for UI only
+      op._reverted = !op._reverted;
+      // keep reverted ops hidden from apply list by marking them as ignored in the preview view
+      if (op._reverted) {
+        ignored.value[i] = true;
+        preview.value.ops = preview.value.ops.map((o: any, idx: number) => (ignored.value[idx] ? { ...o, _ignored: true } : o)).filter((o: any) => !o._ignored);
+        // ensure collapsed indexes align
+        collapsed.value = preview.value.ops.map(() => false);
+      } else {
+        // undo revert: reload preview to ensure original op is back (best-effort)
+        ignored.value = {};
+        loadPreview();
+      }
+    };
+
     const toggle = (i: number) => {
       collapsed.value[i] = !collapsed.value[i];
     };
@@ -132,7 +153,10 @@ export default defineComponent({
     const apply = async () => {
       loading.value = true;
       try {
-        await store.applyChangeSet(props.id);
+        // send ignored indexes to backend so apply can skip reverted/ignored ops
+        const ignoredIndexes = Object.keys(ignored.value).filter((k) => ignored.value[Number(k)]).map((k) => Number(k));
+        const payload = ignoredIndexes.length ? { ignored_indexes: ignoredIndexes } : undefined;
+        await store.applyChangeSet(props.id, payload);
         window.location.reload();
       } finally {
         loading.value = false;
@@ -161,7 +185,7 @@ export default defineComponent({
 
     loadPreview();
 
-    return { preview, loading, apply, canApply, approve, reject, formatOp, collapsed, toggle, ignoreOp, copyOp };
+    return { preview, loading, apply, canApply, approve, reject, formatOp, collapsed, toggle, ignoreOp, copyOp, opClass, opIcon, revertOp, ignored };
   },
 });
 </script>

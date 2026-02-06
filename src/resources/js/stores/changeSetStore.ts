@@ -39,11 +39,16 @@ export const useChangeSetStore = defineStore('changeSet', () => {
     }
   };
 
-  const applyChangeSet = async (id: number) => {
+  const applyChangeSet = async (id: number, payload?: any) => {
     loading.value = true;
     error.value = null;
     try {
-      const res = await fetch(`/api/strategic-planning/change-sets/${id}/apply`, { method: 'POST' });
+      const opts: RequestInit = { method: 'POST' };
+      if (payload) {
+        opts.headers = { 'Content-Type': 'application/json' };
+        opts.body = JSON.stringify(payload);
+      }
+      const res = await fetch(`/api/strategic-planning/change-sets/${id}/apply`, opts);
       if (!res.ok) throw new Error('Error applying ChangeSet');
       return await res.json();
     } catch (e: any) {

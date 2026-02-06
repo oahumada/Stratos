@@ -22,7 +22,7 @@ class ChangeSetService
         return $changeSet->diff ?? [];
     }
 
-    public function apply(ChangeSet $changeSet, User $actor): ChangeSet
+    public function apply(ChangeSet $changeSet, User $actor, array $options = []): ChangeSet
     {
         return DB::transaction(function () use ($changeSet, $actor) {
             if ($changeSet->status === 'applied') {
@@ -33,7 +33,12 @@ class ChangeSetService
 
             // Process operations in diff (simple, extensible handler)
             $ops = $diff['ops'] ?? [];
-            foreach ($ops as $op) {
+            $ignored = $options['ignored_indexes'] ?? [];
+            foreach ($ops as $idx => $op) {
+                if (is_array($ignored) && in_array($idx, $ignored, true)) {
+                    // skip this op as requested by client
+                    continue;
+                }
                 $type = $op['type'] ?? null;
                 switch ($type) {
                     case 'create_competency_version':
