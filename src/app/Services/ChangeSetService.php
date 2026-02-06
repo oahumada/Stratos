@@ -24,7 +24,7 @@ class ChangeSetService
 
     public function apply(ChangeSet $changeSet, User $actor, array $options = []): ChangeSet
     {
-        return DB::transaction(function () use ($changeSet, $actor) {
+        return DB::transaction(function () use ($changeSet, $actor, $options) {
             if ($changeSet->status === 'applied') {
                 return $changeSet;
             }
