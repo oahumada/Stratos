@@ -11,7 +11,12 @@ class ScenarioRoleSkill extends Model
 
     protected $table = 'scenario_role_skills';
 
-    protected $fillable = ['scenario_id', 'role_id', 'skill_id', 'required_level', 'change_type', 'is_critical'];
+    protected $fillable = ['scenario_id', 'role_id', 'skill_id', 'required_level', 'change_type', 'is_critical', 'source', 'competency_id', 'competency_version_id', 'metadata', 'created_by'];
+
+    protected $casts = [
+        'metadata' => 'array',
+        'is_critical' => 'boolean',
+    ];
 
     public function scenario()
     {

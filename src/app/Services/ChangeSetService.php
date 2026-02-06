@@ -126,7 +126,7 @@ class ChangeSetService
                         break;
 
                     case 'update_scenario_role_skill':
-                        // convenience: update/insert scenario_role_skills
+                        // convenience: update/insert scenario_role_skills with traceability
                         $payload = $op['payload'] ?? [];
                         if (!empty($payload) && \Illuminate\Support\Facades\Schema::hasTable('scenario_role_skills')) {
                             $where = [
@@ -136,11 +136,18 @@ class ChangeSetService
                             ];
                             if ($where['role_id'] && $where['skill_id']) {
                                 $q = DB::table('scenario_role_skills')->where($where);
+                                // Allow competency_version_id and metadata and created_by to flow
                                 $values = array_diff_key($payload, array_flip(array_keys($where)));
+                                // Normalize metadata if provided as array
+                                if (isset($values['metadata']) && is_array($values['metadata'])) {
+                                    $values['metadata'] = json_encode($values['metadata']);
+                                }
                                 if ($q->exists()) {
-                                    $q->update($values + ['updated_at' => now()]);
+                                    $updateValues = $values + ['updated_at' => now(), 'updated_by' => $actor->id ?? null];
+                                    $q->update($updateValues);
                                 } else {
-                                    DB::table('scenario_role_skills')->insert(array_merge($where, $values, ['created_at' => now(), 'updated_at' => now()]));
+                                    $insert = array_merge($where, $values, ['created_at' => now(), 'updated_at' => now(), 'created_by' => $actor->id ?? null]);
+                                    DB::table('scenario_role_skills')->insert($insert);
                                 }
                             }
                         }
