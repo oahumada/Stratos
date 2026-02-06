@@ -72,4 +72,46 @@ class ChangeSetController extends Controller
 
         return response()->json(['success' => true, 'data' => $cs]);
     }
+
+    public function canApply($id)
+    {
+        $cs = ChangeSet::findOrFail($id);
+        $user = auth()->user();
+        if ($cs->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'can_apply' => false], 403);
+        }
+        $can = auth()->user() ? auth()->user()->can('apply', $cs) : false;
+        return response()->json(['success' => true, 'can_apply' => (bool) $can]);
+    }
+
+    public function approve(Request $request, $id)
+    {
+        $cs = ChangeSet::findOrFail($id);
+        $user = $request->user();
+        if ($cs->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        $this->authorize('apply', $cs);
+        $cs->status = 'approved';
+        $cs->approved_by = $user->id ?? null;
+        $cs->save();
+        return response()->json(['success' => true, 'data' => $cs]);
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $cs = ChangeSet::findOrFail($id);
+        $user = $request->user();
+        if ($cs->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+        $this->authorize('apply', $cs);
+        $cs->status = 'rejected';
+        $cs->approved_by = $user->id ?? null;
+        $meta = $cs->metadata ?? [];
+        $meta['rejected_at'] = now()->toDateTimeString();
+        $cs->metadata = $meta;
+        $cs->save();
+        return response()->json(['success' => true, 'data' => $cs]);
+    }
 }

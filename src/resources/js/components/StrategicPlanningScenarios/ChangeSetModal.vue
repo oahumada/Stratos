@@ -5,7 +5,9 @@
     <div v-else>No preview available</div>
     <div class="actions">
       <button @click="$emit('close')">Cerrar</button>
-      <button @click="apply" :disabled="loading">Aplicar</button>
+      <button @click="apply" :disabled="loading || !canApply">Aplicar</button>
+      <button v-if="canApply" @click="approve" :disabled="loading">Aprobar</button>
+      <button v-if="canApply" @click="reject" :disabled="loading">Rechazar</button>
     </div>
   </div>
 </template>
@@ -23,12 +25,19 @@ export default defineComponent({
     const store = useChangeSetStore();
     const preview = ref<any>(null);
     const loading = ref(false);
+    const canApply = ref(false);
 
     const loadPreview = async () => {
       loading.value = true;
       try {
         const res = await store.previewChangeSet(props.id);
         preview.value = res.preview ?? res.data ?? res;
+        try {
+          const pem = await store.canApplyChangeSet(props.id);
+          canApply.value = pem?.can_apply ?? pem?.data?.can_apply ?? false;
+        } catch (e) {
+          canApply.value = false;
+        }
       } finally {
         loading.value = false;
       }
@@ -38,7 +47,26 @@ export default defineComponent({
       loading.value = true;
       try {
         await store.applyChangeSet(props.id);
-        // emit event or refresh
+        window.location.reload();
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    const approve = async () => {
+      loading.value = true;
+      try {
+        await store.approveChangeSet(props.id);
+        window.location.reload();
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    const reject = async () => {
+      loading.value = true;
+      try {
+        await store.rejectChangeSet(props.id);
         window.location.reload();
       } finally {
         loading.value = false;
@@ -47,7 +75,7 @@ export default defineComponent({
 
     loadPreview();
 
-    return { preview, loading, apply };
+    return { preview, loading, apply, canApply, approve, reject };
   },
 });
 </script>

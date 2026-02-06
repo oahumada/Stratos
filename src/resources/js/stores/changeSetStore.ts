@@ -54,5 +54,50 @@ export const useChangeSetStore = defineStore('changeSet', () => {
     }
   };
 
-  return { loading, error, createChangeSet, previewChangeSet, applyChangeSet };
+  const canApplyChangeSet = async (id: number) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const res = await fetch(`/api/strategic-planning/change-sets/${id}/can-apply`);
+      if (!res.ok) throw new Error('Error checking permissions');
+      return await res.json();
+    } catch (e: any) {
+      error.value = e.message || 'Unknown error';
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const approveChangeSet = async (id: number) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const res = await fetch(`/api/strategic-planning/change-sets/${id}/approve`, { method: 'POST' });
+      if (!res.ok) throw new Error('Error approving ChangeSet');
+      return await res.json();
+    } catch (e: any) {
+      error.value = e.message || 'Unknown error';
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const rejectChangeSet = async (id: number) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const res = await fetch(`/api/strategic-planning/change-sets/${id}/reject`, { method: 'POST' });
+      if (!res.ok) throw new Error('Error rejecting ChangeSet');
+      return await res.json();
+    } catch (e: any) {
+      error.value = e.message || 'Unknown error';
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  return { loading, error, createChangeSet, previewChangeSet, applyChangeSet, canApplyChangeSet, approveChangeSet, rejectChangeSet };
 });

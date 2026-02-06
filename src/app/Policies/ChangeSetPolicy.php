@@ -23,13 +23,31 @@ class ChangeSetPolicy
         if (($user->organization_id ?? null) !== ($cs->organization_id ?? null)) {
             return false;
         }
+        // Prefer explicit role attribute if present on User model
+        $role = $user->role ?? null;
+        if (in_array($role, ['admin', 'approver', 'owner', 'superadmin'], true)) {
+            return true;
+        }
+
+        // Support legacy or test-only flags
         if (property_exists($user, 'is_admin')) {
             return (bool) $user->is_admin;
         }
         if (method_exists($user, 'hasRole')) {
             return $user->hasRole('approver') || $user->hasRole('admin');
         }
+
         // default conservative: only allow if user created the ChangeSet
         return ($cs->created_by ?? null) === ($user->id ?? null);
+    }
+
+    public function approve(User $user, ChangeSet $cs): bool
+    {
+        return $this->apply($user, $cs);
+    }
+
+    public function reject(User $user, ChangeSet $cs): bool
+    {
+        return $this->apply($user, $cs);
     }
 }

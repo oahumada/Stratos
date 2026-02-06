@@ -26,7 +26,8 @@ class BackfillRoleVersions extends Command
         $created = 0;
         foreach ($rows as $sr) {
             $role = $sr->role;
-            if (!$role) continue;
+            if (!$role)
+                continue;
 
             $exists = RoleVersion::where('role_id', $role->id)->exists();
             if ($exists) {

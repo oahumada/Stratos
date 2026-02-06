@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ChangeSet;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class ChangeSetService
@@ -37,15 +38,44 @@ class ChangeSetService
                 switch ($type) {
                     case 'create_competency_version':
                         if (class_exists(\App\Models\CompetencyVersion::class)) {
+                            $compId = $op['competency_id'] ?? null;
+                            // idempotency: skip if a version for this competency with same version_group exists
+                            $vg = $op['version_group_id'] ?? null;
+                            if ($compId) {
+                                $existsQuery = \App\Models\CompetencyVersion::where('competency_id', $compId);
+                                if ($vg) {
+                                    $existsQuery->where('version_group_id', $vg);
+                                }
+                                if ($existsQuery->exists()) {
+                                    break;
+                                }
+                            }
+
+                            $vg = $vg ?: (string) Str::uuid();
+                            $meta = $op['metadata'] ?? ['source' => 'changeset'];
+
+                            $name = $op['name'] ?? null;
+                            $description = $op['description'] ?? null;
+                            if ($compId && empty($name)) {
+                                if (class_exists(\App\Models\Competency::class)) {
+                                    $c = \App\Models\Competency::find($compId);
+                                    if ($c) {
+                                        $name = $name ?: $c->name;
+                                        $description = $description ?: $c->description ?? null;
+                                    }
+                                }
+                            }
+
+                            $evolution = $op['evolution_state'] ?? 'new_embryo';
                             \App\Models\CompetencyVersion::create([
                                 'organization_id' => $changeSet->organization_id,
-                                'competency_id' => $op['competency_id'] ?? null,
-                                'version_group_id' => $op['version_group_id'] ?? null,
-                                'name' => $op['name'] ?? null,
-                                'description' => $op['description'] ?? null,
+                                'competency_id' => $compId,
+                                'version_group_id' => $vg,
+                                'name' => $name,
+                                'description' => $description,
                                 'effective_from' => $op['effective_from'] ?? null,
-                                'evolution_state' => $op['evolution_state'] ?? null,
-                                'metadata' => $op['metadata'] ?? null,
+                                'evolution_state' => $evolution,
+                                'metadata' => $meta,
                                 'created_by' => $actor->id ?? null,
                             ]);
                         }
@@ -53,15 +83,23 @@ class ChangeSetService
 
                     case 'create_role_version':
                         if (class_exists(\App\Models\RoleVersion::class)) {
+                            $vg = $op['version_group_id'] ?? null;
+                            if (empty($vg)) {
+                                $vg = (string) Str::uuid();
+                            }
+                            $meta = $op['metadata'] ?? [];
+                            if (empty($meta)) {
+                                $meta = ['source' => 'changeset'];
+                            }
                             \App\Models\RoleVersion::create([
                                 'organization_id' => $changeSet->organization_id,
                                 'role_id' => $op['role_id'] ?? null,
-                                'version_group_id' => $op['version_group_id'] ?? null,
+                                'version_group_id' => $vg,
                                 'name' => $op['name'] ?? null,
                                 'description' => $op['description'] ?? null,
                                 'effective_from' => $op['effective_from'] ?? null,
                                 'evolution_state' => $op['evolution_state'] ?? null,
-                                'metadata' => $op['metadata'] ?? null,
+                                'metadata' => $meta,
                                 'created_by' => $actor->id ?? null,
                             ]);
                         }
@@ -112,16 +150,48 @@ class ChangeSetService
                         // create a role sunset mapping record
                         $payload = $op['payload'] ?? [];
                         if (!empty($payload) && \Illuminate\Support\Facades\Schema::hasTable('role_sunset_mappings')) {
+                            // Ensure a RoleVersion exists for the role (auto-backfill)
+                            $roleId = $payload['role_id'] ?? null;
+                            if ($roleId && class_exists(\App\Models\RoleVersion::class)) {
+                                $exists = \App\Models\RoleVersion::where('role_id', $roleId)->exists();
+                                if (!$exists && class_exists(\App\Models\Roles::class)) {
+                                    $role = \App\Models\Roles::find($roleId);
+                                    if ($role) {
+                                        \App\Models\RoleVersion::create([
+                                            'organization_id' => $changeSet->organization_id,
+                                            'role_id' => $role->id,
+                                            'version_group_id' => (string) Str::uuid(),
+                                            'name' => $role->name,
+                                            'description' => $role->description ?? null,
+                                            'effective_from' => now()->toDateString(),
+                                            'evolution_state' => 'new_embryo',
+                                            'metadata' => ['source' => 'backfill', 'scenario_id' => $payload['scenario_id'] ?? $changeSet->scenario_id ?? null],
+                                            'created_by' => $actor->id ?? null,
+                                        ]);
+                                    }
+                                }
+                            }
+
                             if (class_exists(\App\Models\RoleSunsetMapping::class)) {
-                                \App\Models\RoleSunsetMapping::create([
-                                    'organization_id' => $changeSet->organization_id,
-                                    'scenario_id' => $payload['scenario_id'] ?? $changeSet->scenario_id ?? null,
+                                $where = [
                                     'role_id' => $payload['role_id'] ?? null,
-                                    'mapped_role_id' => $payload['mapped_role_id'] ?? null,
-                                    'sunset_reason' => $payload['sunset_reason'] ?? null,
-                                    'metadata' => $payload['metadata'] ?? null,
-                                    'created_by' => $actor->id ?? null,
-                                ]);
+                                    'scenario_id' => $payload['scenario_id'] ?? $changeSet->scenario_id ?? null,
+                                ];
+                                $existing = \App\Models\RoleSunsetMapping::where($where);
+                                if (!empty($payload['sunset_reason'])) {
+                                    $existing->where('sunset_reason', $payload['sunset_reason']);
+                                }
+                                if (!$existing->exists()) {
+                                    \App\Models\RoleSunsetMapping::create([
+                                        'organization_id' => $changeSet->organization_id,
+                                        'scenario_id' => $where['scenario_id'],
+                                        'role_id' => $where['role_id'],
+                                        'mapped_role_id' => $payload['mapped_role_id'] ?? null,
+                                        'sunset_reason' => $payload['sunset_reason'] ?? null,
+                                        'metadata' => $payload['metadata'] ?? null,
+                                        'created_by' => $actor->id ?? null,
+                                    ]);
+                                }
                             }
                         }
                         break;

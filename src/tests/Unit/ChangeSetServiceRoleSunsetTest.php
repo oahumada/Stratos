@@ -35,18 +35,20 @@ class ChangeSetServiceRoleSunsetTest extends TestCase
             'scenario_id' => null,
             'title' => 'Test ChangeSet',
             'status' => 'draft',
-            'diff' => ['ops' => [
-                [
-                    'type' => 'create_role_sunset_mapping',
-                    'payload' => [
-                        'scenario_id' => null,
-                        'role_id' => $role->id,
-                        'mapped_role_id' => null,
-                        'sunset_reason' => 'redundant',
-                        'metadata' => ['via' => 'test']
+            'diff' => [
+                'ops' => [
+                    [
+                        'type' => 'create_role_sunset_mapping',
+                        'payload' => [
+                            'scenario_id' => null,
+                            'role_id' => $role->id,
+                            'mapped_role_id' => null,
+                            'sunset_reason' => 'redundant',
+                            'metadata' => ['via' => 'test']
+                        ]
                     ]
                 ]
-            ]]
+            ]
         ]);
 
         $service = new ChangeSetService();

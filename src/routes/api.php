@@ -99,6 +99,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/change-sets/{id}/preview', [\App\Http\Controllers\Api\ChangeSetController::class, 'preview']);
     Route::post('/strategic-planning/change-sets/{id}/apply', [\App\Http\Controllers\Api\ChangeSetController::class, 'apply']);
     Route::post('/strategic-planning/change-sets/{id}/ops', [\App\Http\Controllers\Api\ChangeSetController::class, 'addOp']);
+    Route::get('/strategic-planning/change-sets/{id}/can-apply', [\App\Http\Controllers\Api\ChangeSetController::class, 'canApply']);
+    Route::post('/strategic-planning/change-sets/{id}/approve', [\App\Http\Controllers\Api\ChangeSetController::class, 'approve']);
+    Route::post('/strategic-planning/change-sets/{id}/reject', [\App\Http\Controllers\Api\ChangeSetController::class, 'reject']);
 
     // Dev API: manage capability_competencies pivot (competency assignments per capability per scenario)
     // Supports both creating new competencies and attaching existing ones
