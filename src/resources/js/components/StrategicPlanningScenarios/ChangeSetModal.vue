@@ -19,9 +19,19 @@
           </div>
           <transition name="fade">
             <div v-show="!collapsed[i]" class="op-details" :id="`op-details-${i}`">
-              <pre>{{ formatOp(op) }}</pre>
+              <div v-if="op.payload && typeof op.payload === 'object' && !showRaw[i]">
+                <div class="op-payload-summary">
+                  <div v-for="(val, key) in op.payload" :key="key" class="payload-row">
+                    <strong>{{ key }}:</strong>
+                    <span v-if="typeof val === 'object'">{{ JSON.stringify(val) }}</span>
+                    <span v-else>{{ String(val) }}</span>
+                  </div>
+                </div>
+              </div>
+              <pre v-else>{{ JSON.stringify(op, null, 2) }}</pre>
               <div class="op-row-actions">
                 <button type="button" @click="copyOp(i)" :aria-label="`Copiar operación ${i + 1}`">Copiar op</button>
+                <button type="button" @click="toggleRaw(i)" :aria-label="`Alternar vista JSON ${i + 1}`">{{ showRaw[i] ? 'Ocultar JSON' : 'Ver JSON' }}</button>
                 <span v-if="op._reverted" class="op-reverted">Revertida</span>
               </div>
             </div>
@@ -30,7 +40,10 @@
       </ol>
     </div>
     <div v-else>
-      <pre v-if="preview">{{ JSON.stringify(preview, null, 2) }}</pre>
+      <div v-if="preview && preview.ops && preview.ops.length === 0" class="no-ops">
+        <v-alert type="info" variant="tonal">No hay operaciones en este ChangeSet.</v-alert>
+      </div>
+      <pre v-else-if="preview">{{ JSON.stringify(preview, null, 2) }}</pre>
       <div v-else>No preview available</div>
     </div>
     <div class="actions">
@@ -59,6 +72,7 @@ export default defineComponent({
 
     const collapsed = ref<boolean[]>([]);
     const ignored = ref<Record<number, boolean>>({});
+    const showRaw = ref<Record<number, boolean>>({});
     const modalRef = ref<HTMLElement | null>(null);
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -72,7 +86,6 @@ export default defineComponent({
       try {
         const res = await store.previewChangeSet(props.id);
         preview.value = res.preview ?? res.data ?? res;
-        // initialize collapsed state
         const ops = preview.value?.ops ?? [];
         collapsed.value = ops.map(() => false);
         try {
@@ -87,48 +100,28 @@ export default defineComponent({
     };
 
     const fmt = (v: any) => {
-      try {
-        return JSON.stringify(v, null, 2);
-      } catch (e) {
-        return String(v);
-      }
-    };
-
-    const formatOp = (op: any) => {
-      const clone = { ...op };
-      // Hide large nested fields when possible
-      if (clone.payload && typeof clone.payload === 'object') {
-        clone.payload = clone.payload;
-      }
-      return fmt(clone);
+      try { return JSON.stringify(v, null, 2); } catch (e) { return String(v); }
     };
 
     const revertOp = (i: number) => {
       if (!preview.value || !Array.isArray(preview.value.ops)) return;
       const op = preview.value.ops[i];
       if (!op) return;
-      // toggle reverted flag in-place for UI only
       op._reverted = !op._reverted;
-      // keep reverted ops hidden from apply list by marking them as ignored in the preview view
       if (op._reverted) {
         ignored.value[i] = true;
         preview.value.ops = preview.value.ops.map((o: any, idx: number) => (ignored.value[idx] ? { ...o, _ignored: true } : o)).filter((o: any) => !o._ignored);
-        // ensure collapsed indexes align
         collapsed.value = preview.value.ops.map(() => false);
       } else {
-        // undo revert: reload preview to ensure original op is back (best-effort)
         ignored.value = {};
         loadPreview();
       }
     };
 
-    const toggle = (i: number) => {
-      collapsed.value[i] = !collapsed.value[i];
-    };
+    const toggle = (i: number) => { collapsed.value[i] = !collapsed.value[i]; };
 
     const ignoreOp = (i: number) => {
       ignored.value[i] = true;
-      // remove from preview view without mutating original
       if (preview.value && Array.isArray(preview.value.ops)) {
         preview.value.ops = preview.value.ops.map((op: any, idx: number) => (ignored.value[idx] ? { ...op, _ignored: true } : op)).filter((o: any) => !o._ignored);
       }
@@ -140,6 +133,8 @@ export default defineComponent({
       const text = JSON.stringify(op, null, 2);
       navigator.clipboard?.writeText(text).catch(() => {});
     };
+
+    const toggleRaw = (i: number) => { showRaw.value[i] = !showRaw.value[i]; };
 
     const opClass = (type: string) => {
       if (!type) return 'op-default';
@@ -160,54 +155,22 @@ export default defineComponent({
     const apply = async () => {
       loading.value = true;
       try {
-        // send ignored indexes to backend so apply can skip reverted/ignored ops
         const ignoredIndexes = Object.keys(ignored.value).filter((k) => ignored.value[Number(k)]).map((k) => Number(k));
         const payload = ignoredIndexes.length ? { ignored_indexes: ignoredIndexes } : undefined;
         await store.applyChangeSet(props.id, payload);
         window.location.reload();
-      } finally {
-        loading.value = false;
-      }
+      } finally { loading.value = false; }
     };
 
-    const approve = async () => {
-      loading.value = true;
-      try {
-        await store.approveChangeSet(props.id);
-        window.location.reload();
-      } finally {
-        loading.value = false;
-      }
-    };
+    const approve = async () => { loading.value = true; try { await store.approveChangeSet(props.id); window.location.reload(); } finally { loading.value = false; } };
+    const reject = async () => { loading.value = true; try { await store.rejectChangeSet(props.id); window.location.reload(); } finally { loading.value = false; } };
 
-    const reject = async () => {
-      loading.value = true;
-      try {
-        await store.rejectChangeSet(props.id);
-        window.location.reload();
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    onMounted(() => {
-      nextTick(() => {
-        try {
-          modalRef.value?.focus();
-        } catch (e) {
-          // ignore
-        }
-        window.addEventListener('keydown', onKeyDown);
-      });
-    });
-
-    onBeforeUnmount(() => {
-      window.removeEventListener('keydown', onKeyDown);
-    });
+    onMounted(() => { nextTick(() => { try { modalRef.value?.focus(); } catch (e) {} window.addEventListener('keydown', onKeyDown); }); });
+    onBeforeUnmount(() => { window.removeEventListener('keydown', onKeyDown); });
 
     loadPreview();
 
-    return { preview, loading, apply, canApply, approve, reject, formatOp, collapsed, toggle, ignoreOp, copyOp, opClass, opIcon, revertOp, ignored, modalRef };
+    return { preview, loading, apply, canApply, approve, reject, collapsed, toggle, ignoreOp, copyOp, opClass, opIcon, revertOp, ignored, modalRef, showRaw, toggleRaw };
   },
 });
 </script>
@@ -215,9 +178,6 @@ export default defineComponent({
 <style scoped>
 .changeset-modal { padding: 1rem; }
 .actions { margin-top: 1rem; }
-</style>
-
-<style scoped>
 .op-create { background: #e6ffed; border-left: 4px solid #2ecc71; padding: 0.5rem; margin-bottom: 0.5rem; }
 .op-update { background: #fffbe6; border-left: 4px solid #f1c40f; padding: 0.5rem; margin-bottom: 0.5rem; }
 .op-delete { background: #ffecec; border-left: 4px solid #e74c3c; padding: 0.5rem; margin-bottom: 0.5rem; }
@@ -225,4 +185,6 @@ export default defineComponent({
 .op-badge { margin-right: 0.5rem; }
 .op-type { margin-left: 0.5rem; color: #2c3e50; }
 .op-details { margin-top: 0.25rem; }
+.op-payload-summary { padding: 0.5rem; background: rgba(0,0,0,0.03); border-radius: 4px; }
+.payload-row { margin-bottom: 0.25rem; }
 </style>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import StatusTimeline from '@/components/StrategicPlanningScenarios/StatusTimeline.vue';
 import VersionHistoryModal from '@/components/StrategicPlanningScenarios/VersionHistoryModal.vue';
+import ChangeSetModal from '@/components/StrategicPlanningScenarios/ChangeSetModal.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -126,6 +127,9 @@ const currentStep = ref(1);
 const versionHistoryRef = ref<InstanceType<typeof VersionHistoryModal> | null>(
     null,
 );
+const showChangeSet = ref(false);
+const changeSetId = ref<number | null>(null);
+const creatingChangeSet = ref(false);
 const statusTimelineRef = ref<InstanceType<typeof StatusTimeline> | null>(null);
 
 const scenarioId = computed(() => {
@@ -509,6 +513,30 @@ const openVersionHistory = () => {
     versionHistoryRef.value?.openDialog();
 };
 
+const closeChangeSetModal = () => {
+    showChangeSet.value = false;
+    changeSetId.value = null;
+};
+
+const openChangeSetModal = async () => {
+    if (!scenarioId.value || scenarioId.value <= 0) return;
+    creatingChangeSet.value = true;
+    try {
+        const res: any = await api.post(`/api/strategic-planning/scenarios/${scenarioId.value}/change-sets`, {});
+        const cs = (res as any)?.data ?? res;
+        // accommodate both { data: cs } and direct cs responses
+        changeSetId.value = cs?.id ?? (cs?.data && cs.data.id) ?? null;
+        if (changeSetId.value) showChangeSet.value = true;
+        else showError('No se pudo obtener el ChangeSet');
+    } catch (e) {
+        console.error(e);
+        const friendly = (e as any)?.friendlyMessage || (e as any)?.message || 'No se pudo generar el ChangeSet';
+        showError(friendly);
+    } finally {
+        creatingChangeSet.value = false;
+    }
+};
+
 const openStatusTimeline = () => {
     statusTimelineRef.value?.openTimeline();
 };
@@ -662,6 +690,14 @@ onMounted(() => {
                             size="small"
                             @click="openVersionHistory"
                             title="Historial de versiones"
+                        />
+                        <v-btn
+                            icon="mdi-source-branch"
+                            variant="text"
+                            size="small"
+                            :loading="creatingChangeSet"
+                            @click="openChangeSetModal"
+                            title="ChangeSet"
                         />
                     </v-col>
                 </v-row>
@@ -883,6 +919,18 @@ onMounted(() => {
             :scenario-id="scenarioId"
             @status-changed="handleStatusChanged"
         />
+        <v-dialog v-model="showChangeSet" max-width="900" scrollable>
+            <v-card>
+                <v-card-text>
+                    <ChangeSetModal
+                        v-if="changeSetId"
+                        :id="changeSetId"
+                        title="ChangeSet"
+                        @close="closeChangeSetModal"
+                    />
+                </v-card-text>
+            </v-card>
+        </v-dialog>
     </div>
     </v-app>
 </template>

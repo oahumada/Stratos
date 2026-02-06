@@ -213,6 +213,31 @@ focusedNode.value.competencies[].skills ← Fuente para expandCompetencies()
 nodes.value[].competencies[].skills     ← Fuente raíz
 ```
 
+## Implementación: Integración ChangeSet Modal en UI (2026-02-06)
+
+- **Tipo:** component / implementation (project fact)
+- **Archivos:** [src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue](src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue), [src/resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue](src/resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue), [src/app/Http/Controllers/Api/ChangeSetController.php](src/app/Http/Controllers/Api/ChangeSetController.php), [src/app/Services/ChangeSetService.php](src/app/Services/ChangeSetService.php)
+- **Propósito:** Añadir un lanzador definitivo del `ChangeSetModal` en el header de la página de detalle de escenario para permitir preview/aplicar/aprobar/rechazar cambios del escenario.
+- **Comportamiento implementado:** El header ahora muestra un botón `mdi-source-branch` que al pulsarse crea/solicita el ChangeSet para el `scenarioId` actual via `POST /api/strategic-planning/scenarios/{scenarioId}/change-sets` y abre el modal con el `id` retornado. El modal usa la store `changeSetStore` para `preview`, `canApply`, `apply`, `approve` y `reject`. El `apply` envía `ignored_indexes` desde la UI para respetar ops ignoradas.
+- **Fix aplicado (2026-02-06):** Se detectó un error al crear un ChangeSet sin payload (DB lanzó NOT NULL constraint para `title`). Se añadió en `ChangeSetController::store` valores por defecto: `title = 'ChangeSet'` y `diff = ['ops' => []]` para prevenir la excepción y permitir que el cliente abra el modal sin enviar campos adicionales.
+- **Notas técnicas:** Se añadió manejo de estado `creatingChangeSet`, y funciones `openChangeSetModal` / `closeChangeSetModal` en `ScenarioDetail.vue`. Se debe revisar que el endpoint `store` del `ChangeSetController` genere el diff adecuado cuando se invoca sin payload (comportamiento actual: `ChangeSetService::build` persiste payload mínimo y la lógica puede generar diff server-side si está implementada).
+- **Próximos pasos recomendados:** Añadir E2E Playwright que abra la página de escenario, lance el modal, marque una operación como ignorada y ejecute `apply` comprobando efectos en DB (role_versions / role_sunset_mappings / scenario_role_skills). Añadir una pequeña comprobación visual/ARIA en el test.
+
+## Decision: Versionado de Escenarios — asignación en aprobación (2026-02-06)
+
+- **Resumen:** Mientras un escenario está en incubación (estado `draft` / `in_embryo`) no se considera una versión formal publicada. La numeración formal del escenario (p. ej. `version_number` → `1.0`) debe asignarse cuando el escenario es aprobado/publicado.
+- **Regla propuesta (documentada):** Al aprobar un escenario por primera vez, si `version_number` no existe, el flujo de aprobación debe:
+  - Asignar `version_number = 1` (o el esquema numérico que use el proyecto, p. ej. `1.0`).
+  - Generar/asegurar `version_group_id` si no existe (UUID) para vincular versiones relacionadas.
+  - Marcar `is_current_version = true` y, si aplica, des-marcar versiones previas como `is_current_version = false`.
+  - Registrar metadatos en `metadata` (ej.: `approved_at`, `approved_by`, `notes`) para trazabilidad.
+- **Implicaciones técnicas:**
+  - El endpoint/handler de aprobación (`[src/app/Http/Controllers/Api/ChangeSetController.php](src/app/Http/Controllers/Api/ChangeSetController.php)`) es un buen lugar para aplicar esta regla si la aprobación se realiza vía ChangeSet approval flow.
+  - Alternativamente, centralizar la lógica en un servicio (`ScenarioVersioningService` o dentro de `ChangeSetService::apply`/`approve`) garantiza coherencia si hay múltiples caminos de aprobación.
+  - Se recomienda añadir tests unitarios/feature que verifiquen: creación de `version_number` al aprobar, preservación de `version_group_id`, y el marcado de `is_current_version`.
+- **Acción tomada:** Documentado aquí en `openmemory.md`. Si quieres, implemento la garantía de asignación (`version_number`/`version_group_id`) en el flujo de aprobación y añado tests asociados.
+
+
 **API del Composable:**
 
 ```typescript

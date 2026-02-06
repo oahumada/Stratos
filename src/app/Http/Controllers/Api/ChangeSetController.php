@@ -24,7 +24,20 @@ class ChangeSetController extends Controller
         $payload['scenario_id'] = $scenarioId;
         $payload['organization_id'] = $user->organization_id ?? null;
         $payload['created_by'] = $user->id ?? null;
+        // Provide sensible defaults when client invokes store with empty payload
+        $payload['title'] = $payload['title'] ?? 'ChangeSet';
+        $payload['diff'] = $payload['diff'] ?? ['ops' => []];
         $payload['status'] = $payload['status'] ?? 'draft';
+
+        // If a draft ChangeSet already exists for this scenario+org, return it instead of creating a new empty one
+        $existing = ChangeSet::where('scenario_id', $scenarioId)
+            ->where('organization_id', $payload['organization_id'])
+            ->where('status', 'draft')
+            ->latest()
+            ->first();
+        if ($existing) {
+            return response()->json(['success' => true, 'data' => $existing], 200);
+        }
 
         $cs = $this->service->build($payload);
         return response()->json(['success' => true, 'data' => $cs], 201);
