@@ -2,6 +2,7 @@
 import StatusTimeline from '@/components/StrategicPlanningScenarios/StatusTimeline.vue';
 import VersionHistoryModal from '@/components/StrategicPlanningScenarios/VersionHistoryModal.vue';
 import ChangeSetModal from '@/components/StrategicPlanningScenarios/ChangeSetModal.vue';
+import GenerateWizard from './GenerateWizard/GenerateWizard.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -131,6 +132,7 @@ const showChangeSet = ref(false);
 const changeSetId = ref<number | null>(null);
 const creatingChangeSet = ref(false);
 const statusTimelineRef = ref<InstanceType<typeof StatusTimeline> | null>(null);
+const showGenerateWizard = ref(false);
 
 const scenarioId = computed(() => {
     const value =
@@ -584,6 +586,7 @@ void openStatusTimeline;
 void handleVersionSelected;
 void calculateGaps;
 void refreshStrategies;
+void showGenerateWizard;
 
 // Definición de los 7 pasos del workflow
 const stepperItems = [
@@ -698,6 +701,13 @@ onMounted(() => {
                             :loading="creatingChangeSet"
                             @click="openChangeSetModal"
                             title="ChangeSet"
+                        />
+                        <v-btn
+                            icon="mdi-robot"
+                            variant="text"
+                            size="small"
+                            @click="showGenerateWizard = true"
+                            title="Generar escenario"
                         />
                     </v-col>
                 </v-row>
@@ -928,6 +938,13 @@ onMounted(() => {
                         title="ChangeSet"
                         @close="closeChangeSetModal"
                     />
+                </v-card-text>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="showGenerateWizard" max-width="1000">
+            <v-card>
+                <v-card-text>
+                    <GenerateWizard />
                 </v-card-text>
             </v-card>
         </v-dialog>

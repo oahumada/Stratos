@@ -3,6 +3,10 @@
 Este documento actúa como índice vivo (openmemory) del repositorio `oahumada/Stratos`.
 Se creó/actualizó automáticamente para registrar decisiones, implementaciones y referencias útiles.
 
+### Nota rápida (2026-02-06)
+
+- Añadida prueba Playwright E2E: `src/tests/e2e/generate-wizard.spec.ts` — flujo feliz GenerateWizard (preview + autorizar LLM + verificar resultado mockeado).
+
 ## Estado actual (inicio)
 
 - Branch: feature/workforce-planning-scenario-modeling
@@ -223,6 +227,15 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 - **Notas técnicas:** Se añadió manejo de estado `creatingChangeSet`, y funciones `openChangeSetModal` / `closeChangeSetModal` en `ScenarioDetail.vue`. Se debe revisar que el endpoint `store` del `ChangeSetController` genere el diff adecuado cuando se invoca sin payload (comportamiento actual: `ChangeSetService::build` persiste payload mínimo y la lógica puede generar diff server-side si está implementada).
 - **Próximos pasos recomendados:** Añadir E2E Playwright que abra la página de escenario, lance el modal, marque una operación como ignorada y ejecute `apply` comprobando efectos en DB (role_versions / role_sunset_mappings / scenario_role_skills). Añadir una pequeña comprobación visual/ARIA en el test.
 
+## Implementación: Integración GenerateWizard en UI (2026-02-06)
+
+- **Tipo:** component / implementation (project fact)
+- **Archivos:** [src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue](src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue), [src/resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue](src/resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue), [src/resources/js/stores/scenarioGenerationStore.ts](src/resources/js/stores/scenarioGenerationStore.ts), [src/app/Services/ScenarioGenerationService.php](src/app/Services/ScenarioGenerationService.php), [src/app/Jobs/GenerateScenarioFromLLMJob.php](src/app/Jobs/GenerateScenarioFromLLMJob.php)
+- **Propósito:** Añadir un lanzador en la cabecera de `ScenarioDetail.vue` para abrir el asistente `GenerateWizard` que guía al operador por un cuestionario de 5 pasos y permite previsualizar el prompt antes de autorizar la llamada al LLM.
+- **Comportamiento implementado:** Se añadió un botón de cabecera `mdi-robot` que abre un diálogo con `GenerateWizard`. El wizard usa la store `scenarioGenerationStore` para armar los campos, solicitar `preview` al endpoint `POST /api/strategic-planning/scenarios/generate/preview` y, previa confirmación humana, invoca `POST /api/strategic-planning/scenarios/generate` para encolar la generación. El diálogo muestra estado de generación y resultados cuando el job termina.
+- **Notas técnicas:** El `GenerateWizard` ya implementa pasos `StepIdentity`, `StepSituation`, `StepIntent`, `StepResources`, `StepHorizon` y un `PreviewConfirm` para revisar/editar el prompt. El store implementa `preview()`, `generate()` y `fetchStatus()` (polling manual). El backend actual usa un `LLMClient` mock y un job que persiste `llm_response` en `scenario_generations`.
+- **Próximos pasos:** Añadir tests unitarios para `ScenarioGenerationService::preparePrompt`, feature tests para `preview` y `store` endpoints (mock LLM), e2e Playwright que recorra el wizard completo, y controles de tasa/coste antes de habilitar LLM en producción.
+
 ## Decision: Versionado de Escenarios — asignación en aprobación (2026-02-06)
 
 - **Resumen:** Mientras un escenario está en incubación (estado `draft` / `in_embryo`) no se considera una versión formal publicada. La numeración formal del escenario (p. ej. `version_number` → `1.0`) debe asignarse cuando el escenario es aprobado/publicado.
@@ -236,7 +249,6 @@ nodes.value[].competencies[].skills     ← Fuente raíz
   - Alternativamente, centralizar la lógica en un servicio (`ScenarioVersioningService` o dentro de `ChangeSetService::apply`/`approve`) garantiza coherencia si hay múltiples caminos de aprobación.
   - Se recomienda añadir tests unitarios/feature que verifiquen: creación de `version_number` al aprobar, preservación de `version_group_id`, y el marcado de `is_current_version`.
 - **Acción tomada:** Documentado aquí en `openmemory.md`. Si quieres, implemento la garantía de asignación (`version_number`/`version_group_id`) en el flujo de aprobación y añado tests asociados.
-
 
 **API del Composable:**
 

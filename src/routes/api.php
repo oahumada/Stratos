@@ -103,6 +103,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/strategic-planning/change-sets/{id}/approve', [\App\Http\Controllers\Api\ChangeSetController::class, 'approve']);
     Route::post('/strategic-planning/change-sets/{id}/reject', [\App\Http\Controllers\Api\ChangeSetController::class, 'reject']);
 
+    // Scenario generation (LLM-driven)
+    Route::post('/strategic-planning/scenarios/generate', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'store']);
+    Route::post('/strategic-planning/scenarios/generate/preview', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'preview']);
+    Route::get('/strategic-planning/scenarios/generate/{id}', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'show']);
+
     // Dev API: manage capability_competencies pivot (competency assignments per capability per scenario)
     // Supports both creating new competencies and attaching existing ones
     Route::post('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
