@@ -1,9 +1,9 @@
 <template>
-  <div class="changeset-modal">
-    <h3>{{ title }}</h3>
+  <div class="changeset-modal" role="dialog" aria-modal="true" :aria-labelledby="`changeset-title-${id}`" tabindex="-1" ref="modalRef">
+    <h3 :id="`changeset-title-${id}`">{{ title }}</h3>
     <div v-if="preview && preview.ops && preview.ops.length">
       <p><strong>Operaciones:</strong> {{ preview.ops.length }}</p>
-      <ul>
+      <ol>
         <li v-for="(op, i) in preview.ops" :key="i" :class="opClass(op.type)">
           <div class="op-header">
             <div>
@@ -12,22 +12,22 @@
               <em class="op-type">{{ op.type }}</em>
             </div>
             <div class="op-actions">
-              <button @click="toggle(i)">{{ collapsed[i] ? 'Mostrar' : 'Ocultar' }}</button>
-              <button @click="ignoreOp(i)">Ignorar</button>
-              <button @click="revertOp(i)">{{ preview.ops[i] && preview.ops[i]._reverted ? 'Deshacer Revertir' : 'Revertir' }}</button>
+              <button type="button" @click="toggle(i)" :aria-expanded="!collapsed[i]" :aria-controls="`op-details-${i}`">{{ collapsed[i] ? 'Mostrar' : 'Ocultar' }}</button>
+              <button type="button" @click="ignoreOp(i)" :aria-label="`Ignorar operación ${i + 1}: ${op.type}`">Ignorar</button>
+              <button type="button" @click="revertOp(i)" :aria-label="preview.ops[i] && preview.ops[i]._reverted ? `Deshacer revertir operación ${i + 1}` : `Revertir operación ${i + 1}`">{{ preview.ops[i] && preview.ops[i]._reverted ? 'Deshacer Revertir' : 'Revertir' }}</button>
             </div>
           </div>
           <transition name="fade">
-            <div v-show="!collapsed[i]" class="op-details">
+            <div v-show="!collapsed[i]" class="op-details" :id="`op-details-${i}`">
               <pre>{{ formatOp(op) }}</pre>
               <div class="op-row-actions">
-                <button @click="copyOp(i)">Copiar op</button>
+                <button type="button" @click="copyOp(i)" :aria-label="`Copiar operación ${i + 1}`">Copiar op</button>
                 <span v-if="op._reverted" class="op-reverted">Revertida</span>
               </div>
             </div>
           </transition>
         </li>
-      </ul>
+      </ol>
     </div>
     <div v-else>
       <pre v-if="preview">{{ JSON.stringify(preview, null, 2) }}</pre>
@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useChangeSetStore } from '@/stores/changeSetStore';
 
 export default defineComponent({
@@ -51,7 +51,7 @@ export default defineComponent({
     id: { type: Number, required: true },
     title: { type: String, default: 'ChangeSet' },
   },
-  setup(props) {
+  setup(props, { emit }) {
     const store = useChangeSetStore();
     const preview = ref<any>(null);
     const loading = ref(false);
@@ -59,6 +59,13 @@ export default defineComponent({
 
     const collapsed = ref<boolean[]>([]);
     const ignored = ref<Record<number, boolean>>({});
+    const modalRef = ref<HTMLElement | null>(null);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        emit('close');
+      }
+    };
 
     const loadPreview = async () => {
       loading.value = true;
@@ -183,9 +190,24 @@ export default defineComponent({
       }
     };
 
+    onMounted(() => {
+      nextTick(() => {
+        try {
+          modalRef.value?.focus();
+        } catch (e) {
+          // ignore
+        }
+        window.addEventListener('keydown', onKeyDown);
+      });
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('keydown', onKeyDown);
+    });
+
     loadPreview();
 
-    return { preview, loading, apply, canApply, approve, reject, formatOp, collapsed, toggle, ignoreOp, copyOp, opClass, opIcon, revertOp, ignored };
+    return { preview, loading, apply, canApply, approve, reject, formatOp, collapsed, toggle, ignoreOp, copyOp, opClass, opIcon, revertOp, ignored, modalRef };
   },
 });
 </script>
