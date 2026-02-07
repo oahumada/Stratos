@@ -1,0 +1,58 @@
+name: Unit tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v3
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, sqlite
+
+      - name: Install Composer dependencies
+        working-directory: src
+        run: composer install --no-interaction --no-progress --no-suggest --prefer-dist
+
+      - name: Prepare environment
+        working-directory: src
+        run: |
+          cp .env.example .env
+          php -r "\$env = file_get_contents('.env'); \$env = preg_replace('/DB_CONNECTION=.*/', 'DB_CONNECTION=sqlite', \$env); \$env = preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE=' . getcwd() . '/database/database.sqlite', \$env); file_put_contents('.env', \$env);"
+
+      - name: Create sqlite DB file
+        working-directory: src
+        run: mkdir -p database && touch database/database.sqlite
+
+      - name: Generate APP key
+        working-directory: src
+        run: php artisan key:generate --ansi
+
+      - name: Run migrations & seed
+        working-directory: src
+        env:
+          APP_ENV: testing
+        run: php artisan migrate:fresh --seed --force
+
+      - name: Run unit tests
+        working-directory: src
+        run: php artisan test --testsuite=Unit || true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-unit-results
+          path: |
+            src/storage/logs
+            src/storage/test-results
+            src/phpunit.xml

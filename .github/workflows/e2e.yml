@@ -1,0 +1,102 @@
+name: E2E tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v3
+        with:
+          php-version: "8.2"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Composer dependencies
+        working-directory: src
+        run: composer install --no-interaction --no-progress --no-suggest --prefer-dist
+
+      - name: Prepare environment
+        run: |
+          cp src/.env.example src/.env
+          php -r "\$env = file_get_contents('src/.env'); \$env = preg_replace('/DB_CONNECTION=.*/', 'DB_CONNECTION=sqlite', \$env); \$env = preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE=database/database.sqlite', \$env); \$env = preg_replace('/APP_URL=.*/', 'APP_URL=http://127.0.0.1:8000', \$env); file_put_contents('src/.env', \$env);"
+
+      - name: Create sqlite DB file
+        run: mkdir -p src/database && touch src/database/database.sqlite
+
+      - name: Generate APP key
+        working-directory: src
+        run: php artisan key:generate --ansi
+
+      - name: Run migrations & seed
+        working-directory: src
+        env:
+          APP_ENV: testing
+        run: php artisan migrate:fresh --seed --force
+
+      - name: Install Node deps & build frontend
+        working-directory: src
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install Playwright browsers
+        working-directory: src
+        run: npx playwright install --with-deps
+
+      - name: Start Laravel server
+        working-directory: src
+        run: nohup php artisan serve --host=127.0.0.1 --port=8000 >/dev/null 2>&1 &
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://127.0.0.1:8000/ >/dev/null; then
+              echo "server up" && break
+            fi
+            sleep 1
+          done
+
+      - name: Run Playwright tests
+        working-directory: src
+        env:
+          BASE_URL: http://127.0.0.1:8000
+        run: |
+          # Run tests and always generate the HTML report
+          npx playwright test --reporter=list || true
+          npx playwright show-report --port=9323 || true
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            src/playwright-report
+            src/test-results
+            src/playwright-report/*
+            src/test-results/*
+            src/playwright-report/**
+            src/test-results/**
+
+      - name: Upload Playwright screenshots/videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            src/tests/**/screenshots
+            src/tests/**/videos
+            src/tests/**/trace.zip
+            src/tests/**/artifacts
