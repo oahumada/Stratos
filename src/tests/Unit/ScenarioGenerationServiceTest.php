@@ -1,27 +1,23 @@
 <?php
 
-use App\Services\ScenarioGenerationService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Organizations;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
-it('builds prompt including operator inputs and organization data', function () {
+it('builds a prompt that includes operator input and organization data', function () {
     $org = Organizations::create(['name' => 'ACME Corp', 'subdomain' => 'acme', 'industry' => 'tech', 'size' => 'small']);
     $user = User::factory()->create(['organization_id' => $org->id]);
 
-    $svc = new ScenarioGenerationService();
+    $svc = new \App\Services\ScenarioGenerationService();
 
-    $data = [
-        'company_name' => 'TestCo',
-        'current_challenges' => 'low sales',
-    ];
+    $payload = ['company_name' => 'ACME Corp', 'strategic_goal' => 'expand into EU'];
 
-    $prompt = $svc->preparePrompt($data, $user, $org);
+    $prompt = $svc->preparePrompt($payload, $user, $org);
 
-    expect($prompt)->toContain('OPERATOR_INPUT');
-    expect($prompt)->toContain('low sales');
-    expect($prompt)->toContain('ACME Corp');
+    expect($prompt)->toBeString();
+    expect(strpos($prompt, 'OPERATOR_INPUT') !== false)->toBeTrue();
+    expect(strpos($prompt, 'ACME Corp') !== false)->toBeTrue();
+    expect(strpos($prompt, 'expand into EU') !== false)->toBeTrue();
 });

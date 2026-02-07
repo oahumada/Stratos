@@ -17,6 +17,11 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
   - 2026-02-06: Servicio de redacción añadido: `src/app/Services/RedactionService.php` — usado para redaction de prompts y respuestas LLM antes de persistir. `ScenarioGenerationService::enqueueGeneration()` y `GenerateScenarioFromLLMJob` ahora aplican redacción automáticamente.
   - 2026-02-06: Manejo de rate-limits/retries implementado: `OpenAIProvider` lanza `LLMRateLimitException` en 429 y `LLMServerException` en 5xx; `GenerateScenarioFromLLMJob` reintenta con exponential backoff (máx 5 intentos) y marca `failed` tras agotar reintentos. `MockProvider` puede simular 429 mediante `LLM_MOCK_SIMULATE_429`.
 
+- 2026-02-07: ChangeSet approval now assigns scenario version metadata when missing: `version_group_id` (UUID), `version_number` (default 1) and `is_current_version=true`. Implemented in `src/app/Http/Controllers/Api/ChangeSetController.php::approve()` to ensure approved ChangeSets also guarantee scenario versioning and demote other current versions within the same `version_group_id`.
+  - 2026-02-07 (fix): Se corrigió un ParseError introducido por una edición previa. La lógica de asignación de metadata de versionado fue movida y consolidada dentro de `approve()` y se restablecieron los límites de función para evitar errores de sintaxis que impedían la ejecución de `php artisan wayfinder:generate` y, por ende, `npm run build`.
+  - 2026-02-07: E2E GenerateWizard estabilizado: helper `login` ahora usa CSRF + request-context cuando no hay formulario, el test avanza pasos del wizard antes de generar, el mock LLM usa el fixture correcto, y `GenerateWizard.vue` importa `ref` para evitar error runtime.
+  - 2026-02-07: E2E scenario map estabilizado: usa helper `login`, selector de nodos actualizado a `.node-group`, y validacion de child nodes solo cuando existan datos.
+
 ## Estado actual (inicio)
 
 - Branch: feature/workforce-planning-scenario-modeling

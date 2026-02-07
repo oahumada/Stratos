@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\ChangeSetService;
 use App\Models\ChangeSet;
+use App\Models\Scenario;
+use Illuminate\Support\Str;
 
 class ChangeSetController extends Controller
 {
@@ -109,6 +111,44 @@ class ChangeSetController extends Controller
         $cs->status = 'approved';
         $cs->approved_by = $user->id ?? null;
         $cs->save();
+
+        // Ensure the related Scenario receives versioning metadata when a ChangeSet is approved
+        try {
+            if (!empty($cs->scenario_id)) {
+                $scenario = Scenario::find($cs->scenario_id);
+                if ($scenario) {
+                    $changed = false;
+                    if (empty($scenario->version_group_id)) {
+                        $scenario->version_group_id = (string) Str::uuid();
+                        $changed = true;
+                    }
+                    if (empty($scenario->version_number) || $scenario->version_number < 1) {
+                        $scenario->version_number = 1;
+                        $changed = true;
+                    }
+                    if (empty($scenario->is_current_version)) {
+                        $scenario->is_current_version = true;
+                        $changed = true;
+                    }
+
+                    if ($changed) {
+                        if (!empty($scenario->version_group_id)) {
+                            Scenario::where('version_group_id', $scenario->version_group_id)
+                                ->where('id', '!=', $scenario->id)
+                                ->where('is_current_version', true)
+                                ->update(['is_current_version' => false]);
+                        }
+                        $scenario->approved_by = $user->id ?? $scenario->approved_by ?? null;
+                        $scenario->approved_at = $scenario->approved_at ?? now();
+                        $scenario->status = $scenario->status === 'approved' ? $scenario->status : 'approved';
+                        $scenario->save();
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('ChangeSet approval: failed to assign scenario version metadata: ' . $e->getMessage());
+        }
+
         return response()->json(['success' => true, 'data' => $cs]);
     }
 
