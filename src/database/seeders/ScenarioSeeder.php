@@ -11,6 +11,7 @@ use App\Models\ScenarioCapability;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleSkill;
 use App\Models\PeopleRoleSkills;
+use App\Models\People;
 use App\Models\Roles;
 use Illuminate\Support\Facades\DB;
 
@@ -119,12 +120,24 @@ class ScenarioSeeder extends Seeder
         ]);
 
         // 6. Simular Oferta Real (Fase 3)
-        PeopleRoleSkills::create([
-            'people_id' => 1,
+        // Ensure there is a People row to reference (link to admin user created by E2ESeeder)
+        $person = People::firstOrCreate(
+            ['organization_id' => $orgId, 'email' => env('E2E_ADMIN_EMAIL', 'admin@example.com')],
+            [
+                'user_id' => null,
+                'first_name' => 'E2E',
+                'last_name' => 'Admin',
+                'organization_id' => $orgId,
+            ]
+        );
+
+        PeopleRoleSkills::firstOrCreate([
+            'people_id' => $person->id,
             'role_id' => $role->id,
             'skill_id' => $skillIncubadaId,
+        ], [
             'current_level' => 2, // Genera un GAP
-            'evaluated_by' => 1,
+            'evaluated_by' => $person->id,
             'evidence_source' => 'self_assessment'
         ]);
     }

@@ -6,6 +6,7 @@ use App\Jobs\GenerateScenarioFromLLMJob;
 use App\Models\ScenarioGeneration;
 use App\Models\Organizations;
 use App\Models\User;
+use App\Services\RedactionService;
 
 class ScenarioGenerationService
 {
@@ -33,12 +34,16 @@ class ScenarioGenerationService
 
     public function enqueueGeneration(string $prompt, int $organizationId, ?int $createdBy = null, array $metadata = []): ScenarioGeneration
     {
+        // Redact prompt before persisting to avoid storing secrets/PII
+        $redactedPrompt = RedactionService::redactText($prompt);
+
         $generation = ScenarioGeneration::create([
             'organization_id' => $organizationId,
             'created_by' => $createdBy,
-            'prompt' => $prompt,
+            'prompt' => $redactedPrompt,
             'metadata' => $metadata,
             'status' => 'queued',
+            'redacted' => true,
         ]);
 
         GenerateScenarioFromLLMJob::dispatch($generation->id);

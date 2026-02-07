@@ -7,6 +7,16 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 - Añadida prueba Playwright E2E: `src/tests/e2e/generate-wizard.spec.ts` — flujo feliz GenerateWizard (preview + autorizar LLM + verificar resultado mockeado).
 
+- 2026-02-06: Documentación y helpers E2E añadidos para flujo de generación de escenarios:
+  - `docs/GUIA_GENERACION_ESCENARIOS.md`: ampliada con instrucciones prácticas para Playwright, CI, configuración LLM, pruebas de edge-cases y recomendaciones de seguridad.
+  - Helpers Playwright añadidos: `src/tests/e2e/helpers/login.ts`, `src/tests/e2e/helpers/intercepts.ts`.
+  - Fixture LLM para E2E: `src/tests/fixtures/llm/mock_generation_response.json`.
+
+  Nota: estos cambios ayudan a ejecutar E2E reproducibles en local y en CI usando un adapter/mock para LLM; asegurar que `BASE_URL` y credenciales E2E estén configuradas en el entorno de ejecución.
+  - 2026-02-06: Seed reproducible añadido: `src/database/seeders/E2ESeeder.php` — crea `Organizations` id=1, admin user (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) y ejecuta `ScenarioSeeder` + `DemoSeeder` cuando están disponibles. Usar `php artisan migrate:fresh --seed --seeder=E2ESeeder` para preparar entorno local/CI.
+  - 2026-02-06: Servicio de redacción añadido: `src/app/Services/RedactionService.php` — usado para redaction de prompts y respuestas LLM antes de persistir. `ScenarioGenerationService::enqueueGeneration()` y `GenerateScenarioFromLLMJob` ahora aplican redacción automáticamente.
+  - 2026-02-06: Manejo de rate-limits/retries implementado: `OpenAIProvider` lanza `LLMRateLimitException` en 429 y `LLMServerException` en 5xx; `GenerateScenarioFromLLMJob` reintenta con exponential backoff (máx 5 intentos) y marca `failed` tras agotar reintentos. `MockProvider` puede simular 429 mediante `LLM_MOCK_SIMULATE_429`.
+
 ## Estado actual (inicio)
 
 - Branch: feature/workforce-planning-scenario-modeling

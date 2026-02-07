@@ -5,6 +5,17 @@ Resumen
 - Propósito: plantilla y guía operativa para generar escenarios de planificación de talento mediante un LLM, integrable como un wizard en la UI.
 - Alcance: cuestionario operador → prompt estructurado → llamada LLM (cola) → revisión humana → persistencia como `scenario` draft o `scenario_generation` record.
 
+!!! warning
+**Precaución importante:** No ejecutar tests automáticos (unit/feature/E2E) ni pipelines que lancen E2E hasta haber completado e verificado la implementación de la generación asistida por LLM. Requisitos mínimos antes de ejecutar tests:
+
+- Seeds/fixtures para los escenarios usados por E2E y datos de prueba reproducibles.
+- Helpers E2E (login/intercepts) validados y estables.
+- `LLMClient` adaptador con modo `mock` y configuración `LLM_PROVIDER` disponible; en CI forzar `LLM_PROVIDER=mock`.
+- Redacción/redaction de PII en prompts/responses y validación de no persistir secretos.
+- Tests de edge-cases: redaction, rate-limits (429), errores 5xx/timeouts, reintentos/idempotencia y validación de payloads LLM.
+
+Hasta completar los puntos anteriores, el workflow Playwright E2E está desactivado por defecto y requiere `RUN_E2E=true` para correr.
+
 1. Plantilla del Prompt Estructurado
 
 # CONTEXTO ORGANIZACIONAL
@@ -175,7 +186,118 @@ Hitos:
 - [ ] Tests unit/feature/e2e añadidos
 - [ ] Documentación actualizada (`docs/GUIA_GENERACION_ESCENARIOS.md`) — este archivo
 
-12. Ejemplo rápido de uso (operador)
+---
+
+14. Playwright E2E — Guía práctica (añadido)
+
+- Ejecutar localmente (desde `src/`):
+
+```bash
+# Instalar dependencias (por primera vez)
+cd src
+npm ci
+# Instalar navegadores Playwright
+npx playwright install --with-deps
+# Ejecutar E2E (headless)
+npm run test:e2e
+# Ejecutar en modo headed (local)
+npm run test:e2e:headed
+```
+
+- Variables de entorno: copie `.env.playwright.example` a `.env.playwright` o exporte en CI las siguientes variables mínimas:
+  - `BASE_URL` — URL donde corre la app de pruebas (ej. `http://localhost:8000`).
+  - `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD` — credenciales de usuario E2E.
+  - `LLM_PROVIDER` — en CI usar `mock` para evitar llamadas reales.
+
+- Helpers recomendados (ubicación): `src/tests/e2e/helpers/`
+  - `login.ts` — helper para login por UI o API.
+  - `intercepts.ts` — helpers para interceptar endpoints LLM/preview/generate/status y servir fixtures.
+
+- Fixtures LLM: colocar respuestas controladas en `src/tests/fixtures/llm/` y usarlas en `intercepts.ts`.
+
+15. Playwright en CI — ejemplo de GitHub Actions (añadido)
+
+- Archivo ejemplo: `.github/workflows/playwright-e2e.yml` — debe ejecutarse _después_ de tener el backend disponible (service / deploy de revisión) o usar un job que levante la app. El job mínimo se encarga de instalar Node, dependencias y navegadores, y fuerza `LLM_PROVIDER=mock`:
+
+```yaml
+name: Playwright E2E
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - name: Install dependencies (frontend)
+        working-directory: src
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: src
+        run: npx playwright install --with-deps
+      - name: Run Playwright E2E
+        working-directory: src
+        env:
+          BASE_URL: ${{ secrets.E2E_BASE_URL }}
+          LLM_PROVIDER: mock
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+        run: npm run test:e2e
+```
+
+16. LLM en CI / producción — configuración y recomendaciones (añadido)
+
+- Variables y adapter:
+  - `LLM_PROVIDER` — `mock|openai|anthropic|internal`.
+  - `LLM_API_KEY` — sólo en entornos controlados; NO en logs ni reportes.
+  - `LLM_MODE` — `production|test` (forzar `test` en CI).
+
+- Recomendación de infraestructura:
+  - Implementar un `LLMClient` adaptador con una opción `mock` que lea fixtures desde `tests/fixtures/llm/` cuando `LLM_PROVIDER=mock`.
+  - En CI siempre exportar `LLM_PROVIDER=mock` para evitar llamadas externas. Añadir comprobación en startup/tests para fallar si `LLM_PROVIDER` es `production` y no se ha autorizado.
+
+17. Edge-cases y tests adicionales (añadido)
+
+- Redacción / redaction:
+  - Test que envíe un prompt que contenga PII en preview y comprobar que el backend redactor elimina PII antes de persistir.
+- Rate limits / errores LLM:
+  - Mockear respuestas `429` y `5xx` en `GenerateScenarioFromLLMJob` y comprobar reintentos/backoff y marcado `failed` tras N intentos.
+- Reintentos / idempotencia:
+  - Tests de job que aseguren idempotencia (no duplicar `scenario` al reintentar).
+- Validación del payload LLM:
+  - Tests que comprueben la validación del JSON devuelto por LLM y rechazo cuando no cumple schema.
+
+18. Seguridad / secretos (añadido)
+
+- Nunca almacenar claves en memorias ni logs. Implementar función `redactPrompt()` antes de persistir o enviar a observabilidad.
+
+Ejemplo (PHP pseudo):
+
+```php
+function redactPrompt(string $prompt): string {
+  // simple redaction: emails, SSNs, long tokens
+  $prompt = preg_replace('/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i', '[REDACTED_EMAIL]', $prompt);
+  $prompt = preg_replace('/\b\d{3}[- ]?\d{2}[- ]?\d{4}\b/', '[REDACTED_SSN]', $prompt);
+  return $prompt;
+}
+```
+
+- En CI, sustituir LLM real por `mock` y asegurarse de que `openmemory.md` y otros índices no contengan secretos.
+
+19. Artefactos y reporting (añadido)
+
+- Configurar Playwright reporter (`html` + `junit`) y guardar en `test-results/` como artefactos en CI.
+- Guardar capturas/videos de fallos (config en `playwright.config.ts` ya establece `video: 'retain-on-failure'`).
+
+---
+
+Actualiza la checklist arriba y marca los ítems E2E/CI/LLM/seguridad como implementados cuando añadas los helpers y workflow. 12. Ejemplo rápido de uso (operador)
 
 - Completar cuestionario en wizard.
 - Pulsar `Generar` → aparece `generation_id` y barra de progreso.

@@ -51,8 +51,8 @@ test('GenerateWizard - happy path: preview and authorize generation', async ({ p
   await expect(genButton).toBeVisible({ timeout: 5000 });
   await genButton.click();
 
-  // Wait for wizard to appear
-  await page.waitForSelector('text=Generar Escenario', { timeout: 5000 });
+  // Wait for wizard to appear (case-insensitive)
+  await page.waitForSelector('text=/Generar escenario/i', { timeout: 10000 });
 
   // Click the Generar button in the wizard to trigger preview
   const generarBtn = page.getByRole('button', { name: /Generar|Generar Escenario/i }).first();

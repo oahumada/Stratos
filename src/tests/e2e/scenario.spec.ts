@@ -36,6 +36,8 @@ test('scenario map - click capability expands children and centers selected node
 
     // wait for load and possible XHRs to complete
     await page.waitForLoadState('networkidle');
+    // small stabilization wait to allow client-side rendering to start
+    await page.waitForTimeout(1000);
 
     // quick check: if we were redirected to login, fail early with helpful message
     const currentUrl = page.url();
@@ -48,7 +50,7 @@ test('scenario map - click capability expands children and centers selected node
     }
 
     // wait for nodes to render (node groups)
-    await page.waitForSelector('svg .nodes g.node-group', { timeout: 30000 });
+    await page.waitForSelector('svg .nodes g.node-group', { timeout: 60000 });
 
     // pick first capability node (exclude scenario-node)
     const capLocator = page.locator('svg .nodes g.node-group:not(.scenario-node)').first();

@@ -87,38 +87,4 @@ async function refreshStatus() {
 .wizard-controls button { margin-right: 0.5rem }
 .generation-status { margin-top: 1rem; background:#f7f7f7; padding:0.5rem }
 </style>
-<template>
-  <v-container>
-    <v-card>
-      <v-card-title>Generar Escenario asistido</v-card-title>
-      <v-card-text>
-        <StepIdentity />
-      </v-card-text>
-      <v-card-actions>
-        <v-btn color="primary" @click="onGenerate" :loading="store.loading">Generar</v-btn>
-      </v-card-actions>
-    </v-card>
-    <div v-if="store.result">
-      <h3>Resultado</h3>
-      <pre>{{ JSON.stringify(store.result, null, 2) }}</pre>
-    </div>
-  </v-container>
-</template>
 
-<script setup>
-import StepIdentity from './StepIdentity.vue';
-import { useScenarioGenerationStore } from '@/stores/scenarioGenerationStore';
-const store = useScenarioGenerationStore();
-
-const onGenerate = async () => {
-  try {
-    await store.generate();
-    // poll result
-    setTimeout(async () => {
-      await store.fetchResult();
-    }, 500);
-  } catch (e) {
-    // error handled in store
-  }
-};
-</script>
