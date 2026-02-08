@@ -199,6 +199,90 @@ class ScenarioGenerationController extends Controller
         $generation->metadata = array_merge($generation->metadata ?? [], ['accepted_by' => $user->id, 'accepted_at' => now()->toDateTimeString(), 'created_scenario_id' => $scenario->id]);
         $generation->save();
 
+        // Optional: import capabilities/competencies/skills from the LLM JSON
+        // Trigger when request includes `import=true` (UI/OPERATOR decision)
+        if ($request->boolean('import', false)) {
+            // feature-flag guard
+            if (! config('features.import_generation')) {
+                // record audit attempt
+                $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
+                    'attempted_by' => $user->id,
+                    'attempted_at' => now()->toDateTimeString(),
+                    'import' => true,
+                    'result' => 'skipped_feature_flag',
+                ]])]);
+                $generation->save();
+                return response()->json(['success' => false, 'message' => 'Import feature disabled'], 403);
+            }
+
+            // optional validation of llm_response
+            if (config('features.validate_llm_response')) {
+                try {
+                    $validator = app(\App\Services\LlmResponseValidator::class);
+                    $result = $validator->validate($llm);
+                    if (! $result['valid']) {
+                        // record validation failure in audit
+                        $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
+                            'attempted_by' => $user->id,
+                            'attempted_at' => now()->toDateTimeString(),
+                            'import' => true,
+                            'result' => 'validation_failed',
+                            'errors' => $result['errors'] ?? null,
+                        ]])]);
+                        $generation->save();
+                        return response()->json(['success' => false, 'message' => 'Invalid LLM response', 'errors' => $result['errors']], 422);
+                    }
+                } catch (\Throwable $e) {
+                    $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
+                        'attempted_by' => $user->id,
+                        'attempted_at' => now()->toDateTimeString(),
+                        'import' => true,
+                        'result' => 'validation_error',
+                        'error' => $e->getMessage(),
+                    ]])]);
+                    $generation->save();
+                    return response()->json(['success' => false, 'message' => 'LLM validation error', 'error' => $e->getMessage()], 500);
+                }
+            }
+
+            // record start of import attempt
+            $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
+                'attempted_by' => $user->id,
+                'attempted_at' => now()->toDateTimeString(),
+                'import' => true,
+                'result' => 'started',
+            ]])]);
+            $generation->save();
+
+            try {
+                $importer = app(\App\Services\ScenarioGenerationImporter::class);
+                $report = $importer->importGeneration($scenario, $generation);
+                // record success
+                $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
+                    'attempted_by' => $user->id,
+                    'attempted_at' => now()->toDateTimeString(),
+                    'import' => true,
+                    'result' => 'success',
+                    'report' => $report,
+                ]])]);
+                $generation->save();
+            } catch (\Throwable $e) {
+                // record failure
+                $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
+                    'attempted_by' => $user->id,
+                    'attempted_at' => now()->toDateTimeString(),
+                    'import' => true,
+                    'result' => 'failed',
+                    'error' => $e->getMessage(),
+                ]])]);
+                $generation->save();
+                // don't fail the overall accept flow; return report with error
+                return response()->json(['success' => true, 'message' => 'Scenario created; import failed', 'data' => $scenario, 'import_errors' => [$e->getMessage()]], 201);
+            }
+
+            return response()->json(['success' => true, 'message' => 'Scenario created from generation and imported', 'data' => $scenario, 'import' => $report], 201);
+        }
+
         return response()->json(['success' => true, 'message' => 'Scenario created from generation', 'data' => $scenario], 201);
     }
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import IncubatedReviewModal from '@/components/IncubatedReviewModal.vue';
 import ChangeSetModal from '@/components/StrategicPlanningScenarios/ChangeSetModal.vue';
 import StatusTimeline from '@/components/StrategicPlanningScenarios/StatusTimeline.vue';
 import VersionHistoryModal from '@/components/StrategicPlanningScenarios/VersionHistoryModal.vue';
@@ -133,6 +134,9 @@ const changeSetId = ref<number | null>(null);
 const creatingChangeSet = ref(false);
 const statusTimelineRef = ref<InstanceType<typeof StatusTimeline> | null>(null);
 const showGenerateWizard = ref(false);
+const showIncubatedReview = ref(false);
+const selectedIncubated = ref<any | null>(null);
+const showAcceptedPromptDialog = ref(false);
 
 const scenarioId = computed(() => {
     const value =
@@ -140,8 +144,25 @@ const scenarioId = computed(() => {
     return isNaN(value) ? 0 : value;
 });
 
-// detect optional view mode from querystring (e.g., ?view=map)
+// Compute whether the current user can view the accepted prompt (defensive UI-side check)
 const page = usePage();
+const canViewAcceptedPrompt = computed(() => {
+    try {
+        const user = (page as any).props?.auth?.user ?? null;
+        if (!user) return false;
+        const role = user.role ?? null;
+        if (['admin', 'approver', 'owner', 'superadmin'].includes(role))
+            return true;
+        // allow if user is creator/owner of the scenario (frontend best-effort)
+        return scenario.value
+            ? (scenario.value.created_by ?? null) === user.id
+            : false;
+    } catch (e) {
+        return false;
+    }
+});
+
+// detect optional view mode from querystring (e.g., ?view=map)
 const viewMode = computed(() => {
     try {
         const url = (page as any).url || window.location.href;
@@ -226,11 +247,101 @@ const loadScenario = async () => {
         }));
         // load roles for step1 based on scope (kept but roles will be unused in Phase 1)
         await loadRoles();
+        // load capability tree (incubated entities)
+        await loadCapabilityTree();
+        // load import audit for associated generation (if any)
+        if (scenario.value?.source_generation_id) await loadImportAudit();
     } catch (e) {
         void e;
         showError('No se pudo cargar el escenario');
     } finally {
         loading.value = false;
+    }
+};
+
+const incubatedTree = ref<any[]>([]);
+const loadingTree = ref(false);
+
+const importAudit = ref<any[]>([]);
+const loadingImportAudit = ref(false);
+
+const loadCapabilityTree = async () => {
+    if (!scenarioId.value || scenarioId.value <= 0) return;
+    loadingTree.value = true;
+    try {
+        const res: any = await api.get(
+            `/api/strategic-planning/scenarios/${scenarioId.value}/capability-tree`,
+        );
+        incubatedTree.value = (res as any)?.data ?? res ?? [];
+    } catch (e) {
+        console.error('Error loading capability tree', e);
+        incubatedTree.value = [];
+    } finally {
+        loadingTree.value = false;
+    }
+};
+
+const openIncubatedReview = (cap: any) => {
+    selectedIncubated.value = cap;
+    showIncubatedReview.value = true;
+};
+
+const onPromoted = async (data: any) => {
+    // refresh tree after single promote
+    await loadCapabilityTree();
+    // also refresh the scenario to update counts
+    await loadScenario();
+};
+
+const openAcceptedPromptDialog = async () => {
+    if (!scenario.value || !scenario.value.source_generation_id) return;
+    showAcceptedPromptDialog.value = true;
+    try {
+        await api.post(
+            `/api/strategic-planning/scenarios/generate/${scenario.value.source_generation_id}/record-view`,
+        );
+    } catch (e) {
+        // ignore errors; non-blocking
+        console.error('record view failed', e);
+    }
+};
+
+const loadImportAudit = async () => {
+    if (!scenario.value || !scenario.value.source_generation_id) return;
+    loadingImportAudit.value = true;
+    try {
+        const res: any = await api.get(
+            `/api/strategic-planning/scenarios/generate/${scenario.value.source_generation_id}`,
+        );
+        const data = (res as any)?.data ?? res;
+        importAudit.value = data?.metadata?.import_audit ?? [];
+    } catch (e) {
+        console.error('Error loading import audit', e);
+        importAudit.value = [];
+    } finally {
+        loadingImportAudit.value = false;
+    }
+};
+
+const goToCapability = (id: number) => {
+    router.visit(`/capabilities/${id}`);
+};
+
+const goToCompetency = (id: number) => {
+    router.visit(`/competencies/${id}`);
+};
+
+const promoteIncubated = async () => {
+    if (!scenarioId.value) return;
+    try {
+        await api.post(
+            `/api/strategic-planning/scenarios/${scenarioId.value}/approve`,
+        );
+        showSuccess('Entidades incubadas promovidas');
+        await loadScenario();
+    } catch (e) {
+        console.error(e);
+        showError('Error promoviendo entidades');
     }
 };
 
@@ -724,6 +835,17 @@ onMounted(() => {
                             <span class="font-weight-medium">{{
                                 scenario.name
                             }}</span>
+                            <v-btn
+                                v-if="
+                                    canViewAcceptedPrompt &&
+                                    scenario.source_generation_id &&
+                                    scenario.accepted_prompt
+                                "
+                                small
+                                variant="text"
+                                @click="openAcceptedPromptDialog"
+                                >Ver prompt aceptado</v-btn
+                            >
                             <v-chip
                                 v-if="scenario.decision_status"
                                 size="x-small"
@@ -842,6 +964,208 @@ onMounted(() => {
                             </div>
                         </div>
                         <PrototypeMap :scenario="scenario" />
+                        <div class="mt-4">
+                            <v-card class="pa-3">
+                                <v-card-title>
+                                    <v-icon class="mr-2">mdi-seed</v-icon>
+                                    Entidades incubadas en este escenario
+                                    <v-spacer />
+                                    <v-btn
+                                        small
+                                        variant="text"
+                                        @click="promoteIncubated"
+                                        title="Promover incubadas"
+                                        >Promover todas</v-btn
+                                    >
+                                </v-card-title>
+                                <v-card-text>
+                                    <div v-if="loadingTree">
+                                        <v-progress-linear
+                                            indeterminate
+                                            color="primary"
+                                        />
+                                    </div>
+                                    <div v-else>
+                                        <div v-if="incubatedTree.length === 0">
+                                            No se encontraron entidades
+                                            incubadas.
+                                        </div>
+                                        <div v-else>
+                                            <div
+                                                v-for="cap in incubatedTree"
+                                                :key="cap.id"
+                                                class="mb-3"
+                                            >
+                                                <div
+                                                    class="d-flex align-center justify-space-between"
+                                                >
+                                                    <div>
+                                                        <strong>{{
+                                                            cap.name
+                                                        }}</strong>
+                                                        <div
+                                                            class="text-sm text-gray-600"
+                                                        >
+                                                            {{
+                                                                cap.description
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <v-btn
+                                                            size="x-small"
+                                                            variant="text"
+                                                            @click="
+                                                                openIncubatedReview(
+                                                                    cap,
+                                                                )
+                                                            "
+                                                            >Revisar</v-btn
+                                                        >
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 ml-4">
+                                                    <div
+                                                        v-for="comp in cap.competencies"
+                                                        :key="comp.id"
+                                                        class="mb-1"
+                                                    >
+                                                        <div
+                                                            class="d-flex align-center gap-2"
+                                                        >
+                                                            <span
+                                                                class="text-sm"
+                                                                >•
+                                                                {{
+                                                                    comp.name
+                                                                }}</span
+                                                            >
+                                                            <v-btn
+                                                                size="x-small"
+                                                                variant="text"
+                                                                @click="
+                                                                    goToCompetency(
+                                                                        comp.id,
+                                                                    )
+                                                                "
+                                                                >Ver/Editar</v-btn
+                                                            >
+                                                        </div>
+                                                        <div
+                                                            class="ml-4 text-sm text-gray-700"
+                                                        >
+                                                            <span
+                                                                v-for="s in comp.skills"
+                                                                :key="s.id"
+                                                                class="mr-3"
+                                                                >{{ s.name }}
+                                                                <small
+                                                                    v-if="
+                                                                        s.is_incubating
+                                                                    "
+                                                                    class="text-yellow-700"
+                                                                    >(incubation)</small
+                                                                ></span
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </v-card-text>
+
+                                <v-card-text>
+                                    <div
+                                        v-if="
+                                            scenario &&
+                                            scenario.source_generation_id
+                                        "
+                                    >
+                                        <h4 class="mb-2">
+                                            Registro de importación
+                                        </h4>
+                                        <div v-if="loadingImportAudit">
+                                            <v-progress-linear
+                                                indeterminate
+                                                color="primary"
+                                            />
+                                        </div>
+                                        <div v-else>
+                                            <div
+                                                v-if="importAudit.length === 0"
+                                            >
+                                                No hay registros de importación.
+                                            </div>
+                                            <div v-else>
+                                                <div
+                                                    v-for="(
+                                                        entry, idx
+                                                    ) in importAudit"
+                                                    :key="idx"
+                                                    class="mb-3"
+                                                >
+                                                    <div
+                                                        class="text-sm text-gray-700"
+                                                    >
+                                                        <strong>{{
+                                                            entry.attempted_at ||
+                                                            entry.attempted ||
+                                                            '—'
+                                                        }}</strong>
+                                                        —
+                                                        <em>{{
+                                                            entry.attempted_by ||
+                                                            'Sistema'
+                                                        }}</em>
+                                                    </div>
+                                                    <div>
+                                                        Resultado:
+                                                        <strong>{{
+                                                            entry.result
+                                                        }}</strong>
+                                                    </div>
+                                                    <div
+                                                        v-if="entry.error"
+                                                        class="mt-1"
+                                                    >
+                                                        <div
+                                                            class="text-sm text-red-700"
+                                                        >
+                                                            Error:
+                                                        </div>
+                                                        <pre class="text-sm">{{
+                                                            JSON.stringify(
+                                                                entry.error,
+                                                                null,
+                                                                2,
+                                                            )
+                                                        }}</pre>
+                                                    </div>
+                                                    <div
+                                                        v-if="entry.report"
+                                                        class="mt-1"
+                                                    >
+                                                        <div
+                                                            class="text-sm text-green-700"
+                                                        >
+                                                            Reporte:
+                                                        </div>
+                                                        <pre class="text-sm">{{
+                                                            JSON.stringify(
+                                                                entry.report,
+                                                                null,
+                                                                2,
+                                                            )
+                                                        }}</pre>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </v-card-text>
+                            </v-card>
+                        </div>
                     </div>
 
                     <!-- Step 2: Mapeo Roles-Competencias -->
@@ -1075,6 +1399,30 @@ onMounted(() => {
                     <v-card-text>
                         <GenerateWizard />
                     </v-card-text>
+                </v-card>
+            </v-dialog>
+            <IncubatedReviewModal
+                v-model:modal="showIncubatedReview"
+                :item="selectedIncubated"
+                :scenario-id="scenarioId"
+                @close="showIncubatedReview = false"
+                @promoted="onPromoted"
+            />
+
+            <v-dialog v-model="showAcceptedPromptDialog" max-width="800">
+                <v-card>
+                    <v-card-title>Prompt aceptado</v-card-title>
+                    <v-card-text>
+                        <pre v-if="scenario">{{
+                            scenario.accepted_prompt
+                        }}</pre>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer />
+                        <v-btn text @click="showAcceptedPromptDialog = false"
+                            >Cerrar</v-btn
+                        >
+                    </v-card-actions>
                 </v-card>
             </v-dialog>
         </div>

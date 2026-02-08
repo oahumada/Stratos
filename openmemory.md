@@ -22,6 +22,21 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
   - 2026-02-07: E2E GenerateWizard estabilizado: helper `login` ahora usa CSRF + request-context cuando no hay formulario, el test avanza pasos del wizard antes de generar, el mock LLM usa el fixture correcto, y `GenerateWizard.vue` importa `ref` para evitar error runtime.
   - 2026-02-07: LLMClient DI/refactor: `LLMServiceProvider` registrado y pruebas actualizadas para resolver `LLMClient` desde el contenedor en lugar de instanciar con `new`. Se reemplazó la instancia directa en `src/tests/Feature/ScenarioGenerationIntegrationTest.php` y se creó `src/app/Providers/LLMServiceProvider.php` para facilitar inyección/overrides en tests y entornos.
   - 2026-02-07: E2E scenario map estabilizado: usa helper `login`, selector de nodos actualizado a `.node-group`, y validacion de child nodes solo cuando existan datos.
+
+  - PENDIENTE (Recordar): Implementar opción B — "Auto-accept / Auto-import tras `generate()`".
+    - Descripción: permitir que, si el operador marca la casilla en el `PreviewConfirm`, el flujo de generación acepte automáticamente la `scenario_generation` y dispare la importación/incubación (`import=true`) sin interacción adicional.
+    - Condiciones obligatorias antes de habilitar en staging/producción:
+      1. La funcionalidad debe estar detrás de `feature.flag` server-side (`import_generation`) y controlada por variables de entorno.
+      2. `LlmResponseValidator` debe validar el `llm_response` con JSON Schema y fallar el import si no cumple (pero no bloquear la creación del `scenario`).
+      3. Registrar auditoría (`accepted_by`, `accepted_at`, `import_run_by`, `import_status`) para trazabilidad y revisión.
+      4. Hacer rollout en staging con backfill y pruebas E2E antes de habilitar en producción.
+    - Archivos implicados (implementación futura):
+      - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue` (flujo auto-accept)
+      - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/PreviewConfirm.vue` (casilla ya añadida)
+      - `src/resources/js/stores/scenarioGenerationStore.ts` (llamada `accept()` ya añadida)
+      - `src/app/Http/Controllers/Api/ScenarioGenerationController.php::accept()` (verificar feature-flag, validación y auditoría server-side)
+      - `src/config/features.php` (asegurar `import_generation` por entorno)
+    - Estado: planificado (marcar como tarea separada en TODO para seguimiento).
     - 2026-02-07: CI workflow añadido: `.github/workflows/e2e.yml` ejecuta migraciones/seed, build, arranca servidor y ejecuta Playwright; sube artefactos `playwright-report` y capturas/videos para inspección.
     - 2026-02-07: `src/scripts/debug_generate.mjs` eliminado (archivo temporal de depuración).
 
@@ -264,6 +279,24 @@ nodes.value[].competencies[].skills     ← Fuente raíz
   - Añadir feature tests para `POST /api/strategic-planning/scenarios/generate/preview` y `POST /api/strategic-planning/scenarios/generate` usando `MockProvider`.
   - Revisar y aprobar prompts con stakeholders; habilitar provider real en staging solo detrás de feature flag y límites de coste.
   - Auditar pruebas E2E para usar `src/tests/e2e/helpers/login.ts` y documentar ejecución en `docs/GUIA_E2E.md`.
+
+### Memory: Implementación - Persistencia `accepted_prompt` y backfill (2026-02-07)
+
+- **Tipo:** implementation (project fact)
+- **Propósito:** Persistir prompt aceptado/redacted como parte del `scenario` creado desde una `scenario_generation` y backfill de datos históricos.
+- **Cambios clave (archivos):**
+  - `src/database/migrations/2026_02_07_120000_add_generation_fields_to_scenarios_table.php` — agrega `source_generation_id`, `accepted_prompt`, `accepted_prompt_redacted`, `accepted_prompt_metadata` a `scenarios`.
+  - `src/database/migrations/2026_02_07_130000_backfill_accepted_prompt_metadata.php` — backfill que copia `prompt`, `redacted` y `metadata` desde `scenario_generations` a `scenarios` cuando falta.
+  - `src/app/Http/Controllers/Api/ScenarioGenerationController.php` — nuevo método `accept()` que crea `scenario` draft desde `llm_response`, copia prompt redacted y enlaza `source_generation_id`.
+  - `src/app/Http/Controllers/Api/ScenarioController.php` — `showScenario` revisado para ocultar `accepted_prompt`/`accepted_prompt_metadata` en payloads si el usuario no está autorizado.
+  - `src/app/Policies/ScenarioGenerationPolicy.php` y `src/app/Policies/ScenarioPolicy.php` — reglas `accept` y `viewAcceptedPrompt` añadidas y registradas en `AuthServiceProvider`.
+  - `src/app/Models/Scenario.php` — `fillable` y `casts` actualizados para incluir los campos nuevos.
+  - Tests: `src/tests/Feature/ScenarioGenerationAcceptTest.php`, `ScenarioGenerationAcceptPolicyTest.php`, `ScenarioAcceptedPromptPolicyTest.php` — pruebas de flujo y autorización añadidas y ejecutadas localmente.
+  - Frontend: `src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue` — guard UI defensiva `canViewAcceptedPrompt` para evitar renderizar `accepted_prompt` cuando no autorizado.
+
+- **Notas operativas:**
+  - El backfill está implementado como migración (`2026_02_07_130000_backfill_accepted_prompt_metadata.php`) pero **no** se ha ejecutado en staging/producción — planificar ejecución y validar en staging antes de prod.
+  - La seguridad se aplica en servidor via políticas; la comprobación frontend es defensiva pero no sustituye la autorización server-side.
 
 ## Decision: Versionado de Escenarios — asignación en aprobación (2026-02-06)
 

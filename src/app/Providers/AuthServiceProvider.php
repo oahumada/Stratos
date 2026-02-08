@@ -10,6 +10,8 @@ use App\Policies\CompetencyVersionPolicy;
 use App\Policies\WorkforcePlanPolicy;
 use App\Models\ScenarioGeneration;
 use App\Policies\ScenarioGenerationPolicy;
+use App\Models\Scenario;
+use App\Policies\ScenarioPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -19,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
         CompetencyVersion::class => CompetencyVersionPolicy::class,
         ChangeSet::class => ChangeSetPolicy::class,
         ScenarioGeneration::class => ScenarioGenerationPolicy::class,
+        Scenario::class => ScenarioPolicy::class,
     ];
 
     public function boot(): void

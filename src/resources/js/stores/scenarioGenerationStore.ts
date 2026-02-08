@@ -37,6 +37,8 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
     generationStatus: null,
     generationResult: null,
     previewPrompt: null,
+    importAfterAccept: false,
+    importAutoAccepted: false,
   }),
   actions: {
     next() { this.step = Math.min(5, this.step + 1) },
@@ -54,6 +56,7 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
         const res = await axios.post('/api/strategic-planning/scenarios/generate', this.data)
         this.generationId = res.data.data.id
         this.generationStatus = res.data.data.status
+        this.importAutoAccepted = false
         return res.data
       } catch (e) {
         throw e
@@ -75,7 +78,32 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
       const res = await axios.get(`/api/strategic-planning/scenarios/generate/${this.generationId}`)
       this.generationStatus = res.data.data.status
       this.generationResult = res.data.data.llm_response
+      // Auto-accept/import flow: if generation completed and operator chose importAfterAccept,
+      // trigger accept once (idempotent guard via importAutoAccepted)
+      if (this.generationStatus === 'complete' && this.importAfterAccept && !this.importAutoAccepted) {
+        try {
+          await this.accept(this.generationId)
+          this.importAutoAccepted = true
+        } catch (e) {
+          // log to console; don't throw to avoid breaking UI polling
+          // caller (UI) can surface error if needed
+          // eslint-disable-next-line no-console
+          console.error('Auto-accept failed', e)
+        }
+      }
       return res.data
+    }
+    async accept(generationId?: number) {
+      const id = generationId || this.generationId
+      if (!id) throw new Error('No generation id provided')
+      try {
+        const res = await axios.post(`/api/strategic-planning/scenarios/generate/${id}/accept`, {
+          import: !!this.importAfterAccept,
+        })
+        return res.data
+      } catch (e) {
+        throw e
+      }
     }
   }
 })

@@ -16,6 +16,15 @@
                 ID: {{ store.generationId }} — Estado:
                 {{ store.generationStatus }}
             </p>
+            <div style="margin-top: 8px">
+                <button
+                    v-if="store.generationStatus === 'complete'"
+                    @click="acceptGeneration"
+                    :disabled="accepting"
+                >
+                    Aceptar y crear escenario
+                </button>
+            </div>
             <button @click="refreshStatus">Actualizar</button>
             <pre v-if="store.generationResult">{{
                 JSON.stringify(store.generationResult, null, 2)
@@ -78,9 +87,11 @@ async function onGenerate() {
     }
 }
 
-async function onConfirmGenerate() {
+async function onConfirmGenerate(importAfter = false) {
     showPreview.value = false;
     try {
+        // persist operator choice to the generation store so accept flow can include it
+        store.importAfterAccept = !!importAfter;
         await store.generate();
     } catch (e) {
         console.error(e);
@@ -95,6 +106,35 @@ function onEditPrompt() {
 
 async function refreshStatus() {
     await store.fetchStatus();
+}
+
+const accepting = ref(false);
+async function acceptGeneration() {
+    if (!store.generationId) return;
+    accepting.value = true;
+    try {
+        const res = await store.accept(store.generationId);
+        // if backend returns scenario id, navigate to it
+        const sid =
+            res?.data?.scenario_id ||
+            res?.data?.id ||
+            (res?.data && res.data.id);
+        if (sid) {
+            // navigate to scenario detail
+            window.location.href = `/scenario-planning/${sid}`;
+            return;
+        }
+        // fallback: close dialog by reloading page
+        window.location.reload();
+    } catch (e) {
+        console.error('Accept failed', e);
+        alert(
+            'Error al aceptar generación: ' +
+                (e?.response?.data?.message || e.message || e),
+        );
+    } finally {
+        accepting.value = false;
+    }
 }
 </script>
 

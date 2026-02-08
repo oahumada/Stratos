@@ -296,9 +296,27 @@ class ScenarioController extends Controller
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
 
+        // Prepare payload and hide accepted prompt unless authorized
+        $payload = $scenario ? $scenario->toArray() : null;
+        try {
+            $user = auth()->user();
+            if ($payload && $user) {
+                if (!\Gate::forUser($user)->allows('viewAcceptedPrompt', $scenario)) {
+                    unset($payload['accepted_prompt']);
+                    unset($payload['accepted_prompt_metadata']);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fail-open: if gate evaluation errors, remove sensitive fields
+            if (is_array($payload)) {
+                unset($payload['accepted_prompt']);
+                unset($payload['accepted_prompt_metadata']);
+            }
+        }
+
         return response()->json([
             'success' => true,
-            'data' => $scenario,
+            'data' => $payload,
         ]);
     }
 

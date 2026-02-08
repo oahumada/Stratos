@@ -424,6 +424,62 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['success' => true, 'data' => $cap->toArray()]);
     });
 
+        // Promote a single incubated capability (remove discovered flag and mark active)
+        Route::post('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/promote', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
+            $user = auth()->user();
+            if (! $user) {
+                return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            }
+            $scenario = App\Models\Scenario::find($scenarioId);
+            if (! $scenario) {
+                return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+            }
+            if ($scenario->organization_id !== ($user->organization_id ?? null)) {
+                return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            }
+            $cap = App\Models\Capability::find($capabilityId);
+            if (! $cap) {
+                return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
+            }
+            if (isset($cap->discovered_in_scenario_id) && (int) $cap->discovered_in_scenario_id !== (int) $scenarioId) {
+                return response()->json(['success' => false, 'message' => 'Capability not associated with this scenario'], 422);
+            }
+
+            try {
+                $cap->discovered_in_scenario_id = null;
+                $cap->status = 'active';
+                $cap->save();
+
+                return response()->json(['success' => true, 'data' => $cap]);
+            } catch (\Throwable $e) {
+                \Log::error('Error promoting capability: '.$e->getMessage(), ['capability_id' => $capabilityId]);
+                return response()->json(['success' => false, 'message' => 'Server error promoting capability'], 500);
+            }
+        });
+
+        // Record an accepted_prompt view for a generation (audit)
+        Route::post('/strategic-planning/scenarios/generate/{id}/record-view', function (Illuminate\Http\Request $request, $id) {
+            $user = auth()->user();
+            if (! $user) {
+                return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            }
+            $generation = App\Models\ScenarioGeneration::find($id);
+            if (! $generation) {
+                return response()->json(['success' => false, 'message' => 'Not found'], 404);
+            }
+            if ($generation->organization_id !== ($user->organization_id ?? null)) {
+                return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            }
+
+            $generation->metadata = array_merge($generation->metadata ?? [], ['accepted_prompt_views' => array_merge($generation->metadata['accepted_prompt_views'] ?? [], [[
+                'viewed_by' => $user->id,
+                'viewed_at' => now()->toDateTimeString(),
+            ]])]);
+            $generation->save();
+
+            return response()->json(['success' => true]);
+        });
+
     // Dev API: update a Capability entity (multi-tenant safe)
     Route::patch('/capabilities/{id}', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
