@@ -39,10 +39,37 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             $result = $llm->generate($generation->prompt ?? '');
 
             $rawResponse = $result['response'] ?? $result;
+
+            // Normalize and validate JSON: accept array/object or JSON string
+            $parsed = null;
+            if (is_string($rawResponse)) {
+                $parsed = json_decode($rawResponse, true);
+            } elseif (is_array($rawResponse) || is_object($rawResponse)) {
+                $parsed = is_array($rawResponse) ? $rawResponse : json_decode(json_encode($rawResponse), true);
+            }
+
+            // Basic schema validation: required top-level keys
+            $requiredKeys = ['scenario_metadata', 'capacities', 'competencies', 'skills', 'suggested_roles', 'impact_analysis'];
+            $isValid = is_array($parsed);
+            if ($isValid) {
+                foreach ($requiredKeys as $key) {
+                    if (!array_key_exists($key, $parsed)) {
+                        $isValid = false;
+                        break;
+                    }
+                }
+            }
+
+            if (!$isValid) {
+                // Persist metadata about invalid response and mark failed
+                $generation->status = 'failed';
+                $generation->metadata = array_merge($generation->metadata ?? [], ['error' => 'invalid_llm_response', 'message' => 'LLM returned invalid or non-JSON response']);
+                $generation->save();
+                return;
+            }
+
             // Redact any PII from LLM response before persisting
-            $generation->llm_response = is_array($rawResponse)
-                ? RedactionService::redactArray($rawResponse)
-                : RedactionService::redactText((string) $rawResponse);
+            $generation->llm_response = RedactionService::redactArray($parsed);
             $generation->confidence_score = $result['confidence'] ?? null;
             $generation->model_version = $result['model_version'] ?? null;
             $generation->generated_at = now();

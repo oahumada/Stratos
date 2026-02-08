@@ -40,6 +40,9 @@ class ScenarioGenerationService
         // Append operator answers (use replacements so org overrides are visible)
         $prompt .= "\n\nOPERATOR_INPUT:\n".json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
+        // Enforce JSON-only output from the LLM: add an explicit instruction
+        $prompt .= "\n\nINSTRUCTIONS:\nReturn ONLY a single valid JSON object matching the schema with top-level keys: scenario_metadata, capacities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions. Do not include any prose, explanation or commentary outside the JSON object.\n";
+
         return $prompt;
     }
 
