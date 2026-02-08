@@ -20,6 +20,36 @@ Precauciones previas
 2. Confirmar que `staging` usa las mismas estructuras de tablas (migraciones previas aplicadas).
 3. Revisar que `config/features.php` en staging tenga `import_generation` = false por defecto.
 
+Pre-flight checklist (must be completed before applying):
+
+- Tomar backup y guardar en almacenamiento duradero. Ejemplo Postgres:
+  ```bash
+  pg_dump -Fc -h $DB_HOST -U $DB_USER $DB_DATABASE > /backups/staging_db_$(date +%F).dump
+  ```
+- Confirmar ventana de mantenimiento y notificar stakeholders.
+- Verificar variables de entorno de staging: `APP_ENV=staging`, `DB_*` apuntan a staging, `IMPORT_GENERATION`/`VALIDATE_LLM_RESPONSE` configuradas según plan.
+
+Ejecución (dry-run por defecto)
+
+- Usar el script helper `scripts/staging_backfill.sh` en la raíz del repo. Dry-run:
+  ```bash
+  ./scripts/staging_backfill.sh
+  ```
+- Ejecutar (interactivo, requiere backup):
+  ```bash
+  ./scripts/staging_backfill.sh --apply --backup /path/to/staging_db.dump
+  ```
+
+Post-run checks
+
+- Verificar que `scenarios` que referencian `source_generation_id` tienen `accepted_prompt` poblado.
+- Revisar `import_audit` en `scenario_generations` para confirmar import attempts:
+  ```bash
+  php artisan tinker --env=staging
+  >>> \App\Models\ScenarioGeneration::find(123)->metadata
+  ```
+- Monitorizar logs y endpoints de salud.
+
 Comandos (en `src/`)
 
 1. Obtener backup (ejemplo PostgreSQL):

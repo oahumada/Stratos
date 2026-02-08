@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="modelValue" max-width="800">
+    <v-dialog v-model="open" max-width="800">
         <v-card>
             <v-card-title>
                 <div>
@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
     modelValue: { type: Boolean, default: false },
@@ -55,6 +55,18 @@ const api = useApi();
 const { showSuccess, showError } = useNotification();
 
 const promoting = ref(false);
+const open = ref(!!props.modelValue);
+
+watch(
+    () => props.modelValue,
+    (v) => {
+        open.value = !!v;
+    },
+);
+
+watch(open, (v) => {
+    emit('update:modelValue', v);
+});
 
 function gotoEdit() {
     if (!props.item?.id) return;
@@ -71,6 +83,7 @@ async function promote() {
         showSuccess('Capability promovida');
         emit('promoted', res?.data ?? null);
         emit('close');
+        open.value = false;
     } catch (e: any) {
         console.error(e);
         showError('Error promoviendo capability');
