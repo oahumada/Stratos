@@ -192,7 +192,7 @@ Hitos:
 
 - Ejecutar localmente (desde `src/`):
 
-```bash
+````bash
 # Instalar dependencias (por primera vez)
 cd src
 npm ci
@@ -202,7 +202,74 @@ npx playwright install --with-deps
 npm run test:e2e
 # Ejecutar en modo headed (local)
 npm run test:e2e:headed
-```
+```markdown
+## Estado actual y pasos para pruebas de aceptación
+
+- **Estado de la implementación:**
+  - Flujo completo implementado: armado de prompt (`ScenarioGenerationService`), endpoint de preview, endpoint para encolar (`generate`) y job `GenerateScenarioFromLLMJob` que consume el `LLMClient` y persiste `llm_response` en `scenario_generations`.
+  - Redacción (PII) y manejo de rate-limits/backoff integrados en el job y en los providers.
+  - Patrón `LLMClient` con providers `mock` (por defecto para tests) y `openai` disponible; `LLMClient` está registrado en el contenedor via `LLMServiceProvider` para inyección y sobrescritura en tests.
+
+- **Pruebas existentes (ubicación):**
+  - Unit: `src/tests/Unit/ScenarioGenerationServiceTest.php` (prompt builder).
+  - Feature: `src/tests/Feature/ScenarioGenerationEndpointsTest.php` (preview + enqueue).
+  - Integration: `src/tests/Feature/ScenarioGenerationIntegrationTest.php` (LLMClient + MockProvider).
+  - E2E Playwright: `src/tests/e2e/generate-wizard.spec.ts` + helpers en `src/tests/e2e/helpers/` y fixtures `src/tests/fixtures/llm/mock_generation_response.json`.
+
+- **Endpoints clave para pruebas manuales desde navegador:**
+  - `POST /api/strategic-planning/scenarios/generate/preview` → muestra prompt generado.
+  - `POST /api/strategic-planning/scenarios/generate` → encola la generación, devuelve `generation_id` y `status` (202).
+  - `GET /api/strategic-planning/scenarios/generate/{id}` → consulta estado y `llm_response`.
+
+- **Archivos importantes (revisión rápida):**
+  - `src/app/Services/ScenarioGenerationService.php` — preparación de prompt + enqueue.
+  - `src/app/Jobs/GenerateScenarioFromLLMJob.php` — job que llama al LLM, redacciona y persiste.
+  - `src/app/Services/LLMClient.php`, `src/app/Services/LLMProviders/MockProvider.php`, `src/app/Services/LLMProviders/OpenAIProvider.php` — adapters.
+  - `src/app/Services/RedactionService.php` — redacción de PII.
+  - `src/app/Providers/LLMServiceProvider.php` — binding en contenedor.
+  - E2E: `src/tests/e2e/*` y fixtures en `src/tests/fixtures/llm/`.
+
+- **Cómo ejecutar pruebas localmente (rápido):**
+  - Unit/Feature:
+    ```bash
+    cd src
+    php artisan test
+    ```
+  - E2E Playwright (local):
+    ```bash
+    cd src
+    export BASE_URL=http://127.0.0.1:8000
+    export E2E_ADMIN_EMAIL=admin@example.com
+    export E2E_ADMIN_PASSWORD=secret
+    npx playwright test src/tests/e2e/generate-wizard.spec.ts
+    ```
+    - Asegúrate de levantar el servidor (`php artisan serve` o equivalente) y que `LLM_PROVIDER=mock` en el entorno de E2E.
+
+- **Variables de entorno y cómo habilitar provider real (con precaución):**
+  - `LLM_PROVIDER=openai` (o el proveedor deseado).
+  - `LLM_API_KEY` / `LLM_OPENAI_API_KEY` — colocar sólo en entornos controlados (staging/production) y no en CI.
+  - `LLM_ENABLED=true` — activar solo si feature-flag y límites de coste establecidos.
+  - Recomendación: en CI y en PRs usar `LLM_PROVIDER=mock`.
+
+- **Comportamiento del job y manejo de errores:**
+  - Marca `status=processing` al iniciar; guarda `llm_response` redacted al completar.
+  - Reintenta automáticamente en `LLMRateLimitException` con backoff exponencial (máx 5 intentos).
+  - En fallos 5xx o excepciones marca `status=failed` y persiste metadata con mensaje.
+
+- **Notas para pruebas de aceptación manual desde navegador:**
+  - Usar GenerateWizard: rellenar los 5 pasos → `Preview` → `Generate` → comprobar en UI el polling del `generation_id` hasta `complete` y revisar `llm_response` en el modal.
+  - Para probar errores/latencias, usar `MockProvider` que puede simular 429/5xx (activar `LLM_MOCK_SIMULATE_429=true`).
+  - Para pruebas con LLM real, coordinar claves y activar `LLM_ENABLED`/feature-flag en staging; limitar el número de llamadas y monitorizar coste.
+
+---
+
+Si deseas, puedo:
+- añadir un checklist de aceptación paso a paso dentro de esta guía (formato imprimible), o
+- crear un pequeño script de prueba que lance el wizard E2E en modo headful para demostración manual.
+
+---
+
+````
 
 - Variables de entorno: copie `.env.playwright.example` a `.env.playwright` o exporte en CI las siguientes variables mínimas:
   - `BASE_URL` — URL donde corre la app de pruebas (ej. `http://localhost:8000`).
