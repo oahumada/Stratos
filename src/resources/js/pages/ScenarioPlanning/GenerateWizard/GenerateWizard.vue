@@ -107,18 +107,41 @@
                     <v-radio-group
                         v-model="selectedInstructionIndex"
                         class="mb-2"
-                        @change="(v) => selectInstruction(v !== null ? Number(v) : null)"
+                        @change="
+                            (v: null) =>
+                                selectInstruction(v !== null ? Number(v) : null)
+                        "
                     >
                         <div
                             v-for="(it, idx) in instructionItems"
-                            :key="'instr-'+(it.id ?? idx)"
-                            style="padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.04)"
+                            :key="'instr-' + (it.id ?? idx)"
+                            style="
+                                padding: 6px 0;
+                                border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+                            "
                         >
-                            <v-radio :label="(it.editable ? 'Versión editable (Operador)' : 'Versión por defecto (Sistema)') + ' — ' + (it.author_name || 'system') + ' (' + (it.created_at ? new Date(it.created_at).toLocaleString() : '') + ')'"
+                            <v-radio
+                                :label="
+                                    (it.editable
+                                        ? 'Versión editable (Operador)'
+                                        : 'Versión por defecto (Sistema)') +
+                                    ' / ' +
+                                    (it.author_name || 'system') +
+                                    ' (' +
+                                    (it.created_at
+                                        ? new Date(
+                                              it.created_at,
+                                          ).toLocaleString()
+                                        : '') +
+                                    ')'
+                                "
                                 :value="idx"
                             />
                         </div>
-                        <v-radio label="Editar/Usar como instrucción personalizada" :value="null" />
+                        <v-radio
+                            label="Editar/Usar como instrucción personalizada"
+                            :value="null"
+                        />
                     </v-radio-group>
                 </div>
 
@@ -554,7 +577,10 @@ async function onConfirmGenerate(importAfter = false) {
         if (instructionChoice.value === 'client' && instructionContent.value) {
             store.setField('instruction', instructionContent.value);
             store.setField('instruction_id', null);
-        } else if (instructionChoice.value === 'db' && selectedInstructionIndex.value !== null) {
+        } else if (
+            instructionChoice.value === 'db' &&
+            selectedInstructionIndex.value !== null
+        ) {
             // operator selected a DB instruction version: send the explicit id so server uses it
             const it = instructionItems.value[selectedInstructionIndex.value];
             const id = it?.id ?? null;

@@ -7,6 +7,7 @@ use App\Models\Organizations;
 use App\Models\ScenarioGeneration;
 use App\Services\ScenarioGenerationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class ScenarioGenerationController extends Controller
 {
@@ -17,7 +18,7 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
-        $payload = $request->validate([
+        $rules = [
             'company_name' => 'sometimes|string|max:255',
             'industry' => 'sometimes|string|max:255',
             'sub_industry' => 'sometimes|string|max:255',
@@ -43,8 +44,15 @@ class ScenarioGenerationController extends Controller
             'urgency_level' => 'sometimes|string',
             'milestones' => 'sometimes|string',
             'organization_id' => 'sometimes|integer',
-            'instruction_id' => 'sometimes|integer',
-        ]);
+        ];
+
+        if (Schema::hasTable('prompt_instructions')) {
+            $rules['instruction_id'] = 'sometimes|integer|exists:prompt_instructions,id';
+        } else {
+            $rules['instruction_id'] = 'sometimes|integer';
+        }
+
+        $payload = $request->validate($rules);
 
         $requestedOrgId = $payload['organization_id'] ?? null;
         $orgId = $user->organization_id ?? null;
@@ -80,7 +88,7 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
-        $payload = $request->validate([
+        $rules = [
             'company_name' => 'sometimes|string|max:255',
             'industry' => 'sometimes|string|max:255',
             'sub_industry' => 'sometimes|string|max:255',
@@ -106,7 +114,15 @@ class ScenarioGenerationController extends Controller
             'urgency_level' => 'sometimes|string',
             'milestones' => 'sometimes|string',
             'organization_id' => 'sometimes|integer',
-        ]);
+        ];
+
+        if (Schema::hasTable('prompt_instructions')) {
+            $rules['instruction_id'] = 'sometimes|integer|exists:prompt_instructions,id';
+        } else {
+            $rules['instruction_id'] = 'sometimes|integer';
+        }
+
+        $payload = $request->validate($rules);
 
         $orgId = $payload['organization_id'] ?? ($user->organization_id ?? null);
         if (! $orgId) {
