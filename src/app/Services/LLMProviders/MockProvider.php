@@ -23,7 +23,8 @@ class MockProvider implements LLMProviderInterface
             throw new \App\Services\LLMProviders\Exceptions\LLMRateLimitException('Simulated rate limit', $retry);
         }
 
-        $response = Arr::get($this->config, 'response', [
+        // If 'response' is explicitly null in config, fall back to the default mock payload.
+        $response = Arr::get($this->config, 'response') ?? [
             'scenario_metadata' => [
                 'generated_at' => $now,
                 'confidence_score' => 0.75,
@@ -34,7 +35,7 @@ class MockProvider implements LLMProviderInterface
             'skills' => [],
             'suggested_roles' => [],
             'impact_analysis' => [],
-        ]);
+        ];
 
         return [
             'response' => $response,

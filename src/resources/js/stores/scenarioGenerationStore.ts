@@ -149,7 +149,7 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                 } catch (e) {
                     // log to console; don't throw to avoid breaking UI polling
                     // caller (UI) can surface error if needed
-                    // eslint-disable-next-line no-console
+                     
                     console.error('Auto-accept failed', e);
                 }
             }

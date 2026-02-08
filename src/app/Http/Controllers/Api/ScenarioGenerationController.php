@@ -70,7 +70,11 @@ class ScenarioGenerationController extends Controller
         }
 
         // Compose prompt and include the operator instruction (DB/file/client)
-        $composed = $svc->composePromptWithInstruction($payload, $user, $org, $payload['instruction_language'] ?? 'es', $payload['instruction_id'] ?? null);
+        try {
+            $composed = $svc->composePromptWithInstruction($payload, $user, $org, $payload['instruction_language'] ?? 'es', $payload['instruction_id'] ?? null);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => 'Invalid instruction', 'errors' => $e->errors()], 422);
+        }
         $prompt = $composed['prompt'] ?? '';
         $instructionMeta = $composed['instruction'] ?? null;
 
@@ -134,7 +138,11 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Organization not found'], 404);
         }
 
-        $composed = $svc->composePromptWithInstruction($payload, $user, $org, $payload['instruction_language'] ?? 'es', $payload['instruction_id'] ?? null);
+        try {
+            $composed = $svc->composePromptWithInstruction($payload, $user, $org, $payload['instruction_language'] ?? 'es', $payload['instruction_id'] ?? null);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => 'Invalid instruction', 'errors' => $e->errors()], 422);
+        }
         $prompt = $composed['prompt'] ?? '';
         $instructionMeta = $composed['instruction'] ?? null;
 

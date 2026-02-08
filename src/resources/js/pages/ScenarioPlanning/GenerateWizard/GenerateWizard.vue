@@ -80,9 +80,28 @@
                 <div class="d-flex align-center justify-space-between mb-2">
                     <div>
                         <strong>Instrucciones del generador</strong>
-                        <div class="caption">
-                            Plantilla que se aplica al prompt generado. Soporta
-                            Markdown.
+                        <div class="caption d-flex align-center">
+                            <div>
+                                Plantilla que se aplica al prompt generado.
+                                Soporta Markdown.
+                            </div>
+                            <v-tooltip>
+                                <template #activator="{ props }">
+                                    <v-icon
+                                        v-bind="props"
+                                        class="ml-2"
+                                        small
+                                        color="primary"
+                                    >
+                                        mdi-information
+                                    </v-icon>
+                                </template>
+                                <span>
+                                    Recomendado: la instrucción debe exigir
+                                    salida JSON única para integridad del
+                                    import.
+                                </span>
+                            </v-tooltip>
                         </div>
                     </div>
                     <div class="d-flex align-center">
@@ -152,7 +171,17 @@
                     outlined
                     dense
                     placeholder="Escribe las instrucciones aquí (Markdown)..."
+                    :class="{
+                        'instruction-error': !instructionValidation.valid,
+                    }"
                 />
+
+                <div
+                    v-if="!instructionValidation.valid"
+                    class="instruction-error-text caption"
+                >
+                    {{ instructionValidation.message }}
+                </div>
 
                 <div class="d-flex align-center mt-2">
                     <v-checkbox
@@ -279,24 +308,7 @@ onMounted(() => {
     loadInstruction(instructionLang.value);
 });
 
-// compute completion per step (basic heuristics)
-const stepCompleted = (step: number) => {
-    const d = store.data as any;
-    switch (step) {
-        case 1:
-            return !!(d.company_name && d.industry && d.company_size);
-        case 2:
-            return !!(d.current_challenges && d.current_capabilities);
-        case 3:
-            return !!(d.strategic_goal && d.key_initiatives);
-        case 4:
-            return !!(d.budget_level && d.talent_availability);
-        case 5:
-            return !!(d.time_horizon && d.milestones);
-        default:
-            return false;
-    }
-};
+// (step completion logic moved to computed helpers)
 
 // finer-grained progress with critical vs optional weighting
 const criticalFields = [
@@ -429,6 +441,33 @@ const instructionItems = ref<any[]>([]);
 const selectedInstructionIndex = ref<number | null>(null);
 const instructionChoice = ref<'db' | 'client'>('db');
 
+// Client-side compatibility helpers
+function containsMarkdownDirective(text: string) {
+    if (!text) return false;
+    const lower = text.toLowerCase();
+    return (
+        lower.includes('formato: markdown') ||
+        lower.includes('format: markdown') ||
+        lower.includes('markdown.') ||
+        lower.includes('\nmarkdown')
+    );
+}
+
+function clientInstructionIsCompatible() {
+    // If operator is using a custom/client instruction, check for obvious conflicts
+    if (instructionChoice.value === 'client' && instructionContent.value) {
+        if (containsMarkdownDirective(instructionContent.value)) {
+            return {
+                valid: false,
+                message:
+                    'La instrucción contiene indicaciones para formato Markdown. Cambie la instrucción a salida JSON única, o seleccione una instrucción de la base de datos.',
+            };
+        }
+    }
+    return { valid: true };
+}
+// reactive validation object for template binding
+const instructionValidation = computed(() => clientInstructionIsCompatible());
 async function loadInstruction(lang = 'es') {
     instructionLoading.value = true;
     try {
@@ -542,6 +581,18 @@ async function onGenerate() {
             return;
         }
 
+        // Client-side instruction compatibility check to avoid server 422s
+        const compat = clientInstructionIsCompatible();
+        if (!compat.valid) {
+            showError(
+                compat.message || 'Instrucción incompatible',
+                'Instrucción incompatible',
+            );
+            // open editor so operator can fix
+            instructionEditable.value = true;
+            return;
+        }
+
         // First get prompt preview from server
         await store.preview();
 
@@ -555,8 +606,22 @@ async function onGenerate() {
 
         showPreview.value = true;
     } catch (e) {
-        const errMsg = formatAxiosError(e);
+        const error = e as any;
         console.error('Preview failed', e);
+        if (error?.response?.status === 422) {
+            const d = error.response.data || {};
+            const messages = d.errors
+                ? Object.entries(d.errors).map(
+                      ([k, v]) =>
+                          `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
+                  )
+                : [d.message || JSON.stringify(d)];
+            // allow operator to edit instruction
+            instructionEditable.value = true;
+            showError(messages, 'Validación de instrucción (422)');
+            return;
+        }
+        const errMsg = formatAxiosError(e);
         showError(errMsg.split('\n'), 'Error al generar preview');
     }
 }
@@ -568,6 +633,17 @@ async function onConfirmGenerate(importAfter = false) {
         const validation = await store.validate();
         if (!validation.valid) {
             showError(validation.errors, 'Faltan campos críticos');
+            return;
+        }
+
+        // Client-side instruction compatibility check before final submit
+        const compat = clientInstructionIsCompatible();
+        if (!compat.valid) {
+            showError(
+                compat.message || 'Instrucción incompatible',
+                'Instrucción incompatible',
+            );
+            instructionEditable.value = true;
             return;
         }
 
@@ -594,8 +670,21 @@ async function onConfirmGenerate(importAfter = false) {
 
         await store.generate();
     } catch (e) {
-        const errMsg = formatAxiosError(e);
+        const error = e as any;
         console.error('Generate failed', e);
+        if (error?.response?.status === 422) {
+            const d = error.response.data || {};
+            const messages = d.errors
+                ? Object.entries(d.errors).map(
+                      ([k, v]) =>
+                          `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
+                  )
+                : [d.message || JSON.stringify(d)];
+            instructionEditable.value = true;
+            showError(messages, 'Validación de instrucción (422)');
+            return;
+        }
+        const errMsg = formatAxiosError(e);
         showError(errMsg.split('\n'), 'Error al generar escenario');
     }
 }
@@ -669,5 +758,15 @@ async function acceptGeneration() {
     margin-top: 1rem;
     background: #f7f7f7;
     padding: 0.5rem;
+}
+
+.instruction-error {
+    box-shadow: none !important;
+    border: 1px solid var(--v-theme-error) !important;
+}
+.instruction-error-text {
+    color: var(--v-theme-error);
+    margin-top: 6px;
+    font-weight: 600;
 }
 </style>

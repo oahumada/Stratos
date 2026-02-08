@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\PromptInstruction;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class ScenarioGenerationService
 {
@@ -115,13 +116,39 @@ class ScenarioGenerationService
             }
         }
 
-        // Append instruction content to the prompt if present
+        // Validate compatibility between base prompt instructions and operator instruction
+        if (! empty($instructionContent)) {
+            $conflict = $this->validateInstructionCompatibility($basePrompt, $instructionContent);
+            if ($conflict !== null) {
+                throw ValidationException::withMessages(['instruction' => [$conflict]]);
+            }
+        }
+
         $prompt = $basePrompt;
         if (!empty($instructionContent)) {
             $prompt .= "\n\nOPERATOR_INSTRUCTION (source: {$instructionSource}, lang: {$language}):\n" . $instructionContent . "\n";
         }
 
         return ['prompt' => $prompt, 'instruction' => ['content' => $instructionContent, 'source' => $instructionSource, 'language' => $language]];
+    }
+
+    /**
+     * Validate compatibility between the base prompt's instructions and an operator instruction.
+     * Returns null when compatible, or a string message describing the conflict.
+     */
+    protected function validateInstructionCompatibility(string $basePrompt, string $instructionContent): ?string
+    {
+        // If base prompt explicitly requires JSON-only output, detect operator requests for Markdown
+        $baseRequiresJson = stripos($basePrompt, 'Return ONLY a single valid JSON') !== false || stripos($basePrompt, 'Formato: JSON') !== false || stripos($basePrompt, 'Format: JSON') !== false;
+
+        if ($baseRequiresJson) {
+            // operator requests markdown -> conflict
+            if (preg_match('/Formato:\s*Markdown/i', $instructionContent) || preg_match('/Format:\s*Markdown/i', $instructionContent) || stripos($instructionContent, 'Formato: Markdown') !== false || stripos($instructionContent, 'Format: Markdown') !== false) {
+                return 'Operator instruction requests Markdown output but the system prompt requires JSON-only output. Edit the instruction to request JSON.';
+            }
+        }
+
+        return null;
     }
 
     public function enqueueGeneration(string $prompt, int $organizationId, ?int $createdBy = null, array $metadata = []): ScenarioGeneration

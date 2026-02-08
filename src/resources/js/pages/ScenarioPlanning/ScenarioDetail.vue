@@ -703,7 +703,7 @@ void openStatusTimeline;
 void handleVersionSelected;
 void calculateGaps;
 void refreshStrategies;
-void showGenerateWizard;
+void showGenerateWizard.value;
 
 // Definición de los 7 pasos del workflow
 const stepperItems = [

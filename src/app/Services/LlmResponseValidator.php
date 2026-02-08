@@ -56,8 +56,15 @@ class LlmResponseValidator
                                     } else {
                                         foreach ($comp['skills'] as $k => $s) {
                                             $sbase = $cbase . ".skills[{$k}]";
+                                            // Accept skill as string (name) or object with name
+                                            if (is_string($s)) {
+                                                if (empty(trim($s))) {
+                                                    $errors[] = ['path' => $sbase, 'message' => 'Name is required'];
+                                                }
+                                                continue;
+                                            }
                                             if (! is_array($s)) {
-                                                $errors[] = ['path' => $sbase, 'message' => 'Must be an object'];
+                                                $errors[] = ['path' => $sbase, 'message' => 'Must be an object or string'];
                                                 continue;
                                             }
                                             if (empty(trim((string) ($s['name'] ?? '')))) {

@@ -11,4 +11,4 @@ Además, incluye una sección detallada de: capacidades, competencias, skills y 
 Para cada elemento proporciona una breve descripción y ejemplos de cómo se relaciona
 con las iniciativas recomendadas.
 
-Formato: Markdown.
+Formato: JSON. Devuelve únicamente un objeto JSON válido que cumpla el esquema con claves de primer nivel: scenario_metadata, capacities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions. No incluyas ningún texto, explicación o comentario fuera del objeto JSON.

@@ -48,17 +48,10 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
                 $parsed = is_array($rawResponse) ? $rawResponse : json_decode(json_encode($rawResponse), true);
             }
 
-            // Basic schema validation: required top-level keys
-            $requiredKeys = ['scenario_metadata', 'capacities', 'competencies', 'skills', 'suggested_roles', 'impact_analysis'];
+            // Basic normalization: accept array/object responses. Detailed schema
+            // validation is performed at import time (if enabled) to avoid failing
+            // the generation job for otherwise salvageable outputs.
             $isValid = is_array($parsed);
-            if ($isValid) {
-                foreach ($requiredKeys as $key) {
-                    if (!array_key_exists($key, $parsed)) {
-                        $isValid = false;
-                        break;
-                    }
-                }
-            }
 
             if (!$isValid) {
                 // Persist metadata about invalid response and mark failed
