@@ -14,7 +14,7 @@
                         <div class="progress-label">
                             Paso {{ store.step }} de 5 / {{ progress }}% ({{
                                 filledFields
-                            }}/{{ totalFields }})
+                            }}/{{ allFields.length }})
                         </div>
                     </template>
                 </v-progress-linear>
@@ -37,6 +37,17 @@
                                 Campos faltantes (Paso {{ store.step }})
                             </div>
                             <div style="margin-top: 6px">
+                                <div
+                                    v-if="missingCriticalCount > 0"
+                                    style="
+                                        color: var(--v-theme-error);
+                                        font-weight: 600;
+                                        margin-bottom: 6px;
+                                    "
+                                >
+                                    Campos críticos faltantes:
+                                    {{ missingCriticalCount }}
+                                </div>
                                 <ul
                                     style="
                                         margin: 0.25rem 0 0;
@@ -125,11 +136,17 @@
                     Cerrar
                 </button>
             </div>
+            <ErrorModal
+                v-model="errorModalShow"
+                :title="errorModalTitle"
+                :messages="errorModalMessages"
+            />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import ErrorModal from '@/components/Ui/ErrorModal.vue';
 import { useScenarioGenerationStore } from '@/stores/scenarioGenerationStore';
 import { computed, ref } from 'vue';
 import PreviewConfirm from './PreviewConfirm.vue';
@@ -170,33 +187,66 @@ const stepCompleted = (step: number) => {
     }
 };
 
-// finer-grained progress: count individual required fields across steps
-const totalFields = 12;
-const filledFields = computed(() => {
+// finer-grained progress with critical vs optional weighting
+const criticalFields = [
+    'company_name',
+    'industry',
+    'company_size',
+    'current_challenges',
+    'current_capabilities',
+    'strategic_goal',
+    'key_initiatives',
+    'time_horizon',
+];
+
+const allFields = [
+    ...criticalFields,
+    'current_gaps',
+    'budget_level',
+    'talent_availability',
+    'milestones',
+];
+
+const totalWeight =
+    criticalFields.length * 2 + (allFields.length - criticalFields.length) * 1;
+
+const filledWeight = computed(() => {
     const d = store.data as any;
-    let c = 0;
-    if (d.company_name) c++;
-    if (d.industry) c++;
-    if (d.company_size) c++;
-    if (d.current_challenges) c++;
-    if (d.current_capabilities) c++;
-    if (d.current_gaps) c++;
-    if (d.strategic_goal) c++;
-    if (d.key_initiatives) c++;
-    if (d.budget_level) c++;
-    if (d.talent_availability) c++;
-    if (d.time_horizon) c++;
-    if (d.milestones) c++;
-    return c;
+    let w = 0;
+    allFields.forEach((f) => {
+        if (d[f]) w += criticalFields.includes(f) ? 2 : 1;
+    });
+    return w;
+});
+
+const filledFields = computed(() => {
+    // keep simple count of filled field items for display
+    const d = store.data as any;
+    return allFields.reduce((acc, f) => (d[f] ? acc + 1 : acc), 0);
 });
 
 const progress = computed(() =>
-    Math.round((filledFields.value / totalFields) * 100),
+    Math.round((filledWeight.value / totalWeight) * 100),
 );
 
 const progressColor = computed(() =>
     progress.value < 40 ? 'error' : progress.value < 80 ? 'warning' : 'success',
 );
+
+// fields per step to compute critical missing count
+const stepFieldKeys: Record<number, string[]> = {
+    1: ['company_name', 'industry', 'company_size'],
+    2: ['current_challenges', 'current_capabilities', 'current_gaps'],
+    3: ['strategic_goal', 'key_initiatives'],
+    4: ['budget_level', 'talent_availability'],
+    5: ['time_horizon', 'milestones'],
+};
+
+const missingCriticalCount = computed(() => {
+    const keys = stepFieldKeys[store.step] || [];
+    const d = store.data as any;
+    return keys.filter((k) => criticalFields.includes(k) && !d[k]).length;
+});
 
 const progressLabel = computed(() =>
     progress.value < 40
@@ -239,8 +289,7 @@ const missingFieldsForStep = (step: number) => {
 
 const missingForCurrent = computed(() => missingFieldsForStep(store.step));
 
-// expose filled/total for template
-const totalFieldsConst = totalFields;
+// expose filled/total for template (use `allFields.length` and `filledFields`)
 
 function next() {
     store.next();
@@ -251,25 +300,68 @@ function prev() {
 
 const showPreview = ref(false);
 
+// Error modal state
+const errorModalShow = ref(false);
+const errorModalTitle = ref('');
+const errorModalMessages = ref<string[]>([]);
+
+function showError(messages: string[] | string, title = 'Error') {
+    errorModalTitle.value = title;
+    errorModalMessages.value = Array.isArray(messages) ? messages : [messages];
+    errorModalShow.value = true;
+}
+
 async function onGenerate() {
     try {
+        // validate required fields before contacting server
+        const validation = await store.validate();
+        if (!validation.valid) {
+            showError(validation.errors, 'Faltan campos críticos');
+            return;
+        }
+
         // First get prompt preview from server
         await store.preview();
         showPreview.value = true;
     } catch (e) {
-        console.error(e);
+        const errMsg = formatAxiosError(e);
+        console.error('Preview failed', e);
+        showError(errMsg.split('\n'), 'Error al generar preview');
     }
 }
 
 async function onConfirmGenerate(importAfter = false) {
     showPreview.value = false;
     try {
+        // validate again before final generate
+        const validation = await store.validate();
+        if (!validation.valid) {
+            showError(validation.errors, 'Faltan campos críticos');
+            return;
+        }
+
         // persist operator choice to the generation store so accept flow can include it
         store.importAfterAccept = !!importAfter;
         await store.generate();
     } catch (e) {
-        console.error(e);
+        const errMsg = formatAxiosError(e);
+        console.error('Generate failed', e);
+        showError(errMsg.split('\n'), 'Error al generar escenario');
     }
+}
+
+function formatAxiosError(e: any) {
+    if (!e) return 'Unknown error';
+    if (e.response && e.response.data) {
+        const d = e.response.data;
+        if (d.errors) {
+            return Object.entries(d.errors)
+                .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+                .join('\n');
+        }
+        return d.message || JSON.stringify(d);
+    }
+    return e.message || String(e);
 }
 
 function onEditPrompt() {
@@ -303,9 +395,9 @@ async function acceptGeneration() {
     } catch (e) {
         console.error('Accept failed', e);
         const error = e as any;
-        alert(
-            'Error al aceptar generación: ' +
-                (error?.response?.data?.message || error?.message || String(e)),
+        showError(
+            error?.response?.data?.message || error?.message || String(e),
+            'Error al aceptar generación',
         );
     } finally {
         accepting.value = false;

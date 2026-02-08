@@ -134,5 +134,37 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                 throw e;
             }
         },
+        validate() {
+            // returns { valid: boolean, errors: string[] }
+            const d: any = this.data;
+            const errors: string[] = [];
+            const critical = [
+                'company_name',
+                'industry',
+                'company_size',
+                'current_challenges',
+                'current_capabilities',
+                'strategic_goal',
+                'key_initiatives',
+                'time_horizon',
+            ];
+            critical.forEach((k) => {
+                if (!d[k]) {
+                    // human-friendly labels
+                    const labelMap: Record<string, string> = {
+                        company_name: 'Nombre de la organización',
+                        industry: 'Industria',
+                        company_size: 'Tamaño (personas)',
+                        current_challenges: 'Desafíos',
+                        current_capabilities: 'Capacidades existentes',
+                        strategic_goal: 'Objetivo principal',
+                        key_initiatives: 'Iniciativas clave',
+                        time_horizon: 'Plazo',
+                    };
+                    errors.push(labelMap[k] || k);
+                }
+            });
+            return { valid: errors.length === 0, errors };
+        },
     },
 });
