@@ -2,12 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\Organizations;
-use App\Models\User;
-use App\Models\Scenario;
 use App\Models\Capability;
 use App\Models\Competency;
-use App\Models\CompetencyVersion;
+use App\Models\Organizations;
+use App\Models\Scenario;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,6 +15,7 @@ class BackfillCompetencyVersionsTest extends TestCase
     use RefreshDatabase;
 
     protected Organizations $organization;
+
     protected User $user;
 
     protected function setUp(): void

@@ -3,21 +3,22 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Scenario;
 use App\Models\Capability;
-use App\Services\ScenarioAnalysisService;
-use App\Repository\ScenarioRepository;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use App\Services\ScenarioAnalyticsService;
-use App\Services\RoleSkillDerivationService;
-use Inertia\Inertia;
+use App\Models\Scenario;
 use App\Models\ScenarioTemplate;
+use App\Repository\ScenarioRepository;
+use App\Services\RoleSkillDerivationService;
+use App\Services\ScenarioAnalysisService;
+use App\Services\ScenarioAnalyticsService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class ScenarioController extends Controller
 {
     protected $analytics;
+
     protected $derivation;
 
     public function __construct(
@@ -73,7 +74,7 @@ class ScenarioController extends Controller
             'avg_capability_readiness_pct' => round($avgCap * 100, 1),
             'avg_competency_readiness_pct' => round($avgComp * 100, 1),
             'avg_skill_readiness_pct' => round($avgSkill * 100, 1),
-            $this->analytics->calculateScenarioIQ($id)
+            $this->analytics->calculateScenarioIQ($id),
         ];
 
         return response()->json($metrics);
@@ -86,9 +87,10 @@ class ScenarioController extends Controller
     public function deriveSkills($id, $roleId)
     {
         $result = $this->derivation->deriveSkillsFromCompetencies($id, $roleId);
+
         return response()->json([
             'message' => 'Skills derivadas exitosamente',
-            'stats' => $result
+            'stats' => $result,
         ]);
     }
 
@@ -99,9 +101,10 @@ class ScenarioController extends Controller
     public function deriveAllSkills($id)
     {
         $results = $this->derivation->deriveAllSkillsForScenario($id);
+
         return response()->json([
             'message' => 'Skills derivadas para todos los roles',
-            'results' => $results
+            'results' => $results,
         ]);
     }
 
@@ -111,7 +114,7 @@ class ScenarioController extends Controller
     public function listScenarios(Request $request): JsonResponse
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
         $organizationId = $user->organization_id;
@@ -142,7 +145,7 @@ class ScenarioController extends Controller
     {
         $scenarioId = $id; // Store the scenario ID to use in closures
         try {
-            \Log::info("GET capability-tree called", ['scenario_id' => $scenarioId, 'user_id' => auth()->id() ?? null]);
+            \Log::info('GET capability-tree called', ['scenario_id' => $scenarioId, 'user_id' => auth()->id() ?? null]);
         } catch (\Throwable $e) { /* ignore logging failures */
         }
         $scenario = Scenario::with([
@@ -152,9 +155,9 @@ class ScenarioController extends Controller
                         // Only load competencies linked to this scenario via the pivot
                         $qc->wherePivot('scenario_id', $scenarioId)
                             ->with('skills');
-                    }
+                    },
                 ]);
-            }
+            },
         ])->findOrFail($id);
 
         $tree = $scenario->capabilities->map(function ($capability) use ($id) {
@@ -194,12 +197,12 @@ class ScenarioController extends Controller
                                 'id' => $skill->id,
                                 'name' => $skill->name,
                                 'weight' => $skill->pivot->weight ?? null,
-                                'is_incubating' => !is_null($skill->discovered_in_scenario_id),
-                                'readiness' => round($this->analytics->calculateSkillReadiness($id, $skill->id) * 100, 1)
+                                'is_incubating' => ! is_null($skill->discovered_in_scenario_id),
+                                'readiness' => round($this->analytics->calculateSkillReadiness($id, $skill->id) * 100, 1),
                             ];
-                        })
+                        }),
                     ];
-                })
+                }),
             ];
         });
 
@@ -269,7 +272,6 @@ class ScenarioController extends Controller
         ]);
     }
 
-
     /**
      * API: Obtener escenario como JSON (compatibility method)
      */
@@ -277,7 +279,7 @@ class ScenarioController extends Controller
     {
         $scenario = $this->scenarioRepo->getScenarioById((int) $id);
 
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json([
                 'success' => false,
                 'message' => 'Scenario not found',
@@ -286,7 +288,7 @@ class ScenarioController extends Controller
 
         // Tenant isolation: only allow access to scenarios within the user's organization
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
         $userOrg = $user->organization_id;
@@ -320,7 +322,7 @@ class ScenarioController extends Controller
         ]);
 
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -336,7 +338,7 @@ class ScenarioController extends Controller
             'fiscal_year' => $validated['fiscal_year'] ?? (int) date('Y'),  // Default al año actual si no se proporciona
             'start_date' => ($validated['start_date'] ?? null) ? \Carbon\Carbon::parse($validated['start_date'])->toDateString() : now()->toDateString(),
             'end_date' => ($validated['end_date'] ?? null) ? \Carbon\Carbon::parse($validated['end_date'])->toDateString() : now()->addMonths(12)->toDateString(),
-            'code' => $validated['code'] ?? ('SCN-' . strtoupper(substr(md5(uniqid()), 0, 8))),
+            'code' => $validated['code'] ?? ('SCN-'.strtoupper(substr(md5(uniqid()), 0, 8))),
             'owner_user_id' => $validated['owner_user_id'] ?? $user->id,
         ];
 
@@ -357,12 +359,12 @@ class ScenarioController extends Controller
     {
         $scenario = $this->scenarioRepo->getScenarioById((int) $id);
 
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
         }
 
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -381,12 +383,12 @@ class ScenarioController extends Controller
     public function instantiateFromTemplate($templateId, Request $request): JsonResponse
     {
         $template = ScenarioTemplate::find($templateId);
-        if (!$template) {
+        if (! $template) {
             return response()->json(['success' => false, 'message' => 'Template not found'], 404);
         }
 
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -418,7 +420,7 @@ class ScenarioController extends Controller
     public function calculateGaps($id): JsonResponse
     {
         $scenario = $this->scenarioRepo->getScenarioById((int) $id);
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
         }
         // Use service to build a proper gap structure
@@ -434,13 +436,13 @@ class ScenarioController extends Controller
     public function refreshSuggestedStrategies($id, Request $request): JsonResponse
     {
         $scenario = $this->scenarioRepo->getScenarioById((int) $id);
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
         }
 
         // Tenant isolation
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -461,8 +463,9 @@ class ScenarioController extends Controller
                 'created_at' => now()->toDateTimeString(),
                 'updated_at' => now()->toDateTimeString(),
             ]);
-            if ($id)
+            if ($id) {
                 $created++;
+            }
         }
 
         return response()->json(['success' => true, 'message' => 'Suggested strategies refreshed', 'created' => $created]);

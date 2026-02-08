@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Services\ScenarioGenerationService;
 use App\Models\Organizations;
 use App\Models\ScenarioGeneration;
+use App\Services\ScenarioGenerationService;
+use Illuminate\Http\Request;
 
 class ScenarioGenerationController extends Controller
 {
     public function store(Request $request, ScenarioGenerationService $svc)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -48,7 +48,7 @@ class ScenarioGenerationController extends Controller
         $requestedOrgId = $payload['organization_id'] ?? null;
         $orgId = $user->organization_id ?? null;
 
-        if (!$orgId) {
+        if (! $orgId) {
             return response()->json(['success' => false, 'message' => 'organization_id is required'], 422);
         }
 
@@ -56,7 +56,7 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Forbidden: organization mismatch'], 403);
         }
         $org = Organizations::find($orgId);
-        if (!$org) {
+        if (! $org) {
             return response()->json(['success' => false, 'message' => 'Organization not found'], 404);
         }
 
@@ -69,7 +69,7 @@ class ScenarioGenerationController extends Controller
     public function preview(Request $request, ScenarioGenerationService $svc)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -102,12 +102,12 @@ class ScenarioGenerationController extends Controller
         ]);
 
         $orgId = $payload['organization_id'] ?? ($user->organization_id ?? null);
-        if (!$orgId) {
+        if (! $orgId) {
             return response()->json(['success' => false, 'message' => 'organization_id is required'], 422);
         }
 
         $org = Organizations::find($orgId);
-        if (!$org) {
+        if (! $org) {
             return response()->json(['success' => false, 'message' => 'Organization not found'], 404);
         }
 
@@ -119,12 +119,12 @@ class ScenarioGenerationController extends Controller
     public function show(Request $request, $id)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
         $generation = ScenarioGeneration::find($id);
-        if (!$generation) {
+        if (! $generation) {
             return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
 
@@ -142,7 +142,7 @@ class ScenarioGenerationController extends Controller
                 'confidence_score' => $generation->confidence_score,
                 'model_version' => $generation->model_version,
                 'generated_at' => $generation->generated_at,
-            ]
+            ],
         ]);
     }
 }

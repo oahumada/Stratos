@@ -24,14 +24,14 @@ class ScenarioTemplateSeeder extends Seeder
                             'required_headcount' => 5,
                             'required_level' => 4,
                             'priority' => 'critical',
-                            'rationale' => 'AI/ML engineers necesarios para proyectos iniciales'
+                            'rationale' => 'AI/ML engineers necesarios para proyectos iniciales',
                         ],
                         [
                             'skill_id' => 2,
                             'required_headcount' => 15,
                             'required_level' => 3,
                             'priority' => 'high',
-                            'rationale' => 'Data analysis para soporte de decisiones IA'
+                            'rationale' => 'Data analysis para soporte de decisiones IA',
                         ],
                     ],
                     'suggested_strategies' => ['build', 'buy', 'bind'],
@@ -39,8 +39,8 @@ class ScenarioTemplateSeeder extends Seeder
                     'assumptions' => [
                         'Budget disponible: $500k-$1M',
                         'Timeline: 12-18 meses',
-                        'Retención esperada: 90%'
-                    ]
+                        'Retención esperada: 90%',
+                    ],
                 ],
                 'is_active' => true,
             ],
@@ -58,14 +58,14 @@ class ScenarioTemplateSeeder extends Seeder
                             'required_headcount' => 10,
                             'required_level' => 4,
                             'priority' => 'critical',
-                            'rationale' => 'Cloud architects para infraestructura'
+                            'rationale' => 'Cloud architects para infraestructura',
                         ],
                         [
                             'skill_id' => 4,
                             'required_headcount' => 20,
                             'required_level' => 3,
                             'priority' => 'high',
-                            'rationale' => 'Full-stack developers para modernización'
+                            'rationale' => 'Full-stack developers para modernización',
                         ],
                     ],
                     'suggested_strategies' => ['build', 'buy', 'bridge'],
@@ -87,7 +87,7 @@ class ScenarioTemplateSeeder extends Seeder
                             'required_headcount' => 30,
                             'required_level' => 2,
                             'priority' => 'critical',
-                            'rationale' => 'Incremento de capacidad operativa'
+                            'rationale' => 'Incremento de capacidad operativa',
                         ],
                     ],
                     'suggested_strategies' => ['buy', 'borrow', 'bind'],
@@ -109,7 +109,7 @@ class ScenarioTemplateSeeder extends Seeder
                             'required_headcount' => 5,
                             'required_level' => 5,
                             'priority' => 'critical',
-                            'rationale' => 'Líderes de siguiente generación'
+                            'rationale' => 'Líderes de siguiente generación',
                         ],
                     ],
                     'suggested_strategies' => ['build', 'bind', 'bridge'],

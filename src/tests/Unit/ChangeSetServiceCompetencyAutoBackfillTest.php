@@ -2,14 +2,14 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\ChangeSetService;
 use App\Models\ChangeSet;
-use App\Models\CompetencyVersion;
 use App\Models\Competency;
-use App\Models\User;
+use App\Models\CompetencyVersion;
 use App\Models\Organizations;
+use App\Models\User;
+use App\Services\ChangeSetService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ChangeSetServiceCompetencyAutoBackfillTest extends TestCase
 {
@@ -17,10 +17,10 @@ class ChangeSetServiceCompetencyAutoBackfillTest extends TestCase
 
     public function test_apply_creates_competency_version_when_missing()
     {
-        $org = Organizations::create(['name' => 'BF Org C', 'subdomain' => 'bf-c-' . uniqid()]);
+        $org = Organizations::create(['name' => 'BF Org C', 'subdomain' => 'bf-c-'.uniqid()]);
         $user = User::factory()->create(['organization_id' => $org->id]);
 
-        $comp = Competency::create(['organization_id' => $org->id, 'name' => 'Test Competency ' . uniqid()]);
+        $comp = Competency::create(['organization_id' => $org->id, 'name' => 'Test Competency '.uniqid()]);
 
         $this->assertFalse(CompetencyVersion::where('competency_id', $comp->id)->exists());
 
@@ -33,12 +33,12 @@ class ChangeSetServiceCompetencyAutoBackfillTest extends TestCase
                     [
                         'type' => 'create_competency_version',
                         'competency_id' => $comp->id,
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
-        $service = new ChangeSetService();
+        $service = new ChangeSetService;
         $service->apply($cs, $user);
 
         $this->assertTrue(CompetencyVersion::where('competency_id', $comp->id)->exists());

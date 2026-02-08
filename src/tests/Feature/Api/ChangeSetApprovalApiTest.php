@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Api;
 
-use Tests\TestCase;
+use App\Models\ChangeSet;
 use App\Models\Organizations;
 use App\Models\User;
-use App\Models\ChangeSet;
+use Tests\TestCase;
 
 class ChangeSetApprovalApiTest extends TestCase
 {

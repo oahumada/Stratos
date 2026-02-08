@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use App\Models\CompetencyVersion;
+use Illuminate\Support\Str;
 
 class ScenarioCapability extends Model
 {
@@ -31,13 +30,15 @@ class ScenarioCapability extends Model
         static::created(function (self $pivot) {
             try {
                 $capability = $pivot->capability()->with('competencies')->first();
-                if (!$capability)
+                if (! $capability) {
                     return;
+                }
 
                 foreach ($capability->competencies as $comp) {
                     $exists = CompetencyVersion::where('competency_id', $comp->id)->exists();
-                    if ($exists)
+                    if ($exists) {
                         continue;
+                    }
 
                     CompetencyVersion::create([
                         'organization_id' => $comp->organization_id ?? $capability->organization_id ?? null,
@@ -52,7 +53,7 @@ class ScenarioCapability extends Model
                     ]);
                 }
             } catch (\Throwable $e) {
-                Log::error('Error creating competency_versions from scenario pivot: ' . $e->getMessage(), ['pivot_id' => $pivot->id ?? null]);
+                Log::error('Error creating competency_versions from scenario pivot: '.$e->getMessage(), ['pivot_id' => $pivot->id ?? null]);
             }
         });
     }

@@ -16,7 +16,7 @@ class WorkforcePlanFactory extends Factory
 
         return [
             'organization_id' => 1,
-            'name' => 'Workforce Plan ' . uniqid(),
+            'name' => 'Workforce Plan '.uniqid(),
             'description' => 'Auto-generated workforce plan for tests',
             'start_date' => $start->format('Y-m-d'),
             'end_date' => $end->format('Y-m-d'),
@@ -36,11 +36,11 @@ class WorkforcePlanFactory extends Factory
 
     public function draft(): self
     {
-        return $this->state(fn(array $attrs) => ['status' => 'draft']);
+        return $this->state(fn (array $attrs) => ['status' => 'draft']);
     }
 
     public function approved(): self
     {
-        return $this->state(fn(array $attrs) => ['status' => 'approved', 'approved_by' => 1, 'approved_at' => now()]);
+        return $this->state(fn (array $attrs) => ['status' => 'approved', 'approved_by' => 1, 'approved_at' => now()]);
     }
 }

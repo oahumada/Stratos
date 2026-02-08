@@ -15,7 +15,7 @@ class MatchingService
     public function rankCandidatesForOpening(JobOpening $jobOpening): Collection
     {
         $role = $jobOpening->role; // Relación a Role
-        $gapService = new GapAnalysisService();
+        $gapService = new GapAnalysisService;
 
         // Obtener peopleas de la misma organización
         $People = People::where('organization_id', $jobOpening->organization_id)->get();
@@ -28,7 +28,7 @@ class MatchingService
             $gaps = collect($analysis['gaps']);
             $gapCount = (int) $gaps->where('gap', '>', 0)->count();
             $criticalCount = (int) $gaps->where('gap', '>', 2)->count();
-            $mediumCount = (int) $gaps->filter(fn($g) => ($g['gap'] ?? 0) >= 1 && ($g['gap'] ?? 0) <= 2)->count();
+            $mediumCount = (int) $gaps->filter(fn ($g) => ($g['gap'] ?? 0) >= 1 && ($g['gap'] ?? 0) <= 2)->count();
 
             $missingSkills = $gaps->where('gap', '>', 0)->pluck('skill_name')->values()->all();
 
@@ -41,7 +41,7 @@ class MatchingService
 
             $results->push([
                 'people_id' => $people->id,
-                'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
+                'name' => $people->full_name ?? ($people->first_name.' '.$people->last_name),
                 'role_id' => $people->role_id,
                 'match_percentage' => round($match, 2),
                 'missing_skills' => $missingSkills,

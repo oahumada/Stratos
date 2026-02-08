@@ -41,7 +41,7 @@ class PeopleRoleSkills extends Model
             return (int) $this->attributes['level'];
         }
 
-        if (!is_null($value) && $value !== '') {
+        if (! is_null($value) && $value !== '') {
             return (int) $value;
         }
 

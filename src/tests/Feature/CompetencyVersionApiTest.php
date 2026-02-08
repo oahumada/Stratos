@@ -2,10 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Competency;
 use App\Models\Organizations;
 use App\Models\User;
-use App\Models\Competency;
-use App\Models\CompetencyVersion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,6 +13,7 @@ class CompetencyVersionApiTest extends TestCase
     use RefreshDatabase;
 
     protected Organizations $organization;
+
     protected User $user;
 
     protected function setUp(): void

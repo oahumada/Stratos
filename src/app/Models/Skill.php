@@ -138,4 +138,3 @@ class Skill extends Model
         return $this->scope_type === 'specific';
     }
 }
-

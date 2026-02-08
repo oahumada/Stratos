@@ -2,12 +2,11 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\Organizations;
-use App\Models\User;
-use App\Models\ChangeSet;
 use App\Models\StrategicPlanningScenarios;
+use App\Models\User;
 use App\Services\ChangeSetService;
+use Tests\TestCase;
 
 class ChangeSetServiceTest extends TestCase
 {
@@ -17,7 +16,7 @@ class ChangeSetServiceTest extends TestCase
         $user = User::factory()->create(['organization_id' => $org->id]);
         $scenario = StrategicPlanningScenarios::factory()->create(['organization_id' => $org->id]);
 
-        $service = new ChangeSetService();
+        $service = new ChangeSetService;
 
         $payload = [
             'organization_id' => $org->id,

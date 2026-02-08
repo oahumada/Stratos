@@ -10,12 +10,12 @@ class RutGenerator
     {
         // Generar número base aleatorio
         $numero = str_pad(rand(1, pow(10, $length) - 1), $length, '0', STR_PAD_LEFT);
-        
+
         // Calcular dígito verificador
         $dv = self::calcularDigitoVerificador($numero);
-        
+
         // Retornar RUT completo con formato
-        return $numero . '-' . $dv;
+        return $numero.'-'.$dv;
     }
 
     public static function calcularDigitoVerificador($numero)
@@ -51,19 +51,19 @@ class RutGenerator
     {
         // Eliminar puntos y guión, convertir a mayúsculas
         $rut = strtoupper(preg_replace('/[.-]/', '', $rut));
-        
+
         // Validar formato
-        if (!preg_match('/^[0-9]{7,8}[0-9K]$/', $rut)) {
+        if (! preg_match('/^[0-9]{7,8}[0-9K]$/', $rut)) {
             return false;
         }
-        
+
         // Separar cuerpo y dígito verificador
         $cuerpo = substr($rut, 0, -1);
         $dv = substr($rut, -1);
-        
+
         // Calcular dígito verificador
         $dvCalculado = self::calcularDigitoVerificador($cuerpo);
-        
+
         // Comparar dígitos verificadores
         return $dv === $dvCalculado;
     }

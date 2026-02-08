@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ScenarioTemplate extends Model
@@ -19,7 +19,7 @@ class ScenarioTemplate extends Model
         'icon',
         'config',
         'is_active',
-        'usage_count'
+        'usage_count',
     ];
 
     protected $casts = [
@@ -43,7 +43,7 @@ class ScenarioTemplate extends Model
     public function scopeByIndustry($query, $industry)
     {
         return $query->where('industry', $industry)
-                     ->orWhere('industry', 'general');
+            ->orWhere('industry', 'general');
     }
 
     public function scopeByType($query, $type)

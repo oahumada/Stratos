@@ -2,9 +2,8 @@
 
 namespace App\Helpers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
-use \Illuminate\Database\QueryException;
-use \Illuminate\Support\Collection;
 
 class Tools
 {
@@ -25,10 +24,10 @@ class Tools
      * - ['activo' => 1]        // Entero 1
      * - ['activo' => '1']      // Cadena '1'
      *
-     * @param array $filters Un array asociativo de filtros donde las claves son nombres de campos y los valores son criterios de filtrado.
-     * @param object $query El objeto de consulta al que se aplicarán los filtros.
-     *
+     * @param  array  $filters  Un array asociativo de filtros donde las claves son nombres de campos y los valores son criterios de filtrado.
+     * @param  object  $query  El objeto de consulta al que se aplicarán los filtros.
      * @return mixed Devuelve los resultados de la consulta filtrada como una colección.
+     *
      * @throws QueryException Si ocurre un error durante el filtrado.
      */
     public static function filterData(array $filters, object $query)
@@ -48,10 +47,10 @@ class Tools
         $filters = self::cleanFilters($filters);
 
         // Cargar relaciones validas declaradas
-        if (!empty($with) && method_exists($query, 'getModel')) {
+        if (! empty($with) && method_exists($query, 'getModel')) {
             $model = $query->getModel();
-            $validRelations = array_filter((array) $with, fn($rel) => method_exists($model, $rel));
-            if (!empty($validRelations)) {
+            $validRelations = array_filter((array) $with, fn ($rel) => method_exists($model, $rel));
+            if (! empty($validRelations)) {
                 $query->with(array_unique($validRelations));
             }
         }
@@ -60,6 +59,7 @@ class Tools
             foreach ($filters as $field => $criteria) {
                 if (strpos($field, 'fecha') === 0) {
                     self::applyDateFilter($query, $field, $criteria);
+
                     continue;
                 }
 
@@ -72,11 +72,13 @@ class Tools
                             $q->where('ges_id', '>', 0);
                         }
                     });
+
                     continue;
                 }
 
                 if (is_bool($criteria)) {
                     $query->where($field, $criteria);
+
                     continue;
                 }
 
@@ -84,6 +86,7 @@ class Tools
                 $bool = self::normalizeBoolean($criteria);
                 if ($bool !== null) {
                     $query->where($field, $bool);
+
                     continue;
                 }
 
@@ -96,12 +99,13 @@ class Tools
 
             if ($perPage !== null) {
                 $perPage = min(max((int) $perPage, 1), 100);
+
                 return $query->paginate($perPage, ['*'], 'page', (int) $page ?: 1);
             }
 
             return $query->get();
         } catch (QueryException $exception) {
-            return 'Error filtering data: ' . $exception->getMessage();
+            return 'Error filtering data: '.$exception->getMessage();
         }
     }
 
@@ -115,8 +119,10 @@ class Tools
                 $nonEmpty = array_filter($v, function ($item) {
                     return $item !== null && $item !== '';
                 });
-                return !empty($nonEmpty);
+
+                return ! empty($nonEmpty);
             }
+
             return $v !== null && $v !== '';
         });
     }
@@ -138,16 +144,16 @@ class Tools
 
         return null;
     }
+
     /**
      * Applies a date filter to the given query.
      *
      * This function filters the query based on a date range specified in the $dates array.
      * It expects 'desde' (from) and 'hasta' (to) keys in the $dates array to define the range.
      *
-     * @param object $query The query object to apply the filter to.
-     * @param string $field The name of the date field in the database to filter on.
-     * @param array $dates An associative array containing 'desde' and 'hasta' keys with corresponding date values.
-     *
+     * @param  object  $query  The query object to apply the filter to.
+     * @param  string  $field  The name of the date field in the database to filter on.
+     * @param  array  $dates  An associative array containing 'desde' and 'hasta' keys with corresponding date values.
      * @return mixed Returns the modified query object if successful, a string error message if dates are missing,
      *               or an error message if there's an issue with the date format.
      */
@@ -157,41 +163,42 @@ class Tools
             if (isset($dates['desde']) && isset($dates['hasta'])) {
                 return $query->whereBetween($field, [$dates['desde'], $dates['hasta']]);
             } else {
-                return "Falta una fecha";
+                return 'Falta una fecha';
             }
         } catch (QueryException $e) {
             return 'Formato de fecha incorrecto ';
         }
     }
+
     /**
      * Applies a full-text search filter for the 'exposicion' field.
      *
      * This function performs a full-text search on the specified field using the provided criteria.
      * It applies both exact phrase matching and individual term matching for each search term.
      *
-     * @param object $query The query object to apply the filter to.
-     * @param string $field The name of the field in the database to apply the full-text search on.
-     * @param array $criteria An array of search terms to be used in the full-text search.
-     *
+     * @param  object  $query  The query object to apply the filter to.
+     * @param  string  $field  The name of the field in the database to apply the full-text search on.
+     * @param  array  $criteria  An array of search terms to be used in the full-text search.
      * @return mixed Returns the modified query object if successful, or a string error message if an exception occurs.
      */
     private static function applyExposicionFilter(object $query, $field, $criteria)
     {
         try {
             foreach ($criteria as $term) {
-                $query->whereFullText($field, '"' . $term . '\"');
+                $query->whereFullText($field, '"'.$term.'\"');
+
                 return $query->orWhereFullText($field, $term);
             }
         } catch (QueryException $e) {
-            return 'Error en la búsqueda full-text: ' . $e->getMessage();
+            return 'Error en la búsqueda full-text: '.$e->getMessage();
         }
     }
 
     /**
      * Auto-detecta relaciones para eager loading basándose en campos _id
-     * 
-     * @param array $filters Filtros aplicados
-     * @param object $query Query object para obtener el modelo
+     *
+     * @param  array  $filters  Filtros aplicados
+     * @param  object  $query  Query object para obtener el modelo
      * @return array Array de relaciones para cargar con with()
      */
     // private static function autoDetectRelations(array $filters, object $query): array

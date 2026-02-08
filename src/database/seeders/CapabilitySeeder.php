@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Capability;
-use App\Models\Skill;
 use App\Models\Organizations;
+use App\Models\Skill;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class CapabilitySeeder extends Seeder
@@ -16,7 +16,7 @@ class CapabilitySeeder extends Seeder
 
         if ($orgs->isEmpty()) {
             $orgs = collect([
-                Organizations::create(['name' => 'Demo Org', 'subdomain' => Str::slug('Demo Org')])
+                Organizations::create(['name' => 'Demo Org', 'subdomain' => Str::slug('Demo Org')]),
             ]);
         }
 

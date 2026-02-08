@@ -13,7 +13,7 @@ class JobOpeningController extends Controller
     {
         $openings = JobOpening::with('role', 'createdBy')
             ->get()
-            ->map(fn($o) => [
+            ->map(fn ($o) => [
                 'id' => $o->id,
                 'title' => $o->title,
                 'role' => $o->role?->name,
@@ -55,7 +55,7 @@ class JobOpeningController extends Controller
             return response()->json(['error' => 'Vacante no encontrada'], 404);
         }
 
-        $service = new MatchingService();
+        $service = new MatchingService;
         $candidates = $service->rankCandidatesForOpening($opening);
 
         return response()->json([

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Competency;
 use App\Models\Organizations;
 use App\Models\User;
-use App\Models\Competency;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -13,6 +13,7 @@ class CompetencyFullTest extends TestCase
     use RefreshDatabase;
 
     protected Organizations $organization;
+
     protected User $user;
 
     protected function setUp(): void

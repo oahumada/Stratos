@@ -1,11 +1,11 @@
 <?php
 
 use App\Models\Organizations;
-use App\Models\User;
-use App\Models\StrategicPlanningScenarios;
-use App\Models\ScenarioTemplate;
 use App\Models\ScenarioSkillDemand;
+use App\Models\ScenarioTemplate;
 use App\Models\Skill;
+use App\Models\StrategicPlanningScenarios;
+use App\Models\User;
 use App\Services\ScenarioService;
 
 beforeEach(function () {

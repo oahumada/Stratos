@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class RoleVersion extends Model
 {
@@ -20,7 +20,7 @@ class RoleVersion extends Model
         'effective_from',
         'evolution_state',
         'metadata',
-        'created_by'
+        'created_by',
     ];
 
     protected $casts = [

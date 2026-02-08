@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class ScenarioGeneration extends Model
 {
@@ -21,7 +21,7 @@ class ScenarioGeneration extends Model
         'status',
         'metadata',
         'model_version',
-        'redacted'
+        'redacted',
     ];
 
     protected $casts = [

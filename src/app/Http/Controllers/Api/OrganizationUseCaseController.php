@@ -68,7 +68,7 @@ class OrganizationUseCaseController extends Controller
             ->where('use_case_template_id', $template->id)
             ->first();
 
-        if (!$useCase) {
+        if (! $useCase) {
             return response()->json([
                 'success' => false,
                 'message' => 'Use case not found for this organization',

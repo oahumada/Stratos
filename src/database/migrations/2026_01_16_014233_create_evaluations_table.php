@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('current_level', 3, 2)->nullable(); // Nivel calculado (N)
             $table->integer('required_level')->nullable(); // Nivel requerido (R)
             $table->decimal('gap', 3, 2)->nullable(); // R - N
-            $table->text('metadata')->nullable(); //JSON con detalles adicionales  
+            $table->text('metadata')->nullable(); // JSON con detalles adicionales
             $table->integer('confidence_score')->default(0); // 0-100, basado en consistencia de evidencias
             $table->timestamp('evaluated_at')->nullable();
             $table->timestamps();

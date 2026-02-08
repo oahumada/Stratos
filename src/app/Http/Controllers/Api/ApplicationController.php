@@ -15,9 +15,9 @@ class ApplicationController extends Controller
     {
         $applications = Application::with('jobOpening', 'people')
             ->get()
-            ->map(fn($a) => [
+            ->map(fn ($a) => [
                 'id' => $a->id,
-                'people' => $a->people?->full_name ?? ($a->people?->first_name . ' ' . $a->people?->last_name),
+                'people' => $a->people?->full_name ?? ($a->people?->first_name.' '.$a->people?->last_name),
                 'job_opening' => $a->jobOpening?->title,
                 'status' => $a->status,
                 'applied_at' => $a->applied_at,
@@ -38,7 +38,7 @@ class ApplicationController extends Controller
             'id' => $application->id,
             'people' => [
                 'id' => $application->people?->id,
-                'name' => $application->people?->full_name ?? ($application->people?->first_name . ' ' . $application->people?->last_name),
+                'name' => $application->people?->full_name ?? ($application->people?->first_name.' '.$application->people?->last_name),
             ],
             'job_opening' => [
                 'id' => $application->jobOpening?->id,

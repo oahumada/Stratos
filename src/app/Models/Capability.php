@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -38,6 +38,7 @@ class Capability extends Model
     private function capabilityCompetencyPivotColumns(): array
     {
         $cols = ['scenario_id', 'required_level', 'weight', 'strategic_weight', 'priority', 'rationale', 'is_required', 'created_at', 'updated_at'];
+
         return array_values(array_filter($cols, function ($c) {
             return Schema::hasColumn('capability_competencies', $c);
         }));
@@ -55,7 +56,7 @@ class Capability extends Model
 
     public function isIncubating(): bool
     {
-        return !is_null($this->discovered_in_scenario_id);
+        return ! is_null($this->discovered_in_scenario_id);
     }
 
     protected static function booted()
@@ -92,7 +93,7 @@ class Capability extends Model
                     'updated_at' => now(),
                 ]);
             } catch (\Throwable $e) {
-                \Log::error('Error attaching capability to scenario pivot: ' . $e->getMessage(), ['capability_id' => $cap->id, 'scenario_id' => $cap->discovered_in_scenario_id ?? null]);
+                \Log::error('Error attaching capability to scenario pivot: '.$e->getMessage(), ['capability_id' => $cap->id, 'scenario_id' => $cap->discovered_in_scenario_id ?? null]);
             }
         });
     }

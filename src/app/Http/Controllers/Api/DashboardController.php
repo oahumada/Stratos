@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $totalRoles = Roles::count();
 
         // Brechas promedio por peoplea
-        $gapService = new GapAnalysisService();
+        $gapService = new GapAnalysisService;
         $People = People::with('skills')->get();
         $gaps = [];
         $matchPercentages = [];

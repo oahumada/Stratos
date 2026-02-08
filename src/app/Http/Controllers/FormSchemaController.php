@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class FormSchemaController extends Controller
 {
     protected $repository;
+
     protected $modelClass;
+
     protected $repositoryClass;
 
     /**
@@ -22,7 +24,7 @@ class FormSchemaController extends Controller
         $this->repositoryClass = "App\\Repository\\{$modelName}Repository";
 
         // Verificar que las clases existan; si no, intentar formas singular/plural alternas
-        if (!class_exists($this->modelClass)) {
+        if (! class_exists($this->modelClass)) {
             // Try singular (trim trailing 's')
             $altModelName = rtrim($modelName, 's');
             $altModelClass = "App\\Models\\{$altModelName}";
@@ -35,7 +37,7 @@ class FormSchemaController extends Controller
                 }
             } else {
                 // Try plural (append 's') only if not already plural
-                $altModelName2 = $modelName . 's';
+                $altModelName2 = $modelName.'s';
                 $altModelClass2 = "App\\Models\\{$altModelName2}";
                 if (class_exists($altModelClass2)) {
                     $this->modelClass = $altModelClass2;
@@ -48,11 +50,11 @@ class FormSchemaController extends Controller
         }
 
         // Final verification
-        if (!class_exists($this->modelClass)) {
+        if (! class_exists($this->modelClass)) {
             throw new \Exception("Model class {$this->modelClass} not found");
         }
 
-        if (!class_exists($this->repositoryClass)) {
+        if (! class_exists($this->repositoryClass)) {
             throw new \Exception("Repository class {$this->repositoryClass} not found");
         }
 
@@ -98,12 +100,14 @@ class FormSchemaController extends Controller
     {
         try {
             $this->initializeForModel($modelName);
+
             return $this->repository->store($request);
         } catch (\Exception $e) {
-            Log::error("Error in FormSchemaController::store for {$modelName}: " . $e->getMessage());
+            Log::error("Error in FormSchemaController::store for {$modelName}: ".$e->getMessage());
+
             return response()->json([
                 'message' => 'Error al crear el registro',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -121,7 +125,7 @@ class FormSchemaController extends Controller
             // so that Repository::update() can extract it via $allData['id'].
             if ($id !== null) {
                 $data = $request->get('data', $request->all());
-                if (!isset($data['id'])) {
+                if (! isset($data['id'])) {
                     $data['id'] = $id;
                     $request->merge(['data' => $data]); // also merge at 'data' key for compatibility
                 }
@@ -129,10 +133,11 @@ class FormSchemaController extends Controller
 
             return $this->repository->update($request);
         } catch (\Exception $e) {
-            Log::error("Error in FormSchemaController::update for {$modelName}: " . $e->getMessage());
+            Log::error("Error in FormSchemaController::update for {$modelName}: ".$e->getMessage());
+
             return response()->json([
                 'message' => 'Error al actualizar el registro',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -145,12 +150,14 @@ class FormSchemaController extends Controller
         Log::info("FormSchemaController::destroy called for {$modelName} with ID: {$id}");
         try {
             $this->initializeForModel($modelName);
+
             return $this->repository->destroy($id);
         } catch (\Exception $e) {
-            Log::error("Error in FormSchemaController::destroy for {$modelName}: " . $e->getMessage());
+            Log::error("Error in FormSchemaController::destroy for {$modelName}: ".$e->getMessage());
+
             return response()->json([
                 'message' => 'Error al eliminar el registro',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -163,12 +170,14 @@ class FormSchemaController extends Controller
     {
         try {
             $this->initializeForModel($modelName);
+
             return $this->repository->show($request, $id);
         } catch (\Exception $e) {
-            Log::error("Error in FormSchemaController::show for {$modelName}: " . $e->getMessage());
+            Log::error("Error in FormSchemaController::show for {$modelName}: ".$e->getMessage());
+
             return response()->json([
                 'message' => 'Error al obtener el registro',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 404);
         }
     }
@@ -181,12 +190,14 @@ class FormSchemaController extends Controller
         try {
 
             $this->initializeForModel($modelName);
+
             return $this->repository->search($request);
         } catch (\Exception $e) {
-            Log::error("Error in FormSchemaController::search for {$modelName}: " . $e->getMessage());
+            Log::error("Error in FormSchemaController::search for {$modelName}: ".$e->getMessage());
+
             return response()->json([
                 'message' => 'Error en la búsqueda',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -198,12 +209,14 @@ class FormSchemaController extends Controller
     {
         try {
             $this->initializeForModel($modelName);
+
             return $this->repository->searchWithPeople($request);
         } catch (\Exception $e) {
-            Log::error("Error in FormSchemaController::searchWithPeople for {$modelName}: " . $e->getMessage());
+            Log::error("Error in FormSchemaController::searchWithPeople for {$modelName}: ".$e->getMessage());
+
             return response()->json([
                 'message' => 'Error en la búsqueda con joins',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

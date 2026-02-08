@@ -15,21 +15,23 @@ Artisan::command('gap:analyze {people_id} {role_name}', function () {
     $role = \App\Models\Roles::where('name', $roleName)->first();
 
     if (! $people) {
-        $this->error('Peoplea no encontrada: ' . $peopleId);
+        $this->error('Peoplea no encontrada: '.$peopleId);
+
         return 1;
     }
 
     if (! $role) {
-        $this->error('Rol no encontrado por nombre: ' . $roleName);
+        $this->error('Rol no encontrado por nombre: '.$roleName);
+
         return 1;
     }
 
-    $service = new \App\Services\GapAnalysisService();
+    $service = new \App\Services\GapAnalysisService;
     $analysis = $service->calculate($people, $role);
 
     // Mostrar salida formateada
-    $this->info('Match: ' . $analysis['match_percentage'] . '% (' . $analysis['summary']['category'] . ')');
-    $this->line('Skills OK: ' . $analysis['summary']['skills_ok'] . ' / ' . $analysis['summary']['total_skills']);
+    $this->info('Match: '.$analysis['match_percentage'].'% ('.$analysis['summary']['category'].')');
+    $this->line('Skills OK: '.$analysis['summary']['skills_ok'].' / '.$analysis['summary']['total_skills']);
 
     foreach ($analysis['gaps'] as $gap) {
         $this->line(sprintf(
@@ -54,20 +56,22 @@ Artisan::command('devpath:generate {people_id} {role_name}', function () {
     $role = \App\Models\Roles::where('name', $roleName)->first();
 
     if (! $people) {
-        $this->error('Peoplea no encontrada: ' . $peopleId);
+        $this->error('Peoplea no encontrada: '.$peopleId);
+
         return 1;
     }
 
     if (! $role) {
-        $this->error('Rol no encontrado por nombre: ' . $roleName);
+        $this->error('Rol no encontrado por nombre: '.$roleName);
+
         return 1;
     }
 
-    $service = new \App\Services\DevelopmentPathService();
+    $service = new \App\Services\DevelopmentPathService;
     $path = $service->generate($people, $role);
 
-    $this->info('DevelopmentPath generado: #' . $path->id . ' (status=' . $path->status . ')');
-    $this->line('Duración estimada (meses): ' . $path->estimated_duration_months);
+    $this->info('DevelopmentPath generado: #'.$path->id.' (status='.$path->status.')');
+    $this->line('Duración estimada (meses): '.$path->estimated_duration_months);
     foreach ($path->steps as $i => $step) {
         $this->line(sprintf(
             '%d) [%s] %s - %dh (skill: %s)',
@@ -87,14 +91,15 @@ Artisan::command('candidates:rank {job_opening_id}', function () {
     $jobOpening = \App\Models\JobOpening::find($openingId);
 
     if (! $jobOpening) {
-        $this->error('Vacante no encontrada: ' . $openingId);
+        $this->error('Vacante no encontrada: '.$openingId);
+
         return 1;
     }
 
-    $service = new \App\Services\MatchingService();
+    $service = new \App\Services\MatchingService;
     $candidates = $service->rankCandidatesForOpening($jobOpening);
 
-    $this->info('Candidatos para: ' . $jobOpening->title . ' (rol: ' . $jobOpening->role->name . ')');
+    $this->info('Candidatos para: '.$jobOpening->title.' (rol: '.$jobOpening->role->name.')');
     foreach ($candidates as $i => $c) {
         $this->line(sprintf(
             '%d) %s  — match=%0.2f%%, time=%0.1f meses, risk=%d, missing=[%s]',

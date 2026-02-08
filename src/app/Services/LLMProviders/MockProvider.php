@@ -18,7 +18,7 @@ class MockProvider implements LLMProviderInterface
         $now = now()->toIso8601String();
 
         // Allow tests to simulate rate-limits
-        if (!empty($this->config['simulate_429'])) {
+        if (! empty($this->config['simulate_429'])) {
             $retry = isset($this->config['simulate_429_retry_after']) ? (int) $this->config['simulate_429_retry_after'] : null;
             throw new \App\Services\LLMProviders\Exceptions\LLMRateLimitException('Simulated rate limit', $retry);
         }

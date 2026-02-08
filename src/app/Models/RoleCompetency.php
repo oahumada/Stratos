@@ -12,11 +12,11 @@ class RoleCompetency extends Model
         'competency_id',
         'required_level',
         'is_core',
-        'rationale'
+        'rationale',
     ];
 
     protected $casts = [
-        'is_core' => 'boolean'
+        'is_core' => 'boolean',
     ];
 
     public function role(): BelongsTo

@@ -4,10 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
-        if (!Schema::hasTable('role_sunset_mappings')) {
+        if (! Schema::hasTable('role_sunset_mappings')) {
             Schema::create('role_sunset_mappings', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('organization_id')->index();

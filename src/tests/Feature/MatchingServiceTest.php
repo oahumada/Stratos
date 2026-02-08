@@ -1,11 +1,11 @@
 <?php
 
+use App\Models\JobOpening;
 use App\Models\Organization;
 use App\Models\People;
 use App\Models\Roles;
 use App\Models\Skill;
 use App\Models\User;
-use App\Models\JobOpening;
 use App\Services\MatchingService;
 
 it('ordena candidatos por mayor porcentaje de match', function () {
@@ -79,7 +79,7 @@ it('ordena candidatos por mayor porcentaje de match', function () {
     ]);
 
     // Act
-    $service = new MatchingService();
+    $service = new MatchingService;
     $list = $service->rankCandidatesForOpening($opening);
 
     // Assert: primero Ana (mayor match), luego Beto

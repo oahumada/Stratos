@@ -22,11 +22,11 @@ class ScenarioTemplateController extends Controller
         if ($industry = $request->query('industry')) {
             $query->where(function ($q) use ($industry) {
                 $q->where('industry', $industry)
-                  ->orWhere('industry', 'general');
+                    ->orWhere('industry', 'general');
             });
         }
 
-        if (!is_null($request->query('is_active'))) {
+        if (! is_null($request->query('is_active'))) {
             $query->where('is_active', filter_var($request->query('is_active'), FILTER_VALIDATE_BOOLEAN));
         }
 

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Evaluation extends Model
 {
@@ -11,10 +11,10 @@ class Evaluation extends Model
 
     protected $table = 'evaluations';
 
-    protected $fillable = ['user_id', 'skill_id', 'scenario_id', 'current_level', 
+    protected $fillable = ['user_id', 'skill_id', 'scenario_id', 'current_level',
         'required_level', 'gap', 'confidence_score', 'evaluated_at', 'metadata'];
 
-   protected $casts = [
+    protected $casts = [
         'current_level' => 'decimal:2',
         'gap' => 'decimal:2',
         'evaluated_at' => 'datetime',

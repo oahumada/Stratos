@@ -1,7 +1,7 @@
 <?php
 
-use App\Services\LLMProviders\MockProvider;
 use App\Services\LLMProviders\Exceptions\LLMRateLimitException;
+use App\Services\LLMProviders\MockProvider;
 use Tests\TestCase;
 
 uses(TestCase::class);

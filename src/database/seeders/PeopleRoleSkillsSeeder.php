@@ -2,27 +2,25 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use App\Models\People;
-use App\Models\PeopleRoleSkills;
-use Carbon\Carbon;
 
 class PeopleRoleSkillsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * 
+     *
      * Migra datos existentes de people_skills a people_role_skills
      * estableciendo todas las skills como activas (is_active=true)
      * y asignando fecha de expiración de 6 meses
      */
     public function run(): void
     {
-        if (!Schema::hasTable('people_skills')) {
+        if (! Schema::hasTable('people_skills')) {
             $this->command->warn('Tabla people_skills no existe, se omite migración a people_role_skills.');
+
             return;
         }
 
@@ -46,9 +44,10 @@ class PeopleRoleSkillsSeeder extends Seeder
 
         foreach ($peopleSkills as $peopleSkill) {
             // Verificar si la persona tiene rol asignado
-            if (!$peopleSkill->role_id) {
+            if (! $peopleSkill->role_id) {
                 $this->command->warn("Persona ID {$peopleSkill->people_id} no tiene rol asignado. Se omite.");
                 $skipped++;
+
                 continue;
             }
 
@@ -78,16 +77,16 @@ class PeopleRoleSkillsSeeder extends Seeder
                 'evaluated_at' => $evaluatedAt,
                 'expires_at' => $expiresAt,
                 'evaluated_by' => $peopleSkill->evaluated_by,
-                'notes' => 'Migrado desde people_skills - skill actual del rol'
+                'notes' => 'Migrado desde people_skills - skill actual del rol',
             ]);
 
             $created++;
         }
 
-        $this->command->info("✓ Migración completada:");
+        $this->command->info('✓ Migración completada:');
         $this->command->info("  • {$created} skills migradas a people_role_skills");
         $this->command->info("  • {$skipped} personas sin rol (omitidas)");
-        $this->command->info("  • Todas marcadas como is_active=true");
-        $this->command->info("  • Fecha de expiración: 6 meses desde última evaluación");
+        $this->command->info('  • Todas marcadas como is_active=true');
+        $this->command->info('  • Fecha de expiración: 6 meses desde última evaluación');
     }
 }

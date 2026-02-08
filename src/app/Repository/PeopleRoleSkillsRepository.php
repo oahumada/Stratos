@@ -148,7 +148,7 @@ class PeopleRoleSkillsRepository extends Repository
                     'evaluated_at' => now(),
                     'expires_at' => $expiresAt,
                     'evaluated_by' => $evaluatedBy,
-                    'notes' => 'Asignada automáticamente desde rol: ' . $roleSkill->role->name,
+                    'notes' => 'Asignada automáticamente desde rol: '.$roleSkill->role->name,
                 ]);
                 $synced[] = $newSkill;
             }
@@ -180,12 +180,12 @@ class PeopleRoleSkillsRepository extends Repository
 
         return [
             'total_skills' => $skills->count(),
-            'met_requirements' => $skills->filter(fn($s) => $s->current_level >= $s->required_level)->count(),
-            'below_requirements' => $skills->filter(fn($s) => $s->current_level < $s->required_level)->count(),
-            'expired' => $skills->filter(fn($s) => $s->isExpired())->count(),
-            'needs_reevaluation' => $skills->filter(fn($s) => $s->needsReevaluation())->count(),
+            'met_requirements' => $skills->filter(fn ($s) => $s->current_level >= $s->required_level)->count(),
+            'below_requirements' => $skills->filter(fn ($s) => $s->current_level < $s->required_level)->count(),
+            'expired' => $skills->filter(fn ($s) => $s->isExpired())->count(),
+            'needs_reevaluation' => $skills->filter(fn ($s) => $s->needsReevaluation())->count(),
             'average_level' => round($skills->avg('current_level'), 2),
-            'average_gap' => round($skills->avg(fn($s) => $s->getLevelGap()), 2),
+            'average_gap' => round($skills->avg(fn ($s) => $s->getLevelGap()), 2),
         ];
     }
 }

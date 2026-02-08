@@ -2,26 +2,31 @@
 
 namespace Tests\Feature\Api;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Scenario;
-use App\Models\ScenarioRole;
 use App\Models\Competency;
-use App\Models\ScenarioRoleCompetency;
 use App\Models\Organizations;
 use App\Models\Roles;
+use App\Models\Scenario;
+use App\Models\ScenarioRole;
+use App\Models\ScenarioRoleCompetency;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
 
 class Step2RoleCompetencyApiTest extends TestCase
 {
     use RefreshDatabase;
 
     protected Organizations $organization;
+
     protected User $user;
+
     protected Scenario $scenario;
+
     protected Roles $baseRole;
+
     protected ScenarioRole $scenarioRole;
+
     protected Competency $competency;
 
     protected function setUp(): void

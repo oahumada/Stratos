@@ -10,9 +10,8 @@ class RoleMutationService
      * - 'specialization' si el objetivo tiene significativamente menos skills (<=80% del actual)
      * - 'stable' en caso contrario
      *
-     * @param array $currentSkills Array de identificadores/string de skills actuales
-     * @param array $targetSkills Array de identificadores/string de skills objetivo
-     * @return string
+     * @param  array  $currentSkills  Array de identificadores/string de skills actuales
+     * @param  array  $targetSkills  Array de identificadores/string de skills objetivo
      */
     public function calculateRoleMutation(array $currentSkills, array $targetSkills): string
     {
@@ -49,8 +48,7 @@ class RoleMutationService
      * - 'generalist' si el breadth > 10 skills
      * - 'hybrid' en caso contrario
      *
-     * @param array $roleProfile ['skills_count'=>int, 'specialized_skills'=>int]
-     * @return string
+     * @param  array  $roleProfile  ['skills_count'=>int, 'specialized_skills'=>int]
      */
     public function suggestArchetype(array $roleProfile): string
     {

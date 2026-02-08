@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class WorkforcePlan extends Model
@@ -30,7 +30,7 @@ class WorkforcePlan extends Model
         'owner_user_id',
         'sponsor_user_id',
         'created_by',
-        'updated_by'
+        'updated_by',
     ];
 
     protected $casts = [
@@ -47,7 +47,7 @@ class WorkforcePlan extends Model
     {
         static::creating(function ($plan) {
             if (empty($plan->code)) {
-                $plan->code = 'WFP-' . strtoupper(Str::random(6));
+                $plan->code = 'WFP-'.strtoupper(Str::random(6));
             }
         });
     }

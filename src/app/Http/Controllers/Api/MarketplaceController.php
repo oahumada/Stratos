@@ -13,7 +13,7 @@ class MarketplaceController extends Controller
     /**
      * Umbral mínimo de match para considerar a alguien como candidato viable
      * Candidatos con match < MINIMUM_MATCH_THRESHOLD no aparecen en el marketplace
-     * 
+     *
      * TODO: Mover esto a configuración de organización cuando se implemente settings
      */
     private const MINIMUM_MATCH_THRESHOLD = 40;
@@ -34,25 +34,25 @@ class MarketplaceController extends Controller
             ->with('role')
             ->get();
 
-        $gapService = new GapAnalysisService();
+        $gapService = new GapAnalysisService;
         $opportunities = $openings->map(function ($opening) use ($people, $gapService) {
             $analysis = $gapService->calculate($people, $opening->role);
-            
+
             // Filtrar oportunidades con match muy bajo (no viables)
             if ($analysis['match_percentage'] < self::MINIMUM_MATCH_THRESHOLD) {
                 return null; // Se filtrará después
             }
-            
+
             // Calcular tiempo hasta productividad (30 días por nivel de gap en promedio)
             $totalGapDays = collect($analysis['gaps'])
                 ->where('gap', '>', 0)
-                ->sum(fn($gap) => $gap['gap'] * 30);
-            
+                ->sum(fn ($gap) => $gap['gap'] * 30);
+
             // Skills requeridas con niveles
             $requiredSkills = $opening->role->skills()
                 ->withPivot(['required_level', 'is_critical'])
                 ->get()
-                ->map(fn($skill) => [
+                ->map(fn ($skill) => [
                     'id' => $skill->id,
                     'name' => $skill->name,
                     'required_level' => $skill->pivot->required_level ?? 0,
@@ -61,7 +61,7 @@ class MarketplaceController extends Controller
             return [
                 'id' => $opening->id,
                 'title' => $opening->title,
-                'description' => $opening->role?->name . ' - ' . $opening->department,
+                'description' => $opening->role?->name.' - '.$opening->department,
                 'role' => $opening->role?->name,
                 'department' => $opening->department,
                 'deadline' => $opening->deadline,
@@ -77,7 +77,7 @@ class MarketplaceController extends Controller
             'data' => [
                 'people' => [
                     'id' => $people->id,
-                    'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
+                    'name' => $people->full_name ?? ($people->first_name.' '.$people->last_name),
                 ],
                 'opportunities' => $opportunities,
             ],
@@ -90,7 +90,7 @@ class MarketplaceController extends Controller
     public function recruiterView(): JsonResponse
     {
         $user = auth()->user();
-        if (!$user || !$user->organization_id) {
+        if (! $user || ! $user->organization_id) {
             return response()->json(['error' => 'Usuario no autenticado'], 401);
         }
 
@@ -99,8 +99,8 @@ class MarketplaceController extends Controller
             ->with('role')
             ->get();
 
-        $gapService = new GapAnalysisService();
-        
+        $gapService = new GapAnalysisService;
+
         $positionsWithCandidates = $openings->map(function ($opening) use ($user, $gapService) {
             // Obtener todas las personas de la organización
             // EXCLUIR personas que ya ocupan el mismo rol que la vacante
@@ -112,18 +112,18 @@ class MarketplaceController extends Controller
             // Calcular match para cada persona
             $candidates = $people->map(function ($person) use ($opening, $gapService) {
                 $analysis = $gapService->calculate($person, $opening->role);
-                
+
                 // Excluir candidatos con match muy bajo (no viables)
                 if ($analysis['match_percentage'] < self::MINIMUM_MATCH_THRESHOLD) {
                     return null; // Se filtrará después
                 }
-                
+
                 $totalGapDays = collect($analysis['gaps'])
                     ->where('gap', '>', 0)
-                    ->sum(fn($gap) => $gap['gap'] * 30);
+                    ->sum(fn ($gap) => $gap['gap'] * 30);
 
                 $matchPct = $analysis['match_percentage'];
-                
+
                 // Determinar nivel de match para categorización
                 $matchLevel = 'very_low'; // <30%
                 if ($matchPct >= 80) {
@@ -138,7 +138,7 @@ class MarketplaceController extends Controller
 
                 return [
                     'id' => $person->id,
-                    'name' => $person->full_name ?? ($person->first_name . ' ' . $person->last_name),
+                    'name' => $person->full_name ?? ($person->first_name.' '.$person->last_name),
                     'current_role' => $person->role->name ?? 'Sin rol',
                     'match_percentage' => $matchPct,
                     'match_level' => $matchLevel,
@@ -151,9 +151,9 @@ class MarketplaceController extends Controller
                         ->count(),
                 ];
             })
-            ->filter() // Eliminar nulls (candidatos bajo umbral)
-            ->sortByDesc('match_percentage')
-            ->values(); // Solo candidatos viables (≥40% match)
+                ->filter() // Eliminar nulls (candidatos bajo umbral)
+                ->sortByDesc('match_percentage')
+                ->values(); // Solo candidatos viables (≥40% match)
 
             // Agrupar candidatos por nivel de match para insights
             $candidatesByLevel = [
@@ -163,10 +163,10 @@ class MarketplaceController extends Controller
                 'low' => $candidates->where('match_level', 'low')->count(),
                 'very_low' => $candidates->where('match_level', 'very_low')->count(),
             ];
-            
+
             $topCandidate = $candidates->first();
-            $recommendExternal = !$topCandidate || $topCandidate['match_percentage'] < 70;
-            $urgentExternal = !$topCandidate || $topCandidate['match_percentage'] < 30;
+            $recommendExternal = ! $topCandidate || $topCandidate['match_percentage'] < 70;
+            $urgentExternal = ! $topCandidate || $topCandidate['match_percentage'] < 30;
 
             return [
                 'id' => $opening->id,
@@ -193,4 +193,5 @@ class MarketplaceController extends Controller
                 'positions' => $positionsWithCandidates,
             ],
         ]);
-    }}
+    }
+}

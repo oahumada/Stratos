@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Api;
 
-use Tests\TestCase;
-use App\Models\Organizations;
-use App\Models\User;
-use App\Models\Roles;
 use App\Models\ChangeSet;
+use App\Models\Organizations;
+use App\Models\Roles;
+use App\Models\User;
+use Tests\TestCase;
 
 class ChangeSetIgnoredIndexesTest extends TestCase
 {

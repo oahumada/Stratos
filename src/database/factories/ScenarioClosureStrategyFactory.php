@@ -17,7 +17,7 @@ class ScenarioClosureStrategyFactory extends Factory
             'scenario_id' => \App\Models\StrategicPlanningScenarios::factory(),
             'skill_id' => \App\Models\Skill::factory(),
             'strategy' => $strategy,
-            'strategy_name' => strtoupper($strategy) . ' Strategy',
+            'strategy_name' => strtoupper($strategy).' Strategy',
             'description' => $this->faker->sentence(),
             'estimated_cost' => $this->faker->numberBetween(10000, 100000),
             'estimated_time_weeks' => $this->faker->numberBetween(4, 52),
@@ -32,7 +32,7 @@ class ScenarioClosureStrategyFactory extends Factory
 
     public function proposed(): self
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'status' => 'proposed',
         ]);
     }

@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\ChangeSet;
+use App\Models\User;
 
 class ChangeSetPolicy
 {
@@ -14,7 +14,7 @@ class ChangeSetPolicy
 
     public function create(User $user): bool
     {
-        return !empty($user->organization_id);
+        return ! empty($user->organization_id);
     }
 
     public function apply(User $user, ChangeSet $cs): bool

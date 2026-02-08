@@ -2,14 +2,14 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\ChangeSetService;
 use App\Models\ChangeSet;
+use App\Models\Organizations;
 use App\Models\Roles;
 use App\Models\RoleVersion;
 use App\Models\User;
-use App\Models\Organizations;
+use App\Services\ChangeSetService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ChangeSetServiceAutoBackfillTest extends TestCase
 {
@@ -17,13 +17,13 @@ class ChangeSetServiceAutoBackfillTest extends TestCase
 
     public function test_apply_auto_creates_role_version_when_missing()
     {
-        $org = Organizations::create(['name' => 'BF Org', 'subdomain' => 'bf-' . uniqid()]);
+        $org = Organizations::create(['name' => 'BF Org', 'subdomain' => 'bf-'.uniqid()]);
         $user = User::factory()->create(['organization_id' => $org->id]);
 
         $role = Roles::create([
             'organization_id' => $org->id,
-            'name' => 'BF Role ' . uniqid(),
-            'level' => 'mid'
+            'name' => 'BF Role '.uniqid(),
+            'level' => 'mid',
         ]);
 
         $this->assertFalse(RoleVersion::where('role_id', $role->id)->exists());
@@ -39,13 +39,13 @@ class ChangeSetServiceAutoBackfillTest extends TestCase
                         'payload' => [
                             'role_id' => $role->id,
                             'sunset_reason' => 'redundant',
-                        ]
-                    ]
-                ]
-            ]
+                        ],
+                    ],
+                ],
+            ],
         ]);
 
-        $service = new ChangeSetService();
+        $service = new ChangeSetService;
         $service->apply($cs, $user);
 
         $this->assertDatabaseHas('role_sunset_mappings', ['role_id' => $role->id]);

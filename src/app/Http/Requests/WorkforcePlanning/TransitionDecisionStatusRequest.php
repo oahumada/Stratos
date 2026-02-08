@@ -17,7 +17,7 @@ class TransitionDecisionStatusRequest extends FormRequest
             'to_status' => [
                 'required',
                 'string',
-                'in:draft,pending_approval,approved,rejected'
+                'in:draft,pending_approval,approved,rejected',
             ],
             'notes' => 'nullable|string|max:1000',
         ];
@@ -41,7 +41,7 @@ class TransitionDecisionStatusRequest extends FormRequest
             $scenario = $this->route('scenario');
             $toStatus = $this->input('to_status');
 
-            if (!$scenario || !$scenario->canTransitionTo($toStatus)) {
+            if (! $scenario || ! $scenario->canTransitionTo($toStatus)) {
                 $validator->errors()->add(
                     'to_status',
                     "No se puede transicionar de '{$scenario->decision_status}' a '{$toStatus}'"

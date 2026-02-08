@@ -26,7 +26,7 @@ class JobOpeningSeeder extends Seeder
 
         foreach ($jobTitles as $jobData) {
             $role = $roles->where('name', $jobData['role_name'])->first();
-            
+
             if ($role) {
                 JobOpening::create([
                     'organization_id' => $org->id,

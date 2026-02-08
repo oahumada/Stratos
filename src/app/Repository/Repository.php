@@ -2,18 +2,17 @@
 
 namespace App\Repository;
 
+use App\Helpers\Tools;
+use Illuminate\Database\Eloquent\Model;
+// Schema not required for primary-key lookups
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-// Schema not required for primary-key lookups
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\QueryException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Response;
-use App\Helpers\Tools;
 
 abstract class Repository implements RepositoryInterface
 {
-
     protected $model;
 
     public function __construct(Model $model)
@@ -31,18 +30,20 @@ abstract class Repository implements RepositoryInterface
             }, $query);
 
             // Asignar organization_id automáticamente si el usuario está autenticado
-            if (auth()->check() && !isset($query['organization_id'])) {
+            if (auth()->check() && ! isset($query['organization_id'])) {
                 $query['organization_id'] = auth()->user()->organization_id;
                 Log::info('Added organization_id:', ['organization_id' => $query['organization_id']]);
             }
 
             $created = $this->model->create($query);
+
             return response()->json([
                 'success' => true,
                 'data' => $created,
             ], 201);
         } catch (QueryException $e) {
             Log::error('store', [$e]);
+
             return response()->json([
                 'message' => 'Se produjo un error: ',
                 'error' => $e->getMessage(),
@@ -66,7 +67,7 @@ abstract class Repository implements RepositoryInterface
         unset($dataToUpdate['id']);
 
         // Log the data that will be used for the update
-        //Log::info('Data prepared for update: '.[$dataToUpdate]);
+        // Log::info('Data prepared for update: '.[$dataToUpdate]);
 
         try {
             // Retrieve the model instance or fail if not found
@@ -81,7 +82,7 @@ abstract class Repository implements RepositoryInterface
 
             return response()->json(['message' => 'Model updated successfully.'], 200);
         } catch (ModelNotFoundException $e) {
-            Log::warning('Model not found for ID using default query: ' . $id . '. Attempting without global scopes.');
+            Log::warning('Model not found for ID using default query: '.$id.'. Attempting without global scopes.');
             try {
                 // Try to find the model bypassing global scopes (e.g., organization/paciente scopes)
                 $model = $this->model->newQueryWithoutScopes()->find($id);
@@ -89,13 +90,15 @@ abstract class Repository implements RepositoryInterface
                     Log::info('Model found without scopes, proceeding to update.', ['id' => $id]);
                     $model->fill($dataToUpdate);
                     $model->save();
+
                     return response()->json(['message' => 'Model updated successfully (no scopes).'], 200);
                 }
             } catch (\Exception $inner) {
-                Log::error('Fallback query failed for ID: ' . $id, ['error' => $inner->getMessage()]);
+                Log::error('Fallback query failed for ID: '.$id, ['error' => $inner->getMessage()]);
             }
 
-            Log::error('Model not found for ID: ' . $id);
+            Log::error('Model not found for ID: '.$id);
+
             return response()->json(['error' => 'Model not found.'], 404);
         } catch (\Exception $e) {
             // Log::error('Error updating model with ID: ' . $id . '. Error: ' . $e->getMessage());
@@ -111,9 +114,10 @@ abstract class Repository implements RepositoryInterface
         try {
             $filters = $request->input('data', []); // Usar 'data' como nuevo estándar
             $query = $this->getSearchQuery();
-            Log::info('Current Model: ' . get_class($this->model));
-            Log::info('Search Filters: ' . json_encode($filters));
-            Log::info('Search Query: ' . $query->toSql());
+            Log::info('Current Model: '.get_class($this->model));
+            Log::info('Search Filters: '.json_encode($filters));
+            Log::info('Search Query: '.$query->toSql());
+
             return Tools::filterData($filters, $query);
         } catch (QueryException $e) {
             return response()->json([
@@ -144,31 +148,31 @@ abstract class Repository implements RepositoryInterface
         try {
             $filters = $request->input('data', []);
 
-            file_put_contents(storage_path('logs/debug-manual.log'), 'Filters: ' . json_encode($filters) . "\n", FILE_APPEND);
+            file_put_contents(storage_path('logs/debug-manual.log'), 'Filters: '.json_encode($filters)."\n", FILE_APPEND);
 
             $query = $this->getSearchQuery();
 
-            file_put_contents(storage_path('logs/debug-manual.log'), 'Modelo: ' . get_class($this->model) . "\n", FILE_APPEND);
+            file_put_contents(storage_path('logs/debug-manual.log'), 'Modelo: '.get_class($this->model)."\n", FILE_APPEND);
 
             $result = Tools::filterData($filters, $query);
 
             // Agregar detalles del resultado
             if (is_array($result)) {
-                file_put_contents(storage_path('logs/debug-manual.log'), 'Resultado - Tipo: array, Cantidad: ' . count($result) . "\n", FILE_APPEND);
-                file_put_contents(storage_path('logs/debug-manual.log'), 'Primeros 2 elementos: ' . json_encode(array_slice($result, 0, 2)) . "\n", FILE_APPEND);
+                file_put_contents(storage_path('logs/debug-manual.log'), 'Resultado - Tipo: array, Cantidad: '.count($result)."\n", FILE_APPEND);
+                file_put_contents(storage_path('logs/debug-manual.log'), 'Primeros 2 elementos: '.json_encode(array_slice($result, 0, 2))."\n", FILE_APPEND);
             } else {
-                file_put_contents(storage_path('logs/debug-manual.log'), 'Resultado - Tipo: ' . gettype($result) . "\n", FILE_APPEND);
-                file_put_contents(storage_path('logs/debug-manual.log'), 'Resultado completo: ' . json_encode($result) . "\n", FILE_APPEND);
+                file_put_contents(storage_path('logs/debug-manual.log'), 'Resultado - Tipo: '.gettype($result)."\n", FILE_APPEND);
+                file_put_contents(storage_path('logs/debug-manual.log'), 'Resultado completo: '.json_encode($result)."\n", FILE_APPEND);
             }
 
             return response()->json([
                 'result' => 'success',
                 'data' => $result,
-                'message' => 'Registros con joins cargados exitosamente'
+                'message' => 'Registros con joins cargados exitosamente',
             ]);
         } catch (\Exception $e) {
-            file_put_contents(storage_path('logs/debug-manual.log'), 'ERROR: ' . $e->getMessage() . "\n", FILE_APPEND);
-            file_put_contents(storage_path('logs/debug-manual.log'), 'Stack trace: ' . $e->getTraceAsString() . "\n", FILE_APPEND);
+            file_put_contents(storage_path('logs/debug-manual.log'), 'ERROR: '.$e->getMessage()."\n", FILE_APPEND);
+            file_put_contents(storage_path('logs/debug-manual.log'), 'Stack trace: '.$e->getTraceAsString()."\n", FILE_APPEND);
 
             return response()->json([
                 'result' => 'error',
@@ -185,7 +189,7 @@ abstract class Repository implements RepositoryInterface
     protected function getSearchQuery()
     {
         // Verificar que el modelo esté inicializado
-        if (!$this->model) {
+        if (! $this->model) {
             throw new \Exception('Model not initialized in repository');
         }
 
@@ -198,12 +202,13 @@ abstract class Repository implements RepositoryInterface
     {
         try {
             $this->model->destroy($id);
+
             return Response::json([
                 'message' => 'Registro borrado con exito',
             ], 200);
         } catch (QueryException $e) {
             return Response::json([
-                'result' => "500",
+                'result' => '500',
                 'message' => 'Error al borrar el registro',
                 'error' => $e,
             ], 500);
@@ -215,12 +220,12 @@ abstract class Repository implements RepositoryInterface
         Log::info($id);
         try {
             $query = $this->model->query();
-            Log::info('Current Model: ' . get_class($this->model));
+            Log::info('Current Model: '.get_class($this->model));
             $withRelations = $request->input('withRelations', []);
             Log::info($withRelations);
 
             // Add eager loading with error handling
-            if (!empty($withRelations)) {
+            if (! empty($withRelations)) {
                 $validRelations = [];
                 $modelInstance = new $this->model;
 
@@ -235,16 +240,16 @@ abstract class Repository implements RepositoryInterface
                 try {
                     $query->with($validRelations);
                 } catch (\Exception $e) {
-                    Log::error('Eager loading failed: ' . $e->getMessage());
-                    Log::error('Failed relations: ' . json_encode($withRelations));
+                    Log::error('Eager loading failed: '.$e->getMessage());
+                    Log::error('Failed relations: '.json_encode($withRelations));
                 }
             }
 
             $query->where($this->model->getKeyName(), $id);
 
             // MOVE LOGGING HERE - AFTER ALL QUERY CONDITIONS
-            Log::info('Final Query: ' . $query->toSql());
-            Log::info('Query Bindings: ' . json_encode($query->getBindings()));
+            Log::info('Final Query: '.$query->toSql());
+            Log::info('Query Bindings: '.json_encode($query->getBindings()));
 
             $results = $query->get();
             Log::info($results);
@@ -252,12 +257,12 @@ abstract class Repository implements RepositoryInterface
             return response()->json([
                 'result' => 'success',
                 'data' => $results,
-                'message' => 'Registros cargados exitosamente'
+                'message' => 'Registros cargados exitosamente',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener el registro',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 404);
         }
     }

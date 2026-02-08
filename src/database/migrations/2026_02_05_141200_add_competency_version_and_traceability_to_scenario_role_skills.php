@@ -3,12 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
-        if (!Schema::hasColumn('scenario_role_skills', 'competency_version_id')) {
+        if (! Schema::hasColumn('scenario_role_skills', 'competency_version_id')) {
             Schema::table('scenario_role_skills', function (Blueprint $table) {
                 $table->foreignId('competency_version_id')->nullable()->after('competency_id')->constrained('competency_versions')->nullOnDelete();
                 $table->json('metadata')->nullable()->after('competency_version_id');

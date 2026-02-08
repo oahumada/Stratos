@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Organizations;
-use App\Models\User;
 use App\Models\Skill;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -13,6 +13,7 @@ class SkillsFullTest extends TestCase
     use RefreshDatabase;
 
     protected Organizations $organization;
+
     protected User $user;
 
     protected function setUp(): void
@@ -40,7 +41,7 @@ class SkillsFullTest extends TestCase
             ->postJson('/api/skills', $payload);
 
         // Accept multiple successful status codes depending on implementation
-        $this->assertTrue(in_array($response->getStatusCode(), [200, 201, 204]), 'Unexpected status for skill create: ' . $response->getStatusCode());
+        $this->assertTrue(in_array($response->getStatusCode(), [200, 201, 204]), 'Unexpected status for skill create: '.$response->getStatusCode());
 
         // Verify record exists with provided fields
         $this->assertDatabaseHas('skills', [

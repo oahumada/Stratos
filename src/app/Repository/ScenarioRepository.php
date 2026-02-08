@@ -3,13 +3,14 @@
 namespace App\Repository;
 
 use App\Models\Scenario;
+
 class ScenarioRepository
 {
     public function findWithCapabilities(int $id)
     {
         return Scenario::with([
             'capabilities.competencies.skills',
-            'owner'
+            'owner',
         ])->findOrFail($id);
     }
 
@@ -37,7 +38,7 @@ class ScenarioRepository
             'owner',
             'capabilities.competencies.skills',
             'statusEvents',
-            'parent'
+            'parent',
         ])->find($id);
     }
 
@@ -45,11 +46,11 @@ class ScenarioRepository
     {
         $query = Scenario::where('organization_id', $organizationId);
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['fiscal_year'])) {
+        if (! empty($filters['fiscal_year'])) {
             $query->where('fiscal_year', $filters['fiscal_year']);
         }
 
@@ -65,6 +66,7 @@ class ScenarioRepository
     {
         $scenario = Scenario::findOrFail($id);
         $scenario->update($data);
+
         return $scenario;
     }
 }

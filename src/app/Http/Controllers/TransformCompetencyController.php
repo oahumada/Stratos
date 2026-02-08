@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use App\Models\Competency;
 use App\Models\CompetencyVersion;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TransformCompetencyController
 {
@@ -13,10 +13,12 @@ class TransformCompetencyController
     {
         $user = $request->user();
         $competency = Competency::find($competencyId);
-        if (!$competency)
+        if (! $competency) {
             return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
-        if ($competency->organization_id !== ($user->organization_id ?? null))
+        }
+        if ($competency->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',

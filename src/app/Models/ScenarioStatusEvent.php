@@ -12,6 +12,7 @@ class ScenarioStatusEvent extends Model
     public $timestamps = false; // Solo created_at
 
     const CREATED_AT = 'created_at';
+
     const UPDATED_AT = null;
 
     protected $fillable = [

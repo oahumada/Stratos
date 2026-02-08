@@ -42,7 +42,7 @@ class CreateVersionRequest extends FormRequest
         $validator->after(function ($validator) {
             $scenario = $this->route('scenario');
 
-            if (!$scenario || $scenario->decision_status !== 'approved') {
+            if (! $scenario || $scenario->decision_status !== 'approved') {
                 $validator->errors()->add(
                     'scenario',
                     'Solo se pueden crear nuevas versiones de escenarios aprobados (inmutabilidad)'

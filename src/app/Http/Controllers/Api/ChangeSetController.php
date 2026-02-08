@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Services\ChangeSetService;
 use App\Models\ChangeSet;
 use App\Models\Scenario;
+use App\Services\ChangeSetService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ChangeSetController extends Controller
@@ -42,6 +42,7 @@ class ChangeSetController extends Controller
         }
 
         $cs = $this->service->build($payload);
+
         return response()->json(['success' => true, 'data' => $cs], 201);
     }
 
@@ -52,6 +53,7 @@ class ChangeSetController extends Controller
         if ($cs->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
+
         return response()->json(['success' => true, 'preview' => $this->service->preview($cs)]);
     }
 
@@ -65,6 +67,7 @@ class ChangeSetController extends Controller
         $this->authorize('apply', $cs);
         $ignored = $request->input('ignored_indexes', []);
         $applied = $this->service->apply($cs, $user, ['ignored_indexes' => $ignored]);
+
         return response()->json(['success' => true, 'data' => $applied]);
     }
 
@@ -97,6 +100,7 @@ class ChangeSetController extends Controller
             return response()->json(['success' => false, 'can_apply' => false], 403);
         }
         $can = auth()->user() ? auth()->user()->can('apply', $cs) : false;
+
         return response()->json(['success' => true, 'can_apply' => (bool) $can]);
     }
 
@@ -114,7 +118,7 @@ class ChangeSetController extends Controller
 
         // Ensure the related Scenario receives versioning metadata when a ChangeSet is approved
         try {
-            if (!empty($cs->scenario_id)) {
+            if (! empty($cs->scenario_id)) {
                 $scenario = Scenario::find($cs->scenario_id);
                 if ($scenario) {
                     $changed = false;
@@ -132,7 +136,7 @@ class ChangeSetController extends Controller
                     }
 
                     if ($changed) {
-                        if (!empty($scenario->version_group_id)) {
+                        if (! empty($scenario->version_group_id)) {
                             Scenario::where('version_group_id', $scenario->version_group_id)
                                 ->where('id', '!=', $scenario->id)
                                 ->where('is_current_version', true)
@@ -146,7 +150,7 @@ class ChangeSetController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::warning('ChangeSet approval: failed to assign scenario version metadata: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('ChangeSet approval: failed to assign scenario version metadata: '.$e->getMessage());
         }
 
         return response()->json(['success' => true, 'data' => $cs]);
@@ -166,6 +170,7 @@ class ChangeSetController extends Controller
         $meta['rejected_at'] = now()->toDateTimeString();
         $cs->metadata = $meta;
         $cs->save();
+
         return response()->json(['success' => true, 'data' => $cs]);
     }
 }

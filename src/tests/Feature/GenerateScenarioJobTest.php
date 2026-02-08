@@ -2,20 +2,18 @@
 
 use App\Jobs\GenerateScenarioFromLLMJob;
 use App\Models\ScenarioGeneration;
-use App\Services\LLMProviders\Exceptions\LLMRateLimitException;
 use App\Services\LLMClient;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Services\LLMProviders\Exceptions\LLMRateLimitException;
 
 it('releases job on rate limit and keeps generation in processing when attempts remain', function () {
     // create a generation record
     $gen = ScenarioGeneration::create(['organization_id' => 1, 'prompt' => 'p', 'status' => 'queued']);
 
     // Create a test LLMClient that throws rate limit
-    $testClient = new class extends LLMClient {
-        public function __construct()
-        {
-        }
+    $testClient = new class extends LLMClient
+    {
+        public function __construct() {}
+
         public function generate(string $prompt): array
         {
             throw new LLMRateLimitException('simulated', 1);
@@ -23,10 +21,12 @@ it('releases job on rate limit and keeps generation in processing when attempts 
     };
 
     // Create anonymous job with attempts() = 0
-    $job = new class ($gen->id) extends GenerateScenarioFromLLMJob {
+    $job = new class($gen->id) extends GenerateScenarioFromLLMJob
+    {
         public function attempts(): int
         {
-            return 0; }
+            return 0;
+        }
     };
 
     $job->handle($testClient);
@@ -38,10 +38,10 @@ it('releases job on rate limit and keeps generation in processing when attempts 
 it('marks generation failed after max attempts exceeded', function () {
     $gen = ScenarioGeneration::create(['organization_id' => 1, 'prompt' => 'p', 'status' => 'queued']);
 
-    $testClient = new class extends LLMClient {
-        public function __construct()
-        {
-        }
+    $testClient = new class extends LLMClient
+    {
+        public function __construct() {}
+
         public function generate(string $prompt): array
         {
             throw new LLMRateLimitException('simulated', 1);
@@ -49,10 +49,12 @@ it('marks generation failed after max attempts exceeded', function () {
     };
 
     // attempts() returns high value to simulate exhausted retries
-    $job = new class ($gen->id) extends GenerateScenarioFromLLMJob {
+    $job = new class($gen->id) extends GenerateScenarioFromLLMJob
+    {
         public function attempts(): int
         {
-            return 6; }
+            return 6;
+        }
     };
 
     $job->handle($testClient);

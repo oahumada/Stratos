@@ -2,25 +2,25 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
-use App\Services\ScenarioService;
-use App\Repository\WorkforcePlanningRepository;
-use App\Models\StrategicPlanningScenarios;
-use App\Models\WorkforcePlanningRoleForecast;
 use App\Models\People;
+use App\Models\StrategicPlanningScenarios;
+use App\Repository\WorkforcePlanningRepository;
+use App\Services\ScenarioService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class WorkforcePlanningServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     protected WorkforcePlanningService $service;
+
     protected WorkforcePlanningRepository $repository;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new WorkforcePlanningRepository();
+        $this->repository = new WorkforcePlanningRepository;
         $this->service = new ScenarioService($this->repository);
     }
 

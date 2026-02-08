@@ -7,9 +7,9 @@ use App\Models\DevelopmentPath;
 use App\Models\JobOpening;
 use App\Models\Organizations;
 use App\Models\People;
-use App\Models\RoleSkill;
 use App\Models\PeopleRoleSkills;
 use App\Models\Roles;
+use App\Models\RoleSkill;
 use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -19,7 +19,7 @@ class DemoSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * 
+     *
      * Este seeder orquesta todos los seeders individuales en el orden correcto.
      */
     public function run(): void

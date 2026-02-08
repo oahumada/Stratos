@@ -2,11 +2,10 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\Organizations;
-use App\Models\User;
 use App\Models\ScenarioRoleSkill;
-use App\Models\CompetencyVersion;
+use App\Models\User;
+use Tests\TestCase;
 
 class ScenarioRoleSkillTraceabilityTest extends TestCase
 {

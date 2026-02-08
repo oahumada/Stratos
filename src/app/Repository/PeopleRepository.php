@@ -2,9 +2,8 @@
 
 namespace App\Repository;
 
-use App\Models\People;
-use Illuminate\Http\Request;
 use App\Helpers\Tools;
+use App\Models\People;
 use Illuminate\Support\Facades\Log;
 
 class PeopleRepository extends Repository
@@ -12,7 +11,7 @@ class PeopleRepository extends Repository
     public function __construct($model = null)
     {
         if ($model === null) {
-            $model = new People();
+            $model = new People;
         }
         parent::__construct($model);
     }
@@ -25,7 +24,8 @@ class PeopleRepository extends Repository
         Log::info('PeopleRepository::getSearchQuery called');
         $query = $this->model->query()
             ->with('department', 'role', 'skills');
-        Log::info('PeopleRepository query: ' . $query->toSql());
+        Log::info('PeopleRepository query: '.$query->toSql());
+
         return $query;
     }
 

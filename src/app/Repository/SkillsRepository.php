@@ -3,15 +3,13 @@
 namespace App\Repository;
 
 use App\Models\Skill;
-use Illuminate\Http\Request;
-use App\Helpers\Tools;
 use Illuminate\Support\Facades\Log;
 
 class SkillsRepository extends Repository
 {
     public function __construct()
     {
-        parent::__construct(new Skill());
+        parent::__construct(new Skill);
     }
 
     /**
@@ -27,18 +25,18 @@ class SkillsRepository extends Repository
                 'roles',
                 'peopleRoleSkills' => function ($query) {
                     $query->where('is_active', true)
-                          ->select('id', 'people_id', 'skill_id', 'current_level', 'required_level', 'is_active')
-                          ->with('person:id,first_name,last_name,email');
-                }
+                        ->select('id', 'people_id', 'skill_id', 'current_level', 'required_level', 'is_active')
+                        ->with('person:id,first_name,last_name,email');
+                },
             ])
             ->withCount([
                 'roles as roles_count',
                 'peopleRoleSkills as people_count' => function ($query) {
                     $query->where('is_active', true)->distinct();
-                }
+                },
             ]);
-        Log::info('SkillsRepository query: ' . $query->toSql());
+        Log::info('SkillsRepository query: '.$query->toSql());
+
         return $query;
     }
 }
-

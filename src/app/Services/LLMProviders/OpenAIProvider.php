@@ -5,6 +5,7 @@ namespace App\Services\LLMProviders;
 class OpenAIProvider implements LLMProviderInterface
 {
     protected array $config;
+
     protected array $lastResponseHeaders = [];
 
     public function __construct(array $config = [])
@@ -37,7 +38,7 @@ class OpenAIProvider implements LLMProviderInterface
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
-            'Authorization: Bearer ' . $apiKey,
+            'Authorization: Bearer '.$apiKey,
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_HEADER, true);
@@ -63,7 +64,7 @@ class OpenAIProvider implements LLMProviderInterface
         $result = $body;
 
         if ($errno !== 0) {
-            throw new \RuntimeException('HTTP client error: ' . $errmsg);
+            throw new \RuntimeException('HTTP client error: '.$errmsg);
         }
 
         if ($httpCode >= 400) {
@@ -80,10 +81,10 @@ class OpenAIProvider implements LLMProviderInterface
 
             // Server errors
             if ($httpCode >= 500) {
-                throw new \App\Services\LLMProviders\Exceptions\LLMServerException('LLM provider server error: ' . $httpCode);
+                throw new \App\Services\LLMProviders\Exceptions\LLMServerException('LLM provider server error: '.$httpCode);
             }
 
-            throw new \RuntimeException('LLM provider returned HTTP ' . $httpCode . ': ' . substr($result, 0, 200));
+            throw new \RuntimeException('LLM provider returned HTTP '.$httpCode.': '.substr($result, 0, 200));
         }
 
         $data = json_decode($result, true);

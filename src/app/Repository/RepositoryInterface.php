@@ -12,9 +12,14 @@ use Illuminate\Http\Request;
 interface RepositoryInterface
 {
     public function store(Request $request);
+
     public function update(Request $request);
+
     public function destroy($id);
+
     public function show(Request $request, $id);
+
     public function search(Request $request);
+
     public function searchWithPeople(Request $request);
 }

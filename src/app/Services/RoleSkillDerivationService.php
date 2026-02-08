@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\CompetencySkill;
 use App\Models\ScenarioRoleCompetency;
 use App\Models\ScenarioRoleSkill;
-use App\Models\CompetencySkill;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -12,15 +12,13 @@ class RoleSkillDerivationService
 {
     /**
      * Deriva skills automáticamente desde las competencias asignadas a un rol en un escenario.
-     * 
-     * @param int $scenarioId
-     * @param int $roleId
+     *
      * @return array Estadísticas de la derivación
      */
     public function deriveSkillsFromCompetencies(int $scenarioId, int $roleId): array
     {
         return DB::transaction(function () use ($scenarioId, $roleId) {
-          
+
             // 1. Eliminar skills derivadas anteriormente (preservar las manuales)
             $deletedCount = ScenarioRoleSkill::where('scenario_id', $scenarioId)
                 ->where('role_id', $roleId)
@@ -35,10 +33,11 @@ class RoleSkillDerivationService
 
             if ($competencies->isEmpty()) {
                 Log::info("No competencies found for scenario {$scenarioId}, role {$roleId}");
+
                 return [
                     'deleted' => $deletedCount,
                     'created' => 0,
-                    'competencies_processed' => 0
+                    'competencies_processed' => 0,
                 ];
             }
 
@@ -54,7 +53,7 @@ class RoleSkillDerivationService
                     // Calcular el nivel requerido de la skill basado en el nivel de la competencia
                     // Opción 1: Heredar directamente el nivel de la competencia
                     $requiredLevel = $scenarioComp->required_level;
-                  
+
                     // Opción 2 (más sofisticada): Ponderar por el peso de la skill
                     // $requiredLevel = $this->calculateWeightedLevel($scenarioComp->required_level, $cs->weight);
 
@@ -67,7 +66,7 @@ class RoleSkillDerivationService
                         'source' => 'competency',
                         'competency_id' => $scenarioComp->competency_id,
                         'change_type' => $scenarioComp->change_type,
-                        'rationale' => "Derivada de competencia: {$scenarioComp->competency->name}"
+                        'rationale' => "Derivada de competencia: {$scenarioComp->competency->name}",
                     ]);
 
                     $createdCount++;
@@ -79,7 +78,7 @@ class RoleSkillDerivationService
             return [
                 'deleted' => $deletedCount,
                 'created' => $createdCount,
-                'competencies_processed' => $competencies->count()
+                'competencies_processed' => $competencies->count(),
             ];
         });
     }
@@ -111,7 +110,7 @@ class RoleSkillDerivationService
         // la skill podría requerir nivel 3 o 4 dependiendo de su importancia
         $weightFactor = $skillWeight / 100;
         $calculatedLevel = round($competencyLevel * $weightFactor);
-      
+
         return max(1, min(5, $calculatedLevel)); // Asegurar rango 1-5
     }
 }

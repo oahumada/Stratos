@@ -4,9 +4,9 @@ namespace App\Jobs;
 
 use App\Models\ScenarioGeneration;
 use App\Services\LLMClient;
-use App\Services\RedactionService;
 use App\Services\LLMProviders\Exceptions\LLMRateLimitException;
 use App\Services\LLMProviders\Exceptions\LLMServerException;
+use App\Services\RedactionService;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,7 +28,7 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
     public function handle(LLMClient $llm)
     {
         $generation = ScenarioGeneration::find($this->generationId);
-        if (!$generation) {
+        if (! $generation) {
             return;
         }
 
@@ -57,6 +57,7 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             if ($attempts < $maxAttempts) {
                 // release back to queue for retry
                 $this->release($retryAfter);
+
                 return;
             }
 

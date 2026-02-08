@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $org = Organizations::first();
-        if (!$org) {
+        if (! $org) {
             $org = Organizations::create([
                 'name' => 'Demo Org',
                 'subdomain' => 'demo',
@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
         }
 
         User::updateOrCreate([
-            'email' => 'juan.perez@techcorp.com'
+            'email' => 'juan.perez@techcorp.com',
         ], [
             'organization_id' => $org->id,
             'name' => 'Juan Pérez',
@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
         ]);
 
         User::updateOrCreate([
-            'email' => 'admin@example.com'
+            'email' => 'admin@example.com',
         ], [
             'organization_id' => $org->id,
             'name' => 'Admin',

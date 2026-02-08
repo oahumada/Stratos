@@ -20,7 +20,7 @@ class RedactionService
 
         // Query params like ?api_key=..., &token=..., remove values
         $text = preg_replace_callback('/([?&](?:api_key|token|key|access_token)=)([^&\s]+)/i', function ($m) {
-            return $m[1] . '[REDACTED]';
+            return $m[1].'[REDACTED]';
         }, $text);
 
         // Simple SSN pattern (US) e.g., 123-45-6789
@@ -44,6 +44,7 @@ class RedactionService
                 $redacted[$k] = $v;
             }
         }
+
         return $redacted;
     }
 }

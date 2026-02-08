@@ -4,19 +4,20 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Remove capability_id FK from competencies table.
      * This enforces the N:N model via capability_competencies pivot table.
      * A competency can now be shared across multiple capabilities without duplication.
-     * 
+     *
      * Note: SQLite doesn't support dropping columns with FKs directly,
      * so we handle it differently for SQLite vs other databases.
      */
     public function up(): void
     {
         // Only proceed if the column actually exists
-        if (!Schema::hasColumn('competencies', 'capability_id')) {
+        if (! Schema::hasColumn('competencies', 'capability_id')) {
             return;
         }
 

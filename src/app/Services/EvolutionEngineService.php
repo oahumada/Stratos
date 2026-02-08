@@ -1,18 +1,18 @@
 <?php
+
 // app/Services/EvolutionEngine.php
+
 namespace App\Services;
 
-use App\Models\Evaluation;
 use App\Models\DevelopmentPath;
-use App\Models\DevelopmentAction;
+use App\Models\Evaluation;
 use App\Repository\EvaluationRepository;
 
 class EvolutionEngineService
 {
     public function __construct(
         private EvaluationRepository $evaluationRepo
-    ) {
-    }
+    ) {}
 
     /**
      * Calcula el nivel actual (N) basado en las respuestas 360°
@@ -86,40 +86,40 @@ class EvolutionEngineService
                 'strategy' => 'build',
                 'title' => 'Micro-learning o curso corto',
                 'estimated_weeks' => 4,
-                'estimated_impact' => 10
+                'estimated_impact' => 10,
             ];
         } elseif ($gap == 2) {
             $actions[] = [
                 'strategy' => 'build',
                 'title' => 'Curso técnico + Certificación',
                 'estimated_weeks' => 8,
-                'estimated_impact' => 18
+                'estimated_impact' => 18,
             ];
         } elseif ($gap == 3) {
             $actions[] = [
                 'strategy' => 'build',
                 'title' => 'Proyecto con Mentoría',
                 'estimated_weeks' => 12,
-                'estimated_impact' => 22
+                'estimated_impact' => 22,
             ];
             $actions[] = [
                 'strategy' => 'buy',
                 'title' => 'Contratar especialista',
                 'estimated_weeks' => 8,
-                'estimated_impact' => 15
+                'estimated_impact' => 15,
             ];
         } else {
             $actions[] = [
                 'strategy' => 'buy',
                 'title' => 'Contratar expertos externos',
                 'estimated_weeks' => 4,
-                'estimated_impact' => 25
+                'estimated_impact' => 25,
             ];
             $actions[] = [
                 'strategy' => 'borrow',
                 'title' => 'Consultoría externa',
                 'estimated_weeks' => 2,
-                'estimated_impact' => 12
+                'estimated_impact' => 12,
             ];
         }
 
@@ -135,7 +135,7 @@ class EvolutionEngineService
 
         $path = DevelopmentPath::create([
             'evaluation_id' => $evaluation->id,
-            'name' => "Ruta de Evolución: " . ($evaluation->skill->name ?? 'Skill'),
+            'name' => 'Ruta de Evolución: '.($evaluation->skill->name ?? 'Skill'),
             'target_level' => $evaluation->required_level ?? null,
         ]);
 
@@ -186,7 +186,8 @@ class EvolutionEngineService
     private function standardDeviation(array $numbers): float
     {
         $mean = array_sum($numbers) / count($numbers);
-        $variance = array_sum(array_map(fn($x) => pow($x - $mean, 2), $numbers)) / count($numbers);
+        $variance = array_sum(array_map(fn ($x) => pow($x - $mean, 2), $numbers)) / count($numbers);
+
         return sqrt($variance);
     }
 }

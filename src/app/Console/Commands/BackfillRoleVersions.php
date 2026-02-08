@@ -2,14 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Models\RoleVersion;
+use App\Models\ScenarioRole;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use App\Models\ScenarioRole;
-use App\Models\RoleVersion;
 
 class BackfillRoleVersions extends Command
 {
     protected $signature = 'backfill:role-versions {--apply : Actually create records instead of dry-run}';
+
     protected $description = 'Dry-run backfill for role_versions from scenario_roles (option --apply to execute)';
 
     public function handle(): int
@@ -20,18 +21,21 @@ class BackfillRoleVersions extends Command
         $rows = ScenarioRole::with('role')->get();
         if ($rows->isEmpty()) {
             $this->info('No scenario roles found.');
+
             return 0;
         }
 
         $created = 0;
         foreach ($rows as $sr) {
             $role = $sr->role;
-            if (!$role)
+            if (! $role) {
                 continue;
+            }
 
             $exists = RoleVersion::where('role_id', $role->id)->exists();
             if ($exists) {
                 $this->line(" - Role {$role->id} ({$role->name}) already has versions — skipping");
+
                 continue;
             }
 

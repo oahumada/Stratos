@@ -10,29 +10,29 @@ class DevelopmentPathService
 {
     /**
      * Genera una ruta de desarrollo personalizada basada en gap analysis.
-     * 
+     *
      * Lógica según especificación:
      * - Gap 1: reading (15-20 días)
      * - Gap 2: course + practice (45-50 días)
      * - Gap 3: course + mentorship + project (75-90 días)
      * - Gap 4+: course + mentorship + project + workshop (100-120 días)
      * - Skills críticas: + certification (15 días extra)
-     * 
+     *
      * Priorización: críticas primero, mayor gap primero
      */
     public function generate(People $people, Roles $targetRole): DevelopmentPath
     {
-        $gapService = new GapAnalysisService();
+        $gapService = new GapAnalysisService;
         $analysis = $gapService->calculate($people, $targetRole);
 
         // Filtrar solo gaps > 0 y ordenar por prioridad
         $gaps = collect($analysis['gaps'] ?? [])
-            ->filter(fn($g) => ($g['gap'] ?? 0) > 0)
+            ->filter(fn ($g) => ($g['gap'] ?? 0) > 0)
             ->sortBy([
                 // Orden: críticas desc, gap desc, nombre asc
-                fn($g) => $g['is_critical'] ? 0 : 1,
-                fn($g) => -$g['gap'],
-                fn($g) => $g['skill_name'],
+                fn ($g) => $g['is_critical'] ? 0 : 1,
+                fn ($g) => -$g['gap'],
+                fn ($g) => $g['skill_name'],
             ]);
 
         $steps = [];
@@ -59,11 +59,11 @@ class DevelopmentPathService
 
         // Obtener organization_id de la persona o del usuario autenticado
         $organizationId = $people->organization_id;
-        if (!$organizationId && auth()->check()) {
+        if (! $organizationId && auth()->check()) {
             $organizationId = auth()->user()->organization_id;
         }
 
-        $peopleName = $people->full_name ?? ($people->first_name . ' ' . $people->last_name);
+        $peopleName = $people->full_name ?? ($people->first_name.' '.$people->last_name);
         $actionTitle = "Ruta automática de aprendizaje para {$peopleName} → {$targetRole->name}";
 
         return DevelopmentPath::create([

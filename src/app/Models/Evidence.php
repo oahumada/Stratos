@@ -1,5 +1,7 @@
 <?php
+
 // app/Models/Evidence.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,9 +12,9 @@ class Evidence extends Model
     use HasFactory;
 
     protected $fillable = [
-        'evaluation_id', 'type', 'title', 'description', 
-        'file_path', 'external_url', 'metadata', 
-        'validated_by', 'validated_at'
+        'evaluation_id', 'type', 'title', 'description',
+        'file_path', 'external_url', 'metadata',
+        'validated_by', 'validated_at',
     ];
 
     protected $casts = [

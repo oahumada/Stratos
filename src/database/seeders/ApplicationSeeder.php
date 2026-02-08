@@ -25,7 +25,7 @@ class ApplicationSeeder extends Seeder
                         'job_opening_id' => $jobOpening->id,
                         'people_id' => $candidate->id,
                         'status' => $applicationStatuses[rand(0, count($applicationStatuses) - 1)],
-                        'message' => "Interested in this opportunity. I believe my skills align well with the role requirements.",
+                        'message' => 'Interested in this opportunity. I believe my skills align well with the role requirements.',
                         'applied_at' => now()->subDays(rand(1, 30)),
                     ]);
                     $applicationsCreated++;

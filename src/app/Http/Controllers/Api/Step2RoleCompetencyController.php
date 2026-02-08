@@ -7,15 +7,14 @@ use App\Models\Scenario;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleCompetency;
 use App\Models\ScenarioRoleSkill;
-use App\Models\PersonRoleSkill;
 use App\Services\RoleSkillDerivationService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Paso 2: Roles ↔ Competencies Mapping
- * 
+ *
  * Endpoints para gestionar la asignación de competencias a roles
  * en un escenario específico, con sus cambios de estado (maintenance,
  * transformation, enrichment, extinction)
@@ -24,8 +23,7 @@ class Step2RoleCompetencyController extends Controller
 {
     public function __construct(
         private RoleSkillDerivationService $derivationService
-    ) {
-    }
+    ) {}
 
     /**
      * GET /api/v1/scenarios/{scenarioId}/step2/data
@@ -229,6 +227,7 @@ class Step2RoleCompetencyController extends Controller
                 // En la práctica, esto vendría de person_role_skills o un registro histórico
                 $forecast->fte_current = $forecast->fte_future; // Placeholder
                 $forecast->fte_delta = $forecast->fte_future - $forecast->fte_current;
+
                 return $forecast;
             });
 
@@ -276,6 +275,7 @@ class Step2RoleCompetencyController extends Controller
             ->get()
             ->map(function ($gap) {
                 $gap->gap = $gap->required_level - ($gap->current_level ?? 0);
+
                 return $gap;
             });
 

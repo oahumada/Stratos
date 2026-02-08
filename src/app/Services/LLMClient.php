@@ -32,4 +32,3 @@ class LLMClient
         return $this->provider->generate($prompt);
     }
 }
-

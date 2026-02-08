@@ -4,14 +4,16 @@ namespace Tests\Feature;
 
 use App\Models\Organizations;
 use App\Models\ScenarioTemplate;
-use App\Models\User;
 use App\Models\StrategicPlanningScenarios;
+use App\Models\User;
 use Tests\TestCase;
 
 class StrategicPlanningScenariosTest extends TestCase
 {
     protected User $user;
+
     protected Organizations $organization;
+
     protected ScenarioTemplate $template;
 
     protected function setUp(): void
@@ -43,7 +45,7 @@ class StrategicPlanningScenariosTest extends TestCase
                     'name',
                     'organization_id',
                     'created_by',
-                ]
+                ],
             ]);
 
         $this->assertDatabaseHas('scenarios', [
@@ -92,9 +94,9 @@ class StrategicPlanningScenariosTest extends TestCase
                         'required_headcount' => 5,
                         'required_level' => 4,
                         'priority' => 'critical',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $response = $this->actingAs($this->user)
@@ -111,9 +113,9 @@ class StrategicPlanningScenariosTest extends TestCase
                     'name',
                     'template_id',
                     'skill_demands' => [
-                        '*' => ['skill_id', 'required_headcount', 'required_level']
-                    ]
-                ]
+                        '*' => ['skill_id', 'required_headcount', 'required_level'],
+                    ],
+                ],
             ]);
 
         $this->assertDatabaseHas('scenarios', [
@@ -143,8 +145,8 @@ class StrategicPlanningScenariosTest extends TestCase
                         'avg_coverage_pct',
                         'risk_score',
                     ],
-                    'gaps' => []
-                ]
+                    'gaps' => [],
+                ],
             ]);
     }
 

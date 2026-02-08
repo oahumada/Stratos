@@ -2,14 +2,13 @@
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Gate;
-use App\Models\WorkforcePlan;
-use App\Policies\WorkforcePlanPolicy;
-use App\Models\CompetencyVersion;
-use App\Policies\CompetencyVersionPolicy;
 use App\Models\ChangeSet;
+use App\Models\CompetencyVersion;
+use App\Models\WorkforcePlan;
 use App\Policies\ChangeSetPolicy;
+use App\Policies\CompetencyVersionPolicy;
+use App\Policies\WorkforcePlanPolicy;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {

@@ -2,13 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\Scenario;
-use App\Models\ScenarioCapability;
-use App\Models\ScenarioRoleSkill;
-use App\Models\PersonRoleSkill;
 use App\Models\Competency;
 use App\Models\CompetencySkill;
-use Illuminate\Support\Facades\DB;
+use App\Models\PersonRoleSkill;
+use App\Models\Scenario;
+use App\Models\ScenarioRoleSkill;
 
 class ScenarioAnalyticsService
 {
@@ -18,16 +16,16 @@ class ScenarioAnalyticsService
     public function calculateScenarioIQ(int $scenarioId): array
     {
         $scenario = Scenario::with([
-            'scenarioCapabilities.capability.competencies.competencySkills'
+            'scenarioCapabilities.capability.competencies.competencySkills',
         ])->findOrFail($scenarioId);
-      
+
         $totalWeightedReadiness = 0;
         $totalStrategicWeight = 0;
         $capabilityBreakdown = [];
 
         foreach ($scenario->scenarioCapabilities as $scap) {
             $capReadiness = $this->calculateCapabilityReadiness($scenarioId, $scap->capability_id);
-          
+
             $totalWeightedReadiness += ($capReadiness * $scap->strategic_weight);
             $totalStrategicWeight += $scap->strategic_weight;
 
@@ -37,7 +35,7 @@ class ScenarioAnalyticsService
                 'readiness' => round($capReadiness * 100, 1),
                 'strategic_role' => $scap->strategic_role,
                 'strategic_weight' => $scap->strategic_weight,
-                'is_incubating' => $scap->capability->isIncubating()
+                'is_incubating' => $scap->capability->isIncubating(),
             ];
         }
 
@@ -49,7 +47,7 @@ class ScenarioAnalyticsService
             'iq' => round($iq, 0),
             'confidence_score' => $this->getConfidenceScore($scenarioId),
             'capabilities' => $capabilityBreakdown,
-            'critical_gaps' => collect($capabilityBreakdown)->where('readiness', '<', 30)->values()->toArray()
+            'critical_gaps' => collect($capabilityBreakdown)->where('readiness', '<', 30)->values()->toArray(),
         ];
     }
 
@@ -59,7 +57,7 @@ class ScenarioAnalyticsService
     public function calculateCapabilityReadiness(int $scenarioId, int $capabilityId): float
     {
         $competencies = Competency::where('capability_id', $capabilityId)->get();
-      
+
         if ($competencies->isEmpty()) {
             return 0;
         }
@@ -80,7 +78,7 @@ class ScenarioAnalyticsService
         $compSkills = CompetencySkill::where('competency_id', $competencyId)
             ->with('skill')
             ->get();
-      
+
         if ($compSkills->isEmpty()) {
             return 0;
         }
@@ -122,10 +120,10 @@ class ScenarioAnalyticsService
                 ->avg('current_level') ?: 0;
 
             // Calcular readiness: min(1, current/required)
-            $readiness = $demand->required_level > 0 
-                ? min(1, $avgCurrentLevel / $demand->required_level) 
+            $readiness = $demand->required_level > 0
+                ? min(1, $avgCurrentLevel / $demand->required_level)
                 : 1;
-          
+
             $readinessSum += $readiness;
             $rolesEvaluated++;
         }
@@ -140,7 +138,7 @@ class ScenarioAnalyticsService
     {
         // Contar evidencias por tipo
         $total = PersonRoleSkill::count();
-      
+
         if ($total == 0) {
             return 0;
         }
@@ -150,7 +148,7 @@ class ScenarioAnalyticsService
             'test' => 1.0,
             'certification' => 0.9,
             'manager_review' => 0.7,
-            'self_assessment' => 0.3
+            'self_assessment' => 0.3,
         ];
 
         $weightedSum = PersonRoleSkill::selectRaw('
@@ -180,7 +178,7 @@ class ScenarioAnalyticsService
 
         foreach ($competencies as $scenarioComp) {
             $readiness = $this->calculateCompetencyReadiness($scenarioId, $scenarioComp->competency_id);
-          
+
             $gaps[] = [
                 'competency_id' => $scenarioComp->competency_id,
                 'competency_name' => $scenarioComp->competency->name,
@@ -188,7 +186,7 @@ class ScenarioAnalyticsService
                 'readiness' => round($readiness * 100, 1),
                 'gap' => round((1 - $readiness) * 100, 1),
                 'is_core' => $scenarioComp->is_core,
-                'change_type' => $scenarioComp->change_type
+                'change_type' => $scenarioComp->change_type,
             ];
         }
 

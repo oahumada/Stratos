@@ -2,13 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\ChangeSetService;
 use App\Models\ChangeSet;
 use App\Models\Roles;
-use App\Models\RoleSunsetMapping;
 use App\Models\User;
+use App\Services\ChangeSetService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ChangeSetServiceRoleSunsetTest extends TestCase
 {
@@ -17,17 +16,17 @@ class ChangeSetServiceRoleSunsetTest extends TestCase
     public function test_apply_creates_role_sunset_mapping()
     {
         $org = \App\Models\Organizations::create([
-            'name' => 'Test Org ' . uniqid(),
-            'subdomain' => 'test-' . uniqid(),
+            'name' => 'Test Org '.uniqid(),
+            'subdomain' => 'test-'.uniqid(),
         ]);
         $user = User::factory()->create(['organization_id' => $org->id]);
         $orgId = $org->id;
 
         $role = Roles::create([
             'organization_id' => $orgId,
-            'name' => 'Test Role ' . uniqid(),
+            'name' => 'Test Role '.uniqid(),
             'level' => 'mid',
-            'description' => 'Created by test'
+            'description' => 'Created by test',
         ]);
 
         $cs = ChangeSet::create([
@@ -44,14 +43,14 @@ class ChangeSetServiceRoleSunsetTest extends TestCase
                             'role_id' => $role->id,
                             'mapped_role_id' => null,
                             'sunset_reason' => 'redundant',
-                            'metadata' => ['via' => 'test']
-                        ]
-                    ]
-                ]
-            ]
+                            'metadata' => ['via' => 'test'],
+                        ],
+                    ],
+                ],
+            ],
         ]);
 
-        $service = new ChangeSetService();
+        $service = new ChangeSetService;
         $service->apply($cs, $user);
 
         $this->assertDatabaseHas('role_sunset_mappings', [

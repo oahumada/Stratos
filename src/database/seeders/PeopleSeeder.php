@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\Departments;
 use App\Models\Organizations;
 use App\Models\People;
 use App\Models\PeopleRoleSkills;
-use App\Models\RoleSkill;
 use App\Models\Roles;
+use App\Models\RoleSkill;
 use App\Models\Skill;
-use App\Models\Departments;
 use Illuminate\Database\Seeder;
 
 class PeopleSeeder extends Seeder
@@ -26,7 +26,7 @@ class PeopleSeeder extends Seeder
         for ($i = 0; $i < 20; $i++) {
             $firstName = $firstNames[$i % count($firstNames)];
             $lastName = $lastNames[rand(0, count($lastNames) - 1)];
-            $email = strtolower($firstName . '.' . $lastName . '@techcorp.com');
+            $email = strtolower($firstName.'.'.$lastName.'@techcorp.com');
 
             $currentRole = $roles[rand(0, count($roles) - 1)];
 
@@ -65,16 +65,16 @@ class PeopleSeeder extends Seeder
             // PARTE 2: Skills adicionales aleatorias (2-4 por persona)
             // IMPORTANTE: Esto causa que personas con el MISMO rol tengan DIFERENTE cantidad de skills
             // Ejemplo: Backend Developer puede tener 8, 9 o 10 skills total (6 del rol + 2-4 adicionales)
-            // 
+            //
             // RAZÓN: Representa skills que la persona tiene por experiencia previa/intereses
             // pero que NO son obligatorias del rol actual
-            // 
+            //
             // IMPACTO FUTURO:
             // - Gap Analysis: Considerar solo skills del rol (6) o incluir adicionales?
             // - Learning Paths: Las adicionales son "nice to have" o ignorarlas?
             // - Scoring: ¿Dan ventaja las skills extra para promociones?
             // - Reportes: Denominador variable (8/8 vs 9/9) puede confundir métricas
-            // 
+            //
             // DECISIÓN: Dejado así para MVP (realismo), revisar cuando se implemente
             // Gap Analysis o Learning Paths
             $additionalSkills = $skills->random(rand(2, 4));
@@ -85,7 +85,7 @@ class PeopleSeeder extends Seeder
                     ->where('is_active', true)
                     ->exists();
 
-                if (!$exists) {
+                if (! $exists) {
                     PeopleRoleSkills::create([
                         'people_id' => $people->id,
                         'role_id' => $currentRole->id,

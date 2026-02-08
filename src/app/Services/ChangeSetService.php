@@ -4,9 +4,9 @@ namespace App\Services;
 
 use App\Models\ChangeSet;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class ChangeSetService
 {
@@ -133,7 +133,7 @@ class ChangeSetService
                     case 'update_scenario_role_skill':
                         // convenience: update/insert scenario_role_skills with traceability
                         $payload = $op['payload'] ?? [];
-                        if (!empty($payload) && \Illuminate\Support\Facades\Schema::hasTable('scenario_role_skills')) {
+                        if (! empty($payload) && \Illuminate\Support\Facades\Schema::hasTable('scenario_role_skills')) {
                             $where = [
                                 'scenario_id' => $payload['scenario_id'] ?? $changeSet->scenario_id,
                                 'role_id' => $payload['role_id'] ?? null,
@@ -161,12 +161,12 @@ class ChangeSetService
                     case 'create_role_sunset_mapping':
                         // create a role sunset mapping record
                         $payload = $op['payload'] ?? [];
-                        if (!empty($payload) && \Illuminate\Support\Facades\Schema::hasTable('role_sunset_mappings')) {
+                        if (! empty($payload) && \Illuminate\Support\Facades\Schema::hasTable('role_sunset_mappings')) {
                             // Ensure a RoleVersion exists for the role (auto-backfill)
                             $roleId = $payload['role_id'] ?? null;
                             if ($roleId && class_exists(\App\Models\RoleVersion::class)) {
                                 $exists = \App\Models\RoleVersion::where('role_id', $roleId)->exists();
-                                if (!$exists && class_exists(\App\Models\Roles::class)) {
+                                if (! $exists && class_exists(\App\Models\Roles::class)) {
                                     $role = \App\Models\Roles::find($roleId);
                                     if ($role) {
                                         \App\Models\RoleVersion::create([
@@ -190,10 +190,10 @@ class ChangeSetService
                                     'scenario_id' => $payload['scenario_id'] ?? $changeSet->scenario_id ?? null,
                                 ];
                                 $existing = \App\Models\RoleSunsetMapping::where($where);
-                                if (!empty($payload['sunset_reason'])) {
+                                if (! empty($payload['sunset_reason'])) {
                                     $existing->where('sunset_reason', $payload['sunset_reason']);
                                 }
-                                if (!$existing->exists()) {
+                                if (! $existing->exists()) {
                                     \App\Models\RoleSunsetMapping::create([
                                         'organization_id' => $changeSet->organization_id,
                                         'scenario_id' => $where['scenario_id'],

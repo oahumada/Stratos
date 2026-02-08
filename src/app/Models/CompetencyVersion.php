@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class CompetencyVersion extends Model
 {
@@ -21,7 +21,7 @@ class CompetencyVersion extends Model
         'evolution_state',
         'obsolescence_reason',
         'metadata',
-        'created_by'
+        'created_by',
     ];
 
     protected $casts = [

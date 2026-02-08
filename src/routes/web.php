@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\ScenarioController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use App\Http\Controllers\Api\ScenarioController;
 
 Route::get('/scenario-demo', function () {
     return Inertia::render('ScenarioDemo');
@@ -80,4 +80,4 @@ Route::prefix('scenarios')->group(function () {
     Route::post('{id}/derive-all-skills', [ScenarioController::class, 'deriveAllSkills']);
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

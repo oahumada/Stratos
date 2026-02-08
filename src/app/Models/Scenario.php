@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Capability;
 
 class Scenario extends Model
 {
@@ -35,6 +34,7 @@ class Scenario extends Model
     private function scenarioCapabilityPivotColumns(): array
     {
         $candidates = ['required_level', 'is_critical', 'strategic_role', 'strategic_weight', 'priority', 'rationale'];
+
         return array_values(array_filter($candidates, function ($col) {
             return Schema::hasColumn('scenario_capabilities', $col);
         }));
@@ -100,7 +100,7 @@ class Scenario extends Model
     {
         static::creating(function ($model) {
             if (empty($model->code)) {
-                $model->code = 'SCN-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 6)) . '-' . time();
+                $model->code = 'SCN-'.strtoupper(substr(bin2hex(random_bytes(3)), 0, 6)).'-'.time();
             }
             // Ensure start/end dates exist to satisfy NOT NULL DB constraints
             if (empty($model->start_date)) {
@@ -118,5 +118,4 @@ class Scenario extends Model
             }
         });
     }
-
 }

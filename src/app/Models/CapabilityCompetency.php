@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
 class CapabilityCompetency extends Model
@@ -42,6 +42,7 @@ class CapabilityCompetency extends Model
         if (array_key_exists('weight', $this->attributes)) {
             return $this->attributes['weight'];
         }
+
         return null;
     }
 

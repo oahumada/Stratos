@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
 class Competency extends Model
@@ -32,6 +32,7 @@ class Competency extends Model
     private function capabilityCompetencyPivotColumns(): array
     {
         $cols = ['scenario_id', 'required_level', 'weight', 'strategic_weight', 'priority', 'rationale', 'is_required', 'created_at', 'updated_at'];
+
         return array_values(array_filter($cols, function ($c) {
             return Schema::hasColumn('capability_competencies', $c);
         }));
@@ -47,6 +48,7 @@ class Competency extends Model
     private function competencySkillPivotColumns(): array
     {
         $cols = ['weight', 'priority', 'required_level', 'rationale', 'is_required'];
+
         return array_values(array_filter($cols, function ($c) {
             return Schema::hasColumn('competency_skills', $c);
         }));
@@ -67,4 +69,3 @@ class Competency extends Model
         return $this->hasMany(\App\Models\CompetencyVersion::class, 'competency_id');
     }
 }
-

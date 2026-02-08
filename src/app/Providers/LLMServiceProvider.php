@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Services\LLMClient;
+use Illuminate\Support\ServiceProvider;
 
 class LLMServiceProvider extends ServiceProvider
 {
@@ -13,7 +13,7 @@ class LLMServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(LLMClient::class, function ($app) {
-            return new LLMClient();
+            return new LLMClient;
         });
     }
 

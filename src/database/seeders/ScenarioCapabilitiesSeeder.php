@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Scenario;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use App\Models\Scenario;
 
 class ScenarioCapabilitiesSeeder extends Seeder
 {
@@ -15,6 +15,7 @@ class ScenarioCapabilitiesSeeder extends Seeder
         $scenarios = Scenario::all();
         if ($scenarios->isEmpty()) {
             $this->command->info('No scenarios found, skipping ScenarioCapabilitiesSeeder');
+
             return;
         }
 
@@ -22,6 +23,7 @@ class ScenarioCapabilitiesSeeder extends Seeder
             $existing = DB::table('scenario_capabilities')->where('scenario_id', $scenario->id)->count();
             if ($existing >= 3) {
                 $this->command->info("Scenario {$scenario->id} already has {$existing} capabilities, skipping");
+
                 continue;
             }
 
@@ -38,7 +40,7 @@ class ScenarioCapabilitiesSeeder extends Seeder
             $count = rand(3, 6);
             $createdIds = [];
             for ($i = 0; $i < $count; $i++) {
-                $name = $names[$i % count($names)] . ' (' . $scenario->id . ')';
+                $name = $names[$i % count($names)].' ('.$scenario->id.')';
 
                 $capId = DB::table('capabilities')->insertGetId([
                     'organization_id' => $scenario->organization_id,

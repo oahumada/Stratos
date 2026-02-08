@@ -1,10 +1,12 @@
 <?php
+
 // app/Services/ScenarioAnalysisService.php
+
 namespace App\Services;
 
 use App\Models\Scenario;
-use App\Repository\ScenarioRepository;
 use App\Repository\EvaluationRepository;
+use App\Repository\ScenarioRepository;
 
 class ScenarioAnalysisService
 {
@@ -12,8 +14,7 @@ class ScenarioAnalysisService
         private ScenarioRepository $scenarioRepo,
         private EvaluationRepository $evaluationRepo,
         private EvolutionEngineService $evolutionEngine
-    ) {
-    }
+    ) {}
 
     /**
      * Calcula el "Health Score" del escenario
@@ -52,7 +53,7 @@ class ScenarioAnalysisService
         return [
             'health' => $health,
             'coverage' => $coverage,
-            'risk' => $atRiskCount
+            'risk' => $atRiskCount,
         ];
     }
 

@@ -9,7 +9,7 @@ class SkillLevelDefinitionSeeder extends Seeder
 {
     /**
      * Seed the skill level definitions table.
-     * 
+     *
      * Sistema de niveles genéricos aplicables a todas las skills.
      * Progresión: Autonomía funcional, Complejidad, Responsabilidad
      */

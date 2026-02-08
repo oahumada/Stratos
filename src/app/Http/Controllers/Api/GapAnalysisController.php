@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\People;
 use App\Models\Roles;
 use App\Services\GapAnalysisService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class GapAnalysisController extends Controller
 {
@@ -25,9 +25,9 @@ class GapAnalysisController extends Controller
         }
 
         $role = null;
-        if (!empty($data['role_id'])) {
+        if (! empty($data['role_id'])) {
             $role = Roles::find($data['role_id']);
-        } elseif (!empty($data['role_name'])) {
+        } elseif (! empty($data['role_name'])) {
             $role = Roles::where('name', $data['role_name'])->first();
         }
 
@@ -35,21 +35,21 @@ class GapAnalysisController extends Controller
             return response()->json(['error' => 'Rol no encontrado'], 404);
         }
 
-        $service = new GapAnalysisService();
+        $service = new GapAnalysisService;
         $analysis = $service->calculate($people, $role);
 
         return response()->json([
             'data' => [
                 'people' => [
                     'id' => $people->id,
-                    'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
+                    'name' => $people->full_name ?? ($people->first_name.' '.$people->last_name),
                 ],
                 'role' => [
                     'id' => $role->id,
                     'name' => $role->name,
                 ],
                 'analysis' => $analysis,
-            ]
+            ],
         ]);
     }
 }

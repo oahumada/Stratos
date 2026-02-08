@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class ChangeSet extends Model
 {
@@ -23,7 +23,7 @@ class ChangeSet extends Model
         'effective_from',
         'applied_at',
         'diff',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [

@@ -28,7 +28,7 @@ class ScenarioSkillDemandFactory extends Factory
 
     public function critical(): self
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'priority' => 'critical',
         ]);
     }

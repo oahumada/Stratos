@@ -3,10 +3,9 @@
 namespace App\Services;
 
 use App\Jobs\GenerateScenarioFromLLMJob;
-use App\Models\ScenarioGeneration;
 use App\Models\Organizations;
+use App\Models\ScenarioGeneration;
 use App\Models\User;
-use App\Services\RedactionService;
 
 class ScenarioGenerationService
 {
@@ -30,16 +29,16 @@ class ScenarioGenerationService
         // Replace simple tokens {{key}} in the template
         $prompt = $template;
         foreach ($replacements as $k => $v) {
-            $prompt = str_replace('{{' . $k . '}}', is_array($v) ? json_encode($v) : (string) $v, $prompt);
+            $prompt = str_replace('{{'.$k.'}}', is_array($v) ? json_encode($v) : (string) $v, $prompt);
         }
 
         // If template was empty, prepend minimal header with company name
         if (empty(trim($template))) {
-            $prompt = "Company: " . ($replacements['company_name'] ?? '') . "\n\n" . $prompt;
+            $prompt = 'Company: '.($replacements['company_name'] ?? '')."\n\n".$prompt;
         }
 
         // Append operator answers (use replacements so org overrides are visible)
-        $prompt .= "\n\nOPERATOR_INPUT:\n" . json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $prompt .= "\n\nOPERATOR_INPUT:\n".json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         return $prompt;
     }

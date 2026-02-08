@@ -2,14 +2,15 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 use App\Models\Capability;
 use App\Models\CompetencyVersion;
+use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class BackfillCompetencyVersions extends Command
 {
     protected $signature = 'backfill:competency-versions {--apply : Actually create records instead of dry-run}';
+
     protected $description = 'Dry-run backfill for competency_versions from discovered_in_scenario_id (option --apply to execute)';
 
     public function handle(): int
@@ -20,6 +21,7 @@ class BackfillCompetencyVersions extends Command
         $capabilities = Capability::whereNotNull('discovered_in_scenario_id')->with('competencies')->get();
         if ($capabilities->isEmpty()) {
             $this->info('No incubated capabilities found.');
+
             return 0;
         }
 
@@ -31,6 +33,7 @@ class BackfillCompetencyVersions extends Command
                 $exists = CompetencyVersion::where('competency_id', $comp->id)->exists();
                 if ($exists) {
                     $this->line("  - Competency {$comp->id} ({$comp->name}) already has versions — skipping");
+
                     continue;
                 }
                 $this->line("  - WOULD CREATE CompetencyVersion for competency {$comp->id} ({$comp->name}) [version_group_id: will be new uuid] (source scenario: {$scenarioId})");

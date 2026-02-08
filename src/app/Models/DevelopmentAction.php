@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
+
 class DevelopmentAction extends Model
 {
     use HasFactory;
@@ -20,7 +20,7 @@ class DevelopmentAction extends Model
         'estimated_hours',
         'impact_weight',
         'started_at',
-        'completed_at'
+        'completed_at',
     ];
 
     protected $casts = [

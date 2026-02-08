@@ -4,18 +4,15 @@ namespace App\Services;
 
 use App\Models\Scenario;
 use App\Repository\ScenarioRepository;
-use Illuminate\Support\Facades\Log;
 
 class ScenarioService
 {
-    public function __construct(private ScenarioRepository $repository)
-    {
-    }
+    public function __construct(private ScenarioRepository $repository) {}
 
     public function runFullAnalysis(int $scenarioId): array
     {
         $scenario = StrategicPlanningScenarios::find($scenarioId);
-        if (!$scenario) {
+        if (! $scenario) {
             throw new \Exception('Scenario not found');
         }
 
@@ -34,6 +31,7 @@ class ScenarioService
     {
         $scenario->decision_status = $toStatus;
         $scenario->save();
+
         return $scenario;
     }
 
@@ -41,6 +39,7 @@ class ScenarioService
     {
         $scenario->execution_status = 'in_progress';
         $scenario->save();
+
         return $scenario;
     }
 
@@ -48,6 +47,7 @@ class ScenarioService
     {
         $scenario->execution_status = 'paused';
         $scenario->save();
+
         return $scenario;
     }
 
@@ -55,13 +55,14 @@ class ScenarioService
     {
         $scenario->execution_status = 'completed';
         $scenario->save();
+
         return $scenario;
     }
 
     public function createNewVersion(Scenario $scenario, $name, $description, $user, $notes = null, $copySkills = true, $copyStrategies = true)
     {
         $new = $scenario->replicate();
-        $new->name = $name ?? ($scenario->name . ' (copy)');
+        $new->name = $name ?? ($scenario->name.' (copy)');
         $new->description = $description ?? $scenario->description;
         $new->is_current_version = false;
         $new->version_group_id = $scenario->version_group_id ?? (string) \Str::uuid();
@@ -105,8 +106,9 @@ class ScenarioService
             $gap = max(0, $required - $current);
             $coverage = $required > 0 ? round(($current / $required) * 100, 1) : 0.0;
             $coverageSum += $coverage;
-            if ($d->priority === 'critical')
+            if ($d->priority === 'critical') {
                 $critical++;
+            }
 
             $gaps[] = [
                 'skill_id' => $d->skill_id,

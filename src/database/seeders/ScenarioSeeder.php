@@ -2,17 +2,17 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Scenario;
 use App\Models\Capability;
 use App\Models\Competency;
 use App\Models\CompetencySkill;
+use App\Models\People;
+use App\Models\PeopleRoleSkills;
+use App\Models\Roles;
+use App\Models\Scenario;
 use App\Models\ScenarioCapability;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleSkill;
-use App\Models\PeopleRoleSkills;
-use App\Models\People;
-use App\Models\Roles;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class ScenarioSeeder extends Seeder
@@ -32,7 +32,7 @@ class ScenarioSeeder extends Seeder
                 'updated_by' => 1,
                 'owner_user_id' => 1,
                 'status' => 'draft',
-                'assumptions' => ['tech_stack' => 'OpenAI/Anthropic', 'budget_approved' => true]
+                'assumptions' => ['tech_stack' => 'OpenAI/Anthropic', 'budget_approved' => true],
             ]
         );
 
@@ -58,12 +58,12 @@ class ScenarioSeeder extends Seeder
         // 4. Crear Skills (Una existente, una incubada)
         $skillExistente = 1; // Asumiendo ID 1 es Python
         $skillIncubadaId = DB::table('skills')->where('name', 'Prompt Engineering')->value('id');
-        if (!$skillIncubadaId) {
+        if (! $skillIncubadaId) {
             $skillData = [
                 'name' => 'Prompt Engineering',
                 'organization_id' => $orgId,
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ];
             // Add optional columns only if present in schema
             if (\Illuminate\Support\Facades\Schema::hasColumn('skills', 'maturity_status')) {
@@ -91,10 +91,10 @@ class ScenarioSeeder extends Seeder
         }
 
         // Asociar skills a competency si no existen
-        if (!CompetencySkill::where(['competency_id' => $comp->id, 'skill_id' => $skillExistente])->exists()) {
+        if (! CompetencySkill::where(['competency_id' => $comp->id, 'skill_id' => $skillExistente])->exists()) {
             CompetencySkill::create(['competency_id' => $comp->id, 'skill_id' => $skillExistente, 'weight' => 40]);
         }
-        if (!CompetencySkill::where(['competency_id' => $comp->id, 'skill_id' => $skillIncubadaId])->exists()) {
+        if (! CompetencySkill::where(['competency_id' => $comp->id, 'skill_id' => $skillIncubadaId])->exists()) {
             CompetencySkill::create(['competency_id' => $comp->id, 'skill_id' => $skillIncubadaId, 'weight' => 60]);
         }
 
@@ -108,7 +108,7 @@ class ScenarioSeeder extends Seeder
             'scenario_id' => $scenario->id,
             'role_id' => $role->id,
         ], [
-            'role_change' => 'evolve'
+            'role_change' => 'evolve',
         ]);
 
         ScenarioRoleSkill::create([
@@ -116,7 +116,7 @@ class ScenarioSeeder extends Seeder
             'role_id' => $role->id,
             'skill_id' => $skillIncubadaId,
             'required_level' => 4,
-            'change_type' => 'new'
+            'change_type' => 'new',
         ]);
 
         // 6. Simular Oferta Real (Fase 3)
@@ -138,7 +138,7 @@ class ScenarioSeeder extends Seeder
         ], [
             'current_level' => 2, // Genera un GAP
             'evaluated_by' => $person->id,
-            'evidence_source' => 'self_assessment'
+            'evidence_source' => 'self_assessment',
         ]);
     }
 }

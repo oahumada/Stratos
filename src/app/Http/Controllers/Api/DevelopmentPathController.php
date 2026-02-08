@@ -7,8 +7,8 @@ use App\Models\DevelopmentPath;
 use App\Models\People;
 use App\Models\Roles;
 use App\Services\DevelopmentPathService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class DevelopmentPathController extends Controller
 {
@@ -24,8 +24,8 @@ class DevelopmentPathController extends Controller
                 return [
                     'id' => $path->id,
                     'people_id' => $path->people_id,
-                    'people_name' => $path->people->full_name ?? 
-                                    ($path->people->first_name . ' ' . $path->people->last_name),
+                    'people_name' => $path->people->full_name ??
+                                    ($path->people->first_name.' '.$path->people->last_name),
                     'current_role_id' => $path->people->role_id,
                     'current_role_name' => $path->people->role->name ?? null,
                     'target_role_id' => $path->target_role_id,
@@ -58,9 +58,9 @@ class DevelopmentPathController extends Controller
             }
 
             $role = null;
-            if (!empty($data['role_id'])) {
+            if (! empty($data['role_id'])) {
                 $role = Roles::find($data['role_id']);
-            } elseif (!empty($data['role_name'])) {
+            } elseif (! empty($data['role_name'])) {
                 $role = Roles::where('name', $data['role_name'])->first();
             }
 
@@ -68,7 +68,7 @@ class DevelopmentPathController extends Controller
                 return response()->json(['error' => 'Rol no encontrado'], 404);
             }
 
-            $service = new DevelopmentPathService();
+            $service = new DevelopmentPathService;
             $path = $service->generate($people, $role);
 
             return response()->json([
@@ -79,23 +79,23 @@ class DevelopmentPathController extends Controller
                     'steps' => $path->steps,
                     'people' => [
                         'id' => $people->id,
-                        'name' => $people->full_name ?? ($people->first_name . ' ' . $people->last_name),
+                        'name' => $people->full_name ?? ($people->first_name.' '.$people->last_name),
                     ],
                     'target_role' => [
                         'id' => $role->id,
                         'name' => $role->name,
                     ],
-                ]
+                ],
             ], 201);
         } catch (\Exception $e) {
-            \Log::error('Development path generation error: ' . $e->getMessage(), [
+            \Log::error('Development path generation error: '.$e->getMessage(), [
                 'people_id' => $request->input('people_id'),
                 'role_id' => $request->input('role_id'),
             ]);
-            
+
             return response()->json([
                 'error' => 'Error al generar la ruta de aprendizaje',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -106,8 +106,8 @@ class DevelopmentPathController extends Controller
     public function destroy($id): JsonResponse
     {
         $path = DevelopmentPath::find($id);
-        
-        if (!$path) {
+
+        if (! $path) {
             return response()->json(['error' => 'Ruta no encontrada'], 404);
         }
 
@@ -115,7 +115,7 @@ class DevelopmentPathController extends Controller
 
         return response()->json([
             'message' => 'Ruta de aprendizaje eliminada correctamente',
-            'id' => $id
+            'id' => $id,
         ], 200);
     }
 }

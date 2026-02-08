@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ScenarioSkillDemand extends Model
 {
@@ -64,8 +64,10 @@ class ScenarioSkillDemand extends Model
 
     public function getCoveragePercentage()
     {
-        if ($this->required_headcount === 0)
+        if ($this->required_headcount === 0) {
             return 100;
+        }
+
         return round(($this->current_headcount / $this->required_headcount) * 100);
     }
 
@@ -88,6 +90,6 @@ class ScenarioSkillDemand extends Model
 
     public function canDelete(): bool
     {
-        return !$this->is_mandatory_from_parent;
+        return ! $this->is_mandatory_from_parent;
     }
 }

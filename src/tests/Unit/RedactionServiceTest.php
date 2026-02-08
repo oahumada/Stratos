@@ -6,7 +6,7 @@ use Tests\TestCase;
 uses(TestCase::class);
 
 it('redacts emails, tokens and ssn in text', function () {
-    $text = "Contact me at user@example.com and use token ABCDEFGHIJKLMNOPQRSTUVWXYZ12345 and SSN 123-45-6789.";
+    $text = 'Contact me at user@example.com and use token ABCDEFGHIJKLMNOPQRSTUVWXYZ12345 and SSN 123-45-6789.';
 
     $r = RedactionService::redactText($text);
 

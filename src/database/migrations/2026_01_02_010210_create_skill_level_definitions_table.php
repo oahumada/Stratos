@@ -8,10 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Tabla global de definiciones de niveles de skills (1-5).
      * Niveles genéricos que aplican a todas las skills del sistema.
-     * 
+     *
      * Criterios de progresión:
      * - Autonomía funcional (menor a mayor)
      * - Complejidad de tareas (menor a mayor)

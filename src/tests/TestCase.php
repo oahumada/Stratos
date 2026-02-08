@@ -16,9 +16,9 @@ abstract class TestCase extends BaseTestCase
             $default = config('database.default');
             if ($default === 'sqlite') {
                 $database = config('database.connections.sqlite.database');
-                if ($database && !file_exists($database)) {
+                if ($database && ! file_exists($database)) {
                     $dir = dirname($database);
-                    if (!is_dir($dir)) {
+                    if (! is_dir($dir)) {
                         mkdir($dir, 0777, true);
                     }
                     @touch($database);

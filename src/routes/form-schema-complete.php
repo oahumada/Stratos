@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FormSchemaController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,49 +33,57 @@ Route::group([], function () use ($formSchemaModels) {
 
         // GET /api/{route-name} - Listar/Index
         Route::get($routeName, function (Request $request) use ($modelName) {
-            $controller = new FormSchemaController();
+            $controller = new FormSchemaController;
+
             return $controller->search($request, $modelName);
         })->name("api.{$routeName}.index");
 
         // POST /api/{route-name} - Crear (store)
         Route::post($routeName, function (Request $request) use ($modelName) {
-            $controller = new FormSchemaController();
+            $controller = new FormSchemaController;
+
             return $controller->store($request, $modelName);
         })->name("api.{$routeName}.store");
 
         // GET /api/{route-name}/{id} - Mostrar (show)
         Route::get("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
-            $controller = new FormSchemaController();
+            $controller = new FormSchemaController;
+
             return $controller->show($request, $modelName, $id);
         })->name("api.{$routeName}.show");
 
         // PUT /api/{route-name}/{id} - Actualizar (update)
         Route::put("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
-            $controller = new FormSchemaController();
+            $controller = new FormSchemaController;
+
             return $controller->update($request, $modelName, $id);
         })->name("api.{$routeName}.update");
 
         // PATCH /api/{route-name}/{id} - Actualizar parcial
         Route::patch("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
-            $controller = new FormSchemaController();
+            $controller = new FormSchemaController;
+
             return $controller->update($request, $modelName, $id);
         })->name("api.{$routeName}.patch");
 
         // DELETE /api/{route-name}/{id} - Eliminar (destroy)
         Route::delete("{$routeName}/{id}", function (Request $request, $id) use ($modelName) {
-            $controller = new FormSchemaController();
+            $controller = new FormSchemaController;
+
             return $controller->destroy($modelName, $id);
         })->name("api.{$routeName}.destroy");
 
         // POST /api/{route-name}/search - Búsqueda con filtros
         Route::post("{$routeName}/search", function (Request $request) use ($modelName) {
-            $controller = new FormSchemaController();
+            $controller = new FormSchemaController;
+
             return $controller->search($request, $modelName);
         })->name("api.{$routeName}.search");
 
         // POST /api/{route-name}/search-with-paciente - Búsqueda con joins
         Route::post("{$routeName}/search-with-paciente", function (Request $request) use ($modelName) {
-            $controller = new FormSchemaController();
+            $controller = new FormSchemaController;
+
             return $controller->searchWithPeople($request, $modelName);
         })->name("api.{$routeName}.search-with-paciente");
     }
@@ -103,7 +110,7 @@ Route::group([], function () use ($formSchemaModels) {
 | No necesita mapeo separado - usa el mapeo FormSchema existente
 |
 */
-/* 
+/*
 // Generar rutas de consulta automáticamente desde el mapeo FormSchema existente
 foreach ($formSchemaModels as $modelName => $routeName) {
     // Convertir route-name de FormSchema (kebab-case) a consulta (snake_case)

@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CatalogsController;
-use App\Http\Controllers\Api\V1\WorkforcePlanningController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /* // Catálogos dinámicos para selectores
 Route::get('/catalogs', function (Illuminate\Http\Request $request) {
@@ -112,38 +111,45 @@ Route::middleware('auth:sanctum')->group(function () {
     // Supports both creating new competencies and attaching existing ones
     Route::post('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
         $user = auth()->user();
-        if (!$user)
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
 
         $scenario = App\Models\Scenario::find($scenarioId);
-        if (!$scenario)
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
-        if ($scenario->organization_id !== ($user->organization_id ?? null))
+        }
+        if ($scenario->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
 
         $cap = App\Models\Capability::find($capabilityId);
-        if (!$cap)
+        if (! $cap) {
             return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
+        }
 
         // Accept either `competency_id` (use existing) or `competency` payload to create a new competency.
         $competencyId = $request->input('competency_id');
 
         try {
-            $result = \DB::transaction(function () use ($request, $scenarioId, $capabilityId, $competencyId, $user, $cap) {
+            $result = \DB::transaction(function () use ($request, $scenarioId, $capabilityId, $competencyId, $user) {
                 // If competency_id provided, validate existence and tenant
                 if ($competencyId) {
                     $comp = App\Models\Competency::find($competencyId);
-                    if (!$comp)
+                    if (! $comp) {
                         throw new \Exception('Competency not found');
-                    if ($comp->organization_id !== ($user->organization_id ?? null))
+                    }
+                    if ($comp->organization_id !== ($user->organization_id ?? null)) {
                         throw new \Exception('Forbidden');
+                    }
                     $createdCompetencyId = $comp->id;
                 } else {
                     // Create new competency (without capability_id; the relationship is via the pivot table)
                     $payload = $request->input('competency', []);
                     $name = trim($payload['name'] ?? '');
-                    if (empty($name))
+                    if (empty($name)) {
                         throw new \Exception('Competency name is required');
+                    }
                     $comp = App\Models\Competency::create([
                         'organization_id' => $user->organization_id ?? null,
                         'name' => $name,
@@ -194,48 +200,59 @@ Route::middleware('auth:sanctum')->group(function () {
                         ->where('capability_id', $capabilityId)
                         ->where('competency_id', $createdCompetencyId)
                         ->first();
+
                     return ['status' => 'exists', 'row' => $row];
                 }
 
                 \DB::table('capability_competencies')->insert($insert);
+
                 return ['status' => 'created', 'data' => $insert];
             });
 
             if ($result['status'] === 'created') {
                 return response()->json(['success' => true, 'data' => $result['data']], 201);
             }
+
             return response()->json(['success' => true, 'data' => $result['row'], 'note' => 'already_exists'], 200);
         } catch (\Exception $e) {
-            \Log::error('Error creating capability_competency (POST): ' . $e->getMessage(), ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId]);
-            if (str_contains($e->getMessage(), 'Forbidden'))
+            \Log::error('Error creating capability_competency (POST): '.$e->getMessage(), ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId]);
+            if (str_contains($e->getMessage(), 'Forbidden')) {
                 return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
-            if (str_contains($e->getMessage(), 'Competency name is required'))
+            }
+            if (str_contains($e->getMessage(), 'Competency name is required')) {
                 return response()->json(['success' => false, 'message' => 'Competency name is required'], 422);
+            }
+
             return response()->json(['success' => false, 'message' => 'Server error creating relation'], 500);
         }
     });
 
     Route::patch('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies/{competencyId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId, $competencyId) {
         $user = auth()->user();
-        if (!$user)
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
         $scenario = App\Models\Scenario::find($scenarioId);
-        if (!$scenario)
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
-        if ($scenario->organization_id !== ($user->organization_id ?? null))
+        }
+        if ($scenario->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
         $exists = \DB::table('capability_competencies')
             ->where('scenario_id', $scenarioId)
             ->where('capability_id', $capabilityId)
             ->where('competency_id', $competencyId)
             ->exists();
-        if (!$exists)
+        if (! $exists) {
             return response()->json(['success' => false, 'message' => 'Relation not found'], 404);
+        }
         $update = [];
         // Support updating `priority` and accept `strategic_weight` as alias for `weight`.
         foreach (['required_level', 'strategic_weight', 'priority', 'rationale', 'is_required'] as $f) {
-            if ($request->has($f))
+            if ($request->has($f)) {
                 $update[$f] = $request->input($f);
+            }
         }
 
         // Accept `weight` as legacy alias and map to `strategic_weight` in the update payload.
@@ -243,14 +260,14 @@ Route::middleware('auth:sanctum')->group(function () {
             $update['strategic_weight'] = $request->input('weight');
         }
         // Also accept `is_critical` from UI and map to pivot's `is_required` boolean.
-        if ($request->has('is_critical') && !$request->has('is_required')) {
+        if ($request->has('is_critical') && ! $request->has('is_required')) {
             $update['is_required'] = $request->input('is_critical');
         }
 
         // Normalize weight field to whatever column exists in DB to support different snapshots.
         if (array_key_exists('strategic_weight', $update)) {
             if (
-                !\Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'strategic_weight')
+                ! \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'strategic_weight')
                 && \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'weight')
             ) {
                 $update['weight'] = $update['strategic_weight'];
@@ -258,7 +275,7 @@ Route::middleware('auth:sanctum')->group(function () {
             }
         } elseif (array_key_exists('weight', $update)) {
             if (
-                !\Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'weight')
+                ! \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'weight')
                 && \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'strategic_weight')
             ) {
                 $update['strategic_weight'] = $update['weight'];
@@ -266,7 +283,7 @@ Route::middleware('auth:sanctum')->group(function () {
             }
         }
 
-        if (!empty($update)) {
+        if (! empty($update)) {
             $update['updated_at'] = now();
             // Filter update keys to existing columns to avoid sqlite "no such column" errors in tests
             $filtered = [];
@@ -275,7 +292,7 @@ Route::middleware('auth:sanctum')->group(function () {
                     $filtered[$k] = $v;
                 }
             }
-            if (!empty($filtered)) {
+            if (! empty($filtered)) {
                 \DB::table('capability_competencies')
                     ->where('scenario_id', $scenarioId)
                     ->where('capability_id', $capabilityId)
@@ -283,36 +300,42 @@ Route::middleware('auth:sanctum')->group(function () {
                     ->update($filtered);
             }
         }
+
         return response()->json(['success' => true, 'updated' => $update]);
     });
 
     Route::delete('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies/{competencyId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId, $competencyId) {
         $user = auth()->user();
-        if (!$user)
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
         $scenario = App\Models\Scenario::find($scenarioId);
-        if (!$scenario)
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
-        if ($scenario->organization_id !== ($user->organization_id ?? null))
+        }
+        if ($scenario->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
         $deleted = \DB::table('capability_competencies')
             ->where('scenario_id', $scenarioId)
             ->where('capability_id', $capabilityId)
             ->where('competency_id', $competencyId)
             ->delete();
-        if ($deleted)
+        if ($deleted) {
             return response()->json(['success' => true]);
+        }
+
         return response()->json(['success' => false, 'message' => 'Relation not found'], 404);
     });
 
     // Dev API: create a Capability under a Scenario (multi-tenant)
     Route::post('/strategic-planning/scenarios/{id}/capabilities', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
         $scenario = App\Models\Scenario::find($id);
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
         }
         try {
@@ -351,7 +374,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
             // Respect unique constraint; insert only if not exists.
             if (
-                !\DB::table('scenario_capabilities')
+                ! \DB::table('scenario_capabilities')
                     ->where('scenario_id', $scenario->id)
                     ->where('capability_id', $cap->id)
                     ->exists()
@@ -361,12 +384,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
             return response()->json(['success' => true, 'data' => $cap], 201);
         } catch (\Throwable $e) {
-            \Log::error('Error creating capability for scenario ' . $id . ': ' . $e->getMessage(), [
+            \Log::error('Error creating capability for scenario '.$id.': '.$e->getMessage(), [
                 'exception' => $e,
                 'payload' => $request->all(),
                 'user_id' => $user->id ?? null,
                 'scenario_id' => $id,
             ]);
+
             return response()->json(['success' => false, 'message' => 'Server error creating capability', 'error' => $e->getMessage()], 500);
         }
     });
@@ -385,27 +409,28 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dev API: retrieve a single Capability entity (multi-tenant safe)
     Route::get('/capabilities/{id}', function ($id) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
         $cap = App\Models\Capability::find($id);
-        if (!$cap) {
+        if (! $cap) {
             return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
         }
         if (isset($cap->organization_id) && $cap->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
+
         return response()->json(['success' => true, 'data' => $cap->toArray()]);
     });
 
     // Dev API: update a Capability entity (multi-tenant safe)
     Route::patch('/capabilities/{id}', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
         $cap = App\Models\Capability::find($id);
-        if (!$cap) {
+        if (! $cap) {
             return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
         }
         if (isset($cap->organization_id) && $cap->organization_id !== ($user->organization_id ?? null)) {
@@ -415,13 +440,16 @@ Route::middleware('auth:sanctum')->group(function () {
             $data = $request->only(['name', 'description', 'importance', 'position_x', 'position_y', 'type', 'category', 'is_critical']);
             // Only set fields that are present
             foreach ($data as $k => $v) {
-                if ($v !== null)
+                if ($v !== null) {
                     $cap->{$k} = $v;
+                }
             }
             $cap->save();
+
             return response()->json(['success' => true, 'data' => $cap]);
         } catch (\Throwable $e) {
-            \Log::error('Error updating capability ' . $id . ': ' . $e->getMessage());
+            \Log::error('Error updating capability '.$id.': '.$e->getMessage());
+
             return response()->json(['success' => false, 'message' => 'Server error updating capability'], 500);
         }
     });
@@ -429,23 +457,24 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dev API: retrieve a single Competency entity (multi-tenant safe)
     Route::get('/competencies/{id}', function ($id) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
         $comp = App\Models\Competency::find($id);
-        if (!$comp) {
+        if (! $comp) {
             return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
         }
         if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
+
         return response()->json(['success' => true, 'data' => $comp->toArray()]);
     });
 
     // Dev API: create a Competency entity (multi-tenant safe)
     Route::post('/competencies', function (Illuminate\Http\Request $request) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
         $name = trim($request->input('name', ''));
@@ -458,9 +487,11 @@ Route::middleware('auth:sanctum')->group(function () {
                 'name' => $name,
                 'description' => $request->input('description', null),
             ]);
+
             return response()->json(['success' => true, 'data' => $comp], 201);
         } catch (\Throwable $e) {
-            \Log::error('Error creating competency: ' . $e->getMessage());
+            \Log::error('Error creating competency: '.$e->getMessage());
+
             return response()->json(['success' => false, 'message' => 'Server error creating competency'], 500);
         }
     });
@@ -468,11 +499,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dev API: delete a Competency entity (multi-tenant safe)
     Route::delete('/competencies/{id}', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
         $comp = App\Models\Competency::find($id);
-        if (!$comp) {
+        if (! $comp) {
             return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
         }
         if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
@@ -480,9 +511,11 @@ Route::middleware('auth:sanctum')->group(function () {
         }
         try {
             $comp->delete();
+
             return response()->json(['success' => true, 'message' => 'Competency deleted']);
         } catch (\Throwable $e) {
-            \Log::error('Error deleting competency ' . $id . ': ' . $e->getMessage());
+            \Log::error('Error deleting competency '.$id.': '.$e->getMessage());
+
             return response()->json(['success' => false, 'message' => 'Server error deleting competency'], 500);
         }
     });
@@ -490,11 +523,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dev API: update a Competency entity (multi-tenant safe)
     Route::patch('/competencies/{id}', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
         $comp = App\Models\Competency::find($id);
-        if (!$comp) {
+        if (! $comp) {
             return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
         }
         if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
@@ -514,9 +547,11 @@ Route::middleware('auth:sanctum')->group(function () {
                 }
             }
             $comp->save();
+
             return response()->json(['success' => true, 'data' => $comp]);
         } catch (\Throwable $e) {
-            \Log::error('Error updating competency ' . $id . ': ' . $e->getMessage());
+            \Log::error('Error updating competency '.$id.': '.$e->getMessage());
+
             return response()->json(['success' => false, 'message' => 'Server error updating competency'], 500);
         }
     });
@@ -524,12 +559,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dev API: delete a CompetencySkill relation (remove a skill from a competency)
     Route::delete('/competencies/{competencyId}/skills/{skillId}', function (Illuminate\Http\Request $request, $competencyId, $skillId) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
         $comp = App\Models\Competency::find($competencyId);
-        if (!$comp) {
+        if (! $comp) {
             return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
         }
         if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
@@ -538,7 +573,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Check the skill exists and belongs to user's organization
         $skill = App\Models\Skill::find($skillId);
-        if (!$skill) {
+        if (! $skill) {
             return response()->json(['success' => false, 'message' => 'Skill not found'], 404);
         }
         if (isset($skill->organization_id) && $skill->organization_id !== ($user->organization_id ?? null)) {
@@ -566,17 +601,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
             \Log::info('[DELETE] Skill deletion result:', ['deleted' => $deleted, 'skillId' => $skillId]);
 
-            if (!$deleted) {
+            if (! $deleted) {
                 return response()->json(['success' => false, 'message' => 'Could not delete skill'], 400);
             }
 
             return response()->json(['success' => true, 'message' => 'Skill deleted successfully']);
         } catch (\Throwable $e) {
-            \Log::error('Error deleting skill: ' . $e->getMessage(), [
+            \Log::error('Error deleting skill: '.$e->getMessage(), [
                 'exception' => $e,
                 'competencyId' => $competencyId,
                 'skillId' => $skillId,
             ]);
+
             return response()->json(['success' => false, 'message' => 'Server error deleting skill', 'error' => $e->getMessage()], 500);
         }
     });
@@ -584,11 +620,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dev API: update pivot attributes for scenario_capabilities
     Route::patch('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
         $scenario = App\Models\Scenario::find($scenarioId);
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
         }
         if ($scenario->organization_id !== ($user->organization_id ?? null)) {
@@ -609,7 +645,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->exists();
 
         // If the pivot relation does not exist, create it (upsert behavior)
-        if (!$exists) {
+        if (! $exists) {
             \Log::info('Pivot relation not found; creating new relation (upsert)', ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId]);
             // build pivot values with sensible defaults
             $insert = [
@@ -633,7 +669,8 @@ Route::middleware('auth:sanctum')->group(function () {
                 $exists = true;
                 \Log::info('Inserted pivot relation', ['insert' => $insert]);
             } catch (\Throwable $e) {
-                \Log::error('Failed to insert pivot relation during PATCH upsert: ' . $e->getMessage(), ['exception' => $e]);
+                \Log::error('Failed to insert pivot relation during PATCH upsert: '.$e->getMessage(), ['exception' => $e]);
+
                 return response()->json(['success' => false, 'message' => 'Failed to create relation'], 500);
             }
         }
@@ -644,7 +681,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 $update[$f] = $request->input($f);
             }
         }
-        if (!empty($update)) {
+        if (! empty($update)) {
             $update['updated_at'] = now();
             \DB::table('scenario_capabilities')
                 ->where('scenario_id', $scenarioId)
@@ -652,67 +689,80 @@ Route::middleware('auth:sanctum')->group(function () {
                 ->update($update);
         }
         \Log::info('Relation updated for scenario-capability', ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId, 'updated' => $update]);
+
         return response()->json(['success' => true, 'message' => 'Relation updated', 'relation_exists' => true, 'updated' => $update]);
     });
 
     // Read a competency including its related skills (multi-tenant safe)
     Route::get('/competencies/{id}', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
-        if (!$user)
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
         $comp = App\Models\Competency::with('skills')->find($id);
-        if (!$comp)
+        if (! $comp) {
             return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        }
         if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
+
         return response()->json(['success' => true, 'data' => $comp]);
     });
 
     // Shortcut endpoint returning only skills for a competency (multi-tenant safe)
     Route::get('/competencies/{id}/skills', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
-        if (!$user)
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
         $comp = App\Models\Competency::with('skills')->find($id);
-        if (!$comp)
+        if (! $comp) {
             return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
+        }
         if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
         $skills = $comp->skills ?? [];
+
         return response()->json(['success' => true, 'data' => $skills]);
     });
 
     // Dev API: attach a skill to a competency. Accepts either `skill_id` (existing) or `skill` payload to create then attach.
     Route::post('/competencies/{id}/skills', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
-        if (!$user)
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
 
         $comp = App\Models\Competency::find($id);
-        if (!$comp)
+        if (! $comp) {
             return response()->json(['success' => false, 'message' => 'Competency not found'], 404);
-        if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null))
+        }
+        if (isset($comp->organization_id) && $comp->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
 
         try {
-            $result = \DB::transaction(function () use ($request, $comp, $user, $id) {
+            $result = \DB::transaction(function () use ($request, $comp, $user) {
                 $skillId = $request->input('skill_id');
                 $createdSkill = null;
 
                 if ($skillId) {
                     $skill = App\Models\Skill::find($skillId);
-                    if (!$skill)
+                    if (! $skill) {
                         throw new \Exception('Skill not found');
-                    if (isset($skill->organization_id) && $skill->organization_id !== ($user->organization_id ?? null))
+                    }
+                    if (isset($skill->organization_id) && $skill->organization_id !== ($user->organization_id ?? null)) {
                         throw new \Exception('Forbidden');
+                    }
                     $skillToAttach = $skill;
                 } else {
                     $payload = $request->input('skill', []);
                     $name = trim($payload['name'] ?? '');
-                    if (empty($name))
+                    if (empty($name)) {
                         throw new \Exception('Skill name is required');
+                    }
 
                     // Buscar skill existente con el mismo nombre en la organización
                     $existingSkill = App\Models\Skill::where('organization_id', $user->organization_id ?? null)
@@ -721,7 +771,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
                     if ($existingSkill) {
                         // Skill duplicada - informar al usuario
-                        throw new \Exception('Skill duplicada: Ya existe una skill con el nombre "' . $name . '". Use una existente o cree una con nombre diferente.');
+                        throw new \Exception('Skill duplicada: Ya existe una skill con el nombre "'.$name.'". Use una existente o cree una con nombre diferente.');
                     } else {
                         // Crear nueva skill
                         $createdSkill = App\Models\Skill::create([
@@ -739,7 +789,7 @@ Route::middleware('auth:sanctum')->group(function () {
                     ->where('competency_id', $comp->id)
                     ->where('skill_id', $skillToAttach->id)
                     ->exists();
-                if (!$exists) {
+                if (! $exists) {
                     $insert = [
                         'competency_id' => $comp->id,
                         'skill_id' => $skillToAttach->id,
@@ -755,13 +805,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
             return response()->json(['success' => true, 'data' => $result['skill']], 201);
         } catch (\Exception $e) {
-            if (str_contains($e->getMessage(), 'Forbidden'))
+            if (str_contains($e->getMessage(), 'Forbidden')) {
                 return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
-            if (str_contains($e->getMessage(), 'Skill name is required'))
+            }
+            if (str_contains($e->getMessage(), 'Skill name is required')) {
                 return response()->json(['success' => false, 'message' => 'Skill name is required'], 422);
-            if (str_contains($e->getMessage(), 'Skill duplicada:'))
+            }
+            if (str_contains($e->getMessage(), 'Skill duplicada:')) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 409);
-            \Log::error('Error attaching skill to competency: ' . $e->getMessage(), ['competency_id' => $id]);
+            }
+            \Log::error('Error attaching skill to competency: '.$e->getMessage(), ['competency_id' => $id]);
+
             return response()->json(['success' => false, 'message' => 'Server error attaching skill'], 500);
         }
     });
@@ -769,13 +823,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dev API: delete the relationship (pivot) between a scenario and a capability
     Route::delete('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}', function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
         // ensure scenario exists and belongs to user org
         $scenario = App\Models\Scenario::find($scenarioId);
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
         }
         if ($scenario->organization_id !== ($user->organization_id ?? null)) {
@@ -797,12 +851,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dev API: delete a Capability entity (multi-tenant safe)
     Route::delete('/capabilities/{id}', function (Illuminate\Http\Request $request, $id) {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
         $cap = App\Models\Capability::find($id);
-        if (!$cap) {
+        if (! $cap) {
             return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
         }
 
@@ -813,9 +867,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
         try {
             $cap->delete();
+
             return response()->json(['success' => true, 'message' => 'Capability deleted']);
         } catch (\Throwable $e) {
-            \Log::error('Error deleting capability ' . $id . ': ' . $e->getMessage());
+            \Log::error('Error deleting capability '.$id.': '.$e->getMessage());
+
             return response()->json(['success' => false, 'message' => 'Server error deleting capability'], 500);
         }
     });
@@ -829,8 +885,9 @@ Route::post('/strategic-planning/scenarios/{id}/capability-tree/save-positions',
     $inserted = 0;
     foreach ($positions as $p) {
         $capId = $p['id'] ?? $p['capability_id'] ?? null;
-        if (!$capId)
+        if (! $capId) {
             continue;
+        }
         $x = array_key_exists('x', $p) ? $p['x'] : null;
         $y = array_key_exists('y', $p) ? $p['y'] : null;
         $isFixed = array_key_exists('is_fixed', $p) ? (bool) $p['is_fixed'] : true;
@@ -871,10 +928,11 @@ Route::post('/strategic-planning/scenarios/{id}/capability-tree/save-positions',
                 $inserted++;
             }
         } catch (\Throwable $e) {
-            \Log::error('Error saving position for cap ' . $capId . ': ' . $e->getMessage());
+            \Log::error('Error saving position for cap '.$capId.': '.$e->getMessage());
         }
     }
-    \Log::info('Saved positions for scenario ' . $id, ['updated' => $updated, 'inserted' => $inserted]);
+    \Log::info('Saved positions for scenario '.$id, ['updated' => $updated, 'inserted' => $inserted]);
+
     return response()->json(['status' => 'ok', 'updated' => $updated, 'inserted' => $inserted]);
 });
 
@@ -904,7 +962,6 @@ Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group
 
 // Catálogos dinámicos para selectores
 Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');
-require __DIR__ . '/form-schema-complete.php';
-
+require __DIR__.'/form-schema-complete.php';
 
 // TODO: recordar que estas rutas están protegidas por el middleware 'auth' en RouteServiceProvider.php y son Multinenant deben filtrar el organization_id del usuario autenticado

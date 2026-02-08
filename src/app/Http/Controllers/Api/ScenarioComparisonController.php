@@ -11,9 +11,7 @@ use Illuminate\Http\Request;
 
 class ScenarioComparisonController extends Controller
 {
-    public function __construct(private ScenarioService $service)
-    {
-    }
+    public function __construct(private ScenarioService $service) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -47,7 +45,7 @@ class ScenarioComparisonController extends Controller
         $data = $request->validated();
         $organizationId = auth()->user()->organization_id;
 
-       // $results = $this->service->compareScenarios($data['scenario_ids'], $data['comparison_criteria'] ?? []);
+        // $results = $this->service->compareScenarios($data['scenario_ids'], $data['comparison_criteria'] ?? []);
 
         $comparison = ScenarioComparison::create([
             'organization_id' => $organizationId,
@@ -55,7 +53,7 @@ class ScenarioComparisonController extends Controller
             'description' => $data['description'] ?? null,
             'scenario_ids' => $data['scenario_ids'],
             'comparison_criteria' => $data['comparison_criteria'] ?? null,
-          //  'comparison_results' => $results,
+            //  'comparison_results' => $results,
             'created_by' => auth()->id(),
         ]);
 

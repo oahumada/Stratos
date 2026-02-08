@@ -33,7 +33,7 @@ class SyncParentSkillsRequest extends FormRequest
         $validator->after(function ($validator) {
             $scenario = $this->route('scenario');
 
-            if (!$scenario || !$scenario->parent_id) {
+            if (! $scenario || ! $scenario->parent_id) {
                 $validator->errors()->add(
                     'scenario',
                     'Solo los escenarios hijos pueden sincronizar skills desde el padre'

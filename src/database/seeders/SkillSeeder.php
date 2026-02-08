@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Capability;
 use App\Models\Organizations;
 use App\Models\Skill;
-use App\Models\Capability;
-use Database\Seeders\CapabilitySeeder;
 use Illuminate\Database\Seeder;
 
 class SkillSeeder extends Seeder
@@ -14,7 +13,7 @@ class SkillSeeder extends Seeder
     {
         $org = Organizations::first();
 
-        if (!$org) {
+        if (! $org) {
             $org = Organizations::create(['name' => 'Demo Org', 'subdomain' => 'demo-org']);
         }
 
@@ -76,12 +75,13 @@ class SkillSeeder extends Seeder
             $fragments = $categoryMap[$skill['category']] ?? [];
             foreach ($fragments as $frag) {
                 $cap = $capabilities->firstWhere('name', 'like', "%$frag%");
-                if ($cap)
+                if ($cap) {
                     break;
+                }
             }
 
             // fallback to random capability
-            if (!$cap) {
+            if (! $cap) {
                 $cap = $capabilities->random();
             }
 

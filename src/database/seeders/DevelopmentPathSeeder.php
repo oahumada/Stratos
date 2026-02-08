@@ -18,7 +18,7 @@ class DevelopmentPathSeeder extends Seeder
         $targetRole = Roles::where('name', 'Senior Full Stack Developer')->first();
         $skills = Skill::all();
 
-        if (!$people || !$targetRole) {
+        if (! $people || ! $targetRole) {
             return;
         }
 

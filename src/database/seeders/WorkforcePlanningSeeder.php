@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\StrategicPlanningScenarios;
 use App\Models\WorkforcePlanningAnalytic;
-use App\Models\WorkforcePlanningRoleForecast;
 use App\Models\WorkforcePlanningMatch;
+use App\Models\WorkforcePlanningRoleForecast;
 use App\Models\WorkforcePlanningSkillGap;
 use App\Models\WorkforcePlanningSuccessionPlan;
+use Illuminate\Database\Seeder;
 
 class WorkforcePlanningSeeder extends Seeder
 {

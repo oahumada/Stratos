@@ -2,13 +2,12 @@
 
 namespace Tests\Feature\Api;
 
-use Tests\TestCase;
-use App\Models\ChangeSet;
-use App\Models\User;
 use App\Models\Organizations;
 use App\Models\Roles;
 use App\Models\Scenario;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ChangeSetOpsApiTest extends TestCase
 {
@@ -16,13 +15,13 @@ class ChangeSetOpsApiTest extends TestCase
 
     public function test_add_op_and_apply_creates_role_sunset_mapping_via_api()
     {
-        $org = Organizations::create(['name' => 'API Org', 'subdomain' => 'api-' . uniqid()]);
+        $org = Organizations::create(['name' => 'API Org', 'subdomain' => 'api-'.uniqid()]);
         $user = User::factory()->create(['organization_id' => $org->id]);
 
         $role = Roles::create([
             'organization_id' => $org->id,
-            'name' => 'API Role ' . uniqid(),
-            'level' => 'mid'
+            'name' => 'API Role '.uniqid(),
+            'level' => 'mid',
         ]);
 
         $this->actingAs($user, 'sanctum');
@@ -38,7 +37,7 @@ class ChangeSetOpsApiTest extends TestCase
 
         $res = $this->postJson("/api/strategic-planning/scenarios/{$scenario->id}/change-sets", [
             'title' => 'API ChangeSet',
-            'description' => 'test'
+            'description' => 'test',
         ]);
         $res->assertStatus(201);
         $csId = $res->json('data.id');
@@ -50,8 +49,8 @@ class ChangeSetOpsApiTest extends TestCase
                 'role_id' => $role->id,
                 'mapped_role_id' => null,
                 'sunset_reason' => 'api-test',
-                'metadata' => ['via' => 'api']
-            ]
+                'metadata' => ['via' => 'api'],
+            ],
         ];
 
         $add = $this->postJson("/api/strategic-planning/change-sets/{$csId}/ops", $op);

@@ -3,13 +3,12 @@
 namespace App\Repository;
 
 use App\Models\RoleSkill;
-use Illuminate\Http\Request;
 
 class RoleSkillRepository extends Repository
 {
     public function __construct()
     {
-        parent::__construct(new RoleSkill());
+        parent::__construct(new RoleSkill);
     }
 
     /**
