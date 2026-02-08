@@ -418,6 +418,20 @@ Route::delete('/competencies/{competencyId}/skills/{skillId}', function(...) {
 
 1. `selectedChild.value.skills`
 2. `selectedChild.value.raw.skills`
+3. `childNodes.value[].skills`
+
+---
+
+## Memoria reciente: Importación / Incubación LLM (2026-02-08)
+
+- **Tipo:** implementation / project fact
+- **Resumen:** Se implementó un flujo para persistir prompts aceptados desde `scenario_generation` y, opcionalmente, importar (incubar) las entidades generadas por el LLM.
+- **Archivos resumen:** `docs/IMPORT_GENERATION_SUMMARY.md` contiene un resumen ejecutivo, lista de archivos clave, acciones realizadas y pasos siguientes.
+- **Acciones importantes realizadas:** validación JSON Schema para `llm_response`, auditoría `import_audit`, modal de revisión `IncubatedReviewModal.vue`, migraciones y backfill local probados, scripts de staging (`scripts/staging_backfill.sh`, `scripts/staging_automation.sh`) y runbook/checklist añadidos.
+- **Pendientes (operativos):** ejecutar migraciones/backfill en staging con backup validado; abrir PR con checklist de despliegue; verificación post-enable en staging.
+
+Ver archivo de resumen: [docs/IMPORT_GENERATION_SUMMARY.md](docs/IMPORT_GENERATION_SUMMARY.md)
+
 3. `focusedNode.value.competencies[].skills`
 4. `childNodes[].skills` y `childNodes[].raw.skills`
 5. `availableSkills` (catálogo global)

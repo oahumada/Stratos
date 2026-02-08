@@ -1,2 +1,6 @@
 # OpenMemory - IDE/Assistant specific rules
 .github/instructions/openmemory.instructions.md
+/backups
+/node_modules
+/tests
+/test-results
