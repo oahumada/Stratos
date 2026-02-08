@@ -16,13 +16,15 @@ const loading = ref(false);
 const form = ref({
     name: '',
     description: '',
-    start_date: new Date().toISOString().split('T')[0],  // Hoy
-    end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],  // Hoy + 1 año
+    start_date: new Date().toISOString().split('T')[0], // Hoy
+    end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0], // Hoy + 1 año
     planning_horizon_months: 12,
     scope_type: 'organization_wide',
     owner_user_id: null as number | null,
     sponsor_user_id: null as number | null,
-    fiscal_year: new Date().getFullYear(),  // Año actual
+    fiscal_year: new Date().getFullYear(), // Año actual
     strategic_context: '',
 });
 
@@ -449,17 +451,15 @@ const saveStep1 = async () => {
                                 v-for="u in planData.scope_units"
                                 :key="u.id"
                             >
-                                <v-list-item-content>
-                                    <v-list-item-title>{{
-                                        u.unit_name
-                                    }}</v-list-item-title>
-                                    <v-list-item-subtitle
-                                        >{{ u.unit_type }} —
-                                        {{
-                                            u.inclusion_reason
-                                        }}</v-list-item-subtitle
-                                    >
-                                </v-list-item-content>
+                                <div class="list-item-content">
+                                    <div class="font-weight-medium">
+                                        {{ u.unit_name }}
+                                    </div>
+                                    <div class="text--secondary">
+                                        {{ u.unit_type }} —
+                                        {{ u.inclusion_reason }}
+                                    </div>
+                                </div>
                             </v-list-item>
                         </v-list>
                         <v-alert v-else type="info"
@@ -500,21 +500,17 @@ const saveStep1 = async () => {
                                     skillDemands"
                                     :key="s.id"
                                 >
-                                    <v-list-item-content>
-                                        <v-list-item-title
-                                            >Skill #{{
-                                                s.skill_id || s.skill
-                                            }}</v-list-item-title
-                                        >
-                                        <v-list-item-subtitle
-                                            >Requeridos:
+                                    <div class="list-item-content">
+                                        <div class="font-weight-medium">
+                                            Skill #{{ s.skill_id || s.skill }}
+                                        </div>
+                                        <div class="text--secondary">
+                                            Requeridos:
                                             {{ s.required_headcount }} · Nivel:
                                             {{ s.required_level }} · Prioridad:
-                                            {{
-                                                s.priority
-                                            }}</v-list-item-subtitle
-                                        >
-                                    </v-list-item-content>
+                                            {{ s.priority }}
+                                        </div>
+                                    </div>
                                 </v-list-item>
                             </v-list>
                         </div>
@@ -550,17 +546,15 @@ const saveStep1 = async () => {
                                     v-for="r in planData.scope_roles"
                                     :key="r.id"
                                 >
-                                    <v-list-item-content>
-                                        <v-list-item-title
-                                            >Role #{{
-                                                r.role_id
-                                            }}</v-list-item-title
-                                        >
-                                        <v-list-item-subtitle
-                                            >{{ r.inclusion_reason }} —
-                                            {{ r.notes }}</v-list-item-subtitle
-                                        >
-                                    </v-list-item-content>
+                                    <div class="list-item-content">
+                                        <div class="font-weight-medium">
+                                            Role #{{ r.role_id }}
+                                        </div>
+                                        <div class="text--secondary">
+                                            {{ r.inclusion_reason }} —
+                                            {{ r.notes }}
+                                        </div>
+                                    </div>
                                 </v-list-item>
                             </v-list>
                         </div>
@@ -583,17 +577,15 @@ const saveStep1 = async () => {
                                 v-for="p in planData.transformation_projects"
                                 :key="p.id"
                             >
-                                <v-list-item-content>
-                                    <v-list-item-title>{{
-                                        p.project_name
-                                    }}</v-list-item-title>
-                                    <v-list-item-subtitle
-                                        >{{ p.project_type }} — Impacto:
-                                        {{
-                                            p.estimated_fte_impact || '—'
-                                        }}</v-list-item-subtitle
-                                    >
-                                </v-list-item-content>
+                                <div class="list-item-content">
+                                    <div class="font-weight-medium">
+                                        {{ p.project_name }}
+                                    </div>
+                                    <div class="text--secondary">
+                                        {{ p.project_type }} — Impacto:
+                                        {{ p.estimated_fte_impact || '—' }}
+                                    </div>
+                                </div>
                             </v-list-item>
                         </v-list>
                         <v-alert v-else type="info"

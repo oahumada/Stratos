@@ -1,14 +1,97 @@
 <template>
     <div class="generate-wizard">
         <h2>Generar Escenario (Asistido)</h2>
+
+        <v-row class="align-center mb-4">
+            <v-col cols="12" md="8">
+                <v-progress-linear
+                    :value="progress"
+                    :color="progressColor"
+                    height="16"
+                    rounded
+                >
+                    <template #default>
+                        <div class="progress-label">
+                            Paso {{ store.step }} de 5 / {{ progress }}% ({{
+                                filledFields
+                            }}/{{ totalFields }})
+                        </div>
+                    </template>
+                </v-progress-linear>
+            </v-col>
+            <v-col cols="12" md="4" class="text-right">
+                <v-menu offset-y>
+                    <template #activator="{ props }">
+                        <v-chip
+                            v-bind="props"
+                            :color="progressColor"
+                            text-color="white"
+                            class="cursor-pointer"
+                        >
+                            {{ progressLabel }}
+                        </v-chip>
+                    </template>
+                    <v-card style="max-width: 320px">
+                        <v-card-text>
+                            <div class="font-weight-medium">
+                                Campos faltantes (Paso {{ store.step }})
+                            </div>
+                            <div style="margin-top: 6px">
+                                <ul
+                                    style="
+                                        margin: 0.25rem 0 0;
+                                        padding-left: 1rem;
+                                    "
+                                >
+                                    <li
+                                        v-for="(m, idx) in missingForCurrent"
+                                        :key="idx"
+                                    >
+                                        {{ m }}
+                                    </li>
+                                    <li v-if="missingForCurrent.length === 0">
+                                        Ninguno: paso completo
+                                    </li>
+                                </ul>
+                            </div>
+                        </v-card-text>
+                    </v-card>
+                </v-menu>
+            </v-col>
+        </v-row>
+
         <component :is="currentStepComponent" />
 
-        <div class="wizard-controls">
-            <button @click="prev" :disabled="store.step === 1">Atrás</button>
-            <button v-if="store.step < 5" @click="next">Siguiente</button>
-            <button v-else @click="onGenerate" :disabled="store.generating">
+        <div class="wizard-controls d-flex mt-4">
+            <v-btn color="info" @click="prev" :disabled="store.step === 1">
+                <v-icon left>mdi-arrow-left</v-icon>
+                Atrás
+            </v-btn>
+
+            <v-spacer />
+
+            <v-btn
+                v-if="store.step < 5"
+                color="primary"
+                class="mx-2"
+                depressed
+                @click="next"
+            >
+                Siguiente
+                <v-icon right>mdi-arrow-right</v-icon>
+            </v-btn>
+
+            <v-btn
+                v-else
+                color="success"
+                class="mx-2"
+                depressed
+                @click="onGenerate"
+                :loading="store.generating"
+            >
+                <v-icon left>mdi-rocket-launch</v-icon>
                 Generar
-            </button>
+            </v-btn>
         </div>
 
         <div v-if="store.generationId" class="generation-status">
@@ -34,7 +117,7 @@
         <div v-if="showPreview" class="preview-modal-backdrop">
             <div class="preview-modal">
                 <PreviewConfirm
-                    :promptPreview="store.previewPrompt"
+                    :promptPreview="store.previewPrompt || ''"
                     @confirm="onConfirmGenerate"
                     @edit="onEditPrompt"
                 />
@@ -58,7 +141,7 @@ import StepSituation from './StepSituation.vue';
 
 const store = useScenarioGenerationStore();
 
-const stepComponents = {
+const stepComponents: Record<number, any> = {
     1: StepIdentity,
     2: StepSituation,
     3: StepIntent,
@@ -67,6 +150,97 @@ const stepComponents = {
 };
 
 const currentStepComponent = computed(() => stepComponents[store.step]);
+
+// compute completion per step (basic heuristics)
+const stepCompleted = (step: number) => {
+    const d = store.data as any;
+    switch (step) {
+        case 1:
+            return !!(d.company_name && d.industry && d.company_size);
+        case 2:
+            return !!(d.current_challenges && d.current_capabilities);
+        case 3:
+            return !!(d.strategic_goal && d.key_initiatives);
+        case 4:
+            return !!(d.budget_level && d.talent_availability);
+        case 5:
+            return !!(d.time_horizon && d.milestones);
+        default:
+            return false;
+    }
+};
+
+// finer-grained progress: count individual required fields across steps
+const totalFields = 12;
+const filledFields = computed(() => {
+    const d = store.data as any;
+    let c = 0;
+    if (d.company_name) c++;
+    if (d.industry) c++;
+    if (d.company_size) c++;
+    if (d.current_challenges) c++;
+    if (d.current_capabilities) c++;
+    if (d.current_gaps) c++;
+    if (d.strategic_goal) c++;
+    if (d.key_initiatives) c++;
+    if (d.budget_level) c++;
+    if (d.talent_availability) c++;
+    if (d.time_horizon) c++;
+    if (d.milestones) c++;
+    return c;
+});
+
+const progress = computed(() =>
+    Math.round((filledFields.value / totalFields) * 100),
+);
+
+const progressColor = computed(() =>
+    progress.value < 40 ? 'error' : progress.value < 80 ? 'warning' : 'success',
+);
+
+const progressLabel = computed(() =>
+    progress.value < 40
+        ? 'Insuficiente'
+        : progress.value < 80
+          ? 'Parcial'
+          : 'Completado',
+);
+
+const missingFieldsForStep = (step: number) => {
+    const d = store.data as any;
+    const missing: string[] = [];
+    switch (step) {
+        case 1:
+            if (!d.company_name) missing.push('Nombre de la organización');
+            if (!d.industry) missing.push('Industria');
+            if (!d.company_size) missing.push('Tamaño (personas)');
+            break;
+        case 2:
+            if (!d.current_challenges) missing.push('Desafíos');
+            if (!d.current_capabilities) missing.push('Capacidades existentes');
+            if (!d.current_gaps) missing.push('Brechas');
+            break;
+        case 3:
+            if (!d.strategic_goal) missing.push('Objetivo principal');
+            if (!d.key_initiatives) missing.push('Iniciativas clave');
+            break;
+        case 4:
+            if (!d.budget_level) missing.push('Nivel de presupuesto');
+            if (!d.talent_availability)
+                missing.push('Disponibilidad de talento');
+            break;
+        case 5:
+            if (!d.time_horizon) missing.push('Plazo');
+            if (!d.milestones) missing.push('Hitos');
+            break;
+    }
+    return missing;
+};
+
+const missingForCurrent = computed(() => missingFieldsForStep(store.step));
+
+// expose filled/total for template
+const totalFieldsConst = totalFields;
 
 function next() {
     store.next();
@@ -128,9 +302,10 @@ async function acceptGeneration() {
         window.location.reload();
     } catch (e) {
         console.error('Accept failed', e);
+        const error = e as any;
         alert(
             'Error al aceptar generación: ' +
-                (e?.response?.data?.message || e.message || e),
+                (error?.response?.data?.message || error?.message || String(e)),
         );
     } finally {
         accepting.value = false;

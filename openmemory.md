@@ -198,6 +198,20 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 - **Archivo modificado:** `src/.github/workflows/tests.yml`
 - **Propósito:** Ejecutar migraciones y seeders en el directorio `src` antes de ejecutar los tests para asegurar que los datos demo y seeders requeridos (p.ej. `ScenarioSeeder`, `DemoSeeder`) estén presentes en entornos CI.
+
+## 2026-02-08 - UI: Integración de ayuda por campo (`FieldHelp`)
+
+- **Resumen:** Se añadió un componente reutilizable `FieldHelp` para mostrar título, descripción y ejemplo por campo, y se integró en los pasos del `GenerateWizard` para mejorar la guía al operador.
+- **Archivos modificados:**
+  - `src/resources/js/components/Ui/FieldHelp.vue` (nuevo)
+  - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/StepIdentity.vue`
+  - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/StepSituation.vue`
+  - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/StepIntent.vue`
+  - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/StepResources.vue`
+  - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/StepHorizon.vue`
+- **Propósito:** Mejorar la eficacia del wizard mostrando ejemplos concretos y descripciones concisas para campos críticos (p.ej. `Desafíos actuales`, `Objetivo principal`, `Nivel de presupuesto`), reduciendo ambigüedad y llamadas de soporte.
+- **Notas de implementación:** Las ayudas se activan con un icono `mdi-information-outline` y usan `v-menu`/`v-card` para presentar contenido formateado. Se importó el componente en cada paso y se añadió en la ranura `append-outer` de los inputs.
+
 - **Acción:** Añadido paso que crea `database/database.sqlite` si no existe, ejecuta `php artisan migrate --force` y `php artisan db:seed --class=DatabaseSeeder --force`. También se ajustaron los pasos de `npm ci`, `composer install` y `npm run build` para ejecutarse en `./src`.
 
 **Notas:** Esto resuelve fallos en CI relacionados con migraciones/seeds faltantes que afectan a tests que dependen de datos de `DatabaseSeeder`.

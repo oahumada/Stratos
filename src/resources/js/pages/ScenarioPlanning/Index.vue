@@ -1,20 +1,31 @@
 <script setup lang="ts">
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useApi } from '@/composables/useApi';
+import {
+    chooseMatrixVariant,
+    computeCompetencyMatrixPositions,
+    computeSidesPositions,
+    decideCompetencyLayout,
+} from '@/composables/useCompetencyLayout';
 import { useCompetencySkills } from '@/composables/useCompetencySkills';
-import { useNotification } from '@/composables/useNotification';
 import { useHierarchicalUpdate } from '@/composables/useHierarchicalUpdate';
-import { onMounted, ref, watch, onBeforeUnmount, computed, nextTick } from 'vue';
-import { computeMatrixPositions } from '@/composables/useNodeNavigation';
-import { chooseMatrixVariant, computeCompetencyMatrixPositions, computeSidesPositions, decideCompetencyLayout } from '@/composables/useCompetencyLayout';
+import { useNotification } from '@/composables/useNotification';
+import type { ConnectionPayload, Edge, NodeItem } from '@/types/brain';
 import type { CSSProperties } from 'vue';
-import type { NodeItem, Edge, ConnectionPayload } from '@/types/brain';
+import {
+    computed,
+    nextTick,
+    onBeforeUnmount,
+    onMounted,
+    ref,
+    watch,
+} from 'vue';
 
 // Composables refactorizados (Fase 1: modularización)
-import { useScenarioState } from '@/composables/useScenarioState';
 import { useScenarioAPI } from '@/composables/useScenarioAPI';
-import { useScenarioLayout } from '@/composables/useScenarioLayout';
 import { useScenarioEdges } from '@/composables/useScenarioEdges';
+import { useScenarioLayout } from '@/composables/useScenarioLayout';
+import { useScenarioState } from '@/composables/useScenarioState';
 interface Props {
     scenario?: {
         id?: number;
@@ -83,22 +94,38 @@ function restoreView() {
     childEdges.value = [];
     selectedChild.value = null;
     // ensure any expanded skills are collapsed as well
-    try { collapseGrandChildren(); } catch (err: unknown) { void err; }
+    try {
+        collapseGrandChildren();
+    } catch (err: unknown) {
+        void err;
+    }
     // clear render flags
     nodes.value = nodes.value.map((n: any) => ({ ...n, visible: true }));
     // If we had a parent node, decide layout based on its competency count and expand
     if (parentNode) {
         try {
-            const compCount = Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0;
+            const compCount = Array.isArray(parentNode?.competencies)
+                ? parentNode!.competencies.length
+                : 0;
             if (compCount >= 4) {
                 // use matrix layout for 4 or more nodes (matrixVariants will select 4x2 or 5x2)
-                expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: 'matrix' as any });
+                expandCompetencies(
+                    parentNode as NodeItem,
+                    { x: parentNode.x ?? 0, y: parentNode.y ?? 0 },
+                    { layout: 'matrix' as any },
+                );
             } else {
-                expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
+                expandCompetencies(parentNode as NodeItem, {
+                    x: parentNode.x ?? 0,
+                    y: parentNode.y ?? 0,
+                });
             }
         } catch (err: unknown) {
             // fallback to default behaviour
-            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
+            expandCompetencies(parentNode as NodeItem, {
+                x: parentNode.x ?? 0,
+                y: parentNode.y ?? 0,
+            });
         }
     }
     viewX.value = 0;
@@ -108,8 +135,8 @@ const tickLabelImportance = {
     1: '1',
     2: '2',
     3: '3',
-  }
-const tickLabelStrategic ={
+};
+const tickLabelStrategic = {
     1: '1',
     2: '2',
     3: '3',
@@ -120,21 +147,21 @@ const tickLabelStrategic ={
     8: '8',
     9: '9',
     10: '10',
-}
+};
 const tickLabelPriority = {
     1: '1',
     2: '2',
     3: '3',
     4: '4',
     5: '5',
-}
+};
 const tickLabelRequiredLevel = {
     1: '1',
     2: '2',
     3: '3',
     4: '4',
     5: '5',
-}
+};
 // Dev helper: calcular el nivel (profundidad) de un nodo.
 // Nivel 0 = escenario, Nivel 1 = capacidad, Nivel 2 = competencia, etc.
 function nodeLevel(nodeOrId: any) {
@@ -192,7 +219,7 @@ const props = withDefaults(defineProps<Props>(), {
         edgeSkill: { baseDepth: 20, curveFactor: 0.25, spreadOffset: 10 },
     }),
 });
-    
+
 const emit = defineEmits<{
     (e: 'createCapability'): void;
 }>();
@@ -202,16 +229,16 @@ const emit = defineEmits<{
 // pero ahora está modularizada en composables reutilizables.
 const scenarioState = useScenarioState();
 const scenarioAPI = useScenarioAPI();
-const { 
+const {
     runForceLayout,
     expandSkills: expandSkillsFromLayout,
     expandCompetencies: expandCompetenciesFromLayout,
     centerOnNode: centerOnNodeFromLayout,
     collapseGrandChildren: collapseGrandChildrenFromLayout,
     LAYOUT_CONFIG,
-    clampY: clampYFromLayout
+    clampY: clampYFromLayout,
 } = useScenarioLayout();
-const { 
+const {
     injectState: injectEdgeState,
     renderedNodeById: edgeRenderedNodeById,
     isGrandChildNode,
@@ -222,9 +249,18 @@ const {
 // (edges necesita acceso a los nodos para calcular posiciones)
 onMounted(() => {
     try {
-        injectEdgeState(childEdges as any, grandChildEdges as any, nodes as any, childNodes as any, grandChildNodes as any);
+        injectEdgeState(
+            childEdges as any,
+            grandChildEdges as any,
+            nodes as any,
+            childNodes as any,
+            grandChildNodes as any,
+        );
     } catch (err) {
-        console.warn('[ScenarioPlanning] Error inyectando state en useScenarioEdges', err);
+        console.warn(
+            '[ScenarioPlanning] Error inyectando state en useScenarioEdges',
+            err,
+        );
     }
 });
 
@@ -232,14 +268,20 @@ onMounted(() => {
 // Asignamos a variable local para mantener compatibilidad con el resto del código
 const loadTreeFromApiWrapper = async (scenarioId?: number | string) => {
     try {
-        const scenarioIdNum = typeof scenarioId === 'string' ? parseInt(scenarioId, 10) : scenarioId;
+        const scenarioIdNum =
+            typeof scenarioId === 'string'
+                ? parseInt(scenarioId, 10)
+                : scenarioId;
         const treeData = await scenarioAPI.loadCapabilityTree(scenarioIdNum);
         if (treeData && Array.isArray(treeData)) {
             buildNodesFromItems(treeData);
             loaded.value = true;
         }
     } catch (err) {
-        console.error('[loadTreeFromApi] Error cargando árbol de capacidades', err);
+        console.error(
+            '[loadTreeFromApi] Error cargando árbol de capacidades',
+            err,
+        );
         showError('Error cargando árbol de capacidades');
     }
 };
@@ -264,15 +306,24 @@ async function loadStep2RolesFromApi(scenarioId?: number | string) {
             scenarioStep2Roles.value = [];
             return;
         }
-        const id = typeof scenarioId === 'string' ? parseInt(scenarioId, 10) : scenarioId;
+        const id =
+            typeof scenarioId === 'string'
+                ? parseInt(scenarioId, 10)
+                : scenarioId;
         // Try Wayfinder/legacy endpoint for step2 data which includes `roles`
         const resp = await (api as any).get(`/api/scenarios/${id}/step2/data`);
         const body = resp?.data ?? resp;
         const r = Array.isArray(body?.roles) ? body.roles : [];
         // Map to simple role-name strings for the v-select
-        scenarioStep2Roles.value = r.map((it: any) => it.role_name ?? it.name ?? String(it.role_id ?? it.id ?? ''));
+        scenarioStep2Roles.value = r.map(
+            (it: any) =>
+                it.role_name ?? it.name ?? String(it.role_id ?? it.id ?? ''),
+        );
     } catch (err) {
-        console.debug('[loadStep2RolesFromApi] failed to fetch step2 roles', err);
+        console.debug(
+            '[loadStep2RolesFromApi] failed to fetch step2 roles',
+            err,
+        );
         scenarioStep2Roles.value = [];
     }
 }
@@ -304,7 +355,9 @@ function normalizeRoleList(input: any): string[] {
 // 3) historical defaults.
 const strategicRoleOptions = computed(() => {
     const s = props.scenario as any;
-    const scenarioProvided = normalizeRoleList(s?.strategic_roles ?? s?.roles ?? s?.available_roles ?? []);
+    const scenarioProvided = normalizeRoleList(
+        s?.strategic_roles ?? s?.roles ?? s?.available_roles ?? [],
+    );
     const apiProvided = normalizeRoleList(scenarioStep2Roles.value ?? []);
 
     // Merge preserving order: scenarioProvided first, then apiProvided, then defaults; dedupe
@@ -317,16 +370,22 @@ const strategicRoleOptions = computed(() => {
 });
 
 // Load Step2 roles when scenario changes (if scenario doesn't already provide roles)
-watch(() => props.scenario?.id, (nv) => {
-    if (!nv) return;
-    try {
-        const s = props.scenario as any;
-        const cand = s?.strategic_roles ?? s?.roles ?? s?.available_roles ?? null;
-        if (!Array.isArray(cand) || cand.length === 0) {
-            void loadStep2RolesFromApi(nv);
+watch(
+    () => props.scenario?.id,
+    (nv) => {
+        if (!nv) return;
+        try {
+            const s = props.scenario as any;
+            const cand =
+                s?.strategic_roles ?? s?.roles ?? s?.available_roles ?? null;
+            if (!Array.isArray(cand) || cand.length === 0) {
+                void loadStep2RolesFromApi(nv);
+            }
+        } catch (err) {
+            void err;
         }
-    } catch (err) { void err; }
-});
+    },
+);
 const pivotStrategicWeight = ref<number | undefined>(10);
 const pivotPriority = ref<number | undefined>(1);
 const pivotRationale = ref('');
@@ -388,7 +447,7 @@ const loadingSkills = ref(false);
 // Pattern: update leaf → update upward to root
 const hierarchicalUpdate = useHierarchicalUpdate(
     { nodes, focusedNode, childNodes, selectedChild, grandChildNodes },
-    { wrapLabel, debug: false }
+    { wrapLabel, debug: false },
 );
 
 // Breadcrumb computed: construye la ruta completa disponible
@@ -445,8 +504,6 @@ const editCapLevel = ref<number | null>(null);
 const editCapType = ref('');
 const editCapCategory = ref('');
 const ee = ref<number | null>(null);
-
-
 
 const editPivotStrategicRole = ref('target');
 const editPivotStrategicWeight = ref<number | undefined>(10);
@@ -517,25 +574,41 @@ const contextMenuEl = ref<HTMLElement | null>(null);
 
 // Modo de renderizado de aristas hijo: delegado a useScenarioEdges (value inicial: 2=curve)
 // const childEdgeMode = ref(2); // ← Ahora viene de useScenarioEdges
-const childEdgeModeLabels = ['offset','gap-large','curve','spread'];
+const childEdgeModeLabels = ['offset', 'gap-large', 'curve', 'spread'];
 
 function nextChildEdgeMode() {
-    childEdgeMode.value = ((childEdgeMode.value + 1) % childEdgeModeLabels.length) as 0 | 1 | 2 | 3;
+    childEdgeMode.value = ((childEdgeMode.value + 1) %
+        childEdgeModeLabels.length) as 0 | 1 | 2 | 3;
 }
 
 function openNodeContextMenu(node: any, ev: MouseEvent) {
     try {
         ev.preventDefault();
         ev.stopPropagation();
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
     // compute container rect (map root) and clamp menu to stay inside
-    const rect = mapRoot.value ? mapRoot.value.getBoundingClientRect() : { left: 0, top: 0, width: width.value, height: height.value } as DOMRect;
+    const rect = mapRoot.value
+        ? mapRoot.value.getBoundingClientRect()
+        : ({
+              left: 0,
+              top: 0,
+              width: width.value,
+              height: height.value,
+          } as DOMRect);
     const MENU_W = 260;
     const MENU_H = 300; // conservative height for clamping
-    const relX = (ev.clientX - rect.left);
-    const relY = (ev.clientY - rect.top);
-    const clampedX = Math.max(8, Math.min(relX, (rect.width ?? width.value) - MENU_W - 8));
-    const clampedY = Math.max(8, Math.min(relY, (rect.height ?? height.value) - 24));
+    const relX = ev.clientX - rect.left;
+    const relY = ev.clientY - rect.top;
+    const clampedX = Math.max(
+        8,
+        Math.min(relX, (rect.width ?? width.value) - MENU_W - 8),
+    );
+    const clampedY = Math.max(
+        8,
+        Math.min(relY, (rect.height ?? height.value) - 24),
+    );
     contextMenuLeft.value = Math.round(clampedX);
     contextMenuTop.value = Math.round(clampedY);
     contextMenuTarget.value = node;
@@ -571,13 +644,28 @@ function contextViewEdit() {
         try {
             resetFocusedEdits();
             if (contextMenuIsChild.value && selectedChild.value) {
-                const compId = (selectedChild.value as any)?.compId ?? (selectedChild.value as any)?.raw?.id ?? Math.abs((selectedChild.value as any)?.id || 0);
+                const compId =
+                    (selectedChild.value as any)?.compId ??
+                    (selectedChild.value as any)?.raw?.id ??
+                    Math.abs((selectedChild.value as any)?.id || 0);
                 if (compId) {
-                    const skills = await fetchSkillsForCompetency(Number(compId));
-                    try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (err: unknown) { void err; }
+                    const skills = await fetchSkillsForCompetency(
+                        Number(compId),
+                    );
+                    try {
+                        (selectedChild.value as any).skills = Array.isArray(
+                            skills,
+                        )
+                            ? skills
+                            : [];
+                    } catch (err: unknown) {
+                        void err;
+                    }
                 }
             }
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
         showSidebar.value = true;
         closeContextMenu();
     });
@@ -626,12 +714,16 @@ async function contextAttachExistingSkill() {
         selectedChild.value = node as any;
     } else {
         // try to pick a child competency of the focused node if available
-        const child = childNodes.value.find((c: any) => c.__parentId === node.id || c.parentId === node.id);
+        const child = childNodes.value.find(
+            (c: any) => c.__parentId === node.id || c.parentId === node.id,
+        );
         if (child) selectedChild.value = child;
     }
     try {
         await loadAvailableSkills();
-    } catch (err: unknown) { /* ignore */ }
+    } catch (err: unknown) {
+        /* ignore */
+    }
     selectSkillDialogVisible.value = true;
     closeContextMenu();
 }
@@ -651,7 +743,9 @@ async function contextDeleteNode() {
     }
     try {
         await deleteFocusedNode();
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
     closeContextMenu();
 }
 
@@ -660,11 +754,18 @@ onMounted(async () => {
         if (!contextMenuVisible.value) return;
         try {
             const el = contextMenuEl.value as HTMLElement | null;
-            if (el && ev.target && (ev.target instanceof Node) && el.contains(ev.target as Node)) {
+            if (
+                el &&
+                ev.target &&
+                ev.target instanceof Node &&
+                el.contains(ev.target as Node)
+            ) {
                 // click happened inside the context menu — ignore
                 return;
             }
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
         if (contextMenuVisible.value) closeContextMenu();
     };
     document.addEventListener('pointerdown', handler);
@@ -680,15 +781,20 @@ async function loadAvailableSkills() {
     }
 }
 
-const { createAndAttachSkill: createAndAttachSkillForComp } = useCompetencySkills();
+const { createAndAttachSkill: createAndAttachSkillForComp } =
+    useCompetencySkills();
 
 async function createAndAttachSkill() {
     // If we're creating a competency (createComp dialog open) and user opened the create-skill
     // modal from there, don't call the API yet — store the skill name to `newCompSkills`
     if (createCompDialogVisible.value) {
-        if (!newSkillName.value || !newSkillName.value.trim()) return showError('El nombre es obligatorio');
+        if (!newSkillName.value || !newSkillName.value.trim())
+            return showError('El nombre es obligatorio');
         // append to newCompSkills as comma-separated list
-        const names = String(newCompSkills.value || '').split(',').map(s => s.trim()).filter(Boolean);
+        const names = String(newCompSkills.value || '')
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
         names.push(newSkillName.value.trim());
         newCompSkills.value = names.join(', ');
         createSkillDialogVisible.value = false;
@@ -700,46 +806,76 @@ async function createAndAttachSkill() {
     }
 
     if (!selectedChild.value) return showError('Seleccione una competencia');
-    if (!newSkillName.value || !newSkillName.value.trim()) return showError('El nombre es obligatorio');
+    if (!newSkillName.value || !newSkillName.value.trim())
+        return showError('El nombre es obligatorio');
     savingSkill.value = true;
     try {
         const payload: any = { name: newSkillName.value.trim() };
-        payload.category = (newSkillCategory.value && String(newSkillCategory.value).trim() !== '') ? newSkillCategory.value : 'technical';
-        if (newSkillDescription.value && String(newSkillDescription.value).trim() !== '') {
+        payload.category =
+            newSkillCategory.value &&
+            String(newSkillCategory.value).trim() !== ''
+                ? newSkillCategory.value
+                : 'technical';
+        if (
+            newSkillDescription.value &&
+            String(newSkillDescription.value).trim() !== ''
+        ) {
             payload.description = newSkillDescription.value;
         }
-        const compId = (selectedChild.value as any).compId ?? (selectedChild.value as any).raw?.id ?? Math.abs((selectedChild.value as any).id || 0);
+        const compId =
+            (selectedChild.value as any).compId ??
+            (selectedChild.value as any).raw?.id ??
+            Math.abs((selectedChild.value as any).id || 0);
         if (!compId) throw new Error('No competency target available');
 
         const created = await createAndAttachSkillForComp(compId, payload);
         if (created) {
-            if (!Array.isArray((selectedChild.value as any).skills)) (selectedChild.value as any).skills = [];
+            if (!Array.isArray((selectedChild.value as any).skills))
+                (selectedChild.value as any).skills = [];
             (selectedChild.value as any).skills.push(created);
         }
-        
+
         // Expand skills to show the newly created skill immediately (consistent with competencies pattern)
         // Do this BEFORE clearing fields to ensure proper DOM updates
         if (selectedChild.value) {
             const compId = (selectedChild.value as any).id;
             const domPos = getNodeMapCenter(compId);
-            const renderedComp = renderedNodeById(compId) ?? selectedChild.value;
-            const preferred = (renderedComp && domPos) ? { x: renderedComp.x, y: domPos.y } : (renderedComp ?? domPos);
-            const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
+            const renderedComp =
+                renderedNodeById(compId) ?? selectedChild.value;
+            const preferred =
+                renderedComp && domPos
+                    ? { x: renderedComp.x, y: domPos.y }
+                    : (renderedComp ?? domPos);
+            const result = expandSkillsFromLayout(
+                selectedChild.value,
+                grandChildNodes.value,
+                grandChildEdges.value,
+                preferred,
+                { layout: 'auto' },
+                height.value,
+            );
             grandChildNodes.value = result.grandChildNodes;
             grandChildEdges.value = result.grandChildEdges;
             nextTick(() => {
-                grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+                grandChildNodes.value = grandChildNodes.value.map((g: any) => ({
+                    ...g,
+                    x: g.animTargetX ?? g.x,
+                    y: g.animTargetY ?? g.y,
+                    animScale: 1,
+                    animOpacity: 1,
+                    animFilter: 'none',
+                }));
             });
         }
-        
+
         // Mostrar alerta de éxito pero NO cerrar el modal
         skillCreationSuccess.value = `Skill "${newSkillName.value}" creada y asociada correctamente`;
-        
+
         // Limpiar campos para siguiente creación
         newSkillName.value = '';
         newSkillCategory.value = '';
         newSkillDescription.value = '';
-        
+
         // Scroll to top of form to show success message
         await nextTick();
         const formElement = document.querySelector('[data-skill-form]');
@@ -749,7 +885,7 @@ async function createAndAttachSkill() {
     } catch (err: unknown) {
         console.error('createAndAttachSkill error', err);
         let errorMsg = 'Error creando y asociando skill';
-        
+
         // Extraer mensaje de error de diferentes estructuras posibles
         if ((err as any)?.response?.data?.message) {
             errorMsg = (err as any).response.data.message;
@@ -758,7 +894,7 @@ async function createAndAttachSkill() {
         } else if (typeof err === 'string') {
             errorMsg = err;
         }
-        
+
         skillCreationError.value = errorMsg;
     } finally {
         savingSkill.value = false;
@@ -771,32 +907,58 @@ async function attachExistingSkill() {
     attachingSkill.value = true;
     try {
         // try backend attach endpoint, fall back to local optimistic attach
-        const compId = (selectedChild.value as any).compId ?? (selectedChild.value as any).raw?.id ?? Math.abs((selectedChild.value as any).id || 0);
+        const compId =
+            (selectedChild.value as any).compId ??
+            (selectedChild.value as any).raw?.id ??
+            Math.abs((selectedChild.value as any).id || 0);
         try {
-            await api.post(`/api/competencies/${compId}/skills`, { skill_id: selectedSkillId.value });
+            await api.post(`/api/competencies/${compId}/skills`, {
+                skill_id: selectedSkillId.value,
+            });
         } catch (err: unknown) {
-            const found = availableSkills.value.find((s: any) => s.id === selectedSkillId.value);
+            const found = availableSkills.value.find(
+                (s: any) => s.id === selectedSkillId.value,
+            );
             if (found) {
-                if (!Array.isArray((selectedChild.value as any).skills)) (selectedChild.value as any).skills = [];
+                if (!Array.isArray((selectedChild.value as any).skills))
+                    (selectedChild.value as any).skills = [];
                 (selectedChild.value as any).skills.push(found);
             }
         }
-        
+
         // Expand skills to show the newly attached skill immediately
         // Do this BEFORE closing the modal to ensure proper DOM updates
         if (selectedChild.value) {
             const compId = (selectedChild.value as any).id;
             const domPos = getNodeMapCenter(compId);
-            const renderedComp = renderedNodeById(compId) ?? selectedChild.value;
-            const preferred = (renderedComp && domPos) ? { x: renderedComp.x, y: domPos.y } : (renderedComp ?? domPos);
-            const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
+            const renderedComp =
+                renderedNodeById(compId) ?? selectedChild.value;
+            const preferred =
+                renderedComp && domPos
+                    ? { x: renderedComp.x, y: domPos.y }
+                    : (renderedComp ?? domPos);
+            const result = expandSkillsFromLayout(
+                selectedChild.value,
+                grandChildNodes.value,
+                grandChildEdges.value,
+                preferred,
+                { layout: 'auto' },
+                height.value,
+            );
             grandChildNodes.value = result.grandChildNodes;
             grandChildEdges.value = result.grandChildEdges;
             nextTick(() => {
-                grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+                grandChildNodes.value = grandChildNodes.value.map((g: any) => ({
+                    ...g,
+                    x: g.animTargetX ?? g.x,
+                    y: g.animTargetY ?? g.y,
+                    animScale: 1,
+                    animOpacity: 1,
+                    animFilter: 'none',
+                }));
             });
         }
-        
+
         selectSkillDialogVisible.value = false;
         selectedSkillId.value = null;
         showSuccess('Skill asociada');
@@ -811,60 +973,75 @@ async function attachExistingSkill() {
 async function deleteSelectedSkill() {
     const skill = selectedSkillForDeletion.value;
     if (!skill) return showError('No hay skill seleccionada para borrar');
-    
+
     try {
         // Find the parent competency
         let parentComp = selectedChild.value;
-        
+
         // If selectedChild is not set, try to find it from edges
         if (!parentComp && skill.id) {
-            const parentEdge = grandChildEdges.value?.find((e: any) => 
-                e.target === skill.id || e.target === `skill-${skill.id}`
+            const parentEdge = grandChildEdges.value?.find(
+                (e: any) =>
+                    e.target === skill.id || e.target === `skill-${skill.id}`,
             );
             if (parentEdge) {
-                const compId = typeof parentEdge.source === 'string' 
-                    ? parseInt(String(parentEdge.source).replace('comp-', ''))
-                    : parentEdge.source;
+                const compId =
+                    typeof parentEdge.source === 'string'
+                        ? parseInt(
+                              String(parentEdge.source).replace('comp-', ''),
+                          )
+                        : parentEdge.source;
                 parentComp = childNodes.value.find((c: any) => c.id === compId);
             }
         }
-        
+
         if (!parentComp) {
-            return showError('No se encontró la competencia padre de esta skill');
+            return showError(
+                'No se encontró la competencia padre de esta skill',
+            );
         }
-        
+
         // Now delete it
-        const compId = (parentComp as any).compId ?? (parentComp as any).raw?.id ?? Math.abs((parentComp as any).id || 0);
+        const compId =
+            (parentComp as any).compId ??
+            (parentComp as any).raw?.id ??
+            Math.abs((parentComp as any).id || 0);
         const skillId = skill.id ?? skill.raw?.id ?? null;
-        const pivotId = skill.pivot?.id ?? skill.raw?.pivot?.id ?? skill.raw?.pivot_id ?? null;
-        
+        const pivotId =
+            skill.pivot?.id ??
+            skill.raw?.pivot?.id ??
+            skill.raw?.pivot_id ??
+            null;
+
         if (pivotId) {
             await api.delete(`/api/competency-skills/${pivotId}`);
         } else if (compId && skillId) {
             try {
-                await api.delete(`/api/competencies/${compId}/skills/${skillId}`);
+                await api.delete(
+                    `/api/competencies/${compId}/skills/${skillId}`,
+                );
             } catch (e: unknown) {
                 console.error('Error deleting via competency endpoint:', e);
             }
         }
-        
+
         // Remove locally
         if (Array.isArray((parentComp as any).skills)) {
-            (parentComp as any).skills = (parentComp as any).skills.filter((s: any) => 
-                (s.id ?? s.raw?.id ?? s) !== (skillId ?? skill)
+            (parentComp as any).skills = (parentComp as any).skills.filter(
+                (s: any) => (s.id ?? s.raw?.id ?? s) !== (skillId ?? skill),
             );
         }
-        
+
         // Remove from grandChildNodes
-        grandChildNodes.value = grandChildNodes.value.filter((g) => 
-            (g.id ?? g.raw?.id ?? g) !== (skillId ?? skill)
+        grandChildNodes.value = grandChildNodes.value.filter(
+            (g) => (g.id ?? g.raw?.id ?? g) !== (skillId ?? skill),
         );
-        
+
         // Close modal and reset
         createSkillDialogVisible.value = false;
         selectedSkillForDeletion.value = null;
         focusedNode.value = null;
-        
+
         showSuccess('Skill eliminada correctamente');
     } catch (err: unknown) {
         console.error('deleteSelectedSkill error:', err);
@@ -878,50 +1055,70 @@ async function removeSkillFromCompetency(skill?: any) {
     if (!skillToDelete) return showError('No hay skill seleccionada');
     if (!selectedChild.value) return showError('Seleccione una competencia');
     if (!focusedNode.value) return showError('Seleccione una capacidad');
-    
+
     // Suppress watcher re-layout during deletion to avoid visual thrashing
     suppressWatcherLayout.value = true;
-    
+
     // Get the REAL competency ID from raw or compId (not the negative temporary ID)
-    const realCompetencyId = (selectedChild.value as any).raw?.id ?? (selectedChild.value as any).compId ?? (selectedChild.value as any).id;
+    const realCompetencyId =
+        (selectedChild.value as any).raw?.id ??
+        (selectedChild.value as any).compId ??
+        (selectedChild.value as any).id;
     const capabilityId = focusedNode.value?.id;
     const skillId = skillToDelete?.id ?? skillToDelete?.raw?.id ?? null;
-    
-    console.debug('[removeSkillFromCompetency]', { realCompetencyId, capabilityId, skillId, skillToDelete });
-    
+
+    console.debug('[removeSkillFromCompetency]', {
+        realCompetencyId,
+        capabilityId,
+        skillId,
+        skillToDelete,
+    });
+
     savingSkillDetail.value = true;
     try {
         let apiDeleted = false;
-        
+
         // Delete via the competency_skills endpoint
         if (realCompetencyId && skillId) {
             console.debug('[removeSkillFromCompetency] Attempting DELETE:', {
                 endpoint: `/api/competencies/${realCompetencyId}/skills/${skillId}`,
                 realCompetencyId,
-                skillId
+                skillId,
             });
             try {
-                const response = await api.delete(`/api/competencies/${realCompetencyId}/skills/${skillId}`);
+                const response = await api.delete(
+                    `/api/competencies/${realCompetencyId}/skills/${skillId}`,
+                );
                 apiDeleted = true;
-                console.debug('[removeSkillFromCompetency] SUCCESS: Deleted via backend', response);
+                console.debug(
+                    '[removeSkillFromCompetency] SUCCESS: Deleted via backend',
+                    response,
+                );
             } catch (e: unknown) {
-                console.debug('[removeSkillFromCompetency] FAILED: backend delete:', e);
+                console.debug(
+                    '[removeSkillFromCompetency] FAILED: backend delete:',
+                    e,
+                );
             }
         }
-        
+
         // Use composable to remove skill from all data sources (leaf to root)
         await hierarchicalUpdate.remove('skill', skillId, realCompetencyId);
-        
+
         // Also remove from availableSkills (global catalog) since skill is deleted from DB
         if (Array.isArray(availableSkills.value)) {
-            availableSkills.value = availableSkills.value.filter((s: any) => s.id !== skillId);
-            console.debug('[removeSkillFromCompetency] availableSkills filtered');
+            availableSkills.value = availableSkills.value.filter(
+                (s: any) => s.id !== skillId,
+            );
+            console.debug(
+                '[removeSkillFromCompetency] availableSkills filtered',
+            );
         }
-        
+
         // Close dialogs
         skillDetailDialogVisible.value = false;
         selectedSkillDetail.value = null;
-        
+
         showSuccess('Skill eliminada correctamente');
     } catch (err: unknown) {
         console.error('removeSkillFromCompetency error', err);
@@ -966,17 +1163,21 @@ function showOnlySelectedAndParent(childId: number, keepScenario = true) {
         const scenarioId = scenarioNode.value?.id ?? null;
         nodes.value = nodes.value.map((n: any) => {
             if (n.id === parentId) return { ...n, visible: true };
-            if (keepScenario && n.id === scenarioId) return { ...n, visible: true };
+            if (keepScenario && n.id === scenarioId)
+                return { ...n, visible: true };
             return { ...n, visible: false };
         });
 
         childNodes.value = childNodes.value.map((c: any) => {
             if (c.id === childId) return { ...c, visible: true };
             // keep siblings of same parent visible (optional) — hide them to show only selected
-            if (c.__parentId === parentId || c.parentId === parentId) return { ...c, visible: false };
+            if (c.__parentId === parentId || c.parentId === parentId)
+                return { ...c, visible: false };
             return { ...c, visible: false };
         });
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
 }
 
 function syncSliderFromScroll() {
@@ -1017,27 +1218,30 @@ const viewportStyle = computed(() => ({
 // Zoom handler: Ctrl + Wheel to zoom
 function handleZoom(event: WheelEvent) {
     if (!event.ctrlKey) return;
-    
+
     event.preventDefault();
-    
+
     // Posición del cursor relativa al SVG
     const svg = event.currentTarget as SVGSVGElement;
     const rect = svg.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
-    
+
     // Convertir a coordenadas del viewport (antes del zoom)
     const viewportX = (mouseX - viewX.value) / viewScale.value;
     const viewportY = (mouseY - viewY.value) / viewScale.value;
-    
+
     // Nuevo zoom
     const delta = event.deltaY > 0 ? -ZOOM_SPEED : ZOOM_SPEED;
-    const newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, viewScale.value + delta));
-    
+    const newScale = Math.max(
+        MIN_ZOOM,
+        Math.min(MAX_ZOOM, viewScale.value + delta),
+    );
+
     // Ajustar pan para mantener el cursor en el mismo lugar
     viewX.value = mouseX - viewportX * newScale;
     viewY.value = mouseY - viewportY * newScale;
-    
+
     viewScale.value = newScale;
 }
 
@@ -1045,34 +1249,35 @@ function handleZoom(event: WheelEvent) {
 function handleMouseDown(event: MouseEvent) {
     // Ignorar si es clic derecho o si el target es un nodo/elemento interactivo
     if (event.button !== 0) return;
-    
+
     const target = event.target as HTMLElement;
     // No iniciar pan si se hace clic en elementos interactivos
-    if (target.closest('.node-group, button, input, [data-interactive]')) return;
-    
+    if (target.closest('.node-group, button, input, [data-interactive]'))
+        return;
+
     isPanning.value = true;
     panStartX.value = event.clientX;
     panStartY.value = event.clientY;
     panStartViewX.value = viewX.value;
     panStartViewY.value = viewY.value;
-    
+
     // Cambiar cursor para indicar pan
     (event.currentTarget as SVGSVGElement).style.cursor = 'grabbing';
 }
 
 function handleMouseMove(event: MouseEvent) {
     if (!isPanning.value) return;
-    
+
     const deltaX = event.clientX - panStartX.value;
     const deltaY = event.clientY - panStartY.value;
-    
+
     viewX.value = panStartViewX.value + deltaX;
     viewY.value = panStartViewY.value + deltaY;
 }
 
 function handleMouseUp(event: MouseEvent) {
     if (!isPanning.value) return;
-    
+
     isPanning.value = false;
     (event.currentTarget as SVGSVGElement).style.cursor = 'default';
 }
@@ -1097,13 +1302,17 @@ function wait(ms: number) {
 
 // Wait until the element for a node finishes its CSS transition (transform).
 // Resolves true if transitionend fired, false if timed out or not found.
-function waitForTransitionForNode(nodeId: number | string, timeoutMs = TRANSITION_MS * 2 + TRANSITION_BUFFER) {
+function waitForTransitionForNode(
+    nodeId: number | string,
+    timeoutMs = TRANSITION_MS * 2 + TRANSITION_BUFFER,
+) {
     return new Promise<boolean>((resolve) => {
         const sel = `[data-node-id="${nodeId}"]`;
         let el: Element | null = document.querySelector(sel);
         let timer: ReturnType<typeof setTimeout> | null = null;
         const cleanup = () => {
-            if (el) el.removeEventListener('transitionend', onEnd as EventListener);
+            if (el)
+                el.removeEventListener('transitionend', onEnd as EventListener);
             if (timer) clearTimeout(timer);
         };
         const onEnd = (ev: Event) => {
@@ -1145,13 +1354,15 @@ function getNodeMapCenter(nodeId: number | string) {
         if (!el) return undefined;
         const mapRect = mapRoot.value.getBoundingClientRect();
         const nodeRect = el.getBoundingClientRect();
-        const xScreen = (nodeRect.left + nodeRect.width / 2) - mapRect.left;
-        const yScreen = (nodeRect.top + nodeRect.height / 2) - mapRect.top;
-        const scale = (viewScale.value || 1);
+        const xScreen = nodeRect.left + nodeRect.width / 2 - mapRect.left;
+        const yScreen = nodeRect.top + nodeRect.height / 2 - mapRect.top;
+        const scale = viewScale.value || 1;
         const xMap = Math.round((xScreen - (viewX.value || 0)) / scale);
         const yMap = Math.round((yScreen - (viewY.value || 0)) / scale);
         return { x: xMap, y: yMap };
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
     return undefined;
 }
 
@@ -1171,7 +1382,11 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
             originalPositions.value.set(n.id, { x: n.x ?? 0, y: n.y ?? 0 });
         });
         // also save scenario node if present
-        if (scenarioNode.value) originalPositions.value.set(scenarioNode.value.id, { x: scenarioNode.value.x, y: scenarioNode.value.y });
+        if (scenarioNode.value)
+            originalPositions.value.set(scenarioNode.value.id, {
+                x: scenarioNode.value.x,
+                y: scenarioNode.value.y,
+            });
     }
 
     // If there was a previously focused node, swap positions with it and keep others unchanged.
@@ -1219,7 +1434,11 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
     // Sort remaining nodes by their original X (fallback to current x), then split into two halves
     const others = nodes.value.filter((n) => n && n.id !== node.id);
     const othersSorted = others
-        .map((n) => ({ n, origX: n.x ?? originalPositions.value.get(n.id)?.x ?? width.value / 2 }))
+        .map((n) => ({
+            n,
+            origX:
+                n.x ?? originalPositions.value.get(n.id)?.x ?? width.value / 2,
+        }))
         .sort((a, b) => a.origX - b.origX)
         .map((o) => o.n);
     const mid = Math.ceil(othersSorted.length / 2);
@@ -1227,7 +1446,8 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
     const rightGroup = othersSorted.slice(mid);
 
     // sort by original Y to keep visual order
-    const getOrigY = (n: any) => n.y ?? originalPositions.value.get(n.id)?.y ?? centerY;
+    const getOrigY = (n: any) =>
+        n.y ?? originalPositions.value.get(n.id)?.y ?? centerY;
     leftGroup.sort((a, b) => getOrigY(a) - getOrigY(b));
     rightGroup.sort((a, b) => getOrigY(a) - getOrigY(b));
 
@@ -1235,7 +1455,11 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
     const minY = 64;
     const maxY = Math.max(120, height.value - 64);
 
-    const distribute = (group: any[], targetX: number, side: 'left' | 'right') => {
+    const distribute = (
+        group: any[],
+        targetX: number,
+        side: 'left' | 'right',
+    ) => {
         if (group.length === 0) return;
         const len = group.length;
         // compute spacing dynamically based on available vertical space to avoid overlaps
@@ -1244,7 +1468,13 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
         const FOCUS_RADIUS = 34;
         const minSpacing = Math.max(48, FOCUS_RADIUS * 2 + 8); // safe minimum spacing between centers
         const maxSpacing = 140; // cap spacing to avoid overly spread columns
-        const spacing = len > 1 ? Math.min(maxSpacing, Math.max(minSpacing, Math.floor(available / (len - 1)))) : 0;
+        const spacing =
+            len > 1
+                ? Math.min(
+                      maxSpacing,
+                      Math.max(minSpacing, Math.floor(available / (len - 1))),
+                  )
+                : 0;
 
         // protect a vertical band around the focused node so distributed nodes don't overlap it
         const focusBand = Math.round(FOCUS_RADIUS + 12);
@@ -1257,17 +1487,28 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
             let startY = Math.round(centerY - ((len - 1) * spacing) / 2);
             const endY = startY + (len - 1) * spacing;
             // If this span intersects the protected focused band, shift up or down to avoid overlap
-            const intersectsProtected = !(endY < protectedTop || startY > protectedBottom);
+            const intersectsProtected = !(
+                endY < protectedTop || startY > protectedBottom
+            );
             if (intersectsProtected) {
                 // prefer shifting up if there is more room above, otherwise shift down
                 const roomAbove = protectedTop - minY;
                 const roomBelow = maxY - protectedBottom;
                 if (roomAbove >= roomBelow) {
-                    const shift = Math.min(roomAbove, protectedBottom - startY + focusBand);
+                    const shift = Math.min(
+                        roomAbove,
+                        protectedBottom - startY + focusBand,
+                    );
                     startY = Math.max(minY, startY - shift);
                 } else {
-                    const shift = Math.min(roomBelow, endY - protectedTop + focusBand);
-                    startY = Math.min(maxY - (len - 1) * spacing, startY + shift);
+                    const shift = Math.min(
+                        roomBelow,
+                        endY - protectedTop + focusBand,
+                    );
+                    startY = Math.min(
+                        maxY - (len - 1) * spacing,
+                        startY + shift,
+                    );
                 }
             }
 
@@ -1288,16 +1529,25 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
         for (let c = 0; c < cols; c++) {
             const colItems = group.slice(c * perCol, c * perCol + perCol);
             const colLen = colItems.length;
-            const colSpacing = colLen > 1 ? Math.min(spacing, Math.floor(available / (colLen - 1))) : 0;
-            const startY = Math.round(centerY - ((colLen - 1) * colSpacing) / 2);
+            const colSpacing =
+                colLen > 1
+                    ? Math.min(spacing, Math.floor(available / (colLen - 1)))
+                    : 0;
+            const startY = Math.round(
+                centerY - ((colLen - 1) * colSpacing) / 2,
+            );
             // compute x offset for this sub-column
-            const offsetMult = (c - (cols - 1) / 2);
-            const xOffset = Math.round(offsetMult * colGap) * (side === 'left' ? -1 : 1);
+            const offsetMult = c - (cols - 1) / 2;
+            const xOffset =
+                Math.round(offsetMult * colGap) * (side === 'left' ? -1 : 1);
             const colX = targetX + xOffset;
             for (let i = 0; i < colLen; i++) {
                 const n = colItems[i];
                 const proposedY = startY + i * colSpacing;
-                n.x = Math.min(Math.max(32, colX), Math.max(48, width.value - 32));
+                n.x = Math.min(
+                    Math.max(32, colX),
+                    Math.max(48, width.value - 32),
+                );
                 n.y = clampYFromLayout(proposedY);
             }
         }
@@ -1311,10 +1561,19 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
     nodes.value = nodes.value.map((n) => {
         if (!n) return n;
         if (n.id === node.id) return { ...n, x: centerX, y: centerY } as any;
-        const matched = leftGroup.find((m) => m.id === n.id) || rightGroup.find((m) => m.id === n.id);
+        const matched =
+            leftGroup.find((m) => m.id === n.id) ||
+            rightGroup.find((m) => m.id === n.id);
         if (matched) return { ...n, x: matched.x, y: matched.y } as any;
         // fallback: clamp existing
-        return { ...n, x: Math.min(Math.max(48, n.x ?? centerX), Math.max(160, width.value - 48)), y: clampYFromLayout(n.y ?? centerY) } as any;
+        return {
+            ...n,
+            x: Math.min(
+                Math.max(48, n.x ?? centerX),
+                Math.max(160, width.value - 48),
+            ),
+            y: clampYFromLayout(n.y ?? centerY),
+        } as any;
     });
 
     // Position scenario node (if following) relative to focused node
@@ -1330,7 +1589,8 @@ function centerOnNode(node: NodeItem, prev?: NodeItem) {
 function setScenarioInitial() {
     scenarioNode.value = {
         id: 0,
-        name: (props.scenario && (props.scenario.name || 'Escenario')) as string,
+        name: (props.scenario &&
+            (props.scenario.name || 'Escenario')) as string,
         x: Math.round(width.value / 2),
         y: Math.round(height.value * 0.1),
     };
@@ -1369,12 +1629,25 @@ async function handleScenarioClick() {
 watch(focusedNode, (nv) => {
     try {
         if (nv && (window as any).__DEBUG__) {
-            const parentId = ((nv as any).id != null && (nv as any).id < 0)
-                ? (childEdges.value.find((e) => e.target === (nv as any).id)?.source ?? null)
-                : null;
-            console.debug('[focusedNode.change] id=', (nv as any).id, 'level=', nodeLevel((nv as any).id), 'isChild=', !!(((nv as any).skills) || (nv as any).compId), 'parentId=', parentId);
+            const parentId =
+                (nv as any).id != null && (nv as any).id < 0
+                    ? (childEdges.value.find((e) => e.target === (nv as any).id)
+                          ?.source ?? null)
+                    : null;
+            console.debug(
+                '[focusedNode.change] id=',
+                (nv as any).id,
+                'level=',
+                nodeLevel((nv as any).id),
+                'isChild=',
+                !!((nv as any).skills || (nv as any).compId),
+                'parentId=',
+                parentId,
+            );
         }
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
     if (!nv) {
         editCapName.value = '';
         editCapDescription.value = '';
@@ -1390,8 +1663,10 @@ watch(focusedNode, (nv) => {
     }
     // populate from focused node and its raw payload if present
     editCapName.value = (nv as any).name ?? '';
-    editCapDescription.value = (nv as any).description ?? (nv as any).raw?.description ?? '';
-    editCapImportance.value = (nv as any).importance ?? (nv as any).raw?.importance ?? undefined;
+    editCapDescription.value =
+        (nv as any).description ?? (nv as any).raw?.description ?? '';
+    editCapImportance.value =
+        (nv as any).importance ?? (nv as any).raw?.importance ?? undefined;
     editCapLevel.value = (nv as any).level ?? null;
 
     // robust resolver (mirror behaviour in `resetFocusedEdits`) to handle
@@ -1410,20 +1685,40 @@ watch(focusedNode, (nv) => {
 
     try {
         const _t = resolveField('type');
-        editCapType.value = typeof _t === 'string' ? _t.toLowerCase() : (_t != null ? String(_t).toLowerCase() : '');
-    } catch (err: unknown) { editCapType.value = '' }
+        editCapType.value =
+            typeof _t === 'string'
+                ? _t.toLowerCase()
+                : _t != null
+                  ? String(_t).toLowerCase()
+                  : '';
+    } catch (err: unknown) {
+        editCapType.value = '';
+    }
     try {
         const _c = resolveField('category');
-        editCapCategory.value = typeof _c === 'string' ? _c.toLowerCase() : (_c != null ? String(_c).toLowerCase() : '');
-    } catch (err: unknown) { editCapCategory.value = '' }
+        editCapCategory.value =
+            typeof _c === 'string'
+                ? _c.toLowerCase()
+                : _c != null
+                  ? String(_c).toLowerCase()
+                  : '';
+    } catch (err: unknown) {
+        editCapCategory.value = '';
+    }
 
     // pivot values: try several locations
-    editPivotStrategicRole.value = (nv as any).strategic_role ?? (nv as any).raw?.strategic_role ?? 'target';
+    editPivotStrategicRole.value =
+        (nv as any).strategic_role ??
+        (nv as any).raw?.strategic_role ??
+        'target';
     editPivotStrategicWeight.value = (nv as any).raw?.strategic_weight ?? 10;
     editPivotPriority.value = (nv as any).raw?.priority ?? 1;
     editPivotRationale.value = (nv as any).raw?.rationale ?? '';
-    editPivotRequiredLevel.value = (nv as any).raw?.required_level ?? (nv as any).required ?? 3;
-    editPivotIsCritical.value = !!((nv as any).raw?.is_critical || (nv as any).is_critical);
+    editPivotRequiredLevel.value =
+        (nv as any).raw?.required_level ?? (nv as any).required ?? 3;
+    editPivotIsCritical.value = !!(
+        (nv as any).raw?.is_critical || (nv as any).is_critical
+    );
     // Ensure grandChild nodes (skills) are collapsed when focus changes to a different capability
     try {
         const sel = selectedChild.value;
@@ -1433,21 +1728,29 @@ watch(focusedNode, (nv) => {
             selectedChild.value = null;
         } else if (sel) {
             // if the selectedChild does not belong to the new focused node, collapse skills
-            const parentEdge = childEdges.value.find((e) => e.target === (sel as any).id);
+            const parentEdge = childEdges.value.find(
+                (e) => e.target === (sel as any).id,
+            );
             const parentId = parentEdge ? parentEdge.source : null;
             if (parentId !== (nv as any).id) {
                 collapseGrandChildren();
                 selectedChild.value = null;
             }
         }
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
 });
 
 // populate selectedChild edit fields when selection changes
 watch(selectedChild, (nv) => {
     if (!nv) {
         // clear any expanded skills when selection cleared
-        try { collapseGrandChildren(); } catch (err: unknown) { void err; }
+        try {
+            collapseGrandChildren();
+        } catch (err: unknown) {
+            void err;
+        }
         editChildName.value = '';
         editChildDescription.value = '';
         editChildReadiness.value = null;
@@ -1464,15 +1767,26 @@ watch(selectedChild, (nv) => {
     if (!suppressWatcherLayout.value) {
         try {
             if (focusedNode.value) {
-                expandCompetencies(focusedNode.value as NodeItem, { x: focusedNode.value.x ?? 0, y: focusedNode.value.y ?? 0 }, { layout: 'auto' });
+                expandCompetencies(
+                    focusedNode.value as NodeItem,
+                    {
+                        x: focusedNode.value.x ?? 0,
+                        y: focusedNode.value.y ?? 0,
+                    },
+                    { layout: 'auto' },
+                );
             }
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
     }
     editChildName.value = nv.name ?? nv.raw?.name ?? '';
     editChildDescription.value = nv.description ?? nv.raw?.description ?? '';
     editChildReadiness.value = nv.readiness ?? nv.raw?.readiness ?? null;
     // skills may come as array
-    const skillsArr = Array.isArray(nv.skills) ? nv.skills.map((s: any) => s.name ?? s) : [];
+    const skillsArr = Array.isArray(nv.skills)
+        ? nv.skills.map((s: any) => s.name ?? s)
+        : [];
     editChildSkills.value = skillsArr.join(', ');
     // try to obtain pivot values from raw.pivot or raw.pivot_data
     const pivot = nv.raw?.pivot ?? nv.raw?.capability_pivot ?? {};
@@ -1492,7 +1806,7 @@ watch(createCompDialogVisible, (isVisible) => {
 
 function resetFocusedEdits() {
     // reset edits to current focusedNode state
-        if (focusedNode.value) {
+    if (focusedNode.value) {
         const f = focusedNode.value as any;
         // helper to robustly resolve a field from node or raw payload
         const resolveField = (key: string) => {
@@ -1509,40 +1823,118 @@ function resetFocusedEdits() {
 
         editCapName.value = f.name ?? '';
         editCapDescription.value = f.description ?? f.raw?.description ?? '';
-        editCapImportance.value = f.importance ?? f.raw?.importance ?? undefined;
+        editCapImportance.value =
+            f.importance ?? f.raw?.importance ?? undefined;
         editCapLevel.value = f.level ?? null;
         // normalize to match the v-select items (lowercase string values)
         try {
             const _t = resolveField('type');
-            editCapType.value = typeof _t === 'string' ? _t.toLowerCase() : (_t != null ? String(_t).toLowerCase() : '');
-        } catch (err: unknown) { editCapType.value = '' }
+            editCapType.value =
+                typeof _t === 'string'
+                    ? _t.toLowerCase()
+                    : _t != null
+                      ? String(_t).toLowerCase()
+                      : '';
+        } catch (err: unknown) {
+            editCapType.value = '';
+        }
         try {
             const _c = resolveField('category');
-            editCapCategory.value = typeof _c === 'string' ? _c.toLowerCase() : (_c != null ? String(_c).toLowerCase() : '');
-        } catch (err: unknown) { editCapCategory.value = '' }
+            editCapCategory.value =
+                typeof _c === 'string'
+                    ? _c.toLowerCase()
+                    : _c != null
+                      ? String(_c).toLowerCase()
+                      : '';
+        } catch (err: unknown) {
+            editCapCategory.value = '';
+        }
         try {
             // Provide more detailed inspection to diagnose missing type/category after tree refresh
             const raw = f.raw ?? {};
             let rawKeys: string[] = [];
-            try { rawKeys = Object.keys(raw); } catch (err: unknown) { rawKeys = []; }
-            console.debug('[resetFocusedEdits] resolved type=', editCapType.value, 'category=', editCapCategory.value);
+            try {
+                rawKeys = Object.keys(raw);
+            } catch (err: unknown) {
+                rawKeys = [];
+            }
+            console.debug(
+                '[resetFocusedEdits] resolved type=',
+                editCapType.value,
+                'category=',
+                editCapCategory.value,
+            );
             console.debug('[resetFocusedEdits] raw keys=', rawKeys);
-            try { console.debug('[resetFocusedEdits] raw.capability=', raw?.capability); } catch (err: unknown) { void err; }
-            try { console.debug('[resetFocusedEdits] raw.scenario_capabilities=', raw?.scenario_capabilities); } catch (err: unknown) { void err; }
-            try { console.debug('[resetFocusedEdits] raw.pivot=', raw?.pivot); } catch (err: unknown) { void err; }
-            try { console.debug('[resetFocusedEdits] capabilityTreeRaw sample=', capabilityTreeRaw?.value ? (Array.isArray(capabilityTreeRaw.value) ? capabilityTreeRaw.value.find((x: any) => x.id == f.id) : capabilityTreeRaw.value) : null); } catch (err: unknown) { void err; }
-        } catch (err: unknown) { void err; }
-        editPivotStrategicRole.value = f.strategic_role ?? f.raw?.strategic_role ?? 'target';
+            try {
+                console.debug(
+                    '[resetFocusedEdits] raw.capability=',
+                    raw?.capability,
+                );
+            } catch (err: unknown) {
+                void err;
+            }
+            try {
+                console.debug(
+                    '[resetFocusedEdits] raw.scenario_capabilities=',
+                    raw?.scenario_capabilities,
+                );
+            } catch (err: unknown) {
+                void err;
+            }
+            try {
+                console.debug('[resetFocusedEdits] raw.pivot=', raw?.pivot);
+            } catch (err: unknown) {
+                void err;
+            }
+            try {
+                console.debug(
+                    '[resetFocusedEdits] capabilityTreeRaw sample=',
+                    capabilityTreeRaw?.value
+                        ? Array.isArray(capabilityTreeRaw.value)
+                            ? capabilityTreeRaw.value.find(
+                                  (x: any) => x.id == f.id,
+                              )
+                            : capabilityTreeRaw.value
+                        : null,
+                );
+            } catch (err: unknown) {
+                void err;
+            }
+        } catch (err: unknown) {
+            void err;
+        }
+        editPivotStrategicRole.value =
+            f.strategic_role ?? f.raw?.strategic_role ?? 'target';
         // Normalize pivot sources: pivot may live under several keys depending on backend
         const raw = f.raw ?? {};
-        let pivotSrc: any = raw.pivot ?? raw.scenario_capabilities ?? raw.scenario_capability ?? raw._pivot ?? null;
+        let pivotSrc: any =
+            raw.pivot ??
+            raw.scenario_capabilities ??
+            raw.scenario_capability ??
+            raw._pivot ??
+            null;
         if (Array.isArray(pivotSrc)) pivotSrc = pivotSrc[0] ?? null;
         editPivotStrategicWeight.value =
-            (f.strategic_weight ?? pivotSrc?.strategic_weight ?? raw.strategic_weight) ?? 10;
-        editPivotPriority.value = (f.priority ?? pivotSrc?.priority ?? raw.priority) ?? 1;
-        editPivotRationale.value = (f.rationale ?? pivotSrc?.rationale ?? raw.rationale) ?? '';
-        editPivotRequiredLevel.value = (f.required_level ?? pivotSrc?.required_level ?? raw.required_level ?? f.required) ?? 3;
-        editPivotIsCritical.value = !!(f.is_critical ?? pivotSrc?.is_critical ?? raw.is_critical ?? f.is_critical);
+            f.strategic_weight ??
+            pivotSrc?.strategic_weight ??
+            raw.strategic_weight ??
+            10;
+        editPivotPriority.value =
+            f.priority ?? pivotSrc?.priority ?? raw.priority ?? 1;
+        editPivotRationale.value =
+            f.rationale ?? pivotSrc?.rationale ?? raw.rationale ?? '';
+        editPivotRequiredLevel.value =
+            f.required_level ??
+            pivotSrc?.required_level ??
+            raw.required_level ??
+            f.required ??
+            3;
+        editPivotIsCritical.value = !!(
+            f.is_critical ??
+            pivotSrc?.is_critical ??
+            raw.is_critical ??
+            f.is_critical
+        );
     }
 }
 
@@ -1556,7 +1948,10 @@ async function saveFocusedNode() {
         const capPayload: any = {
             name: editCapName.value,
             description: editCapDescription.value,
-            importance: typeof editCapImportance.value !== 'undefined' ? Number(editCapImportance.value) : undefined,
+            importance:
+                typeof editCapImportance.value !== 'undefined'
+                    ? Number(editCapImportance.value)
+                    : undefined,
             position_x: (focusedNode.value as any).x ?? undefined,
             position_y: (focusedNode.value as any).y ?? undefined,
             type: editCapType.value || undefined,
@@ -1564,9 +1959,18 @@ async function saveFocusedNode() {
         };
 
         try {
-            console.debug('[saveFocusedNode] PATCH /api/capabilities/' + id, capPayload);
-            const capRes: any = await api.patch(`/api/capabilities/${id}`, capPayload);
-            console.debug('[saveFocusedNode] PATCH /api/capabilities response', capRes);
+            console.debug(
+                '[saveFocusedNode] PATCH /api/capabilities/' + id,
+                capPayload,
+            );
+            const capRes: any = await api.patch(
+                `/api/capabilities/${id}`,
+                capPayload,
+            );
+            console.debug(
+                '[saveFocusedNode] PATCH /api/capabilities response',
+                capRes,
+            );
             showSuccess('Capacidad actualizada');
             // optimistic local update
             try {
@@ -1576,64 +1980,107 @@ async function saveFocusedNode() {
                     fd.category = editCapCategory.value || fd.category;
                     fd.raw = { ...(fd.raw || {}), ...(capRes?.data ?? {}) };
                 }
-            } catch (err: unknown) { void err; }
+            } catch (err: unknown) {
+                void err;
+            }
         } catch (errCap: unknown) {
             try {
                 const _err: any = errCap as any;
                 const status = _err?.response?.status ?? null;
-                console.error('[saveFocusedNode] error PATCH /api/capabilities/' + id, _err?.response?.data ?? _err);
+                console.error(
+                    '[saveFocusedNode] error PATCH /api/capabilities/' + id,
+                    _err?.response?.data ?? _err,
+                );
                 if (status !== 404) {
-                    showError(_err?.response?.data?.message || 'Error actualizando capacidad');
+                    showError(
+                        _err?.response?.data?.message ||
+                            'Error actualizando capacidad',
+                    );
                 }
-            } catch (errInner: unknown) { void errInner; }
+            } catch (errInner: unknown) {
+                void errInner;
+            }
         }
 
         // 2) attempt to update pivot via best-effort PATCH endpoint
         const pivotPayload = {
             strategic_role: editPivotStrategicRole.value,
-            strategic_weight: typeof editPivotStrategicWeight.value !== 'undefined' ? Number(editPivotStrategicWeight.value) : undefined,
-            priority: typeof editPivotPriority.value !== 'undefined' ? Number(editPivotPriority.value) : undefined,
+            strategic_weight:
+                typeof editPivotStrategicWeight.value !== 'undefined'
+                    ? Number(editPivotStrategicWeight.value)
+                    : undefined,
+            priority:
+                typeof editPivotPriority.value !== 'undefined'
+                    ? Number(editPivotPriority.value)
+                    : undefined,
             rationale: editPivotRationale.value,
-            required_level: typeof editPivotRequiredLevel.value !== 'undefined' ? Number(editPivotRequiredLevel.value) : undefined,
+            required_level:
+                typeof editPivotRequiredLevel.value !== 'undefined'
+                    ? Number(editPivotRequiredLevel.value)
+                    : undefined,
             is_critical: !!editPivotIsCritical.value,
         };
 
         try {
             if (!props.scenario || !props.scenario.id) {
-                console.warn('[saveFocusedNode] no scenario context available; skipping pivot update');
+                console.warn(
+                    '[saveFocusedNode] no scenario context available; skipping pivot update',
+                );
             } else {
-                console.debug('[saveFocusedNode] PATCH pivot', { scenarioId: props.scenario?.id, id, pivotPayload });
+                console.debug('[saveFocusedNode] PATCH pivot', {
+                    scenarioId: props.scenario?.id,
+                    id,
+                    pivotPayload,
+                });
                 let pivotResp: any = null;
                 try {
-                    pivotResp = await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`, pivotPayload);
+                    pivotResp = await api.patch(
+                        `/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`,
+                        pivotPayload,
+                    );
                     showSuccess('Relación escenario–capacidad actualizada');
                 } catch (errPivot: unknown) {
-                    console.error('[saveFocusedNode] error PATCH pivot', (errPivot as any)?.response?.data ?? errPivot);
+                    console.error(
+                        '[saveFocusedNode] error PATCH pivot',
+                        (errPivot as any)?.response?.data ?? errPivot,
+                    );
                     try {
                         // fallback: POST to create association (if missing)
-                        pivotResp = await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities`, {
-                            name: editCapName.value,
-                            description: editCapDescription.value || '',
-                            importance: editCapImportance.value ?? 3,
-                            type: editCapType.value ?? null,
-                            category: editCapCategory.value ?? null,
-                            strategic_role: pivotPayload.strategic_role,
-                            strategic_weight: pivotPayload.strategic_weight,
-                            priority: pivotPayload.priority,
-                            rationale: pivotPayload.rationale,
-                            required_level: pivotPayload.required_level,
-                            is_critical: pivotPayload.is_critical,
-                        });
+                        pivotResp = await api.post(
+                            `/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities`,
+                            {
+                                name: editCapName.value,
+                                description: editCapDescription.value || '',
+                                importance: editCapImportance.value ?? 3,
+                                type: editCapType.value ?? null,
+                                category: editCapCategory.value ?? null,
+                                strategic_role: pivotPayload.strategic_role,
+                                strategic_weight: pivotPayload.strategic_weight,
+                                priority: pivotPayload.priority,
+                                rationale: pivotPayload.rationale,
+                                required_level: pivotPayload.required_level,
+                                is_critical: pivotPayload.is_critical,
+                            },
+                        );
                         showSuccess('Relación actualizada (fallback)');
                     } catch (err2: unknown) {
-                        console.error('[saveFocusedNode] error POST pivot fallback', (err2 as any)?.response?.data ?? err2);
-                        showError('No se pudo actualizar la relación. Verifica el backend.');
+                        console.error(
+                            '[saveFocusedNode] error POST pivot fallback',
+                            (err2 as any)?.response?.data ?? err2,
+                        );
+                        showError(
+                            'No se pudo actualizar la relación. Verifica el backend.',
+                        );
                     }
                 }
 
                 // Merge pivot updates into local node state if backend returned something useful
                 try {
-                    const updated = (pivotResp?.data?.updated ?? pivotResp?.data ?? pivotResp) || null;
+                    const updated =
+                        (pivotResp?.data?.updated ??
+                            pivotResp?.data ??
+                            pivotResp) ||
+                        null;
                     if (updated && typeof updated === 'object') {
                         // The backend may return only the changed fields in `updated`, or the whole relation.
                         const pivotUpdates = updated.updated ?? updated;
@@ -1641,27 +2088,59 @@ async function saveFocusedNode() {
                         // Update nodes array and focusedNode.raw.scenario_capabilities (best-effort)
                         nodes.value = nodes.value.map((n: any) => {
                             if (n.id === id) {
-                                const raw = { ...(n.raw ?? {}), scenario_capabilities: Array.isArray(n.raw?.scenario_capabilities) ? n.raw.scenario_capabilities : [n.raw.scenario_capabilities].filter(Boolean) };
+                                const raw = {
+                                    ...(n.raw ?? {}),
+                                    scenario_capabilities: Array.isArray(
+                                        n.raw?.scenario_capabilities,
+                                    )
+                                        ? n.raw.scenario_capabilities
+                                        : [n.raw.scenario_capabilities].filter(
+                                              Boolean,
+                                          ),
+                                };
                                 // merge pivot fields into the first pivot entry
-                                raw.scenario_capabilities = raw.scenario_capabilities || [];
-                                if (raw.scenario_capabilities.length === 0) raw.scenario_capabilities.push({});
-                                raw.scenario_capabilities[0] = { ...(raw.scenario_capabilities[0] || {}), ...(pivotObj || {}) };
+                                raw.scenario_capabilities =
+                                    raw.scenario_capabilities || [];
+                                if (raw.scenario_capabilities.length === 0)
+                                    raw.scenario_capabilities.push({});
+                                raw.scenario_capabilities[0] = {
+                                    ...(raw.scenario_capabilities[0] || {}),
+                                    ...(pivotObj || {}),
+                                };
                                 return { ...n, raw } as any;
                             }
                             return n;
                         });
-                        if (focusedNode.value && (focusedNode.value as any).id === id) {
-                            const fnRaw = { ...(((focusedNode.value as any).raw) ?? {}) };
-                            fnRaw.scenario_capabilities = fnRaw.scenario_capabilities || [];
-                            if (fnRaw.scenario_capabilities.length === 0) fnRaw.scenario_capabilities.push({});
-                            fnRaw.scenario_capabilities[0] = { ...(fnRaw.scenario_capabilities[0] || {}), ...(pivotObj || {}) };
-                            focusedNode.value = { ...(focusedNode.value as any), raw: fnRaw } as any;
+                        if (
+                            focusedNode.value &&
+                            (focusedNode.value as any).id === id
+                        ) {
+                            const fnRaw = {
+                                ...((focusedNode.value as any).raw ?? {}),
+                            };
+                            fnRaw.scenario_capabilities =
+                                fnRaw.scenario_capabilities || [];
+                            if (fnRaw.scenario_capabilities.length === 0)
+                                fnRaw.scenario_capabilities.push({});
+                            fnRaw.scenario_capabilities[0] = {
+                                ...(fnRaw.scenario_capabilities[0] || {}),
+                                ...(pivotObj || {}),
+                            };
+                            focusedNode.value = {
+                                ...(focusedNode.value as any),
+                                raw: fnRaw,
+                            } as any;
                         }
                     }
-                } catch (err: unknown) { void err; }
+                } catch (err: unknown) {
+                    void err;
+                }
             }
         } catch (outerErr: unknown) {
-            console.error('[saveFocusedNode] unexpected error in pivot update flow', outerErr);
+            console.error(
+                '[saveFocusedNode] unexpected error in pivot update flow',
+                outerErr,
+            );
         }
 
         // update local node immediately so UI reflects changes
@@ -1669,8 +2148,18 @@ async function saveFocusedNode() {
             const nid = (focusedNode.value as any)?.id ?? id;
             nodes.value = nodes.value.map((n: any) => {
                 if (n.id === nid) {
-                    const updatedRaw = { ...(n.raw ?? {}), type: editCapType.value ?? (n.raw?.type ?? null), category: editCapCategory.value ?? (n.raw?.category ?? null) };
-                    return { ...n, type: editCapType.value ?? n.type, category: editCapCategory.value ?? n.category, raw: updatedRaw } as any;
+                    const updatedRaw = {
+                        ...(n.raw ?? {}),
+                        type: editCapType.value ?? n.raw?.type ?? null,
+                        category:
+                            editCapCategory.value ?? n.raw?.category ?? null,
+                    };
+                    return {
+                        ...n,
+                        type: editCapType.value ?? n.type,
+                        category: editCapCategory.value ?? n.category,
+                        raw: updatedRaw,
+                    } as any;
                 }
                 return n;
             });
@@ -1678,11 +2167,23 @@ async function saveFocusedNode() {
                 focusedNode.value = {
                     ...(focusedNode.value as any),
                     type: editCapType.value ?? (focusedNode.value as any).type,
-                    category: editCapCategory.value ?? (focusedNode.value as any).category,
-                    raw: { ...((focusedNode.value as any).raw ?? {}), type: editCapType.value ?? (focusedNode.value as any).raw?.type, category: editCapCategory.value ?? (focusedNode.value as any).raw?.category },
+                    category:
+                        editCapCategory.value ??
+                        (focusedNode.value as any).category,
+                    raw: {
+                        ...((focusedNode.value as any).raw ?? {}),
+                        type:
+                            editCapType.value ??
+                            (focusedNode.value as any).raw?.type,
+                        category:
+                            editCapCategory.value ??
+                            (focusedNode.value as any).raw?.category,
+                    },
                 } as any;
             }
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
 
         // fetch authoritative capability entity from API (if available). We'll merge
         // it into local nodes AFTER reloading the capability-tree to avoid the
@@ -1691,26 +2192,71 @@ async function saveFocusedNode() {
         try {
             const capResp: any = await api.get(`/api/capabilities/${id}`);
             freshCap = capResp?.data ?? capResp;
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
 
-        const focusedId = focusedNode.value ? (focusedNode.value as any).id : null;
+        const focusedId = focusedNode.value
+            ? (focusedNode.value as any).id
+            : null;
         await loadTreeFromApiWrapper(props.scenario?.id);
         // After reloading canonical tree, merge authoritative entity fields if we fetched them
         try {
             if (freshCap && typeof freshCap.id !== 'undefined') {
-                nodes.value = nodes.value.map((n: any) => (n.id === Number(freshCap.id) ? { ...n, type: freshCap.type ?? n.type, category: freshCap.category ?? n.category, raw: { ...(n.raw ?? {}), ...(freshCap ?? {}) } } : n));
-                if (focusedNode.value && (focusedNode.value as any).id === Number(freshCap.id)) {
-                    focusedNode.value = { ...((focusedNode.value as any) || {}), type: freshCap.type ?? (focusedNode.value as any).type, category: freshCap.category ?? (focusedNode.value as any).category, raw: { ...((focusedNode.value as any).raw ?? {}), ...(freshCap ?? {}) } } as any;
-                    try { resetFocusedEdits(); } catch (err: unknown) { void err; }
+                nodes.value = nodes.value.map((n: any) =>
+                    n.id === Number(freshCap.id)
+                        ? {
+                              ...n,
+                              type: freshCap.type ?? n.type,
+                              category: freshCap.category ?? n.category,
+                              raw: { ...(n.raw ?? {}), ...(freshCap ?? {}) },
+                          }
+                        : n,
+                );
+                if (
+                    focusedNode.value &&
+                    (focusedNode.value as any).id === Number(freshCap.id)
+                ) {
+                    focusedNode.value = {
+                        ...((focusedNode.value as any) || {}),
+                        type: freshCap.type ?? (focusedNode.value as any).type,
+                        category:
+                            freshCap.category ??
+                            (focusedNode.value as any).category,
+                        raw: {
+                            ...((focusedNode.value as any).raw ?? {}),
+                            ...(freshCap ?? {}),
+                        },
+                    } as any;
+                    try {
+                        resetFocusedEdits();
+                    } catch (err: unknown) {
+                        void err;
+                    }
                 }
             }
-        } catch (err: unknown) { void err; }
-        try { console.debug('[saveFocusedNode] after refresh, focusedId=', focusedId, 'nodeById=', nodeById(focusedId)); } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
+        try {
+            console.debug(
+                '[saveFocusedNode] after refresh, focusedId=',
+                focusedId,
+                'nodeById=',
+                nodeById(focusedId),
+            );
+        } catch (err: unknown) {
+            void err;
+        }
         if (focusedId != null) {
             const restored = nodeById(focusedId);
             if (restored) {
                 focusedNode.value = restored as any;
-                try { resetFocusedEdits(); } catch (err: unknown) { void err; }
+                try {
+                    resetFocusedEdits();
+                } catch (err: unknown) {
+                    void err;
+                }
                 await nextTick();
                 centerOnNode(restored as NodeItem);
             }
@@ -1722,88 +2268,127 @@ async function saveFocusedNode() {
 
 async function deleteFocusedNode() {
     if (!focusedNode.value && !selectedChild.value) return;
-    
+
     // Determine which node to delete
     const nodeToDelete = selectedChild.value || focusedNode.value;
     if (!nodeToDelete) return;
-    
+
     const id = (nodeToDelete as any).id;
     const isChild = typeof id === 'number' && id < 0;
-    
+
     // Debug log
-    console.debug('[deleteFocusedNode] selectedChild:', selectedChild.value ? 'YES' : 'NO', 'id:', id, 'isChild:', isChild);
-    
+    console.debug(
+        '[deleteFocusedNode] selectedChild:',
+        selectedChild.value ? 'YES' : 'NO',
+        'id:',
+        id,
+        'isChild:',
+        isChild,
+    );
+
     // For child nodes, use the compId or absolute value, NOT the parent
     let compId: number | null = null;
     if (isChild) {
         compId = (nodeToDelete as any).compId ?? Math.abs(id);
     }
-    
+
     // Determine what we're deleting
     const isCompetency = isChild || selectedChild.value !== null;
     const nodeName = isCompetency ? 'competencia' : 'capacidad';
-    const confirmMsg = isCompetency 
+    const confirmMsg = isCompetency
         ? '¿Eliminar esta competencia? Esta acción es irreversible.'
         : '¿Eliminar esta capacidad y su relación con el escenario? Esta acción es irreversible.';
-    
-    console.debug('[deleteFocusedNode] isCompetency:', isCompetency, 'nodeName:', nodeName, 'compId:', compId);
-    
+
+    console.debug(
+        '[deleteFocusedNode] isCompetency:',
+        isCompetency,
+        'nodeName:',
+        nodeName,
+        'compId:',
+        compId,
+    );
+
     // Confirm destructive action
     const ok = window.confirm(confirmMsg);
     if (!ok) return;
-    
+
     savingNode.value = true;
     try {
         if (isCompetency) {
             // DELETE COMPETENCY (child node)
             const deleteId = compId || Math.abs(id);
-            console.debug('[deleteFocusedNode] Deleting competency with ID:', deleteId);
-            
+            console.debug(
+                '[deleteFocusedNode] Deleting competency with ID:',
+                deleteId,
+            );
+
             // Get the parent capability ID
             const parentEdge = childEdges.value.find((e) => e.target === id);
-            const capabilityId = parentEdge ? parentEdge.source : focusedNode.value?.id;
-            
-            console.debug('[deleteFocusedNode] Parent capability ID:', capabilityId);
-            
+            const capabilityId = parentEdge
+                ? parentEdge.source
+                : focusedNode.value?.id;
+
+            console.debug(
+                '[deleteFocusedNode] Parent capability ID:',
+                capabilityId,
+            );
+
             if (!capabilityId) {
                 showError('No se puede determinar la capacidad padre');
                 savingNode.value = false;
                 return;
             }
-            
+
             try {
-                const res = await api.delete(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${capabilityId}/competencies/${deleteId}`);
-                console.debug('[deleteFocusedNode] DELETE competency response:', res);
+                const res = await api.delete(
+                    `/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${capabilityId}/competencies/${deleteId}`,
+                );
+                console.debug(
+                    '[deleteFocusedNode] DELETE competency response:',
+                    res,
+                );
             } catch (e: unknown) {
                 const _e: any = e as any;
-                console.debug('[deleteFocusedNode] DELETE competency error status:', _e?.response?.status);
+                console.debug(
+                    '[deleteFocusedNode] DELETE competency error status:',
+                    _e?.response?.status,
+                );
                 if (_e?.response?.status !== 404) throw e;
                 // 404 = backend doesn't expose delete, remove locally
             }
-            
+
             // Remove from local state
             childNodes.value = childNodes.value.filter((c) => {
                 const cId = c.compId ?? Math.abs(c.id);
                 return cId !== deleteId;
             });
-            childEdges.value = childEdges.value.filter((e) => e.target !== id && e.source !== id);
+            childEdges.value = childEdges.value.filter(
+                (e) => e.target !== id && e.source !== id,
+            );
             grandChildNodes.value = grandChildNodes.value.filter((g) => {
                 // Remove skills associated with this competency
                 return g.parentId !== deleteId && g.parentId !== id;
             });
-            grandChildEdges.value = grandChildEdges.value.filter((e) => e.source !== id && e.target !== id);
-            
+            grandChildEdges.value = grandChildEdges.value.filter(
+                (e) => e.source !== id && e.target !== id,
+            );
+
             console.debug('[deleteFocusedNode] Competency deleted locally');
             showSuccess('Competencia eliminada');
         } else {
             // DELETE CAPABILITY (parent node)
-            console.debug('[deleteFocusedNode] Deleting capability with ID:', id);
+            console.debug(
+                '[deleteFocusedNode] Deleting capability with ID:',
+                id,
+            );
             let pivotErrStatus: number | null = null;
             let capErrStatus: number | null = null;
-            
+
             // 1) attempt to delete pivot relation first (best-effort)
             try {
-                await api.delete(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`);
+                await api.delete(
+                    `/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`,
+                );
             } catch (e: unknown) {
                 const _e: any = e as any;
                 pivotErrStatus = _e?.response?.status ?? null;
@@ -1815,22 +2400,49 @@ async function deleteFocusedNode() {
                 // remove locally if present
                 nodes.value = nodes.value.filter((n) => n.id !== id);
                 // remove any childNodes and edges referencing this capability
-                childNodes.value = childNodes.value.filter((c) => !(c.__parentId === id || c.parentId === id || (c.raw && c.raw.capability_id === id)));
-                edges.value = edges.value.filter((e) => e.source !== id && e.target !== id);
-                childEdges.value = childEdges.value.filter((e) => e.source !== id && e.target !== id);
+                childNodes.value = childNodes.value.filter(
+                    (c) =>
+                        !(
+                            c.__parentId === id ||
+                            c.parentId === id ||
+                            (c.raw && c.raw.capability_id === id)
+                        ),
+                );
+                edges.value = edges.value.filter(
+                    (e) => e.source !== id && e.target !== id,
+                );
+                childEdges.value = childEdges.value.filter(
+                    (e) => e.source !== id && e.target !== id,
+                );
             } catch (e: unknown) {
                 const _e: any = e as any;
                 capErrStatus = _e?.response?.status ?? null;
             }
 
             // If both endpoints returned 404 (not found), assume backend doesn't expose delete and remove locally
-            if ((pivotErrStatus === 404 || pivotErrStatus === null) && (capErrStatus === 404 || capErrStatus === null)) {
+            if (
+                (pivotErrStatus === 404 || pivotErrStatus === null) &&
+                (capErrStatus === 404 || capErrStatus === null)
+            ) {
                 // remove locally anyway
                 nodes.value = nodes.value.filter((n) => n.id !== id);
-                childNodes.value = childNodes.value.filter((c) => !(c.__parentId === id || c.parentId === id || (c.raw && c.raw.capability_id === id)));
-                edges.value = edges.value.filter((e) => e.source !== id && e.target !== id);
-                childEdges.value = childEdges.value.filter((e) => e.source !== id && e.target !== id);
-                showError('Eliminado localmente. El backend no expone endpoints DELETE; implementar API para eliminación permanente.');
+                childNodes.value = childNodes.value.filter(
+                    (c) =>
+                        !(
+                            c.__parentId === id ||
+                            c.parentId === id ||
+                            (c.raw && c.raw.capability_id === id)
+                        ),
+                );
+                edges.value = edges.value.filter(
+                    (e) => e.source !== id && e.target !== id,
+                );
+                childEdges.value = childEdges.value.filter(
+                    (e) => e.source !== id && e.target !== id,
+                );
+                showError(
+                    'Eliminado localmente. El backend no expone endpoints DELETE; implementar API para eliminación permanente.',
+                );
             } else {
                 showSuccess('Capacidad y relación eliminadas');
             }
@@ -1838,7 +2450,7 @@ async function deleteFocusedNode() {
 
         // Refresh tree (best-effort)
         await loadTreeFromApiWrapper(props.scenario?.id);
-        
+
         // Clear focus and selection
         focusedNode.value = null;
         selectedChild.value = null;
@@ -1878,15 +2490,20 @@ function showCreateCompDialog() {
             const parentEdge = childEdges.value.find((e) => e.target === dn.id);
             const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
             if (parentNode) focusedNode.value = parentNode as any;
-        } else if (dn && (dn.id != null)) {
+        } else if (dn && dn.id != null) {
             focusedNode.value = nodeById(dn.id) || (dn as any);
         } else if (selectedChild.value) {
             const childId = (selectedChild.value as any)?.id ?? null;
-            const parentEdge = childId != null ? childEdges.value.find((e) => e.target === childId) : null;
+            const parentEdge =
+                childId != null
+                    ? childEdges.value.find((e) => e.target === childId)
+                    : null;
             const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
             if (parentNode) focusedNode.value = parentNode as any;
         }
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
     // Force capability context for creation
     selectedChild.value = null;
     createCompDialogVisible.value = true;
@@ -1896,27 +2513,45 @@ function showCreateSkillDialog() {
     // Similar logic to showCreateCompDialog but for skills: ensure correct competency context.
     try {
         const dn: any = displayNode.value;
-        
+
         // If displayNode is a competency, use it
         if (dn && (dn.compId || (typeof dn.id === 'number' && dn.id < 0))) {
             selectedChild.value = dn as any;
-        } 
+        }
         // If displayNode is a capability with competencies, default to first competency
-        else if (dn && Array.isArray(dn.competencies) && dn.competencies.length > 0) {
+        else if (
+            dn &&
+            Array.isArray(dn.competencies) &&
+            dn.competencies.length > 0
+        ) {
             const first = dn.competencies[0];
-            const existing = childNodes.value.find((c: any) => c.compId === first.id);
-            selectedChild.value = existing || { compId: first.id, raw: first, id: -(dn.id * 1000 + 1) } as any;
+            const existing = childNodes.value.find(
+                (c: any) => c.compId === first.id,
+            );
+            selectedChild.value =
+                existing ||
+                ({
+                    compId: first.id,
+                    raw: first,
+                    id: -(dn.id * 1000 + 1),
+                } as any);
         }
         // If displayNode is a skill, find its parent competency
         else if (dn && dn.skillId) {
             // Find parent competency from edges
-            const parentEdge = grandChildEdges.value?.find((e: any) => e.target === dn.id);
+            const parentEdge = grandChildEdges.value?.find(
+                (e: any) => e.target === dn.id,
+            );
             if (parentEdge) {
-                const parentComp = childNodes.value.find((c: any) => c.id === parentEdge.source);
+                const parentComp = childNodes.value.find(
+                    (c: any) => c.id === parentEdge.source,
+                );
                 if (parentComp) {
                     selectedChild.value = parentComp as any;
                 } else {
-                    console.warn('[showCreateSkillDialog] parent competency not found in childNodes');
+                    console.warn(
+                        '[showCreateSkillDialog] parent competency not found in childNodes',
+                    );
                 }
             }
         }
@@ -1925,9 +2560,13 @@ function showCreateSkillDialog() {
             const sc: any = selectedChild.value;
             // If current selectedChild is NOT a competency (e.g., it's a skill), find its parent
             if (sc.skillId) {
-                const parentEdge = grandChildEdges.value?.find((e: any) => e.target === sc.id);
+                const parentEdge = grandChildEdges.value?.find(
+                    (e: any) => e.target === sc.id,
+                );
                 if (parentEdge) {
-                    const parentComp = childNodes.value.find((c: any) => c.id === parentEdge.source);
+                    const parentComp = childNodes.value.find(
+                        (c: any) => c.id === parentEdge.source,
+                    );
                     if (parentComp) {
                         selectedChild.value = parentComp as any;
                     }
@@ -1935,16 +2574,18 @@ function showCreateSkillDialog() {
             }
             // If it's already a competency, keep it
         }
-        
+
         // Final validation: ensure selectedChild is a competency, not a skill
         if (selectedChild.value && (selectedChild.value as any).skillId) {
-            console.warn('[showCreateSkillDialog] selectedChild is a skill, not a competency. Clearing.');
+            console.warn(
+                '[showCreateSkillDialog] selectedChild is a skill, not a competency. Clearing.',
+            );
             selectedChild.value = null;
         }
-    } catch (err: unknown) { 
+    } catch (err: unknown) {
         console.error('[showCreateSkillDialog] error setting context:', err);
     }
-    
+
     createSkillDialogVisible.value = true;
 }
 async function openSelectSkillDialog() {
@@ -1957,35 +2598,60 @@ async function openAddExistingCompDialog() {
 }
 
 async function saveNewCapability() {
-    if (!props.scenario || !props.scenario.id) return showError('Escenario no seleccionado');
-    if (!newCapName.value || !newCapName.value.trim()) return showError('El nombre es obligatorio');
+    if (!props.scenario || !props.scenario.id)
+        return showError('Escenario no seleccionado');
+    if (!newCapName.value || !newCapName.value.trim())
+        return showError('El nombre es obligatorio');
     creating.value = true;
     await ensureCsrf();
     try {
         const payload: any = {
             name: newCapName.value.trim(),
             description: newCapDescription.value || null,
-            importance: typeof newCapImportance.value !== 'undefined' ? Number(newCapImportance.value) : 3,
+            importance:
+                typeof newCapImportance.value !== 'undefined'
+                    ? Number(newCapImportance.value)
+                    : 3,
             type: newCapType.value || null,
             category: newCapCategory.value || null,
             // pivot attributes
             strategic_role: pivotStrategicRole.value,
-            strategic_weight: typeof pivotStrategicWeight.value !== 'undefined' ? Number(pivotStrategicWeight.value) : 10,
-            priority: typeof pivotPriority.value !== 'undefined' ? Number(pivotPriority.value) : 1,
+            strategic_weight:
+                typeof pivotStrategicWeight.value !== 'undefined'
+                    ? Number(pivotStrategicWeight.value)
+                    : 10,
+            priority:
+                typeof pivotPriority.value !== 'undefined'
+                    ? Number(pivotPriority.value)
+                    : 1,
             rationale: pivotRationale.value || null,
-            required_level: typeof pivotRequiredLevel.value !== 'undefined' ? Number(pivotRequiredLevel.value) : 3,
+            required_level:
+                typeof pivotRequiredLevel.value !== 'undefined'
+                    ? Number(pivotRequiredLevel.value)
+                    : 3,
             is_critical: !!pivotIsCritical.value,
         };
 
-        console.debug('[saveNewCapability] POST /api/strategic-planning/scenarios/' + props.scenario.id + '/capabilities', payload);
-        const res: any = await api.post(`/api/strategic-planning/scenarios/${props.scenario.id}/capabilities`, payload);
+        console.debug(
+            '[saveNewCapability] POST /api/strategic-planning/scenarios/' +
+                props.scenario.id +
+                '/capabilities',
+            payload,
+        );
+        const res: any = await api.post(
+            `/api/strategic-planning/scenarios/${props.scenario.id}/capabilities`,
+            payload,
+        );
         console.debug('[saveNewCapability] POST response', res);
         const created = res?.data ?? res;
         showSuccess('Capacidad creada y asociada al escenario');
         // Optimistic update: add the created capability to the local nodes immediately
         try {
             if (created && typeof created.id !== 'undefined') {
-                const fallback = computeInitialPosition(nodes.value.length, (nodes.value.length || 0) + 1);
+                const fallback = computeInitialPosition(
+                    nodes.value.length,
+                    (nodes.value.length || 0) + 1,
+                );
                 const newNode = {
                     id: Number(created.id),
                     name: created.name,
@@ -2071,7 +2737,7 @@ function wrapLabel(s: any, max = 14) {
     if (secondCut.rest && second.length >= max) {
         // ensure room for ellipsis
         second = second.slice(0, Math.max(0, max - 1));
-        second = second.replace(/\s+$/,'');
+        second = second.replace(/\s+$/, '');
         second = second + '…';
     } else if (secondCut.rest) {
         // append ellipsis if anything remains
@@ -2097,9 +2763,11 @@ function computeInitialPosition(idx: number, total: number) {
     const margin = 24;
     const availableW = Math.max(120, width.value - margin * 2);
     const availableH = Math.max(120, height.value - margin * 2);
-    const spacingX = columns > 1 ? Math.min(160, Math.floor(availableW / columns)) : 0;
+    const spacingX =
+        columns > 1 ? Math.min(160, Math.floor(availableW / columns)) : 0;
     // increase vertical spacing cap to provide more room between rows
-    const spacingY = rows > 1 ? Math.min(140, Math.floor(availableH / rows)) : 0;
+    const spacingY =
+        rows > 1 ? Math.min(140, Math.floor(availableH / rows)) : 0;
 
     const col = idx % columns;
     const row = Math.floor(idx / columns);
@@ -2110,7 +2778,10 @@ function computeInitialPosition(idx: number, total: number) {
     const offsetX = col * spacingX - totalGridW / 2;
     const offsetY = row * spacingY - totalGridH / 2;
 
-    return { x: Math.round(centerX + offsetX), y: Math.round(centerY + offsetY) };
+    return {
+        x: Math.round(centerX + offsetX),
+        y: Math.round(centerY + offsetY),
+    };
 }
 
 /**
@@ -2129,25 +2800,46 @@ async function reorderNodes() {
     if (!total) return;
 
     // Delegate base layout computation to helper for easier testing
-    const scenario = scenarioNode.value ? { id: scenarioNode.value.id, x: scenarioNode.value.x, y: scenarioNode.value.y } : undefined;
+    const scenario = scenarioNode.value
+        ? {
+              id: scenarioNode.value.id,
+              x: scenarioNode.value.x,
+              y: scenarioNode.value.y,
+          }
+        : undefined;
     // Diagnostic logs: print node ids/count before reorder to help debug unexpected layouts
     try {
         // Use console.debug so logs are easy to filter in browser devtools
-        console.debug('[reorderNodes] before - count:', nodes.value.length, 'ids:', nodes.value.map((n: any) => n && n.id));
-    } catch (err: unknown) { void err; }
+        console.debug(
+            '[reorderNodes] before - count:',
+            nodes.value.length,
+            'ids:',
+            nodes.value.map((n: any) => n && n.id),
+        );
+    } catch (err: unknown) {
+        void err;
+    }
 
     // ensure each item has a `name` and cast the helper result to the expected NodeItem[] type
     nodes.value = reorderNodesHelper(
-        nodes.value.map((n: any) => ({ ...n, name: n.name ?? n.raw?.name ?? '' } as any)),
+        nodes.value.map(
+            (n: any) => ({ ...n, name: n.name ?? n.raw?.name ?? '' }) as any,
+        ),
         width.value,
         height.value,
         scenario,
     ) as unknown as Array<NodeItem>;
 
     try {
-        console.debug('[reorderNodes] after - count:', nodes.value.length, 'ids:', nodes.value.map((n: any) => n && n.id));
-    } catch (err: unknown) { void err; }
-
+        console.debug(
+            '[reorderNodes] after - count:',
+            nodes.value.length,
+            'ids:',
+            nodes.value.map((n: any) => n && n.id),
+        );
+    } catch (err: unknown) {
+        void err;
+    }
 
     positionsDirty.value = true;
     // Clear focus/children so renderNodeX doesn't snap nodes into side columns
@@ -2203,7 +2895,7 @@ function renderNodeX(n: any) {
         const target = originalX < pivotX ? leftX : rightX;
         return Math.min(Math.max(minX, target), maxX);
     }
-    const base = (n.x ?? 0);
+    const base = n.x ?? 0;
     return Math.min(Math.max(minX, base), maxX);
 }
 
@@ -2232,7 +2924,9 @@ function edgeTargetIsCentered(e: Edge) {
         if (!tgt || typeof tgt.x !== 'number') return false;
         const centerX = Math.round(width.value / 2);
         return Math.abs((tgt.x ?? 0) - centerX) <= 12; // 12px tolerance
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
     return false;
 }
 
@@ -2255,7 +2949,9 @@ function edgeEndpoint(e: Edge, forTarget = true) {
             y = (y ?? 0) - (childRadius + extraGap); // dejar un gap suficiente para que la línea no quede oculta
         }
         return { x, y } as any;
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
     return { x: undefined, y: undefined } as any;
 }
 
@@ -2266,11 +2962,20 @@ function groupedIndexForEdge(e: Edge) {
         if (!tgt) return 0;
         const candidates = childEdges.value.filter((ed) => {
             const rt = renderedNodeById(ed.target);
-            return ed.source === e.source && rt && Math.abs((rt.x ?? 0) - (tgt.x ?? 0)) <= 8;
+            return (
+                ed.source === e.source &&
+                rt &&
+                Math.abs((rt.x ?? 0) - (tgt.x ?? 0)) <= 8
+            );
         });
-        candidates.sort((a, b) => (a.target - b.target));
-        return Math.max(0, candidates.findIndex((c) => c === e));
-    } catch (err: unknown) { void err; }
+        candidates.sort((a, b) => a.target - b.target);
+        return Math.max(
+            0,
+            candidates.findIndex((c) => c === e),
+        );
+    } catch (err: unknown) {
+        void err;
+    }
     return 0;
 }
 
@@ -2280,36 +2985,66 @@ function edgeAnimOpacity(e: Edge) {
 }
 
 // Construye los puntos o path para una arista según el modo seleccionado
-    function edgeRenderFor(e: Edge) {
+function edgeRenderFor(e: Edge) {
     try {
         const start = edgeEndpoint(e, false);
         const end = edgeEndpoint(e, true);
-        const x1 = start.x; const y1 = start.y; const x2 = end.x; const y2 = end.y;
+        const x1 = start.x;
+        const y1 = start.y;
+        const x2 = end.x;
+        const y2 = end.y;
         const mode = childEdgeMode.value;
         // detectar si la arista apunta a un grandChild (skill) para parámetros específicos
-        const isGrand = !!grandChildNodeById(e.target) || !!grandChildNodeById(e.source) || grandChildEdges.value.includes(e as any);
-            // modo curva
-            if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
-                // control point adaptativo para curvas más pronunciadas, configurable via LAYOUT_CONFIG
-                const baseDepth = isGrand ? LAYOUT_CONFIG.skill.edge.baseDepth : LAYOUT_CONFIG.competency.edge.baseDepth;
-                const curveFactor = isGrand ? LAYOUT_CONFIG.skill.edge.curveFactor : LAYOUT_CONFIG.competency.edge.curveFactor;
-                const distance = Math.abs((y2 ?? 0) - (y1 ?? 0));
-                const depth = Math.max(baseDepth, Math.round(distance * curveFactor) + baseDepth);
-                const cpY = Math.min((y1 ?? 0), (y2 ?? 0)) + depth;
-                const d = `M ${x1} ${y1} C ${x1} ${cpY} ${x2} ${cpY} ${x2} ${y2}`;
-                return { isPath: true, d } as any;
-            }
+        const isGrand =
+            !!grandChildNodeById(e.target) ||
+            !!grandChildNodeById(e.source) ||
+            grandChildEdges.value.includes(e as any);
+        // modo curva
+        if (mode === 2 && typeof x1 === 'number' && typeof x2 === 'number') {
+            // control point adaptativo para curvas más pronunciadas, configurable via LAYOUT_CONFIG
+            const baseDepth = isGrand
+                ? LAYOUT_CONFIG.skill.edge.baseDepth
+                : LAYOUT_CONFIG.competency.edge.baseDepth;
+            const curveFactor = isGrand
+                ? LAYOUT_CONFIG.skill.edge.curveFactor
+                : LAYOUT_CONFIG.competency.edge.curveFactor;
+            const distance = Math.abs((y2 ?? 0) - (y1 ?? 0));
+            const depth = Math.max(
+                baseDepth,
+                Math.round(distance * curveFactor) + baseDepth,
+            );
+            const cpY = Math.min(y1 ?? 0, y2 ?? 0) + depth;
+            const d = `M ${x1} ${y1} C ${x1} ${cpY} ${x2} ${cpY} ${x2} ${y2}`;
+            return { isPath: true, d } as any;
+        }
         // modo spread: desplazar X del target según índice en grupo
         if (mode === 3 && typeof x1 === 'number' && typeof x2 === 'number') {
             const idx = groupedIndexForEdge(e);
             // use candidates from both childEdges and grandChildEdges so grouping keeps consistent spacing
-            const candidates = childEdges.value.concat(grandChildEdges.value).filter((ed) => {
-                const rt = renderedNodeById(ed.target);
-                const r = renderedNodeById(e.target);
-                return ed.source === e.source && rt && r && Math.abs((rt.x ?? 0) - (r.x ?? 0)) <= 8;
-            });
-            const centerOffset = ((idx - (candidates.length - 1) / 2) * (isGrand ? LAYOUT_CONFIG.skill.edge.spreadOffset : LAYOUT_CONFIG.competency.edge.spreadOffset));
-            return { isPath: false, x1, y1, x2: (x2 ?? 0) + centerOffset, y2 } as any;
+            const candidates = childEdges.value
+                .concat(grandChildEdges.value)
+                .filter((ed) => {
+                    const rt = renderedNodeById(ed.target);
+                    const r = renderedNodeById(e.target);
+                    return (
+                        ed.source === e.source &&
+                        rt &&
+                        r &&
+                        Math.abs((rt.x ?? 0) - (r.x ?? 0)) <= 8
+                    );
+                });
+            const centerOffset =
+                (idx - (candidates.length - 1) / 2) *
+                (isGrand
+                    ? LAYOUT_CONFIG.skill.edge.spreadOffset
+                    : LAYOUT_CONFIG.competency.edge.spreadOffset);
+            return {
+                isPath: false,
+                x1,
+                y1,
+                x2: (x2 ?? 0) + centerOffset,
+                y2,
+            } as any;
         }
         // modo gap grande: aumentar el desplazamiento vertical del target
         if (mode === 1 && typeof x1 === 'number' && typeof x2 === 'number') {
@@ -2323,7 +3058,13 @@ function edgeAnimOpacity(e: Edge) {
     } catch (err: unknown) {
         void err;
         // On error return a safe fallback shape indicating no valid geometry
-        return { isPath: false, x1: undefined, y1: undefined, x2: undefined, y2: undefined } as any;
+        return {
+            isPath: false,
+            x1: undefined,
+            y1: undefined,
+            x2: undefined,
+            y2: undefined,
+        } as any;
     }
 }
 
@@ -2332,11 +3073,14 @@ function scenarioEdgePath(e: Edge) {
     try {
         const s = renderedNodeById(e.source);
         const t = renderedNodeById(e.target);
-        if (!s || !t || typeof s.x !== 'number' || typeof t.x !== 'number') return '';
+        if (!s || !t || typeof s.x !== 'number' || typeof t.x !== 'number')
+            return '';
         const depth = LAYOUT_CONFIG.capability.scenarioEdgeDepth;
-        const cpY = Math.min((s.y ?? 0), (t.y ?? 0)) + depth;
+        const cpY = Math.min(s.y ?? 0, t.y ?? 0) + depth;
         return `M ${s.x} ${s.y} C ${s.x} ${cpY} ${t.x} ${cpY} ${t.x} ${t.y}`;
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
     return '';
 }
 
@@ -2360,25 +3104,29 @@ function buildNodesFromItems(items: any[]) {
     const mapped = items.map((it: any, idx: number) => {
         const rawX = it.position_x ?? it.x ?? it.cx ?? null;
         const rawY = it.position_y ?? it.y ?? it.cy ?? null;
-            const parsedX = rawX != null ? parseFloat(String(rawX)) : NaN;
-            const parsedY = rawY != null ? parseFloat(String(rawY)) : NaN;
-            // If stored coordinates are valid numbers, prefer them so nodes remain fixed where the user left them.
-            // Heuristic: legacy `capabilities.position_x/position_y` were stored as percentages (0..100).
-            // Newer pivot `scenario_capabilities.position_x` may be absolute pixels (>100). Detect small values
-            // and convert from percentage -> pixels using current canvas size to avoid overlaps with the scenario origin.
-            const hasPos = !Number.isNaN(parsedX) && !Number.isNaN(parsedY);
-            let x: number | undefined = undefined;
-            let y: number | undefined = undefined;
-            if (hasPos) {
-                const looksLikePercent = parsedX >= 0 && parsedX <= 100 && parsedY >= 0 && parsedY <= 100;
-                if (looksLikePercent) {
-                    x = Math.round((parsedX / 100) * width.value);
-                    y = Math.round((parsedY / 100) * height.value);
-                } else {
-                    x = Math.round(parsedX);
-                    y = Math.round(parsedY);
-                }
+        const parsedX = rawX != null ? parseFloat(String(rawX)) : NaN;
+        const parsedY = rawY != null ? parseFloat(String(rawY)) : NaN;
+        // If stored coordinates are valid numbers, prefer them so nodes remain fixed where the user left them.
+        // Heuristic: legacy `capabilities.position_x/position_y` were stored as percentages (0..100).
+        // Newer pivot `scenario_capabilities.position_x` may be absolute pixels (>100). Detect small values
+        // and convert from percentage -> pixels using current canvas size to avoid overlaps with the scenario origin.
+        const hasPos = !Number.isNaN(parsedX) && !Number.isNaN(parsedY);
+        let x: number | undefined = undefined;
+        let y: number | undefined = undefined;
+        if (hasPos) {
+            const looksLikePercent =
+                parsedX >= 0 &&
+                parsedX <= 100 &&
+                parsedY >= 0 &&
+                parsedY <= 100;
+            if (looksLikePercent) {
+                x = Math.round((parsedX / 100) * width.value);
+                y = Math.round((parsedY / 100) * height.value);
+            } else {
+                x = Math.round(parsedX);
+                y = Math.round(parsedY);
             }
+        }
         // if missing position, place roughly on a circle initially (helps force start) but mark undefined so we can re-run force
         const fallbackPos = computeInitialPosition(idx, items.length);
         const fallbackX = Math.round(fallbackPos.x);
@@ -2394,8 +3142,8 @@ function buildNodesFromItems(items: any[]) {
             competencies: Array.isArray(it.competencies)
                 ? it.competencies
                 : Array.isArray(it.competency)
-                ? it.competency
-                : [],
+                  ? it.competency
+                  : [],
             importance: it.importance ?? it.rank ?? null,
             level: it.level ?? null,
             required: it.required ?? null,
@@ -2438,7 +3186,11 @@ function buildNodesFromItems(items: any[]) {
                 if (dist < MIN_ORIGIN_SEPARATION) {
                     // push node downwards preferentially; if directly above, nudge down
                     if (dist === 0) {
-                        return { ...n, x: n.x, y: clampYFromLayout(sy + MIN_ORIGIN_SEPARATION) } as any;
+                        return {
+                            ...n,
+                            x: n.x,
+                            y: clampYFromLayout(sy + MIN_ORIGIN_SEPARATION),
+                        } as any;
                     }
                     const scale = MIN_ORIGIN_SEPARATION / Math.max(1, dist);
                     const newX = Math.round(sx + dx * scale);
@@ -2452,7 +3204,14 @@ function buildNodesFromItems(items: any[]) {
         void err;
     }
     // build scenario->capability edges so initial view shows connections from scenario to capabilities
-    scenarioEdges.value = nodes.value.map((n: any) => ({ source: scenarioNode.value?.id ?? 0, target: n.id, isScenarioEdge: true } as Edge));
+    scenarioEdges.value = nodes.value.map(
+        (n: any) =>
+            ({
+                source: scenarioNode.value?.id ?? 0,
+                target: n.id,
+                isScenarioEdge: true,
+            }) as Edge,
+    );
     // build edges before attempting a force layout
     buildEdgesFromItems(items);
     // Only run force layout if some nodes originally had real coordinates.
@@ -2476,7 +3235,11 @@ function buildEdgesFromItems(items: any[]) {
             const s = c.source ?? c.source_id ?? null;
             const t = c.target ?? c.target_id ?? null;
             if (s != null && t != null) {
-                result.push({ source: Number(s), target: Number(t), isCritical: !!c.is_critical });
+                result.push({
+                    source: Number(s),
+                    target: Number(t),
+                    isCritical: !!c.is_critical,
+                });
             }
         });
     } else {
@@ -2498,7 +3261,11 @@ function buildEdgesFromItems(items: any[]) {
                     const s = c.source ?? c.source_id ?? null;
                     const t = c.target ?? c.target_id ?? null;
                     if (s != null && t != null)
-                        result.push({ source: Number(s), target: Number(t), isCritical: !!c.is_critical });
+                        result.push({
+                            source: Number(s),
+                            target: Number(t),
+                            isCritical: !!c.is_critical,
+                        });
                 });
             }
         });
@@ -2517,194 +3284,501 @@ function childNodeById(id: number) {
 const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
     try {
         if ((window as any).__DEBUG__) {
-            console.debug('[node.click] id=', (node as any)?.id, 'level=', nodeLevel((node as any)?.id), 'isTrusted=', !!(event as any)?.isTrusted, 'time=', Date.now());
-            console.debug(new Error('click-stack').stack?.split('\n').slice(1,6).join('\n'));
+            console.debug(
+                '[node.click] id=',
+                (node as any)?.id,
+                'level=',
+                nodeLevel((node as any)?.id),
+                'isTrusted=',
+                !!(event as any)?.isTrusted,
+                'time=',
+                Date.now(),
+            );
+            console.debug(
+                new Error('click-stack').stack
+                    ?.split('\n')
+                    .slice(1, 6)
+                    .join('\n'),
+            );
         }
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
     // If this is a level-2 node (competency), short-circuit: only log and do not run animations/expansions
     try {
         const lvl = nodeLevel((node as any)?.id);
         // Toggle collapse: if clicking again on an already-expanded node, collapse its children
         try {
             // If capability is focused and its competencies are shown, collapse on second click
-            if ((node as any)?.id != null && (node as any).id >= 0 && focusedNode.value && focusedNode.value.id === (node as any).id && childNodes.value.length > 0) {
+            if (
+                (node as any)?.id != null &&
+                (node as any).id >= 0 &&
+                focusedNode.value &&
+                focusedNode.value.id === (node as any).id &&
+                childNodes.value.length > 0
+            ) {
                 closeTooltip();
                 return;
             }
             // If clicking a competency and its skills are shown, collapse them
-            if (lvl === 2 && selectedChild.value && selectedChild.value.id === (node as any).id && grandChildNodes.value.length > 0) {
+            if (
+                lvl === 2 &&
+                selectedChild.value &&
+                selectedChild.value.id === (node as any).id &&
+                grandChildNodes.value.length > 0
+            ) {
                 collapseGrandChildren();
                 // keep selectedChild focused but clear skills
                 return;
             }
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
         if (lvl === 2) {
-            try { if ((window as any).__DEBUG__) console.debug('[node.click.level2] id=', (node as any)?.id, 'level=', lvl); } catch (err: unknown) { void err; }
+            try {
+                if ((window as any).__DEBUG__)
+                    console.debug(
+                        '[node.click.level2] id=',
+                        (node as any)?.id,
+                        'level=',
+                        lvl,
+                    );
+            } catch (err: unknown) {
+                void err;
+            }
             try {
                 noAnimations.value = true;
-                setTimeout(() => { noAnimations.value = false; }, Math.max(300, TRANSITION_MS));
-            } catch (err: unknown) { void err; }
+                setTimeout(
+                    () => {
+                        noAnimations.value = false;
+                    },
+                    Math.max(300, TRANSITION_MS),
+                );
+            } catch (err: unknown) {
+                void err;
+            }
 
             // For left-click on a competency, expand its skills (do not open modal)
             try {
-                const parentEdge = childEdges.value.find((e) => e.target === (node as any).id);
-                const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
+                const parentEdge = childEdges.value.find(
+                    (e) => e.target === (node as any).id,
+                );
+                const parentNode = parentEdge
+                    ? nodeById(parentEdge.source)
+                    : null;
                 if (parentNode) {
-                    const prev = focusedNode.value ? { ...focusedNode.value } : undefined;
+                    const prev = focusedNode.value
+                        ? { ...focusedNode.value }
+                        : undefined;
                     // Immediately clear any existing expanded skills so they don't linger
-                    try { collapseGrandChildren(); } catch (err: unknown) { void err; }
+                    try {
+                        collapseGrandChildren();
+                    } catch (err: unknown) {
+                        void err;
+                    }
                     centerOnNode(parentNode, prev);
-                    const parentLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
-                    await Promise.race([waitForTransitionForNode(parentNode.id), wait(parentLead)]);
+                    const parentLead = Math.max(
+                        0,
+                        Math.round(TRANSITION_MS * 0.6),
+                    );
+                    await Promise.race([
+                        waitForTransitionForNode(parentNode.id),
+                        wait(parentLead),
+                    ]);
                     // Assign selectedChild BEFORE expandCompetencies so radial layout can detect it
                     // Look up the updated node from childNodes.value to ensure we have fresh data
-                    const nodeId = (node as any).id ?? (node as any).compId ?? (node as any).raw?.id;
-                    const updatedNode = childNodes.value.find((cn: any) => 
-                        cn.id === nodeId || cn.compId === nodeId || cn.raw?.id === nodeId
-                    ) ?? node;
+                    const nodeId =
+                        (node as any).id ??
+                        (node as any).compId ??
+                        (node as any).raw?.id;
+                    const updatedNode =
+                        childNodes.value.find(
+                            (cn: any) =>
+                                cn.id === nodeId ||
+                                cn.compId === nodeId ||
+                                cn.raw?.id === nodeId,
+                        ) ?? node;
                     selectedChild.value = updatedNode as any;
                     try {
-                        if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=handleNodeClick, target=parentNode', { nodeId: parentNode?.id, comps: Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0, opts: { x: parentNode?.x ?? 0, y: parentNode?.y ?? 0 }, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
-                    } catch (err: unknown) { void err; }
+                        if ((window as any).__DEBUG__)
+                            console.debug(
+                                '[expandCompetencies.call] source=handleNodeClick, target=parentNode',
+                                {
+                                    nodeId: parentNode?.id,
+                                    comps: Array.isArray(
+                                        parentNode?.competencies,
+                                    )
+                                        ? parentNode!.competencies.length
+                                        : 0,
+                                    opts: {
+                                        x: parentNode?.x ?? 0,
+                                        y: parentNode?.y ?? 0,
+                                    },
+                                    visualConfigLayout:
+                                        props.visualConfig
+                                            ?.capabilityChildrenOffset,
+                                    configDefault:
+                                        LAYOUT_CONFIG.competency?.defaultLayout,
+                                },
+                            );
+                    } catch (err: unknown) {
+                        void err;
+                    }
                     // If parent has 4 or more competencies, show matrix layout (matrixVariants chooses 4x2 or 5x2)
                     try {
-                        const compCount = Array.isArray(parentNode?.competencies) ? parentNode!.competencies.length : 0;
+                        const compCount = Array.isArray(
+                            parentNode?.competencies,
+                        )
+                            ? parentNode!.competencies.length
+                            : 0;
                         if (compCount >= 4) {
-                            console.debug && console.debug('[expandCompetencies.call] source=handleNodeClick (sides)', { nodeId: parentNode?.id, comps: compCount });
+                            console.debug &&
+                                console.debug(
+                                    '[expandCompetencies.call] source=handleNodeClick (sides)',
+                                    {
+                                        nodeId: parentNode?.id,
+                                        comps: compCount,
+                                    },
+                                );
                             // TEST: Force 'sides' layout to compare distribution vs radial/matrix
-                            expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 }, { layout: 'sides' });
+                            expandCompetencies(
+                                parentNode as NodeItem,
+                                { x: parentNode.x ?? 0, y: parentNode.y ?? 0 },
+                                { layout: 'sides' },
+                            );
                         } else {
                             // keep positions for small counts
-                            console.debug && console.debug('[expandCompetencies.call] skipped (<4 competencies)', { nodeId: parentNode?.id, comps: compCount });
+                            console.debug &&
+                                console.debug(
+                                    '[expandCompetencies.call] skipped (<4 competencies)',
+                                    {
+                                        nodeId: parentNode?.id,
+                                        comps: compCount,
+                                    },
+                                );
                         }
                     } catch (err: unknown) {
-                        expandCompetencies(parentNode as NodeItem, { x: parentNode.x ?? 0, y: parentNode.y ?? 0 });
+                        expandCompetencies(parentNode as NodeItem, {
+                            x: parentNode.x ?? 0,
+                            y: parentNode.y ?? 0,
+                        });
                     }
                 }
 
-                if (parentNode) focusedNode.value = parentNode; else focusedNode.value = node as any;
-
-                try { const cid = (selectedChild.value as any)?.id ?? (node as any)?.id; if (cid != null) showOnlySelectedAndParent(cid, true); } catch (err: unknown) { void err; }
+                if (parentNode) focusedNode.value = parentNode;
+                else focusedNode.value = node as any;
 
                 try {
-                    const fid = (selectedChild.value as any)?.id ?? (focusedNode.value as any).id;
+                    const cid =
+                        (selectedChild.value as any)?.id ?? (node as any)?.id;
+                    if (cid != null) showOnlySelectedAndParent(cid, true);
+                } catch (err: unknown) {
+                    void err;
+                }
+
+                try {
+                    const fid =
+                        (selectedChild.value as any)?.id ??
+                        (focusedNode.value as any).id;
                     if (fid != null) {
-                        childNodes.value = childNodes.value.map((ch: any) => ch.id === fid ? { ...ch, animOpacity: 1, animScale: ch.animScale ?? 1, visible: true } as any : ch);
+                        childNodes.value = childNodes.value.map((ch: any) =>
+                            ch.id === fid
+                                ? ({
+                                      ...ch,
+                                      animOpacity: 1,
+                                      animScale: ch.animScale ?? 1,
+                                      visible: true,
+                                  } as any)
+                                : ch,
+                        );
                         const found = childNodeById(fid);
                         if (found) {
-                            const others = childNodes.value.filter((ch: any) => ch.id !== fid);
-                            childNodes.value = others.concat(childNodes.value.filter((ch: any) => ch.id === fid));
+                            const others = childNodes.value.filter(
+                                (ch: any) => ch.id !== fid,
+                            );
+                            childNodes.value = others.concat(
+                                childNodes.value.filter(
+                                    (ch: any) => ch.id === fid,
+                                ),
+                            );
                         }
                     }
-                } catch (err: unknown) { void err; }
+                } catch (err: unknown) {
+                    void err;
+                }
 
                 // expand skills for this competency
                 try {
                     const comp = selectedChild.value as any;
-                    const compId = comp.compId ?? comp.raw?.id ?? Math.abs(comp.id || 0);
-                    
+                    const compId =
+                        comp.compId ?? comp.raw?.id ?? Math.abs(comp.id || 0);
+
                     // Get the most recent node from childNodes.value to ensure we have updated skills
-                    const updatedComp = childNodes.value.find((cn: any) => 
-                        cn.id === compId || cn.compId === compId || cn.raw?.id === compId
-                    ) ?? comp;
-                    
+                    const updatedComp =
+                        childNodes.value.find(
+                            (cn: any) =>
+                                cn.id === compId ||
+                                cn.compId === compId ||
+                                cn.raw?.id === compId,
+                        ) ?? comp;
+
                     // Force updatedComp to use the fresh skills by creating a new object
                     const freshComp = {
                         ...updatedComp,
                         skills: updatedComp.skills,
                         raw: {
                             ...(updatedComp.raw ?? {}),
-                            skills: updatedComp.skills  // Override raw.skills with fresh data
-                        }
+                            skills: updatedComp.skills, // Override raw.skills with fresh data
+                        },
                     };
-                    
-                    const existingSkills = Array.isArray(freshComp.skills) ? freshComp.skills : (freshComp.raw?.skills ?? []);
-                    if ((existingSkills && existingSkills.length > 0) || compId) {
-                            if (existingSkills && existingSkills.length > 0) {
+
+                    const existingSkills = Array.isArray(freshComp.skills)
+                        ? freshComp.skills
+                        : (freshComp.raw?.skills ?? []);
+                    if (
+                        (existingSkills && existingSkills.length > 0) ||
+                        compId
+                    ) {
+                        if (existingSkills && existingSkills.length > 0) {
                             try {
-                            // Ensure comp finished its CSS transition and DOM reflects final position
-                            if (freshComp && freshComp.id != null) {
-                                const pid = freshComp.id;
-                                await waitForTransitionForNode(pid);
-                                await wait(10);
-                                const domPos = getNodeMapCenter(pid);
-                                const renderedPos = renderedNodeById(pid) ?? { x: freshComp?.x ?? 0, y: freshComp?.y ?? 0 };
-                                // Prefer rendered X (align with render pipeline) but DOM Y (visual position)
-                                const preferred = (renderedPos && domPos) ? { x: renderedPos.x, y: domPos.y } : (renderedPos ?? domPos);
-                                const result = expandSkillsFromLayout(freshComp, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
-                                grandChildNodes.value = result.grandChildNodes;
-                                grandChildEdges.value = result.grandChildEdges;
-                                nextTick(() => {
-                                    grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
-                                });
-                            } else {
-                                // fallback when parentNode is not available
-                                const result = expandSkillsFromLayout(freshComp, grandChildNodes.value, grandChildEdges.value, { x: freshComp.x ?? 0, y: freshComp.y ?? 0 }, { layout: 'auto' }, height.value);
-                                grandChildNodes.value = result.grandChildNodes;
-                                grandChildEdges.value = result.grandChildEdges;
-                                nextTick(() => {
-                                    grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
-                                });
-                            }
+                                // Ensure comp finished its CSS transition and DOM reflects final position
+                                if (freshComp && freshComp.id != null) {
+                                    const pid = freshComp.id;
+                                    await waitForTransitionForNode(pid);
+                                    await wait(10);
+                                    const domPos = getNodeMapCenter(pid);
+                                    const renderedPos = renderedNodeById(
+                                        pid,
+                                    ) ?? {
+                                        x: freshComp?.x ?? 0,
+                                        y: freshComp?.y ?? 0,
+                                    };
+                                    // Prefer rendered X (align with render pipeline) but DOM Y (visual position)
+                                    const preferred =
+                                        renderedPos && domPos
+                                            ? { x: renderedPos.x, y: domPos.y }
+                                            : (renderedPos ?? domPos);
+                                    const result = expandSkillsFromLayout(
+                                        freshComp,
+                                        grandChildNodes.value,
+                                        grandChildEdges.value,
+                                        preferred,
+                                        { layout: 'auto' },
+                                        height.value,
+                                    );
+                                    grandChildNodes.value =
+                                        result.grandChildNodes;
+                                    grandChildEdges.value =
+                                        result.grandChildEdges;
+                                    nextTick(() => {
+                                        grandChildNodes.value =
+                                            grandChildNodes.value.map(
+                                                (g: any) => ({
+                                                    ...g,
+                                                    x: g.animTargetX ?? g.x,
+                                                    y: g.animTargetY ?? g.y,
+                                                    animScale: 1,
+                                                    animOpacity: 1,
+                                                    animFilter: 'none',
+                                                }),
+                                            );
+                                    });
+                                } else {
+                                    // fallback when parentNode is not available
+                                    const result = expandSkillsFromLayout(
+                                        freshComp,
+                                        grandChildNodes.value,
+                                        grandChildEdges.value,
+                                        {
+                                            x: freshComp.x ?? 0,
+                                            y: freshComp.y ?? 0,
+                                        },
+                                        { layout: 'auto' },
+                                        height.value,
+                                    );
+                                    grandChildNodes.value =
+                                        result.grandChildNodes;
+                                    grandChildEdges.value =
+                                        result.grandChildEdges;
+                                    nextTick(() => {
+                                        grandChildNodes.value =
+                                            grandChildNodes.value.map(
+                                                (g: any) => ({
+                                                    ...g,
+                                                    x: g.animTargetX ?? g.x,
+                                                    y: g.animTargetY ?? g.y,
+                                                    animScale: 1,
+                                                    animOpacity: 1,
+                                                    animFilter: 'none',
+                                                }),
+                                            );
+                                    });
+                                }
                             } catch (err: unknown) {
-                            const result = expandSkillsFromLayout(comp, grandChildNodes.value, grandChildEdges.value, { x: comp.x ?? 0, y: comp.y ?? 0 }, { layout: 'auto' }, height.value);
-                            grandChildNodes.value = result.grandChildNodes;
-                            grandChildEdges.value = result.grandChildEdges;
-                            nextTick(() => {
-                                grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
-                            });
+                                const result = expandSkillsFromLayout(
+                                    comp,
+                                    grandChildNodes.value,
+                                    grandChildEdges.value,
+                                    { x: comp.x ?? 0, y: comp.y ?? 0 },
+                                    { layout: 'auto' },
+                                    height.value,
+                                );
+                                grandChildNodes.value = result.grandChildNodes;
+                                grandChildEdges.value = result.grandChildEdges;
+                                nextTick(() => {
+                                    grandChildNodes.value =
+                                        grandChildNodes.value.map((g: any) => ({
+                                            ...g,
+                                            x: g.animTargetX ?? g.x,
+                                            y: g.animTargetY ?? g.y,
+                                            animScale: 1,
+                                            animOpacity: 1,
+                                            animFilter: 'none',
+                                        }));
+                                });
                             }
                         } else if (compId) {
                             try {
-                                const skills = await fetchSkillsForCompetency(Number(compId));
-                                try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (err: unknown) { void err; }
+                                const skills = await fetchSkillsForCompetency(
+                                    Number(compId),
+                                );
+                                try {
+                                    (selectedChild.value as any).skills =
+                                        Array.isArray(skills) ? skills : [];
+                                } catch (err: unknown) {
+                                    void err;
+                                }
                                 try {
                                     // capture parent id before awaiting so TypeScript knows it can't become null across await
-                                    const pid = parentNode && parentNode.id != null ? parentNode.id : null;
-                                    if (pid == null) throw new Error('missing parent id');
+                                    const pid =
+                                        parentNode && parentNode.id != null
+                                            ? parentNode.id
+                                            : null;
+                                    if (pid == null)
+                                        throw new Error('missing parent id');
                                     await waitForTransitionForNode(pid);
                                     await wait(40);
                                     const domPos = getNodeMapCenter(pid);
-                                    const renderedPos = renderedNodeById(pid) ?? { x: parentNode?.x, y: parentNode?.y };
-                                    console.debug && console.debug('[expandSkills.debug] parentId=', pid, 'domPos=', domPos, 'renderedPos=', renderedPos, 'modelPos=', { x: parentNode?.x, y: parentNode?.y });
+                                    const renderedPos = renderedNodeById(
+                                        pid,
+                                    ) ?? { x: parentNode?.x, y: parentNode?.y };
+                                    console.debug &&
+                                        console.debug(
+                                            '[expandSkills.debug] parentId=',
+                                            pid,
+                                            'domPos=',
+                                            domPos,
+                                            'renderedPos=',
+                                            renderedPos,
+                                            'modelPos=',
+                                            {
+                                                x: parentNode?.x,
+                                                y: parentNode?.y,
+                                            },
+                                        );
                                     // Prefer rendered X (align with render pipeline) but DOM Y (visual position)
-                                    const preferred = (renderedPos && domPos) ? { x: renderedPos.x, y: domPos.y } : (renderedPos ?? domPos);
-                                    const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
-                                    grandChildNodes.value = result.grandChildNodes;
-                                    grandChildEdges.value = result.grandChildEdges;
+                                    const preferred =
+                                        renderedPos && domPos
+                                            ? { x: renderedPos.x, y: domPos.y }
+                                            : (renderedPos ?? domPos);
+                                    const result = expandSkillsFromLayout(
+                                        selectedChild.value,
+                                        grandChildNodes.value,
+                                        grandChildEdges.value,
+                                        preferred,
+                                        { layout: 'auto' },
+                                        height.value,
+                                    );
+                                    grandChildNodes.value =
+                                        result.grandChildNodes;
+                                    grandChildEdges.value =
+                                        result.grandChildEdges;
                                     nextTick(() => {
-                                        grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+                                        grandChildNodes.value =
+                                            grandChildNodes.value.map(
+                                                (g: any) => ({
+                                                    ...g,
+                                                    x: g.animTargetX ?? g.x,
+                                                    y: g.animTargetY ?? g.y,
+                                                    animScale: 1,
+                                                    animOpacity: 1,
+                                                    animFilter: 'none',
+                                                }),
+                                            );
                                     });
                                 } catch (err: unknown) {
-                                    const compId = (selectedChild.value as any).id;
+                                    const compId = (selectedChild.value as any)
+                                        .id;
                                     const domPos = getNodeMapCenter(compId);
-                                    const renderedComp = renderedNodeById(compId) ?? selectedChild.value;
-                                    const preferred = (renderedComp && domPos) ? { x: renderedComp.x, y: domPos.y } : (renderedComp ?? domPos);
-                                    const result = expandSkillsFromLayout(selectedChild.value, grandChildNodes.value, grandChildEdges.value, preferred, { layout: 'auto' }, height.value);
-                                    grandChildNodes.value = result.grandChildNodes;
-                                    grandChildEdges.value = result.grandChildEdges;
+                                    const renderedComp =
+                                        renderedNodeById(compId) ??
+                                        selectedChild.value;
+                                    const preferred =
+                                        renderedComp && domPos
+                                            ? { x: renderedComp.x, y: domPos.y }
+                                            : (renderedComp ?? domPos);
+                                    const result = expandSkillsFromLayout(
+                                        selectedChild.value,
+                                        grandChildNodes.value,
+                                        grandChildEdges.value,
+                                        preferred,
+                                        { layout: 'auto' },
+                                        height.value,
+                                    );
+                                    grandChildNodes.value =
+                                        result.grandChildNodes;
+                                    grandChildEdges.value =
+                                        result.grandChildEdges;
                                     nextTick(() => {
-                                        grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
+                                        grandChildNodes.value =
+                                            grandChildNodes.value.map(
+                                                (g: any) => ({
+                                                    ...g,
+                                                    x: g.animTargetX ?? g.x,
+                                                    y: g.animTargetY ?? g.y,
+                                                    animScale: 1,
+                                                    animOpacity: 1,
+                                                    animFilter: 'none',
+                                                }),
+                                            );
                                     });
                                 }
-                            } catch (err: unknown) { void err; }
+                            } catch (err: unknown) {
+                                void err;
+                            }
                         }
                     }
-                } catch (err: unknown) { void err; }
-            } catch (err: unknown) { void err; }
+                } catch (err: unknown) {
+                    void err;
+                }
+            } catch (err: unknown) {
+                void err;
+            }
 
             return;
         }
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
     // debounce/guard: avoid processing duplicate rapid calls for the same node
     try {
         const now = Date.now();
-        if ((window as any).__lastClick && (window as any).__lastClick.id === (node as any)?.id && now - (window as any).__lastClick.time < 300) {
-            if ((window as any).__DEBUG__) console.debug('[node.click] ignored duplicate click id=', (node as any)?.id);
+        if (
+            (window as any).__lastClick &&
+            (window as any).__lastClick.id === (node as any)?.id &&
+            now - (window as any).__lastClick.time < 300
+        ) {
+            if ((window as any).__DEBUG__)
+                console.debug(
+                    '[node.click] ignored duplicate click id=',
+                    (node as any)?.id,
+                );
             return;
         }
         (window as any).__lastClick = { id: (node as any)?.id, time: now };
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
 
     // capture previous focused node so we can swap positions when appropriate
     const prev = focusedNode.value ? { ...focusedNode.value } : undefined;
@@ -2720,41 +3794,83 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             try {
                 const lvl = nodeLevel((node as any).id);
                 if (lvl === 2) {
-                    try { noAnimations.value = true; } catch (err: unknown) { void err; }
+                    try {
+                        noAnimations.value = true;
+                    } catch (err: unknown) {
+                        void err;
+                    }
                     const parentId = parentNode.id;
                     nodes.value = nodes.value.map((n: any) => {
                         if (n.id === parentId) return { ...n, visible: true };
                         return { ...n, visible: false };
                     });
                     // advance to display:none shortly to free space (keep for compatibility with any code reading __displayNone)
-                    setTimeout(() => {
-                        nodes.value = nodes.value.map((n: any) => (n.id === parentId ? { ...n, visible: true } : { ...n, visible: false }));
-                    }, Math.max(40, TRANSITION_MS - 120));
+                    setTimeout(
+                        () => {
+                            nodes.value = nodes.value.map((n: any) =>
+                                n.id === parentId
+                                    ? { ...n, visible: true }
+                                    : { ...n, visible: false },
+                            );
+                        },
+                        Math.max(40, TRANSITION_MS - 120),
+                    );
                 }
             } catch (err: unknown) {
                 void err;
             }
             // capture parent's previous position so children can animate from there in sync
-            const parentPrevPos = { x: parentNode.x ?? 0, y: parentNode.y ?? 0 };
+            const parentPrevPos = {
+                x: parentNode.x ?? 0,
+                y: parentNode.y ?? 0,
+            };
             // center parent first so child positions are computed relative to it
             centerOnNode(parentNode, prev);
             // start expanding children slightly before the parent's full transition ends
             // (race between transitionend and a lead timeout = 60% of TRANSITION_MS)
             const parentLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
-            await Promise.race([waitForTransitionForNode(parentNode.id), wait(parentLead)]);
+            await Promise.race([
+                waitForTransitionForNode(parentNode.id),
+                wait(parentLead),
+            ]);
             // rebuild children under the parent (positions will use updated parent coords)
             const updatedParent = nodeById(parentNode.id) || parentNode;
             try {
-                if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=childClick, target=updatedParent', { nodeId: updatedParent?.id, comps: Array.isArray(updatedParent?.competencies) ? updatedParent!.competencies.length : 0, opts: parentPrevPos, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
-            } catch (err: unknown) { void err; }
+                if ((window as any).__DEBUG__)
+                    console.debug(
+                        '[expandCompetencies.call] source=childClick, target=updatedParent',
+                        {
+                            nodeId: updatedParent?.id,
+                            comps: Array.isArray(updatedParent?.competencies)
+                                ? updatedParent!.competencies.length
+                                : 0,
+                            opts: parentPrevPos,
+                            visualConfigLayout:
+                                props.visualConfig?.capabilityChildrenOffset,
+                            configDefault:
+                                LAYOUT_CONFIG.competency?.defaultLayout,
+                        },
+                    );
+            } catch (err: unknown) {
+                void err;
+            }
             try {
-                const compCount = Array.isArray(updatedParent?.competencies) ? updatedParent!.competencies.length : 0;
+                const compCount = Array.isArray(updatedParent?.competencies)
+                    ? updatedParent!.competencies.length
+                    : 0;
                 if (compCount >= 4) {
                     // for 4..8 -> 4x2, 9..maxDisplay -> 5x2 (handled inside expandCompetencies via matrixVariants)
-                    expandCompetencies(updatedParent as NodeItem, parentPrevPos, { layout: 'matrix' });
+                    expandCompetencies(
+                        updatedParent as NodeItem,
+                        parentPrevPos,
+                        { layout: 'matrix' },
+                    );
                 } else {
                     // keep default behavior for small counts to preserve positions
-                    expandCompetencies(updatedParent as NodeItem, parentPrevPos);
+                    expandCompetencies(
+                        updatedParent as NodeItem,
+                        parentPrevPos,
+                    );
                 }
             } catch (err: unknown) {
                 expandCompetencies(updatedParent as NodeItem, parentPrevPos);
@@ -2767,57 +3883,121 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             // load related skills for the selected competency (if any)
             try {
                 const comp = selectedChild.value as any;
-                const compId = comp?.compId ?? comp?.raw?.id ?? Math.abs(comp?.id || 0);
+                const compId =
+                    comp?.compId ?? comp?.raw?.id ?? Math.abs(comp?.id || 0);
                 if (compId) {
-                    const skills = await fetchSkillsForCompetency(Number(compId));
-                                try { (selectedChild.value as any).skills = Array.isArray(skills) ? skills : []; } catch (err: unknown) { void err; }
+                    const skills = await fetchSkillsForCompetency(
+                        Number(compId),
+                    );
+                    try {
+                        (selectedChild.value as any).skills = Array.isArray(
+                            skills,
+                        )
+                            ? skills
+                            : [];
+                    } catch (err: unknown) {
+                        void err;
+                    }
                 }
-                            } catch (err: unknown) { void err; }
+            } catch (err: unknown) {
+                void err;
+            }
             // hide all except selected competency and its parent
             try {
-                const cid = (selectedChild.value as any)?.id ?? (node as any)?.id;
+                const cid =
+                    (selectedChild.value as any)?.id ?? (node as any)?.id;
                 if (cid != null) showOnlySelectedAndParent(cid, true);
-                } catch (err: unknown) { void err; }
+            } catch (err: unknown) {
+                void err;
+            }
             // Ensure the selected child remains visible (do not let it disappear)
             try {
-                const fid = (selectedChild.value as any)?.id ?? (focusedNode.value as any).id;
+                const fid =
+                    (selectedChild.value as any)?.id ??
+                    (focusedNode.value as any).id;
                 if (fid != null) {
                     // make any existing rendered child visible and bring to front
                     childNodes.value = childNodes.value.map((ch: any) => {
-                        if (ch.id === fid) return { ...ch, animOpacity: 1, animScale: ch.animScale ?? 1, visible: true } as any;
+                        if (ch.id === fid)
+                            return {
+                                ...ch,
+                                animOpacity: 1,
+                                animScale: ch.animScale ?? 1,
+                                visible: true,
+                            } as any;
                         return ch;
                     });
                     const found = childNodeById(fid);
                     if (found) {
-                        const others = childNodes.value.filter((ch: any) => ch.id !== fid);
-                        childNodes.value = others.concat(childNodes.value.filter((ch: any) => ch.id === fid));
+                        const others = childNodes.value.filter(
+                            (ch: any) => ch.id !== fid,
+                        );
+                        childNodes.value = others.concat(
+                            childNodes.value.filter((ch: any) => ch.id === fid),
+                        );
                     }
                 }
             } catch (err: unknown) {
                 void err;
             }
             // set updated reference for later use
-            updated = (freshChild as NodeItem) || updatedParent || nodeById(node.id) || node;
+            updated =
+                (freshChild as NodeItem) ||
+                updatedParent ||
+                nodeById(node.id) ||
+                node;
             // if the child itself has inner skills/competencies, expand them now
-            if (freshChild && ((freshChild as any).skills || (freshChild as any).competencies)) {
+            if (
+                freshChild &&
+                ((freshChild as any).skills || (freshChild as any).competencies)
+            ) {
                 // expand grandchildren under the child. Start them slightly before the child
                 // finishes by racing the child's transitionend with a short lead timeout.
                 const childId = (freshChild as NodeItem).id;
                 const childLead = Math.max(0, Math.round(TRANSITION_MS * 0.5));
-                await Promise.race([waitForTransitionForNode(childId), wait(childLead)]);
+                await Promise.race([
+                    waitForTransitionForNode(childId),
+                    wait(childLead),
+                ]);
                 try {
-                    if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=childClick.grandchildren, target=freshChild', { nodeId: freshChild?.id, comps: Array.isArray(freshChild?.competencies) ? freshChild!.competencies.length : 0, opts: parentPrevPos, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
-                } catch (err: unknown) { void err; }
-                    try {
-                        const compCount = Array.isArray(freshChild?.competencies) ? freshChild!.competencies.length : 0;
-                        if (compCount >= 4) {
-                            expandCompetencies(freshChild as NodeItem, parentPrevPos, { layout: 'matrix' });
-                        } else {
-                            expandCompetencies(freshChild as NodeItem, parentPrevPos);
-                        }
-                    } catch (err: unknown) {
-                        expandCompetencies(freshChild as NodeItem, parentPrevPos);
+                    if ((window as any).__DEBUG__)
+                        console.debug(
+                            '[expandCompetencies.call] source=childClick.grandchildren, target=freshChild',
+                            {
+                                nodeId: freshChild?.id,
+                                comps: Array.isArray(freshChild?.competencies)
+                                    ? freshChild!.competencies.length
+                                    : 0,
+                                opts: parentPrevPos,
+                                visualConfigLayout:
+                                    props.visualConfig
+                                        ?.capabilityChildrenOffset,
+                                configDefault:
+                                    LAYOUT_CONFIG.competency?.defaultLayout,
+                            },
+                        );
+                } catch (err: unknown) {
+                    void err;
+                }
+                try {
+                    const compCount = Array.isArray(freshChild?.competencies)
+                        ? freshChild!.competencies.length
+                        : 0;
+                    if (compCount >= 4) {
+                        expandCompetencies(
+                            freshChild as NodeItem,
+                            parentPrevPos,
+                            { layout: 'matrix' },
+                        );
+                    } else {
+                        expandCompetencies(
+                            freshChild as NodeItem,
+                            parentPrevPos,
+                        );
                     }
+                } catch (err: unknown) {
+                    expandCompetencies(freshChild as NodeItem, parentPrevPos);
+                }
             }
         } else {
             // fallback: treat as normal node click
@@ -2826,56 +4006,125 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             centerOnNode(node, prev);
             // start expanding a bit earlier: race transitionend with a lead timeout
             const nodeLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
-            await Promise.race([waitForTransitionForNode(node.id), wait(nodeLead)]);
+            await Promise.race([
+                waitForTransitionForNode(node.id),
+                wait(nodeLead),
+            ]);
             updated = nodeById(node.id) || node;
             try {
-                if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=childClick.fallback, target=updated', { nodeId: updated?.id, comps: Array.isArray(updated?.competencies) ? updated!.competencies.length : 0, opts: nodePrevPos, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
-            } catch (err: unknown) { void err; }
+                if ((window as any).__DEBUG__)
+                    console.debug(
+                        '[expandCompetencies.call] source=childClick.fallback, target=updated',
+                        {
+                            nodeId: updated?.id,
+                            comps: Array.isArray(updated?.competencies)
+                                ? updated!.competencies.length
+                                : 0,
+                            opts: nodePrevPos,
+                            visualConfigLayout:
+                                props.visualConfig?.capabilityChildrenOffset,
+                            configDefault:
+                                LAYOUT_CONFIG.competency?.defaultLayout,
+                        },
+                    );
+            } catch (err: unknown) {
+                void err;
+            }
             expandCompetencies(updated as NodeItem, nodePrevPos);
         }
     } else {
         // normal capability node click
-            focusedNode.value = node;
-            // first reposition nodes so focused node is centered and others snap aside
-            const nodePrevPos = { x: node.x ?? 0, y: node.y ?? 0 };
-            centerOnNode(node, prev);
-            // ensure selected node is horizontally centered and vertically at 25% of canvas
+        focusedNode.value = node;
+        // first reposition nodes so focused node is centered and others snap aside
+        const nodePrevPos = { x: node.x ?? 0, y: node.y ?? 0 };
+        centerOnNode(node, prev);
+        // ensure selected node is horizontally centered and vertically at 25% of canvas
+        try {
+            const selected = nodeById(node.id) || node;
+            const centerX = Math.round(width.value / 2);
+            const targetY = Math.round(height.value * 0.25);
+            // apply desired coordinates (will animate via CSS transitions)
+            selected.x = centerX;
+            selected.y = targetY;
+            // hide non-selected level-1 nodes but keep scenario node visible
+            const scenarioId = scenarioNode.value?.id ?? null;
+            nodes.value = nodes.value.map((n: any) => {
+                if (n.id === selected.id || n.id === scenarioId)
+                    return { ...n, visible: true };
+                return { ...n, visible: false };
+            });
+            // advance to display:none shortly after to free layout space (maintain timing behavior)
+            setTimeout(
+                () => {
+                    nodes.value = nodes.value.map((n: any) =>
+                        n.id === selected.id || n.id === scenarioId
+                            ? { ...n, visible: true }
+                            : { ...n, visible: false },
+                    );
+                },
+                Math.max(40, TRANSITION_MS - 120),
+            );
+            // start expanding a bit earlier: race transitionend with a lead timeout
+            const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
+            await Promise.race([
+                waitForTransitionForNode(selected.id),
+                wait(centeredLead),
+            ]);
+            // then expand competencies using the updated focused node coordinates (limit to 10 in 2x5)
+            updated = nodeById(selected.id) || selected;
             try {
-                const selected = nodeById(node.id) || node;
-                const centerX = Math.round(width.value / 2);
-                const targetY = Math.round(height.value * 0.25);
-                // apply desired coordinates (will animate via CSS transitions)
-                selected.x = centerX;
-                selected.y = targetY;
-                // hide non-selected level-1 nodes but keep scenario node visible
-                const scenarioId = scenarioNode.value?.id ?? null;
-                nodes.value = nodes.value.map((n: any) => {
-                    if (n.id === selected.id || n.id === scenarioId) return { ...n, visible: true };
-                    return { ...n, visible: false };
-                });
-                // advance to display:none shortly after to free layout space (maintain timing behavior)
-                setTimeout(() => {
-                    nodes.value = nodes.value.map((n: any) => (n.id === selected.id || n.id === scenarioId ? { ...n, visible: true } : { ...n, visible: false }));
-                }, Math.max(40, TRANSITION_MS - 120));
-                // start expanding a bit earlier: race transitionend with a lead timeout
-                const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
-                await Promise.race([waitForTransitionForNode(selected.id), wait(centeredLead)]);
-                // then expand competencies using the updated focused node coordinates (limit to 10 in 2x5)
-                updated = nodeById(selected.id) || selected;
-                try {
-                    if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=capabilityClick, target=updated', { nodeId: updated?.id, comps: Array.isArray(updated?.competencies) ? updated!.competencies.length : 0, opts: { limit: 10, rows: 2, cols: 5 }, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
-                } catch (err: unknown) { void err; }
-                expandCompetencies(updated as NodeItem, nodePrevPos, { limit: 10, rows: 2, cols: 5 });
+                if ((window as any).__DEBUG__)
+                    console.debug(
+                        '[expandCompetencies.call] source=capabilityClick, target=updated',
+                        {
+                            nodeId: updated?.id,
+                            comps: Array.isArray(updated?.competencies)
+                                ? updated!.competencies.length
+                                : 0,
+                            opts: { limit: 10, rows: 2, cols: 5 },
+                            visualConfigLayout:
+                                props.visualConfig?.capabilityChildrenOffset,
+                            configDefault:
+                                LAYOUT_CONFIG.competency?.defaultLayout,
+                        },
+                    );
             } catch (err: unknown) {
-                // fallback: original flow
-                const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
-                await Promise.race([waitForTransitionForNode(node.id), wait(centeredLead)]);
-                updated = nodeById(node.id) || node;
-                try {
-                    if ((window as any).__DEBUG__) console.debug('[expandCompetencies.call] source=capabilityClick.fallback, target=updated', { nodeId: updated?.id, comps: Array.isArray(updated?.competencies) ? updated!.competencies.length : 0, opts: nodePrevPos, visualConfigLayout: props.visualConfig?.capabilityChildrenOffset, configDefault: LAYOUT_CONFIG.competency?.defaultLayout });
-                } catch (err: unknown) { void err; }
-                expandCompetencies(updated as NodeItem, nodePrevPos);
+                void err;
             }
+            expandCompetencies(updated as NodeItem, nodePrevPos, {
+                limit: 10,
+                rows: 2,
+                cols: 5,
+            });
+        } catch (err: unknown) {
+            // fallback: original flow
+            const centeredLead = Math.max(0, Math.round(TRANSITION_MS * 0.6));
+            await Promise.race([
+                waitForTransitionForNode(node.id),
+                wait(centeredLead),
+            ]);
+            updated = nodeById(node.id) || node;
+            try {
+                if ((window as any).__DEBUG__)
+                    console.debug(
+                        '[expandCompetencies.call] source=capabilityClick.fallback, target=updated',
+                        {
+                            nodeId: updated?.id,
+                            comps: Array.isArray(updated?.competencies)
+                                ? updated!.competencies.length
+                                : 0,
+                            opts: nodePrevPos,
+                            visualConfigLayout:
+                                props.visualConfig?.capabilityChildrenOffset,
+                            configDefault:
+                                LAYOUT_CONFIG.competency?.defaultLayout,
+                        },
+                    );
+            } catch (err: unknown) {
+                void err;
+            }
+            expandCompetencies(updated as NodeItem, nodePrevPos);
+        }
     }
 
     // If we are NOT in true fullscreen mode, fix panel to top-left corner
@@ -2900,7 +4149,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             // position scenario node slightly above the clicked node to act as origin
             const offsetY = props.visualConfig?.scenarioOffset ?? 80;
             const refNode = updated || node;
-            scenarioNode.value.x = (refNode.x ?? 0);
+            scenarioNode.value.x = refNode.x ?? 0;
             scenarioNode.value.y = Math.round((refNode.y ?? 0) - offsetY);
         }
     } catch (err: unknown) {
@@ -2914,7 +4163,11 @@ const closeTooltip = () => {
     childNodes.value = [];
     childEdges.value = [];
     // animate collapse of skills when tooltip closes
-    try { collapseGrandChildren(); } catch (err: unknown) { void err; }
+    try {
+        collapseGrandChildren();
+    } catch (err: unknown) {
+        void err;
+    }
     selectedChild.value = null;
     // restore original node positions if we have them
     if (originalPositions.value && originalPositions.value.size > 0) {
@@ -2952,7 +4205,9 @@ function toggleNodeSidebarCollapse() {
 // sidebar theme: 'light' | 'dark'
 const sidebarTheme = ref<'light' | 'dark'>('light');
 
-const dialogThemeClass = computed(() => (sidebarTheme.value === 'dark' ? 'dialog-dark' : 'dialog-light'));
+const dialogThemeClass = computed(() =>
+    sidebarTheme.value === 'dark' ? 'dialog-dark' : 'dialog-light',
+);
 
 function toggleSidebarTheme() {
     sidebarTheme.value = sidebarTheme.value === 'light' ? 'dark' : 'light';
@@ -3020,7 +4275,9 @@ function onPanelPointerMove(e: PointerEvent) {
     const proposedY = Math.round(e.clientY - panelDragOffset.value.y);
     // attempt to clamp within mapRoot bounds (if available)
     const mapEl = mapRoot.value as HTMLElement | null;
-    const panelEl = document.querySelector('.glass-panel-strong') as HTMLElement | null;
+    const panelEl = document.querySelector(
+        '.glass-panel-strong',
+    ) as HTMLElement | null;
     if (panelEl) {
         const panelRect = panelEl.getBoundingClientRect();
         if (document.fullscreenElement) {
@@ -3029,8 +4286,14 @@ function onPanelPointerMove(e: PointerEvent) {
             const maxX = Math.round(window.innerWidth - panelRect.width - 8);
             const minY = 8;
             const maxY = Math.round(window.innerHeight - panelRect.height - 8);
-            tooltipX.value = Math.min(Math.max(proposedX, minX), Math.max(minX, maxX));
-            tooltipY.value = Math.min(Math.max(proposedY, minY), Math.max(minY, maxY));
+            tooltipX.value = Math.min(
+                Math.max(proposedX, minX),
+                Math.max(minX, maxX),
+            );
+            tooltipY.value = Math.min(
+                Math.max(proposedY, minY),
+                Math.max(minY, maxY),
+            );
             return;
         }
         if (mapEl) {
@@ -3039,8 +4302,14 @@ function onPanelPointerMove(e: PointerEvent) {
             const maxX = Math.round(mapRect.right - panelRect.width - 8);
             const minY = Math.round(mapRect.top + 8);
             const maxY = Math.round(mapRect.bottom - panelRect.height - 8);
-            tooltipX.value = Math.min(Math.max(proposedX, minX), Math.max(minX, maxX));
-            tooltipY.value = Math.min(Math.max(proposedY, minY), Math.max(minY, maxY));
+            tooltipX.value = Math.min(
+                Math.max(proposedX, minX),
+                Math.max(minX, maxX),
+            );
+            tooltipY.value = Math.min(
+                Math.max(proposedY, minY),
+                Math.max(minY, maxY),
+            );
             return;
         }
     }
@@ -3058,23 +4327,30 @@ function onPanelPointerUp() {
 function handleSkillClick(skill: any, event?: MouseEvent) {
     try {
         // Find parent competency by edge and set it as selected
-        const parentEdge = grandChildEdges.value.find((e) => e.target === skill.id);
+        const parentEdge = grandChildEdges.value.find(
+            (e) => e.target === skill.id,
+        );
         const parentComp = parentEdge ? childNodeById(parentEdge.source) : null;
         if (parentComp) {
             selectedChild.value = parentComp as any;
             // optionally focus the parent capability as well
-            const parentOfCompEdge = childEdges.value.find((e) => e.target === parentComp.id);
-            if (parentOfCompEdge) focusedNode.value = nodeById(parentOfCompEdge.source);
+            const parentOfCompEdge = childEdges.value.find(
+                (e) => e.target === parentComp.id,
+            );
+            if (parentOfCompEdge)
+                focusedNode.value = nodeById(parentOfCompEdge.source);
         }
         // Open a skill-detail modal showing attributes for the clicked skill
         try {
-            selectedSkillDetail.value = (skill && (skill.raw ?? skill)) || skill;
+            selectedSkillDetail.value =
+                (skill && (skill.raw ?? skill)) || skill;
             // populate editable refs from selectedSkillDetail
             const s = selectedSkillDetail.value || {};
             skillEditName.value = s.name ?? '';
             skillEditDescription.value = s.description ?? '';
             skillEditCategory.value = s.category ?? skillEditCategory.value;
-            skillEditComplexityLevel.value = s.complexity_level ?? skillEditComplexityLevel.value;
+            skillEditComplexityLevel.value =
+                s.complexity_level ?? skillEditComplexityLevel.value;
             skillEditScopeType.value = s.scope_type ?? skillEditScopeType.value;
             skillEditDomainTag.value = s.domain_tag ?? '';
             skillEditIsCritical.value = !!s.is_critical;
@@ -3085,16 +4361,39 @@ function handleSkillClick(skill: any, event?: MouseEvent) {
                 const parentCap = focusedNode.value as any;
                 if (comp && parentCap && props.scenario && props.scenario.id) {
                     // attempt to find pivot in comp.raw.pivot or in parentCap.raw.scenario_capabilities
-                    let pivot: any = comp.raw?.pivot ?? comp.raw?.capability_pivot ?? null;
-                    if (!pivot && Array.isArray(parentCap?.raw?.scenario_capabilities)) {
-                        pivot = parentCap.raw.scenario_capabilities.find((p: any) => Number(p.competency_id ?? p.id ?? 0) === Number(comp.compId ?? comp.raw?.id ?? Math.abs(comp.id || 0)));
+                    let pivot: any =
+                        comp.raw?.pivot ?? comp.raw?.capability_pivot ?? null;
+                    if (
+                        !pivot &&
+                        Array.isArray(parentCap?.raw?.scenario_capabilities)
+                    ) {
+                        pivot = parentCap.raw.scenario_capabilities.find(
+                            (p: any) =>
+                                Number(p.competency_id ?? p.id ?? 0) ===
+                                Number(
+                                    comp.compId ??
+                                        comp.raw?.id ??
+                                        Math.abs(comp.id || 0),
+                                ),
+                        );
                     }
                     if (pivot) {
-                        skillPivotRequiredLevel.value = pivot.required_level ?? pivot.required ?? skillPivotRequiredLevel.value;
-                        skillPivotPriority.value = pivot.priority ?? skillPivotPriority.value;
-                        skillPivotWeight.value = pivot.strategic_weight ?? pivot.weight ?? skillPivotWeight.value;
+                        skillPivotRequiredLevel.value =
+                            pivot.required_level ??
+                            pivot.required ??
+                            skillPivotRequiredLevel.value;
+                        skillPivotPriority.value =
+                            pivot.priority ?? skillPivotPriority.value;
+                        skillPivotWeight.value =
+                            pivot.strategic_weight ??
+                            pivot.weight ??
+                            skillPivotWeight.value;
                         skillPivotRationale.value = pivot.rationale ?? '';
-                        skillPivotIsRequired.value = !!(pivot.is_required ?? pivot.is_critical ?? false);
+                        skillPivotIsRequired.value = !!(
+                            pivot.is_required ??
+                            pivot.is_critical ??
+                            false
+                        );
                     } else {
                         // fallback to empty defaults
                         skillPivotRequiredLevel.value = undefined;
@@ -3104,11 +4403,17 @@ function handleSkillClick(skill: any, event?: MouseEvent) {
                         skillPivotIsRequired.value = false;
                     }
                 }
-            } catch (errP: unknown) { void errP; }
+            } catch (errP: unknown) {
+                void errP;
+            }
 
             skillDetailDialogVisible.value = true;
-        } catch (errInner: unknown) { void errInner; }
-            } catch (err: unknown) { void err; }
+        } catch (errInner: unknown) {
+            void errInner;
+        }
+    } catch (err: unknown) {
+        void err;
+    }
 }
 
 // Save skill edits + optional pivot edits
@@ -3121,9 +4426,12 @@ async function saveSkillDetail() {
             selectedChild: selectedChild?.value ?? null,
             focusedNode: focusedNode?.value ?? null,
         });
-    } catch (errDbg: unknown) { void errDbg; }
+    } catch (errDbg: unknown) {
+        void errDbg;
+    }
 
-    if (!selectedSkillDetail.value) return showError('No hay skill seleccionada');
+    if (!selectedSkillDetail.value)
+        return showError('No hay skill seleccionada');
     const skillId = selectedSkillDetail.value.id ?? null;
     if (!skillId) return showError('Skill no tiene id');
     savingSkillDetail.value = true;
@@ -3138,15 +4446,29 @@ async function saveSkillDetail() {
             is_critical: !!skillEditIsCritical.value,
         };
         // remove undefined keys
-        Object.keys(skillPayload).forEach((k) => skillPayload[k] === undefined && delete skillPayload[k]);
+        Object.keys(skillPayload).forEach(
+            (k) => skillPayload[k] === undefined && delete skillPayload[k],
+        );
         // update skill entity
         try {
             // Ensure CSRF cookie (Sanctum) is present before mutating requests
-            try { await ensureCsrf(); } catch (e) { /* proceed, server may not require it */ }
+            try {
+                await ensureCsrf();
+            } catch (e) {
+                /* proceed, server may not require it */
+            }
             await api.patch(`/api/skills/${skillId}`, skillPayload);
             showSuccess('Skill actualizada');
         } catch (err: unknown) {
-            try { console.error('saveSkillDetail - skill patch error', err, (err as any)?.response?.data); } catch (e) { console.error('saveSkillDetail - skill patch error', err); }
+            try {
+                console.error(
+                    'saveSkillDetail - skill patch error',
+                    err,
+                    (err as any)?.response?.data,
+                );
+            } catch (e) {
+                console.error('saveSkillDetail - skill patch error', err);
+            }
             showError('Error guardando skill');
             throw err;
         }
@@ -3157,35 +4479,65 @@ async function saveSkillDetail() {
             // attempt to patch that pivot directly. This covers edits made from within a competency context.
             try {
                 // Support both internal refs (.value) and unwrapped objects (tests may set plain values)
-                const unwrappedSkill: any = (typeof selectedSkillDetail.value !== 'undefined')
-                    ? (selectedSkillDetail.value ?? selectedSkillDetail)
-                    : null;
-                const skillPivotObj = unwrappedSkill?.pivot ?? unwrappedSkill?.raw?.pivot ?? null;
-                const compSkillPivotId = skillPivotObj?.id ?? skillPivotObj?.pivot_id ?? null;
-                const comp: any = (typeof selectedChild.value !== 'undefined') ? (selectedChild.value ?? selectedChild) : null;
+                const unwrappedSkill: any =
+                    typeof selectedSkillDetail.value !== 'undefined'
+                        ? (selectedSkillDetail.value ?? selectedSkillDetail)
+                        : null;
+                const skillPivotObj =
+                    unwrappedSkill?.pivot ?? unwrappedSkill?.raw?.pivot ?? null;
+                const compSkillPivotId =
+                    skillPivotObj?.id ?? skillPivotObj?.pivot_id ?? null;
+                const comp: any =
+                    typeof selectedChild.value !== 'undefined'
+                        ? (selectedChild.value ?? selectedChild)
+                        : null;
                 // Build payload using available pivot fields (weight is the primary field on competency_skills)
                 if (compSkillPivotId) {
                     const csPayload: any = {};
-                    if (skillPivotWeight.value !== undefined && skillPivotWeight.value !== null) csPayload.weight = skillPivotWeight.value;
+                    if (
+                        skillPivotWeight.value !== undefined &&
+                        skillPivotWeight.value !== null
+                    )
+                        csPayload.weight = skillPivotWeight.value;
                     // remove undefined
-                    Object.keys(csPayload).forEach((k) => csPayload[k] === undefined && delete csPayload[k]);
+                    Object.keys(csPayload).forEach(
+                        (k) =>
+                            csPayload[k] === undefined && delete csPayload[k],
+                    );
                     if (Object.keys(csPayload).length > 0) {
                         try {
-                            await api.patch(`/api/competency-skills/${compSkillPivotId}`, csPayload);
-                            showSuccess('Atributos de relación skill-competencia actualizados');
+                            await api.patch(
+                                `/api/competency-skills/${compSkillPivotId}`,
+                                csPayload,
+                            );
+                            showSuccess(
+                                'Atributos de relación skill-competencia actualizados',
+                            );
                         } catch (errCs: unknown) {
-                            console.error('saveSkillDetail - competency_skills patch failed', errCs);
+                            console.error(
+                                'saveSkillDetail - competency_skills patch failed',
+                                errCs,
+                            );
                             // don't throw here; continue to other pivot attempts
                         }
                     }
                 }
-            } catch (errCsAll: unknown) { void errCsAll; }
+            } catch (errCsAll: unknown) {
+                void errCsAll;
+            }
 
-                // Ensure we unwrap refs to actual objects (avoid returning the Ref itself)
-            const comp2: any = (selectedChild.value && typeof selectedChild.value === 'object') ? (selectedChild.value ?? null) : null;
-            const parentCap: any = (focusedNode.value && typeof focusedNode.value === 'object') ? (focusedNode.value ?? null) : null;
+            // Ensure we unwrap refs to actual objects (avoid returning the Ref itself)
+            const comp2: any =
+                selectedChild.value && typeof selectedChild.value === 'object'
+                    ? (selectedChild.value ?? null)
+                    : null;
+            const parentCap: any =
+                focusedNode.value && typeof focusedNode.value === 'object'
+                    ? (focusedNode.value ?? null)
+                    : null;
             const scenarioId = props.scenario?.id ?? null;
-            const compId = comp2?.compId ?? comp2?.raw?.id ?? Math.abs(comp2?.id || 0);
+            const compId =
+                comp2?.compId ?? comp2?.raw?.id ?? Math.abs(comp2?.id || 0);
             const capId = parentCap?.id ?? parentCap?.raw?.id ?? null;
             if (scenarioId && capId && compId) {
                 const pivotPayload: any = {
@@ -3196,31 +4548,57 @@ async function saveSkillDetail() {
                     rationale: skillPivotRationale.value?.trim() ?? undefined,
                     is_required: !!skillPivotIsRequired.value,
                 };
-                Object.keys(pivotPayload).forEach((k) => pivotPayload[k] === undefined && delete pivotPayload[k]);
+                Object.keys(pivotPayload).forEach(
+                    (k) =>
+                        pivotPayload[k] === undefined && delete pivotPayload[k],
+                );
                 if (Object.keys(pivotPayload).length > 0) {
                     // Primary endpoint: scenario-scoped capability->competency update
                     try {
-                        await api.patch(`/api/strategic-planning/scenarios/${scenarioId}/capabilities/${capId}/competencies/${compId}`, pivotPayload);
+                        await api.patch(
+                            `/api/strategic-planning/scenarios/${scenarioId}/capabilities/${capId}/competencies/${compId}`,
+                            pivotPayload,
+                        );
                         showSuccess('Atributos de competencia actualizados');
                     } catch (errPrimary: unknown) {
                         // fallback: try pivot-specific endpoint if pivot had id
-                        const pivotId = comp2?.raw?.pivot?.id ?? comp2?.raw?.capability_pivot?.id ?? null;
+                        const pivotId =
+                            comp2?.raw?.pivot?.id ??
+                            comp2?.raw?.capability_pivot?.id ??
+                            null;
                         if (pivotId) {
                             try {
-                                await api.patch(`/api/capability-competencies/${pivotId}`, pivotPayload);
-                                showSuccess('Atributos de competencia actualizados (pivot)');
+                                await api.patch(
+                                    `/api/capability-competencies/${pivotId}`,
+                                    pivotPayload,
+                                );
+                                showSuccess(
+                                    'Atributos de competencia actualizados (pivot)',
+                                );
                             } catch (errPivot: unknown) {
-                                console.error('saveSkillDetail - pivot patch fallback failed', errPivot);
-                                showError('Error guardando atributos de competencia');
+                                console.error(
+                                    'saveSkillDetail - pivot patch fallback failed',
+                                    errPivot,
+                                );
+                                showError(
+                                    'Error guardando atributos de competencia',
+                                );
                             }
                         } else {
-                            console.error('saveSkillDetail - pivot patch primary failed', errPrimary);
-                            showError('Error guardando atributos de competencia');
+                            console.error(
+                                'saveSkillDetail - pivot patch primary failed',
+                                errPrimary,
+                            );
+                            showError(
+                                'Error guardando atributos de competencia',
+                            );
                         }
                     }
                 }
             }
-        } catch (errPivotAll: unknown) { void errPivotAll; }
+        } catch (errPivotAll: unknown) {
+            void errPivotAll;
+        }
 
         // Refresh skill entity from API (authoritative source)
         let freshSkill: any = null;
@@ -3229,14 +4607,16 @@ async function saveSkillDetail() {
             const data = skillResp?.data ?? skillResp;
             // API returns array, extract first element if needed
             freshSkill = Array.isArray(data) ? data[0] : data;
-        } catch (errRef: unknown) { 
+        } catch (errRef: unknown) {
             console.error('Failed to refresh skill after save', errRef);
         }
 
         // Update skill data using hierarchical update composable
         if (freshSkill && typeof freshSkill.id !== 'undefined') {
-            const realCompId = (selectedChild.value as any)?.compId ?? (selectedChild.value as any)?.raw?.id;
-            
+            const realCompId =
+                (selectedChild.value as any)?.compId ??
+                (selectedChild.value as any)?.raw?.id;
+
             // Use composable to update all data sources (leaf to root)
             await hierarchicalUpdate.update('skill', freshSkill, realCompId);
 
@@ -3248,7 +4628,14 @@ async function saveSkillDetail() {
     } catch (errAll: unknown) {
         // already reported
     } finally {
-        try { console.debug('[saveSkillDetail] finished, savingSkillDetail:', savingSkillDetail.value); } catch (e) { void e; }
+        try {
+            console.debug(
+                '[saveSkillDetail] finished, savingSkillDetail:',
+                savingSkillDetail.value,
+            );
+        } catch (e) {
+            void e;
+        }
         savingSkillDetail.value = false;
     }
 }
@@ -3277,7 +4664,10 @@ watch(createSkillDialogVisible, (visible) => {
     if (visible) {
         // When opening, check if displayNode is a skill
         const node = displayNode.value;
-        if (node && (node.skillId || (typeof node.id === 'number' && node.id > 0))) {
+        if (
+            node &&
+            (node.skillId || (typeof node.id === 'number' && node.id > 0))
+        ) {
             selectedSkillForDeletion.value = node;
         } else {
             selectedSkillForDeletion.value = null;
@@ -3292,75 +4682,155 @@ watch(createSkillDialogVisible, (visible) => {
 
 // Expose saveSkillDetail for debugging from browser console
 onMounted(() => {
-    try { (window as any).__saveSkillDetail = saveSkillDetail; } catch (e) { void e; }
+    try {
+        (window as any).__saveSkillDetail = saveSkillDetail;
+    } catch (e) {
+        void e;
+    }
 });
 onBeforeUnmount(() => {
-    try { delete (window as any).__saveSkillDetail; } catch (e) { void e; }
+    try {
+        delete (window as any).__saveSkillDetail;
+    } catch (e) {
+        void e;
+    }
 });
 
 // Fullscreen toggle removed: UX disabled. We rely only on the browser Fullscreen API when used externally.
 
-function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: number }, opts: { limit?: number; rows?: number; cols?: number; layout?: 'auto' | 'radial' | 'matrix' | 'sides' } = {}) {
+function expandCompetencies(
+    node: NodeItem,
+    initialParentPos?: { x: number; y: number },
+    opts: {
+        limit?: number;
+        rows?: number;
+        cols?: number;
+        layout?: 'auto' | 'radial' | 'matrix' | 'sides';
+    } = {},
+) {
     childNodes.value = [];
     childEdges.value = [];
     const comps = (node as any).competencies ?? [];
     if (!Array.isArray(comps) || comps.length === 0) return;
-    const maxDisplay = (LAYOUT_CONFIG.competency && typeof LAYOUT_CONFIG.competency.maxDisplay === 'number') ? LAYOUT_CONFIG.competency.maxDisplay : 10;
+    const maxDisplay =
+        LAYOUT_CONFIG.competency &&
+        typeof LAYOUT_CONFIG.competency.maxDisplay === 'number'
+            ? LAYOUT_CONFIG.competency.maxDisplay
+            : 10;
     const limit = Math.min(opts.limit ?? maxDisplay, maxDisplay);
     const toShow = comps.slice(0, limit);
     if (comps.length > maxDisplay) {
-        try { showError && showError(`Solo se muestran hasta ${maxDisplay} competencias`); } catch (err: unknown) { void err; }
+        try {
+            showError &&
+                showError(`Solo se muestran hasta ${maxDisplay} competencias`);
+        } catch (err: unknown) {
+            void err;
+        }
     }
 
-    console.debug('[expandCompetencies] count:', toShow.length, 'selectedChild:', selectedChild.value ? 'YES' : 'NO');
+    console.debug(
+        '[expandCompetencies] count:',
+        toShow.length,
+        'selectedChild:',
+        selectedChild.value ? 'YES' : 'NO',
+    );
 
     // Use matrix layout (default 2 rows x 5 cols) centered under parent's x
     const cx = node.x ?? Math.round(width.value / 2);
     // place matrix top starting approximately below parent (use parent's y + offset)
     const parentY = node.y ?? Math.round(height.value / 2);
     // Defaults for competency layout (level-1 friendly defaults)
-    const DEFAULT_COMPETENCY_LAYOUT = { rows: 1, cols: 4, hSpacing: 100, vSpacing: 80 };
+    const DEFAULT_COMPETENCY_LAYOUT = {
+        rows: 1,
+        cols: 4,
+        hSpacing: 100,
+        vSpacing: 80,
+    };
     // allow smaller offset for fake/temporary nodes (negative ids)
-    const defaultParentOffset = (node.id != null && node.id < 0) ? 80 : (LAYOUT_CONFIG.competency?.parentOffset ?? 150);
+    const defaultParentOffset =
+        node.id != null && node.id < 0
+            ? 80
+            : (LAYOUT_CONFIG.competency?.parentOffset ?? 150);
     // priority: visualConfig override > top-level prop > competencyLayout prop > default per-node fallback
-    const verticalOffset = (typeof props.visualConfig?.capabilityChildrenOffset === 'number')
-        ? props.visualConfig!.capabilityChildrenOffset!
-        : (typeof props.capabilityChildrenOffset === 'number' ? props.capabilityChildrenOffset : (props.competencyLayout?.parentOffset ?? defaultParentOffset));
-    const CHILD_DROP = props.visualConfig?.childDrop ?? props.competencyLayout?.skillDrop ?? 18;
+    const verticalOffset =
+        typeof props.visualConfig?.capabilityChildrenOffset === 'number'
+            ? props.visualConfig!.capabilityChildrenOffset!
+            : typeof props.capabilityChildrenOffset === 'number'
+              ? props.capabilityChildrenOffset
+              : (props.competencyLayout?.parentOffset ?? defaultParentOffset);
+    const CHILD_DROP =
+        props.visualConfig?.childDrop ??
+        props.competencyLayout?.skillDrop ??
+        18;
     const topY = Math.round(parentY + verticalOffset + CHILD_DROP);
 
-    let rows = opts.rows ?? props.competencyLayout?.rows ?? DEFAULT_COMPETENCY_LAYOUT.rows;
-    let cols = opts.cols ?? props.competencyLayout?.cols ?? DEFAULT_COMPETENCY_LAYOUT.cols;
-    let hSpacing = props.competencyLayout?.hSpacing ?? DEFAULT_COMPETENCY_LAYOUT.hSpacing;
-    let vSpacing = props.competencyLayout?.vSpacing ?? DEFAULT_COMPETENCY_LAYOUT.vSpacing;
+    let rows =
+        opts.rows ??
+        props.competencyLayout?.rows ??
+        DEFAULT_COMPETENCY_LAYOUT.rows;
+    let cols =
+        opts.cols ??
+        props.competencyLayout?.cols ??
+        DEFAULT_COMPETENCY_LAYOUT.cols;
+    let hSpacing =
+        props.competencyLayout?.hSpacing ?? DEFAULT_COMPETENCY_LAYOUT.hSpacing;
+    let vSpacing =
+        props.competencyLayout?.vSpacing ?? DEFAULT_COMPETENCY_LAYOUT.vSpacing;
 
     // Detect if there's a selected child (focusedNode is one of the competencies)
     const selectedChildCompId = selectedChild.value?.compId ?? null;
-    const hasSelectedChild = selectedChildCompId !== null && toShow.some((c: any) => c.id === selectedChildCompId);
+    const hasSelectedChild =
+        selectedChildCompId !== null &&
+        toShow.some((c: any) => c.id === selectedChildCompId);
 
     // If count falls into configured matrixVariants, use composable to choose rows/cols
-    const matrixVariants = (LAYOUT_CONFIG.competency && Array.isArray(LAYOUT_CONFIG.competency.matrixVariants)) ? LAYOUT_CONFIG.competency.matrixVariants : [];
+    const matrixVariants =
+        LAYOUT_CONFIG.competency &&
+        Array.isArray(LAYOUT_CONFIG.competency.matrixVariants)
+            ? LAYOUT_CONFIG.competency.matrixVariants
+            : [];
     try {
-        const variantChoice = chooseMatrixVariant(toShow.length, matrixVariants, maxDisplay);
+        const variantChoice = chooseMatrixVariant(
+            toShow.length,
+            matrixVariants,
+            maxDisplay,
+        );
         rows = variantChoice.rows;
         cols = variantChoice.cols;
-    } catch (err: unknown) { void err; }
+    } catch (err: unknown) {
+        void err;
+    }
 
     // Decide layout: explicit option overrides visualConfig/layout config, 'auto' uses centralized heuristic
-    const configDefaultLayout = (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.defaultLayout) ? LAYOUT_CONFIG.competency.defaultLayout : 'auto';
+    const configDefaultLayout =
+        LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.defaultLayout
+            ? LAYOUT_CONFIG.competency.defaultLayout
+            : 'auto';
     // Use provided option or fallback to the centralized default; avoid referencing a non-existent prop
-    const layout = decideCompetencyLayout(opts.layout, hasSelectedChild, toShow.length, configDefaultLayout);
-    console.debug('[expandCompetencies] hasSelectedChild:', hasSelectedChild, 'layout:', layout);
+    const layout = decideCompetencyLayout(
+        opts.layout,
+        hasSelectedChild,
+        toShow.length,
+        configDefaultLayout,
+    );
+    console.debug(
+        '[expandCompetencies] hasSelectedChild:',
+        hasSelectedChild,
+        'layout:',
+        layout,
+    );
 
     let positions: any[] = [];
     if (layout === 'radial') {
         console.debug('[expandCompetencies] Using RADIAL layout');
         // Radial layout: selected in center, others distributed around (avoiding top where parent is)
-        const selectedIdx = toShow.findIndex((c: any) => c.id === selectedChildCompId);
+        const selectedIdx = toShow.findIndex(
+            (c: any) => c.id === selectedChildCompId,
+        );
         const radius = LAYOUT_CONFIG.competency.radial.radius;
         const selectedOffsetY = LAYOUT_CONFIG.competency.radial.selectedOffsetY;
         const otherCount = toShow.length - 1; // number of non-selected nodes
-        
+
         // Distribute nodes in lower semicircle + sides (from startAngle to endAngle)
         const startAngle = LAYOUT_CONFIG.competency.radial.startAngle;
         const endAngle = LAYOUT_CONFIG.competency.radial.endAngle;
@@ -3382,41 +4852,96 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
     } else if (layout === 'sides') {
         console.debug('[expandCompetencies] Using SIDES layout');
         try {
-            const selectedIdx = toShow.findIndex((c: any) => c.id === selectedChildCompId);
+            const selectedIdx = toShow.findIndex(
+                (c: any) => c.id === selectedChildCompId,
+            );
             const colOffset = Math.max(220, Math.round(hSpacing * 1.6));
             const sidesOpts = {
                 hSpacing: colOffset,
                 vSpacing,
                 parentOffset: verticalOffset + CHILD_DROP,
-                selectedOffsetMultiplier: (LAYOUT_CONFIG.competency && LAYOUT_CONFIG.competency.sides && typeof LAYOUT_CONFIG.competency.sides.selectedOffsetMultiplier === 'number') ? LAYOUT_CONFIG.competency.sides.selectedOffsetMultiplier : 0.75,
+                selectedOffsetMultiplier:
+                    LAYOUT_CONFIG.competency &&
+                    LAYOUT_CONFIG.competency.sides &&
+                    typeof LAYOUT_CONFIG.competency.sides
+                        .selectedOffsetMultiplier === 'number'
+                        ? LAYOUT_CONFIG.competency.sides
+                              .selectedOffsetMultiplier
+                        : 0.75,
             };
-            positions = computeSidesPositions(toShow.length, cx, parentY, sidesOpts, selectedIdx >= 0 ? selectedIdx : null);
-        } catch (err: unknown) { console.debug('sides layout compute failed', err); positions = []; }
+            positions = computeSidesPositions(
+                toShow.length,
+                cx,
+                parentY,
+                sidesOpts,
+                selectedIdx >= 0 ? selectedIdx : null,
+            );
+        } catch (err: unknown) {
+            console.debug('sides layout compute failed', err);
+            positions = [];
+        }
     } else {
         // Matrix layout for normal/default case or <5 nodes
-        console.debug('[expandCompetencies] Using MATRIX layout (rows:', rows, 'cols:', cols, 'hSpacing:', hSpacing, 'vSpacing:', vSpacing, ')');
+        console.debug(
+            '[expandCompetencies] Using MATRIX layout (rows:',
+            rows,
+            'cols:',
+            cols,
+            'hSpacing:',
+            hSpacing,
+            'vSpacing:',
+            vSpacing,
+            ')',
+        );
         if (toShow.length > 5) {
             // Expand spacing to avoid overlaps when no selection
             hSpacing = Math.round(hSpacing * 1.3);
             vSpacing = Math.round(vSpacing * 1.4);
-            console.debug('[expandCompetencies] Expanded spacing for >5 nodes without selection');
+            console.debug(
+                '[expandCompetencies] Expanded spacing for >5 nodes without selection',
+            );
         }
-        positions = computeCompetencyMatrixPositions(toShow.length, cx, topY, rows, cols, hSpacing, vSpacing);
+        positions = computeCompetencyMatrixPositions(
+            toShow.length,
+            cx,
+            topY,
+            rows,
+            cols,
+            hSpacing,
+            vSpacing,
+        );
     }
 
-        const builtChildren: Array<any> = [];
+    const builtChildren: Array<any> = [];
     toShow.forEach((c: any, i: number) => {
         const pos = positions[i] || { x: cx, y: topY };
         const id = -(node.id * 1000 + i + 1);
-        const delay = Math.max(0, Math.floor(i / cols) * (LAYOUT_CONFIG.animations.competencyStaggerRow ?? 30) + (i % cols) * (LAYOUT_CONFIG.animations.competencyStaggerCol ?? 12) + Math.round((Math.random() - 0.5) * (LAYOUT_CONFIG.animations.competencyStaggerRandom ?? 30)));
-        const existingPos = childNodes.value.find((ch: any) => ch.compId === (c.id ?? null));
+        const delay = Math.max(
+            0,
+            Math.floor(i / cols) *
+                (LAYOUT_CONFIG.animations.competencyStaggerRow ?? 30) +
+                (i % cols) *
+                    (LAYOUT_CONFIG.animations.competencyStaggerCol ?? 12) +
+                Math.round(
+                    (Math.random() - 0.5) *
+                        (LAYOUT_CONFIG.animations.competencyStaggerRandom ??
+                            30),
+                ),
+        );
+        const existingPos = childNodes.value.find(
+            (ch: any) => ch.compId === (c.id ?? null),
+        );
         const child = {
             id,
             compId: c.id ?? null,
             name: c.name ?? c,
             displayName: wrapLabel(c.name ?? c, 14),
-            x: (existingPos ? existingPos.x : (initialParentPos?.x ?? (node.x ?? cx))),
-            y: (existingPos ? existingPos.y : (initialParentPos?.y ?? (node.y ?? parentY))),
+            x: existingPos
+                ? existingPos.x
+                : (initialParentPos?.x ?? node.x ?? cx),
+            y: existingPos
+                ? existingPos.y
+                : (initialParentPos?.y ?? node.y ?? parentY),
             animScale: 0.84,
             animOpacity: 0,
             animDelay: delay,
@@ -3435,7 +4960,7 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
 
     childNodes.value = builtChildren.slice();
     nextTick(() => {
-                    childNodes.value = childNodes.value.map((ch: any) => ({
+        childNodes.value = childNodes.value.map((ch: any) => ({
             ...ch,
             x: ch.animTargetX ?? ch.x,
             y: ch.animTargetY ?? ch.y,
@@ -3445,9 +4970,17 @@ function expandCompetencies(node: NodeItem, initialParentPos?: { x: number; y: n
         }));
 
         setTimeout(() => {
-            childNodes.value = childNodes.value.map((ch: any) => ({ ...ch, animScale: 1 }));
+            childNodes.value = childNodes.value.map((ch: any) => ({
+                ...ch,
+                animScale: 1,
+            }));
             nextTick(() => {
-                childNodes.value.forEach((ch: any) => { delete ch.animTargetX; delete ch.animTargetY; delete ch.animDelay; delete ch.animFilter; });
+                childNodes.value.forEach((ch: any) => {
+                    delete ch.animTargetX;
+                    delete ch.animTargetY;
+                    delete ch.animDelay;
+                    delete ch.animFilter;
+                });
             });
         }, LAYOUT_CONFIG.animations.competencyEntryFinalize ?? 160);
     });
@@ -3558,35 +5091,64 @@ function expandSkills(node: any, initialPos?: { x: number; y: number }, opts: { 
 }
 */
 
-
 // Animación de colapso para nodos nietos (skills).
 function collapseGrandChildren(animated = false, duration?: number) {
     try {
-        duration = typeof duration === 'number' ? duration : (LAYOUT_CONFIG.animations.collapseDuration ?? 10);
+        duration =
+            typeof duration === 'number'
+                ? duration
+                : (LAYOUT_CONFIG.animations.collapseDuration ?? 10);
         if (!animated) {
             grandChildNodes.value = [];
             grandChildEdges.value = [];
             return;
         }
-        if (!Array.isArray(grandChildNodes.value) || grandChildNodes.value.length === 0) {
+        if (
+            !Array.isArray(grandChildNodes.value) ||
+            grandChildNodes.value.length === 0
+        ) {
             grandChildEdges.value = [];
             return;
         }
         // Trigger visual departure: shrink + fade + subtle blur
-        grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, animScale: 0.8, animOpacity: 0, animFilter: 'blur(6px)' }));
+        grandChildNodes.value = grandChildNodes.value.map((g: any) => ({
+            ...g,
+            animScale: 0.8,
+            animOpacity: 0,
+            animFilter: 'blur(6px)',
+        }));
         // fade edges (animate stroke-opacity) and clear after animation
         try {
-            grandChildEdges.value = grandChildEdges.value.map((ed: any) => ({ ...ed, animOpacity: 0 }));
-        } catch (err: unknown) { void err; }
+            grandChildEdges.value = grandChildEdges.value.map((ed: any) => ({
+                ...ed,
+                animOpacity: 0,
+            }));
+        } catch (err: unknown) {
+            void err;
+        }
         setTimeout(() => {
-            try { grandChildEdges.value = []; } catch (err: unknown) { void err; }
+            try {
+                grandChildEdges.value = [];
+            } catch (err: unknown) {
+                void err;
+            }
         }, duration + 10);
         // remove nodes after animation finishes
         setTimeout(() => {
-            try { grandChildNodes.value = []; } catch (err: unknown) { void err; }
+            try {
+                grandChildNodes.value = [];
+            } catch (err: unknown) {
+                void err;
+            }
         }, duration + 10);
-        try { /* edges will be removed after opacity animation above */ } catch (err: unknown) { void err; }
-    } catch (err: unknown) { void err; }
+        try {
+            /* edges will be removed after opacity animation above */
+        } catch (err: unknown) {
+            void err;
+        }
+    } catch (err: unknown) {
+        void err;
+    }
 }
 
 // NOTA: clampY ahora viene del composable useScenarioLayout
@@ -3617,8 +5179,11 @@ async function fetchAvailableCompetencies() {
         // determine the node whose competencies we should consider as "attached";
         // prefer the focused node, fall back to the sidebar/display node when used from the detail panel
         const node = focusedNode.value ?? displayNode.value ?? null;
-        const attached = (node as any)?.competencies?.map((c: any) => c.id) || [];
-        availableExistingCompetencies.value = Array.isArray(all) ? all.filter((c: any) => !attached.includes(c.id)) : [];
+        const attached =
+            (node as any)?.competencies?.map((c: any) => c.id) || [];
+        availableExistingCompetencies.value = Array.isArray(all)
+            ? all.filter((c: any) => !attached.includes(c.id))
+            : [];
     } catch (err: unknown) {
         availableExistingCompetencies.value = [];
     }
@@ -3633,25 +5198,35 @@ async function fetchSkillsForCompetency(compId: number) {
         //    competencies and their nested `skills` (produced by ScenarioController@getCapabilityTree)
         try {
             if (props.scenario && props.scenario.id) {
-                const tree: any = await api.get(`/api/strategic-planning/scenarios/${props.scenario.id}/capability-tree`);
-                const items = Array.isArray(tree) ? tree : (tree?.data ?? tree ?? []);
+                const tree: any = await api.get(
+                    `/api/strategic-planning/scenarios/${props.scenario.id}/capability-tree`,
+                );
+                const items = Array.isArray(tree)
+                    ? tree
+                    : (tree?.data ?? tree ?? []);
                 for (const cap of items) {
                     if (!cap || !Array.isArray(cap.competencies)) continue;
                     for (const comp of cap.competencies) {
                         if (Number(comp.id) === Number(compId)) {
-                            return Array.isArray(comp.skills) ? comp.skills : (comp?.skills || []);
+                            return Array.isArray(comp.skills)
+                                ? comp.skills
+                                : comp?.skills || [];
                         }
                     }
                 }
             }
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
 
         // 2) Try dedicated competency endpoints (we added these routes server-side):
         try {
             const r: any = await api.get(`/api/competencies/${compId}/skills`);
             const s = r?.data ?? r;
             if (Array.isArray(s)) return s;
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
 
         try {
             const r2: any = await api.get(`/api/competencies/${compId}`);
@@ -3660,7 +5235,9 @@ async function fetchSkillsForCompetency(compId: number) {
                 if (Array.isArray(obj.skills)) return obj.skills;
                 if (Array.isArray(obj.data?.skills)) return obj.data.skills;
             }
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
 
         // 3) Fallback: try generic skills endpoint and filter locally (best-effort)
         try {
@@ -3671,18 +5248,29 @@ async function fetchSkillsForCompetency(compId: number) {
                 if (!s) return false;
                 // If skills include nested competencies or pivot info, try to detect relation
                 if (Array.isArray(s.competencies)) {
-                    return s.competencies.some((c: any) => Number(c.id) === Number(compId));
+                    return s.competencies.some(
+                        (c: any) => Number(c.id) === Number(compId),
+                    );
                 }
-                if (s.pivot && (s.pivot.competency_id || s.pivot.competencyId)) {
-                    return Number(s.pivot.competency_id || s.pivot.competencyId) === Number(compId);
+                if (
+                    s.pivot &&
+                    (s.pivot.competency_id || s.pivot.competencyId)
+                ) {
+                    return (
+                        Number(
+                            s.pivot.competency_id || s.pivot.competencyId,
+                        ) === Number(compId)
+                    );
                 }
                 return false;
             });
             return filtered;
-        } catch (err: unknown) { void err; }
-
-    } catch (err: unknown) { void err; }
-    finally {
+        } catch (err: unknown) {
+            void err;
+        }
+    } catch (err: unknown) {
+        void err;
+    } finally {
         loadingSkills.value = false;
     }
 
@@ -3694,7 +5282,10 @@ async function createAndAttachComp() {
     let parentCap: any = focusedNode.value ?? null;
     if (!parentCap && selectedChild.value) {
         const childId = (selectedChild.value as any)?.id ?? null;
-        const parentEdge = childId != null ? childEdges.value.find((e) => e.target === childId) : null;
+        const parentEdge =
+            childId != null
+                ? childEdges.value.find((e) => e.target === childId)
+                : null;
         parentCap = parentEdge ? nodeById(parentEdge.source) : null;
     }
     if (!parentCap && displayNode.value) {
@@ -3715,7 +5306,11 @@ async function createAndAttachComp() {
     const scenarioId = props.scenario.id;
     creatingComp.value = true;
     try {
-        console.debug('[createAndAttachComp] start', { scenarioId, capId, name: newCompName.value });
+        console.debug('[createAndAttachComp] start', {
+            scenarioId,
+            capId,
+            name: newCompName.value,
+        });
         await ensureCsrf();
         // Single endpoint call that creates both competency and pivot record
         // The backend endpoint accepts either competency_id (existing) or competency object (create new)
@@ -3729,7 +5324,10 @@ async function createAndAttachComp() {
             rationale: '',
             is_required: false,
         };
-        const res: any = await api.post(`/api/strategic-planning/scenarios/${scenarioId}/capabilities/${capId}/competencies`, payload);
+        const res: any = await api.post(
+            `/api/strategic-planning/scenarios/${scenarioId}/capabilities/${capId}/competencies`,
+            payload,
+        );
         const result = res?.data ?? res;
         console.debug('[createAndAttachComp] success', result);
 
@@ -3745,39 +5343,72 @@ async function createAndAttachComp() {
                 return String(n).trim() === String(newCompName.value).trim();
             });
             if (found) {
-                createdCompId = Number(found.id ?? found.compId ?? found.raw?.id ?? Math.abs(found.id || 0)) || null;
+                createdCompId =
+                    Number(
+                        found.id ??
+                            found.compId ??
+                            found.raw?.id ??
+                            Math.abs(found.id || 0),
+                    ) || null;
             }
         }
 
         // If we couldn't detect the new competency id from the refreshed tree, try common spots on the API result
         if (!createdCompId) {
-            createdCompId = Number(result?.id ?? result?.data?.id ?? result?.competency?.id ?? result?.competency_id) || null;
+            createdCompId =
+                Number(
+                    result?.id ??
+                        result?.data?.id ??
+                        result?.competency?.id ??
+                        result?.competency_id,
+                ) || null;
         }
 
         // If the user provided comma-separated skills in the creation dialog, create and attach them
         try {
             if (newCompSkills.value && String(newCompSkills.value).trim()) {
-                const skillNames = String(newCompSkills.value).split(',').map(s => s.trim()).filter(Boolean);
+                const skillNames = String(newCompSkills.value)
+                    .split(',')
+                    .map((s) => s.trim())
+                    .filter(Boolean);
                 for (const sName of skillNames) {
                     try {
                         if (!createdCompId) {
-                            console.warn('[createAndAttachComp] no compId found; skipping skill creation for', sName);
+                            console.warn(
+                                '[createAndAttachComp] no compId found; skipping skill creation for',
+                                sName,
+                            );
                             continue;
                         }
-                        const payload: any = { name: sName, category: 'technical' };
-                        await createAndAttachSkillForComp(createdCompId, payload);
+                        const payload: any = {
+                            name: sName,
+                            category: 'technical',
+                        };
+                        await createAndAttachSkillForComp(
+                            createdCompId,
+                            payload,
+                        );
                     } catch (err: unknown) {
-                        console.error('[createAndAttachComp] failed creating skill', sName, err);
+                        console.error(
+                            '[createAndAttachComp] failed creating skill',
+                            sName,
+                            err,
+                        );
                     }
                 }
             }
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
 
         createCompDialogVisible.value = false;
         // reset form fields after success
         resetCompetencyForm();
         if (parent) {
-            expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
+            expandCompetencies(parent as NodeItem, {
+                x: parent.x ?? 0,
+                y: parent.y ?? 0,
+            });
         }
         showSuccess('Competencia creada y asociada');
     } catch (err: unknown) {
@@ -3791,11 +5422,16 @@ async function createAndAttachComp() {
 // Wrapper used by template to log clicks and call the real handler (helps debug clicks not firing)
 function onClickCreateAndAttachComp() {
     try {
-        console.debug('[onClickCreateAndAttachComp] click', { name: newCompName.value, cap: displayNode.value?.id });
-    } catch (err) { void err; }
+        console.debug('[onClickCreateAndAttachComp] click', {
+            name: newCompName.value,
+            cap: displayNode.value?.id,
+        });
+    } catch (err) {
+        void err;
+    }
 
     // quick client-side validation to give immediate feedback
-    if (!displayNode.value || !((displayNode.value as any).id)) {
+    if (!displayNode.value || !(displayNode.value as any).id) {
         showError('Seleccione una capacidad para asociar');
         return;
     }
@@ -3820,30 +5456,45 @@ function onClickCreateAndAttachComp() {
 }
 
 async function attachExistingComp() {
-    if (!displayNode.value || !((displayNode.value as any).id)) return showError('Seleccione una capacidad');
-    if (!addExistingSelection.value) return showError('Seleccione una competencia existente');
+    if (!displayNode.value || !(displayNode.value as any).id)
+        return showError('Seleccione una capacidad');
+    if (!addExistingSelection.value)
+        return showError('Seleccione una competencia existente');
     const capId = (displayNode.value as any).id;
-        await ensureCsrf();
+    await ensureCsrf();
+    try {
+        await api.post(
+            `/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${capId}/competencies`,
+            { competency_id: addExistingSelection.value },
+        );
+        addExistingCompDialogVisible.value = false;
+        await loadTreeFromApiWrapper(props.scenario?.id);
+        const parent = nodeById(capId);
+        if (parent)
+            expandCompetencies(parent as NodeItem, {
+                x: parent.x ?? 0,
+                y: parent.y ?? 0,
+            });
+        showSuccess('Competencia asociada correctamente');
+    } catch (err: unknown) {
+        // fallback: try capability-scoped endpoint
         try {
-            await api.post(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${capId}/competencies`, { competency_id: addExistingSelection.value });
+            await api.post(`/api/capabilities/${capId}/competencies`, {
+                competency_id: addExistingSelection.value,
+            });
             addExistingCompDialogVisible.value = false;
             await loadTreeFromApiWrapper(props.scenario?.id);
             const parent = nodeById(capId);
-            if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
+            if (parent)
+                expandCompetencies(parent as NodeItem, {
+                    x: parent.x ?? 0,
+                    y: parent.y ?? 0,
+                });
             showSuccess('Competencia asociada correctamente');
-        } catch (err: unknown) {
-            // fallback: try capability-scoped endpoint
-            try {
-                await api.post(`/api/capabilities/${capId}/competencies`, { competency_id: addExistingSelection.value });
-                addExistingCompDialogVisible.value = false;
-                await loadTreeFromApiWrapper(props.scenario?.id);
-                const parent = nodeById(capId);
-                if (parent) expandCompetencies(parent as NodeItem, { x: parent.x ?? 0, y: parent.y ?? 0 });
-                showSuccess('Competencia asociada correctamente');
-            } catch (err2: unknown) {
-                showError('Error asociando competencia');
-            }
+        } catch (err2: unknown) {
+            showError('Error asociando competencia');
         }
+    }
 }
 
 // Save edits for selectedChild (competency and pivot)
@@ -3859,56 +5510,127 @@ async function saveSelectedChild() {
 
         // 1) Update competency entity (name, description, skills - readiness is a calculated field, don't save)
         // Extract skill IDs from child.skills array (which contains skill objects with id property)
-        const skillIds = Array.isArray(child.skills) 
-            ? child.skills.map((s: any) => s.id ?? s.raw?.id ?? s).filter((id: any) => typeof id === 'number')
+        const skillIds = Array.isArray(child.skills)
+            ? child.skills
+                  .map((s: any) => s.id ?? s.raw?.id ?? s)
+                  .filter((id: any) => typeof id === 'number')
             : [];
         const compPayload: any = {
             name: editChildName.value,
             description: editChildDescription.value,
             skills: skillIds,
         };
-        console.debug('[saveSelectedChild] compPayload (name, description, skills only; readiness is calculated)', compPayload, 'compId', compId, 'skillIds extracted from child.skills:', skillIds);
-        console.debug('[saveSelectedChild] about to PATCH compId check:', !!compId);
+        console.debug(
+            '[saveSelectedChild] compPayload (name, description, skills only; readiness is calculated)',
+            compPayload,
+            'compId',
+            compId,
+            'skillIds extracted from child.skills:',
+            skillIds,
+        );
+        console.debug(
+            '[saveSelectedChild] about to PATCH compId check:',
+            !!compId,
+        );
         if (compId) {
-            console.debug('[saveSelectedChild] INSIDE if (compId), about to call api.patch');
+            console.debug(
+                '[saveSelectedChild] INSIDE if (compId), about to call api.patch',
+            );
             try {
                 const patchUrl = `/api/competencies/${compId}`;
-                console.debug('[saveSelectedChild] calling PATCH:', patchUrl, 'with payload:', compPayload);
+                console.debug(
+                    '[saveSelectedChild] calling PATCH:',
+                    patchUrl,
+                    'with payload:',
+                    compPayload,
+                );
                 const patchRes = await api.patch(patchUrl, compPayload);
-                console.debug('[saveSelectedChild] PATCH /api/competencies/' + compId + ' success, response:', patchRes);
+                console.debug(
+                    '[saveSelectedChild] PATCH /api/competencies/' +
+                        compId +
+                        ' success, response:',
+                    patchRes,
+                );
             } catch (errComp: unknown) {
-                console.error('[saveSelectedChild] ERROR in PATCH /api/competencies/' + compId, (errComp as any)?.response?.data ?? errComp);
-                showError('Error actualizando competencia: ' + ((errComp as any)?.response?.data?.message || (errComp as any)?.message || 'Unknown error'));
+                console.error(
+                    '[saveSelectedChild] ERROR in PATCH /api/competencies/' +
+                        compId,
+                    (errComp as any)?.response?.data ?? errComp,
+                );
+                showError(
+                    'Error actualizando competencia: ' +
+                        ((errComp as any)?.response?.data?.message ||
+                            (errComp as any)?.message ||
+                            'Unknown error'),
+                );
                 return;
             }
         } else {
-            console.warn('[saveSelectedChild] compId is falsy, skipping PATCH. child.compId=', child.compId, 'child.raw?.id=', child.raw?.id, 'child.id=', child.id);
+            console.warn(
+                '[saveSelectedChild] compId is falsy, skipping PATCH. child.compId=',
+                child.compId,
+                'child.raw?.id=',
+                child.raw?.id,
+                'child.id=',
+                child.id,
+            );
         }
 
         // 2) Update pivot (capability_competencies) if we can find parent
         if (parentId && compId) {
             const pivotPayload = {
-                weight: typeof editChildPivotStrategicWeight.value !== 'undefined' ? Number(editChildPivotStrategicWeight.value) : undefined,
-                priority: typeof editChildPivotPriority.value !== 'undefined' ? Number(editChildPivotPriority.value) : undefined,
-                required_level: typeof editChildPivotRequiredLevel.value !== 'undefined' ? Number(editChildPivotRequiredLevel.value) : undefined,
+                weight:
+                    typeof editChildPivotStrategicWeight.value !== 'undefined'
+                        ? Number(editChildPivotStrategicWeight.value)
+                        : undefined,
+                priority:
+                    typeof editChildPivotPriority.value !== 'undefined'
+                        ? Number(editChildPivotPriority.value)
+                        : undefined,
+                required_level:
+                    typeof editChildPivotRequiredLevel.value !== 'undefined'
+                        ? Number(editChildPivotRequiredLevel.value)
+                        : undefined,
                 // UI uses `is_critical` checkbox, but backend pivot expects `is_required`.
                 // Send both for compatibility: primary is `is_required` so server updates expected column.
                 is_required: !!editChildPivotIsCritical.value,
                 is_critical: !!editChildPivotIsCritical.value,
                 rationale: editChildPivotRationale.value,
             };
-            console.debug('[saveSelectedChild] pivotPayload', pivotPayload, 'parentId', parentId, 'compId', compId);
+            console.debug(
+                '[saveSelectedChild] pivotPayload',
+                pivotPayload,
+                'parentId',
+                parentId,
+                'compId',
+                compId,
+            );
             try {
                 // preferred: update pivot within scenario context so we update scenario-specific attributes
-                const childRes: any = await api.patch(`/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${parentId}/competencies/${compId}`, pivotPayload);
-                console.debug('[saveSelectedChild] PATCH child pivot response', childRes);
+                const childRes: any = await api.patch(
+                    `/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${parentId}/competencies/${compId}`,
+                    pivotPayload,
+                );
+                console.debug(
+                    '[saveSelectedChild] PATCH child pivot response',
+                    childRes,
+                );
             } catch (errPivot: unknown) {
                 // fallback to capability-scoped endpoint if available
                 try {
-                    const childRes2: any = await api.patch(`/api/capabilities/${parentId}/competencies/${compId}`, pivotPayload);
-                    console.debug('[saveSelectedChild] PATCH child pivot fallback response', childRes2);
+                    const childRes2: any = await api.patch(
+                        `/api/capabilities/${parentId}/competencies/${compId}`,
+                        pivotPayload,
+                    );
+                    console.debug(
+                        '[saveSelectedChild] PATCH child pivot fallback response',
+                        childRes2,
+                    );
                 } catch (err2: unknown) {
-                    console.error('[saveSelectedChild] error updating pivot', (err2 as any)?.response?.data ?? err2);
+                    console.error(
+                        '[saveSelectedChild] error updating pivot',
+                        (err2 as any)?.response?.data ?? err2,
+                    );
                 }
             }
         }
@@ -3917,20 +5639,30 @@ async function saveSelectedChild() {
         let freshComp: any = null;
         try {
             if (compId) {
-                const compResp: any = await api.get(`/api/competencies/${compId}`);
+                const compResp: any = await api.get(
+                    `/api/competencies/${compId}`,
+                );
                 freshComp = compResp?.data ?? compResp;
             }
-        } catch (err: unknown) { void err; }
+        } catch (err: unknown) {
+            void err;
+        }
 
         // Update competency data using hierarchical update composable
         if (freshComp && typeof freshComp.id !== 'undefined') {
             // Use composable to update all data sources (leaf to root)
-            await hierarchicalUpdate.update('competency', freshComp, parentId ?? undefined);
-            
+            await hierarchicalUpdate.update(
+                'competency',
+                freshComp,
+                parentId ?? undefined,
+            );
+
             // Re-initialize edit fields from refreshed data
             editChildName.value = freshComp.name ?? editChildName.value;
-            editChildDescription.value = freshComp.description ?? editChildDescription.value;
-            editChildReadiness.value = freshComp.readiness ?? editChildReadiness.value;
+            editChildDescription.value =
+                freshComp.description ?? editChildDescription.value;
+            editChildReadiness.value =
+                freshComp.readiness ?? editChildReadiness.value;
         }
 
         showSuccess('Competencia actualizada');
@@ -4001,7 +5733,11 @@ const savePositions = async () => {
 
 onMounted(async () => {
     // expose helper for quick debugging in browser console
-    try { (window as any).__nodeLevel = nodeLevel; } catch (err: unknown) { void err; }
+    try {
+        (window as any).__nodeLevel = nodeLevel;
+    } catch (err: unknown) {
+        void err;
+    }
     // prefer passed-in scenario.capabilities to avoid extra network roundtrip
     // onMounted: handle incoming props.scenario
     if (
@@ -4017,21 +5753,30 @@ onMounted(async () => {
         // then prefer to fetch the canonical capability-tree from the API so we get the
         // scenario-specific attributes that the UI expects to display in modals.
         const first = caps[0];
-        const hasPivot = !!first && (
-            first.strategic_weight !== undefined ||
-            first.priority !== undefined ||
-            first.required_level !== undefined ||
-            first.is_critical !== undefined ||
-            (first.raw && (first.raw.strategic_weight !== undefined || first.raw.priority !== undefined)) ||
-            (first.pivot && (first.pivot.strategic_weight !== undefined || first.pivot.priority !== undefined)) ||
-            (first.scenario_capabilities && Object.keys(first.scenario_capabilities).length > 0)
-        );
+        const hasPivot =
+            !!first &&
+            (first.strategic_weight !== undefined ||
+                first.priority !== undefined ||
+                first.required_level !== undefined ||
+                first.is_critical !== undefined ||
+                (first.raw &&
+                    (first.raw.strategic_weight !== undefined ||
+                        first.raw.priority !== undefined)) ||
+                (first.pivot &&
+                    (first.pivot.strategic_weight !== undefined ||
+                        first.pivot.priority !== undefined)) ||
+                (first.scenario_capabilities &&
+                    Object.keys(first.scenario_capabilities).length > 0));
         if (!hasPivot) {
             // fetch canonical tree which includes pivot/entity attributes
             await loadTreeFromApiWrapper(props.scenario.id);
             // ensure positions and scenario node are initialized
             setScenarioInitial();
-            try { await reorderNodes(); } catch (err: unknown) { void err; }
+            try {
+                await reorderNodes();
+            } catch (err: unknown) {
+                void err;
+            }
             return;
         }
 
@@ -4040,11 +5785,13 @@ onMounted(async () => {
         // restore persisted UI state after nodes built
         try {
             const collapsed = localStorage.getItem(LS_KEYS.collapsed);
-            if (collapsed !== null) nodeSidebarCollapsed.value = collapsed === 'true';
+            if (collapsed !== null)
+                nodeSidebarCollapsed.value = collapsed === 'true';
             const lastView = localStorage.getItem(LS_KEYS.lastView);
             const lastId = localStorage.getItem(LS_KEYS.lastFocusedId);
             if (lastId) savedFocusedNodeId.value = parseInt(lastId, 10);
-            if (lastView === 'scenario' && !focusedNode.value) showSidebar.value = true;
+            if (lastView === 'scenario' && !focusedNode.value)
+                showSidebar.value = true;
             if (savedFocusedNodeId.value) {
                 const restored = nodeById(savedFocusedNodeId.value);
                 if (restored) focusedNode.value = restored;
@@ -4063,8 +5810,12 @@ onMounted(async () => {
             void err;
         }
         // apply reorder and persist positions on initial load
-        try { await reorderNodes(); } catch (err: unknown) { void err; }
-        
+        try {
+            await reorderNodes();
+        } catch (err: unknown) {
+            void err;
+        }
+
         return;
     }
     // otherwise fetch capability tree from API
@@ -4079,11 +5830,17 @@ onMounted(async () => {
         let containerHeight = el?.clientHeight ?? 0;
         if (!containerHeight || containerHeight === 0) {
             const top = el?.getBoundingClientRect().top ?? 0;
-            containerHeight = Math.max(320, Math.round(window.innerHeight - top - 24));
+            containerHeight = Math.max(
+                320,
+                Math.round(window.innerHeight - top - 24),
+            );
         }
-        const controlsEl = el?.querySelector('.map-controls') as HTMLElement | null;
+        const controlsEl = el?.querySelector(
+            '.map-controls',
+        ) as HTMLElement | null;
         const controlsH = controlsEl?.offsetHeight ?? 0;
-        const computedHeight = h ?? Math.max(300, containerHeight - controlsH - 12);
+        const computedHeight =
+            h ?? Math.max(300, containerHeight - controlsH - 12);
 
         width.value = computedWidth;
         height.value = computedHeight;
@@ -4113,11 +5870,19 @@ onMounted(async () => {
     editFormScrollHandler = (ev: Event) => syncSliderFromScroll();
     // attempt to attach after a tick in case element not yet rendered
     nextTick(() => {
-        if (editFormScrollEl.value) editFormScrollEl.value.addEventListener('scroll', editFormScrollHandler as EventListener);
+        if (editFormScrollEl.value)
+            editFormScrollEl.value.addEventListener(
+                'scroll',
+                editFormScrollHandler as EventListener,
+            );
     });
     onBeforeUnmount(() => {
         // cleanup edit form scroll listener
-        if (editFormScrollEl.value && editFormScrollHandler) editFormScrollEl.value.removeEventListener('scroll', editFormScrollHandler as EventListener);
+        if (editFormScrollEl.value && editFormScrollHandler)
+            editFormScrollEl.value.removeEventListener(
+                'scroll',
+                editFormScrollHandler as EventListener,
+            );
         editFormScrollHandler = null;
         if (ro) ro.disconnect();
         window.removeEventListener('resize', onWindowResize);
@@ -4129,10 +5894,20 @@ watch(
     [nodeSidebarCollapsed, showSidebar, focusedNode],
     () => {
         try {
-            localStorage.setItem(LS_KEYS.collapsed, nodeSidebarCollapsed.value ? 'true' : 'false');
-            const lastView = focusedNode.value ? 'node' : showSidebar.value ? 'scenario' : 'none';
+            localStorage.setItem(
+                LS_KEYS.collapsed,
+                nodeSidebarCollapsed.value ? 'true' : 'false',
+            );
+            const lastView = focusedNode.value
+                ? 'node'
+                : showSidebar.value
+                  ? 'scenario'
+                  : 'none';
             localStorage.setItem(LS_KEYS.lastView, lastView);
-            localStorage.setItem(LS_KEYS.lastFocusedId, focusedNode.value ? String((focusedNode.value as any).id) : '');
+            localStorage.setItem(
+                LS_KEYS.lastFocusedId,
+                focusedNode.value ? String((focusedNode.value as any).id) : '',
+            );
         } catch (err: unknown) {
             void err;
             // ignore storage errors
@@ -4158,7 +5933,11 @@ watch(
             buildNodesFromItems(caps);
             buildEdgesFromItems(caps);
             loaded.value = true;
-            try { void reorderNodes(); } catch (err: unknown) { void err; }
+            try {
+                void reorderNodes();
+            } catch (err: unknown) {
+                void err;
+            }
         } else {
             void loadTreeFromApiWrapper((nv as any).id);
         }
@@ -4179,7 +5958,14 @@ watch(
     () => nodes.value.map((n) => n.id),
     () => {
         if (scenarioNode.value && Array.isArray(nodes.value)) {
-            scenarioEdges.value = nodes.value.map((n: any) => ({ source: scenarioNode.value!.id, target: n.id, isScenarioEdge: true } as Edge));
+            scenarioEdges.value = nodes.value.map(
+                (n: any) =>
+                    ({
+                        source: scenarioNode.value!.id,
+                        target: n.id,
+                        isScenarioEdge: true,
+                    }) as Edge,
+            );
         }
     },
     { immediate: true },
@@ -4193,8 +5979,12 @@ if (!edges.value) edges.value = [];
 
 <template>
     <div>
-        <div class="prototype-map-root" ref="mapRoot" :class="{ 'no-animations': noAnimations }">
-        <!-- <div
+        <div
+            class="prototype-map-root"
+            ref="mapRoot"
+            :class="{ 'no-animations': noAnimations }"
+        >
+            <!-- <div
             class="map-controls"
             style="
                 margin-bottom: 1px;
@@ -4207,8 +5997,8 @@ if (!edges.value) edges.value = [];
             <!-- título principal mostrado arriba -->
             <!-- Position controls removed: positions are saved/reset by default -->
             <!-- 'Volver a la vista inicial' integrado en la esfera del escenario y en el borde derecho del diagrama -->
-                        <!-- extra soft halo/gloss to ensure bubble effect is visible on all nodes -->
-                      <!--   <circle
+            <!-- extra soft halo/gloss to ensure bubble effect is visible on all nodes -->
+            <!--   <circle
                             class="node-gloss"
                             r="36"
                             fill="none"
@@ -4228,308 +6018,673 @@ if (!edges.value) edges.value = [];
                 Seguir origen
             </v-btn> 
         </div>-->
-        <div v-if="!loaded">Cargando mapa...</div>
-        <div v-else>
-            <svg
-                :width="width"
-                :height="height"
-                :viewBox="`0 0 ${width} ${height}`"
-                class="map-canvas"
-                style="touch-action: none; cursor: grab"
-                @wheel="handleZoom"
-                @mousedown="handleMouseDown"
-                @mousemove="handleMouseMove"
-                @mouseup="handleMouseUp"
-                @mouseleave="handleMouseUp"
-            >
-                <defs>
-                    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#040914" stop-opacity="1" />
-                        <stop offset="25%" stop-color="#071029" stop-opacity="1" />
-                        <stop offset="70%" stop-color="#071a2a" stop-opacity="1" />
-                        <stop offset="100%" stop-color="#051018" stop-opacity="1" />
-                    </linearGradient>
+            <div v-if="!loaded">Cargando mapa...</div>
+            <div v-else>
+                <svg
+                    :width="width"
+                    :height="height"
+                    :viewBox="`0 0 ${width} ${height}`"
+                    class="map-canvas"
+                    style="touch-action: none; cursor: grab"
+                    @wheel="handleZoom"
+                    @mousedown="handleMouseDown"
+                    @mousemove="handleMouseMove"
+                    @mouseup="handleMouseUp"
+                    @mouseleave="handleMouseUp"
+                >
+                    <defs>
+                        <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop
+                                offset="0%"
+                                stop-color="#040914"
+                                stop-opacity="1"
+                            />
+                            <stop
+                                offset="25%"
+                                stop-color="#071029"
+                                stop-opacity="1"
+                            />
+                            <stop
+                                offset="70%"
+                                stop-color="#071a2a"
+                                stop-opacity="1"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#051018"
+                                stop-opacity="1"
+                            />
+                        </linearGradient>
 
-                    <radialGradient id="nodeGrad" cx="30%" cy="25%" r="70%">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75" />
-                        <stop offset="12%" stop-color="#e8f6ff" stop-opacity="0.55" />
-                        <stop offset="45%" stop-color="#6fc3ff" stop-opacity="0.95" />
-                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="1" />
-                    </radialGradient>
-                    <!-- iridescent overlay to simulate soap-bubble sheen -->
-                    <radialGradient id="iridescentGrad" cx="70%" cy="30%" r="90%">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.0" />
-                        <stop offset="18%" stop-color="#ffd6f7" stop-opacity="0.06" />
-                        <stop offset="32%" stop-color="#d6f7ff" stop-opacity="0.07" />
-                        <stop offset="48%" stop-color="#fff2d6" stop-opacity="0.06" />
-                        <stop offset="68%" stop-color="#d6fff3" stop-opacity="0.05" />
-                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0" />
-                    </radialGradient>
-                    <!-- bubble outer gradient: darker near rim, lighter inward to simulate inner glow -->
-                    <radialGradient id="bubbleOuterGrad" cx="50%" cy="50%" r="80%">
-                        <stop offset="0%" stop-color="#0b66b2" stop-opacity="0.06" />
-                        <stop offset="60%" stop-color="#6fc3ff" stop-opacity="0.18" />
-                        <stop offset="85%" stop-color="#6fc3ff" stop-opacity="0.06" />
-                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="0.02" />
-                    </radialGradient>
+                        <radialGradient id="nodeGrad" cx="30%" cy="25%" r="70%">
+                            <stop
+                                offset="0%"
+                                stop-color="#ffffff"
+                                stop-opacity="0.75"
+                            />
+                            <stop
+                                offset="12%"
+                                stop-color="#e8f6ff"
+                                stop-opacity="0.55"
+                            />
+                            <stop
+                                offset="45%"
+                                stop-color="#6fc3ff"
+                                stop-opacity="0.95"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#0b66b2"
+                                stop-opacity="1"
+                            />
+                        </radialGradient>
+                        <!-- iridescent overlay to simulate soap-bubble sheen -->
+                        <radialGradient
+                            id="iridescentGrad"
+                            cx="70%"
+                            cy="30%"
+                            r="90%"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#ffffff"
+                                stop-opacity="0.0"
+                            />
+                            <stop
+                                offset="18%"
+                                stop-color="#ffd6f7"
+                                stop-opacity="0.06"
+                            />
+                            <stop
+                                offset="32%"
+                                stop-color="#d6f7ff"
+                                stop-opacity="0.07"
+                            />
+                            <stop
+                                offset="48%"
+                                stop-color="#fff2d6"
+                                stop-opacity="0.06"
+                            />
+                            <stop
+                                offset="68%"
+                                stop-color="#d6fff3"
+                                stop-opacity="0.05"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#ffffff"
+                                stop-opacity="0.0"
+                            />
+                        </radialGradient>
+                        <!-- bubble outer gradient: darker near rim, lighter inward to simulate inner glow -->
+                        <radialGradient
+                            id="bubbleOuterGrad"
+                            cx="50%"
+                            cy="50%"
+                            r="80%"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#0b66b2"
+                                stop-opacity="0.06"
+                            />
+                            <stop
+                                offset="60%"
+                                stop-color="#6fc3ff"
+                                stop-opacity="0.18"
+                            />
+                            <stop
+                                offset="85%"
+                                stop-color="#6fc3ff"
+                                stop-opacity="0.06"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#0b66b2"
+                                stop-opacity="0.02"
+                            />
+                        </radialGradient>
 
-                    <!-- core gradient: small bright core to suggest nucleus -->
-                    <radialGradient id="bubbleCoreGrad" cx="35%" cy="30%" r="60%">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
-                        <stop offset="35%" stop-color="#dffaff" stop-opacity="0.7" />
-                        <stop offset="100%" stop-color="#6fc3ff" stop-opacity="0.0" />
-                    </radialGradient>
+                        <!-- core gradient: small bright core to suggest nucleus -->
+                        <radialGradient
+                            id="bubbleCoreGrad"
+                            cx="35%"
+                            cy="30%"
+                            r="60%"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#ffffff"
+                                stop-opacity="0.9"
+                            />
+                            <stop
+                                offset="35%"
+                                stop-color="#dffaff"
+                                stop-opacity="0.7"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#6fc3ff"
+                                stop-opacity="0.0"
+                            />
+                        </radialGradient>
 
-                    <!-- inner glow filter: blur + composite to push glow inward -->
-                    <filter id="innerGlow" x="-30%" y="-30%" width="160%" height="160%">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blurInner" />
-                        <feComposite in="blurInner" in2="SourceGraphic" operator="arithmetic" k1="0" k2="1" k3="-1" k4="0" result="innerComp" />
-                        <feMerge>
-                            <feMergeNode in="innerComp" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
+                        <!-- inner glow filter: blur + composite to push glow inward -->
+                        <filter
+                            id="innerGlow"
+                            x="-30%"
+                            y="-30%"
+                            width="160%"
+                            height="160%"
+                        >
+                            <feGaussianBlur
+                                in="SourceAlpha"
+                                stdDeviation="6"
+                                result="blurInner"
+                            />
+                            <feComposite
+                                in="blurInner"
+                                in2="SourceGraphic"
+                                operator="arithmetic"
+                                k1="0"
+                                k2="1"
+                                k3="-1"
+                                k4="0"
+                                result="innerComp"
+                            />
+                            <feMerge>
+                                <feMergeNode in="innerComp" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
 
-                    <!-- glass fill for glassmorphism appearance on main nodes -->
-                    <radialGradient id="glassGrad" cx="35%" cy="28%" r="72%">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.30" />
-                        <stop offset="30%" stop-color="#dff6ff" stop-opacity="0.12" />
-                        <stop offset="70%" stop-color="#9fd8ff" stop-opacity="0.08" />
-                        <stop offset="100%" stop-color="#0b66b2" stop-opacity="0.18" />
-                    </radialGradient>
+                        <!-- glass fill for glassmorphism appearance on main nodes -->
+                        <radialGradient
+                            id="glassGrad"
+                            cx="35%"
+                            cy="28%"
+                            r="72%"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#ffffff"
+                                stop-opacity="0.30"
+                            />
+                            <stop
+                                offset="30%"
+                                stop-color="#dff6ff"
+                                stop-opacity="0.12"
+                            />
+                            <stop
+                                offset="70%"
+                                stop-color="#9fd8ff"
+                                stop-opacity="0.08"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#0b66b2"
+                                stop-opacity="0.18"
+                            />
+                        </radialGradient>
 
-                    <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="4" result="gblur" />
-                        <feMerge>
-                            <feMergeNode in="gblur" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
+                        <filter
+                            id="glassBlur"
+                            x="-20%"
+                            y="-20%"
+                            width="140%"
+                            height="140%"
+                        >
+                            <feGaussianBlur stdDeviation="4" result="gblur" />
+                            <feMerge>
+                                <feMergeNode in="gblur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
 
-                    <filter
-                        id="softGlow"
-                        x="-50%"
-                        y="-50%"
-                        width="200%"
-                        height="200%"
-                    >
-                        <feGaussianBlur stdDeviation="6" result="blur" />
-                        <feMerge>
-                            <feMergeNode in="blur" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
+                        <filter
+                            id="softGlow"
+                            x="-50%"
+                            y="-50%"
+                            width="200%"
+                            height="200%"
+                        >
+                            <feGaussianBlur stdDeviation="6" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
 
-                    <!-- gradient for child edges -->
-                    <linearGradient id="childGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#7dd3fc" stop-opacity="1" />
-                        <stop offset="100%" stop-color="#04234A" stop-opacity="1" />
-                    </linearGradient>
+                        <!-- gradient for child edges -->
+                        <linearGradient
+                            id="childGrad"
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="0"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#7dd3fc"
+                                stop-opacity="1"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#04234A"
+                                stop-opacity="1"
+                            />
+                        </linearGradient>
 
-                    <!-- gradient for scenario->child edges (distinct visual) -->
-                    <linearGradient id="scenarioEdgeGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#9be7ff" stop-opacity="0.98" />
-                        <stop offset="50%" stop-color="#6fb8ff" stop-opacity="0.9" />
-                        <stop offset="100%" stop-color="#3fa6ff" stop-opacity="0.82" />
-                    </linearGradient>
+                        <!-- gradient for scenario->child edges (distinct visual) -->
+                        <linearGradient
+                            id="scenarioEdgeGrad"
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="0"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#9be7ff"
+                                stop-opacity="0.98"
+                            />
+                            <stop
+                                offset="50%"
+                                stop-color="#6fb8ff"
+                                stop-opacity="0.9"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#3fa6ff"
+                                stop-opacity="0.82"
+                            />
+                        </linearGradient>
 
-                    <!-- gradient for compass needle (blue) -->
-                    <linearGradient id="compassNeedleGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#08306b" stop-opacity="1" />
-                        <stop offset="60%" stop-color="#1e66d6" stop-opacity="1" />
-                        <stop offset="100%" stop-color="#9fe6ff" stop-opacity="1" />
-                    </linearGradient>
+                        <!-- gradient for compass needle (blue) -->
+                        <linearGradient
+                            id="compassNeedleGrad"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#08306b"
+                                stop-opacity="1"
+                            />
+                            <stop
+                                offset="60%"
+                                stop-color="#1e66d6"
+                                stop-opacity="1"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#9fe6ff"
+                                stop-opacity="1"
+                            />
+                        </linearGradient>
 
-                    <!-- subtle gradient + glow for main edges -->
-                    <linearGradient id="edgeGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#09c8d2" stop-opacity="0.85" />
-                        <stop offset="60%" stop-color="#66b8ff" stop-opacity="0.6" />
-                        <stop offset="100%" stop-color="#9bd0ff" stop-opacity="0.45" />
-                    </linearGradient>
+                        <!-- subtle gradient + glow for main edges -->
+                        <linearGradient
+                            id="edgeGrad"
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="0"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#09c8d2"
+                                stop-opacity="0.85"
+                            />
+                            <stop
+                                offset="60%"
+                                stop-color="#66b8ff"
+                                stop-opacity="0.6"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#9bd0ff"
+                                stop-opacity="0.45"
+                            />
+                        </linearGradient>
 
-                    <filter id="edgeGlow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="3" result="blurEdge" />
-                        <feMerge>
-                            <feMergeNode in="blurEdge" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
+                        <filter
+                            id="edgeGlow"
+                            x="-50%"
+                            y="-50%"
+                            width="200%"
+                            height="200%"
+                        >
+                            <feGaussianBlur
+                                stdDeviation="3"
+                                result="blurEdge"
+                            />
+                            <feMerge>
+                                <feMergeNode in="blurEdge" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
 
-                    <!-- arrow marker for child edges -->
-                   <!--  <marker id="childArrow" markerUnits="strokeWidth" markerWidth="4" markerHeight="4" refX="9" refY="5" orient="auto">
+                        <!-- arrow marker for child edges -->
+                        <!--  <marker id="childArrow" markerUnits="strokeWidth" markerWidth="4" markerHeight="4" refX="9" refY="5" orient="auto">
                         <path d="M 0 0 L 10 5 L 0 10 z" fill="url(#childGrad)" />
                     </marker> -->
 
-                    <!-- arrow marker for scenario edges -->
-                    <!-- scenario arrow removed: prefer clean lines without arrowheads -->
+                        <!-- arrow marker for scenario edges -->
+                        <!-- scenario arrow removed: prefer clean lines without arrowheads -->
 
-                    <filter
-                        id="innerShadow"
-                        x="-20%"
-                        y="-20%"
-                        width="140%"
-                        height="140%"
-                    >
-                        <feOffset dx="0" dy="2" result="off" />
-                        <feGaussianBlur
-                            in="off"
-                            stdDeviation="2"
-                            result="blur2"
-                        />
-                        <feComposite
-                            in="SourceGraphic"
-                            in2="blur2"
-                            operator="over"
-                        />
-                    </filter>
-
-                    <!-- soft specular blur for highlights (used on small highlight shapes) -->
-                    <filter id="specular" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="3" result="spec" />
-                        <feMerge>
-                            <feMergeNode in="spec" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
-
-                    <!-- Competency node gradients -->
-                    <radialGradient id="competencyGrad" cx="30%" cy="25%" r="70%">
-                        <stop offset="0%" stop-color="#16B7E8" stop-opacity="0.85" />
-                        <stop offset="50%" stop-color="#039B8E" stop-opacity="0.95" />
-                        <stop offset="100%" stop-color="#21A7B6" stop-opacity="1" />
-                    </radialGradient>
-
-                    <radialGradient id="competencySelectedGrad" cx="30%" cy="25%" r="70%">
-                        <stop offset="0%" stop-color="#D9F0EF" stop-opacity="0.95" />
-                        <stop offset="50%" stop-color="#3BB6BC" stop-opacity="1" />
-                        <stop offset="100%" stop-color="#167780" stop-opacity="1" />
-                    </radialGradient>
-
-                    <!-- Skill node gradients -->
-                    <radialGradient id="skillGrad" cx="30%" cy="25%" r="70%">
-                        <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.85" />
-                        <stop offset="50%" stop-color="#10b981" stop-opacity="0.95" />
-                        <stop offset="100%" stop-color="#047857" stop-opacity="1" />
-                    </radialGradient>
-
-                    <radialGradient id="skillSelectedGrad" cx="30%" cy="25%" r="70%">
-                        <stop offset="0%" stop-color="#a7f3d0" stop-opacity="0.95" />
-                        <stop offset="50%" stop-color="#0CBEBE" stop-opacity="1" />
-                        <stop offset="100%" stop-color="#08959F" stop-opacity="1" />
-                    </radialGradient>
-                </defs>
-
-                <!-- subtle background rect for contrast (rounded + border/glow) -->
-                <rect
-                    x="0"
-                    y="0"
-                    :width="width"
-                    :height="height"
-                    rx="12"
-                    ry="12"
-                    fill="url(#bgGrad)"
-                />
-                <!-- container border/glow to emulate glass frame -->
-                <rect
-                    x="1"
-                    y="1"
-                    :width="width - 4"
-                    :height="height - 2"
-                    rx="12"
-                    ry="12"
-                    fill="none"
-                    stroke="rgba(255,255,255,0.04)"
-                    stroke-width="1"
-                    filter="url(#softGlow)"
-                />               
-
-                <!-- edges and nodes group -->
-                <g class="viewport-group" :style="viewportStyle">
-                    <!-- edges -->
-                    <g class="edges">
-                        <line
-                            v-for="(e, idx) in edges"
-                            :key="`edge-${idx}`"
-                            :x1="renderedNodeById(e.source)?.x ?? undefined"
-                            :y1="renderedNodeById(e.source)?.y ?? undefined"
-                            :x2="renderedNodeById(e.target)?.x ?? undefined"
-                            :y2="renderedNodeById(e.target)?.y ?? undefined"
-                            class="edge-line"
-                            :stroke="`url(#edgeGrad)`"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            filter="url(#edgeGlow)"
-                            stroke-opacity="0.9"
-                        />
-                    </g>
-
-                    <!-- Create capability control: placed under the home control -->
-                    <g
-                        class="scenario-create-control"
-                        :transform="`translate(${Math.max(48, width - 56)}, 72)`"
-                        @click.stop="createCapabilityClicked"
-                        style="cursor: pointer"
-                        aria-label="Crear capacidad"
-                    >
-                        <circle r="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)"/>
-                        <title>Crear capacidad</title>
-                        <text x="0" y="4" text-anchor="middle" font-size="16" fill="#dbeafe" style="font-weight:700">+</text>
-                    </g>
-                    <!-- scenario -> capability edges (distinct group so we can style/animate) -->
-                    <g class="scenario-edges">
-                        <template v-for="(e, idx) in scenarioEdges" :key="`scenario-edge-${idx}`">
-                            <path
-                                v-if="scenarioEdgePath(e)"
-                                :d="scenarioEdgePath(e)"
-                                class="edge-line scenario-edge"
-                                stroke="url(#scenarioEdgeGrad)"
-                                stroke-width="2.6"
-                                stroke-linecap="round"
-                                fill="none"
-                                filter="url(#edgeGlow)"
-                                stroke-opacity="0.95"
+                        <filter
+                            id="innerShadow"
+                            x="-20%"
+                            y="-20%"
+                            width="140%"
+                            height="140%"
+                        >
+                            <feOffset dx="0" dy="2" result="off" />
+                            <feGaussianBlur
+                                in="off"
+                                stdDeviation="2"
+                                result="blur2"
                             />
-                            <!-- fallback to straight line if path empty -->
+                            <feComposite
+                                in="SourceGraphic"
+                                in2="blur2"
+                                operator="over"
+                            />
+                        </filter>
+
+                        <!-- soft specular blur for highlights (used on small highlight shapes) -->
+                        <filter
+                            id="specular"
+                            x="-50%"
+                            y="-50%"
+                            width="200%"
+                            height="200%"
+                        >
+                            <feGaussianBlur stdDeviation="3" result="spec" />
+                            <feMerge>
+                                <feMergeNode in="spec" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+
+                        <!-- Competency node gradients -->
+                        <radialGradient
+                            id="competencyGrad"
+                            cx="30%"
+                            cy="25%"
+                            r="70%"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#16B7E8"
+                                stop-opacity="0.85"
+                            />
+                            <stop
+                                offset="50%"
+                                stop-color="#039B8E"
+                                stop-opacity="0.95"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#21A7B6"
+                                stop-opacity="1"
+                            />
+                        </radialGradient>
+
+                        <radialGradient
+                            id="competencySelectedGrad"
+                            cx="30%"
+                            cy="25%"
+                            r="70%"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#D9F0EF"
+                                stop-opacity="0.95"
+                            />
+                            <stop
+                                offset="50%"
+                                stop-color="#3BB6BC"
+                                stop-opacity="1"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#167780"
+                                stop-opacity="1"
+                            />
+                        </radialGradient>
+
+                        <!-- Skill node gradients -->
+                        <radialGradient
+                            id="skillGrad"
+                            cx="30%"
+                            cy="25%"
+                            r="70%"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#6ee7b7"
+                                stop-opacity="0.85"
+                            />
+                            <stop
+                                offset="50%"
+                                stop-color="#10b981"
+                                stop-opacity="0.95"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#047857"
+                                stop-opacity="1"
+                            />
+                        </radialGradient>
+
+                        <radialGradient
+                            id="skillSelectedGrad"
+                            cx="30%"
+                            cy="25%"
+                            r="70%"
+                        >
+                            <stop
+                                offset="0%"
+                                stop-color="#a7f3d0"
+                                stop-opacity="0.95"
+                            />
+                            <stop
+                                offset="50%"
+                                stop-color="#0CBEBE"
+                                stop-opacity="1"
+                            />
+                            <stop
+                                offset="100%"
+                                stop-color="#08959F"
+                                stop-opacity="1"
+                            />
+                        </radialGradient>
+                    </defs>
+
+                    <!-- subtle background rect for contrast (rounded + border/glow) -->
+                    <rect
+                        x="0"
+                        y="0"
+                        :width="width"
+                        :height="height"
+                        rx="12"
+                        ry="12"
+                        fill="url(#bgGrad)"
+                    />
+                    <!-- container border/glow to emulate glass frame -->
+                    <rect
+                        x="1"
+                        y="1"
+                        :width="width - 4"
+                        :height="height - 2"
+                        rx="12"
+                        ry="12"
+                        fill="none"
+                        stroke="rgba(255,255,255,0.04)"
+                        stroke-width="1"
+                        filter="url(#softGlow)"
+                    />
+
+                    <!-- edges and nodes group -->
+                    <g class="viewport-group" :style="viewportStyle">
+                        <!-- edges -->
+                        <g class="edges">
                             <line
-                                v-else
+                                v-for="(e, idx) in edges"
+                                :key="`edge-${idx}`"
                                 :x1="renderedNodeById(e.source)?.x ?? undefined"
                                 :y1="renderedNodeById(e.source)?.y ?? undefined"
                                 :x2="renderedNodeById(e.target)?.x ?? undefined"
                                 :y2="renderedNodeById(e.target)?.y ?? undefined"
-                                class="edge-line scenario-edge"
-                                stroke="url(#scenarioEdgeGrad)"
-                                stroke-width="2.6"
+                                class="edge-line"
+                                :stroke="`url(#edgeGrad)`"
+                                stroke-width="2"
                                 stroke-linecap="round"
                                 filter="url(#edgeGlow)"
-                                stroke-opacity="0.95"
+                                stroke-opacity="0.9"
                             />
-                        </template>
-                    </g>
+                        </g>
 
-                    <!-- child edges: conexiones entre la capacidad seleccionada y sus competencias -->
-                    <g class="child-edges">
-                        <!-- curva (modo 2) -->
-                        <template v-if="childEdgeMode === 2">
-                            <path
-                                v-for="(e, idx) in childEdges"
-                                :key="`child-edge-path-${idx}`"
-                                :d="edgeRenderFor(e).d"
-                                class="edge-line child-edge"
-                                stroke="url(#childGrad)"
-                                stroke-width="4"
-                                stroke-linecap="round"
-                                fill="none"
-                                filter="url(#edgeGlow)"
-                                stroke-opacity="0.98"
-                                marker-end="url(#childArrow)"
+                        <!-- Create capability control: placed under the home control -->
+                        <g
+                            class="scenario-create-control"
+                            :transform="`translate(${Math.max(48, width - 56)}, 72)`"
+                            @click.stop="createCapabilityClicked"
+                            style="cursor: pointer"
+                            aria-label="Crear capacidad"
+                        >
+                            <circle
+                                r="12"
+                                fill="rgba(255,255,255,0.03)"
+                                stroke="rgba(255,255,255,0.05)"
                             />
-                        </template>
+                            <title>Crear capacidad</title>
+                            <text
+                                x="0"
+                                y="4"
+                                text-anchor="middle"
+                                font-size="16"
+                                fill="#dbeafe"
+                                style="font-weight: 700"
+                            >
+                                +
+                            </text>
+                        </g>
+                        <!-- scenario -> capability edges (distinct group so we can style/animate) -->
+                        <g class="scenario-edges">
+                            <template
+                                v-for="(e, idx) in scenarioEdges"
+                                :key="`scenario-edge-${idx}`"
+                            >
+                                <path
+                                    v-if="scenarioEdgePath(e)"
+                                    :d="scenarioEdgePath(e)"
+                                    class="edge-line scenario-edge"
+                                    stroke="url(#scenarioEdgeGrad)"
+                                    stroke-width="2.6"
+                                    stroke-linecap="round"
+                                    fill="none"
+                                    filter="url(#edgeGlow)"
+                                    stroke-opacity="0.95"
+                                />
+                                <!-- fallback to straight line if path empty -->
+                                <line
+                                    v-else
+                                    :x1="
+                                        renderedNodeById(e.source)?.x ??
+                                        undefined
+                                    "
+                                    :y1="
+                                        renderedNodeById(e.source)?.y ??
+                                        undefined
+                                    "
+                                    :x2="
+                                        renderedNodeById(e.target)?.x ??
+                                        undefined
+                                    "
+                                    :y2="
+                                        renderedNodeById(e.target)?.y ??
+                                        undefined
+                                    "
+                                    class="edge-line scenario-edge"
+                                    stroke="url(#scenarioEdgeGrad)"
+                                    stroke-width="2.6"
+                                    stroke-linecap="round"
+                                    filter="url(#edgeGlow)"
+                                    stroke-opacity="0.95"
+                                />
+                            </template>
+                        </g>
 
-                        <!-- líneas simples / modos no-curva -->
-                        <template v-else>
+                        <!-- child edges: conexiones entre la capacidad seleccionada y sus competencias -->
+                        <g class="child-edges">
+                            <!-- curva (modo 2) -->
+                            <template v-if="childEdgeMode === 2">
+                                <path
+                                    v-for="(e, idx) in childEdges"
+                                    :key="`child-edge-path-${idx}`"
+                                    :d="edgeRenderFor(e).d"
+                                    class="edge-line child-edge"
+                                    stroke="url(#childGrad)"
+                                    stroke-width="4"
+                                    stroke-linecap="round"
+                                    fill="none"
+                                    filter="url(#edgeGlow)"
+                                    stroke-opacity="0.98"
+                                    marker-end="url(#childArrow)"
+                                />
+                            </template>
+
+                            <!-- líneas simples / modos no-curva -->
+                            <template v-else>
+                                <line
+                                    v-for="(e, idx) in childEdges"
+                                    :key="`child-edge-line-${idx}`"
+                                    :x1="edgeRenderFor(e).x1 ?? undefined"
+                                    :y1="edgeRenderFor(e).y1 ?? undefined"
+                                    :x2="edgeRenderFor(e).x2 ?? undefined"
+                                    :y2="edgeRenderFor(e).y2 ?? undefined"
+                                    class="edge-line child-edge"
+                                    stroke="url(#childGrad)"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    filter="url(#edgeGlow)"
+                                    stroke-opacity="0.98"
+                                    marker-end="url(#childArrow)"
+                                />
+                            </template>
+                        </g>
+
+                        <!-- grandchild edges: conexiones entre la competencia seleccionada y sus skills (mismo estilo que child-edges) -->
+                        <g class="grandchild-edges">
+                            <!-- curva (modo 2) -->
+                            <template v-if="childEdgeMode === 2">
+                                <path
+                                    v-for="(e, idx) in grandChildEdges"
+                                    :key="`grandchild-edge-path-${idx}`"
+                                    :d="edgeRenderFor(e).d"
+                                    class="edge-line child-edge"
+                                    stroke="url(#childGrad)"
+                                    stroke-width="4"
+                                    stroke-linecap="round"
+                                    fill="none"
+                                    filter="url(#edgeGlow)"
+                                    :stroke-opacity="edgeAnimOpacity(e)"
+                                    :style="{
+                                        transition: 'stroke-opacity 180ms ease',
+                                    }"
+                                    marker-end="url(#childArrow)"
+                                />
+                            </template>
+                            <!-- líneas simples / modos no-curva -->
                             <line
-                                v-for="(e, idx) in childEdges"
-                                :key="`child-edge-line-${idx}`"
+                                v-else
+                                v-for="(e, idx) in grandChildEdges"
+                                :key="`grandchild-edge-line-${idx}`"
                                 :x1="edgeRenderFor(e).x1 ?? undefined"
                                 :y1="edgeRenderFor(e).y1 ?? undefined"
                                 :x2="edgeRenderFor(e).x2 ?? undefined"
@@ -4539,131 +6694,129 @@ if (!edges.value) edges.value = [];
                                 stroke-width="2"
                                 stroke-linecap="round"
                                 filter="url(#edgeGlow)"
-                                stroke-opacity="0.98"
-                                marker-end="url(#childArrow)"
-                            />
-                        </template>
-                    </g>
-
-                    <!-- grandchild edges: conexiones entre la competencia seleccionada y sus skills (mismo estilo que child-edges) -->
-                    <g class="grandchild-edges">
-                        <!-- curva (modo 2) -->
-                        <template v-if="childEdgeMode === 2">
-                            <path
-                                v-for="(e, idx) in grandChildEdges"
-                                :key="`grandchild-edge-path-${idx}`"
-                                :d="edgeRenderFor(e).d"
-                                class="edge-line child-edge"
-                                stroke="url(#childGrad)"
-                                stroke-width="4"
-                                stroke-linecap="round"
-                                fill="none"
-                                filter="url(#edgeGlow)"
                                 :stroke-opacity="edgeAnimOpacity(e)"
-                                :style="{ transition: 'stroke-opacity 180ms ease' }"
+                                :style="{
+                                    transition: 'stroke-opacity 180ms ease',
+                                }"
                                 marker-end="url(#childArrow)"
                             />
-                        </template>
-                        <!-- líneas simples / modos no-curva -->
-                        <line
-                            v-else
-                            v-for="(e, idx) in grandChildEdges"
-                            :key="`grandchild-edge-line-${idx}`"
-                            :x1="edgeRenderFor(e).x1 ?? undefined"
-                            :y1="edgeRenderFor(e).y1 ?? undefined"
-                            :x2="edgeRenderFor(e).x2 ?? undefined"
-                            :y2="edgeRenderFor(e).y2 ?? undefined"
-                            class="edge-line child-edge"
-                            stroke="url(#childGrad)"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            filter="url(#edgeGlow)"
-                            :stroke-opacity="edgeAnimOpacity(e)"
-                            :style="{ transition: 'stroke-opacity 180ms ease' }"
-                            marker-end="url(#childArrow)"
-                        />
-                    </g>
+                        </g>
 
-                    <!-- nodes -->
-                    <!-- scenario/origin node (optional) -->
-                    <g
-                        v-if="scenarioNode"
-                        :style="{ transform: `translate(${scenarioNode.x}px, ${scenarioNode.y}px)` }"
-                        class="node-group scenario-node"
-                        :data-node-id="scenarioNode.id"
-                        @click.stop="handleScenarioClick"
-                        :title="'Ver información del escenario'"
-                        style="cursor: pointer"
-                    >
-                        <title>{{ scenarioNode.name }}</title>
-                        <!-- Smaller parent node (scenario) with icon support -->
-                        <circle
-                            class="node-circle"
-                            r="22"
-                            fill="url(#glassGrad)"
-                            filter="url(#softGlow)"
-                            stroke="rgba(255,255,255,0.06)"
-                            stroke-width="1.2"
-                        />
-                        <!-- Compass rose icon centered on the scenario node (larger, stylized) -->
-                        <g class="scenario-icon" transform="translate(0,0) scale(1.6)">
-                            <!-- subtle backing circle for contrast -->
-                            <circle r="9" fill="rgba(0,0,0,0.28)" />
-                            <!-- elegant 8-point rose -->
-                            <g class="rose" transform="translate(0,0)">
-                                <g class="rose-x" transform="translate(0,2)">
-                                    <path class="rose-x-arm" d="M0,-14 L5,0 L0,10 L-5,0 Z" transform="rotate(45) scale(1.2)" fill="rgba(255,255,255,0.06)" />
-                                    <path class="rose-x-arm" d="M0,-14 L5,0 L0,10 L-5,0 Z" transform="rotate(-45) scale(1.2)" fill="rgba(255,255,255,0.06)" />
+                        <!-- nodes -->
+                        <!-- scenario/origin node (optional) -->
+                        <g
+                            v-if="scenarioNode"
+                            :style="{
+                                transform: `translate(${scenarioNode.x}px, ${scenarioNode.y}px)`,
+                            }"
+                            class="node-group scenario-node"
+                            :data-node-id="scenarioNode.id"
+                            @click.stop="handleScenarioClick"
+                            :title="'Ver información del escenario'"
+                            style="cursor: pointer"
+                        >
+                            <title>{{ scenarioNode.name }}</title>
+                            <!-- Smaller parent node (scenario) with icon support -->
+                            <circle
+                                class="node-circle"
+                                r="22"
+                                fill="url(#glassGrad)"
+                                filter="url(#softGlow)"
+                                stroke="rgba(255,255,255,0.06)"
+                                stroke-width="1.2"
+                            />
+                            <!-- Compass rose icon centered on the scenario node (larger, stylized) -->
+                            <g
+                                class="scenario-icon"
+                                transform="translate(0,0) scale(1.6)"
+                            >
+                                <!-- subtle backing circle for contrast -->
+                                <circle r="9" fill="rgba(0,0,0,0.28)" />
+                                <!-- elegant 8-point rose -->
+                                <g class="rose" transform="translate(0,0)">
+                                    <g
+                                        class="rose-x"
+                                        transform="translate(0,2)"
+                                    >
+                                        <path
+                                            class="rose-x-arm"
+                                            d="M0,-14 L5,0 L0,10 L-5,0 Z"
+                                            transform="rotate(45) scale(1.2)"
+                                            fill="rgba(255,255,255,0.06)"
+                                        />
+                                        <path
+                                            class="rose-x-arm"
+                                            d="M0,-14 L5,0 L0,10 L-5,0 Z"
+                                            transform="rotate(-45) scale(1.2)"
+                                            fill="rgba(255,255,255,0.06)"
+                                        />
+                                    </g>
+                                    <!-- outline / secondary points -->
+                                    <path
+                                        class="rose-outline"
+                                        d="M0,-14 L4,-4 L14,0 L4,4 L0,14 L-4,4 L-14,0 L-4,-4 Z"
+                                    />
+                                    <!-- primary north needle -->
+                                    <path
+                                        class="rose-primary"
+                                        d="M0,-14 L5,0 L0,10 L-5,0 Z"
+                                    />
+                                    <!-- primary south needle (mirrored) - aumentada 10% -->
+                                    <path
+                                        class="rose-secondary"
+                                        d="M0,14 L5,0 L0,-10 L-5,0 Z"
+                                        transform="scale(1.1)"
+                                        fill="url(#compassNeedleGrad)"
+                                    />
+                                    <!-- subtle X behind center using the needle shapes (rotated) -->
+                                    <!-- center hub -->
+                                    <circle class="rose-center" r="2" />
                                 </g>
-                                <!-- outline / secondary points -->
-                                <path class="rose-outline" d="M0,-14 L4,-4 L14,0 L4,4 L0,14 L-4,4 L-14,0 L-4,-4 Z" />
-                                <!-- primary north needle -->
-                                <path class="rose-primary" d="M0,-14 L5,0 L0,10 L-5,0 Z" />
-                                <!-- primary south needle (mirrored) - aumentada 10% -->
-                                <path class="rose-secondary" d="M0,14 L5,0 L0,-10 L-5,0 Z" transform="scale(1.1)" fill="url(#compassNeedleGrad)" />
-                                <!-- subtle X behind center using the needle shapes (rotated) -->
-                                <!-- center hub -->
-                                <circle class="rose-center" r="2" />
                             </g>
                         </g>
-                    </g>
 
-                    <g
-                        v-for="node in nodes"
-                        :key="node.id"
-                        :style="{ transform: `translate(${renderNodeX(node)}px, ${node.y}px)` }"
-                        class="node-group"
-                        :data-node-id="node.id"
-                        :class="{
-                            critical: !!node.is_critical,
-                            focused: focusedNode && focusedNode.id === node.id,
-                            dragging: dragging && dragging.id === node.id,
-                            small: focusedNode && focusedNode.id !== node.id,
-                        }"
-                        @pointerdown.prevent="startDrag(node, $event)"
-                        @click.stop="(e) => handleNodeClick(node, e)"
-                        @contextmenu.prevent.stop="(e) => openNodeContextMenu(node, e)"
-                    >
-                        <title>{{ node.name }}</title>
-                        <circle
-                            class="node-circle"
-                            r="34"
-                            fill="url(#bubbleOuterGrad)"
-                            filter="url(#innerGlow)"
-                            stroke="rgba(255,255,255,0.12)"
-                            stroke-opacity="1"
-                            stroke-width="1.2"
-                        />
-                        <!-- iridescent sheen overlay: semitransparent, uses blend to simulate soap colors -->
-                        <circle
-                            class="node-iridescence"
-                            r="34"
-                            fill="url(#iridescentGrad)"
-                            opacity="0.22"
-                            style="mix-blend-mode: screen"
-                        />
-                        <!-- bubble-style highlight: small blurred specular on top-left -->
-                        <!-- <ellipse
+                        <g
+                            v-for="node in nodes"
+                            :key="node.id"
+                            :style="{
+                                transform: `translate(${renderNodeX(node)}px, ${node.y}px)`,
+                            }"
+                            class="node-group"
+                            :data-node-id="node.id"
+                            :class="{
+                                critical: !!node.is_critical,
+                                focused:
+                                    focusedNode && focusedNode.id === node.id,
+                                dragging: dragging && dragging.id === node.id,
+                                small:
+                                    focusedNode && focusedNode.id !== node.id,
+                            }"
+                            @pointerdown.prevent="startDrag(node, $event)"
+                            @click.stop="(e) => handleNodeClick(node, e)"
+                            @contextmenu.prevent.stop="
+                                (e) => openNodeContextMenu(node, e)
+                            "
+                        >
+                            <title>{{ node.name }}</title>
+                            <circle
+                                class="node-circle"
+                                r="34"
+                                fill="url(#bubbleOuterGrad)"
+                                filter="url(#innerGlow)"
+                                stroke="rgba(255,255,255,0.12)"
+                                stroke-opacity="1"
+                                stroke-width="1.2"
+                            />
+                            <!-- iridescent sheen overlay: semitransparent, uses blend to simulate soap colors -->
+                            <circle
+                                class="node-iridescence"
+                                r="34"
+                                fill="url(#iridescentGrad)"
+                                opacity="0.22"
+                                style="mix-blend-mode: screen"
+                            />
+                            <!-- bubble-style highlight: small blurred specular on top-left -->
+                            <!-- <ellipse
                             class="node-reflection"
                             cx="-12"
                             cy="-14"
@@ -4674,536 +6827,1449 @@ if (!edges.value) edges.value = [];
                             transform="rotate(-22)"
                             filter="url(#specular)"
                         /> -->
-                        <!-- inner core that suggests nucleus -->
-                        <circle
-                            class="node-core"
-                            r="10"
-                            fill="url(#bubbleCoreGrad)"
-                            filter="url(#specular)"
-                        />
-                        <!-- subtle glossy rim to enhance bubble feel -->
-                        <circle
-                            class="node-rim"
-                            r="34"
-                            fill="none"
-                            stroke="#ffffff"
-                            stroke-opacity="0.08"
-                            stroke-width="1.4"
-                        />
-                        <circle
-                            v-if="node.is_critical"
-                            class="node-inner"
-                            r="12"
-                            fill="#ff5050"
-                            fill-opacity="0.95"
-                        />
-                        <text :x="0" :y="38" text-anchor="middle" class="node-label">
-                            <tspan v-for="(line, idx) in ((node as any).displayName ?? node.name).split('\n')" :key="idx" :x="0" :dy="idx === 0 ? 0 : 12">{{ line }}</tspan>
-                        </text>
-                    </g>
-
-                    <!-- child nodes (competencies) -->
-                    <g class="child-nodes">
-                        <g
-                            v-for="c in childNodes"
-                            :key="c.id"
-                            :style="{ transform: `translate(${c.x}px, ${c.y}px) scale(${c.animScale ?? 1})`, opacity: (c.animOpacity ?? 0.88), transitionDelay: (c.animDelay ? c.animDelay + 'ms' : undefined), filter: c.animFilter ? c.animFilter : undefined }"
-                                class="node-group child-node"
-                            :data-node-id="c.id"
-                            @click.stop="(e) => handleNodeClick(c, e)"
-                            @contextmenu.prevent.stop="(e) => openNodeContextMenu(c, e)"
-                        >
-                            <title>{{ c.name }}</title>
+                            <!-- inner core that suggests nucleus -->
                             <circle
-                                class="node-circle"
-                                :r="20"
-                                :fill="c.id === selectedChild?.id ? 'url(#competencySelectedGrad)' : 'url(#competencyGrad)'"
-                                :stroke="c.id === selectedChild?.id ? 'rgba(167, 139, 250, 0.8)' : 'rgba(124, 58, 237, 0.5)'"
-                                stroke-width="1.5"
-                            />
-                            <!-- child node: iridescent sheen + small reflection to match bubble style -->
-                            <circle
-                                class="node-iridescence child-iridescence"
-                                :r="20"
-                                fill="url(#iridescentGrad)"
-                                opacity="0.18"
-                                style="mix-blend-mode: screen"
-                            />
-                            <ellipse
-                                class="node-reflection child-reflection"
-                                cx="-6"
-                                cy="-6"
-                                rx="7"
-                                ry="4.5"
-                                fill="#ffffff"
-                                fill-opacity="0.14"
-                                transform="rotate(-22)"
+                                class="node-core"
+                                r="10"
+                                fill="url(#bubbleCoreGrad)"
                                 filter="url(#specular)"
                             />
+                            <!-- subtle glossy rim to enhance bubble feel -->
                             <circle
-                                class="node-rim child-rim"
-                                :r="20"
+                                class="node-rim"
+                                r="34"
                                 fill="none"
                                 stroke="#ffffff"
-                                stroke-opacity="0.06"
-                                stroke-width="1"
+                                stroke-opacity="0.08"
+                                stroke-width="1.4"
                             />
                             <circle
-                                class="node-gloss child-gloss"
-                                :r="22"
-                                fill="none"
-                                stroke="#ffffff"
-                                stroke-opacity="0.04"
-                                stroke-width="4"
-                                filter="url(#softGlow)"
+                                v-if="node.is_critical"
+                                class="node-inner"
+                                r="12"
+                                fill="#ff5050"
+                                fill-opacity="0.95"
                             />
-                            <text :x="0" :y="22" text-anchor="middle" class="node-label" style="font-size:10px">
-                                <tspan v-for="(line, idx) in String((c as any).displayName ?? c.name).split('\n')" :key="idx" :x="0" :dy="idx === 0 ? 0 : 10">{{ line }}</tspan>
+                            <text
+                                :x="0"
+                                :y="38"
+                                text-anchor="middle"
+                                class="node-label"
+                            >
+                                <tspan
+                                    v-for="(line, idx) in (
+                                        (node as any).displayName ?? node.name
+                                    ).split('\n')"
+                                    :key="idx"
+                                    :x="0"
+                                    :dy="idx === 0 ? 0 : 12"
+                                >
+                                    {{ line }}
+                                </tspan>
+                            </text>
+                        </g>
+
+                        <!-- child nodes (competencies) -->
+                        <g class="child-nodes">
+                            <g
+                                v-for="c in childNodes"
+                                :key="c.id"
+                                :style="{
+                                    transform: `translate(${c.x}px, ${c.y}px) scale(${c.animScale ?? 1})`,
+                                    opacity: c.animOpacity ?? 0.88,
+                                    transitionDelay: c.animDelay
+                                        ? c.animDelay + 'ms'
+                                        : undefined,
+                                    filter: c.animFilter
+                                        ? c.animFilter
+                                        : undefined,
+                                }"
+                                class="node-group child-node"
+                                :data-node-id="c.id"
+                                @click.stop="(e) => handleNodeClick(c, e)"
+                                @contextmenu.prevent.stop="
+                                    (e) => openNodeContextMenu(c, e)
+                                "
+                            >
+                                <title>{{ c.name }}</title>
+                                <circle
+                                    class="node-circle"
+                                    :r="20"
+                                    :fill="
+                                        c.id === selectedChild?.id
+                                            ? 'url(#competencySelectedGrad)'
+                                            : 'url(#competencyGrad)'
+                                    "
+                                    :stroke="
+                                        c.id === selectedChild?.id
+                                            ? 'rgba(167, 139, 250, 0.8)'
+                                            : 'rgba(124, 58, 237, 0.5)'
+                                    "
+                                    stroke-width="1.5"
+                                />
+                                <!-- child node: iridescent sheen + small reflection to match bubble style -->
+                                <circle
+                                    class="node-iridescence child-iridescence"
+                                    :r="20"
+                                    fill="url(#iridescentGrad)"
+                                    opacity="0.18"
+                                    style="mix-blend-mode: screen"
+                                />
+                                <ellipse
+                                    class="node-reflection child-reflection"
+                                    cx="-6"
+                                    cy="-6"
+                                    rx="7"
+                                    ry="4.5"
+                                    fill="#ffffff"
+                                    fill-opacity="0.14"
+                                    transform="rotate(-22)"
+                                    filter="url(#specular)"
+                                />
+                                <circle
+                                    class="node-rim child-rim"
+                                    :r="20"
+                                    fill="none"
+                                    stroke="#ffffff"
+                                    stroke-opacity="0.06"
+                                    stroke-width="1"
+                                />
+                                <circle
+                                    class="node-gloss child-gloss"
+                                    :r="22"
+                                    fill="none"
+                                    stroke="#ffffff"
+                                    stroke-opacity="0.04"
+                                    stroke-width="4"
+                                    filter="url(#softGlow)"
+                                />
+                                <text
+                                    :x="0"
+                                    :y="22"
+                                    text-anchor="middle"
+                                    class="node-label"
+                                    style="font-size: 10px"
+                                >
+                                    <tspan
+                                        v-for="(line, idx) in String(
+                                            (c as any).displayName ?? c.name,
+                                        ).split('\n')"
+                                        :key="idx"
+                                        :x="0"
+                                        :dy="idx === 0 ? 0 : 10"
+                                    >
+                                        {{ line }}
+                                    </tspan>
+                                </text>
+                            </g>
+                        </g>
+
+                        <!-- skill nodes (grandchildren) -->
+                        <g class="skill-nodes">
+                            <g
+                                v-for="s in grandChildNodes"
+                                :key="`${s.id}-${s.name}-${s.raw?.id}`"
+                                :style="{
+                                    transform: `translate(${s.x}px, ${s.y}px) scale(${s.animScale ?? 1})`,
+                                    opacity: s.animOpacity ?? 0.85,
+                                }"
+                                class="node-group skill-node"
+                                :data-node-id="s.id"
+                                @click.stop="(e) => handleSkillClick(s, e)"
+                            >
+                                <title>{{ s.name }}</title>
+                                <!-- skill bubble base -->
+                                <circle
+                                    class="node-circle"
+                                    :r="14"
+                                    fill="url(#skillGrad)"
+                                    :stroke="'rgba(16, 185, 129, 0.5)'"
+                                    stroke-width="1"
+                                />
+                                <!-- iridescent sheen -->
+                                <circle
+                                    class="node-iridescence"
+                                    :r="14"
+                                    fill="url(#iridescentGrad)"
+                                    opacity="0.14"
+                                    style="mix-blend-mode: screen"
+                                />
+                                <!-- small glossy rim to enhance bubble feel -->
+                                <circle
+                                    class="node-rim skill-rim"
+                                    :r="14"
+                                    fill="none"
+                                    stroke="#ffffff"
+                                    stroke-opacity="0.06"
+                                    stroke-width="1"
+                                />
+                                <!-- subtle outer gloss + soft glow -->
+                                <circle
+                                    class="node-gloss skill-gloss"
+                                    :r="16"
+                                    fill="none"
+                                    stroke="#ffffff"
+                                    stroke-opacity="0.04"
+                                    stroke-width="3"
+                                    filter="url(#softGlow)"
+                                />
+                                <!-- tiny specular reflection -->
+                                <ellipse
+                                    class="node-reflection skill-reflection"
+                                    cx="-5"
+                                    cy="-5"
+                                    rx="5"
+                                    ry="3"
+                                    fill="#ffffff"
+                                    fill-opacity="0.12"
+                                    transform="rotate(-22)"
+                                    filter="url(#specular)"
+                                />
+                                <text
+                                    :x="0"
+                                    :y="4"
+                                    text-anchor="middle"
+                                    class="node-label"
+                                    style="font-size: 10px"
+                                >
+                                    {{ s.name }}
+                                </text>
+                            </g>
+                        </g>
+                        <!-- overlay: dibujar conectores tipo 'hub' para que cada hijo tenga su conector visible -->
+
+                        <!-- Controles integrados en el SVG: reordenar / restaurar vista -->
+                        <g
+                            class="diagram-control reorder-control"
+                            :transform="`translate(${Math.max(48, width - 56)}, 108)`"
+                            @click.stop="reorderNodes"
+                            style="cursor: pointer"
+                        >
+                            <circle
+                                r="12"
+                                fill="rgba(182, 221, 77, 0.04)"
+                                stroke="rgba(255,255,255,0.06)"
+                            />
+                            <title>Reordenar nodos</title>
+                            <text
+                                x="0"
+                                y="4"
+                                text-anchor="middle"
+                                font-size="11"
+                                fill="#dbeafe"
+                                style="font-weight: 700"
+                            >
+                                R
+                            </text>
+                        </g>
+
+                        <g
+                            class="diagram-control mode-control"
+                            :transform="`translate(${Math.max(48, width - 56)}, 180)`"
+                            @click.stop="nextChildEdgeMode"
+                            style="cursor: pointer"
+                            :title="`Edge mode: ${childEdgeModeLabels[childEdgeMode]}`"
+                        >
+                            <circle
+                                r="12"
+                                fill="rgba(255,255,255,0.03)"
+                                stroke="rgba(255,255,255,0.06)"
+                            />
+                            <title>Cambiar modo conector</title>
+                            <text
+                                x="0"
+                                y="4"
+                                text-anchor="middle"
+                                font-size="10"
+                                fill="#dbeafe"
+                                style="font-weight: 700"
+                            >
+                                {{ childEdgeModeLabels[childEdgeMode] }}
+                            </text>
+                        </g>
+
+                        <g
+                            class="diagram-control restore-control"
+                            :transform="`translate(${Math.max(48, width - 56)}, 144)`"
+                            @click.stop="restoreView"
+                            style="cursor: pointer"
+                        >
+                            <circle
+                                r="12"
+                                fill="rgba(255,255,255,0.04)"
+                                stroke="rgba(255,255,255,0.06)"
+                            />
+                            <title>Restaurar vista</title>
+                            <text
+                                x="0"
+                                y="4"
+                                text-anchor="middle"
+                                font-size="11"
+                                fill="#dbeafe"
+                                style="font-weight: 700"
+                            >
+                                ↺
                             </text>
                         </g>
                     </g>
 
-                    <!-- skill nodes (grandchildren) -->
-                    <g class="skill-nodes">
-                        <g
-                            v-for="(s) in grandChildNodes"
-                            :key="`${s.id}-${s.name}-${s.raw?.id}`"
-                            :style="{ transform: `translate(${s.x}px, ${s.y}px) scale(${s.animScale ?? 1})`, opacity: (s.animOpacity ?? 0.85) }"
-                            class="node-group skill-node"
-                            :data-node-id="s.id"
-                            @click.stop="(e) => handleSkillClick(s, e)"
+                    <!-- Integrated title overlay (renders on top of diagram) -->
+                    <foreignObject
+                        x="12"
+                        y="8"
+                        :width="Math.min(420, width - 48)"
+                        height="40"
+                    >
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml"
+                            class="svg-title-fo"
                         >
-                            <title>{{ s.name }}</title>
-                            <!-- skill bubble base -->
-                            <circle 
-                                class="node-circle" 
-                                :r="14" 
-                                fill="url(#skillGrad)" 
-                                :stroke="'rgba(16, 185, 129, 0.5)'" 
-                                stroke-width="1" 
-                            />
-                            <!-- iridescent sheen -->
-                            <circle class="node-iridescence" :r="14" fill="url(#iridescentGrad)" opacity="0.14" style="mix-blend-mode: screen" />
-                            <!-- small glossy rim to enhance bubble feel -->
-                            <circle class="node-rim skill-rim" :r="14" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
-                            <!-- subtle outer gloss + soft glow -->
-                            <circle class="node-gloss skill-gloss" :r="16" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="3" filter="url(#softGlow)" />
-                            <!-- tiny specular reflection -->
-                            <ellipse class="node-reflection skill-reflection" cx="-5" cy="-5" rx="5" ry="3" fill="#ffffff" fill-opacity="0.12" transform="rotate(-22)" filter="url(#specular)" />
-                            <text :x="0" :y="4" text-anchor="middle" class="node-label" style="font-size:10px">{{ s.name }}</text>
-                        </g>
-                    </g>
-                    <!-- overlay: dibujar conectores tipo 'hub' para que cada hijo tenga su conector visible -->
-                    
-                    <!-- Controles integrados en el SVG: reordenar / restaurar vista -->
-                    <g
-                        class="diagram-control reorder-control"
-                        :transform="`translate(${Math.max(48, width - 56)}, 108)`"
-                        @click.stop="reorderNodes"
-                        style="cursor: pointer"
-                    >
-                        <circle r="12" fill="rgba(182, 221, 77, 0.04)" stroke="rgba(255,255,255,0.06)"/>
-                        <title>Reordenar nodos</title>
-                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">R</text>
-                    </g>
-                    
-                    <g
-                        class="diagram-control mode-control"
-                        :transform="`translate(${Math.max(48, width - 56)}, 180)`"
-                        @click.stop="nextChildEdgeMode"
-                        style="cursor: pointer"
-                        :title="`Edge mode: ${childEdgeModeLabels[childEdgeMode]}`"
-                    >
-                        <circle r="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)"/>
-                        <title>Cambiar modo conector</title>
-                        <text x="0" y="4" text-anchor="middle" font-size="10" fill="#dbeafe" style="font-weight:700">{{ childEdgeModeLabels[childEdgeMode] }}</text>
-                    </g>
-
-                    <g
-                        class="diagram-control restore-control"
-                        :transform="`translate(${Math.max(48, width - 56)}, 144)`"
-                        @click.stop="restoreView"
-                        style="cursor: pointer"
-                    >
-                        <circle r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)"/>
-                        <title>Restaurar vista</title>
-                        <text x="0" y="4" text-anchor="middle" font-size="11" fill="#dbeafe" style="font-weight:700">↺</text>
-                    </g>
-                    </g>
-
-                <!-- Integrated title overlay (renders on top of diagram) -->
-                <foreignObject x="12" y="8" :width="Math.min(420, width - 48)" height="40">
-                    <div xmlns="http://www.w3.org/1999/xhtml" class="svg-title-fo">
-                        <div class="svg-title-text">
-                            <template v-for="(part, idx) in breadcrumbParts" :key="`breadcrumb-${idx}`">
-                                <div class="svg-title-line">{{ part }}</div>
-                            </template>
+                            <div class="svg-title-text">
+                                <template
+                                    v-for="(part, idx) in breadcrumbParts"
+                                    :key="`breadcrumb-${idx}`"
+                                >
+                                    <div class="svg-title-line">{{ part }}</div>
+                                </template>
+                            </div>
                         </div>
-                    </div>
-                </foreignObject>
+                    </foreignObject>
+                </svg>
 
-            </svg>
+                <!-- Context menu overlay (right-click) replaced with Vuetify v-menu -->
+                <v-menu
+                    v-model="contextMenuVisible"
+                    absolute
+                    offset-y
+                    transition="scale-transition"
+                    :close-on-content-click="false"
+                    :open-on-click="false"
+                    :style="{
+                        left: contextMenuLeft + 'px',
+                        top: contextMenuTop + 'px',
+                        zIndex: 200000,
+                    }"
+                >
+                    <template #default>
+                        <div
+                            ref="contextMenuEl"
+                            class="node-context-menu-v"
+                            style="min-width: 250px"
+                        >
+                            <v-list density="compact">
+                                <v-list-item
+                                    @click="contextViewEdit"
+                                    class="node-context-item"
+                                >
+                                    <div class="d-flex align-center">
+                                        <v-icon class="me-2"
+                                            >mdi-eye-outline</v-icon
+                                        >
+                                        <span>Ver Detalles</span>
+                                    </div>
+                                </v-list-item>
+                            </v-list>
+                        </div>
+                    </template>
+                </v-menu>
 
-            <!-- Context menu overlay (right-click) replaced with Vuetify v-menu -->
-            <v-menu
-                v-model="contextMenuVisible"
-                absolute
-                offset-y
-                transition="scale-transition"
-                :close-on-content-click="false"
-                :open-on-click="false"
-                :style="{ left: contextMenuLeft + 'px', top: contextMenuTop + 'px', zIndex: 200000 }"
-            >
-                <template #default>
-                    <div ref="contextMenuEl" class="node-context-menu-v" style="min-width:250px;">
-                        <v-list density="compact">
-                            <v-list-item @click="contextViewEdit" class="node-context-item">
-                                <v-list-item-icon>
-                                    <v-icon icon="mdi-eye-outline" />
-                                    Ver Detalles
-                                </v-list-item-icon>
-                            </v-list-item>
-    
-                        </v-list>
-                    </div>
-                </template>
-            </v-menu>
-
-            <!-- Reemplazo: mostrar detalles en modal en lugar de panel lateral -->
-            <v-dialog v-model="showSidebar" max-width="980" persistent scrollable transition="scale-transition"
-                      content-class="capability-dialog" role="dialog" aria-modal="true"
-                      :aria-label="displayNode ? `Detalles: ${displayNode.name}` : 'Detalle de elemento'">
-                <v-card :class="dialogThemeClass">
-                    <v-card-title class="d-flex justify-space-between align-center">
-                        <strong>{{ displayNode ? displayNode.name : (showSidebar ? 'Escenario' : 'Detalle') }}</strong>
-                        <div class="d-flex align-center" style="gap:8px">
-                           <!--  <v-btn icon small variant="text" @click="toggleSidebarTheme" :title="sidebarTheme === 'dark' ? 'Tema claro' : 'Tema oscuro'">
+                <!-- Reemplazo: mostrar detalles en modal en lugar de panel lateral -->
+                <v-dialog
+                    v-model="showSidebar"
+                    max-width="980"
+                    persistent
+                    scrollable
+                    transition="scale-transition"
+                    content-class="capability-dialog"
+                    role="dialog"
+                    aria-modal="true"
+                    :aria-label="
+                        displayNode
+                            ? `Detalles: ${displayNode.name}`
+                            : 'Detalle de elemento'
+                    "
+                >
+                    <v-card :class="dialogThemeClass">
+                        <v-card-title
+                            class="d-flex justify-space-between align-center"
+                        >
+                            <strong>{{
+                                displayNode
+                                    ? displayNode.name
+                                    : showSidebar
+                                      ? 'Escenario'
+                                      : 'Detalle'
+                            }}</strong>
+                            <div class="d-flex align-center" style="gap: 8px">
+                                <!--  <v-btn icon small variant="text" @click="toggleSidebarTheme" :title="sidebarTheme === 'dark' ? 'Tema claro' : 'Tema oscuro'">
                                 <v-icon :icon="sidebarTheme === 'dark' ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
                             </v-btn> -->
-                            <v-btn icon small variant="text" @click="showSidebar = false">
-                                <v-icon icon="mdi-close" />
-                            </v-btn>
-                        </div>
-                    </v-card-title>
-                    <v-card-text style="max-height:70vh; overflow:auto;">
-                        <template v-if="displayNode">
-                            <div class="text-xs text-white/60 mb-2">
-                                <div><strong>ID:</strong> {{ (displayNode as any).id ?? '—' }}</div>
-                                <div><strong>Competencias:</strong> {{ ((displayNode as any).competencies || []).length }}</div>
+                                <v-btn
+                                    icon
+                                    small
+                                    variant="text"
+                                    @click="showSidebar = false"
+                                >
+                                    <v-icon icon="mdi-close" />
+                                </v-btn>
                             </div>
+                        </v-card-title>
+                        <v-card-text style="max-height: 70vh; overflow: auto">
+                            <template v-if="displayNode">
+                                <div class="mb-2 text-xs text-white/60">
+                                    <div>
+                                        <strong>ID:</strong>
+                                        {{ (displayNode as any).id ?? '—' }}
+                                    </div>
+                                    <div>
+                                        <strong>Competencias:</strong>
+                                        {{
+                                            (
+                                                (displayNode as any)
+                                                    .competencies || []
+                                            ).length
+                                        }}
+                                    </div>
+                                </div>
 
-                            <div class="text-small text-medium-emphasis mb-2">
-                                <template v-if="(displayNode as any).skills || (displayNode as any).compId">
-                                    <div style="position:relative;">
-                                        <div style="max-height:360px; overflow:auto; padding-right:12px;">
-                                            <v-form ref="capForm" @submit.prevent>
-                                                <div style="display:flex; gap:8px; grid-column: 1 / -1; margin-top:8px">
-                                                    <v-btn small color="primary" @click="showCreateSkillDialog">Crear Skill</v-btn>
-                                                    <v-btn small color="primary" @click="openSelectSkillDialog">Agregar existente</v-btn>
-                                                    <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar nodo</v-btn>
-                                                    <v-btn color="primary" @click="saveSelectedChild" :loading="savingNode" :disabled="savingNode || capFormInvalid">Guardar</v-btn>
-                                                </div>
-                                                <div style="display:grid; gap:12px; grid-template-columns: 1fr 1fr; align-items:start;">
-                                                    <v-text-field v-model="editChildName" label="Nombre" required />
-                                                    <div>
-                                                        <v-text-field 
-                                                            v-model="editChildReadiness" 
-                                                            label="Readiness (%)" 
-                                                            type="number" 
-                                                            readonly 
-                                                            hint="Calculado automáticamente por el sistema basado en evaluaciones y niveles"
-                                                            persistent-hint
+                                <div
+                                    class="text-small text-medium-emphasis mb-2"
+                                >
+                                    <template
+                                        v-if="
+                                            (displayNode as any).skills ||
+                                            (displayNode as any).compId
+                                        "
+                                    >
+                                        <div style="position: relative">
+                                            <div
+                                                style="
+                                                    max-height: 360px;
+                                                    overflow: auto;
+                                                    padding-right: 12px;
+                                                "
+                                            >
+                                                <v-form
+                                                    ref="capForm"
+                                                    @submit.prevent
+                                                >
+                                                    <div
+                                                        style="
+                                                            display: flex;
+                                                            gap: 8px;
+                                                            grid-column: 1 / -1;
+                                                            margin-top: 8px;
+                                                        "
+                                                    >
+                                                        <v-btn
+                                                            small
+                                                            color="primary"
+                                                            @click="
+                                                                showCreateSkillDialog
+                                                            "
+                                                            >Crear Skill</v-btn
+                                                        >
+                                                        <v-btn
+                                                            small
+                                                            color="primary"
+                                                            @click="
+                                                                openSelectSkillDialog
+                                                            "
+                                                            >Agregar
+                                                            existente</v-btn
+                                                        >
+                                                        <v-btn
+                                                            color="error"
+                                                            @click="
+                                                                deleteFocusedNode
+                                                            "
+                                                            :loading="
+                                                                savingNode
+                                                            "
+                                                            >Eliminar
+                                                            nodo</v-btn
+                                                        >
+                                                        <v-btn
+                                                            color="primary"
+                                                            @click="
+                                                                saveSelectedChild
+                                                            "
+                                                            :loading="
+                                                                savingNode
+                                                            "
+                                                            :disabled="
+                                                                savingNode ||
+                                                                capFormInvalid
+                                                            "
+                                                            >Guardar</v-btn
+                                                        >
+                                                    </div>
+                                                    <div
+                                                        style="
+                                                            display: grid;
+                                                            gap: 12px;
+                                                            grid-template-columns: 1fr 1fr;
+                                                            align-items: start;
+                                                        "
+                                                    >
+                                                        <v-text-field
+                                                            v-model="
+                                                                editChildName
+                                                            "
+                                                            label="Nombre"
+                                                            required
+                                                        />
+                                                        <div>
+                                                            <v-text-field
+                                                                v-model="
+                                                                    editChildReadiness
+                                                                "
+                                                                label="Readiness (%)"
+                                                                type="number"
+                                                                readonly
+                                                                hint="Calculado automáticamente por el sistema basado en evaluaciones y niveles"
+                                                                persistent-hint
+                                                            />
+                                                        </div>
+                                                        <v-textarea
+                                                            v-model="
+                                                                editChildDescription
+                                                            "
+                                                            label="Descripción"
+                                                            rows="3"
+                                                            style="
+                                                                grid-column: 1 /
+                                                                    -1;
+                                                            "
+                                                        />
+
+                                                        <div
+                                                            style="
+                                                                grid-column: 1 /
+                                                                    -1;
+                                                                font-weight: 700;
+                                                                margin-top: 6px;
+                                                            "
+                                                        >
+                                                            Atributos de la
+                                                            relación con la
+                                                            capacidad
+                                                        </div>
+                                                        <div>
+                                                            <v-slider
+                                                                v-model="
+                                                                    editChildPivotStrategicWeight
+                                                                "
+                                                                label="Strategic weight (1-10)"
+                                                                :min="1"
+                                                                :max="10"
+                                                                :step="1"
+                                                                color="primary"
+                                                                :ticks="
+                                                                    tickLabelStrategic
+                                                                "
+                                                                show-ticks="always"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <v-slider
+                                                                v-model="
+                                                                    editChildPivotPriority
+                                                                "
+                                                                label="Priority (1-5)"
+                                                                :min="1"
+                                                                :max="5"
+                                                                :step="1"
+                                                                color="orange"
+                                                                :ticks="
+                                                                    tickLabelPriority
+                                                                "
+                                                                show-ticks="always"
+                                                            />
+                                                        </div>
+
+                                                        <div>
+                                                            <v-slider
+                                                                v-model="
+                                                                    editChildPivotRequiredLevel
+                                                                "
+                                                                label="Required level (1-5)"
+                                                                :min="1"
+                                                                :max="5"
+                                                                :step="1"
+                                                                color="teal"
+                                                                :ticks="
+                                                                    tickLabelRequiredLevel
+                                                                "
+                                                                show-ticks="always"
+                                                            />
+                                                        </div>
+                                                        <v-checkbox
+                                                            v-model="
+                                                                editChildPivotIsCritical
+                                                            "
+                                                            label="Is critical"
+                                                        />
+
+                                                        <v-textarea
+                                                            v-model="
+                                                                editChildPivotRationale
+                                                            "
+                                                            label="Rationale"
+                                                            rows="2"
+                                                            style="
+                                                                grid-column: 1 /
+                                                                    -1;
+                                                            "
                                                         />
                                                     </div>
-                                                    <v-textarea v-model="editChildDescription" label="Descripción" rows="3" style="grid-column: 1 / -1;" />
+                                                </v-form>
+                                            </div>
+                                        </div>
+                                    </template>
 
-                                                    <div style="grid-column: 1 / -1; font-weight:700; margin-top:6px">Atributos de la relación con la capacidad</div>
-                                                    <div>
-                                                        <v-slider v-model="editChildPivotStrategicWeight" label="Strategic weight (1-10)" :min="1" :max="10" :step="1" color="primary" :ticks="tickLabelStrategic" show-ticks="always"/>
+                                    <template v-else>
+                                        <div style="position: relative">
+                                            <div
+                                                style="
+                                                    display: flex;
+                                                    gap: 8px;
+                                                    margin-bottom: 8px;
+                                                "
+                                            >
+                                                <v-btn
+                                                    small
+                                                    color="primary"
+                                                    @click="
+                                                        showCreateCompDialog
+                                                    "
+                                                    >Crear competencia</v-btn
+                                                >
+                                                <v-btn
+                                                    small
+                                                    color="primary"
+                                                    @click="
+                                                        openAddExistingCompDialog
+                                                    "
+                                                    >Agregar existente</v-btn
+                                                >
+                                                <v-btn
+                                                    color="error"
+                                                    @click="deleteFocusedNode"
+                                                    :loading="savingNode"
+                                                    >Eliminar nodo</v-btn
+                                                >
+                                                <v-btn
+                                                    color="primary"
+                                                    @click="saveFocusedNode"
+                                                    :loading="savingNode"
+                                                    :disabled="
+                                                        savingNode ||
+                                                        capFormInvalid
+                                                    "
+                                                    >Guardar</v-btn
+                                                >
+                                                <v-btn
+                                                    text
+                                                    color="primary"
+                                                    @click="resetFocusedEdits"
+                                                    >Cancelar</v-btn
+                                                >
+                                            </div>
+                                            <div
+                                                style="
+                                                    max-height: 360px;
+                                                    overflow: auto;
+                                                    padding-right: 12px;
+                                                "
+                                            >
+                                                <v-form
+                                                    ref="capForm"
+                                                    @submit.prevent
+                                                >
+                                                    <div
+                                                        style="
+                                                            display: grid;
+                                                            gap: 12px;
+                                                            grid-template-columns: 1fr 1fr;
+                                                            align-items: start;
+                                                        "
+                                                    >
+                                                        <v-text-field
+                                                            v-model="
+                                                                editCapName
+                                                            "
+                                                            label="Nombre"
+                                                            required
+                                                        />
+                                                        <div>
+                                                            <v-slider
+                                                                v-model="
+                                                                    editCapImportance
+                                                                "
+                                                                label="Importancia"
+                                                                :min="1"
+                                                                :max="3"
+                                                                :step="1"
+                                                                color="primary"
+                                                                :ticks="
+                                                                    tickLabelImportance
+                                                                "
+                                                                show-ticks="always"
+                                                            />
+                                                        </div>
+
+                                                        <v-select
+                                                            v-model="
+                                                                editCapType
+                                                            "
+                                                            :items="[
+                                                                'technical',
+                                                                'behavioral',
+                                                                'strategic',
+                                                            ]"
+                                                            label="Tipo"
+                                                        />
+                                                        <v-select
+                                                            v-model="
+                                                                editCapCategory
+                                                            "
+                                                            :items="[
+                                                                'technical',
+                                                                'leadership',
+                                                                'business',
+                                                                'operational',
+                                                            ]"
+                                                            label="Categoría"
+                                                        />
+
+                                                        <v-textarea
+                                                            v-model="
+                                                                editCapDescription
+                                                            "
+                                                            label="Descripción"
+                                                            rows="3"
+                                                            style="
+                                                                grid-column: 1 /
+                                                                    -1;
+                                                            "
+                                                        />
+
+                                                        <div
+                                                            style="
+                                                                grid-column: 1 /
+                                                                    -1;
+                                                                font-weight: 700;
+                                                                margin-top: 6px;
+                                                            "
+                                                        >
+                                                            Atributos para el
+                                                            escenario
+                                                            (scenario_capabilities)
+                                                        </div>
+                                                        <v-select
+                                                            v-model="
+                                                                editPivotStrategicRole
+                                                            "
+                                                            :items="
+                                                                strategicRoleOptions
+                                                            "
+                                                            label="Strategic role"
+                                                        />
+
+                                                        <div>
+                                                            <v-slider
+                                                                v-model="
+                                                                    editPivotStrategicWeight
+                                                                "
+                                                                label="Strategic weight"
+                                                                :min="1"
+                                                                :max="10"
+                                                                :step="1"
+                                                                color="primary"
+                                                                :ticks="
+                                                                    tickLabelStrategic
+                                                                "
+                                                                show-ticks="always"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <v-slider
+                                                                v-model="
+                                                                    editPivotPriority
+                                                                "
+                                                                label="Priority (1-5)"
+                                                                :min="1"
+                                                                :max="5"
+                                                                :step="1"
+                                                                color="orange"
+                                                                :ticks="
+                                                                    tickLabelPriority
+                                                                "
+                                                                show-ticks="always"
+                                                            />
+                                                        </div>
+
+                                                        <div>
+                                                            <v-slider
+                                                                v-model="
+                                                                    editPivotRequiredLevel
+                                                                "
+                                                                label="Required level (1-5)"
+                                                                :min="1"
+                                                                :max="5"
+                                                                :step="1"
+                                                                color="teal"
+                                                                :ticks="
+                                                                    tickLabelRequiredLevel
+                                                                "
+                                                                show-ticks="always"
+                                                            />
+                                                        </div>
+                                                        <v-switch
+                                                            v-model="
+                                                                editPivotIsCritical
+                                                            "
+                                                            label="Is critical"
+                                                        />
+
+                                                        <v-textarea
+                                                            v-model="
+                                                                editPivotRationale
+                                                            "
+                                                            label="Rationale"
+                                                            rows="2"
+                                                            style="
+                                                                grid-column: 1 /
+                                                                    -1;
+                                                            "
+                                                        />
                                                     </div>
-                                                    <div>
-                                                        <v-slider v-model="editChildPivotPriority" label="Priority (1-5)" :min="1" :max="5" :step="1" color="orange" :ticks="tickLabelPriority" show-ticks="always"/>
-                                                    </div>
+                                                </v-form>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
 
-                                                    <div>
-                                                        <v-slider v-model="editChildPivotRequiredLevel" label="Required level (1-5)" :min="1" :max="5" :step="1" color="teal" :ticks="tickLabelRequiredLevel" show-ticks="always"/>
-                                                    </div>
-                                                    <v-checkbox v-model="editChildPivotIsCritical" label="Is critical" />
+                            <template v-else>
+                                <div>
+                                    <div style="font-weight: 700">
+                                        Escenario
+                                    </div>
+                                    <div>
+                                        <strong>Nombre:</strong>
+                                        {{ props.scenario?.name ?? '—' }}
+                                    </div>
+                                    <div>
+                                        <strong>ID:</strong>
+                                        {{ props.scenario?.id ?? '—' }}
+                                    </div>
+                                    <div>
+                                        <strong>Descripción:</strong>
+                                        {{ props.scenario?.description ?? '—' }}
+                                    </div>
+                                    <div style="margin-top: 6px">
+                                        <strong>Estado:</strong>
+                                        {{ props.scenario?.status ?? '—' }} •
+                                        <strong>Año fiscal:</strong>
+                                        {{ props.scenario?.fiscal_year ?? '—' }}
+                                    </div>
+                                    <div
+                                        style="
+                                            margin-top: 8px;
+                                            display: flex;
+                                            gap: 8px;
+                                            align-items: center;
+                                        "
+                                    >
+                                        <v-btn
+                                            small
+                                            color="secondary"
+                                            @click="
+                                                showScenarioRaw =
+                                                    !showScenarioRaw
+                                            "
+                                            >{{
+                                                showScenarioRaw
+                                                    ? 'Ocultar JSON'
+                                                    : 'Ver JSON crudo'
+                                            }}</v-btn
+                                        >
+                                        <v-btn
+                                            small
+                                            text
+                                            @click="
+                                                () => {
+                                                    void loadTreeFromApiWrapper(
+                                                        props.scenario?.id,
+                                                    );
+                                                }
+                                            "
+                                            >Refrescar árbol</v-btn
+                                        >
+                                    </div>
+                                    <div
+                                        v-if="showScenarioRaw"
+                                        style="
+                                            margin-top: 12px;
+                                            max-height: 420px;
+                                            overflow: auto;
+                                            background: rgba(0, 0, 0, 0.04);
+                                            padding: 8px;
+                                            border-radius: 6px;
+                                        "
+                                    >
+                                        <pre
+                                            style="
+                                                white-space: pre-wrap;
+                                                word-break: break-word;
+                                            "
+                                            >{{
+                                                capabilityTreeRaw
+                                                    ? JSON.stringify(
+                                                          capabilityTreeRaw,
+                                                          null,
+                                                          2,
+                                                      )
+                                                    : 'No hay datos cargados. Pulsa "Refrescar árbol".'
+                                            }}</pre
+                                        >
+                                    </div>
+                                </div>
+                            </template>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer />
+                            <v-btn text @click="showSidebar = false"
+                                >Cerrar</v-btn
+                            >
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
 
-                                                    <v-textarea v-model="editChildPivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1;" />
+                <!-- Create competency dialog -->
+                <v-dialog
+                    v-model="createCompDialogVisible"
+                    max-width="640"
+                    transition="scale-transition"
+                >
+                    <v-card :class="dialogThemeClass">
+                        <v-card-title>Crear competencia</v-card-title>
+                        <v-card-text>
+                            <v-form @submit.prevent>
+                                <v-text-field
+                                    v-model="newCompName"
+                                    label="Nombre"
+                                    required
+                                />
+                                <v-textarea
+                                    v-model="newCompDescription"
+                                    label="Descripción"
+                                    rows="3"
+                                />
+                                <v-text-field
+                                    v-model="newCompReadiness"
+                                    label="Readiness"
+                                    type="number"
+                                />
+                                <v-textarea
+                                    v-model="newCompSkills"
+                                    label="Skills (coma-separadas)"
+                                    rows="2"
+                                />
+                            </v-form>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer />
+                            <v-btn text @click="createCompDialogVisible = false"
+                                >Cancelar</v-btn
+                            >
+                            <v-btn
+                                color="primary"
+                                :loading="creatingComp"
+                                @click="onClickCreateAndAttachComp"
+                                >Crear y asociar</v-btn
+                            >
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
 
-                                                </div>
-                                            </v-form>
+                <!-- Create skill dialog -->
+                <v-dialog
+                    v-model="createSkillDialogVisible"
+                    max-width="640"
+                    transition="scale-transition"
+                >
+                    <v-card :class="dialogThemeClass">
+                        <v-card-title>Crear nueva skill</v-card-title>
+                        <v-card-text>
+                            <v-alert
+                                v-if="skillCreationSuccess"
+                                type="success"
+                                closable
+                                class="mb-4"
+                                @click:close="skillCreationSuccess = null"
+                            >
+                                {{ skillCreationSuccess }}
+                            </v-alert>
+                            <v-alert
+                                v-if="skillCreationError"
+                                type="error"
+                                closable
+                                class="mb-4"
+                                @click:close="skillCreationError = null"
+                            >
+                                {{ skillCreationError }}
+                            </v-alert>
+                            <v-form data-skill-form>
+                                <v-text-field
+                                    v-model="newSkillName"
+                                    label="Nombre"
+                                    required
+                                />
+                                <v-text-field
+                                    v-model="newSkillCategory"
+                                    label="Categoría"
+                                />
+                                <v-textarea
+                                    v-model="newSkillDescription"
+                                    label="Descripción"
+                                    rows="3"
+                                />
+                            </v-form>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer />
+                            <v-btn
+                                text
+                                @click="createSkillDialogVisible = false"
+                                >Cerrar</v-btn
+                            >
+                            <v-btn
+                                color="primary"
+                                :loading="savingSkill"
+                                @click="createAndAttachSkill"
+                                >Crear y asociar</v-btn
+                            >
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+
+                <!-- Select existing skill dialog -->
+                <v-dialog
+                    v-model="selectSkillDialogVisible"
+                    max-width="720"
+                    transition="scale-transition"
+                >
+                    <v-card :class="dialogThemeClass">
+                        <v-card-title>Seleccionar skill existente</v-card-title>
+                        <v-card-text>
+                            <v-select
+                                :items="availableSkills"
+                                item-title="name"
+                                item-value="id"
+                                v-model="selectedSkillId"
+                                label="Skill"
+                            />
+                            <div
+                                v-if="availableSkills.length === 0"
+                                style="margin-top: 8px"
+                            >
+                                No se encontraron skills.
+                            </div>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer />
+                            <v-btn
+                                text
+                                @click="selectSkillDialogVisible = false"
+                                >Cancelar</v-btn
+                            >
+                            <v-btn
+                                color="primary"
+                                :loading="attachingSkill"
+                                @click="attachExistingSkill"
+                                >Asociar</v-btn
+                            >
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+
+                <!-- Skill detail dialog (editable) -->
+                <v-dialog
+                    v-model="skillDetailDialogVisible"
+                    max-width="720"
+                    transition="scale-transition"
+                >
+                    <v-card :class="dialogThemeClass">
+                        <v-card-title>Detalle de la skill</v-card-title>
+
+                        <v-card-text>
+                            <div v-if="selectedSkillDetail">
+                                <div
+                                    style="
+                                        display: flex;
+                                        gap: 8px;
+                                        grid-column: 1/-1;
+                                        margin-top: 8px;
+                                    "
+                                >
+                                    <v-btn
+                                        text
+                                        @click="
+                                            skillDetailDialogVisible = false
+                                        "
+                                        >Cancelar</v-btn
+                                    >
+                                    <v-btn
+                                        color="primary"
+                                        :loading="savingSkillDetail"
+                                        @click="saveSkillDetail"
+                                        >Guardar</v-btn
+                                    >
+                                    <v-btn
+                                        color="error"
+                                        :loading="savingSkillDetail"
+                                        @click="
+                                            removeSkillFromCompetency(
+                                                selectedSkillDetail,
+                                            )
+                                        "
+                                        >Borrar</v-btn
+                                    >
+                                </div>
+                                <div
+                                    class="grid"
+                                    style="
+                                        display: grid;
+                                        gap: 12px;
+                                        grid-template-columns: 1fr 1fr;
+                                    "
+                                >
+                                    <v-text-field
+                                        v-model="skillEditName"
+                                        label="Nombre"
+                                        required
+                                    />
+                                    <v-select
+                                        v-model="skillEditCategory"
+                                        :items="[
+                                            'technical',
+                                            'behavioral',
+                                            'domain',
+                                        ]"
+                                        label="Categoría"
+                                    />
+                                    <v-select
+                                        v-model="skillEditComplexityLevel"
+                                        :items="[
+                                            'basic',
+                                            'tactical',
+                                            'strategic',
+                                        ]"
+                                        label="Nivel de complejidad"
+                                    />
+                                    <v-text-field
+                                        v-model="skillEditDomainTag"
+                                        label="Tag de dominio"
+                                    />
+                                    <v-select
+                                        v-model="skillEditScopeType"
+                                        :items="['domain', 'global', 'local']"
+                                        label="Scope"
+                                    />
+                                    <v-textarea
+                                        v-model="skillEditDescription"
+                                        label="Descripción"
+                                        rows="3"
+                                        style="grid-column: 1 / -1"
+                                    />
+                                </div>
+
+                                <!-- Pivot (capability_competencies) editable section when available -->
+                                <div
+                                    v-if="selectedChild && focusedNode"
+                                    style="margin-top: 14px"
+                                >
+                                    <div
+                                        style="
+                                            font-weight: 700;
+                                            margin-bottom: 6px;
+                                        "
+                                    >
+                                        Atributos de la relación con la
+                                        competencia
+                                    </div>
+                                    <div>
+                                        <v-slider
+                                            v-model="skillPivotWeight"
+                                            label="Peso estratégico (1-10)"
+                                            :min="1"
+                                            :max="10"
+                                            :step="1"
+                                            color="primary"
+                                            :ticks="tickLabelStrategic"
+                                            show-ticks="always"
+                                        />
+                                    </div>
+                                    <div
+                                        class="grid"
+                                        style="
+                                            display: grid;
+                                            gap: 12px;
+                                            grid-template-columns: 1fr 1fr;
+                                        "
+                                    >
+                                        <div>
+                                            <v-slider
+                                                v-model="skillPivotPriority"
+                                                label="Prioridad (1-5)"
+                                                :min="1"
+                                                :max="5"
+                                                :step="1"
+                                                color="orange"
+                                                :ticks="tickLabelPriority"
+                                                show-ticks="always"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <v-slider
+                                                v-model="
+                                                    skillPivotRequiredLevel
+                                                "
+                                                label="Nivel requerido (1-5)"
+                                                :min="1"
+                                                :max="5"
+                                                :step="1"
+                                                color="teal"
+                                                :ticks="tickLabelRequiredLevel"
+                                                show-ticks="always"
+                                            />
+                                        </div>
+                                        <div>
+                                            <v-switch
+                                                v-model="skillPivotIsRequired"
+                                                color="success"
+                                                label="Es crítica"
+                                            />
+                                            <v-textarea
+                                                v-model="skillPivotRationale"
+                                                label="Justificación"
+                                                rows="2"
+                                                style="grid-column: 1 / -1"
+                                            />
                                         </div>
                                     </div>
-                                </template>
-
-                                <template v-else>
-                                    <div style="position:relative;">
-                                        <div style="display:flex; gap:8px; margin-bottom:8px">
-                                            <v-btn small color="primary" @click="showCreateCompDialog">Crear competencia</v-btn>
-                                            <v-btn small color="primary" @click="openAddExistingCompDialog">Agregar existente</v-btn>
-                                            <v-btn color="error" @click="deleteFocusedNode" :loading="savingNode">Eliminar nodo</v-btn>
-                                            <v-btn color="primary" @click="saveFocusedNode" :loading="savingNode" :disabled="savingNode || capFormInvalid">Guardar</v-btn>
-                                            <v-btn text color="primary" @click="resetFocusedEdits">Cancelar</v-btn>
-
-                                        </div>
-                                        <div style="max-height:360px; overflow:auto; padding-right:12px;">
-                                            <v-form ref="capForm" @submit.prevent>
-                                                <div style="display:grid; gap:12px; grid-template-columns: 1fr 1fr; align-items:start;">
-                                                    <v-text-field v-model="editCapName" label="Nombre" required />
-                                                    <div>
-                                                        <v-slider v-model="editCapImportance" label="Importancia" :min="1" :max="3" :step="1" color="primary" :ticks="tickLabelImportance" show-ticks="always"/>
-                                                    </div>
-
-                                                    <v-select v-model="editCapType" :items="['technical','behavioral','strategic']" label="Tipo" />
-                                                    <v-select v-model="editCapCategory" :items="['technical','leadership','business','operational']" label="Categoría" />
-
-                                                    <v-textarea v-model="editCapDescription" label="Descripción" rows="3" style="grid-column: 1 / -1;" />
-
-                                                    <div style="grid-column: 1 / -1; font-weight:700; margin-top:6px">Atributos para el escenario (scenario_capabilities)</div>
-                                                    <v-select v-model="editPivotStrategicRole" :items="strategicRoleOptions" label="Strategic role" />
-
-                                                    <div>
-                                                        <v-slider v-model="editPivotStrategicWeight" label="Strategic weight" :min="1" :max="10" :step="1" color="primary" :ticks="tickLabelStrategic" show-ticks="always"/>
-                                                    </div>
-                                                    <div>
-                                                        <v-slider v-model="editPivotPriority" label="Priority (1-5)" :min="1" :max="5" :step="1" color="orange" :ticks="tickLabelPriority" show-ticks="always"/>
-                                                    </div>
-
-                                                    <div>
-                                                        <v-slider v-model="editPivotRequiredLevel" label="Required level (1-5)" :min="1" :max="5" :step="1" color="teal" :ticks="tickLabelRequiredLevel" show-ticks="always"/>
-                                                    </div>
-                                                    <v-switch v-model="editPivotIsCritical" label="Is critical" />
-
-                                                    <v-textarea v-model="editPivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1;" />
-                                                </div>
-                                            </v-form>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </template>
-
-                        <template v-else>
-                            <div>
-                                <div style="font-weight:700">Escenario</div>
-                                <div><strong>Nombre:</strong> {{ props.scenario?.name ?? '—' }}</div>
-                                <div><strong>ID:</strong> {{ props.scenario?.id ?? '—' }}</div>
-                                <div><strong>Descripción:</strong> {{ props.scenario?.description ?? '—' }}</div>
-                                <div style="margin-top:6px"><strong>Estado:</strong> {{ props.scenario?.status ?? '—' }} • <strong>Año fiscal:</strong> {{ props.scenario?.fiscal_year ?? '—' }}</div>
-                                <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
-                                    <v-btn small color="secondary" @click="showScenarioRaw = !showScenarioRaw">{{ showScenarioRaw ? 'Ocultar JSON' : 'Ver JSON crudo' }}</v-btn>
-                                    <v-btn small text @click="() => { void loadTreeFromApiWrapper(props.scenario?.id); }">Refrescar árbol</v-btn>
-                                </div>
-                                <div v-if="showScenarioRaw" style="margin-top:12px; max-height:420px; overflow:auto; background:rgba(0,0,0,0.04); padding:8px; border-radius:6px">
-                                    <pre style="white-space:pre-wrap; word-break:break-word">{{ capabilityTreeRaw ? JSON.stringify(capabilityTreeRaw, null, 2) : 'No hay datos cargados. Pulsa "Refrescar árbol".' }}</pre>
                                 </div>
                             </div>
-                        </template>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="showSidebar = false">Cerrar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+                            <div v-else>No hay información de la skill.</div>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer />
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
 
-            <!-- Create competency dialog -->
-            <v-dialog v-model="createCompDialogVisible" max-width="640" transition="scale-transition">
-                <v-card :class="dialogThemeClass">
-                    <v-card-title>Crear competencia</v-card-title>
-                    <v-card-text>
-                                        <v-form @submit.prevent>
-                            <v-text-field v-model="newCompName" label="Nombre" required />
-                            <v-textarea v-model="newCompDescription" label="Descripción" rows="3" />
-                            <v-text-field v-model="newCompReadiness" label="Readiness" type="number" />
-                            <v-textarea v-model="newCompSkills" label="Skills (coma-separadas)" rows="2" />
-                                        </v-form>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="createCompDialogVisible = false">Cancelar</v-btn>
-                                        <v-btn color="primary" :loading="creatingComp" @click="onClickCreateAndAttachComp">Crear y asociar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            <!-- Create skill dialog -->
-            <v-dialog v-model="createSkillDialogVisible" max-width="640" transition="scale-transition">
-                <v-card :class="dialogThemeClass">
-                    <v-card-title>Crear nueva skill</v-card-title>
-                    <v-card-text>
-                        <v-alert
-                            v-if="skillCreationSuccess"
-                            type="success"
-                            closable
-                            class="mb-4"
-                            @click:close="skillCreationSuccess = null"
+                <!-- Add existing competency dialog -->
+                <v-dialog
+                    v-model="addExistingCompDialogVisible"
+                    max-width="640"
+                    transition="scale-transition"
+                >
+                    <v-card :class="dialogThemeClass">
+                        <v-card-title
+                            >Agregar competencia existente</v-card-title
                         >
-                            {{ skillCreationSuccess }}
-                        </v-alert>
-                        <v-alert
-                            v-if="skillCreationError"
-                            type="error"
-                            closable
-                            class="mb-4"
-                            @click:close="skillCreationError = null"
-                        >
-                            {{ skillCreationError }}
-                        </v-alert>
-                        <v-form data-skill-form>
-                            <v-text-field v-model="newSkillName" label="Nombre" required />
-                            <v-text-field v-model="newSkillCategory" label="Categoría" />
-                            <v-textarea v-model="newSkillDescription" label="Descripción" rows="3" />
-                        </v-form>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="createSkillDialogVisible = false">Cerrar</v-btn>
-                        <v-btn color="primary" :loading="savingSkill" @click="createAndAttachSkill">Crear y asociar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            <!-- Select existing skill dialog -->
-            <v-dialog v-model="selectSkillDialogVisible" max-width="720" transition="scale-transition">
-                <v-card :class="dialogThemeClass">
-                    <v-card-title>Seleccionar skill existente</v-card-title>
-                    <v-card-text>
-                        <v-select
-                            :items="availableSkills"
-                            item-title="name"
-                            item-value="id"
-                            v-model="selectedSkillId"
-                            label="Skill"
-                        />
-                        <div v-if="availableSkills.length === 0" style="margin-top:8px">No se encontraron skills.</div>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="selectSkillDialogVisible = false">Cancelar</v-btn>
-                        <v-btn color="primary" :loading="attachingSkill" @click="attachExistingSkill">Asociar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            <!-- Skill detail dialog (editable) -->
-            <v-dialog v-model="skillDetailDialogVisible" max-width="720" transition="scale-transition">
-                <v-card :class="dialogThemeClass">
-                    <v-card-title>Detalle de la skill</v-card-title>
-                    
-                    <v-card-text>
-                        <div v-if="selectedSkillDetail">
-                            <div style="display:flex; gap:8px; grid-column:1/-1; margin-top:8px">
-                            <v-btn text @click="skillDetailDialogVisible = false">Cancelar</v-btn>
-                            <v-btn color="primary" :loading="savingSkillDetail" @click="saveSkillDetail">Guardar</v-btn>
-                            <v-btn color="error" :loading="savingSkillDetail" @click="removeSkillFromCompetency(selectedSkillDetail)">Borrar</v-btn>
-                            </div>
-                            <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
-                                <v-text-field v-model="skillEditName" label="Nombre" required />
-                                <v-select v-model="skillEditCategory" :items="['technical','behavioral','domain']" label="Categoría" />
-                                <v-select v-model="skillEditComplexityLevel" :items="['basic','tactical','strategic']" label="Nivel de complejidad" />
-                                <v-text-field v-model="skillEditDomainTag" label="Tag de dominio" />
-                                <v-select v-model="skillEditScopeType" :items="['domain','global','local']" label="Scope" />
-                                <v-textarea v-model="skillEditDescription" label="Descripción" rows="3" style="grid-column: 1 / -1" />
-                            </div>
-
-                            <!-- Pivot (capability_competencies) editable section when available -->
-                            <div v-if="selectedChild && focusedNode" style="margin-top:14px">
-                                <div style="font-weight:700; margin-bottom:6px">Atributos de la relación con la competencia</div>
+                        <v-card-text>
+                            <v-select
+                                :items="availableExistingCompetencies"
+                                item-title="name"
+                                item-value="id"
+                                v-model="addExistingSelection"
+                                label="Competencia"
+                            />
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer />
+                            <v-btn
+                                text
+                                @click="addExistingCompDialogVisible = false"
+                                >Cancelar</v-btn
+                            >
+                            <v-btn color="primary" @click="attachExistingComp"
+                                >Agregar</v-btn
+                            >
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+                <!-- Create capability modal: form exposes fields from `capabilities` and `scenario_capabilities` -->
+                <v-dialog
+                    v-model="createModalVisible"
+                    max-width="720"
+                    transition="scale-transition"
+                >
+                    <v-card :class="dialogThemeClass">
+                        <v-card-title>Crear capacidad</v-card-title>
+                        <v-card-text>
+                            <div
+                                class="grid"
+                                style="
+                                    display: grid;
+                                    gap: 12px;
+                                    grid-template-columns: 1fr 1fr;
+                                "
+                            >
+                                <v-text-field
+                                    v-model="newCapName"
+                                    label="NombreXX"
+                                    required
+                                />
+                                <v-select
+                                    v-model="newCapType"
+                                    :items="[
+                                        'technical',
+                                        'behavioral',
+                                        'strategic',
+                                    ]"
+                                    label="Tipo"
+                                />
+                                <v-select
+                                    v-model="newCapCategory"
+                                    :items="[
+                                        'technical',
+                                        'leadership',
+                                        'business',
+                                        'operational',
+                                    ]"
+                                    label="Categoría"
+                                />
                                 <div>
-                                    <v-slider v-model="skillPivotWeight" label="Peso estratégico (1-10)" :min="1" :max="10" :step="1" color="primary" :ticks="tickLabelStrategic" show-ticks="always"/>
+                                    <v-slider
+                                        v-model="newCapImportance"
+                                        label="Importancia (1-3):"
+                                        :min="1"
+                                        :max="3"
+                                        :step="1"
+                                        color="green"
+                                        :ticks="tickLabelImportance"
+                                        show-ticks="always"
+                                    />
                                 </div>
-                                <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
+                                <v-textarea
+                                    v-model="newCapDescription"
+                                    label="Descripción"
+                                    rows="3"
+                                    style="grid-column: 1 / -1"
+                                />
+                            </div>
+
+                            <div class="mt-3" style="margin-top: 12px">
+                                <div
+                                    style="font-weight: 700; margin-bottom: 6px"
+                                >
+                                    Atributos para el escenario
+                                    (scenario_capabilities)
+                                </div>
+                                <div
+                                    class="grid"
+                                    style="
+                                        display: grid;
+                                        gap: 12px;
+                                        grid-template-columns: 1fr 1fr;
+                                    "
+                                >
+                                    <v-select
+                                        v-model="pivotStrategicRole"
+                                        :items="strategicRoleOptions"
+                                        label="Strategic role"
+                                    />
                                     <div>
-                                        <v-slider v-model="skillPivotPriority" label="Prioridad (1-5)" :min="1" :max="5" :step="1" color="orange" :ticks="tickLabelPriority" show-ticks="always"/>
+                                        <v-slider
+                                            v-model="pivotStrategicWeight"
+                                            label="Strategic weight (1-10)"
+                                            :min="1"
+                                            :max="10"
+                                            :step="1"
+                                            color="primary"
+                                        />
+                                        <div
+                                            class="text-xs"
+                                            style="margin-top: 6px"
+                                        >
+                                            Valor:
+                                            {{ pivotStrategicWeight ?? '-' }}
+                                        </div>
                                     </div>
-
                                     <div>
-                                        <v-slider v-model="skillPivotRequiredLevel" label="Nivel requerido (1-5)" :min="1" :max="5" :step="1" color="teal" :ticks="tickLabelRequiredLevel" show-ticks="always"/>
+                                        <v-slider
+                                            v-model="pivotPriority"
+                                            label="Priority (1-5)"
+                                            :min="1"
+                                            :max="5"
+                                            :step="1"
+                                            color="orange"
+                                        />
+                                        <div
+                                            class="text-xs"
+                                            style="margin-top: 6px"
+                                        >
+                                            Valor: {{ pivotPriority ?? '-' }}
+                                        </div>
                                     </div>
                                     <div>
-                                    <v-switch v-model="skillPivotIsRequired" color="success" label="Es crítica" />
-                                    <v-textarea v-model="skillPivotRationale" label="Justificación" rows="2" style="grid-column: 1 / -1;" />
-                                </div>
+                                        <v-slider
+                                            v-model="pivotRequiredLevel"
+                                            label="Required level (1-5)"
+                                            :min="1"
+                                            :max="5"
+                                            :step="1"
+                                            color="teal"
+                                        />
+                                        <div
+                                            class="text-xs"
+                                            style="margin-top: 6px"
+                                        >
+                                            Valor:
+                                            {{ pivotRequiredLevel ?? '-' }}
+                                        </div>
+                                    </div>
+                                    <v-checkbox
+                                        v-model="pivotIsCritical"
+                                        label="Is critical"
+                                    />
+                                    <v-textarea
+                                        v-model="pivotRationale"
+                                        label="Rationale"
+                                        rows="2"
+                                        style="grid-column: 1 / -1"
+                                    />
                                 </div>
                             </div>
-                        </div>
-                        <div v-else>No hay información de la skill.</div>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer />
+                            <v-btn text @click="createModalVisible = false"
+                                >Cancelar</v-btn
+                            >
+                            <v-btn
+                                color="primary"
+                                :loading="creating"
+                                @click="saveNewCapability"
+                                >Guardar</v-btn
+                            >
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
 
-            <!-- Add existing competency dialog -->
-            <v-dialog v-model="addExistingCompDialogVisible" max-width="640" transition="scale-transition">
-                <v-card :class="dialogThemeClass">
-                    <v-card-title>Agregar competencia existente</v-card-title>
-                    <v-card-text>
-                        <v-select :items="availableExistingCompetencies" item-title="name" item-value="id" v-model="addExistingSelection" label="Competencia" />
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="addExistingCompDialogVisible = false">Cancelar</v-btn>
-                        <v-btn color="primary" @click="attachExistingComp">Agregar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-            <!-- Create capability modal: form exposes fields from `capabilities` and `scenario_capabilities` -->
-            <v-dialog v-model="createModalVisible" max-width="720" transition="scale-transition">
-                <v-card :class="dialogThemeClass">
-                    <v-card-title>Crear capacidad</v-card-title>
-                    <v-card-text>
-                        <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
-                            <v-text-field v-model="newCapName" label="NombreXX" required />
-                            <v-select v-model="newCapType" :items="['technical', 'behavioral', 'strategic']" label="Tipo" />
-                            <v-select v-model="newCapCategory" :items="['technical', 'leadership', 'business', 'operational']" label="Categoría" />
-                            <div>
-                                <v-slider v-model="newCapImportance" label="Importancia (1-3):" :min="1" :max="3" :step="1" color="green" :ticks="tickLabelImportance" show-ticks="always"/>
-                            </div>
-                            <v-textarea v-model="newCapDescription" label="Descripción" rows="3" style="grid-column: 1 / -1" />
-                        </div>
-
-                        <div class="mt-3" style="margin-top:12px">
-                            <div style="font-weight:700; margin-bottom:6px">Atributos para el escenario (scenario_capabilities)</div>
-                            <div class="grid" style="display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
-                                <v-select v-model="pivotStrategicRole" :items="strategicRoleOptions" label="Strategic role" />
-                                <div>
-                                    <v-slider v-model="pivotStrategicWeight" label="Strategic weight (1-10)" :min="1" :max="10" :step="1" color="primary"/>
-                                    <div class="text-xs" style="margin-top:6px">Valor: {{ pivotStrategicWeight ?? '-' }}</div>
-                                </div>
-                                <div>
-                                    <v-slider v-model="pivotPriority" label="Priority (1-5)" :min="1" :max="5" :step="1" color="orange"/>
-                                    <div class="text-xs" style="margin-top:6px">Valor: {{ pivotPriority ?? '-' }}</div>
-                                </div>
-                                <div>
-                                    <v-slider v-model="pivotRequiredLevel" label="Required level (1-5)" :min="1" :max="5" :step="1" color="teal"/>
-                                    <div class="text-xs" style="margin-top:6px">Valor: {{ pivotRequiredLevel ?? '-' }}</div>
-                                </div>
-                                <v-checkbox v-model="pivotIsCritical" label="Is critical" />
-                                <v-textarea v-model="pivotRationale" label="Rationale" rows="2" style="grid-column: 1 / -1" />
-                            </div>
-                        </div>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="createModalVisible = false">Cancelar</v-btn>
-                        <v-btn color="primary" :loading="creating" @click="saveNewCapability">Guardar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-            
-            <div class="cap-list" v-if="nodes.length === 0">
-                No hay capacidades para mostrar.
-            </div>
+                <div class="cap-list" v-if="nodes.length === 0">
+                    No hay capacidades para mostrar.
+                </div>
                 <!-- debug controls removed -->
+            </div>
         </div>
     </div>
-</div>
 </template>
 
 <style scoped>
@@ -5231,7 +8297,9 @@ if (!edges.value) edges.value = [];
     inset: 8px;
     border-radius: 14px;
     pointer-events: none;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), inset 0 -24px 48px rgba(11,22,48,0.12);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        inset 0 -24px 48px rgba(11, 22, 48, 0.12);
     z-index: 10;
 }
 
@@ -5252,7 +8320,7 @@ if (!edges.value) edges.value = [];
     color: #fff;
     padding: 16px;
     border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(2,6,23,0.6);
+    box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6);
     z-index: 60;
     overflow: auto;
 }
@@ -5306,12 +8374,15 @@ if (!edges.value) edges.value = [];
 
 /* smooth pan/zoom transitions for viewport group */
 .viewport-group {
-    transition: transform 420ms cubic-bezier(.22,.9,.3,1);
+    transition: transform 420ms cubic-bezier(0.22, 0.9, 0.3, 1);
 }
 
 .node-group {
     cursor: grab;
-    transition: transform 420ms cubic-bezier(.22,.9,.3,1), opacity 160ms ease, filter 180ms ease;
+    transition:
+        transform 420ms cubic-bezier(0.22, 0.9, 0.3, 1),
+        opacity 160ms ease,
+        filter 180ms ease;
     transform-box: fill-box;
     transform-origin: center;
 }
@@ -5346,7 +8417,7 @@ if (!edges.value) edges.value = [];
     transition:
         r 0.12s ease,
         filter 0.12s ease,
-        transform 420ms cubic-bezier(.22,.9,.3,1);
+        transform 420ms cubic-bezier(0.22, 0.9, 0.3, 1);
     transform-box: fill-box;
     transform-origin: center;
 }
@@ -5364,9 +8435,16 @@ if (!edges.value) edges.value = [];
     animation: pulse 2400ms infinite;
 }
 @keyframes pulse {
-    0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(54, 52, 52, 0)); }
-    50% { transform: scale(1.03); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 0 rgba(54, 52, 52, 0));
+    }
+    50% {
+        transform: scale(1.03);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* scale down visuals (circle + label) for non-selected nodes without moving their group */
@@ -5382,7 +8460,7 @@ if (!edges.value) edges.value = [];
 /* scenario node styling (smooth follow transition) */
 .scenario-node {
     pointer-events: auto;
-    transition: transform 360ms cubic-bezier(.22,.9,.3,1);
+    transition: transform 360ms cubic-bezier(0.22, 0.9, 0.3, 1);
 }
 
 /* compass/rose styling */
@@ -5421,12 +8499,14 @@ if (!edges.value) edges.value = [];
 }
 
 .child-node .node-circle {
-    /* fill: #3e5069; */  /* Removed: now uses SVG gradient */
+    /* fill: #3e5069; */ /* Removed: now uses SVG gradient */
 }
 
 .child-iridescence {
     pointer-events: none;
-    transition: opacity 200ms ease, transform 200ms ease;
+    transition:
+        opacity 200ms ease,
+        transform 200ms ease;
     mix-blend-mode: screen;
 }
 .child-reflection {
@@ -5442,8 +8522,10 @@ if (!edges.value) edges.value = [];
 
 /* Skill node specific styles (scaled bubble) */
 .skill-node .node-circle {
-    transition: transform 220ms ease, filter 180ms ease;
-    /* fill: #16324a; */  /* Removed: now uses SVG gradient */
+    transition:
+        transform 220ms ease,
+        filter 180ms ease;
+    /* fill: #16324a; */ /* Removed: now uses SVG gradient */
 }
 .skill-node .node-iridescence {
     pointer-events: none;
@@ -5452,7 +8534,9 @@ if (!edges.value) edges.value = [];
 }
 .skill-node .skill-reflection {
     pointer-events: none;
-    transition: opacity 160ms ease, transform 160ms ease;
+    transition:
+        opacity 160ms ease,
+        transform 160ms ease;
 }
 .skill-node .skill-rim {
     pointer-events: none;
@@ -5472,7 +8556,10 @@ if (!edges.value) edges.value = [];
 }
 
 .edge-line {
-    transition: stroke-width 180ms ease, stroke-opacity 180ms ease, filter 220ms ease;
+    transition:
+        stroke-width 180ms ease,
+        stroke-opacity 180ms ease,
+        filter 220ms ease;
 }
 
 .node-inner {
@@ -5481,16 +8568,22 @@ if (!edges.value) edges.value = [];
 
 .node-reflection {
     pointer-events: none;
-    transition: opacity 180ms ease, transform 180ms ease;
+    transition:
+        opacity 180ms ease,
+        transform 180ms ease;
 }
 .node-rim {
     pointer-events: none;
-    transition: stroke-opacity 180ms ease, transform 180ms ease;
+    transition:
+        stroke-opacity 180ms ease,
+        transform 180ms ease;
 }
 
 .node-iridescence {
     pointer-events: none;
-    transition: opacity 220ms ease, transform 220ms ease;
+    transition:
+        opacity 220ms ease,
+        transform 220ms ease;
     mix-blend-mode: screen;
 }
 
@@ -5502,7 +8595,7 @@ if (!edges.value) edges.value = [];
 /* glass panel styles */
 .glass-panel-strong {
     color: #ffffff;
-    background: rgba(255,255,255,0.04);
+    background: rgba(255, 255, 255, 0.04);
     padding: 20px;
     box-sizing: border-box;
     min-width: 220px;
@@ -5538,24 +8631,28 @@ if (!edges.value) edges.value = [];
 }
 
 .node-details-sidebar.theme-dark {
-    box-shadow: 0 8px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
-    border-left: 1px solid rgba(255,255,255,0.04);
+    box-shadow:
+        0 8px 30px rgba(2, 6, 23, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    border-left: 1px solid rgba(255, 255, 255, 0.04);
 }
 .node-details-sidebar.theme-light {
-    box-shadow: 0 8px 24px rgba(2,6,23,0.28), inset 0 1px 0 rgba(255,255,255,0.02);
+    box-shadow:
+        0 8px 24px rgba(2, 6, 23, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 /* Light theme (default) */
 .node-details-sidebar.theme-light {
-    border-left: 1px solid rgba(0,0,0,0.06);
-    background: rgba(255,255,255,0.96);
+    border-left: 1px solid rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.96);
     color: #0b0b0b;
 }
 .node-details-sidebar.theme-light .text-white\/60,
 .node-details-sidebar.theme-light .text-white\/50,
 .node-details-sidebar.theme-light .text-small,
 .node-details-sidebar.theme-light .text-xs {
-    color: rgba(0,0,0,0.72) !important;
+    color: rgba(0, 0, 0, 0.72) !important;
 }
 .node-details-sidebar.theme-light pre,
 .node-details-sidebar.theme-light summary {
@@ -5564,23 +8661,20 @@ if (!edges.value) edges.value = [];
 
 /* Dark theme (glass-style) */
 .node-details-sidebar.theme-dark {
-    border-left: 1px solid rgba(255,255,255,0.04);
-    background: rgba(11,16,41,0.95);
+    border-left: 1px solid rgba(255, 255, 255, 0.04);
+    background: rgba(11, 16, 41, 0.95);
     color: #ffffff;
 }
 .node-details-sidebar.theme-dark .text-white\/60,
 .node-details-sidebar.theme-dark .text-white\/50,
 .node-details-sidebar.theme-dark .text-small,
 .node-details-sidebar.theme-dark .text-xs {
-    color: rgba(255,255,255,0.72) !important;
+    color: rgba(255, 255, 255, 0.72) !important;
 }
 .node-details-sidebar.theme-dark pre,
 .node-details-sidebar.theme-dark summary {
     color: #ffffff !important;
 }
-
-
-
 
 /* collapsed sidebar: narrow tab and reduced margin */
 .with-node-sidebar-collapsed {
@@ -5615,14 +8709,14 @@ if (!edges.value) edges.value = [];
     height: 40px;
     min-width: 40px;
     border-radius: 999px;
-    background: rgba(0,0,0,0.06);
-    box-shadow: 0 6px 18px rgba(2,6,23,0.18);
+    background: rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 18px rgba(2, 6, 23, 0.18);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0;
     color: inherit;
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 /* When `.no-animations` is set on the root, suppress transitions for diagnostic clicks */
@@ -5633,10 +8727,10 @@ if (!edges.value) edges.value = [];
 
 /* Context menu (Vuetify) custom styling for node context */
 .node-context-menu-v {
-    background: var(--v-theme-surface, rgba(11,16,41,0.98));
+    background: var(--v-theme-surface, rgba(11, 16, 41, 0.98));
     border-radius: 10px;
     padding: 6px 8px;
-    box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
     color: var(--v-theme-on-surface, #e6eef8);
     min-width: 260px;
     max-width: 340px;
@@ -5647,17 +8741,19 @@ if (!edges.value) edges.value = [];
 .node-context-item {
     border-radius: 8px;
     padding: 6px 8px;
-    transition: background-color 140ms ease, transform 120ms ease;
+    transition:
+        background-color 140ms ease,
+        transform 120ms ease;
 }
 .node-context-item {
     display: flex;
     align-items: center;
 }
 .node-context-item:hover {
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
 }
 .node-context-item .v-list-item-icon {
-    color: rgba(255,255,255,0.9);
+    color: rgba(255, 255, 255, 0.9);
     min-width: 34px;
     display: flex;
     align-items: center;
@@ -5668,7 +8764,10 @@ if (!edges.value) edges.value = [];
     font-weight: 600;
     font-size: 13px;
 }
-.node-context-menu-v .text-error { color: #ff8a80 !important; font-weight:700 }
+.node-context-menu-v .text-error {
+    color: #ff8a80 !important;
+    font-weight: 700;
+}
 .no-animations .edge-line,
 .no-animations .node-circle,
 .no-animations .child-iridescence,
@@ -5679,16 +8778,20 @@ if (!edges.value) edges.value = [];
 
 /* Dialog theme variants */
 .dialog-dark {
-    background: linear-gradient(180deg, rgba(6,10,25,0.95), rgba(11,16,41,0.98));
+    background: linear-gradient(
+        180deg,
+        rgba(6, 10, 25, 0.95),
+        rgba(11, 16, 41, 0.98)
+    );
     color: var(--v-theme-on-surface, #e6eef8);
     border-radius: 12px;
-    box-shadow: 0 18px 50px rgba(2,6,23,0.7);
+    box-shadow: 0 18px 50px rgba(2, 6, 23, 0.7);
 }
 .dialog-light {
     background: linear-gradient(180deg, #ffffff, #f6fbff);
     color: #0b2233;
     border-radius: 12px;
-    box-shadow: 0 12px 30px rgba(8,12,30,0.08);
+    box-shadow: 0 12px 30px rgba(8, 12, 30, 0.08);
 }
 
 .dialog-dark .v-card-title,
@@ -5714,13 +8817,13 @@ if (!edges.value) edges.value = [];
 }
 .svg-title-text {
     pointer-events: auto; /* allow hover tooltip if needed */
-    background: rgba(255,255,255,0.04);
+    background: rgba(255, 255, 255, 0.04);
     color: #ffffff;
     padding: 8px 14px;
     border-radius: 10px;
     font-weight: 700;
     font-size: 14px;
-    box-shadow: 0 8px 30px rgba(2,6,23,0.45);
+    box-shadow: 0 8px 30px rgba(2, 6, 23, 0.45);
     backdrop-filter: blur(6px);
 }
 .svg-title-line {
@@ -5740,5 +8843,4 @@ if (!edges.value) edges.value = [];
     font-weight: 600;
     opacity: 0.9;
 }
-
 </style>
