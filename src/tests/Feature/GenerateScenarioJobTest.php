@@ -63,3 +63,26 @@ it('marks generation failed after max attempts exceeded', function () {
     expect($gen->status)->toBe('failed');
     expect($gen->metadata['error'])->toBe('rate_limit_exceeded');
 });
+
+it('marks generation failed when LLM returns non-JSON or missing keys', function () {
+    $gen = ScenarioGeneration::create(['organization_id' => 1, 'prompt' => 'p', 'status' => 'queued']);
+
+    $testClient = new class extends LLMClient
+    {
+        public function __construct() {}
+
+        public function generate(string $prompt): array
+        {
+            // Return a plain string (non-JSON) to simulate a malformed LLM response
+            return ['response' => "This is not JSON"];
+        }
+    };
+
+    $job = new GenerateScenarioFromLLMJob($gen->id);
+
+    $job->handle($testClient);
+
+    $gen->refresh();
+    expect($gen->status)->toBe('failed');
+    expect($gen->metadata['error'])->toBe('invalid_llm_response');
+});
