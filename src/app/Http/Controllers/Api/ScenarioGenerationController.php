@@ -145,4 +145,59 @@ class ScenarioGenerationController extends Controller
             ],
         ]);
     }
+
+    public function accept(Request $request, $id)
+    {
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $generation = ScenarioGeneration::find($id);
+        if (! $generation) {
+            return response()->json(['success' => false, 'message' => 'Not found'], 404);
+        }
+
+        if ($generation->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        if ($generation->status !== 'complete') {
+            return response()->json(['success' => false, 'message' => 'Generation not complete'], 422);
+        }
+
+        // llm_response is stored redacted array
+        $llm = $generation->llm_response ?? null;
+        if (! is_array($llm)) {
+            return response()->json(['success' => false, 'message' => 'Invalid LLM response stored'], 422);
+        }
+
+        $meta = $llm['scenario_metadata'] ?? [];
+
+        $data = [
+            'organization_id' => $generation->organization_id,
+            'created_by' => $user->id,
+            'name' => $meta['name'] ?? ('Generated Scenario '.$generation->id),
+            'description' => $meta['description'] ?? null,
+            'scenario_type' => $meta['scenario_type'] ?? 'transformation',
+            'horizon_months' => $meta['horizon_months'] ?? ($meta['planning_horizon_months'] ?? 12),
+            'fiscal_year' => $meta['fiscal_year'] ?? (int) date('Y'),
+            'start_date' => $meta['start_date'] ?? now()->toDateString(),
+            'end_date' => $meta['end_date'] ?? now()->addMonths($meta['horizon_months'] ?? 12)->toDateString(),
+            'owner_user_id' => $meta['owner_user_id'] ?? $user->id,
+            // preserve provenance
+            'source_generation_id' => $generation->id,
+            'accepted_prompt' => $generation->prompt,
+            'accepted_prompt_redacted' => (bool) ($generation->redacted ?? true),
+            'accepted_prompt_metadata' => $generation->metadata ?? null,
+        ];
+
+        $scenario = \App\Models\Scenario::create($data);
+
+        // record acceptance on generation metadata
+        $generation->metadata = array_merge($generation->metadata ?? [], ['accepted_by' => $user->id, 'accepted_at' => now()->toDateTimeString(), 'created_scenario_id' => $scenario->id]);
+        $generation->save();
+
+        return response()->json(['success' => true, 'message' => 'Scenario created from generation', 'data' => $scenario], 201);
+    }
 }

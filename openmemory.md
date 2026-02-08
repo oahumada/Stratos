@@ -252,6 +252,11 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 - **Propósito:** Añadir un lanzador en la cabecera de `ScenarioDetail.vue` para abrir el asistente `GenerateWizard` que guía al operador por un cuestionario de 5 pasos y permite previsualizar el prompt antes de autorizar la llamada al LLM.
 - **Comportamiento implementado:** Se añadió un botón de cabecera `mdi-robot` que abre un diálogo con `GenerateWizard`. El wizard usa la store `scenarioGenerationStore` para armar los campos, solicitar `preview` al endpoint `POST /api/strategic-planning/scenarios/generate/preview` y, previa confirmación humana, invoca `POST /api/strategic-planning/scenarios/generate` para encolar la generación. El diálogo muestra estado de generación y resultados cuando el job termina.
 - **Notas técnicas:** El `GenerateWizard` ya implementa pasos `StepIdentity`, `StepSituation`, `StepIntent`, `StepResources`, `StepHorizon` y un `PreviewConfirm` para revisar/editar el prompt. El store implementa `preview()`, `generate()` y `fetchStatus()` (polling manual). El backend actual usa un `LLMClient` mock y un job que persiste `llm_response` en `scenario_generations`.
+
+-- **Aceptación y persistencia (provenance):** Se añadió soporte para crear un `scenario` a partir de una `scenario_generation` completada mediante `POST /api/strategic-planning/scenarios/generate/{id}/accept`.
+  - La implementación crea un `scenario` draft usando `llm_response.scenario_metadata`, copia el `prompt` redacted a `scenarios.accepted_prompt` y enlaza el `scenario` con `scenario_generations` vía `scenarios.source_generation_id`.
+  - Además, `scenario_generations.metadata` se actualiza con `accepted_by`, `accepted_at` y `created_scenario_id` para auditoría.
+  - Asegúrate de proteger el acceso a `accepted_prompt` mediante políticas/roles (puede contener información sensible parcialmente redactada).
 - **Próximos pasos:** Añadir tests unitarios para `ScenarioGenerationService::preparePrompt`, feature tests para `preview` y `store` endpoints (mock LLM), e2e Playwright que recorra el wizard completo, y controles de tasa/coste antes de habilitar LLM en producción.
 - **Próximos pasos (actualizado):**
   - Implementar tests unitarios para `ScenarioGenerationService::preparePrompt` (alta prioridad).

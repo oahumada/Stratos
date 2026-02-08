@@ -221,6 +221,26 @@ npm run test:e2e:headed
   - `POST /api/strategic-planning/scenarios/generate` → encola la generación, devuelve `generation_id` y `status` (202).
   - `GET /api/strategic-planning/scenarios/generate/{id}` → consulta estado y `llm_response`.
 
+  12. Aceptación y persistencia del prompt (provenance)
+
+  - Nuevo endpoint: `POST /api/strategic-planning/scenarios/generate/{id}/accept`
+    - Requiere autenticación y que la `generation` esté en `status=complete`.
+    - Crea un nuevo `scenario` (draft) a partir del JSON validado presente en `scenario_generations.llm_response`.
+    - Persiste metadatos de procedencia en el nuevo registro de `scenario` y en el registro de `scenario_generations`.
+
+  - Campos añadidos (migration):
+    - `scenarios.source_generation_id` (FK -> `scenario_generations.id`) para trazabilidad.
+    - `scenarios.accepted_prompt` (text) — copia del prompt guardado (redacted) usado para la generación.
+    - `scenarios.accepted_prompt_redacted` (boolean) — indica si el prompt guardado ya está redactado.
+    - `scenarios.accepted_prompt_metadata` (json) — metadata asociada a la generación (por ejemplo: `accepted_by`, `accepted_at`, `created_scenario_id`).
+
+  - Comportamiento:
+    - El endpoint valida tenant (`organization_id`) y que la generación sea `complete`.
+    - Toma `llm_response.scenario_metadata` para poblar campos estándar del `scenario` (`name`, `description`, `horizon_months`, `start_date`, `end_date`, `owner_user_id`).
+    - Actualiza `scenario_generations.metadata` con `accepted_by`, `accepted_at` y `created_scenario_id`.
+    - El prompt persistido y la metadata están redactados según `RedactionService` y no contienen PII/secretos.
+
+
 - **Archivos importantes (revisión rápida):**
   - `src/app/Services/ScenarioGenerationService.php` — preparación de prompt + enqueue.
   - `src/app/Jobs/GenerateScenarioFromLLMJob.php` — job que llama al LLM, redacciona y persiste.

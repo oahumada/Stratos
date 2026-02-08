@@ -14,12 +14,13 @@ class Scenario extends Model
     // Canonical table: `scenarios`. Legacy compatibility view `workforce_planning_scenarios` is deprecated.
     protected $table = 'scenarios';
 
-    protected $fillable = ['organization_id', 'name', 'code', 'description', 'kpis', 'start_date', 'end_date', 'horizon_months', 'fiscal_year', 'scope_type', 'scope_notes', 'status', 'approved_at', 'approved_by', 'assumptions', 'owner_user_id', 'sponsor_user_id', 'created_by', 'updated_by', 'template_id'];
+    protected $fillable = ['organization_id', 'name', 'code', 'description', 'kpis', 'start_date', 'end_date', 'horizon_months', 'fiscal_year', 'scope_type', 'scope_notes', 'status', 'approved_at', 'approved_by', 'assumptions', 'owner_user_id', 'sponsor_user_id', 'created_by', 'updated_by', 'template_id', 'source_generation_id', 'accepted_prompt', 'accepted_prompt_redacted', 'accepted_prompt_metadata'];
 
     protected $casts = [
         'kpis' => 'array',
         'assumptions' => 'array',
         'custom_config' => 'array',
+        'accepted_prompt_metadata' => 'array',
         'start_date' => 'date',
         'end_date' => 'date',
     ];

@@ -106,6 +106,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/strategic-planning/scenarios/generate', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'store']);
     Route::post('/strategic-planning/scenarios/generate/preview', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'preview']);
     Route::get('/strategic-planning/scenarios/generate/{id}', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'show']);
+    Route::post('/strategic-planning/scenarios/generate/{id}/accept', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'accept']);
 
     // Dev API: manage capability_competencies pivot (competency assignments per capability per scenario)
     // Supports both creating new competencies and attaching existing ones

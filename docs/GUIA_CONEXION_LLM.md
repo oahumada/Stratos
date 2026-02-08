@@ -19,8 +19,9 @@ Arquitectura (resumen)
   1. Operador completa wizard en UI → `scenarioGenerationStore.preview()` para ver prompt.
   2. Operador confirma → `scenarioGenerationStore.generate()` que hace `POST /api/strategic-planning/scenarios/generate`.
   3. Backend: `ScenarioGenerationService::enqueueGeneration()` crea `scenario_generations` (status=queued) y dispatcha `GenerateScenarioFromLLMJob`.
-  4. Job llama al `LLMProvider` configurable (mock o real), guarda `llm_response` y actualiza `status`.
-  5. UI/polling consulta `fetchStatus()` hasta `complete` y muestra resultados; operador puede crear un `scenario` o `ChangeSet`.
+    4. Job llama al `LLMProvider` configurable (mock o real), guarda `llm_response` y actualiza `status`.
+    5. UI/polling consulta `fetchStatus()` hasta `complete` y muestra resultados; operador puede crear un `scenario` o `ChangeSet`.
+    6. Opcional: si el operador acepta la propuesta, se puede invocar `POST /api/strategic-planning/scenarios/generate/{id}/accept` para crear un `scenario` draft a partir de la `llm_response` validada. El backend copia el `prompt` (redacted) y registra `source_generation_id` en el `scenario` para trazabilidad.
 
 Componentes clave
 

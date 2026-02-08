@@ -40,6 +40,7 @@ Resumen operativo corto
     export E2E_ADMIN_PASSWORD=secret
     npx playwright test src/tests/e2e/generate-wizard.spec.ts
     ```
+
     - Levantar servidor (`php artisan serve`) y usar `LLM_PROVIDER=mock`.
 
 - Variables de entorno para provider real (precaución):
