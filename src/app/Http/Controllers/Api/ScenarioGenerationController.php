@@ -128,6 +128,7 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
 
+        // authorization for viewing is based on tenant membership
         if ($generation->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
@@ -158,9 +159,9 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
 
-        if ($generation->organization_id !== ($user->organization_id ?? null)) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
-        }
+
+        // authorize accept action via policy
+        $this->authorize('accept', $generation);
 
         if ($generation->status !== 'complete') {
             return response()->json(['success' => false, 'message' => 'Generation not complete'], 422);

@@ -254,9 +254,10 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 - **Notas técnicas:** El `GenerateWizard` ya implementa pasos `StepIdentity`, `StepSituation`, `StepIntent`, `StepResources`, `StepHorizon` y un `PreviewConfirm` para revisar/editar el prompt. El store implementa `preview()`, `generate()` y `fetchStatus()` (polling manual). El backend actual usa un `LLMClient` mock y un job que persiste `llm_response` en `scenario_generations`.
 
 -- **Aceptación y persistencia (provenance):** Se añadió soporte para crear un `scenario` a partir de una `scenario_generation` completada mediante `POST /api/strategic-planning/scenarios/generate/{id}/accept`.
-  - La implementación crea un `scenario` draft usando `llm_response.scenario_metadata`, copia el `prompt` redacted a `scenarios.accepted_prompt` y enlaza el `scenario` con `scenario_generations` vía `scenarios.source_generation_id`.
-  - Además, `scenario_generations.metadata` se actualiza con `accepted_by`, `accepted_at` y `created_scenario_id` para auditoría.
-  - Asegúrate de proteger el acceso a `accepted_prompt` mediante políticas/roles (puede contener información sensible parcialmente redactada).
+
+- La implementación crea un `scenario` draft usando `llm_response.scenario_metadata`, copia el `prompt` redacted a `scenarios.accepted_prompt` y enlaza el `scenario` con `scenario_generations` vía `scenarios.source_generation_id`.
+- Además, `scenario_generations.metadata` se actualiza con `accepted_by`, `accepted_at` y `created_scenario_id` para auditoría.
+- Asegúrate de proteger el acceso a `accepted_prompt` mediante políticas/roles (puede contener información sensible parcialmente redactada).
 - **Próximos pasos:** Añadir tests unitarios para `ScenarioGenerationService::preparePrompt`, feature tests para `preview` y `store` endpoints (mock LLM), e2e Playwright que recorra el wizard completo, y controles de tasa/coste antes de habilitar LLM en producción.
 - **Próximos pasos (actualizado):**
   - Implementar tests unitarios para `ScenarioGenerationService::preparePrompt` (alta prioridad).
