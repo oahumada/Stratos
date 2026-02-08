@@ -45,6 +45,40 @@
                 />
             </v-col>
 
+            <v-col cols="12" md="6">
+                <v-text-field
+                    v-model="local.geographic_scope"
+                    label="Ámbito geográfico"
+                    outlined
+                    dense
+                >
+                    <template #append>
+                        <FieldHelp
+                            title="Ámbito geográfico"
+                            description="Alcance geográfico del escenario (p.ej. 'Nacional', 'Región', 'Global')."
+                            example="Región: Latinoamérica"
+                        />
+                    </template>
+                </v-text-field>
+            </v-col>
+
+            <v-col cols="12" md="6">
+                <v-text-field
+                    v-model="local.organizational_cycle"
+                    label="Ciclo organizacional"
+                    outlined
+                    dense
+                >
+                    <template #append>
+                        <FieldHelp
+                            title="Ciclo organizacional"
+                            description="Periodo o fase del ciclo organizacional (p.ej. 'Anual', 'Trimestral', 'Plan estratégico 3 años')."
+                            example="Anual"
+                        />
+                    </template>
+                </v-text-field>
+            </v-col>
+
             <v-col cols="12" md="4" class="d-flex align-center">
                 <v-text-field
                     v-model="local.company_size"
@@ -90,6 +124,8 @@ const local = reactive({
     company_name: store.data.company_name || '',
     industry: store.data.industry || '',
     sub_industry: store.data.sub_industry || '',
+    geographic_scope: store.data.geographic_scope || '',
+    organizational_cycle: store.data.organizational_cycle || '',
     company_size: store.data.company_size || null,
     auto_generate: store.data.auto_generate || false,
 });

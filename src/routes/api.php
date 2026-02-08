@@ -90,6 +90,13 @@ Route::get('/scenario-planning-list', function () {
 // Scenario Planning API (canonical, without /v1 prefix)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
+    // Prompt / Instruction management for generation wizard (register before the {id} route)
+    Route::get('/strategic-planning/scenarios/instructions', [\App\Http\Controllers\Api\PromptInstructionController::class, 'index']);
+    Route::post('/strategic-planning/scenarios/instructions', [\App\Http\Controllers\Api\PromptInstructionController::class, 'store']);
+    Route::post('/strategic-planning/scenarios/instructions/restore-default', [\App\Http\Controllers\Api\PromptInstructionController::class, 'restoreDefault']);
+    Route::get('/strategic-planning/scenarios/instructions/{id}', [\App\Http\Controllers\Api\PromptInstructionController::class, 'show']);
+    Route::patch('/strategic-planning/scenarios/instructions/{id}', [\App\Http\Controllers\Api\PromptInstructionController::class, 'update']);
+
     Route::get('/strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
     Route::get('/strategic-planning/scenarios/{id}/capability-tree', [\App\Http\Controllers\Api\ScenarioController::class, 'getCapabilityTree']);
 
@@ -107,6 +114,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/strategic-planning/scenarios/generate/preview', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'preview']);
     Route::get('/strategic-planning/scenarios/generate/{id}', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'show']);
     Route::post('/strategic-planning/scenarios/generate/{id}/accept', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'accept']);
+
+    // Prompt / Instruction management for generation wizard (moved earlier to avoid parameter conflicts)
 
     // Dev API: manage capability_competencies pivot (competency assignments per capability per scenario)
     // Supports both creating new competencies and attaching existing ones

@@ -43,6 +43,7 @@ class ScenarioGenerationController extends Controller
             'urgency_level' => 'sometimes|string',
             'milestones' => 'sometimes|string',
             'organization_id' => 'sometimes|integer',
+            'instruction_id' => 'sometimes|integer',
         ]);
 
         $requestedOrgId = $payload['organization_id'] ?? null;
@@ -60,8 +61,14 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Organization not found'], 404);
         }
 
-        $prompt = $svc->preparePrompt($payload, $user, $org);
-        $generation = $svc->enqueueGeneration($prompt, $orgId, $user->id, ['initiator' => $user->id]);
+        // Compose prompt and include the operator instruction (DB/file/client)
+        $composed = $svc->composePromptWithInstruction($payload, $user, $org, $payload['instruction_language'] ?? 'es', $payload['instruction_id'] ?? null);
+        $prompt = $composed['prompt'] ?? '';
+        $instructionMeta = $composed['instruction'] ?? null;
+
+        $metadata = array_merge(['initiator' => $user->id], ['used_instruction' => $instructionMeta]);
+
+        $generation = $svc->enqueueGeneration($prompt, $orgId, $user->id, $metadata);
 
         return response()->json(['success' => true, 'data' => ['id' => $generation->id, 'status' => $generation->status, 'url' => "/api/strategic-planning/scenarios/generate/{$generation->id}"]], 202);
     }
@@ -111,9 +118,11 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Organization not found'], 404);
         }
 
-        $prompt = $svc->preparePrompt($payload, $user, $org);
+        $composed = $svc->composePromptWithInstruction($payload, $user, $org, $payload['instruction_language'] ?? 'es', $payload['instruction_id'] ?? null);
+        $prompt = $composed['prompt'] ?? '';
+        $instructionMeta = $composed['instruction'] ?? null;
 
-        return response()->json(['success' => true, 'data' => ['prompt' => $prompt]]);
+        return response()->json(['success' => true, 'data' => ['prompt' => $prompt, 'instruction' => $instructionMeta]]);
     }
 
     public function show(Request $request, $id)

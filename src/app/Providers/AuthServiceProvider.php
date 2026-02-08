@@ -12,6 +12,8 @@ use App\Models\ScenarioGeneration;
 use App\Policies\ScenarioGenerationPolicy;
 use App\Models\Scenario;
 use App\Policies\ScenarioPolicy;
+use App\Models\PromptInstruction;
+use App\Policies\PromptInstructionPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -21,6 +23,7 @@ class AuthServiceProvider extends ServiceProvider
         CompetencyVersion::class => CompetencyVersionPolicy::class,
         ChangeSet::class => ChangeSetPolicy::class,
         ScenarioGeneration::class => ScenarioGenerationPolicy::class,
+        PromptInstruction::class => PromptInstructionPolicy::class,
         Scenario::class => ScenarioPolicy::class,
     ];
 

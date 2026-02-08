@@ -71,7 +71,89 @@
             </v-col>
         </v-row>
 
+        <!-- Instruction editor moved to final step -->
+
         <component :is="currentStepComponent" />
+
+        <div v-if="store.step === 5">
+            <v-card class="pa-3 mb-4">
+                <div class="d-flex align-center justify-space-between mb-2">
+                    <div>
+                        <strong>Instrucciones del generador</strong>
+                        <div class="caption">
+                            Plantilla que se aplica al prompt generado. Soporta
+                            Markdown.
+                        </div>
+                    </div>
+                    <div class="d-flex align-center">
+                        <v-select
+                            v-model="instructionLang"
+                            :items="['es', 'en']"
+                            dense
+                            hide-details
+                            style="width: 90px"
+                        />
+                        <v-btn
+                            small
+                            class="ml-2"
+                            :loading="instructionLoading"
+                            @click="loadInstruction(instructionLang)"
+                            >Cargar</v-btn
+                        >
+                    </div>
+                </div>
+
+                <div v-if="instructionItems.length" class="mb-3">
+                    <v-radio-group
+                        v-model="selectedInstructionIndex"
+                        class="mb-2"
+                        @change="(v) => selectInstruction(v !== null ? Number(v) : null)"
+                    >
+                        <div
+                            v-for="(it, idx) in instructionItems"
+                            :key="'instr-'+(it.id ?? idx)"
+                            style="padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.04)"
+                        >
+                            <v-radio :label="(it.editable ? 'Versión editable (Operador)' : 'Versión por defecto (Sistema)') + ' — ' + (it.author_name || 'system') + ' (' + (it.created_at ? new Date(it.created_at).toLocaleString() : '') + ')'"
+                                :value="idx"
+                            />
+                        </div>
+                        <v-radio label="Editar/Usar como instrucción personalizada" :value="null" />
+                    </v-radio-group>
+                </div>
+
+                <v-textarea
+                    v-model="instructionContent"
+                    :readonly="!instructionEditable"
+                    rows="6"
+                    outlined
+                    dense
+                    placeholder="Escribe las instrucciones aquí (Markdown)..."
+                />
+
+                <div class="d-flex align-center mt-2">
+                    <v-checkbox
+                        v-model="instructionEditable"
+                        label="Habilitar edición"
+                    />
+                    <v-spacer />
+                    <v-btn
+                        small
+                        color="secondary"
+                        class="mr-2"
+                        :loading="instructionLoading"
+                        @click="restoreDefault"
+                        >Restablecer por defecto</v-btn
+                    >
+                    <v-btn
+                        color="primary"
+                        :loading="instructionLoading"
+                        @click="saveInstruction"
+                        >Guardar instrucciones</v-btn
+                    >
+                </div>
+            </v-card>
+        </div>
 
         <div class="wizard-controls d-flex mt-4">
             <v-btn color="info" @click="prev" :disabled="store.step === 1">
@@ -107,7 +189,7 @@
 
         <div v-if="store.generationId" class="generation-status">
             <p>
-                ID: {{ store.generationId }} — Estado:
+                ID: {{ store.generationId }} '-' Estado:
                 {{ store.generationStatus }}
             </p>
             <div style="margin-top: 8px">
@@ -136,19 +218,21 @@
                     Cerrar
                 </button>
             </div>
-            <ErrorModal
-                v-model="errorModalShow"
-                :title="errorModalTitle"
-                :messages="errorModalMessages"
-            />
         </div>
+
+        <ErrorModal
+            v-model="errorModalShow"
+            :title="errorModalTitle"
+            :messages="errorModalMessages"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
 import ErrorModal from '@/components/Ui/ErrorModal.vue';
 import { useScenarioGenerationStore } from '@/stores/scenarioGenerationStore';
-import { computed, ref } from 'vue';
+import axios from 'axios';
+import { computed, onMounted, ref } from 'vue';
 import PreviewConfirm from './PreviewConfirm.vue';
 import StepHorizon from './StepHorizon.vue';
 import StepIdentity from './StepIdentity.vue';
@@ -167,6 +251,10 @@ const stepComponents: Record<number, any> = {
 };
 
 const currentStepComponent = computed(() => stepComponents[store.step]);
+
+onMounted(() => {
+    loadInstruction(instructionLang.value);
+});
 
 // compute completion per step (basic heuristics)
 const stepCompleted = (step: number) => {
@@ -301,6 +389,7 @@ function prev() {
 const showPreview = ref(false);
 
 // Error modal state
+const instructionLang = ref('es');
 const errorModalShow = ref(false);
 const errorModalTitle = ref('');
 const errorModalMessages = ref<string[]>([]);
@@ -309,6 +398,116 @@ function showError(messages: string[] | string, title = 'Error') {
     errorModalTitle.value = title;
     errorModalMessages.value = Array.isArray(messages) ? messages : [messages];
     errorModalShow.value = true;
+}
+const instructionContent = ref('');
+const instructionEditable = ref(false);
+const instructionLoading = ref(false);
+const instructionItems = ref<any[]>([]);
+const selectedInstructionIndex = ref<number | null>(null);
+const instructionChoice = ref<'db' | 'client'>('db');
+
+async function loadInstruction(lang = 'es') {
+    instructionLoading.value = true;
+    try {
+        const res = await axios.get(
+            '/api/strategic-planning/scenarios/instructions',
+            { params: { language: lang } },
+        );
+        const items = res.data.data || [];
+        instructionItems.value = items;
+        if (items.length) {
+            // default select first item (editable if present)
+            selectedInstructionIndex.value = 0;
+            instructionContent.value = items[0].content || '';
+            instructionEditable.value = !!items[0].editable;
+            instructionLang.value = items[0].language || lang;
+            instructionChoice.value = 'db';
+        } else {
+            instructionItems.value = [];
+            selectedInstructionIndex.value = null;
+            instructionContent.value = '';
+            instructionEditable.value = false;
+            instructionLang.value = lang;
+            instructionChoice.value = 'client';
+        }
+    } catch (e) {
+        console.error('Failed loading instruction', e);
+    } finally {
+        instructionLoading.value = false;
+    }
+}
+
+function selectInstruction(idx: number | null) {
+    selectedInstructionIndex.value = idx;
+    if (idx === null) {
+        // custom
+        instructionChoice.value = 'client';
+        instructionEditable.value = true;
+        return;
+    }
+    const item = instructionItems.value[idx];
+    instructionContent.value = item?.content || '';
+    instructionEditable.value = !!item?.editable;
+    instructionChoice.value = 'db';
+}
+
+async function saveInstruction() {
+    instructionLoading.value = true;
+    try {
+        const payload = {
+            language: instructionLang.value,
+            content: instructionContent.value,
+            editable: !!instructionEditable.value,
+        };
+        const res = await axios.post(
+            '/api/strategic-planning/scenarios/instructions',
+            payload,
+        );
+        if (res.data && res.data.success) {
+            // reload latest
+            await loadInstruction(instructionLang.value);
+        }
+    } catch (e) {
+        console.error('Save instruction failed', e);
+        showError(
+            'No se pudo guardar la instrucción: ' +
+                ((e as any)?.response?.data?.message || (e as any)?.message),
+        );
+    } finally {
+        instructionLoading.value = false;
+    }
+}
+
+async function restoreDefault() {
+    if (
+        !confirm(
+            '¿Restablecer la instrucción por defecto? Esto creará una nueva versión editable con el contenido por defecto.',
+        )
+    )
+        return;
+    instructionLoading.value = true;
+    try {
+        const res = await axios.post(
+            '/api/strategic-planning/scenarios/instructions/restore-default',
+            {
+                language: instructionLang.value,
+            },
+        );
+        if (res.data && res.data.success) {
+            await loadInstruction(instructionLang.value);
+        } else {
+            showError('No se pudo restaurar la instrucción por defecto');
+        }
+    } catch (e) {
+        console.error('Restore default failed', e);
+        showError(
+            (e as any)?.response?.data?.message ||
+                (e as any)?.message ||
+                'Error al restaurar por defecto',
+        );
+    } finally {
+        instructionLoading.value = false;
+    }
 }
 
 async function onGenerate() {
@@ -322,6 +521,15 @@ async function onGenerate() {
 
         // First get prompt preview from server
         await store.preview();
+
+        // Append current editable instruction content to the preview so operator sees the exact instruction
+        if (instructionContent.value) {
+            store.previewPrompt =
+                (((store.previewPrompt as unknown as string) ?? '') +
+                    '\n\n' +
+                    instructionContent.value) as any;
+        }
+
         showPreview.value = true;
     } catch (e) {
         const errMsg = formatAxiosError(e);
@@ -342,6 +550,22 @@ async function onConfirmGenerate(importAfter = false) {
 
         // persist operator choice to the generation store so accept flow can include it
         store.importAfterAccept = !!importAfter;
+        // If operator edited/entered a custom instruction, send it in payload
+        if (instructionChoice.value === 'client' && instructionContent.value) {
+            store.setField('instruction', instructionContent.value);
+            store.setField('instruction_id', null);
+        } else if (instructionChoice.value === 'db' && selectedInstructionIndex.value !== null) {
+            // operator selected a DB instruction version: send the explicit id so server uses it
+            const it = instructionItems.value[selectedInstructionIndex.value];
+            const id = it?.id ?? null;
+            store.setField('instruction', null);
+            store.setField('instruction_id', id);
+        } else {
+            // fallback: clear both and let server choose default behavior
+            store.setField('instruction', null);
+            store.setField('instruction_id', null);
+        }
+
         await store.generate();
     } catch (e) {
         const errMsg = formatAxiosError(e);

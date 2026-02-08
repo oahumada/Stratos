@@ -69,7 +69,7 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
             try {
                 const res = await axios.post(
                     '/api/strategic-planning/scenarios/generate',
-                    this.data,
+                    this.preparePayload(),
                 );
                 this.generationId = res.data.data.id;
                 this.generationStatus = res.data.data.status;
@@ -85,13 +85,49 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
             try {
                 const res = await axios.post(
                     '/api/strategic-planning/scenarios/generate/preview',
-                    this.data,
+                    this.preparePayload(),
                 );
                 this.previewPrompt = res.data.data.prompt;
                 return this.previewPrompt;
             } catch (e) {
                 throw e;
             }
+        },
+
+        preparePayload() {
+            // sanitize and coerce fields to expected types before sending to backend
+            const payload: any = { ...(this.data as any) };
+
+            // ensure geographic_scope and organizational_cycle are strings
+            if (
+                payload.geographic_scope !== undefined &&
+                payload.geographic_scope !== null
+            ) {
+                payload.geographic_scope = String(payload.geographic_scope);
+            }
+            if (
+                payload.organizational_cycle !== undefined &&
+                payload.organizational_cycle !== null
+            ) {
+                payload.organizational_cycle = String(
+                    payload.organizational_cycle,
+                );
+            }
+
+            // coerce organization_id to integer if present; otherwise remove to avoid type errors
+            if (
+                payload.organization_id !== undefined &&
+                payload.organization_id !== null &&
+                payload.organization_id !== ''
+            ) {
+                const n = Number(payload.organization_id);
+                if (!Number.isNaN(n)) payload.organization_id = Math.trunc(n);
+                else delete payload.organization_id;
+            } else {
+                delete payload.organization_id;
+            }
+
+            return payload;
         },
         async fetchStatus() {
             if (!this.generationId) return;
