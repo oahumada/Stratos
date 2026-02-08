@@ -38,7 +38,34 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
       - `src/config/features.php` (asegurar `import_generation` por entorno)
     - Estado: planificado (marcar como tarea separada en TODO para seguimiento).
     - 2026-02-07: CI workflow añadido: `.github/workflows/e2e.yml` ejecuta migraciones/seed, build, arranca servidor y ejecuta Playwright; sube artefactos `playwright-report` y capturas/videos para inspección.
-    - 2026-02-07: `src/scripts/debug_generate.mjs` eliminado (archivo temporal de depuración).
+
+## Memory: Implementation - LlmResponseValidator limits (2026-02-08)
+
+- **Tipo:** implementation (project fact)
+- **Propósito:** Añadir límites configurables a la validación del `llm_response` para prevenir imports excesivamente grandes y validar counts por niveles (capabilities, competencies, skills).
+- **Cambios realizados:** `src/app/Services/LlmResponseValidator.php` ahora lee las claves de configuración:
+  - `features.validate_llm_response_max_capabilities`
+  - `features.validate_llm_response_max_competencies`
+  - `features.validate_llm_response_max_skills`
+    y añade errores cuando los arrays devueltos por el LLM exceden esos límites. También preserva las comprobaciones en `strict` mode (requerir al menos un elemento cuando está activado).
+- **Archivos modificados:**
+  - `src/app/Services/LlmResponseValidator.php`
+  - `src/config/features.php` (claves ya presentes; confirmar valores por entorno)
+- **Por qué:** Evitar que un LLM retorne 100+ items que colapsen el importador y la UI; dar control operativo vía configuración y variables de entorno.
+  - Estado: implementado y desplegado en branch `feature/workforce-planning-scenario-modeling`.
+
+## Memory: Implementation - Prompt JSON Schema included (2026-02-08)
+
+- **Tipo:** implementation (project fact)
+- **Propósito:** Incluir un fragmento de JSON Schema directamente en el prompt compuesto y en las instrucciones por defecto para mejorar la conformidad de la salida LLM.
+- **Cambios realizados:** `ScenarioGenerationService::preparePrompt` ahora añade un bloque `JSON_SCHEMA:` con un JSON Schema (draft-07) simplificado que define `scenario_metadata` (con `name` requerido) y estructura anidada para `capabilities` → `competencies` → `skills`. Además los archivos de fallback `resources/prompt_instructions/default_es.md` y `default_en.md` fueron actualizados para incluir un resumen del esquema.
+- **Archivos modificados:**
+  - `src/app/Services/ScenarioGenerationService.php` (añade `JSON_SCHEMA` al prompt)
+  - `resources/prompt_instructions/default_es.md` (añade resumen de esquema)
+  - `resources/prompt_instructions/default_en.md` (añade resumen de esquema)
+- **Por qué:** Proveer una especificación directa en el prompt reduce ambigüedad y, junto con la validación server-side y límites configurables, disminuye la probabilidad de respuestas inválidas o demasiado grandes.
+- **Estado:** implementado y verificado mediante `php artisan tinker` (presencia del bloque `JSON_SCHEMA`).
+  - 2026-02-07: `src/scripts/debug_generate.mjs` eliminado (archivo temporal de depuración).
 
 ## Estado actual (inicio)
 

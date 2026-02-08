@@ -11,6 +11,7 @@ class LlmResponseValidator
     public function validate(array $llmResponse): array
     {
         $errors = [];
+        $strict = (bool) config('features.validate_llm_response_strict', false);
 
         // scenario_metadata must exist and include a name
         if (! isset($llmResponse['scenario_metadata']) || ! is_array($llmResponse['scenario_metadata'])) {
@@ -26,6 +27,13 @@ class LlmResponseValidator
             if (! is_array($llmResponse['capabilities'])) {
                 $errors[] = ['path' => 'capabilities', 'message' => 'Must be an array'];
             } else {
+                // enforce max counts when present
+                $maxCaps = (int) config('features.validate_llm_response_max_capabilities', 10);
+                $maxComps = (int) config('features.validate_llm_response_max_competencies', 10);
+                $maxSkills = (int) config('features.validate_llm_response_max_skills', 10);
+                if (count($llmResponse['capabilities']) > $maxCaps) {
+                    $errors[] = ['path' => 'capabilities', 'message' => "Too many capabilities (max {$maxCaps})"];
+                }
                 foreach ($llmResponse['capabilities'] as $i => $cap) {
                     $base = "capabilities[{$i}]";
                     if (! is_array($cap)) {
@@ -36,10 +44,17 @@ class LlmResponseValidator
                         $errors[] = ['path' => $base . '.name', 'message' => 'Name is required'];
                     }
                     // competencies: if present must be array with name per competency
+                    // in strict mode, competencies must be present and non-empty
                     if (array_key_exists('competencies', $cap)) {
                         if (! is_array($cap['competencies'])) {
                             $errors[] = ['path' => $base . '.competencies', 'message' => 'Must be an array'];
                         } else {
+                            if ($strict && count($cap['competencies']) === 0) {
+                                $errors[] = ['path' => $base . '.competencies', 'message' => 'At least one competency is required in strict mode'];
+                            }
+                            if (count($cap['competencies']) > $maxComps) {
+                                $errors[] = ['path' => $base . '.competencies', 'message' => "Too many competencies (max {$maxComps})"];
+                            }
                             foreach ($cap['competencies'] as $j => $comp) {
                                 $cbase = $base . ".competencies[{$j}]";
                                 if (! is_array($comp)) {
@@ -54,6 +69,12 @@ class LlmResponseValidator
                                     if (! is_array($comp['skills'])) {
                                         $errors[] = ['path' => $cbase . '.skills', 'message' => 'Must be an array'];
                                     } else {
+                                        if ($strict && count($comp['skills']) === 0) {
+                                            $errors[] = ['path' => $cbase . '.skills', 'message' => 'At least one skill is required in strict mode'];
+                                        }
+                                        if (count($comp['skills']) > $maxSkills) {
+                                            $errors[] = ['path' => $cbase . '.skills', 'message' => "Too many skills (max {$maxSkills})"];
+                                        }
                                         foreach ($comp['skills'] as $k => $s) {
                                             $sbase = $cbase . ".skills[{$k}]";
                                             // Accept skill as string (name) or object with name
@@ -83,3 +104,4 @@ class LlmResponseValidator
         return ['valid' => empty($errors), 'errors' => $errors];
     }
 }
+

@@ -45,7 +45,92 @@ class ScenarioGenerationService
         $prompt .= "\n\nOPERATOR_INPUT:\n".json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         // Enforce JSON-only output from the LLM: add an explicit instruction
-        $prompt .= "\n\nINSTRUCTIONS:\nReturn ONLY a single valid JSON object matching the schema with top-level keys: scenario_metadata, capacities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions. Do not include any prose, explanation or commentary outside the JSON object.\n";
+        $prompt .= "\n\nINSTRUCTIONS:\nReturn ONLY a single valid JSON object matching the schema with top-level keys: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
+        $prompt .= "The JSON MUST use the following nested structure: each element in 'capabilities' is an object with a 'name' and optional 'description' and a 'competencies' array; each competency is an object with 'name', optional 'description' and a 'skills' array; each skill may be a string (skill name) or object with 'name'.\n";
+        $prompt .= "Do NOT include any prose, explanation or commentary outside the JSON object. If you cannot produce the full nested structure, return an object with the keys and empty arrays.\n\nExample minimal valid output:\n";
+        $prompt .= json_encode([
+            'scenario_metadata' => [
+                'name' => 'Example Scenario',
+                'generated_at' => date('c'),
+                'confidence_score' => 0.9,
+            ],
+            'capabilities' => [
+                [
+                    'name' => 'Capability A',
+                    'description' => 'Short desc',
+                    'competencies' => [
+                        [
+                            'name' => 'Competency X',
+                            'description' => 'Desc',
+                            'skills' => ['Skill 1', 'Skill 2']
+                        ]
+                    ]
+                ]
+            ],
+            'competencies' => [],
+            'skills' => [],
+            'suggested_roles' => [],
+            'impact_analysis' => [],
+            'confidence_score' => 0.9,
+            'assumptions' => []
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $prompt .= "\n";
+        // Append a formal JSON Schema to the instructions to help the LLM comply.
+        $schemaArray = [
+            '$schema' => 'http://json-schema.org/draft-07/schema#',
+            'type' => 'object',
+            'required' => ['scenario_metadata'],
+            'properties' => [
+                'scenario_metadata' => [
+                    'type' => 'object',
+                    'required' => ['name'],
+                    'properties' => [
+                        'name' => ['type' => 'string'],
+                        'generated_at' => ['type' => 'string', 'format' => 'date-time'],
+                        'confidence_score' => ['type' => 'number']
+                    ]
+                ],
+                'capabilities' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'required' => ['name'],
+                        'properties' => [
+                            'name' => ['type' => 'string'],
+                            'description' => ['type' => 'string'],
+                            'competencies' => [
+                                'type' => 'array',
+                                'items' => [
+                                    'type' => 'object',
+                                    'required' => ['name'],
+                                    'properties' => [
+                                        'name' => ['type' => 'string'],
+                                        'description' => ['type' => 'string'],
+                                        'skills' => [
+                                            'type' => 'array',
+                                            'items' => [
+                                                'oneOf' => [
+                                                    ['type' => 'string'],
+                                                    ['type' => 'object', 'required' => ['name'], 'properties' => ['name' => ['type' => 'string']]]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'competencies' => ['type' => 'array'],
+                'skills' => ['type' => 'array'],
+                'suggested_roles' => ['type' => 'array'],
+                'impact_analysis' => ['type' => 'array'],
+                'confidence_score' => ['type' => 'number'],
+                'assumptions' => ['type' => 'array']
+            ]
+        ];
+
+        $prompt .= "\nJSON_SCHEMA:\n" . json_encode($schemaArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
 
         return $prompt;
     }

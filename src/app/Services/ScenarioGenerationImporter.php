@@ -45,6 +45,20 @@ class ScenarioGenerationImporter
                 ]);
 
                 $report['capabilities'][] = ['id' => $cap->id, 'name' => $cap->name, 'created' => $cap->wasRecentlyCreated];
+                // ensure capability is linked to the scenario via scenario_capabilities pivot
+                $scExists = DB::table('scenario_capabilities')
+                    ->where('scenario_id', $scenario->id)
+                    ->where('capability_id', $cap->id)
+                    ->exists();
+
+                if (! $scExists) {
+                    DB::table('scenario_capabilities')->insert([
+                        'scenario_id' => $scenario->id,
+                        'capability_id' => $cap->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
 
                 $comps = $capData['competencies'] ?? [];
                 foreach ($comps as $compData) {

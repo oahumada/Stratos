@@ -11,4 +11,52 @@ Además, incluye una sección detallada de: capacidades, competencias, skills y 
 Para cada elemento proporciona una breve descripción y ejemplos de cómo se relaciona
 con las iniciativas recomendadas.
 
-Formato: JSON. Devuelve únicamente un objeto JSON válido que cumpla el esquema con claves de primer nivel: scenario_metadata, capacities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions. No incluyas ningún texto, explicación o comentario fuera del objeto JSON.
+Formato: JSON. Devuelve únicamente un objeto JSON válido que cumpla el esquema con claves de primer nivel: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions. No incluyas ningún texto, explicación o comentario fuera del objeto JSON.
+
+Ejemplo mínimo de salida (JSON) — la estructura debe ser anidada: `capabilities[]` → `competencies[]` → `skills[]`:
+
+```json
+{
+    "scenario_metadata": {
+        "name": "Mi Escenario",
+        "generated_at": "2026-01-01T00:00:00Z",
+        "confidence_score": 0.85
+    },
+    "capabilities": [
+        {
+            "name": "Contratación",
+            "description": "Atraer y seleccionar talento",
+            "competencies": [
+                {
+                    "name": "Sourcing",
+                    "skills": ["Boolean search", "LinkedIn outreach"]
+                }
+            ]
+        }
+    ],
+    "competencies": [],
+    "skills": [],
+    "suggested_roles": [],
+    "impact_analysis": [],
+    "confidence_score": 0.85,
+    "assumptions": []
+}
+```
+
+## JSON Schema (resumen)
+
+Incluye el siguiente esquema JSON simplificado para validar la estructura anidada requerida (capabilities → competencies → skills):
+
+```json
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["scenario_metadata"],
+    "properties": {
+        "scenario_metadata": { "type": "object", "required": ["name"] },
+        "capabilities": { "type": "array" },
+        "competencies": { "type": "array" },
+        "skills": { "type": "array" }
+    }
+}
+```
