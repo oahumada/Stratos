@@ -2,9 +2,9 @@ name: Unit tests
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   phpunit:
@@ -16,7 +16,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v3
         with:
-          php-version: '8.2'
+          php-version: "8.2"
           extensions: mbstring, bcmath, sqlite
 
       - name: Install Composer dependencies

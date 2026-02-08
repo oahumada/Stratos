@@ -20,6 +20,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - 2026-02-07: ChangeSet approval now assigns scenario version metadata when missing: `version_group_id` (UUID), `version_number` (default 1) and `is_current_version=true`. Implemented in `src/app/Http/Controllers/Api/ChangeSetController.php::approve()` to ensure approved ChangeSets also guarantee scenario versioning and demote other current versions within the same `version_group_id`.
   - 2026-02-07 (fix): Se corrigió un ParseError introducido por una edición previa. La lógica de asignación de metadata de versionado fue movida y consolidada dentro de `approve()` y se restablecieron los límites de función para evitar errores de sintaxis que impedían la ejecución de `php artisan wayfinder:generate` y, por ende, `npm run build`.
   - 2026-02-07: E2E GenerateWizard estabilizado: helper `login` ahora usa CSRF + request-context cuando no hay formulario, el test avanza pasos del wizard antes de generar, el mock LLM usa el fixture correcto, y `GenerateWizard.vue` importa `ref` para evitar error runtime.
+  - 2026-02-07: LLMClient DI/refactor: `LLMServiceProvider` registrado y pruebas actualizadas para resolver `LLMClient` desde el contenedor en lugar de instanciar con `new`. Se reemplazó la instancia directa en `src/tests/Feature/ScenarioGenerationIntegrationTest.php` y se creó `src/app/Providers/LLMServiceProvider.php` para facilitar inyección/overrides en tests y entornos.
   - 2026-02-07: E2E scenario map estabilizado: usa helper `login`, selector de nodos actualizado a `.node-group`, y validacion de child nodes solo cuando existan datos.
     - 2026-02-07: CI workflow añadido: `.github/workflows/e2e.yml` ejecuta migraciones/seed, build, arranca servidor y ejecuta Playwright; sube artefactos `playwright-report` y capturas/videos para inspección.
     - 2026-02-07: `src/scripts/debug_generate.mjs` eliminado (archivo temporal de depuración).
@@ -252,11 +253,11 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 - **Comportamiento implementado:** Se añadió un botón de cabecera `mdi-robot` que abre un diálogo con `GenerateWizard`. El wizard usa la store `scenarioGenerationStore` para armar los campos, solicitar `preview` al endpoint `POST /api/strategic-planning/scenarios/generate/preview` y, previa confirmación humana, invoca `POST /api/strategic-planning/scenarios/generate` para encolar la generación. El diálogo muestra estado de generación y resultados cuando el job termina.
 - **Notas técnicas:** El `GenerateWizard` ya implementa pasos `StepIdentity`, `StepSituation`, `StepIntent`, `StepResources`, `StepHorizon` y un `PreviewConfirm` para revisar/editar el prompt. El store implementa `preview()`, `generate()` y `fetchStatus()` (polling manual). El backend actual usa un `LLMClient` mock y un job que persiste `llm_response` en `scenario_generations`.
 - **Próximos pasos:** Añadir tests unitarios para `ScenarioGenerationService::preparePrompt`, feature tests para `preview` y `store` endpoints (mock LLM), e2e Playwright que recorra el wizard completo, y controles de tasa/coste antes de habilitar LLM en producción.
- - **Próximos pasos (actualizado):**
-   - Implementar tests unitarios para `ScenarioGenerationService::preparePrompt` (alta prioridad).
-   - Añadir feature tests para `POST /api/strategic-planning/scenarios/generate/preview` y `POST /api/strategic-planning/scenarios/generate` usando `MockProvider`.
-   - Revisar y aprobar prompts con stakeholders; habilitar provider real en staging solo detrás de feature flag y límites de coste.
-   - Auditar pruebas E2E para usar `src/tests/e2e/helpers/login.ts` y documentar ejecución en `docs/GUIA_E2E.md`.
+- **Próximos pasos (actualizado):**
+  - Implementar tests unitarios para `ScenarioGenerationService::preparePrompt` (alta prioridad).
+  - Añadir feature tests para `POST /api/strategic-planning/scenarios/generate/preview` y `POST /api/strategic-planning/scenarios/generate` usando `MockProvider`.
+  - Revisar y aprobar prompts con stakeholders; habilitar provider real en staging solo detrás de feature flag y límites de coste.
+  - Auditar pruebas E2E para usar `src/tests/e2e/helpers/login.ts` y documentar ejecución en `docs/GUIA_E2E.md`.
 
 ## Decision: Versionado de Escenarios — asignación en aprobación (2026-02-06)
 

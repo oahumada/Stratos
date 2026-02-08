@@ -1,6 +1,7 @@
 # Guía rápida: Ejecutar pruebas E2E con Playwright (local / CI)
 
 Requisitos
+
 - Node 18+, npm
 - PHP 8.2+, Composer
 - Base app configurada (migrations/seeders)
@@ -36,12 +37,15 @@ CI (GitHub Actions)
   - Sube artefactos: `playwright-report`, capturas y videos (para inspección)
 
 Consejos
+
 - Asegura `BASE_URL` si usas otro puerto.
 - Variables E2E: `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` (si no setea valores por defecto: `admin@example.com`/`password`).
 - Para pruebas confiables en CI: usa `LLM_PROVIDER=mock` o configura `LLM_*` mocks.
 
 Depuración rápida
+
 - Si falla el wizard, revisa `src/tests/fixtures/llm/mock_generation_response.json` y la ruta de intercepts en `src/tests/e2e/helpers/intercepts.ts`.
 
 Contacto
+
 - Para cambios en el flujo E2E, actualiza `docs/GUIA_E2E.md` y `openmemory.md`.

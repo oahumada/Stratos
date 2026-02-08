@@ -7,8 +7,16 @@ use App\Models\User;
 uses(RefreshDatabase::class);
 
 it('builds a prompt that includes operator input and organization data', function () {
-    $org = Organizations::create(['name' => 'ACME Corp', 'subdomain' => 'acme', 'industry' => 'tech', 'size' => 'small']);
-    $user = User::factory()->create(['organization_id' => $org->id]);
+    // instantiate models in memory to avoid DB dependency
+    $org = new Organizations();
+    $org->name = 'ACME Corp';
+    $org->subdomain = 'acme';
+    $org->industry = 'tech';
+    $org->size = 'small';
+    $org->id = 1;
+
+    $user = new User();
+    $user->organization_id = $org->id;
 
     $svc = new \App\Services\ScenarioGenerationService();
 
@@ -23,8 +31,15 @@ it('builds a prompt that includes operator input and organization data', functio
 });
 
 it('encodes array fields as JSON and includes them in the prompt', function () {
-    $org = Organizations::create(['name' => 'Beta LLC', 'subdomain' => 'beta', 'industry' => 'finance', 'size' => 'medium']);
-    $user = User::factory()->create(['organization_id' => $org->id]);
+    $org = new Organizations();
+    $org->name = 'Beta LLC';
+    $org->subdomain = 'beta';
+    $org->industry = 'finance';
+    $org->size = 'medium';
+    $org->id = 2;
+
+    $user = new User();
+    $user->organization_id = $org->id;
 
     $svc = new \App\Services\ScenarioGenerationService();
 
@@ -40,8 +55,15 @@ it('encodes array fields as JSON and includes them in the prompt', function () {
 });
 
 it('uses organization name when available instead of payload company_name', function () {
-    $org = Organizations::create(['name' => 'Gamma Industries', 'subdomain' => 'gamma', 'industry' => 'manufacturing', 'size' => 'large']);
-    $user = User::factory()->create(['organization_id' => $org->id]);
+    $org = new Organizations();
+    $org->name = 'Gamma Industries';
+    $org->subdomain = 'gamma';
+    $org->industry = 'manufacturing';
+    $org->size = 'large';
+    $org->id = 3;
+
+    $user = new User();
+    $user->organization_id = $org->id;
 
     $svc = new \App\Services\ScenarioGenerationService();
 

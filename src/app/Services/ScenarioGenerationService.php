@@ -13,7 +13,14 @@ class ScenarioGenerationService
     public function preparePrompt(array $data, User $user, Organizations $org): string
     {
         // Minimal builder: merge template with provided data. Can be extended.
-        $template = file_get_contents(base_path('docs/GUIA_GENERACION_ESCENARIOS.md')) ?: '';
+        $template = '';
+        // Safely attempt to load template when app basePath is available
+        if (function_exists('app') && is_callable([app(), 'basePath'])) {
+            $templatePath = app()->basePath('docs/GUIA_GENERACION_ESCENARIOS.md');
+            if (file_exists($templatePath)) {
+                $template = @file_get_contents($templatePath) ?: '';
+            }
+        }
 
         $replacements = array_merge($data, [
             'company_name' => $org->name ?? $data['company_name'] ?? '',
@@ -26,8 +33,13 @@ class ScenarioGenerationService
             $prompt = str_replace('{{' . $k . '}}', is_array($v) ? json_encode($v) : (string) $v, $prompt);
         }
 
-        // Append operator answers as JSON at the end for clarity
-        $prompt .= "\n\nOPERATOR_INPUT:\n" . json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        // If template was empty, prepend minimal header with company name
+        if (empty(trim($template))) {
+            $prompt = "Company: " . ($replacements['company_name'] ?? '') . "\n\n" . $prompt;
+        }
+
+        // Append operator answers (use replacements so org overrides are visible)
+        $prompt .= "\n\nOPERATOR_INPUT:\n" . json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         return $prompt;
     }
