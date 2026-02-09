@@ -1,41 +1,41 @@
 /**
  * useHierarchicalUpdate
- * 
+ *
  * Composable for updating hierarchical data structures in Vue reactive trees.
  * Ensures all data sources are updated from leaf to root to maintain consistency
  * when collapsing/expanding nodes.
- * 
+ *
  * Pattern: When modifying a leaf node, update UPWARD to the root.
- * 
+ *
  * Hierarchy: Capability → Competency → Skill
- * 
+ *
  * Data sources (from leaf to root):
  * - grandChildNodes: rendered skill nodes
- * - childNodes: rendered competency nodes  
+ * - childNodes: rendered competency nodes
  * - selectedChild: currently selected competency
  * - focusedNode: currently focused capability
  * - nodes: root capabilities array
- * 
+ *
  * @example
  * ```typescript
  * import { useHierarchicalUpdate } from '@/composables/useHierarchicalUpdate';
- * 
+ *
  * // Setup with component refs
  * const hierarchicalUpdate = useHierarchicalUpdate(
  *     { nodes, focusedNode, childNodes, selectedChild, grandChildNodes },
  *     { wrapLabel, debug: false }
  * );
- * 
+ *
  * // Update a skill across all data sources
  * await hierarchicalUpdate.update('skill', freshSkillData, competencyId);
- * 
+ *
  * // Update a competency
  * await hierarchicalUpdate.update('competency', freshCompData);
- * 
+ *
  * // Remove a skill
  * await hierarchicalUpdate.remove('skill', skillId, competencyId);
  * ```
- * 
+ *
  * @see openmemory.md for detailed documentation
  */
 
@@ -61,8 +61,12 @@ type EntityType = 'skill' | 'competency' | 'capability';
 /**
  * Creates a hierarchical update manager for reactive tree structures
  */
-export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOptions = {}) {
-    const { nodes, focusedNode, childNodes, selectedChild, grandChildNodes } = refs;
+export function useHierarchicalUpdate(
+    refs: HierarchicalRefs,
+    options: UpdateOptions = {},
+) {
+    const { nodes, focusedNode, childNodes, selectedChild, grandChildNodes } =
+        refs;
     const { wrapLabel = (t: string) => t, debug = false } = options;
 
     const log = (...args: any[]) => {
@@ -89,7 +93,7 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
                     return {
                         ...freshSkill,
                         pivot: s.pivot ?? s.raw?.pivot,
-                        raw: { ...freshSkill, pivot: s.pivot ?? s.raw?.pivot }
+                        raw: { ...freshSkill, pivot: s.pivot ?? s.raw?.pivot },
                     };
                 }
                 return s;
@@ -105,7 +109,7 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
                     name: freshSkill.name,
                     description: freshSkill.description,
                     displayName: wrapLabel(freshSkill.name ?? gn.name, 12),
-                    raw: { ...freshSkill, pivot: gn.raw?.pivot }
+                    raw: { ...freshSkill, pivot: gn.raw?.pivot },
                 };
             }
             return gn;
@@ -113,15 +117,20 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
         log('Updated grandChildNodes');
 
         // 2. Update selectedChild.skills
-        if (selectedChild.value && Array.isArray((selectedChild.value as any).skills)) {
-            const updatedSkills = updateSkillInArray((selectedChild.value as any).skills);
+        if (
+            selectedChild.value &&
+            Array.isArray((selectedChild.value as any).skills)
+        ) {
+            const updatedSkills = updateSkillInArray(
+                (selectedChild.value as any).skills,
+            );
             selectedChild.value = {
                 ...selectedChild.value,
                 skills: updatedSkills,
                 raw: {
                     ...(selectedChild.value as any).raw,
-                    skills: updatedSkills
-                }
+                    skills: updatedSkills,
+                },
             } as any;
             log('Updated selectedChild.skills');
         }
@@ -129,14 +138,16 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
         // 3. Update childNodes[].skills
         childNodes.value = childNodes.value.map((cn: any) => {
             if (cn.compId === competencyId || cn.raw?.id === competencyId) {
-                const updatedSkills = Array.isArray(cn.skills) ? updateSkillInArray(cn.skills) : cn.skills;
+                const updatedSkills = Array.isArray(cn.skills)
+                    ? updateSkillInArray(cn.skills)
+                    : cn.skills;
                 return {
                     ...cn,
                     skills: updatedSkills,
                     raw: {
                         ...cn.raw,
-                        skills: updatedSkills
-                    }
+                        skills: updatedSkills,
+                    },
                 };
             }
             return cn;
@@ -156,7 +167,9 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
         // 5. Update nodes[].competencies[].skills (root source)
         nodes.value = nodes.value.map((n: any) => {
             if (Array.isArray(n.competencies)) {
-                const comp = n.competencies.find((c: any) => c.id === competencyId);
+                const comp = n.competencies.find(
+                    (c: any) => c.id === competencyId,
+                );
                 if (comp && Array.isArray(comp.skills)) {
                     comp.skills = updateSkillInArray(comp.skills);
                 }
@@ -185,7 +198,7 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
             name: freshComp.name ?? existing.name,
             description: freshComp.description ?? existing.description,
             readiness: freshComp.readiness ?? existing.readiness,
-            skills: freshComp.skills ?? existing.skills
+            skills: freshComp.skills ?? existing.skills,
         });
 
         // 1. Update childNodes (rendered competency nodes)
@@ -195,7 +208,7 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
                     ...cn,
                     ...mergeCompData(cn),
                     displayName: wrapLabel(freshComp.name ?? cn.name, 14),
-                    raw: { ...(cn.raw ?? {}), ...freshComp }
+                    raw: { ...(cn.raw ?? {}), ...freshComp },
                 };
             }
             return cn;
@@ -203,14 +216,22 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
         log('Updated childNodes');
 
         // 2. Update selectedChild
-        if (selectedChild.value && 
-            ((selectedChild.value as any).compId === compId || 
-             (selectedChild.value as any).raw?.id === compId)) {
+        if (
+            selectedChild.value &&
+            ((selectedChild.value as any).compId === compId ||
+                (selectedChild.value as any).raw?.id === compId)
+        ) {
             selectedChild.value = {
                 ...(selectedChild.value as any),
                 ...mergeCompData(selectedChild.value),
-                displayName: wrapLabel(freshComp.name ?? (selectedChild.value as any).name, 14),
-                raw: { ...((selectedChild.value as any).raw ?? {}), ...freshComp }
+                displayName: wrapLabel(
+                    freshComp.name ?? (selectedChild.value as any).name,
+                    14,
+                ),
+                raw: {
+                    ...((selectedChild.value as any).raw ?? {}),
+                    ...freshComp,
+                },
             } as any;
             log('Updated selectedChild');
         }
@@ -256,7 +277,7 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
         const mergeCapData = (existing: any) => ({
             name: freshCap.name ?? existing.name,
             description: freshCap.description ?? existing.description,
-            competencies: freshCap.competencies ?? existing.competencies
+            competencies: freshCap.competencies ?? existing.competencies,
         });
 
         // 1. Update nodes[] (rendered capability nodes / root source)
@@ -266,7 +287,7 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
                     ...n,
                     ...mergeCapData(n),
                     displayName: wrapLabel(freshCap.name ?? n.name, 16),
-                    raw: { ...(n.raw ?? {}), ...freshCap }
+                    raw: { ...(n.raw ?? {}), ...freshCap },
                 };
             }
             return n;
@@ -276,7 +297,10 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
         // 2. Update focusedNode if it's the same capability
         if (focusedNode.value && (focusedNode.value as any).id === capId) {
             Object.assign(focusedNode.value, mergeCapData(focusedNode.value));
-            (focusedNode.value as any).displayName = wrapLabel(freshCap.name ?? (focusedNode.value as any).name, 16);
+            (focusedNode.value as any).displayName = wrapLabel(
+                freshCap.name ?? (focusedNode.value as any).name,
+                16,
+            );
             if ((focusedNode.value as any).raw) {
                 Object.assign((focusedNode.value as any).raw, freshCap);
             }
@@ -292,7 +316,7 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
     function removeSkill(skillId: number, competencyId: number) {
         log('removeSkill', { skillId, competencyId });
 
-        const filterSkill = (skills: any[]) => 
+        const filterSkill = (skills: any[]) =>
             skills.filter((s: any) => (s.id ?? s.raw?.id) !== skillId);
 
         // 1. Remove from grandChildNodes
@@ -302,11 +326,21 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
         });
 
         // 2. Remove from selectedChild.skills
-        if (selectedChild.value && Array.isArray((selectedChild.value as any).skills)) {
-            (selectedChild.value as any).skills = filterSkill((selectedChild.value as any).skills);
+        if (
+            selectedChild.value &&
+            Array.isArray((selectedChild.value as any).skills)
+        ) {
+            (selectedChild.value as any).skills = filterSkill(
+                (selectedChild.value as any).skills,
+            );
         }
-        if (selectedChild.value && Array.isArray((selectedChild.value as any).raw?.skills)) {
-            (selectedChild.value as any).raw.skills = filterSkill((selectedChild.value as any).raw.skills);
+        if (
+            selectedChild.value &&
+            Array.isArray((selectedChild.value as any).raw?.skills)
+        ) {
+            (selectedChild.value as any).raw.skills = filterSkill(
+                (selectedChild.value as any).raw.skills,
+            );
         }
 
         // 3. Remove from focusedNode.competencies[].skills
@@ -319,7 +353,9 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
         }
 
         // 4. Remove from childNodes[].skills
-        const childNode = childNodes.value.find((c: any) => c.compId === competencyId);
+        const childNode = childNodes.value.find(
+            (c: any) => c.compId === competencyId,
+        );
         if (childNode) {
             if (Array.isArray(childNode.skills)) {
                 childNode.skills = filterSkill(childNode.skills);
@@ -332,7 +368,9 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
         // 5. Remove from nodes[].competencies[].skills
         nodes.value.forEach((n: any) => {
             if (Array.isArray(n.competencies)) {
-                const comp = n.competencies.find((c: any) => c.id === competencyId);
+                const comp = n.competencies.find(
+                    (c: any) => c.id === competencyId,
+                );
                 if (comp && Array.isArray(comp.skills)) {
                     comp.skills = filterSkill(comp.skills);
                 }
@@ -346,9 +384,9 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
      * Generic update function that routes to the appropriate handler
      */
     async function update(
-        entityType: EntityType, 
-        freshData: any, 
-        parentId?: number
+        entityType: EntityType,
+        freshData: any,
+        parentId?: number,
     ): Promise<boolean> {
         let result = false;
 
@@ -380,7 +418,7 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
     async function remove(
         entityType: EntityType,
         entityId: number,
-        parentId?: number
+        parentId?: number,
     ): Promise<boolean> {
         let result = false;
 
@@ -411,4 +449,6 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
     };
 }
 
-export type HierarchicalUpdateManager = ReturnType<typeof useHierarchicalUpdate>;
+export type HierarchicalUpdateManager = ReturnType<
+    typeof useHierarchicalUpdate
+>;
