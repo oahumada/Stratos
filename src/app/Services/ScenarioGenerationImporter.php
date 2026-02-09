@@ -8,6 +8,7 @@ use App\Models\Capability;
 use App\Models\Competency;
 use App\Models\Skill;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ScenarioGenerationImporter
 {
@@ -74,6 +75,12 @@ class ScenarioGenerationImporter
                         'description' => $compData['description'] ?? null,
                     ]);
 
+                    // Mark competency as discovered/incubating in this scenario when column exists
+                    if (Schema::hasColumn('competencies', 'discovered_in_scenario_id') && empty($comp->discovered_in_scenario_id)) {
+                        $comp->discovered_in_scenario_id = $scenario->id;
+                        $comp->save();
+                    }
+
                     $report['competencies'][] = ['id' => $comp->id, 'name' => $comp->name, 'created' => $comp->wasRecentlyCreated];
 
                     // attach capability_competencies pivot (scenario scoped)
@@ -113,6 +120,12 @@ class ScenarioGenerationImporter
                         ], [
                             'description' => null,
                         ]);
+
+                        // Mark skill as discovered/incubating in this scenario when column exists
+                        if (Schema::hasColumn('skills', 'discovered_in_scenario_id') && empty($skill->discovered_in_scenario_id)) {
+                            $skill->discovered_in_scenario_id = $scenario->id;
+                            $skill->save();
+                        }
 
                         $report['skills'][] = ['id' => $skill->id, 'name' => $skill->name, 'created' => $skill->wasRecentlyCreated];
 

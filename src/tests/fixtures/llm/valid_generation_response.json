@@ -1,0 +1,24 @@
+{
+  "capabilities": [
+    {
+      "name": "Gestión de Talento",
+      "description": "Capacidad para gestionar talento humano en la organización.",
+      "competencies": [
+        {
+          "name": "Reclutamiento",
+          "description": "Encontrar y atraer candidatos adecuados.",
+          "required_level": 4,
+          "priority": "high",
+          "weight": 50,
+          "rationale": "Necesario para escalar equipos.",
+          "is_required": true,
+          "skills": [
+            "Publicación de ofertas",
+            "Screening inicial",
+            "Entrevistas técnicas"
+          ]
+        }
+      ]
+    }
+  ]
+}

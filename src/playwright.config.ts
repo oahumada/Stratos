@@ -1,29 +1,37 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests/e2e',
-  timeout: 60_000,
-  expect: {
-    timeout: 5_000,
-  },
-  forbidOnly: !!(globalThis as any).process?.env?.CI,
-  retries: (globalThis as any).process?.env?.CI ? 1 : 0,
-  reporter: [['list'], ['html', { open: 'never' }], ['junit', { outputFile: 'test-results/junit.xml' }]],
-  use: {
-    baseURL: (globalThis as any).process?.env?.BASE_URL || 'http://localhost:8000',
-    // Use pre-generated authenticated storage state for E2E admin
-    storageState: (globalThis as any).process?.env?.PLAYWRIGHT_STORAGE_STATE || 'tests/e2e/.auth.json',
-    trace: 'on-first-retry',
-    actionTimeout: 0,
-    ignoreHTTPSErrors: true,
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-    headless: true,
-  },
-  projects: [
-    {
-      name: 'Chromium',
-      use: { ...devices['Desktop Chrome'] },
+    testDir: './tests/e2e',
+    timeout: 60_000,
+    expect: {
+        timeout: 5_000,
     },
-  ],
+    forbidOnly: !!(globalThis as any).process?.env?.CI,
+    retries: (globalThis as any).process?.env?.CI ? 1 : 0,
+    reporter: [
+        ['list'],
+        ['html', { open: 'never' }],
+        ['junit', { outputFile: 'test-results/junit.xml' }],
+    ],
+    use: {
+        baseURL:
+            (globalThis as any).process?.env?.BASE_URL ||
+            'http://localhost:8000',
+        // Use pre-generated authenticated storage state for E2E admin
+        storageState:
+            (globalThis as any).process?.env?.PLAYWRIGHT_STORAGE_STATE ||
+            'tests/e2e/.auth.json',
+        trace: 'on-first-retry',
+        actionTimeout: 0,
+        ignoreHTTPSErrors: true,
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
+        headless: true,
+    },
+    projects: [
+        {
+            name: 'Chromium',
+            use: { ...devices['Desktop Chrome'] },
+        },
+    ],
 });
