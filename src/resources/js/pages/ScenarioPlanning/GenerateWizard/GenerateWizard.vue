@@ -312,13 +312,27 @@
                         <div class="mb-2">
                             <strong>Resumen:</strong>
                             <div>
-                                Nombre: {{ modalName }}
+                                Nombre:
+                                {{
+                                    store.generationResult?.scenario_metadata
+                                        ?.name || '—'
+                                }}
                             </div>
                             <div>
-                                Confianza: {{ modalConfidence }}
+                                Confianza:
+                                {{
+                                    store.generationResult?.confidence_score ??
+                                    store.generationResult?.scenario_metadata
+                                        ?.confidence_score ??
+                                    '—'
+                                }}
                             </div>
                             <div>
-                                Capacidades: {{ modalCapabilitiesCount }}
+                                Capacidades:
+                                {{
+                                    (store.generationResult?.capabilities || [])
+                                        .length
+                                }}
                             </div>
                         </div>
                         <pre
@@ -328,7 +342,10 @@
                                 background: #f6f6f6;
                                 padding: 8px;
                             "
-                            >{{ modalJson }}</pre>
+                            >{{
+                                JSON.stringify(store.generationResult, null, 2)
+                            }}</pre
+                        >
                     </div>
                     <div
                         v-if="
@@ -398,7 +415,6 @@
             <div class="preview-modal">
                 <PreviewConfirm
                     :promptPreview="store.previewPrompt || ''"
-                    :loading="store.generating"
                     @confirm="onConfirmGenerate"
                     @edit="onEditPrompt"
                 />
@@ -420,7 +436,7 @@
 import ErrorModal from '@/components/Ui/ErrorModal.vue';
 import { useScenarioGenerationStore } from '@/stores/scenarioGenerationStore';
 import axios from 'axios';
-import { computed, onMounted, ref, toRaw } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import PreviewConfirm from './PreviewConfirm.vue';
 import StepHorizon from './StepHorizon.vue';
 import StepIdentity from './StepIdentity.vue';
@@ -442,42 +458,6 @@ const currentStepComponent = computed(() => stepComponents[store.step]);
 
 onMounted(() => {
     loadInstruction(instructionLang.value);
-});
-
-// Computed helpers for modal display to avoid complex template expressions
-const modalName = computed(() => {
-    const raw = toRaw(store.generationResult) || store.generationResult || {};
-    return (
-        raw?.scenario_metadata?.name ||
-        raw?.scenario_metadata?.raw_escenario?.nombre ||
-        raw?.scenario_metadata?.raw_escenario?.name ||
-        '—'
-    );
-});
-
-const modalConfidence = computed(() => {
-    const raw = toRaw(store.generationResult) || store.generationResult || {};
-    return (
-        raw?.confidence_score ?? raw?.scenario_metadata?.confidence_score ?? '—'
-    );
-});
-
-const modalCapabilitiesCount = computed(() => {
-    const raw = toRaw(store.generationResult) || store.generationResult || {};
-    const caps = raw?.capabilities || [];
-    return Array.isArray(caps) ? caps.length : 0;
-});
-
-const modalJson = computed(() => {
-    try {
-        return JSON.stringify(
-            toRaw(store.generationResult) ?? store.generationResult ?? null,
-            null,
-            2,
-        );
-    } catch (e) {
-        return String(store.generationResult ?? 'null');
-    }
 });
 
 // (step completion logic moved to computed helpers)
@@ -742,60 +722,59 @@ async function restoreDefault() {
     } finally {
         instructionLoading.value = false;
     }
+}
 
-    // onGenerate: validate, get preview and open preview modal
-    async function onGenerate() {
-        try {
-            // validate required fields before contacting server
-            const validation = await store.validate();
-            if (!validation.valid) {
-                showError(validation.errors, 'Faltan campos críticos');
-                return;
-            }
-
-            // Client-side instruction compatibility check to avoid server 422s
-            const compat = clientInstructionIsCompatible();
-            if (!compat.valid) {
-                showError(
-                    compat.message || 'Instrucción incompatible',
-                    'Instrucción incompatible',
-                );
-                // open editor so operator can fix
-                instructionEditable.value = true;
-                return;
-            }
-
-            // First get prompt preview from server
-            await store.preview();
-
-            // Append current editable instruction content to the preview so operator sees the exact instruction
-            if (instructionContent.value) {
-                store.previewPrompt =
-                    (((store.previewPrompt as unknown as string) ?? '') +
-                        '\n\n' +
-                        instructionContent.value) as any;
-            }
-
-            showPreview.value = true;
-        } catch (e) {
-            const error = e as any;
-            console.error('Preview failed', e);
-            if (error?.response?.status === 422) {
-                const d = error.response.data || {};
-                const messages = d.errors
-                    ? Object.entries(d.errors).map(
-                          ([k, v]) =>
-                              `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
-                      )
-                    : [d.message || JSON.stringify(d)];
-                // allow operator to edit instruction
-                instructionEditable.value = true;
-                showError(messages, 'Validación de instrucción (422)');
-                return;
-            }
-            const errMsg = formatAxiosError(e);
-            showError(errMsg.split('\n'), 'Error al generar preview');
+async function onGenerate() {
+    try {
+        // validate required fields before contacting server
+        const validation = await store.validate();
+        if (!validation.valid) {
+            showError(validation.errors, 'Faltan campos críticos');
+            return;
         }
+
+        // Client-side instruction compatibility check to avoid server 422s
+        const compat = clientInstructionIsCompatible();
+        if (!compat.valid) {
+            showError(
+                compat.message || 'Instrucción incompatible',
+                'Instrucción incompatible',
+            );
+            // open editor so operator can fix
+            instructionEditable.value = true;
+            return;
+        }
+
+        // First get prompt preview from server
+        await store.preview();
+
+        // Append current editable instruction content to the preview so operator sees the exact instruction
+        if (instructionContent.value) {
+            store.previewPrompt =
+                (((store.previewPrompt as unknown as string) ?? '') +
+                    '\n\n' +
+                    instructionContent.value) as any;
+        }
+
+        showPreview.value = true;
+    } catch (e) {
+        const error = e as any;
+        console.error('Preview failed', e);
+        if (error?.response?.status === 422) {
+            const d = error.response.data || {};
+            const messages = d.errors
+                ? Object.entries(d.errors).map(
+                      ([k, v]) =>
+                          `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
+                  )
+                : [d.message || JSON.stringify(d)];
+            // allow operator to edit instruction
+            instructionEditable.value = true;
+            showError(messages, 'Validación de instrucción (422)');
+            return;
+        }
+        const errMsg = formatAxiosError(e);
+        showError(errMsg.split('\n'), 'Error al generar preview');
     }
 }
 
@@ -845,13 +824,8 @@ async function onConfirmGenerate(importAfter = false) {
         // provide immediate feedback and start polling for completion
         try {
             await store.fetchStatus();
-            console.debug('[GenerateWizard] after initial fetchStatus', {
-                status: store.generationStatus,
-                result: store.generationResult,
-            });
         } catch (e) {
             // ignore fetch errors for now
-            console.debug('[GenerateWizard] initial fetchStatus failed', e);
         }
 
         // If not complete, poll until completion (timeout 120s)
@@ -866,10 +840,6 @@ async function onConfirmGenerate(importAfter = false) {
             await new Promise((r) => setTimeout(r, 2000));
             try {
                 await store.fetchStatus();
-                console.debug('[GenerateWizard] polling fetchStatus', {
-                    status: store.generationStatus,
-                    result: store.generationResult,
-                });
             } catch (e) {
                 // ignore intermittent errors
             }
@@ -878,13 +848,7 @@ async function onConfirmGenerate(importAfter = false) {
         // If generation completed, open response modal so operator can accept/import
         if (store.generationStatus === 'complete') {
             // ensure result is current
-            responseLoading.value = true;
             await store.fetchStatus();
-            responseLoading.value = false;
-            console.debug('[GenerateWizard] about to open response modal', {
-                status: store.generationStatus,
-                result: store.generationResult,
-            });
             responseModalOpen.value = true;
         } else {
             // not completed within timeout: notify operator to monitor status
@@ -976,7 +940,6 @@ const chunkCount = ref<number | null>(null);
 
 function openResponseModal() {
     responseModalOpen.value = true;
-    console.debug('[GenerateWizard] openResponseModal called, currentStatus=', store.generationStatus);
     // fetch current status and if not complete start polling
     startResponsePolling();
 }
@@ -1053,11 +1016,6 @@ async function startResponsePolling() {
         await store.fetchStatus();
         // also fetch chunk count immediately
         await fetchChunkCount();
-        console.debug('[GenerateWizard] startResponsePolling immediate fetch', {
-            status: store.generationStatus,
-            result: store.generationResult,
-            chunkCount: chunkCount.value,
-        });
     } catch (e) {
         // ignore
     }
