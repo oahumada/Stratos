@@ -310,17 +310,30 @@
 
                     <div v-else>
                         <div
-                            v-if="store.generationResult && !generationHasUsableContent() && (chunkCount === 0 || chunkCount === null)"
+                            v-if="
+                                store.generationResult &&
+                                !generationHasUsableContent() &&
+                                (chunkCount === 0 || chunkCount === null)
+                            "
                             class="mb-2"
                         >
                             <v-alert type="warning" dense class="mb-2">
-                                <v-icon class="mr-2" small>mdi-alert-circle-outline</v-icon>
+                                <v-icon class="mr-2" small
+                                    >mdi-alert-circle-outline</v-icon
+                                >
                                 <div>
-                                    <strong>Respuesta parcial disponible</strong>
-                                    <div class="caption" style="margin-top:4px">
-                                        Se detectaron metadatos (confianza, assumptions) pero no hay
-                                        contenido ensamblado en el servidor. Puedes intentar
-                                        ensamblar los chunks o generar un nuevo intento.
+                                    <strong
+                                        >Respuesta parcial disponible</strong
+                                    >
+                                    <div
+                                        class="caption"
+                                        style="margin-top: 4px"
+                                    >
+                                        Se detectaron metadatos (confianza,
+                                        assumptions) pero no hay contenido
+                                        ensamblado en el servidor. Puedes
+                                        intentar ensamblar los chunks o generar
+                                        un nuevo intento.
                                     </div>
                                 </div>
                             </v-alert>
@@ -389,7 +402,10 @@
                                 background: #f6f6f6;
                                 padding: 8px;
                             "
-                        >{{ JSON.stringify(store.generationResult, null, 2) }}</pre>
+                            >{{
+                                JSON.stringify(store.generationResult, null, 2)
+                            }}</pre
+                        >
                     </div>
                     <div
                         v-if="
@@ -988,9 +1004,14 @@ const chunkCount = ref<number | null>(null);
 const generationHasUsableContent = () => {
     const r: any = store.generationResult;
     if (!r) return false;
-    const hasContent = typeof r.content === 'string' && r.content.trim().length > 0;
-    const hasMetadata = r.scenario_metadata && Object.keys(r.scenario_metadata).length > 0 && (r.scenario_metadata.name || r.scenario_metadata.description);
-    const hasCapabilities = Array.isArray(r.capabilities) && r.capabilities.length > 0;
+    const hasContent =
+        typeof r.content === 'string' && r.content.trim().length > 0;
+    const hasMetadata =
+        r.scenario_metadata &&
+        Object.keys(r.scenario_metadata).length > 0 &&
+        (r.scenario_metadata.name || r.scenario_metadata.description);
+    const hasCapabilities =
+        Array.isArray(r.capabilities) && r.capabilities.length > 0;
     return hasContent || hasMetadata || hasCapabilities;
 };
 
@@ -1059,7 +1080,9 @@ async function regenerateGeneration() {
     // create a fresh generation from current payload (operator may edit instruction first)
     responseLoading.value = true;
     try {
-        await sendAnalytics('generation.regenerate', { reason: 'operator_clicked' });
+        await sendAnalytics('generation.regenerate', {
+            reason: 'operator_clicked',
+        });
         await store.generate();
         // fetch status and start polling for new generation
         try {
@@ -1071,7 +1094,12 @@ async function regenerateGeneration() {
         startResponsePolling();
     } catch (e) {
         console.error('Regenerate failed', e);
-        showError((e as any)?.response?.data?.message || (e as any)?.message || String(e), 'Error al regenerar');
+        showError(
+            (e as any)?.response?.data?.message ||
+                (e as any)?.message ||
+                String(e),
+            'Error al regenerar',
+        );
     } finally {
         responseLoading.value = false;
     }
@@ -1125,7 +1153,9 @@ async function startResponsePolling() {
         })();
 
     if (needsAssembly) {
-        await sendAnalytics('generation.assemble_attempt', { phase: 'initial' });
+        await sendAnalytics('generation.assemble_attempt', {
+            phase: 'initial',
+        });
         await fetchAndAssembleChunks();
     }
 
@@ -1148,7 +1178,9 @@ async function startResponsePolling() {
                 return !(hasContent || hasMetadata || hasCapabilities);
             })();
         if (needsAssemblyComplete) {
-            await sendAnalytics('generation.assemble_attempt', { phase: 'complete' });
+            await sendAnalytics('generation.assemble_attempt', {
+                phase: 'complete',
+            });
             await fetchAndAssembleChunks();
         }
         responseModalOpen.value = true;
@@ -1177,7 +1209,9 @@ async function startResponsePolling() {
                     return !(hasContent || hasMetadata || hasCapabilities);
                 })();
             if (needsAssemblyInterval) {
-                await sendAnalytics('generation.assemble_attempt', { phase: 'interval' });
+                await sendAnalytics('generation.assemble_attempt', {
+                    phase: 'interval',
+                });
                 await fetchAndAssembleChunks();
             }
             if (store.generationStatus === 'complete') {
@@ -1211,9 +1245,19 @@ async function fetchChunkCount() {
 }
 
 // Lightweight client-side analytics sender
-async function sendAnalytics(event: string, properties: Record<string, any> = {}) {
+async function sendAnalytics(
+    event: string,
+    properties: Record<string, any> = {},
+) {
     try {
-        const payload = { event, properties: { generationId: store.generationId, chunkCount: chunkCount.value, ...properties } };
+        const payload = {
+            event,
+            properties: {
+                generationId: store.generationId,
+                chunkCount: chunkCount.value,
+                ...properties,
+            },
+        };
         await axios.post('/api/telemetry/event', payload);
         console.debug('analytics sent', payload);
     } catch (e) {
@@ -1234,7 +1278,9 @@ async function fetchAndAssembleChunks() {
                 const d = compacted.data.data;
                 if (Array.isArray(d) || (typeof d === 'object' && d !== null)) {
                     store.generationResult = normalizeLlMResponse(d);
-                    await sendAnalytics('generation.assemble_success', { method: 'compacted_obj' });
+                    await sendAnalytics('generation.assemble_success', {
+                        method: 'compacted_obj',
+                    });
                     return store.generationResult;
                 }
                 if (typeof d === 'string') {
@@ -1242,13 +1288,17 @@ async function fetchAndAssembleChunks() {
                     try {
                         const parsed = JSON.parse(d);
                         store.generationResult = normalizeLlMResponse(parsed);
-                        await sendAnalytics('generation.assemble_success', { method: 'compacted_json' });
+                        await sendAnalytics('generation.assemble_success', {
+                            method: 'compacted_json',
+                        });
                         return store.generationResult;
                     } catch {
                         store.generationResult = normalizeLlMResponse({
                             content: d,
                         });
-                        await sendAnalytics('generation.assemble_success', { method: 'compacted_raw' });
+                        await sendAnalytics('generation.assemble_success', {
+                            method: 'compacted_raw',
+                        });
                         return store.generationResult;
                     }
                 }
@@ -1275,14 +1325,20 @@ async function fetchAndAssembleChunks() {
             try {
                 const parsed = JSON.parse(chunks);
                 store.generationResult = normalizeLlMResponse(parsed);
-                await sendAnalytics('generation.assemble_success', { method: 'chunks', count: res.data.data.length });
+                await sendAnalytics('generation.assemble_success', {
+                    method: 'chunks',
+                    count: res.data.data.length,
+                });
                 return store.generationResult;
             } catch {
                 // not JSON — set as content
                 store.generationResult = normalizeLlMResponse({
                     content: chunks,
                 });
-                await sendAnalytics('generation.assemble_success', { method: 'chunks_raw', count: res.data.data.length });
+                await sendAnalytics('generation.assemble_success', {
+                    method: 'chunks_raw',
+                    count: res.data.data.length,
+                });
                 return store.generationResult;
             }
         }

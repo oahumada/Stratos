@@ -114,6 +114,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Create a demo prefilled generation for demo/testing
     Route::post('/strategic-planning/scenarios/generate/demo', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'demo']);
     Route::post('/strategic-planning/scenarios/generate/preview', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'preview']);
+    // ABACUS-backed immediate generation endpoint (uses AbacusClient streaming)
+    Route::post('/strategic-planning/scenarios/generate/abacus', [\App\Http\Controllers\Api\ScenarioGenerationAbacusController::class, 'generate']);
     Route::get('/strategic-planning/scenarios/generate/{id}', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'show']);
     Route::post('/strategic-planning/scenarios/generate/{id}/accept', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'accept']);
     // Read streaming chunks for a generation (for UI progress/debug)

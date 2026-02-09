@@ -82,7 +82,6 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
   - **Estado:** implementado en working copy; pendiente verificar para generación concreta que el backend persista `compacted` o `chunks` (requiere `generationId` para inspección).
 
   ## Memory: Implementation - Server streaming + chunk persistence (2026-02-09)
-
   - **Tipo:** implementation (project fact)
   - **Propósito:** Garantizar que las ejecuciones de generación encoladas persistan deltas/chunks durante el streaming del LLM para que la UI pueda ensamblar la respuesta incluso si el worker es interrumpido o no deja un `compacted` blob.
   - **Cambios realizados (backend):**
@@ -100,7 +99,6 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
   - **Estado:** implementado y verificado localmente usando `php artisan debug:create-generation` — la ejecución de prueba (id=29) creó `generation_chunks` en la BD.
 
   ## Memory: Implementation - ABACUS LLM Integration (2026-02-09)
-
   - **Tipo:** implementation (project fact)
   - **Propósito:** Integración completa con ABACUS como proveedor LLM principal del sistema para generación de escenarios mediante streaming.
   - **Provider:** ABACUS es el proveedor LLM configurado en producción (NO OpenAI). El sistema usa `AbacusClient` para comunicarse con ABACUS.
