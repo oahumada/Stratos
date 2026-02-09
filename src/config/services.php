@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'abacus' => [
+        'base_url' => env('ABACUS_BASE_URL', 'https://api.abacus.ai'),
+        'stream_url' => env('ABACUS_STREAM_URL', null),
+        'key' => env('ABACUS_API_KEY'),
+        'model' => env('ABACUS_MODEL', 'abacus-default'),
+        'timeout' => env('ABACUS_TIMEOUT', 60),
+    ],
+
 ];
