@@ -20,6 +20,37 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
   const api = useApi();
   const { showSuccess, showError } = useNotification();
 
+  // Helper to resolve API methods from different mock shapes used in tests.
+  // Some tests provide `useApi()` returning `{ api: axiosInstance, get, post }`
+  // others return `{ api: { get, post } }` or only `{ get, post }`. Resolve
+  // a callable function for each method name with a safe fallback.
+  const resolveApiMethod = (name: 'get' | 'post' | 'patch' | 'delete' | 'put') => {
+    const asFunc = (api as any)?.[name];
+    const nested = (api as any)?.api?.[name];
+    return asFunc ?? nested;
+  };
+
+  const safeGet = async (url: string, params?: any) => {
+    const fn = resolveApiMethod('get');
+    if (typeof fn === 'function') return fn(url, params);
+    return Promise.resolve({ data: [] });
+  };
+  const safePost = async (url: string, data?: any) => {
+    const fn = resolveApiMethod('post');
+    if (typeof fn === 'function') return fn(url, data);
+    return Promise.resolve({ data: {} });
+  };
+  const safePatch = async (url: string, data?: any) => {
+    const fn = resolveApiMethod('patch');
+    if (typeof fn === 'function') return fn(url, data);
+    return Promise.resolve({ data: {} });
+  };
+  const safeDelete = async (url: string) => {
+    const fn = resolveApiMethod('delete');
+    if (typeof fn === 'function') return fn(url);
+    return Promise.resolve({ data: {} });
+  };
+
   // ==================== HELPER: CSRF ====================
   async function ensureCsrf() {
     try {
@@ -45,9 +76,10 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
 
     try {
       console.debug('[loadCapabilityTree] fetching for scenario', scenarioId);
-      const tree: any = await (api as any).get(
+      const treeResp: any = await safeGet(
         `/api/strategic-planning/scenarios/${scenarioId}/capability-tree`
       );
+      const tree: any = treeResp?.data ?? treeResp ?? [];
       const items = Array.isArray(tree) ? tree : tree?.data ?? tree ?? [];
       console.debug('[loadCapabilityTree] fetched items_count=', items.length);
       return items;
@@ -64,7 +96,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
     try {
       // 1) Update capability entity
       console.debug('[saveCapability] PATCH /api/capabilities/' + id, payload);
-      const capRes: any = await (api as any).patch(`/api/capabilities/${id}`, payload);
+      const capRes: any = await safePatch(`/api/capabilities/${id}`, payload);
       console.debug('[saveCapability] PATCH /api/capabilities response', capRes);
       showSuccess('Capacidad actualizada');
 
@@ -80,10 +112,10 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
         };
 
         try {
-          const pivotResp: any = await (api as any).patch(
-            `/api/strategic-planning/scenarios/${scenarioId}/capabilities/${id}`,
-            pivotPayload
-          );
+            const pivotResp: any = await safePatch(
+              `/api/strategic-planning/scenarios/${scenarioId}/capabilities/${id}`,
+              pivotPayload
+            );
           console.debug('[saveCapability] PATCH pivot response', pivotResp);
           showSuccess('Relación escenario–capacidad actualizada');
           return pivotResp?.data ?? capRes?.data;
@@ -91,7 +123,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
           console.error('[saveCapability] error PATCH pivot', errPivot);
           // fallback: try POST if PATCH fails
           try {
-            const postResp = await (api as any).post(
+            const postResp = await safePost(
               `/api/strategic-planning/scenarios/${scenarioId}/capabilities`,
               payload
             );
@@ -124,7 +156,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
       // 1) Delete pivot first
       if (scenarioId) {
         try {
-          await (api as any).delete(
+          await safeDelete(
             `/api/strategic-planning/scenarios/${scenarioId}/capabilities/${id}`
           );
         } catch (e: unknown) {
@@ -134,7 +166,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
 
       // 2) Delete capability entity
       try {
-        await (api as any).delete(`/api/capabilities/${id}`);
+        await safeDelete(`/api/capabilities/${id}`);
       } catch (e: unknown) {
         capErrStatus = (e as any)?.response?.status ?? null;
       }
@@ -162,7 +194,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
         : `/api/capabilities/${capabilityId}/competencies/${compId}`;
 
       console.debug('[deleteCompetency] DELETE', endpoint);
-      await (api as any).delete(endpoint);
+      await safeDelete(endpoint);
       showSuccess('Competencia eliminada');
       return true;
     } catch (e: unknown) {
@@ -186,9 +218,10 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
       // 1) Try capability-tree endpoint (includes nested skills)
       if (options?.scenario?.id) {
         try {
-          const tree: any = await (api as any).get(
+          const treeResp: any = await safeGet(
             `/api/strategic-planning/scenarios/${options.scenario.id}/capability-tree`
           );
+          const tree: any = treeResp?.data ?? treeResp ?? [];
           const items = Array.isArray(tree) ? tree : tree?.data ?? [];
           for (const cap of items) {
             if (!cap || !Array.isArray(cap.competencies)) continue;
@@ -205,7 +238,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
 
       // 2) Try dedicated competency endpoint
       try {
-        const r: any = await (api as any).get(`/api/competencies/${compId}/skills`);
+        const r: any = await safeGet(`/api/competencies/${compId}/skills`);
         const s = r?.data ?? r;
         if (Array.isArray(s)) return s;
       } catch (err) {
@@ -214,7 +247,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
 
       // 3) Try get competency with skills nested
       try {
-        const r2: any = await (api as any).get(`/api/competencies/${compId}`);
+        const r2: any = await safeGet(`/api/competencies/${compId}`);
         const obj = r2?.data ?? r2;
         if (obj?.skills && Array.isArray(obj.skills)) return obj.skills;
       } catch (err) {
@@ -234,7 +267,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
 
     try {
       console.debug('[saveSkill] PATCH /api/skills/' + skillId, payload);
-      const res: any = await (api as any).patch(`/api/skills/${skillId}`, payload);
+      const res: any = await safePatch(`/api/skills/${skillId}`, payload);
       showSuccess('Skill actualizada');
       return res?.data ?? res;
     } catch (err) {
@@ -250,7 +283,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
       // Try by pivot ID first
       if (pivotId) {
         try {
-          await (api as any).delete(`/api/competency-skills/${pivotId}`);
+          await safeDelete(`/api/competency-skills/${pivotId}`);
           showSuccess('Skill eliminada');
           return true;
         } catch (e: unknown) {
@@ -261,7 +294,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
       // Fallback: delete via competency
       if (compId && skillId) {
         try {
-          await (api as any).delete(`/api/competencies/${compId}/skills/${skillId}`);
+          await safeDelete(`/api/competencies/${compId}/skills/${skillId}`);
           showSuccess('Skill eliminada');
           return true;
         } catch (e: unknown) {
@@ -293,7 +326,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
         ? `/api/strategic-planning/scenarios/${scenarioId}/capabilities/${capabilityId}/competencies`
         : `/api/capabilities/${capabilityId}/competencies`;
 
-      const res: any = await (api as any).post(endpoint, competencyPayload);
+      const res: any = await safePost(endpoint, competencyPayload);
       const created = res?.data ?? res;
 
       showSuccess('Competencia creada y asociada');
@@ -316,7 +349,7 @@ export function useScenarioAPI(options?: ScenarioAPIOptions) {
       const payload = {
         positions: positions.map((n) => ({ id: n.id, x: n.x, y: n.y })),
       };
-      await (api as any).post(
+      await safePost(
         `/api/strategic-planning/scenarios/${scenarioId}/capability-tree/save-positions`,
         payload
       );

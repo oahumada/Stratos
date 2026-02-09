@@ -305,7 +305,7 @@ export function useHierarchicalUpdate(refs: HierarchicalRefs, options: UpdateOpt
         if (selectedChild.value && Array.isArray((selectedChild.value as any).skills)) {
             (selectedChild.value as any).skills = filterSkill((selectedChild.value as any).skills);
         }
-        if (Array.isArray((selectedChild.value as any).raw?.skills)) {
+        if (selectedChild.value && Array.isArray((selectedChild.value as any).raw?.skills)) {
             (selectedChild.value as any).raw.skills = filterSkill((selectedChild.value as any).raw.skills);
         }
 
