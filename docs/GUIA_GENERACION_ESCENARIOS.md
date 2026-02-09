@@ -266,10 +266,21 @@ npm run test:e2e:headed
     - Asegúrate de levantar el servidor (`php artisan serve` o equivalente) y que `LLM_PROVIDER=mock` en el entorno de E2E.
 
 - **Variables de entorno y cómo habilitar provider real (con precaución):**
-  - `LLM_PROVIDER=openai` (o el proveedor deseado).
-  - `LLM_API_KEY` / `LLM_OPENAI_API_KEY` — colocar sólo en entornos controlados (staging/production) y no en CI.
-  - `LLM_ENABLED=true` — activar solo si feature-flag y límites de coste establecidos.
-  - Recomendación: en CI y en PRs usar `LLM_PROVIDER=mock`.
+  - **Provider en producción: ABACUS (NO OpenAI)**
+  - Variables ABACUS requeridas:
+    - `ABACUS_API_KEY` — clave de API de ABACUS (obligatoria)
+    - `ABACUS_BASE_URL` — default: `https://api.abacus.ai`
+    - `ABACUS_STREAM_URL` — default: `https://routellm.abacus.ai/v1/chat/completions`
+    - `ABACUS_MODEL` — default: `abacus-default`
+    - `ABACUS_TIMEOUT` — timeout en segundos (default: 60)
+    - `ABACUS_CHUNKS_TTL_DAYS` — días de retención de chunks (default: 30)
+  - Para ejecutar una generación de prueba con ABACUS:
+    ```bash
+    cd src
+    php scripts/generate_via_abacus.php
+    ```
+  - Recomendación: en CI y en PRs usar `LLM_PROVIDER=mock` (MockProvider).
+  - Nota: El código incluye `OpenAIProvider` pero NO es el proveedor activo del proyecto.
 
 - **Comportamiento del job y manejo de errores:**
   - Marca `status=processing` al iniciar; guarda `llm_response` redacted al completar.

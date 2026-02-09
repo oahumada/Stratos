@@ -43,4 +43,38 @@ class MockProvider implements LLMProviderInterface
             'model_version' => Arr::get($this->config, 'model_version', 'mock-1.0'),
         ];
     }
+
+    /**
+     * Simulate streamed generation by invoking $onDelta with small chunks.
+     * Returns the same shape as generate().
+     * This helps local/demo jobs persist chunks.
+     *
+     * @param string $prompt
+     * @param callable $onDelta
+     * @return array
+     */
+    public function generateStream(string $prompt, callable $onDelta): array
+    {
+        $res = $this->generate($prompt);
+        $raw = $res['response'] ?? $res;
+        $text = is_array($raw) || is_object($raw) ? json_encode($raw, JSON_UNESCAPED_UNICODE) : (string) $raw;
+
+        // split into ~120 char chunks
+        $len = strlen($text);
+        $pos = 0;
+        $chunkSize = 120;
+        while ($pos < $len) {
+            $part = substr($text, $pos, $chunkSize);
+            try {
+                $onDelta($part);
+            } catch (\Throwable $e) {
+                // ignore
+            }
+            $pos += $chunkSize;
+            // small pause to mimic streaming
+            usleep(50000); // 50ms
+        }
+
+        return $res;
+    }
 }

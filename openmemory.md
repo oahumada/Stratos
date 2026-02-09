@@ -67,6 +67,75 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Estado:** implementado y verificado mediante `php artisan tinker` (presencia del bloque `JSON_SCHEMA`).
   - 2026-02-07: `src/scripts/debug_generate.mjs` eliminado (archivo temporal de depuración).
 
+  ## Memory: Implementation - Chunked LLM response assembly (2026-02-09)
+  - **Tipo:** implementation (project fact)
+  - **Propósito:** Cliente assemblea respuestas LLM transmitidas en chunks y prioriza endpoint `compacted` para obtener la respuesta final; mejora la UX del modal de respuesta evitando mostrar un modal vacío cuando sólo hay metadatos.
+  - **Cambios realizados (front-end):** se añadieron heurísticas y funciones de ensamblado en `GenerateWizard.vue` y se exportó `normalizeLlMResponse` desde el store para normalizar formas de respuesta diversas.
+  - **Archivos modificados:**
+    - [src/resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue](src/resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue)
+    - [src/resources/js/stores/scenarioGenerationStore.ts](src/resources/js/stores/scenarioGenerationStore.ts)
+  - **Detalle técnico:**
+    - `fetchAndAssembleChunks()` ahora solicita `/compacted` y si no hay blob compactado, recupera `/chunks`, ordena por `sequence`, concatena `chunk` y trata de parsear JSON; si falla, asigna el ensamblado como `content` en `generationResult`.
+    - Se añadieron comprobaciones para decidir cuándo ensamblar (ausencia de `content`, `scenario_metadata` o `capabilities`).
+    - Se corrigieron errores de lint en `GenerateWizard.vue` (eliminación de bindings de `catch` no usados y variable `res` no usada).
+  - **Por qué:** Evitar que el modal muestre solo metadatos sin cuerpo y soportar formatos heterogéneos de respuestas LLM (string, JSON, arrays, objetos con `choices`/`delta`).
+  - **Estado:** implementado en working copy; pendiente verificar para generación concreta que el backend persista `compacted` o `chunks` (requiere `generationId` para inspección).
+
+  ## Memory: Implementation - Server streaming + chunk persistence (2026-02-09)
+
+  - **Tipo:** implementation (project fact)
+  - **Propósito:** Garantizar que las ejecuciones de generación encoladas persistan deltas/chunks durante el streaming del LLM para que la UI pueda ensamblar la respuesta incluso si el worker es interrumpido o no deja un `compacted` blob.
+  - **Cambios realizados (backend):**
+    - Añadido `generateStream()` wrapper en `app/Services/LLMClient.php` que delega en el provider si soporta streaming, o emite un único delta cuando no hay streaming.
+    - `app/Jobs/GenerateScenarioFromLLMJob.php` modificado para usar `LLMClient->generateStream()` cuando esté disponible; persiste `GenerationChunk` en buffer y ensambla texto final, guardando `llm_response` y `confidence_score`.
+    - `app/Services/LLMProviders/MockProvider.php` ahora implementa `generateStream()` para simular chunks en ambientes locales y demos.
+  - **Archivos modificados:**
+    - [app/Services/LLMClient.php](src/app/Services/LLMClient.php)
+    - [app/Jobs/GenerateScenarioFromLLMJob.php](src/app/Jobs/GenerateScenarioFromLLMJob.php)
+    - [app/Services/LLMProviders/MockProvider.php](src/app/Services/LLMProviders/MockProvider.php)
+  - **Detalle técnico:**
+    - Buffer flush heuristic: persistir cuando buffer >= 256 bytes o cada ~250ms.
+    - En providers no-streaming, se emite un único delta con la respuesta completa (JSON string o texto).
+    - Job ensambla texto (`$assembled`) y, si no puede parsear JSON, lo guarda como `['content' => $assembled]` para que la UI pueda mostrarlo.
+  - **Estado:** implementado y verificado localmente usando `php artisan debug:create-generation` — la ejecución de prueba (id=29) creó `generation_chunks` en la BD.
+
+  ## Memory: Implementation - ABACUS LLM Integration (2026-02-09)
+
+  - **Tipo:** implementation (project fact)
+  - **Propósito:** Integración completa con ABACUS como proveedor LLM principal del sistema para generación de escenarios mediante streaming.
+  - **Provider:** ABACUS es el proveedor LLM configurado en producción (NO OpenAI). El sistema usa `AbacusClient` para comunicarse con ABACUS.
+  - **Implementación completa:**
+    - Cliente: [app/Services/AbacusClient.php](src/app/Services/AbacusClient.php) — implementa `generate()` y `generateStream()` con soporte completo de streaming SSE.
+    - Script de prueba: [scripts/generate_via_abacus.php](src/scripts/generate_via_abacus.php) — ejecuta generaciones de prueba end-to-end persistiendo chunks.
+    - Configuración: [config/services.php](src/config/services.php) — sección `abacus` con variables de entorno.
+  - **Variables de entorno requeridas:**
+    - `ABACUS_API_KEY` — clave de API (obligatoria)
+    - `ABACUS_BASE_URL` — default: `https://api.abacus.ai`
+    - `ABACUS_STREAM_URL` — default: `https://routellm.abacus.ai/v1/chat/completions` (endpoint streaming)
+    - `ABACUS_MODEL` — default: `abacus-default`
+    - `ABACUS_TIMEOUT` — default: 60 segundos
+    - `ABACUS_CHUNKS_TTL_DAYS` — default: 30 días (retención de chunks en BD)
+  - **Prueba exitosa verificada (2026-02-09):**
+    - Ejecutado: `php scripts/generate_via_abacus.php`
+    - Generation ID: 33
+    - Status: complete
+    - Chunks persistidos: 122
+    - JSON válido: ✅ Estructura completa capabilities → competencies → skills
+    - Streaming funcionó correctamente emitiendo deltas incrementales (cada chunk ~128 bytes)
+  - **Estructura de respuesta JSON devuelta por ABACUS:**
+    - 5 capabilities principales (Estrategia producto, Ingeniería software, Datos/analítica, Operaciones ágiles, Seguridad y cumplimiento)
+    - Cada capability con competencies detalladas
+    - Cada competency con array de skills con nivel objetivo
+    - Formato en español, estructurado y parseable
+  - **Comando de verificación rápida:**
+    ```bash
+    cd src && php scripts/generate_via_abacus.php
+    ```
+  - **Estado:** Implementado, probado y verificado. ABACUS es el proveedor LLM activo en este proyecto.
+  - **Nota importante:** No confundir con OpenAI — el sistema usa ABACUS como backend LLM. El `OpenAIProvider` existe en el código pero NO está configurado ni es el proveedor principal.
+  - **Siguientes pasos recomendados:**
+    - (Ops) Desplegar cambios al entorno donde opera el worker/queue y asegurar que el driver de queue procesa jobs con permisos para escribir `generation_chunks`.
+
 ## Estado actual (inicio)
 
 - Branch: feature/workforce-planning-scenario-modeling

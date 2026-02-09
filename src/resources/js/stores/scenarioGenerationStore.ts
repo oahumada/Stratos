@@ -2,7 +2,7 @@ import axios from 'axios';
 import { defineStore } from 'pinia';
 
 // Helper to normalize various LLM response shapes into a consistent object.
-function normalizeLlMResponse(raw: any): any {
+export function normalizeLlMResponse(raw: any): any {
     if (!raw) return raw;
 
     // If raw is a string, try to parse as JSON, otherwise return as { content: raw }
@@ -36,19 +36,81 @@ function normalizeLlMResponse(raw: any): any {
             confidence_score: esc.confidence_score || esc.confidence || null,
             raw_escenario: esc,
         };
-        out.capabilities = Array.isArray(esc.capabilities) ? esc.capabilities : [];
-        out.competencies = Array.isArray(esc.competencies) ? esc.competencies : [];
+        out.capabilities = Array.isArray(esc.capabilities)
+            ? esc.capabilities
+            : [];
+        out.competencies = Array.isArray(esc.competencies)
+            ? esc.competencies
+            : [];
         out.skills = Array.isArray(esc.skills) ? esc.skills : [];
-        out.suggested_roles = Array.isArray(esc.suggested_roles) ? esc.suggested_roles : [];
-        out.impact_analysis = Array.isArray(esc.impact_analysis) ? esc.impact_analysis : [];
+        out.suggested_roles = Array.isArray(esc.suggested_roles)
+            ? esc.suggested_roles
+            : [];
+        out.impact_analysis = Array.isArray(esc.impact_analysis)
+            ? esc.impact_analysis
+            : [];
         out.confidence_score = out.scenario_metadata.confidence_score;
         return out;
     }
 
+    // If response follows OpenAI-like shape with choices/messages, attempt to extract text
+    if (raw.choices && Array.isArray(raw.choices) && raw.choices.length) {
+        // concatenate text deltas or message content
+        const texts: string[] = [];
+        for (const c of raw.choices) {
+            if (c.delta && typeof c.delta === 'object') {
+                // streaming delta shape
+                texts.push(Object.values(c.delta).join(''));
+            } else if (c.message && typeof c.message === 'object') {
+                if (typeof c.message.content === 'string')
+                    texts.push(c.message.content);
+            } else if (typeof c.text === 'string') {
+                texts.push(c.text);
+            }
+        }
+        const assembled = texts.join('');
+        // try to parse assembled JSON
+        try {
+            const parsed = JSON.parse(assembled);
+            return normalizeLlMResponse(parsed);
+        } catch (e) {
+            return { content: assembled };
+        }
+    }
+
+    // Normalize common confidence key variants
+    if (!raw.confidence_score) {
+        raw.confidence_score =
+            raw.confidence ||
+            raw.confidenceScore ||
+            raw.confidence_percent ||
+            null;
+    }
+
+    // Ensure scenario_metadata dates are consistent (string -> keep as-is, but ensure key exists)
+    if (raw.scenario_metadata && raw.scenario_metadata.generated_at) {
+        // leave as string but prefer ISO-like value if present
+        raw.scenario_metadata.generated_at = String(
+            raw.scenario_metadata.generated_at,
+        );
+    }
+
+    // Ensure arrays exist for main collections
+    if (!Array.isArray(raw.capabilities))
+        raw.capabilities = raw.capabilities || [];
+    if (!Array.isArray(raw.competencies))
+        raw.competencies = raw.competencies || [];
+    if (!Array.isArray(raw.skills)) raw.skills = raw.skills || [];
+    if (!Array.isArray(raw.suggested_roles))
+        raw.suggested_roles = raw.suggested_roles || [];
+    if (!Array.isArray(raw.impact_analysis))
+        raw.impact_analysis = raw.impact_analysis || [];
+
     // If already in expected shape, return as-is
     if (raw.scenario_metadata || raw.capabilities || raw.content) {
         if (!raw.confidence_score) {
-            raw.confidence_score = raw.scenario_metadata?.confidence_score ?? null;
+            raw.confidence_score =
+                raw.scenario_metadata?.confidence_score ?? null;
         }
         return raw;
     }
@@ -268,7 +330,10 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                     JSON.parse(JSON.stringify(this.generationResult || null)),
                 );
             } catch (e) {
-                console.debug('[scenarioGenerationStore] fetchStatus log error', e);
+                console.debug(
+                    '[scenarioGenerationStore] fetchStatus log error',
+                    e,
+                );
             }
             // Auto-accept/import flow: if generation completed and operator chose importAfterAccept,
             // trigger accept once (idempotent guard via importAutoAccepted)

@@ -70,7 +70,7 @@
                 </v-menu>
                 <div class="mt-2">
                     <v-btn small color="secondary" @click="prefillDemo">
-                        Cargar demo: Adopción IA generativa
+                        Cargar Demo
                     </v-btn>
                 </div>
             </v-col>
@@ -309,29 +309,76 @@
                     </div>
 
                     <div v-else>
-                        <div class="mb-2">
+                        <div
+                            v-if="store.generationResult && !generationHasUsableContent() && (chunkCount === 0 || chunkCount === null)"
+                            class="mb-2"
+                        >
+                            <v-alert type="warning" dense class="mb-2">
+                                <v-icon class="mr-2" small>mdi-alert-circle-outline</v-icon>
+                                <div>
+                                    <strong>Respuesta parcial disponible</strong>
+                                    <div class="caption" style="margin-top:4px">
+                                        Se detectaron metadatos (confianza, assumptions) pero no hay
+                                        contenido ensamblado en el servidor. Puedes intentar
+                                        ensamblar los chunks o generar un nuevo intento.
+                                    </div>
+                                </div>
+                            </v-alert>
+                            <div class="mt-2">
+                                <v-btn
+                                    small
+                                    color="primary"
+                                    class="mr-2"
+                                    :loading="responseLoading"
+                                    @click="fetchAndAssembleChunks"
+                                >
+                                    Reintentar ensamblado
+                                </v-btn>
+                                <v-btn
+                                    small
+                                    color="secondary"
+                                    :loading="responseLoading"
+                                    @click="regenerateGeneration"
+                                >
+                                    Regenerar (nuevo intento)
+                                </v-btn>
+                            </div>
+                        </div>
+                        <div v-else class="mb-2">
                             <strong>Resumen:</strong>
                             <div>
                                 Nombre:
                                 {{
-                                    store.generationResult?.scenario_metadata
-                                        ?.name || '—'
+                                    (store.generationResult as any)
+                                        ?.scenario_metadata?.name ||
+                                    (store.generationResult as any)?.name ||
+                                    (store.generationResult as any)
+                                        ?.scenario_metadata?.title ||
+                                    (store.previewPrompt
+                                        ? (
+                                              (store.previewPrompt as string) ||
+                                              ''
+                                          ).slice(0, 48) + '...'
+                                        : '—')
                                 }}
                             </div>
                             <div>
                                 Confianza:
                                 {{
-                                    store.generationResult?.confidence_score ??
-                                    store.generationResult?.scenario_metadata
+                                    (store.generationResult as any)
                                         ?.confidence_score ??
+                                    (store.generationResult as any)
+                                        ?.scenario_metadata?.confidence_score ??
                                     '—'
                                 }}
                             </div>
                             <div>
                                 Capacidades:
                                 {{
-                                    (store.generationResult?.capabilities || [])
-                                        .length
+                                    (
+                                        (store.generationResult as any)
+                                            ?.capabilities || []
+                                    ).length
                                 }}
                             </div>
                         </div>
@@ -342,10 +389,7 @@
                                 background: #f6f6f6;
                                 padding: 8px;
                             "
-                            >{{
-                                JSON.stringify(store.generationResult, null, 2)
-                            }}</pre
-                        >
+                        >{{ JSON.stringify(store.generationResult, null, 2) }}</pre>
                     </div>
                     <div
                         v-if="
@@ -434,7 +478,10 @@
 
 <script setup lang="ts">
 import ErrorModal from '@/components/Ui/ErrorModal.vue';
-import { useScenarioGenerationStore } from '@/stores/scenarioGenerationStore';
+import {
+    normalizeLlMResponse,
+    useScenarioGenerationStore,
+} from '@/stores/scenarioGenerationStore';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import PreviewConfirm from './PreviewConfirm.vue';
@@ -820,11 +867,11 @@ async function onConfirmGenerate(importAfter = false) {
             store.setField('instruction_id', null);
         }
 
-        const res = await store.generate();
+        await store.generate();
         // provide immediate feedback and start polling for completion
         try {
             await store.fetchStatus();
-        } catch (e) {
+        } catch {
             // ignore fetch errors for now
         }
 
@@ -840,7 +887,7 @@ async function onConfirmGenerate(importAfter = false) {
             await new Promise((r) => setTimeout(r, 2000));
             try {
                 await store.fetchStatus();
-            } catch (e) {
+            } catch {
                 // ignore intermittent errors
             }
         }
@@ -938,6 +985,15 @@ let responsePollTimer: any = null;
 const responseLoading = ref(false);
 const chunkCount = ref<number | null>(null);
 
+const generationHasUsableContent = () => {
+    const r: any = store.generationResult;
+    if (!r) return false;
+    const hasContent = typeof r.content === 'string' && r.content.trim().length > 0;
+    const hasMetadata = r.scenario_metadata && Object.keys(r.scenario_metadata).length > 0 && (r.scenario_metadata.name || r.scenario_metadata.description);
+    const hasCapabilities = Array.isArray(r.capabilities) && r.capabilities.length > 0;
+    return hasContent || hasMetadata || hasCapabilities;
+};
+
 function openResponseModal() {
     responseModalOpen.value = true;
     // fetch current status and if not complete start polling
@@ -999,6 +1055,28 @@ function closeResponseModal() {
     stopResponsePolling();
 }
 
+async function regenerateGeneration() {
+    // create a fresh generation from current payload (operator may edit instruction first)
+    responseLoading.value = true;
+    try {
+        await sendAnalytics('generation.regenerate', { reason: 'operator_clicked' });
+        await store.generate();
+        // fetch status and start polling for new generation
+        try {
+            await store.fetchStatus();
+        } catch {
+            // ignore
+        }
+        await fetchChunkCount();
+        startResponsePolling();
+    } catch (e) {
+        console.error('Regenerate failed', e);
+        showError((e as any)?.response?.data?.message || (e as any)?.message || String(e), 'Error al regenerar');
+    } finally {
+        responseLoading.value = false;
+    }
+}
+
 function stopResponsePolling() {
     responseLoading.value = false;
     if (responsePollTimer) {
@@ -1016,12 +1094,63 @@ async function startResponsePolling() {
         await store.fetchStatus();
         // also fetch chunk count immediately
         await fetchChunkCount();
-    } catch (e) {
+    } catch {
         // ignore
+    }
+
+    // If backend chunk endpoint not available but we have assembled content, show heuristic count
+    if (
+        chunkCount.value === null &&
+        store.generationResult &&
+        (store.generationResult as any).content
+    ) {
+        chunkCount.value = 1;
+    }
+
+    // Determine whether we need to assemble chunks client-side.
+    const needsAssembly =
+        (chunkCount.value || 0) > 0 &&
+        (function () {
+            const r: any = store.generationResult;
+            if (!r) return true;
+            // If no textual content and no structured scenario metadata and no capabilities, assemble
+            const hasContent =
+                typeof r.content === 'string' && r.content.trim().length > 0;
+            const hasMetadata =
+                r.scenario_metadata &&
+                Object.keys(r.scenario_metadata).length > 0;
+            const hasCapabilities =
+                Array.isArray(r.capabilities) && r.capabilities.length > 0;
+            return !(hasContent || hasMetadata || hasCapabilities);
+        })();
+
+    if (needsAssembly) {
+        await sendAnalytics('generation.assemble_attempt', { phase: 'initial' });
+        await fetchAndAssembleChunks();
     }
 
     if (store.generationStatus === 'complete') {
         responseLoading.value = false;
+        // assemble chunks first if needed then open modal
+        const needsAssemblyComplete =
+            (chunkCount.value || 0) > 0 &&
+            (function () {
+                const r: any = store.generationResult;
+                if (!r) return true;
+                const hasContent =
+                    typeof r.content === 'string' &&
+                    r.content.trim().length > 0;
+                const hasMetadata =
+                    r.scenario_metadata &&
+                    Object.keys(r.scenario_metadata).length > 0;
+                const hasCapabilities =
+                    Array.isArray(r.capabilities) && r.capabilities.length > 0;
+                return !(hasContent || hasMetadata || hasCapabilities);
+            })();
+        if (needsAssemblyComplete) {
+            await sendAnalytics('generation.assemble_attempt', { phase: 'complete' });
+            await fetchAndAssembleChunks();
+        }
         responseModalOpen.value = true;
         return;
     }
@@ -1030,12 +1159,33 @@ async function startResponsePolling() {
         try {
             await store.fetchStatus();
             await fetchChunkCount();
+            // If we have chunks but generationResult still lacks useful content, assemble them
+            const needsAssemblyInterval =
+                (chunkCount.value || 0) > 0 &&
+                (function () {
+                    const r: any = store.generationResult;
+                    if (!r) return true;
+                    const hasContent =
+                        typeof r.content === 'string' &&
+                        r.content.trim().length > 0;
+                    const hasMetadata =
+                        r.scenario_metadata &&
+                        Object.keys(r.scenario_metadata).length > 0;
+                    const hasCapabilities =
+                        Array.isArray(r.capabilities) &&
+                        r.capabilities.length > 0;
+                    return !(hasContent || hasMetadata || hasCapabilities);
+                })();
+            if (needsAssemblyInterval) {
+                await sendAnalytics('generation.assemble_attempt', { phase: 'interval' });
+                await fetchAndAssembleChunks();
+            }
             if (store.generationStatus === 'complete') {
                 // stop polling and show result
                 stopResponsePolling();
                 responseModalOpen.value = true;
             }
-        } catch (e) {
+        } catch {
             // ignore intermittent errors
         }
     }, 2000);
@@ -1055,9 +1205,91 @@ async function fetchChunkCount() {
         } else {
             chunkCount.value = null;
         }
-    } catch (e) {
+    } catch {
         chunkCount.value = null;
     }
+}
+
+// Lightweight client-side analytics sender
+async function sendAnalytics(event: string, properties: Record<string, any> = {}) {
+    try {
+        const payload = { event, properties: { generationId: store.generationId, chunkCount: chunkCount.value, ...properties } };
+        await axios.post('/api/telemetry/event', payload);
+        console.debug('analytics sent', payload);
+    } catch (e) {
+        // don't block UX
+        console.debug('analytics failed', e);
+    }
+}
+
+async function fetchAndAssembleChunks() {
+    try {
+        if (!store.generationId) return null;
+        // First, try the compacted endpoint which returns assembled blob if available
+        try {
+            const compacted = await axios.get(
+                `/api/strategic-planning/scenarios/generate/${store.generationId}/compacted`,
+            );
+            if (compacted.data && compacted.data.success) {
+                const d = compacted.data.data;
+                if (Array.isArray(d) || (typeof d === 'object' && d !== null)) {
+                    store.generationResult = normalizeLlMResponse(d);
+                    await sendAnalytics('generation.assemble_success', { method: 'compacted_obj' });
+                    return store.generationResult;
+                }
+                if (typeof d === 'string') {
+                    // try to parse JSON string
+                    try {
+                        const parsed = JSON.parse(d);
+                        store.generationResult = normalizeLlMResponse(parsed);
+                        await sendAnalytics('generation.assemble_success', { method: 'compacted_json' });
+                        return store.generationResult;
+                    } catch {
+                        store.generationResult = normalizeLlMResponse({
+                            content: d,
+                        });
+                        await sendAnalytics('generation.assemble_success', { method: 'compacted_raw' });
+                        return store.generationResult;
+                    }
+                }
+            }
+        } catch {
+            // ignore and fall back to chunk-by-chunk retrieval
+        }
+
+        // Fallback: request raw chunks and assemble client-side
+        const res = await axios.get(
+            `/api/strategic-planning/scenarios/generate/${store.generationId}/chunks`,
+        );
+        if (res.data && Array.isArray(res.data.data) && res.data.data.length) {
+            // update chunkCount from server data
+            chunkCount.value = res.data.data.length;
+            // concatenate chunks in sequence order
+            const chunks = res.data.data
+                .slice()
+                .sort((a: any, b: any) => (a.sequence || 0) - (b.sequence || 0))
+                .map((c: any) => c.chunk || '')
+                .join('');
+
+            // try to parse as JSON; if parseable, normalize and set into store
+            try {
+                const parsed = JSON.parse(chunks);
+                store.generationResult = normalizeLlMResponse(parsed);
+                await sendAnalytics('generation.assemble_success', { method: 'chunks', count: res.data.data.length });
+                return store.generationResult;
+            } catch {
+                // not JSON — set as content
+                store.generationResult = normalizeLlMResponse({
+                    content: chunks,
+                });
+                await sendAnalytics('generation.assemble_success', { method: 'chunks_raw', count: res.data.data.length });
+                return store.generationResult;
+            }
+        }
+    } catch {
+        // ignore — caller will handle absence
+    }
+    return null;
 }
 
 function prefillDemo() {

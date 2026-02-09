@@ -121,6 +121,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Read compacted blob (decoded) for a generation (if compacted exists)
     Route::get('/strategic-planning/scenarios/generate/{id}/compacted', [\App\Http\Controllers\Api\GenerationChunkController::class, 'compacted']);
 
+    // Lightweight telemetry endpoint for frontend analytics (logs event server-side)
+    Route::post('/telemetry/event', [\App\Http\Controllers\Api\TelemetryController::class, 'store']);
+
     // Prompt / Instruction management for generation wizard (moved earlier to avoid parameter conflicts)
 
     // Dev API: manage capability_competencies pivot (competency assignments per capability per scenario)
