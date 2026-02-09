@@ -10,6 +10,18 @@ Generate a strategic scenario from the provided data.
 Also include a detailed section listing capabilities, competencies, skills and roles.
 For each item provide a short description and examples of how it maps to the recommended initiatives.
 
+## Purpose and brief definitions
+
+Purpose: this scenario simulates strategic talent management to achieve the main objective.
+
+Definitions:
+
+- **Capabilities:** organizational means/functions that enable achieving the scenario objective.
+- **Competencies:** knowledge and abilities required to perform a capability.
+- **Skills:** the minimal unit (specific skills/knowledge) that composes a competency; may be a string or an object `{ "name": "..." }`.
+- **Roles:** proposed positions with assigned competencies; the analyst must later map/harmonize these roles to the internal structure.
+  Also include a `roles` section: an array of objects with `name`, optional `description` and `competencies` (list of competency names or objects `{ "name": "..." }`).
+
 Format: JSON. Return only a single valid JSON object matching the schema with top-level keys: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions. Do not include any prose, explanation or commentary outside the JSON object.
 
 Minimal example output (JSON) — required nested structure: `capabilities[]` → `competencies[]` → `skills[]`:

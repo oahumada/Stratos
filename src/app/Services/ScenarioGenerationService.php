@@ -47,6 +47,12 @@ class ScenarioGenerationService
         // Enforce JSON-only output from the LLM: add an explicit instruction
         $prompt .= "\n\nINSTRUCTIONS:\nReturn ONLY a single valid JSON object matching the schema with top-level keys: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
         $prompt .= "The JSON MUST use the following nested structure: each element in 'capabilities' is an object with a 'name' and optional 'description' and a 'competencies' array; each competency is an object with 'name', optional 'description' and a 'skills' array; each skill may be a string (skill name) or object with 'name'.\n";
+
+        // Purpose and concise definitions to guide the LLM (bilingual short help)
+        $prompt .= "\nPURPOSE: This scenario simulates strategic talent management to achieve the main objective.\n";
+        $prompt .= "DEFINITIONS (EN):\n- Capabilities: organizational means/functions that enable achieving the scenario objective.\n- Competencies: knowledge and abilities required to perform a capability.\n- Skills: the minimal unit (specific skills/knowledge) that composes a competency; may be a string or an object with {\"name\"}.\n- Roles: proposed positions with assigned competencies (analyst must later map/harmonize to internal roles).\n";
+        $prompt .= "DEFINICIÓN (ES):\n- Capabilities (Capacidades): medios/funciones organizacionales que permiten cumplir el objetivo del escenario.\n- Competencies (Competencias): conocimientos y habilidades necesarias para ejecutar una capability.\n- Skills (Habilidades): unidad mínima (habilidades/conocimientos) que compone una competency; puede ser texto o {\"name\":string}.\n- Roles (Roles): puestos propuestos con las competencias asignadas (el analista debe homologar estos roles con la estructura interna).\n\n";
+
         $prompt .= "Do NOT include any prose, explanation or commentary outside the JSON object. If you cannot produce the full nested structure, return an object with the keys and empty arrays.\n\nExample minimal valid output:\n";
         $prompt .= json_encode([
             'scenario_metadata' => [
@@ -126,7 +132,27 @@ class ScenarioGenerationService
                 'suggested_roles' => ['type' => 'array'],
                 'impact_analysis' => ['type' => 'array'],
                 'confidence_score' => ['type' => 'number'],
-                'assumptions' => ['type' => 'array']
+                'assumptions' => ['type' => 'array'],
+                    'roles' => [
+                        'type' => 'array',
+                        'items' => [
+                            'type' => 'object',
+                            'required' => ['name'],
+                            'properties' => [
+                                'name' => ['type' => 'string'],
+                                'description' => ['type' => 'string'],
+                                'competencies' => [
+                                    'type' => 'array',
+                                    'items' => [
+                                        'oneOf' => [
+                                            ['type' => 'string'],
+                                            ['type' => 'object', 'required' => ['name'], 'properties' => ['name' => ['type' => 'string']]]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
             ]
         ];
 

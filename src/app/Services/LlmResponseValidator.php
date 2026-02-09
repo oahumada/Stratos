@@ -101,6 +101,50 @@ class LlmResponseValidator
             }
         }
 
+        // Roles: optional but when present must be an array of objects with name and competencies
+        if (array_key_exists('roles', $llmResponse)) {
+            if (! is_array($llmResponse['roles'])) {
+                $errors[] = ['path' => 'roles', 'message' => 'Must be an array'];
+            } else {
+                $maxRoles = (int) config('features.validate_llm_response_max_roles', 20);
+                if (count($llmResponse['roles']) > $maxRoles) {
+                    $errors[] = ['path' => 'roles', 'message' => "Too many roles (max {$maxRoles})"];
+                }
+                foreach ($llmResponse['roles'] as $i => $role) {
+                    $rbase = "roles[{$i}]";
+                    if (! is_array($role)) {
+                        $errors[] = ['path' => $rbase, 'message' => 'Must be an object'];
+                        continue;
+                    }
+                    if (empty(trim((string) ($role['name'] ?? '')))) {
+                        $errors[] = ['path' => $rbase . '.name', 'message' => 'Name is required'];
+                    }
+                    if (array_key_exists('competencies', $role)) {
+                        if (! is_array($role['competencies'])) {
+                            $errors[] = ['path' => $rbase . '.competencies', 'message' => 'Must be an array'];
+                        } else {
+                            foreach ($role['competencies'] as $j => $rc) {
+                                $rcbase = $rbase . ".competencies[{$j}]";
+                                if (is_string($rc)) {
+                                    if (empty(trim($rc))) {
+                                        $errors[] = ['path' => $rcbase, 'message' => 'Name is required'];
+                                    }
+                                    continue;
+                                }
+                                if (! is_array($rc)) {
+                                    $errors[] = ['path' => $rcbase, 'message' => 'Must be an object or string'];
+                                    continue;
+                                }
+                                if (empty(trim((string) ($rc['name'] ?? '')))) {
+                                    $errors[] = ['path' => $rcbase . '.name', 'message' => 'Name is required'];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return ['valid' => empty($errors), 'errors' => $errors];
     }
 }

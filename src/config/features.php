@@ -12,4 +12,6 @@ return [
     'validate_llm_response_max_capabilities' => (int) env('LLM_MAX_CAPABILITIES', 10),
     'validate_llm_response_max_competencies' => (int) env('LLM_MAX_COMPETENCIES', 10),
     'validate_llm_response_max_skills' => (int) env('LLM_MAX_SKILLS', 10),
+    // Max roles returned by LLM
+    'validate_llm_response_max_roles' => (int) env('LLM_MAX_ROLES', 20),
 ];
