@@ -347,6 +347,40 @@
                             }}</pre
                         >
                     </div>
+                    <div
+                        v-if="
+                            responseValidationErrors &&
+                            responseValidationErrors.length
+                        "
+                        class="mb-3"
+                    >
+                        <div
+                            class="subtitle-2"
+                            style="
+                                color: var(--v-theme-error);
+                                font-weight: 600;
+                            "
+                        >
+                            {{
+                                responseValidationTitle ||
+                                'Errores de validación'
+                            }}
+                        </div>
+                        <ul
+                            style="
+                                margin-top: 6px;
+                                padding-left: 1rem;
+                                color: var(--v-theme-error);
+                            "
+                        >
+                            <li
+                                v-for="(m, i) in responseValidationErrors"
+                                :key="i"
+                            >
+                                {{ m }}
+                            </li>
+                        </ul>
+                    </div>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer />
@@ -868,6 +902,8 @@ async function refreshStatus() {
 }
 
 const accepting = ref(false);
+const responseValidationErrors = ref<string[] | null>(null);
+const responseValidationTitle = ref('');
 async function acceptGeneration() {
     if (!store.generationId) return;
     accepting.value = true;
@@ -911,8 +947,51 @@ function openResponseModal() {
 async function onModalAccept(importAfter = false) {
     if (!store.generationId) return;
     store.importAfterAccept = !!importAfter;
-    responseModalOpen.value = false;
-    await acceptGeneration();
+    // clear previous inline validation errors
+    responseValidationErrors.value = null;
+    responseValidationTitle.value = '';
+
+    // keep modal open while attempting accept so we can show inline 422 errors
+    accepting.value = true;
+    try {
+        const res = await store.accept(store.generationId);
+        const sid =
+            res?.data?.scenario_id ||
+            res?.data?.id ||
+            (res?.data && res.data.id);
+        if (sid) {
+            window.location.href = `/scenario-planning/${sid}`;
+            return;
+        }
+        window.location.reload();
+    } catch (e) {
+        const err = e as any;
+        // If server returns 422, surface errors inline in modal so operator can edit instruction
+        if (err?.response?.status === 422) {
+            const d = err.response.data || {};
+            const messages = d.errors
+                ? Object.entries(d.errors).map(
+                      ([k, v]) =>
+                          `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
+                  )
+                : [d.message || JSON.stringify(d)];
+            responseValidationTitle.value = 'Validación del servidor (422)';
+            responseValidationErrors.value = messages;
+            // re-open modal if it was closed
+            responseModalOpen.value = true;
+            // enable instruction editing to allow operator fix
+            instructionEditable.value = true;
+            return;
+        }
+        // fallback: use global error modal
+        console.error('Accept failed', e);
+        showError(
+            err?.response?.data?.message || err?.message || String(e),
+            'Error al aceptar generación',
+        );
+    } finally {
+        accepting.value = false;
+    }
 }
 
 function closeResponseModal() {

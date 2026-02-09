@@ -7,6 +7,7 @@ import RoleCompetencyMatrix from '@/components/WorkforcePlanning/Step2/RoleCompe
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import AppLayout from '@/layouts/AppLayout.vue';
+// @ts-ignore - Inertia module may not be available at type-check time
 import { router, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
 import GenerateWizard from './GenerateWizard/GenerateWizard.vue';
@@ -32,6 +33,7 @@ type ScenarioPayload = {
     time_horizon_weeks?: number;
     estimated_budget?: number;
     created_at?: string;
+    created_by?: number | null;
     scope_type?: string;
     scope_id?: number | null;
     horizon_months?: number;
@@ -41,6 +43,8 @@ type ScenarioPayload = {
     owner?: string | null;
     scenario_skills?: any[];
     skill_demands?: any[];
+    source_generation_id?: number | null;
+    accepted_prompt?: string | null;
 };
 
 defineOptions({ layout: AppLayout });
