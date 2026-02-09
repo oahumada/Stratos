@@ -250,14 +250,22 @@
                 {{ store.generationStatus }}
             </p>
             <div style="margin-top: 8px">
-                <button v-if="store.generationStatus === 'complete'" @click="openResponseModal">
+                <button
+                    v-if="store.generationStatus === 'complete'"
+                    @click="openResponseModal"
+                >
                     Ver respuesta
                 </button>
                 <button
                     v-if="store.generationStatus === 'complete'"
-                    @click="() => { store.importAfterAccept = false; acceptGeneration(); }"
+                    @click="
+                        () => {
+                            store.importAfterAccept = false;
+                            acceptGeneration();
+                        }
+                    "
                     :disabled="accepting"
-                    style="margin-left:8px"
+                    style="margin-left: 8px"
                 >
                     Aceptar y crear escenario
                 </button>
@@ -268,16 +276,35 @@
             }}</pre>
         </div>
 
-        <v-dialog v-model="responseModalOpen" max-width="900" @click:outside="closeResponseModal">
+        <v-dialog
+            v-model="responseModalOpen"
+            max-width="900"
+            @click:outside="closeResponseModal"
+        >
             <v-card>
                 <v-card-title>Respuesta del LLM</v-card-title>
                 <v-card-text>
-                    <div v-if="responseLoading" class="d-flex align-center" style="min-height:120px;">
-                        <v-progress-circular indeterminate color="primary" class="mr-4" />
+                    <div
+                        v-if="responseLoading"
+                        class="d-flex align-center"
+                        style="min-height: 120px"
+                    >
+                        <v-progress-circular
+                            indeterminate
+                            color="primary"
+                            class="mr-4"
+                        />
                         <div>
-                            <div><strong>Esperando respuesta del LLM…</strong></div>
-                            <div class="caption">La generación está en progreso. Esto puede tardar unos segundos.</div>
-                            <div v-if="chunkCount !== null" class="caption">Chunks recibidos: {{ chunkCount }}</div>
+                            <div>
+                                <strong>Esperando respuesta del LLM…</strong>
+                            </div>
+                            <div class="caption">
+                                La generación está en progreso. Esto puede
+                                tardar unos segundos.
+                            </div>
+                            <div v-if="chunkCount !== null" class="caption">
+                                Chunks recibidos: {{ chunkCount }}
+                            </div>
                         </div>
                     </div>
 
@@ -285,23 +312,67 @@
                         <div class="mb-2">
                             <strong>Resumen:</strong>
                             <div>
-                                Nombre: {{ store.generationResult?.scenario_metadata?.name || '—' }}
+                                Nombre:
+                                {{
+                                    store.generationResult?.scenario_metadata
+                                        ?.name || '—'
+                                }}
                             </div>
                             <div>
-                                Confianza: {{ store.generationResult?.confidence_score ?? store.generationResult?.scenario_metadata?.confidence_score ?? '—' }}
+                                Confianza:
+                                {{
+                                    store.generationResult?.confidence_score ??
+                                    store.generationResult?.scenario_metadata
+                                        ?.confidence_score ??
+                                    '—'
+                                }}
                             </div>
                             <div>
-                                Capacidades: {{ (store.generationResult?.capabilities || []).length }}
+                                Capacidades:
+                                {{
+                                    (store.generationResult?.capabilities || [])
+                                        .length
+                                }}
                             </div>
                         </div>
-                        <pre style="max-height:400px; overflow:auto; background:#f6f6f6; padding:8px">{{ JSON.stringify(store.generationResult, null, 2) }}</pre>
+                        <pre
+                            style="
+                                max-height: 400px;
+                                overflow: auto;
+                                background: #f6f6f6;
+                                padding: 8px;
+                            "
+                            >{{
+                                JSON.stringify(store.generationResult, null, 2)
+                            }}</pre
+                        >
                     </div>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer />
-                    <v-btn color="secondary" text @click="closeResponseModal">Cerrar</v-btn>
-                    <v-btn color="primary" @click="onModalAccept(false)" :loading="accepting" :disabled="responseLoading || store.generationStatus !== 'complete'">Aceptar y crear escenario</v-btn>
-                    <v-btn color="success" @click="onModalAccept(true)" :loading="accepting" :disabled="responseLoading || store.generationStatus !== 'complete'">Aceptar y crear + Importar</v-btn>
+                    <v-btn color="secondary" text @click="closeResponseModal"
+                        >Cerrar</v-btn
+                    >
+                    <v-btn
+                        color="primary"
+                        @click="onModalAccept(false)"
+                        :loading="accepting"
+                        :disabled="
+                            responseLoading ||
+                            store.generationStatus !== 'complete'
+                        "
+                        >Aceptar y crear escenario</v-btn
+                    >
+                    <v-btn
+                        color="success"
+                        @click="onModalAccept(true)"
+                        :loading="accepting"
+                        :disabled="
+                            responseLoading ||
+                            store.generationStatus !== 'complete'
+                        "
+                        >Aceptar y crear + Importar</v-btn
+                    >
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -726,7 +797,10 @@ async function onConfirmGenerate(importAfter = false) {
         // If not complete, poll until completion (timeout 120s)
         const start = Date.now();
         const timeoutMs = 120000;
-        while ((store.generationStatus !== 'complete') && Date.now() - start < timeoutMs) {
+        while (
+            store.generationStatus !== 'complete' &&
+            Date.now() - start < timeoutMs
+        ) {
             // wait a bit then refresh
             // show a small visual cue by setting generating (already managed by store)
             await new Promise((r) => setTimeout(r, 2000));
@@ -744,7 +818,10 @@ async function onConfirmGenerate(importAfter = false) {
             responseModalOpen.value = true;
         } else {
             // not completed within timeout: notify operator to monitor status
-            showError('Generación encolada. Verifique el estado en la sección de generación.', 'Encolada');
+            showError(
+                'Generación encolada. Verifique el estado en la sección de generación.',
+                'Encolada',
+            );
         }
     } catch (e) {
         const error = e as any;
@@ -891,7 +968,9 @@ async function fetchChunkCount() {
             chunkCount.value = null;
             return;
         }
-        const res = await axios.get(`/api/strategic-planning/scenarios/generate/${store.generationId}/chunks`);
+        const res = await axios.get(
+            `/api/strategic-planning/scenarios/generate/${store.generationId}/chunks`,
+        );
         if (res.data && Array.isArray(res.data.data)) {
             chunkCount.value = res.data.data.length;
         } else {

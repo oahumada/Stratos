@@ -72,24 +72,36 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
             this.data.company_size = 450;
             this.data.geographic_scope = 'LatAm';
             this.data.organizational_cycle = 'Anual';
-            this.data.current_challenges = 'Baja adopción de modelos de IA, falta de datos etiquetados y equipos con experiencia limitada en ML.';
-            this.data.current_capabilities = 'Equipos de data engineering básicos, pipelines de datos internos y experiencia en integración de APIs.';
-            this.data.current_gaps = 'Carencia de modelos generativos productivos, no hay prácticas MLOps maduras.';
+            this.data.current_challenges =
+                'Baja adopción de modelos de IA, falta de datos etiquetados y equipos con experiencia limitada en ML.';
+            this.data.current_capabilities =
+                'Equipos de data engineering básicos, pipelines de datos internos y experiencia en integración de APIs.';
+            this.data.current_gaps =
+                'Carencia de modelos generativos productivos, no hay prácticas MLOps maduras.';
             this.data.current_roles_count = 120;
             this.data.has_formal_competency_model = false;
-            this.data.strategic_goal = 'Adoptar IA generativa para mejorar productividad y automatizar tareas de atención al cliente y documentación técnica.';
-            this.data.target_markets = 'Mercado latinoamericano; clientes enterprise y pymes tecnológicas';
-            this.data.expected_growth = 'Aumento del 25% en eficiencia operativa en 12 meses';
+            this.data.strategic_goal =
+                'Adoptar IA generativa para mejorar productividad y automatizar tareas de atención al cliente y documentación técnica.';
+            this.data.target_markets =
+                'Mercado latinoamericano; clientes enterprise y pymes tecnológicas';
+            this.data.expected_growth =
+                'Aumento del 25% en eficiencia operativa en 12 meses';
             this.data.transformation_type = ['automation', 'innovation'];
-            this.data.key_initiatives = 'Pilotos de chatbots generativos, generación automática de documentación, integración con soporte y herramientas internas.';
+            this.data.key_initiatives =
+                'Pilotos de chatbots generativos, generación automática de documentación, integración con soporte y herramientas internas.';
             this.data.budget_level = 'Medio';
-            this.data.talent_availability = 'Limitada internamente; se requiere contratación y formación.';
-            this.data.training_capacity = 'Moderada; equipo de L&D con programas trimestrales.';
-            this.data.technology_maturity = 'Madurez media: infra de datos existente pero falta orquestación y modelos.';
-            this.data.critical_constraints = 'Regulación de datos y privacidad, riesgo de calidad de respuestas generadas.';
+            this.data.talent_availability =
+                'Limitada internamente; se requiere contratación y formación.';
+            this.data.training_capacity =
+                'Moderada; equipo de L&D con programas trimestrales.';
+            this.data.technology_maturity =
+                'Madurez media: infra de datos existente pero falta orquestación y modelos.';
+            this.data.critical_constraints =
+                'Regulación de datos y privacidad, riesgo de calidad de respuestas generadas.';
             this.data.time_horizon = '12 meses';
             this.data.urgency_level = 'Alta';
-            this.data.milestones = '1) Piloto interno (3 meses); 2) Integración con soporte (6 meses); 3) Escalado productivo (12 meses)';
+            this.data.milestones =
+                '1) Piloto interno (3 meses); 2) Integración con soporte (6 meses); 3) Escalado productivo (12 meses)';
             // keep organization_id untouched so tenant is implicit
         },
         async generate() {
@@ -162,7 +174,8 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                 payload.instruction_id !== ''
             ) {
                 const iid = Number(payload.instruction_id);
-                if (!Number.isNaN(iid)) payload.instruction_id = Math.trunc(iid);
+                if (!Number.isNaN(iid))
+                    payload.instruction_id = Math.trunc(iid);
                 else delete payload.instruction_id;
             } else {
                 delete payload.instruction_id;
@@ -170,7 +183,10 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
 
             // remove empty instruction string to avoid sending blank values
             if (payload.instruction !== undefined) {
-                if (payload.instruction === null || payload.instruction === '') {
+                if (
+                    payload.instruction === null ||
+                    payload.instruction === ''
+                ) {
                     delete payload.instruction;
                 }
             }
@@ -197,7 +213,7 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                 } catch (e) {
                     // log to console; don't throw to avoid breaking UI polling
                     // caller (UI) can surface error if needed
-                     
+
                     console.error('Auto-accept failed', e);
                 }
             }
