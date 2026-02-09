@@ -203,6 +203,22 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 ```
 
+## Memory: Implementation - Compacted blob endpoint & daily compaction schedule (2026-02-09)
+
+- **Tipo:** implementation (project fact)
+- **Propósito:** Añadir endpoint para devolver el blob compactado (decodificado) de una `ScenarioGeneration` y registrar la tarea de compactación diaria en el Kernel.
+- **Cambios realizados:**
+  - `src/app/Http/Controllers/Api/GenerationChunkController.php` -> se añadió el método `compacted(Request $request, $generationId)` que devuelve:
+    - el JSON decodificado si `metadata['compacted']` existe (almacenado en base64),
+    - o monta el contenido concatenando los `generation_chunks` disponibles y devuelve el JSON decodificado o el texto ensamblado.
+  - `src/routes/api.php` -> se añadió la ruta `GET /strategic-planning/scenarios/generate/{id}/compacted` apuntando a `GenerationChunkController::compacted`.
+  - `src/app/Console/Kernel.php` -> se añadió el Kernel de consola con `schedule()` que ejecuta `generate:compact-chunks --days={services.abacus.chunks_ttl_days}` diariamente.
+- **Notas operativas:**
+  - El endpoint verifica `organization_id` para seguridad multi-tenant.
+  - Si el proyecto prefiere no introducir `app/Console/Kernel.php`, existe la opción alternativa de programar `php artisan generate:compact-chunks --days=${ABACUS_CHUNKS_TTL_DAYS}` vía cron en el entorno de despliegue.
+- **Estado:** implementado en workspace; requiere despliegue/CI para activar cron/scheduler (ej: `php artisan schedule:run` o configuración de system cron/docker).
+
+
 ---
 
 ## Decisions (Feb 2026)

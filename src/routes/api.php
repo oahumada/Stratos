@@ -111,6 +111,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Scenario generation (LLM-driven)
     Route::post('/strategic-planning/scenarios/generate', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'store']);
+    // Create a demo prefilled generation for demo/testing
+    Route::post('/strategic-planning/scenarios/generate/demo', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'demo']);
     Route::post('/strategic-planning/scenarios/generate/preview', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'preview']);
     Route::get('/strategic-planning/scenarios/generate/{id}', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'show']);
     Route::post('/strategic-planning/scenarios/generate/{id}/accept', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'accept']);

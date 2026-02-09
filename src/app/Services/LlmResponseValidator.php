@@ -11,7 +11,26 @@ class LlmResponseValidator
     public function validate(array $llmResponse): array
     {
         $errors = [];
-        $strict = (bool) config('features.validate_llm_response_strict', false);
+        // When running pure unit tests the global container binding for
+        // `config` may not be available. Guard access to `config()` and
+        // fall back to sensible defaults so the validator remains usable
+        // outside a full application context.
+        $strict = false;
+        $maxCaps = 10;
+        $maxComps = 10;
+        $maxSkills = 10;
+        $maxRoles = 20;
+        // Only call `config()` if the application container has bound the
+        // config service. In lightweight unit test contexts the global
+        // helper exists but the binding may be missing, which causes a
+        // BindingResolutionException when `config()` tries to resolve it.
+        if (function_exists('app') && app() && app()->bound('config')) {
+            $strict = (bool) config('features.validate_llm_response_strict', false);
+            $maxCaps = (int) config('features.validate_llm_response_max_capabilities', $maxCaps);
+            $maxComps = (int) config('features.validate_llm_response_max_competencies', $maxComps);
+            $maxSkills = (int) config('features.validate_llm_response_max_skills', $maxSkills);
+            $maxRoles = (int) config('features.validate_llm_response_max_roles', $maxRoles);
+        }
 
         // scenario_metadata must exist and include a name
         if (! isset($llmResponse['scenario_metadata']) || ! is_array($llmResponse['scenario_metadata'])) {
@@ -28,9 +47,6 @@ class LlmResponseValidator
                 $errors[] = ['path' => 'capabilities', 'message' => 'Must be an array'];
             } else {
                 // enforce max counts when present
-                $maxCaps = (int) config('features.validate_llm_response_max_capabilities', 10);
-                $maxComps = (int) config('features.validate_llm_response_max_competencies', 10);
-                $maxSkills = (int) config('features.validate_llm_response_max_skills', 10);
                 if (count($llmResponse['capabilities']) > $maxCaps) {
                     $errors[] = ['path' => 'capabilities', 'message' => "Too many capabilities (max {$maxCaps})"];
                 }
@@ -106,7 +122,6 @@ class LlmResponseValidator
             if (! is_array($llmResponse['roles'])) {
                 $errors[] = ['path' => 'roles', 'message' => 'Must be an array'];
             } else {
-                $maxRoles = (int) config('features.validate_llm_response_max_roles', 20);
                 if (count($llmResponse['roles']) > $maxRoles) {
                     $errors[] = ['path' => 'roles', 'message' => "Too many roles (max {$maxRoles})"];
                 }

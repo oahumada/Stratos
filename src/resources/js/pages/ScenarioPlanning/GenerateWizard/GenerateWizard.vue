@@ -68,6 +68,11 @@
                         </v-card-text>
                     </v-card>
                 </v-menu>
+                <div class="mt-2">
+                    <v-btn small color="secondary" @click="prefillDemo">
+                        Cargar demo: Adopción IA generativa
+                    </v-btn>
+                </div>
             </v-col>
         </v-row>
 
@@ -245,10 +250,14 @@
                 {{ store.generationStatus }}
             </p>
             <div style="margin-top: 8px">
+                <button v-if="store.generationStatus === 'complete'" @click="openResponseModal">
+                    Ver respuesta
+                </button>
                 <button
                     v-if="store.generationStatus === 'complete'"
-                    @click="acceptGeneration"
+                    @click="() => { store.importAfterAccept = false; acceptGeneration(); }"
                     :disabled="accepting"
+                    style="margin-left:8px"
                 >
                     Aceptar y crear escenario
                 </button>
@@ -258,6 +267,44 @@
                 JSON.stringify(store.generationResult, null, 2)
             }}</pre>
         </div>
+
+        <v-dialog v-model="responseModalOpen" max-width="900" @click:outside="closeResponseModal">
+            <v-card>
+                <v-card-title>Respuesta del LLM</v-card-title>
+                <v-card-text>
+                    <div v-if="responseLoading" class="d-flex align-center" style="min-height:120px;">
+                        <v-progress-circular indeterminate color="primary" class="mr-4" />
+                        <div>
+                            <div><strong>Esperando respuesta del LLM…</strong></div>
+                            <div class="caption">La generación está en progreso. Esto puede tardar unos segundos.</div>
+                            <div v-if="chunkCount !== null" class="caption">Chunks recibidos: {{ chunkCount }}</div>
+                        </div>
+                    </div>
+
+                    <div v-else>
+                        <div class="mb-2">
+                            <strong>Resumen:</strong>
+                            <div>
+                                Nombre: {{ store.generationResult?.scenario_metadata?.name || '—' }}
+                            </div>
+                            <div>
+                                Confianza: {{ store.generationResult?.confidence_score ?? store.generationResult?.scenario_metadata?.confidence_score ?? '—' }}
+                            </div>
+                            <div>
+                                Capacidades: {{ (store.generationResult?.capabilities || []).length }}
+                            </div>
+                        </div>
+                        <pre style="max-height:400px; overflow:auto; background:#f6f6f6; padding:8px">{{ JSON.stringify(store.generationResult, null, 2) }}</pre>
+                    </div>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn color="secondary" text @click="closeResponseModal">Cerrar</v-btn>
+                    <v-btn color="primary" @click="onModalAccept(false)" :loading="accepting" :disabled="responseLoading || store.generationStatus !== 'complete'">Aceptar y crear escenario</v-btn>
+                    <v-btn color="success" @click="onModalAccept(true)" :loading="accepting" :disabled="responseLoading || store.generationStatus !== 'complete'">Aceptar y crear + Importar</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
 
         <div v-if="showPreview" class="preview-modal-backdrop">
             <div class="preview-modal">
@@ -668,7 +715,37 @@ async function onConfirmGenerate(importAfter = false) {
             store.setField('instruction_id', null);
         }
 
-        await store.generate();
+        const res = await store.generate();
+        // provide immediate feedback and start polling for completion
+        try {
+            await store.fetchStatus();
+        } catch (e) {
+            // ignore fetch errors for now
+        }
+
+        // If not complete, poll until completion (timeout 120s)
+        const start = Date.now();
+        const timeoutMs = 120000;
+        while ((store.generationStatus !== 'complete') && Date.now() - start < timeoutMs) {
+            // wait a bit then refresh
+            // show a small visual cue by setting generating (already managed by store)
+            await new Promise((r) => setTimeout(r, 2000));
+            try {
+                await store.fetchStatus();
+            } catch (e) {
+                // ignore intermittent errors
+            }
+        }
+
+        // If generation completed, open response modal so operator can accept/import
+        if (store.generationStatus === 'complete') {
+            // ensure result is current
+            await store.fetchStatus();
+            responseModalOpen.value = true;
+        } else {
+            // not completed within timeout: notify operator to monitor status
+            showError('Generación encolada. Verifique el estado en la sección de generación.', 'Encolada');
+        }
     } catch (e) {
         const error = e as any;
         console.error('Generate failed', e);
@@ -741,6 +818,102 @@ async function acceptGeneration() {
     } finally {
         accepting.value = false;
     }
+}
+
+const responseModalOpen = ref(false);
+let responsePollTimer: any = null;
+const responseLoading = ref(false);
+const chunkCount = ref<number | null>(null);
+
+function openResponseModal() {
+    responseModalOpen.value = true;
+    // fetch current status and if not complete start polling
+    startResponsePolling();
+}
+
+async function onModalAccept(importAfter = false) {
+    if (!store.generationId) return;
+    store.importAfterAccept = !!importAfter;
+    responseModalOpen.value = false;
+    await acceptGeneration();
+}
+
+function closeResponseModal() {
+    responseModalOpen.value = false;
+    stopResponsePolling();
+}
+
+function stopResponsePolling() {
+    responseLoading.value = false;
+    if (responsePollTimer) {
+        clearInterval(responsePollTimer);
+        responsePollTimer = null;
+    }
+}
+
+async function startResponsePolling() {
+    // prevent double polling
+    if (responsePollTimer) return;
+    responseLoading.value = true;
+    // try immediate fetch
+    try {
+        await store.fetchStatus();
+        // also fetch chunk count immediately
+        await fetchChunkCount();
+    } catch (e) {
+        // ignore
+    }
+
+    if (store.generationStatus === 'complete') {
+        responseLoading.value = false;
+        responseModalOpen.value = true;
+        return;
+    }
+
+    responsePollTimer = setInterval(async () => {
+        try {
+            await store.fetchStatus();
+            await fetchChunkCount();
+            if (store.generationStatus === 'complete') {
+                // stop polling and show result
+                stopResponsePolling();
+                responseModalOpen.value = true;
+            }
+        } catch (e) {
+            // ignore intermittent errors
+        }
+    }, 2000);
+}
+
+async function fetchChunkCount() {
+    try {
+        if (!store.generationId) {
+            chunkCount.value = null;
+            return;
+        }
+        const res = await axios.get(`/api/strategic-planning/scenarios/generate/${store.generationId}/chunks`);
+        if (res.data && Array.isArray(res.data.data)) {
+            chunkCount.value = res.data.data.length;
+        } else {
+            chunkCount.value = null;
+        }
+    } catch (e) {
+        chunkCount.value = null;
+    }
+}
+
+function prefillDemo() {
+    store.prefillDemo();
+    // set a recommended instruction forcing JSON output for import integrity
+    instructionContent.value = `Por favor, genera UN SOLO objeto JSON que describa el escenario generado con las siguientes claves: \n- scenario_metadata: { name, description, scenario_type, horizon_months, fiscal_year }\n- capabilities: [ { name, competencies: [ { name, required_level } ], importance } ]\n- notes: string\nDevuelve únicamente JSON válido sin texto adicional.`;
+    instructionEditable.value = true;
+    // mark instruction as client-provided so it is sent to the server
+    instructionChoice.value = 'client';
+    selectedInstructionIndex.value = null;
+    // persist instruction into payload so generate() will include it even if operator skips preview
+    store.setField('instruction', instructionContent.value);
+    // navigate operator to final step so they can review instruction and generate immediately
+    store.step = 5;
 }
 </script>
 

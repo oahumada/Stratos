@@ -318,4 +318,69 @@ class ScenarioGenerationController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Scenario created from generation', 'data' => $scenario], 201);
     }
+
+    /**
+     * Create a prefilled demo generation and enqueue it.
+     */
+    public function demo(Request $request, ScenarioGenerationService $svc)
+    {
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $orgId = $user->organization_id ?? null;
+        if (! $orgId) {
+            return response()->json(['success' => false, 'message' => 'organization_id is required'], 422);
+        }
+        $org = Organizations::find($orgId);
+        if (! $org) {
+            return response()->json(['success' => false, 'message' => 'Organization not found'], 404);
+        }
+
+        // Prefilled payload for demo: Adoption de IA generativa
+        $payload = [
+            'company_name' => 'Acme Labs S.A.',
+            'industry' => 'Tecnología / Software',
+            'sub_industry' => 'Plataformas de datos e IA',
+            'company_size' => 450,
+            'geographic_scope' => 'LatAm',
+            'organizational_cycle' => 'Anual',
+            'current_challenges' => 'Baja adopción de modelos de IA, falta de datos etiquetados y equipos con experiencia limitada en ML.',
+            'current_capabilities' => 'Equipos de data engineering básicos, pipelines de datos internos y experiencia en integración de APIs.',
+            'current_gaps' => 'Carencia de modelos generativos productivos, no hay prácticas MLOps maduras.',
+            'current_roles_count' => 120,
+            'has_formal_competency_model' => false,
+            'strategic_goal' => 'Adoptar IA generativa para mejorar productividad y automatizar tareas de atención al cliente y documentación técnica.',
+            'target_markets' => 'Mercado latinoamericano; clientes enterprise y pymes tecnológicas',
+            'expected_growth' => 'Aumento del 25% en eficiencia operativa en 12 meses',
+            'transformation_type' => ['automation', 'innovation'],
+            'key_initiatives' => 'Pilotos de chatbots generativos, generación automática de documentación, integración con soporte y herramientas internas.',
+            'budget_level' => 'Medio',
+            'talent_availability' => 'Limitada internamente; se requiere contratación y formación.',
+            'training_capacity' => 'Moderada; equipo de L&D con programas trimestrales.',
+            'technology_maturity' => 'Madurez media: infra de datos existente pero falta orquestación y modelos.',
+            'critical_constraints' => 'Regulación de datos y privacidad, riesgo de calidad de respuestas generadas.',
+            'time_horizon' => '12 meses',
+            'urgency_level' => 'Alta',
+            'milestones' => '1) Piloto interno (3 meses); 2) Integración con soporte (6 meses); 3) Escalado productivo (12 meses)',
+            // include a recommended instruction to ensure JSON-only output
+            'instruction' => "Por favor, genera UN SOLO objeto JSON que describa el escenario generado con las siguientes claves: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions. Devuelve únicamente JSON válido sin texto adicional.",
+        ];
+
+        try {
+            $composed = $svc->composePromptWithInstruction($payload, $user, $org, 'es', null);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => 'Invalid demo instruction', 'errors' => $e->errors()], 422);
+        }
+
+        $prompt = $composed['prompt'] ?? '';
+        $instructionMeta = $composed['instruction'] ?? null;
+
+        $metadata = array_merge(['initiator' => $user->id, 'demo' => true], ['used_instruction' => $instructionMeta]);
+
+        $generation = $svc->enqueueGeneration($prompt, $orgId, $user->id, $metadata);
+
+        return response()->json(['success' => true, 'data' => ['id' => $generation->id, 'status' => $generation->status, 'url' => "/api/strategic-planning/scenarios/generate/{$generation->id}"]], 201);
+    }
 }

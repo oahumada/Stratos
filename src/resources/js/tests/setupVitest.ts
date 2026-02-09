@@ -38,6 +38,17 @@ config.global.components = {
   'v-spacer': { template: '<div style="flex:1 1 auto" />' },
   'v-alert': { template: '<div role="alert"><slot/></div>' },
   'v-icon': { template: '<i class="v-icon"><slot/></i>' },
+
+  // Additional common Vuetify components used across tests
+  'v-chip': { template: '<span class="v-chip"><slot/></span>' },
+  'v-skeleton-loader': { template: '<div class="v-skeleton"><slot/></div>' },
+  'v-container': { template: '<div class="v-container"><slot/></div>' },
+  'v-sheet': { template: '<div class="v-sheet"><slot/></div>' },
+  'v-progress-linear': { template: '<div class="v-progress-linear"><slot/></div>' },
+  'v-progress-circular': { template: '<div class="v-progress-circular"><slot/></div>' },
+  'v-app': { template: '<div class="v-app"><slot/></div>' },
+  'v-radio': { template: '<input type="radio" />' },
+  'v-radio-group': { template: '<div class="v-radio-group"><slot/></div>' },
 }
 
 // Default centralized mock for `useApi`. Tests can replace
