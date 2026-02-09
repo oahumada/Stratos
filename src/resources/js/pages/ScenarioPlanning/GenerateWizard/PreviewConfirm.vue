@@ -20,16 +20,18 @@
                     />
                 </v-col>
                 <v-col cols="12" md="4" class="d-flex justify-end">
-                    <v-btn text color="primary" @click="$emit('edit')"
-                        >Editar</v-btn
-                    >
-                    <v-btn
-                        color="primary"
-                        class="ml-2"
-                        @click="$emit('confirm', importAfterAccept)"
-                        >Autorizar llamada LLM</v-btn
-                    >
-                </v-col>
+                        <v-btn text color="primary" @click="$emit('edit')"
+                            >Editar</v-btn
+                        >
+                        <v-btn
+                            color="primary"
+                            class="ml-2"
+                            :loading="loading"
+                            :disabled="loading"
+                            @click="$emit('confirm', importAfterAccept)"
+                            >Autorizar llamada LLM</v-btn
+                        >
+                    </v-col>
             </v-row>
         </v-card-text>
     </v-card>
@@ -38,7 +40,7 @@
 <script setup lang="ts">
 import { defineProps, ref } from 'vue';
 
-const props = defineProps({ promptPreview: { type: String, required: true } });
+const props = defineProps({ promptPreview: { type: String, required: true }, loading: { type: Boolean, default: false } });
 const importAfterAccept = ref(false);
 </script>
 

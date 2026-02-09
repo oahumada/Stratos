@@ -258,6 +258,18 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
             // Normalize LLM response into a predictable shape for the UI.
             const raw = res.data.data.llm_response;
             this.generationResult = normalizeLlMResponse(raw);
+            // Dev-time trace to help debug UI timing issues: log status and normalized result
+            try {
+                // avoid circular structure error when logging
+                console.debug(
+                    '[scenarioGenerationStore] fetchStatus -> generationStatus=',
+                    this.generationStatus,
+                    'generationResult=',
+                    JSON.parse(JSON.stringify(this.generationResult || null)),
+                );
+            } catch (e) {
+                console.debug('[scenarioGenerationStore] fetchStatus log error', e);
+            }
             // Auto-accept/import flow: if generation completed and operator chose importAfterAccept,
             // trigger accept once (idempotent guard via importAutoAccepted)
             if (
