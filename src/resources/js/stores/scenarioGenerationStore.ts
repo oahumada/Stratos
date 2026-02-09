@@ -1,6 +1,62 @@
 import axios from 'axios';
 import { defineStore } from 'pinia';
 
+// Helper to normalize various LLM response shapes into a consistent object.
+function normalizeLlMResponse(raw: any): any {
+    if (!raw) return raw;
+
+    // If raw is a string, try to parse as JSON, otherwise return as { content: raw }
+    if (typeof raw === 'string') {
+        try {
+            const parsed = JSON.parse(raw);
+            return normalizeLlMResponse(parsed);
+        } catch (e) {
+            return { content: raw };
+        }
+    }
+
+    // If object with `content` string (common when backend stores assembled text), try parse it
+    if (raw && typeof raw === 'object' && typeof raw.content === 'string') {
+        try {
+            const parsed = JSON.parse(raw.content);
+            return normalizeLlMResponse(parsed);
+        } catch (e) {
+            // keep original object but expose content
+            return { ...raw, content: raw.content };
+        }
+    }
+
+    // If the LLM returned a wrapped key like 'escenario', try to map it
+    if (raw.escenario) {
+        const esc = raw.escenario;
+        const out: any = {};
+        out.scenario_metadata = {
+            name: esc.nombre || esc.id || null,
+            generated_at: esc.fecha_actualizacion || esc.generated_at || null,
+            confidence_score: esc.confidence_score || esc.confidence || null,
+            raw_escenario: esc,
+        };
+        out.capabilities = Array.isArray(esc.capabilities) ? esc.capabilities : [];
+        out.competencies = Array.isArray(esc.competencies) ? esc.competencies : [];
+        out.skills = Array.isArray(esc.skills) ? esc.skills : [];
+        out.suggested_roles = Array.isArray(esc.suggested_roles) ? esc.suggested_roles : [];
+        out.impact_analysis = Array.isArray(esc.impact_analysis) ? esc.impact_analysis : [];
+        out.confidence_score = out.scenario_metadata.confidence_score;
+        return out;
+    }
+
+    // If already in expected shape, return as-is
+    if (raw.scenario_metadata || raw.capabilities || raw.content) {
+        if (!raw.confidence_score) {
+            raw.confidence_score = raw.scenario_metadata?.confidence_score ?? null;
+        }
+        return raw;
+    }
+
+    // Fallback: return raw wrapped as content
+    return { content: raw };
+}
+
 export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
     state: () => ({
         step: 1,
@@ -199,7 +255,9 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                 `/api/strategic-planning/scenarios/generate/${this.generationId}`,
             );
             this.generationStatus = res.data.data.status;
-            this.generationResult = res.data.data.llm_response;
+            // Normalize LLM response into a predictable shape for the UI.
+            const raw = res.data.data.llm_response;
+            this.generationResult = normalizeLlMResponse(raw);
             // Auto-accept/import flow: if generation completed and operator chose importAfterAccept,
             // trigger accept once (idempotent guard via importAutoAccepted)
             if (
