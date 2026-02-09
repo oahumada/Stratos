@@ -20,7 +20,7 @@ class ScenarioGenerationAcceptTest extends TestCase
 
         $llmResponse = [
             'scenario_metadata' => ['name' => 'ACME Generated', 'description' => 'Generated desc', 'horizon_months' => 6],
-            'capacities' => [],
+            'capabilities' => [],
             'competencies' => [],
             'skills' => [],
             'suggested_roles' => [],

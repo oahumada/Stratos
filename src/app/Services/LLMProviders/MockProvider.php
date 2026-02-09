@@ -30,7 +30,7 @@ class MockProvider implements LLMProviderInterface
                 'confidence_score' => 0.75,
                 'assumptions' => ['mock response for testing'],
             ],
-            'capacities' => [],
+            'capabilities' => [],
             'competencies' => [],
             'skills' => [],
             'suggested_roles' => [],

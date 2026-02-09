@@ -45,7 +45,7 @@ class RetryLatestGeneration extends Command
                 $parsed = is_array($rawResponse) ? $rawResponse : json_decode(json_encode($rawResponse), true);
             }
 
-            $requiredKeys = ['scenario_metadata', 'capacities', 'competencies', 'skills', 'suggested_roles', 'impact_analysis'];
+            $requiredKeys = ['scenario_metadata', 'capabilities', 'competencies', 'skills', 'suggested_roles', 'impact_analysis'];
             $isValid = is_array($parsed);
             if ($isValid) {
                 foreach ($requiredKeys as $key) {

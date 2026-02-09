@@ -12,8 +12,8 @@ test('Generate -> Accept (import=true) -> View incubated entities in ScenarioDet
 
     // load fixture used by intercepts
     const fixturePath = path.resolve(
-        __dirname,
-        '..',
+        process.cwd(),
+        'tests',
         'fixtures',
         'llm',
         'mock_generation_response.json',
@@ -22,7 +22,7 @@ test('Generate -> Accept (import=true) -> View incubated entities in ScenarioDet
     try {
         fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf-8'));
     } catch (e) {
-        fixture = { capacities: [], competencies: [], skills: [] };
+        fixture = { capabilities: [], competencies: [], skills: [] };
     }
 
     // Use centralized helper to mock generation-related LLM routes
@@ -53,8 +53,8 @@ test('Generate -> Accept (import=true) -> View incubated entities in ScenarioDet
     const incubatedTree = [
         {
             id: 1,
-            name: fixture.capacities?.[0]?.name || 'Capacity A',
-            description: fixture.capacities?.[0]?.description || 'Desc A',
+            name: fixture.capabilities?.[0]?.name || 'Capability A',
+            description: fixture.capabilities?.[0]?.description || 'Desc A',
             competencies: [
                 {
                     id: 10,
