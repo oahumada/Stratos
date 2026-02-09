@@ -280,4 +280,33 @@ class ScenarioGenerationService
 
         return $generation;
     }
+
+    /**
+     * Persist the final LLM response for a ScenarioGeneration and mark it complete.
+     * Centralized method so other callers (scripts, jobs, tests) can reuse the logic.
+     *
+     * @param ScenarioGeneration $generation
+     * @param array|string $response
+     * @param array $options optional keys: status, metadata
+     * @return ScenarioGeneration
+     */
+    public function persistLLMResponse(ScenarioGeneration $generation, $response, array $options = []): ScenarioGeneration
+    {
+        try {
+            $generation->llm_response = $response;
+            $generation->status = $options['status'] ?? 'complete';
+
+            if (!empty($options['metadata']) && is_array($options['metadata'])) {
+                $existing = is_array($generation->metadata) ? $generation->metadata : (array) ($generation->metadata ?? []);
+                $generation->metadata = array_merge($existing, $options['metadata']);
+            }
+
+            $generation->save();
+        } catch (\Throwable $e) {
+            Log::error('Failed to persist LLM response for generation ' . ($generation->id ?? 'unknown') . ': ' . $e->getMessage());
+            throw $e;
+        }
+
+        return $generation;
+    }
 }
