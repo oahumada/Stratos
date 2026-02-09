@@ -41,6 +41,7 @@ return [
         'key' => env('ABACUS_API_KEY'),
         'model' => env('ABACUS_MODEL', 'abacus-default'),
         'timeout' => env('ABACUS_TIMEOUT', 60),
+        'chunks_ttl_days' => env('ABACUS_CHUNKS_TTL_DAYS', 30),
     ],
 
 ];

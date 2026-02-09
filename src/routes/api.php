@@ -114,6 +114,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/strategic-planning/scenarios/generate/preview', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'preview']);
     Route::get('/strategic-planning/scenarios/generate/{id}', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'show']);
     Route::post('/strategic-planning/scenarios/generate/{id}/accept', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'accept']);
+    // Read streaming chunks for a generation (for UI progress/debug)
+    Route::get('/strategic-planning/scenarios/generate/{id}/chunks', [\App\Http\Controllers\Api\GenerationChunkController::class, 'index']);
+    // Read compacted blob (decoded) for a generation (if compacted exists)
+    Route::get('/strategic-planning/scenarios/generate/{id}/compacted', [\App\Http\Controllers\Api\GenerationChunkController::class, 'compacted']);
 
     // Prompt / Instruction management for generation wizard (moved earlier to avoid parameter conflicts)
 
