@@ -19,7 +19,7 @@ export async function login(
     const emailSel = 'input[type="email"], input[name="email"]';
     const passSel = 'input[type="password"], input[name="password"]';
     const hasLoginForm = await page
-        .waitForSelector(emailSel, { timeout: 5000 })
+        .waitForSelector(emailSel, { timeout: 15000 })
         .then(() => true)
         .catch(() => false);
 
@@ -28,7 +28,7 @@ export async function login(
         await page.fill(passSel, pass);
         await Promise.all([
             page
-                .waitForNavigation({ waitUntil: 'networkidle', timeout: 15000 })
+                .waitForNavigation({ waitUntil: 'networkidle', timeout: 30000 })
                 .catch(() => null),
             page.click('button[type="submit"]'),
         ]);

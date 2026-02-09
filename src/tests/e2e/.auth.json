@@ -1,0 +1,25 @@
+{
+  "cookies": [
+    {
+      "name": "XSRF-TOKEN",
+      "value": "eyJpdiI6InMxS3NhUlpFYVNBN1RBT21KYVdBblE9PSIsInZhbHVlIjoiVGNqUEJxdUFoN2Q4Rkl3dEY4cjQwMENvRnRTQzF1TStSdENoV3h3V0xUTmN5Qm1pcklZejkzdEluWlJQL1JJbmlzdTN2d3QrZkt6UHBTNmQwb2dzcFpFQzVZZ212UEsxRmc4a1dYWDROa0o0RHNLQlowRlh5SjdZZnVNVGE4c3QiLCJtYWMiOiJkYTk5ZWU5ODAyMzg2MTY0NTFiODA0ZWUyMmI3Mzk1OTUxNzA2MWI0ODEzMTNmYzg2OWZjYjQ1YzY1OWVjOGZkIiwidGFnIjoiIn0%3D",
+      "domain": "127.0.0.1",
+      "path": "/",
+      "expires": 1770607864.994702,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "stratos-session",
+      "value": "eyJpdiI6InhWdUVVempMcW9vajJ0Y2lrOFZqMWc9PSIsInZhbHVlIjoiRm94V3dKT2xLZ29JUHVGQUlSak40TG4xd2toUlVtVHV3aWptZTJsUVVYVkNBUUV2RFpZcnFJQUVaNEhyR2RxbE9DcW5pUTEzZUtmNzRWSTUrclg3R3g5NG1UL0NzMDB3Sml3Um8zc2VkdzBaTzNJZFpXc3RSNmkyVlJLL081bGwiLCJtYWMiOiJjNjUyYzc1MmY4MjhhNjVjOGViNWJkMWFkOTlmMzA3YTRkOGJiYmZiZDVlMGExYTU3MzU0NjBmZWE4Y2JhOGRiIiwidGFnIjoiIn0%3D",
+      "domain": "127.0.0.1",
+      "path": "/",
+      "expires": 1770607864.99513,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}

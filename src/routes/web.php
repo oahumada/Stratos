@@ -4,6 +4,18 @@ use App\Http\Controllers\Api\ScenarioController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\App as AppFacade;
+
+// Dev-only endpoint for E2E: logs in as admin (id from env or 2)
+Route::get('/__e2e_login', function () {
+    if (! (AppFacade::environment('local') || env('E2E_BYPASS', false))) {
+        return response()->json(['error' => 'not allowed'], 403);
+    }
+    $userId = env('E2E_ADMIN_ID', 2);
+    Auth::loginUsingId($userId);
+    return response()->json(['success' => true, 'user_id' => $userId]);
+});
 
 Route::get('/scenario-demo', function () {
     return Inertia::render('ScenarioDemo');

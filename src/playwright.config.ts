@@ -11,6 +11,8 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }], ['junit', { outputFile: 'test-results/junit.xml' }]],
   use: {
     baseURL: (globalThis as any).process?.env?.BASE_URL || 'http://localhost:8000',
+    // Use pre-generated authenticated storage state for E2E admin
+    storageState: (globalThis as any).process?.env?.PLAYWRIGHT_STORAGE_STATE || 'tests/e2e/.auth.json',
     trace: 'on-first-retry',
     actionTimeout: 0,
     ignoreHTTPSErrors: true,
