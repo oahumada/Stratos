@@ -44,7 +44,28 @@ try {
     // Expose flush parameters to closure via globals (closure already uses globals for simplicity)
     $GLOBALS['__flush_interval__'] = $flushInterval;
     $GLOBALS['__last_flush_time__'] = $lastFlush;
-    $result = $abacus->generateStream($prompt, ['max_tokens' => 1200, 'temperature' => 0.1, 'overrides' => ['model' => 'gpt-5']], function ($delta) use (&$assembled, &$seq, $gen, &$buffer, $maxBuffer) {
+    $result = $abacus->generateStream(
+        $prompt,
+        ['max_tokens' => 1200, 'temperature' => 0.1, 'overrides' => ['model' => 'gpt-5']],
+        function ($delta, $meta = null) use (&$assembled, &$seq, $gen, &$buffer, $maxBuffer) {
+        
+        // Update progress metadata on the generation row if provided
+        if (is_array($meta) && ! empty($meta)) {
+            try {
+                $md = $gen->metadata ?? [];
+                $md['progress'] = $meta;
+                $gen->metadata = $md;
+                $gen->save();
+            } catch (\Throwable $e) {
+                fwrite(STDERR, "Failed to persist progress metadata: " . $e->getMessage() . "\n");
+            }
+        }
+
+        // print without newlines so stream appears continuous
+        echo $delta;
+        $assembled .= $delta;
+        // append to buffer
+        $buffer .= $delta;
         // print without newlines so stream appears continuous
         echo $delta;
         $assembled .= $delta;
@@ -68,7 +89,8 @@ try {
             $buffer = '';
             $GLOBALS['__last_flush_time__'] = microtime(true);
         }
-    });
+    }
+    );
     echo "\n[stream finished]\n";
 
     // If the streaming method returned a parsed JSON object, use it as response

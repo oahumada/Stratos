@@ -304,6 +304,7 @@
                             </div>
                             <div v-if="chunkCount !== null" class="caption">
                                 Chunks recibidos: {{ chunkCount }}
+                                <span v-if="store.generationProgress && store.generationProgress.percent !== null"> — {{ Math.round(store.generationProgress.percent) }}%</span>
                             </div>
                         </div>
                     </div>
@@ -1231,13 +1232,18 @@ async function fetchChunkCount() {
             chunkCount.value = null;
             return;
         }
-        const res = await axios.get(
-            `/api/strategic-planning/scenarios/generate/${store.generationId}/chunks`,
-        );
-        if (res.data && Array.isArray(res.data.data)) {
-            chunkCount.value = res.data.data.length;
-        } else {
-            chunkCount.value = null;
+        // Prefer lightweight /progress endpoint to get progress and recent chunks
+        const p = await store.fetchProgress();
+        if (p) {
+            // If provider reports received_chunks use it, otherwise infer from recent_chunks
+            if (p.progress && typeof p.progress.received_chunks === 'number') {
+                chunkCount.value = p.progress.received_chunks;
+            } else if (Array.isArray(p.recent_chunks)) {
+                // recent_chunks holds only last N; fallback to its length
+                chunkCount.value = p.recent_chunks.length;
+            } else {
+                chunkCount.value = null;
+            }
         }
     } catch {
         chunkCount.value = null;

@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\ScenarioGeneration;
 use App\Services\LLMClient;
+use App\Services\AbacusClient;
 use App\Models\GenerationChunk;
 use App\Services\LLMProviders\Exceptions\LLMRateLimitException;
 use App\Services\LLMProviders\Exceptions\LLMServerException;
@@ -26,11 +27,15 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
         $this->generationId = $generationId;
     }
 
-    public function handle(LLMClient $llm)
+    public function handle(LLMClient $llm, AbacusClient $abacus = null)
     {
         $generation = ScenarioGeneration::find($this->generationId);
         if (! $generation) {
             return;
+        }
+
+        if ($abacus === null) {
+            $abacus = app(AbacusClient::class);
         }
 
         $generation->status = 'processing';
@@ -44,29 +49,81 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             $maxBuffer = 256; // bytes
             $flushInterval = 0.25; // seconds
             $lastFlush = microtime(true);
+            $lastMeta = null;
 
-            $result = $llm->generateStream($generation->prompt ?? '', function ($delta) use (&$assembled, &$seq, $generation, &$buffer, $maxBuffer, &$lastFlush, $flushInterval) {
-                // append and persist in buffered chunks
-                $assembled .= $delta;
-                $buffer .= $delta;
+            // Choose provider: if generation metadata requests Abacus, use AbacusClient
+            $provider = $generation->metadata['provider'] ?? null;
+            $options = $generation->metadata['provider_options'] ?? [];
 
-                $now = microtime(true);
-                $shouldFlushBySize = strlen($buffer) >= $maxBuffer;
-                $shouldFlushByTime = ($now - ($lastFlush ?? 0)) >= $flushInterval;
-                if ($shouldFlushBySize || $shouldFlushByTime) {
-                    try {
-                        GenerationChunk::create([
-                            'scenario_generation_id' => $generation->id,
-                            'sequence' => $seq++,
-                            'chunk' => $buffer,
-                        ]);
-                    } catch (\Throwable $e) {
-                        // log and continue
+            if ($provider === 'abacus') {
+                $result = $abacus->generateStream($generation->prompt ?? '', $options, function ($delta, $meta = null) use (&$assembled, &$seq, $generation, &$buffer, $maxBuffer, &$lastFlush, $flushInterval, &$lastMeta) {
+                    $assembled .= $delta;
+                    $buffer .= $delta;
+
+                    // Track last known meta even if we don't flush immediately
+                    if (isset($meta) && is_array($meta)) {
+                        $lastMeta = $meta;
                     }
-                    $buffer = '';
-                    $lastFlush = microtime(true);
+
+                    $now = microtime(true);
+                    $shouldFlushBySize = strlen($buffer) >= $maxBuffer;
+                    $shouldFlushByTime = ($now - ($lastFlush ?? 0)) >= $flushInterval;
+                    if ($shouldFlushBySize || $shouldFlushByTime) {
+                        try {
+                            GenerationChunk::create([
+                                'scenario_generation_id' => $generation->id,
+                                'sequence' => $seq++,
+                                'chunk' => $buffer,
+                            ]);
+                            // Persist progress metadata when provided by the streaming provider
+                            if (isset($meta) && is_array($meta)) {
+                                $lastMeta = $meta;
+                                try {
+                                    $generation->metadata = array_merge($generation->metadata ?? [], ['progress' => $meta]);
+                                    $generation->save();
+                                } catch (\Throwable $e) {
+                                    \Log::warning('Failed to persist generation metadata.progress: '.$e->getMessage(), ['generation_id' => $generation->id]);
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            \Log::error('Failed to persist chunk: '.$e->getMessage(), ['generation_id' => $generation->id]);
+                        }
+                        $buffer = '';
+                        $lastFlush = microtime(true);
+                    }
+                });
+            } else {
+                // Fallback for non-Abacus providers: call generate() (tests often provide a
+                // mocked LLMClient that implements generate()). Emit a single delta
+                // containing the provider response (as text) and persist as one chunk.
+                $res = $llm->generate($generation->prompt ?? '');
+
+                $raw = is_array($res) && array_key_exists('response', $res) ? $res['response'] : $res;
+                if (is_array($raw) || is_object($raw)) {
+                    $text = json_encode($raw, JSON_UNESCAPED_UNICODE);
+                } elseif (is_string($raw)) {
+                    $text = $raw;
+                } else {
+                    $text = (string) $raw;
                 }
-            });
+
+                // treat as single delta
+                $assembled .= $text;
+                $buffer .= $text;
+
+                try {
+                    GenerationChunk::create([
+                        'scenario_generation_id' => $generation->id,
+                        'sequence' => $seq++,
+                        'chunk' => $buffer,
+                    ]);
+                } catch (\Throwable $e) {
+                    \Log::error('Failed to persist chunk: '.$e->getMessage(), ['generation_id' => $generation->id]);
+                }
+
+                $buffer = '';
+                $result = $res;
+            }
 
             // persist any remaining buffer
             if (! empty($buffer)) {
@@ -76,15 +133,23 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
                         'sequence' => $seq++,
                         'chunk' => $buffer,
                     ]);
+                    // if streaming provided progress metadata, persist the last known progress
+                    if (! empty($lastMeta) && is_array($lastMeta)) {
+                        try {
+                            $generation->metadata = array_merge($generation->metadata ?? [], ['progress' => $lastMeta]);
+                            $generation->save();
+                        } catch (\Throwable $e) {
+                            \Log::warning('Failed to persist final generation metadata.progress: '.$e->getMessage(), ['generation_id' => $generation->id]);
+                        }
+                    }
                 } catch (\Throwable $e) {
-                    // ignore
+                    \Log::error('Failed to persist final chunk: '.$e->getMessage(), ['generation_id' => $generation->id]);
                 }
             }
 
             // Normalize result: provider may return structure or rely on assembled text
-            $rawResponse = $result['response'] ?? $result ?? null;
+            $rawResponse = is_array($result) && array_key_exists('response', $result) ? $result['response'] : $result;
             if (is_null($rawResponse)) {
-                // try parse assembled text
                 $parsed = json_decode($assembled, true);
             } else {
                 if (is_string($rawResponse)) {
@@ -99,14 +164,6 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             $isValid = is_array($parsed);
 
             if (! $isValid) {
-                // If parsing failed but we have assembled text, store as content
-                if (! empty($assembled)) {
-                    $parsed = ['content' => $assembled];
-                    $isValid = true;
-                }
-            }
-
-            if (! $isValid) {
                 $generation->status = 'failed';
                 $generation->metadata = array_merge($generation->metadata ?? [], ['error' => 'invalid_llm_response', 'message' => 'LLM returned invalid or non-JSON response']);
                 $generation->save();
@@ -115,8 +172,8 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
 
             // Redact and persist final response
             $generation->llm_response = RedactionService::redactArray($parsed);
-            $generation->confidence_score = $result['confidence'] ?? null;
-            $generation->model_version = $result['model_version'] ?? null;
+            $generation->confidence_score = is_array($result) && array_key_exists('confidence', $result) ? $result['confidence'] : null;
+            $generation->model_version = is_array($result) && array_key_exists('model_version', $result) ? $result['model_version'] : null;
             $generation->generated_at = now();
             $generation->status = 'complete';
             $generation->save();

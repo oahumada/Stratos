@@ -72,4 +72,58 @@ class GenerationChunkController extends Controller
 
         return response()->json(['success' => true, 'data' => $assembled]);
     }
+
+    /**
+     * Return lightweight progress info for a generation: status, metadata.progress
+     * and last N chunks for quick UI polling.
+     *
+     * Query params:
+     * - last (int) number of chunks to return, default 5
+     * - assemble (bool) if true, returns assembled string from the returned chunks
+     */
+    public function progress(Request $request, $generationId)
+    {
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $gen = ScenarioGeneration::find($generationId);
+        if (! $gen) {
+            return response()->json(['success' => false, 'message' => 'Generation not found'], 404);
+        }
+
+        if ($gen->organization_id !== ($user->organization_id ?? null)) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        $last = (int) $request->query('last', 5);
+        $assemble = filter_var($request->query('assemble', 'false'), FILTER_VALIDATE_BOOLEAN);
+
+        $progress = is_array($gen->metadata) && array_key_exists('progress', $gen->metadata) ? $gen->metadata['progress'] : null;
+
+        $chunksQuery = GenerationChunk::where('scenario_generation_id', $generationId)->orderBy('sequence', 'desc');
+        if ($last > 0) {
+            $chunksQuery->limit($last);
+        }
+        $recent = $chunksQuery->get(['sequence', 'chunk', 'created_at'])->toArray();
+        // return in forward order (oldest first)
+        $recent = array_reverse($recent);
+
+        $assembled = null;
+        if ($assemble) {
+            $assembled = implode('', array_column($recent, 'chunk'));
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $gen->id,
+                'status' => $gen->status,
+                'progress' => $progress,
+                'recent_chunks' => $recent,
+                'assembled_partial' => $assembled,
+            ],
+        ]);
+    }
 }

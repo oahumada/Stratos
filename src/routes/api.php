@@ -122,6 +122,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/scenarios/generate/{id}/chunks', [\App\Http\Controllers\Api\GenerationChunkController::class, 'index']);
     // Read compacted blob (decoded) for a generation (if compacted exists)
     Route::get('/strategic-planning/scenarios/generate/{id}/compacted', [\App\Http\Controllers\Api\GenerationChunkController::class, 'compacted']);
+    // Lightweight progress endpoint used by the wizard for polling progress and quick assembly
+    Route::get('/strategic-planning/scenarios/generate/{id}/progress', [\App\Http\Controllers\Api\GenerationChunkController::class, 'progress']);
 
     // Lightweight telemetry endpoint for frontend analytics (logs event server-side)
     Route::post('/telemetry/event', [\App\Http\Controllers\Api\TelemetryController::class, 'store']);

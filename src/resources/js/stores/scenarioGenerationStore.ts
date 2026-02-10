@@ -153,6 +153,8 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
         generating: false,
         generationId: null,
         generationStatus: null,
+        generationProgress: null,
+        recentChunks: [] as any[],
         generationResult: null,
         previewPrompt: null,
         importAfterAccept: false,
@@ -367,6 +369,24 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                 return res.data;
             } catch (e) {
                 throw e;
+            }
+            ,
+            async fetchProgress() {
+                if (!this.generationId) return null;
+                try {
+                    const res = await axios.get(
+                        `/api/strategic-planning/scenarios/generate/${this.generationId}/progress`,
+                    );
+                    if (res.data && res.data.success && res.data.data) {
+                        const d = res.data.data as any;
+                        this.generationProgress = d.progress ?? this.generationProgress;
+                        this.recentChunks = d.recent_chunks ?? [];
+                        return d;
+                    }
+                } catch (e) {
+                    // ignore polling errors
+                }
+                return null;
             }
         },
         validate() {
