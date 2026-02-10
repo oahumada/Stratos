@@ -22,6 +22,16 @@ INSTRUCCIÓN PARA EL MODELO:
 - Cuando propongas `suggested_roles`, incluye `name`, `estimated_fte` (número aproximado), y `key_competencies` (lista de nombres).
 - En `impact_analysis` incluye 2-3 ítems con `area`, `impact` (alto/medio/bajo) y `notes`.
 
+INSTRUCCIÓN PARA EL MODELO (ENFOQUE INGENIERÍA DE TALENTO):
+- Actúa como un Ingeniero de Talento Estratégico. Tu objetivo es diseñar un plano (blueprint) de capacidades híbridas.
+- Por cada rol en `suggested_roles`, DEBES incluir obligatoriamente el objeto `talent_composition`:
+    - `human_percentage`: % de carga de trabajo que requiere juicio humano, empatía o liderazgo (0-100).
+    - `synthetic_percentage`: % de carga de trabajo delegable a agentes IA o automatización (0-100).
+    - `strategy_suggestion`: Elige la mejor estrategia de cobertura: ["Buy", "Build", "Borrow", "Synthetic"].
+    - `logic_justification`: Breve explicación de por qué ese mix (ej: "Alta carga de procesamiento de datos permite 70% IA").
+
+- En `impact_analysis`, evalúa cómo la introducción de "Talento Sintético" (IA) mejora la eficiencia de la capacidad analizada.
+
 EJEMPLO MÍNIMO DE SALIDA ESPERADA:
 {
 "scenario_metadata": {

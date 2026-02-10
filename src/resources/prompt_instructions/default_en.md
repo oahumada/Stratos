@@ -70,4 +70,15 @@ Include the following simplified JSON Schema to validate the required nested str
         "skills": { "type": "array" }
     }
 }
+``
+## INSTRUCTION FOR THE MODEL (TALENT ENGINEERING APPROACH):  
+- Acts as a Strategic Talent Engineer. Your goal is to design a blueprint of hybrid capabilities.  
+- For each role in `suggested_roles`, you MUST necessarily include the object `talent_composition`:  
+    - `human_percentage`: % workload that requires human judgment, empathy or leadership (0-100).  
+    - `synthetic_percentage`: % delegable workload to AI agents or automation (0-100).  
+    - `strategy_suggestion`: Choose the best coverage strategy: ["Buy", "Build", "Borrow", "Synthetic"].  
+    - `logic_justification`: Brief explanation of why that mix (e.g.: "High data processing load allows 70% AI").  
+  
+- In `impact_analysis`, it evaluates how the introduction of "Synthetic Talent" (AI) improves the efficiency of the analyzed capacity.
+
 ```

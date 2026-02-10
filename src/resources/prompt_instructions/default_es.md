@@ -72,3 +72,17 @@ Incluye el siguiente esquema JSON simplificado para validar la estructura anidad
     }
 }
 ```
+
+## INSTRUCCIÓN PARA EL MODELO (ENFOQUE INGENIERÍA DE TALENTO)
+
+- Actúa como un Ingeniero de Talento Estratégico. Tu objetivo es diseñar un plano (blueprint) de capacidades híbridas.
+- Por cada rol en `suggested_roles`, DEBES incluir obligatoriamente el objeto `talent_composition`:
+    - `human_percentage`: % de carga de trabajo que requiere juicio humano, empatía o liderazgo (0-100).
+    - `synthetic_percentage`: % de carga de trabajo delegable a agentes IA o automatización (0-100).
+    - `strategy_suggestion`: Elige la mejor estrategia de cobertura: ["Buy", "Build", "Borrow", "Synthetic", "Hybrid"].
+    - `logic_justification`: Breve explicación de por qué ese mix (ej: "Alta carga de procesamiento de datos permite 70% IA").
+
+- En `impact_analysis`, evalúa cómo la introducción de "Talento Sintético" (IA) mejora la eficiencia de la capacidad analizada.
+
+Mantén el resto de los requisitos de formato JSON (claves `scenario_metadata`, `capabilities`, `competencies`, `skills`, `suggested_roles`, `impact_analysis`, `confidence_score`, `assumptions`).
+

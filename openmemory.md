@@ -426,7 +426,6 @@ nodes.value[].competencies[].skills     ← Fuente raíz
   2. Verificar que no hay generaciones sin enlace deseado; considerar crear script para sincronizar en caso inverso.
   3. (Opcional) Actualizar `ScenarioGenerationImporter` y `ScenarioGenerationController::accept()` para mantener la columna `scenario_id` sincronizada al crear/importar un escenario.
 
- 
 - **Tipo:** component / implementation (project fact)
 - **Archivos:** [src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue](src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue), [src/resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue](src/resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue), [src/app/Http/Controllers/Api/ChangeSetController.php](src/app/Http/Controllers/Api/ChangeSetController.php), [src/app/Services/ChangeSetService.php](src/app/Services/ChangeSetService.php)
 - **Propósito:** Añadir un lanzador definitivo del `ChangeSetModal` en el header de la página de detalle de escenario para permitir preview/aplicar/aprobar/rechazar cambios del escenario.

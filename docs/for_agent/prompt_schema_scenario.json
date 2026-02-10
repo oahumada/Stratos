@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stratos Talent Engineering Blueprint",
+  "type": "object",
+  "required": ["scenario_metadata", "capabilities", "suggested_roles", "confidence_score"],
+  "properties": {
+    "scenario_metadata": {
+      "type": "object",
+      "required": ["name", "generated_at"],
+      "properties": {
+        "name": { "type": "string" },
+        "generated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "competencies"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "competencies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "skills"],
+              "properties": {
+                "name": { "type": "string" },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      { "type": "string" },
+                      {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": { "name": { "type": "string" } }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "suggested_roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "estimated_fte", "talent_composition"],
+        "properties": {
+          "name": { "type": "string" },
+          "estimated_fte": { "type": "number" },
+          "key_competencies": { "type": "array", "items": { "type": "string" } },
+          "talent_composition": {
+            "type": "object",
+            "required": ["human_percentage", "synthetic_percentage", "strategy_suggestion"],
+            "properties": {
+              "human_percentage": { "type": "integer", "minimum": 0, "maximum": 100 },
+              "synthetic_percentage": { "type": "integer", "minimum": 0, "maximum": 100 },
+              "strategy_suggestion": { "type": "string", "enum": ["Buy", "Build", "Borrow", "Synthetic", "Hybrid"] },
+              "logic_justification": { "type": "string" }
+            }
+          },
+          "suggested_agent_type": { "type": "string" }
+        }
+      }
+    },
+    "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "assumptions": { "type": "array", "items": { "type": "string" } }
+  }
+}

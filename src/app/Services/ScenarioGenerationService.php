@@ -82,6 +82,10 @@ class ScenarioGenerationService
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $prompt .= "\n";
         // Append a formal JSON Schema to the instructions to help the LLM comply.
+        // NOTE: The canonical, improved schema is also stored as a standalone
+        // JSON file for operator/reference use at: docs/for_agent/prompt_schema_scenario.json
+        // Title: "Stratos Talent Engineering Blueprint"
+        // Keeping the embedded schema here for runtime prompt composition; keep in sync with the file above.
         $schemaArray = [
             '$schema' => 'http://json-schema.org/draft-07/schema#',
             'type' => 'object',
@@ -157,6 +161,23 @@ class ScenarioGenerationService
         ];
 
         $prompt .= "\nJSON_SCHEMA:\n" . json_encode($schemaArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+
+        // Additional instruction: Talent Engineering focus (enforced guidance)
+        $prompt .= <<<'EOT'
+
+    INSTRUCCIÓN PARA EL MODELO (ENFOQUE INGENIERÍA DE TALENTO):
+    - Actúa como un Ingeniero de Talento Estratégico. Tu objetivo es diseñar un plano (blueprint) de capacidades híbridas.
+    - Por cada rol en `suggested_roles`, DEBES incluir obligatoriamente el objeto `talent_composition`:
+        - `human_percentage`: % de carga de trabajo que requiere juicio humano, empatía o liderazgo (0-100).
+        - `synthetic_percentage`: % de carga de trabajo delegable a agentes IA o automatización (0-100).
+        - `strategy_suggestion`: Elige la mejor estrategia de cobertura: ["Buy", "Build", "Borrow", "Synthetic", "Hybrid"].
+        - `logic_justification`: Breve explicación de por qué ese mix (ej: "Alta carga de procesamiento de datos permite 70% IA").
+
+    - En `impact_analysis`, evalúa cómo la introducción de "Talento Sintético" (IA) mejora la eficiencia de la capacidad analizada.
+
+    Mantén el resto de los requisitos de formato JSON y las claves: `scenario_metadata`, `capabilities`, `competencies`, `skills`, `suggested_roles`, `impact_analysis`, `confidence_score`, `assumptions`.
+
+    EOT;
 
         return $prompt;
     }
