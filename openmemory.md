@@ -488,7 +488,7 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 
 **API del Composable:**
 
-```typescript
+````typescript
 import { useHierarchicalUpdate } from '@/composables/useHierarchicalUpdate';
 
 // Instanciar con las refs del componente
@@ -498,6 +498,27 @@ const hierarchicalUpdate = useHierarchicalUpdate(
 );
 
 // Métodos disponibles:
+
+## Memory: Implementation - Add AI leverage to role_skills (2026-02-10)
+
+- **Tipo:** implementation (project fact)
+- **Propósito:** Añadir soporte de "Apalancamiento de IA" directamente en la relación `role_skills`.
+- **Cambios realizados:** Se añadió la migración `database/migrations/2026_02_10_223001_add_ai_leverage_to_role_skills.php` que añade dos columnas idempotentes a la tabla `role_skills`:
+  - `ai_leverage_score` (integer, default 0)
+  - `ai_integration_notes` (text, nullable)
+  La migración comprueba existencia de tabla/columnas con `Schema::hasTable`/`Schema::hasColumn` para ser segura en re-ejecuciones.
+- **Archivo añadido:** database/migrations/2026_02_10_223001_add_ai_leverage_to_role_skills.php
+- **Siguientes pasos:** Ejecutar migraciones en el entorno deseado:
+
+  - Desde el directorio raíz del proyecto (si las migraciones se ejecutan ahí):
+
+    ```bash
+    php artisan migrate
+    ```
+
+  - Verificar seeds/tests que trabajen con `role_skills` y actualizar si requieren datos para las columnas nuevas.
+- **Notas:** No se almacenan secretos; la migración es idempotente y compatible con las prácticas del repo.
+
 
 // Actualizar skill en todas las fuentes
 await hierarchicalUpdate.update('skill', freshSkillData, competencyId);
@@ -516,7 +537,7 @@ hierarchicalUpdate.updateSkill(freshSkill, competencyId);
 hierarchicalUpdate.updateCompetency(freshComp, capabilityId?);
 hierarchicalUpdate.updateCapability(freshCap);
 hierarchicalUpdate.removeSkill(skillId, competencyId);
-```
+````
 
 **Uso en Index.vue:**
 
