@@ -304,7 +304,20 @@
                             </div>
                             <div v-if="chunkCount !== null" class="caption">
                                 Chunks recibidos: {{ chunkCount }}
-                                <span v-if="store.generationProgress && store.generationProgress.percent !== null"> — {{ Math.round(store.generationProgress.percent) }}%</span>
+                                <span
+                                    v-if="
+                                        store.generationProgress &&
+                                        store.generationProgress.percent !==
+                                            null
+                                    "
+                                >
+                                    —
+                                    {{
+                                        Math.round(
+                                            store.generationProgress.percent,
+                                        )
+                                    }}%</span
+                                >
                             </div>
                         </div>
                     </div>
