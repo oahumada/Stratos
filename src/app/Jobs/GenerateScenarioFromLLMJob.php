@@ -191,17 +191,25 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             }
 
             $generation->status = 'failed';
-            $generation->metadata = array_merge($generation->metadata ?? [], ['error' => 'rate_limit_exceeded', 'message' => $e->getMessage()]);
+            $generation->metadata = array_merge($generation->metadata ?? [], ['error' => 'rate_limit_exceeded', 'message' => $e->getMessage(), 'errors' => array_merge($generation->metadata['errors'] ?? [], [[
+                'time' => now()->toDateTimeString(), 'type' => 'rate_limit', 'message' => $e->getMessage()
+            ]])]);
             $generation->save();
         } catch (LLMServerException $e) {
             // server-side errors: mark failed and record
             $generation->status = 'failed';
-            $generation->metadata = array_merge($generation->metadata ?? [], ['error' => 'server_error', 'message' => $e->getMessage()]);
+            $generation->metadata = array_merge($generation->metadata ?? [], ['error' => 'server_error', 'message' => $e->getMessage(), 'errors' => array_merge($generation->metadata['errors'] ?? [], [[
+                'time' => now()->toDateTimeString(), 'type' => 'server_error', 'message' => $e->getMessage(), 'details' => method_exists($e, 'getResponse') ? @((string) $e->getResponse()->getBody()) : null
+            ]])]);
             $generation->save();
+            \Log::error('GenerateScenarioFromLLMJob server error', ['generation_id' => $generation->id, 'message' => $e->getMessage()]);
         } catch (Exception $e) {
             $generation->status = 'failed';
-            $generation->metadata = array_merge($generation->metadata ?? [], ['error' => 'exception', 'message' => $e->getMessage()]);
+            $generation->metadata = array_merge($generation->metadata ?? [], ['error' => 'exception', 'message' => $e->getMessage(), 'errors' => array_merge($generation->metadata['errors'] ?? [], [[
+                'time' => now()->toDateTimeString(), 'type' => 'exception', 'message' => $e->getMessage(), 'trace' => $e->getTraceAsString()
+            ]])]);
             $generation->save();
+            \Log::error('GenerateScenarioFromLLMJob exception', ['generation_id' => $generation->id, 'message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
         }
     }
 }

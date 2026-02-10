@@ -166,6 +166,8 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
 
+        $progress = is_array($generation->metadata) && array_key_exists('progress', $generation->metadata) ? $generation->metadata['progress'] : null;
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -173,6 +175,7 @@ class ScenarioGenerationController extends Controller
                 'status' => $generation->status,
                 'llm_response' => $generation->llm_response,
                 'metadata' => $generation->metadata,
+                'progress' => $progress,
                 'confidence_score' => $generation->confidence_score,
                 'model_version' => $generation->model_version,
                 'generated_at' => $generation->generated_at,

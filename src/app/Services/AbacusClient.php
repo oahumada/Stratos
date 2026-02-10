@@ -42,14 +42,45 @@ class AbacusClient
             'temperature' => $options['temperature'] ?? 0.2,
         ], $options['overrides'] ?? []);
 
-        $resp = $this->http->post('/v1/generate', [
-            'json' => $payload,
-        ]);
+        $maxAttempts = (int) ($options['retries'] ?? 2);
+        $attempt = 0;
+        $lastEx = null;
+        while ($attempt <= $maxAttempts) {
+            try {
+                $resp = $this->http->post('/v1/generate', [
+                    'json' => $payload,
+                ]);
 
-        $body = (string) $resp->getBody();
-        $decoded = json_decode($body, true);
+                $body = (string) $resp->getBody();
+                $decoded = json_decode($body, true);
 
-        return is_array($decoded) ? $decoded : ['raw' => $body];
+                return is_array($decoded) ? $decoded : ['raw' => $body];
+            } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+                $lastEx = $e;
+                $attempt++;
+                $status = null;
+                try { $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : null; } catch (\Throwable $_) { $status = null; }
+                \Log::warning('AbacusClient::generate HTTP attempt failed', ['attempt' => $attempt, 'status' => $status, 'message' => $e->getMessage()]);
+                // retry on 5xx or connection issues, otherwise break
+                if ($attempt > $maxAttempts || ($status !== null && $status < 500 && $status !== 429)) {
+                    // include response body if present
+                    try {
+                        $respBody = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : null;
+                    } catch (\Throwable $__) { $respBody = null; }
+                    \Log::error('AbacusClient::generate final failure', ['message' => $e->getMessage(), 'response_body' => $respBody]);
+                    throw $e;
+                }
+                // exponential backoff
+                sleep(min(5, (int) pow(2, $attempt)));
+                continue;
+            }
+        }
+
+        if ($lastEx) {
+            throw $lastEx;
+        }
+
+        return null;
     }
 
     /**
@@ -108,31 +139,41 @@ class AbacusClient
         // How long to tolerate no data on the stream before considering it stalled
         $streamIdleTimeout = $options['stream_idle_timeout'] ?? 120; // seconds
 
-        try {
-            $resp = $this->http->post($streamUrl, [
-                'json' => $payload,
-                'stream' => true,
-                'timeout' => $requestTimeout,
-                'read_timeout' => $options['read_timeout'] ?? 0,
-            ]);
-        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+        $maxAttempts = (int) ($options['retries'] ?? 2);
+        $attempt = 0;
+        $lastEx = null;
+        while ($attempt <= $maxAttempts) {
             try {
-                $respBody = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : null;
-            } catch (\Throwable $inner) {
-                $respBody = null;
+                $resp = $this->http->post($streamUrl, [
+                    'json' => $payload,
+                    'stream' => true,
+                    'timeout' => $requestTimeout,
+                    'read_timeout' => $options['read_timeout'] ?? 0,
+                ]);
+
+                $body = $resp->getBody();
+                return $this->parseStream($body, $options, $onChunk, $streamIdleTimeout);
+            } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+                $lastEx = $e;
+                $attempt++;
+                $status = null;
+                try { $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : null; } catch (\Throwable $_) { $status = null; }
+                \Log::warning('AbacusClient::generateStream HTTP attempt failed', ['attempt' => $attempt, 'status' => $status, 'message' => $e->getMessage()]);
+                if ($attempt > $maxAttempts || ($status !== null && $status < 500 && $status !== 429)) {
+                    try { $respBody = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : null; } catch (\Throwable $__) { $respBody = null; }
+                    \Log::error('AbacusClient::generateStream final failure', ['message' => $e->getMessage(), 'response_body' => $respBody, 'stream_url' => $streamUrl]);
+                    throw $e;
+                }
+                sleep(min(5, (int) pow(2, $attempt)));
+                continue;
             }
-            \Log::error('AbacusClient::generateStream HTTP error', [
-                'message' => $e->getMessage(),
-                'stream_url' => $streamUrl,
-                'payload' => $payload,
-                'response_body' => $respBody,
-            ]);
-            throw $e;
         }
 
-        $body = $resp->getBody();
+        if ($lastEx) {
+            throw $lastEx;
+        }
 
-        return $this->parseStream($body, $options, $onChunk, $streamIdleTimeout);
+        return null;
 
     }
 
