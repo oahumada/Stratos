@@ -24,6 +24,7 @@ class ScenarioGeneration extends Model
         'chunk_count',
         'compacted_at',
         'compacted_by',
+        'last_validation_issue_id',
         'model_version',
         'redacted',
     ];
@@ -37,5 +38,6 @@ class ScenarioGeneration extends Model
         'compacted_at' => 'datetime',
         'chunk_count' => 'integer',
         'compacted_by' => 'integer',
+        'last_validation_issue_id' => 'integer',
     ];
 }

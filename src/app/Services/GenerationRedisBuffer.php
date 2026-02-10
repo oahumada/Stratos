@@ -120,6 +120,28 @@ class GenerationRedisBuffer
             if (! empty($errors)) {
                 Log::warning('Metadata validation failed for generation', ['generation_id' => $generationId, 'errors' => $errors]);
                 $meta['validation_errors'] = $errors;
+                // write JSONL audit entry and persist DB record, capture id
+                try {
+                    $validationId = $validator->log($generationId, $meta, $errors);
+                    if ($validationId) {
+                        $meta['last_validation_issue_id'] = $validationId;
+                        $generation->last_validation_issue_id = $validationId;
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Failed to write metadata validation log', ['err' => (string) $e]);
+                }
+
+                // if strict mode is enabled, abort persisting compacted payload
+                $strict = getenv('METADATA_VALIDATION_STRICT');
+                $strict = $strict !== false && (strtolower($strict) === '1' || strtolower($strict) === 'true');
+                if ($strict) {
+                    return [
+                        'ok' => false,
+                        'reason' => 'validation_failed',
+                        'errors' => $errors,
+                        'validation_id' => $validationId ?? null,
+                    ];
+                }
             }
         } catch (\Throwable $e) {
             Log::warning('Metadata validation error', ['generation_id' => $generationId, 'exception' => (string) $e]);
