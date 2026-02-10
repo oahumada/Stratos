@@ -9,18 +9,51 @@ class AbacusClient
 {
     protected Client $http;
 
-    public function __construct()
+    public function __construct(?Client $http = null)
     {
+        if ($http !== null) {
+            $this->http = $http;
+            return;
+        }
+        // When running unit tests outside a full Laravel bootstrap, `config()` may
+        // not be available. Guard access and fall back to env vars so tests can
+        // construct a client without requiring the container.
+        try {
+            $baseUri = function_exists('config') ? config('services.abacus.base_url') : null;
+        } catch (\Throwable $_) {
+            $baseUri = null;
+        }
+        if (empty($baseUri)) {
+            $baseUri = env('ABACUS_BASE_URL');
+        }
+
+        try {
+            $timeout = function_exists('config') ? (int) config('services.abacus.timeout', 120) : 120;
+        } catch (\Throwable $_) {
+            $timeout = (int) (env('ABACUS_TIMEOUT') ?: 120);
+        }
+
+        try {
+            $key = function_exists('config') ? config('services.abacus.key') : null;
+        } catch (\Throwable $_) {
+            $key = null;
+        }
+        if (empty($key)) {
+            $key = env('ABACUS_KEY');
+        }
+
+        $headers = [
+            'Content-Type' => 'application/json',
+        ];
+        if (! empty($key)) {
+            $headers['Authorization'] = 'Bearer ' . $key;
+            $headers['apiKey'] = $key;
+        }
+
         $this->http = new Client([
-            'base_uri' => config('services.abacus.base_url'),
-            'timeout' => (int) config('services.abacus.timeout', 60),
-            'headers' => [
-                'Authorization' => 'Bearer ' . config('services.abacus.key'),
-                // Some Abacus endpoints (docs/examples) expect `apiKey` header instead
-                // of Authorization. Send both so we have a fallback without extra roundtrips.
-                'apiKey' => config('services.abacus.key'),
-                'Content-Type' => 'application/json',
-            ],
+            'base_uri' => $baseUri,
+            'timeout' => $timeout,
+            'headers' => $headers,
         ]);
     }
 
@@ -35,8 +68,17 @@ class AbacusClient
      */
     public function generate(string $prompt, array $options = []): ?array
     {
+        try {
+            $modelCfg = function_exists('config') ? config('services.abacus.model') : null;
+        } catch (\Throwable $_) {
+            $modelCfg = null;
+        }
+        if (empty($modelCfg)) {
+            $modelCfg = env('ABACUS_MODEL', 'default');
+        }
+
         $payload = array_merge([
-            'model' => config('services.abacus.model'),
+            'model' => $modelCfg,
             'prompt' => $prompt,
             'max_tokens' => $options['max_tokens'] ?? 1000,
             'temperature' => $options['temperature'] ?? 0.2,
@@ -60,14 +102,14 @@ class AbacusClient
                 $attempt++;
                 $status = null;
                 try { $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : null; } catch (\Throwable $_) { $status = null; }
-                \Log::warning('AbacusClient::generate HTTP attempt failed', ['attempt' => $attempt, 'status' => $status, 'message' => $e->getMessage()]);
+                try { \Log::warning('AbacusClient::generate HTTP attempt failed', ['attempt' => $attempt, 'status' => $status, 'message' => $e->getMessage()]); } catch (\Throwable $_) {}
                 // retry on 5xx or connection issues, otherwise break
                 if ($attempt > $maxAttempts || ($status !== null && $status < 500 && $status !== 429)) {
                     // include response body if present
                     try {
                         $respBody = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : null;
                     } catch (\Throwable $__) { $respBody = null; }
-                    \Log::error('AbacusClient::generate final failure', ['message' => $e->getMessage(), 'response_body' => $respBody]);
+                    try { \Log::error('AbacusClient::generate final failure', ['message' => $e->getMessage(), 'response_body' => $respBody]); } catch (\Throwable $_) {}
                     throw $e;
                 }
                 // exponential backoff
@@ -100,8 +142,17 @@ class AbacusClient
             @set_time_limit(0);
         }
 
+        try {
+            $modelCfg = function_exists('config') ? config('services.abacus.model') : null;
+        } catch (\Throwable $_) {
+            $modelCfg = null;
+        }
+        if (empty($modelCfg)) {
+            $modelCfg = env('ABACUS_MODEL', 'default');
+        }
+
         $payload = array_merge([
-            'model' => config('services.abacus.model'),
+            'model' => $modelCfg,
             'messages' => [[ 'role' => 'user', 'content' => $prompt ]],
             'stream' => true,
             'max_tokens' => $options['max_tokens'] ?? 1000,
@@ -109,33 +160,20 @@ class AbacusClient
         ], $options['overrides'] ?? []);
 
         // Determine streaming endpoint: prefer explicit config, otherwise derive from base_url.
-        $streamUrl = config('services.abacus.stream_url');
+        try {
+            $streamUrl = function_exists('config') ? config('services.abacus.stream_url') : null;
+        } catch (\Throwable $_) { $streamUrl = null; }
         if (empty($streamUrl)) {
-            $base = rtrim(config('services.abacus.base_url') ?? '', '/');
+            try { $base = function_exists('config') ? rtrim(config('services.abacus.base_url') ?? '', '/') : ''; } catch (\Throwable $_) { $base = rtrim(env('ABACUS_BASE_URL', ''), '/'); }
             if (strpos($base, 'api.abacus.ai') !== false) {
-                // production-style base uses api.abacus.ai — Abacus streaming uses routellm subdomain
                 $streamUrl = 'https://routellm.abacus.ai/v1/chat/completions';
             } else {
                 $streamUrl = $base . '/v1/chat/completions';
             }
         }
 
-        // Ensure we don't buffer the whole response in Guzzle internals
-        // Determine streaming endpoint: prefer explicit config, otherwise derive from base_url.
-        $streamUrl = config('services.abacus.stream_url');
-        if (empty($streamUrl)) {
-            $base = rtrim(config('services.abacus.base_url') ?? '', '/');
-            if (strpos($base, 'api.abacus.ai') !== false) {
-                // production-style base uses api.abacus.ai — Abacus streaming uses routellm subdomain
-                $streamUrl = 'https://routellm.abacus.ai/v1/chat/completions';
-            } else {
-                $streamUrl = $base . '/v1/chat/completions';
-            }
-        }
-
-        // Ensure we don't buffer the whole response in Guzzle internals
         // Allow caller to increase request timeout when expecting long responses
-        $requestTimeout = $options['timeout'] ?? config('services.abacus.timeout', 60);
+        try { $requestTimeout = $options['timeout'] ?? (function_exists('config') ? config('services.abacus.timeout', 60) : 60); } catch (\Throwable $_) { $requestTimeout = $options['timeout'] ?? (int) (env('ABACUS_TIMEOUT') ?: 60); }
         // How long to tolerate no data on the stream before considering it stalled
         $streamIdleTimeout = $options['stream_idle_timeout'] ?? 120; // seconds
 
@@ -158,10 +196,10 @@ class AbacusClient
                 $attempt++;
                 $status = null;
                 try { $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : null; } catch (\Throwable $_) { $status = null; }
-                \Log::warning('AbacusClient::generateStream HTTP attempt failed', ['attempt' => $attempt, 'status' => $status, 'message' => $e->getMessage()]);
+                try { \Log::warning('AbacusClient::generateStream HTTP attempt failed', ['attempt' => $attempt, 'status' => $status, 'message' => $e->getMessage()]); } catch (\Throwable $_) {}
                 if ($attempt > $maxAttempts || ($status !== null && $status < 500 && $status !== 429)) {
                     try { $respBody = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : null; } catch (\Throwable $__) { $respBody = null; }
-                    \Log::error('AbacusClient::generateStream final failure', ['message' => $e->getMessage(), 'response_body' => $respBody, 'stream_url' => $streamUrl]);
+                    try { \Log::error('AbacusClient::generateStream final failure', ['message' => $e->getMessage(), 'response_body' => $respBody, 'stream_url' => $streamUrl]); } catch (\Throwable $_) {}
                     throw $e;
                 }
                 sleep(min(5, (int) pow(2, $attempt)));
@@ -203,7 +241,7 @@ class AbacusClient
             if ($chunk === '') {
                 usleep(50000);
                 if ((microtime(true) - $lastChunkAt) > $streamIdleTimeout) {
-                    \Log::warning('AbacusClient::parseStream idle timeout reached');
+                    try { \Log::warning('AbacusClient::parseStream idle timeout reached'); } catch (\Throwable $_) {}
                     break;
                 }
                 continue;
