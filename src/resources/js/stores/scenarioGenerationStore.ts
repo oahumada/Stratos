@@ -321,7 +321,31 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
             this.generationStatus = res.data.data.status;
             // Normalize LLM response into a predictable shape for the UI.
             const raw = res.data.data.llm_response;
-            this.generationResult = normalizeLlMResponse(raw);
+            // If llm_response is not present but server stored a compacted blob in metadata,
+            // attempt to fetch the compacted assembled response as a fallback.
+            if (
+                (raw === null || raw === undefined) &&
+                res.data.data.metadata &&
+                res.data.data.metadata.compacted
+            ) {
+                try {
+                    const c = await axios.get(
+                        `/api/strategic-planning/scenarios/generate/${this.generationId}/compacted`,
+                    );
+                    if (c.data && c.data.success) {
+                        const d = c.data.data;
+                        // compacted may be JSON string or object — normalize accordingly
+                        this.generationResult = normalizeLlMResponse(d);
+                    } else {
+                        this.generationResult = normalizeLlMResponse(raw);
+                    }
+                } catch (e) {
+                    // fallback to raw (may be null) if compacted fetch fails
+                    this.generationResult = normalizeLlMResponse(raw);
+                }
+            } else {
+                this.generationResult = normalizeLlMResponse(raw);
+            }
             // Dev-time trace to help debug UI timing issues: log status and normalized result
             try {
                 // avoid circular structure error when logging

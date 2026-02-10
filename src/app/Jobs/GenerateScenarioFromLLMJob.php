@@ -60,6 +60,32 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             $provider = $generation->metadata['provider'] ?? null;
             $options = $generation->metadata['provider_options'] ?? [];
 
+            // Determine effective model that will be sent to the provider for traceability.
+            try {
+                $configModel = function_exists('config') ? config('services.abacus.model') : null;
+            } catch (\Throwable $_) {
+                $configModel = null;
+            }
+            if (empty($configModel)) {
+                $configModel = env('ABACUS_MODEL') ?: null;
+            }
+            $overrideModel = is_array($options) && isset($options['overrides']['model']) ? $options['overrides']['model'] : null;
+            $effectiveModel = null;
+            if (! empty($overrideModel)) {
+                $effectiveModel = $overrideModel;
+            } elseif (! empty($configModel) && preg_match('/(gpt|claude|sonnet|claude-)/i', (string) $configModel)) {
+                $effectiveModel = $configModel;
+            } else {
+                $effectiveModel = null; // let provider choose
+            }
+
+            try {
+                $generation->metadata = array_merge($generation->metadata ?? [], ['used_provider_model' => $effectiveModel]);
+                $generation->save();
+            } catch (\Throwable $_) {
+                try { \Log::warning('Failed to persist generation metadata.used_provider_model', ['generation_id' => $generation->id]); } catch (\Throwable $__ ) {}
+            }
+
             if ($provider === 'abacus') {
                     // mark prompt sent time for monitoring
                     try {

@@ -302,19 +302,23 @@
                                 La generación está en progreso. Esto puede
                                 tardar unos segundos.
                             </div>
-                            <div v-if="chunkCount !== null" class="caption">
-                                Chunks recibidos: {{ chunkCount }}
+                            <div
+                                v-if="effectiveChunkCount !== null"
+                                class="caption"
+                            >
+                                Chunks recibidos: {{ effectiveChunkCount }}
                                 <span
                                     v-if="
                                         store.generationProgress &&
-                                        store.generationProgress.percent !==
-                                            null
+                                        (store.generationProgress as any)
+                                            .percent !== null
                                     "
                                 >
                                     —
                                     {{
                                         Math.round(
-                                            store.generationProgress.percent,
+                                            (store.generationProgress as any)
+                                                .percent,
                                         )
                                     }}%</span
                                 >
@@ -322,7 +326,7 @@
                         </div>
                     </div>
 
-                    <div v-else>
+                    <div v-else-if="!responseLoading">
                         <div
                             v-if="
                                 store.generationResult &&
@@ -932,9 +936,9 @@ async function onConfirmGenerate(importAfter = false) {
             try {
                 await store.fetchProgress();
                 await store.fetchStatus();
-                const p = store.generationProgress;
+                const p = store.generationProgress as any;
                 const received =
-                    p?.received_chunks ??
+                    p?.progress?.received_chunks ??
                     (store.recentChunks ? store.recentChunks.length : null);
                 // if we detect new chunks arriving, extend waiting window implicitly
                 if (
@@ -1001,11 +1005,6 @@ function onEditPrompt() {
     showPreview.value = false;
     store.step = 1;
 }
-
-async function refreshStatus() {
-    await store.fetchStatus();
-}
-
 const accepting = ref(false);
 const responseValidationErrors = ref<string[] | null>(null);
 const responseValidationTitle = ref('');
@@ -1042,6 +1041,17 @@ const responseModalOpen = ref(false);
 let responsePollTimer: any = null;
 const responseLoading = ref(false);
 const chunkCount = ref<number | null>(null);
+
+// Prefer an effective chunk count based on server-reported count or recentChunks length
+const effectiveChunkCount = computed(() => {
+    if (chunkCount.value !== null) return chunkCount.value;
+    try {
+        const len = store.recentChunks ? (store.recentChunks as any).length : 0;
+        return len > 0 ? len : null;
+    } catch {
+        return null;
+    }
+});
 
 const generationHasUsableContent = () => {
     const r: any = store.generationResult;
@@ -1393,6 +1403,24 @@ async function fetchAndAssembleChunks() {
         // ignore — caller will handle absence
     }
     return null;
+}
+
+async function refreshStatus() {
+    try {
+        await store.fetchStatus();
+        try {
+            await fetchChunkCount();
+        } catch {
+            // ignore
+        }
+    } catch (e) {
+        console.error('Refresh status failed', e);
+        showError(
+            (e as any)?.response?.data?.message ||
+                (e as any)?.message ||
+                'Error al actualizar estado',
+        );
+    }
 }
 
 function prefillDemo() {

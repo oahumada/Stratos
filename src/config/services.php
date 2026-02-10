@@ -39,7 +39,7 @@ return [
         'base_url' => env('ABACUS_BASE_URL', 'https://api.abacus.ai'),
         'stream_url' => env('ABACUS_STREAM_URL', null),
         'key' => env('ABACUS_API_KEY'),
-        'model' => env('ABACUS_MODEL', 'abacus-default'),
+        'model' => env('ABACUS_MODEL', null),
         'timeout' => env('ABACUS_TIMEOUT', 120),
         'retries' => env('ABACUS_RETRIES', 3),
         'stream_idle_timeout' => env('ABACUS_STREAM_IDLE_TIMEOUT', 600),

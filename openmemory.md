@@ -134,6 +134,18 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
   - **Siguientes pasos recomendados:**
     - (Ops) Desplegar cambios al entorno donde opera el worker/queue y asegurar que el driver de queue procesa jobs con permisos para escribir `generation_chunks`.
 
+  ## Memory: Implementation - Alineación Controller Wizard con harness CLI (2026-02-10)
+  - **Tipo:** implementation (project fact)
+  - **Propósito:** Alinear la lógica del endpoint UI que encola generaciones (GenerateWizard) con el comportamiento canónico del harness CLI `scripts/generate_via_abacus.php` para evitar divergencias en la selección/override del modelo Abacus y en el registro del modelo usado.
+  - **Cambios realizados:** `src/app/Http/Controllers/Api/ScenarioGenerationController.php` ahora:
+    - Determina el modelo a usar con `config('services.abacus.model') ?: env('ABACUS_MODEL', 'gpt-5')` (mismo enfoque que los scripts de pruebas).
+    - Incluye el `overrides.model` en `provider_options` para que la petición al cliente Abacus utilice explícitamente el modelo elegido (replicando el flujo del script de referencia).
+    - Persiste `used_provider_model` dentro de `metadata` del `scenario_generation` para trazabilidad.
+  - **Por qué:** Evitar envíos de modelos placeholder (p. ej. `abacus-default`) desde la UI que causaban 400s en Abacus y asegurar trazabilidad/consistencia entre el flujo GUI (wizard) y el harness CLI.
+  - **Archivos modificados:**
+    - `src/app/Http/Controllers/Api/ScenarioGenerationController.php`
+  - **Estado:** Implementado y commiteado en working copy. Se recomienda ejecutar una generación end-to-end desde el wizard en entorno de desarrollo para validar que la UI refleja el `llm_response` final y que `metadata.used_provider_model` contiene el valor esperado.
+
 ## Estado actual (inicio)
 
 - Branch: feature/workforce-planning-scenario-modeling

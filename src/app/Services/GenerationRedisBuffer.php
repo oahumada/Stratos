@@ -3,6 +3,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 use App\Models\ScenarioGeneration;
 use App\Services\MetadataValidator;
 
@@ -82,6 +83,31 @@ class GenerationRedisBuffer
         $parsed = json_decode($assembled, true);
         if (json_last_error() === JSON_ERROR_NONE) {
             $generation->llm_response = $parsed;
+
+            // If the LLM response contains scenario_metadata, extract canonical fields
+            if (isset($parsed['scenario_metadata']) && is_array($parsed['scenario_metadata'])) {
+                $sm = $parsed['scenario_metadata'];
+                if (isset($sm['generated_at']) && is_string($sm['generated_at'])) {
+                    try {
+                        $generation->generated_at = Carbon::parse($sm['generated_at']);
+                    } catch (\Throwable $e) {
+                        // ignore parse errors
+                    }
+                }
+                if (isset($sm['confidence_score'])) {
+                    $generation->confidence_score = (float) $sm['confidence_score'];
+                }
+                if (isset($sm['assumptions']) && is_array($sm['assumptions'])) {
+                    $meta['assumptions'] = $sm['assumptions'];
+                    // detect mock responses by assumptions content
+                    foreach ($sm['assumptions'] as $a) {
+                        if (is_string($a) && stripos($a, 'mock') !== false) {
+                            $meta['is_mock'] = true;
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         $meta = is_array($generation->metadata) ? $generation->metadata : [];

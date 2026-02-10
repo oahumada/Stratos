@@ -78,7 +78,22 @@ class ScenarioGenerationController extends Controller
         $prompt = $composed['prompt'] ?? '';
         $instructionMeta = $composed['instruction'] ?? null;
 
-        $metadata = array_merge(['initiator' => $user->id], ['used_instruction' => $instructionMeta]);
+        // Prefer Abacus provider for UI-initiated generations from the wizard.
+        // Align behavior with `scripts/generate_via_abacus.php`: determine model from
+        // config('services.abacus.model') or env, and include it as an explicit
+        // override so the Abacus client uses the chosen model.
+        $model = config('services.abacus.model') ?: env('ABACUS_MODEL', 'gpt-5');
+        $providerOptions = [
+            'overrides' => ['model' => $model],
+        ];
+
+        $metadata = array_merge([
+            'initiator' => $user->id,
+            'provider' => 'abacus',
+            'provider_options' => $providerOptions,
+            // record which model we attempted to use for traceability (mirrors script behavior)
+            'used_provider_model' => $model,
+        ], ['used_instruction' => $instructionMeta]);
 
         $generation = $svc->enqueueGeneration($prompt, $orgId, $user->id, $metadata);
 

@@ -74,15 +74,25 @@ class AbacusClient
             $modelCfg = null;
         }
         if (empty($modelCfg)) {
-            $modelCfg = env('ABACUS_MODEL', 'default');
+            $modelCfg = env('ABACUS_MODEL', null);
         }
 
-        $payload = array_merge([
-            'model' => $modelCfg,
+        // Only include an explicit model when it appears to be a valid Abacus
+        // model identifier. Some deployments set a placeholder like
+        // "abacus-default" in config; sending that causes a 400 from
+        // route-llm. If modelCfg is absent or looks suspicious, omit it so
+        // the Abacus route can choose a default.
+        $payloadBase = [
             'prompt' => $prompt,
             'max_tokens' => $options['max_tokens'] ?? 1000,
             'temperature' => $options['temperature'] ?? 0.2,
-        ], $options['overrides'] ?? []);
+        ];
+
+        if (! empty($modelCfg) && preg_match('/gpt/i', (string) $modelCfg)) {
+            $payloadBase['model'] = $modelCfg;
+        }
+
+        $payload = array_merge($payloadBase, $options['overrides'] ?? []);
 
         $maxAttempts = (int) ($options['retries'] ?? 2);
         $attempt = 0;
@@ -148,16 +158,21 @@ class AbacusClient
             $modelCfg = null;
         }
         if (empty($modelCfg)) {
-            $modelCfg = env('ABACUS_MODEL', 'default');
+            $modelCfg = env('ABACUS_MODEL', null);
         }
 
-        $payload = array_merge([
-            'model' => $modelCfg,
+        $payloadBase = [
             'messages' => [[ 'role' => 'user', 'content' => $prompt ]],
             'stream' => true,
             'max_tokens' => $options['max_tokens'] ?? 1000,
             'temperature' => $options['temperature'] ?? 0.2,
-        ], $options['overrides'] ?? []);
+        ];
+
+        if (! empty($modelCfg) && preg_match('/gpt/i', (string) $modelCfg)) {
+            $payloadBase['model'] = $modelCfg;
+        }
+
+        $payload = array_merge($payloadBase, $options['overrides'] ?? []);
 
         // Determine streaming endpoint: prefer explicit config, otherwise derive from base_url.
         try {
