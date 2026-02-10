@@ -246,6 +246,9 @@ class ScenarioGenerationController extends Controller
 
         $scenario = \App\Models\Scenario::create($data);
 
+        // ensure the generation record references the created scenario for quick lookups
+        $generation->scenario_id = $scenario->id;
+
         // record acceptance on generation metadata
         $generation->metadata = array_merge($generation->metadata ?? [], ['accepted_by' => $user->id, 'accepted_at' => now()->toDateTimeString(), 'created_scenario_id' => $scenario->id]);
         $generation->save();

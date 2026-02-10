@@ -399,6 +399,34 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 
 ## Implementación: Integración ChangeSet Modal en UI (2026-02-06)
 
+## Memory: Implementation - Exponer relación 1:1 Scenario <-> ScenarioGeneration (2026-02-10)
+
+- **Tipo:** implementation (project fact)
+- **Propósito:** Exponer la relación 1:1 entre `scenarios` y `scenario_generations` desde ambos modelos Eloquent sin cambiar el esquema de base de datos existente.
+- **Cambios realizados:** Añadidos métodos Eloquent:
+  - `\App\Models\Scenario::sourceGeneration()` — `belongsTo(ScenarioGeneration::class, 'source_generation_id')`.
+  - `\App\Models\ScenarioGeneration::scenario()` — `hasOne(Scenario::class, 'source_generation_id')`.
+- **Why / Por qué:** La tabla `scenarios` ya contiene la columna `source_generation_id` con FK hacia `scenario_generations` (migraciones existentes). Para facilitar navegación bidireccional en código se añadieron relaciones inversas en los modelos en lugar de introducir una nueva columna `scenario_id` en `scenario_generations`, evitando cambios de infraestructura y manteniendo compatibilidad con el flujo actual (`ScenarioGenerationImporter` y `ScenarioGenerationController`).
+- **Estado:** implementado en working copy — modelos actualizados en `src/app/Models/Scenario.php` y `src/app/Models/ScenarioGeneration.php`.
+- **Siguientes pasos recomendados:**
+  1. Si se desea tener FK/fila en `scenario_generations` (columna `scenario_id`) para consultas más directas o constraints de unicidad, crear migración nullable+unique y añadir sincronización en import/accept flows.
+- **Tipo:** component / implementation (project fact)
+
+## Memory: Implementation - Add `scenario_id` column + backfill (2026-02-10)
+
+- **Tipo:** implementation (project fact)
+- **Propósito:** Añadir columna `scenario_id` en `scenario_generations` (nullable + unique + FK a `scenarios.id`) y backfill idempotente desde `scenarios.source_generation_id`.
+- **Cambios realizados:**
+  - Nueva migración: `src/database/migrations/2026_02_10_120000_add_scenario_id_to_scenario_generations.php` — añade `scenario_id` nullable, índice único y FK (si DB lo soporta). Rollback seguro.
+  - Nuevo comando Artisan: `backfill:scenario-generation-scenario-id` (`src/app/Console/Commands/BackfillScenarioGenerationScenarioId.php`) que realiza un backfill idempotente: para cada `scenarios` con `source_generation_id` no nulo actualiza `scenario_generations.scenario_id` cuando está vacío.
+  - Modelo `ScenarioGeneration` actualizado (`scenario_id` añadido a `$fillable` y `$casts`).
+- **Estado:** migración y comando añadidos en working copy; requiere ejecutar `php artisan migrate` y luego `php artisan backfill:scenario-generation-scenario-id` desde el directorio `src`.
+- **Siguientes pasos recomendados:**
+  1. Ejecutar migración y backfill en staging como prueba.
+  2. Verificar que no hay generaciones sin enlace deseado; considerar crear script para sincronizar en caso inverso.
+  3. (Opcional) Actualizar `ScenarioGenerationImporter` y `ScenarioGenerationController::accept()` para mantener la columna `scenario_id` sincronizada al crear/importar un escenario.
+
+ 
 - **Tipo:** component / implementation (project fact)
 - **Archivos:** [src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue](src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue), [src/resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue](src/resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue), [src/app/Http/Controllers/Api/ChangeSetController.php](src/app/Http/Controllers/Api/ChangeSetController.php), [src/app/Services/ChangeSetService.php](src/app/Services/ChangeSetService.php)
 - **Propósito:** Añadir un lanzador definitivo del `ChangeSetModal` en el header de la página de detalle de escenario para permitir preview/aplicar/aprobar/rechazar cambios del escenario.

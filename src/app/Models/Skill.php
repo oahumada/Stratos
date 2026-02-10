@@ -12,6 +12,7 @@ class Skill extends Model
 {
     protected $fillable = [
         'organization_id',
+        'llm_id',
         'name',
         'category',
         'complexity_level',
@@ -32,6 +33,7 @@ class Skill extends Model
     protected $casts = [
         'category' => 'string',
         'is_critical' => 'boolean',
+        'llm_id' => 'string',
     ];
 
     protected static function booted()

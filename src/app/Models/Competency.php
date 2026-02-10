@@ -12,7 +12,11 @@ class Competency extends Model
 
     protected $table = 'competencies';
 
-    protected $fillable = ['organization_id', 'name', 'description'];
+    protected $fillable = ['organization_id', 'llm_id', 'name', 'description'];
+
+    protected $casts = [
+        'llm_id' => 'string',
+    ];
 
     /**
      * Relación N:N con Capabilities vía tabla pivote capability_competencies

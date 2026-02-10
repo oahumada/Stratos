@@ -97,6 +97,15 @@ class Scenario extends Model
         return $this->belongsTo(self::class, 'parent_id');
     }
 
+    /**
+     * The generation that produced this Scenario (if any).
+     * Stored in `scenarios.source_generation_id`.
+     */
+    public function sourceGeneration()
+    {
+        return $this->belongsTo(\App\Models\ScenarioGeneration::class, 'source_generation_id');
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {

@@ -27,6 +27,7 @@ class ScenarioGeneration extends Model
         'last_validation_issue_id',
         'model_version',
         'redacted',
+        'scenario_id',
     ];
 
     protected $casts = [
@@ -39,5 +40,17 @@ class ScenarioGeneration extends Model
         'chunk_count' => 'integer',
         'compacted_by' => 'integer',
         'last_validation_issue_id' => 'integer',
+        'scenario_id' => 'integer',
     ];
+
+    /**
+     * If a generation was imported/accepted into a Scenario, the
+     * `scenarios.source_generation_id` column references this model.
+     * This defines the inverse 1:1 relation so code can easily navigate
+     * from a generation to its created Scenario (if any).
+     */
+    public function scenario()
+    {
+        return $this->hasOne(Scenario::class, 'source_generation_id');
+    }
 }

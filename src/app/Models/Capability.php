@@ -13,13 +13,14 @@ class Capability extends Model
 
     protected $table = 'capabilities';
 
-    protected $fillable = ['organization_id', 'name', 'description', 'position_x', 'position_y', 'importance', 'type', 'category', 'status', 'discovered_in_scenario_id'];
+    protected $fillable = ['organization_id', 'llm_id', 'name', 'description', 'position_x', 'position_y', 'importance', 'type', 'category', 'status', 'discovered_in_scenario_id'];
 
     protected $casts = [
         'position_x' => 'decimal:2',
         'position_y' => 'decimal:2',
         'importance' => 'integer',
         'discovered_in_scenario_id' => 'integer',
+        'llm_id' => 'string',
     ];
 
     public function competencies()
