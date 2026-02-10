@@ -905,18 +905,46 @@ async function onConfirmGenerate(importAfter = false) {
             // ignore fetch errors for now
         }
 
-        // If not complete, poll until completion (timeout 120s)
+        // If not complete, poll until completion. Prefer lightweight `/progress`
+        // endpoint (reports received_chunks) so the UI can detect streaming
+        // activity and wait long enough for slow responses. Increase timeout
+        // to 600s to accommodate long-running model responses similar to CLI.
         const start = Date.now();
-        const timeoutMs = 120000;
+        const timeoutMs = 600000; // 10 minutes
+        let lastReceivedChunks = null;
+        try {
+            const p0 = await store.fetchProgress();
+            lastReceivedChunks =
+                p0?.progress?.received_chunks ??
+                (Array.isArray(p0?.recent_chunks)
+                    ? p0.recent_chunks.length
+                    : lastReceivedChunks);
+        } catch {
+            // ignore
+        }
+
         while (
             store.generationStatus !== 'complete' &&
             Date.now() - start < timeoutMs
         ) {
-            // wait a bit then refresh
-            // show a small visual cue by setting generating (already managed by store)
+            // wait a bit then refresh progress/status
             await new Promise((r) => setTimeout(r, 2000));
             try {
+                await store.fetchProgress();
                 await store.fetchStatus();
+                const p = store.generationProgress;
+                const received =
+                    p?.received_chunks ??
+                    (store.recentChunks ? store.recentChunks.length : null);
+                // if we detect new chunks arriving, extend waiting window implicitly
+                if (
+                    received !== null &&
+                    lastReceivedChunks !== null &&
+                    received > lastReceivedChunks
+                ) {
+                    // refresh lastReceivedChunks to the new value
+                    lastReceivedChunks = received;
+                }
             } catch {
                 // ignore intermittent errors
             }

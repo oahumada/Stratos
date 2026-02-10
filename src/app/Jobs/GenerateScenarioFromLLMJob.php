@@ -6,6 +6,7 @@ use App\Models\ScenarioGeneration;
 use App\Services\LLMClient;
 use App\Services\AbacusClient;
 use App\Models\GenerationChunk;
+use App\Services\GenerationRedisBuffer;
 use App\Services\LLMProviders\Exceptions\LLMRateLimitException;
 use App\Services\LLMProviders\Exceptions\LLMServerException;
 use App\Services\RedactionService;
@@ -44,6 +45,10 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
         try {
             // Use streaming when available so we can persist intermediate chunks
             $assembled = '';
+            $redisBuf = new GenerationRedisBuffer();
+            $storageMode = strtolower(env('GENERATION_CHUNK_STORAGE', 'redis'));
+            $useDb = in_array($storageMode, ['db', 'both']);
+            $useRedis = in_array($storageMode, ['redis', 'both']);
             $seq = 1;
             $buffer = '';
             $maxBuffer = 256; // bytes
@@ -56,7 +61,24 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             $options = $generation->metadata['provider_options'] ?? [];
 
             if ($provider === 'abacus') {
-                $result = $abacus->generateStream($generation->prompt ?? '', $options, function ($delta, $meta = null) use (&$assembled, &$seq, $generation, &$buffer, $maxBuffer, &$lastFlush, $flushInterval, &$lastMeta) {
+                    // mark prompt sent time for monitoring
+                    try {
+                        $generation->metadata = array_merge($generation->metadata ?? [], ['sent_at' => now()->toDateTimeString()]);
+                        $generation->save();
+                    } catch (\Throwable $_) {
+                        try { \Log::warning('Failed to persist generation metadata.sent_at', ['generation_id' => $generation->id]); } catch (\Throwable $__) {}
+                    }
+
+                    $result = $abacus->generateStream($generation->prompt ?? '', $options, function ($delta, $meta = null) use (&$assembled, &$seq, $generation, &$buffer, $maxBuffer, &$lastFlush, $flushInterval, &$lastMeta) {
+                        // on first chunk, record first_chunk_at
+                        if (empty($generation->metadata['first_chunk_at'])) {
+                            try {
+                                $generation->metadata = array_merge($generation->metadata ?? [], ['first_chunk_at' => now()->toDateTimeString()]);
+                                $generation->save();
+                            } catch (\Throwable $_) {
+                                try { \Log::warning('Failed to persist generation metadata.first_chunk_at', ['generation_id' => $generation->id]); } catch (\Throwable $__) {}
+                            }
+                        }
                     $assembled .= $delta;
                     $buffer .= $delta;
 
@@ -65,16 +87,31 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
                         $lastMeta = $meta;
                     }
 
+                        // update last_chunk_at timestamp for monitoring
+                        try {
+                            $generation->metadata = array_merge($generation->metadata ?? [], ['last_chunk_at' => now()->toDateTimeString()]);
+                            $generation->save();
+                        } catch (\Throwable $_) {
+                            try { \Log::warning('Failed to persist generation metadata.last_chunk_at', ['generation_id' => $generation->id]); } catch (\Throwable $__) {}
+                        }
+
                     $now = microtime(true);
                     $shouldFlushBySize = strlen($buffer) >= $maxBuffer;
                     $shouldFlushByTime = ($now - ($lastFlush ?? 0)) >= $flushInterval;
                     if ($shouldFlushBySize || $shouldFlushByTime) {
                         try {
-                            GenerationChunk::create([
-                                'scenario_generation_id' => $generation->id,
-                                'sequence' => $seq++,
-                                'chunk' => $buffer,
-                            ]);
+                            if ($useDb) {
+                                GenerationChunk::create([
+                                    'scenario_generation_id' => $generation->id,
+                                    'sequence' => $seq++,
+                                    'chunk' => $buffer,
+                                ]);
+                            }
+                            if ($useRedis) {
+                                $orgId = $generation->organization_id ?? ($generation->metadata['organization_id'] ?? null);
+                                $scenarioId = $generation->metadata['scenario_id'] ?? null;
+                                $redisBuf->pushChunk((int) $orgId, (int) $generation->id, $buffer, $meta ?? null, $scenarioId);
+                            }
                             // Persist progress metadata when provided by the streaming provider
                             if (isset($meta) && is_array($meta)) {
                                 $lastMeta = $meta;
@@ -112,11 +149,18 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
                 $buffer .= $text;
 
                 try {
-                    GenerationChunk::create([
-                        'scenario_generation_id' => $generation->id,
-                        'sequence' => $seq++,
-                        'chunk' => $buffer,
-                    ]);
+                    if ($useDb) {
+                        GenerationChunk::create([
+                            'scenario_generation_id' => $generation->id,
+                            'sequence' => $seq++,
+                            'chunk' => $buffer,
+                        ]);
+                    }
+                    if ($useRedis) {
+                        $orgId = $generation->organization_id ?? ($generation->metadata['organization_id'] ?? null);
+                        $scenarioId = $generation->metadata['scenario_id'] ?? null;
+                        $redisBuf->pushChunk((int) $orgId, (int) $generation->id, $buffer, null, $scenarioId);
+                    }
                 } catch (\Throwable $e) {
                     \Log::error('Failed to persist chunk: '.$e->getMessage(), ['generation_id' => $generation->id]);
                 }
@@ -128,11 +172,18 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             // persist any remaining buffer
             if (! empty($buffer)) {
                 try {
-                    GenerationChunk::create([
-                        'scenario_generation_id' => $generation->id,
-                        'sequence' => $seq++,
-                        'chunk' => $buffer,
-                    ]);
+                    if ($useDb) {
+                        GenerationChunk::create([
+                            'scenario_generation_id' => $generation->id,
+                            'sequence' => $seq++,
+                            'chunk' => $buffer,
+                        ]);
+                    }
+                    if ($useRedis) {
+                        $orgId = $generation->organization_id ?? ($generation->metadata['organization_id'] ?? null);
+                        $scenarioId = $generation->metadata['scenario_id'] ?? null;
+                        $redisBuf->pushChunk((int) $orgId, (int) $generation->id, $buffer, null, $scenarioId);
+                    }
                     // if streaming provided progress metadata, persist the last known progress
                     if (! empty($lastMeta) && is_array($lastMeta)) {
                         try {
@@ -146,6 +197,14 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
                     \Log::error('Failed to persist final chunk: '.$e->getMessage(), ['generation_id' => $generation->id]);
                 }
             }
+
+                // record completion timestamp in metadata for monitoring
+                try {
+                    $generation->metadata = array_merge($generation->metadata ?? [], ['completed_at' => now()->toDateTimeString()]);
+                    $generation->save();
+                } catch (\Throwable $_) {
+                    try { \Log::warning('Failed to persist generation metadata.completed_at', ['generation_id' => $generation->id]); } catch (\Throwable $__) {}
+                }
 
             // Normalize result: provider may return structure or rely on assembled text
             $rawResponse = is_array($result) && array_key_exists('response', $result) ? $result['response'] : $result;
@@ -176,6 +235,29 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             $generation->model_version = is_array($result) && array_key_exists('model_version', $result) ? $result['model_version'] : null;
             $generation->generated_at = now();
             $generation->status = 'complete';
+            // Persist compacted version for fast retrieval by the UI (avoids client-side assembly)
+            try {
+                $compact = json_encode($generation->llm_response);
+                if ($compact !== false) {
+                    $meta = is_array($generation->metadata) ? $generation->metadata : (array) ($generation->metadata ?? []);
+                    $meta['compacted'] = base64_encode($compact);
+                    // record chunk count to help UI heuristics
+                    if ($useDb && ! $useRedis) {
+                        $count = \App\Models\GenerationChunk::where('scenario_generation_id', $generation->id)->count();
+                    } elseif ($useRedis && ! $useDb) {
+                        $orgId = $generation->organization_id ?? ($generation->metadata['organization_id'] ?? null);
+                        $count = $redisBuf->getChunkCount((int) $orgId, (int) $generation->id);
+                    } else {
+                        // both: prefer DB count as authoritative
+                        $count = \App\Models\GenerationChunk::where('scenario_generation_id', $generation->id)->count();
+                    }
+                    $meta['chunk_count'] = $count;
+                    $generation->metadata = $meta;
+                }
+            } catch (\Throwable $_) {
+                try { \Log::warning('Failed to create compacted metadata for generation', ['generation_id' => $generation->id]); } catch (\Throwable $__ ) {}
+            }
+
             $generation->save();
         } catch (LLMRateLimitException $e) {
             // transient rate limit: requeue with exponential backoff if attempts remain

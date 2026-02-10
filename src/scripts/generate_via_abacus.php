@@ -66,11 +66,6 @@ try {
         $assembled .= $delta;
         // append to buffer
         $buffer .= $delta;
-        // print without newlines so stream appears continuous
-        echo $delta;
-        $assembled .= $delta;
-        // append to buffer
-        $buffer .= $delta;
         // persist when buffer reaches threshold
         $now = microtime(true);
         $shouldFlushBySize = strlen($buffer) >= $maxBuffer;

@@ -285,6 +285,17 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
   - Si el proyecto prefiere no introducir `app/Console/Kernel.php`, existe la opción alternativa de programar `php artisan generate:compact-chunks --days=${ABACUS_CHUNKS_TTL_DAYS}` vía cron en el entorno de despliegue.
 - **Estado:** implementado en workspace; requiere despliegue/CI para activar cron/scheduler (ej: `php artisan schedule:run` o configuración de system cron/docker).
 
+## Memory: Implementation - Server-side compaction update (2026-02-10)
+
+- **Tipo:** implementation (project fact)
+- **Propósito:** Al finalizar una generación (`GenerateScenarioFromLLMJob`), serializar `llm_response` y almacenar una versión compactada en `scenario_generation.metadata['compacted']` (base64-encoded) y guardar `metadata['chunk_count']` para que la UI recupere rápidamente la respuesta ensamblada.
+- **Cambios realizados:** `src/app/Jobs/GenerateScenarioFromLLMJob.php` modificado para:
+  - Serializar `llm_response` y guardarla en `metadata['compacted']` con `base64_encode`.
+  - Calcular y guardar `metadata['chunk_count']` consultando `GenerationChunk` por `scenario_generation_id`.
+  - Manejar fallos de compaction con warning en logs sin interrumpir la persistencia final.
+- **Por qué:** Evita que la UI tenga que concatenar cientos de `generation_chunks` para obtener la respuesta final; mejora latencia y reduce carga en la DB y red.
+- **Notas:** Esta actualización complementa el endpoint `/compacted` ya existente y permite que `GenerateWizard` use la versión compactada como fuente primaria. Si por alguna razón no existe `metadata['compacted']`, el endpoint sigue ensamblando desde `generation_chunks`.
+
 
 ---
 

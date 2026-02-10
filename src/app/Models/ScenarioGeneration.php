@@ -20,6 +20,10 @@ class ScenarioGeneration extends Model
         'confidence_score',
         'status',
         'metadata',
+        'compacted',
+        'chunk_count',
+        'compacted_at',
+        'compacted_by',
         'model_version',
         'redacted',
     ];
@@ -30,5 +34,8 @@ class ScenarioGeneration extends Model
         'generated_at' => 'datetime',
         'confidence_score' => 'float',
         'redacted' => 'boolean',
+        'compacted_at' => 'datetime',
+        'chunk_count' => 'integer',
+        'compacted_by' => 'integer',
     ];
 }

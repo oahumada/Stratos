@@ -126,19 +126,19 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
             company_name: '',
             industry: '',
             sub_industry: '',
-            company_size: null,
+            company_size: 0,
             geographic_scope: '',
             organizational_cycle: '',
             current_challenges: '',
             current_capabilities: '',
             current_gaps: '',
-            current_roles_count: null,
+            current_roles_count: 0,
             has_formal_competency_model: false,
             auto_generate: false,
             strategic_goal: '',
             target_markets: '',
             expected_growth: '',
-            transformation_type: [],
+            transformation_type: [] as string[],
             key_initiatives: '',
             budget_level: '',
             talent_availability: '',
@@ -370,24 +370,24 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
             } catch (e) {
                 throw e;
             }
-            ,
-            async fetchProgress() {
-                if (!this.generationId) return null;
-                try {
-                    const res = await axios.get(
-                        `/api/strategic-planning/scenarios/generate/${this.generationId}/progress`,
-                    );
-                    if (res.data && res.data.success && res.data.data) {
-                        const d = res.data.data as any;
-                        this.generationProgress = d.progress ?? this.generationProgress;
-                        this.recentChunks = d.recent_chunks ?? [];
-                        return d;
-                    }
-                } catch (e) {
-                    // ignore polling errors
+        },
+        async fetchProgress() {
+            if (!this.generationId) return null;
+            try {
+                const res = await axios.get(
+                    `/api/strategic-planning/scenarios/generate/${this.generationId}/progress`,
+                );
+                if (res.data && res.data.success && res.data.data) {
+                    const d = res.data.data as any;
+                    this.generationProgress =
+                        d.progress ?? this.generationProgress;
+                    this.recentChunks = d.recent_chunks ?? [];
+                    return d;
                 }
-                return null;
+            } catch (e) {
+                // ignore polling errors
             }
+            return null;
         },
         validate() {
             // returns { valid: boolean, errors: string[] }
