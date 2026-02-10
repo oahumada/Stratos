@@ -1,0 +1,25 @@
+flowchart LR
+  subgraph LLM
+    A[Chunk stream] -->|pushChunk| B[GenerationRedisBuffer]
+  end
+
+  B --> C[Redis List: chunks]
+  B --> D[Redis Hash: meta]
+
+  C --> E[assembleAndPersist]
+  D --> E
+
+  E --> F{MetadataValidator}
+  F -->|no errors| G[Persist compacted -> scenario_generations.compacted]
+  F -->|errors & soft-fail| G
+  F -->|errors & strict| H[Abort persist, return validation failure]
+
+  G --> I["Update llm_response, metadata (no blob), chunk_count, compacted_at, compacted_by, last_validation_issue_id"]
+  G --> J["Optionally delete Redis buffer (deleteAfter=true)"]
+
+  F --> K[Write JSONL audit: storage/logs/metadata-validation.log]
+  F --> L[Insert metadata_validation_issues DB record]
+
+  style L fill:#f9f,stroke:#333,stroke-width:1px
+  style K fill:#eee,stroke:#333
+  style H fill:#faa,stroke:#900

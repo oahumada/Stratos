@@ -1,3 +1,68 @@
+# Flujo de generación: buffer Redis → compactación → persistencia
+
+Resumen conciso del flujo end-to-end para la recepción de chunks desde el LLM (Abacus), buffer en Redis, compactación y persistencia.
+
+```mermaid
+flowchart LR
+  subgraph LLM
+    A[Chunk stream] -->|pushChunk| B[GenerationRedisBuffer]
+  end
+
+  B --> C[Redis List: chunks]
+  B --> D[Redis Hash: meta]
+
+  C --> E[assembleAndPersist]
+  D --> E
+
+  E --> F{MetadataValidator}
+  F -->|no errors| G[Persist compacted -> scenario_generations.compacted]
+  F -->|errors & soft-fail| G
+  F -->|errors & strict| H[Abort persist, return validation failure]
+
+  G --> I["Update llm_response, metadata (no blob), chunk_count, compacted_at, compacted_by, last_validation_issue_id"]
+  G --> J["Optionally delete Redis buffer (deleteAfter=true)"]
+
+  F --> K[Write JSONL audit: storage/logs/metadata-validation.log]
+  F --> L[Insert metadata_validation_issues DB record]
+
+  style L fill:#f9f,stroke:#333,stroke-width:1px
+  style K fill:#eee,stroke:#333
+  style H fill:#faa,stroke:#900
+```
+
+Puntos clave
+
+- `pushChunk(...)`: guarda chunks en `Redis::rpush(key)` y actualiza `key:meta` con contadores y timestamps. TTL configurable con `GENERATION_CHUNK_TTL`.
+- `assembleAndPersist(...)`: concatena chunks, intenta parse JSON para `llm_response`, base64-encoda y guarda en columna `compacted`.
+- Validación ligera: `MetadataValidator::validate()` — si hay errores se escriben en JSONL y en tabla `metadata_validation_issues` y se enlaza el id en `scenario_generations.last_validation_issue_id`.
+- Modos:
+  - Soft-fail (por defecto): persiste `compacted` y anota `metadata.validation_errors`.
+  - Strict: activa con `METADATA_VALIDATION_STRICT=true`, en cuyo caso la persistencia es abortada y se devuelve `ok:false` con `validation_id`.
+- Operaciones: hay comandos Artisan para inspección y migración (`debug:emit-validation-test`, `test:redis-buffer`, `compact:generation`, `migrate:compacted-from-metadata`).
+
+Comandos útiles para operaciones locales
+
+```bash
+# Aplicar migraciones
+php artisan migrate
+
+# Simular validación (escribe JSONL y DB)
+php artisan debug:emit-validation-test 9999
+
+# Ensamblar y persistir desde Redis para una generación
+php artisan compact:generation {orgId} {generationId} --delete
+```
+
+Recomendaciones rápidas
+
+- Mantener `generation_chunks` como respaldo temporal hasta aplicar política de retención; crear job de purge configurable.
+- Para blobs grandes, considerar offload a S3 y almacenar sólo URL en `compacted`.
+- Comenzar en `soft-fail` en producción; monitorizar `metadata_validation_issues` antes de habilitar `strict`.
+
+---
+
+Archivo generado automáticamente por la tarea de documentación del flujo de generación.
+
 # Buffer de generación (Redis)
 
 Resumen rápido
