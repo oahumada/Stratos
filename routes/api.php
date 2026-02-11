@@ -1027,6 +1027,11 @@ Route::prefix('strategic-planning')->group(function () {
     Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
 });
 
+//Talent Engineering
+// Orquestación (nueva)
+Route::post('/strategic-planning/scenarios/{id}/orchestrate', [ScenarioController::class, 'orchestrate'])
+    ->middleware('auth:sanctum');
+
 // PASO 2: Roles ↔ Competencies Mapping
 Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group(function () {
     Route::get('data', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getMatrixData']);

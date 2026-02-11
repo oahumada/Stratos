@@ -291,7 +291,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import TransformModal from '@/Pages/Scenario/TransformModal.vue';
+import TransformModal from '@/pages/ScenarioPlanning/TransformModal.vue';
 import InfoLegend from '@/components/Ui/InfoLegend.vue';
 import { useTransformStore } from '@/stores/transformStore';
 import { useRoleCompetencyStore } from '@/stores/roleCompetencyStore';

@@ -503,4 +503,6 @@ class ScenarioController extends Controller
             'blueprints_processed' => $scenario->talentBlueprints->count(),
         ]);
     }
+
+    
 }

@@ -31,7 +31,10 @@
       </v-alert>
     </div>
     <v-snackbar v-model="showSuccess" color="success" timeout="2000">
-      {{ store.success }}
+      <div class="d-flex align-center">
+        <v-icon class="mr-2">mdi-check-circle</v-icon>
+        {{ store.success }}
+      </div>
     </v-snackbar>
 
     <!-- Loading -->
