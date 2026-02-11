@@ -50,3 +50,25 @@ Definiciones:
   `key_competencies` (lista de IDs o nombres) y `estimated_fte`.
 
 ---
+/*
+1. INSTRUCCIONES/SISTEMA (contexto y reglas generales)
+2. ENTRADAS_OPERADOR (datos del formulario — JSON)
+3. INSTRUCCIONES_DE_SALIDA (restricciones, JSON_SCHEMA, ejemplo de salida)
+Por qué:
+
+El sistema primero fija el comportamiento del modelo (rol, tono, reglas).
+Las entradas deben ser tratadas como datos que el modelo consume, por eso van después.
+Las instrucciones de salida y el esquema al final son la “orden” final que indica cómo formatear la respuesta y evita ambigüedad.
+Formato sugerido (mínimo):
+
+INSTRUCCIONES:
+[texto con propósito, definiciones, reglas]
+
+ENTRADAS_OPERADOR:
+{ ...JSON de formulario... }
+
+INSTRUCCIONES_DE_SALIDA:
+
+Devuelve SOLO JSON...
+JSON_SCHEMA: { ...schema unificado... }
+Ejemplo de salida: { ... }*/
