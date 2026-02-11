@@ -71,7 +71,6 @@ Incluye el siguiente esquema JSON simplificado para validar la estructura anidad
 }
 ```
 
-## INSTRUCCIÓN PARA EL MODELO (ENFOQUE INGENIERÍA DE TALENTO)
 # INSTRUCCIÓN PARA EL MODELO (INGENIERÍA DE TALENTO ESTRATÉGICO):
 
 Actúa como un Ingeniero de Talento de élite. Tu objetivo es diseñar un "Blueprint" (plano técnico) de capacidades organizacionales híbridas. Para cada rol sugerido en `suggested_roles`, debes realizar un análisis de descomposición de tareas y definir su composición de talento.
