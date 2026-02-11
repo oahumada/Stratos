@@ -5,3 +5,12 @@
 /tests
 /test-results
 node_modules
+/playwright-report
+/playwright-report.zip
+*.log
+*.tmp
+*.bak
+*.swp
+.DS_Store
+.idea
+.vscode
