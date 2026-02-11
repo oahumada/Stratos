@@ -5,22 +5,22 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 ### Nota rápida (2026-02-06)
 
-- Añadida prueba Playwright E2E: `src/tests/e2e/generate-wizard.spec.ts` — flujo feliz GenerateWizard (preview + autorizar LLM + verificar resultado mockeado).
+- Añadida prueba Playwright E2E: `tests/e2e/generate-wizard.spec.ts` — flujo feliz GenerateWizard (preview + autorizar LLM + verificar resultado mockeado).
 
 - 2026-02-06: Documentación y helpers E2E añadidos para flujo de generación de escenarios:
   - `docs/GUIA_GENERACION_ESCENARIOS.md`: ampliada con instrucciones prácticas para Playwright, CI, configuración LLM, pruebas de edge-cases y recomendaciones de seguridad.
-  - Helpers Playwright añadidos: `src/tests/e2e/helpers/login.ts`, `src/tests/e2e/helpers/intercepts.ts`.
-  - Fixture LLM para E2E: `src/tests/fixtures/llm/mock_generation_response.json`.
+  - Helpers Playwright añadidos: `tests/e2e/helpers/login.ts`, `tests/e2e/helpers/intercepts.ts`.
+  - Fixture LLM para E2E: `tests/fixtures/llm/mock_generation_response.json`.
 
   Nota: estos cambios ayudan a ejecutar E2E reproducibles en local y en CI usando un adapter/mock para LLM; asegurar que `BASE_URL` y credenciales E2E estén configuradas en el entorno de ejecución.
-  - 2026-02-06: Seed reproducible añadido: `src/database/seeders/E2ESeeder.php` — crea `Organizations` id=1, admin user (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) y ejecuta `ScenarioSeeder` + `DemoSeeder` cuando están disponibles. Usar `php artisan migrate:fresh --seed --seeder=E2ESeeder` para preparar entorno local/CI.
-  - 2026-02-06: Servicio de redacción añadido: `src/app/Services/RedactionService.php` — usado para redaction de prompts y respuestas LLM antes de persistir. `ScenarioGenerationService::enqueueGeneration()` y `GenerateScenarioFromLLMJob` ahora aplican redacción automáticamente.
+  - 2026-02-06: Seed reproducible añadido: `database/seeders/E2ESeeder.php` — crea `Organizations` id=1, admin user (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) y ejecuta `ScenarioSeeder` + `DemoSeeder` cuando están disponibles. Usar `php artisan migrate:fresh --seed --seeder=E2ESeeder` para preparar entorno local/CI.
+  - 2026-02-06: Servicio de redacción añadido: `app/Services/RedactionService.php` — usado para redaction de prompts y respuestas LLM antes de persistir. `ScenarioGenerationService::enqueueGeneration()` y `GenerateScenarioFromLLMJob` ahora aplican redacción automáticamente.
   - 2026-02-06: Manejo de rate-limits/retries implementado: `OpenAIProvider` lanza `LLMRateLimitException` en 429 y `LLMServerException` en 5xx; `GenerateScenarioFromLLMJob` reintenta con exponential backoff (máx 5 intentos) y marca `failed` tras agotar reintentos. `MockProvider` puede simular 429 mediante `LLM_MOCK_SIMULATE_429`.
 
-- 2026-02-07: ChangeSet approval now assigns scenario version metadata when missing: `version_group_id` (UUID), `version_number` (default 1) and `is_current_version=true`. Implemented in `src/app/Http/Controllers/Api/ChangeSetController.php::approve()` to ensure approved ChangeSets also guarantee scenario versioning and demote other current versions within the same `version_group_id`.
+- 2026-02-07: ChangeSet approval now assigns scenario version metadata when missing: `version_group_id` (UUID), `version_number` (default 1) and `is_current_version=true`. Implemented in `app/Http/Controllers/Api/ChangeSetController.php::approve()` to ensure approved ChangeSets also guarantee scenario versioning and demote other current versions within the same `version_group_id`.
   - 2026-02-07 (fix): Se corrigió un ParseError introducido por una edición previa. La lógica de asignación de metadata de versionado fue movida y consolidada dentro de `approve()` y se restablecieron los límites de función para evitar errores de sintaxis que impedían la ejecución de `php artisan wayfinder:generate` y, por ende, `npm run build`.
   - 2026-02-07: E2E GenerateWizard estabilizado: helper `login` ahora usa CSRF + request-context cuando no hay formulario, el test avanza pasos del wizard antes de generar, el mock LLM usa el fixture correcto, y `GenerateWizard.vue` importa `ref` para evitar error runtime.
-  - 2026-02-07: LLMClient DI/refactor: `LLMServiceProvider` registrado y pruebas actualizadas para resolver `LLMClient` desde el contenedor en lugar de instanciar con `new`. Se reemplazó la instancia directa en `src/tests/Feature/ScenarioGenerationIntegrationTest.php` y se creó `src/app/Providers/LLMServiceProvider.php` para facilitar inyección/overrides en tests y entornos.
+  - 2026-02-07: LLMClient DI/refactor: `LLMServiceProvider` registrado y pruebas actualizadas para resolver `LLMClient` desde el contenedor en lugar de instanciar con `new`. Se reemplazó la instancia directa en `tests/Feature/ScenarioGenerationIntegrationTest.php` y se creó `app/Providers/LLMServiceProvider.php` para facilitar inyección/overrides en tests y entornos.
   - 2026-02-07: E2E scenario map estabilizado: usa helper `login`, selector de nodos actualizado a `.node-group`, y validacion de child nodes solo cuando existan datos.
 
   - PENDIENTE (Recordar): Implementar opción B — "Auto-accept / Auto-import tras `generate()`".
@@ -31,11 +31,11 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
       3. Registrar auditoría (`accepted_by`, `accepted_at`, `import_run_by`, `import_status`) para trazabilidad y revisión.
       4. Hacer rollout en staging con backfill y pruebas E2E antes de habilitar en producción.
     - Archivos implicados (implementación futura):
-      - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue` (flujo auto-accept)
-      - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/PreviewConfirm.vue` (casilla ya añadida)
-      - `src/resources/js/stores/scenarioGenerationStore.ts` (llamada `accept()` ya añadida)
-      - `src/app/Http/Controllers/Api/ScenarioGenerationController.php::accept()` (verificar feature-flag, validación y auditoría server-side)
-      - `src/config/features.php` (asegurar `import_generation` por entorno)
+      - `resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue` (flujo auto-accept)
+      - `resources/js/pages/ScenarioPlanning/GenerateWizard/PreviewConfirm.vue` (casilla ya añadida)
+      - `resources/js/stores/scenarioGenerationStore.ts` (llamada `accept()` ya añadida)
+      - `app/Http/Controllers/Api/ScenarioGenerationController.php::accept()` (verificar feature-flag, validación y auditoría server-side)
+      - `config/features.php` (asegurar `import_generation` por entorno)
     - Estado: planificado (marcar como tarea separada en TODO para seguimiento).
     - 2026-02-07: CI workflow añadido: `.github/workflows/e2e.yml` ejecuta migraciones/seed, build, arranca servidor y ejecuta Playwright; sube artefactos `playwright-report` y capturas/videos para inspección.
 
@@ -43,14 +43,14 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 - **Tipo:** implementation (project fact)
 - **Propósito:** Añadir límites configurables a la validación del `llm_response` para prevenir imports excesivamente grandes y validar counts por niveles (capabilities, competencies, skills).
-- **Cambios realizados:** `src/app/Services/LlmResponseValidator.php` ahora lee las claves de configuración:
+- **Cambios realizados:** `app/Services/LlmResponseValidator.php` ahora lee las claves de configuración:
   - `features.validate_llm_response_max_capabilities`
   - `features.validate_llm_response_max_competencies`
   - `features.validate_llm_response_max_skills`
     y añade errores cuando los arrays devueltos por el LLM exceden esos límites. También preserva las comprobaciones en `strict` mode (requerir al menos un elemento cuando está activado).
 - **Archivos modificados:**
-  - `src/app/Services/LlmResponseValidator.php`
-  - `src/config/features.php` (claves ya presentes; confirmar valores por entorno)
+  - `app/Services/LlmResponseValidator.php`
+  - `config/features.php` (claves ya presentes; confirmar valores por entorno)
 - **Por qué:** Evitar que un LLM retorne 100+ items que colapsen el importador y la UI; dar control operativo vía configuración y variables de entorno.
   - Estado: implementado y desplegado en branch `feature/workforce-planning-scenario-modeling`.
 
@@ -60,20 +60,20 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Propósito:** Incluir un fragmento de JSON Schema directamente en el prompt compuesto y en las instrucciones por defecto para mejorar la conformidad de la salida LLM.
 - **Cambios realizados:** `ScenarioGenerationService::preparePrompt` ahora añade un bloque `JSON_SCHEMA:` con un JSON Schema (draft-07) simplificado que define `scenario_metadata` (con `name` requerido) y estructura anidada para `capabilities` → `competencies` → `skills`. Además los archivos de fallback `resources/prompt_instructions/default_es.md` y `default_en.md` fueron actualizados para incluir un resumen del esquema.
 - **Archivos modificados:**
-  - `src/app/Services/ScenarioGenerationService.php` (añade `JSON_SCHEMA` al prompt)
+  - `app/Services/ScenarioGenerationService.php` (añade `JSON_SCHEMA` al prompt)
   - `resources/prompt_instructions/default_es.md` (añade resumen de esquema)
   - `resources/prompt_instructions/default_en.md` (añade resumen de esquema)
 - **Por qué:** Proveer una especificación directa en el prompt reduce ambigüedad y, junto con la validación server-side y límites configurables, disminuye la probabilidad de respuestas inválidas o demasiado grandes.
 - **Estado:** implementado y verificado mediante `php artisan tinker` (presencia del bloque `JSON_SCHEMA`).
-  - 2026-02-07: `src/scripts/debug_generate.mjs` eliminado (archivo temporal de depuración).
+  - 2026-02-07: `scripts/debug_generate.mjs` eliminado (archivo temporal de depuración).
 
   ## Memory: Implementation - Chunked LLM response assembly (2026-02-09)
   - **Tipo:** implementation (project fact)
   - **Propósito:** Cliente assemblea respuestas LLM transmitidas en chunks y prioriza endpoint `compacted` para obtener la respuesta final; mejora la UX del modal de respuesta evitando mostrar un modal vacío cuando sólo hay metadatos.
   - **Cambios realizados (front-end):** se añadieron heurísticas y funciones de ensamblado en `GenerateWizard.vue` y se exportó `normalizeLlMResponse` desde el store para normalizar formas de respuesta diversas.
   - **Archivos modificados:**
-    - [src/resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue](src/resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue)
-    - [src/resources/js/stores/scenarioGenerationStore.ts](src/resources/js/stores/scenarioGenerationStore.ts)
+    - [resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue](resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue)
+    - [resources/js/stores/scenarioGenerationStore.ts](resources/js/stores/scenarioGenerationStore.ts)
   - **Detalle técnico:**
     - `fetchAndAssembleChunks()` ahora solicita `/compacted` y si no hay blob compactado, recupera `/chunks`, ordena por `sequence`, concatena `chunk` y trata de parsear JSON; si falla, asigna el ensamblado como `content` en `generationResult`.
     - Se añadieron comprobaciones para decidir cuándo ensamblar (ausencia de `content`, `scenario_metadata` o `capabilities`).
@@ -89,9 +89,9 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     - `app/Jobs/GenerateScenarioFromLLMJob.php` modificado para usar `LLMClient->generateStream()` cuando esté disponible; persiste `GenerationChunk` en buffer y ensambla texto final, guardando `llm_response` y `confidence_score`.
     - `app/Services/LLMProviders/MockProvider.php` ahora implementa `generateStream()` para simular chunks en ambientes locales y demos.
   - **Archivos modificados:**
-    - [app/Services/LLMClient.php](src/app/Services/LLMClient.php)
-    - [app/Jobs/GenerateScenarioFromLLMJob.php](src/app/Jobs/GenerateScenarioFromLLMJob.php)
-    - [app/Services/LLMProviders/MockProvider.php](src/app/Services/LLMProviders/MockProvider.php)
+    - [app/Services/LLMClient.php](app/Services/LLMClient.php)
+    - [app/Jobs/GenerateScenarioFromLLMJob.php](app/Jobs/GenerateScenarioFromLLMJob.php)
+    - [app/Services/LLMProviders/MockProvider.php](app/Services/LLMProviders/MockProvider.php)
   - **Detalle técnico:**
     - Buffer flush heuristic: persistir cuando buffer >= 256 bytes o cada ~250ms.
     - En providers no-streaming, se emite un único delta con la respuesta completa (JSON string o texto).
@@ -103,9 +103,9 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
   - **Propósito:** Integración completa con ABACUS como proveedor LLM principal del sistema para generación de escenarios mediante streaming.
   - **Provider:** ABACUS es el proveedor LLM configurado en producción (NO OpenAI). El sistema usa `AbacusClient` para comunicarse con ABACUS.
   - **Implementación completa:**
-    - Cliente: [app/Services/AbacusClient.php](src/app/Services/AbacusClient.php) — implementa `generate()` y `generateStream()` con soporte completo de streaming SSE.
-    - Script de prueba: [scripts/generate_via_abacus.php](src/scripts/generate_via_abacus.php) — ejecuta generaciones de prueba end-to-end persistiendo chunks.
-    - Configuración: [config/services.php](src/config/services.php) — sección `abacus` con variables de entorno.
+    - Cliente: [app/Services/AbacusClient.php](app/Services/AbacusClient.php) — implementa `generate()` y `generateStream()` con soporte completo de streaming SSE.
+    - Script de prueba: [scripts/generate_via_abacus.php](scripts/generate_via_abacus.php) — ejecuta generaciones de prueba end-to-end persistiendo chunks.
+    - Configuración: [config/services.php](config/services.php) — sección `abacus` con variables de entorno.
   - **Variables de entorno requeridas:**
     - `ABACUS_API_KEY` — clave de API (obligatoria)
     - `ABACUS_BASE_URL` — default: `https://api.abacus.ai`
@@ -137,13 +137,13 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
   ## Memory: Implementation - Alineación Controller Wizard con harness CLI (2026-02-10)
   - **Tipo:** implementation (project fact)
   - **Propósito:** Alinear la lógica del endpoint UI que encola generaciones (GenerateWizard) con el comportamiento canónico del harness CLI `scripts/generate_via_abacus.php` para evitar divergencias en la selección/override del modelo Abacus y en el registro del modelo usado.
-  - **Cambios realizados:** `src/app/Http/Controllers/Api/ScenarioGenerationController.php` ahora:
+  - **Cambios realizados:** `app/Http/Controllers/Api/ScenarioGenerationController.php` ahora:
     - Determina el modelo a usar con `config('services.abacus.model') ?: env('ABACUS_MODEL', 'gpt-5')` (mismo enfoque que los scripts de pruebas).
     - Incluye el `overrides.model` en `provider_options` para que la petición al cliente Abacus utilice explícitamente el modelo elegido (replicando el flujo del script de referencia).
     - Persiste `used_provider_model` dentro de `metadata` del `scenario_generation` para trazabilidad.
   - **Por qué:** Evitar envíos de modelos placeholder (p. ej. `abacus-default`) desde la UI que causaban 400s en Abacus y asegurar trazabilidad/consistencia entre el flujo GUI (wizard) y el harness CLI.
   - **Archivos modificados:**
-    - `src/app/Http/Controllers/Api/ScenarioGenerationController.php`
+    - `app/Http/Controllers/Api/ScenarioGenerationController.php`
   - **Estado:** Implementado y commiteado en working copy. Se recomienda ejecutar una generación end-to-end desde el wizard en entorno de desarrollo para validar que la UI refleja el `llm_response` final y que `metadata.used_provider_model` contiene el valor esperado.
 
 ## Estado actual (inicio)
@@ -160,7 +160,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 ### Backend Tests (13/13 ✅)
 
-**Archivo:** `src/tests/Feature/Api/Step2RoleCompetencyApiTest.php`
+**Archivo:** `tests/Feature/Api/Step2RoleCompetencyApiTest.php`
 
 **Tests pasando:**
 
@@ -243,7 +243,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 **Título:** Fix: axios mock default export en tests unitarios
 
-**Descripción:** Se corrigió un mock localizado en `src/resources/js/tests/unit/components/TransformModal.spec.ts` que devolvía solo propiedades `post`/`get` sin exponer `default`. Algunos módulos importan `axios` como `import axios from 'axios'` (export default), por lo que Vitest reportaba "No 'default' export is defined on the 'axios' mock".
+**Descripción:** Se corrigió un mock localizado en `resources/js/tests/unit/components/TransformModal.spec.ts` que devolvía solo propiedades `post`/`get` sin exponer `default`. Algunos módulos importan `axios` como `import axios from 'axios'` (export default), por lo que Vitest reportaba "No 'default' export is defined on the 'axios' mock".
 
 **Acción tomada:** Actualizado el mock para exponer `default: { post, get }` y las propiedades nombradas equivalentes. Ejecución completa de la suite frontend:
 
@@ -252,7 +252,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 **Archivos afectados:**
 
-- `src/resources/js/tests/unit/components/TransformModal.spec.ts` (mock actualizado)
+- `resources/js/tests/unit/components/TransformModal.spec.ts` (mock actualizado)
 
 **Notas:** Esto resolvió el error de mock y permitió que la suite pase sin errores de mock. Otros warnings/timeouts previos relacionados con el pool de Vitest fueron manejados durante la ejecución; la suite finalizó correctamente en el entorno local.
 
@@ -272,7 +272,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 ### useHierarchicalUpdate (2026-02-02)
 
-**Archivo:** `src/resources/js/composables/useHierarchicalUpdate.ts`
+**Archivo:** `resources/js/composables/useHierarchicalUpdate.ts`
 
 **Propósito:** Composable para actualizar datos jerárquicos en árboles reactivos Vue. Garantiza que todas las fuentes de datos se actualicen consistentemente desde el nodo hoja hasta la raíz.
 
@@ -287,11 +287,11 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Tipo:** implementation (project fact)
 - **Propósito:** Añadir endpoint para devolver el blob compactado (decodificado) de una `ScenarioGeneration` y registrar la tarea de compactación diaria en el Kernel.
 - **Cambios realizados:**
-  - `src/app/Http/Controllers/Api/GenerationChunkController.php` -> se añadió el método `compacted(Request $request, $generationId)` que devuelve:
+  - `app/Http/Controllers/Api/GenerationChunkController.php` -> se añadió el método `compacted(Request $request, $generationId)` que devuelve:
     - el JSON decodificado si `metadata['compacted']` existe (almacenado en base64),
     - o monta el contenido concatenando los `generation_chunks` disponibles y devuelve el JSON decodificado o el texto ensamblado.
-  - `src/routes/api.php` -> se añadió la ruta `GET /strategic-planning/scenarios/generate/{id}/compacted` apuntando a `GenerationChunkController::compacted`.
-  - `src/app/Console/Kernel.php` -> se añadió el Kernel de consola con `schedule()` que ejecuta `generate:compact-chunks --days={services.abacus.chunks_ttl_days}` diariamente.
+  - `routes/api.php` -> se añadió la ruta `GET /strategic-planning/scenarios/generate/{id}/compacted` apuntando a `GenerationChunkController::compacted`.
+  - `app/Console/Kernel.php` -> se añadió el Kernel de consola con `schedule()` que ejecuta `generate:compact-chunks --days={services.abacus.chunks_ttl_days}` diariamente.
 - **Notas operativas:**
   - El endpoint verifica `organization_id` para seguridad multi-tenant.
   - Si el proyecto prefiere no introducir `app/Console/Kernel.php`, existe la opción alternativa de programar `php artisan generate:compact-chunks --days=${ABACUS_CHUNKS_TTL_DAYS}` vía cron en el entorno de despliegue.
@@ -301,7 +301,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 - **Tipo:** implementation (project fact)
 - **Propósito:** Al finalizar una generación (`GenerateScenarioFromLLMJob`), serializar `llm_response` y almacenar una versión compactada en `scenario_generation.metadata['compacted']` (base64-encoded) y guardar `metadata['chunk_count']` para que la UI recupere rápidamente la respuesta ensamblada.
-- **Cambios realizados:** `src/app/Jobs/GenerateScenarioFromLLMJob.php` modificado para:
+- **Cambios realizados:** `app/Jobs/GenerateScenarioFromLLMJob.php` modificado para:
   - Serializar `llm_response` y guardarla en `metadata['compacted']` con `base64_encode`.
   - Calcular y guardar `metadata['chunk_count']` consultando `GenerationChunk` por `scenario_generation_id`.
   - Manejar fallos de compaction con warning en logs sin interrumpir la persistencia final.
@@ -313,15 +313,15 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 ## Decisions (Feb 2026)
 
-- **InfoLegend extraction & UI change (Paso 2):** Se creó `InfoLegend.vue` (reusable) y se reemplazó el activador `?` por un icono `mdi-information-variant-circle` con leyenda en fondo claro. Archivo: [src/resources/js/components/Ui/InfoLegend.vue](src/resources/js/components/Ui/InfoLegend.vue).
+- **InfoLegend extraction & UI change (Paso 2):** Se creó `InfoLegend.vue` (reusable) y se reemplazó el activador `?` por un icono `mdi-information-variant-circle` con leyenda en fondo claro. Archivo: [resources/js/components/Ui/InfoLegend.vue](resources/js/components/Ui/InfoLegend.vue).
 
-- **TransformModal: usar `InfoLegend` para la guía (Feb 2026):** Se reemplazó la guía extensa embebida dentro de `TransformModal.vue` por el componente `InfoLegend` para mantener consistencia visual y liberar espacio para el editor BARS. Archivos: [src/resources/js/Pages/Scenario/TransformModal.vue](src/resources/js/Pages/Scenario/TransformModal.vue) (import `InfoLegend`, añade `legendItems`, `showLegend`) y mantiene `BarsEditor` visible con mayor espacio.
+- **TransformModal: usar `InfoLegend` para la guía (Feb 2026):** Se reemplazó la guía extensa embebida dentro de `TransformModal.vue` por el componente `InfoLegend` para mantener consistencia visual y liberar espacio para el editor BARS. Archivos: [resources/js/Pages/Scenario/TransformModal.vue](resources/js/Pages/Scenario/TransformModal.vue) (import `InfoLegend`, añade `legendItems`, `showLegend`) y mantiene `BarsEditor` visible con mayor espacio.
 
 - **TransformModal: `InfoLegend` con contenido rico (Feb 2026):** Se mejoró la leyenda usada en `TransformModal.vue` para incluir texto formateado y un ejemplo JSON preformateado. `InfoLegend` ahora soporta contenido HTML seguro para instrucciones y una sección `example` que se muestra como bloque preformateado. Esto recupera el detalle previo de la guía sin ocupar espacio permanente en la UI.
 
-- **loadVersions moved to onMounted:** Para evitar llamadas al store antes de que Pinia esté activo en tests, `loadVersions()` se ejecuta ahora en `onMounted`. Archivo: [src/resources/js/components/WorkforcePlanning/Step2/RoleCompetencyStateModal.vue](src/resources/js/components/WorkforcePlanning/Step2/RoleCompetencyStateModal.vue).
+- **loadVersions moved to onMounted:** Para evitar llamadas al store antes de que Pinia esté activo en tests, `loadVersions()` se ejecuta ahora en `onMounted`. Archivo: [resources/js/components/WorkforcePlanning/Step2/RoleCompetencyStateModal.vue](resources/js/components/WorkforcePlanning/Step2/RoleCompetencyStateModal.vue).
 
-- **Testing note (Pinia):** Los componentes que usan stores en `setup()` requieren registrar Pinia en los tests (`global.plugins: [createPinia()]`) o stubear los stores. Ejemplo test actualizado: `src/resources/js/tests/unit/components/RoleCompetencyStateModal.spec.ts`.
+- **Testing note (Pinia):** Los componentes que usan stores en `setup()` requieren registrar Pinia en los tests (`global.plugins: [createPinia()]`) o stubear los stores. Ejemplo test actualizado: `resources/js/tests/unit/components/RoleCompetencyStateModal.spec.ts`.
 
 - **Competency versioning documentation created:** Añadido `docs/COMPETENCY_VERSIONING.md` que describe tablas, flujo de creación de versiones, payloads y pruebas recomendadas.
 
@@ -329,19 +329,19 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 ## CI Changes (2026-02-06)
 
-- **Archivo modificado:** `src/.github/workflows/tests.yml`
+- **Archivo modificado:** `.github/workflows/tests.yml`
 - **Propósito:** Ejecutar migraciones y seeders en el directorio `src` antes de ejecutar los tests para asegurar que los datos demo y seeders requeridos (p.ej. `ScenarioSeeder`, `DemoSeeder`) estén presentes en entornos CI.
 
 ## 2026-02-08 - UI: Integración de ayuda por campo (`FieldHelp`)
 
 - **Resumen:** Se añadió un componente reutilizable `FieldHelp` para mostrar título, descripción y ejemplo por campo, y se integró en los pasos del `GenerateWizard` para mejorar la guía al operador.
 - **Archivos modificados:**
-  - `src/resources/js/components/Ui/FieldHelp.vue` (nuevo)
-  - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/StepIdentity.vue`
-  - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/StepSituation.vue`
-  - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/StepIntent.vue`
-  - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/StepResources.vue`
-  - `src/resources/js/pages/ScenarioPlanning/GenerateWizard/StepHorizon.vue`
+  - `resources/js/components/Ui/FieldHelp.vue` (nuevo)
+  - `resources/js/pages/ScenarioPlanning/GenerateWizard/StepIdentity.vue`
+  - `resources/js/pages/ScenarioPlanning/GenerateWizard/StepSituation.vue`
+  - `resources/js/pages/ScenarioPlanning/GenerateWizard/StepIntent.vue`
+  - `resources/js/pages/ScenarioPlanning/GenerateWizard/StepResources.vue`
+  - `resources/js/pages/ScenarioPlanning/GenerateWizard/StepHorizon.vue`
 - **Propósito:** Mejorar la eficacia del wizard mostrando ejemplos concretos y descripciones concisas para campos críticos (p.ej. `Desafíos actuales`, `Objetivo principal`, `Nivel de presupuesto`), reduciendo ambigüedad y llamadas de soporte.
 - **Notas de implementación:** Las ayudas se activan con un icono `mdi-information-outline` y usan `v-menu`/`v-card` para presentar contenido formateado. Se importó el componente en cada paso y se añadió en la ranura `append-outer` de los inputs.
 
@@ -355,7 +355,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 **Título:** [Component] - BarsEditor
 
-**Ubicación:** src/resources/js/components/BarsEditor.vue
+**Ubicación:** resources/js/components/BarsEditor.vue
 
 **Propósito:** Editor para BARS (Behaviour, Attitude, Responsibility, Skills) usado por el modal de transformación (`TransformModal.vue`). Proveer UI estructurada y modo JSON para facilitar authoring y validación mínima en cliente.
 
@@ -366,7 +366,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Normaliza entrada si `modelValue` llega como string JSON o como objeto incompleto.
 
 **Tests añadidos:**
-- `src/resources/js/tests/unit/components/BarsEditor.spec.ts` — prueba básica que verifica agregar una skill y la emisión de `update:modelValue` con el valor actualizado.
+- `resources/js/tests/unit/components/BarsEditor.spec.ts` — prueba básica que verifica agregar una skill y la emisión de `update:modelValue` con el valor actualizado.
 
 **Motivo / decisiones:**
 - Facilitar edición de BARS sin obligar a escribir JSON crudo.
@@ -407,7 +407,7 @@ nodes.value[].competencies[].skills     ← Fuente raíz
   - `\App\Models\Scenario::sourceGeneration()` — `belongsTo(ScenarioGeneration::class, 'source_generation_id')`.
   - `\App\Models\ScenarioGeneration::scenario()` — `hasOne(Scenario::class, 'source_generation_id')`.
 - **Why / Por qué:** La tabla `scenarios` ya contiene la columna `source_generation_id` con FK hacia `scenario_generations` (migraciones existentes). Para facilitar navegación bidireccional en código se añadieron relaciones inversas en los modelos en lugar de introducir una nueva columna `scenario_id` en `scenario_generations`, evitando cambios de infraestructura y manteniendo compatibilidad con el flujo actual (`ScenarioGenerationImporter` y `ScenarioGenerationController`).
-- **Estado:** implementado en working copy — modelos actualizados en `src/app/Models/Scenario.php` y `src/app/Models/ScenarioGeneration.php`.
+- **Estado:** implementado en working copy — modelos actualizados en `app/Models/Scenario.php` y `app/Models/ScenarioGeneration.php`.
 - **Siguientes pasos recomendados:**
   1. Si se desea tener FK/fila en `scenario_generations` (columna `scenario_id`) para consultas más directas o constraints de unicidad, crear migración nullable+unique y añadir sincronización en import/accept flows.
 - **Tipo:** component / implementation (project fact)
@@ -417,8 +417,8 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 - **Tipo:** implementation (project fact)
 - **Propósito:** Añadir columna `scenario_id` en `scenario_generations` (nullable + unique + FK a `scenarios.id`) y backfill idempotente desde `scenarios.source_generation_id`.
 - **Cambios realizados:**
-  - Nueva migración: `src/database/migrations/2026_02_10_120000_add_scenario_id_to_scenario_generations.php` — añade `scenario_id` nullable, índice único y FK (si DB lo soporta). Rollback seguro.
-  - Nuevo comando Artisan: `backfill:scenario-generation-scenario-id` (`src/app/Console/Commands/BackfillScenarioGenerationScenarioId.php`) que realiza un backfill idempotente: para cada `scenarios` con `source_generation_id` no nulo actualiza `scenario_generations.scenario_id` cuando está vacío.
+  - Nueva migración: `database/migrations/2026_02_10_120000_add_scenario_id_to_scenario_generations.php` — añade `scenario_id` nullable, índice único y FK (si DB lo soporta). Rollback seguro.
+  - Nuevo comando Artisan: `backfill:scenario-generation-scenario-id` (`app/Console/Commands/BackfillScenarioGenerationScenarioId.php`) que realiza un backfill idempotente: para cada `scenarios` con `source_generation_id` no nulo actualiza `scenario_generations.scenario_id` cuando está vacío.
   - Modelo `ScenarioGeneration` actualizado (`scenario_id` añadido a `$fillable` y `$casts`).
 - **Estado:** migración y comando añadidos en working copy; requiere ejecutar `php artisan migrate` y luego `php artisan backfill:scenario-generation-scenario-id` desde el directorio `src`.
 - **Siguientes pasos recomendados:**
@@ -427,7 +427,7 @@ nodes.value[].competencies[].skills     ← Fuente raíz
   3. (Opcional) Actualizar `ScenarioGenerationImporter` y `ScenarioGenerationController::accept()` para mantener la columna `scenario_id` sincronizada al crear/importar un escenario.
 
 - **Tipo:** component / implementation (project fact)
-- **Archivos:** [src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue](src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue), [src/resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue](src/resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue), [src/app/Http/Controllers/Api/ChangeSetController.php](src/app/Http/Controllers/Api/ChangeSetController.php), [src/app/Services/ChangeSetService.php](src/app/Services/ChangeSetService.php)
+- **Archivos:** [resources/js/pages/ScenarioPlanning/ScenarioDetail.vue](resources/js/pages/ScenarioPlanning/ScenarioDetail.vue), [resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue](resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue), [app/Http/Controllers/Api/ChangeSetController.php](app/Http/Controllers/Api/ChangeSetController.php), [app/Services/ChangeSetService.php](app/Services/ChangeSetService.php)
 - **Propósito:** Añadir un lanzador definitivo del `ChangeSetModal` en el header de la página de detalle de escenario para permitir preview/aplicar/aprobar/rechazar cambios del escenario.
 - **Comportamiento implementado:** El header ahora muestra un botón `mdi-source-branch` que al pulsarse crea/solicita el ChangeSet para el `scenarioId` actual via `POST /api/strategic-planning/scenarios/{scenarioId}/change-sets` y abre el modal con el `id` retornado. El modal usa la store `changeSetStore` para `preview`, `canApply`, `apply`, `approve` y `reject`. El `apply` envía `ignored_indexes` desde la UI para respetar ops ignoradas.
 - **Fix aplicado (2026-02-06):** Se detectó un error al crear un ChangeSet sin payload (DB lanzó NOT NULL constraint para `title`). Se añadió en `ChangeSetController::store` valores por defecto: `title = 'ChangeSet'` y `diff = ['ops' => []]` para prevenir la excepción y permitir que el cliente abra el modal sin enviar campos adicionales.
@@ -437,7 +437,7 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 ## Implementación: Integración GenerateWizard en UI (2026-02-06)
 
 - **Tipo:** component / implementation (project fact)
-- **Archivos:** [src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue](src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue), [src/resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue](src/resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue), [src/resources/js/stores/scenarioGenerationStore.ts](src/resources/js/stores/scenarioGenerationStore.ts), [src/app/Services/ScenarioGenerationService.php](src/app/Services/ScenarioGenerationService.php), [src/app/Jobs/GenerateScenarioFromLLMJob.php](src/app/Jobs/GenerateScenarioFromLLMJob.php)
+- **Archivos:** [resources/js/pages/ScenarioPlanning/ScenarioDetail.vue](resources/js/pages/ScenarioPlanning/ScenarioDetail.vue), [resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue](resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue), [resources/js/stores/scenarioGenerationStore.ts](resources/js/stores/scenarioGenerationStore.ts), [app/Services/ScenarioGenerationService.php](app/Services/ScenarioGenerationService.php), [app/Jobs/GenerateScenarioFromLLMJob.php](app/Jobs/GenerateScenarioFromLLMJob.php)
 - **Propósito:** Añadir un lanzador en la cabecera de `ScenarioDetail.vue` para abrir el asistente `GenerateWizard` que guía al operador por un cuestionario de 5 pasos y permite previsualizar el prompt antes de autorizar la llamada al LLM.
 - **Comportamiento implementado:** Se añadió un botón de cabecera `mdi-robot` que abre un diálogo con `GenerateWizard`. El wizard usa la store `scenarioGenerationStore` para armar los campos, solicitar `preview` al endpoint `POST /api/strategic-planning/scenarios/generate/preview` y, previa confirmación humana, invoca `POST /api/strategic-planning/scenarios/generate` para encolar la generación. El diálogo muestra estado de generación y resultados cuando el job termina.
 - **Notas técnicas:** El `GenerateWizard` ya implementa pasos `StepIdentity`, `StepSituation`, `StepIntent`, `StepResources`, `StepHorizon` y un `PreviewConfirm` para revisar/editar el prompt. El store implementa `preview()`, `generate()` y `fetchStatus()` (polling manual). El backend actual usa un `LLMClient` mock y un job que persiste `llm_response` en `scenario_generations`.
@@ -452,21 +452,21 @@ nodes.value[].competencies[].skills     ← Fuente raíz
   - Implementar tests unitarios para `ScenarioGenerationService::preparePrompt` (alta prioridad).
   - Añadir feature tests para `POST /api/strategic-planning/scenarios/generate/preview` y `POST /api/strategic-planning/scenarios/generate` usando `MockProvider`.
   - Revisar y aprobar prompts con stakeholders; habilitar provider real en staging solo detrás de feature flag y límites de coste.
-  - Auditar pruebas E2E para usar `src/tests/e2e/helpers/login.ts` y documentar ejecución en `docs/GUIA_E2E.md`.
+  - Auditar pruebas E2E para usar `tests/e2e/helpers/login.ts` y documentar ejecución en `docs/GUIA_E2E.md`.
 
 ### Memory: Implementación - Persistencia `accepted_prompt` y backfill (2026-02-07)
 
 - **Tipo:** implementation (project fact)
 - **Propósito:** Persistir prompt aceptado/redacted como parte del `scenario` creado desde una `scenario_generation` y backfill de datos históricos.
 - **Cambios clave (archivos):**
-  - `src/database/migrations/2026_02_07_120000_add_generation_fields_to_scenarios_table.php` — agrega `source_generation_id`, `accepted_prompt`, `accepted_prompt_redacted`, `accepted_prompt_metadata` a `scenarios`.
-  - `src/database/migrations/2026_02_07_130000_backfill_accepted_prompt_metadata.php` — backfill que copia `prompt`, `redacted` y `metadata` desde `scenario_generations` a `scenarios` cuando falta.
-  - `src/app/Http/Controllers/Api/ScenarioGenerationController.php` — nuevo método `accept()` que crea `scenario` draft desde `llm_response`, copia prompt redacted y enlaza `source_generation_id`.
-  - `src/app/Http/Controllers/Api/ScenarioController.php` — `showScenario` revisado para ocultar `accepted_prompt`/`accepted_prompt_metadata` en payloads si el usuario no está autorizado.
-  - `src/app/Policies/ScenarioGenerationPolicy.php` y `src/app/Policies/ScenarioPolicy.php` — reglas `accept` y `viewAcceptedPrompt` añadidas y registradas en `AuthServiceProvider`.
-  - `src/app/Models/Scenario.php` — `fillable` y `casts` actualizados para incluir los campos nuevos.
-  - Tests: `src/tests/Feature/ScenarioGenerationAcceptTest.php`, `ScenarioGenerationAcceptPolicyTest.php`, `ScenarioAcceptedPromptPolicyTest.php` — pruebas de flujo y autorización añadidas y ejecutadas localmente.
-  - Frontend: `src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue` — guard UI defensiva `canViewAcceptedPrompt` para evitar renderizar `accepted_prompt` cuando no autorizado.
+  - `database/migrations/2026_02_07_120000_add_generation_fields_to_scenarios_table.php` — agrega `source_generation_id`, `accepted_prompt`, `accepted_prompt_redacted`, `accepted_prompt_metadata` a `scenarios`.
+  - `database/migrations/2026_02_07_130000_backfill_accepted_prompt_metadata.php` — backfill que copia `prompt`, `redacted` y `metadata` desde `scenario_generations` a `scenarios` cuando falta.
+  - `app/Http/Controllers/Api/ScenarioGenerationController.php` — nuevo método `accept()` que crea `scenario` draft desde `llm_response`, copia prompt redacted y enlaza `source_generation_id`.
+  - `app/Http/Controllers/Api/ScenarioController.php` — `showScenario` revisado para ocultar `accepted_prompt`/`accepted_prompt_metadata` en payloads si el usuario no está autorizado.
+  - `app/Policies/ScenarioGenerationPolicy.php` y `app/Policies/ScenarioPolicy.php` — reglas `accept` y `viewAcceptedPrompt` añadidas y registradas en `AuthServiceProvider`.
+  - `app/Models/Scenario.php` — `fillable` y `casts` actualizados para incluir los campos nuevos.
+  - Tests: `tests/Feature/ScenarioGenerationAcceptTest.php`, `ScenarioGenerationAcceptPolicyTest.php`, `ScenarioAcceptedPromptPolicyTest.php` — pruebas de flujo y autorización añadidas y ejecutadas localmente.
+  - Frontend: `resources/js/pages/ScenarioPlanning/ScenarioDetail.vue` — guard UI defensiva `canViewAcceptedPrompt` para evitar renderizar `accepted_prompt` cuando no autorizado.
 
 - **Notas operativas:**
   - El backfill está implementado como migración (`2026_02_07_130000_backfill_accepted_prompt_metadata.php`) pero **no** se ha ejecutado en staging/producción — planificar ejecución y validar en staging antes de prod.
@@ -481,7 +481,7 @@ nodes.value[].competencies[].skills     ← Fuente raíz
   - Marcar `is_current_version = true` y, si aplica, des-marcar versiones previas como `is_current_version = false`.
   - Registrar metadatos en `metadata` (ej.: `approved_at`, `approved_by`, `notes`) para trazabilidad.
 - **Implicaciones técnicas:**
-  - El endpoint/handler de aprobación (`[src/app/Http/Controllers/Api/ChangeSetController.php](src/app/Http/Controllers/Api/ChangeSetController.php)`) es un buen lugar para aplicar esta regla si la aprobación se realiza vía ChangeSet approval flow.
+  - El endpoint/handler de aprobación (`[app/Http/Controllers/Api/ChangeSetController.php](app/Http/Controllers/Api/ChangeSetController.php)`) es un buen lugar para aplicar esta regla si la aprobación se realiza vía ChangeSet approval flow.
   - Alternativamente, centralizar la lógica en un servicio (`ScenarioVersioningService` o dentro de `ChangeSetService::apply`/`approve`) garantiza coherencia si hay múltiples caminos de aprobación.
   - Se recomienda añadir tests unitarios/feature que verifiquen: creación de `version_number` al aprobar, preservación de `version_group_id`, y el marcado de `is_current_version`.
 - **Acción tomada:** Documentado aquí en `openmemory.md`. Si quieres, implemento la garantía de asignación (`version_number`/`version_group_id`) en el flujo de aprobación y añado tests asociados.
@@ -580,12 +580,12 @@ await hierarchicalUpdate.update('skill', freshSkill, compId);
 
 **Archivos de tests agregados:**
 
-- `src/resources/js/composables/__tests__/useScenarioState.spec.ts`
-- `src/resources/js/composables/__tests__/useScenarioAPI.spec.ts`
-- `src/resources/js/composables/__tests__/useScenarioLayout.spec.ts`
-- `src/resources/js/composables/__tests__/useScenarioEdges.spec.ts`
-- `src/resources/js/composables/__tests__/useScenarioComposablesIntegration.spec.ts`
-- `src/resources/js/pages/__tests__/ScenarioPlanning.composablesIntegration.spec.ts`
+- `resources/js/composables/__tests__/useScenarioState.spec.ts`
+- `resources/js/composables/__tests__/useScenarioAPI.spec.ts`
+- `resources/js/composables/__tests__/useScenarioLayout.spec.ts`
+- `resources/js/composables/__tests__/useScenarioEdges.spec.ts`
+- `resources/js/composables/__tests__/useScenarioComposablesIntegration.spec.ts`
+- `resources/js/pages/__tests__/ScenarioPlanning.composablesIntegration.spec.ts`
 
 **Notas:**
 
@@ -595,7 +595,7 @@ await hierarchicalUpdate.update('skill', freshSkill, compId);
 
 **Comportamiento implementado:** Al eliminar una skill desde el mapa, se elimina COMPLETAMENTE de la base de datos, no solo la relación pivot.
 
-**Endpoint Backend** (`src/routes/api.php` líneas ~500-555):
+**Endpoint Backend** (`routes/api.php` líneas ~500-555):
 
 ```php
 Route::delete('/competencies/{competencyId}/skills/{skillId}', function(...) {
@@ -607,7 +607,7 @@ Route::delete('/competencies/{competencyId}/skills/{skillId}', function(...) {
 });
 ```
 
-**Función Frontend** (`src/resources/js/pages/ScenarioPlanning/Index.vue`):
+**Función Frontend** (`resources/js/pages/ScenarioPlanning/Index.vue`):
 
 `removeSkillFromCompetency()` actualiza TODAS las fuentes de datos locales:
 
@@ -636,7 +636,7 @@ Ver archivo de resumen: [docs/IMPORT_GENERATION_SUMMARY.md](docs/IMPORT_GENERATI
 
 **Ubicación de código:**
 
-- Endpoint: `src/routes/api.php` líneas ~500-555
+- Endpoint: `routes/api.php` líneas ~500-555
 - Función frontend: `removeSkillFromCompetency()` en Index.vue
 - Template árbol skills: línea ~4727 `v-for="(s) in grandChildNodes"`
 - Diálogo detalle skill con botón Borrar: línea ~5061
@@ -685,7 +685,7 @@ if (dn.compId || (typeof dn.id === 'number' && dn.id < 0)) {
 
 **Archivos modificados:**
 
-- `src/resources/js/pages/ScenarioPlanning/Index.vue` (líneas 1660-1710, showCreateSkillDialog)
+- `resources/js/pages/ScenarioPlanning/Index.vue` (líneas 1660-1710, showCreateSkillDialog)
 
 **Fecha:** 2026-02-01 (mismo día que fix de competencias)
 
@@ -756,7 +756,7 @@ if (selectedChild.value) {
 
 **Archivos modificados:**
 
-- `src/resources/js/pages/ScenarioPlanning/Index.vue` (líneas ~588, ~617)
+- `resources/js/pages/ScenarioPlanning/Index.vue` (líneas ~588, ~617)
 
 **Fecha:** 2026-02-01
 
@@ -777,11 +777,11 @@ if (selectedChild.value) {
   - Añadida robustez en `initializeForModel()` para intentar singular/plural alternos si clase no existe.
   - Ejecutado `composer dump-autoload -o` y confirmado PATCH `/api/skills/{id}` → 200 OK.
 - **Cambios de archivo:**
-  - Eliminado: `src/app/Models/Skills.php`
-  - Modificado: `src/app/Repository/Repository.php` (fallback newQueryWithoutScopes)
-  - Modificado: `src/app/Http/Controllers/FormSchemaController.php` (inyección de $id, fallback en initializeForModel)
-  - Modificado: `src/routes/form-schema-complete.php` (pasar $id a update)
-  - Actualizado: `src/app/Models/ScenarioSkill.php` (Skill::class en lugar de Skills::class)
+  - Eliminado: `app/Models/Skills.php`
+  - Modificado: `app/Repository/Repository.php` (fallback newQueryWithoutScopes)
+  - Modificado: `app/Http/Controllers/FormSchemaController.php` (inyección de $id, fallback en initializeForModel)
+  - Modificado: `routes/form-schema-complete.php` (pasar $id a update)
+  - Actualizado: `app/Models/ScenarioSkill.php` (Skill::class en lugar de Skills::class)
 - **Fecha de resolución:** 2026-02-01 01:22:39
 
 ### Fix: Persistencia de cambios en PATCH de Skill (FormSchema::update)
@@ -827,8 +827,8 @@ El frontend envía `{"name": "..."}` directamente (sin `data` wrapper), entonces
 
 **Archivos modificados:**
 
-- `src/app/Repository/Repository.php` — Líneas 54-63 (update method)
-- `src/app/Http/Controllers/FormSchemaController.php` — Líneas 115-127 (update method)
+- `app/Repository/Repository.php` — Líneas 54-63 (update method)
+- `app/Http/Controllers/FormSchemaController.php` — Líneas 115-127 (update method)
 
 **Verificación post-fix:**
 
@@ -913,7 +913,7 @@ nodes.value = nodes.value.map((n: any) => {
 
 **Archivos modificados:**
 
-- `src/resources/js/pages/ScenarioPlanning/Index.vue` - función `saveSkillDetail()` (líneas ~3213-3245)
+- `resources/js/pages/ScenarioPlanning/Index.vue` - función `saveSkillDetail()` (líneas ~3213-3245)
 
 **Patrón de debugging aplicado:**
 
@@ -955,7 +955,7 @@ comp.skills = comp.skills.map((s) =>
 
 **Archivos modificados:**
 
-- `src/resources/js/pages/ScenarioPlanning/Index.vue`
+- `resources/js/pages/ScenarioPlanning/Index.vue`
 
 ## Preferencias del usuario
 
@@ -967,12 +967,12 @@ comp.skills = comp.skills.map((s) =>
 
 - Stack: Laravel 12 (backend) + Inertia v2 + Vue 3 + TypeScript + Vuetify 3
 - Multi-tenant por `organization_id`, autenticación con Sanctum.
-- Estructura principal: código en `src/`, documentación en `docs/` y `docs_wiki/`.
+- Estructura principal: código en ``, documentación en `docs/` y `docs_wiki/`.
 
 ## Componentes clave (relevantes para WFP / Cerebro Stratos)
 
 - `resources/js/pages/ScenarioPlanning/Index.vue` — Mapa prototipo (PrototypeMap). Usado por `ScenarioDetail.vue`.
-- `src/resources/js/components/brain/BrainCanvas.vue` — Componente referenciado en la guía (implementación con D3).
+- `resources/js/components/brain/BrainCanvas.vue` — Componente referenciado en la guía (implementación con D3).
 - Nota: la guía se movió a `docs/GUIA_STRATOS_CEREBRO.txt`.
 - `docs/GUIA_STRATOS_CEREBRO.txt` — Guía de implementación del "Cerebro Stratos" (inspirada en TheBrain).
 
@@ -1016,22 +1016,22 @@ Esta entrada sirve como referencia para nombres de rutas, directorios y componen
 ## Implementación registrada: Mejora visual PrototypeMap
 
 - Qué: mejoras visuales en el mapa de capacidades para mayor legibilidad y jerarquía visual.
-- Dónde: `src/resources/js/pages/ScenarioPlanning/Index.vue` (sustitución de `svg` con `defs` para gradientes, filtro de sombra, clases CSS scoped y animación `pulse` para nodos críticos).
+- Dónde: `resources/js/pages/ScenarioPlanning/Index.vue` (sustitución de `svg` con `defs` para gradientes, filtro de sombra, clases CSS scoped y animación `pulse` para nodos críticos).
 - Decisión clave: mantener la lógica D3 existente; usar `defs` SVG para estilos visuales (gradiente radial + sombra); no cambiar API ni persistencia.
 - Archivos modificados: Index.vue (visual + ligeras señales `is_critical` en nodos), openmemory.md (registro).
 
 ### Cambio UI: Sliders para atributos pivot (strategic weight, priority, required level)
 
 - Qué: Reemplazo de inputs numéricos por controles `v-slider` en el modal de capacidades y formularios relacionados para los atributos de pivot: `strategic_weight` (1-10), `priority` (1-5) y `required_level` (1-5).
-- Dónde: `src/resources/js/pages/ScenarioPlanning/Index.vue` — afectado en los formularios de creación (`Crear capacidad`), edición del nodo y edición de competencias.
+- Dónde: `resources/js/pages/ScenarioPlanning/Index.vue` — afectado en los formularios de creación (`Crear capacidad`), edición del nodo y edición de competencias.
 - Por qué: Mejorar la usabilidad y coherencia visual con el control existente `Importancia` (slider), evitando entradas manuales fuera de rango y ofreciendo feedback inmediato del valor seleccionado.
 - Fecha: 2026-01-28
-- Archivos modificados: `src/resources/js/pages/ScenarioPlanning/Index.vue`
+- Archivos modificados: `resources/js/pages/ScenarioPlanning/Index.vue`
 
 ### Cambio: Título integrado en diagrama (Index.vue)
 
 - **Qué:** Se movió la cabecera externa del componente y el título ahora se renderiza dentro del lienzo SVG usando un `foreignObject` centrado en la parte superior del mapa. Esto aprovecha el espacio superior que antes quedaba en blanco y mantiene el título visible durante el pan/zoom.
-- **Dónde:** `src/resources/js/pages/ScenarioPlanning/Index.vue` — reemplazo de la etiqueta `<header>` por un `foreignObject` dentro del `<svg>` y estilos asociados.
+- **Dónde:** `resources/js/pages/ScenarioPlanning/Index.vue` — reemplazo de la etiqueta `<header>` por un `foreignObject` dentro del `<svg>` y estilos asociados.
 - **Por qué:** Aprovechar el espacio superior para presentación del título y reducir el padding externo; mejora estética y hace el título parte del contexto visual del diagrama.
 - **Fecha:** 2026-01-28
 
@@ -1053,7 +1053,7 @@ El modelo **debería ser N:N con pivote** (una competencia puede ser compartida 
 
 **Cambio arquitectónico importante: Pasar de 1:N a N:N con pivote**
 
-**Frontend:** `src/resources/js/pages/ScenarioPlanning/Index.vue`
+**Frontend:** `resources/js/pages/ScenarioPlanning/Index.vue`
 
 - ✅ Limpiar `selectedChild.value` en `contextCreateChild()`
 - ✅ Función `resetCompetencyForm()` y watchers para limpiar campos
@@ -1093,12 +1093,12 @@ El modelo **debería ser N:N con pivote** (una competencia puede ser compartida 
 
 ### Archivos modificados
 
-- `src/resources/js/pages/ScenarioPlanning/Index.vue` (frontend)
-- `src/routes/api.php` (endpoint cleanup)
-- `src/app/Models/Competency.php` (relación N:N)
-- `src/app/Models/Capability.php` (relación N:N)
-- `src/app/Http/Controllers/Api/ScenarioController.php` (eager loading)
-- `src/database/migrations/2026_01_29_120000_remove_capability_id_from_competencies.php` (nueva migración)
+- `resources/js/pages/ScenarioPlanning/Index.vue` (frontend)
+- `routes/api.php` (endpoint cleanup)
+- `app/Models/Competency.php` (relación N:N)
+- `app/Models/Capability.php` (relación N:N)
+- `app/Http/Controllers/Api/ScenarioController.php` (eager loading)
+- `database/migrations/2026_01_29_120000_remove_capability_id_from_competencies.php` (nueva migración)
 
 ### Beneficio arquitectónico
 
@@ -1137,7 +1137,7 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
 
 ### Soluciones implementadas
 
-**Frontend:** `src/resources/js/pages/ScenarioPlanning/Index.vue`
+**Frontend:** `resources/js/pages/ScenarioPlanning/Index.vue`
 
 - ✅ Limpiar `selectedChild.value = null` en `contextCreateChild()` (línea ~424)
 - ✅ Crear función `resetCompetencyForm()` (línea ~321)
@@ -1149,7 +1149,7 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
   - Ahora: una sola `POST /api/strategic-planning/scenarios/{scenarioId}/capabilities/{capId}/competencies`
   - Payload único: `{ competency: { name, description }, required_level, ... }`
 
-**Backend:** `src/routes/api.php`
+**Backend:** `routes/api.php`
 
 - ✅ Eliminar ruta duplicada (línea 97-128, que solo soportaba crear competencia sin pivot)
 - ✅ Mantener ruta completa (línea 99, ahora única) que soporta:
@@ -1159,8 +1159,8 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
 
 ### Archivos modificados
 
-- `src/resources/js/pages/ScenarioPlanning/Index.vue` (frontend form fix)
-- `src/routes/api.php` (backend route cleanup)
+- `resources/js/pages/ScenarioPlanning/Index.vue` (frontend form fix)
+- `routes/api.php` (backend route cleanup)
 
 ### Fecha
 
@@ -1174,7 +1174,7 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
 
 ## Memoria: Cambios de la sesión 2026-01-27 (Visual tuning & configuraciones)
 
-- **Qué:** Ajustes visuales y de layout en `src/resources/js/pages/ScenarioPlanning/Index.vue` para mejorar la separación entre nodos padre/hijos y la curvatura de los conectores. Se centralizaron parámetros visuales en la nueva prop `visualConfig` y se añadió `capabilityChildrenOffset` como prop aislada para control fino.
+- **Qué:** Ajustes visuales y de layout en `resources/js/pages/ScenarioPlanning/Index.vue` para mejorar la separación entre nodos padre/hijos y la curvatura de los conectores. Se centralizaron parámetros visuales en la nueva prop `visualConfig` y se añadió `capabilityChildrenOffset` como prop aislada para control fino.
 - **Por qué:** Facilitar tuning rápido de la visualización desde la invocación del componente y reducir constantes dispersas en el archivo.
 - **Cambios principales:**
   - Añadida prop `visualConfig` (valores por defecto: `nodeRadius`, `focusRadius`, `scenarioOffset`, `childDrop`, `skillDrop`, `edge.baseDepth`, `edge.curveFactor`, `edge.spreadOffset`).
@@ -1182,7 +1182,7 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
   - `edgeRenderFor` y `edgeEndpoint` adaptan la profundidad de curva según distancia y `visualConfig.edge.curveFactor`.
   - Se preservaron los `marker-end` existentes (`#childArrow`) para mantener las flechas en los conectores.
 - **Archivos modificados:**
-  - `src/resources/js/pages/ScenarioPlanning/Index.vue` (prop `visualConfig`, uso en `expandCompetencies`, `expandSkills`, `edgeRenderFor`, `centerOnNode` y ajustes visuales).
+  - `resources/js/pages/ScenarioPlanning/Index.vue` (prop `visualConfig`, uso en `expandCompetencies`, `expandSkills`, `edgeRenderFor`, `centerOnNode` y ajustes visuales).
 - **Estado Git local:** cambios aplicados en branch `feature/workforce-planning-scenario-modeling` (commits locales pendientes de push). Intento de fetch/push falló por autenticación remota (usar SSH o PAT para sincronizar).
 - **Próximos pasos guardados:** continuar mañana con la implementación del `NodeContextMenu` y los modales para crear/asociar competencias/skills (ver TODO list actualizada en repo).
 - **Fecha:** 2026-01-27
@@ -1190,15 +1190,15 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
 ### Comportamiento: Mostrar Guardar/Reset sólo cuando hay cambios
 
 - Qué: Añadida bandera reactiva `positionsDirty` para mostrar los botones `Guardar` y `Reset` únicamente cuando el usuario ha movido nodos (posiciones sin guardar).
-- Dónde: `src/resources/js/pages/ScenarioPlanning/Index.vue` — se añadió `positionsDirty = ref(false)`, se marca `true` durante el arrastre (`onPointerMove`) y se limpia (`false`) tras guardar o resetear posiciones.
+- Dónde: `resources/js/pages/ScenarioPlanning/Index.vue` — se añadió `positionsDirty = ref(false)`, se marca `true` durante el arrastre (`onPointerMove`) y se limpia (`false`) tras guardar o resetear posiciones.
 - Por qué: Reducir ruido en la interfaz y evitar acciones innecesarias cuando no hay cambios.
 - Fecha: 2026-01-22
-- Archivos modificados: `src/resources/js/pages/ScenarioPlanning/Index.vue`
+- Archivos modificados: `resources/js/pages/ScenarioPlanning/Index.vue`
 
 ### Ajuste: Empujar hijos hacia abajo cuando hay >=10 nodos
 
 - Qué: En `Index.vue` la función `expandCompetencies` se actualizó para garantizar que, cuando hay muchos hijos (por ejemplo >=10), el bloque de hijos comience claramente por debajo del nodo padre y se aumente la separación vertical entre filas para evitar solapamientos.
-- Dónde: `src/resources/js/pages/ScenarioPlanning/Index.vue` — `expandCompetencies`
+- Dónde: `resources/js/pages/ScenarioPlanning/Index.vue` — `expandCompetencies`
 - Por qué: Evitar que los nodos hijos queden demasiado cerca o solapen con el padre en vistas con muchos elementos; mejora legibilidad y evita recenter inesperado.
 - Fecha: 2026-01-22
 - Metadata Git:
@@ -1211,7 +1211,7 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
 - **Qué:** Se actualizó la representación visual de los nodos principales en `ScenarioPlanning/Index.vue` para que las esferas parezcan burbujas (gradiente radial más pronunciado, reflejo especular y ribete sutil). Esto mejora la legibilidad y la sensación de profundidad.
 - **Por qué:** El aspecto de "burbuja" facilita identificar nodos principales y su estado crítico, además de alinearse con las mejoras visuales propuestas en el PrototypeMap.
 - **Fecha:** 2026-01-21
-- **Archivos modificados:** `src/resources/js/pages/ScenarioPlanning/Index.vue`
+- **Archivos modificados:** `resources/js/pages/ScenarioPlanning/Index.vue`
 - **Metadata Git:**
   - `git_repo_name`: oahumada/Stratos
   - `git_branch`: feature/workforce-planning-scenario-modeling
@@ -1222,11 +1222,11 @@ Nota: Este cambio es puramente visual (SVG/defs/CSS). La lógica D3 y el layout 
 ## Acción técnica relacionada: typings D3
 
 - Se instaló `@types/d3` localmente en `src` (devDependency) para eliminar aviso de "No se encontró ningún archivo de declaración para el módulo 'd3'".
-- Si TypeScript sigue reportando errores, alternativa rápida: agregar `src/types/d3.d.ts` con `declare module 'd3';`.
+- Si TypeScript sigue reportando errores, alternativa rápida: agregar `types/d3.d.ts` con `declare module 'd3';`.
 
 ## Tests añadidos (2026-01-28)
 
-- **CapabilityUpdateTest**: nuevo archivo de pruebas backend en `src/tests/Feature/CapabilityUpdateTest.php` con dos tests:
+- **CapabilityUpdateTest**: nuevo archivo de pruebas backend en `tests/Feature/CapabilityUpdateTest.php` con dos tests:
   - `test_update_capability_entity_via_api`: PATCH a `/api/capabilities/{id}` y aserciones en la tabla `capabilities`.
   - `test_update_scenario_capability_pivot_via_api`: crea asociación inicial y PATCH a `/api/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}` para actualizar campos pivot en `scenario_capabilities`.
 
@@ -1235,7 +1235,7 @@ Estas pruebas fueron añadidas para cubrir la edición/actualización de registr
 ## Próximos pasos recomendados (plan corto)
 
 1. Ejecutar `npm run lint` y `npm run format` para aplicar estilo a `Index.vue`.
-2. Crear `src/types/d3.d.ts` si quedan warnings de typing en el editor.
+2. Crear `types/d3.d.ts` si quedan warnings de typing en el editor.
 3. (Opcional) Extraer el BrainCanvas a `resources/js/components/Brain/` si se centraliza la implementación.
 
 ## Registro de acciones / metadata
@@ -1246,12 +1246,12 @@ Estas pruebas fueron añadidas para cubrir la edición/actualización de registr
 
 - Cambio: Ajuste de altura del mapa embebido en `ScenarioDetail` (reduce tamaño y fuerza `prototype-map-root` a ocupar el contenedor).
 - Branch: feature/scenario-planning/paso-2
-- Archivos: `src/resources/js/pages/ScenarioPlanning/ScenarioDetail.vue`
+- Archivos: `resources/js/pages/ScenarioPlanning/ScenarioDetail.vue`
 - Autor (local): cambios aplicados desde esta sesión de Copilot/IDE.
 
 ---
 
-Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el archivo `src/types/d3.d.ts`, indícalo y lo ejecuto ahora.
+Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el archivo `types/d3.d.ts`, indícalo y lo ejecuto ahora.
 
 - Memoria detallada de la sesión de 2026-01-22: [docs/MEMORY_ScenarioPlanning_2026-01-22.md](docs/MEMORY_ScenarioPlanning_2026-01-22.md)
 
@@ -1264,7 +1264,7 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
   - Al seleccionar una capacidad, el nodo seleccionado se centra horizontalmente y se posiciona verticalmente al 25% del lienzo; los demás nodos de nivel 1 se ocultan (se ponen `display:none`) y se mantiene visible el nodo `scenario`.
   - La expansión de competencias (nivel 2) ahora está limitada a 10 nodos y se dispone en matriz 2x5 debajo del nodo seleccionado.
   - Comportamiento análogo para profundizar un nivel más (nivel 3): oculta nodos no seleccionados y muestra únicamente el padre y sus hijos.
-- **Dónde:** `src/resources/js/pages/ScenarioPlanning/Index.vue` (modificación de `expandCompetencies`, `handleNodeClick`) y nuevo helper `src/resources/js/composables/useNodeNavigation.ts` (`computeMatrixPositions`).
+- **Dónde:** `resources/js/pages/ScenarioPlanning/Index.vue` (modificación de `expandCompetencies`, `handleNodeClick`) y nuevo helper `resources/js/composables/useNodeNavigation.ts` (`computeMatrixPositions`).
 - **Por qué:** UX consistente, reduce saturación visual y proporciona una navegación predecible por niveles.
 - **Fecha:** 2026-01-25
 
@@ -1305,11 +1305,11 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 
 - **Resumen corto:** Implementé el endpoint backend para asignar competencias a capacidades por escenario (`capability_competencies`) que acepta `competency_id` o crea una nueva `competency` y la asocia, creé la migración/modelo para la pivot, añadí tests Feature que cubren ambos flujos y verifiqué que los tests pasan localmente.
 - **Archivos clave modificados/añadidos:**
-  - `src/routes/api.php` — POST `/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies` (lógica transaccional, tenant checks, manejo de duplicados).
-  - `src/app/Models/CapabilityCompetency.php` — nuevo modelo para pivot.
-  - `src/database/migrations/2026_01_23_120000_add_positions_to_scenario_capabilities_table.php` — agregó `position_x/position_y/is_fixed` a `scenario_capabilities`.
-  - `src/database/migrations/2026_01_23_121000_create_capability_competencies_table.php` — nueva tabla `capability_competencies`.
-  - `src/tests/Feature/CapabilityCompetencyTest.php` — tests para: adjuntar competencia existente; crear nueva competencia + pivot en transacción.
+  - `routes/api.php` — POST `/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies` (lógica transaccional, tenant checks, manejo de duplicados).
+  - `app/Models/CapabilityCompetency.php` — nuevo modelo para pivot.
+  - `database/migrations/2026_01_23_120000_add_positions_to_scenario_capabilities_table.php` — agregó `position_x/position_y/is_fixed` a `scenario_capabilities`.
+  - `database/migrations/2026_01_23_121000_create_capability_competencies_table.php` — nueva tabla `capability_competencies`.
+  - `tests/Feature/CapabilityCompetencyTest.php` — tests para: adjuntar competencia existente; crear nueva competencia + pivot en transacción.
 
 - **Comprobaciones realizadas:**
   - Ejecuté los tests del nuevo archivo y pasaron: `php artisan test tests/Feature/CapabilityCompetencyTest.php` (2 tests, 8 assertions) en el entorno de desarrollo local del repo.
@@ -1328,7 +1328,7 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
      npm run dev   # si es necesario reconstruir assets
      ```
 
-  2. Implementar la UI (modal/select) en `src/resources/js/pages/ScenarioPlanning/Index.vue` para: seleccionar competencia existente o crear una nueva y llamar al endpoint transaccional.
+  2. Implementar la UI (modal/select) en `resources/js/pages/ScenarioPlanning/Index.vue` para: seleccionar competencia existente o crear una nueva y llamar al endpoint transaccional.
   3. Añadir validaciones/autorization finales y pruebas E2E pequeñas (Playwright/Pest) para el flujo completo.
 
 - **Metadata:**
@@ -1341,7 +1341,7 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 
     **Título:** Implementación Transform → Crear versiones de competencias y mapping Role↔Competency a versiones
 
-    **Ubicación:** Frontend: `src/resources/js/Pages/Scenario/TransformModal.vue`, `src/resources/js/components/BarsEditor.vue`, `src/resources/js/composables/useApi.ts`
+    **Ubicación:** Frontend: `resources/js/Pages/Scenario/TransformModal.vue`, `resources/js/components/BarsEditor.vue`, `resources/js/composables/useApi.ts`
 
     **Propósito:** Permitir que la transformación de una competencia cree una nueva `competency_version` en backend y que los mappings rol↔competency guarden la referencia a la versión creada. Mejorar UX de edición BARS (modo estructurado + JSON robusto) y manejo de errores API (sanitizar respuestas HTML/no-JSON).
 
@@ -1374,7 +1374,7 @@ Registro creado automáticamente para dejar el estado listo para continuar maña
 ## Cambio reciente: Migración de flags de animación/visibilidad en ScenarioPlanning/Index.vue
 
 - **Qué:** Se migraron los flags legacy `__scale`, `__opacity`, `__filter`, `__delay`, `__hidden`, `__displayNone`, `__targetX/Y` a campos explícitos del modelo de nodo: `animScale`, `animOpacity`, `animFilter`, `animDelay`, `animTargetX`, `animTargetY` y `visible`.
-- **Dónde:** `src/resources/js/pages/ScenarioPlanning/Index.vue` (plantilla y funciones `expandCompetencies`, `showOnlySelectedAndParent`, y manejadores de click).
+- **Dónde:** `resources/js/pages/ScenarioPlanning/Index.vue` (plantilla y funciones `expandCompetencies`, `showOnlySelectedAndParent`, y manejadores de click).
 - **Por qué:** Normalizar campos facilita bindings CSS, evita errores por acceso a propiedades inexistentes en template y prepara la migración completa de animaciones a propiedades del modelo.
 - **Fecha:** 2026-01-26
 - **Metadata Git:** branch `feature/workforce-planning-scenario-modeling` (ediciones locales durante sesión).
@@ -1382,7 +1382,7 @@ Registro creado automáticamente para dejar el estado listo para continuar maña
 ## Implementación registrada: Auto-attach de `Capability` a `Scenario` (pivot)
 
 - **Qué:** Al crear una nueva `Capability` que tenga `discovered_in_scenario_id`, el modelo ahora inserta automáticamente una fila en la tabla pivot `scenario_capabilities` (si no existe) con valores por defecto (`strategic_role='target'`, `strategic_weight=10`, `priority=1`, `required_level=3`, `is_critical=false`). La relación también se crea explícitamente desde la ruta API que guarda la capacidad desde el nodo del escenario.
-- **Dónde:** `src/app/Models/Capability.php` — se añadió `protected static function booted()` con un listener `created` que realiza la inserción segura (verifica existencia antes de insertar). El listener sólo actúa cuando `discovered_in_scenario_id` está presente; la ruta API que crea la capacidad desde el nodo también inserta el registro en `scenario_capabilities` con los campos de relación provistos por la petición.
+- **Dónde:** `app/Models/Capability.php` — se añadió `protected static function booted()` con un listener `created` que realiza la inserción segura (verifica existencia antes de insertar). El listener sólo actúa cuando `discovered_in_scenario_id` está presente; la ruta API que crea la capacidad desde el nodo también inserta el registro en `scenario_capabilities` con los campos de relación provistos por la petición.
 - **Por qué:** Centralizar el comportamiento asegura que todas las rutas/repositorios/seeders que creen `Capability` con `discovered_in_scenario_id` o `type='pro'` resulten en la relación correcta en `scenario_capabilities` sin duplicar lógica en múltiples lugares.
 - **Impacto:** El seeder y rutas que ya crean capacidades quedan cubiertos; la inserción respeta la restricción única (`scenario_id, capability_id`) y maneja errores con logging.
 - **Fecha:** 2026-01-22
@@ -1406,12 +1406,12 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 - Stack: Laravel 12 (backend) + Inertia v2 + Vue 3 + TypeScript + Vuetify 3
 - Multi-tenant por `organization_id`, autenticación con Sanctum.
-- Estructura principal: código en `src/`, documentación en `docs/` y `docs_wiki/`.
+- Estructura principal: código en ``, documentación en `docs/` y `docs_wiki/`.
 
 ## Componentes clave (relevantes para WFP / Cerebro Stratos)
 
 - `resources/js/pages/ScenarioPlanning/Index.vue` — Mapa prototipo (PrototypeMap). Usado por `ScenarioDetail.vue`.
-- `src/resources/js/components/brain/BrainCanvas.vue` — Componente referenciado en la guía (implementación con D3).
+- `resources/js/components/brain/BrainCanvas.vue` — Componente referenciado en la guía (implementación con D3).
 - Nota: la guía se movió a `docs/GUIA_STRATOS_CEREBRO.txt`.
 - `docs/GUIA_STRATOS_CEREBRO.txt` — Guía de implementación del "Cerebro Stratos" (inspirada en TheBrain).
 
@@ -1455,22 +1455,22 @@ Esta entrada sirve como referencia para nombres de rutas, directorios y componen
 ## Implementación registrada: Mejora visual PrototypeMap
 
 - Qué: mejoras visuales en el mapa de capacidades para mayor legibilidad y jerarquía visual.
-- Dónde: `src/resources/js/pages/ScenarioPlanning/Index.vue` (sustitución de `svg` con `defs` para gradientes, filtro de sombra, clases CSS scoped y animación `pulse` para nodos críticos).
+- Dónde: `resources/js/pages/ScenarioPlanning/Index.vue` (sustitución de `svg` con `defs` para gradientes, filtro de sombra, clases CSS scoped y animación `pulse` para nodos críticos).
 - Decisión clave: mantener la lógica D3 existente; usar `defs` SVG para estilos visuales (gradiente radial + sombra); no cambiar API ni persistencia.
 - Archivos modificados: Index.vue (visual + ligeras señales `is_critical` en nodos), openmemory.md (registro).
 
 ### Comportamiento: Mostrar Guardar/Reset sólo cuando hay cambios
 
 - Qué: Añadida bandera reactiva `positionsDirty` para mostrar los botones `Guardar` y `Reset` únicamente cuando el usuario ha movido nodos (posiciones sin guardar).
-- Dónde: `src/resources/js/pages/ScenarioPlanning/Index.vue` — se añadió `positionsDirty = ref(false)`, se marca `true` durante el arrastre (`onPointerMove`) y se limpia (`false`) tras guardar o resetear posiciones.
+- Dónde: `resources/js/pages/ScenarioPlanning/Index.vue` — se añadió `positionsDirty = ref(false)`, se marca `true` durante el arrastre (`onPointerMove`) y se limpia (`false`) tras guardar o resetear posiciones.
 - Por qué: Reducir ruido en la interfaz y evitar acciones innecesarias cuando no hay cambios.
 - Fecha: 2026-01-22
-- Archivos modificados: `src/resources/js/pages/ScenarioPlanning/Index.vue`
+- Archivos modificados: `resources/js/pages/ScenarioPlanning/Index.vue`
 
 ### Ajuste: Empujar hijos hacia abajo cuando hay >=10 nodos
 
 - Qué: En `Index.vue` la función `expandCompetencies` se actualizó para garantizar que, cuando hay muchos hijos (por ejemplo >=10), el bloque de hijos comience claramente por debajo del nodo padre y se aumente la separación vertical entre filas para evitar solapamientos.
-- Dónde: `src/resources/js/pages/ScenarioPlanning/Index.vue` — `expandCompetencies`
+- Dónde: `resources/js/pages/ScenarioPlanning/Index.vue` — `expandCompetencies`
 - Por qué: Evitar que los nodos hijos queden demasiado cerca o solapen con el padre en vistas con muchos elementos; mejora legibilidad y evita recenter inesperado.
 - Fecha: 2026-01-22
 - Metadata Git:
@@ -1483,7 +1483,7 @@ Esta entrada sirve como referencia para nombres de rutas, directorios y componen
 - **Qué:** Se actualizó la representación visual de los nodos principales en `ScenarioPlanning/Index.vue` para que las esferas parezcan burbujas (gradiente radial más pronunciado, reflejo especular y ribete sutil). Esto mejora la legibilidad y la sensación de profundidad.
 - **Por qué:** El aspecto de "burbuja" facilita identificar nodos principales y su estado crítico, además de alinearse con las mejoras visuales propuestas en el PrototypeMap.
 - **Fecha:** 2026-01-21
-- **Archivos modificados:** `src/resources/js/pages/ScenarioPlanning/Index.vue`
+- **Archivos modificados:** `resources/js/pages/ScenarioPlanning/Index.vue`
 - **Metadata Git:**
   - `git_repo_name`: oahumada/Stratos
   - `git_branch`: feature/workforce-planning-scenario-modeling
@@ -1494,12 +1494,12 @@ Nota: Este cambio es puramente visual (SVG/defs/CSS). La lógica D3 y el layout 
 ## Acción técnica relacionada: typings D3
 
 - Se instaló `@types/d3` localmente en `src` (devDependency) para eliminar aviso de "No se encontró ningún archivo de declaración para el módulo 'd3'".
-- Si TypeScript sigue reportando errores, alternativa rápida: agregar `src/types/d3.d.ts` con `declare module 'd3';`.
+- Si TypeScript sigue reportando errores, alternativa rápida: agregar `types/d3.d.ts` con `declare module 'd3';`.
 
 ## Próximos pasos recomendados (plan corto)
 
 1. Ejecutar `npm run lint` y `npm run format` para aplicar estilo a `Index.vue`.
-2. Crear `src/types/d3.d.ts` si quedan warnings de typing en el editor.
+2. Crear `types/d3.d.ts` si quedan warnings de typing en el editor.
 3. (Opcional) Extraer el BrainCanvas a `resources/js/components/Brain/` si se centraliza la implementación.
 
 ## Registro de acciones / metadata
@@ -1510,7 +1510,7 @@ Nota: Este cambio es puramente visual (SVG/defs/CSS). La lógica D3 y el layout 
 
 ---
 
-Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el archivo `src/types/d3.d.ts`, indícalo y lo ejecuto ahora.
+Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el archivo `types/d3.d.ts`, indícalo y lo ejecuto ahora.
 
 - Memoria detallada de la sesión de 2026-01-22: [docs/MEMORY_ScenarioPlanning_2026-01-22.md](docs/MEMORY_ScenarioPlanning_2026-01-22.md)
 
@@ -1570,13 +1570,13 @@ El modal de edición de Competencias NO guardaba cambios. Causas múltiples:
 
 ### Soluciones implementadas
 
-**Backend:** `src/routes/api.php`
+**Backend:** `routes/api.php`
 
 - ✅ Creado endpoint `GET /api/competencies/{id}` — obtiene competencia con datos frescos
 - ✅ Creado endpoint `PATCH /api/competencies/{id}` — actualiza `name`, `description`, `skills` (rechaza `readiness`)
 - ✅ Ambos endpoints incluyen validación multi-tenant y manejo de errores explícito
 
-**Frontend:** `src/resources/js/pages/ScenarioPlanning/Index.vue`
+**Frontend:** `resources/js/pages/ScenarioPlanning/Index.vue`
 
 - ✅ Mejorado `saveSelectedChild()` con logs de debug en cada paso (payload, PATCH call, response)
 - ✅ Removido `readiness` del payload de competencia (`editChildReadiness` es solo-lectura)
@@ -1585,8 +1585,8 @@ El modal de edición de Competencias NO guardaba cambios. Causas múltiples:
 
 ### Archivos modificados
 
-1. `src/routes/api.php` — Agregó GET + PATCH para competencias (31 líneas)
-2. `src/resources/js/pages/ScenarioPlanning/Index.vue` — Mejoró `saveSelectedChild()` con logs y payload correcto
+1. `routes/api.php` — Agregó GET + PATCH para competencias (31 líneas)
+2. `resources/js/pages/ScenarioPlanning/Index.vue` — Mejoró `saveSelectedChild()` con logs y payload correcto
 
 ### Validación
 
@@ -1666,7 +1666,7 @@ LAYOUT_CONFIG.skill.radial = {
 
 ### Archivos modificados
 
-1. `src/resources/js/pages/ScenarioPlanning/Index.vue`
+1. `resources/js/pages/ScenarioPlanning/Index.vue`
    - Línea ~662: `LAYOUT_CONFIG` (nueva)
    - Función `expandCompetencies`: Layout radial + matrix
    - Función `expandSkills`: Layout radial + linear
@@ -1685,7 +1685,7 @@ LAYOUT_CONFIG.skill.radial = {
 
 ### Cómo probar cambios
 
-1. Abre `src/resources/js/pages/ScenarioPlanning/Index.vue`
+1. Abre `resources/js/pages/ScenarioPlanning/Index.vue`
 2. Ubica `const LAYOUT_CONFIG = {` (línea ~662)
 3. Ajusta valores (ej: `radius: 240 → 280`)
 4. Guarda archivo
@@ -1782,7 +1782,7 @@ Se crearon **5 composables especializados** (583 líneas totales) para centraliz
 
 #### 1. useNodeCrud.ts (214 líneas) - CRUD Genérico
 
-**Ubicación:** `src/resources/js/composables/useNodeCrud.ts`
+**Ubicación:** `resources/js/composables/useNodeCrud.ts`
 
 Patrón Strategy para operaciones base en cualquier nodo:
 
@@ -1815,7 +1815,7 @@ const nodeCrud = useNodeCrud({
 
 #### 2. useCapabilityCrud.ts (95 líneas) - Capabilities
 
-**Ubicación:** `src/resources/js/composables/useCapabilityCrud.ts`
+**Ubicación:** `resources/js/composables/useCapabilityCrud.ts`
 
 Operaciones específicas para capabilities:
 
@@ -1830,7 +1830,7 @@ const { createCapabilityForScenario, updateCapability, updateCapabilityPivot } =
 
 #### 3. useCompetencyCrud.ts (94 líneas) - Competencies
 
-**Ubicación:** `src/resources/js/composables/useCompetencyCrud.ts`
+**Ubicación:** `resources/js/composables/useCompetencyCrud.ts`
 
 Operaciones específicas para competencies:
 
@@ -1850,7 +1850,7 @@ const {
 
 #### 4. useCompetencySkills.ts (Ya existía) - Skills
 
-**Ubicación:** `src/resources/js/composables/useCompetencySkills.ts`
+**Ubicación:** `resources/js/composables/useCompetencySkills.ts`
 
 ```typescript
 const { createAndAttachSkill, attachExistingSkill, detachSkill } =
@@ -1859,7 +1859,7 @@ const { createAndAttachSkill, attachExistingSkill, detachSkill } =
 
 #### 5. useNodeLayout.ts (180 líneas) - Layout Compartido
 
-**Ubicación:** `src/resources/js/composables/useNodeLayout.ts`
+**Ubicación:** `resources/js/composables/useNodeLayout.ts`
 
 Centraliza lógica de posicionamiento de nodos:
 
@@ -2160,14 +2160,14 @@ it("should save selected child competency", async () => {
 
 **Composables creados:**
 
-- `src/resources/js/composables/useNodeCrud.ts` (214 líneas)
-- `src/resources/js/composables/useCapabilityCrud.ts` (95 líneas)
-- `src/resources/js/composables/useCompetencyCrud.ts` (94 líneas)
-- `src/resources/js/composables/useNodeLayout.ts` (180 líneas)
+- `resources/js/composables/useNodeCrud.ts` (214 líneas)
+- `resources/js/composables/useCapabilityCrud.ts` (95 líneas)
+- `resources/js/composables/useCompetencyCrud.ts` (94 líneas)
+- `resources/js/composables/useNodeLayout.ts` (180 líneas)
 
 **Componente a refactorizar:**
 
-- `src/resources/js/pages/ScenarioPlanning/Index.vue` (5,478 líneas)
+- `resources/js/pages/ScenarioPlanning/Index.vue` (5,478 líneas)
 
 **Documentación:**
 
@@ -2177,10 +2177,10 @@ it("should save selected child competency", async () => {
 
 **Tests (por crear):**
 
-- `src/resources/js/composables/__tests__/useNodeCrud.spec.ts`
-- `src/resources/js/composables/__tests__/useCapabilityCrud.spec.ts`
-- `src/resources/js/composables/__tests__/useCompetencyCrud.spec.ts`
-- `src/resources/js/composables/__tests__/useNodeLayout.spec.ts`
+- `resources/js/composables/__tests__/useNodeCrud.spec.ts`
+- `resources/js/composables/__tests__/useCapabilityCrud.spec.ts`
+- `resources/js/composables/__tests__/useCompetencyCrud.spec.ts`
+- `resources/js/composables/__tests__/useNodeLayout.spec.ts`
 
 ### Patrón Reutilizable
 
@@ -2221,7 +2221,7 @@ export function useProjectCrud() {
 
 ### ✅ Backend Testing - Pest Framework
 
-**Archivo:** `src/tests/Feature/Api/Step2RoleCompetencyApiTest.php` (220 líneas)
+**Archivo:** `tests/Feature/Api/Step2RoleCompetencyApiTest.php` (220 líneas)
 
 **14 Test Cases:**
 

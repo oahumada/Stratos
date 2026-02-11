@@ -28,6 +28,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // config/services.php
+'n8n' => [
+    'webhook_url' => env('N8N_WEBHOOK_URL', 'https://n8n.example.com/webhook/stratos'),
+],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

@@ -301,7 +301,7 @@ class ScenarioController extends Controller
         try {
             $user = auth()->user();
             if ($payload && $user) {
-                if (!\Gate::forUser($user)->allows('viewAcceptedPrompt', $scenario)) {
+                if (! \Gate::forUser($user)->allows('viewAcceptedPrompt', $scenario)) {
                     unset($payload['accepted_prompt']);
                     unset($payload['accepted_prompt_metadata']);
                 }
@@ -487,5 +487,20 @@ class ScenarioController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Suggested strategies refreshed', 'created' => $created]);
+    }
+
+    // app/Http/Controllers/ScenarioController.php
+    public function orchestrate(Scenario $scenario)
+    {
+        $orchestrator = app(OrchestrationService::class);
+
+        foreach ($scenario->talentBlueprints as $blueprint) {
+            $orchestrator->executeStrategy($blueprint);
+        }
+
+        return response()->json([
+            'message' => 'Orchestration initiated',
+            'blueprints_processed' => $scenario->talentBlueprints->count(),
+        ]);
     }
 }

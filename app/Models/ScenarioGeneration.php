@@ -53,4 +53,11 @@ class ScenarioGeneration extends Model
     {
         return $this->hasOne(Scenario::class, 'source_generation_id');
     }
+
+    // Accesor para obtener el "Índice de Sintetización" del escenario
+    public function getSynthetizationIndexAttribute() {
+        // Calcula qué tan "IA-Ready" es este plan estratégico
+        return collect($this->llm_response['suggested_roles'])
+                ->avg('talent_composition.synthetic_percentage');
+    }
 }

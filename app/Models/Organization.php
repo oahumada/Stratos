@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-/**
- * Backwards compatibility alias for singular Organization model name.
- */
+// Lightweight alias to support code/tests using singular `Organization`.
+// Extends the existing `Organizations` model to avoid duplicating logic.
 class Organization extends Organizations
 {
-    // Alias to preserve legacy references to App\Models\Organization
+    // Intentionally empty - inherits everything from Organizations
 }

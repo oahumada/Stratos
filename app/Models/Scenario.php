@@ -128,4 +128,20 @@ class Scenario extends Model
             }
         });
     }
+
+    public function talentBlueprints()
+    {
+        return $this->hasMany(TalentBlueprint::class);
+    }
+
+    public function getSynthetizationIndexAttribute()
+    {
+        if ($this->talentBlueprints->isEmpty()) {
+            return 0;
+        }
+
+        return round(
+            $this->talentBlueprints->avg('synthetic_percentage')
+        );
+    }
 }
