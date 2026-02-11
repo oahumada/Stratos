@@ -18,22 +18,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { Role } from '../../../../types/talent'
+import { computed } from 'vue';
+import type { Role } from '../../../../types/talent';
 
-const props = defineProps<{ suggestedRoles: Role[] }>()
+const props = defineProps<{ suggestedRoles: Role[] }>();
 
 const average = computed(() => {
-    if (!props.suggestedRoles || props.suggestedRoles.length === 0) return 0
+    if (!props.suggestedRoles || props.suggestedRoles.length === 0) return 0;
     const total = props.suggestedRoles.reduce((acc, r) => {
-        return acc + (r.talent_composition?.synthetic_percentage || 0)
-    }, 0)
-    return total / props.suggestedRoles.length
-})
+        return acc + (r.talent_composition?.synthetic_percentage || 0);
+    }, 0);
+    return total / props.suggestedRoles.length;
+});
 
-const rounded = computed(() => Math.round(average.value))
+const rounded = computed(() => Math.round(average.value));
 </script>
 
 <style scoped>
-.text-h2 { font-size: 1.5rem; }
+.text-h2 {
+    font-size: 1.5rem;
+}
 </style>

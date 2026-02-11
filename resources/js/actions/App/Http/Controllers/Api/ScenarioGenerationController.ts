@@ -57,7 +57,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::demo
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:343
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:346
 * @route '/api/strategic-planning/scenarios/generate/demo'
 */
 export const demo = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -72,7 +72,7 @@ demo.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::demo
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:343
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:346
 * @route '/api/strategic-planning/scenarios/generate/demo'
 */
 demo.url = (options?: RouteQueryOptions) => {
@@ -81,7 +81,7 @@ demo.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::demo
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:343
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:346
 * @route '/api/strategic-planning/scenarios/generate/demo'
 */
 demo.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -91,7 +91,7 @@ demo.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::demo
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:343
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:346
 * @route '/api/strategic-planning/scenarios/generate/demo'
 */
 const demoForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -101,7 +101,7 @@ const demoForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => (
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::demo
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:343
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:346
 * @route '/api/strategic-planning/scenarios/generate/demo'
 */
 demoForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
