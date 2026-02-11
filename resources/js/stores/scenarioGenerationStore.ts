@@ -149,6 +149,7 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
             urgency_level: '',
             milestones: '',
             organization_id: null,
+            instruction_language: 'es',
         },
         generating: false,
         generationId: null,

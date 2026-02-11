@@ -1,4 +1,4 @@
-# Instrucción por defecto (Sistema)
+# Instrucción por defecto (Sistema) EL OTRO
 
 Genera un escenario estratégico a partir de los datos proporcionados.
 

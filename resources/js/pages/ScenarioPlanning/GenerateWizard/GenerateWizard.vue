@@ -7,7 +7,7 @@
                 <v-progress-linear
                     :value="progress"
                     :color="progressColor"
-                    height="16"
+                    height="25"
                     rounded
                 >
                     <template #default>
@@ -826,16 +826,26 @@ async function onGenerate() {
             return;
         }
 
+        // Persist instruction selection and language so preview uses the chosen instruction
+        if (instructionChoice.value === 'client' && instructionContent.value) {
+            store.setField('instruction', instructionContent.value);
+            store.setField('instruction_id', null);
+        } else if (
+            instructionChoice.value === 'db' &&
+            selectedInstructionIndex.value !== null
+        ) {
+            const it = instructionItems.value[selectedInstructionIndex.value];
+            const id = it?.id ?? null;
+            store.setField('instruction', null);
+            store.setField('instruction_id', id);
+        } else {
+            store.setField('instruction', null);
+            store.setField('instruction_id', null);
+        }
+        store.setField('instruction_language', instructionLang.value);
+
         // First get prompt preview from server
         await store.preview();
-
-        // Append current editable instruction content to the preview so operator sees the exact instruction
-        if (instructionContent.value) {
-            store.previewPrompt =
-                (((store.previewPrompt as unknown as string) ?? '') +
-                    '\n\n' +
-                    instructionContent.value) as any;
-        }
 
         showPreview.value = true;
     } catch (e) {

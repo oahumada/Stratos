@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PromptInstruction;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PromptInstructionController extends Controller
 {
@@ -30,9 +31,23 @@ class PromptInstructionController extends Controller
         // If no items in DB, provide a code-backed default from resources/prompt_instructions
         if ($items->isEmpty()) {
             try {
+                // Primary expected location
                 $path = resource_path('prompt_instructions/default_' . $language . '.md');
-                if (! file_exists($path)) {
-                    // fallback to english then spanish
+
+                // Legacy/alternate templates used by some wizards live under prompt_templates
+                $alt1 = resource_path('prompt_templates/abacus_modal_prompt_' . $language . '.md');
+                $alt2 = resource_path('prompt_templates/abacus_modal_prompt_' . substr($language, 0, 2) . '.md');
+                $alt3 = resource_path('prompt_templates/abacus_modal_prompt_' . $language . '.MD');
+
+                // Prefer prompt_templates alternatives when present
+                if (file_exists($alt1)) {
+                    $path = $alt1;
+                } elseif (file_exists($alt2)) {
+                    $path = $alt2;
+                } elseif (file_exists($alt3)) {
+                    $path = $alt3;
+                } elseif (! file_exists($path)) {
+                    // fallback to english then spanish under prompt_instructions
                     $pathEn = resource_path('prompt_instructions/default_en.md');
                     $pathEs = resource_path('prompt_instructions/default_es.md');
                     if (file_exists($pathEn)) $path = $pathEn;
@@ -55,7 +70,7 @@ class PromptInstructionController extends Controller
                     // Audit/log usage of the file fallback with minimal context
                     try {
                         $user = $request->user();
-                        \Log::info('PromptInstructionController: using file fallback', [
+                        Log::info('PromptInstructionController: using file fallback', [
                             'language' => $language,
                             'user_id' => $user ? $user->id : null,
                             'user_email' => $user ? ($user->email ?? null) : null,
@@ -64,13 +79,13 @@ class PromptInstructionController extends Controller
                         ]);
                     } catch (\Throwable $e) {
                         // non-fatal; don't block response
-                        \Log::warning('Failed to log fallback usage: '.$e->getMessage());
+                        Log::warning('Failed to log fallback usage: '.$e->getMessage());
                     }
 
                     return response()->json(['success' => true, 'data' => [$item]]);
                 }
             } catch (\Throwable $e) {
-                \Log::error('Error loading default prompt instruction file: '.$e->getMessage());
+                Log::error('Error loading default prompt instruction file: '.$e->getMessage());
             }
         }
 

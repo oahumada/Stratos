@@ -13,15 +13,23 @@ use Illuminate\Validation\ValidationException;
 
 class ScenarioGenerationService
 {
-    public function preparePrompt(array $data, User $user, Organizations $org): string
+    public function preparePrompt(array $data, User $user, Organizations $org, string $lang = 'es'): string
     {
         // Minimal builder: merge template with provided data. Can be extended.
         $template = '';
         // Safely attempt to load template when app basePath is available
         if (function_exists('app') && is_callable([app(), 'basePath'])) {
-            $templatePath = app()->basePath('docs/GUIA_GENERACION_ESCENARIOS.md');
-            if (file_exists($templatePath)) {
-                $template = @file_get_contents($templatePath) ?: '';
+            // Prefer compact prompt templates used by the wizard (language-specific)
+            $templateCandidates = [
+                app()->basePath('resources/prompt_templates/abacus_modal_prompt_' . $lang . '.md'),
+                app()->basePath('resources/prompt_templates/abacus_modal_prompt.md'),
+                app()->basePath('docs/GUIA_GENERACION_ESCENARIOS.md'),
+            ];
+            foreach ($templateCandidates as $templatePath) {
+                if ($templatePath && file_exists($templatePath)) {
+                    $template = @file_get_contents($templatePath) ?: '';
+                    break;
+                }
             }
         }
 
@@ -42,18 +50,29 @@ class ScenarioGenerationService
         }
 
         // Append operator answers (use replacements so org overrides are visible)
-        $prompt .= "\n\nOPERATOR_INPUT:\n".json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $operatorInputLabel = strtolower($lang) === 'es' ? 'ENTRADAS_OPERADOR' : 'OPERATOR_INPUT';
+        $operatorInstructionLabel = strtolower($lang) === 'es' ? 'INSTRUCCION_OPERADOR' : 'OPERATOR_INSTRUCTION';
+        $prompt .= "\n\n" . $operatorInputLabel . ":\n" . json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
-        // Enforce JSON-only output from the LLM: add an explicit instruction
-        $prompt .= "\n\nINSTRUCTIONS:\nReturn ONLY a single valid JSON object matching the schema with top-level keys: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
-        $prompt .= "The JSON MUST use the following nested structure: each element in 'capabilities' is an object with a 'name' and optional 'description' and a 'competencies' array; each competency is an object with 'name', optional 'description' and a 'skills' array; each skill may be a string (skill name) or object with 'name'.\n";
+        // Enforce JSON-only output from the LLM: add an explicit instruction (language-specific)
+        if (strtolower($lang) === 'es') {
+            $prompt .= "\n\nINSTRUCCIONES:\nDevuelve SOLO un único objeto JSON válido que cumpla el esquema con claves de nivel superior: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
+            $prompt .= "El JSON DEBE usar la siguiente estructura anidada: cada elemento en 'capabilities' es un objeto con 'name' y opcional 'description' y un arreglo 'competencies'; cada competency es un objeto con 'name', opcional 'description' y un arreglo 'skills'; cada skill puede ser una cadena (nombre de habilidad) o un objeto con 'name'.\n";
+        } else {
+            $prompt .= "\n\nINSTRUCTIONS:\nReturn ONLY a single valid JSON object matching the schema with top-level keys: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
+            $prompt .= "The JSON MUST use the following nested structure: each element in 'capabilities' is an object with a 'name' and optional 'description' and a 'competencies' array; each competency is an object with 'name', optional 'description' and a 'skills' array; each skill may be a string (skill name) or object with 'name'.\n";
+        }
 
-        // Purpose and concise definitions to guide the LLM (bilingual short help)
-        $prompt .= "\nPURPOSE: This scenario simulates strategic talent management to achieve the main objective.\n";
-        $prompt .= "DEFINITIONS (EN):\n- Capabilities: organizational means/functions that enable achieving the scenario objective.\n- Competencies: knowledge and abilities required to perform a capability.\n- Skills: the minimal unit (specific skills/knowledge) that composes a competency; may be a string or an object with {\"name\"}.\n- Roles: proposed positions with assigned competencies (analyst must later map/harmonize to internal roles).\n";
-        $prompt .= "DEFINICIÓN (ES):\n- Capabilities (Capacidades): medios/funciones organizacionales que permiten cumplir el objetivo del escenario.\n- Competencies (Competencias): conocimientos y habilidades necesarias para ejecutar una capability.\n- Skills (Habilidades): unidad mínima (habilidades/conocimientos) que compone una competency; puede ser texto o {\"name\":string}.\n- Roles (Roles): puestos propuestos con las competencias asignadas (el analista debe homologar estos roles con la estructura interna).\n\n";
-
-        $prompt .= "Do NOT include any prose, explanation or commentary outside the JSON object. If you cannot produce the full nested structure, return an object with the keys and empty arrays.\n\nExample minimal valid output:\n";
+        // Purpose and concise definitions to guide the LLM (language-specific)
+        if (strtolower($lang) === 'es') {
+            $prompt .= "\nPROPÓSITO: Este escenario simula la gestión estratégica de talento para lograr el objetivo principal.\n";
+            $prompt .= "DEFINICIÓN (ES):\n- Capacidades: medios/funciones organizacionales que permiten cumplir el objetivo del escenario.\n- Competencias: conocimientos y habilidades necesarias para ejecutar una capability.\n- Habilidades: unidad mínima (habilidades/conocimientos) que compone una competencia; puede ser texto o {\"name\":string}.\n- Roles: puestos propuestos con las competencias asignadas (el analista debe homologar estos roles con la estructura interna).\n\n";
+            $prompt .= "NO incluyas ningún texto explicativo o comentario fuera del objeto JSON. Si no puedes producir la estructura anidada completa, devuelve un objeto con las claves y arreglos vacíos.\n\nEjemplo de salida mínima válida:\n";
+        } else {
+            $prompt .= "\nPURPOSE: This scenario simulates strategic talent management to achieve the main objective.\n";
+            $prompt .= "DEFINITIONS (EN):\n- Capabilities: organizational means/functions that enable achieving the scenario objective.\n- Competencies: knowledge and abilities required to perform a capability.\n- Skills: the minimal unit (specific skills/knowledge) that composes a competency; may be a string or an object with {\"name\"}.\n- Roles: proposed positions with assigned competencies (analyst must later map/harmonize to internal roles).\n\n";
+            $prompt .= "Do NOT include any prose, explanation or commentary outside the JSON object. If you cannot produce the full nested structure, return an object with the keys and empty arrays.\n\nExample minimal valid output:\n";
+        }
         $prompt .= json_encode([
             'scenario_metadata' => [
                 'name' => 'Example Scenario',
@@ -163,7 +182,8 @@ class ScenarioGenerationService
         $prompt .= "\nJSON_SCHEMA:\n" . json_encode($schemaArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
 
         // Additional instruction: Talent Engineering focus (enforced guidance)
-        $prompt .= <<<'EOT'
+        if (strtolower($lang) === 'es') {
+            $prompt .= <<<'EOT'
 
     INSTRUCCIÓN PARA EL MODELO (ENFOQUE INGENIERÍA DE TALENTO):
     - Actúa como un Ingeniero de Talento Estratégico. Tu objetivo es diseñar un plano (blueprint) de capacidades híbridas.
@@ -178,6 +198,23 @@ class ScenarioGenerationService
     Mantén el resto de los requisitos de formato JSON y las claves: `scenario_metadata`, `capabilities`, `competencies`, `skills`, `suggested_roles`, `impact_analysis`, `confidence_score`, `assumptions`.
 
     EOT;
+        } else {
+            $prompt .= <<<'EOT'
+
+    INSTRUCTION FOR THE MODEL (TALENT ENGINEERING FOCUS):
+    - Act as a Strategic Talent Engineer. Your objective is to design a hybrid capabilities blueprint.
+    - For each role in `suggested_roles`, you MUST include the object `talent_composition`:
+        - `human_percentage`: % of workload requiring human judgment, empathy or leadership (0-100).
+        - `synthetic_percentage`: % of workload delegable to AI agents or automation (0-100).
+        - `strategy_suggestion`: Choose the best coverage strategy: ["Buy", "Build", "Borrow", "Synthetic", "Hybrid"].
+        - `logic_justification`: Brief explanation of why that mix (e.g., "High data-processing load allows 70% AI").
+
+    - In `impact_analysis`, evaluate how introducing "Synthetic Talent" (AI) improves the efficiency of the analyzed capability.
+
+    Keep the rest of the JSON format requirements and keys: `scenario_metadata`, `capabilities`, `competencies`, `skills`, `suggested_roles`, `impact_analysis`, `confidence_score`, `assumptions`.
+
+    EOT;
+        }
 
         return $prompt;
     }
@@ -189,7 +226,7 @@ class ScenarioGenerationService
      */
     public function composePromptWithInstruction(array $data, User $user, Organizations $org, string $lang = 'es', ?int $instructionId = null): array
     {
-        $basePrompt = $this->preparePrompt($data, $user, $org);
+        $basePrompt = $this->preparePrompt($data, $user, $org, $lang);
 
         $instructionContent = null;
         $instructionSource = 'none';
@@ -249,7 +286,7 @@ class ScenarioGenerationService
         }
 
         // Validate compatibility between base prompt instructions and operator instruction
-        if (! empty($instructionContent)) {
+        if (!empty($instructionContent)) {
             $conflict = $this->validateInstructionCompatibility($basePrompt, $instructionContent);
             if ($conflict !== null) {
                 throw ValidationException::withMessages(['instruction' => [$conflict]]);
@@ -257,8 +294,36 @@ class ScenarioGenerationService
         }
 
         $prompt = $basePrompt;
+
+        // Avoid duplicating instructions: if the base prompt already contains
+        // embedded model instructions or an instruction block, do not append
+        // the operator-provided instruction to prevent repeated guidance.
+        $alreadyHasInstruction = false;
+        $instructionMarkers = [
+            'INSTRUCCIONES',
+            'INSTRUCTIONS',
+            'INSTRUCCIÓN PARA EL MODELO',
+            'INSTRUCTION FOR THE MODEL',
+            'INSTRUCCIÓN PARA EL MODELO (ENFOQUE INGENIERÍA DE TALENTO)',
+            'INSTRUCTION FOR THE MODEL (TALENT ENGINEERING FOCUS)',
+        ];
+        foreach ($instructionMarkers as $m) {
+            if (stripos($basePrompt, $m) !== false) {
+                $alreadyHasInstruction = true;
+                break;
+            }
+        }
+
+        // language-specific label for operator instruction when appending
+        $operatorInstructionLabel = strtolower($language) === 'es' ? 'INSTRUCCION_OPERADOR' : 'OPERATOR_INSTRUCTION';
         if (!empty($instructionContent)) {
-            $prompt .= "\n\nOPERATOR_INSTRUCTION (source: {$instructionSource}, lang: {$language}):\n" . $instructionContent . "\n";
+            if ($alreadyHasInstruction) {
+                // mark source as embedded so callers can see we skipped appending
+                $instructionSource = $instructionSource . '_embedded';
+                Log::info("Skipping append of operator instruction because base prompt already contains instructions for lang {$language} (source: {$instructionSource})");
+            } else {
+                $prompt .= "\n\n" . $operatorInstructionLabel . " (source: {$instructionSource}, lang: {$language}):\n" . $instructionContent . "\n";
+            }
         }
 
         return ['prompt' => $prompt, 'instruction' => ['content' => $instructionContent, 'source' => $instructionSource, 'language' => $language]];

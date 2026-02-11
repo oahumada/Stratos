@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Roles;
 
 class Agent extends Model {
     protected $fillable = ['provider', 'model', 'is_active', 'expertise_areas', 'capabilities_config', 'organization_id', 'name'];
@@ -14,6 +16,6 @@ class Agent extends Model {
 
     // Relación con los roles que este agente puede potenciar
     public function supportedRoles() {
-        return $this->belongsToMany(Role::class, 'role_ai_leverage');
+        return $this->belongsToMany(Roles::class, 'role_ai_leverage');
     }
 }

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::index
-* @see app/Http/Controllers/Api/PromptInstructionController.php:12
+* @see app/Http/Controllers/Api/PromptInstructionController.php:13
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::index
-* @see app/Http/Controllers/Api/PromptInstructionController.php:12
+* @see app/Http/Controllers/Api/PromptInstructionController.php:13
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::index
-* @see app/Http/Controllers/Api/PromptInstructionController.php:12
+* @see app/Http/Controllers/Api/PromptInstructionController.php:13
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::index
-* @see app/Http/Controllers/Api/PromptInstructionController.php:12
+* @see app/Http/Controllers/Api/PromptInstructionController.php:13
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::index
-* @see app/Http/Controllers/Api/PromptInstructionController.php:12
+* @see app/Http/Controllers/Api/PromptInstructionController.php:13
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::index
-* @see app/Http/Controllers/Api/PromptInstructionController.php:12
+* @see app/Http/Controllers/Api/PromptInstructionController.php:13
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::index
-* @see app/Http/Controllers/Api/PromptInstructionController.php:12
+* @see app/Http/Controllers/Api/PromptInstructionController.php:13
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::store
-* @see app/Http/Controllers/Api/PromptInstructionController.php:80
+* @see app/Http/Controllers/Api/PromptInstructionController.php:95
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::store
-* @see app/Http/Controllers/Api/PromptInstructionController.php:80
+* @see app/Http/Controllers/Api/PromptInstructionController.php:95
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::store
-* @see app/Http/Controllers/Api/PromptInstructionController.php:80
+* @see app/Http/Controllers/Api/PromptInstructionController.php:95
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::store
-* @see app/Http/Controllers/Api/PromptInstructionController.php:80
+* @see app/Http/Controllers/Api/PromptInstructionController.php:95
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::store
-* @see app/Http/Controllers/Api/PromptInstructionController.php:80
+* @see app/Http/Controllers/Api/PromptInstructionController.php:95
 * @route '/api/strategic-planning/scenarios/instructions'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::restoreDefault
-* @see app/Http/Controllers/Api/PromptInstructionController.php:145
+* @see app/Http/Controllers/Api/PromptInstructionController.php:160
 * @route '/api/strategic-planning/scenarios/instructions/restore-default'
 */
 export const restoreDefault = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -153,7 +153,7 @@ restoreDefault.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::restoreDefault
-* @see app/Http/Controllers/Api/PromptInstructionController.php:145
+* @see app/Http/Controllers/Api/PromptInstructionController.php:160
 * @route '/api/strategic-planning/scenarios/instructions/restore-default'
 */
 restoreDefault.url = (options?: RouteQueryOptions) => {
@@ -162,7 +162,7 @@ restoreDefault.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::restoreDefault
-* @see app/Http/Controllers/Api/PromptInstructionController.php:145
+* @see app/Http/Controllers/Api/PromptInstructionController.php:160
 * @route '/api/strategic-planning/scenarios/instructions/restore-default'
 */
 restoreDefault.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ restoreDefault.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::restoreDefault
-* @see app/Http/Controllers/Api/PromptInstructionController.php:145
+* @see app/Http/Controllers/Api/PromptInstructionController.php:160
 * @route '/api/strategic-planning/scenarios/instructions/restore-default'
 */
 const restoreDefaultForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -182,7 +182,7 @@ const restoreDefaultForm = (options?: RouteQueryOptions): RouteFormDefinition<'p
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::restoreDefault
-* @see app/Http/Controllers/Api/PromptInstructionController.php:145
+* @see app/Http/Controllers/Api/PromptInstructionController.php:160
 * @route '/api/strategic-planning/scenarios/instructions/restore-default'
 */
 restoreDefaultForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -194,7 +194,7 @@ restoreDefault.form = restoreDefaultForm
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::show
-* @see app/Http/Controllers/Api/PromptInstructionController.php:105
+* @see app/Http/Controllers/Api/PromptInstructionController.php:120
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 export const show = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -209,7 +209,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::show
-* @see app/Http/Controllers/Api/PromptInstructionController.php:105
+* @see app/Http/Controllers/Api/PromptInstructionController.php:120
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 show.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -236,7 +236,7 @@ show.url = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::show
-* @see app/Http/Controllers/Api/PromptInstructionController.php:105
+* @see app/Http/Controllers/Api/PromptInstructionController.php:120
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 show.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -246,7 +246,7 @@ show.get = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::show
-* @see app/Http/Controllers/Api/PromptInstructionController.php:105
+* @see app/Http/Controllers/Api/PromptInstructionController.php:120
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 show.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -256,7 +256,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::show
-* @see app/Http/Controllers/Api/PromptInstructionController.php:105
+* @see app/Http/Controllers/Api/PromptInstructionController.php:120
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -266,7 +266,7 @@ const showForm = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::show
-* @see app/Http/Controllers/Api/PromptInstructionController.php:105
+* @see app/Http/Controllers/Api/PromptInstructionController.php:120
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -276,7 +276,7 @@ showForm.get = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::show
-* @see app/Http/Controllers/Api/PromptInstructionController.php:105
+* @see app/Http/Controllers/Api/PromptInstructionController.php:120
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -293,7 +293,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::update
-* @see app/Http/Controllers/Api/PromptInstructionController.php:118
+* @see app/Http/Controllers/Api/PromptInstructionController.php:133
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -308,7 +308,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::update
-* @see app/Http/Controllers/Api/PromptInstructionController.php:118
+* @see app/Http/Controllers/Api/PromptInstructionController.php:133
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -335,7 +335,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::update
-* @see app/Http/Controllers/Api/PromptInstructionController.php:118
+* @see app/Http/Controllers/Api/PromptInstructionController.php:133
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 update.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -345,7 +345,7 @@ update.patch = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::update
-* @see app/Http/Controllers/Api/PromptInstructionController.php:118
+* @see app/Http/Controllers/Api/PromptInstructionController.php:133
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -360,7 +360,7 @@ const updateForm = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\PromptInstructionController::update
-* @see app/Http/Controllers/Api/PromptInstructionController.php:118
+* @see app/Http/Controllers/Api/PromptInstructionController.php:133
 * @route '/api/strategic-planning/scenarios/instructions/{id}'
 */
 updateForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
