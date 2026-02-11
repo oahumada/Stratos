@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class ScenarioGeneration extends Model
 {
@@ -20,6 +21,7 @@ class ScenarioGeneration extends Model
         'confidence_score',
         'status',
         'metadata',
+        'raw_prompt',
         'compacted',
         'chunk_count',
         'compacted_at',
@@ -59,5 +61,17 @@ class ScenarioGeneration extends Model
         // Calcula qué tan "IA-Ready" es este plan estratégico
         return collect($this->llm_response['suggested_roles'])
                 ->avg('talent_composition.synthetic_percentage');
+    }
+
+    public function getRawPromptDecryptedAttribute()
+    {
+        if (empty($this->raw_prompt)) {
+            return null;
+        }
+        try {
+            return Crypt::decryptString($this->raw_prompt);
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }

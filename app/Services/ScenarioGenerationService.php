@@ -10,6 +10,7 @@ use App\Models\PromptInstruction;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Crypt;
 
 class ScenarioGenerationService
 {
@@ -41,12 +42,12 @@ class ScenarioGenerationService
         // Replace simple tokens {{key}} in the template
         $prompt = $template;
         foreach ($replacements as $k => $v) {
-            $prompt = str_replace('{{'.$k.'}}', is_array($v) ? json_encode($v) : (string) $v, $prompt);
+            $prompt = str_replace('{{' . $k . '}}', is_array($v) ? json_encode($v) : (string) $v, $prompt);
         }
 
         // If template was empty, prepend minimal header with company name
         if (empty(trim($template))) {
-            $prompt = 'Company: '.($replacements['company_name'] ?? '')."\n\n".$prompt;
+            $prompt = 'Company: ' . ($replacements['company_name'] ?? '') . "\n\n" . $prompt;
         }
 
         // Append operator answers (use replacements so org overrides are visible)
@@ -55,16 +56,16 @@ class ScenarioGenerationService
         $prompt .= "\n\n" . $operatorInputLabel . ":\n" . json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         // Enforce JSON-only output from the LLM: add an explicit instruction (language-specific)
-        /* if (strtolower($lang) === 'es') {
+        if (strtolower($lang) === 'es') {
             $prompt .= "\n\nINSTRUCCIONES:\nDevuelve SOLO un único objeto JSON válido que cumpla el esquema con claves de nivel superior: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
             $prompt .= "El JSON DEBE usar la siguiente estructura anidada: cada elemento en 'capabilities' es un objeto con 'name' y opcional 'description' y un arreglo 'competencies'; cada competency es un objeto con 'name', opcional 'description' y un arreglo 'skills'; cada skill puede ser una cadena (nombre de habilidad) o un objeto con 'name'.\n";
         } else {
             $prompt .= "\n\nINSTRUCTIONS:\nReturn ONLY a single valid JSON object matching the schema with top-level keys: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
             $prompt .= "The JSON MUST use the following nested structure: each element in 'capabilities' is an object with a 'name' and optional 'description' and a 'competencies' array; each competency is an object with 'name', optional 'description' and a 'skills' array; each skill may be a string (skill name) or object with 'name'.\n";
-        } */
+        }
 
         // Purpose and concise definitions to guide the LLM (language-specific)
-        /* if (strtolower($lang) === 'es') {
+        if (strtolower($lang) === 'es') {
             $prompt .= "\nPROPÓSITO: Este escenario simula la gestión estratégica de talento para lograr el objetivo principal.\n";
             $prompt .= "DEFINICIÓN (ES):\n- Capacidades: medios/funciones organizacionales que permiten cumplir el objetivo del escenario.\n- Competencias: conocimientos y habilidades necesarias para ejecutar una capability.\n- Habilidades: unidad mínima (habilidades/conocimientos) que compone una competencia; puede ser texto o {\"name\":string}.\n- Roles: puestos propuestos con las competencias asignadas (el analista debe homologar estos roles con la estructura interna).\n\n";
             $prompt .= "NO incluyas ningún texto explicativo o comentario fuera del objeto JSON. Si no puedes producir la estructura anidada completa, devuelve un objeto con las claves y arreglos vacíos.\n\nEjemplo de salida mínima válida:\n";
@@ -99,13 +100,13 @@ class ScenarioGenerationService
             'confidence_score' => 0.9,
             'assumptions' => []
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        $prompt .= "\n"; */
+        $prompt .= "\n";
         // Append a formal JSON Schema to the instructions to help the LLM comply.
         // NOTE: The canonical, improved schema is also stored as a standalone
         // JSON file for operator/reference use at: docs/for_agent/prompt_schema_scenario.json
         // Title: "Stratos Talent Engineering Blueprint"
         // Keeping the embedded schema here for runtime prompt composition; keep in sync with the file above.
-        /* $schemaArray = [
+        $schemaArray = [
             '$schema' => 'http://json-schema.org/draft-07/schema#',
             'type' => 'object',
             'required' => ['scenario_metadata'],
@@ -156,37 +157,178 @@ class ScenarioGenerationService
                 'impact_analysis' => ['type' => 'array'],
                 'confidence_score' => ['type' => 'number'],
                 'assumptions' => ['type' => 'array'],
-                    'roles' => [
-                        'type' => 'array',
-                        'items' => [
-                            'type' => 'object',
-                            'required' => ['name'],
-                            'properties' => [
-                                'name' => ['type' => 'string'],
-                                'description' => ['type' => 'string'],
-                                'competencies' => [
-                                    'type' => 'array',
-                                    'items' => [
-                                        'oneOf' => [
-                                            ['type' => 'string'],
-                                            ['type' => 'object', 'required' => ['name'], 'properties' => ['name' => ['type' => 'string']]]
-                                        ]
+                'roles' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'required' => ['name'],
+                        'properties' => [
+                            'name' => ['type' => 'string'],
+                            'description' => ['type' => 'string'],
+                            'competencies' => [
+                                'type' => 'array',
+                                'items' => [
+                                    'oneOf' => [
+                                        ['type' => 'string'],
+                                        ['type' => 'object', 'required' => ['name'], 'properties' => ['name' => ['type' => 'string']]]
                                     ]
                                 ]
                             ]
                         ]
-                    ],
+                    ]
+                ],
             ]
         ];
- */
-     //   $prompt .= "\nJSON_SCHEMA:\n" . json_encode($schemaArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+
+        $prompt .= "\nJSON_SCHEMA:\n" . json_encode($schemaArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+
 
         // Additional instruction: Talent Engineering focus (enforced guidance)
-        if (strtolower($lang) === 'es') {
-            $prompt .= <<<'EOT'
-
-    EOT;
+        $prompt .= <<<'EOT'
+        JSON SCHEMA (resumen)
+        
+        Incluye el siguiente esquema JSON simplificado para validar la estructura anidada requerida
+        (`capabilities` → `competencies` → `skills`):
+        
+        {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "required": ["scenario_metadata"],
+            "properties": {
+                "scenario_metadata": { "type": "object", "required": ["name"] },
+                "capabilities": { "type": "array" },
+                "competencies": { "type": "array" },
+                "skills": { "type": "array" ,},
+                "suggested_roles": { "type": "array" }
+            }
         }
+
+    EJEMPLO AVANZADO (incluye composición de talento):
+
+    {
+        "scenario_metadata": {
+            "name": "Transformación Digital 2026",
+            "generated_at": "2026-02-10T00:00:00Z",
+            "confidence_score": 0.92
+        },
+        "capabilities": [
+            {
+                "id": "CAP-03",
+                "name": "Tecnología y Datos",
+                "description": "Seleccionar y operar plataformas tecnológicas seguras, escalables y orientadas a datos.",
+                "competencies": [
+                    {
+                        "id": "CAP-03-C1",
+                        "name": "Arquitectura y Nube",
+                        "description": "Diseñar soluciones modulares y operar cargas en la nube",
+                        "skills": [
+                            {
+                                "id": "CAP-03-C1-S1",
+                                "name": "Modelado de arquitectura",
+                                "description": "Definir componentes e integraciones"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "suggested_roles": [
+            {
+                "name": "Ingeniero de Talento",
+                "description": "Diseña y optimiza sistemas de capacidades híbridas",
+                "estimated_fte": 1.0,
+                "key_competencies": [
+                    "Modelado de Datos",
+                    "Visualización de Insights"
+                ],
+                "talent_composition": {
+                    "human_percentage": 40,
+                    "synthetic_percentage": 60,
+                    "strategy_suggestion": "Hybrid",
+                    "logic_justification": "La IA procesa modelos y genera dashboards; el humano diseña la estrategia y valida hipótesis."
+                },
+                "suggested_agent_type": "Orquestador de Datos y Analytics"
+            }
+        ],
+        "impact_analysis": [
+            {
+                "area": "Productividad",
+                "impact": "alto",
+                "notes": "Reducción de ciclos de planificación en 40%"
+            }
+        ],
+        "confidence_score": 0.92,
+        "assumptions": ["Disponibilidad de APIs de datos históricos"]
+    }
+
+
+    INSTRUCCIÓN PARA EL MODELO (ENFOQUE INGENIERÍA DE TALENTO):
+    - Actúa como un Ingeniero de Talento Estratégico. Tu objetivo es diseñar un plano (blueprint) de capacidades híbridas.
+    - Por cada rol en `suggested_roles`, DEBES incluir obligatoriamente el objeto `talent_composition`:
+        - `human_percentage`: % de carga de trabajo que requiere juicio humano, empatía o liderazgo (0-100).
+        - `synthetic_percentage`: % de carga de trabajo delegable a agentes IA o automatización (0-100).
+        - `strategy_suggestion`: Elige la mejor estrategia de cobertura: ["Buy", "Build", "Borrow", "Synthetic", "Hybrid"].
+        - `logic_justification`: Breve explicación de por qué ese mix (ej: "Alta carga de procesamiento de datos permite 70% IA").
+
+    - En `impact_analysis`, evalúa cómo la introducción de "Talento Sintético" (IA) mejora la eficiencia de la capacidad analizada.
+
+    Mantén el resto de los requisitos de formato JSON y las claves: `scenario_metadata`, `capabilities`, `competencies`, `skills`, `suggested_roles`, `impact_analysis`, `confidence_score`, `assumptions`.
+
+    REQUISITOS OBLIGATORIOS POR ROL:
+
+    1. `name`: Nombre del rol estratégico.
+    2. `description`: Descripción breve del rol.
+    3. `key_competencies`: Array de nombres o IDs de competencias asociadas (strings).
+    4. `estimated_fte`: Cantidad de personas equivalentes necesarias (número).
+    5. `talent_composition`: Objeto JSON que DEBE contener:
+        - `human_percentage`: (0-100) % de carga de trabajo humana.
+        - `synthetic_percentage`: (0-100) % de carga delegable a IA.
+        - `strategy_suggestion`: ["Buy", "Build", "Borrow", "Synthetic", "Hybrid"].
+        - `logic_justification`: Explicación técnica del mix.
+    6. `suggested_agent_type`: Tipo de IA necesaria si aplica.
+
+    REGLAS DE NEGOCIO PARA EL MODELO:
+
+    - Si el rol es altamente transaccional o de procesamiento de datos, el
+    `synthetic_percentage` debe ser alto (>60%).
+    - Si el rol es de alta gestión o cuidado de personas, el `human_percentage`
+    debe ser dominante (>80%).
+    - Usa "Synthetic" solo si el rol es 100% IA. Usa "Hybrid" para colaboración
+    humano-máquina.
+    - La suma de `human_percentage` y `synthetic_percentage` debe ser siempre 100.
+    - La `strategy_suggestion` debe corresponder a la factibilidad técnica y de
+    negocio indicada en `logic_justification`.
+    - `Catálogos completos`: Los arrays `competencies` y `skills` de primer nivel
+    deben contener TODAS las competencias y skills mencionadas en `capabilities`,
+    sin duplicados.
+
+    ADICIONALES / GUÍAS PRÁCTICAS:
+
+    - Prioriza roles prácticos y mapeables a estructuras organizacionales típicas
+    (ej. Analista, Líder de Producto, Ingeniero de Datos).
+    - Cuando propongas `suggested_roles`, incluye `name`, `estimated_fte` y
+    `key_competencies` (lista de nombres o IDs).
+    - En `impact_analysis` incluye 2-3 ítems con `area`, `impact` (alto/medio/bajo)
+    y `notes` que conecten con las iniciativas recomendadas.
+
+
+NOTAS DE USO Y SEGURIDAD
+
+- El prompt puede incluir `{{company_name}}` y otros tokens; reemplázalos
+  antes de enviar la petición al LLM.
+- Si el sistema detecta instrucción conflictiva (p. ej. solicita Markdown cuando
+  el prompt exige JSON), devolver un error de validación y pedir corrección.
+- Mantener registros de prompts y respuestas para auditoría, preferiblemente
+  almacenando la versión original cifrada y una versión redactada para
+  operaciones (ver política interna).
+
+---
+
+# FORMATO DE SALIDA (RECORDATORIO FINAL):
+
+Devuelve exclusivamente el objeto JSON siguiendo el esquema validado. No añadas
+introducciones ni cierres.
+EOT;
 
         return $prompt;
     }
@@ -239,13 +381,13 @@ class ScenarioGenerationService
                 }
             } catch (\Throwable $e) {
                 // If DB is not available or has issues, fall back to file
-                Log::warning('PromptInstruction DB access failed: '.$e->getMessage());
+                Log::warning('PromptInstruction DB access failed: ' . $e->getMessage());
             }
         }
 
         // 3) file fallback
         if (empty($instructionContent)) {
-            $filePath = base_path('resources/prompt_instructions/default_'.$language.'.md');
+            $filePath = base_path('resources/prompt_instructions/default_' . $language . '.md');
             if (!file_exists($filePath)) {
                 // try without language suffix
                 $filePath = base_path('resources/prompt_instructions/default.md');
@@ -253,7 +395,7 @@ class ScenarioGenerationService
             if (file_exists($filePath)) {
                 $instructionContent = @file_get_contents($filePath) ?: null;
                 $instructionSource = $instructionSource === 'none' ? 'file' : $instructionSource;
-                Log::info('Using file fallback for prompt instruction: '.$filePath);
+                Log::info('Using file fallback for prompt instruction: ' . $filePath);
             }
         }
 
@@ -325,10 +467,18 @@ class ScenarioGenerationService
         // Redact prompt before persisting to avoid storing secrets/PII
         $redactedPrompt = RedactionService::redactText($prompt);
 
+        $encryptedRaw = null;
+        try {
+            $encryptedRaw = Crypt::encryptString($prompt);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to encrypt raw prompt before persisting: ' . $e->getMessage());
+        }
+
         $generation = ScenarioGeneration::create([
             'organization_id' => $organizationId,
             'created_by' => $createdBy,
             'prompt' => $redactedPrompt,
+            'raw_prompt' => $encryptedRaw,
             'metadata' => $metadata,
             'status' => 'queued',
             'redacted' => true,

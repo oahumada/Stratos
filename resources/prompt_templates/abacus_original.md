@@ -1,0 +1,59 @@
+# Instrucción por defecto (Sistema) ABACUS
+
+Genera un escenario estratégico de talento en formato JSON únicamente.
+
+REQUISITOS:
+
+- Responder SOLO con un único objeto JSON válido (no incluyas explicaciones, texto o markdown fuera del JSON).
+- El objeto debe contener, como mínimo, las claves: `scenario_metadata`, `capabilities`, `competencies`, `skills`, `suggested_roles`, `impact_analysis`, `confidence_score`, `assumptions`.
+- Cada elemento en `capabilities` debe ser un objeto con `name`, opcional `description` y `competencies` (array).
+- Cada `competency` debe tener `name`, opcional `description` y `skills` (array).
+- Cada `skill` puede ser una cadena o un objeto con `name`.
+- `confidence_score` debe ser un número entre 0 y 1.
+
+CONTEXTO (breve):
+
+- Empresa: {{company_name}} (reemplazar si procede)
+- Objetivo del escenario: Proveer un plan de prioridad para cubrir una transformación estratégica enfocada en digitalización y retención de talento.
+- Alcance: proponer 2-3 capacidades prioritarias, con 2-4 competencias por capability y 2-4 skills por competencia.
+
+INSTRUCCIÓN PARA EL MODELO:
+
+- Devuelve SOLO el JSON solicitado. No agregues explicaciones ni comentarios.
+- Prioriza roles prácticos y mapeables a estructuras organizacionales típicas (ej. Analista, Líder de Producto, Ingeniero de Datos).
+- Cuando propongas `suggested_roles`, incluye `name`, `estimated_fte` (número aproximado), y `key_competencies` (lista de nombres).
+- En `impact_analysis` incluye 2-3 ítems con `area`, `impact` (alto/medio/bajo) y `notes`.
+
+EJEMPLO MÍNIMO DE SALIDA ESPERADA:
+{
+"scenario_metadata": {
+"name": "Transformación Digital - Retención 2026",
+"generated_at": "2026-02-09T12:00:00Z",
+"confidence_score": 0.87
+},
+"capabilities": [
+{
+"name": "Datos y Analítica",
+"description": "Capacidad para recolectar, procesar y explotar datos operativos",
+"competencies": [
+{
+"name": "Ingesta y calidad de datos",
+"description": "Pipelines confiables y validaciones",
+"skills": ["ETL básico", {"name": "Validación de esquemas"}]
+}
+]
+}
+],
+"competencies": [],
+"skills": [],
+"suggested_roles": [
+{"name": "Analista de Datos", "estimated_fte": 1.5, "key_competencies": ["Ingesta y calidad de datos"]}
+],
+"impact_analysis": [
+{"area": "Operaciones", "impact": "alto", "notes": "Reducción de re-trabajo gracias a datos consolidados"}
+],
+"confidence_score": 0.87,
+"assumptions": ["Los datos fuente están disponibles en formatos CSV/DB"]
+}
+
+
