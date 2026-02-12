@@ -4,7 +4,8 @@
 /node_modules
 /tests
 /test-results
-node_modules
+/node_modules
+/vendor
 /playwright-report
 /playwright-report.zip
 *.log
