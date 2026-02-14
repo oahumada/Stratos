@@ -2,9 +2,7 @@
 import { render, waitFor } from '@testing-library/vue';
 import { describe, expect, it, vi } from 'vitest';
 // Prevent Vitest from trying to load Vuetify CSS modules referenced by components
-vi.mock('vuetify/lib/components/VCode/VCode.css', () => ({}), {
-    virtual: true,
-});
+vi.mock('vuetify/lib/components/VCode/VCode.css', () => ({}));
 
 // Provide a spyable mock for the useApi composable used by ScenarioDetail
 const incubatedTree = [
@@ -30,13 +28,12 @@ vi.doMock('@/composables/useApi', () => ({
 vi.mock('@/components/StrategicPlanningScenarios/ChangeSetModal.vue', () => ({
     default: { template: '<div />' },
 }));
-vi.mock('@/components/StrategicPlanningScenarios/StatusTimeline.vue', () => ({
+vi.mock('@/components/WorkforcePlanning/StatusTimeline.vue', () => ({
     default: { template: '<div />' },
 }));
-vi.mock(
-    '@/components/StrategicPlanningScenarios/VersionHistoryModal.vue',
-    () => ({ default: { template: '<div />' } }),
-);
+vi.mock('@/components/WorkforcePlanning/VersionHistoryModal.vue', () => ({
+    default: { template: '<div />' },
+}));
 vi.mock(
     '@/components/WorkforcePlanning/Step2/RoleCompetencyMatrix.vue',
     () => ({ default: { template: '<div />' } }),

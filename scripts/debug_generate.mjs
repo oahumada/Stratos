@@ -47,7 +47,7 @@ import { chromium } from 'playwright';
   // wait briefly and dump relevant DOM
   await page.waitForTimeout(1500);
   const html = await page.content();
-  const fs = await import('fs');
+  const fs = await import('node:fs');
   fs.writeFileSync('tmp_generate_page.html', html);
   console.log('Wrote tmp_generate_page.html');
   await browser.close();

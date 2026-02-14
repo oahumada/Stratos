@@ -96,8 +96,8 @@ function restoreView() {
     // ensure any expanded skills are collapsed as well
     try {
         collapseGrandChildren();
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[restoreView] Error collapsing grandchildren', error_);
     }
     // clear render flags
     nodes.value = nodes.value.map((n: any) => ({ ...n, visible: true }));
@@ -120,7 +120,8 @@ function restoreView() {
                     y: parentNode.y ?? 0,
                 });
             }
-        } catch (err: unknown) {
+        } catch (error_: unknown) {
+            console.warn('[restoreView] Error expanding competencies', error_);
             // fallback to default behaviour
             expandCompetencies(parentNode as NodeItem, {
                 x: parentNode.x ?? 0,
@@ -168,39 +169,56 @@ function nodeLevel(nodeOrId: any) {
     if (!nodeOrId) return null;
     const id = typeof nodeOrId === 'number' ? nodeOrId : nodeOrId.id;
     if (id == null) return null;
-    const scenarioId = scenarioNode.value ? scenarioNode.value.id : null;
-    // if it's the scenario node
-    if (scenarioId != null && id === scenarioId) return 0;
 
-    let currentId: number | null = id;
+    if (isScenarioNode(id)) return 0;
+
+    let currentId: number = id;
     let depth = 0;
-    // walk parent links via childEdges until we either hit the scenario or no parent exists
-    while (currentId != null) {
-        // if there's a child-edge pointing to currentId, move to its source (parent)
-        const pe = childEdges.value.find((e) => e.target === currentId);
-        if (pe) {
-            currentId = pe.source;
+    // protect against infinite loops
+    const MAX_DEPTH = 10;
+
+    while (depth <= MAX_DEPTH) {
+        // Try to find parent in childEdges
+        const parentId = getParentIdFromEdges(currentId);
+        if (parentId != null) {
+            currentId = parentId;
             depth++;
-            // protect against infinite loops
-            if (depth > 10) break;
-            // continue walking
             continue;
         }
+
         // otherwise check if scenario directly references this id (scenario -> capability)
-        const se = scenarioEdges.value.find((e) => e.target === currentId);
-        if (se) {
-            depth++;
-            break;
-        }
-        // if currentId corresponds to a top-level capability (in nodes) and we haven't counted it yet
-        const isCap = nodes.value.find((n) => n.id === currentId);
-        if (isCap) {
-            // capability under scenario
-            depth = Math.max(depth, 1);
-        }
-        break;
+        // or if currentId corresponds to a top-level capability
+        return depth + getRootDepthAdjustment(currentId, depth);
     }
     return depth;
+}
+
+function isScenarioNode(id: number): boolean {
+    const sId = scenarioNode.value ? scenarioNode.value.id : null;
+    return sId != null && id === sId;
+}
+
+function getParentIdFromEdges(childId: number): number | null {
+    const parentEdge = childEdges.value.find((e) => e.target === childId);
+    return parentEdge ? parentEdge.source : null;
+}
+
+function getRootDepthAdjustment(nodeId: number, currentDepth: number): number {
+    const isConnectedToScenario = scenarioEdges.value.some(
+        (e) => e.target === nodeId,
+    );
+    if (isConnectedToScenario) {
+        return 1;
+    }
+
+    const isCapability = nodes.value.some((n) => n.id === nodeId);
+    if (isCapability) {
+        // capability under scenario -> ensure at least depth 1
+        // (Math.max(depth, 1) logic from original)
+        return Math.max(currentDepth, 1) - currentDepth;
+    }
+
+    return 0;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -221,7 +239,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-    (e: 'createCapability'): void;
+    createCapability: [];
 }>();
 
 // ========== COMPOSABLE INITIALIZATION (Phase 1: Refactoring) ==========
@@ -256,10 +274,10 @@ onMounted(() => {
             childNodes as any,
             grandChildNodes as any,
         );
-    } catch (err) {
+    } catch (error_: unknown) {
         console.warn(
             '[ScenarioPlanning] Error inyectando state en useScenarioEdges',
-            err,
+            error_,
         );
     }
 });
@@ -270,17 +288,17 @@ const loadTreeFromApiWrapper = async (scenarioId?: number | string) => {
     try {
         const scenarioIdNum =
             typeof scenarioId === 'string'
-                ? parseInt(scenarioId, 10)
+                ? Number.parseInt(scenarioId, 10)
                 : scenarioId;
         const treeData = await scenarioAPI.loadCapabilityTree(scenarioIdNum);
         if (treeData && Array.isArray(treeData)) {
             buildNodesFromItems(treeData);
             loaded.value = true;
         }
-    } catch (err) {
+    } catch (error_: unknown) {
         console.error(
             '[loadTreeFromApi] Error cargando árbol de capacidades',
-            err,
+            error_,
         );
         showError('Error cargando árbol de capacidades');
     }
@@ -308,7 +326,7 @@ async function loadStep2RolesFromApi(scenarioId?: number | string) {
         }
         const id =
             typeof scenarioId === 'string'
-                ? parseInt(scenarioId, 10)
+                ? Number.parseInt(scenarioId, 10)
                 : scenarioId;
         // Try Wayfinder/legacy endpoint for step2 data which includes `roles`
         const resp = await (api as any).get(`/api/scenarios/${id}/step2/data`);
@@ -319,13 +337,26 @@ async function loadStep2RolesFromApi(scenarioId?: number | string) {
             (it: any) =>
                 it.role_name ?? it.name ?? String(it.role_id ?? it.id ?? ''),
         );
-    } catch (err) {
+    } catch (error_: unknown) {
         console.debug(
             '[loadStep2RolesFromApi] failed to fetch step2 roles',
-            err,
+            error_,
         );
         scenarioStep2Roles.value = [];
     }
+}
+
+// Normalize input (array of mixed shapes) to array of unique role-name strings.
+function getRoleName(it: any): string | null {
+    if (!it && it !== 0) return null;
+    if (typeof it === 'string') return it;
+    if (typeof it === 'number') return String(it);
+    return (
+        it?.role_name ??
+        it?.name ??
+        it?.label ??
+        (it?.id ? String(it.id) : null)
+    );
 }
 
 // Normalize input (array of mixed shapes) to array of unique role-name strings.
@@ -333,14 +364,7 @@ function normalizeRoleList(input: any): string[] {
     if (!Array.isArray(input)) return [];
     const out: string[] = [];
     for (const it of input) {
-        if (!it && it !== 0) continue;
-        let name = null as string | null;
-        if (typeof it === 'string') name = it;
-        else if (typeof it === 'number') name = String(it);
-        else if (it?.role_name) name = it.role_name;
-        else if (it?.name) name = it.name;
-        else if (it?.label) name = it.label;
-        else if (it?.id) name = String(it.id);
+        const name = getRoleName(it);
         if (name != null) {
             const n = String(name).trim();
             if (n && !out.includes(n)) out.push(n);
@@ -381,8 +405,8 @@ watch(
             if (!Array.isArray(cand) || cand.length === 0) {
                 void loadStep2RolesFromApi(nv);
             }
-        } catch (err) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn('[watchScenario] Error in scenario watcher', error_);
         }
     },
 );
@@ -408,12 +432,15 @@ async function ensureCsrf() {
                     await axiosGet('/sanctum/csrf-cookie');
                 }
                 console.debug('[ensureCsrf] fetched /sanctum/csrf-cookie');
-            } catch (e) {
-                console.warn('[ensureCsrf] failed to fetch csrf-cookie', e);
+            } catch (error_: unknown) {
+                console.warn(
+                    '[ensureCsrf] failed to fetch csrf-cookie',
+                    error_,
+                );
             }
         }
-    } catch (err) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[ensureCsrf] Error in ensureCsrf outer block', error_);
     }
 }
 const loaded = ref(false);
@@ -467,7 +494,8 @@ const breadcrumbTitle = computed(() => {
             const cName = c?.name || c?.raw?.name || c?.compName || '—';
             parts.push(`Competencia: ${cName}`);
         }
-    } catch (err: unknown) {
+    } catch (error_: unknown) {
+        console.warn('[breadcrumbTitle] Error building title', error_);
         // fallback to scenario only
         return `Escenario: ${props.scenario?.name || '—'}`;
     }
@@ -488,7 +516,11 @@ const breadcrumbParts = computed(() => {
             const cName = c?.name || c?.raw?.name || c?.compName || '—';
             parts.push(`Competencia: ${cName}`);
         }
-    } catch (err: unknown) {
+    } catch (error_: unknown) {
+        console.warn(
+            '[breadcrumbParts] Error building breadcrumb parts',
+            error_,
+        );
         return [`Escenario: ${props.scenario?.name || '—'}`];
     }
     return parts;
@@ -585,8 +617,11 @@ function openNodeContextMenu(node: any, ev: MouseEvent) {
     try {
         ev.preventDefault();
         ev.stopPropagation();
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn(
+            '[openNodeContextMenu] Error preventing default/propagation',
+            error_,
+        );
     }
     // compute container rect (map root) and clamp menu to stay inside
     const rect = mapRoot.value
@@ -598,7 +633,6 @@ function openNodeContextMenu(node: any, ev: MouseEvent) {
               height: height.value,
           } as DOMRect);
     const MENU_W = 260;
-    const MENU_H = 300; // conservative height for clamping
     const relX = ev.clientX - rect.left;
     const relY = ev.clientY - rect.top;
     const clampedX = Math.max(
@@ -658,13 +692,19 @@ function contextViewEdit() {
                         )
                             ? skills
                             : [];
-                    } catch (err: unknown) {
-                        void err;
+                    } catch (error_: unknown) {
+                        console.warn(
+                            '[contextViewEdit] Error assigning skills',
+                            error_,
+                        );
                     }
                 }
             }
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[contextViewEdit] Error in nextTick callback',
+                error_,
+            );
         }
         showSidebar.value = true;
         closeContextMenu();
@@ -721,8 +761,11 @@ async function contextAttachExistingSkill() {
     }
     try {
         await loadAvailableSkills();
-    } catch (err: unknown) {
-        /* ignore */
+    } catch (error_: unknown) {
+        console.warn(
+            '[contextAttachExistingSkill] Error loading available skills',
+            error_,
+        );
     }
     selectSkillDialogVisible.value = true;
     closeContextMenu();
@@ -743,8 +786,8 @@ async function contextDeleteNode() {
     }
     try {
         await deleteFocusedNode();
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[contextDeleteNode] Error deleting node', error_);
     }
     closeContextMenu();
 }
@@ -763,8 +806,11 @@ onMounted(async () => {
                 // click happened inside the context menu — ignore
                 return;
             }
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[contextMenuHandler] Error checking if click was inside menu',
+                error_,
+            );
         }
         if (contextMenuVisible.value) closeContextMenu();
     };
@@ -776,7 +822,8 @@ async function loadAvailableSkills() {
     try {
         const res: any = await api.get('/api/skills');
         availableSkills.value = Array.isArray(res) ? res : (res?.data ?? []);
-    } catch (err: unknown) {
+    } catch (error_: unknown) {
+        console.warn('[loadAvailableSkills] Error loading skills', error_);
         availableSkills.value = [];
     }
 }
@@ -784,118 +831,132 @@ async function loadAvailableSkills() {
 const { createAndAttachSkill: createAndAttachSkillForComp } =
     useCompetencySkills();
 
+function handleOfflineSkillCreation() {
+    if (!newSkillName.value || !newSkillName.value.trim()) {
+        showError('El nombre es obligatorio');
+        return;
+    }
+    // append to newCompSkills as comma-separated list
+    const names = String(newCompSkills.value || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+    names.push(newSkillName.value.trim());
+    newCompSkills.value = names.join(', ');
+    createSkillDialogVisible.value = false;
+    newSkillName.value = '';
+    newSkillCategory.value = '';
+    newSkillDescription.value = '';
+    showSuccess('Skill añadida (se guardará junto con la competencia)');
+}
+
+function getSkillPayloadAndCompId() {
+    const payload: any = { name: newSkillName.value.trim() };
+    payload.category =
+        newSkillCategory.value && String(newSkillCategory.value).trim() !== ''
+            ? newSkillCategory.value
+            : 'technical';
+    if (
+        newSkillDescription.value &&
+        String(newSkillDescription.value).trim() !== ''
+    ) {
+        payload.description = newSkillDescription.value;
+    }
+    const compId =
+        (selectedChild.value as any).compId ??
+        (selectedChild.value as any).raw?.id ??
+        Math.abs((selectedChild.value as any).id || 0);
+    return { payload, compId };
+}
+
+async function updateUIAfterSkillCreation(created: any) {
+    if (created) {
+        if (!Array.isArray((selectedChild.value as any).skills))
+            (selectedChild.value as any).skills = [];
+        (selectedChild.value as any).skills.push(created);
+    }
+
+    // Expand skills to show the newly created skill immediately (consistent with competencies pattern)
+    // Do this BEFORE clearing fields to ensure proper DOM updates
+    if (selectedChild.value) {
+        const compId = (selectedChild.value as any).id;
+        const domPos = getNodeMapCenter(compId);
+        const renderedComp = renderedNodeById(compId) ?? selectedChild.value;
+        const preferred =
+            renderedComp && domPos
+                ? { x: renderedComp.x, y: domPos.y }
+                : (renderedComp ?? domPos);
+        const result = expandSkillsFromLayout(
+            selectedChild.value,
+            grandChildNodes.value,
+            grandChildEdges.value,
+            preferred,
+            { layout: 'auto' },
+            height.value,
+        );
+        grandChildNodes.value = result.grandChildNodes;
+        grandChildEdges.value = result.grandChildEdges;
+        nextTick(() => {
+            grandChildNodes.value = grandChildNodes.value.map((g: any) => ({
+                ...g,
+                x: g.animTargetX ?? g.x,
+                y: g.animTargetY ?? g.y,
+                animScale: 1,
+                animOpacity: 1,
+                animFilter: 'none',
+            }));
+        });
+    }
+
+    // Mostrar alerta de éxito pero NO cerrar el modal
+    skillCreationSuccess.value = `Skill "${newSkillName.value}" creada y asociada correctamente`;
+
+    // Limpiar campos para siguiente creación
+    newSkillName.value = '';
+    newSkillCategory.value = '';
+    newSkillDescription.value = '';
+
+    // Scroll to top of form to show success message
+    await nextTick();
+    const formElement = document.querySelector('[data-skill-form]');
+    if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function getSkillErrorMessage(error_: any): string {
+    if (error_?.response?.data?.message) {
+        return error_.response.data.message;
+    } else if (error_?.message) {
+        return error_.message;
+    } else if (typeof error_ === 'string') {
+        return error_;
+    }
+    return 'Error creando y asociando skill';
+}
+
 async function createAndAttachSkill() {
     // If we're creating a competency (createComp dialog open) and user opened the create-skill
     // modal from there, don't call the API yet — store the skill name to `newCompSkills`
     if (createCompDialogVisible.value) {
-        if (!newSkillName.value || !newSkillName.value.trim())
-            return showError('El nombre es obligatorio');
-        // append to newCompSkills as comma-separated list
-        const names = String(newCompSkills.value || '')
-            .split(',')
-            .map((s) => s.trim())
-            .filter(Boolean);
-        names.push(newSkillName.value.trim());
-        newCompSkills.value = names.join(', ');
-        createSkillDialogVisible.value = false;
-        newSkillName.value = '';
-        newSkillCategory.value = '';
-        newSkillDescription.value = '';
-        showSuccess('Skill añadida (se guardará junto con la competencia)');
+        handleOfflineSkillCreation();
         return;
     }
 
     if (!selectedChild.value) return showError('Seleccione una competencia');
     if (!newSkillName.value || !newSkillName.value.trim())
         return showError('El nombre es obligatorio');
+
     savingSkill.value = true;
     try {
-        const payload: any = { name: newSkillName.value.trim() };
-        payload.category =
-            newSkillCategory.value &&
-            String(newSkillCategory.value).trim() !== ''
-                ? newSkillCategory.value
-                : 'technical';
-        if (
-            newSkillDescription.value &&
-            String(newSkillDescription.value).trim() !== ''
-        ) {
-            payload.description = newSkillDescription.value;
-        }
-        const compId =
-            (selectedChild.value as any).compId ??
-            (selectedChild.value as any).raw?.id ??
-            Math.abs((selectedChild.value as any).id || 0);
+        const { payload, compId } = getSkillPayloadAndCompId();
         if (!compId) throw new Error('No competency target available');
 
         const created = await createAndAttachSkillForComp(compId, payload);
-        if (created) {
-            if (!Array.isArray((selectedChild.value as any).skills))
-                (selectedChild.value as any).skills = [];
-            (selectedChild.value as any).skills.push(created);
-        }
-
-        // Expand skills to show the newly created skill immediately (consistent with competencies pattern)
-        // Do this BEFORE clearing fields to ensure proper DOM updates
-        if (selectedChild.value) {
-            const compId = (selectedChild.value as any).id;
-            const domPos = getNodeMapCenter(compId);
-            const renderedComp =
-                renderedNodeById(compId) ?? selectedChild.value;
-            const preferred =
-                renderedComp && domPos
-                    ? { x: renderedComp.x, y: domPos.y }
-                    : (renderedComp ?? domPos);
-            const result = expandSkillsFromLayout(
-                selectedChild.value,
-                grandChildNodes.value,
-                grandChildEdges.value,
-                preferred,
-                { layout: 'auto' },
-                height.value,
-            );
-            grandChildNodes.value = result.grandChildNodes;
-            grandChildEdges.value = result.grandChildEdges;
-            nextTick(() => {
-                grandChildNodes.value = grandChildNodes.value.map((g: any) => ({
-                    ...g,
-                    x: g.animTargetX ?? g.x,
-                    y: g.animTargetY ?? g.y,
-                    animScale: 1,
-                    animOpacity: 1,
-                    animFilter: 'none',
-                }));
-            });
-        }
-
-        // Mostrar alerta de éxito pero NO cerrar el modal
-        skillCreationSuccess.value = `Skill "${newSkillName.value}" creada y asociada correctamente`;
-
-        // Limpiar campos para siguiente creación
-        newSkillName.value = '';
-        newSkillCategory.value = '';
-        newSkillDescription.value = '';
-
-        // Scroll to top of form to show success message
-        await nextTick();
-        const formElement = document.querySelector('[data-skill-form]');
-        if (formElement) {
-            formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    } catch (err: unknown) {
-        console.error('createAndAttachSkill error', err);
-        let errorMsg = 'Error creando y asociando skill';
-
-        // Extraer mensaje de error de diferentes estructuras posibles
-        if ((err as any)?.response?.data?.message) {
-            errorMsg = (err as any).response.data.message;
-        } else if ((err as any)?.message) {
-            errorMsg = (err as any).message;
-        } else if (typeof err === 'string') {
-            errorMsg = err;
-        }
-
-        skillCreationError.value = errorMsg;
+        await updateUIAfterSkillCreation(created);
+    } catch (error_: unknown) {
+        console.error('[createAndAttachSkill] error', error_);
+        skillCreationError.value = getSkillErrorMessage(error_);
     } finally {
         savingSkill.value = false;
     }
@@ -915,7 +976,11 @@ async function attachExistingSkill() {
             await api.post(`/api/competencies/${compId}/skills`, {
                 skill_id: selectedSkillId.value,
             });
-        } catch (err: unknown) {
+        } catch (error_: unknown) {
+            console.warn(
+                '[attachExistingSkill] Backend attach failed, falling back to optimistic update',
+                error_,
+            );
             const found = availableSkills.value.find(
                 (s: any) => s.id === selectedSkillId.value,
             );
@@ -962,11 +1027,44 @@ async function attachExistingSkill() {
         selectSkillDialogVisible.value = false;
         selectedSkillId.value = null;
         showSuccess('Skill asociada');
-    } catch (err: unknown) {
+    } catch (error_: unknown) {
+        console.error('[attachExistingSkill] Error associates skill', error_);
         showError('Error asociando skill');
     } finally {
         attachingSkill.value = false;
     }
+}
+
+function findParentCompForSkill(skill: any) {
+    let parentComp = selectedChild.value;
+    // If selectedChild is not set, try to find it from edges
+    if (!parentComp && skill.id) {
+        const parentEdge = grandChildEdges.value?.find(
+            (e: any) =>
+                e.target === skill.id || e.target === `skill-${skill.id}`,
+        );
+        if (parentEdge) {
+            const compId =
+                typeof parentEdge.source === 'string'
+                    ? Number.parseInt(
+                          String(parentEdge.source).replace('comp-', ''),
+                      )
+                    : parentEdge.source;
+            parentComp = childNodes.value.find((c: any) => c.id === compId);
+        }
+    }
+    return parentComp;
+}
+
+function getIdsForDeletion(parentComp: any, skill: any) {
+    const compId =
+        (parentComp as any).compId ??
+        (parentComp as any).raw?.id ??
+        Math.abs((parentComp as any).id || 0);
+    const skillId = skill.id ?? skill.raw?.id ?? null;
+    const pivotId =
+        skill.pivot?.id ?? skill.raw?.pivot?.id ?? skill.raw?.pivot_id ?? null;
+    return { compId, skillId, pivotId };
 }
 
 // Delete the currently selected skill from the modal
@@ -975,25 +1073,7 @@ async function deleteSelectedSkill() {
     if (!skill) return showError('No hay skill seleccionada para borrar');
 
     try {
-        // Find the parent competency
-        let parentComp = selectedChild.value;
-
-        // If selectedChild is not set, try to find it from edges
-        if (!parentComp && skill.id) {
-            const parentEdge = grandChildEdges.value?.find(
-                (e: any) =>
-                    e.target === skill.id || e.target === `skill-${skill.id}`,
-            );
-            if (parentEdge) {
-                const compId =
-                    typeof parentEdge.source === 'string'
-                        ? parseInt(
-                              String(parentEdge.source).replace('comp-', ''),
-                          )
-                        : parentEdge.source;
-                parentComp = childNodes.value.find((c: any) => c.id === compId);
-            }
-        }
+        const parentComp = findParentCompForSkill(skill);
 
         if (!parentComp) {
             return showError(
@@ -1002,16 +1082,10 @@ async function deleteSelectedSkill() {
         }
 
         // Now delete it
-        const compId =
-            (parentComp as any).compId ??
-            (parentComp as any).raw?.id ??
-            Math.abs((parentComp as any).id || 0);
-        const skillId = skill.id ?? skill.raw?.id ?? null;
-        const pivotId =
-            skill.pivot?.id ??
-            skill.raw?.pivot?.id ??
-            skill.raw?.pivot_id ??
-            null;
+        const { compId, skillId, pivotId } = getIdsForDeletion(
+            parentComp,
+            skill,
+        );
 
         if (pivotId) {
             await api.delete(`/api/competency-skills/${pivotId}`);
@@ -1020,8 +1094,11 @@ async function deleteSelectedSkill() {
                 await api.delete(
                     `/api/competencies/${compId}/skills/${skillId}`,
                 );
-            } catch (e: unknown) {
-                console.error('Error deleting via competency endpoint:', e);
+            } catch (error_: unknown) {
+                console.error(
+                    '[deleteSelectedSkill] Error deleting via competency endpoint:',
+                    error_,
+                );
             }
         }
 
@@ -1043,8 +1120,8 @@ async function deleteSelectedSkill() {
         focusedNode.value = null;
 
         showSuccess('Skill eliminada correctamente');
-    } catch (err: unknown) {
-        console.error('deleteSelectedSkill error:', err);
+    } catch (error_: unknown) {
+        console.error('[deleteSelectedSkill] error:', error_);
         showError('Error eliminando la skill');
     }
 }
@@ -1076,7 +1153,7 @@ async function removeSkillFromCompetency(skill?: any) {
 
     savingSkillDetail.value = true;
     try {
-        let apiDeleted = false;
+        const apiDeleted = false;
 
         // Delete via the competency_skills endpoint
         if (realCompetencyId && skillId) {
@@ -1089,15 +1166,14 @@ async function removeSkillFromCompetency(skill?: any) {
                 const response = await api.delete(
                     `/api/competencies/${realCompetencyId}/skills/${skillId}`,
                 );
-                apiDeleted = true;
                 console.debug(
                     '[removeSkillFromCompetency] SUCCESS: Deleted via backend',
                     response,
                 );
-            } catch (e: unknown) {
+            } catch (error_: unknown) {
                 console.debug(
                     '[removeSkillFromCompetency] FAILED: backend delete:',
-                    e,
+                    error_,
                 );
             }
         }
@@ -1120,8 +1196,8 @@ async function removeSkillFromCompetency(skill?: any) {
         selectedSkillDetail.value = null;
 
         showSuccess('Skill eliminada correctamente');
-    } catch (err: unknown) {
-        console.error('removeSkillFromCompetency error', err);
+    } catch (error_: unknown) {
+        console.error('[removeSkillFromCompetency] error', error_);
         showError('Error eliminando skill');
     } finally {
         savingSkillDetail.value = false;
@@ -1175,8 +1251,11 @@ function showOnlySelectedAndParent(childId: number, keepScenario = true) {
                 return { ...c, visible: false };
             return { ...c, visible: false };
         });
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn(
+            '[showOnlySelectedAndParent] Error calculating visibility',
+            error_,
+        );
     }
 }
 
@@ -1328,7 +1407,9 @@ function waitForTransitionForNode(
             resolve(false);
         }, timeoutMs);
 
-        if (!el) {
+        if (el) {
+            el.addEventListener('transitionend', onEnd as EventListener);
+        } else {
             // element may not be in DOM yet; wait a tick then try again
             nextTick().then(() => {
                 el = document.querySelector(sel);
@@ -1339,8 +1420,6 @@ function waitForTransitionForNode(
                 }
                 el.addEventListener('transitionend', onEnd as EventListener);
             });
-        } else {
-            el.addEventListener('transitionend', onEnd as EventListener);
         }
     });
 }
@@ -1360,8 +1439,11 @@ function getNodeMapCenter(nodeId: number | string) {
         const xMap = Math.round((xScreen - (viewX.value || 0)) / scale);
         const yMap = Math.round((yScreen - (viewY.value || 0)) / scale);
         return { x: xMap, y: yMap };
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn(
+            '[getNodeMapCenter] Error calculating node center',
+            error_,
+        );
     }
     return undefined;
 }
@@ -1615,20 +1697,20 @@ async function handleScenarioClick() {
     // Ejecuta el reordenamiento y luego restaura la vista al nivel inicial
     try {
         await reorderNodes();
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[handleScenarioClick] Error reordering nodes', error_);
     }
     try {
         restoreView();
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[handleScenarioClick] Error restoring view', error_);
     }
 }
 
 // initialize edit fields when focusedNode changes
 watch(focusedNode, (nv) => {
     try {
-        if (nv && (window as any).__DEBUG__) {
+        if (nv && (globalThis as any).__DEBUG__) {
             const parentId =
                 (nv as any).id != null && (nv as any).id < 0
                     ? (childEdges.value.find((e) => e.target === (nv as any).id)
@@ -1645,8 +1727,8 @@ watch(focusedNode, (nv) => {
                 parentId,
             );
         }
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[watchFocusedNode] Error in debug logging', error_);
     }
     if (!nv) {
         editCapName.value = '';
@@ -1685,24 +1767,28 @@ watch(focusedNode, (nv) => {
 
     try {
         const _t = resolveField('type');
-        editCapType.value =
-            typeof _t === 'string'
-                ? _t.toLowerCase()
-                : _t != null
-                  ? String(_t).toLowerCase()
-                  : '';
-    } catch (err: unknown) {
+        if (typeof _t === 'string') {
+            editCapType.value = _t.toLowerCase();
+        } else if (_t == null) {
+            editCapType.value = '';
+        } else {
+            editCapType.value = String(_t).toLowerCase();
+        }
+    } catch (error_: unknown) {
+        console.warn('[watchFocusedNode] Error resolving type', error_);
         editCapType.value = '';
     }
     try {
         const _c = resolveField('category');
-        editCapCategory.value =
-            typeof _c === 'string'
-                ? _c.toLowerCase()
-                : _c != null
-                  ? String(_c).toLowerCase()
-                  : '';
-    } catch (err: unknown) {
+        if (typeof _c === 'string') {
+            editCapCategory.value = _c.toLowerCase();
+        } else if (_c == null) {
+            editCapCategory.value = '';
+        } else {
+            editCapCategory.value = String(_c).toLowerCase();
+        }
+    } catch (error_: unknown) {
+        console.warn('[watchFocusedNode] Error resolving category', error_);
         editCapCategory.value = '';
     }
 
@@ -1737,8 +1823,11 @@ watch(focusedNode, (nv) => {
                 selectedChild.value = null;
             }
         }
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn(
+            '[watchFocusedNode] Error collapsing orphan skills',
+            error_,
+        );
     }
 });
 
@@ -1748,8 +1837,11 @@ watch(selectedChild, (nv) => {
         // clear any expanded skills when selection cleared
         try {
             collapseGrandChildren();
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[watchSelectedChild] Error collapsing grandchildren',
+                error_,
+            );
         }
         editChildName.value = '';
         editChildDescription.value = '';
@@ -1776,8 +1868,11 @@ watch(selectedChild, (nv) => {
                     { layout: 'auto' },
                 );
             }
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[watchSelectedChild] Error expanding competencies',
+                error_,
+            );
         }
     }
     editChildName.value = nv.name ?? nv.raw?.name ?? '';
@@ -1829,13 +1924,15 @@ function resetFocusedEdits() {
         // normalize to match the v-select items (lowercase string values)
         try {
             const _t = resolveField('type');
-            editCapType.value =
-                typeof _t === 'string'
-                    ? _t.toLowerCase()
-                    : _t != null
-                      ? String(_t).toLowerCase()
-                      : '';
-        } catch (err: unknown) {
+            if (typeof _t === 'string') {
+                editCapType.value = _t.toLowerCase();
+            } else if (_t == null) {
+                editCapType.value = '';
+            } else {
+                editCapType.value = String(_t).toLowerCase();
+            }
+        } catch (error_: unknown) {
+            console.warn('[resetFocusedEdits] Error resolving type', error_);
             editCapType.value = '';
         }
         try {
@@ -1843,10 +1940,14 @@ function resetFocusedEdits() {
             editCapCategory.value =
                 typeof _c === 'string'
                     ? _c.toLowerCase()
-                    : _c != null
-                      ? String(_c).toLowerCase()
-                      : '';
-        } catch (err: unknown) {
+                    : _c == null
+                      ? ''
+                      : String(_c).toLowerCase();
+        } catch (error_: unknown) {
+            console.warn(
+                '[resetFocusedEdits] Error resolving category',
+                error_,
+            );
             editCapCategory.value = '';
         }
         try {
@@ -1855,7 +1956,11 @@ function resetFocusedEdits() {
             let rawKeys: string[] = [];
             try {
                 rawKeys = Object.keys(raw);
-            } catch (err: unknown) {
+            } catch (error_: unknown) {
+                console.warn(
+                    '[resetFocusedEdits] Error getting raw keys',
+                    error_,
+                );
                 rawKeys = [];
             }
             console.debug(
@@ -1870,21 +1975,30 @@ function resetFocusedEdits() {
                     '[resetFocusedEdits] raw.capability=',
                     raw?.capability,
                 );
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[resetFocusedEdits] Error debugging raw.capability',
+                    error_,
+                );
             }
             try {
                 console.debug(
                     '[resetFocusedEdits] raw.scenario_capabilities=',
                     raw?.scenario_capabilities,
                 );
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[resetFocusedEdits] Error debugging raw.scenario_capabilities',
+                    error_,
+                );
             }
             try {
                 console.debug('[resetFocusedEdits] raw.pivot=', raw?.pivot);
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[resetFocusedEdits] Error debugging raw.pivot',
+                    error_,
+                );
             }
             try {
                 console.debug(
@@ -1897,11 +2011,14 @@ function resetFocusedEdits() {
                             : capabilityTreeRaw.value
                         : null,
                 );
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[resetFocusedEdits] Error debugging capabilityTreeRaw',
+                    error_,
+                );
             }
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn('[resetFocusedEdits] Error in debug block', error_);
         }
         editPivotStrategicRole.value =
             f.strategic_role ?? f.raw?.strategic_role ?? 'target';
@@ -1980,25 +2097,31 @@ async function saveFocusedNode() {
                     fd.category = editCapCategory.value || fd.category;
                     fd.raw = { ...(fd.raw || {}), ...(capRes?.data ?? {}) };
                 }
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[saveFocusedNode] Error in optimistic local update',
+                    error_,
+                );
             }
-        } catch (errCap: unknown) {
+        } catch (error_: unknown) {
             try {
-                const _err: any = errCap as any;
-                const status = _err?.response?.status ?? null;
+                const _error: any = error_ as any;
+                const status = _error?.response?.status ?? null;
                 console.error(
                     '[saveFocusedNode] error PATCH /api/capabilities/' + id,
-                    _err?.response?.data ?? _err,
+                    _error?.response?.data ?? _error,
                 );
                 if (status !== 404) {
                     showError(
-                        _err?.response?.data?.message ||
+                        _error?.response?.data?.message ||
                             'Error actualizando capacidad',
                     );
                 }
-            } catch (errInner: unknown) {
-                void errInner;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[saveFocusedNode] Error handling cap update error',
+                    error_,
+                );
             }
         }
 
@@ -2039,10 +2162,10 @@ async function saveFocusedNode() {
                         pivotPayload,
                     );
                     showSuccess('Relación escenario–capacidad actualizada');
-                } catch (errPivot: unknown) {
+                } catch (error_: unknown) {
                     console.error(
                         '[saveFocusedNode] error PATCH pivot',
-                        (errPivot as any)?.response?.data ?? errPivot,
+                        (error_ as any)?.response?.data ?? error_,
                     );
                     try {
                         // fallback: POST to create association (if missing)
@@ -2063,10 +2186,10 @@ async function saveFocusedNode() {
                             },
                         );
                         showSuccess('Relación actualizada (fallback)');
-                    } catch (err2: unknown) {
+                    } catch (error_: unknown) {
                         console.error(
                             '[saveFocusedNode] error POST pivot fallback',
-                            (err2 as any)?.response?.data ?? err2,
+                            (error_ as any)?.response?.data ?? error_,
                         );
                         showError(
                             'No se pudo actualizar la relación. Verifica el backend.',
@@ -2132,14 +2255,17 @@ async function saveFocusedNode() {
                             } as any;
                         }
                     }
-                } catch (err: unknown) {
-                    void err;
+                } catch (error_: unknown) {
+                    console.warn(
+                        '[saveFocusedNode] Error merging pivot updates',
+                        error_,
+                    );
                 }
             }
-        } catch (outerErr: unknown) {
+        } catch (error_: unknown) {
             console.error(
                 '[saveFocusedNode] unexpected error in pivot update flow',
-                outerErr,
+                error_,
             );
         }
 
@@ -2181,8 +2307,8 @@ async function saveFocusedNode() {
                     },
                 } as any;
             }
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn('[saveFocusedNode] Error updating local node', error_);
         }
 
         // fetch authoritative capability entity from API (if available). We'll merge
@@ -2192,8 +2318,11 @@ async function saveFocusedNode() {
         try {
             const capResp: any = await api.get(`/api/capabilities/${id}`);
             freshCap = capResp?.data ?? capResp;
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[saveFocusedNode] Error fetching fresh capability',
+                error_,
+            );
         }
 
         const focusedId = focusedNode.value
@@ -2209,7 +2338,7 @@ async function saveFocusedNode() {
                               ...n,
                               type: freshCap.type ?? n.type,
                               category: freshCap.category ?? n.category,
-                              raw: { ...(n.raw ?? {}), ...(freshCap ?? {}) },
+                              raw: { ...(n.raw ?? {}), ...freshCap },
                           }
                         : n,
                 );
@@ -2218,7 +2347,7 @@ async function saveFocusedNode() {
                     (focusedNode.value as any).id === Number(freshCap.id)
                 ) {
                     focusedNode.value = {
-                        ...((focusedNode.value as any) || {}),
+                        ...(focusedNode.value as any),
                         type: freshCap.type ?? (focusedNode.value as any).type,
                         category:
                             freshCap.category ??
@@ -2230,13 +2359,19 @@ async function saveFocusedNode() {
                     } as any;
                     try {
                         resetFocusedEdits();
-                    } catch (err: unknown) {
-                        void err;
+                    } catch (error_: unknown) {
+                        console.warn(
+                            '[saveFocusedNode] Error resetting edits after merge',
+                            error_,
+                        );
                     }
                 }
             }
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[saveFocusedNode] Error merging authoritative fields',
+                error_,
+            );
         }
         try {
             console.debug(
@@ -2245,8 +2380,11 @@ async function saveFocusedNode() {
                 'nodeById=',
                 nodeById(focusedId),
             );
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[saveFocusedNode] Error debugging after refresh',
+                error_,
+            );
         }
         if (focusedId != null) {
             const restored = nodeById(focusedId);
@@ -2254,8 +2392,11 @@ async function saveFocusedNode() {
                 focusedNode.value = restored as any;
                 try {
                     resetFocusedEdits();
-                } catch (err: unknown) {
-                    void err;
+                } catch (error_: unknown) {
+                    console.warn(
+                        '[saveFocusedNode] Error resetting edits after restore',
+                        error_,
+                    );
                 }
                 await nextTick();
                 centerOnNode(restored as NodeItem);
@@ -2309,7 +2450,7 @@ async function deleteFocusedNode() {
     );
 
     // Confirm destructive action
-    const ok = window.confirm(confirmMsg);
+    const ok = globalThis.confirm(confirmMsg);
     if (!ok) return;
 
     savingNode.value = true;
@@ -2347,13 +2488,13 @@ async function deleteFocusedNode() {
                     '[deleteFocusedNode] DELETE competency response:',
                     res,
                 );
-            } catch (e: unknown) {
-                const _e: any = e as any;
+            } catch (error_: unknown) {
+                const _error: any = error_ as any;
                 console.debug(
                     '[deleteFocusedNode] DELETE competency error status:',
-                    _e?.response?.status,
+                    _error?.response?.status,
                 );
-                if (_e?.response?.status !== 404) throw e;
+                if (_error?.response?.status !== 404) throw error_;
                 // 404 = backend doesn't expose delete, remove locally
             }
 
@@ -2389,9 +2530,9 @@ async function deleteFocusedNode() {
                 await api.delete(
                     `/api/strategic-planning/scenarios/${props.scenario?.id}/capabilities/${id}`,
                 );
-            } catch (e: unknown) {
-                const _e: any = e as any;
-                pivotErrStatus = _e?.response?.status ?? null;
+            } catch (error_: unknown) {
+                const _error: any = error_ as any;
+                pivotErrStatus = _error?.response?.status ?? null;
             }
 
             // 2) attempt to delete capability entity
@@ -2414,9 +2555,9 @@ async function deleteFocusedNode() {
                 childEdges.value = childEdges.value.filter(
                     (e) => e.source !== id && e.target !== id,
                 );
-            } catch (e: unknown) {
-                const _e: any = e as any;
-                capErrStatus = _e?.response?.status ?? null;
+            } catch (error_: unknown) {
+                const _error: any = error_ as any;
+                capErrStatus = _error?.response?.status ?? null;
             }
 
             // If both endpoints returned 404 (not found), assume backend doesn't expose delete and remove locally
@@ -2454,8 +2595,8 @@ async function deleteFocusedNode() {
         // Clear focus and selection
         focusedNode.value = null;
         selectedChild.value = null;
-    } catch (err: unknown) {
-        console.error('[deleteFocusedNode] Error:', err);
+    } catch (error_: unknown) {
+        console.error('[deleteFocusedNode] Error:', error_);
         showError(`Error al eliminar ${nodeName}`);
     } finally {
         savingNode.value = false;
@@ -2501,8 +2642,11 @@ function showCreateCompDialog() {
             const parentNode = parentEdge ? nodeById(parentEdge.source) : null;
             if (parentNode) focusedNode.value = parentNode as any;
         }
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn(
+            '[showCreateCompDialog] Error setting focused node',
+            error_,
+        );
     }
     // Force capability context for creation
     selectedChild.value = null;
@@ -2582,8 +2726,8 @@ function showCreateSkillDialog() {
             );
             selectedChild.value = null;
         }
-    } catch (err: unknown) {
-        console.error('[showCreateSkillDialog] error setting context:', err);
+    } catch (error_: unknown) {
+        console.error('[showCreateSkillDialog] error setting context:', error_);
     }
 
     createSkillDialogVisible.value = true;
@@ -2671,8 +2815,11 @@ async function saveNewCapability() {
                 buildEdgesFromItems((props.scenario as any).capabilities || []);
                 positionsDirty.value = true;
             }
-        } catch (optErr: unknown) {
-            void optErr;
+        } catch (error_: unknown) {
+            console.warn(
+                '[saveNewCapability] Error in optimistic update',
+                error_,
+            );
         }
         // Refresh canonical tree from API to include pivot attributes and avoid drift
         await loadTreeFromApiWrapper(props.scenario.id);
@@ -2689,9 +2836,9 @@ async function saveNewCapability() {
         pivotRationale.value = '';
         pivotRequiredLevel.value = 3;
         pivotIsCritical.value = false;
-    } catch (err: unknown) {
-        const _err: any = err as any;
-        showError(_err?.response?.data?.message || 'Error creando capacidad');
+    } catch (error_: unknown) {
+        const _error: any = error_ as any;
+        showError(_error?.response?.data?.message || 'Error creando capacidad');
     } finally {
         creating.value = false;
     }
@@ -2816,8 +2963,11 @@ async function reorderNodes() {
             'ids:',
             nodes.value.map((n: any) => n && n.id),
         );
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn(
+            '[reorderNodes] Error in pre-reorder debug logging',
+            error_,
+        );
     }
 
     // ensure each item has a `name` and cast the helper result to the expected NodeItem[] type
@@ -2837,8 +2987,11 @@ async function reorderNodes() {
             'ids:',
             nodes.value.map((n: any) => n && n.id),
         );
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn(
+            '[reorderNodes] Error in post-reorder debug logging',
+            error_,
+        );
     }
 
     positionsDirty.value = true;
@@ -2848,8 +3001,8 @@ async function reorderNodes() {
         childNodes.value = [];
         childEdges.value = [];
         showSidebar.value = false;
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[reorderNodes] Error resetting focus/sidebar', error_);
     }
 
     // Persist positions immediately after reordering so the change is durable.
@@ -2924,8 +3077,8 @@ function edgeTargetIsCentered(e: Edge) {
         if (!tgt || typeof tgt.x !== 'number') return false;
         const centerX = Math.round(width.value / 2);
         return Math.abs((tgt.x ?? 0) - centerX) <= 12; // 12px tolerance
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[edgeTargetIsCentered] Error checking centering', error_);
     }
     return false;
 }
@@ -2973,8 +3126,8 @@ function groupedIndexForEdge(e: Edge) {
             0,
             candidates.findIndex((c) => c === e),
         );
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[groupedIndexForEdge] Error calculating index', error_);
     }
     return 0;
 }
@@ -3055,8 +3208,8 @@ function edgeRenderFor(e: Edge) {
         }
         // modo por defecto: offset pequeño
         return { isPath: false, x1, y1, x2, y2 } as any;
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[edgeRenderFor] error', error_);
         // On error return a safe fallback shape indicating no valid geometry
         return {
             isPath: false,
@@ -3078,8 +3231,8 @@ function scenarioEdgePath(e: Edge) {
         const depth = LAYOUT_CONFIG.capability.scenarioEdgeDepth;
         const cpY = Math.min(s.y ?? 0, t.y ?? 0) + depth;
         return `M ${s.x} ${s.y} C ${s.x} ${cpY} ${t.x} ${cpY} ${t.x} ${t.y}`;
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[scenarioEdgePath] error', error_);
     }
     return '';
 }
@@ -3283,7 +3436,7 @@ function childNodeById(id: number) {
 
 const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
     try {
-        if ((window as any).__DEBUG__) {
+        if ((globalThis as any).__DEBUG__) {
             console.debug(
                 '[node.click] id=',
                 (node as any)?.id,
@@ -3301,8 +3454,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     .join('\n'),
             );
         }
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn(
+            '[handleNodeClick] Error in initial debug logging',
+            error_,
+        );
     }
     // If this is a level-2 node (competency), short-circuit: only log and do not run animations/expansions
     try {
@@ -3331,20 +3487,26 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 // keep selectedChild focused but clear skills
                 return;
             }
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[handleNodeClick] Error checking collapse conditions',
+                error_,
+            );
         }
         if (lvl === 2) {
             try {
-                if ((window as any).__DEBUG__)
+                if ((globalThis as any).__DEBUG__)
                     console.debug(
                         '[node.click.level2] id=',
                         (node as any)?.id,
                         'level=',
                         lvl,
                     );
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error in level 2 debug logging',
+                    error_,
+                );
             }
             try {
                 noAnimations.value = true;
@@ -3354,8 +3516,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     },
                     Math.max(300, TRANSITION_MS),
                 );
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error setting noAnimations',
+                    error_,
+                );
             }
 
             // For left-click on a competency, expand its skills (do not open modal)
@@ -3373,8 +3538,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     // Immediately clear any existing expanded skills so they don't linger
                     try {
                         collapseGrandChildren();
-                    } catch (err: unknown) {
-                        void err;
+                    } catch (error_: unknown) {
+                        console.warn(
+                            '[handleNodeClick] Error in pre-expand collapse',
+                            error_,
+                        );
                     }
                     centerOnNode(parentNode, prev);
                     const parentLead = Math.max(
@@ -3400,7 +3568,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                         ) ?? node;
                     selectedChild.value = updatedNode as any;
                     try {
-                        if ((window as any).__DEBUG__)
+                        if ((globalThis as any).__DEBUG__)
                             console.debug(
                                 '[expandCompetencies.call] source=handleNodeClick, target=parentNode',
                                 {
@@ -3421,8 +3589,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                         LAYOUT_CONFIG.competency?.defaultLayout,
                                 },
                             );
-                    } catch (err: unknown) {
-                        void err;
+                    } catch (error_: unknown) {
+                        console.warn(
+                            '[handleNodeClick] Error in expansion debug logging',
+                            error_,
+                        );
                     }
                     // If parent has 4 or more competencies, show matrix layout (matrixVariants chooses 4x2 or 5x2)
                     try {
@@ -3432,14 +3603,13 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                             ? parentNode!.competencies.length
                             : 0;
                         if (compCount >= 4) {
-                            console.debug &&
-                                console.debug(
-                                    '[expandCompetencies.call] source=handleNodeClick (sides)',
-                                    {
-                                        nodeId: parentNode?.id,
-                                        comps: compCount,
-                                    },
-                                );
+                            console.debug(
+                                '[expandCompetencies.call] source=handleNodeClick (sides)',
+                                {
+                                    nodeId: parentNode?.id,
+                                    comps: compCount,
+                                },
+                            );
                             // TEST: Force 'sides' layout to compare distribution vs radial/matrix
                             expandCompetencies(
                                 parentNode as NodeItem,
@@ -3448,14 +3618,13 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                             );
                         } else {
                             // keep positions for small counts
-                            console.debug &&
-                                console.debug(
-                                    '[expandCompetencies.call] skipped (<4 competencies)',
-                                    {
-                                        nodeId: parentNode?.id,
-                                        comps: compCount,
-                                    },
-                                );
+                            console.debug(
+                                '[expandCompetencies.call] skipped (<4 competencies)',
+                                {
+                                    nodeId: parentNode?.id,
+                                    comps: compCount,
+                                },
+                            );
                         }
                     } catch (err: unknown) {
                         expandCompetencies(parentNode as NodeItem, {
@@ -3472,8 +3641,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     const cid =
                         (selectedChild.value as any)?.id ?? (node as any)?.id;
                     if (cid != null) showOnlySelectedAndParent(cid, true);
-                } catch (err: unknown) {
-                    void err;
+                } catch (error_: unknown) {
+                    console.warn(
+                        '[handleNodeClick] Error updating visibility',
+                        error_,
+                    );
                 }
 
                 try {
@@ -3503,8 +3675,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                             );
                         }
                     }
-                } catch (err: unknown) {
-                    void err;
+                } catch (error_: unknown) {
+                    console.warn(
+                        '[handleNodeClick] Error reordering child nodes',
+                        error_,
+                    );
                 }
 
                 // expand skills for this competency
@@ -3614,7 +3789,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                             );
                                     });
                                 }
-                            } catch (err: unknown) {
+                            } catch (error_: unknown) {
+                                console.warn(
+                                    '[handleNodeClick] Error in transition logic, using fallback',
+                                    error_,
+                                );
                                 const result = expandSkillsFromLayout(
                                     comp,
                                     grandChildNodes.value,
@@ -3645,8 +3824,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                 try {
                                     (selectedChild.value as any).skills =
                                         Array.isArray(skills) ? skills : [];
-                                } catch (err: unknown) {
-                                    void err;
+                                } catch (error_: unknown) {
+                                    console.warn(
+                                        '[handleNodeClick] Error assigning skills',
+                                        error_,
+                                    );
                                 }
                                 try {
                                     // capture parent id before awaiting so TypeScript knows it can't become null across await
@@ -3662,20 +3844,19 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                     const renderedPos = renderedNodeById(
                                         pid,
                                     ) ?? { x: parentNode?.x, y: parentNode?.y };
-                                    console.debug &&
-                                        console.debug(
-                                            '[expandSkills.debug] parentId=',
-                                            pid,
-                                            'domPos=',
-                                            domPos,
-                                            'renderedPos=',
-                                            renderedPos,
-                                            'modelPos=',
-                                            {
-                                                x: parentNode?.x,
-                                                y: parentNode?.y,
-                                            },
-                                        );
+                                    console.debug(
+                                        '[expandSkills.debug] parentId=',
+                                        pid,
+                                        'domPos=',
+                                        domPos,
+                                        'renderedPos=',
+                                        renderedPos,
+                                        'modelPos=',
+                                        {
+                                            x: parentNode?.x,
+                                            y: parentNode?.y,
+                                        },
+                                    );
                                     // Prefer rendered X (align with render pipeline) but DOM Y (visual position)
                                     const preferred =
                                         renderedPos && domPos
@@ -3706,7 +3887,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                                 }),
                                             );
                                     });
-                                } catch (err: unknown) {
+                                } catch (error_: unknown) {
+                                    console.warn(
+                                        '[handleNodeClick] Error waiting for transition before expansion, using fallback',
+                                        error_,
+                                    );
                                     const compId = (selectedChild.value as any)
                                         .id;
                                     const domPos = getNodeMapCenter(compId);
@@ -3743,41 +3928,53 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                             );
                                     });
                                 }
-                            } catch (err: unknown) {
-                                void err;
+                            } catch (error_: unknown) {
+                                console.warn(
+                                    '[handleNodeClick] Error in skill fetch/expand flow',
+                                    error_,
+                                );
                             }
                         }
                     }
-                } catch (err: unknown) {
-                    void err;
+                } catch (error_: unknown) {
+                    console.warn(
+                        '[handleNodeClick] Error in nested dependency check',
+                        error_,
+                    );
                 }
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error in level 2 short-circuit',
+                    error_,
+                );
             }
 
             return;
         }
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn(
+            '[handleNodeClick] Error in outer level 2 handler',
+            error_,
+        );
     }
     // debounce/guard: avoid processing duplicate rapid calls for the same node
     try {
         const now = Date.now();
         if (
-            (window as any).__lastClick &&
-            (window as any).__lastClick.id === (node as any)?.id &&
-            now - (window as any).__lastClick.time < 300
+            (globalThis as any).__lastClick &&
+            (globalThis as any).__lastClick.id === (node as any)?.id &&
+            now - (globalThis as any).__lastClick.time < 300
         ) {
-            if ((window as any).__DEBUG__)
+            if ((globalThis as any).__DEBUG__)
                 console.debug(
                     '[node.click] ignored duplicate click id=',
                     (node as any)?.id,
                 );
             return;
         }
-        (window as any).__lastClick = { id: (node as any)?.id, time: now };
-    } catch (err: unknown) {
-        void err;
+        (globalThis as any).__lastClick = { id: (node as any)?.id, time: now };
+    } catch (error_: unknown) {
+        console.warn('[handleNodeClick] Error in click debounce/guard', error_);
     }
 
     // capture previous focused node so we can swap positions when appropriate
@@ -3796,8 +3993,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                 if (lvl === 2) {
                     try {
                         noAnimations.value = true;
-                    } catch (err: unknown) {
-                        void err;
+                    } catch (error_: unknown) {
+                        console.warn(
+                            '[handleNodeClick] Error setting noAnimations (child click)',
+                            error_,
+                        );
                     }
                     const parentId = parentNode.id;
                     nodes.value = nodes.value.map((n: any) => {
@@ -3816,8 +4016,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                         Math.max(40, TRANSITION_MS - 120),
                     );
                 }
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error updating visibility (child click)',
+                    error_,
+                );
             }
             // capture parent's previous position so children can animate from there in sync
             const parentPrevPos = {
@@ -3836,7 +4039,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             // rebuild children under the parent (positions will use updated parent coords)
             const updatedParent = nodeById(parentNode.id) || parentNode;
             try {
-                if ((window as any).__DEBUG__)
+                if ((globalThis as any).__DEBUG__)
                     console.debug(
                         '[expandCompetencies.call] source=childClick, target=updatedParent',
                         {
@@ -3851,8 +4054,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                 LAYOUT_CONFIG.competency?.defaultLayout,
                         },
                     );
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error in child click expansion debug',
+                    error_,
+                );
             }
             try {
                 const compCount = Array.isArray(updatedParent?.competencies)
@@ -3872,7 +4078,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                         parentPrevPos,
                     );
                 }
-            } catch (err: unknown) {
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error in competency expansion logic',
+                    error_,
+                );
                 expandCompetencies(updatedParent as NodeItem, parentPrevPos);
             }
             // find the freshly created child node by id
@@ -3895,20 +4105,29 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                         )
                             ? skills
                             : [];
-                    } catch (err: unknown) {
-                        void err;
+                    } catch (error_: unknown) {
+                        console.warn(
+                            '[handleNodeClick] Error assigning skills (child click)',
+                            error_,
+                        );
                     }
                 }
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error fetching skills (child click)',
+                    error_,
+                );
             }
             // hide all except selected competency and its parent
             try {
                 const cid =
                     (selectedChild.value as any)?.id ?? (node as any)?.id;
                 if (cid != null) showOnlySelectedAndParent(cid, true);
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error showing only selected (child click)',
+                    error_,
+                );
             }
             // Ensure the selected child remains visible (do not let it disappear)
             try {
@@ -3937,8 +4156,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                         );
                     }
                 }
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error ensuring visibility (child click)',
+                    error_,
+                );
             }
             // set updated reference for later use
             updated =
@@ -3960,7 +4182,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                     wait(childLead),
                 ]);
                 try {
-                    if ((window as any).__DEBUG__)
+                    if ((globalThis as any).__DEBUG__)
                         console.debug(
                             '[expandCompetencies.call] source=childClick.grandchildren, target=freshChild',
                             {
@@ -3976,8 +4198,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                     LAYOUT_CONFIG.competency?.defaultLayout,
                             },
                         );
-                } catch (err: unknown) {
-                    void err;
+                } catch (error_: unknown) {
+                    console.warn(
+                        '[handleNodeClick] Error in grandchild expansion debug',
+                        error_,
+                    );
                 }
                 try {
                     const compCount = Array.isArray(freshChild?.competencies)
@@ -3995,7 +4220,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                             parentPrevPos,
                         );
                     }
-                } catch (err: unknown) {
+                } catch (error_: unknown) {
                     expandCompetencies(freshChild as NodeItem, parentPrevPos);
                 }
             }
@@ -4012,7 +4237,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             ]);
             updated = nodeById(node.id) || node;
             try {
-                if ((window as any).__DEBUG__)
+                if ((globalThis as any).__DEBUG__)
                     console.debug(
                         '[expandCompetencies.call] source=childClick.fallback, target=updated',
                         {
@@ -4027,8 +4252,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                 LAYOUT_CONFIG.competency?.defaultLayout,
                         },
                     );
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error in fallback expansion debug',
+                    error_,
+                );
             }
             expandCompetencies(updated as NodeItem, nodePrevPos);
         }
@@ -4073,7 +4301,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             // then expand competencies using the updated focused node coordinates (limit to 10 in 2x5)
             updated = nodeById(selected.id) || selected;
             try {
-                if ((window as any).__DEBUG__)
+                if ((globalThis as any).__DEBUG__)
                     console.debug(
                         '[expandCompetencies.call] source=capabilityClick, target=updated',
                         {
@@ -4088,8 +4316,11 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
                                 LAYOUT_CONFIG.competency?.defaultLayout,
                         },
                     );
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleNodeClick] Error in capability expansion debug',
+                    error_,
+                );
             }
             expandCompetencies(updated as NodeItem, nodePrevPos, {
                 limit: 10,
@@ -4105,7 +4336,7 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             ]);
             updated = nodeById(node.id) || node;
             try {
-                if ((window as any).__DEBUG__)
+                if ((globalThis as any).__DEBUG__)
                     console.debug(
                         '[expandCompetencies.call] source=capabilityClick.fallback, target=updated',
                         {
@@ -4152,9 +4383,8 @@ const handleNodeClick = async (node: NodeItem, event?: MouseEvent) => {
             scenarioNode.value.x = refNode.x ?? 0;
             scenarioNode.value.y = Math.round((refNode.y ?? 0) - offsetY);
         }
-    } catch (err: unknown) {
-        void err;
-        // ignore
+    } catch (error_: unknown) {
+        console.warn('[handleNodeClick] Error in followScenario logic', error_);
     }
 };
 
@@ -4165,8 +4395,8 @@ const closeTooltip = () => {
     // animate collapse of skills when tooltip closes
     try {
         collapseGrandChildren();
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[closeTooltip] Error collapsing grandchildren', error_);
     }
     selectedChild.value = null;
     // restore original node positions if we have them
@@ -4224,7 +4454,8 @@ const capFormInvalid = computed(() => {
         if (typeof f.valid === 'boolean') return !f.valid;
         if (typeof f.isValid === 'boolean') return !f.isValid;
         return false;
-    } catch (err: unknown) {
+    } catch (error_: unknown) {
+        console.warn('[capFormInvalid] Error checking form validity', error_);
         return false;
     }
 });
@@ -4265,8 +4496,8 @@ function startPanelDrag(e: PointerEvent) {
     panelDragging.value = true;
     panelDragOffset.value.x = e.clientX - (tooltipX.value || 0);
     panelDragOffset.value.y = e.clientY - (tooltipY.value || 0);
-    window.addEventListener('pointermove', onPanelPointerMove);
-    window.addEventListener('pointerup', onPanelPointerUp);
+    globalThis.addEventListener('pointermove', onPanelPointerMove);
+    globalThis.addEventListener('pointerup', onPanelPointerUp);
 }
 
 function onPanelPointerMove(e: PointerEvent) {
@@ -4283,9 +4514,13 @@ function onPanelPointerMove(e: PointerEvent) {
         if (document.fullscreenElement) {
             // clamp against viewport when in fullscreen
             const minX = 8;
-            const maxX = Math.round(window.innerWidth - panelRect.width - 8);
+            const maxX = Math.round(
+                globalThis.innerWidth - panelRect.width - 8,
+            );
             const minY = 8;
-            const maxY = Math.round(window.innerHeight - panelRect.height - 8);
+            const maxY = Math.round(
+                globalThis.innerHeight - panelRect.height - 8,
+            );
             tooltipX.value = Math.min(
                 Math.max(proposedX, minX),
                 Math.max(minX, maxX),
@@ -4319,8 +4554,8 @@ function onPanelPointerMove(e: PointerEvent) {
 
 function onPanelPointerUp() {
     panelDragging.value = false;
-    window.removeEventListener('pointermove', onPanelPointerMove);
-    window.removeEventListener('pointerup', onPanelPointerUp);
+    globalThis.removeEventListener('pointermove', onPanelPointerMove);
+    globalThis.removeEventListener('pointerup', onPanelPointerUp);
 }
 
 // Handle clicks on an individual skill node (optional: open a small detail or select)
@@ -4403,239 +4638,238 @@ function handleSkillClick(skill: any, event?: MouseEvent) {
                         skillPivotIsRequired.value = false;
                     }
                 }
-            } catch (errP: unknown) {
-                void errP;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[handleSkillClick] Error resolving pivot values',
+                    error_,
+                );
             }
 
             skillDetailDialogVisible.value = true;
-        } catch (errInner: unknown) {
-            void errInner;
+        } catch (error_: unknown) {
+            console.warn(
+                '[handleSkillClick] Error setting skill detail',
+                error_,
+            );
         }
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn(
+            '[handleSkillClick] Outer error in skill click handler',
+            error_,
+        );
     }
 }
 
 // Save skill edits + optional pivot edits
+// Helper functions extracted to reduce complexity of saveSkillDetail
+
+async function updateSkillEntity(skillId: number) {
+    const skillPayload: any = {
+        name: skillEditName.value?.trim() ?? undefined,
+        description: skillEditDescription.value?.trim() ?? undefined,
+        category: skillEditCategory.value,
+        complexity_level: skillEditComplexityLevel.value,
+        scope_type: skillEditScopeType.value,
+        domain_tag: skillEditDomainTag.value?.trim() ?? undefined,
+        is_critical: !!skillEditIsCritical.value,
+    };
+    Object.keys(skillPayload).forEach(
+        (k) => skillPayload[k] === undefined && delete skillPayload[k],
+    );
+
+    try {
+        await ensureCsrf();
+    } catch (error_: unknown) {
+        console.warn(
+            '[saveSkillDetail] Error ensuring CSRF (non-fatal)',
+            error_,
+        );
+    }
+
+    try {
+        await api.patch(`/api/skills/${skillId}`, skillPayload);
+        showSuccess('Skill actualizada');
+    } catch (error_: unknown) {
+        try {
+            console.error(
+                '[saveSkillDetail] skill patch error',
+                error_,
+                (error_ as any)?.response?.data,
+            );
+        } catch (ignored) {
+            console.error('[saveSkillDetail] skill patch error', error_);
+        }
+        showError('Error guardando skill');
+        throw error_;
+    }
+}
+
+async function updateCompetencySkillPivot() {
+    try {
+        const unwrappedSkill: any =
+            typeof selectedSkillDetail.value !== 'undefined'
+                ? (selectedSkillDetail.value ?? selectedSkillDetail)
+                : null;
+        const skillPivotObj =
+            unwrappedSkill?.pivot ?? unwrappedSkill?.raw?.pivot ?? null;
+        const compSkillPivotId =
+            skillPivotObj?.id ?? skillPivotObj?.pivot_id ?? null;
+
+        if (compSkillPivotId) {
+            const csPayload: any = {};
+            if (
+                skillPivotWeight.value !== undefined &&
+                skillPivotWeight.value !== null
+            )
+                csPayload.weight = skillPivotWeight.value;
+            Object.keys(csPayload).forEach(
+                (k) => csPayload[k] === undefined && delete csPayload[k],
+            );
+            if (Object.keys(csPayload).length > 0) {
+                try {
+                    await api.patch(
+                        `/api/competency-skills/${compSkillPivotId}`,
+                        csPayload,
+                    );
+                    showSuccess(
+                        'Atributos de relación skill-competencia actualizados',
+                    );
+                } catch (error_: unknown) {
+                    console.error(
+                        '[saveSkillDetail] competency_skills patch failed',
+                        error_,
+                    );
+                }
+            }
+        }
+    } catch (error_: unknown) {
+        console.warn(
+            '[saveSkillDetail] Error in csPayload update logic',
+            error_,
+        );
+    }
+}
+
+async function updateScenarioPivot() {
+    const comp2: any =
+        selectedChild.value && typeof selectedChild.value === 'object'
+            ? (selectedChild.value ?? null)
+            : null;
+    const parentCap: any =
+        focusedNode.value && typeof focusedNode.value === 'object'
+            ? (focusedNode.value ?? null)
+            : null;
+    const scenarioId = props.scenario?.id ?? null;
+    const compId = comp2?.compId ?? comp2?.raw?.id ?? Math.abs(comp2?.id || 0);
+    const capId = parentCap?.id ?? parentCap?.raw?.id ?? null;
+
+    if (scenarioId && capId && compId) {
+        const pivotPayload: any = {
+            required_level: skillPivotRequiredLevel.value,
+            priority: skillPivotPriority.value,
+            strategic_weight: skillPivotWeight.value,
+            weight: skillPivotWeight.value,
+            rationale: skillPivotRationale.value?.trim() ?? undefined,
+            is_required: !!skillPivotIsRequired.value,
+        };
+        Object.keys(pivotPayload).forEach(
+            (k) => pivotPayload[k] === undefined && delete pivotPayload[k],
+        );
+        if (Object.keys(pivotPayload).length > 0) {
+            try {
+                await api.patch(
+                    `/api/strategic-planning/scenarios/${scenarioId}/capabilities/${capId}/competencies/${compId}`,
+                    pivotPayload,
+                );
+                showSuccess('Atributos de competencia actualizados');
+            } catch (error_: unknown) {
+                // fallback
+                const pivotId =
+                    comp2?.raw?.pivot?.id ??
+                    comp2?.raw?.capability_pivot?.id ??
+                    null;
+                if (pivotId) {
+                    try {
+                        await api.patch(
+                            `/api/capability-competencies/${pivotId}`,
+                            pivotPayload,
+                        );
+                        showSuccess(
+                            'Atributos de competencia actualizados (pivot)',
+                        );
+                    } catch (error2_: unknown) {
+                        console.error(
+                            '[saveSkillDetail] pivot patch fallback failed',
+                            error2_,
+                        );
+                        showError('Error guardando atributos de competencia');
+                    }
+                } else {
+                    console.error(
+                        '[saveSkillDetail] pivot patch primary failed',
+                        error_,
+                    );
+                    showError('Error guardando atributos de competencia');
+                }
+            }
+        }
+    }
+}
+
+async function updateSkillPivotsCombined() {
+    try {
+        await updateCompetencySkillPivot();
+        await updateScenarioPivot();
+    } catch (error_: unknown) {
+        console.warn('[saveSkillDetail] Error in pivot update flow', error_);
+    }
+}
+
+async function refreshSkillLocalData(skillId: number) {
+    let freshSkill: any = null;
+    try {
+        const skillResp: any = await api.get(`/api/skills/${skillId}`);
+        const data = skillResp?.data ?? skillResp;
+        freshSkill = Array.isArray(data) ? data[0] : data;
+    } catch (error_: unknown) {
+        console.error(
+            '[saveSkillDetail] Failed to refresh skill after save',
+            error_,
+        );
+    }
+
+    if (freshSkill && typeof freshSkill.id !== 'undefined') {
+        const realCompId =
+            (selectedChild.value as any)?.compId ??
+            (selectedChild.value as any)?.raw?.id;
+        await hierarchicalUpdate.update('skill', freshSkill, realCompId);
+        selectedSkillDetail.value = freshSkill;
+    }
+}
+
 async function saveSkillDetail() {
-    // Debug: trace invocation and key state to help diagnose "botón no hace nada" en runtime
     try {
         console.debug('[saveSkillDetail] invoked', {
             selectedSkillDetail: selectedSkillDetail?.value ?? null,
-            skillEditName: skillEditName?.value ?? null,
-            selectedChild: selectedChild?.value ?? null,
-            focusedNode: focusedNode?.value ?? null,
         });
-    } catch (errDbg: unknown) {
-        void errDbg;
+    } catch (ignored) {
+        // ignore
     }
 
     if (!selectedSkillDetail.value)
         return showError('No hay skill seleccionada');
     const skillId = selectedSkillDetail.value.id ?? null;
     if (!skillId) return showError('Skill no tiene id');
+
     savingSkillDetail.value = true;
     try {
-        const skillPayload: any = {
-            name: skillEditName.value?.trim() ?? undefined,
-            description: skillEditDescription.value?.trim() ?? undefined,
-            category: skillEditCategory.value,
-            complexity_level: skillEditComplexityLevel.value,
-            scope_type: skillEditScopeType.value,
-            domain_tag: skillEditDomainTag.value?.trim() ?? undefined,
-            is_critical: !!skillEditIsCritical.value,
-        };
-        // remove undefined keys
-        Object.keys(skillPayload).forEach(
-            (k) => skillPayload[k] === undefined && delete skillPayload[k],
-        );
-        // update skill entity
-        try {
-            // Ensure CSRF cookie (Sanctum) is present before mutating requests
-            try {
-                await ensureCsrf();
-            } catch (e) {
-                /* proceed, server may not require it */
-            }
-            await api.patch(`/api/skills/${skillId}`, skillPayload);
-            showSuccess('Skill actualizada');
-        } catch (err: unknown) {
-            try {
-                console.error(
-                    'saveSkillDetail - skill patch error',
-                    err,
-                    (err as any)?.response?.data,
-                );
-            } catch (e) {
-                console.error('saveSkillDetail - skill patch error', err);
-            }
-            showError('Error guardando skill');
-            throw err;
-        }
-
-        // attempt to save pivot (capability_competencies) if we can identify context
-        try {
-            // First try: if the skill object itself carries a competency_skills pivot (skill attached to a competency),
-            // attempt to patch that pivot directly. This covers edits made from within a competency context.
-            try {
-                // Support both internal refs (.value) and unwrapped objects (tests may set plain values)
-                const unwrappedSkill: any =
-                    typeof selectedSkillDetail.value !== 'undefined'
-                        ? (selectedSkillDetail.value ?? selectedSkillDetail)
-                        : null;
-                const skillPivotObj =
-                    unwrappedSkill?.pivot ?? unwrappedSkill?.raw?.pivot ?? null;
-                const compSkillPivotId =
-                    skillPivotObj?.id ?? skillPivotObj?.pivot_id ?? null;
-                const comp: any =
-                    typeof selectedChild.value !== 'undefined'
-                        ? (selectedChild.value ?? selectedChild)
-                        : null;
-                // Build payload using available pivot fields (weight is the primary field on competency_skills)
-                if (compSkillPivotId) {
-                    const csPayload: any = {};
-                    if (
-                        skillPivotWeight.value !== undefined &&
-                        skillPivotWeight.value !== null
-                    )
-                        csPayload.weight = skillPivotWeight.value;
-                    // remove undefined
-                    Object.keys(csPayload).forEach(
-                        (k) =>
-                            csPayload[k] === undefined && delete csPayload[k],
-                    );
-                    if (Object.keys(csPayload).length > 0) {
-                        try {
-                            await api.patch(
-                                `/api/competency-skills/${compSkillPivotId}`,
-                                csPayload,
-                            );
-                            showSuccess(
-                                'Atributos de relación skill-competencia actualizados',
-                            );
-                        } catch (errCs: unknown) {
-                            console.error(
-                                'saveSkillDetail - competency_skills patch failed',
-                                errCs,
-                            );
-                            // don't throw here; continue to other pivot attempts
-                        }
-                    }
-                }
-            } catch (errCsAll: unknown) {
-                void errCsAll;
-            }
-
-            // Ensure we unwrap refs to actual objects (avoid returning the Ref itself)
-            const comp2: any =
-                selectedChild.value && typeof selectedChild.value === 'object'
-                    ? (selectedChild.value ?? null)
-                    : null;
-            const parentCap: any =
-                focusedNode.value && typeof focusedNode.value === 'object'
-                    ? (focusedNode.value ?? null)
-                    : null;
-            const scenarioId = props.scenario?.id ?? null;
-            const compId =
-                comp2?.compId ?? comp2?.raw?.id ?? Math.abs(comp2?.id || 0);
-            const capId = parentCap?.id ?? parentCap?.raw?.id ?? null;
-            if (scenarioId && capId && compId) {
-                const pivotPayload: any = {
-                    required_level: skillPivotRequiredLevel.value,
-                    priority: skillPivotPriority.value,
-                    strategic_weight: skillPivotWeight.value,
-                    weight: skillPivotWeight.value,
-                    rationale: skillPivotRationale.value?.trim() ?? undefined,
-                    is_required: !!skillPivotIsRequired.value,
-                };
-                Object.keys(pivotPayload).forEach(
-                    (k) =>
-                        pivotPayload[k] === undefined && delete pivotPayload[k],
-                );
-                if (Object.keys(pivotPayload).length > 0) {
-                    // Primary endpoint: scenario-scoped capability->competency update
-                    try {
-                        await api.patch(
-                            `/api/strategic-planning/scenarios/${scenarioId}/capabilities/${capId}/competencies/${compId}`,
-                            pivotPayload,
-                        );
-                        showSuccess('Atributos de competencia actualizados');
-                    } catch (errPrimary: unknown) {
-                        // fallback: try pivot-specific endpoint if pivot had id
-                        const pivotId =
-                            comp2?.raw?.pivot?.id ??
-                            comp2?.raw?.capability_pivot?.id ??
-                            null;
-                        if (pivotId) {
-                            try {
-                                await api.patch(
-                                    `/api/capability-competencies/${pivotId}`,
-                                    pivotPayload,
-                                );
-                                showSuccess(
-                                    'Atributos de competencia actualizados (pivot)',
-                                );
-                            } catch (errPivot: unknown) {
-                                console.error(
-                                    'saveSkillDetail - pivot patch fallback failed',
-                                    errPivot,
-                                );
-                                showError(
-                                    'Error guardando atributos de competencia',
-                                );
-                            }
-                        } else {
-                            console.error(
-                                'saveSkillDetail - pivot patch primary failed',
-                                errPrimary,
-                            );
-                            showError(
-                                'Error guardando atributos de competencia',
-                            );
-                        }
-                    }
-                }
-            }
-        } catch (errPivotAll: unknown) {
-            void errPivotAll;
-        }
-
-        // Refresh skill entity from API (authoritative source)
-        let freshSkill: any = null;
-        try {
-            const skillResp: any = await api.get(`/api/skills/${skillId}`);
-            const data = skillResp?.data ?? skillResp;
-            // API returns array, extract first element if needed
-            freshSkill = Array.isArray(data) ? data[0] : data;
-        } catch (errRef: unknown) {
-            console.error('Failed to refresh skill after save', errRef);
-        }
-
-        // Update skill data using hierarchical update composable
-        if (freshSkill && typeof freshSkill.id !== 'undefined') {
-            const realCompId =
-                (selectedChild.value as any)?.compId ??
-                (selectedChild.value as any)?.raw?.id;
-
-            // Use composable to update all data sources (leaf to root)
-            await hierarchicalUpdate.update('skill', freshSkill, realCompId);
-
-            // Update selectedSkillDetail with fresh data
-            selectedSkillDetail.value = freshSkill;
-        }
-
+        await updateSkillEntity(skillId);
+        await updateSkillPivotsCombined();
+        await refreshSkillLocalData(skillId);
         skillDetailDialogVisible.value = false;
-    } catch (errAll: unknown) {
-        // already reported
+    } catch (error_: unknown) {
+        console.error('[saveSkillDetail] Error in save flow', error_);
     } finally {
-        try {
-            console.debug(
-                '[saveSkillDetail] finished, savingSkillDetail:',
-                savingSkillDetail.value,
-            );
-        } catch (e) {
-            void e;
-        }
         savingSkillDetail.value = false;
     }
 }
@@ -4683,16 +4917,19 @@ watch(createSkillDialogVisible, (visible) => {
 // Expose saveSkillDetail for debugging from browser console
 onMounted(() => {
     try {
-        (window as any).__saveSkillDetail = saveSkillDetail;
-    } catch (e) {
-        void e;
+        (globalThis as any).__saveSkillDetail = saveSkillDetail;
+    } catch (error_: unknown) {
+        console.warn('[onMounted] Error exposing saveSkillDetail', error_);
     }
 });
 onBeforeUnmount(() => {
     try {
-        delete (window as any).__saveSkillDetail;
-    } catch (e) {
-        void e;
+        delete (globalThis as any).__saveSkillDetail;
+    } catch (error_: unknown) {
+        console.warn(
+            '[onBeforeUnmount] Error deleting saveSkillDetail',
+            error_,
+        );
     }
 });
 
@@ -4721,10 +4958,9 @@ function expandCompetencies(
     const toShow = comps.slice(0, limit);
     if (comps.length > maxDisplay) {
         try {
-            showError &&
-                showError(`Solo se muestran hasta ${maxDisplay} competencias`);
+            showError(`Solo se muestran hasta ${maxDisplay} competencias`);
         } catch (err: unknown) {
-            void err;
+            //
         }
     }
 
@@ -4876,8 +5112,8 @@ function expandCompetencies(
                 sidesOpts,
                 selectedIdx >= 0 ? selectedIdx : null,
             );
-        } catch (err: unknown) {
-            console.debug('sides layout compute failed', err);
+        } catch (error_: unknown) {
+            console.debug('sides layout compute failed', error_);
             positions = [];
         }
     } else {
@@ -4945,7 +5181,7 @@ function expandCompetencies(
             animScale: 0.84,
             animOpacity: 0,
             animDelay: delay,
-            animFilter: 'blur(6px) drop-shadow(0 10px 18px rgba(2,6,23,0.36))',
+            animFilter: 'blur(6px) drop-(0 10px 18px rgba(2,6,23,0.36))',
             animTargetX: pos.x,
             animTargetY: clampYFromLayout(pos.y),
             is_critical: false,
@@ -4990,107 +5226,6 @@ function grandChildNodeById(id: number) {
     return grandChildNodes.value.find((n) => n.id === id) || null;
 }
 
-// NOTA: expandSkills ahora viene del composable useScenarioLayout
-// La siguiente función se mantiene comentada para referencia histórica
-/*
-function expandSkills(node: any, initialPos?: { x: number; y: number }, opts: { layout?: 'auto' | 'radial' | 'matrix' | 'sides' } = {}) {
-    grandChildNodes.value = [];
-    grandChildEdges.value = [];
-    const skills = Array.isArray(node.skills) ? node.skills : (node.raw?.skills ?? []);
-    if (!Array.isArray(skills) || skills.length === 0) return;
-    const limit = LAYOUT_CONFIG.skill.maxDisplay;
-    const toShow = skills.slice(0, limit);
-    // Allow caller to provide the parent's final map coords via initialPos (from getNodeMapCenter)
-    // Otherwise prefer the rendered coordinates (renderedNodeById) so radial layout matches actual render positions
-    const renderedParent = renderedNodeById(node.id) ?? undefined;
-    const cx = (initialPos && typeof initialPos.x === 'number')
-        ? initialPos.x
-        : (renderedParent && typeof renderedParent.x === 'number')
-            ? renderedParent.x
-            : (node.x ?? Math.round(width.value / 2));
-    const parentY = (initialPos && typeof initialPos.y === 'number')
-        ? initialPos.y
-        : (renderedParent && typeof renderedParent.y === 'number')
-            ? renderedParent.y
-            : (node.y ?? Math.round(height.value / 2));
-    const SKILL_PARENT_OFFSET_BASE = LAYOUT_CONFIG.skill.radial.offsetY;
-    const SKILL_PARENT_OFFSET = Math.round(SKILL_PARENT_OFFSET_BASE * (1 + (LAYOUT_CONFIG.skill.radial.offsetFactor ?? 0)));
-    const SKILL_DROP_EXTRA = props.visualConfig?.skillDrop ?? props.competencyLayout?.skillDrop ?? 18;
-    const topY = Math.round(parentY + SKILL_PARENT_OFFSET + SKILL_DROP_EXTRA);
-    
-    // Decide layout for skills (support 'auto'|'radial'|'matrix'|'sides')
-    const layoutOpt = opts?.layout ?? (props.visualConfig?.skillLayout as any) ?? undefined;
-    const configDefaultLayout = (LAYOUT_CONFIG.skill && (LAYOUT_CONFIG.skill as any).defaultLayout) ? (LAYOUT_CONFIG.skill as any).defaultLayout : 'auto';
-    const layout = decideCompetencyLayout(layoutOpt as any, false, toShow.length, configDefaultLayout as any);
-    console.debug && console.debug('[expandSkills] layout:', layout, 'count:', toShow.length);
-
-    // Compute positions according to chosen layout
-    let positions: any[] = [];
-    if (layout === 'radial') {
-        // radial distribution
-        const radius = LAYOUT_CONFIG.skill.radial.radius;
-        const startAngle = LAYOUT_CONFIG.skill.radial.startAngle;
-        const endAngle = LAYOUT_CONFIG.skill.radial.endAngle;
-        const angleRange = endAngle - startAngle;
-        const angleStep = angleRange / Math.max(1, toShow.length - 1);
-        positions = toShow.map((sk: any, i: number) => {
-            const angle = startAngle + i * angleStep;
-            const x = Math.round(cx + radius * Math.cos(angle));
-            const y = Math.round(topY + radius * Math.sin(angle));
-            return { x, y };
-        });
-    } else if (layout === 'sides') {
-        // sides layout (left/right)
-        const sidesOpts = (LAYOUT_CONFIG.skill as any).sides ?? { hSpacing: 120, vSpacing: 70, parentOffset: 80, selectedOffsetMultiplier: 0.75 };
-        try {
-            positions = computeSidesPositions(toShow.length, cx, parentY, sidesOpts, null);
-        } catch (err: unknown) { void err; positions = []; }
-    } else {
-        // matrix / linear layout (use matrixVariants to choose rows/cols similar to competencies)
-        const matrixVariants = (LAYOUT_CONFIG.skill && (LAYOUT_CONFIG.skill as any).matrixVariants) ? (LAYOUT_CONFIG.skill as any).matrixVariants : (LAYOUT_CONFIG.competency && (LAYOUT_CONFIG.competency as any).matrixVariants) ? (LAYOUT_CONFIG.competency as any).matrixVariants : [];
-        try {
-            const variant = chooseMatrixVariant(toShow.length, matrixVariants, LAYOUT_CONFIG.skill.maxDisplay);
-            const rows = variant.rows;
-            const cols = variant.cols;
-            positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: LAYOUT_CONFIG.skill.linear.hSpacing, vSpacing: LAYOUT_CONFIG.skill.linear.vSpacing });
-        } catch (err: unknown) {
-            const rows = 1;
-            const cols = Math.min(4, toShow.length);
-            positions = computeMatrixPositions(toShow.length, cx, topY, { rows, cols, hSpacing: LAYOUT_CONFIG.skill.linear.hSpacing, vSpacing: LAYOUT_CONFIG.skill.linear.vSpacing });
-        }
-    }
-
-    const built: any[] = [];
-    toShow.forEach((sk: any, i: number) => {
-        const pos = positions[i] || { x: cx, y: topY };
-        const id = -(Math.abs(node.id) * 100000 + i + 1);
-        const delay = Math.max(0, Math.floor(i / 4) * (LAYOUT_CONFIG.animations.skillStaggerRow ?? 20) + (i % 4) * (LAYOUT_CONFIG.animations.skillStaggerCol ?? 8));
-        const item = {
-            id,
-            name: sk.name ?? sk,
-            x: initialPos?.x ?? (node.x ?? cx),
-            y: initialPos?.y ?? (node.y ?? parentY),
-            animScale: 0.8,
-            animOpacity: 0,
-            animDelay: delay,
-            animTargetX: pos.x,
-            animTargetY: clampYFromLayout(pos.y),
-            raw: sk,
-        } as any;
-        built.push(item);
-        grandChildEdges.value.push({ source: node.id, target: id });
-    });
-    grandChildNodes.value = built.slice();
-    nextTick(() => {
-        grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, x: g.animTargetX ?? g.x, y: g.animTargetY ?? g.y, animScale: 1, animOpacity: 1, animFilter: 'none' }));
-        setTimeout(() => {
-            grandChildNodes.value = grandChildNodes.value.map((g: any) => ({ ...g, animScale: 1 }));
-            nextTick(() => { grandChildNodes.value.forEach((g: any) => { delete g.animTargetX; delete g.animTargetY; delete g.animDelay; delete g.animFilter; }); });
-        }, LAYOUT_CONFIG.animations.skillEntryFinalize ?? 140);
-    });
-}
-*/
-
 // Animación de colapso para nodos nietos (skills).
 function collapseGrandChildren(animated = false, duration?: number) {
     try {
@@ -5123,52 +5258,49 @@ function collapseGrandChildren(animated = false, duration?: number) {
                 ...ed,
                 animOpacity: 0,
             }));
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn('[collapseGrandChildren] Error fading edges', error_);
         }
         setTimeout(() => {
             try {
                 grandChildEdges.value = [];
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[collapseGrandChildren] Error clearing edges',
+                    error_,
+                );
             }
         }, duration + 10);
         // remove nodes after animation finishes
         setTimeout(() => {
             try {
                 grandChildNodes.value = [];
-            } catch (err: unknown) {
-                void err;
+            } catch (error_: unknown) {
+                console.warn(
+                    '[collapseGrandChildren] Error clearing nodes',
+                    error_,
+                );
             }
         }, duration + 10);
         try {
             /* edges will be removed after opacity animation above */
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[collapseGrandChildren] Error in edge removal block',
+                error_,
+            );
         }
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[collapseGrandChildren] Outer error in collapse', error_);
     }
 }
-
-// NOTA: clampY ahora viene del composable useScenarioLayout
-// La siguiente función se elimina para evitar redeclaración
-/*
-function clampY(y: number) {
-    const minY = (LAYOUT_CONFIG.clamp && typeof LAYOUT_CONFIG.clamp.minY === 'number') ? LAYOUT_CONFIG.clamp.minY : 40;
-    const bottomPadding = (LAYOUT_CONFIG.clamp && typeof LAYOUT_CONFIG.clamp.bottomPadding === 'number') ? LAYOUT_CONFIG.clamp.bottomPadding : 40;
-    const minViewportHeight = (LAYOUT_CONFIG.clamp && typeof LAYOUT_CONFIG.clamp.minViewportHeight === 'number') ? LAYOUT_CONFIG.clamp.minViewportHeight : 120;
-    const maxY = Math.max(minViewportHeight, height.value - bottomPadding);
-    return Math.min(Math.max(y, minY), maxY);
-}
-*/
 
 function startDrag(node: any, event: PointerEvent) {
     dragging.value = node;
     dragOffset.value.x = event.clientX - node.x;
     dragOffset.value.y = event.clientY - node.y;
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', onPointerUp);
+    globalThis.addEventListener('pointermove', onPointerMove);
+    globalThis.addEventListener('pointerup', onPointerUp);
 }
 
 // --- Competency API helpers ---
@@ -5184,7 +5316,11 @@ async function fetchAvailableCompetencies() {
         availableExistingCompetencies.value = Array.isArray(all)
             ? all.filter((c: any) => !attached.includes(c.id))
             : [];
-    } catch (err: unknown) {
+    } catch (error_: unknown) {
+        console.warn(
+            '[fetchAvailableCompetencies] Error fetching competencies',
+            error_,
+        );
         availableExistingCompetencies.value = [];
     }
 }
@@ -5215,8 +5351,11 @@ async function fetchSkillsForCompetency(compId: number) {
                     }
                 }
             }
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[fetchSkillsForCompetency] Error in tree fetch fallback',
+                error_,
+            );
         }
 
         // 2) Try dedicated competency endpoints (we added these routes server-side):
@@ -5224,8 +5363,11 @@ async function fetchSkillsForCompetency(compId: number) {
             const r: any = await api.get(`/api/competencies/${compId}/skills`);
             const s = r?.data ?? r;
             if (Array.isArray(s)) return s;
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[fetchSkillsForCompetency] Error in skill fetch fallback',
+                error_,
+            );
         }
 
         try {
@@ -5235,8 +5377,11 @@ async function fetchSkillsForCompetency(compId: number) {
                 if (Array.isArray(obj.skills)) return obj.skills;
                 if (Array.isArray(obj.data?.skills)) return obj.data.skills;
             }
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[fetchSkillsForCompetency] Error in competency fetch fallback',
+                error_,
+            );
         }
 
         // 3) Fallback: try generic skills endpoint and filter locally (best-effort)
@@ -5265,11 +5410,17 @@ async function fetchSkillsForCompetency(compId: number) {
                 return false;
             });
             return filtered;
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[fetchSkillsForCompetency] Error in generic skill fallback',
+                error_,
+            );
         }
-    } catch (err: unknown) {
-        void err;
+    } catch (error_: unknown) {
+        console.error(
+            '[fetchSkillsForCompetency] Outer error in skill fetch',
+            error_,
+        );
     } finally {
         loadingSkills.value = false;
     }
@@ -5388,17 +5539,20 @@ async function createAndAttachComp() {
                             createdCompId,
                             payload,
                         );
-                    } catch (err: unknown) {
+                    } catch (error_: unknown) {
                         console.error(
                             '[createAndAttachComp] failed creating skill',
                             sName,
-                            err,
+                            error_,
                         );
                     }
                 }
             }
-        } catch (err: unknown) {
-            void err;
+        } catch (error_: unknown) {
+            console.warn(
+                '[createAndAttachComp] Error in skill creation loop',
+                error_,
+            );
         }
 
         createCompDialogVisible.value = false;
@@ -5426,8 +5580,8 @@ function onClickCreateAndAttachComp() {
             name: newCompName.value,
             cap: displayNode.value?.id,
         });
-    } catch (err) {
-        void err;
+    } catch (error_: unknown) {
+        console.warn('[onClickCreateAndAttachComp] Debug log failed', error_);
     }
 
     // quick client-side validation to give immediate feedback
@@ -5491,7 +5645,11 @@ async function attachExistingComp() {
                     y: parent.y ?? 0,
                 });
             showSuccess('Competencia asociada correctamente');
-        } catch (err2: unknown) {
+        } catch (error_: unknown) {
+            console.error(
+                '[attachExistingComp] Error in fallback association',
+                error_,
+            );
             showError('Error asociando competencia');
         }
     }
@@ -5551,16 +5709,16 @@ async function saveSelectedChild() {
                         ' success, response:',
                     patchRes,
                 );
-            } catch (errComp: unknown) {
+            } catch (error_: unknown) {
                 console.error(
                     '[saveSelectedChild] ERROR in PATCH /api/competencies/' +
                         compId,
-                    (errComp as any)?.response?.data ?? errComp,
+                    (error_ as any)?.response?.data ?? error_,
                 );
                 showError(
                     'Error actualizando competencia: ' +
-                        ((errComp as any)?.response?.data?.message ||
-                            (errComp as any)?.message ||
+                        ((error_ as any)?.response?.data?.message ||
+                            (error_ as any)?.message ||
                             'Unknown error'),
                 );
                 return;
@@ -5684,8 +5842,8 @@ async function onPointerUp() {
     if (dragging.value) {
         dragging.value = null;
     }
-    window.removeEventListener('pointermove', onPointerMove);
-    window.removeEventListener('pointerup', onPointerUp);
+    globalThis.removeEventListener('pointermove', onPointerMove);
+    globalThis.removeEventListener('pointerup', onPointerUp);
 
     // If positions changed during drag, save automatically
     if (positionsDirty.value) {
@@ -5734,7 +5892,7 @@ const savePositions = async () => {
 onMounted(async () => {
     // expose helper for quick debugging in browser console
     try {
-        (window as any).__nodeLevel = nodeLevel;
+        (globalThis as any).__nodeLevel = nodeLevel;
     } catch (err: unknown) {
         void err;
     }
@@ -5832,7 +5990,7 @@ onMounted(async () => {
             const top = el?.getBoundingClientRect().top ?? 0;
             containerHeight = Math.max(
                 320,
-                Math.round(window.innerHeight - top - 24),
+                Math.round(globalThis.innerHeight - top - 24),
             );
         }
         const controlsEl = el?.querySelector(
@@ -5853,7 +6011,7 @@ onMounted(async () => {
     };
     applySize();
     let ro: ResizeObserver | null = null;
-    if (el && (window as any).ResizeObserver) {
+    if (el && (globalThis as any).ResizeObserver) {
         ro = new ResizeObserver((entries: any) => {
             for (const entry of entries) {
                 const w = Math.round(entry.contentRect.width);
@@ -5864,8 +6022,8 @@ onMounted(async () => {
         ro.observe(el);
     }
     // fullscreen change listener removed (UI fullscreen button disabled)
-    const onWindowResize = () => applySize();
-    window.addEventListener('resize', onWindowResize);
+    const onglobalThisResize = () => applySize();
+    globalThis.addEventListener('resize', onglobalThisResize);
     // attach scroll listener for edit form slider
     editFormScrollHandler = (ev: Event) => syncSliderFromScroll();
     // attempt to attach after a tick in case element not yet rendered
@@ -5885,7 +6043,7 @@ onMounted(async () => {
             );
         editFormScrollHandler = null;
         if (ro) ro.disconnect();
-        window.removeEventListener('resize', onWindowResize);
+        globalThis.removeEventListener('resize', onglobalThisResize);
     });
 });
 
@@ -6376,7 +6534,7 @@ if (!edges.value) edges.value = [];
                         <!-- scenario arrow removed: prefer clean lines without arrowheads -->
 
                         <filter
-                            id="innerShadow"
+                            id="inner"
                             x="-20%"
                             y="-20%"
                             width="140%"
@@ -8297,7 +8455,7 @@ if (!edges.value) edges.value = [];
     inset: 8px;
     border-radius: 14px;
     pointer-events: none;
-    box-shadow:
+    box-:
         inset 0 1px 0 rgba(255, 255, 255, 0.04),
         inset 0 -24px 48px rgba(11, 22, 48, 0.12);
     z-index: 10;
@@ -8320,7 +8478,7 @@ if (!edges.value) edges.value = [];
     color: #fff;
     padding: 16px;
     border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6);
+    box-: 0 12px 40px rgba(2, 6, 23, 0.6);
     z-index: 60;
     overflow: auto;
 }
@@ -8437,7 +8595,7 @@ if (!edges.value) edges.value = [];
 @keyframes pulse {
     0% {
         transform: scale(1);
-        filter: drop-shadow(0 0 0 rgba(54, 52, 52, 0));
+        filter: drop-(0 0 0 rgba(54, 52, 52, 0));
     }
     50% {
         transform: scale(1.03);
@@ -8631,13 +8789,13 @@ if (!edges.value) edges.value = [];
 }
 
 .node-details-sidebar.theme-dark {
-    box-shadow:
+    box-:
         0 8px 30px rgba(2, 6, 23, 0.6),
         inset 0 1px 0 rgba(255, 255, 255, 0.02);
     border-left: 1px solid rgba(255, 255, 255, 0.04);
 }
 .node-details-sidebar.theme-light {
-    box-shadow:
+    box-:
         0 8px 24px rgba(2, 6, 23, 0.28),
         inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
@@ -8710,7 +8868,7 @@ if (!edges.value) edges.value = [];
     min-width: 40px;
     border-radius: 999px;
     background: rgba(0, 0, 0, 0.06);
-    box-shadow: 0 6px 18px rgba(2, 6, 23, 0.18);
+    box-: 0 6px 18px rgba(2, 6, 23, 0.18);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -8730,7 +8888,7 @@ if (!edges.value) edges.value = [];
     background: var(--v-theme-surface, rgba(11, 16, 41, 0.98));
     border-radius: 10px;
     padding: 6px 8px;
-    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
+    box-: 0 10px 30px rgba(2, 6, 23, 0.6);
     color: var(--v-theme-on-surface, #e6eef8);
     min-width: 260px;
     max-width: 340px;
@@ -8785,13 +8943,13 @@ if (!edges.value) edges.value = [];
     );
     color: var(--v-theme-on-surface, #e6eef8);
     border-radius: 12px;
-    box-shadow: 0 18px 50px rgba(2, 6, 23, 0.7);
+    box-: 0 18px 50px rgba(2, 6, 23, 0.7);
 }
 .dialog-light {
     background: linear-gradient(180deg, #ffffff, #f6fbff);
     color: #0b2233;
     border-radius: 12px;
-    box-shadow: 0 12px 30px rgba(8, 12, 30, 0.08);
+    box-: 0 12px 30px rgba(8, 12, 30, 0.08);
 }
 
 .dialog-dark .v-card-title,
@@ -8823,7 +8981,7 @@ if (!edges.value) edges.value = [];
     border-radius: 10px;
     font-weight: 700;
     font-size: 14px;
-    box-shadow: 0 8px 30px rgba(2, 6, 23, 0.45);
+    box-: 0 8px 30px rgba(2, 6, 23, 0.45);
     backdrop-filter: blur(6px);
 }
 .svg-title-line {

@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // Determinar la URL base según el entorno
 const getBaseUrl = () => {
-    if (typeof window !== 'undefined') {
-        const hostname = window.location.hostname;
+    if (typeof globalThis !== 'undefined') {
+        const hostname = globalThis.location.hostname;
         if (hostname === 'esalud.appchain.cl') {
             return 'https://esalud.appchain.cl';
         }
@@ -101,8 +101,8 @@ axios.interceptors.response.use(
                     authStore.logout();
 
                     // Opcional: redirigir al login
-                    if (typeof window !== 'undefined') {
-                        window.location.href = '/login';
+                    if (typeof globalThis !== 'undefined') {
+                        globalThis.location.href = '/login';
                     }
                 } catch (importError) {
                     console.error('Error importing auth store:', importError);
@@ -124,10 +124,10 @@ axios.interceptors.response.use(
 
                 // Redirigir al login si estamos en el browser
                 if (
-                    typeof window !== 'undefined' &&
-                    window.location.pathname !== '/login'
+                    typeof globalThis !== 'undefined' &&
+                    globalThis.location.pathname !== '/login'
                 ) {
-                    window.location.href = '/login';
+                    globalThis.location.href = '/login';
                 }
             } catch (importError) {
                 console.error('Error importing auth store:', importError);

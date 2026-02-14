@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import IncubatedReviewModal from '@/components/IncubatedReviewModal.vue';
-import ChangeSetModal from '@/components/StrategicPlanningScenarios/ChangeSetModal.vue';
-import StatusTimeline from '@/components/StrategicPlanningScenarios/StatusTimeline.vue';
-import VersionHistoryModal from '@/components/StrategicPlanningScenarios/VersionHistoryModal.vue';
+import ChangeSetModal from '@/components/ScenarioPlanning/ChangeSetModal.vue';
+import StatusTimeline from '@/components/ScenarioPlanning/StatusTimeline.vue';
+import VersionHistoryModal from '@/components/ScenarioPlanning/VersionHistoryModal.vue';
 import RoleCompetencyMatrix from '@/components/WorkforcePlanning/Step2/RoleCompetencyMatrix.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import AppLayout from '@/layouts/AppLayout.vue';
-// @ts-ignore - Inertia module may not be available at type-check time
 import { router, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
 import GenerateWizard from './GenerateWizard/GenerateWizard.vue';
@@ -144,8 +143,8 @@ const showAcceptedPromptDialog = ref(false);
 
 const scenarioId = computed(() => {
     const value =
-        typeof props.id === 'string' ? parseInt(props.id, 10) : props.id;
-    return isNaN(value) ? 0 : value;
+        typeof props.id === 'string' ? Number.parseInt(props.id, 10) : props.id;
+    return Number.isNaN(value) ? 0 : value;
 });
 
 // Compute whether the current user can view the accepted prompt (defensive UI-side check)
@@ -161,22 +160,8 @@ const canViewAcceptedPrompt = computed(() => {
         return scenario.value
             ? (scenario.value.created_by ?? null) === user.id
             : false;
-    } catch (e) {
+    } catch {
         return false;
-    }
-});
-
-// detect optional view mode from querystring (e.g., ?view=map)
-const viewMode = computed(() => {
-    try {
-        const url = (page as any).url || window.location.href;
-        const params = new URLSearchParams(
-            new URL(url, window.location.origin).search,
-        );
-        return params.get('view') || null;
-    } catch (e) {
-        void e;
-        return null;
     }
 });
 
@@ -255,8 +240,7 @@ const loadScenario = async () => {
         await loadCapabilityTree();
         // load import audit for associated generation (if any)
         if (scenario.value?.source_generation_id) await loadImportAudit();
-    } catch (e) {
-        void e;
+    } catch {
         showError('No se pudo cargar el escenario');
     } finally {
         loading.value = false;
@@ -290,7 +274,7 @@ const openIncubatedReview = (cap: any) => {
     showIncubatedReview.value = true;
 };
 
-const onPromoted = async (data: any) => {
+const onPromoted = async () => {
     // refresh tree after single promote
     await loadCapabilityTree();
     // also refresh the scenario to update counts
@@ -325,10 +309,6 @@ const loadImportAudit = async () => {
     } finally {
         loadingImportAudit.value = false;
     }
-};
-
-const goToCapability = (id: number) => {
-    router.visit(`/capabilities/${id}`);
 };
 
 const goToCompetency = (id: number) => {

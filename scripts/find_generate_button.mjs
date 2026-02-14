@@ -1,5 +1,4 @@
 import { chromium } from 'playwright';
-import path from 'path';
 
 (async () => {
   const base = process.env.BASE_URL || 'http://127.0.0.1:8000';
@@ -23,7 +22,7 @@ import path from 'path';
   ];
 
   for (const sel of selectors) {
-    const found = await page.$$eval(sel, els => els.map(e => ({ outer: e.outerHTML, text: e.textContent?.trim(), title: (e.getAttribute && e.getAttribute('title')) || null, aria: (e.getAttribute && e.getAttribute('aria-label')) || null, dataTest: (e.getAttribute && e.getAttribute('data-test')) || null })));
+    const found = await page.$$eval(sel, els => els.map(e => ({ outer: e.outerHTML, text: e.textContent?.trim(), title: (e.getAttribute && e.getAttribute('title')) || null, aria: (e.getAttribute && e.getAttribute('aria-label')) || null, dataTest: (e.getAttribute && e.dataset.test) || null })));
     if (found && found.length) {
       console.log(`MATCH for selector: ${sel}`);
       console.log(JSON.stringify(found.slice(0,5), null, 2));
