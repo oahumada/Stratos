@@ -4,7 +4,6 @@
 echo "[husky] pre-push: running quick test suite (Pest + Vitest)"
 
 # Run PHP tests (Pest). Assumes composer deps installed.
-cd src || exit 1
 if [ -f composer.json ]; then
   echo "Running Pest..."
   composer test || {
@@ -12,7 +11,7 @@ if [ -f composer.json ]; then
     exit 1
   }
 else
-  echo "composer.json not found in src; skipping Pest"
+  echo "composer.json not found; skipping Pest"
 fi
 
 echo "Running frontend unit tests (Vitest)..."
