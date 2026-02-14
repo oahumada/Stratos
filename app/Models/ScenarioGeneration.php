@@ -30,6 +30,7 @@ class ScenarioGeneration extends Model
         'model_version',
         'redacted',
         'scenario_id',
+        'embedding',
     ];
 
     protected $casts = [

@@ -36,6 +36,15 @@ Se ha completado la implementación funcional de la **Fase 1** (Core & Simulaci�
 - **Gestión de Portafolio Estratégico**: Asignación de responsabilidades y presupuesto para mitigar riesgos de viabilidad.
 - **Endpoint de Simulación**: `/api/strategic-planning/scenarios/simulate-import` disponible para pruebas E2E con datos mock.
 
+### Logro Clave: IA-Ready Role Competencies & Vector Search (14 Feb 2026)
+
+Se ha evolucionado la tabla pivote de competencias por rol y se ha habilitado el soporte vectorial en la base de datos:
+
+- **Estructura Evolucionada**: La tabla `role_competencies` ahora es un componente de decisión IA con campos de criticidad, estrategia sugerida (`buy`, `build`, `borrow`, `bot`) y tipo de cambio.
+- **pgvector Habilitado**: Extensión `vector` instalada y activa en PostgreSQL 17 para futuras búsquedas semánticas y matching inteligente.
+- **Autodocumentación**: Esquema enriquecido con comentarios SQL para que agentes IA entiendan semánticamente el modelo de datos.
+- **Documentación Técnica**: [GUIA_CAMBIO_PIVOTE_ROLE_COMPETENCIES.md](GUIA_CAMBIO_PIVOTE_ROLE_COMPETENCIES.md) y memoria detallada en [MEMORY_RoleCompetencies_IA_2026-02-14.md](MEMORY_RoleCompetencies_IA_2026-02-14.md).
+
 ---
 
 ## 🎯 PATRÓN CRUD CONSOLIDADO (31 Diciembre 2025)

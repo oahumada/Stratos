@@ -12,7 +12,7 @@ class Competency extends Model
 
     protected $table = 'competencies';
 
-    protected $fillable = ['organization_id', 'llm_id', 'name', 'description'];
+    protected $fillable = ['organization_id', 'llm_id', 'name', 'description', 'embedding'];
 
     protected $casts = [
         'llm_id' => 'string',

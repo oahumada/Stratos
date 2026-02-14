@@ -13,7 +13,7 @@ class Roles extends Model
 {
     protected $table = 'roles';
 
-    protected $fillable = ['organization_id', 'name', 'level', 'description'];
+    protected $fillable = ['organization_id', 'name', 'level', 'description', 'embedding'];
 
     protected $casts = [
         'level' => 'string',

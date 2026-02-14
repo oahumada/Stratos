@@ -12,6 +12,8 @@
 *.tmp
 *.bak
 *.swp
+*.txt
 .DS_Store
 .idea
 .vscode
+.env

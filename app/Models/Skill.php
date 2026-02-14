@@ -20,6 +20,7 @@ class Skill extends Model
         'is_critical',
         'scope_type',
         'domain_tag',
+        'embedding',
     ];
 
     // Defaults applied when creating via Eloquent to match DB defaults
