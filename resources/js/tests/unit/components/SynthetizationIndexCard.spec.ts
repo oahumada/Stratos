@@ -5,7 +5,13 @@ import SynthetizationIndexCard from '../../../components/TalentEngineering/Synth
 describe('SynthetizationIndexCard', () => {
     it('renders index value', () => {
         const wrapper = mount(SynthetizationIndexCard, {
-            props: { index: 42 },
+            props: {
+                suggestedRoles: [
+                    {
+                        talent_composition: { synthetic_percentage: 42 },
+                    } as any,
+                ],
+            },
             global: {
                 stubs: {
                     'v-card': { template: '<div><slot/></div>' },

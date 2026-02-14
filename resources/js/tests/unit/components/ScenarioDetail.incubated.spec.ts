@@ -25,13 +25,13 @@ vi.doMock('@/composables/useApi', () => ({
 }));
 
 // Stub heavy child components to avoid importing Vuetify internals/CSS during test
-vi.mock('@/components/StrategicPlanningScenarios/ChangeSetModal.vue', () => ({
+vi.mock('@/components/ScenarioPlanning/ChangeSetModal.vue', () => ({
     default: { template: '<div />' },
 }));
-vi.mock('@/components/WorkforcePlanning/StatusTimeline.vue', () => ({
+vi.mock('@/components/ScenarioPlanning/StatusTimeline.vue', () => ({
     default: { template: '<div />' },
 }));
-vi.mock('@/components/WorkforcePlanning/VersionHistoryModal.vue', () => ({
+vi.mock('@/components/ScenarioPlanning/VersionHistoryModal.vue', () => ({
     default: { template: '<div />' },
 }));
 vi.mock(
