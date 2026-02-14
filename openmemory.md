@@ -108,7 +108,22 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
   - **Consultoras de RRHH Tradicionales:** Venden PPTs estáticas de "Gestión del cambio" y "Diccionarios de Competencias" obsoletos. Stratos automatiza su negocio de alto margen.
   - **Headhunters de Volumen:** Stratos y su predicción de talento interno/sintético hacen irrelevante la búsqueda externa masiva de perfiles estándar.
 
-#### 11. Cierre de Sesión (2026-02-12 02:42)
+#### 11. Cierre de Sesión (2026-02-14 03:30) - Refactorización y Estabilización de CI/CD
+- **Refactorización de Componentes:**
+    - Eliminado código muerto: `goToCapability` en `ScenarioDetail.vue`.
+    - Movidos componentes de `StrategicPlanningScenarios` a `ScenarioPlanning` para mejorar la organización del proyecto.
+- **Correcciones de Configuración:**
+    - **Husky & Hooks:** Se corrigieron los hooks `.husky/pre-push` y `.husky/commit-msg` eliminando boilerplate deprecado y ajustando la ruta de ejecución de tests (root en lugar de `src`).
+    - **Module Loading:** Renombrado `commitlint.config.js` a `.cjs` para resolver conflictos de módulos CommonJS/ESM.
+- **Fiabilidad de Tests:**
+    - **Actualización de Imports:** Se actualizaron las rutas de importación en múltiples tests unitarios y de integración (`ChangeSetModal.spec.ts`, `TransformModal.spec.ts`, `ScenarioDetail.incubated.spec.ts`) para reflejar la nueva estructura de directorios.
+    - **SynthetizationIndexCard:** Se corrigió el mock de props en `SynthetizationIndexCard.spec.ts` para coincidir con la interfaz real del componente.
+    - **TypeScript Fixes:** Se resolvieron errores de tipado en `TransformModal.integration.spec.ts`.
+- **Estado:**
+    - Todos los tests (35 passing) se ejecutan correctamente en el hook `pre-push`.
+    - Cambios pusheados exitosamente a `main`.
+
+#### 12. Cierre de Sesión (2026-02-12 02:42)
 - **Hito Alcanzado:** Se ha consolidado la **Madurez Conceptual de Stratos**. Ya no es solo un conjunto de features, sino una plataforma con filosofía, enemigos claros (Aplanadoras) y métricas de impacto real (IQ).
 - **Próximos Pasos (To-Do):**
   1. **Dashboard de IQ:** Diseñar la visualización de la "Cascada de Readiness".
