@@ -641,6 +641,80 @@ refreshSuggestedStrategiesForm.post = (args: { id: string | number } | [id: stri
 refreshSuggestedStrategies.form = refreshSuggestedStrategiesForm
 
 /**
+* @see \App\Http\Controllers\Api\ScenarioController::orchestrate
+* @see app/Http/Controllers/Api/ScenarioController.php:493
+* @route '/api/strategic-planning/scenarios/{id}/orchestrate'
+*/
+export const orchestrate = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: orchestrate.url(args, options),
+    method: 'post',
+})
+
+orchestrate.definition = {
+    methods: ["post"],
+    url: '/api/strategic-planning/scenarios/{id}/orchestrate',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::orchestrate
+* @see app/Http/Controllers/Api/ScenarioController.php:493
+* @route '/api/strategic-planning/scenarios/{id}/orchestrate'
+*/
+orchestrate.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            id: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        id: args.id,
+    }
+
+    return orchestrate.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::orchestrate
+* @see app/Http/Controllers/Api/ScenarioController.php:493
+* @route '/api/strategic-planning/scenarios/{id}/orchestrate'
+*/
+orchestrate.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: orchestrate.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::orchestrate
+* @see app/Http/Controllers/Api/ScenarioController.php:493
+* @route '/api/strategic-planning/scenarios/{id}/orchestrate'
+*/
+const orchestrateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: orchestrate.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::orchestrate
+* @see app/Http/Controllers/Api/ScenarioController.php:493
+* @route '/api/strategic-planning/scenarios/{id}/orchestrate'
+*/
+orchestrateForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: orchestrate.url(args, options),
+    method: 'post',
+})
+
+orchestrate.form = orchestrateForm
+
+/**
 * @see \App\Http\Controllers\Api\ScenarioController::getIQ
 * @see app/Http/Controllers/Api/ScenarioController.php:37
 * @route '/scenarios/{id}/iq'
@@ -984,6 +1058,6 @@ deriveAllSkillsForm.post = (args: { id: string | number } | [id: string | number
 
 deriveAllSkills.form = deriveAllSkillsForm
 
-const ScenarioController = { listScenarios, showScenario, getCapabilityTree, store, updateScenario, instantiateFromTemplate, calculateGaps, refreshSuggestedStrategies, getIQ, getCompetencyGaps, deriveSkills, deriveAllSkills }
+const ScenarioController = { listScenarios, showScenario, getCapabilityTree, store, updateScenario, instantiateFromTemplate, calculateGaps, refreshSuggestedStrategies, orchestrate, getIQ, getCompetencyGaps, deriveSkills, deriveAllSkills }
 
 export default ScenarioController

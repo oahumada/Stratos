@@ -3,6 +3,128 @@
 Este documento actúa como índice vivo (openmemory) del repositorio `oahumada/Stratos`.
 Se creó/actualizó automáticamente para registrar decisiones, implementaciones y referencias útiles.
 
+### Protocolos y Acuerdos Vivos
+
+- **Cierre de Sesión:** Si el usuario olvida cerrar la sesión explícitamente ("terminamos por ahora"), el asistente DEBE recordarlo para asegurar el registro en la memoria del proyecto.
+
+### Nota rápida (2026-02-12)
+
+- **Memory System Review:** Se revisó el sistema de documentación y memoria del proyecto.
+  - **Confirmación:** `openmemory.md` es la fuente de verdad viva y crítica para el contexto diario.
+  - **Acción:** Se reforzó la importancia de actualizar este archivo al finalizar sesiones de trabajo para evitar obsolescencia de contexto.
+  - **Estado:** El sistema de "Knowledge Management" via `docs/` + `openmemory.md` funciona correctamente, aunque con cierta deuda de limpieza en documentos antiguos.
+
+### Resumen Retroactivo (2026-02-06 a 2026-02-12)
+
+> **Nota:** Este bloque se reconstruyó analizando el historial de Git para cubrir el gap documental.
+
+- **2026-02-06 - ChangeSet & Revert Ops:**
+  - Se implementó la capacidad de **ignorar índices** específicos al aplicar un `ChangeSet`.
+  - Se añadió lógica en `ChangeSetService` para excluir operaciones marcadas como ignoradas durante la transacción.
+  - UI actualizada para permitir revertir operaciones individualmente antes de aplicar.
+
+### Features Recientes (Resumen Feb 2026)
+
+#### 1. Sistema de Versionado y Changelog
+- **Mecanismo:** Implementación de Semantic Versioning (Major.Minor.Patch) automatizado mediante commits convencionales (`feat`, `fix`, `chore`).
+- **Herramientas:** Scripts de automatización en `scripts/release.sh` y `scripts/commit.sh`.
+- **Efecto:** Generación automática de `CHANGELOG.md` y Tags de Git. Soporte extendido para **versionado de competencias y roles** (backfill incluído).
+
+#### 2. Generación de Escenarios Asistida por LLM
+- **Arquitectura:** Flujo asíncrono `Wizard UI` -> `Preview` -> `Job (Cola)` -> `Persistencia`.
+- **Integración:** Soporte principal para **Abacus AI** (con fallback a Mock/OpenAI).
+- **Capacidades:**
+  - **Streaming & Chunks:** Procesamiento de respuestas largas en tiempo real.
+  - **Redaction Service:** Eliminación automática de PII antes de persistir prompts/respuestas.
+  - **Auto-Import:** Flujo para transformar la respuesta del LLM ("llm_response") en entidades del sistema (`Scenario`, `Capabilities`, `Skills`).
+  - **Validación:** Esquema JSON estricto en prompts y validación server-side.
+
+#### 3. Modelo Conceptual: Arquetipos, Cubo y Pentágono
+- **Arquetipos de Rol:** Plantillas maestras inspiradas en la matriz Estratégico/Táctico/Operativo que definen el 80% de un rol (horizonte temporal, tipo de gestión). Permiten la herencia automática de competencias core.
+- **Cubo de Roles (Role Cube):** Modelo multidimensional para definir la identidad de un rol:
+  - **Eje X:** Arquetipo (Complejidad/Gestión)
+  - **Eje Y:** Maestría (1-5 Stratos)
+  - **Eje Z:** Proceso de Negocio (e.g., Lead-to-Cash)
+  - **Factor t:** Contexto/Ciclo Organizacional (Startup, Madurez, etc.)
+- **Pentágono de Competencias:** Visualización del ecosistema de competencias de un rol (Core, Dominio, Contextuales, Skills Atómicas, Persona).
+
+#### 4. Gestión de Talento y Ciclo de Vida
+- **Filosofía:** Stratos gestiona **Talento** (escenarios, capacidades, competencias), no solo personas.
+- **Tipología de Talento:** Humano, Sintético (IA/Bots) e Híbrido.
+- **Ciclo de Vida (Incubación -> Formalización):**
+  - **Incubación:** Roles/Competencias nacen como "embriones" en escenarios LLM.
+  - **Análisis:** Comparación con el catálogo para identificar transformación, extinción o mutación.
+  - **Formalización:** Al aprobar un escenario, los embriones se "nacen" en el catálogo oficial con versionado semántico (v1.0.0).
+- **Responsabilidad:** La IA propone y orquesta, pero **la responsabilidad final siempre recae en el humano**.
+
+#### 5. Diseño del Dominio Conceptual y Visión
+> **Principio Rector:** "Mantener la integridad conceptual para evitar construir un camello cuando se diseñó un columpio."
+
+- **Ecosistema de Contexto:** El sistema no es una colección de features, es un modelo coherente de **Orquestación de Viabilidad**.
+- **Objeto e Inspiración:**
+  - **No** es gestionar personas (HRIS tradicional).
+  - **Es** gestionar *Talento* (Humano/Sintético/Híbrido) frente a *Escenarios*.
+- **Restricción Arquitectónica:** Toda nueva funcionalidad debe alinearse con este dominio conceptual. No se admiten "parches" que contradigan la visión de orquestador proactivo.
+- **El Problema a Resolver:** Evitar modelar disfunciones heredadas ("mezcolanza de legados"). Stratos modela el *deber ser* estratégico.
+
+#### 6. Posicionamiento Estratégico: Meta-Orquestación
+- **Relación con el Ecosistema (Buk, SAP, Workday):** Stratos no compite en la operación transaccional (nómina, asistencia), sino que se sitúa **por encima** como la capa de inteligencia estratégica.
+- **El Futuro de la Operación:** Los flujos operativos serán eventualmente absorbidos ("borrados") por **Agentes de IA**.
+- **El Rol de Stratos:** Actúa como el **Coordinador y Orquestador** de este cambio, dirigiendo tanto al talento humano como a los agentes que operan los sistemas legados.
+- **Estructura de Poder:** Al controlar la estrategia, el modelado de escenarios y la asignación de recursos, Stratos ocupa el verdadero centro decisorio de la organización.
+
+#### 7. Métricas Estratégicas: Scenario IQ & Confidence
+- **Scenario IQ (0-100):** Medida cuantitativa de preparación organizacional para ejecutar un escenario específico.
+  - **Cálculo en Cascada:** Skill Readiness (N1) -> Competency Readiness (N2) -> Capability Readiness (N3) -> **Scenario IQ (N4)**.
+- **Confidence Score (0-1):** Calidad/Fiabilidad del dato (ej. Test Técnico = 1.0 vs Autoevaluación = 0.3). Permite distinguir entre "estamos listos" y "creemos estar listos".
+- **Aplicación (PES):** Permite simular impacto de Reskilling/Contratación y priorizar presupuesto donde más "mueva la aguja" estratégica.
+- **Talento 360:** Mecanismo de validación social y control que alimenta el sistema con información Just-in-Time, permitiendo ajustes oportunos.
+
+#### 8. Organización Inteligente y Métricas Dinámicas
+- **Concepto:** Stratos mide no solo el "estado" (foto), sino la **velocidad de cambio** (película).
+- **Índice de Adaptabilidad:** Métrica que indica cuán rápido la organización puede reconfigurar sus capacidades ante un nuevo escenario.
+- **Índice de Aprendizaje (Learning Velocity):** Velocidad a la que el talento cierra brechas de competencia.
+- **Memoria Organizacional:** Capacidad de **no repetir errores** (lecciones aprendidas integradas en el flujo).
+- **Simulación de Resiliencia:** "¿Qué tan bien podríamos enfrentar el desafío X?" (Stress testing organizacional).
+
+#### 9. Resumen de Sesión (2026-02-12) - Recuperación de Integridad Conceptual
+- **Objetivo:** Restaurar contexto perdido (gap Feb 6-12) y blindar la visión del sistema.
+- **Logros:**
+  1. **Gap Cubierto:** Se reconstruyó la historia del 6 al 12 de feb (ChangeLog, LLM Features).
+  2. **Arquitectura:** Formalizados Arquetipos, Cubo de Roles, Pentágono y Talento Sintético.
+  3. **Visión:** Definido Stratos como Meta-Orquestador de Viabilidad (vs HRIS tradicional).
+  4. **Métricas:** Introducido Scenario IQ, Confidence Score y Adaptability Index.
+- **Acuerdo Operativo:** Se estableció el protocolo "Resumen para Bitácora" al cierre de cada sesión.
+- **Estado:** `openmemory.md` actualizado y alineado con la visión estratégica.
+
+#### 10. Panorama Competitivo y Amenazas
+- **Las Aplanadoras (Amenaza Existencial):**
+  - **Microsoft Copilot / Viva:** Si integran todo (LinkedIn + Office + Dynamics), pueden "aplanar" el mercado por inercia.
+  - **Workday / SAP:** Si deciden comprar/construir esta capa de inteligencia, tienen el canal de distribución masivo.
+- **Los Colaboradores (Complementos):**
+  - **Buk / Talana / Deel:** Operan la nómina y cumplimiento local. Stratos se "monta" sobre ellos via API. Son aliados tácticos (ellos hacen el trabajo sucio).
+  - **Abacus / OpenAI:** Proveedores de infraestructura de inteligencia. Son "commodities" necesarios.
+- **El Botín (A Destruir/Disrumpir):**
+  - **Consultoras de RRHH Tradicionales:** Venden PPTs estáticas de "Gestión del cambio" y "Diccionarios de Competencias" obsoletos. Stratos automatiza su negocio de alto margen.
+  - **Headhunters de Volumen:** Stratos y su predicción de talento interno/sintético hacen irrelevante la búsqueda externa masiva de perfiles estándar.
+
+#### 11. Cierre de Sesión (2026-02-12 02:42)
+- **Hito Alcanzado:** Se ha consolidado la **Madurez Conceptual de Stratos**. Ya no es solo un conjunto de features, sino una plataforma con filosofía, enemigos claros (Aplanadoras) y métricas de impacto real (IQ).
+- **Próximos Pasos (To-Do):**
+  1. **Dashboard de IQ:** Diseñar la visualización de la "Cascada de Readiness".
+  2. **Implementación de Talento Sintético:** Definir en código cómo se "contrata" un agente.
+  3. **Integración Meta-Orquestadora:** Definir los webhooks/API para "mandar órdenes" a Buk/SAP.
+
+> **Reflexión Final:** "Hoy no escribimos código, escribimos el futuro. Transformamos un 'planificador' en el 'Sistema Operativo de la Organización'. La deuda técnica se paga con refactor, pero la deuda conceptual se paga con irrelevancia. Hoy evitamos la irrelevancia."
+
+#### 12. Sello de Calidad e Ingeniería (La Firma del Autor)
+- **Reflejo de Experiencia:** El sistema no es un experimento de junior. **Refleja décadas de experiencia** en arquitectura, negocio y tecnología.
+- **Ingeniería de Primer Nivel:**
+  - **Código Premium:** No basta con que funcione. Debe ser limpio, mantenible, testeable y elegante (`Solid`, `DRY`, `KISS`).
+  - **Consistencia:** Respeto absoluto por los patrones definidos (JSON-Driven CRUD, Service Layer). No hay "código spaghetti".
+- **Factor WOW Técnico:** La excelencia no solo está en la UI, sino en la robustez del backend, la cobertura de tests y la claridad de la documentación.
+- **Consecuencia:** Cada línea de código es una decisión deliberada de diseño, no un accidente.
+
 ### Nota rápida (2026-02-06)
 
 - Añadida prueba Playwright E2E: `tests/e2e/generate-wizard.spec.ts` — flujo feliz GenerateWizard (preview + autorizar LLM + verificar resultado mockeado).

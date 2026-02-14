@@ -15,6 +15,8 @@ import MatchingResults from './MatchingResults.vue';
 import RoleForecastsTable from './RoleForecastsTable.vue';
 import SkillGapsMatrix from './SkillGapsMatrix.vue';
 import SuccessionPlanCard from './SuccessionPlanCard.vue';
+import ScenarioRoiCalculator from './ScenarioRoiCalculator.vue';
+import ScenarioStrategyAssigner from './ScenarioStrategyAssigner.vue';
 
 defineOptions({ layout: AppLayout });
 
@@ -144,17 +146,16 @@ const simulationParams = ref({
 });
 
 const simulationResults = ref<any>(null);
-const criticalPositions = ref<any[]>([]);
-const criticalPositionsCount = computed(() => criticalPositions.value.length);
+const criticalTalents = ref<any[]>([]);
+const criticalTalentsCount = computed(() => criticalTalents.value.length);
 
-const criticalPositionsHeaders = [
-    { title: 'Role', value: 'role.name' },
-    { title: 'Department', value: 'department' },
-    { title: 'Criticality', value: 'criticality_level' },
+const criticalTalentsHeaders = [
+    { title: 'Talent Area / Capability', value: 'capability' },
+    { title: 'Role Archetype', value: 'role_archetype' },
+    { title: 'Criticality Score', value: 'criticality_score' },
     { title: 'Risk Status', value: 'risk_status' },
-    { title: 'Ready Now', value: 'successors.ready_now' },
-    { title: 'Ready 12m', value: 'successors.ready_12m' },
-    { title: 'Action', value: 'recommended_action' },
+    { title: 'Succession (Ready Now)', value: 'internal_succession.ready_now' },
+    { title: 'Mitigation Strategy', value: 'mitigation_strategy' },
 ];
 
 const runSimulation = async () => {
@@ -173,20 +174,20 @@ const runSimulation = async () => {
     }
 };
 
-const loadCriticalPositions = async () => {
+const loadCriticalTalents = async () => {
     if (!scenarioId.value || scenarioId.value <= 0) return;
     try {
         const response = await api.get(
-            '/api/strategic-planning/critical-positions',
+            '/api/strategic-planning/critical-talents',
             { scenario_id: scenarioId.value },
         );
         const result: any = (response as any).data;
-        criticalPositions.value = Array.isArray(result)
+        criticalTalents.value = Array.isArray(result)
             ? result
             : result.data || [];
     } catch (error: any) {
-        console.error('Critical positions error:', error);
-        showError('Error al cargar posiciones críticas');
+        console.error('Critical talents error:', error);
+        showError('Error al cargar talentos críticos');
     }
 };
 
@@ -267,7 +268,7 @@ const downloadReport = () => {
 
 onMounted(() => {
     loadScenario();
-    loadCriticalPositions();
+    loadCriticalTalents();
 });
 </script>
 
@@ -318,12 +319,20 @@ onMounted(() => {
                         </v-tab>
                         <v-tab value="critical">
                             <v-icon start>mdi-alert-circle</v-icon>
-                            Posiciones Críticas ({{ criticalPositionsCount }})
+                            Talentos Críticos ({{ criticalTalentsCount }})
                         </v-tab>
                         <v-tab value="forecasts">Proyecciones de Roles</v-tab>
                         <v-tab value="matches">Coincidencias de Talento</v-tab>
                         <v-tab value="gaps">Brechas de Habilidades</v-tab>
                         <v-tab value="succession">Planes de Sucesión</v-tab>
+                        <v-tab value="roi">
+                            <v-icon start>mdi-calculator</v-icon>
+                            Análisis ROI
+                        </v-tab>
+                        <v-tab value="strategies">
+                            <v-icon start>mdi-target</v-icon>
+                            Asignar Estrategias
+                        </v-tab>
                     </v-tabs>
                 </v-col>
             </v-row>
@@ -721,11 +730,11 @@ onMounted(() => {
                                             <v-col cols="6" class="text-center">
                                                 <div class="text-h4">
                                                     {{
-                                                        simulationResults.current_headcount
+                                                        simulationResults.current_talent_pool
                                                     }}
                                                 </div>
                                                 <div class="text-caption">
-                                                    Actual
+                                                    Pool de Talento Actual
                                                 </div>
                                             </v-col>
                                             <v-col cols="6" class="text-center">
@@ -733,11 +742,11 @@ onMounted(() => {
                                                     class="text-h4 text-primary"
                                                 >
                                                     {{
-                                                        simulationResults.projected_headcount
+                                                        simulationResults.projected_talent_requirement
                                                     }}
                                                 </div>
                                                 <div class="text-caption">
-                                                    Proyectado
+                                                    Requerimientos Proyectados
                                                 </div>
                                             </v-col>
                                         </v-row>
@@ -753,10 +762,10 @@ onMounted(() => {
                                         <div
                                             class="text-h3 text-success text-center"
                                         >
-                                            +{{ simulationResults.net_growth }}
+                                            +{{ simulationResults.net_capacity_gap }}
                                         </div>
                                         <div class="text-caption text-center">
-                                            Nuevas posiciones a cubrir
+                                            Brecha de capacidad neta
                                         </div>
                                     </v-card-text>
                                 </v-card>
@@ -816,11 +825,11 @@ onMounted(() => {
                                             <tbody>
                                                 <tr
                                                     v-for="(
-                                                        data, dept
-                                                    ) in simulationResults.by_department"
-                                                    :key="dept"
+                                                        data, cat
+                                                    ) in simulationResults.by_capability_area"
+                                                    :key="cat"
                                                 >
-                                                    <td>{{ dept }}</td>
+                                                    <td>{{ cat }}</td>
                                                     <td>{{ data.current }}</td>
                                                     <td>
                                                         <strong>{{
@@ -833,7 +842,7 @@ onMounted(() => {
                                                                 data.gap > 0
                                                                     ? 'success'
                                                                     : 'error'
-                                                            "
+                                                                "
                                                             size="small"
                                                         >
                                                             {{
@@ -872,7 +881,7 @@ onMounted(() => {
                                             </thead>
                                             <tbody>
                                                 <tr
-                                                    v-for="skill in simulationResults.skills_needed"
+                                                    v-for="skill in simulationResults.strategic_skills_needed"
                                                     :key="skill.skill_id"
                                                 >
                                                     <td>
@@ -880,18 +889,17 @@ onMounted(() => {
                                                     </td>
                                                     <td>
                                                         <strong>{{
-                                                            skill.count
+                                                            skill.count_needed
                                                         }}</strong>
                                                     </td>
                                                     <td>
                                                         <v-progress-linear
                                                             :model-value="
-                                                                skill.availability_internal *
-                                                                100
+                                                                skill.internal_availability_pct
                                                             "
                                                             :color="
-                                                                skill.availability_internal >
-                                                                0.5
+                                                                skill.internal_availability_pct >
+                                                                50
                                                                     ? 'success'
                                                                     : 'warning'
                                                             "
@@ -899,8 +907,7 @@ onMounted(() => {
                                                         >
                                                             {{
                                                                 Math.round(
-                                                                    skill.availability_internal *
-                                                                        100,
+                                                                    skill.internal_availability_pct
                                                                 )
                                                             }}%
                                                         </v-progress-linear>
@@ -928,7 +935,7 @@ onMounted(() => {
                                             <v-list-item
                                                 v-for="(
                                                     risk, idx
-                                                ) in simulationResults.critical_risks"
+                                                ) in simulationResults.critical_talent_risks"
                                                 :key="idx"
                                             >
                                                 <v-list-item-title>{{
@@ -943,7 +950,7 @@ onMounted(() => {
                                                             risk.critical_level
                                                         }}</v-chip
                                                     >
-                                                    {{ risk.action }}
+                                                    {{ risk.recommendation }}
                                                 </v-list-item-subtitle>
                                             </v-list-item>
                                         </v-list>
@@ -955,36 +962,23 @@ onMounted(() => {
                 </v-card>
             </div>
 
-            <!-- Critical Positions Tab -->
+            <!-- Critical Talents Tab -->
             <div v-show="activeTab === 'critical'">
                 <v-card>
                     <v-card-title class="text-h5 bg-error">
                         <v-icon start>mdi-alert-circle</v-icon>
-                        Posiciones Críticas & Riesgo de Sucesión
+                        Talentos Críticos & Riesgo de Orquestación
                     </v-card-title>
                     <v-card-text>
                         <v-data-table
-                            :headers="criticalPositionsHeaders"
-                            :items="criticalPositions"
+                            :headers="criticalTalentsHeaders"
+                            :items="criticalTalents"
                             density="comfortable"
                             class="mt-4"
                         >
                             <!-- eslint-disable-next-line vue/valid-v-slot -->
-                            <template #item.role.name="{ item }">
-                                <strong>{{ item.role.name }}</strong>
-                            </template>
-                            <!-- eslint-disable-next-line vue/valid-v-slot -->
-                            <template #item.criticality_level="{ item }">
-                                <v-chip
-                                    :color="
-                                        item.criticality_level === 'critical'
-                                            ? 'error'
-                                            : 'warning'
-                                    "
-                                    size="small"
-                                >
-                                    {{ item.criticality_level }}
-                                </v-chip>
+                            <template #item.capability="{ item }">
+                                <strong>{{ item.capability }}</strong>
                             </template>
                             <!-- eslint-disable-next-line vue/valid-v-slot -->
                             <template #item.risk_status="{ item }">
@@ -997,29 +991,17 @@ onMounted(() => {
                                 </v-chip>
                             </template>
                             <!-- eslint-disable-next-line vue/valid-v-slot -->
-                            <template #item.successors.ready_now="{ item }">
+                            <template #item.internal_succession.ready_now="{ item }">
                                 <v-chip
                                     :color="
-                                        item.successors.ready_now > 0
+                                        item.internal_succession.ready_now > 0
                                             ? 'success'
                                             : 'error'
                                     "
                                     size="small"
                                 >
-                                    {{ item.successors.ready_now }}
+                                    {{ item.internal_succession.ready_now }}
                                 </v-chip>
-                            </template>
-                            <!-- eslint-disable-next-line vue/valid-v-slot -->
-                            <template #item.successors.ready_12m="{ item }">
-                                <v-chip color="info" size="small">
-                                    {{ item.successors.ready_12m }}
-                                </v-chip>
-                            </template>
-                            <!-- eslint-disable-next-line vue/valid-v-slot -->
-                            <template #item.recommended_action="{ item }">
-                                <span class="text-caption">{{
-                                    item.recommended_action
-                                }}</span>
                             </template>
                         </v-data-table>
                     </v-card-text>
@@ -1044,6 +1026,16 @@ onMounted(() => {
             <!-- Succession Plans Tab -->
             <div v-show="activeTab === 'succession'">
                 <SuccessionPlanCard :scenarioId="scenarioId" />
+            </div>
+
+            <!-- ROI Calculator Tab -->
+            <div v-show="activeTab === 'roi'">
+                <ScenarioRoiCalculator :scenarioId="scenarioId" />
+            </div>
+
+            <!-- Strategy Assigner Tab -->
+            <div v-show="activeTab === 'strategies'">
+                <ScenarioStrategyAssigner :scenarioId="scenarioId" />
             </div>
         </v-container>
     </div>

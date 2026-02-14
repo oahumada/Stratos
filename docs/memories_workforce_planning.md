@@ -1,58 +1,49 @@
-````markdown
 # Memoria: Workforce Planning / Scenario Planning
 
-**Última actualización:** 14 Enero 2026
-**Status:** Módulo integrado (UI + API) — ver `WORKFORCE_PLANNING_UI_INTEGRATION.md` y `POSTMAN_VALIDATION_5MIN.md`
+**Última actualización:** 12 Febrero 2026
+**Status:** Módulo evolucionado a **Talent Scenario Planning (Phase 1)** ✅. Integración completa de simulación de crecimiento, ROI 4B y asignación estratégica.
 
 ---
 
-Resumen rápido
+### Evolución Estratégica
+El módulo ha transicionado de una gestión dotacional clásica (WFP) a una **Orquestación de Viabilidad Futura**. 
 
-- Módulo de Workforce Planning (WFP) centraliza creación y comparación de escenarios (what-if).
-- Plantillas predefinidas: IA Adoption Accelerator, Digital Transformation, Rapid Growth, Succession Planning.
-- Flujo principal: crear escenario desde plantilla → calcular brechas → refrescar estrategias → comparar escenarios → ejecutar análisis.
+- **Foco:** Capacidades y Nodos de Talento (Híbrido Humano/IA).
+- **Metodología:** Alineación con los 7 pasos de planificación estratégica.
 
-Ubicación en la app
+### Ubicación en la app
 
-- Ruta listada: `/workforce-planning` → componente `WorkforcePlanning/ScenarioSelector.vue`
-- Dashboard individual: `/workforce-planning/{id}` → `OverviewDashboard.vue`
+- **Ruta principal:** `/scenarios` (antes `/workforce-planning`).
+- **Dashboard de Escenario:** `pages/ScenarioPlanning/OverviewDashboard.vue`.
+- **Nuevos Módulos:**
+  - `pages/ScenarioPlanning/ScenarioRoiCalculator.vue`
+  - `pages/ScenarioPlanning/ScenarioStrategyAssigner.vue`
 
-API clave (resumen)
+### API Estratégica (Canonical - prefix `strategic-planning`)
 
 ```
-GET    //api/workforce-planning/scenario-templates
-POST   //api/workforce-planning/workforce-scenarios/{template_id}/instantiate-from-template
-POST   //api/workforce-planning/workforce-scenarios/{id}/calculate-gaps
-POST   //api/workforce-planning/workforce-scenarios/{id}/refresh-suggested-strategies
-POST   //api/workforce-planning/scenario-comparisons
-GET    //api/workforce-planning/workforce-scenarios/{id}
-GET    //api/workforce-planning/workforce-scenarios/{id}/role-forecasts
-GET    //api/workforce-planning/workforce-scenarios/{id}/skill-gaps
-POST   //api/workforce-planning/workforce-scenarios/{id}/analyze
+POST   /api/strategic-planning/scenarios/{id}/simulate-growth     // Simular impacto futuro
+GET    /api/strategic-planning/critical-talents                  // Identificar riesgos
+POST   /api/strategic-planning/roi-calculator/calculate          // Comparativa 4B (Build, Buy, Borrow, Bot)
+GET    /api/strategic-planning/scenarios/{id}/gaps-for-assignment // Gaps listos para estrategia
+POST   /api/strategic-planning/strategies/assign                 // Asignar iniciativa estratégica
+GET    /api/strategic-planning/strategies/portfolio/{id}         // Ver portafolio consolidado
 ```
 
-Quick-steps (Postman - 5 min)
+### Componentes de la Fase 1 (Completados)
 
-- 1. `GET /scenario-templates` → elegir template
-- 2. `POST /workforce-scenarios/{template_id}/instantiate-from-template` → crear escenario (guarda `scenario_id`)
-- 3. `POST /workforce-scenarios/{id}/calculate-gaps` → obtener `gaps` (déficits/surplus)
-- 4. `POST /workforce-scenarios/{id}/refresh-suggested-strategies` → generar estrategias (BUILD/BUY/BORROW/BOT/BIND/BRIDGE)
-- 5. `POST /scenario-comparisons` → comparar 2 escenarios (cost, time, risk, coverage, roi)
-- 6. `GET /workforce-scenarios/{id}` → ver detalle completo (skill_demands, closure_strategies, milestones)
+| Componente | Objetivo | Actor |
+|-----------|----------|-------|
+| **Growth Simulator** | Proyectar brechas de talento a 12/24/36 meses basadas en % de crecimiento. | CEO |
+| **ROI Calculator** | Comparar costo/beneficio de estrategias de adquisición vs desarrollo (4B). | CFO |
+| **Strategy Assigner** | Mapear gaps críticos a dueños de iniciativa y presupuestos. | CHRO |
 
-Notas de integración recientes
+### Notas Técnicas Recientes
+- Se implementó `TelemetryController` para rastrear eventos estratégicos.
+- Rutas centralizadas en `api.php` bajo el middleware `auth:sanctum`.
+- El frontend usa `useApi` y `useNotification` para una experiencia fluida y reactiva.
 
-- UI: `AppSidebar.vue` ya incluye el link; rutas en `routes/web.php` registradas (`workforce-planning.index` y `.show`).
-- Stores: pendiente migrar a Pinia (próximos pasos listados en `WORKFORCE_PLANNING_UI_INTEGRATION.md`).
-- Tests: Postman collection `POSTMAN_VALIDATION_5MIN.md` valida flujo completo.
-
-Recomendación
-
-- Mantener `POSTMAN_VALIDATION_5MIN.md` como guía canónica para validación rápida.
-- Añadir E2E (Playwright) para flujos: create → calculate → suggest → compare.
-
-Referencias
-
-- `WORKFORCE_PLANNING_UI_INTEGRATION.md`
-- `POSTMAN_VALIDATION_5MIN.md`
-````
+### Próximos Pasos (Phase 2)
+- Implementación de **Competency Versioning (BARS)**.
+- Integración de feedback de desempeño real en el cálculo de Readiness.
+- Automatización de la actualización de niveles de skill post-estrategia BUILD.

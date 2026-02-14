@@ -42,7 +42,7 @@ class ScenarioGenerationService
         // Replace simple tokens {{key}} in the template
         $prompt = $template;
         foreach ($replacements as $k => $v) {
-            $prompt = str_replace('{{' . $k . '}}', is_array($v) ? json_encode($v) : (string) $v, $prompt);
+            $prompt = str_replace('{{' . $k . '}}', is_array($v) ? json_encode($v) : (string)$v, $prompt);
         }
 
         // If template was empty, prepend minimal header with company name
@@ -59,7 +59,8 @@ class ScenarioGenerationService
         if (strtolower($lang) === 'es') {
             $prompt .= "\n\nINSTRUCCIONES:\nDevuelve SOLO un único objeto JSON válido que cumpla el esquema con claves de nivel superior: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
             $prompt .= "El JSON DEBE usar la siguiente estructura anidada: cada elemento en 'capabilities' es un objeto con 'name' y opcional 'description' y un arreglo 'competencies'; cada competency es un objeto con 'name', opcional 'description' y un arreglo 'skills'; cada skill puede ser una cadena (nombre de habilidad) o un objeto con 'name'.\n";
-        } else {
+        }
+        else {
             $prompt .= "\n\nINSTRUCTIONS:\nReturn ONLY a single valid JSON object matching the schema with top-level keys: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
             $prompt .= "The JSON MUST use the following nested structure: each element in 'capabilities' is an object with a 'name' and optional 'description' and a 'competencies' array; each competency is an object with 'name', optional 'description' and a 'skills' array; each skill may be a string (skill name) or object with 'name'.\n";
         }
@@ -69,7 +70,8 @@ class ScenarioGenerationService
             $prompt .= "\nPROPÓSITO: Este escenario simula la gestión estratégica de talento para lograr el objetivo principal.\n";
             $prompt .= "DEFINICIÓN (ES):\n- Capacidades: medios/funciones organizacionales que permiten cumplir el objetivo del escenario.\n- Competencias: conocimientos y habilidades necesarias para ejecutar una capability.\n- Habilidades: unidad mínima (habilidades/conocimientos) que compone una competencia; puede ser texto o {\"name\":string}.\n- Roles: puestos propuestos con las competencias asignadas (el analista debe homologar estos roles con la estructura interna).\n\n";
             $prompt .= "NO incluyas ningún texto explicativo o comentario fuera del objeto JSON. Si no puedes producir la estructura anidada completa, devuelve un objeto con las claves y arreglos vacíos.\n\nEjemplo de salida mínima válida:\n";
-        } else {
+        }
+        else {
             $prompt .= "\nPURPOSE: This scenario simulates strategic talent management to achieve the main objective.\n";
             $prompt .= "DEFINITIONS (EN):\n- Capabilities: organizational means/functions that enable achieving the scenario objective.\n- Competencies: knowledge and abilities required to perform a capability.\n- Skills: the minimal unit (specific skills/knowledge) that composes a competency; may be a string or an object with {\"name\"}.\n- Roles: proposed positions with assigned competencies (analyst must later map/harmonize to internal roles).\n\n";
             $prompt .= "Do NOT include any prose, explanation or commentary outside the JSON object. If you cannot produce the full nested structure, return an object with the keys and empty arrays.\n\nExample minimal valid output:\n";
@@ -348,9 +350,10 @@ EOT;
 
         // 1) client-provided instruction
         if (!empty($data['instruction'])) {
-            $instructionContent = (string) $data['instruction'];
+            $instructionContent = (string)$data['instruction'];
             $instructionSource = 'client';
-        } else {
+        }
+        else {
             // 2) DB lookup if table exists
             try {
                 if (Schema::hasTable((new PromptInstruction())->getTable())) {
@@ -362,10 +365,12 @@ EOT;
                             if (empty($byId->language) || $byId->language === $language) {
                                 $instructionContent = $byId->content;
                                 $instructionSource = 'db_id';
-                            } else {
+                            }
+                            else {
                                 Log::warning("Requested PromptInstruction id {$instructionId} language mismatch: expected {$language}, got {$byId->language}");
                             }
-                        } else {
+                        }
+                        else {
                             Log::warning("Requested PromptInstruction id {$instructionId} not found");
                         }
                     }
@@ -379,7 +384,8 @@ EOT;
                         }
                     }
                 }
-            } catch (\Throwable $e) {
+            }
+            catch (\Throwable $e) {
                 // If DB is not available or has issues, fall back to file
                 Log::warning('PromptInstruction DB access failed: ' . $e->getMessage());
             }
@@ -435,7 +441,8 @@ EOT;
                 // mark source as embedded so callers can see we skipped appending
                 $instructionSource = $instructionSource . '_embedded';
                 Log::info("Skipping append of operator instruction because base prompt already contains instructions for lang {$language} (source: {$instructionSource})");
-            } else {
+            }
+            else {
                 $prompt .= "\n\n" . $operatorInstructionLabel . " (source: {$instructionSource}, lang: {$language}):\n" . $instructionContent . "\n";
             }
         }
@@ -470,7 +477,8 @@ EOT;
         $encryptedRaw = null;
         try {
             $encryptedRaw = Crypt::encryptString($prompt);
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             Log::warning('Failed to encrypt raw prompt before persisting: ' . $e->getMessage());
         }
 
@@ -505,16 +513,161 @@ EOT;
             $generation->status = $options['status'] ?? 'complete';
 
             if (!empty($options['metadata']) && is_array($options['metadata'])) {
-                $existing = is_array($generation->metadata) ? $generation->metadata : (array) ($generation->metadata ?? []);
+                $existing = is_array($generation->metadata) ? $generation->metadata : (array)($generation->metadata ?? []);
                 $generation->metadata = array_merge($existing, $options['metadata']);
             }
 
             $generation->save();
-        } catch (\Throwable $e) {
+        }
+        catch (\Throwable $e) {
             Log::error('Failed to persist LLM response for generation ' . ($generation->id ?? 'unknown') . ': ' . $e->getMessage());
             throw $e;
         }
 
         return $generation;
+    }
+
+    /**
+     * Finalize the scenario by importing the LLM response into the relational database.
+     * This creates/updates Capabilities, Competencies, and Skills, and links them to the Scenario.
+     *
+     * @param ScenarioGeneration $generation
+     * @return array Summary of imported entities
+     */
+    public function finalizeScenarioImport(ScenarioGeneration $generation): array
+    {
+        $data = $generation->llm_response;
+        if (is_string($data)) {
+            $data = json_decode($data, true);
+        }
+
+        if (!$data || !is_array($data)) {
+            throw new \Exception("Invalid LLM response data for import.");
+        }
+
+        return \DB::transaction(function () use ($generation, $data) {
+            $orgId = $generation->organization_id;
+
+            // 1. Resolve or Create Scenario
+            $scenario = $generation->scenario;
+            if (!$scenario) {
+                $meta = $data['escenario'] ?? $data['scenario_metadata'] ?? [];
+                $scenario = \App\Models\Scenario::create([
+                    'organization_id' => $orgId,
+                    'name' => $meta['nombre'] ?? $meta['name'] ?? 'Generated Scenario ' . now()->toDateTimeString(),
+                    'description' => $meta['descripcion'] ?? $meta['description'] ?? 'Imported from LLM analysis',
+                    'status' => 'draft',
+                    'source_generation_id' => $generation->id,
+                    'created_by' => $generation->created_by,
+                ]);
+                $generation->update(['scenario_id' => $scenario->id]);
+            }
+
+            $stats = ['capabilities' => 0, 'competencies' => 0, 'skills' => 0, 'blueprints' => 0];
+
+            // 2. Process Hierarchical Tree: Capabilities -> Competencies -> Skills
+            $caps = $data['capabilities'] ?? [];
+            foreach ($caps as $capData) {
+                $capability = \App\Models\Capability::updateOrCreate(
+                [
+                    'organization_id' => $orgId,
+                    'llm_id' => $capData['id'] ?? null,
+                    'name' => $capData['nombre'] ?? $capData['name'],
+                ],
+                [
+                    'description' => $capData['descripcion'] ?? $capData['description'] ?? null,
+                    'status' => 'active',
+                    'discovered_in_scenario_id' => $scenario->id,
+                ]
+                );
+
+                // Link Capability to Scenario (Pivot)
+                $scenario->capabilities()->syncWithoutDetaching([$capability->id => [
+                        'strategic_role' => 'target',
+                        'strategic_weight' => 10,
+                        'priority' => 1,
+                        'required_level' => 3,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]]);
+                $stats['capabilities']++;
+
+                // Process Competencies
+                $comps = $capData['competencies'] ?? [];
+                foreach ($comps as $compData) {
+                    $competency = \App\Models\Competency::updateOrCreate(
+                    [
+                        'organization_id' => $orgId,
+                        'llm_id' => $compData['id'] ?? null,
+                        'name' => $compData['nombre'] ?? $compData['name'],
+                    ],
+                    [
+                        'description' => $compData['descripcion'] ?? $compData['description'] ?? null,
+                    ]
+                    );
+
+                    // Link Competency to Capability specialized for this scenario
+                    $capability->competencies()->syncWithoutDetaching([$competency->id => [
+                            'scenario_id' => $scenario->id,
+                            'required_level' => 3,
+                            'weight' => 10,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]]);
+                    $stats['competencies']++;
+
+                    // Process Skills
+                    $skills = $compData['skills'] ?? [];
+                    foreach ($skills as $skillData) {
+                        $skillName = is_array($skillData) ? ($skillData['nombre'] ?? $skillData['name']) : $skillData;
+                        $skillLlmId = is_array($skillData) ? ($skillData['id'] ?? null) : null;
+                        $skillDesc = is_array($skillData) ? ($skillData['descripcion'] ?? $skillData['description'] ?? null) : null;
+
+                        $skill = \App\Models\Skill::updateOrCreate(
+                        [
+                            'organization_id' => $orgId,
+                            'llm_id' => $skillLlmId,
+                            'name' => $skillName,
+                        ],
+                        [
+                            'description' => $skillDesc,
+                            'category' => $capability->name,
+                            'scope_type' => 'domain',
+                        ]
+                        );
+
+                        // Link Skill to Competency
+                        $competency->skills()->syncWithoutDetaching([$skill->id => [
+                                'weight' => 10,
+                                'required_level' => 3,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]]);
+                        $stats['skills']++;
+                    }
+                }
+            }
+
+            // 3. Process Strategic Roles (Talent Blueprints) if present
+            $suggestedRoles = $data['suggested_roles'] ?? [];
+            if (!empty($suggestedRoles) && class_exists(\App\Services\TalentBlueprintService::class)) {
+                try {
+                    $blueprintSvc = app(\App\Services\TalentBlueprintService::class);
+                    $blueprintSvc->createFromLlmResponse($scenario, $suggestedRoles);
+                    $stats['blueprints'] = count($suggestedRoles);
+                }
+                catch (\Throwable $e) {
+                    \Log::warning('Failed incrementally creating TalentBlueprints: ' . $e->getMessage());
+                }
+            }
+
+            \Log::info("Scenario generation finalized and imported for scenario ID: {$scenario->id}", $stats);
+
+            return [
+                'success' => true,
+                'scenario_id' => $scenario->id,
+                'stats' => $stats
+            ];
+        });
     }
 }

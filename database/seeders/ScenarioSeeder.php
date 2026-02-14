@@ -121,15 +121,25 @@ class ScenarioSeeder extends Seeder
 
         // 6. Simular Oferta Real (Fase 3)
         // Ensure there is a People row to reference (link to admin user created by E2ESeeder)
+        $adminEmail = env('E2E_ADMIN_EMAIL', 'admin@example.com');
         $person = People::firstOrCreate(
-            ['organization_id' => $orgId, 'email' => env('E2E_ADMIN_EMAIL', 'admin@example.com')],
+            ['organization_id' => $orgId, 'email' => $adminEmail],
             [
-                'user_id' => null,
                 'first_name' => 'E2E',
                 'last_name' => 'Admin',
                 'organization_id' => $orgId,
             ]
         );
+
+        // Intenta vincular con el usuario E2E Admin si existe
+        $adminUser = \App\Models\User::where('email', $adminEmail)->first();
+        if ($adminUser && !$person->user_id) {
+            $person->update(['user_id' => $adminUser->id]);
+        }
+
+        // Determinar quién evalúa: preferiblemente un usuario válido
+        // people_role_skills.evaluated_by tiene FK a users.id
+        $evaluatorId = $adminUser ? $adminUser->id : ($person->user_id ?? 1);
 
         PeopleRoleSkills::firstOrCreate([
             'people_id' => $person->id,
@@ -137,7 +147,7 @@ class ScenarioSeeder extends Seeder
             'skill_id' => $skillIncubadaId,
         ], [
             'current_level' => 2, // Genera un GAP
-            'evaluated_by' => $person->id,
+            'evaluated_by' => $evaluatorId,
             'evidence_source' => 'self_assessment',
         ]);
     }
