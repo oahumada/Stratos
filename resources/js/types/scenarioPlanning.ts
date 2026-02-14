@@ -1,4 +1,4 @@
-export interface WorkforcePlan {
+export interface ScenarioPlan {
     id: number;
     organization_id: number;
     name: string;
@@ -135,7 +135,7 @@ export interface CreatePlanPayload {
     start_date: string;
     end_date: string;
     planning_horizon_months: number;
-    scope_type: WorkforcePlan['scope_type'];
+    scope_type: ScenarioPlan['scope_type'];
     scope_notes?: string;
     strategic_context?: string;
     budget_constraints?: string;
@@ -158,7 +158,7 @@ export type ScopeType =
     | 'department'
     | 'critical_roles_only';
 
-export interface WorkforcePlan {
+export interface ScenarioPlan {
     id: number;
     organization_id: number;
     name: string;

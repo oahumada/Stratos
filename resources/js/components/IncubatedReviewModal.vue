@@ -70,7 +70,7 @@ watch(open, (v) => {
 
 function gotoEdit() {
     if (!props.item?.id) return;
-    window.location.href = `/capabilities/${props.item.id}`;
+    globalThis.location.href = `/capabilities/${props.item.id}`;
 }
 
 async function promote() {

@@ -35,7 +35,7 @@ vi.mock('@/components/ScenarioPlanning/VersionHistoryModal.vue', () => ({
     default: { template: '<div />' },
 }));
 vi.mock(
-    '@/components/WorkforcePlanning/Step2/RoleCompetencyMatrix.vue',
+    '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue',
     () => ({ default: { template: '<div />' } }),
 );
 vi.mock('@/layouts/AppLayout.vue', () => ({

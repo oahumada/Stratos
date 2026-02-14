@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useNotification } from '@/composables/useNotification';
-import { useWorkforcePlanning } from '@/composables/useWorkforcePlanning';
+import { useScenarioPlanning } from '@/composables/useScenarioPlanning';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -9,7 +9,7 @@ defineOptions({ layout: AppLayout });
 
 // use Inertia router for navigation
 const { showSuccess, showError } = useNotification();
-const { createPlan } = useWorkforcePlanning();
+const { createPlan } = useScenarioPlanning();
 
 const form = ref({
     organization_id: undefined as number | undefined,
@@ -39,7 +39,7 @@ const submit = async () => {
         const created = res?.data || res;
         showSuccess('Plan creado');
         // Navigate to the created plan detail using Inertia
-        router.visit(`/workforce-plans/${created.id}`);
+        router.visit(`/scenario-planning/${created.id}`);
     } catch (e: any) {
         const msg =
             e?.response?.data?.message || 'No fue posible crear el plan';
@@ -52,7 +52,7 @@ const submit = async () => {
 
 <template>
     <div class="pa-4">
-        <h2>Nuevo Plan de Dotación</h2>
+        <h2>Nuevo Escenario de Dotación</h2>
         <v-card class="mt-4">
             <v-card-text>
                 <v-row>

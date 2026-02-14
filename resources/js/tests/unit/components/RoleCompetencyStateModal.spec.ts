@@ -1,5 +1,5 @@
 import { render, fireEvent } from '@testing-library/vue'
-import RoleCompetencyStateModal from '@/components/WorkforcePlanning/Step2/RoleCompetencyStateModal.vue'
+import RoleCompetencyStateModal from '@/components/ScenarioPlanning/Step2/RoleCompetencyStateModal.vue'
 import { describe, it, expect } from 'vitest'
 import { createPinia } from 'pinia'
 

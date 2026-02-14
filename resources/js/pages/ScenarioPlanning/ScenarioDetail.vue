@@ -3,7 +3,7 @@ import IncubatedReviewModal from '@/components/IncubatedReviewModal.vue';
 import ChangeSetModal from '@/components/ScenarioPlanning/ChangeSetModal.vue';
 import StatusTimeline from '@/components/ScenarioPlanning/StatusTimeline.vue';
 import VersionHistoryModal from '@/components/ScenarioPlanning/VersionHistoryModal.vue';
-import RoleCompetencyMatrix from '@/components/WorkforcePlanning/Step2/RoleCompetencyMatrix.vue';
+import RoleCompetencyMatrix from '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -711,7 +711,7 @@ const stepperItems = [
     },
     {
         value: 4,
-        title: 'Workforce',
+        title: 'Escenarios',
         icon: 'mdi-account-group',
         subtitle: 'Plan de personal',
     },
@@ -1199,7 +1199,7 @@ onMounted(() => {
                         </v-container>
                     </div>
 
-                    <!-- Step 4: Plan de Workforce -->
+                    <!-- Step 4: Plan de Personal -->
                     <div v-show="currentStep === 4" class="step-content">
                         <v-container>
                             <v-card>
@@ -1207,7 +1207,7 @@ onMounted(() => {
                                     <v-icon class="mr-2"
                                         >mdi-account-group</v-icon
                                     >
-                                    Plan de Workforce
+                                    Plan de Personal
                                 </v-card-title>
                                 <v-card-text>
                                     <v-alert type="info" variant="tonal">

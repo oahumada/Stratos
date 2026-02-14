@@ -28,7 +28,7 @@ const GapAnalysisIcon = defineComponent(
 const MarketplaceIcon = defineComponent(
     () => () => h(VIcon, { icon: 'mdi-briefcase-search', size: 20 }),
 );
-const WorkforcePlanningIcon = defineComponent(
+const ScenarioPlanningIcon = defineComponent(
     () => () => h(VIcon, { icon: 'mdi-chart-timeline-variant', size: 20 }),
 );
 const PeopleExperienceIcon = defineComponent(
@@ -77,7 +77,7 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Strategic Talent Scenarios',
         href: '/scenario-planning',
-        icon: WorkforcePlanningIcon,
+        icon: ScenarioPlanningIcon,
     },
     {
         title: 'Talento 360°',

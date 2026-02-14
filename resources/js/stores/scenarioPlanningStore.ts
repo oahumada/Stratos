@@ -90,7 +90,7 @@ export interface SuccessionPlan {
     mentoring_assigned?: boolean;
 }
 
-interface WorkforcePlanningState {
+interface ScenarioPlanningState {
     scenarios: Scenario[];
     activeScenario: Scenario | null;
     activeScenarioId: number | null;
@@ -129,8 +129,8 @@ interface WorkforcePlanningState {
     };
 }
 
-export const useWorkforcePlanningStore = defineStore('workforcePlanning', {
-    state: (): WorkforcePlanningState => ({
+export const useScenarioPlanningStore = defineStore('scenarioPlanning', {
+    state: (): ScenarioPlanningState => ({
         scenarios: [],
         activeScenario: null,
         activeScenarioId: null,

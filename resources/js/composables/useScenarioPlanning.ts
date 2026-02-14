@@ -6,18 +6,18 @@ import type {
     ScopeUnit,
     TalentRisk,
     TransformationProject,
-    WorkforcePlan,
-} from '@/types/workforcePlanning';
+    ScenarioPlan,
+} from '@/types/scenarioPlanning';
 
-export function useWorkforcePlanning() {
+export function useScenarioPlanning() {
     const api = useApi();
     const base = '/api/strategic-planning/scenarios';
 
     const listPlans = (params?: any) => api.get(base, params);
-    const createPlan = (payload: Partial<WorkforcePlan>) =>
+    const createPlan = (payload: Partial<ScenarioPlan>) =>
         api.post(base, payload);
     const getPlan = (id: number | string) => api.get(`${base}/${id}`);
-    const updatePlan = (id: number | string, payload: Partial<WorkforcePlan>) =>
+    const updatePlan = (id: number | string, payload: Partial<ScenarioPlan>) =>
         api.patch(`${base}/${id}`, payload);
     const deletePlan = (id: number | string) => api.delete(`${base}/${id}`);
 

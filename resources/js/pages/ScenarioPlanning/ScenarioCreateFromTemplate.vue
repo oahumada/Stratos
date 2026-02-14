@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ParentScenarioSelector from '@/components/WorkforcePlanning/ParentScenarioSelector.vue';
+import ParentScenarioSelector from '@/components/ScenarioPlanning/ParentScenarioSelector.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import { router } from '@inertiajs/vue3';

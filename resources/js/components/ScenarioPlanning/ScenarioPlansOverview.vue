@@ -1,32 +1,22 @@
 <script setup lang="ts">
 import { useNotification } from '@/composables/useNotification';
-import { useWorkforcePlanning } from '@/composables/useWorkforcePlanning';
-import AppLayout from '@/layouts/AppLayout.vue';
-import type { WorkforcePlan } from '@/types/workforcePlanning';
+import { useScenarioPlanning } from '@/composables/useStrategicPlanningScenarios';
+import type { ScenarioPlan } from '@/types/scenarioPlanning';
 import { onMounted, ref } from 'vue';
 
-defineOptions({ layout: AppLayout });
-
-const { listPlans } = useWorkforcePlanning();
+const { list } = useScenarioPlanning();
 const { showError } = useNotification();
 
 const loading = ref(false);
-const items = ref<WorkforcePlan[]>([]);
-
-const headers = [
-    { title: 'Nombre', value: 'name' },
-    { title: 'Código', value: 'code' },
-    { title: 'Estado', value: 'status' },
-    { title: 'Inicio', value: 'start_date' },
-    { title: 'Término', value: 'end_date' },
-];
+const plans = ref<ScenarioPlan[]>([]);
 
 const load = async () => {
     loading.value = true;
     try {
-        const res: any = await listPlans();
-        const data = res?.data?.data ?? res?.data ?? [];
-        items.value = Array.isArray(data) ? data : [];
+        const res: any = await list();
+        // compatible with paginated or direct data
+        const data = res?.data?.data ?? res?.data ?? res;
+        plans.value = Array.isArray(data) ? data : (data?.data ?? []);
     } catch (e) {
         void e;
         showError('No fue posible cargar los planes');
@@ -40,20 +30,10 @@ onMounted(load);
 
 <template>
     <div class="pa-4">
-        <v-row class="mb-4" align="center">
-            <v-col><h2>Planes de Dotación</h2></v-col>
-            <v-col class="text-right">
-                <v-btn color="primary" :to="{ name: 'workforce-plans.create' }">
-                    <v-icon start>mdi-plus</v-icon>
-                    Nuevo Plan
-                </v-btn>
-            </v-col>
-        </v-row>
-
+        <h3>Escenarios (Overview)</h3>
         <v-card>
             <v-data-table
-                :headers="headers"
-                :items="items"
+                :items="plans"
                 :loading="loading"
                 density="comfortable"
             >
@@ -61,7 +41,7 @@ onMounted(load);
                 <template #item.name="{ item }">
                     <RouterLink
                         :to="{
-                            name: 'workforce-plans.show',
+                            name: 'scenario-planning.show',
                             params: { id: item.id },
                         }"
                         >{{ item.name }}</RouterLink
@@ -85,3 +65,9 @@ onMounted(load);
         </v-card>
     </div>
 </template>
+
+<style scoped>
+.pa-4 {
+    padding: 16px;
+}
+</style>
