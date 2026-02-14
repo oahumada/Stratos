@@ -17,6 +17,7 @@
 
 - **5 minutos?** → [`QUICK_START.md`](docs/QUICK_START.md)
 - **¿Primer día?** → [`memories.md`](docs/memories.md)
+- **¿Visión Técnica?** → [`PLAN_DE_ATAQUE_EXCELENCIA.md`](docs/PLAN_DE_ATAQUE_EXCELENCIA.md)
 - **¿Estado actual?** → [`estado_actual_mvp.md`](docs/estado_actual_mvp.md)
 
 ---

@@ -8,6 +8,7 @@
 
 - **[QUICK_START.md](QUICK_START.md)** - Cómo empezar (5 minutos)
 - **[CHEATSHEET_COMANDOS.md](CHEATSHEET_COMANDOS.md)** - Comandos útiles
+- **[PLAN_DE_ATAQUE_EXCELENCIA.md](PLAN_DE_ATAQUE_EXCELENCIA.md)** - ⭐⭐⭐ **VISIÓN Y PLAN DE ATAQUE**
 - **[DIA6_INICIO_RESUMEN.md](DIA6_INICIO_RESUMEN.md)** - ⭐ Resumen de Día 6 (leer hoy)
 
 ---
@@ -15,25 +16,25 @@
 ## 🎯 Patrones y Arquitectura Frontend (NUEVO)
 
 - **[GUIA_RAPIDA_CRUD_GENERICO.md](GUIA_RAPIDA_CRUD_GENERICO.md)** - ⭐⭐ LEER PRIMERO - Guía rápida en 2 minutos
-  - 5 pasos simples para crear nuevo CRUD
-  - Sin escribir controladores
-  - Sin duplicar rutas
+    - 5 pasos simples para crear nuevo CRUD
+    - Sin escribir controladores
+    - Sin duplicar rutas
 - **[PATRON_JSON_DRIVEN_CRUD.md](PATRON_JSON_DRIVEN_CRUD.md)** - ⭐⭐⭐ Patrón JSON-Driven CRUD completo
-  - Explicación de FormSchemaController automático
-  - Cómo form-schema-complete.php genera rutas sin duplicación
-  - Arquitectura técnica completa
+    - Explicación de FormSchemaController automático
+    - Cómo form-schema-complete.php genera rutas sin duplicación
+    - Arquitectura técnica completa
 - **[GUIA_CREAR_NUEVO_CRUD_GENERICO.md](GUIA_CREAR_NUEVO_CRUD_GENERICO.md)** - 📖 Guía paso-a-paso detallada
-  - 6 pasos con ejemplos concretos
-  - Ejemplo con "Certifications"
-  - Checklist completo
+    - 6 pasos con ejemplos concretos
+    - Ejemplo con "Certifications"
+    - Checklist completo
 - **[CHECKLIST_NUEVO_CRUD.md](CHECKLIST_NUEVO_CRUD.md)** - ✅ Checklist operativo con verificaciones
-  - Paso 0: Registrar en form-schema-complete.php (IMPORTANTE)
-  - Pasos 1-9: Llenar archivos, verificar
-  - Troubleshooting
+    - Paso 0: Registrar en form-schema-complete.php (IMPORTANTE)
+    - Pasos 1-9: Llenar archivos, verificar
+    - Troubleshooting
 - **[PROGRESO_PRIORITY1_COMPLETO.md](PROGRESO_PRIORITY1_COMPLETO.md)** - ✅ Status Priority 1 - COMPLETADO
-  - People/Index.vue ✅, Roles/Index.vue ✅, Skills/Index.vue ✅
-  - Dashboard ✅, Marketplace ✅, GapAnalysis ✅, LearningPaths ✅
-  - 100% reutilización, sin duplicación
+    - People/Index.vue ✅, Roles/Index.vue ✅, Skills/Index.vue ✅
+    - Dashboard ✅, Marketplace ✅, GapAnalysis ✅, LearningPaths ✅
+    - 100% reutilización, sin duplicación
 
 ---
 
@@ -48,9 +49,9 @@
 ### Autenticación (Sanctum)
 
 - **[AUTH_SANCTUM_COMPLETA.md](AUTH_SANCTUM_COMPLETA.md)** - ⭐ Guía completa Sanctum en Strato
-  - Estado actual de la configuración
-  - Cómo funciona el flujo de autenticación
-  - Solución de problemas
+    - Estado actual de la configuración
+    - Cómo funciona el flujo de autenticación
+    - Solución de problemas
 - **[auth_sanctum_api.md](auth_sanctum_api.md)** - Explicación técnica de `auth:sanctum`
 - **[auth_sanctum_laravel12.md](auth_sanctum_laravel12.md)** - Configuración específica en Laravel 12
 
@@ -91,34 +92,34 @@
 ### Skill Levels System 🆕
 
 - **[SKILL_LEVELS_SYSTEM.md](SKILL_LEVELS_SYSTEM.md)** - ⭐⭐⭐ Sistema de 5 Niveles de Competencia
-  - Niveles genéricos: Básico → Intermedio → Avanzado → Experto → Maestro
-  - Sistema de puntos (10, 25, 50, 100, 200) para gamificación
-  - Componente `SkillLevelChip.vue` con tooltips
-  - API endpoint `/catalogs?catalogs[]=skill_levels`
+    - Niveles genéricos: Básico → Intermedio → Avanzado → Experto → Maestro
+    - Sistema de puntos (10, 25, 50, 100, 200) para gamificación
+    - Componente `SkillLevelChip.vue` con tooltips
+    - API endpoint `/catalogs?catalogs[]=skill_levels`
 - **[SKILL_LEVELS_ARCHITECTURE_DECISION.md](SKILL_LEVELS_ARCHITECTURE_DECISION.md)** - Decisión arquitectónica completa
-  - Opción 1 (implementada): Niveles genéricos universales
-  - Opción 2 (roadmap): Niveles específicos por skill para Learning Paths
+    - Opción 1 (implementada): Niveles genéricos universales
+    - Opción 2 (roadmap): Niveles específicos por skill para Learning Paths
 
 ### People Role Skills (Sistema de Skills con Historial) 🆕
 
 - **[PEOPLE_ROLE_SKILLS_RESUMEN_FINAL.md](PEOPLE_ROLE_SKILLS_RESUMEN_FINAL.md)** - ⭐⭐⭐ LEER PRIMERO - Resumen ejecutivo
-  - Problema identificado: inconsistencia people_skills vs role_skills
-  - Solución: tabla `people_role_skills` con contexto de rol
-  - Estado actual: 129 skills migradas, 74 expiradas, 75 gaps
-  - Próximos pasos: Observer, API, Frontend
+    - Problema identificado: inconsistencia people_skills vs role_skills
+    - Solución: tabla `people_role_skills` con contexto de rol
+    - Estado actual: 129 skills migradas, 74 expiradas, 75 gaps
+    - Próximos pasos: Observer, API, Frontend
 - **[PEOPLE_ROLE_SKILLS_IMPLEMENTACION.md](PEOPLE_ROLE_SKILLS_IMPLEMENTACION.md)** - 📖 Documentación técnica completa
-  - Schema de tabla (13 columnas)
-  - API del Repository (10+ métodos)
-  - Scopes y helpers del modelo
-  - Casos de uso reales
-  - Comandos útiles
+    - Schema de tabla (13 columnas)
+    - API del Repository (10+ métodos)
+    - Scopes y helpers del modelo
+    - Casos de uso reales
+    - Comandos útiles
 - **[PEOPLE_ROLE_SKILLS_FLUJO.md](PEOPLE_ROLE_SKILLS_FLUJO.md)** - 📊 Diagramas y flujos (Mermaid)
-  - Flujo de asignación de rol
-  - Diagrama de estados (skill lifecycle)
-  - Diagrama de componentes (arquitectura)
-  - Diagrama de secuencia (cambio de rol)
-  - Diagrama ER (relaciones)
-  - Casos de uso con ejemplos SQL
+    - Flujo de asignación de rol
+    - Diagrama de estados (skill lifecycle)
+    - Diagrama de componentes (arquitectura)
+    - Diagrama de secuencia (cambio de rol)
+    - Diagrama ER (relaciones)
+    - Casos de uso con ejemplos SQL
 
 **Script de Verificación:**
 
@@ -189,10 +190,10 @@
 ### 🚀 **Roadmap Frontend MVP** ⭐ ACTUAL
 
 - **[MVP_FRONTEND_ROADMAP.md](MVP_FRONTEND_ROADMAP.md)** - Plan detallado de Frontend para últimas 2 semanas (8-14 días)
-  - Módulos: People, Skills, Roles, Gap Analysis, Learning Paths, Dashboard
-  - Timeline por fase
-  - Criterios de aceptación
-  - **👉 COMIENZA AQUÍ para saber qué construir**
+    - Módulos: People, Skills, Roles, Gap Analysis, Learning Paths, Dashboard
+    - Timeline por fase
+    - Criterios de aceptación
+    - **👉 COMIENZA AQUÍ para saber qué construir**
 
 ### 📅 Planes Pasados
 
@@ -217,20 +218,20 @@
 ## 🚀 Cómo Usar Esta Documentación
 
 1. **Si es tu primer día:**
-   - Lee [QUICK_START.md](QUICK_START.md)
-   - Luego [memories.md](memories.md)
+    - Lee [QUICK_START.md](QUICK_START.md)
+    - Luego [memories.md](memories.md)
 
 2. **Si necesitas hacer un commit:**
-   - [GUIA_COMMITS_SEMANTICOS.md](GUIA_COMMITS_SEMANTICOS.md)
+    - [GUIA_COMMITS_SEMANTICOS.md](GUIA_COMMITS_SEMANTICOS.md)
 
 3. **Si necesitas hacer un release:**
-   - [GUIA_VERSIONADO_CHANGELOG.md](GUIA_VERSIONADO_CHANGELOG.md)
+    - [GUIA_VERSIONADO_CHANGELOG.md](GUIA_VERSIONADO_CHANGELOG.md)
 
 4. **Si necesitas entender la arquitectura:**
-   - [DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md](DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md)
+    - [DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md](DIA6_ARQUITECTURA_COMPLETA_FRONTEND_BACKEND.md)
 
 5. **Si algo no funciona:**
-   - [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+    - [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ---
 
@@ -252,27 +253,27 @@ Estado:               ✅ Centralizada en /docs
 - **Ámbito:** Checklist para validar visuales e interacción del frontend, con foco en la página Scenario Planning.
 - **Componente principal:** [src/resources/js/pages/ScenarioPlanning/Index.vue](src/resources/js/pages/ScenarioPlanning/Index.vue)
 - **Comprobaciones rápidas:**
-  - **Arranque:** Ejecutar backend y frontend en modo desarrollo:
+    - **Arranque:** Ejecutar backend y frontend en modo desarrollo:
 
-    ```bash
-    composer run dev  # backend (si aplica)
-    npm install
-    npm run dev       # frontend (Vite)
-    ```
+        ```bash
+        composer run dev  # backend (si aplica)
+        npm install
+        npm run dev       # frontend (Vite)
+        ```
 
-  - **Abrir página:** Navegar a la ruta Scenario Planning en la app y verificar carga correcta.
-  - **Render SVG:** Verificar gradientes, glow y que no aparezcan warnings tipo "Error in parsing value for 'opacity'" en consola.
-  - **Interacción:** Arrastrar nodos, soltar y comprobar que la acción `savePositions` realiza la petición correcta en la pestaña Network.
-  - **Consola:** Sin errores JS ni warnings D3 en la consola del navegador.
-  - **Responsivo:** Probar en desktop / tablet / mobile (anchos típicos) y verificar que el canvas se redibuja correctamente.
-  - **Performance:** Comprobar que la simulación D3 no causa UI jank en escenarios normales (~50-200 nodos).
-  - **Tests & Formateo:** Ejecutar pruebas y formateo:
+    - **Abrir página:** Navegar a la ruta Scenario Planning en la app y verificar carga correcta.
+    - **Render SVG:** Verificar gradientes, glow y que no aparezcan warnings tipo "Error in parsing value for 'opacity'" en consola.
+    - **Interacción:** Arrastrar nodos, soltar y comprobar que la acción `savePositions` realiza la petición correcta en la pestaña Network.
+    - **Consola:** Sin errores JS ni warnings D3 en la consola del navegador.
+    - **Responsivo:** Probar en desktop / tablet / mobile (anchos típicos) y verificar que el canvas se redibuja correctamente.
+    - **Performance:** Comprobar que la simulación D3 no causa UI jank en escenarios normales (~50-200 nodos).
+    - **Tests & Formateo:** Ejecutar pruebas y formateo:
 
-    ```bash
-    composer test tests/Path/IfAny --filter ScenarioPlanning
-    npx prettier --no-plugin-search --write "src/**/*.{js,ts,vue,css,scss,json,md}"
-    npx eslint "src/**/*.{js,ts,vue}" --fix
-    ```
+        ```bash
+        composer test tests/Path/IfAny --filter ScenarioPlanning
+        npx prettier --no-plugin-search --write "src/**/*.{js,ts,vue,css,scss,json,md}"
+        npx eslint "src/**/*.{js,ts,vue}" --fix
+        ```
 
 - **Referencias:** [docs/GUIA_STRATOS_CEREBRO.txt](docs/GUIA_STRATOS_CEREBRO.txt) (guía del subsistema Cerebro).
 
