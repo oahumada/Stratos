@@ -33,6 +33,8 @@ class DemoSeeder extends Seeder
         $driver = DB::getDriverName();
         if ($driver === 'sqlite') {
             DB::statement('PRAGMA foreign_keys = OFF');
+        } elseif ($driver === 'pgsql') {
+            DB::statement('SET session_replication_role = "replica";');
         } else {
             DB::statement('SET FOREIGN_KEY_CHECKS=0');
         }
@@ -51,6 +53,8 @@ class DemoSeeder extends Seeder
 
         if ($driver === 'sqlite') {
             DB::statement('PRAGMA foreign_keys = ON');
+        } elseif ($driver === 'pgsql') {
+            DB::statement('SET session_replication_role = "origin";');
         } else {
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
         }

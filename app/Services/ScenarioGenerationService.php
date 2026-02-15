@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
+use App\Services\EmbeddingService;
 
 class ScenarioGenerationService
 {
@@ -557,10 +559,31 @@ EOT;
                     'name' => $meta['nombre'] ?? $meta['name'] ?? 'Generated Scenario ' . now()->toDateTimeString(),
                     'description' => $meta['descripcion'] ?? $meta['description'] ?? 'Imported from LLM analysis',
                     'status' => 'draft',
+                    'horizon_months' => $meta['horizon_months'] ?? ($meta['planning_horizon_months'] ?? 12),
+                    'fiscal_year' => $meta['fiscal_year'] ?? (int)date('Y'),
                     'source_generation_id' => $generation->id,
                     'created_by' => $generation->created_by,
+                    'owner_user_id' => $generation->created_by,
                 ]);
                 $generation->update(['scenario_id' => $scenario->id]);
+
+                // Generate embedding for scenario
+                if (config('features.generate_embeddings', false)) {
+                    try {
+                        $embeddingService = app(EmbeddingService::class);
+                        $embedding = $embeddingService->forScenario($scenario);
+
+                        if ($embedding) {
+                            $vectorStr = $embeddingService->toVectorString($embedding);
+                            DB::update(
+                                "UPDATE scenarios SET embedding = ?::vector WHERE id = ?",
+                                [$vectorStr, $scenario->id]
+                            );
+                        }
+                    } catch (\Exception $e) {
+                         Log::warning("Embedding generation failed for scenario {$scenario->id}: " . $e->getMessage());
+                    }
+                }
             }
 
             $stats = ['capabilities' => 0, 'competencies' => 0, 'skills' => 0, 'blueprints' => 0];
@@ -569,52 +592,99 @@ EOT;
             $caps = $data['capabilities'] ?? [];
             foreach ($caps as $capData) {
                 $capability = \App\Models\Capability::updateOrCreate(
-                [
-                    'organization_id' => $orgId,
-                    'llm_id' => $capData['id'] ?? null,
-                    'name' => $capData['nombre'] ?? $capData['name'],
-                ],
-                [
-                    'description' => $capData['descripcion'] ?? $capData['description'] ?? null,
-                    'status' => 'active',
-                    'discovered_in_scenario_id' => $scenario->id,
-                ]
+                    [
+                        'organization_id' => $orgId,
+                        'llm_id' => $capData['id'] ?? null,
+                        'name' => $capData['nombre'] ?? $capData['name'],
+                    ],
+                    [
+                        'description' => $capData['descripcion'] ?? $capData['description'] ?? null,
+                        'status' => 'in_incubation',
+                        'discovered_in_scenario_id' => $scenario->id,
+                    ]
                 );
 
                 // Link Capability to Scenario (Pivot)
                 $scenario->capabilities()->syncWithoutDetaching([$capability->id => [
-                        'strategic_role' => 'target',
-                        'strategic_weight' => 10,
-                        'priority' => 1,
-                        'required_level' => 3,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]]);
+                    'strategic_role' => 'target',
+                    'strategic_weight' => 10,
+                    'priority' => 1,
+                    'required_level' => 3,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]]);
                 $stats['capabilities']++;
+
+                // Generate embedding for capability
+                if (config('features.generate_embeddings', false)) {
+                    try {
+                        $embeddingService = app(EmbeddingService::class);
+                        $embedding = $embeddingService->forCapability($capability);
+                        
+                        if ($embedding) {
+                            $vectorStr = $embeddingService->toVectorString($embedding);
+                            DB::update(
+                                "UPDATE capabilities SET embedding = ?::vector WHERE id = ?",
+                                [$vectorStr, $capability->id]
+                            );
+                            
+                            // Find similar capabilities
+                            $similar = $embeddingService->findSimilar('capabilities', $embedding, 3, $orgId);
+                            if (!empty($similar) && $similar[0]->similarity > 0.90) {
+                                Log::info("Similar capability found for '{$capability->name}'", [
+                                    'similar_to' => $similar[0]->name,
+                                    'similarity' => round($similar[0]->similarity, 3),
+                                ]);
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning("Embedding generation failed for capability {$capability->id}: " . $e->getMessage());
+                    }
+                }
 
                 // Process Competencies
                 $comps = $capData['competencies'] ?? [];
                 foreach ($comps as $compData) {
                     $competency = \App\Models\Competency::updateOrCreate(
-                    [
-                        'organization_id' => $orgId,
-                        'llm_id' => $compData['id'] ?? null,
-                        'name' => $compData['nombre'] ?? $compData['name'],
-                    ],
-                    [
-                        'description' => $compData['descripcion'] ?? $compData['description'] ?? null,
-                    ]
+                        [
+                            'organization_id' => $orgId,
+                            'llm_id' => $compData['id'] ?? null,
+                            'name' => $compData['nombre'] ?? $compData['name'],
+                        ],
+                        [
+                            'description' => $compData['descripcion'] ?? $compData['description'] ?? null,
+                            'status' => 'in_incubation',
+                            'discovered_in_scenario_id' => $scenario->id,
+                        ]
                     );
 
                     // Link Competency to Capability specialized for this scenario
                     $capability->competencies()->syncWithoutDetaching([$competency->id => [
-                            'scenario_id' => $scenario->id,
-                            'required_level' => 3,
-                            'weight' => 10,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]]);
+                        'scenario_id' => $scenario->id,
+                        'required_level' => 3,
+                        'weight' => 10,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]]);
                     $stats['competencies']++;
+
+                    // Generate embedding for competency
+                    if (config('features.generate_embeddings', false)) {
+                        try {
+                            $embeddingService = app(EmbeddingService::class);
+                            $embedding = $embeddingService->forCompetency($competency);
+                            
+                            if ($embedding) {
+                                $vectorStr = $embeddingService->toVectorString($embedding);
+                                DB::update(
+                                    "UPDATE competencies SET embedding = ?::vector WHERE id = ?",
+                                    [$vectorStr, $competency->id]
+                                );
+                            }
+                        } catch (\Exception $e) {
+                            Log::warning("Embedding generation failed for competency {$competency->id}");
+                        }
+                    }
 
                     // Process Skills
                     $skills = $compData['skills'] ?? [];
@@ -624,40 +694,114 @@ EOT;
                         $skillDesc = is_array($skillData) ? ($skillData['descripcion'] ?? $skillData['description'] ?? null) : null;
 
                         $skill = \App\Models\Skill::updateOrCreate(
-                        [
-                            'organization_id' => $orgId,
-                            'llm_id' => $skillLlmId,
-                            'name' => $skillName,
-                        ],
-                        [
-                            'description' => $skillDesc,
-                            'category' => $capability->name,
-                            'scope_type' => 'domain',
-                        ]
+                            [
+                                'organization_id' => $orgId,
+                                'llm_id' => $skillLlmId,
+                                'name' => $skillName,
+                            ],
+                            [
+                                'description' => $skillDesc,
+                                'category' => $capability->name,
+                                'status' => 'in_incubation',
+                                'discovered_in_scenario_id' => $scenario->id,
+                                'scope_type' => 'domain',
+                            ]
                         );
 
                         // Link Skill to Competency
                         $competency->skills()->syncWithoutDetaching([$skill->id => [
-                                'weight' => 10,
-                                'required_level' => 3,
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ]]);
+                            'weight' => 10,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]]);
                         $stats['skills']++;
+
+                        // Generate embedding for skill
+                        if (config('features.generate_embeddings', false)) {
+                            try {
+                                $embeddingService = app(EmbeddingService::class);
+                                $embedding = $embeddingService->forSkill($skill);
+                                
+                                if ($embedding) {
+                                    $vectorStr = $embeddingService->toVectorString($embedding);
+                                    DB::update(
+                                        "UPDATE skills SET embedding = ?::vector WHERE id = ?",
+                                        [$vectorStr, $skill->id]
+                                    );
+                                }
+                            } catch (\Exception $e) {
+                                Log::warning("Embedding generation failed for skill {$skill->id}");
+                            }
+                        }
                     }
                 }
             }
 
-            // 3. Process Strategic Roles (Talent Blueprints) if present
+            // 3. Process Strategic Roles (Roles & Talent Blueprints) if present
             $suggestedRoles = $data['suggested_roles'] ?? [];
-            if (!empty($suggestedRoles) && class_exists(\App\Services\TalentBlueprintService::class)) {
-                try {
-                    $blueprintSvc = app(\App\Services\TalentBlueprintService::class);
-                    $blueprintSvc->createFromLlmResponse($scenario, $suggestedRoles);
-                    $stats['blueprints'] = count($suggestedRoles);
+            if (!empty($suggestedRoles)) {
+                $stats['roles'] = 0;
+                foreach ($suggestedRoles as $roleData) {
+                    $role = \App\Models\Roles::updateOrCreate(
+                        [
+                            'organization_id' => $orgId,
+                            'name' => $roleData['name'],
+                        ],
+                        [
+                            'description' => $roleData['description'] ?? null,
+                            'status' => 'in_incubation',
+                            'discovered_in_scenario_id' => $scenario->id,
+                        ]
+                    );
+                    $stats['roles']++;
+
+                    // Generate embedding for role
+                    if (config('features.generate_embeddings', false)) {
+                        try {
+                            $embeddingService = app(EmbeddingService::class);
+                            $embedding = $embeddingService->forRole($role);
+                            
+                            if ($embedding) {
+                                $vectorStr = $embeddingService->toVectorString($embedding);
+                                DB::update(
+                                    "UPDATE roles SET embedding = ?::vector WHERE id = ?",
+                                    [$vectorStr, $role->id]
+                                );
+                                
+                                // Find similar roles
+                                $similar = $embeddingService->findSimilar('roles', $embedding, 3, $orgId);
+                                if (!empty($similar) && $similar[0]->similarity > 0.85) {
+                                    Log::info("Similar role found for '{$role->name}'", [
+                                        'similar_to' => $similar[0]->name,
+                                        'similarity' => round($similar[0]->similarity, 3),
+                                    ]);
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            Log::warning("Embedding generation failed for role {$role->id}: " . $e->getMessage());
+                        }
+                    }
+
+                    // Link Role to Scenario (Pivot)
+                    DB::table('scenario_roles')->updateOrInsert(
+                        ['scenario_id' => $scenario->id, 'role_id' => $role->id],
+                        [
+                            'fte' => $roleData['estimated_fte'] ?? 1,
+                            'rationale' => $roleData['talent_composition']['logic_justification'] ?? null,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    );
                 }
-                catch (\Throwable $e) {
-                    \Log::warning('Failed incrementally creating TalentBlueprints: ' . $e->getMessage());
+
+                if (class_exists(\App\Services\TalentBlueprintService::class)) {
+                    try {
+                        $blueprintSvc = app(\App\Services\TalentBlueprintService::class);
+                        $blueprintSvc->createFromLlmResponse($scenario, $suggestedRoles);
+                        $stats['blueprints'] = count($suggestedRoles);
+                    } catch (\Throwable $e) {
+                        \Log::warning('Failed incrementally creating TalentBlueprints: ' . $e->getMessage());
+                    }
                 }
             }
 

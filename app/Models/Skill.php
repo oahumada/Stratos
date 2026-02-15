@@ -20,6 +20,8 @@ class Skill extends Model
         'is_critical',
         'scope_type',
         'domain_tag',
+        'status',
+        'discovered_in_scenario_id',
         'embedding',
     ];
 

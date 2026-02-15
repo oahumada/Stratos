@@ -14,4 +14,7 @@ return [
     'validate_llm_response_max_skills' => (int) env('LLM_MAX_SKILLS', 10),
     // Max roles returned by LLM
     'validate_llm_response_max_roles' => (int) env('LLM_MAX_ROLES', 20),
+    
+    // Toggle automatic embedding generation during import
+    'generate_embeddings' => (bool) env('FEATURE_GENERATE_EMBEDDINGS', false),
 ];

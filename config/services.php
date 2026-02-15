@@ -51,4 +51,13 @@ return [
         'chunks_ttl_days' => env('ABACUS_CHUNKS_TTL_DAYS', 30),
     ],
 
+    'embeddings' => [
+        'provider' => env('EMBEDDINGS_PROVIDER', 'mock'),
+        'model' => env('EMBEDDINGS_MODEL', 'text-embedding-3-small'),
+    ],
+
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+    ],
+
 ];

@@ -138,6 +138,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
             // Test/Simulation Endpoints
             Route::post('/scenarios/simulate-import', [\App\Http\Controllers\Api\ScenarioGenerationController::class , 'simulateImport']);
+
+            // Incubation Approval Workflow (Fase 2)
+            Route::get('/scenarios/{id}/incubated-items', [\App\Http\Controllers\Api\IncubationController::class, 'index']);
+            Route::post('/scenarios/{id}/incubated-items/approve', [\App\Http\Controllers\Api\IncubationController::class, 'approve']);
+            Route::post('/scenarios/{id}/incubated-items/reject', [\App\Http\Controllers\Api\IncubationController::class, 'reject']);
         }
         );
 

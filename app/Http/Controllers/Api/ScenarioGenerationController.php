@@ -314,8 +314,8 @@ class ScenarioGenerationController extends Controller
             $generation->save();
 
             try {
-                $importer = app(\App\Services\ScenarioGenerationImporter::class);
-                $report = $importer->importGeneration($scenario, $generation);
+                $svc = app(\App\Services\ScenarioGenerationService::class);
+                $report = $svc->finalizeScenarioImport($generation);
                 // record success
                 $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
                             'attempted_by' => $user->id,

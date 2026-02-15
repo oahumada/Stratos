@@ -2,8 +2,8 @@
 import IncubatedReviewModal from '@/components/IncubatedReviewModal.vue';
 import ChangeSetModal from '@/components/ScenarioPlanning/ChangeSetModal.vue';
 import StatusTimeline from '@/components/ScenarioPlanning/StatusTimeline.vue';
-import VersionHistoryModal from '@/components/ScenarioPlanning/VersionHistoryModal.vue';
 import RoleCompetencyMatrix from '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue';
+import VersionHistoryModal from '@/components/ScenarioPlanning/VersionHistoryModal.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -326,6 +326,28 @@ const promoteIncubated = async () => {
     } catch (e) {
         console.error(e);
         showError('Error promoviendo entidades');
+    }
+};
+
+const simulateLLM = async () => {
+    if (!scenarioId.value) return;
+    loading.value = true;
+    try {
+        await api.post(`/api/scenarios/${scenarioId.value}/simulate-import`);
+        showSuccess(
+            'Simulación de respuesta LLM completada. Estructura generada.',
+        );
+        // Refresh full state
+        await loadScenario();
+        // Force refresh of child components if needed
+    } catch (e: any) {
+        console.error(e);
+        showError(
+            'Error al simular importación: ' +
+                (e.response?.data?.message || e.message),
+        );
+    } finally {
+        loading.value = false;
     }
 };
 
@@ -919,6 +941,28 @@ onMounted(() => {
                 />
 
                 <template v-else-if="scenario">
+                    <!-- Incubated Review Block -->
+                    <div
+                        v-if="['draft', 'incubating'].includes(scenario.status)"
+                        class="mb-4"
+                    >
+                        <IncubatedCubeReview
+                            :scenario-id="Number(scenario.id)"
+                            @approved="loadScenario"
+                        />
+                        <div class="d-flex justify-end px-4">
+                            <v-btn
+                                size="small"
+                                variant="text"
+                                color="warning"
+                                @click="simulateLLM"
+                                prepend-icon="mdi-test-tube"
+                            >
+                                Simular Respuesta LLM
+                            </v-btn>
+                        </div>
+                    </div>
+
                     <!-- Step 1: Mapa de Escenario -->
                     <div
                         v-show="currentStep === 1"

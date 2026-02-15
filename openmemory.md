@@ -7,80 +7,239 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 - **Cierre de Sesión:** Si el usuario olvida cerrar la sesión explícitamente ("terminamos por ahora"), el asistente DEBE recordarlo para asegurar el registro en la memoria del proyecto.
 
+---
+
+## 🎯 Fase 1 Completada: Importación LLM con Incubación (2026-02-15)
+
+### Resumen Ejecutivo
+
+✅ **FASE 1 COMPLETADA** - El sistema puede importar completamente datos generados por LLM, incluyendo capabilities, competencies, skills, **roles** y **talent blueprints**, marcando las entidades nuevas con `status = 'in_incubation'`.
+
+### Trigger de Importación
+
+**Producción**:
+
+```
+POST /api/strategic-planning/scenarios/generate/{id}/accept
+Body: { "import": true }
+```
+
+**Testing**:
+
+```
+POST /api/strategic-planning/scenarios/simulate-import
+```
+
+### Resultados Validados (Scenario ID: 16)
+
+| Entidad               | Cantidad | Estado             |
+| --------------------- | -------- | ------------------ |
+| Capabilities          | 3        | `in_incubation` ✅ |
+| Competencies          | 9        | `in_incubation` ✅ |
+| Skills                | 27       | `in_incubation` ✅ |
+| **Roles**             | 5        | `in_incubation` ✅ |
+| **Talent Blueprints** | 5        | Creados ✅         |
+
+### Cambios Clave Implementados
+
+1. **Migraciones de Base de Datos**:
+    - `2026_02_15_011504_add_incubation_fields_to_talent_tables.php` - Agregó `status`, `discovered_in_scenario_id` a roles, competencies, skills
+    - `2026_02_15_014549_drop_enum_checks_from_capabilities.php` - Eliminó constraint `capabilities_status_check`
+    - `2026_02_15_014757_drop_more_enum_checks.php` - Eliminó constraints de enum para permitir valores flexibles del LLM
+
+2. **Modelos Actualizados**:
+    - `Competency.php`, `Skill.php`, `Roles.php` - `$fillable` incluye campos de incubación
+
+3. **Servicio de Importación**:
+    - `ScenarioGenerationService::finalizeScenarioImport()` (líneas 538-709)
+    - Importa capabilities, competencies, skills, **roles** y **talent blueprints**
+    - Marca entidades nuevas con `status = 'in_incubation'`
+    - Vincula roles al scenario en tabla pivot `scenario_roles`
+
+4. **Controlador Actualizado**:
+    - `ScenarioGenerationController::accept()` (línea 317)
+    - **ACTUALIZADO**: Ahora usa `finalizeScenarioImport()` en lugar del servicio legacy
+    - Importa roles y talent blueprints en producción
+
+5. **Datos de Prueba**:
+    - `resources/prompt_instructions/llm_sim_response.md` - Agregado `suggested_roles` con 5 roles de ejemplo
+
+### Estructura de Datos
+
+**Entidades con Incubación**:
+
+- `capabilities`, `competencies`, `skills`, `roles` tienen:
+    - `status` (string): `'active'` | `'in_incubation'` | `'inactive'`
+    - `discovered_in_scenario_id` (FK): ID del scenario donde se descubrió
+
+**Talent Blueprints**:
+
+- Almacena mix humano/sintético por rol
+- Campos: `role_name`, `total_fte_required`, `human_leverage`, `synthetic_leverage`, `recommended_strategy`, `agent_specs`
+
+### Documentación Generada
+
+- `docs/FLUJO_IMPORTACION_LLM.md` - Flujo completo con diagramas
+- `docs/MEMORIA_SISTEMA_IMPORTACION_LLM.md` - Memoria del sistema
+- `RESUMEN_VALIDACION.md` - Resumen de validación
+- `scripts/validate_import.php` - Script de validación
+
+---
+
+## 🎯 Fase 2.1 Completada: Integración de Embeddings (2026-02-15)
+
+### Resumen Ejecutivo
+
+✅ **FASE 2.1 COMPLETADA** - El sistema ahora genera automáticamente **embeddings vectoriales** durante la importación LLM para competencies, skills y roles, permitiendo búsqueda semántica y detección de duplicados.
+
+### Resultados Validados (Scenario ID: 27)
+
+| Entidad      | Embeddings Generados | Estado  |
+| ------------ | -------------------- | ------- |
+| Competencies | 9/9                  | ✅ 100% |
+| Skills       | 27/27                | ✅ 100% |
+| Roles        | 5/5                  | ✅ 100% |
+
+### Componentes Implementados
+
+1. **EmbeddingService** (`app/Services/EmbeddingService.php`):
+    - Generación vía OpenAI (text-embedding-3-small)
+    - Generación vía Mock (testing sin API key)
+    - Búsqueda por similitud usando pgvector (`<=>` operator)
+    - Métodos: `forRole()`, `forCompetency()`, `forSkill()`
+
+2. **Integración en Importación**:
+    - `ScenarioGenerationService::finalizeScenarioImport()` actualizado
+    - Genera embeddings automáticamente si `FEATURE_GENERATE_EMBEDDINGS=true`
+    - Almacena en columnas `embedding` (tipo `vector(1536)`)
+
+3. **Configuración**:
+    ```env
+    FEATURE_GENERATE_EMBEDDINGS=true
+    EMBEDDINGS_PROVIDER=mock  # o 'openai'
+    OPENAI_API_KEY=sk-...     # solo si provider=openai
+    ```
+
+### Casos de Uso Habilitados
+
+- ✅ **Detección de duplicados semánticos** (similarity > 0.95)
+- ✅ **Búsqueda semántica** (futuro endpoint `/api/roles/semantic-search`)
+- ✅ **Recomendaciones inteligentes** (competencias relacionadas a roles)
+- ✅ **Análisis de evolución** (comparar roles antes/después de scenario)
+
+### Costos
+
+- **OpenAI**: ~$0.000035 por importación (~1,760 tokens)
+- **Mock**: $0 (generación local)
+
+### Documentación
+
+- `docs/FASE_2.1_EMBEDDINGS_COMPLETADA.md` - Documentación completa
+- `docs/PROPUESTA_EMBEDDINGS.md` - Propuesta original
+
+### Limitaciones Conocidas
+
+- ⚠️ Búsqueda de similares comentada temporalmente (debugging)
+
+### Próximos Pasos (Fase 2.2)
+
+1. Descomentar búsqueda de similares en roles y capabilities
+2. Crear endpoint `/api/roles/semantic-search`
+3. Implementar UI de búsqueda semántica
+
+---
+
+### Próximos Pasos (Fase 2 - General)
+
+1. **Workflow de Aprobación**: Dashboard para revisar entidades `in_incubation` y aprobar/rechazar
+2. **Visualización**: Grafo de capacidades con entidades en incubación resaltadas
+3. **Notificaciones**: Email/notificación cuando la importación termina
+4. **Refactoring**: Reducir complejidad cognitiva de `ScenarioGenerationService` (actual: 93, límite: 15)
+
+---
+
 ### Nota rápida (2026-02-12)
 
 - **Memory System Review:** Se revisó el sistema de documentación y memoria del proyecto.
-  - **Confirmación:** `openmemory.md` es la fuente de verdad viva y crítica para el contexto diario.
-  - **Acción:** Se reforzó la importancia de actualizar este archivo al finalizar sesiones de trabajo para evitar obsolescencia de contexto.
-  - **Estado:** El sistema de "Knowledge Management" via `docs/` + `openmemory.md` funciona correctamente, aunque con cierta deuda de limpieza en documentos antiguos.
+    - **Confirmación:** `openmemory.md` es la fuente de verdad viva y crítica para el contexto diario.
+    - **Acción:** Se reforzó la importancia de actualizar este archivo al finalizar sesiones de trabajo para evitar obsolescencia de contexto.
+    - **Estado:** El sistema de "Knowledge Management" via `docs/` + `openmemory.md` funciona correctamente, aunque con cierta deuda de limpieza en documentos antiguos.
 
 ### Resumen Retroactivo (2026-02-06 a 2026-02-12)
 
 > **Nota:** Este bloque se reconstruyó analizando el historial de Git para cubrir el gap documental.
 
 - **2026-02-06 - ChangeSet & Revert Ops:**
-  - Se implementó la capacidad de **ignorar índices** específicos al aplicar un `ChangeSet`.
-  - Se añadió lógica en `ChangeSetService` para excluir operaciones marcadas como ignoradas durante la transacción.
-  - UI actualizada para permitir revertir operaciones individualmente antes de aplicar.
+    - Se implementó la capacidad de **ignorar índices** específicos al aplicar un `ChangeSet`.
+    - Se añadió lógica en `ChangeSetService` para excluir operaciones marcadas como ignoradas durante la transacción.
+    - UI actualizada para permitir revertir operaciones individualmente antes de aplicar.
 
 ### Features Recientes (Resumen Feb 2026)
 
 #### 1. Sistema de Versionado y Changelog
+
 - **Mecanismo:** Implementación de Semantic Versioning (Major.Minor.Patch) automatizado mediante commits convencionales (`feat`, `fix`, `chore`).
 - **Herramientas:** Scripts de automatización en `scripts/release.sh` y `scripts/commit.sh`.
 - **Efecto:** Generación automática de `CHANGELOG.md` y Tags de Git. Soporte extendido para **versionado de competencias y roles** (backfill incluído).
 
 #### 2. Generación de Escenarios Asistida por LLM
+
 - **Arquitectura:** Flujo asíncrono `Wizard UI` -> `Preview` -> `Job (Cola)` -> `Persistencia`.
 - **Integración:** Soporte principal para **Abacus AI** (con fallback a Mock/OpenAI).
 - **Capacidades:**
-  - **Streaming & Chunks:** Procesamiento de respuestas largas en tiempo real.
-  - **Redaction Service:** Eliminación automática de PII antes de persistir prompts/respuestas.
-  - **Auto-Import:** Flujo para transformar la respuesta del LLM ("llm_response") en entidades del sistema (`Scenario`, `Capabilities`, `Skills`).
-  - **Validación:** Esquema JSON estricto en prompts y validación server-side.
+    - **Streaming & Chunks:** Procesamiento de respuestas largas en tiempo real.
+    - **Redaction Service:** Eliminación automática de PII antes de persistir prompts/respuestas.
+    - **Auto-Import:** Flujo para transformar la respuesta del LLM ("llm_response") en entidades del sistema (`Scenario`, `Capabilities`, `Skills`).
+    - **Validación:** Esquema JSON estricto en prompts y validación server-side.
 
 #### 3. Modelo Conceptual: Arquetipos, Cubo y Pentágono
+
 - **Arquetipos de Rol:** Plantillas maestras inspiradas en la matriz Estratégico/Táctico/Operativo que definen el 80% de un rol (horizonte temporal, tipo de gestión). Permiten la herencia automática de competencias core.
 - **Cubo de Roles (Role Cube):** Modelo multidimensional para definir la identidad de un rol:
-  - **Eje X:** Arquetipo (Complejidad/Gestión)
-  - **Eje Y:** Maestría (1-5 Stratos)
-  - **Eje Z:** Proceso de Negocio (e.g., Lead-to-Cash)
-  - **Factor t:** Contexto/Ciclo Organizacional (Startup, Madurez, etc.)
+    - **Eje X:** Arquetipo (Complejidad/Gestión)
+    - **Eje Y:** Maestría (1-5 Stratos)
+    - **Eje Z:** Proceso de Negocio (e.g., Lead-to-Cash)
+    - **Factor t:** Contexto/Ciclo Organizacional (Startup, Madurez, etc.)
 - **Pentágono de Competencias:** Visualización del ecosistema de competencias de un rol (Core, Dominio, Contextuales, Skills Atómicas, Persona).
 
 #### 4. Gestión de Talento y Ciclo de Vida
+
 - **Filosofía:** Stratos gestiona **Talento** (escenarios, capacidades, competencias), no solo personas.
 - **Tipología de Talento:** Humano, Sintético (IA/Bots) e Híbrido.
 - **Ciclo de Vida (Incubación -> Formalización):**
-  - **Incubación:** Roles/Competencias nacen como "embriones" en escenarios LLM.
-  - **Análisis:** Comparación con el catálogo para identificar transformación, extinción o mutación.
-  - **Formalización:** Al aprobar un escenario, los embriones se "nacen" en el catálogo oficial con versionado semántico (v1.0.0).
+    - **Incubación:** Roles/Competencias nacen como "embriones" en escenarios LLM.
+    - **Análisis:** Comparación con el catálogo para identificar transformación, extinción o mutación.
+    - **Formalización:** Al aprobar un escenario, los embriones se "nacen" en el catálogo oficial con versionado semántico (v1.0.0).
 - **Responsabilidad:** La IA propone y orquesta, pero **la responsabilidad final siempre recae en el humano**.
 
 #### 5. Diseño del Dominio Conceptual y Visión
+
 > **Principio Rector:** "Mantener la integridad conceptual para evitar construir un camello cuando se diseñó un columpio."
 
 - **Ecosistema de Contexto:** El sistema no es una colección de features, es un modelo coherente de **Orquestación de Viabilidad**.
 - **Objeto e Inspiración:**
-  - **No** es gestionar personas (HRIS tradicional).
-  - **Es** gestionar *Talento* (Humano/Sintético/Híbrido) frente a *Escenarios*.
+    - **No** es gestionar personas (HRIS tradicional).
+    - **Es** gestionar _Talento_ (Humano/Sintético/Híbrido) frente a _Escenarios_.
 - **Restricción Arquitectónica:** Toda nueva funcionalidad debe alinearse con este dominio conceptual. No se admiten "parches" que contradigan la visión de orquestador proactivo.
-- **El Problema a Resolver:** Evitar modelar disfunciones heredadas ("mezcolanza de legados"). Stratos modela el *deber ser* estratégico.
+- **El Problema a Resolver:** Evitar modelar disfunciones heredadas ("mezcolanza de legados"). Stratos modela el _deber ser_ estratégico.
 
 #### 6. Posicionamiento Estratégico: Meta-Orquestación
+
 - **Relación con el Ecosistema (Buk, SAP, Workday):** Stratos no compite en la operación transaccional (nómina, asistencia), sino que se sitúa **por encima** como la capa de inteligencia estratégica.
 - **El Futuro de la Operación:** Los flujos operativos serán eventualmente absorbidos ("borrados") por **Agentes de IA**.
 - **El Rol de Stratos:** Actúa como el **Coordinador y Orquestador** de este cambio, dirigiendo tanto al talento humano como a los agentes que operan los sistemas legados.
 - **Estructura de Poder:** Al controlar la estrategia, el modelado de escenarios y la asignación de recursos, Stratos ocupa el verdadero centro decisorio de la organización.
 
 #### 7. Métricas Estratégicas: Scenario IQ & Confidence
+
 - **Scenario IQ (0-100):** Medida cuantitativa de preparación organizacional para ejecutar un escenario específico.
-  - **Cálculo en Cascada:** Skill Readiness (N1) -> Competency Readiness (N2) -> Capability Readiness (N3) -> **Scenario IQ (N4)**.
+    - **Cálculo en Cascada:** Skill Readiness (N1) -> Competency Readiness (N2) -> Capability Readiness (N3) -> **Scenario IQ (N4)**.
 - **Confidence Score (0-1):** Calidad/Fiabilidad del dato (ej. Test Técnico = 1.0 vs Autoevaluación = 0.3). Permite distinguir entre "estamos listos" y "creemos estar listos".
 - **Aplicación (PES):** Permite simular impacto de Reskilling/Contratación y priorizar presupuesto donde más "mueva la aguja" estratégica.
 - **Talento 360:** Mecanismo de validación social y control que alimenta el sistema con información Just-in-Time, permitiendo ajustes oportunos.
 
 #### 8. Organización Inteligente y Métricas Dinámicas
+
 - **Concepto:** Stratos mide no solo el "estado" (foto), sino la **velocidad de cambio** (película).
 - **Índice de Adaptabilidad:** Métrica que indica cuán rápido la organización puede reconfigurar sus capacidades ante un nuevo escenario.
 - **Índice de Aprendizaje (Learning Velocity):** Velocidad a la que el talento cierra brechas de competencia.
@@ -88,27 +247,30 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Simulación de Resiliencia:** "¿Qué tan bien podríamos enfrentar el desafío X?" (Stress testing organizacional).
 
 #### 9. Resumen de Sesión (2026-02-12) - Recuperación de Integridad Conceptual
+
 - **Objetivo:** Restaurar contexto perdido (gap Feb 6-12) y blindar la visión del sistema.
 - **Logros:**
-  1. **Gap Cubierto:** Se reconstruyó la historia del 6 al 12 de feb (ChangeLog, LLM Features).
-  2. **Arquitectura:** Formalizados Arquetipos, Cubo de Roles, Pentágono y Talento Sintético.
-  3. **Visión:** Definido Stratos como Meta-Orquestador de Viabilidad (vs HRIS tradicional).
-  4. **Métricas:** Introducido Scenario IQ, Confidence Score y Adaptability Index.
+    1. **Gap Cubierto:** Se reconstruyó la historia del 6 al 12 de feb (ChangeLog, LLM Features).
+    2. **Arquitectura:** Formalizados Arquetipos, Cubo de Roles, Pentágono y Talento Sintético.
+    3. **Visión:** Definido Stratos como Meta-Orquestador de Viabilidad (vs HRIS tradicional).
+    4. **Métricas:** Introducido Scenario IQ, Confidence Score y Adaptability Index.
 - **Acuerdo Operativo:** Se estableció el protocolo "Resumen para Bitácora" al cierre de cada sesión.
 - **Estado:** `openmemory.md` actualizado y alineado con la visión estratégica.
 
 #### 10. Panorama Competitivo y Amenazas
+
 - **Las Aplanadoras (Amenaza Existencial):**
-  - **Microsoft Copilot / Viva:** Si integran todo (LinkedIn + Office + Dynamics), pueden "aplanar" el mercado por inercia.
-  - **Workday / SAP:** Si deciden comprar/construir esta capa de inteligencia, tienen el canal de distribución masivo.
+    - **Microsoft Copilot / Viva:** Si integran todo (LinkedIn + Office + Dynamics), pueden "aplanar" el mercado por inercia.
+    - **Workday / SAP:** Si deciden comprar/construir esta capa de inteligencia, tienen el canal de distribución masivo.
 - **Los Colaboradores (Complementos):**
-  - **Buk / Talana / Deel:** Operan la nómina y cumplimiento local. Stratos se "monta" sobre ellos via API. Son aliados tácticos (ellos hacen el trabajo sucio).
-  - **Abacus / OpenAI:** Proveedores de infraestructura de inteligencia. Son "commodities" necesarios.
+    - **Buk / Talana / Deel:** Operan la nómina y cumplimiento local. Stratos se "monta" sobre ellos via API. Son aliados tácticos (ellos hacen el trabajo sucio).
+    - **Abacus / OpenAI:** Proveedores de infraestructura de inteligencia. Son "commodities" necesarios.
 - **El Botín (A Destruir/Disrumpir):**
-  - **Consultoras de RRHH Tradicionales:** Venden PPTs estáticas de "Gestión del cambio" y "Diccionarios de Competencias" obsoletos. Stratos automatiza su negocio de alto margen.
-  - **Headhunters de Volumen:** Stratos y su predicción de talento interno/sintético hacen irrelevante la búsqueda externa masiva de perfiles estándar.
+    - **Consultoras de RRHH Tradicionales:** Venden PPTs estáticas de "Gestión del cambio" y "Diccionarios de Competencias" obsoletos. Stratos automatiza su negocio de alto margen.
+    - **Headhunters de Volumen:** Stratos y su predicción de talento interno/sintético hacen irrelevante la búsqueda externa masiva de perfiles estándar.
 
 #### 11. Cierre de Sesión (2026-02-14 03:30) - Refactorización y Estabilización de CI/CD
+
 - **Refactorización de Componentes:**
     - Eliminado código muerto: `goToCapability` en `ScenarioDetail.vue`.
     - Movidos componentes de `StrategicPlanningScenarios` a `ScenarioPlanning` para mejorar la organización del proyecto.
@@ -124,19 +286,21 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     - Cambios pusheados exitosamente a `main`.
 
 #### 12. Cierre de Sesión (2026-02-12 02:42)
+
 - **Hito Alcanzado:** Se ha consolidado la **Madurez Conceptual de Stratos**. Ya no es solo un conjunto de features, sino una plataforma con filosofía, enemigos claros (Aplanadoras) y métricas de impacto real (IQ).
 - **Próximos Pasos (To-Do):**
-  1. **Dashboard de IQ:** Diseñar la visualización de la "Cascada de Readiness".
-  2. **Implementación de Talento Sintético:** Definir en código cómo se "contrata" un agente.
-  3. **Integración Meta-Orquestadora:** Definir los webhooks/API para "mandar órdenes" a Buk/SAP.
+    1. **Dashboard de IQ:** Diseñar la visualización de la "Cascada de Readiness".
+    2. **Implementación de Talento Sintético:** Definir en código cómo se "contrata" un agente.
+    3. **Integración Meta-Orquestadora:** Definir los webhooks/API para "mandar órdenes" a Buk/SAP.
 
 > **Reflexión Final:** "Hoy no escribimos código, escribimos el futuro. Transformamos un 'planificador' en el 'Sistema Operativo de la Organización'. La deuda técnica se paga con refactor, pero la deuda conceptual se paga con irrelevancia. Hoy evitamos la irrelevancia."
 
 #### 12. Sello de Calidad e Ingeniería (La Firma del Autor)
+
 - **Reflejo de Experiencia:** El sistema no es un experimento de junior. **Refleja décadas de experiencia** en arquitectura, negocio y tecnología.
 - **Ingeniería de Primer Nivel:**
-  - **Código Premium:** No basta con que funcione. Debe ser limpio, mantenible, testeable y elegante (`Solid`, `DRY`, `KISS`).
-  - **Consistencia:** Respeto absoluto por los patrones definidos (JSON-Driven CRUD, Service Layer). No hay "código spaghetti".
+    - **Código Premium:** No basta con que funcione. Debe ser limpio, mantenible, testeable y elegante (`Solid`, `DRY`, `KISS`).
+    - **Consistencia:** Respeto absoluto por los patrones definidos (JSON-Driven CRUD, Service Layer). No hay "código spaghetti".
 - **Factor WOW Técnico:** La excelencia no solo está en la UI, sino en la robustez del backend, la cobertura de tests y la claridad de la documentación.
 - **Consecuencia:** Cada línea de código es una decisión deliberada de diseño, no un accidente.
 
@@ -145,51 +309,51 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Añadida prueba Playwright E2E: `tests/e2e/generate-wizard.spec.ts` — flujo feliz GenerateWizard (preview + autorizar LLM + verificar resultado mockeado).
 
 - 2026-02-06: Documentación y helpers E2E añadidos para flujo de generación de escenarios:
-  - `docs/GUIA_GENERACION_ESCENARIOS.md`: ampliada con instrucciones prácticas para Playwright, CI, configuración LLM, pruebas de edge-cases y recomendaciones de seguridad.
-  - Helpers Playwright añadidos: `tests/e2e/helpers/login.ts`, `tests/e2e/helpers/intercepts.ts`.
-  - Fixture LLM para E2E: `tests/fixtures/llm/mock_generation_response.json`.
+    - `docs/GUIA_GENERACION_ESCENARIOS.md`: ampliada con instrucciones prácticas para Playwright, CI, configuración LLM, pruebas de edge-cases y recomendaciones de seguridad.
+    - Helpers Playwright añadidos: `tests/e2e/helpers/login.ts`, `tests/e2e/helpers/intercepts.ts`.
+    - Fixture LLM para E2E: `tests/fixtures/llm/mock_generation_response.json`.
 
-  Nota: estos cambios ayudan a ejecutar E2E reproducibles en local y en CI usando un adapter/mock para LLM; asegurar que `BASE_URL` y credenciales E2E estén configuradas en el entorno de ejecución.
-  - 2026-02-06: Seed reproducible añadido: `database/seeders/E2ESeeder.php` — crea `Organizations` id=1, admin user (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) y ejecuta `ScenarioSeeder` + `DemoSeeder` cuando están disponibles. Usar `php artisan migrate:fresh --seed --seeder=E2ESeeder` para preparar entorno local/CI.
-  - 2026-02-06: Servicio de redacción añadido: `app/Services/RedactionService.php` — usado para redaction de prompts y respuestas LLM antes de persistir. `ScenarioGenerationService::enqueueGeneration()` y `GenerateScenarioFromLLMJob` ahora aplican redacción automáticamente.
-  - 2026-02-06: Manejo de rate-limits/retries implementado: `OpenAIProvider` lanza `LLMRateLimitException` en 429 y `LLMServerException` en 5xx; `GenerateScenarioFromLLMJob` reintenta con exponential backoff (máx 5 intentos) y marca `failed` tras agotar reintentos. `MockProvider` puede simular 429 mediante `LLM_MOCK_SIMULATE_429`.
+    Nota: estos cambios ayudan a ejecutar E2E reproducibles en local y en CI usando un adapter/mock para LLM; asegurar que `BASE_URL` y credenciales E2E estén configuradas en el entorno de ejecución.
+    - 2026-02-06: Seed reproducible añadido: `database/seeders/E2ESeeder.php` — crea `Organizations` id=1, admin user (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) y ejecuta `ScenarioSeeder` + `DemoSeeder` cuando están disponibles. Usar `php artisan migrate:fresh --seed --seeder=E2ESeeder` para preparar entorno local/CI.
+    - 2026-02-06: Servicio de redacción añadido: `app/Services/RedactionService.php` — usado para redaction de prompts y respuestas LLM antes de persistir. `ScenarioGenerationService::enqueueGeneration()` y `GenerateScenarioFromLLMJob` ahora aplican redacción automáticamente.
+    - 2026-02-06: Manejo de rate-limits/retries implementado: `OpenAIProvider` lanza `LLMRateLimitException` en 429 y `LLMServerException` en 5xx; `GenerateScenarioFromLLMJob` reintenta con exponential backoff (máx 5 intentos) y marca `failed` tras agotar reintentos. `MockProvider` puede simular 429 mediante `LLM_MOCK_SIMULATE_429`.
 
 - 2026-02-07: ChangeSet approval now assigns scenario version metadata when missing: `version_group_id` (UUID), `version_number` (default 1) and `is_current_version=true`. Implemented in `app/Http/Controllers/Api/ChangeSetController.php::approve()` to ensure approved ChangeSets also guarantee scenario versioning and demote other current versions within the same `version_group_id`.
-  - 2026-02-07 (fix): Se corrigió un ParseError introducido por una edición previa. La lógica de asignación de metadata de versionado fue movida y consolidada dentro de `approve()` y se restablecieron los límites de función para evitar errores de sintaxis que impedían la ejecución de `php artisan wayfinder:generate` y, por ende, `npm run build`.
-  - 2026-02-07: E2E GenerateWizard estabilizado: helper `login` ahora usa CSRF + request-context cuando no hay formulario, el test avanza pasos del wizard antes de generar, el mock LLM usa el fixture correcto, y `GenerateWizard.vue` importa `ref` para evitar error runtime.
-  - 2026-02-07: LLMClient DI/refactor: `LLMServiceProvider` registrado y pruebas actualizadas para resolver `LLMClient` desde el contenedor en lugar de instanciar con `new`. Se reemplazó la instancia directa en `tests/Feature/ScenarioGenerationIntegrationTest.php` y se creó `app/Providers/LLMServiceProvider.php` para facilitar inyección/overrides en tests y entornos.
-  - 2026-02-07: E2E scenario map estabilizado: usa helper `login`, selector de nodos actualizado a `.node-group`, y validacion de child nodes solo cuando existan datos.
+    - 2026-02-07 (fix): Se corrigió un ParseError introducido por una edición previa. La lógica de asignación de metadata de versionado fue movida y consolidada dentro de `approve()` y se restablecieron los límites de función para evitar errores de sintaxis que impedían la ejecución de `php artisan wayfinder:generate` y, por ende, `npm run build`.
+    - 2026-02-07: E2E GenerateWizard estabilizado: helper `login` ahora usa CSRF + request-context cuando no hay formulario, el test avanza pasos del wizard antes de generar, el mock LLM usa el fixture correcto, y `GenerateWizard.vue` importa `ref` para evitar error runtime.
+    - 2026-02-07: LLMClient DI/refactor: `LLMServiceProvider` registrado y pruebas actualizadas para resolver `LLMClient` desde el contenedor en lugar de instanciar con `new`. Se reemplazó la instancia directa en `tests/Feature/ScenarioGenerationIntegrationTest.php` y se creó `app/Providers/LLMServiceProvider.php` para facilitar inyección/overrides en tests y entornos.
+    - 2026-02-07: E2E scenario map estabilizado: usa helper `login`, selector de nodos actualizado a `.node-group`, y validacion de child nodes solo cuando existan datos.
 
-  - PENDIENTE (Recordar): Implementar opción B — "Auto-accept / Auto-import tras `generate()`".
-    - Descripción: permitir que, si el operador marca la casilla en el `PreviewConfirm`, el flujo de generación acepte automáticamente la `scenario_generation` y dispare la importación/incubación (`import=true`) sin interacción adicional.
-    - Condiciones obligatorias antes de habilitar en staging/producción:
-      1. La funcionalidad debe estar detrás de `feature.flag` server-side (`import_generation`) y controlada por variables de entorno.
-      2. `LlmResponseValidator` debe validar el `llm_response` con JSON Schema y fallar el import si no cumple (pero no bloquear la creación del `scenario`).
-      3. Registrar auditoría (`accepted_by`, `accepted_at`, `import_run_by`, `import_status`) para trazabilidad y revisión.
-      4. Hacer rollout en staging con backfill y pruebas E2E antes de habilitar en producción.
-    - Archivos implicados (implementación futura):
-      - `resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue` (flujo auto-accept)
-      - `resources/js/pages/ScenarioPlanning/GenerateWizard/PreviewConfirm.vue` (casilla ya añadida)
-      - `resources/js/stores/scenarioGenerationStore.ts` (llamada `accept()` ya añadida)
-      - `app/Http/Controllers/Api/ScenarioGenerationController.php::accept()` (verificar feature-flag, validación y auditoría server-side)
-      - `config/features.php` (asegurar `import_generation` por entorno)
-    - Estado: planificado (marcar como tarea separada en TODO para seguimiento).
-    - 2026-02-07: CI workflow añadido: `.github/workflows/e2e.yml` ejecuta migraciones/seed, build, arranca servidor y ejecuta Playwright; sube artefactos `playwright-report` y capturas/videos para inspección.
+    - PENDIENTE (Recordar): Implementar opción B — "Auto-accept / Auto-import tras `generate()`".
+        - Descripción: permitir que, si el operador marca la casilla en el `PreviewConfirm`, el flujo de generación acepte automáticamente la `scenario_generation` y dispare la importación/incubación (`import=true`) sin interacción adicional.
+        - Condiciones obligatorias antes de habilitar en staging/producción:
+            1. La funcionalidad debe estar detrás de `feature.flag` server-side (`import_generation`) y controlada por variables de entorno.
+            2. `LlmResponseValidator` debe validar el `llm_response` con JSON Schema y fallar el import si no cumple (pero no bloquear la creación del `scenario`).
+            3. Registrar auditoría (`accepted_by`, `accepted_at`, `import_run_by`, `import_status`) para trazabilidad y revisión.
+            4. Hacer rollout en staging con backfill y pruebas E2E antes de habilitar en producción.
+        - Archivos implicados (implementación futura):
+            - `resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue` (flujo auto-accept)
+            - `resources/js/pages/ScenarioPlanning/GenerateWizard/PreviewConfirm.vue` (casilla ya añadida)
+            - `resources/js/stores/scenarioGenerationStore.ts` (llamada `accept()` ya añadida)
+            - `app/Http/Controllers/Api/ScenarioGenerationController.php::accept()` (verificar feature-flag, validación y auditoría server-side)
+            - `config/features.php` (asegurar `import_generation` por entorno)
+        - Estado: planificado (marcar como tarea separada en TODO para seguimiento).
+        - 2026-02-07: CI workflow añadido: `.github/workflows/e2e.yml` ejecuta migraciones/seed, build, arranca servidor y ejecuta Playwright; sube artefactos `playwright-report` y capturas/videos para inspección.
 
 ## Memory: Implementation - LlmResponseValidator limits (2026-02-08)
 
 - **Tipo:** implementation (project fact)
 - **Propósito:** Añadir límites configurables a la validación del `llm_response` para prevenir imports excesivamente grandes y validar counts por niveles (capabilities, competencies, skills).
 - **Cambios realizados:** `app/Services/LlmResponseValidator.php` ahora lee las claves de configuración:
-  - `features.validate_llm_response_max_capabilities`
-  - `features.validate_llm_response_max_competencies`
-  - `features.validate_llm_response_max_skills`
-    y añade errores cuando los arrays devueltos por el LLM exceden esos límites. También preserva las comprobaciones en `strict` mode (requerir al menos un elemento cuando está activado).
+    - `features.validate_llm_response_max_capabilities`
+    - `features.validate_llm_response_max_competencies`
+    - `features.validate_llm_response_max_skills`
+      y añade errores cuando los arrays devueltos por el LLM exceden esos límites. También preserva las comprobaciones en `strict` mode (requerir al menos un elemento cuando está activado).
 - **Archivos modificados:**
-  - `app/Services/LlmResponseValidator.php`
-  - `config/features.php` (claves ya presentes; confirmar valores por entorno)
+    - `app/Services/LlmResponseValidator.php`
+    - `config/features.php` (claves ya presentes; confirmar valores por entorno)
 - **Por qué:** Evitar que un LLM retorne 100+ items que colapsen el importador y la UI; dar control operativo vía configuración y variables de entorno.
-  - Estado: implementado y desplegado en branch `feature/workforce-planning-scenario-modeling`.
+    - Estado: implementado y desplegado en branch `feature/workforce-planning-scenario-modeling`.
 
 ## Memory: Implementation - Prompt JSON Schema included (2026-02-08)
 
@@ -197,91 +361,91 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Propósito:** Incluir un fragmento de JSON Schema directamente en el prompt compuesto y en las instrucciones por defecto para mejorar la conformidad de la salida LLM.
 - **Cambios realizados:** `ScenarioGenerationService::preparePrompt` ahora añade un bloque `JSON_SCHEMA:` con un JSON Schema (draft-07) simplificado que define `scenario_metadata` (con `name` requerido) y estructura anidada para `capabilities` → `competencies` → `skills`. Además los archivos de fallback `resources/prompt_instructions/default_es.md` y `default_en.md` fueron actualizados para incluir un resumen del esquema.
 - **Archivos modificados:**
-  - `app/Services/ScenarioGenerationService.php` (añade `JSON_SCHEMA` al prompt)
-  - `resources/prompt_instructions/default_es.md` (añade resumen de esquema)
-  - `resources/prompt_instructions/default_en.md` (añade resumen de esquema)
+    - `app/Services/ScenarioGenerationService.php` (añade `JSON_SCHEMA` al prompt)
+    - `resources/prompt_instructions/default_es.md` (añade resumen de esquema)
+    - `resources/prompt_instructions/default_en.md` (añade resumen de esquema)
 - **Por qué:** Proveer una especificación directa en el prompt reduce ambigüedad y, junto con la validación server-side y límites configurables, disminuye la probabilidad de respuestas inválidas o demasiado grandes.
 - **Estado:** implementado y verificado mediante `php artisan tinker` (presencia del bloque `JSON_SCHEMA`).
-  - 2026-02-07: `scripts/debug_generate.mjs` eliminado (archivo temporal de depuración).
+    - 2026-02-07: `scripts/debug_generate.mjs` eliminado (archivo temporal de depuración).
 
-  ## Memory: Implementation - Chunked LLM response assembly (2026-02-09)
-  - **Tipo:** implementation (project fact)
-  - **Propósito:** Cliente assemblea respuestas LLM transmitidas en chunks y prioriza endpoint `compacted` para obtener la respuesta final; mejora la UX del modal de respuesta evitando mostrar un modal vacío cuando sólo hay metadatos.
-  - **Cambios realizados (front-end):** se añadieron heurísticas y funciones de ensamblado en `GenerateWizard.vue` y se exportó `normalizeLlMResponse` desde el store para normalizar formas de respuesta diversas.
-  - **Archivos modificados:**
-    - [resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue](resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue)
-    - [resources/js/stores/scenarioGenerationStore.ts](resources/js/stores/scenarioGenerationStore.ts)
-  - **Detalle técnico:**
-    - `fetchAndAssembleChunks()` ahora solicita `/compacted` y si no hay blob compactado, recupera `/chunks`, ordena por `sequence`, concatena `chunk` y trata de parsear JSON; si falla, asigna el ensamblado como `content` en `generationResult`.
-    - Se añadieron comprobaciones para decidir cuándo ensamblar (ausencia de `content`, `scenario_metadata` o `capabilities`).
-    - Se corrigieron errores de lint en `GenerateWizard.vue` (eliminación de bindings de `catch` no usados y variable `res` no usada).
-  - **Por qué:** Evitar que el modal muestre solo metadatos sin cuerpo y soportar formatos heterogéneos de respuestas LLM (string, JSON, arrays, objetos con `choices`/`delta`).
-  - **Estado:** implementado en working copy; pendiente verificar para generación concreta que el backend persista `compacted` o `chunks` (requiere `generationId` para inspección).
+    ## Memory: Implementation - Chunked LLM response assembly (2026-02-09)
+    - **Tipo:** implementation (project fact)
+    - **Propósito:** Cliente assemblea respuestas LLM transmitidas en chunks y prioriza endpoint `compacted` para obtener la respuesta final; mejora la UX del modal de respuesta evitando mostrar un modal vacío cuando sólo hay metadatos.
+    - **Cambios realizados (front-end):** se añadieron heurísticas y funciones de ensamblado en `GenerateWizard.vue` y se exportó `normalizeLlMResponse` desde el store para normalizar formas de respuesta diversas.
+    - **Archivos modificados:**
+        - [resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue](resources/js/pages/ScenarioPlanning/GenerateWizard/GenerateWizard.vue)
+        - [resources/js/stores/scenarioGenerationStore.ts](resources/js/stores/scenarioGenerationStore.ts)
+    - **Detalle técnico:**
+        - `fetchAndAssembleChunks()` ahora solicita `/compacted` y si no hay blob compactado, recupera `/chunks`, ordena por `sequence`, concatena `chunk` y trata de parsear JSON; si falla, asigna el ensamblado como `content` en `generationResult`.
+        - Se añadieron comprobaciones para decidir cuándo ensamblar (ausencia de `content`, `scenario_metadata` o `capabilities`).
+        - Se corrigieron errores de lint en `GenerateWizard.vue` (eliminación de bindings de `catch` no usados y variable `res` no usada).
+    - **Por qué:** Evitar que el modal muestre solo metadatos sin cuerpo y soportar formatos heterogéneos de respuestas LLM (string, JSON, arrays, objetos con `choices`/`delta`).
+    - **Estado:** implementado en working copy; pendiente verificar para generación concreta que el backend persista `compacted` o `chunks` (requiere `generationId` para inspección).
 
-  ## Memory: Implementation - Server streaming + chunk persistence (2026-02-09)
-  - **Tipo:** implementation (project fact)
-  - **Propósito:** Garantizar que las ejecuciones de generación encoladas persistan deltas/chunks durante el streaming del LLM para que la UI pueda ensamblar la respuesta incluso si el worker es interrumpido o no deja un `compacted` blob.
-  - **Cambios realizados (backend):**
-    - Añadido `generateStream()` wrapper en `app/Services/LLMClient.php` que delega en el provider si soporta streaming, o emite un único delta cuando no hay streaming.
-    - `app/Jobs/GenerateScenarioFromLLMJob.php` modificado para usar `LLMClient->generateStream()` cuando esté disponible; persiste `GenerationChunk` en buffer y ensambla texto final, guardando `llm_response` y `confidence_score`.
-    - `app/Services/LLMProviders/MockProvider.php` ahora implementa `generateStream()` para simular chunks en ambientes locales y demos.
-  - **Archivos modificados:**
-    - [app/Services/LLMClient.php](app/Services/LLMClient.php)
-    - [app/Jobs/GenerateScenarioFromLLMJob.php](app/Jobs/GenerateScenarioFromLLMJob.php)
-    - [app/Services/LLMProviders/MockProvider.php](app/Services/LLMProviders/MockProvider.php)
-  - **Detalle técnico:**
-    - Buffer flush heuristic: persistir cuando buffer >= 256 bytes o cada ~250ms.
-    - En providers no-streaming, se emite un único delta con la respuesta completa (JSON string o texto).
-    - Job ensambla texto (`$assembled`) y, si no puede parsear JSON, lo guarda como `['content' => $assembled]` para que la UI pueda mostrarlo.
-  - **Estado:** implementado y verificado localmente usando `php artisan debug:create-generation` — la ejecución de prueba (id=29) creó `generation_chunks` en la BD.
+    ## Memory: Implementation - Server streaming + chunk persistence (2026-02-09)
+    - **Tipo:** implementation (project fact)
+    - **Propósito:** Garantizar que las ejecuciones de generación encoladas persistan deltas/chunks durante el streaming del LLM para que la UI pueda ensamblar la respuesta incluso si el worker es interrumpido o no deja un `compacted` blob.
+    - **Cambios realizados (backend):**
+        - Añadido `generateStream()` wrapper en `app/Services/LLMClient.php` que delega en el provider si soporta streaming, o emite un único delta cuando no hay streaming.
+        - `app/Jobs/GenerateScenarioFromLLMJob.php` modificado para usar `LLMClient->generateStream()` cuando esté disponible; persiste `GenerationChunk` en buffer y ensambla texto final, guardando `llm_response` y `confidence_score`.
+        - `app/Services/LLMProviders/MockProvider.php` ahora implementa `generateStream()` para simular chunks en ambientes locales y demos.
+    - **Archivos modificados:**
+        - [app/Services/LLMClient.php](app/Services/LLMClient.php)
+        - [app/Jobs/GenerateScenarioFromLLMJob.php](app/Jobs/GenerateScenarioFromLLMJob.php)
+        - [app/Services/LLMProviders/MockProvider.php](app/Services/LLMProviders/MockProvider.php)
+    - **Detalle técnico:**
+        - Buffer flush heuristic: persistir cuando buffer >= 256 bytes o cada ~250ms.
+        - En providers no-streaming, se emite un único delta con la respuesta completa (JSON string o texto).
+        - Job ensambla texto (`$assembled`) y, si no puede parsear JSON, lo guarda como `['content' => $assembled]` para que la UI pueda mostrarlo.
+    - **Estado:** implementado y verificado localmente usando `php artisan debug:create-generation` — la ejecución de prueba (id=29) creó `generation_chunks` en la BD.
 
-  ## Memory: Implementation - ABACUS LLM Integration (2026-02-09)
-  - **Tipo:** implementation (project fact)
-  - **Propósito:** Integración completa con ABACUS como proveedor LLM principal del sistema para generación de escenarios mediante streaming.
-  - **Provider:** ABACUS es el proveedor LLM configurado en producción (NO OpenAI). El sistema usa `AbacusClient` para comunicarse con ABACUS.
-  - **Implementación completa:**
-    - Cliente: [app/Services/AbacusClient.php](app/Services/AbacusClient.php) — implementa `generate()` y `generateStream()` con soporte completo de streaming SSE.
-    - Script de prueba: [scripts/generate_via_abacus.php](scripts/generate_via_abacus.php) — ejecuta generaciones de prueba end-to-end persistiendo chunks.
-    - Configuración: [config/services.php](config/services.php) — sección `abacus` con variables de entorno.
-  - **Variables de entorno requeridas:**
-    - `ABACUS_API_KEY` — clave de API (obligatoria)
-    - `ABACUS_BASE_URL` — default: `https://api.abacus.ai`
-    - `ABACUS_STREAM_URL` — default: `https://routellm.abacus.ai/v1/chat/completions` (endpoint streaming)
-    - `ABACUS_MODEL` — default: `abacus-default`
-    - `ABACUS_TIMEOUT` — default: 60 segundos
-    - `ABACUS_CHUNKS_TTL_DAYS` — default: 30 días (retención de chunks en BD)
-  - **Prueba exitosa verificada (2026-02-09):**
-    - Ejecutado: `php scripts/generate_via_abacus.php`
-    - Generation ID: 33
-    - Status: complete
-    - Chunks persistidos: 122
-    - JSON válido: ✅ Estructura completa capabilities → competencies → skills
-    - Streaming funcionó correctamente emitiendo deltas incrementales (cada chunk ~128 bytes)
-  - **Estructura de respuesta JSON devuelta por ABACUS:**
-    - 5 capabilities principales (Estrategia producto, Ingeniería software, Datos/analítica, Operaciones ágiles, Seguridad y cumplimiento)
-    - Cada capability con competencies detalladas
-    - Cada competency con array de skills con nivel objetivo
-    - Formato en español, estructurado y parseable
-  - **Comando de verificación rápida:**
-    ```bash
-    cd src && php scripts/generate_via_abacus.php
-    ```
-  - **Estado:** Implementado, probado y verificado. ABACUS es el proveedor LLM activo en este proyecto.
-  - **Nota importante:** No confundir con OpenAI — el sistema usa ABACUS como backend LLM. El `OpenAIProvider` existe en el código pero NO está configurado ni es el proveedor principal.
-  - **Siguientes pasos recomendados:**
-    - (Ops) Desplegar cambios al entorno donde opera el worker/queue y asegurar que el driver de queue procesa jobs con permisos para escribir `generation_chunks`.
+    ## Memory: Implementation - ABACUS LLM Integration (2026-02-09)
+    - **Tipo:** implementation (project fact)
+    - **Propósito:** Integración completa con ABACUS como proveedor LLM principal del sistema para generación de escenarios mediante streaming.
+    - **Provider:** ABACUS es el proveedor LLM configurado en producción (NO OpenAI). El sistema usa `AbacusClient` para comunicarse con ABACUS.
+    - **Implementación completa:**
+        - Cliente: [app/Services/AbacusClient.php](app/Services/AbacusClient.php) — implementa `generate()` y `generateStream()` con soporte completo de streaming SSE.
+        - Script de prueba: [scripts/generate_via_abacus.php](scripts/generate_via_abacus.php) — ejecuta generaciones de prueba end-to-end persistiendo chunks.
+        - Configuración: [config/services.php](config/services.php) — sección `abacus` con variables de entorno.
+    - **Variables de entorno requeridas:**
+        - `ABACUS_API_KEY` — clave de API (obligatoria)
+        - `ABACUS_BASE_URL` — default: `https://api.abacus.ai`
+        - `ABACUS_STREAM_URL` — default: `https://routellm.abacus.ai/v1/chat/completions` (endpoint streaming)
+        - `ABACUS_MODEL` — default: `abacus-default`
+        - `ABACUS_TIMEOUT` — default: 60 segundos
+        - `ABACUS_CHUNKS_TTL_DAYS` — default: 30 días (retención de chunks en BD)
+    - **Prueba exitosa verificada (2026-02-09):**
+        - Ejecutado: `php scripts/generate_via_abacus.php`
+        - Generation ID: 33
+        - Status: complete
+        - Chunks persistidos: 122
+        - JSON válido: ✅ Estructura completa capabilities → competencies → skills
+        - Streaming funcionó correctamente emitiendo deltas incrementales (cada chunk ~128 bytes)
+    - **Estructura de respuesta JSON devuelta por ABACUS:**
+        - 5 capabilities principales (Estrategia producto, Ingeniería software, Datos/analítica, Operaciones ágiles, Seguridad y cumplimiento)
+        - Cada capability con competencies detalladas
+        - Cada competency con array de skills con nivel objetivo
+        - Formato en español, estructurado y parseable
+    - **Comando de verificación rápida:**
+        ```bash
+        cd src && php scripts/generate_via_abacus.php
+        ```
+    - **Estado:** Implementado, probado y verificado. ABACUS es el proveedor LLM activo en este proyecto.
+    - **Nota importante:** No confundir con OpenAI — el sistema usa ABACUS como backend LLM. El `OpenAIProvider` existe en el código pero NO está configurado ni es el proveedor principal.
+    - **Siguientes pasos recomendados:**
+        - (Ops) Desplegar cambios al entorno donde opera el worker/queue y asegurar que el driver de queue procesa jobs con permisos para escribir `generation_chunks`.
 
-  ## Memory: Implementation - Alineación Controller Wizard con harness CLI (2026-02-10)
-  - **Tipo:** implementation (project fact)
-  - **Propósito:** Alinear la lógica del endpoint UI que encola generaciones (GenerateWizard) con el comportamiento canónico del harness CLI `scripts/generate_via_abacus.php` para evitar divergencias en la selección/override del modelo Abacus y en el registro del modelo usado.
-  - **Cambios realizados:** `app/Http/Controllers/Api/ScenarioGenerationController.php` ahora:
-    - Determina el modelo a usar con `config('services.abacus.model') ?: env('ABACUS_MODEL', 'gpt-5')` (mismo enfoque que los scripts de pruebas).
-    - Incluye el `overrides.model` en `provider_options` para que la petición al cliente Abacus utilice explícitamente el modelo elegido (replicando el flujo del script de referencia).
-    - Persiste `used_provider_model` dentro de `metadata` del `scenario_generation` para trazabilidad.
-  - **Por qué:** Evitar envíos de modelos placeholder (p. ej. `abacus-default`) desde la UI que causaban 400s en Abacus y asegurar trazabilidad/consistencia entre el flujo GUI (wizard) y el harness CLI.
-  - **Archivos modificados:**
-    - `app/Http/Controllers/Api/ScenarioGenerationController.php`
-  - **Estado:** Implementado y commiteado en working copy. Se recomienda ejecutar una generación end-to-end desde el wizard en entorno de desarrollo para validar que la UI refleja el `llm_response` final y que `metadata.used_provider_model` contiene el valor esperado.
+    ## Memory: Implementation - Alineación Controller Wizard con harness CLI (2026-02-10)
+    - **Tipo:** implementation (project fact)
+    - **Propósito:** Alinear la lógica del endpoint UI que encola generaciones (GenerateWizard) con el comportamiento canónico del harness CLI `scripts/generate_via_abacus.php` para evitar divergencias en la selección/override del modelo Abacus y en el registro del modelo usado.
+    - **Cambios realizados:** `app/Http/Controllers/Api/ScenarioGenerationController.php` ahora:
+        - Determina el modelo a usar con `config('services.abacus.model') ?: env('ABACUS_MODEL', 'gpt-5')` (mismo enfoque que los scripts de pruebas).
+        - Incluye el `overrides.model` en `provider_options` para que la petición al cliente Abacus utilice explícitamente el modelo elegido (replicando el flujo del script de referencia).
+        - Persiste `used_provider_model` dentro de `metadata` del `scenario_generation` para trazabilidad.
+    - **Por qué:** Evitar envíos de modelos placeholder (p. ej. `abacus-default`) desde la UI que causaban 400s en Abacus y asegurar trazabilidad/consistencia entre el flujo GUI (wizard) y el harness CLI.
+    - **Archivos modificados:**
+        - `app/Http/Controllers/Api/ScenarioGenerationController.php`
+    - **Estado:** Implementado y commiteado en working copy. Se recomienda ejecutar una generación end-to-end desde el wizard en entorno de desarrollo para validar que la UI refleja el `llm_response` final y que `metadata.used_provider_model` contiene el valor esperado.
 
 ## Estado actual (inicio)
 
@@ -348,19 +512,19 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 ### Migraciones & Schema (4 archivos actualizados)
 
 1. **2026_02_02_233007_create_add_traceability_to_role_table.php**
-   - Guard: `if (!Schema::hasColumn('role_skills', 'source'))` para evitar duplicados
-   - SQLite compatible: No usa CHECK constraints
+    - Guard: `if (!Schema::hasColumn('role_skills', 'source'))` para evitar duplicados
+    - SQLite compatible: No usa CHECK constraints
 
 2. **2026_02_02_233051_create_add_traceability_to_scenario_role_skills_table.php**
-   - SQLite compatible: Wrapped en `if (DB::getDriverName() !== 'sqlite')`
+    - SQLite compatible: Wrapped en `if (DB::getDriverName() !== 'sqlite')`
 
 3. **2026_02_02_235000_add_fte_to_scenario_roles_table.php**
-   - Agregó columna: `$table->decimal('fte', 8, 2)->default(0)->after('role_id')`
-   - Idempotente: Usa `if (!Schema::hasColumn())`
+    - Agregó columna: `$table->decimal('fte', 8, 2)->default(0)->after('role_id')`
+    - Idempotente: Usa `if (!Schema::hasColumn())`
 
 4. **2026_02_03_000000_add_current_level_to_scenario_role_skills_table.php**
-   - Agregó columna: `$table->integer('current_level')->default(1)->after('required_level')`
-   - Usado en gap analysis (required_level vs current_level)
+    - Agregó columna: `$table->integer('current_level')->default(1)->after('required_level')`
+    - Usado en gap analysis (required_level vs current_level)
 
 ### Bug Fixes & Optimizaciones
 
@@ -541,12 +705,12 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 - **Tipo:** implementation (project fact)
 - **Propósito:** Exponer la relación 1:1 entre `scenarios` y `scenario_generations` desde ambos modelos Eloquent sin cambiar el esquema de base de datos existente.
 - **Cambios realizados:** Añadidos métodos Eloquent:
-  - `\App\Models\Scenario::sourceGeneration()` — `belongsTo(ScenarioGeneration::class, 'source_generation_id')`.
-  - `\App\Models\ScenarioGeneration::scenario()` — `hasOne(Scenario::class, 'source_generation_id')`.
+    - `\App\Models\Scenario::sourceGeneration()` — `belongsTo(ScenarioGeneration::class, 'source_generation_id')`.
+    - `\App\Models\ScenarioGeneration::scenario()` — `hasOne(Scenario::class, 'source_generation_id')`.
 - **Why / Por qué:** La tabla `scenarios` ya contiene la columna `source_generation_id` con FK hacia `scenario_generations` (migraciones existentes). Para facilitar navegación bidireccional en código se añadieron relaciones inversas en los modelos en lugar de introducir una nueva columna `scenario_id` en `scenario_generations`, evitando cambios de infraestructura y manteniendo compatibilidad con el flujo actual (`ScenarioGenerationImporter` y `ScenarioGenerationController`).
 - **Estado:** implementado en working copy — modelos actualizados en `app/Models/Scenario.php` y `app/Models/ScenarioGeneration.php`.
 - **Siguientes pasos recomendados:**
-  1. Si se desea tener FK/fila en `scenario_generations` (columna `scenario_id`) para consultas más directas o constraints de unicidad, crear migración nullable+unique y añadir sincronización en import/accept flows.
+    1. Si se desea tener FK/fila en `scenario_generations` (columna `scenario_id`) para consultas más directas o constraints de unicidad, crear migración nullable+unique y añadir sincronización en import/accept flows.
 - **Tipo:** component / implementation (project fact)
 
 ## Memory: Implementation - Add `scenario_id` column + backfill (2026-02-10)
@@ -554,14 +718,14 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 - **Tipo:** implementation (project fact)
 - **Propósito:** Añadir columna `scenario_id` en `scenario_generations` (nullable + unique + FK a `scenarios.id`) y backfill idempotente desde `scenarios.source_generation_id`.
 - **Cambios realizados:**
-  - Nueva migración: `database/migrations/2026_02_10_120000_add_scenario_id_to_scenario_generations.php` — añade `scenario_id` nullable, índice único y FK (si DB lo soporta). Rollback seguro.
-  - Nuevo comando Artisan: `backfill:scenario-generation-scenario-id` (`app/Console/Commands/BackfillScenarioGenerationScenarioId.php`) que realiza un backfill idempotente: para cada `scenarios` con `source_generation_id` no nulo actualiza `scenario_generations.scenario_id` cuando está vacío.
-  - Modelo `ScenarioGeneration` actualizado (`scenario_id` añadido a `$fillable` y `$casts`).
+    - Nueva migración: `database/migrations/2026_02_10_120000_add_scenario_id_to_scenario_generations.php` — añade `scenario_id` nullable, índice único y FK (si DB lo soporta). Rollback seguro.
+    - Nuevo comando Artisan: `backfill:scenario-generation-scenario-id` (`app/Console/Commands/BackfillScenarioGenerationScenarioId.php`) que realiza un backfill idempotente: para cada `scenarios` con `source_generation_id` no nulo actualiza `scenario_generations.scenario_id` cuando está vacío.
+    - Modelo `ScenarioGeneration` actualizado (`scenario_id` añadido a `$fillable` y `$casts`).
 - **Estado:** migración y comando añadidos en working copy; requiere ejecutar `php artisan migrate` y luego `php artisan backfill:scenario-generation-scenario-id` desde el directorio `src`.
 - **Siguientes pasos recomendados:**
-  1. Ejecutar migración y backfill en staging como prueba.
-  2. Verificar que no hay generaciones sin enlace deseado; considerar crear script para sincronizar en caso inverso.
-  3. (Opcional) Actualizar `ScenarioGenerationImporter` y `ScenarioGenerationController::accept()` para mantener la columna `scenario_id` sincronizada al crear/importar un escenario.
+    1. Ejecutar migración y backfill en staging como prueba.
+    2. Verificar que no hay generaciones sin enlace deseado; considerar crear script para sincronizar en caso inverso.
+    3. (Opcional) Actualizar `ScenarioGenerationImporter` y `ScenarioGenerationController::accept()` para mantener la columna `scenario_id` sincronizada al crear/importar un escenario.
 
 - **Tipo:** component / implementation (project fact)
 - **Archivos:** [resources/js/pages/ScenarioPlanning/ScenarioDetail.vue](resources/js/pages/ScenarioPlanning/ScenarioDetail.vue), [resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue](resources/js/components/StrategicPlanningScenarios/ChangeSetModal.vue), [app/Http/Controllers/Api/ChangeSetController.php](app/Http/Controllers/Api/ChangeSetController.php), [app/Services/ChangeSetService.php](app/Services/ChangeSetService.php)
@@ -586,41 +750,41 @@ nodes.value[].competencies[].skills     ← Fuente raíz
 - Asegúrate de proteger el acceso a `accepted_prompt` mediante políticas/roles (puede contener información sensible parcialmente redactada).
 - **Próximos pasos:** Añadir tests unitarios para `ScenarioGenerationService::preparePrompt`, feature tests para `preview` y `store` endpoints (mock LLM), e2e Playwright que recorra el wizard completo, y controles de tasa/coste antes de habilitar LLM en producción.
 - **Próximos pasos (actualizado):**
-  - Implementar tests unitarios para `ScenarioGenerationService::preparePrompt` (alta prioridad).
-  - Añadir feature tests para `POST /api/strategic-planning/scenarios/generate/preview` y `POST /api/strategic-planning/scenarios/generate` usando `MockProvider`.
-  - Revisar y aprobar prompts con stakeholders; habilitar provider real en staging solo detrás de feature flag y límites de coste.
-  - Auditar pruebas E2E para usar `tests/e2e/helpers/login.ts` y documentar ejecución en `docs/GUIA_E2E.md`.
+    - Implementar tests unitarios para `ScenarioGenerationService::preparePrompt` (alta prioridad).
+    - Añadir feature tests para `POST /api/strategic-planning/scenarios/generate/preview` y `POST /api/strategic-planning/scenarios/generate` usando `MockProvider`.
+    - Revisar y aprobar prompts con stakeholders; habilitar provider real en staging solo detrás de feature flag y límites de coste.
+    - Auditar pruebas E2E para usar `tests/e2e/helpers/login.ts` y documentar ejecución en `docs/GUIA_E2E.md`.
 
 ### Memory: Implementación - Persistencia `accepted_prompt` y backfill (2026-02-07)
 
 - **Tipo:** implementation (project fact)
 - **Propósito:** Persistir prompt aceptado/redacted como parte del `scenario` creado desde una `scenario_generation` y backfill de datos históricos.
 - **Cambios clave (archivos):**
-  - `database/migrations/2026_02_07_120000_add_generation_fields_to_scenarios_table.php` — agrega `source_generation_id`, `accepted_prompt`, `accepted_prompt_redacted`, `accepted_prompt_metadata` a `scenarios`.
-  - `database/migrations/2026_02_07_130000_backfill_accepted_prompt_metadata.php` — backfill que copia `prompt`, `redacted` y `metadata` desde `scenario_generations` a `scenarios` cuando falta.
-  - `app/Http/Controllers/Api/ScenarioGenerationController.php` — nuevo método `accept()` que crea `scenario` draft desde `llm_response`, copia prompt redacted y enlaza `source_generation_id`.
-  - `app/Http/Controllers/Api/ScenarioController.php` — `showScenario` revisado para ocultar `accepted_prompt`/`accepted_prompt_metadata` en payloads si el usuario no está autorizado.
-  - `app/Policies/ScenarioGenerationPolicy.php` y `app/Policies/ScenarioPolicy.php` — reglas `accept` y `viewAcceptedPrompt` añadidas y registradas en `AuthServiceProvider`.
-  - `app/Models/Scenario.php` — `fillable` y `casts` actualizados para incluir los campos nuevos.
-  - Tests: `tests/Feature/ScenarioGenerationAcceptTest.php`, `ScenarioGenerationAcceptPolicyTest.php`, `ScenarioAcceptedPromptPolicyTest.php` — pruebas de flujo y autorización añadidas y ejecutadas localmente.
-  - Frontend: `resources/js/pages/ScenarioPlanning/ScenarioDetail.vue` — guard UI defensiva `canViewAcceptedPrompt` para evitar renderizar `accepted_prompt` cuando no autorizado.
+    - `database/migrations/2026_02_07_120000_add_generation_fields_to_scenarios_table.php` — agrega `source_generation_id`, `accepted_prompt`, `accepted_prompt_redacted`, `accepted_prompt_metadata` a `scenarios`.
+    - `database/migrations/2026_02_07_130000_backfill_accepted_prompt_metadata.php` — backfill que copia `prompt`, `redacted` y `metadata` desde `scenario_generations` a `scenarios` cuando falta.
+    - `app/Http/Controllers/Api/ScenarioGenerationController.php` — nuevo método `accept()` que crea `scenario` draft desde `llm_response`, copia prompt redacted y enlaza `source_generation_id`.
+    - `app/Http/Controllers/Api/ScenarioController.php` — `showScenario` revisado para ocultar `accepted_prompt`/`accepted_prompt_metadata` en payloads si el usuario no está autorizado.
+    - `app/Policies/ScenarioGenerationPolicy.php` y `app/Policies/ScenarioPolicy.php` — reglas `accept` y `viewAcceptedPrompt` añadidas y registradas en `AuthServiceProvider`.
+    - `app/Models/Scenario.php` — `fillable` y `casts` actualizados para incluir los campos nuevos.
+    - Tests: `tests/Feature/ScenarioGenerationAcceptTest.php`, `ScenarioGenerationAcceptPolicyTest.php`, `ScenarioAcceptedPromptPolicyTest.php` — pruebas de flujo y autorización añadidas y ejecutadas localmente.
+    - Frontend: `resources/js/pages/ScenarioPlanning/ScenarioDetail.vue` — guard UI defensiva `canViewAcceptedPrompt` para evitar renderizar `accepted_prompt` cuando no autorizado.
 
 - **Notas operativas:**
-  - El backfill está implementado como migración (`2026_02_07_130000_backfill_accepted_prompt_metadata.php`) pero **no** se ha ejecutado en staging/producción — planificar ejecución y validar en staging antes de prod.
-  - La seguridad se aplica en servidor via políticas; la comprobación frontend es defensiva pero no sustituye la autorización server-side.
+    - El backfill está implementado como migración (`2026_02_07_130000_backfill_accepted_prompt_metadata.php`) pero **no** se ha ejecutado en staging/producción — planificar ejecución y validar en staging antes de prod.
+    - La seguridad se aplica en servidor via políticas; la comprobación frontend es defensiva pero no sustituye la autorización server-side.
 
 ## Decision: Versionado de Escenarios — asignación en aprobación (2026-02-06)
 
 - **Resumen:** Mientras un escenario está en incubación (estado `draft` / `in_embryo`) no se considera una versión formal publicada. La numeración formal del escenario (p. ej. `version_number` → `1.0`) debe asignarse cuando el escenario es aprobado/publicado.
 - **Regla propuesta (documentada):** Al aprobar un escenario por primera vez, si `version_number` no existe, el flujo de aprobación debe:
-  - Asignar `version_number = 1` (o el esquema numérico que use el proyecto, p. ej. `1.0`).
-  - Generar/asegurar `version_group_id` si no existe (UUID) para vincular versiones relacionadas.
-  - Marcar `is_current_version = true` y, si aplica, des-marcar versiones previas como `is_current_version = false`.
-  - Registrar metadatos en `metadata` (ej.: `approved_at`, `approved_by`, `notes`) para trazabilidad.
+    - Asignar `version_number = 1` (o el esquema numérico que use el proyecto, p. ej. `1.0`).
+    - Generar/asegurar `version_group_id` si no existe (UUID) para vincular versiones relacionadas.
+    - Marcar `is_current_version = true` y, si aplica, des-marcar versiones previas como `is_current_version = false`.
+    - Registrar metadatos en `metadata` (ej.: `approved_at`, `approved_by`, `notes`) para trazabilidad.
 - **Implicaciones técnicas:**
-  - El endpoint/handler de aprobación (`[app/Http/Controllers/Api/ChangeSetController.php](app/Http/Controllers/Api/ChangeSetController.php)`) es un buen lugar para aplicar esta regla si la aprobación se realiza vía ChangeSet approval flow.
-  - Alternativamente, centralizar la lógica en un servicio (`ScenarioVersioningService` o dentro de `ChangeSetService::apply`/`approve`) garantiza coherencia si hay múltiples caminos de aprobación.
-  - Se recomienda añadir tests unitarios/feature que verifiquen: creación de `version_number` al aprobar, preservación de `version_group_id`, y el marcado de `is_current_version`.
+    - El endpoint/handler de aprobación (`[app/Http/Controllers/Api/ChangeSetController.php](app/Http/Controllers/Api/ChangeSetController.php)`) es un buen lugar para aplicar esta regla si la aprobación se realiza vía ChangeSet approval flow.
+    - Alternativamente, centralizar la lógica en un servicio (`ScenarioVersioningService` o dentro de `ChangeSetService::apply`/`approve`) garantiza coherencia si hay múltiples caminos de aprobación.
+    - Se recomienda añadir tests unitarios/feature que verifiquen: creación de `version_number` al aprobar, preservación de `version_group_id`, y el marcado de `is_current_version`.
 - **Acción tomada:** Documentado aquí en `openmemory.md`. Si quieres, implemento la garantía de asignación (`version_number`/`version_group_id`) en el flujo de aprobación y añado tests asociados.
 
 **API del Composable:**
@@ -862,26 +1026,26 @@ Agregado `expandSkills()` después de crear y adjuntar skills:
 // En createAndAttachSkill() (línea ~588)
 const created = await createAndAttachSkillForComp(compId, payload);
 if (created) {
-  if (!Array.isArray((selectedChild.value as any).skills))
-    (selectedChild.value as any).skills = [];
-  (selectedChild.value as any).skills.push(created);
+    if (!Array.isArray((selectedChild.value as any).skills))
+        (selectedChild.value as any).skills = [];
+    (selectedChild.value as any).skills.push(created);
 }
-showSuccess("Skill creada y asociada");
+showSuccess('Skill creada y asociada');
 
 // ✅ AGREGADO: Expand para mostrar inmediatamente
 if (selectedChild.value) {
-  expandSkills(selectedChild.value, undefined, { layout: "auto" });
+    expandSkills(selectedChild.value, undefined, { layout: 'auto' });
 }
 
 // En attachExistingSkill() (línea ~617)
 await api.post(`/api/competencies/${compId}/skills`, {
-  skill_id: selectedSkillId.value,
+    skill_id: selectedSkillId.value,
 });
-showSuccess("Skill asociada");
+showSuccess('Skill asociada');
 
 // ✅ AGREGADO: Expand para mostrar inmediatamente
 if (selectedChild.value) {
-  expandSkills(selectedChild.value, undefined, { layout: "auto" });
+    expandSkills(selectedChild.value, undefined, { layout: 'auto' });
 }
 ```
 
@@ -908,17 +1072,17 @@ if (selectedChild.value) {
 - **Resuelto (2026-02-01):** Se consolidó el modelo de habilidades a nombre singular `Skill` (Laravel convention).
 - **Raíz del bug 404:** El sistema genérico FormSchema pasaba `{id}` en la URL pero no lo inyectaba en el body `data.id` que espera `Repository::update()`.
 - **Solución implementada:**
-  - Eliminado archivo alias `app/Models/Skills.php` (era una clase que heredaba de `Skill`).
-  - Actualizado `FormSchemaController::update()` para aceptar `$id` de ruta y fusionarlo en `data.id` si falta.
-  - Actualizado rutas PUT/PATCH en `routes/form-schema-complete.php` para pasar `$id` al controlador.
-  - Añadida robustez en `initializeForModel()` para intentar singular/plural alternos si clase no existe.
-  - Ejecutado `composer dump-autoload -o` y confirmado PATCH `/api/skills/{id}` → 200 OK.
+    - Eliminado archivo alias `app/Models/Skills.php` (era una clase que heredaba de `Skill`).
+    - Actualizado `FormSchemaController::update()` para aceptar `$id` de ruta y fusionarlo en `data.id` si falta.
+    - Actualizado rutas PUT/PATCH en `routes/form-schema-complete.php` para pasar `$id` al controlador.
+    - Añadida robustez en `initializeForModel()` para intentar singular/plural alternos si clase no existe.
+    - Ejecutado `composer dump-autoload -o` y confirmado PATCH `/api/skills/{id}` → 200 OK.
 - **Cambios de archivo:**
-  - Eliminado: `app/Models/Skills.php`
-  - Modificado: `app/Repository/Repository.php` (fallback newQueryWithoutScopes)
-  - Modificado: `app/Http/Controllers/FormSchemaController.php` (inyección de $id, fallback en initializeForModel)
-  - Modificado: `routes/form-schema-complete.php` (pasar $id a update)
-  - Actualizado: `app/Models/ScenarioSkill.php` (Skill::class en lugar de Skills::class)
+    - Eliminado: `app/Models/Skills.php`
+    - Modificado: `app/Repository/Repository.php` (fallback newQueryWithoutScopes)
+    - Modificado: `app/Http/Controllers/FormSchemaController.php` (inyección de $id, fallback en initializeForModel)
+    - Modificado: `routes/form-schema-complete.php` (pasar $id a update)
+    - Actualizado: `app/Models/ScenarioSkill.php` (Skill::class en lugar de Skills::class)
 - **Fecha de resolución:** 2026-02-01 01:22:39
 
 ### Fix: Persistencia de cambios en PATCH de Skill (FormSchema::update)
@@ -944,23 +1108,23 @@ El frontend envía `{"name": "..."}` directamente (sin `data` wrapper), entonces
 
 1. **Repository::update()** — Aplicar mismo patrón que `store()`:
 
-   ```php
-   $allData = $request->get('data', $request->all());  // Fallback a $request->all()
-   $id = $allData['id'] ?? null;
-   $dataToUpdate = $allData;  // Ya contiene todo si no había 'data' key
-   unset($dataToUpdate['id']);
-   ```
+    ```php
+    $allData = $request->get('data', $request->all());  // Fallback a $request->all()
+    $id = $allData['id'] ?? null;
+    $dataToUpdate = $allData;  // Ya contiene todo si no había 'data' key
+    unset($dataToUpdate['id']);
+    ```
 
 2. **FormSchemaController::update()** — Mejorar inyección de $id desde ruta:
-   ```php
-   if ($id !== null) {
-       $data = $request->get('data', $request->all());
-       if (!isset($data['id'])) {
-           $data['id'] = $id;
-           $request->merge(['data' => $data]); // Compatibility con ambos formatos
-       }
-   }
-   ```
+    ```php
+    if ($id !== null) {
+        $data = $request->get('data', $request->all());
+        if (!isset($data['id'])) {
+            $data['id'] = $id;
+            $request->merge(['data' => $data]); // Compatibility con ambos formatos
+        }
+    }
+    ```
 
 **Archivos modificados:**
 
@@ -1069,11 +1233,11 @@ nodes.value = nodes.value.map((n: any) => {
 
 ```typescript
 // ❌ Puede no disparar re-render
-comp.skills[0].name = "nuevo";
+comp.skills[0].name = 'nuevo';
 
 // ✅ Reemplazar array completo con map()
 comp.skills = comp.skills.map((s) =>
-  s.id === id ? { ...s, name: "nuevo" } : s,
+    s.id === id ? { ...s, name: 'nuevo' } : s,
 );
 ```
 
@@ -1097,14 +1261,14 @@ comp.skills = comp.skills.map((s) =>
 ## Preferencias del usuario
 
 - **Proyecto (específico):** Ejecutar comandos, scripts y pruebas desde la carpeta `src` (por ejemplo, `cd src && npm test` o `cd src && php artisan test`).
-  - Motivo: ejecutar comandos desde la raíz del repo provoca errores recurrentes (no se detecta `package.json`/`artisan` en la raíz).
-  - Registrado: 2026-01-28
+    - Motivo: ejecutar comandos desde la raíz del repo provoca errores recurrentes (no se detecta `package.json`/`artisan` en la raíz).
+    - Registrado: 2026-01-28
 
 ## Overview rápido
 
 - Stack: Laravel 12 (backend) + Inertia v2 + Vue 3 + TypeScript + Vuetify 3
 - Multi-tenant por `organization_id`, autenticación con Sanctum.
-- Estructura principal: código en ``, documentación en `docs/` y `docs_wiki/`.
+- Estructura principal: código en ``, documentación en `docs/`y`docs_wiki/`.
 
 ## Componentes clave (relevantes para WFP / Cerebro Stratos)
 
@@ -1120,15 +1284,15 @@ comp.skills = comp.skills.map((s) =>
 - **Resumen:** WFP centraliza creación y comparación de escenarios (what-if) con plantillas (IA Adoption, Digital Transformation, Rapid Growth, Succession Planning).
 - **Rutas UI:** `/workforce-planning` → `WorkforcePlanning/ScenarioSelector.vue`; `/workforce-planning/{id}` → `OverviewDashboard.vue`.
 - **APIs clave (resumen):**
-  - `GET    //api/workforce-planning/scenario-templates`
-  - `POST   //api/workforce-planning/workforce-scenarios/{template_id}/instantiate-from-template`
-  - `POST   //api/workforce-planning/workforce-scenarios/{id}/calculate-gaps`
-  - `POST   //api/workforce-planning/workforce-scenarios/{id}/refresh-suggested-strategies`
-  - `POST   //api/workforce-planning/scenario-comparisons`
-  - `GET    //api/workforce-planning/workforce-scenarios/{id}`
-  - `GET    //api/workforce-planning/workforce-scenarios/{id}/role-forecasts`
-  - `GET    //api/workforce-planning/workforce-scenarios/{id}/skill-gaps`
-  - `POST   //api/workforce-planning/workforce-scenarios/{id}/analyze`
+    - `GET    //api/workforce-planning/scenario-templates`
+    - `POST   //api/workforce-planning/workforce-scenarios/{template_id}/instantiate-from-template`
+    - `POST   //api/workforce-planning/workforce-scenarios/{id}/calculate-gaps`
+    - `POST   //api/workforce-planning/workforce-scenarios/{id}/refresh-suggested-strategies`
+    - `POST   //api/workforce-planning/scenario-comparisons`
+    - `GET    //api/workforce-planning/workforce-scenarios/{id}`
+    - `GET    //api/workforce-planning/workforce-scenarios/{id}/role-forecasts`
+    - `GET    //api/workforce-planning/workforce-scenarios/{id}/skill-gaps`
+    - `POST   //api/workforce-planning/workforce-scenarios/{id}/analyze`
 - **Quick-steps (Postman - 5 min):** instanciar template → `calculate-gaps` → `refresh-suggested-strategies` → `scenario-comparisons` → revisar detalle.
 - **Notas de integración:** `AppSidebar.vue` ya incluye el link; rutas registradas (`workforce-planning.index`, `workforce-planning.show`). Mantener `POSTMAN_VALIDATION_5MIN.md` como guía rápida.
 - **Recomendación:** Añadir E2E (Playwright) para el flujo create→calculate→suggest→compare y migrar stores a Pinia según `WORKFORCE_PLANNING_UI_INTEGRATION.md`.
@@ -1139,9 +1303,9 @@ comp.skills = comp.skills.map((s) =>
 - **Por qué:** El nombre `ScenarioPlanning` comunica mejor el propósito principal: modelado y comparación de escenarios, plantillas y análisis de brechas.
 - **Fecha:** 2026-01-21
 - **Metadata Git:**
-  - `git_repo_name`: oahumada/Stratos
-  - `git_branch`: feature/workforce-planning-scenario-modeling
-  - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
+    - `git_repo_name`: oahumada/Stratos
+    - `git_branch`: feature/workforce-planning-scenario-modeling
+    - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
 
 Esta entrada sirve como referencia para nombres de rutas, directorios y componentes que podrían contener la forma antigua (`workforce-planning`) y deben considerarse para actualizaciones futuras.
 
@@ -1195,38 +1359,38 @@ El modelo **debería ser N:N con pivote** (una competencia puede ser compartida 
 - ✅ Limpiar `selectedChild.value` en `contextCreateChild()`
 - ✅ Función `resetCompetencyForm()` y watchers para limpiar campos
 - ✅ Reescribir `createAndAttachComp()` para usar endpoint único:
-  ```javascript
-  POST /api/strategic-planning/scenarios/{scenarioId}/capabilities/{capId}/competencies
-  { competency: { name, description }, required_level, ... }
-  ```
+    ```javascript
+    POST /api/strategic-planning/scenarios/{scenarioId}/capabilities/{capId}/competencies
+    { competency: { name, description }, required_level, ... }
+    ```
 
 **Backend:** Nuevas migraciones y modelos
 
 1. **Nueva migración:** `2026_01_29_120000_remove_capability_id_from_competencies.php`
-   - Elimina FK `capability_id` de tabla `competencies`
-   - Elimina índices relacionados
-   - La relación será SOLO vía pivote
+    - Elimina FK `capability_id` de tabla `competencies`
+    - Elimina índices relacionados
+    - La relación será SOLO vía pivote
 
 2. **Modelo Competency:** `app/Models/Competency.php`
-   - ✅ Remover `belongsTo(Capability)`
-   - ✅ Agregar `belongsToMany(Capability::class)` vía pivote `capability_competencies`
-   - ✅ Actualizar `fillable` para remover `capability_id`
+    - ✅ Remover `belongsTo(Capability)`
+    - ✅ Agregar `belongsToMany(Capability::class)` vía pivote `capability_competencies`
+    - ✅ Actualizar `fillable` para remover `capability_id`
 
 3. **Modelo Capability:** `app/Models/Capability.php`
-   - ✅ Cambiar `hasMany(Competency)` a `belongsToMany(Competency)` vía pivote
-   - ✅ Ahora soporta N:N correctamente
+    - ✅ Cambiar `hasMany(Competency)` a `belongsToMany(Competency)` vía pivote
+    - ✅ Ahora soporta N:N correctamente
 
 4. **ScenarioController::getCapabilityTree()** `app/Http/Controllers/Api/ScenarioController.php`
-   - ✅ Actualizar eager loading para filtrar competencias por escenario en el pivote:
-     ```php
-     'capabilities.competencies' => function ($qc) {
-         $qc->wherePivot('scenario_id', $scenarioId);
-     }
-     ```
+    - ✅ Actualizar eager loading para filtrar competencias por escenario en el pivote:
+        ```php
+        'capabilities.competencies' => function ($qc) {
+            $qc->wherePivot('scenario_id', $scenarioId);
+        }
+        ```
 
 5. **Endpoint backend:** `routes/api.php`
-   - ✅ Remover asignación de `'capability_id'` al crear competencia nueva
-   - ✅ La vinculación es SOLO vía pivote `capability_competencies`
+    - ✅ Remover asignación de `'capability_id'` al crear competencia nueva
+    - ✅ La vinculación es SOLO vía pivote `capability_competencies`
 
 ### Archivos modificados
 
@@ -1260,17 +1424,17 @@ El modelo **debería ser N:N con pivote** (una competencia puede ser compartida 
 Cuando el usuario creaba una competencia desde el modal de capacidad, la competencia NO se guardaba ni se adjuntaba correctamente. Hay dos causas raíz:
 
 1. **Confusión de relaciones:** El código asumía dos vías de vincular competencias:
-   - Directa: vía `capability_id` en tabla `competencies`
-   - Pivot: vía tabla `capability_competencies` con scenario-specific data
+    - Directa: vía `capability_id` en tabla `competencies`
+    - Pivot: vía tabla `capability_competencies` con scenario-specific data
 
-   Pero el frontend intentaba:
-   - `POST /api/competencies` (endpoint que NO existe) → Error 404
-   - Luego `POST /api/.../competencies` (fallback)
+    Pero el frontend intentaba:
+    - `POST /api/competencies` (endpoint que NO existe) → Error 404
+    - Luego `POST /api/.../competencies` (fallback)
 
 2. **Estado mal limpiado:** Cuando se abría el modal de crear competencia:
-   - `selectedChild.value` no se limpiaba
-   - Si había una competencia seleccionada antes, `displayNode = selectedChild ?? focusedNode` usaba el child viejo
-   - Los campos del formulario no se reseteaban después de crear
+    - `selectedChild.value` no se limpiaba
+    - Si había una competencia seleccionada antes, `displayNode = selectedChild ?? focusedNode` usaba el child viejo
+    - Los campos del formulario no se reseteaban después de crear
 
 ### Soluciones implementadas
 
@@ -1282,17 +1446,17 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
 - ✅ Añadida creación/adjunto automático de `skills` desde el modal de creación de competencia: `createAndAttachComp()` ahora procesa `newCompSkills` (coma-separadas) y llama a `createAndAttachSkillForComp(compId, payload)` para crear y asociar cada skill nueva.
 - ✅ Agregar watcher para limpiar campos al cerrar modal (línea ~998)
 - ✅ Reescribir `createAndAttachComp()` para usar endpoint único y correcto:
-  - Antes: dos llamadas (`POST /api/competencies` + fallback)
-  - Ahora: una sola `POST /api/strategic-planning/scenarios/{scenarioId}/capabilities/{capId}/competencies`
-  - Payload único: `{ competency: { name, description }, required_level, ... }`
+    - Antes: dos llamadas (`POST /api/competencies` + fallback)
+    - Ahora: una sola `POST /api/strategic-planning/scenarios/{scenarioId}/capabilities/{capId}/competencies`
+    - Payload único: `{ competency: { name, description }, required_level, ... }`
 
 **Backend:** `routes/api.php`
 
 - ✅ Eliminar ruta duplicada (línea 97-128, que solo soportaba crear competencia sin pivot)
 - ✅ Mantener ruta completa (línea 99, ahora única) que soporta:
-  - `competency_id`: vincular competencia existente
-  - `competency: { name, description }`: crear nueva en una transacción
-  - Pivot attributes: `required_level`, `weight`, `rationale`, `is_required`
+    - `competency_id`: vincular competencia existente
+    - `competency: { name, description }`: crear nueva en una transacción
+    - Pivot attributes: `required_level`, `weight`, `rationale`, `is_required`
 
 ### Archivos modificados
 
@@ -1314,12 +1478,12 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
 - **Qué:** Ajustes visuales y de layout en `resources/js/pages/ScenarioPlanning/Index.vue` para mejorar la separación entre nodos padre/hijos y la curvatura de los conectores. Se centralizaron parámetros visuales en la nueva prop `visualConfig` y se añadió `capabilityChildrenOffset` como prop aislada para control fino.
 - **Por qué:** Facilitar tuning rápido de la visualización desde la invocación del componente y reducir constantes dispersas en el archivo.
 - **Cambios principales:**
-  - Añadida prop `visualConfig` (valores por defecto: `nodeRadius`, `focusRadius`, `scenarioOffset`, `childDrop`, `skillDrop`, `edge.baseDepth`, `edge.curveFactor`, `edge.spreadOffset`).
-  - `expandCompetencies` y `expandSkills` ahora consultan `visualConfig` y `capabilityChildrenOffset` para posicionamiento vertical de hijos.
-  - `edgeRenderFor` y `edgeEndpoint` adaptan la profundidad de curva según distancia y `visualConfig.edge.curveFactor`.
-  - Se preservaron los `marker-end` existentes (`#childArrow`) para mantener las flechas en los conectores.
+    - Añadida prop `visualConfig` (valores por defecto: `nodeRadius`, `focusRadius`, `scenarioOffset`, `childDrop`, `skillDrop`, `edge.baseDepth`, `edge.curveFactor`, `edge.spreadOffset`).
+    - `expandCompetencies` y `expandSkills` ahora consultan `visualConfig` y `capabilityChildrenOffset` para posicionamiento vertical de hijos.
+    - `edgeRenderFor` y `edgeEndpoint` adaptan la profundidad de curva según distancia y `visualConfig.edge.curveFactor`.
+    - Se preservaron los `marker-end` existentes (`#childArrow`) para mantener las flechas en los conectores.
 - **Archivos modificados:**
-  - `resources/js/pages/ScenarioPlanning/Index.vue` (prop `visualConfig`, uso en `expandCompetencies`, `expandSkills`, `edgeRenderFor`, `centerOnNode` y ajustes visuales).
+    - `resources/js/pages/ScenarioPlanning/Index.vue` (prop `visualConfig`, uso en `expandCompetencies`, `expandSkills`, `edgeRenderFor`, `centerOnNode` y ajustes visuales).
 - **Estado Git local:** cambios aplicados en branch `feature/workforce-planning-scenario-modeling` (commits locales pendientes de push). Intento de fetch/push falló por autenticación remota (usar SSH o PAT para sincronizar).
 - **Próximos pasos guardados:** continuar mañana con la implementación del `NodeContextMenu` y los modales para crear/asociar competencias/skills (ver TODO list actualizada en repo).
 - **Fecha:** 2026-01-27
@@ -1339,9 +1503,9 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
 - Por qué: Evitar que los nodos hijos queden demasiado cerca o solapen con el padre en vistas con muchos elementos; mejora legibilidad y evita recenter inesperado.
 - Fecha: 2026-01-22
 - Metadata Git:
-  - `git_repo_name`: oahumada/Stratos
-  - `git_branch`: feature/workforce-planning-scenario-modeling
-  - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
+    - `git_repo_name`: oahumada/Stratos
+    - `git_branch`: feature/workforce-planning-scenario-modeling
+    - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
 
 ### Implementación: Estilo "Burbuja" para nodos (ScenarioPlanning)
 
@@ -1350,9 +1514,9 @@ Cuando el usuario creaba una competencia desde el modal de capacidad, la compete
 - **Fecha:** 2026-01-21
 - **Archivos modificados:** `resources/js/pages/ScenarioPlanning/Index.vue`
 - **Metadata Git:**
-  - `git_repo_name`: oahumada/Stratos
-  - `git_branch`: feature/workforce-planning-scenario-modeling
-  - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
+    - `git_repo_name`: oahumada/Stratos
+    - `git_branch`: feature/workforce-planning-scenario-modeling
+    - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
 
 Nota: Este cambio es puramente visual (SVG/defs/CSS). La lógica D3 y el layout no han sido alterados. Si deseas que aplique el mismo tratamiento a las `child-nodes`, lo hago en la siguiente iteración.
 
@@ -1364,8 +1528,8 @@ Nota: Este cambio es puramente visual (SVG/defs/CSS). La lógica D3 y el layout 
 ## Tests añadidos (2026-01-28)
 
 - **CapabilityUpdateTest**: nuevo archivo de pruebas backend en `tests/Feature/CapabilityUpdateTest.php` con dos tests:
-  - `test_update_capability_entity_via_api`: PATCH a `/api/capabilities/{id}` y aserciones en la tabla `capabilities`.
-  - `test_update_scenario_capability_pivot_via_api`: crea asociación inicial y PATCH a `/api/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}` para actualizar campos pivot en `scenario_capabilities`.
+    - `test_update_capability_entity_via_api`: PATCH a `/api/capabilities/{id}` y aserciones en la tabla `capabilities`.
+    - `test_update_scenario_capability_pivot_via_api`: crea asociación inicial y PATCH a `/api/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}` para actualizar campos pivot en `scenario_capabilities`.
 
 Estas pruebas fueron añadidas para cubrir la edición/actualización de registros de capacidades y sus atributos de escenario (pivot).
 
@@ -1397,10 +1561,10 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 ## Implementación registrada: Navegación por niveles (matriz 2x5)
 
 - **Qué:** Añadida lógica de navegación por niveles en el mapa de `ScenarioPlanning`:
-  - La vista raíz ahora muestra el `scenario` y hasta 10 capacidades dispuestas en una matriz de 2 filas x 5 columnas.
-  - Al seleccionar una capacidad, el nodo seleccionado se centra horizontalmente y se posiciona verticalmente al 25% del lienzo; los demás nodos de nivel 1 se ocultan (se ponen `display:none`) y se mantiene visible el nodo `scenario`.
-  - La expansión de competencias (nivel 2) ahora está limitada a 10 nodos y se dispone en matriz 2x5 debajo del nodo seleccionado.
-  - Comportamiento análogo para profundizar un nivel más (nivel 3): oculta nodos no seleccionados y muestra únicamente el padre y sus hijos.
+    - La vista raíz ahora muestra el `scenario` y hasta 10 capacidades dispuestas en una matriz de 2 filas x 5 columnas.
+    - Al seleccionar una capacidad, el nodo seleccionado se centra horizontalmente y se posiciona verticalmente al 25% del lienzo; los demás nodos de nivel 1 se ocultan (se ponen `display:none`) y se mantiene visible el nodo `scenario`.
+    - La expansión de competencias (nivel 2) ahora está limitada a 10 nodos y se dispone en matriz 2x5 debajo del nodo seleccionado.
+    - Comportamiento análogo para profundizar un nivel más (nivel 3): oculta nodos no seleccionados y muestra únicamente el padre y sus hijos.
 - **Dónde:** `resources/js/pages/ScenarioPlanning/Index.vue` (modificación de `expandCompetencies`, `handleNodeClick`) y nuevo helper `resources/js/composables/useNodeNavigation.ts` (`computeMatrixPositions`).
 - **Por qué:** UX consistente, reduce saturación visual y proporciona una navegación predecible por niveles.
 - **Fecha:** 2026-01-25
@@ -1409,100 +1573,100 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 
 - **Qué:** Decisión de testing integrada en el proyecto.
 - **Stack de pruebas:**
-  - Backend: `Pest` (PHP) — ya en uso para pruebas de API y lógica del servidor.
-    - Nota: las pruebas backend usan **Pest**, no **PHPUnit**; los tests están escritos con sintaxis Pest/PHP.
-  - Frontend unit/integration: `Vitest` + `@vue/test-utils` para composables y componentes Vue.
-  - Frontend E2E/funcionales: `Playwright` para pruebas end-to-end (multi-navegador) — cobertura de flujos complejos (D3 interactions, drag/drop, centering, sidebar).
+    - Backend: `Pest` (PHP) — ya en uso para pruebas de API y lógica del servidor.
+        - Nota: las pruebas backend usan **Pest**, no **PHPUnit**; los tests están escritos con sintaxis Pest/PHP.
+    - Frontend unit/integration: `Vitest` + `@vue/test-utils` para composables y componentes Vue.
+    - Frontend E2E/funcionales: `Playwright` para pruebas end-to-end (multi-navegador) — cobertura de flujos complejos (D3 interactions, drag/drop, centering, sidebar).
 - **Enfoque:** Desarrollo orientado por pruebas (TDD) cuando sea práctico: empezar por tests unitarios/componente para la lógica (`useNodeNavigation`, `expandCompetencies`) y luego añadir pruebas E2E con Playwright para flujos críticos (ej. crear/adjuntar/centrar/guardar).
 - **Notas operativas:**
-  - Usar `msw` para mocks en pruebas de componentes cuando levantar el servidor resulte costoso.
-  - Para E2E se usará `npm run dev` en entorno local o un server de pruebas con datos seed; Playwright tests aceptan `BASE_URL` para apuntar a diferentes servidores.
-  - Añadir pasos a CI para ejecutar: `composer test` (Pest), `npm run test:unit` (Vitest), `npm run test:e2e` (Playwright headless). Preferir Playwright oficial images/actions en CI.
+    - Usar `msw` para mocks en pruebas de componentes cuando levantar el servidor resulte costoso.
+    - Para E2E se usará `npm run dev` en entorno local o un server de pruebas con datos seed; Playwright tests aceptan `BASE_URL` para apuntar a diferentes servidores.
+    - Añadir pasos a CI para ejecutar: `composer test` (Pest), `npm run test:unit` (Vitest), `npm run test:e2e` (Playwright headless). Preferir Playwright oficial images/actions en CI.
 
-  ### Metodología de testing - Memoria del proyecto
+    ### Metodología de testing - Memoria del proyecto
 
-  Esta entrada documenta la metodología acordada para las pruebas frontend-backend en `oahumada/Stratos` y debe ser consultada al diseñar nuevos tests o pipelines de CI.
-  - Propósito: asegurar que el frontend envía los payloads y headers esperados, que el backend pasa sus pruebas unitarias/feature (Pest) y que los flujos E2E críticos están cubiertos.
-  - Alcance: cubrir componentes UI críticos (formularios, modal create/attach, diagram interactions), composables (p. ej. `useNodeNavigation`), y flujos completos (create → attach → center → save).
-  - Stack recomendado:
-    - Backend: Pest (PHP) — ya usado para pruebas CRUD.
-    - Frontend unit/integration: Vitest + @vue/test-utils + msw (para mocks de red en tests de componentes).
-    - Frontend E2E: Playwright (usar `BASE_URL` para apuntar a servidores de prueba).
-  - Orden de ejecución en CI: 1) `composer test` (Pest) → 2) `npm run test:unit` (Vitest) → 3) `npm run test:e2e` (Playwright headless).
-  - Buenas prácticas:
-    - Usar DB de pruebas seedada para E2E o mockear respuestas en tests de componentes.
-    - Interceptar y validar solicitudes en E2E (Playwright) para comprobar body y headers.
-    - Evitar datos frágiles en pruebas; usar fixtures y limpiar estado entre tests.
-    - Validar payloads/inputs en backend y no confiar en validaciones cliente.
-    - Documentar en `docs/` los endpoints y shapes esperados para facilitar tests contractuales.
+    Esta entrada documenta la metodología acordada para las pruebas frontend-backend en `oahumada/Stratos` y debe ser consultada al diseñar nuevos tests o pipelines de CI.
+    - Propósito: asegurar que el frontend envía los payloads y headers esperados, que el backend pasa sus pruebas unitarias/feature (Pest) y que los flujos E2E críticos están cubiertos.
+    - Alcance: cubrir componentes UI críticos (formularios, modal create/attach, diagram interactions), composables (p. ej. `useNodeNavigation`), y flujos completos (create → attach → center → save).
+    - Stack recomendado:
+        - Backend: Pest (PHP) — ya usado para pruebas CRUD.
+        - Frontend unit/integration: Vitest + @vue/test-utils + msw (para mocks de red en tests de componentes).
+        - Frontend E2E: Playwright (usar `BASE_URL` para apuntar a servidores de prueba).
+    - Orden de ejecución en CI: 1) `composer test` (Pest) → 2) `npm run test:unit` (Vitest) → 3) `npm run test:e2e` (Playwright headless).
+    - Buenas prácticas:
+        - Usar DB de pruebas seedada para E2E o mockear respuestas en tests de componentes.
+        - Interceptar y validar solicitudes en E2E (Playwright) para comprobar body y headers.
+        - Evitar datos frágiles en pruebas; usar fixtures y limpiar estado entre tests.
+        - Validar payloads/inputs en backend y no confiar en validaciones cliente.
+        - Documentar en `docs/` los endpoints y shapes esperados para facilitar tests contractuales.
 
-  > Nota: esta metodología ya se registró internamente como preferencia del proyecto y puede ser persistida en la memoria del equipo para referencia futura.
+    > Nota: esta metodología ya se registró internamente como preferencia del proyecto y puede ser persistida en la memoria del equipo para referencia futura.
 
 ## Memoria: Sesión 2026-01-23
 
 - **Resumen corto:** Implementé el endpoint backend para asignar competencias a capacidades por escenario (`capability_competencies`) que acepta `competency_id` o crea una nueva `competency` y la asocia, creé la migración/modelo para la pivot, añadí tests Feature que cubren ambos flujos y verifiqué que los tests pasan localmente.
 - **Archivos clave modificados/añadidos:**
-  - `routes/api.php` — POST `/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies` (lógica transaccional, tenant checks, manejo de duplicados).
-  - `app/Models/CapabilityCompetency.php` — nuevo modelo para pivot.
-  - `database/migrations/2026_01_23_120000_add_positions_to_scenario_capabilities_table.php` — agregó `position_x/position_y/is_fixed` a `scenario_capabilities`.
-  - `database/migrations/2026_01_23_121000_create_capability_competencies_table.php` — nueva tabla `capability_competencies`.
-  - `tests/Feature/CapabilityCompetencyTest.php` — tests para: adjuntar competencia existente; crear nueva competencia + pivot en transacción.
+    - `routes/api.php` — POST `/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies` (lógica transaccional, tenant checks, manejo de duplicados).
+    - `app/Models/CapabilityCompetency.php` — nuevo modelo para pivot.
+    - `database/migrations/2026_01_23_120000_add_positions_to_scenario_capabilities_table.php` — agregó `position_x/position_y/is_fixed` a `scenario_capabilities`.
+    - `database/migrations/2026_01_23_121000_create_capability_competencies_table.php` — nueva tabla `capability_competencies`.
+    - `tests/Feature/CapabilityCompetencyTest.php` — tests para: adjuntar competencia existente; crear nueva competencia + pivot en transacción.
 
 - **Comprobaciones realizadas:**
-  - Ejecuté los tests del nuevo archivo y pasaron: `php artisan test tests/Feature/CapabilityCompetencyTest.php` (2 tests, 8 assertions) en el entorno de desarrollo local del repo.
+    - Ejecuté los tests del nuevo archivo y pasaron: `php artisan test tests/Feature/CapabilityCompetencyTest.php` (2 tests, 8 assertions) en el entorno de desarrollo local del repo.
 
 - **Decisiones y reglas aplicadas:**
-  - El endpoint opera en transacción (crea la `competency` si se entrega `competency` payload, o usa `competency_id` si se entrega).
-  - Verificación multitenant: se comprueba `organization_id` del `scenario` y de la `competency` nueva/existente antes de asociar.
-  - Prevención de duplicados: verifica existencia en `capability_competencies` antes de insertar; si existe devuelve la fila existente.
+    - El endpoint opera en transacción (crea la `competency` si se entrega `competency` payload, o usa `competency_id` si se entrega).
+    - Verificación multitenant: se comprueba `organization_id` del `scenario` y de la `competency` nueva/existente antes de asociar.
+    - Prevención de duplicados: verifica existencia en `capability_competencies` antes de insertar; si existe devuelve la fila existente.
 
 - **Próximos pasos guardados (para mañana):**
-  1. Ejecutar migraciones en el entorno dev y validar end-to-end (actualizar posiciones desde UI y comprobar `scenario_capabilities`):
+    1. Ejecutar migraciones en el entorno dev y validar end-to-end (actualizar posiciones desde UI y comprobar `scenario_capabilities`):
 
-     ```bash
-     cd src
-     php artisan migrate
-     npm run dev   # si es necesario reconstruir assets
-     ```
+        ```bash
+        cd src
+        php artisan migrate
+        npm run dev   # si es necesario reconstruir assets
+        ```
 
-  2. Implementar la UI (modal/select) en `resources/js/pages/ScenarioPlanning/Index.vue` para: seleccionar competencia existente o crear una nueva y llamar al endpoint transaccional.
-  3. Añadir validaciones/autorization finales y pruebas E2E pequeñas (Playwright/Pest) para el flujo completo.
+    2. Implementar la UI (modal/select) en `resources/js/pages/ScenarioPlanning/Index.vue` para: seleccionar competencia existente o crear una nueva y llamar al endpoint transaccional.
+    3. Añadir validaciones/autorization finales y pruebas E2E pequeñas (Playwright/Pest) para el flujo completo.
 
 - **Metadata:**
-  - `git_branch`: feature/workforce-planning-scenario-modeling
-  - `fecha`: 2026-01-23
+    - `git_branch`: feature/workforce-planning-scenario-modeling
+    - `fecha`: 2026-01-23
 
-    ## Memory: Implementation - Transform / Competency Versioning (2026-02-05)
+        ## Memory: Implementation - Transform / Competency Versioning (2026-02-05)
 
-    **Tipo:** implementation
+        **Tipo:** implementation
 
-    **Título:** Implementación Transform → Crear versiones de competencias y mapping Role↔Competency a versiones
+        **Título:** Implementación Transform → Crear versiones de competencias y mapping Role↔Competency a versiones
 
-    **Ubicación:** Frontend: `resources/js/Pages/Scenario/TransformModal.vue`, `resources/js/components/BarsEditor.vue`, `resources/js/composables/useApi.ts`
+        **Ubicación:** Frontend: `resources/js/Pages/Scenario/TransformModal.vue`, `resources/js/components/BarsEditor.vue`, `resources/js/composables/useApi.ts`
 
-    **Propósito:** Permitir que la transformación de una competencia cree una nueva `competency_version` en backend y que los mappings rol↔competency guarden la referencia a la versión creada. Mejorar UX de edición BARS (modo estructurado + JSON robusto) y manejo de errores API (sanitizar respuestas HTML/no-JSON).
+        **Propósito:** Permitir que la transformación de una competencia cree una nueva `competency_version` en backend y que los mappings rol↔competency guarden la referencia a la versión creada. Mejorar UX de edición BARS (modo estructurado + JSON robusto) y manejo de errores API (sanitizar respuestas HTML/no-JSON).
 
-    **Cambios clave realizados:**
-    - `TransformModal.vue`: arma payload con `metadata.bars`, `skill_ids` (existentes), `new_skills` (nombres) y `create_skills_incubated` (boolean). Envía POST a `/api/competencies/{id}/transform`.
-    - `BarsEditor.vue`: editor estructurado para BARS con modo JSON opcional; evita emitir JSON inválido y muestra errores de parseo; skills ahora como objetos `{ id?, name }` con typeahead y creación inline.
-    - `useApi.ts`: wrapper axios mejorado para detectar respuestas HTML/no-JSON y convertirlas en mensajes de error legibles (evita "Unexpected token '<'...").
-    - Seeders: varios seeders actualizados (`SkillSeeder`, `CapabilitySeeder`, `CompetencySeeder`, `DemoSeeder`, `PeopleSeeder`, `ScenarioSeeder`) para alinearse con el esquema actual (ej. eliminar uso de `skills.capability_id` y corregir nombres de modelos/variables). Esto permitió `php artisan migrate:fresh --seed` exitoso.
+        **Cambios clave realizados:**
+        - `TransformModal.vue`: arma payload con `metadata.bars`, `skill_ids` (existentes), `new_skills` (nombres) y `create_skills_incubated` (boolean). Envía POST a `/api/competencies/{id}/transform`.
+        - `BarsEditor.vue`: editor estructurado para BARS con modo JSON opcional; evita emitir JSON inválido y muestra errores de parseo; skills ahora como objetos `{ id?, name }` con typeahead y creación inline.
+        - `useApi.ts`: wrapper axios mejorado para detectar respuestas HTML/no-JSON y convertirlas en mensajes de error legibles (evita "Unexpected token '<'...").
+        - Seeders: varios seeders actualizados (`SkillSeeder`, `CapabilitySeeder`, `CompetencySeeder`, `DemoSeeder`, `PeopleSeeder`, `ScenarioSeeder`) para alinearse con el esquema actual (ej. eliminar uso de `skills.capability_id` y corregir nombres de modelos/variables). Esto permitió `php artisan migrate:fresh --seed` exitoso.
 
-    **Contracto esperado (frontend ↔ backend):**
-    - Request POST `/api/competencies/{id}/transform`:
-      - body: `{ metadata: { bars: ... }, skill_ids: [...], new_skills: [...], create_skills_incubated: true|false }`
-    - Response esperado: JSON con `competency_version` creado y opcionalmente `created_skills` (cada skill con `is_incubated` o metadata equivalente) para que UI muestre skills incubadas.
+        **Contracto esperado (frontend ↔ backend):**
+        - Request POST `/api/competencies/{id}/transform`:
+            - body: `{ metadata: { bars: ... }, skill_ids: [...], new_skills: [...], create_skills_incubated: true|false }`
+        - Response esperado: JSON con `competency_version` creado y opcionalmente `created_skills` (cada skill con `is_incubated` o metadata equivalente) para que UI muestre skills incubadas.
 
-    **Pruebas ejecutadas:**
-    - Unit: `resources/js/tests/unit/components/BarsEditor.spec.ts` — OK
-    - Integration: `resources/js/tests/e2e/TransformModal.integration.spec.ts` — OK (targeted run)
+        **Pruebas ejecutadas:**
+        - Unit: `resources/js/tests/unit/components/BarsEditor.spec.ts` — OK
+        - Integration: `resources/js/tests/e2e/TransformModal.integration.spec.ts` — OK (targeted run)
 
-    **Notas / próximos pasos recomendados:**
-    - Verificar en backend que el endpoint `POST /api/competencies/{id}/transform` crea la `competency_version` y devuelve la estructura `created_skills` con `is_incubated`.
-    - Preparar PR con cambios frontend + seeders + descripción del contrato transform.
-    - Ejecutar suite completa de tests en CI/local (`npx vitest run` desde `src` o `composer test`) y revisar fallos residuales.
+        **Notas / próximos pasos recomendados:**
+        - Verificar en backend que el endpoint `POST /api/competencies/{id}/transform` crea la `competency_version` y devuelve la estructura `created_skills` con `is_incubated`.
+        - Preparar PR con cambios frontend + seeders + descripción del contrato transform.
+        - Ejecutar suite completa de tests en CI/local (`npx vitest run` desde `src` o `composer test`) y revisar fallos residuales.
 
-    **Git metadata:** se debe adjuntar al almacenar memoria (repo/branch/commit actual al momento de la operación).
+        **Git metadata:** se debe adjuntar al almacenar memoria (repo/branch/commit actual al momento de la operación).
 
 ---
 
@@ -1524,9 +1688,9 @@ Registro creado automáticamente para dejar el estado listo para continuar maña
 - **Impacto:** El seeder y rutas que ya crean capacidades quedan cubiertos; la inserción respeta la restricción única (`scenario_id, capability_id`) y maneja errores con logging.
 - **Fecha:** 2026-01-22
 - **Metadata Git:**
-  - `git_repo_name`: oahumada/Stratos
-  - `git_branch`: feature/workforce-planning-scenario-modeling
-  - `git_commit_hash`: (local edit)
+    - `git_repo_name`: oahumada/Stratos
+    - `git_branch`: feature/workforce-planning-scenario-modeling
+    - `git_commit_hash`: (local edit)
 
 # OpenMemory - Resumen del proyecto Stratos
 
@@ -1543,7 +1707,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 
 - Stack: Laravel 12 (backend) + Inertia v2 + Vue 3 + TypeScript + Vuetify 3
 - Multi-tenant por `organization_id`, autenticación con Sanctum.
-- Estructura principal: código en ``, documentación en `docs/` y `docs_wiki/`.
+- Estructura principal: código en ``, documentación en `docs/`y`docs_wiki/`.
 
 ## Componentes clave (relevantes para WFP / Cerebro Stratos)
 
@@ -1559,15 +1723,15 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Resumen:** WFP centraliza creación y comparación de escenarios (what-if) con plantillas (IA Adoption, Digital Transformation, Rapid Growth, Succession Planning).
 - **Rutas UI:** `/workforce-planning` → `WorkforcePlanning/ScenarioSelector.vue`; `/workforce-planning/{id}` → `OverviewDashboard.vue`.
 - **APIs clave (resumen):**
-  - `GET    //api/workforce-planning/scenario-templates`
-  - `POST   //api/workforce-planning/workforce-scenarios/{template_id}/instantiate-from-template`
-  - `POST   //api/workforce-planning/workforce-scenarios/{id}/calculate-gaps`
-  - `POST   //api/workforce-planning/workforce-scenarios/{id}/refresh-suggested-strategies`
-  - `POST   //api/workforce-planning/scenario-comparisons`
-  - `GET    //api/workforce-planning/workforce-scenarios/{id}`
-  - `GET    //api/workforce-planning/workforce-scenarios/{id}/role-forecasts`
-  - `GET    //api/workforce-planning/workforce-scenarios/{id}/skill-gaps`
-  - `POST   //api/workforce-planning/workforce-scenarios/{id}/analyze`
+    - `GET    //api/workforce-planning/scenario-templates`
+    - `POST   //api/workforce-planning/workforce-scenarios/{template_id}/instantiate-from-template`
+    - `POST   //api/workforce-planning/workforce-scenarios/{id}/calculate-gaps`
+    - `POST   //api/workforce-planning/workforce-scenarios/{id}/refresh-suggested-strategies`
+    - `POST   //api/workforce-planning/scenario-comparisons`
+    - `GET    //api/workforce-planning/workforce-scenarios/{id}`
+    - `GET    //api/workforce-planning/workforce-scenarios/{id}/role-forecasts`
+    - `GET    //api/workforce-planning/workforce-scenarios/{id}/skill-gaps`
+    - `POST   //api/workforce-planning/workforce-scenarios/{id}/analyze`
 - **Quick-steps (Postman - 5 min):** instanciar template → `calculate-gaps` → `refresh-suggested-strategies` → `scenario-comparisons` → revisar detalle.
 - **Notas de integración:** `AppSidebar.vue` ya incluye el link; rutas registradas (`workforce-planning.index`, `workforce-planning.show`). Mantener `POSTMAN_VALIDATION_5MIN.md` como guía rápida.
 - **Recomendación:** Añadir E2E (Playwright) para el flujo create→calculate→suggest→compare y migrar stores a Pinia según `WORKFORCE_PLANNING_UI_INTEGRATION.md`.
@@ -1578,9 +1742,9 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Por qué:** El nombre `ScenarioPlanning` comunica mejor el propósito principal: modelado y comparación de escenarios, plantillas y análisis de brechas.
 - **Fecha:** 2026-01-21
 - **Metadata Git:**
-  - `git_repo_name`: oahumada/Stratos
-  - `git_branch`: feature/workforce-planning-scenario-modeling
-  - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
+    - `git_repo_name`: oahumada/Stratos
+    - `git_branch`: feature/workforce-planning-scenario-modeling
+    - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
 
 Esta entrada sirve como referencia para nombres de rutas, directorios y componentes que podrían contener la forma antigua (`workforce-planning`) y deben considerarse para actualizaciones futuras.
 
@@ -1611,9 +1775,9 @@ Esta entrada sirve como referencia para nombres de rutas, directorios y componen
 - Por qué: Evitar que los nodos hijos queden demasiado cerca o solapen con el padre en vistas con muchos elementos; mejora legibilidad y evita recenter inesperado.
 - Fecha: 2026-01-22
 - Metadata Git:
-  - `git_repo_name`: oahumada/Stratos
-  - `git_branch`: feature/workforce-planning-scenario-modeling
-  - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
+    - `git_repo_name`: oahumada/Stratos
+    - `git_branch`: feature/workforce-planning-scenario-modeling
+    - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
 
 ### Implementación: Estilo "Burbuja" para nodos (ScenarioPlanning)
 
@@ -1622,9 +1786,9 @@ Esta entrada sirve como referencia para nombres de rutas, directorios y componen
 - **Fecha:** 2026-01-21
 - **Archivos modificados:** `resources/js/pages/ScenarioPlanning/Index.vue`
 - **Metadata Git:**
-  - `git_repo_name`: oahumada/Stratos
-  - `git_branch`: feature/workforce-planning-scenario-modeling
-  - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
+    - `git_repo_name`: oahumada/Stratos
+    - `git_branch`: feature/workforce-planning-scenario-modeling
+    - `git_commit_hash`: c63dccd946a6148c8f41d20d0cfe24c62aa1ac5a
 
 Nota: Este cambio es puramente visual (SVG/defs/CSS). La lógica D3 y el layout no han sido alterados. Si deseas que aplique el mismo tratamiento a las `child-nodes`, lo hago en la siguiente iteración.
 
@@ -1695,13 +1859,13 @@ Si necesitas que añada la entrada de memoria formal (add-memory) o que cree el 
 El modal de edición de Competencias NO guardaba cambios. Causas múltiples:
 
 1. **Endpoint faltante:** Frontend intentaba `PATCH /api/competencies/{id}` que NO existía
-   - Solo existía: `PATCH /api/strategic-planning/scenarios/{scenarioId}/capabilities/{parentId}/competencies/{compId}` (para pivot)
-   - Faltaba: Endpoint independiente para actualizar la competencia misma (name, description, skills)
+    - Solo existía: `PATCH /api/strategic-planning/scenarios/{scenarioId}/capabilities/{parentId}/competencies/{compId}` (para pivot)
+    - Faltaba: Endpoint independiente para actualizar la competencia misma (name, description, skills)
 
 2. **Campo no guardable:** `readiness` es **calculado dinámicamente** en el backend, no una columna en BD
-   - No existe en tabla `competencies`
-   - Se calcula llamando `calculateCompetencyReadiness()` en el controlador `getCapabilityTree()`
-   - El frontend intentaba guardar este campo, pero no puede existir en la tabla
+    - No existe en tabla `competencies`
+    - Se calcula llamando `calculateCompetencyReadiness()` en el controlador `getCapabilityTree()`
+    - El frontend intentaba guardar este campo, pero no puede existir en la tabla
 
 3. **Falta de logging:** Los errores PATCH se ocultaban con `catch (err) { void err; }` sin logs, imposibilitando debug
 
@@ -1787,32 +1951,32 @@ Layout radial adaptativo para distribuir nodos competencia y skills sin solapami
 
 ```javascript
 LAYOUT_CONFIG.competency.radial = {
-  radius: 240, // Distancia competencias no-seleccionadas
-  selectedOffsetY: 40, // Espacio vertical para skills
-  startAngle: -Math.PI / 4, // -45° (bottom-left)
-  endAngle: (5 * Math.PI) / 4, // 225° (bottom-right, sin top)
+    radius: 240, // Distancia competencias no-seleccionadas
+    selectedOffsetY: 40, // Espacio vertical para skills
+    startAngle: -Math.PI / 4, // -45° (bottom-left)
+    endAngle: (5 * Math.PI) / 4, // 225° (bottom-right, sin top)
 };
 
 LAYOUT_CONFIG.skill.radial = {
-  radius: 160, // Distancia skills de competencia
-  offsetY: 120, // Espacio vertical desde competencia
-  startAngle: -Math.PI / 6, // -30°
-  endAngle: (7 * Math.PI) / 6, // 210° (2/3 inferior)
+    radius: 160, // Distancia skills de competencia
+    offsetY: 120, // Espacio vertical desde competencia
+    startAngle: -Math.PI / 6, // -30°
+    endAngle: (7 * Math.PI) / 6, // 210° (2/3 inferior)
 };
 ```
 
 ### Archivos modificados
 
 1. `resources/js/pages/ScenarioPlanning/Index.vue`
-   - Línea ~662: `LAYOUT_CONFIG` (nueva)
-   - Función `expandCompetencies`: Layout radial + matrix
-   - Función `expandSkills`: Layout radial + linear
-   - Handler click competencias: `selectedChild` antes de expand
+    - Línea ~662: `LAYOUT_CONFIG` (nueva)
+    - Función `expandCompetencies`: Layout radial + matrix
+    - Función `expandSkills`: Layout radial + linear
+    - Handler click competencias: `selectedChild` antes de expand
 
 2. `docs/LAYOUT_CONFIG_SCENARIO_PLANNING_GUIDE.md` (nueva)
-   - Guía completa de ajuste
-   - Ejemplos de valores
-   - Tips de debugging
+    - Guía completa de ajuste
+    - Ejemplos de valores
+    - Tips de debugging
 
 ### Validación
 
@@ -1896,18 +2060,18 @@ SQL: insert into "competency_skills" ("competency_id", "skill_id", ...)
 
 ```typescript
 // ❌ ANTES (Bug):
-skills: (editChildSkills.value || "")
-  .split(",")
-  .map((s) => s.trim())
-  .filter((s) => s);
+skills: (editChildSkills.value || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s);
 // Resultado: ['S1', 'S2'] → strings que la FK no acepta
 
 // ✅ DESPUÉS (Fix):
 const skillIds = Array.isArray(child.skills)
-  ? child.skills
-      .map((s: any) => s.id ?? s.raw?.id ?? s)
-      .filter((id: any) => typeof id === "number")
-  : [];
+    ? child.skills
+          .map((s: any) => s.id ?? s.raw?.id ?? s)
+          .filter((id: any) => typeof id === 'number')
+    : [];
 // Resultado: [1, 2, 3] → números válidos para FK
 ```
 
@@ -1925,22 +2089,22 @@ Patrón Strategy para operaciones base en cualquier nodo:
 
 ```typescript
 const nodeCrud = useNodeCrud({
-  entityName: "capacidad", // Para mensajes
-  entityNamePlural: "capabilities", // Para endpoints
-  parentRoute: "/api/strategic-planning/scenarios", // Opcional
+    entityName: 'capacidad', // Para mensajes
+    entityNamePlural: 'capabilities', // Para endpoints
+    parentRoute: '/api/strategic-planning/scenarios', // Opcional
 });
 
 // Operaciones disponibles:
 (-createAndAttach(parentId, payload) - // Crear y vincular
-  updateEntity(id, payload) - // Actualizar
-  updatePivot(parentId, childId, pivotData) - // Pivot
-  deleteEntity(id) - // Eliminar
-  fetchEntity(id) - // Obtener
-  // Estados reactivos:
-  saving,
-  creating,
-  deleting,
-  loading);
+    updateEntity(id, payload) - // Actualizar
+    updatePivot(parentId, childId, pivotData) - // Pivot
+    deleteEntity(id) - // Eliminar
+    fetchEntity(id) - // Obtener
+    // Estados reactivos:
+    saving,
+    creating,
+    deleting,
+    loading);
 ```
 
 **Features automáticas:**
@@ -1958,7 +2122,7 @@ Operaciones específicas para capabilities:
 
 ```typescript
 const { createCapabilityForScenario, updateCapability, updateCapabilityPivot } =
-  useCapabilityCrud();
+    useCapabilityCrud();
 
 // Pivot: scenario_capabilities
 // Campos: strategic_role, strategic_weight, priority,
@@ -1973,9 +2137,9 @@ Operaciones específicas para competencies:
 
 ```typescript
 const {
-  createCompetencyForCapability,
-  updateCompetency,
-  updateCompetencyPivot,
+    createCompetencyForCapability,
+    updateCompetency,
+    updateCompetencyPivot,
 } = useCompetencyCrud();
 
 // Pivot: capability_competencies
@@ -1991,7 +2155,7 @@ const {
 
 ```typescript
 const { createAndAttachSkill, attachExistingSkill, detachSkill } =
-  useCompetencySkills();
+    useCompetencySkills();
 ```
 
 #### 5. useNodeLayout.ts (180 líneas) - Layout Compartido
@@ -2002,14 +2166,14 @@ Centraliza lógica de posicionamiento de nodos:
 
 ```typescript
 const {
-  findParent,
-  findChildren,
-  calculateCenter,
-  distributeInCircle, // Círculo alrededor de punto
-  distributeInGrid, // Grilla configurable
-  distributeHorizontally, // Línea horizontal
-  distributeVertically, // Línea vertical
-  findNearestAvailablePosition, // Evita overlaps
+    findParent,
+    findChildren,
+    calculateCenter,
+    distributeInCircle, // Círculo alrededor de punto
+    distributeInGrid, // Grilla configurable
+    distributeHorizontally, // Línea horizontal
+    distributeVertically, // Línea vertical
+    findNearestAvailablePosition, // Evita overlaps
 } = useNodeLayout();
 ```
 
@@ -2124,49 +2288,49 @@ async function saveSelectedChild() {
 #### ✅ DESPUÉS: saveSelectedChild() - 25 líneas limpias
 
 ```typescript
-import { useCompetencyCrud } from "@/composables/useCompetencyCrud";
-import { useNodeLayout } from "@/composables/useNodeLayout";
+import { useCompetencyCrud } from '@/composables/useCompetencyCrud';
+import { useNodeLayout } from '@/composables/useNodeLayout';
 
 const { updateCompetency, updateCompetencyPivot } = useCompetencyCrud();
 const { findParent } = useNodeLayout();
 
 async function saveSelectedChild() {
-  const child = selectedChild.value;
-  if (!child) return showError("No hay competencia seleccionada");
+    const child = selectedChild.value;
+    if (!child) return showError('No hay competencia seleccionada');
 
-  const parentId = findParent(child.id, childEdges.value);
-  const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
+    const parentId = findParent(child.id, childEdges.value);
+    const compId = child.compId ?? child.raw?.id ?? Math.abs(child.id);
 
-  if (!parentId || !compId) {
-    return showError("No se puede determinar la relación");
-  }
+    if (!parentId || !compId) {
+        return showError('No se puede determinar la relación');
+    }
 
-  // ✅ Extrae IDs correctamente (fix del bug)
-  const skillIds = Array.isArray(child.skills)
-    ? child.skills
-        .map((s: any) => s.id ?? s.raw?.id ?? s)
-        .filter((id: any) => typeof id === "number")
-    : [];
+    // ✅ Extrae IDs correctamente (fix del bug)
+    const skillIds = Array.isArray(child.skills)
+        ? child.skills
+              .map((s: any) => s.id ?? s.raw?.id ?? s)
+              .filter((id: any) => typeof id === 'number')
+        : [];
 
-  // Actualizar entidad (manejo automático de errores, csrf, logs)
-  const updated = await updateCompetency(compId, {
-    name: editChildName.value,
-    description: editChildDescription.value,
-    skills: skillIds,
-  });
+    // Actualizar entidad (manejo automático de errores, csrf, logs)
+    const updated = await updateCompetency(compId, {
+        name: editChildName.value,
+        description: editChildDescription.value,
+        skills: skillIds,
+    });
 
-  if (!updated) return; // useCompetencyCrud ya mostró el error
+    if (!updated) return; // useCompetencyCrud ya mostró el error
 
-  // Actualizar pivot (intenta ambos endpoints automáticamente)
-  await updateCompetencyPivot(props.scenario.id, parentId, compId, {
-    weight: editChildPivotStrategicWeight.value,
-    priority: editChildPivotPriority.value,
-    required_level: editChildPivotRequiredLevel.value,
-    is_required: !!editChildPivotIsCritical.value,
-    rationale: editChildPivotRationale.value,
-  });
+    // Actualizar pivot (intenta ambos endpoints automáticamente)
+    await updateCompetencyPivot(props.scenario.id, parentId, compId, {
+        weight: editChildPivotStrategicWeight.value,
+        priority: editChildPivotPriority.value,
+        required_level: editChildPivotRequiredLevel.value,
+        is_required: !!editChildPivotIsCritical.value,
+        rationale: editChildPivotRationale.value,
+    });
 
-  await refreshCapabilityTree();
+    await refreshCapabilityTree();
 }
 ```
 
@@ -2195,20 +2359,20 @@ async function saveSelectedChild() {
 Se crearon 3 documentos técnicos detallados:
 
 1. **[DRY_REFACTOR_SCENARIO_PLANNING.md](docs/DRY_REFACTOR_SCENARIO_PLANNING.md)**
-   - Plan completo de refactorización en 4 fases
-   - Timeline y estimaciones
-   - Impacto proyectado
+    - Plan completo de refactorización en 4 fases
+    - Timeline y estimaciones
+    - Impacto proyectado
 
 2. **[DRY_EJEMPLO_REFACTOR_SAVE_CHILD.md](docs/DRY_EJEMPLO_REFACTOR_SAVE_CHILD.md)**
-   - Ejemplo antes/después de `saveSelectedChild()`
-   - Comparación línea por línea
-   - Flujo de datos detallado
-   - Estrategia de testing
+    - Ejemplo antes/después de `saveSelectedChild()`
+    - Comparación línea por línea
+    - Flujo de datos detallado
+    - Estrategia de testing
 
 3. **[DRY_RESUMEN_EJECUTIVO.md](docs/DRY_RESUMEN_EJECUTIVO.md)**
-   - Resumen ejecutivo del proyecto
-   - Métricas de impacto
-   - Checklist de implementación
+    - Resumen ejecutivo del proyecto
+    - Métricas de impacto
+    - Checklist de implementación
 
 ### Próximos Pasos (Refactorización Incremental)
 
@@ -2259,20 +2423,20 @@ Frontend (Composables):
 
 ```typescript
 // useCompetencyCrud.spec.ts
-describe("useCompetencyCrud", () => {
-  it("should update competency with skill IDs", async () => {
-    const { updateCompetency } = useCompetencyCrud();
+describe('useCompetencyCrud', () => {
+    it('should update competency with skill IDs', async () => {
+        const { updateCompetency } = useCompetencyCrud();
 
-    const result = await updateCompetency(27, {
-      name: "Updated",
-      skills: [1, 2, 3], // IDs numéricos
+        const result = await updateCompetency(27, {
+            name: 'Updated',
+            skills: [1, 2, 3], // IDs numéricos
+        });
+
+        expect(mockApi.patch).toHaveBeenCalledWith(
+            '/api/competencies/27',
+            expect.objectContaining({ skills: [1, 2, 3] }),
+        );
     });
-
-    expect(mockApi.patch).toHaveBeenCalledWith(
-      "/api/competencies/27",
-      expect.objectContaining({ skills: [1, 2, 3] }),
-    );
-  });
 });
 ```
 
@@ -2280,16 +2444,16 @@ describe("useCompetencyCrud", () => {
 
 ```typescript
 // Index.spec.ts
-it("should save selected child competency", async () => {
-  const wrapper = mount(Index, { props: { scenario: mockScenario } });
+it('should save selected child competency', async () => {
+    const wrapper = mount(Index, { props: { scenario: mockScenario } });
 
-  wrapper.vm.selectedChild = mockCompetency;
-  wrapper.vm.editChildName = "Updated Name";
+    wrapper.vm.selectedChild = mockCompetency;
+    wrapper.vm.editChildName = 'Updated Name';
 
-  await wrapper.vm.saveSelectedChild();
+    await wrapper.vm.saveSelectedChild();
 
-  expect(mockCompetencyCrud.updateCompetency).toHaveBeenCalled();
-  expect(mockCompetencyCrud.updateCompetencyPivot).toHaveBeenCalled();
+    expect(mockCompetencyCrud.updateCompetency).toHaveBeenCalled();
+    expect(mockCompetencyCrud.updateCompetencyPivot).toHaveBeenCalled();
 });
 ```
 
@@ -2326,18 +2490,18 @@ Este patrón puede aplicarse a otros componentes con operaciones CRUD repetidas:
 ```typescript
 // Template para nuevo tipo de nodo
 const nodeCrud = useNodeCrud({
-  entityName: "proyecto",
-  entityNamePlural: "projects",
-  parentRoute: "/api/portfolios",
+    entityName: 'proyecto',
+    entityNamePlural: 'projects',
+    parentRoute: '/api/portfolios',
 });
 
 // Extender con operaciones específicas
 export function useProjectCrud() {
-  return {
-    ...nodeCrud,
-    createProjectForPortfolio: (portfolioId, data) =>
-      nodeCrud.createAndAttach(portfolioId, data),
-  };
+    return {
+        ...nodeCrud,
+        createProjectForPortfolio: (portfolioId, data) =>
+            nodeCrud.createAndAttach(portfolioId, data),
+    };
 }
 ```
 
@@ -2379,21 +2543,21 @@ export function useProjectCrud() {
 **5 Spec Files (~1,324 líneas):**
 
 1. **roleCompetencyStore.spec.ts** (459 líneas)
-   - loadScenarioData, saveMapping, removeMapping, addNewRole
-   - Computed: matrixRows, competencyColumns
-   - Helpers: getMapping, clearMessages
+    - loadScenarioData, saveMapping, removeMapping, addNewRole
+    - Computed: matrixRows, competencyColumns
+    - Helpers: getMapping, clearMessages
 2. **RoleForecastsTable.spec.ts** (297 líneas)
-   - Data loading + FTE delta calculation
-   - Prop updates + scenarioId watchers
+    - Data loading + FTE delta calculation
+    - Prop updates + scenarioId watchers
 3. **SkillGapsMatrix.spec.ts** (305 líneas)
-   - Heat map rendering + color calculation
-   - Gap detail modals + CSV export
+    - Heat map rendering + color calculation
+    - Gap detail modals + CSV export
 4. **MatchingResults.spec.ts** (285 líneas)
-   - Match percentage cards + risk factors
-   - Readiness level filtering
+    - Match percentage cards + risk factors
+    - Readiness level filtering
 5. **SuccessionPlanCard.spec.ts** (338 líneas)
-   - Current holder info + successor readiness
-   - Edit dialogs + plan updates
+    - Current holder info + successor readiness
+    - Edit dialogs + plan updates
 
 **Patrón:** mount + mock fetch + verify API calls + test state
 
