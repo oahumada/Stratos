@@ -196,21 +196,45 @@ class Step2RoleCompetencyController extends Controller
             $roleId = $validated['role_id'];
         }
 
-        $scenarioRole = ScenarioRole::create([
-            'scenario_id' => $scenarioId,
-            'role_id' => $roleId,
-            'fte' => $validated['fte'],
-            'role_change' => $validated['role_change'],
-            'evolution_type' => $validated['evolution_type'],
-            'impact_level' => $validated['impact_level'],
-            'rationale' => $validated['rationale'] ?? null,
-        ]);
+        $scenarioRole = ScenarioRole::updateOrCreate(
+            [
+                'scenario_id' => $scenarioId,
+                'role_id' => $roleId,
+            ],
+            [
+                'fte' => $validated['fte'],
+                'role_change' => $validated['role_change'],
+                'evolution_type' => $validated['evolution_type'],
+                'impact_level' => $validated['impact_level'],
+                'rationale' => $validated['rationale'] ?? null,
+            ]
+        );
+
+        // Cargar la relación con el rol para obtener el nombre
+        $scenarioRole->load('role');
+
+        // Formatear la respuesta para que coincida con el formato esperado por el frontend
+        $roleData = [
+            'id' => $scenarioRole->id,
+            'scenario_id' => $scenarioRole->scenario_id,
+            'role_id' => $scenarioRole->role_id,
+            'role_name' => $scenarioRole->role->name,
+            'fte' => $scenarioRole->fte,
+            'role_change' => $scenarioRole->role_change,
+            'evolution_type' => $scenarioRole->evolution_type,
+            'impact_level' => $scenarioRole->impact_level,
+            'rationale' => $scenarioRole->rationale,
+            'human_leverage' => $scenarioRole->human_leverage,
+            'archetype' => $scenarioRole->archetype,
+        ];
 
         return response()->json([
             'success' => true,
-            'role' => $scenarioRole,
-            'message' => 'Rol agregado al escenario',
-        ], 201);
+            'role' => $roleData,
+            'message' => $scenarioRole->wasRecentlyCreated
+                ? 'Rol agregado al escenario'
+                : 'Rol actualizado en el escenario',
+        ], $scenarioRole->wasRecentlyCreated ? 201 : 200);
     }
 
     /**

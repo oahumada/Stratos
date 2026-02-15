@@ -204,7 +204,18 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
             if (!response.ok) throw new Error('Error adding role');
             const res = await response.json();
 
-            roles.value.push(res.role);
+            // Verificar si el rol ya existe en el array
+            const existingRoleIndex = roles.value.findIndex(
+                (r) => r.role_id === res.role.role_id,
+            );
+
+            if (existingRoleIndex !== -1) {
+                // Actualizar el rol existente
+                roles.value[existingRoleIndex] = res.role;
+            } else {
+                // Añadir nuevo rol
+                roles.value.push(res.role);
+            }
 
             success.value = res.message || 'Role added successfully';
             setTimeout(() => (success.value = null), 3000);

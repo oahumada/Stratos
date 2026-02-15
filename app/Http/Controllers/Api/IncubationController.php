@@ -75,9 +75,9 @@ class IncubationController extends Controller
                         
                         // Search for similar items (limit 5)
                         $similar = $this->embeddingService->findSimilar(
-                            $targetTable, 
-                            $vector, 
-                            5, 
+                            $targetTable,
+                            $vector,
+                            5,
                             $item->organization_id
                         );
                         
