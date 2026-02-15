@@ -17,6 +17,7 @@
 
 - **5 minutos?** → [`QUICK_START.md`](docs/QUICK_START.md)
 - **¿Primer día?** → [`memories.md`](docs/memories.md)
+- **¿Roadmap 2026?** → [`ROADMAP_ESTRATEGICO_2026.md`](docs/ROADMAP_ESTRATEGICO_2026.md)
 - **¿Visión Técnica?** → [`PLAN_DE_ATAQUE_EXCELENCIA.md`](docs/PLAN_DE_ATAQUE_EXCELENCIA.md)
 - **¿Estado actual?** → [`estado_actual_mvp.md`](docs/estado_actual_mvp.md)
 
