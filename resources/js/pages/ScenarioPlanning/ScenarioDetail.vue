@@ -89,34 +89,32 @@ const formData = ref({
 const fieldErrors = ref<Record<string, string[]>>({});
 const roles = ref<any[]>([]);
 const rolesLoading = ref(false);
-const skills = ref<any[]>([]);
-const skillsLoading = ref(false);
 const scenarioSkills = ref<any[]>([]);
-const showNewSkillDialog = ref(false);
-const newSkillName = ref('');
-const newSkillCategory = ref('technical');
-const newSkillLoading = ref(false);
-const newSkillTargetIndex = ref<number | null>(null);
 const roleActions = ref<Record<number, string>>({});
 const departments = ref<any[]>([]);
 const deptLoading = ref(false);
 const roleFamilies = ref<any[]>([]);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const includedCount = computed(
     () =>
         Object.values(roleActions.value).filter((v) => v === 'include').length,
 );
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const importCount = computed(
     () => Object.values(roleActions.value).filter((v) => v === 'import').length,
 );
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ignoredCount = computed(
     () => Object.values(roleActions.value).filter((v) => v === 'ignore').length,
 );
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const roleHeaders = ref([
     { title: 'Rol', key: 'name' },
     { title: 'Departamento', key: 'department' },
     { title: 'Familia', key: 'family' },
     { title: 'Acciones', key: 'actions', sortable: false },
 ]);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const activeTab = ref<
     | 'stepper'
     | 'overview'
@@ -218,8 +216,6 @@ const loadScenario = async () => {
         ) {
             await loadDepartments();
         }
-        // load skills for step1 and populate scenario skills
-        await loadSkills();
         // populate scenarioSkills from scenario payload if available
         scenarioSkills.value = (
             scenario.value?.scenario_skills ||
@@ -351,6 +347,20 @@ const simulateLLM = async () => {
     }
 };
 
+const refreshStrategies = async () => {
+    refreshing.value = true;
+    try {
+        // En el futuro esto regenerará las estrategias basadas en brechas
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        showSuccess('Estrategias de cierre actualizadas');
+    } catch (e) {
+        console.error(e);
+        showError('Error al actualizar las estrategias');
+    } finally {
+        refreshing.value = false;
+    }
+};
+
 const loadRoles = async () => {
     // fetch roles filtered by scope_type if provided
     rolesLoading.value = true;
@@ -378,108 +388,19 @@ const loadRoles = async () => {
         roles.value.forEach((r: any) => {
             if (!roleActions.value[r.id]) roleActions.value[r.id] = 'ignore';
         });
-    } catch (e) {
-        void e;
+    } catch {
         // ignore silently; roles are optional
     } finally {
         rolesLoading.value = false;
     }
 };
 
-const loadSkills = async () => {
-    skillsLoading.value = true;
-    try {
-        const res = await api.get('/api/skills');
-        skills.value = (res as any)?.data ?? res ?? [];
-    } catch (e) {
-        void e;
-        // ignore
-    } finally {
-        skillsLoading.value = false;
-    }
-};
-
-const addScenarioSkill = () => {
-    scenarioSkills.value.push({
-        id: null,
-        skill_id: null,
-        strategic_role: '',
-        priority: 'medium',
-        rationale: '',
-    });
-};
-
-const removeScenarioSkill = (index: number) => {
-    scenarioSkills.value.splice(index, 1);
-};
-
-const openNewSkillDialog = (targetIndex: number | null = null) => {
-    newSkillName.value = '';
-    newSkillCategory.value = 'technical';
-    newSkillTargetIndex.value = targetIndex;
-    showNewSkillDialog.value = true;
-};
-
-const createNewSkill = async () => {
-    if (!newSkillName.value.trim()) return;
-    newSkillLoading.value = true;
-    try {
-        const payload: any = {
-            name: newSkillName.value.trim(),
-            category: newSkillCategory.value,
-            maturity_status: 'emergente',
-            status: 'active',
-        };
-        // if we have a scenario context, mark discovery origin
-        if (scenarioId.value && scenarioId.value > 0)
-            payload.discovered_in_scenario_id = scenarioId.value;
-        const res: any = await api.post('/api/skills', { data: payload });
-        const created = (res as any)?.data ?? res;
-        // append to local skills catalog
-        skills.value.push(created);
-        // if target index provided, assign to that row, else create new scenarioSkill with this skill
-        if (
-            newSkillTargetIndex.value !== null &&
-            scenarioSkills.value[newSkillTargetIndex.value]
-        ) {
-            scenarioSkills.value[newSkillTargetIndex.value].skill_id =
-                created.id;
-        } else {
-            scenarioSkills.value.push({
-                id: null,
-                skill_id: created.id,
-                strategic_role: '',
-                priority: 'medium',
-                rationale: '',
-            });
-        }
-        showNewSkillDialog.value = false;
-    } catch (e) {
-        void e;
-        showError('Error al crear la skill');
-    } finally {
-        newSkillLoading.value = false;
-    }
-};
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const setAllActions = (action: string) => {
     roles.value.forEach((r: any) => {
         roleActions.value[r.id] = action;
     });
 };
-
-// mark computed/handlers referenced to avoid unused-var while Phase 1 removes roles
-void includedCount.value;
-void importCount.value;
-void ignoredCount.value;
-void roleHeaders.value;
-void setAllActions;
-// Prevent linter false-positives for Phase 1 unused handlers/refs declared above
-void activeTab.value;
-void addScenarioSkill;
-void removeScenarioSkill;
-void openNewSkillDialog;
-void createNewSkill;
 
 watch(
     () => formData.value.scope_type,
@@ -500,14 +421,14 @@ const loadDepartments = async () => {
     try {
         const res = await api.get('/api/departments');
         departments.value = (res as any)?.data ?? res;
-    } catch (e) {
-        void e;
+    } catch {
         // ignore
     } finally {
         deptLoading.value = false;
     }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const saveStep1 = async () => {
     if (!scenarioId.value || scenarioId.value <= 0) return;
     savingStep1.value = true;
@@ -624,10 +545,6 @@ const handleStatusChanged = () => {
     loadScenario();
 };
 
-const handleStepChange = (step: number) => {
-    currentStep.value = step;
-};
-
 const openVersionHistory = () => {
     versionHistoryRef.value?.openDialog();
 };
@@ -662,54 +579,10 @@ const openChangeSetModal = async () => {
     }
 };
 
-const openStatusTimeline = () => {
-    statusTimelineRef.value?.openTimeline();
-};
-
 const handleVersionSelected = (id: number) => {
     // Navigate to the web route (Inertia page) not the API JSON endpoint
     router.visit(`/strategic-planning/${id}`);
 };
-
-const calculateGaps = async () => {
-    if (!scenarioId.value || scenarioId.value <= 0) return;
-    refreshing.value = true;
-    try {
-        await api.post(
-            `/api/strategic-planning/scenarios/${scenarioId.value}/calculate-gaps`,
-        );
-        showSuccess('Brechas recalculadas');
-    } catch (e) {
-        void e;
-        showError('Error al recalcular brechas');
-    } finally {
-        refreshing.value = false;
-    }
-};
-
-const refreshStrategies = async () => {
-    refreshing.value = true;
-    try {
-        // Endpoint opcional para generar/actualizar estrategias; si no existe, recarga el escenario
-        showSuccess('Estrategias actualizadas');
-    } catch (e) {
-        void e;
-        showError('Error al actualizar estrategias');
-    } finally {
-        refreshing.value = false;
-    }
-};
-
-// mark handlers defined below to avoid linter 'assigned but never used' warnings
-void saveStep1;
-void handleStatusChanged;
-void handleStepChange;
-void openVersionHistory;
-void openStatusTimeline;
-void handleVersionSelected;
-void calculateGaps;
-void refreshStrategies;
-void showGenerateWizard.value;
 
 // Definición de los 7 pasos del workflow
 const stepperItems = [
@@ -766,9 +639,9 @@ const goToStep = (step: number) => {
     if (step >= 1 && step <= stepperItems.length) {
         currentStep.value = step;
         // Actualizar URL con el step actual
-        const url = new URL(window.location.href);
+        const url = new URL(globalThis.location.href);
         url.searchParams.set('step', String(step));
-        window.history.replaceState({}, '', url.toString());
+        globalThis.history.replaceState({}, '', url.toString());
     }
 };
 
@@ -787,7 +660,7 @@ const prevStep = () => {
 // Parsear step desde query param
 const parseInitialStep = () => {
     try {
-        const url = new URL(window.location.href);
+        const url = new URL(globalThis.location.href);
         const stepParam = url.searchParams.get('step');
         const viewParam = url.searchParams.get('view');
 
@@ -798,14 +671,12 @@ const parseInitialStep = () => {
         }
 
         if (stepParam) {
-            const stepNum = parseInt(stepParam, 10);
+            const stepNum = Number.parseInt(stepParam, 10);
             if (stepNum >= 1 && stepNum <= stepperItems.length) {
                 currentStep.value = stepNum;
             }
         }
-    } catch (e) {
-        void e;
-    }
+    } catch {}
 };
 
 onMounted(() => {

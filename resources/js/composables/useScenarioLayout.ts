@@ -12,16 +12,31 @@ import {
     computeCompetencyMatrixPositions,
     computeSidesPositions,
     decideCompetencyLayout,
+    type LayoutType,
 } from './useCompetencyLayout';
 import { computeMatrixPositions } from './useNodeNavigation';
 
+// Shared base configuration for uniform spacing and layout
+const BASE_CONFIG = {
+    hSpacing: 100,
+    vSpacing: 40,
+    parentOffset: -20,
+    edgeDepth: 40,
+    text: { fontSize: 12, fontWeight: 600 },
+    defaultLayout: 'auto' as LayoutType,
+};
+
 // Centralized layout configuration
 export const LAYOUT_CONFIG = {
+    base: BASE_CONFIG, // Export base config if needed elsewhere
     capability: {
-        spacing: { hSpacing: 10, vSpacing: 10 },
+        spacing: {
+            hSpacing: BASE_CONFIG.hSpacing,
+            vSpacing: BASE_CONFIG.vSpacing,
+        },
         forces: { linkDistance: 100, linkStrength: 0.5, chargeStrength: -220 },
         scenarioEdgeDepth: 120,
-        text: { fontSize: 12, fontWeight: 600 },
+        text: BASE_CONFIG.text,
     },
     competency: {
         radial: {
@@ -31,16 +46,24 @@ export const LAYOUT_CONFIG = {
             endAngle: (5 * Math.PI) / 4,
         },
         sides: { selectedOffsetMultiplier: 0.75 },
-        defaultLayout: 'auto' as 'auto' | 'radial' | 'matrix' | 'sides',
-        parentOffset: 20,
+        defaultLayout: BASE_CONFIG.defaultLayout,
+        parentOffset: BASE_CONFIG.parentOffset,
         maxDisplay: 10,
         matrixVariants: [
             { min: 2, max: 3, rows: 1, cols: 3 },
             { min: 4, max: 8, rows: 2, cols: 4 },
             { min: 9, max: 10, rows: 2, cols: 5 },
         ],
-        spacing: { hSpacing: 100, vSpacing: 20, parentOffset: -10 },
-        edge: { baseDepth: 40, curveFactor: 0.65, spreadOffset: 18 },
+        spacing: {
+            hSpacing: BASE_CONFIG.hSpacing,
+            vSpacing: BASE_CONFIG.vSpacing, // Default was 20, now 60 (unified)
+            parentOffset: BASE_CONFIG.parentOffset, // Use base config
+        },
+        edge: {
+            baseDepth: BASE_CONFIG.edgeDepth,
+            curveFactor: 0.65,
+            spreadOffset: 18,
+        },
         text: { fontSize: 10, fontWeight: 600 },
     },
     skill: {
@@ -50,23 +73,30 @@ export const LAYOUT_CONFIG = {
             startAngle: -Math.PI / 6,
             endAngle: (7 * Math.PI) / 6,
             offsetFactor: 0.8,
-            offsetY: 40,
+            offsetY: 10,
         },
-        defaultLayout: 'sides' as 'auto' | 'radial' | 'matrix' | 'sides',
+        defaultLayout: BASE_CONFIG.defaultLayout,
         matrixVariants: [
             { min: 2, max: 3, rows: 1, cols: 3 },
-            { min: 4, max: 8, rows: 2, cols: 4 },
+            { min: 4, max: 8, rows: 1, cols: 4 },
             { min: 9, max: 10, rows: 2, cols: 5 },
         ],
         sides: {
-            hSpacing: 80,
-            vSpacing: 40,
-            parentOffset: 150,
-            selectedOffsetMultiplier: 2,
+            hSpacing: BASE_CONFIG.hSpacing,
+            vSpacing: BASE_CONFIG.vSpacing * 2, // 120, double space for skills to avoid overlapping
+            parentOffset: BASE_CONFIG.parentOffset,
+            selectedOffsetMultiplier: 0.5,
         },
-        linear: { hSpacing: 60, vSpacing: 40 },
-        edge: { baseDepth: 35, curveFactor: 0.5, spreadOffset: 20 },
-        text: { fontSize: 12, fontWeight: 600 },
+        linear: {
+            hSpacing: 160, // Specific override
+            vSpacing: 40, // Specific override
+        },
+        edge: {
+            baseDepth: BASE_CONFIG.edgeDepth - 5, // 35
+            curveFactor: 0.5,
+            spreadOffset: 20,
+        },
+        text: BASE_CONFIG.text,
     },
     animations: {
         competencyEntryFinalize: 80,
@@ -88,14 +118,126 @@ export const LAYOUT_CONFIG = {
     clamp: { minY: 40, bottomPadding: 40, minViewportHeight: 120 },
 };
 
-const TRANSITION_MS = 420;
-const TRANSITION_BUFFER = 60;
+function wait(ms: number) {
+    return new Promise((res) => setTimeout(res, ms));
+}
+
+// ==================== CENTER ON NODE ====================
+export function centerOnNode(
+    node: NodeItem,
+    prev: NodeItem | undefined,
+    width: number,
+    height: number,
+) {
+    if (!node) return;
+
+    const centerX = Math.round(width / 2);
+    const VERTICAL_FOCUS_RATIO = 0.25;
+    const centerY = Math.round(height * VERTICAL_FOCUS_RATIO);
+
+    // If swapping with previous node, use positions
+    if (prev && prev.id !== node.id) {
+        const prevNode = prev;
+        const newNode = node;
+
+        const tx = prevNode.x ?? 0;
+        const ty = prevNode.y ?? 0;
+        prevNode.x = newNode.x ?? tx;
+        prevNode.y = newNode.y ?? ty;
+        newNode.x = tx;
+        newNode.y = ty;
+
+        return {
+            updatedNode: newNode,
+            updatedPrevNode: prevNode,
+        };
+    }
+
+    // Position centered node
+    node.x = centerX;
+    node.y = centerY;
+
+    return { updatedNode: node };
+}
+
+// ==================== WRAP LABEL ====================
+export function wrapLabel(s: any, max = 14) {
+    if (s == null) return '';
+    const str = String(s).trim();
+    if (str.length <= max) return str;
+
+    const cutLine = (text: string, limit: number) => {
+        if (text.length <= limit) return { line: text, rest: '' };
+        const slice = text.slice(0, limit + 1);
+        const lastSpace = slice.lastIndexOf(' ');
+        if (lastSpace > 0) {
+            return {
+                line: text.slice(0, lastSpace),
+                rest: text.slice(lastSpace + 1).trim(),
+            };
+        }
+        return {
+            line: text.slice(0, limit),
+            rest: text.slice(limit).trim(),
+        };
+    };
+
+    const first = cutLine(str, max);
+    if (!first.rest) return first.line;
+
+    const secondRaw = first.rest;
+    if (secondRaw.length <= max) return first.line + '\n' + secondRaw;
+
+    const secondCut = cutLine(secondRaw, max);
+    let second = secondCut.line;
+    if (secondCut.rest && second.length >= max) {
+        second =
+            second.slice(0, Math.max(0, max - 1)).replace(/\s+$/, '') + '…';
+    } else if (secondCut.rest) {
+        second = second + '…';
+    }
+    return first.line + '\n' + second;
+}
+
+// ==================== COMPUTE INITIAL POSITION ====================
+export function computeInitialPosition(
+    idx: number,
+    total: number,
+    width: number,
+    height: number,
+) {
+    const centerX = width / 2;
+    const centerY = height / 2 - 30;
+
+    if (total <= 1) return { x: Math.round(centerX), y: Math.round(centerY) };
+
+    const columns = Math.min(5, Math.max(1, Math.ceil(Math.sqrt(total))));
+    const rows = Math.max(1, Math.ceil(total / columns));
+
+    const margin = 24;
+    const availableW = Math.max(120, width - margin * 2);
+    const availableH = Math.max(120, height - margin * 2);
+    const spacingX =
+        columns > 1 ? Math.min(160, Math.floor(availableW / columns)) : 0;
+    const spacingY =
+        rows > 1 ? Math.min(140, Math.floor(availableH / rows)) : 0;
+
+    const col = idx % columns;
+    const row = Math.floor(idx / columns);
+
+    const totalGridW = (columns - 1) * spacingX;
+    const totalGridH = (rows - 1) * spacingY;
+    const offsetX = col * spacingX - totalGridW / 2;
+    const offsetY = row * spacingY - totalGridH / 2;
+
+    return {
+        x: Math.round(centerX + offsetX),
+        y: Math.round(centerY + offsetY),
+    };
+}
 
 export function useScenarioLayout() {
     // ==================== HELPERS ====================
-    function wait(ms: number) {
-        return new Promise((res) => setTimeout(res, ms));
-    }
 
     function clampY(y: number) {
         const minY = LAYOUT_CONFIG.clamp.minY;
@@ -104,128 +246,9 @@ export function useScenarioLayout() {
         const maxY =
             Math.max(
                 minViewportHeight,
-                (window as any).__scenarioHeight ?? 600,
+                (globalThis as any).__scenarioHeight ?? 600,
             ) - bottomPadding;
         return Math.min(Math.max(y, minY), maxY);
-    }
-
-    function wrapLabel(s: any, max = 14) {
-        if (s == null) return '';
-        const str = String(s).trim();
-        if (str.length <= max) return str;
-
-        const cutLine = (text: string, limit: number) => {
-            if (text.length <= limit) return { line: text, rest: '' };
-            const slice = text.slice(0, limit + 1);
-            const lastSpace = slice.lastIndexOf(' ');
-            if (lastSpace > 0) {
-                return {
-                    line: text.slice(0, lastSpace),
-                    rest: text.slice(lastSpace + 1).trim(),
-                };
-            }
-            return {
-                line: text.slice(0, limit),
-                rest: text.slice(limit).trim(),
-            };
-        };
-
-        const first = cutLine(str, max);
-        if (!first.rest) return first.line;
-
-        const secondRaw = first.rest;
-        if (secondRaw.length <= max) return first.line + '\n' + secondRaw;
-
-        const secondCut = cutLine(secondRaw, max);
-        let second = secondCut.line;
-        if (secondCut.rest && second.length >= max) {
-            second =
-                second.slice(0, Math.max(0, max - 1)).replace(/\s+$/, '') + '…';
-        } else if (secondCut.rest) {
-            second = second + '…';
-        }
-        return first.line + '\n' + second;
-    }
-
-    function computeInitialPosition(
-        idx: number,
-        total: number,
-        width: number,
-        height: number,
-    ) {
-        const centerX = width / 2;
-        const centerY = height / 2 - 30;
-
-        if (total <= 1)
-            return { x: Math.round(centerX), y: Math.round(centerY) };
-
-        const columns = Math.min(5, Math.max(1, Math.ceil(Math.sqrt(total))));
-        const rows = Math.max(1, Math.ceil(total / columns));
-
-        const margin = 24;
-        const availableW = Math.max(120, width - margin * 2);
-        const availableH = Math.max(120, height - margin * 2);
-        const spacingX =
-            columns > 1 ? Math.min(160, Math.floor(availableW / columns)) : 0;
-        const spacingY =
-            rows > 1 ? Math.min(140, Math.floor(availableH / rows)) : 0;
-
-        const col = idx % columns;
-        const row = Math.floor(idx / columns);
-
-        const totalGridW = (columns - 1) * spacingX;
-        const totalGridH = (rows - 1) * spacingY;
-        const offsetX = col * spacingX - totalGridW / 2;
-        const offsetY = row * spacingY - totalGridH / 2;
-
-        return {
-            x: Math.round(centerX + offsetX),
-            y: Math.round(centerY + offsetY),
-        };
-    }
-
-    // ==================== CENTER ON NODE ====================
-    function centerOnNode(
-        node: NodeItem,
-        prev: NodeItem | undefined,
-        width: number,
-        height: number,
-    ) {
-        if (!node) return;
-
-        // Store original positions
-        const originalPositions = new Map<number, { x: number; y: number }>();
-
-        const centerX = Math.round(width / 2);
-        const VERTICAL_FOCUS_RATIO = 0.25;
-        const centerY = Math.round(height * VERTICAL_FOCUS_RATIO);
-
-        const leftX = Math.round(width * 0.18);
-        const rightX = Math.round(width * 0.82);
-
-        // If swapping with previous node, use positions
-        if (prev && prev.id !== node.id) {
-            const prevNode = prev;
-            const newNode = node;
-
-            const tx = prevNode.x ?? 0;
-            const ty = prevNode.y ?? 0;
-            prevNode.x = newNode.x ?? tx;
-            prevNode.y = newNode.y ?? ty;
-            newNode.x = tx;
-            newNode.y = ty;
-
-            return {
-                updatedNode: newNode,
-                updatedPrevNode: prevNode,
-            };
-        }
-
-        // Position centered node
-        node.x = centerX;
-        node.y = centerY;
-
-        return { updatedNode: node };
     }
 
     // ==================== EXPAND COMPETENCIES ====================
@@ -238,7 +261,7 @@ export function useScenarioLayout() {
             limit?: number;
             rows?: number;
             cols?: number;
-            layout?: 'auto' | 'radial' | 'matrix' | 'sides';
+            layout?: LayoutType;
         } = {},
         width?: number,
         height?: number,
@@ -274,7 +297,7 @@ export function useScenarioLayout() {
             rows = variantChoice.rows;
             cols = variantChoice.cols;
         } catch (err) {
-            void err;
+            console.log(err);
         }
 
         const layout = decideCompetencyLayout(
@@ -308,6 +331,7 @@ export function useScenarioLayout() {
                     null,
                 );
             } catch (err) {
+                console.warn('Failed to compute sides layout', err);
                 positions = [];
             }
         } else {
@@ -372,7 +396,7 @@ export function useScenarioLayout() {
         childNodes: any[],
         grandChildEdges: Edge[],
         initialPos?: { x: number; y: number },
-        opts: { layout?: 'auto' | 'radial' | 'matrix' | 'sides' } = {},
+        opts: { layout?: LayoutType } = {},
         height?: number,
     ) {
         const skills = Array.isArray(node.skills)
@@ -385,7 +409,8 @@ export function useScenarioLayout() {
         const toShow = skills.slice(0, limit);
 
         const cx = initialPos?.x ?? node.x ?? 450;
-        const parentY = initialPos?.y ?? node.y ?? 300;
+        const parentY =
+            initialPos?.y ?? node.y ?? Math.round((height ?? 600) / 2);
         const SKILL_PARENT_OFFSET_BASE = LAYOUT_CONFIG.skill.radial.offsetY;
         const SKILL_PARENT_OFFSET = Math.round(
             SKILL_PARENT_OFFSET_BASE *
@@ -428,6 +453,7 @@ export function useScenarioLayout() {
                     null,
                 );
             } catch (err) {
+                console.log(err);
                 positions = [];
             }
         } else {
@@ -445,6 +471,7 @@ export function useScenarioLayout() {
                     vSpacing: LAYOUT_CONFIG.skill.linear.vSpacing,
                 });
             } catch (err) {
+                console.log(err);
                 const rows = 1;
                 const cols = Math.min(4, toShow.length);
                 positions = computeMatrixPositions(toShow.length, cx, topY, {

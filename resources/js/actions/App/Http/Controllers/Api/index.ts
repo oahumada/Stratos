@@ -13,6 +13,7 @@ import GenerationChunkController from './GenerationChunkController'
 import ScenarioSimulationController from './ScenarioSimulationController'
 import ScenarioRoiController from './ScenarioRoiController'
 import ScenarioStrategyController from './ScenarioStrategyController'
+import IncubationController from './IncubationController'
 import TelemetryController from './TelemetryController'
 import ScenarioTemplateController from './ScenarioTemplateController'
 import Step2RoleCompetencyController from './Step2RoleCompetencyController'
@@ -34,6 +35,7 @@ const Api = {
     ScenarioSimulationController: Object.assign(ScenarioSimulationController, ScenarioSimulationController),
     ScenarioRoiController: Object.assign(ScenarioRoiController, ScenarioRoiController),
     ScenarioStrategyController: Object.assign(ScenarioStrategyController, ScenarioStrategyController),
+    IncubationController: Object.assign(IncubationController, IncubationController),
     TelemetryController: Object.assign(TelemetryController, TelemetryController),
     ScenarioTemplateController: Object.assign(ScenarioTemplateController, ScenarioTemplateController),
     Step2RoleCompetencyController: Object.assign(Step2RoleCompetencyController, Step2RoleCompetencyController),
