@@ -343,54 +343,72 @@ accept.form = acceptForm
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::simulateImport
 * @see app/Http/Controllers/Api/ScenarioGenerationController.php:360
-* @route '/api/strategic-planning/scenarios/simulate-import'
+* @route '/api/strategic-planning/scenarios/{scenario}/simulate-import'
 */
-export const simulateImport = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: simulateImport.url(options),
+export const simulateImport = (args: { scenario: string | number } | [scenario: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: simulateImport.url(args, options),
     method: 'post',
 })
 
 simulateImport.definition = {
     methods: ["post"],
-    url: '/api/strategic-planning/scenarios/simulate-import',
+    url: '/api/strategic-planning/scenarios/{scenario}/simulate-import',
 } satisfies RouteDefinition<["post"]>
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::simulateImport
 * @see app/Http/Controllers/Api/ScenarioGenerationController.php:360
-* @route '/api/strategic-planning/scenarios/simulate-import'
+* @route '/api/strategic-planning/scenarios/{scenario}/simulate-import'
 */
-simulateImport.url = (options?: RouteQueryOptions) => {
-    return simulateImport.definition.url + queryParams(options)
+simulateImport.url = (args: { scenario: string | number } | [scenario: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { scenario: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            scenario: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        scenario: args.scenario,
+    }
+
+    return simulateImport.definition.url
+            .replace('{scenario}', parsedArgs.scenario.toString())
+            .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::simulateImport
 * @see app/Http/Controllers/Api/ScenarioGenerationController.php:360
-* @route '/api/strategic-planning/scenarios/simulate-import'
+* @route '/api/strategic-planning/scenarios/{scenario}/simulate-import'
 */
-simulateImport.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: simulateImport.url(options),
+simulateImport.post = (args: { scenario: string | number } | [scenario: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: simulateImport.url(args, options),
     method: 'post',
 })
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::simulateImport
 * @see app/Http/Controllers/Api/ScenarioGenerationController.php:360
-* @route '/api/strategic-planning/scenarios/simulate-import'
+* @route '/api/strategic-planning/scenarios/{scenario}/simulate-import'
 */
-const simulateImportForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: simulateImport.url(options),
+const simulateImportForm = (args: { scenario: string | number } | [scenario: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: simulateImport.url(args, options),
     method: 'post',
 })
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::simulateImport
 * @see app/Http/Controllers/Api/ScenarioGenerationController.php:360
-* @route '/api/strategic-planning/scenarios/simulate-import'
+* @route '/api/strategic-planning/scenarios/{scenario}/simulate-import'
 */
-simulateImportForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: simulateImport.url(options),
+simulateImportForm.post = (args: { scenario: string | number } | [scenario: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: simulateImport.url(args, options),
     method: 'post',
 })
 

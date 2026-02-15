@@ -357,13 +357,21 @@ class ScenarioGenerationController extends Controller
     /**
      * Simulation endpoint to test the full import flow using the test JSON file.
      */
-    public function simulateImport(Request $request, ScenarioGenerationService $svc)
+    public function simulateImport(Request $request, $scenarioId, ScenarioGenerationService $svc)
     {
         $user = $request->user();
-        $orgId = $user->organization_id ?? $request->input('organization_id');
+        $orgId = $user->organization_id;
 
         if (!$orgId) {
-            return response()->json(['success' => false, 'message' => 'organization_id required'], 422);
+            return response()->json(['success' => false, 'message' => 'User must belong to an organization'], 422);
+        }
+
+        $scenario = \App\Models\Scenario::withoutGlobalScopes()->find($scenarioId);
+        if ($scenario && !in_array($scenario->status, ['draft', 'incubating', 'incubated'])) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'El escenario ya está en fase de ingeniería activa. No se puede re-simular el diseño inicial.'
+            ], 422);
         }
 
         // 1. Load simulated JSON from the prompt_instructions directory
@@ -385,26 +393,41 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to parse JSON from file'], 500);
         }
 
-        // 2. Create a dummy ScenarioGeneration to track this import
-        $generation = ScenarioGeneration::create([
-            'organization_id' => $orgId,
-            'created_by' => $user->id,
-            'status' => 'complete',
-            'llm_response' => $json,
-            'metadata' => ['simulated' => true, 'source_file' => 'llm_sim_response.md'],
-            'generated_at' => now(),
-        ]);
+        // 2. Create or update a ScenarioGeneration to track this import
+        $generation = ScenarioGeneration::withoutGlobalScopes()->updateOrCreate(
+            ['scenario_id' => $scenarioId],
+            [
+                'organization_id' => $orgId,
+                'created_by' => $user->id,
+                'status' => 'complete',
+                'llm_response' => $json,
+                'metadata' => ['simulated' => true, 'source_file' => 'llm_sim_response.md'],
+                'generated_at' => now(),
+            ]
+        );
 
         // 3. Execute the import logic
         try {
             $report = $svc->finalizeScenarioImport($generation);
+            
+            // Touch scenario to trigger reactivity and set status
+            $scenario = \App\Models\Scenario::withoutGlobalScopes()->find($scenarioId);
+            if ($scenario) {
+                $scenario->status = 'incubating';
+                $scenario->save(); // save() updates updated_at by default
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'Simulated import successful',
+                'message' => 'Simulated import successful into scenario ' . $scenarioId,
                 'data' => $report
             ]);
         }
         catch (\Throwable $e) {
+            \Log::error("Simulation 500 error: " . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'scenario_id' => $scenarioId
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Import failed: ' . $e->getMessage(),

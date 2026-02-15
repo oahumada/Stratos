@@ -40,7 +40,7 @@ class IncubationController extends Controller
             'capabilities' => $this->getIncubatedItems(Capability::class, $scenarioId),
             'competencies' => $this->getIncubatedItems(Competency::class, $scenarioId),
             'skills' => $this->getIncubatedItems(Skill::class, $scenarioId),
-            'roles' => $this->getIncubatedItems(Roles::class, $scenarioId),
+            'roles' => $this->getIncubatedItems(\App\Models\TalentBlueprint::class, $scenarioId),
         ];
 
         return response()->json([
@@ -51,55 +51,43 @@ class IncubationController extends Controller
 
     private function getIncubatedItems($modelClass, $scenarioId)
     {
+        $items = collect();
         if ($modelClass === \App\Models\TalentBlueprint::class) {
-             $query = $modelClass::where('scenario_id', $scenarioId)
-                ->where('status', 'in_incubation');
-             $items = $query->get();
-             // Blueprints don't have embeddings yet, skip check
-             return $items;
+             $items = $modelClass::where('scenario_id', $scenarioId)
+                ->where('status', 'in_incubation')
+                ->get();
+        } else {
+            $items = $modelClass::where('discovered_in_scenario_id', $scenarioId)
+                ->where('status', 'in_incubation')
+                ->get();
         }
-
-        $query = $modelClass::where('discovered_in_scenario_id', $scenarioId)
-            ->where('status', 'in_incubation');
-            
-        $items = $query->get();
 
         // Bonus: Check for duplicates/similar items if embeddings are enabled
         if (config('features.generate_embeddings', false)) {
             $items->transform(function ($item) use ($modelClass) {
                 // If the item has an embedding, check for similar items in active status
                 if (!empty($item->embedding)) {
-                    $tableName = (new $modelClass)->getTable();
+                    // Critical: if we are checking a Blueprint, we compare against 'roles' table
+                    $targetTable = ($modelClass === \App\Models\TalentBlueprint::class) ? 'roles' : (new $modelClass)->getTable();
+                    
                     try {
-                        // We search against the same table
-                        // But we want to find items that are ACTIVE (not incubation) ideally,
-                        // or at least warn about duplicates.
-                        // Since `findSimilar` is generic, we might get the item itself or other incubation items.
-                        // We'll filter in PHP for now.
-                        
                         $vector = $this->vectorToArray($item->embedding);
                         
                         // Search for similar items (limit 5)
                         $similar = $this->embeddingService->findSimilar(
-                            $tableName, 
+                            $targetTable, 
                             $vector, 
                             5, 
                             $item->organization_id
                         );
                         
-                        // Filter out:
-                        // 1. The item itself
-                        // 2. Items from the same scenario import (status=in_incubation with same scenario_id)
-                        // We only want to warn about similarity to EXISTING, ACTIVE items.
-                        
                         $warnings = [];
                         foreach ($similar as $match) {
-                            if ($match->id == $item->id) continue;
+                            // Filter out exact same ID ONLY if we are in the same table
+                            if ($targetTable === $item->getTable() && $match->id == $item->id) continue;
                             
-                            // Check status of match (we need to fetch it or join, but findSimilar returns minimal data)
-                            // For performance, let's just show the match. If it's another incubation item, it's still good to know (internal duplicate).
-                            
-                            if ($match->similarity > 0.85) {
+                            // For roles, we are often comparing blueprint vs catalog, so similarities are very useful
+                            if ($match->similarity > 0.75) { // Lower threshold for roles to show "Partial" matches
                                 $warnings[] = [
                                     'id' => $match->id,
                                     'name' => $match->name,
@@ -113,12 +101,14 @@ class IncubationController extends Controller
                         }
 
                     } catch (\Exception $e) {
-                         // robustly ignore embedding failures
+                         Log::error("Similarity check failed: " . $e->getMessage());
                     }
                 }
                 
                 // Hide embedding from JSON response
-                $item->makeHidden('embedding');
+                if (method_exists($item, 'makeHidden')) {
+                    $item->makeHidden('embedding');
+                }
                 return $item;
             });
         }
@@ -172,9 +162,8 @@ class IncubationController extends Controller
                             $entity->save();
                             
                             // Create actual Role
-                            // This part is simplified. In real Stratos, we would follow strict Role creation rules.
                             $realRole = \App\Models\Roles::firstOrCreate([
-                                'organization_id' => $scenario->organization_id, // Assuming scenario has org_id or user
+                                'organization_id' => $scenario->organization_id,
                                 'name' => $entity->role_name,
                             ], [
                                 'description' => $entity->role_description,
@@ -183,8 +172,23 @@ class IncubationController extends Controller
                                 'llm_id' => 'gen_' . $entity->id
                             ]);
                             
-                            // Link Role to Scenario if not linked via ScenarioRoles table? 
-                            // ScenarioRoles might be handled separately or here.
+                            // Determine Archetype
+                            $arch = 'O';
+                            if ($entity->human_leverage > 70) $arch = 'E';
+                            elseif ($entity->human_leverage > 40) $arch = 'T';
+
+                            // Link Role to Scenario via scenario_roles table
+                            \App\Models\ScenarioRole::updateOrCreate([
+                                'scenario_id' => $scenario->id,
+                                'role_id' => $realRole->id,
+                            ], [
+                                'fte' => $entity->total_fte_required ?? 1,
+                                'role_change' => 'modify',
+                                'evolution_type' => 'transformation',
+                                'impact_level' => 'high',
+                                'human_leverage' => $entity->human_leverage,
+                                'archetype' => $arch,
+                            ]);
                             
                             $approvedCount++;
                         }
@@ -204,7 +208,25 @@ class IncubationController extends Controller
             }
         });
 
-        return response()->json(['success' => true, 'approved_count' => $approvedCount]);
+        // After transaction, check remaining items
+        $remaining = Capability::where('discovered_in_scenario_id', $scenarioId)->where('status', 'in_incubation')->count() +
+                     Competency::where('discovered_in_scenario_id', $scenarioId)->where('status', 'in_incubation')->count() +
+                     Skill::where('discovered_in_scenario_id', $scenarioId)->where('status', 'in_incubation')->count() +
+                     \App\Models\TalentBlueprint::where('scenario_id', $scenarioId)->where('status', 'in_incubation')->count();
+
+        // Even if zero, we don't move scenario to 'active' yet, as per user requirement.
+        // It stays in 'incubating' or moves to a 'design_consolidated' state.
+        if ($remaining === 0 && $scenario->status === 'incubating') {
+             $scenario->status = 'incubated'; // A technical state meaning "Design Ready but not global"
+             $scenario->save();
+        }
+
+        return response()->json([
+            'success' => true, 
+            'approved_count' => $approvedCount,
+            'scenario_status' => $scenario->status,
+            'remaining_incubated' => $remaining
+        ]);
     }
 
     /**

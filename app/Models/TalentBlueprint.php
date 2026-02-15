@@ -13,7 +13,7 @@ class TalentBlueprint extends Model
         'scenario_id', 'role_name', 'role_description', 'estimated_fte',
         'total_fte_required', 'human_percentage', 'synthetic_percentage',
         'human_leverage', 'synthetic_leverage', 'strategy_suggestion', 'recommended_strategy',
-        'logic_justification', 'suggested_agent_type', 'agent_specs', 'key_competencies'
+        'logic_justification', 'suggested_agent_type', 'agent_specs', 'key_competencies', 'status', 'embedding'
     ];
 
     protected $casts = [
@@ -59,8 +59,5 @@ class TalentBlueprint extends Model
         $this->attributes['total_fte_required'] = $value;
     }
 
-    public function setKeyCompetenciesAttribute($value)
-    {
-        $this->attributes['agent_specs'] = json_encode($value);
-    }
+
 }

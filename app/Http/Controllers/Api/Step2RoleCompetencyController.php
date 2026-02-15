@@ -38,7 +38,18 @@ class Step2RoleCompetencyController extends Controller
         // Roles en este escenario
         $roles = ScenarioRole::where('scenario_id', $scenarioId)
             ->join('roles', 'scenario_roles.role_id', '=', 'roles.id')
-            ->select('scenario_roles.id', 'scenario_roles.role_id', 'roles.name as role_name', 'scenario_roles.fte', 'scenario_roles.role_change', 'scenario_roles.impact_level', 'scenario_roles.evolution_type', 'scenario_roles.rationale')
+            ->select(
+                'scenario_roles.id',
+                'scenario_roles.role_id',
+                'roles.name as role_name',
+                'scenario_roles.fte',
+                'scenario_roles.role_change',
+                'scenario_roles.impact_level',
+                'scenario_roles.evolution_type',
+                'scenario_roles.rationale',
+                'scenario_roles.human_leverage',
+                'scenario_roles.archetype'
+            )
             ->get();
 
         // Competencias disponibles (sin filtro de escenario, son globales)
@@ -64,7 +75,7 @@ class Step2RoleCompetencyController extends Controller
         // Mappings: Qué competencias están asignadas a cada rol
         $mappings = ScenarioRoleCompetency::where('scenario_id', $scenarioId)
             ->with(['role:id,name', 'competency:id,name'])
-            ->select('id', 'scenario_id', 'role_id', 'competency_id', 'competency_version_id', 'required_level', 'is_core', 'change_type', 'rationale')
+            ->select('id', 'scenario_id', 'role_id', 'competency_id', 'competency_version_id', 'required_level', 'is_core', 'is_referent', 'change_type', 'rationale')
             ->get();
 
         return response()->json([
@@ -91,6 +102,7 @@ class Step2RoleCompetencyController extends Controller
             'competency_id' => 'required|integer|exists:competencies,id',
             'required_level' => 'required|integer|between:1,5',
             'is_core' => 'boolean',
+            'is_referent' => 'nullable|boolean',
             'change_type' => 'required|string|in:maintenance,transformation,enrichment,extinction',
             'rationale' => 'nullable|string',
             'competency_version_id' => 'nullable|integer|exists:competency_versions,id',
@@ -108,6 +120,7 @@ class Step2RoleCompetencyController extends Controller
                 [
                     'required_level' => $validated['required_level'],
                     'is_core' => $validated['is_core'] ?? false,
+                    'is_referent' => $validated['is_referent'] ?? false,
                     'change_type' => $validated['change_type'],
                     'rationale' => $validated['rationale'],
                     'competency_version_id' => $validated['competency_version_id'] ?? null,

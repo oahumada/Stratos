@@ -100,7 +100,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\IncubationController::approve
-* @see app/Http/Controllers/Api/IncubationController.php:140
+* @see app/Http/Controllers/Api/IncubationController.php:130
 * @route '/api/strategic-planning/scenarios/{id}/incubated-items/approve'
 */
 export const approve = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -115,7 +115,7 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\IncubationController::approve
-* @see app/Http/Controllers/Api/IncubationController.php:140
+* @see app/Http/Controllers/Api/IncubationController.php:130
 * @route '/api/strategic-planning/scenarios/{id}/incubated-items/approve'
 */
 approve.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -142,7 +142,7 @@ approve.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\Api\IncubationController::approve
-* @see app/Http/Controllers/Api/IncubationController.php:140
+* @see app/Http/Controllers/Api/IncubationController.php:130
 * @route '/api/strategic-planning/scenarios/{id}/incubated-items/approve'
 */
 approve.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -152,7 +152,7 @@ approve.post = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\IncubationController::approve
-* @see app/Http/Controllers/Api/IncubationController.php:140
+* @see app/Http/Controllers/Api/IncubationController.php:130
 * @route '/api/strategic-planning/scenarios/{id}/incubated-items/approve'
 */
 const approveForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -162,7 +162,7 @@ const approveForm = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\Api\IncubationController::approve
-* @see app/Http/Controllers/Api/IncubationController.php:140
+* @see app/Http/Controllers/Api/IncubationController.php:130
 * @route '/api/strategic-planning/scenarios/{id}/incubated-items/approve'
 */
 approveForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -174,7 +174,7 @@ approve.form = approveForm
 
 /**
 * @see \App\Http\Controllers\Api\IncubationController::reject
-* @see app/Http/Controllers/Api/IncubationController.php:215
+* @see app/Http/Controllers/Api/IncubationController.php:237
 * @route '/api/strategic-planning/scenarios/{id}/incubated-items/reject'
 */
 export const reject = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -189,7 +189,7 @@ reject.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\IncubationController::reject
-* @see app/Http/Controllers/Api/IncubationController.php:215
+* @see app/Http/Controllers/Api/IncubationController.php:237
 * @route '/api/strategic-planning/scenarios/{id}/incubated-items/reject'
 */
 reject.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -216,7 +216,7 @@ reject.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\Api\IncubationController::reject
-* @see app/Http/Controllers/Api/IncubationController.php:215
+* @see app/Http/Controllers/Api/IncubationController.php:237
 * @route '/api/strategic-planning/scenarios/{id}/incubated-items/reject'
 */
 reject.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -226,7 +226,7 @@ reject.post = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\Api\IncubationController::reject
-* @see app/Http/Controllers/Api/IncubationController.php:215
+* @see app/Http/Controllers/Api/IncubationController.php:237
 * @route '/api/strategic-planning/scenarios/{id}/incubated-items/reject'
 */
 const rejectForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -236,7 +236,7 @@ const rejectForm = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\IncubationController::reject
-* @see app/Http/Controllers/Api/IncubationController.php:215
+* @see app/Http/Controllers/Api/IncubationController.php:237
 * @route '/api/strategic-planning/scenarios/{id}/incubated-items/reject'
 */
 rejectForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

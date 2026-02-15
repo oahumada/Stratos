@@ -137,7 +137,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/strategies/portfolio/{scenario_id}', [\App\Http\Controllers\Api\ScenarioStrategyController::class , 'getStrategyPortfolio']);
 
             // Test/Simulation Endpoints
-            Route::post('/scenarios/simulate-import', [\App\Http\Controllers\Api\ScenarioGenerationController::class , 'simulateImport']);
+            Route::post('/scenarios/{scenario}/simulate-import', [\App\Http\Controllers\Api\ScenarioGenerationController::class , 'simulateImport']);
 
             // Incubation Approval Workflow (Fase 2)
             Route::get('/scenarios/{id}/incubated-items', [\App\Http\Controllers\Api\IncubationController::class, 'index']);

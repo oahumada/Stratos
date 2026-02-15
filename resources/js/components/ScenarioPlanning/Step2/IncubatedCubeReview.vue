@@ -1,169 +1,519 @@
 <template>
     <div class="incubated-cube-review">
-        <!-- Header Explicativo -->
-        <div class="mb-6 border-l-4 border-indigo-500 bg-indigo-50 p-4">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <v-icon color="indigo">mdi-cube-outline</v-icon>
+        <!-- Dashboard Header: El Puente de Transición -->
+        <div class="cube-review-info mb-8">
+            <div
+                class="flex items-start gap-4 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4"
+            >
+                <div
+                    class="flex-shrink-0 rounded-lg bg-indigo-600 p-3 shadow-lg shadow-indigo-200"
+                >
+                    <v-icon color="white" size="28">mdi-cube-scan</v-icon>
                 </div>
-                <div class="ml-3">
-                    <h3 class="text-lg leading-6 font-medium text-indigo-900">
-                        Revisión de Estructura Propuesta (IA)
-                    </h3>
-                    <div class="mt-2 text-sm text-indigo-700">
-                        <p>
-                            El sistema ha generado una propuesta tridimensional
-                            (Procesos x Roles x Competencias). Revisa la
-                            coherencia de los arquetipos antes de aprobar la
-                            incorporación al escenario.
-                        </p>
-                    </div>
+                <div class="flex-grow">
+                    <h4 class="text-lg leading-tight font-bold text-indigo-900">
+                        Cubo de Roles e Ingeniería Organizacional
+                    </h4>
+                    <p class="mt-1 max-w-2xl text-sm text-indigo-700/80">
+                        Esta fase permite validar la coherencia tridimensional
+                        (Procesos x Arquetipos x Maestría). Los elementos en
+                        esta sección están en modo
+                        <span class="font-bold underline decoration-indigo-300"
+                            >laboratorio</span
+                        >
+                        y no afectarán el catálogo hasta ser conciliados.
+                    </p>
                 </div>
-                <div class="ml-auto pl-3">
+                <div class="flex flex-shrink-0 gap-2 self-center">
                     <v-btn
-                        color="indigo darken-1"
+                        variant="tonal"
+                        color="indigo"
+                        icon="mdi-help-circle-outline"
+                        @click="showMatchHelp = !showMatchHelp"
+                        class="rounded-lg"
+                    ></v-btn>
+                    <v-btn
+                        variant="elevated"
+                        color="indigo"
                         :loading="approving"
                         @click="approveSelection"
                         :disabled="selectedIds.length === 0"
+                        class="text-none font-bold"
+                        rounded="lg"
                     >
-                        Aprobar Seleccionados ({{ selectedIds.length }})
+                        Aprobar para Ingeniería ({{ selectedIds.length }})
                     </v-btn>
                 </div>
             </div>
-        </div>
 
-        <!-- Loading State -->
-        <div v-if="loading" class="flex justify-center p-12">
-            <v-progress-circular
-                indeterminate
-                color="indigo"
-                size="64"
-            ></v-progress-circular>
-        </div>
-
-        <!-- Empty State -->
-        <div
-            v-else-if="!hasData"
-            class="rounded-lg border border-dashed border-gray-300 bg-white p-12 text-center"
-        >
-            <v-icon size="64" color="gray lighten-1"
-                >mdi-cube-off-outline</v-icon
-            >
-            <h3 class="mt-2 text-sm font-medium text-gray-900">
-                No hay items incubados
-            </h3>
-            <p class="mt-1 text-sm text-gray-500">
-                Genera un escenario con IA para ver propuestas aquí.
-            </p>
-        </div>
-
-        <!-- Cube Visualization (Grouped by Capability/Process) -->
-        <div v-else class="space-y-8">
-            <div
-                v-for="cap in capabilities"
-                :key="cap.id"
-                class="capability-process-group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm"
-            >
-                <!-- Process Header (Eje Z) -->
+            <!-- Help Guide: Tabla de Compatibilidad -->
+            <v-expand-transition>
                 <div
-                    class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-6 py-4"
+                    v-if="showMatchHelp"
+                    class="mt-4 rounded-xl border-2 border-indigo-100 bg-white p-6 shadow-sm"
                 >
-                    <div class="flex items-center gap-3">
-                        <v-checkbox
-                            v-model="groupSelections[cap.id]"
-                            @change="toggleGroup(cap.id)"
-                            hide-details
-                            density="compact"
-                            color="indigo"
-                        ></v-checkbox>
-                        <div>
-                            <h4 class="text-lg font-bold text-gray-900">
-                                {{ cap.name }}
-                            </h4>
-                            <span
-                                class="text-xs font-semibold tracking-wider text-gray-500 uppercase"
-                                >Proceso / Dominio</span
+                    <div class="mb-4 flex items-center gap-2">
+                        <v-icon color="indigo">mdi-book-open-variant</v-icon>
+                        <h5
+                            class="text-sm font-black tracking-widest text-indigo-900 uppercase"
+                        >
+                            Guía de Conciliación Organizacional
+                        </h5>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                        <div
+                            class="rounded-lg border border-emerald-100 bg-emerald-50 p-3 text-center"
+                        >
+                            <div
+                                class="mb-1 text-[10px] font-bold text-emerald-700 uppercase"
                             >
+                                Nuevo (0%)
+                            </div>
+                            <div class="text-xs font-bold text-slate-800">
+                                📈 Enriquecimiento
+                            </div>
+                            <div class="mt-1 text-[9px] text-slate-500">
+                                <strong>Job Enlargement</strong>: Aumento
+                                horizontal. Creación de capacidad/rol
+                                inexistente.
+                            </div>
+                        </div>
+                        <div
+                            class="rounded-lg border border-amber-100 bg-amber-50 p-3 text-center"
+                        >
+                            <div
+                                class="mb-1 text-[10px] font-bold text-amber-700 uppercase"
+                            >
+                                Parcial (40-85%)
+                            </div>
+                            <div class="text-xs font-bold text-slate-800">
+                                🔄 Transformación
+                            </div>
+                            <div class="mt-1 text-[9px] text-slate-500">
+                                <strong>Job Enrichment</strong>: Aumento
+                                vertical. El rol evoluciona en profundidad
+                                (Upskilling).
+                            </div>
+                        </div>
+                        <div
+                            class="rounded-lg border border-slate-100 bg-slate-50 p-3 text-center"
+                        >
+                            <div
+                                class="mb-1 text-[10px] font-bold text-slate-500 uppercase"
+                            >
+                                Existente (>85%)
+                            </div>
+                            <div class="text-xs font-bold text-slate-800">
+                                ✅ Mantención
+                            </div>
+                            <div class="mt-1 text-[9px] text-slate-500">
+                                <strong>Job Stabilization</strong>: El rol
+                                actual es maduro y suficiente para el diseño.
+                            </div>
+                        </div>
+                        <div
+                            class="rounded-lg border border-red-100 bg-red-50 p-3 text-center"
+                        >
+                            <div
+                                class="mb-1 text-[10px] font-bold text-red-700 uppercase"
+                            >
+                                No Propuesto
+                            </div>
+                            <div class="text-xs font-bold text-slate-800">
+                                📉 Extinción
+                            </div>
+                            <div class="mt-1 text-[9px] text-slate-500">
+                                <strong>Job Substitution</strong>: Potencial
+                                obsolescencia por cambio de modelo estratégico.
+                            </div>
                         </div>
                     </div>
-                    <v-chip size="small" color="blue-grey" variant="outlined">{{
-                        cap.category || 'General'
-                    }}</v-chip>
+                    <p class="mt-4 text-[11px] text-slate-400 italic">
+                        Esta lógica asegura que las propuestas de la IA se
+                        traduzcan en estados técnicos coherentes en la Matriz de
+                        Ingeniería.
+                    </p>
                 </div>
+            </v-expand-transition>
+        </div>
 
-                <!-- Roles Grid (Eje X) -->
-                <div
-                    class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 lg:grid-cols-3"
-                >
-                    <!-- Associated Roles (Talent Blueprints mapped to this capability implicitly or explicitly) -->
-                    <!-- Note: Since we don't have explicit DB link yet, we simulate filtering or show relevant roles. 
-               For now, we list roles that match keywords or show all if generic. 
-               Ideally, the backend would provide this grouping. -->
+        <!-- Diálogo de Confirmación Crítica -->
+        <v-dialog v-model="confirmApproval" max-width="500" persistent>
+            <v-card
+                class="overflow-hidden rounded-2xl border-t-4 border-indigo-600"
+            >
+                <v-card-title class="bg-indigo-50/50 px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <v-icon color="indigo-darken-2"
+                            >mdi-shield-alert</v-icon
+                        >
+                        <span class="font-black text-indigo-900"
+                            >Confirmar Conciliación</span
+                        >
+                    </div>
+                </v-card-title>
+
+                <v-card-text class="pa-6">
+                    <p class="leading-relaxed text-slate-700">
+                        Estás a punto de
+                        <span class="font-bold text-indigo-700"
+                            >promover {{ selectedIds.length }} elementos</span
+                        >
+                        del laboratorio a la fase de ingeniería.
+                    </p>
+
+                    <v-alert
+                        type="warning"
+                        variant="tonal"
+                        icon="mdi-alert-octagon"
+                        class="mt-4 border-l-4 border-amber-500"
+                        density="comfortable"
+                    >
+                        <div class="text-sm font-bold">
+                            Advertencia de Ingeniería
+                        </div>
+                        <div class="mt-1 text-xs opacity-90">
+                            Este paso crea registros maestros en la base de
+                            datos de competencias y roles. Una vez promovidos,
+                            no podrán revertirse a "incubación" desde esta
+                            vista.
+                        </div>
+                    </v-alert>
 
                     <div
-                        v-for="role in getRolesForCapability(cap)"
-                        :key="role.id"
-                        class="role-card relative rounded-md border bg-white p-4 transition-shadow hover:shadow-md"
+                        class="max-height-[150px] mt-6 overflow-y-auto rounded-xl border border-slate-100 bg-slate-50 p-3"
                     >
-                        <!-- Role Selection -->
-                        <div class="absolute top-3 right-3">
+                        <div
+                            class="mb-2 text-[10px] font-bold text-slate-400 uppercase"
+                        >
+                            Entidades a promover:
+                        </div>
+                        <div
+                            v-for="s in selectedIds"
+                            :key="s"
+                            class="mb-1 flex items-center gap-2 text-xs text-slate-600"
+                        >
+                            <v-icon size="10" color="indigo">mdi-check</v-icon>
+                            {{ getItemLabel(s) }}
+                        </div>
+                    </div>
+                </v-card-text>
+
+                <v-divider />
+
+                <v-card-actions class="pa-4 bg-slate-50/80">
+                    <v-spacer />
+                    <v-btn
+                        variant="text"
+                        color="slate-darken-1"
+                        @click="confirmApproval = false"
+                        class="text-none"
+                    >
+                        Cancelar
+                    </v-btn>
+                    <v-btn
+                        variant="elevated"
+                        color="indigo-darken-1"
+                        @click="executeApproval"
+                        :loading="approving"
+                        class="text-none font-bold"
+                    >
+                        Sí, Proceder a Ingeniería
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <!-- Loading / Empty States con mejor diseño -->
+        <transition name="fade" mode="out-in">
+            <div
+                v-if="loading"
+                key="loading"
+                class="flex flex-col items-center justify-center p-20"
+            >
+                <v-progress-circular
+                    indeterminate
+                    color="indigo"
+                    size="64"
+                    width="6"
+                ></v-progress-circular>
+                <span class="mt-4 animate-pulse font-medium text-indigo-400"
+                    >Analizando geometría del cubo...</span
+                >
+            </div>
+
+            <div
+                v-else-if="!hasData"
+                key="empty"
+                class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-16 text-center"
+            >
+                <div
+                    class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100"
+                >
+                    <v-icon size="40" color="slate-lighten-1"
+                        >mdi-cube-off-outline</v-icon
+                    >
+                </div>
+                <h3 class="text-xl font-bold text-slate-800">
+                    No hay propuestas incubadas
+                </h3>
+                <p class="mx-auto mt-2 max-w-sm text-slate-500">
+                    Utiliza el motor de IA para generar una propuesta de roles y
+                    competencias para este escenario.
+                </p>
+            </div>
+
+            <div v-else key="content" class="space-y-10">
+                <!-- Iteración por Capacidad (Eje Z) -->
+                <div
+                    v-for="cap in capabilities"
+                    :key="cap.id"
+                    class="process-block group rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:border-indigo-200 hover:shadow-md"
+                >
+                    <!-- Capacidad Header -->
+                    <div
+                        class="flex items-center justify-between rounded-t-2xl border-b border-slate-100 bg-slate-50/30 px-8 py-5"
+                    >
+                        <div class="flex items-center gap-4">
                             <v-checkbox
-                                :model-value="isSelected(role.id, 'role')"
-                                @update:model-value="
-                                    toggleItem(role.id, 'role')
-                                "
+                                v-model="groupSelections[cap.id]"
+                                @change="toggleGroup(cap.id)"
                                 hide-details
                                 density="compact"
                                 color="indigo"
                             ></v-checkbox>
-                        </div>
-
-                        <!-- Role Archetype Badge (Inferred) -->
-                        <div class="mb-2">
-                            <v-chip
-                                size="x-small"
-                                :color="getArchetypeColor(role)"
-                                class="font-weight-bold"
-                            >
-                                {{ getArchetypeLabel(role) }}
-                            </v-chip>
-                        </div>
-
-                        <h5 class="mb-1 text-base font-bold text-gray-900">
-                            {{ role.role_name }}
-                        </h5>
-                        <p class="mb-3 line-clamp-2 text-xs text-gray-500">
-                            {{ role.role_description }}
-                        </p>
-
-                        <!-- Competencies (Eje Y) -->
-                        <div class="mt-4 space-y-2">
-                            <div
-                                class="text-xs font-semibold text-gray-400 uppercase"
-                            >
-                                Competencias Clave (Dominio)
-                            </div>
-                            <div
-                                v-for="comp in getCompetenciesForRole(role)"
-                                :key="comp.name"
-                                class="flex items-center justify-between text-sm"
-                            >
+                            <div>
                                 <span
-                                    class="mr-2 truncate text-gray-700"
-                                    :title="comp.name"
-                                    >{{ comp.name }}</span
+                                    class="text-[10px] font-bold tracking-[0.2em] text-indigo-500 uppercase"
+                                    >Capacidad / Dominio</span
                                 >
-                                <div class="flex items-center">
-                                    <!-- Dots for Level 1-5 -->
-                                    <div class="flex gap-0.5">
+                                <h4 class="text-xl font-black text-slate-800">
+                                    {{ cap.name }}
+                                </h4>
+                            </div>
+                        </div>
+                        <v-chip
+                            size="small"
+                            variant="flat"
+                            color="slate-100"
+                            class="border border-slate-200 font-bold text-slate-600"
+                        >
+                            {{ cap.category || 'Core Business' }}
+                        </v-chip>
+                    </div>
+
+                    <!-- Grid de Roles (Eje X) -->
+                    <div
+                        class="grid grid-cols-1 gap-8 p-8 md:grid-cols-2 lg:grid-cols-3"
+                    >
+                        <div
+                            v-for="role in getRolesForCapability(cap)"
+                            :key="role.id"
+                            class="role-card-premium group/card relative rounded-2xl border border-slate-100 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl"
+                        >
+                            <div class="absolute top-4 right-4 z-10">
+                                <v-checkbox
+                                    :model-value="isSelected(role.id, 'role')"
+                                    @update:model-value="
+                                        toggleItem(role.id, 'role')
+                                    "
+                                    hide-details
+                                    density="compact"
+                                    color="indigo"
+                                ></v-checkbox>
+                            </div>
+
+                            <!-- Arquetipo Badge + Matching Pill -->
+                            <div class="mb-4 flex flex-wrap gap-2">
+                                <span
+                                    class="rounded-md px-2.5 py-1 text-[10px] font-black tracking-wider uppercase shadow-sm"
+                                    :class="getArchetypeClasses(role)"
+                                >
+                                    {{ getArchetypeLabel(role) }}
+                                </span>
+
+                                <!-- Similarity Pill Logic: Color coded by severity of change -->
+                                <template
+                                    v-if="
+                                        role.similarity_warnings &&
+                                        role.similarity_warnings.length > 0
+                                    "
+                                >
+                                    <!-- High Match (>85%) -> Existente (Mantención) -->
+                                    <template
+                                        v-if="
+                                            role.similarity_warnings[0].score >
+                                            0.85
+                                        "
+                                    >
+                                        <v-tooltip location="top">
+                                            <template
+                                                v-slot:activator="{ props }"
+                                            >
+                                                <span
+                                                    v-bind="props"
+                                                    class="cursor-help rounded-md border border-slate-200 bg-slate-100 px-2.5 py-1 text-[10px] font-black tracking-wider text-slate-700 uppercase shadow-sm"
+                                                >
+                                                    En Catálogo ({{
+                                                        Math.round(
+                                                            role
+                                                                .similarity_warnings[0]
+                                                                .score * 100,
+                                                        )
+                                                    }}%)
+                                                </span>
+                                            </template>
+                                            <div class="pa-2 max-w-[250px]">
+                                                <div
+                                                    class="mb-1 border-b border-white/20 pb-1 font-bold text-slate-200"
+                                                >
+                                                    Match Alto Detectado
+                                                </div>
+                                                <div
+                                                    class="space-y-1 text-[10px]"
+                                                >
+                                                    <div
+                                                        v-for="w in role.similarity_warnings"
+                                                        :key="w.id"
+                                                        class="flex justify-between gap-4"
+                                                    >
+                                                        <span
+                                                            >•
+                                                            {{ w.name }}</span
+                                                        >
+                                                        <span class="font-black"
+                                                            >{{
+                                                                Math.round(
+                                                                    w.score *
+                                                                        100,
+                                                                )
+                                                            }}%</span
+                                                        >
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="mt-2 text-[9px] italic opacity-80"
+                                                >
+                                                    Sugerencia: Mantención. Este
+                                                    rol ya está cubierto por el
+                                                    catálogo actual.
+                                                </div>
+                                            </div>
+                                        </v-tooltip>
+                                    </template>
+                                    <!-- Partial Match (40-85%) -> Parcial (Transformación) -->
+                                    <template v-else>
+                                        <v-tooltip location="top">
+                                            <template
+                                                v-slot:activator="{ props }"
+                                            >
+                                                <span
+                                                    v-bind="props"
+                                                    class="cursor-help rounded-md border border-amber-200 bg-amber-100 px-2.5 py-1 text-[10px] font-black tracking-wider text-amber-700 uppercase shadow-sm"
+                                                >
+                                                    Parcial ({{
+                                                        Math.round(
+                                                            role
+                                                                .similarity_warnings[0]
+                                                                .score * 100,
+                                                        )
+                                                    }}%)
+                                                </span>
+                                            </template>
+                                            <div class="pa-2 max-w-[250px]">
+                                                <div
+                                                    class="mb-1 border-b border-white/20 pb-1 font-bold text-amber-200"
+                                                >
+                                                    Similitud Parcial
+                                                </div>
+                                                <div
+                                                    class="space-y-1 text-[10px]"
+                                                >
+                                                    <div
+                                                        v-for="w in role.similarity_warnings"
+                                                        :key="w.id"
+                                                        class="flex justify-between gap-4"
+                                                    >
+                                                        <span
+                                                            >•
+                                                            {{ w.name }}</span
+                                                        >
+                                                        <span class="font-black"
+                                                            >{{
+                                                                Math.round(
+                                                                    w.score *
+                                                                        100,
+                                                                )
+                                                            }}%</span
+                                                        >
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="mt-2 text-[9px] italic opacity-80"
+                                                >
+                                                    Sugerencia: Transformación /
+                                                    Upskilling. El rol
+                                                    evoluciona respecto al
+                                                    catálogo.
+                                                </div>
+                                            </div>
+                                        </v-tooltip>
+                                    </template>
+                                </template>
+                                <!-- No Match -> Nuevo (Enriquecimiento) -->
+                                <template v-else>
+                                    <span
+                                        class="rounded-md border border-emerald-200 bg-emerald-100 px-2.5 py-1 text-[10px] font-black tracking-wider text-emerald-700 uppercase shadow-sm"
+                                    >
+                                        Nuevo Rol
+                                    </span>
+                                </template>
+                            </div>
+
+                            <h5
+                                class="text-lg font-bold text-slate-900 transition-colors group-hover/card:text-indigo-700"
+                            >
+                                {{ role.role_name }}
+                            </h5>
+                            <p
+                                class="mt-2 line-clamp-2 h-10 text-sm leading-relaxed text-slate-500"
+                            >
+                                {{ role.role_description }}
+                            </p>
+
+                            <!-- Competencias (Eje Y) -->
+                            <div class="mt-6 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+                                        >Aptitud Requerida</span
+                                    >
+                                    <v-icon size="14" color="slate-300"
+                                        >mdi-chevron-right</v-icon
+                                    >
+                                </div>
+
+                                <div
+                                    v-for="(
+                                        comp, cIdx
+                                    ) in getCompetenciesForRole(role)"
+                                    :key="cIdx"
+                                    class="comp-item flex items-center justify-between rounded-lg border border-transparent bg-slate-50/50 p-2.5 transition-all hover:border-slate-200 hover:bg-white"
+                                >
+                                    <span
+                                        class="truncate pr-2 text-sm font-medium text-slate-700"
+                                        >{{ comp.name }}</span
+                                    >
+                                    <div class="flex gap-1">
                                         <div
                                             v-for="n in 5"
                                             :key="n"
                                             class="h-1.5 w-1.5 rounded-full"
                                             :class="
-                                                n <= (comp.level || 0)
-                                                    ? 'bg-indigo-500'
-                                                    : 'bg-gray-200'
+                                                n <= comp.level
+                                                    ? 'bg-indigo-500 shadow-sm shadow-indigo-200'
+                                                    : 'bg-slate-200'
                                             "
                                         ></div>
                                     </div>
@@ -172,38 +522,44 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Unassigned Competencies Section (if any) -->
-            <div
-                v-if="orphanCompetencies.length > 0"
-                class="mt-8 rounded-lg border border-gray-200 bg-white shadow-sm"
-            >
-                <div class="border-b border-yellow-200 bg-yellow-50 px-6 py-4">
-                    <h4 class="text-lg font-bold text-yellow-900">
-                        Competencias Incubadas (Sin Rol Asignado)
-                    </h4>
-                </div>
-                <div class="grid grid-cols-2 gap-4 p-6 md:grid-cols-4">
+                <!-- Orphan Section -->
+                <div v-if="orphanCompetencies.length > 0" class="mt-12">
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="h-px flex-grow bg-slate-200"></div>
+                        <span
+                            class="text-xs font-black tracking-[0.3em] text-slate-400 uppercase"
+                            >Competencias sin anclaje</span
+                        >
+                        <div class="h-px flex-grow bg-slate-200"></div>
+                    </div>
+
                     <div
-                        v-for="comp in orphanCompetencies"
-                        :key="comp.id"
-                        class="flex items-center gap-2 rounded border bg-gray-50 p-2"
+                        class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6"
                     >
-                        <v-checkbox
-                            :model-value="isSelected(comp.id, 'competency')"
-                            @update:model-value="
-                                toggleItem(comp.id, 'competency')
-                            "
-                            hide-details
-                            density="compact"
-                            color="indigo"
-                        ></v-checkbox>
-                        <span class="text-sm font-medium">{{ comp.name }}</span>
+                        <div
+                            v-for="comp in orphanCompetencies"
+                            :key="comp.id"
+                            class="flex items-center gap-2 rounded-xl border border-slate-100 bg-white p-3 transition-all hover:border-indigo-100"
+                        >
+                            <v-checkbox
+                                :model-value="isSelected(comp.id, 'competency')"
+                                @update:model-value="
+                                    toggleItem(comp.id, 'competency')
+                                "
+                                hide-details
+                                density="compact"
+                                color="indigo"
+                            ></v-checkbox>
+                            <span
+                                class="truncate text-xs font-bold text-slate-700"
+                                >{{ comp.name }}</span
+                            >
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </transition>
     </div>
 </template>
 
@@ -218,11 +574,12 @@ const props = defineProps<{
 
 const { showSuccess, showError } = useNotification();
 
-// Data Types
+// Tipos base
 interface Capability {
     id: number;
     name: string;
     category: string;
+    llm_id?: string;
 }
 
 interface Role {
@@ -230,81 +587,96 @@ interface Role {
     role_name: string;
     role_description: string;
     human_leverage: number;
-    key_competencies: any; // JSON string or object
+    key_competencies: any;
+    similarity_warnings?: Array<{ id: number; name: string; score: number }>;
 }
 
 interface Competency {
     id: number;
     name: string;
-    capability_id: number;
+    capability_id?: number;
 }
 
-// State
+// Estado
 const loading = ref(false);
 const approving = ref(false);
+const confirmApproval = ref(false);
+const showMatchHelp = ref(false);
 const capabilities = ref<Capability[]>([]);
 const roles = ref<Role[]>([]);
 const competencies = ref<Competency[]>([]);
-const selectedIds = ref<string[]>([]); // Format: "type:id" e.g., "role:12"
+const selectedIds = ref<string[]>([]);
 const groupSelections = ref<Record<number, boolean>>({});
 
-// Computed
 const hasData = computed(
     () => capabilities.value.length > 0 || roles.value.length > 0,
 );
 
+const getItemLabel = (key: string) => {
+    const [type, id] = key.split(':');
+    const numericId = Number(id);
+    if (type === 'role')
+        return roles.value.find((r) => r.id === numericId)?.role_name || 'Rol';
+    if (type === 'capability')
+        return (
+            capabilities.value.find((c) => c.id === numericId)?.name ||
+            'Capacidad'
+        );
+    return `ID: ${id}`;
+};
+
 const orphanCompetencies = computed(() => {
-    // Competencies that match capabilities displayed are technically 'assigned' to that process block visually.
-    // We can treat this simply as 'all competencies' for now if we want to allow granular approval.
-    return []; // Simplified for now
+    // Por ahora omitimos lógica compleja de huérfanos para simplificar la vista
+    return [];
 });
 
-// Methods
 const fetchData = async () => {
     loading.value = true;
     try {
         const res = await axios.get(
-            `/api/scenarios/${props.scenarioId}/incubated-items`,
+            `/api/strategic-planning/scenarios/${props.scenarioId}/incubated-items`,
         );
-        capabilities.value = res.data.capabilities || [];
-        roles.value = res.data.roles || []; // Assuming backend returns TalentBlueprints as roles
-        competencies.value = res.data.competencies || [];
-    } catch (e) {
-        console.error(e);
-        showError('Error al cargar items incubados.');
+        const remoteData = res.data.data || res.data;
+        capabilities.value = remoteData.capabilities || [];
+        roles.value = remoteData.roles || [];
+        competencies.value = remoteData.competencies || [];
+    } catch (e: any) {
+        console.error('Fetch error:', e);
+        showError('No se pudieron cargar los datos del laboratorio.');
     } finally {
         loading.value = false;
     }
 };
 
-// Helper: infer archetype from role description or leverage
 const getArchetypeLabel = (role: Role) => {
     if (role.human_leverage > 70) return 'Estratégico (E)';
     if (role.human_leverage > 40) return 'Táctico (T)';
     return 'Operacional (O)';
 };
 
-const getArchetypeColor = (role: Role) => {
-    if (role.human_leverage > 70) return 'purple';
-    if (role.human_leverage > 40) return 'blue';
-    return 'teal';
+const getArchetypeClasses = (role: Role) => {
+    if (role.human_leverage > 70)
+        return 'bg-purple-50 text-purple-700 border border-purple-100';
+    if (role.human_leverage > 40)
+        return 'bg-blue-50 text-blue-700 border border-blue-100';
+    return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
 };
 
-// Helper: associate roles to capability (Simplified matching logic since DB link is missing)
 const getRolesForCapability = (cap: Capability) => {
-    // If we had a direct link, use it. For now, since TalentBlueprints are scenario-wide,
-    // we might show ALL roles under a "General" block or try to match by name.
-    // IMPROVEMENT: For the Cube Demo, we'll return all roles in the first capability block
-    // and hide them in others to avoid duplication, OR distribute them if we can guess.
+    if (!roles.value.length) return [];
 
-    // Quick Hack for Demo: Assign roles to capabilities cyclicly or by simple keyword match?
-    // Let's just return all roles in a "General Strategy" fake capability if needed,
-    // or for this UI, let's assume the backend 'roles' array belongs to the scenario context.
+    // Si la capacidad tiene llm_id, buscamos roles cuyas competencias empiecen con ese ID
+    if (cap.llm_id) {
+        return roles.value.filter((role) => {
+            const comps = role.key_competencies;
+            if (Array.isArray(comps)) {
+                return comps.some((c) => String(c).startsWith(cap.llm_id!));
+            }
+            return false;
+        });
+    }
 
-    // Better approach: If capabilities exist, maybe the roles are linked via the LLM prompt structure logic?
-    // Since we lack the link, let's display roles under the first capability only, or create a 'Desconocido' block.
-
-    // Return all roles for the first capability in the list, empty for others (to prevent duplication)
+    // Fallback: si es la primera capacidad, mostramos todo
     if (capabilities.value.length > 0 && cap.id === capabilities.value[0].id) {
         return roles.value;
     }
@@ -312,109 +684,98 @@ const getRolesForCapability = (cap: Capability) => {
 };
 
 const getCompetenciesForRole = (role: Role) => {
-    // Parse JSON key_competencies
-    let comps = [];
-    try {
-        comps =
-            typeof role.key_competencies === 'string'
-                ? JSON.parse(role.key_competencies)
-                : role.key_competencies || [];
-    } catch (e) {
-        comps = [];
+    let raw = role.key_competencies;
+    if (typeof raw === 'string') {
+        try {
+            raw = JSON.parse(raw);
+        } catch {
+            raw = [];
+        }
     }
 
-    // Format: "Name: Level" or just strings
-    return Array.isArray(comps)
-        ? comps.map((c: any) => {
-              // Handle different formats from LLM (string or object)
-              if (typeof c === 'string') return { name: c, level: 3 }; // Default level
-              return {
-                  name: c.name || c.key || 'Skill',
-                  level: c.level || c.score || 3,
-              };
-          })
-        : [];
+    if (!Array.isArray(raw)) return [];
+
+    return raw.map((c) => {
+        if (typeof c === 'string') return { name: c, level: 3 };
+        return {
+            name: c.name || c.key || 'Competencia',
+            level: c.level || c.score || 3,
+        };
+    });
 };
 
-// Selection Logic
-const isSelected = (id: number, type: 'role' | 'capability' | 'competency') => {
-    return selectedIds.value.includes(`${type}:${id}`);
-};
+const isSelected = (id: number, type: string) =>
+    selectedIds.value.includes(`${type}:${id}`);
 
-const toggleItem = (id: number, type: 'role' | 'capability' | 'competency') => {
+const toggleItem = (id: number, type: string) => {
     const key = `${type}:${id}`;
-    if (selectedIds.value.includes(key)) {
-        selectedIds.value = selectedIds.value.filter((k) => k !== key);
-    } else {
-        selectedIds.value.push(key);
-    }
+    const idx = selectedIds.value.indexOf(key);
+    if (idx > -1) selectedIds.value.splice(idx, 1);
+    else selectedIds.value.push(key);
 };
 
 const toggleGroup = (capId: number) => {
-    const isChecked = !!groupSelections.value[capId];
-    // Select capability itself
-    if (isChecked) {
-        if (!selectedIds.value.includes(`capability:${capId}`))
-            selectedIds.value.push(`capability:${capId}`);
-        // Select all child roles (visual grouping logic)
-        roles.value.forEach((r) => {
-            if (!selectedIds.value.includes(`role:${r.id}`))
-                selectedIds.value.push(`role:${r.id}`);
-        });
-    } else {
-        selectedIds.value = selectedIds.value.filter(
-            (k) => k !== `capability:${capId}`,
-        );
-        // Deselect roles (simplification: deselects all roles for now)
-        roles.value.forEach((r) => {
-            selectedIds.value = selectedIds.value.filter(
-                (k) => k !== `role:${r.id}`,
-            );
-        });
-    }
+    const isChecked = groupSelections.value[capId];
+    const rolesInGroup = getRolesForCapability(
+        capabilities.value.find((c) => c.id === capId)!,
+    );
+
+    rolesInGroup.forEach((r) => {
+        const key = `role:${r.id}`;
+        const hasKey = selectedIds.value.includes(key);
+        if (isChecked && !hasKey) selectedIds.value.push(key);
+        if (!isChecked && hasKey)
+            selectedIds.value.splice(selectedIds.value.indexOf(key), 1);
+    });
+
+    // También incluir la capacidad per se si queremos aprobarla
+    const capKey = `capability:${capId}`;
+    if (isChecked && !selectedIds.value.includes(capKey))
+        selectedIds.value.push(capKey);
+    else if (!isChecked && selectedIds.value.includes(capKey))
+        selectedIds.value.splice(selectedIds.value.indexOf(capKey), 1);
 };
 
-const approveSelection = async () => {
-    approving.value = true;
-    try {
-        // Separate IDs
-        const payload = {
-            capability_ids: selectedIds.value
-                .filter((s) => s.startsWith('capability:'))
-                .map((s) => Number(s.split(':')[1])),
-            role_ids: selectedIds.value
-                .filter((s) => s.startsWith('role:'))
-                .map((s) => Number(s.split(':')[1])),
-            competency_ids: selectedIds.value
-                .filter((s) => s.startsWith('competency:'))
-                .map((s) => Number(s.split(':')[1])),
-        };
+const approveSelection = () => {
+    confirmApproval.value = true;
+};
 
+const executeApproval = async () => {
+    approving.value = true;
+    confirmApproval.value = false;
+    try {
+        const payload = {
+            items: selectedIds.value.map((s) => {
+                const [type, id] = s.split(':');
+                return { type, id: Number(id) };
+            }),
+        };
         await axios.post(
-            `/api/scenarios/${props.scenarioId}/incubated-items/approve`,
+            `/api/strategic-planning/scenarios/${props.scenarioId}/incubated-items/approve`,
             payload,
         );
-        showSuccess('Elementos aprobados y activados exitosamente.');
-
-        // Refresh to update list
+        showSuccess('Estructura organizacional conciliada exitosamente.');
         await fetchData();
         selectedIds.value = [];
         groupSelections.value = {};
-    } catch (e) {
-        showError('Error al aprobar elementos.');
+    } catch {
+        showError('Fallo en la conciliación de elementos.');
     } finally {
         approving.value = false;
     }
 };
 
-onMounted(() => {
-    fetchData();
-});
+onMounted(fetchData);
 </script>
 
 <style scoped>
-.incubated-cube-review {
-    /* Minimal styles */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
 }
 .line-clamp-2 {
     display: -webkit-box;

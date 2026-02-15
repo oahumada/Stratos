@@ -2,6 +2,7 @@
 import IncubatedReviewModal from '@/components/IncubatedReviewModal.vue';
 import ChangeSetModal from '@/components/ScenarioPlanning/ChangeSetModal.vue';
 import StatusTimeline from '@/components/ScenarioPlanning/StatusTimeline.vue';
+import IncubatedCubeReview from '@/components/ScenarioPlanning/Step2/IncubatedCubeReview.vue';
 import RoleCompetencyMatrix from '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue';
 import VersionHistoryModal from '@/components/ScenarioPlanning/VersionHistoryModal.vue';
 import { useApi } from '@/composables/useApi';
@@ -329,7 +330,9 @@ const simulateLLM = async () => {
     if (!scenarioId.value) return;
     loading.value = true;
     try {
-        await api.post(`/api/scenarios/${scenarioId.value}/simulate-import`);
+        await api.post(
+            `/api/strategic-planning/scenarios/${scenarioId.value}/simulate-import`,
+        );
         showSuccess(
             'Simulación de respuesta LLM completada. Estructura generada.',
         );
@@ -812,28 +815,6 @@ onMounted(() => {
                 />
 
                 <template v-else-if="scenario">
-                    <!-- Incubated Review Block -->
-                    <div
-                        v-if="['draft', 'incubating'].includes(scenario.status)"
-                        class="mb-4"
-                    >
-                        <IncubatedCubeReview
-                            :scenario-id="Number(scenario.id)"
-                            @approved="loadScenario"
-                        />
-                        <div class="d-flex justify-end px-4">
-                            <v-btn
-                                size="small"
-                                variant="text"
-                                color="warning"
-                                @click="simulateLLM"
-                                prepend-icon="mdi-test-tube"
-                            >
-                                Simular Respuesta LLM
-                            </v-btn>
-                        </div>
-                    </div>
-
                     <!-- Step 1: Mapa de Escenario -->
                     <div
                         v-show="currentStep === 1"
@@ -1070,9 +1051,102 @@ onMounted(() => {
                     <!-- Step 2: Mapeo Roles-Competencias -->
                     <div v-if="currentStep === 2" class="step-content">
                         <div v-if="scenarioId > 0">
+                            <!-- Puente de Transición / Fase de Conciliación -->
+                            <div
+                                v-if="
+                                    [
+                                        'draft',
+                                        'incubating',
+                                        'incubated',
+                                    ].includes(scenario?.status)
+                                "
+                                class="mb-8 overflow-hidden rounded-xl border border-indigo-100 bg-gradient-to-br from-white to-indigo-50/30 shadow-sm"
+                            >
+                                <div
+                                    class="d-flex align-center justify-space-between bg-indigo-50/50 px-6 py-4"
+                                >
+                                    <div>
+                                        <h3
+                                            class="text-h6 font-weight-bold mb-0 text-indigo-900"
+                                        >
+                                            Fase de Conciliación Estratégica
+                                        </h3>
+                                        <div
+                                            class="text-caption text-indigo-700"
+                                        >
+                                            Puente de Transición: Valida el
+                                            diseño incubado antes de la
+                                            ingeniería de detalle.
+                                        </div>
+                                    </div>
+                                    <v-btn
+                                        size="small"
+                                        variant="flat"
+                                        color="indigo-darken-2"
+                                        @click="simulateLLM"
+                                        prepend-icon="mdi-auto-fix"
+                                        class="text-none"
+                                    >
+                                        Simular IA (Full Concept)
+                                    </v-btn>
+                                </div>
+
+                                <div class="pa-6">
+                                    <IncubatedCubeReview
+                                        :scenario-id="Number(scenarioId)"
+                                        :key="`incubated-${scenarioId}-${scenario?.updated_at || ''}`"
+                                        @approved="loadScenario"
+                                    />
+                                </div>
+
+                                <v-divider class="my-8" />
+                                <h3
+                                    class="text-h6 font-weight-bold mb-4 text-slate-800"
+                                >
+                                    Matriz de Ingeniería de Roles (Pivote Final)
+                                </h3>
+                            </div>
+
+                            <!-- Estado: Diseño Consolidado -->
+                            <div
+                                v-else
+                                class="mb-8 flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50/30 p-6"
+                            >
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="rounded-full bg-emerald-500 p-2"
+                                    >
+                                        <v-icon color="white"
+                                            >mdi-check-all</v-icon
+                                        >
+                                    </div>
+                                    <div>
+                                        <h4
+                                            class="text-lg font-bold text-emerald-900"
+                                        >
+                                            Diseño Consolidado
+                                        </h4>
+                                        <p class="text-sm text-emerald-700">
+                                            La estructura ha sido aprobada.
+                                            Ahora puedes precisar las brechas en
+                                            la matriz inferior.
+                                        </p>
+                                    </div>
+                                </div>
+                                <v-btn
+                                    variant="text"
+                                    color="emerald-darken-2"
+                                    size="small"
+                                    prepend-icon="mdi-history"
+                                    @click="scenario.status = 'incubating'"
+                                >
+                                    Reabrir Laboratorio
+                                </v-btn>
+                            </div>
+
                             <RoleCompetencyMatrix
                                 :scenario-id="scenarioId"
-                                :key="`rcm-${scenarioId}-${currentStep}`"
+                                :key="`rcm-${scenarioId}-${currentStep}-${scenario?.updated_at || ''}`"
                             />
                         </div>
                         <div v-else class="flex justify-center py-8">

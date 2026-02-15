@@ -4,8 +4,9 @@ namespace App\Services;
 
 use App\Models\Competency;
 use App\Models\CompetencySkill;
-use App\Models\PersonRoleSkill;
+use App\Models\PeopleRoleSkills;
 use App\Models\Scenario;
+use App\Models\ScenarioRoleCompetency;
 use App\Models\ScenarioRoleSkill;
 
 class ScenarioAnalyticsService
@@ -56,18 +57,21 @@ class ScenarioAnalyticsService
      */
     public function calculateCapabilityReadiness(int $scenarioId, int $capabilityId): float
     {
-        $competencies = Competency::where('capability_id', $capabilityId)->get();
+        $competencyIds = \DB::table('capability_competencies')
+            ->where('scenario_id', $scenarioId)
+            ->where('capability_id', $capabilityId)
+            ->pluck('competency_id');
 
-        if ($competencies->isEmpty()) {
+        if ($competencyIds->isEmpty()) {
             return 0;
         }
 
         $totalReadiness = 0;
-        foreach ($competencies as $comp) {
-            $totalReadiness += $this->calculateCompetencyReadiness($scenarioId, $comp->id);
+        foreach ($competencyIds as $compId) {
+            $totalReadiness += $this->calculateCompetencyReadiness($scenarioId, $compId);
         }
 
-        return $totalReadiness / $competencies->count();
+        return $totalReadiness / $competencyIds->count();
     }
 
     /**
@@ -115,7 +119,7 @@ class ScenarioAnalyticsService
 
         foreach ($demands as $demand) {
             // Obtener nivel promedio actual de las personas en ese rol
-            $avgCurrentLevel = PersonRoleSkill::where('role_id', $demand->role_id)
+            $avgCurrentLevel = PeopleRoleSkills::where('role_id', $demand->role_id)
                 ->where('skill_id', $skillId)
                 ->avg('current_level') ?: 0;
 
@@ -137,7 +141,7 @@ class ScenarioAnalyticsService
     public function getConfidenceScore(int $scenarioId): float
     {
         // Contar evidencias por tipo
-        $total = PersonRoleSkill::count();
+        $total = PeopleRoleSkills::count();
 
         if ($total == 0) {
             return 0;
@@ -151,7 +155,7 @@ class ScenarioAnalyticsService
             'self_assessment' => 0.3,
         ];
 
-        $weightedSum = PersonRoleSkill::selectRaw('
+        $weightedSum = PeopleRoleSkills::selectRaw('
             SUM(CASE 
                 WHEN evidence_source = "test" THEN 1.0
                 WHEN evidence_source = "certification" THEN 0.9
