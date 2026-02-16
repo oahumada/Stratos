@@ -147,6 +147,58 @@
                     </v-radio-group>
                 </div>
 
+                <!-- Arquetipo vs Nivel Visualization -->
+                <div
+                    class="mb-4 flex items-center justify-between rounded-lg border border-gray-100 bg-white p-3 shadow-sm"
+                >
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex h-10 w-10 flex-col items-center justify-center rounded bg-gray-100"
+                        >
+                            <span class="text-[10px] font-bold text-gray-400"
+                                >ROL</span
+                            >
+                            <span
+                                class="text-lg leading-none font-black text-gray-700"
+                                >{{ props.archetype }}</span
+                            >
+                        </div>
+                        <div>
+                            <div
+                                class="text-[10px] font-bold text-gray-400 uppercase"
+                            >
+                                Arquetipo
+                            </div>
+                            <div class="text-sm font-bold text-gray-700">
+                                {{ archetypeLabel }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right">
+                            <div
+                                class="text-[10px] font-bold text-gray-400 uppercase"
+                            >
+                                Nivel Objetivo
+                            </div>
+                            <div class="text-sm font-bold text-gray-700">
+                                Maestría {{ formData.required_level }}
+                            </div>
+                        </div>
+                        <div
+                            class="bg-primary-lighten-4 flex h-10 w-10 flex-col items-center justify-center rounded"
+                        >
+                            <span class="text-[10px] font-bold text-primary"
+                                >LVL</span
+                            >
+                            <span
+                                class="text-lg leading-none font-black text-primary"
+                                >{{ formData.required_level }}</span
+                            >
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Consistency Traffic Light (Arquetipo vs Nivel) -->
                 <div v-if="consistencyAlert" class="mb-6">
                     <v-alert
@@ -161,7 +213,7 @@
                                 <div
                                     class="mb-1 text-xs font-black tracking-wider uppercase"
                                 >
-                                    Validación de Arquitectura:
+                                    Diagnóstico de Ingeniería:
                                     {{ consistencyAlert.title }}
                                 </div>
                                 <div class="text-sm leading-snug">
@@ -510,63 +562,60 @@ const archetypeLabel = computed(() => {
     return map[props.archetype || 'T'] || 'Táctico';
 });
 
-// Consistency Logic (Semáforo)
+// Consistency Logic (Semáforo de Arquitectura)
 const consistencyAlert = computed(() => {
     const level = formData.value.required_level;
-    const arch = props.archetype || 'T'; // Default to Táctico if not provided
+    const arch = props.archetype || 'O';
     const isReferent = formData.value.is_referent;
 
-    // Rules from REGLAS_ARQUITECTURA_COHERENCIA.md
-    if (arch === 'E') {
-        if (level < 4) {
-            return {
-                color: 'warning',
-                icon: 'mdi-alert-decagram',
-                title: 'Arquitectura Débil',
-                message: `Un Rol Estratégico suele definirse con objetivos de nivel 4 o 5. El objetivo ${level} podría ser insuficiente para la accountability esperada.`,
-            };
-        }
-    } else if (arch === 'O') {
-        if (level > 3 && !isReferent) {
-            return {
-                color: 'info',
-                icon: 'mdi-lightbulb-on',
-                title: 'Sobrecarga Técnica',
-                message: `Nivel ${level} es inusualmente alto para un Rol Operacional. Verifica si no hay un exceso de Job Enrichment, o marca este rol como Referente/Mentor.`,
-            };
-        }
-        if (level > 3 && isReferent) {
-            return {
-                color: 'success',
-                icon: 'mdi-account-star',
-                title: 'Rol de Referencia Validado',
-                message: `Este rol operacional actúa como mentor técnico. El nivel ${level} es coherente con su función de mentoría.`,
-            };
-        }
-    } else if (arch === 'T') {
-        if (level < 2) {
-            return {
-                color: 'warning',
-                icon: 'mdi-alert-outline',
-                title: 'Objetivo Insuficiente',
-                message: `Un Rol Táctico suele diseñarse con al menos nivel objetivo 2 o 3 para asegurar la coordinación efectiva.`,
-            };
-        }
-        if (level > 4 && !isReferent) {
-            return {
-                color: 'info',
-                icon: 'mdi-lightbulb-on',
-                title: 'Objetivo Inusual',
-                message: `El objetivo de nivel ${level} es inusualmente alto para un Rol Táctico. Considera si este rol debería ser Estratégico o marcarlo como Referente.`,
-            };
-        }
+    // Rules from REGLAS_ARQUITECTURA_COHERENCIA.md (Refined)
+
+    // 1. Sobrecarga Técnica (High Mastery in Low Accountability)
+    if (arch === 'O' && level > 3 && !isReferent) {
+        return {
+            color: 'info',
+            icon: 'mdi-lightbulb-on-outline',
+            title: 'Sobrecarga Técnica Detectada',
+            message: `Nivel ${level} es inusualmente alto para un Rol Operacional. Si este rol no es un Referente Técnico, considera reducir la exigencia o marcarlo como Referente.`,
+        };
     }
 
+    // 2. Referente Validado
+    if (arch === 'O' && level > 3 && isReferent) {
+        return {
+            color: 'success',
+            icon: 'mdi-account-star',
+            title: 'Ingeniería Coherente: Referente',
+            message: `Diseño validado. El rol operacional actúa como mentor técnico de nivel ${level}.`,
+        };
+    }
+
+    // 3. Competencia de Apoyo (Bajo nivel en Arquetipos Altos)
+    if ((arch === 'E' && level < 4) || (arch === 'T' && level < 3)) {
+        return {
+            color: 'blue-darken-1',
+            icon: 'mdi-shield-star-outline',
+            title: 'Competencia de Apoyo',
+            message: `Nivel ${level} es válido para un Rol ${archetypeLabel.value} como competencia de soporte (no-core).`,
+        };
+    }
+
+    // 4. Inconsistencia Alta (Nivel 5 en Táctico sin referencia)
+    if (arch === 'T' && level > 4 && !isReferent) {
+        return {
+            color: 'warning',
+            icon: 'mdi-alert-circle-outline',
+            title: 'Posible Desalineación',
+            message: `Un nivel 5 en un Rol Táctico sugiere que el rol debería ser Estratégico o actuar como Referente Global.`,
+        };
+    }
+
+    // Default: Coherente
     return {
         color: 'success',
         icon: 'mdi-check-decagram',
         title: 'Diseño Coherente',
-        message: `El nivel ${level} es consistente con un Arquetipo ${archetypeLabel.value}.`,
+        message: `El nivel objetivo ${level} es consistente con la banda del Arquetipo ${archetypeLabel.value}.`,
     };
 });
 

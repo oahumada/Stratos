@@ -149,6 +149,37 @@ POST /api/strategic-planning/scenarios/simulate-import
 
 ---
 
+## 🎯 Fase 2.2: Coherencia Arquitectónica y Refinamiento (2026-02-15)
+
+### Resumen Ejecutivo
+
+✅ **FASE 2.2 COMPLETADA** - Se ha implementado el motor de coherencia arquitectónica en el Step 2, permitiendo validar la alineación entre Arquetipos de Rol (E/T/O) y Niveles de Competencia. Se introdujo el concepto de "Nivel Objetivo de Maestría" para diferenciar el diseño de puestos de la medición de talento.
+
+### Implementaciones Clave
+
+1.  **Badges de Arquetipo Mejorados:**
+    - Visualización con `v-chip` de Vuetify (colores vibrantes + íconos).
+    - Tooltips inteligentes con descripción del arquetipo y niveles sugeridos.
+    - Corrección de `human_leverage` (proveniente de Talent Blueprints).
+2.  **Motor de Coherencia (Semáforo):**
+    - Validación visual (Verde/Amarillo/Azul) en el modal de asignación.
+    - Manejo de **Roles Referentes/Mentores** (permite niveles altos en roles operacionales).
+    - Captura de **Racionales Estratégicos** (Efficiency Gain, Reduced Scope, Capacity Loss).
+3.  **Refinamiento Conceptual:**
+    - Documentación actualizada en `REGLAS_ARQUITECTURA_COHERENCIA.md`.
+    - Distinción técnica entre **Nivel Estructural (Rol)** y **Nivel Objetivo (Competencia)**.
+    - Aclaración: Step 2 define **Job Design**; la medición basada en skills es una fase futura.
+
+### Documentación y Verificación
+
+- `docs/Cubo/REGLAS_ARQUITECTURA_COHERENCIA.md` (Actualizado ✅)
+- `tests/unit/components/RoleCompetencyCoherence.test.ts` (18 tests ✅)
+- Build verificado: `npm run build` ✅.
+
+---
+
+---
+
 ### Próximos Pasos (Fase 2 - General)
 
 1. **Workflow de Aprobación**: Dashboard para revisar entidades `in_incubation` y aprobar/rechazar

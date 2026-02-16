@@ -6,13 +6,16 @@ Este documento define las validaciones de negocio que el sistema debe aplicar pa
 
 Se establece un rango de niveles de competencia sugeridos según el arquetipo de accountability del rol:
 
-| Arquetipo           | Nivel Sugerido | Descripción                                           |
-| :------------------ | :------------- | :---------------------------------------------------- |
-| **(E) Estratégico** | **4 - 5**      | Requiere visión, maestría y capacidad de mentoría.    |
-| **(T) Táctico**     | **3 - 4**      | Requiere gestión experta y autonomía en la ejecución. |
-| **(O) Operacional** | **1 - 2**      | Enfocado en la ejecución transaccional supervisada.   |
+| Arquetipo           | Banda Sugerida | Descripción                                            |
+| :------------------ | :------------- | :----------------------------------------------------- |
+| **(E) Estratégico** | **4 - 5**      | Accountability de visión, diseño y mentoría técnica.   |
+| **(T) Táctico**     | **3 - 4**      | Accountability de gestión, autonomía y coordinación.   |
+| **(O) Operacional** | **1 - 2**      | Accountability de ejecución transaccional supervisada. |
 
-**Regla:** Si el nivel definido está fuera del rango +/- 1 del sugerido, el sistema debe emitir un "Warning de Arquitectura", a menos que sea consignado explícitamente como un **Rol de Referencia/Mentoría**.
+**Regla de Coherencia:**
+
+1.  **Sobrecarga Técnica (Warning):** Si un Rol Operacional (Banda 1-3) se asigna a una competencia con Nivel 4-5, se emite advertencia a menos que se marque como **Referente**.
+2.  **Competencias de Apoyo (Válido):** Es perfectamente válido que un Rol Estratégico o Táctico tenga competencias en niveles bajos (1-3) si estas son habilidades de apoyo o no core para su accountability principal. No se emite advertencia por niveles bajos en arquetipos altos.
 
 ### 1.1 Dualidad de Niveles: Estructural (Rol) vs. Operativo (Competencia)
 
