@@ -4,6 +4,7 @@ import ChangeSetModal from '@/components/ScenarioPlanning/ChangeSetModal.vue';
 import StatusTimeline from '@/components/ScenarioPlanning/StatusTimeline.vue';
 import IncubatedCubeReview from '@/components/ScenarioPlanning/Step2/IncubatedCubeReview.vue';
 import RoleCompetencyMatrix from '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue';
+import OrganizationalContrast from '@/components/ScenarioPlanning/Step3/OrganizationalContrast.vue';
 import VersionHistoryModal from '@/components/ScenarioPlanning/VersionHistoryModal.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
@@ -597,34 +598,39 @@ const stepperItems = [
     },
     {
         value: 2,
-        title: 'Mapeo',
+        title: 'Diseño',
         icon: 'mdi-table',
-        subtitle: 'Roles ↔ Competencias',
+        subtitle: 'Ingeniería de Roles',
     },
     {
         value: 3,
+        title: 'Contraste',
+        icon: 'mdi-scale-balance',
+        subtitle: 'Realidad vs Diseño',
+    },
+    {
+        value: 4,
         title: 'Estrategias',
         icon: 'mdi-strategy',
         subtitle: 'Cierre de brechas',
     },
     {
-        value: 4,
-        title: 'Escenarios',
+        value: 5,
+        title: 'Planificación',
         icon: 'mdi-account-group',
         subtitle: 'Plan de personal',
     },
     {
-        value: 5,
-        title: 'Pronósticos',
-        icon: 'mdi-chart-timeline-variant',
-        subtitle: 'Roles futuros',
+        value: 6,
+        title: 'Comparar',
+        icon: 'mdi-compare',
+        subtitle: 'Versiones de escenario',
     },
-    { value: 6, title: 'Comparar', icon: 'mdi-compare', subtitle: 'Versiones' },
     {
         value: 7,
         title: 'Dashboard',
         icon: 'mdi-view-dashboard',
-        subtitle: 'Resumen',
+        subtitle: 'KPIs y Gestión',
     },
 ];
 
@@ -1158,8 +1164,15 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Step 3: Estrategias de Cierre -->
+                    <!-- Step 3: Contraste con la Realidad -->
                     <div v-show="currentStep === 3" class="step-content">
+                        <OrganizationalContrast
+                            :scenario-id="Number(scenarioId)"
+                        />
+                    </div>
+
+                    <!-- Step 4: Estrategias de Cierre -->
+                    <div v-show="currentStep === 4" class="step-content">
                         <v-container>
                             <v-card>
                                 <v-card-title>
@@ -1181,15 +1194,15 @@ onMounted(() => {
                                         @click="refreshStrategies"
                                         :loading="refreshing"
                                     >
-                                        Generar Estrategias
+                                        Generar Estrategias (AI)
                                     </v-btn>
                                 </v-card-text>
                             </v-card>
                         </v-container>
                     </div>
 
-                    <!-- Step 4: Plan de Personal -->
-                    <div v-show="currentStep === 4" class="step-content">
+                    <!-- Step 5: Plan de Personal -->
+                    <div v-show="currentStep === 5" class="step-content">
                         <v-container>
                             <v-card>
                                 <v-card-title>
@@ -1202,26 +1215,6 @@ onMounted(() => {
                                     <v-alert type="info" variant="tonal">
                                         Planifica los recursos humanos
                                         necesarios para ejecutar el escenario.
-                                    </v-alert>
-                                </v-card-text>
-                            </v-card>
-                        </v-container>
-                    </div>
-
-                    <!-- Step 5: Pronóstico de Roles -->
-                    <div v-show="currentStep === 5" class="step-content">
-                        <v-container>
-                            <v-card>
-                                <v-card-title>
-                                    <v-icon class="mr-2"
-                                        >mdi-chart-timeline-variant</v-icon
-                                    >
-                                    Pronóstico de Roles
-                                </v-card-title>
-                                <v-card-text>
-                                    <v-alert type="info" variant="tonal">
-                                        Proyecta las necesidades de roles a
-                                        futuro basándose en el escenario.
                                     </v-alert>
                                 </v-card-text>
                             </v-card>
