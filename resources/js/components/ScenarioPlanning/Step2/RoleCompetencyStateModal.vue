@@ -263,13 +263,15 @@
                             <div class="pt-4">→</div>
                             <div class="flex-1">
                                 <label class="mb-1 block text-xs text-gray-600"
-                                    >Futuro</label
+                                    >Nivel Objetivo</label
                                 >
                                 <v-select
                                     v-model="formData.required_level"
                                     :items="[1, 2, 3, 4, 5]"
                                     density="compact"
-                                    label="Nivel"
+                                    label="Nivel Objetivo"
+                                    hint="Nivel de maestría esperado según el diseño del puesto"
+                                    persistent-hint
                                 />
                             </div>
                         </div>
@@ -319,12 +321,14 @@
                         </label>
                         <div>
                             <label class="mb-1 block text-xs text-gray-600">
-                                Nivel requerido
+                                Nivel Objetivo de Maestría
                             </label>
                             <v-select
                                 v-model="formData.required_level"
                                 :items="[1, 2, 3, 4, 5]"
                                 density="compact"
+                                hint="Expectativa de diseño organizacional para este rol"
+                                persistent-hint
                             />
                         </div>
                         <div class="mt-3">
@@ -519,7 +523,7 @@ const consistencyAlert = computed(() => {
                 color: 'warning',
                 icon: 'mdi-alert-decagram',
                 title: 'Arquitectura Débil',
-                message: `Un Rol Estratégico suele requerir niveles 4 o 5. El nivel ${level} podría ser insuficiente para el Job Enrichment esperado.`,
+                message: `Un Rol Estratégico suele definirse con objetivos de nivel 4 o 5. El objetivo ${level} podría ser insuficiente para la accountability esperada.`,
             };
         }
     } else if (arch === 'O') {
@@ -544,16 +548,16 @@ const consistencyAlert = computed(() => {
             return {
                 color: 'warning',
                 icon: 'mdi-alert-outline',
-                title: 'Nivel Insuficiente',
-                message: `Un Rol Táctico requiere al menos nivel 2 o 3 para asegurar la coordinación efectiva.`,
+                title: 'Objetivo Insuficiente',
+                message: `Un Rol Táctico suele diseñarse con al menos nivel objetivo 2 o 3 para asegurar la coordinación efectiva.`,
             };
         }
         if (level > 4 && !isReferent) {
             return {
                 color: 'info',
                 icon: 'mdi-lightbulb-on',
-                title: 'Nivel Inusual',
-                message: `Nivel ${level} es inusualmente alto para un Rol Táctico. Considera si este rol debería ser Estratégico o marcarlo como Referente.`,
+                title: 'Objetivo Inusual',
+                message: `El objetivo de nivel ${level} es inusualmente alto para un Rol Táctico. Considera si este rol debería ser Estratégico o marcarlo como Referente.`,
             };
         }
     }

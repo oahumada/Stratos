@@ -261,11 +261,11 @@
                                                             {{
                                                                 row.archetype ===
                                                                 'E'
-                                                                    ? 'Visión global, toma de decisiones de alto impacto. Niveles sugeridos: 4-5.'
+                                                                    ? 'Visión global, toma de decisiones de alto impacto. Niveles objetivo sugeridos: 4-5.'
                                                                     : row.archetype ===
                                                                         'T'
-                                                                      ? 'Coordinación de equipos y gestión experta. Niveles sugeridos: 2-4.'
-                                                                      : 'Ejecución técnica y operaciones. Niveles sugeridos: 1-3.'
+                                                                      ? 'Coordinación de equipos y gestión experta. Niveles objetivo sugeridos: 2-4.'
+                                                                      : 'Ejecución técnica y operaciones. Niveles objetivo sugeridos: 1-3.'
                                                             }}
                                                         </div>
                                                         <div

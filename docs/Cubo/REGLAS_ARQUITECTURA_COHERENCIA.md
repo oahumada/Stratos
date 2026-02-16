@@ -14,7 +14,16 @@ Se establece un rango de niveles de competencia sugeridos según el arquetipo de
 
 **Regla:** Si el nivel definido está fuera del rango +/- 1 del sugerido, el sistema debe emitir un "Warning de Arquitectura", a menos que sea consignado explícitamente como un **Rol de Referencia/Mentoría**.
 
-### 1.1 Relatividad de Maestría (Detail Design)
+### 1.1 Dualidad de Niveles: Estructural (Rol) vs. Operativo (Competencia)
+
+Es fundamental distinguir entre dos dimensiones de exigencia:
+
+1.  **Nivel Estructural (Arquetipo del Rol):** Define la complejidad de la accountability (accountability span) y la naturaleza del puesto (E/T/O).
+2.  **Nivel Objetivo de Maestría (Requerimiento de Competencia):** Define la profundidad de conocimiento o habilidad necesaria en una competencia específica para cumplir con el diseño del puesto (**Job Design**).
+
+**Clarificación:** Un rol con Arquetipo Operacional (Estructuralmente Nivel 1-3) puede requerir un **Nivel Objetivo de Maestría** alto (Nivel 4-5) en competencias críticas. Esto es común en roles de **Referente Técnico** o mentores operativos. En estos casos, el sistema valida la coherencia a través del flag de **Referente**, reconociendo que la maestría operativa no altera la naturaleza estructural (operacional) del puesto.
+
+### 1.2 Relatividad de Maestría (Detail Design)
 
 El nivel de maestría (1-5) se interpreta de forma relativa al arquetipo:
 
@@ -107,3 +116,12 @@ Esta regla solo se aplica **después** de que el escenario se formaliza y se inc
 - **Aprendizaje Organizacional:** Los arquetipos emergen de la práctica, no de supuestos a priori.
 - **Eficiencia Post-Formalización:** Una vez que un escenario se aprueba, las competencias base se reutilizan en futuros escenarios.
 - **Trazabilidad:** Se puede distinguir qué cambios son estructurales (base) vs. coyunturales (escenario) solo cuando es relevante.
+
+## 5. Niveles de Diseño vs. Niveles Medidos
+
+Es imperativo diferenciar el propósito de los niveles según la fase del proceso:
+
+- **Step 2 (Scenario Planning):** Los niveles 1-5 representan **Niveles Objetivo de Requerimiento**. Son definiciones de **Job Design** (expectativas de lo que el puesto _debería_ ser).
+- **Fase de Evaluación (Post-Mapeo):** Los **Niveles Medidos** se calculan en base a la sumatoria de Skills demostradas. Un nivel de competencia real es una métrica de desempeño, mientras que el nivel en Step 2 es una métrica de exigencia organizacional.
+
+> **Regla de Oro:** "En el diseño de escenarios, definimos la **exigencia** (diseño); en el diagnóstico de talento, medimos la **capacidad** (skills)."
