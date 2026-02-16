@@ -8,16 +8,25 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     /**
+     * Indica si la migración debe ejecutarse dentro de una transacción.
+     */
+    public $withinTransaction = false;
+
+    /**
      * Run the migrations.
      */
     public function up(): void
     {
-        // Add embedding column as vector type (1536 dimensions for OpenAI)
-        // We use raw SQL because Laravel Schema 10 doesn't natively support vector yet
+        $hasPgVector = false;
         try {
-            DB::statement("ALTER TABLE talent_blueprints ADD COLUMN IF NOT EXISTS embedding vector(1536)");
+            $hasPgVector = DB::getDriverName() === 'pgsql' && DB::select("SELECT 1 FROM pg_extension WHERE extname = 'vector'");
         } catch (\Exception $e) {
-            // Fallback if pgvector is not available (mostly for local dev/testing)
+            $hasPgVector = false;
+        }
+
+        if ($hasPgVector) {
+            DB::statement("ALTER TABLE talent_blueprints ADD COLUMN IF NOT EXISTS embedding vector(1536)");
+        } else {
             Schema::table('talent_blueprints', function (Blueprint $table) {
                 if (!Schema::hasColumn('talent_blueprints', 'embedding')) {
                     $table->json('embedding')->nullable();

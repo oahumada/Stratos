@@ -144,6 +144,7 @@ return new class extends Migration
                 -- Function for wp -> scenarios (Insert)
                 CREATE OR REPLACE FUNCTION trg_func_wp_plans_insert() RETURNS TRIGGER AS $$
                 BEGIN
+                    IF pg_trigger_depth() > 1 THEN RETURN NEW; END IF;
                     INSERT INTO scenarios (
                         id, organization_id, name, code, description, start_date, end_date,
                         horizon_months, scope_type, scope_notes, strategic_context, budget_constraints,
@@ -166,6 +167,7 @@ return new class extends Migration
                 -- Function for wp -> scenarios (Update)
                 CREATE OR REPLACE FUNCTION trg_func_wp_plans_update() RETURNS TRIGGER AS $$
                 BEGIN
+                    IF pg_trigger_depth() > 1 THEN RETURN NEW; END IF;
                     UPDATE scenarios
                     SET
                         organization_id = NEW.organization_id,
@@ -199,6 +201,7 @@ return new class extends Migration
                 -- Function for wp -> scenarios (Delete)
                 CREATE OR REPLACE FUNCTION trg_func_wp_plans_delete() RETURNS TRIGGER AS $$
                 BEGIN
+                    IF pg_trigger_depth() > 1 THEN RETURN OLD; END IF;
                     DELETE FROM scenarios WHERE id = OLD.id;
                     RETURN OLD;
                 END;
@@ -211,6 +214,7 @@ return new class extends Migration
                 -- Function for scenarios -> wp (Insert)
                 CREATE OR REPLACE FUNCTION trg_func_scenarios_insert_to_wp() RETURNS TRIGGER AS $$
                 BEGIN
+                    IF pg_trigger_depth() > 1 THEN RETURN NEW; END IF;
                     INSERT INTO workforce_plans (
                         id, organization_id, name, code, description, start_date, end_date,
                         planning_horizon_months, scope_type, scope_notes, strategic_context, budget_constraints,
@@ -253,6 +257,7 @@ return new class extends Migration
                 -- Function for scenarios -> wp (Update)
                 CREATE OR REPLACE FUNCTION trg_func_scenarios_update_to_wp() RETURNS TRIGGER AS $$
                 BEGIN
+                    IF pg_trigger_depth() > 1 THEN RETURN NEW; END IF;
                     UPDATE workforce_plans
                     SET
                         organization_id = NEW.organization_id,
@@ -286,6 +291,7 @@ return new class extends Migration
                 -- Function for scenarios -> wp (Delete)
                 CREATE OR REPLACE FUNCTION trg_func_scenarios_delete_to_wp() RETURNS TRIGGER AS $$
                 BEGIN
+                    IF pg_trigger_depth() > 1 THEN RETURN OLD; END IF;
                     DELETE FROM workforce_plans WHERE id = OLD.id;
                     RETURN OLD;
                 END;

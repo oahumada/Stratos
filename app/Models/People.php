@@ -38,7 +38,7 @@ class People extends Model
     {
         static::addGlobalScope('organization', function (Builder $builder) {
             if (auth()->check() && auth()->user()->organization_id) {
-                $builder->where('People.organization_id', auth()->user()->organization_id);
+                $builder->where('people.organization_id', auth()->user()->organization_id);
             }
         });
     }

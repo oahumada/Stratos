@@ -73,18 +73,20 @@ return new class extends Migration
             $table->unique(['role_id', 'competency_id'], 'role_comp_unique');
         });
 
-        // Documentación mediante comentarios SQL para cada campo
-        DB::statement("COMMENT ON TABLE role_competencies IS 'Asociación de competencias a roles con niveles requeridos y criterios de impacto.'");
-        
-        DB::statement("COMMENT ON COLUMN role_competencies.required_level IS 'Nivel mínimo esperado (1-5). Base fundamental para el cálculo de brechas (talent gaps).' ");
-        
-        DB::statement("COMMENT ON COLUMN role_competencies.criticity IS 'Prioridad de cierre de brecha (1-5). Las competencias críticas se priorizan en planes de desarrollo y sugerencias de IA.'");
-        
-        DB::statement("COMMENT ON COLUMN role_competencies.change_type IS 'Indica la evolución del requerimiento (new, increased, stable). Crucial para proyecciones en Scenario IQ.'");
-        
-        DB::statement("COMMENT ON COLUMN role_competencies.strategy IS 'Estrategia sugerida para cerrar brechas: Buy (externo), Build (interno), Borrow (movilidad) o Bot (automatización).'");
-        
-        DB::statement("COMMENT ON COLUMN role_competencies.notes IS 'Contexto adicional para decisiones manuales o retroalimentación a agentes IA.'");
+        if (DB::getDriverName() === 'pgsql') {
+            // Documentación mediante comentarios SQL para cada campo
+            DB::statement("COMMENT ON TABLE role_competencies IS 'Asociación de competencias a roles con niveles requeridos y criterios de impacto.'");
+            
+            DB::statement("COMMENT ON COLUMN role_competencies.required_level IS 'Nivel mínimo esperado (1-5). Base fundamental para el cálculo de brechas (talent gaps).' ");
+            
+            DB::statement("COMMENT ON COLUMN role_competencies.criticity IS 'Prioridad de cierre de brecha (1-5). Las competencias críticas se priorizan en planes de desarrollo y sugerencias de IA.'");
+            
+            DB::statement("COMMENT ON COLUMN role_competencies.change_type IS 'Indica la evolución del requerimiento (new, increased, stable). Crucial para proyecciones en Scenario IQ.'");
+            
+            DB::statement("COMMENT ON COLUMN role_competencies.strategy IS 'Estrategia sugerida para cerrar brechas: Buy (externo), Build (interno), Borrow (movilidad) o Bot (automatización).'");
+            
+            DB::statement("COMMENT ON COLUMN role_competencies.notes IS 'Contexto adicional para decisiones manuales o retroalimentación a agentes IA.'");
+        }
     }
 
     /**

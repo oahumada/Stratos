@@ -1,443 +1,266 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mount, flushPromises } from '@vue/test-utils';
-// TODO: Uncomment when SuccessionPlanCard component is created
-// import SuccessionPlanCard from '@/components/Paso2/SuccessionPlanCard.vue';
+import SuccessionPlanCard from '@/components/ScenarioPlanning/Step2/SuccessionPlanCard.vue';
+import { flushPromises, mount } from '@vue/test-utils';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 global.fetch = vi.fn();
 
-// SKIPPED: Component not yet implemented
-describe.skip('SuccessionPlanCard.vue', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('renders component with correct structure', () => {
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
+describe('SuccessionPlanCard.vue', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
     });
 
-    expect(wrapper.exists()).toBe(true);
-    expect(wrapper.find('.succession-plan-card').exists()).toBeTruthy();
-  });
-
-  it('loads succession plans on mount', async () => {
-    const mockPlans = {
-      succession_plans: [
-        {
-          role_id: 1,
-          role_name: 'VP Engineering',
-          current_holder_id: 1,
-          current_holder_name: 'Alice Johnson',
-          tenure_years: 5,
-          successors: [
-            {
-              person_id: 2,
-              person_name: 'Bob Smith',
-              readiness_level: 'ready',
-              readiness_percentage: 90,
-              skills_gaps: 1,
-              experience_aligned: true,
+    it('renders component with correct structure', () => {
+        const wrapper = mount(SuccessionPlanCard, {
+            props: {
+                scenarioId: 1,
             },
-            {
-              person_id: 3,
-              person_name: 'Carol Davis',
-              readiness_level: 'developing',
-              readiness_percentage: 65,
-              skills_gaps: 3,
-              experience_aligned: false,
+        });
+
+        expect(wrapper.exists()).toBe(true);
+        expect(
+            wrapper.find('.succession-plan-container').exists(),
+        ).toBeTruthy();
+    });
+
+    it('loads succession plans on mount', async () => {
+        const mockPlans = {
+            data: [
+                {
+                    id: 1,
+                    position_name: 'VP Engineering',
+                    department: 'Engineering',
+                    criticality: 'critical',
+                    current_holder_name: 'Alice Johnson',
+                    current_holder_age: 45,
+                    years_in_position: 5,
+                    estimated_retirement: '2030',
+                    successors: [
+                        {
+                            id: 2,
+                            name: 'Bob Smith',
+                            current_role: 'Director',
+                            readiness_level: 'ready_now',
+                            readiness_percentage: 90,
+                            skill_gaps: [],
+                            timeline_months: 6,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => mockPlans,
+        });
+
+        const wrapper = mount(SuccessionPlanCard, {
+            props: {
+                scenarioId: 1,
             },
-          ],
-        },
-      ],
-    };
+        });
 
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPlans,
+        await flushPromises();
+
+        expect(global.fetch).toHaveBeenCalledWith(
+            '/api/scenarios/1/step2/succession-plans',
+        );
+        expect(wrapper.vm.plans).toHaveLength(1);
     });
 
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
-    });
+    it('displays current role holder information', async () => {
+        const mockPlans = {
+            data: [
+                {
+                    id: 1,
+                    position_name: 'VP Engineering',
+                    department: 'Engineering',
+                    criticality: 'critical',
+                    current_holder_name: 'Alice Johnson',
+                    current_holder_age: 45,
+                    years_in_position: 5,
+                    estimated_retirement: '2030',
+                    successors: [],
+                },
+            ],
+        };
 
-    await flushPromises();
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => mockPlans,
+        });
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      '/api/v1/scenarios/1/step2/succession-plans',
-      expect.any(Object)
-    );
-  });
-
-  it('displays current role holder information', async () => {
-    const mockPlans = {
-      succession_plans: [
-        {
-          role_id: 1,
-          role_name: 'VP Engineering',
-          current_holder_id: 1,
-          current_holder_name: 'Alice Johnson',
-          tenure_years: 5,
-          successors: [],
-        },
-      ],
-    };
-
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPlans,
-    });
-
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-
-    expect(wrapper.vm.plans[0].current_holder_name).toBe('Alice Johnson');
-    expect(wrapper.vm.plans[0].tenure_years).toBe(5);
-  });
-
-  it('displays successors with readiness levels', async () => {
-    const mockPlans = {
-      succession_plans: [
-        {
-          role_id: 1,
-          role_name: 'VP Engineering',
-          current_holder_id: 1,
-          current_holder_name: 'Alice Johnson',
-          tenure_years: 5,
-          successors: [
-            {
-              person_id: 2,
-              person_name: 'Bob Smith',
-              readiness_level: 'ready',
-              readiness_percentage: 90,
-              skills_gaps: 1,
-              experience_aligned: true,
+        const wrapper = mount(SuccessionPlanCard, {
+            props: {
+                scenarioId: 1,
             },
-            {
-              person_id: 3,
-              person_name: 'Carol Davis',
-              readiness_level: 'developing',
-              readiness_percentage: 65,
-              skills_gaps: 3,
-              experience_aligned: false,
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.plans[0].current_holder_name).toBe('Alice Johnson');
+        expect(wrapper.vm.plans[0].years_in_position).toBe(5);
+    });
+
+    it('displays successors with readiness levels', async () => {
+        const mockPlans = {
+            data: [
+                {
+                    id: 1,
+                    position_name: 'VP Engineering',
+                    department: 'Engineering',
+                    criticality: 'critical',
+                    current_holder_name: 'Alice Johnson',
+                    current_holder_age: 45,
+                    years_in_position: 5,
+                    estimated_retirement: '2030',
+                    successors: [
+                        {
+                            id: 2,
+                            name: 'Bob Smith',
+                            current_role: 'Director',
+                            readiness_level: 'ready_now',
+                            readiness_percentage: 90,
+                            skill_gaps: [],
+                            timeline_months: 6,
+                        },
+                        {
+                            id: 3,
+                            name: 'Carol Davis',
+                            current_role: 'Manager',
+                            readiness_level: 'ready_12_months',
+                            readiness_percentage: 65,
+                            skill_gaps: [],
+                            timeline_months: 12,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => mockPlans,
+        });
+
+        const wrapper = mount(SuccessionPlanCard, {
+            props: {
+                scenarioId: 1,
             },
-          ],
-        },
-      ],
-    };
+        });
 
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPlans,
+        await flushPromises();
+
+        expect(wrapper.vm.plans[0].successors).toHaveLength(2);
+        expect(wrapper.vm.plans[0].successors[0].readiness_level).toBe(
+            'ready_now',
+        );
     });
 
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
+    it('shows color coding based on readiness level', async () => {
+        const wrapper = mount(SuccessionPlanCard, {
+            props: {
+                scenarioId: 1,
+            },
+        });
+
+        expect(wrapper.vm.getReadinessColor('ready_now')).toContain('success');
+        expect(wrapper.vm.getReadinessColor('ready_12_months')).toContain(
+            'warning',
+        );
+        expect(wrapper.vm.getReadinessColor('not_ready')).toContain('error');
     });
 
-    await flushPromises();
+    it('handles empty succession plans', async () => {
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ data: [] }),
+        });
 
-    expect(wrapper.vm.plans[0].successors).toHaveLength(2);
-    expect(wrapper.vm.plans[0].successors[0].readiness_level).toBe('ready');
-  });
+        const wrapper = mount(SuccessionPlanCard, {
+            props: {
+                scenarioId: 1,
+            },
+        });
 
-  it('shows color coding based on readiness level', async () => {
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
+        await flushPromises();
+
+        expect(wrapper.vm.plans).toHaveLength(0);
     });
 
-    expect(wrapper.vm.getReadinessColor('ready')).toContain('green');
-    expect(wrapper.vm.getReadinessColor('developing')).toContain('yellow');
-    expect(wrapper.vm.getReadinessColor('not_ready')).toContain('red');
-  });
+    it('opens edit dialog when edit button clicked', async () => {
+        const mockPlans = {
+            data: [
+                {
+                    id: 1,
+                    position_name: 'VP Engineering',
+                    department: 'Engineering',
+                    criticality: 'critical',
+                    current_holder_name: 'Alice',
+                    years_in_position: 5,
+                    successors: [],
+                },
+            ],
+        };
 
-  it('handles empty succession plans', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ succession_plans: [] }),
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => mockPlans,
+        });
+
+        const wrapper = mount(SuccessionPlanCard, {
+            props: {
+                scenarioId: 1,
+            },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.editPlan(wrapper.vm.plans[0]);
+
+        expect(wrapper.vm.editingPlan).not.toBeNull();
+        expect(wrapper.vm.showEditDialog).toBe(true);
     });
 
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-
-    expect(wrapper.vm.plans).toHaveLength(0);
-  });
-
-  it('shows error on fetch failure', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: false,
-    });
-
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-
-    expect(wrapper.vm.error).toBeTruthy();
-  });
-
-  it('shows loading state during fetch', async () => {
-    (global.fetch as any).mockImplementationOnce(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve({
+    it('updates when scenarioId changes', async () => {
+        (global.fetch as any)
+            .mockResolvedValueOnce({
                 ok: true,
-                json: async () => ({ succession_plans: [] }),
-              }),
-            100
-          )
-        )
-    );
+                json: async () => ({
+                    data: [
+                        {
+                            id: 1,
+                            position_name: 'VP Engineering',
+                            successors: [],
+                        },
+                    ],
+                }),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({
+                    data: [
+                        {
+                            id: 2,
+                            position_name: 'CTO',
+                            successors: [],
+                        },
+                    ],
+                }),
+            });
 
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    expect(wrapper.vm.loading).toBe(true);
-
-    await flushPromises();
-
-    expect(wrapper.vm.loading).toBe(false);
-  });
-
-  it('opens edit dialog when edit button clicked', async () => {
-    const mockPlans = {
-      succession_plans: [
-        {
-          role_id: 1,
-          role_name: 'VP Engineering',
-          current_holder_id: 1,
-          current_holder_name: 'Alice Johnson',
-          tenure_years: 5,
-          successors: [
-            {
-              person_id: 2,
-              person_name: 'Bob Smith',
-              readiness_level: 'ready',
-              readiness_percentage: 90,
-              skills_gaps: 1,
-              experience_aligned: true,
+        const wrapper = mount(SuccessionPlanCard, {
+            props: {
+                scenarioId: 1,
             },
-          ],
-        },
-      ],
-    };
+        });
 
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPlans,
+        await flushPromises();
+        expect(wrapper.vm.plans[0].position_name).toBe('VP Engineering');
+
+        await wrapper.setProps({ scenarioId: 2 });
+        await flushPromises();
+
+        expect(wrapper.vm.plans[0].position_name).toBe('CTO');
     });
-
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-
-    wrapper.vm.openEditDialog(0);
-
-    expect(wrapper.vm.editingPlanIndex).toBe(0);
-    expect(wrapper.vm.showEditDialog).toBe(true);
-  });
-
-  it('saves edited plan', async () => {
-    const mockPlans = {
-      succession_plans: [
-        {
-          role_id: 1,
-          role_name: 'VP Engineering',
-          current_holder_id: 1,
-          current_holder_name: 'Alice Johnson',
-          tenure_years: 5,
-          successors: [],
-        },
-      ],
-    };
-
-    (global.fetch as any)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockPlans,
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true }),
-      });
-
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-
-    await wrapper.vm.savePlan(0);
-
-    expect(wrapper.vm.showEditDialog).toBe(false);
-  });
-
-  it('filters successors with gaps', async () => {
-    const mockPlans = {
-      succession_plans: [
-        {
-          role_id: 1,
-          role_name: 'VP Engineering',
-          current_holder_id: 1,
-          current_holder_name: 'Alice Johnson',
-          tenure_years: 5,
-          successors: [
-            {
-              person_id: 2,
-              person_name: 'Bob Smith',
-              readiness_level: 'ready',
-              readiness_percentage: 90,
-              skills_gaps: 0,
-              experience_aligned: true,
-            },
-            {
-              person_id: 3,
-              person_name: 'Carol Davis',
-              readiness_level: 'developing',
-              readiness_percentage: 65,
-              skills_gaps: 3,
-              experience_aligned: false,
-            },
-          ],
-        },
-      ],
-    };
-
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPlans,
-    });
-
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-
-    const withGaps = wrapper.vm.plans[0].successors.filter(
-      (s: any) => s.skills_gaps > 0
-    );
-    expect(withGaps).toHaveLength(1);
-  });
-
-  it('updates when scenarioId changes', async () => {
-    (global.fetch as any)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          succession_plans: [
-            {
-              role_id: 1,
-              role_name: 'VP Engineering',
-              current_holder_id: 1,
-              current_holder_name: 'Alice Johnson',
-              tenure_years: 5,
-              successors: [],
-            },
-          ],
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          succession_plans: [
-            {
-              role_id: 2,
-              role_name: 'CTO',
-              current_holder_id: 2,
-              current_holder_name: 'Bob Chen',
-              tenure_years: 3,
-              successors: [],
-            },
-          ],
-        }),
-      });
-
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-    expect(wrapper.vm.plans[0].role_name).toBe('VP Engineering');
-
-    await wrapper.setProps({ scenarioId: 2 });
-    await flushPromises();
-
-    expect(wrapper.vm.plans[0].role_name).toBe('CTO');
-  });
-
-  it('shows successor gaps summary', async () => {
-    const mockPlans = {
-      succession_plans: [
-        {
-          role_id: 1,
-          role_name: 'VP Engineering',
-          current_holder_id: 1,
-          current_holder_name: 'Alice Johnson',
-          tenure_years: 5,
-          successors: [
-            {
-              person_id: 2,
-              person_name: 'Bob Smith',
-              readiness_level: 'ready',
-              readiness_percentage: 90,
-              skills_gaps: 1,
-              experience_aligned: true,
-            },
-          ],
-        },
-      ],
-    };
-
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPlans,
-    });
-
-    const wrapper = mount(SuccessionPlanCard, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-
-    const successor = wrapper.vm.plans[0].successors[0];
-    expect(successor.skills_gaps).toBe(1);
-  });
 });

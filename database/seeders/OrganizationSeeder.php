@@ -9,9 +9,10 @@ class OrganizationSeeder extends Seeder
 {
     public function run(): void
     {
-        Organizations::create([
-            'name' => 'TechCorp',
+        Organizations::updateOrCreate([
             'subdomain' => 'techcorp',
+        ], [
+            'name' => 'TechCorp',
             'industry' => 'Technology',
             'size' => 'large',
         ]);

@@ -351,7 +351,7 @@ class Step2RoleCompetencyController extends Controller
 
         $results = $scenarioRoles->flatMap(function ($sRole) use ($scenarioId, $people) {
             $requiredSkills = ScenarioRoleSkill::where('scenario_role_skills.scenario_id', $scenarioId)
-                ->where('scenario_role_skills.role_id', $sRole->id)
+                ->where('scenario_role_skills.role_id', $sRole->role_id)
                 ->join('skills', 'scenario_role_skills.skill_id', '=', 'skills.id')
                 ->select('scenario_role_skills.*', 'skills.name as skill_name')
                 ->get();
@@ -407,7 +407,7 @@ class Step2RoleCompetencyController extends Controller
 
         $plans = $criticalRoles->map(function ($sRole) use ($scenarioId, $people) {
             $requiredSkills = ScenarioRoleSkill::where('scenario_id', $scenarioId)
-                ->where('role_id', $sRole->id)
+                ->where('role_id', $sRole->role_id)
                 ->get();
 
             if ($requiredSkills->isEmpty()) {
@@ -477,32 +477,57 @@ class Step2RoleCompetencyController extends Controller
                 return [
                     'id' => $p->id,
                     'name' => $p->full_name,
-                    'readiness' => $match['match_percentage'],
+                    'readiness_percentage' => $match['match_percentage'],
+                    'readiness_level' => $this->getReadinessLevel($match['match_percentage']),
                     'current_role' => $p->role?->name ?? 'Sin Rol',
+                    'skill_gaps' => $match['skill_gaps'],
+                    'timeline_months' => $this->calculateTimeline($match['match_percentage']),
                 ];
             })
             ->filter()
-            ->sortByDesc('readiness')
+            ->sortByDesc('readiness_percentage')
             ->values();
-
-        $primary = $potentialSuccessors->first();
-        $secondary = $potentialSuccessors->slice(1, 2)->values();
 
         return [
             'id' => $sRole->id,
-            'role_name' => $sRole->role->name,
-            'current_holder' => $currentHolder ? $currentHolder->full_name : 'Vacante / Externo',
-            'criticality_level' => $sRole->impact_level,
-            'primary_successor' => $primary,
-            'secondary_successors' => $secondary,
-            'tenure_years' => $currentHolder && $currentHolder->hire_date ? $currentHolder->hire_date->diffInYears(now()) : 2,
-            'planned_retirement' => '2028-12-31',
-            'months_to_retirement' => 34,
-            'development_plan' => $primary ? [
-                'description' => 'Programa de desarrollo de habilidades críticas para el rol.',
-                'duration' => '6 meses',
-            ] : null,
-            'mentoring_assigned' => (bool) $primary,
+            'position_name' => $sRole->role->name,
+            'role_name' => $sRole->role->name, // Keep for tests
+            'department' => $sRole->role->department ?? 'N/A',
+            'criticality' => $sRole->impact_level,
+            'criticality_level' => $sRole->impact_level, // Keep for tests
+            'current_holder_name' => $currentHolder ? $currentHolder->full_name : 'Vacante / Externo',
+            'current_holder' => $currentHolder ? $currentHolder->full_name : 'Vacante / Externo', // Keep for tests
+            'current_holder_age' => 45, // Placeholder
+            'years_in_position' => $currentHolder && $currentHolder->hire_date ? $currentHolder->hire_date->diffInYears(now()) : 2,
+            'estimated_retirement' => '2028-12-31',
+            'successors' => $potentialSuccessors,
+            'primary_successor' => $potentialSuccessors->first(), // Keep for tests
+            'secondary_successors' => $potentialSuccessors->slice(1, 2)->values(), // Keep for tests
+            'notes' => $sRole->rationale,
         ];
+    }
+
+    private function calculateTimeline(int $percentage): int
+    {
+        if ($percentage >= 90) {
+            return 0;
+        }
+        if ($percentage >= 75) {
+            return 12;
+        }
+        return 24;
+    }
+
+    private function getReadinessLevel(int $percentage): string
+    {
+        $level = 'not_ready';
+        if ($percentage >= 90) {
+            $level = 'ready_now';
+        } elseif ($percentage >= 75) {
+            $level = 'ready_12_months';
+        } elseif ($percentage >= 60) {
+            $level = 'ready_24_months';
+        }
+        return $level;
     }
 }

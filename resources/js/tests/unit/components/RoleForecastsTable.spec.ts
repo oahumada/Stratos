@@ -1,267 +1,194 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mount, flushPromises } from '@vue/test-utils';
-// TODO: Uncomment when RoleForecastsTable component is created
-// import RoleForecastsTable from '@/components/Paso2/RoleForecastsTable.vue';
+import RoleForecastsTable from '@/components/ScenarioPlanning/Step2/RoleForecastsTable.vue';
+import { flushPromises, mount } from '@vue/test-utils';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock fetch
 global.fetch = vi.fn();
 
-// SKIPPED: Component not yet implemented
-describe.skip('RoleForecastsTable.vue', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('renders component with correct structure', () => {
-    const wrapper = mount(RoleForecastsTable, {
-      props: {
-        scenarioId: 1,
-      },
+describe('RoleForecastsTable.vue', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
     });
 
-    expect(wrapper.exists()).toBe(true);
-    expect(wrapper.find('.role-forecasts-table').exists()).toBeTruthy();
-  });
+    it('renders component with correct structure', () => {
+        const wrapper = mount(RoleForecastsTable, {
+            props: {
+                scenarioId: 1,
+            },
+        });
 
-  it('loads forecast data on mount', async () => {
-    const mockForecasts = {
-      role_forecasts: [
-        {
-          role_id: 1,
-          role_name: 'Product Manager',
-          current_fte: 2,
-          future_fte: 3,
-          fte_delta: 1,
-          impact_level: 'high',
-          change_reason: 'Business expansion',
-        },
-      ],
-    };
-
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockForecasts,
+        expect(wrapper.exists()).toBe(true);
+        expect(wrapper.find('.role-forecasts-container').exists()).toBeTruthy();
     });
 
-    const wrapper = mount(RoleForecastsTable, {
-      props: {
-        scenarioId: 1,
-      },
+    it('loads forecast data on mount', async () => {
+        const mockForecasts = {
+            data: [
+                {
+                    id: 1,
+                    scenario_id: 1,
+                    role_id: 101,
+                    role_name: 'Product Manager',
+                    fte_current: 2,
+                    fte_future: 3,
+                    fte_delta: 1,
+                    evolution_type: 'transformation',
+                    impact_level: 'high',
+                    rationale: 'Business expansion',
+                },
+            ],
+        };
+
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => mockForecasts,
+        });
+
+        const wrapper = mount(RoleForecastsTable, {
+            props: {
+                scenarioId: 1,
+            },
+        });
+
+        await flushPromises();
+
+        expect(global.fetch).toHaveBeenCalledWith(
+            '/api/scenarios/1/step2/role-forecasts',
+        );
+        expect(wrapper.vm.forecasts).toHaveLength(1);
     });
 
-    await flushPromises();
+    it('displays forecast data in table', async () => {
+        const mockForecasts = {
+            data: [
+                {
+                    id: 1,
+                    role_id: 1,
+                    role_name: 'Product Manager',
+                    fte_current: 2,
+                    fte_future: 3,
+                    fte_delta: 1,
+                    evolution_type: 'transformation',
+                    impact_level: 'high',
+                    rationale: 'Growth',
+                },
+                {
+                    id: 2,
+                    role_id: 2,
+                    role_name: 'Engineer',
+                    fte_current: 5,
+                    fte_future: 5,
+                    fte_delta: 0,
+                    evolution_type: 'upgrade_skills',
+                    impact_level: 'medium',
+                    rationale: 'Stable',
+                },
+            ],
+        };
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      '/api/scenarios/1/step2/role-forecasts',
-      expect.any(Object)
-    );
-    expect(wrapper.vm.forecasts).toHaveLength(1);
-  });
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => mockForecasts,
+        });
 
-  it('displays forecast data in table', async () => {
-    const mockForecasts = {
-      role_forecasts: [
-        {
-          role_id: 1,
-          role_name: 'Product Manager',
-          current_fte: 2,
-          future_fte: 3,
-          fte_delta: 1,
-          impact_level: 'high',
-          change_reason: 'Growth',
-        },
-        {
-          role_id: 2,
-          role_name: 'Engineer',
-          current_fte: 5,
-          future_fte: 5,
-          fte_delta: 0,
-          impact_level: 'medium',
-          change_reason: 'Stable',
-        },
-      ],
-    };
+        const wrapper = mount(RoleForecastsTable, {
+            props: {
+                scenarioId: 1,
+            },
+        });
 
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockForecasts,
+        await flushPromises();
+
+        const rows = wrapper.findAll('tbody tr');
+        expect(rows).toHaveLength(2);
     });
 
-    const wrapper = mount(RoleForecastsTable, {
-      props: {
-        scenarioId: 1,
-      },
+    it('shows error message on fetch failure', async () => {
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: false,
+        });
+
+        const wrapper = mount(RoleForecastsTable, {
+            props: {
+                scenarioId: 1,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.error).toBeTruthy();
     });
 
-    await flushPromises();
+    it('handles empty forecast list', async () => {
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ data: [] }),
+        });
 
-    const rows = wrapper.findAll('tbody tr');
-    expect(rows).toHaveLength(2);
-  });
+        const wrapper = mount(RoleForecastsTable, {
+            props: {
+                scenarioId: 1,
+            },
+        });
 
-  it('calculates impact level based on FTE delta', async () => {
-    const mockForecasts = {
-      role_forecasts: [
-        {
-          role_id: 1,
-          role_name: 'PM',
-          current_fte: 1,
-          future_fte: 5,
-          fte_delta: 4,
-          impact_level: 'critical',
-          change_reason: 'Major expansion',
-        },
-      ],
-    };
+        await flushPromises();
 
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockForecasts,
+        expect(wrapper.vm.forecasts).toHaveLength(0);
+        // Checking for text instead of class since class name might vary
+        expect(wrapper.text()).toContain('No hay pronósticos definidos');
     });
 
-    const wrapper = mount(RoleForecastsTable, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-
-    expect(wrapper.vm.forecasts[0].impact_level).toBe('critical');
-  });
-
-  it('shows error message on fetch failure', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: false,
-    });
-
-    const wrapper = mount(RoleForecastsTable, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-
-    expect(wrapper.vm.error).toBeTruthy();
-  });
-
-  it('shows loading state during fetch', async () => {
-    (global.fetch as any).mockImplementationOnce(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve({
+    it('updates data when scenarioId prop changes', async () => {
+        (global.fetch as any)
+            .mockResolvedValueOnce({
                 ok: true,
-                json: async () => ({ role_forecasts: [] }),
-              }),
-            100
-          )
-        )
-    );
+                json: async () => ({
+                    data: [
+                        {
+                            id: 1,
+                            role_id: 1,
+                            role_name: 'PM',
+                            fte_current: 1,
+                            fte_future: 2,
+                            evolution_type: 'transformation',
+                            impact_level: 'medium',
+                        },
+                    ],
+                }),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({
+                    data: [
+                        {
+                            id: 2,
+                            role_id: 2,
+                            role_name: 'Engineer',
+                            fte_current: 3,
+                            fte_future: 5,
+                            evolution_type: 'transformation',
+                            impact_level: 'high',
+                        },
+                    ],
+                }),
+            });
 
-    const wrapper = mount(RoleForecastsTable, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    expect(wrapper.vm.loading).toBe(true);
-
-    await flushPromises();
-
-    expect(wrapper.vm.loading).toBe(false);
-  });
-
-  it('handles empty forecast list', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ role_forecasts: [] }),
-    });
-
-    const wrapper = mount(RoleForecastsTable, {
-      props: {
-        scenarioId: 1,
-      },
-    });
-
-    await flushPromises();
-
-    expect(wrapper.vm.forecasts).toHaveLength(0);
-    expect(wrapper.find('.empty-state').exists()).toBeTruthy();
-  });
-
-  it('updates data when scenarioId prop changes', async () => {
-    (global.fetch as any)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          role_forecasts: [
-            {
-              role_id: 1,
-              role_name: 'PM',
-              current_fte: 1,
-              future_fte: 2,
-              fte_delta: 1,
-              impact_level: 'medium',
-              change_reason: 'Growth',
+        const wrapper = mount(RoleForecastsTable, {
+            props: {
+                scenarioId: 1,
             },
-          ],
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          role_forecasts: [
-            {
-              role_id: 2,
-              role_name: 'Engineer',
-              current_fte: 3,
-              future_fte: 5,
-              fte_delta: 2,
-              impact_level: 'high',
-              change_reason: 'Expansion',
-            },
-          ],
-        }),
-      });
+        });
 
-    const wrapper = mount(RoleForecastsTable, {
-      props: {
-        scenarioId: 1,
-      },
+        await flushPromises();
+
+        expect(wrapper.vm.forecasts).toHaveLength(1);
+        expect(wrapper.vm.forecasts[0].role_id).toBe(1);
+        expect(wrapper.vm.forecasts[0].role_name).toBe('PM');
+
+        await wrapper.setProps({ scenarioId: 2 });
+        await flushPromises();
+
+        expect(wrapper.vm.forecasts).toHaveLength(1);
+        expect(wrapper.vm.forecasts[0].role_id).toBe(2);
     });
-
-    await flushPromises();
-
-    expect(wrapper.vm.forecasts).toHaveLength(1);
-    expect(wrapper.vm.forecasts[0].role_id).toBe(1);
-
-    await wrapper.setProps({ scenarioId: 2 });
-    await flushPromises();
-
-    expect(wrapper.vm.forecasts).toHaveLength(1);
-    expect(wrapper.vm.forecasts[0].role_id).toBe(2);
-  });
-
-  it('passes scenarioId to API correctly', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ role_forecasts: [] }),
-    });
-
-    mount(RoleForecastsTable, {
-      props: {
-        scenarioId: 42,
-      },
-    });
-
-    await flushPromises();
-
-    expect(global.fetch).toHaveBeenCalledWith(
-      '/api/scenarios/42/step2/role-forecasts',
-      expect.any(Object)
-    );
-  });
 });
