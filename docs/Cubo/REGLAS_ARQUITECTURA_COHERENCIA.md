@@ -2,6 +2,25 @@
 
 Este documento define las validaciones de negocio que el sistema debe aplicar para asegurar la integridad de la ingeniería organizacional.
 
+## 0. Fundamento Teórico: Requisite Organization (Elliott Jaques)
+
+El modelo de Stratos se basa en la **Teoría de Sistemas Estratificados (SST)** de Elliott Jaques, la cual postula que la efectividad organizacional depende de la alineación entre la complejidad de las tareas y la capacidad cognitiva de las personas.
+
+### conceptos Clave del SST en Stratos:
+
+1.  **Estratos de Trabajo (Archetypes):**
+    - La organización no es solo una jerarquía de poder, sino una **jerarquía de complejidad cognitiva**.
+    - Los arquetipos **(E) Estratégico, (T) Táctico y (O) Operacional** representan diferentes estratos.
+    - Cada estrato se define por su **Time-span of Discretion** (el tiempo máximo que una persona opera sin revisión superior). Un rol Estratégico opera en horizontes de años; uno Operacional en días o semanas.
+
+2.  **Complejidad de Puesto vs. Maestría Técnica:**
+    - **Estrato (Accountability):** Define el "techo" de complejidad del puesto. Un Gerente (Estrato Alto) debe orquestar sistemas complejos.
+    - **Competencia (Proficiency):** Define la habilidad técnica. Un experto técnico puede tener un **Nivel 5 de Maestría** pero operar en un **Estrato Operacional** (su trabajo es complejo técnicamente pero su horizonte de decisión es corto y acotado).
+
+3.  **Coherencia Arquitectónica:**
+    - Una organización es "Requisita" (equilibrada) cuando los roles están diseñados en el estrato correcto.
+    - Stratos valida que la exigencia de competencia no desvirtúe el estrato del rol (evitando la "Sobrecarga Técnica" o el "Micromanagement Estratégico").
+
 ## 1. Coherencia Arquetipo - Nivel de Maestría
 
 Se establece un rango de niveles de competencia sugeridos según el arquetipo de accountability del rol:
