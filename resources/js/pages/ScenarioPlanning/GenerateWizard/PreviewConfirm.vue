@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const props = defineProps({
+defineProps({
     promptPreview: { type: String, required: true },
     loading: { type: Boolean, default: false },
 });
