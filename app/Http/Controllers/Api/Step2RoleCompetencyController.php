@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\People;
 use App\Models\Scenario;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleCompetency;
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\DB;
  */
 class Step2RoleCompetencyController extends Controller
 {
+    private const ROLE_NAME_SELECT = 'roles.name as role_name';
+
     public function __construct(
         private RoleSkillDerivationService $derivationService
     ) {}
@@ -41,7 +44,7 @@ class Step2RoleCompetencyController extends Controller
             ->select(
                 'scenario_roles.id',
                 'scenario_roles.role_id',
-                'roles.name as role_name',
+                self::ROLE_NAME_SELECT,
                 'scenario_roles.fte',
                 'scenario_roles.role_change',
                 'scenario_roles.impact_level',
@@ -243,26 +246,31 @@ class Step2RoleCompetencyController extends Controller
      */
     public function getRoleForecasts(int $scenarioId): JsonResponse
     {
-        $scenario = Scenario::where('id', $scenarioId)
+        Scenario::where('id', $scenarioId)
             ->where('organization_id', auth()->user()->organization_id)
             ->firstOrFail();
+
+        // Obtener FTE actual real desde la tabla de personas de la organización
+        $actualHeadcounts = People::where('organization_id', auth()->user()->organization_id)
+            ->select('role_id', DB::raw('count(*) as count'))
+            ->groupBy('role_id')
+            ->pluck('count', 'role_id');
 
         $forecasts = ScenarioRole::where('scenario_id', $scenarioId)
             ->join('roles', 'scenario_roles.role_id', '=', 'roles.id')
             ->select(
                 'scenario_roles.id',
                 'scenario_roles.role_id',
-                'roles.name as role_name',
+                self::ROLE_NAME_SELECT,
                 'scenario_roles.fte as fte_future',
                 'scenario_roles.evolution_type',
                 'scenario_roles.impact_level',
                 'scenario_roles.rationale'
             )
             ->get()
-            ->map(function ($forecast) {
-                // Obtener FTE actual (aproximado: usar el promedio de equipos actuales)
-                // En la práctica, esto vendría de person_role_skills o un registro histórico
-                $forecast->fte_current = $forecast->fte_future; // Placeholder
+            ->map(function ($forecast) use ($actualHeadcounts) {
+                // Usar el conteo real de personas con este rol
+                $forecast->fte_current = (float) ($actualHeadcounts[$forecast->role_id] ?? 0);
                 $forecast->fte_delta = $forecast->fte_future - $forecast->fte_current;
 
                 return $forecast;
@@ -279,7 +287,7 @@ class Step2RoleCompetencyController extends Controller
      */
     public function getSkillGapsMatrix(int $scenarioId): JsonResponse
     {
-        $scenario = Scenario::where('id', $scenarioId)
+        Scenario::where('id', $scenarioId)
             ->where('organization_id', auth()->user()->organization_id)
             ->firstOrFail();
 
@@ -305,7 +313,7 @@ class Step2RoleCompetencyController extends Controller
             ->select(
                 'scenario_role_skills.skill_id',
                 'scenario_role_skills.role_id',
-                'roles.name as role_name',
+                self::ROLE_NAME_SELECT,
                 'scenario_role_skills.required_level',
                 'scenario_role_skills.current_level'
             )
@@ -324,22 +332,56 @@ class Step2RoleCompetencyController extends Controller
     }
 
     /**
-     * GET /api/v1/scenarios/{scenarioId}/step2/matching-results
+     * GET /api/scenarios/{scenarioId}/step2/matching-results
      * Resultados de matching candidato-posición
      */
     public function getMatchingResults(int $scenarioId): JsonResponse
     {
-        $scenario = Scenario::where('id', $scenarioId)
-            ->where('organization_id', auth()->user()->organization_id)
-            ->firstOrFail();
+        $this->validateScenario($scenarioId);
 
-        // En la práctica, esto vendría de un cálculo de matching
-        // Para MVP, retornar estructura vacía
-        $results = collect();
+        $scenarioRoles = ScenarioRole::where('scenario_id', $scenarioId)->with('role')->get();
 
-        return response()->json([
-            'data' => $results,
-        ]);
+        if ($scenarioRoles->isEmpty()) {
+            return response()->json(['data' => []]);
+        }
+
+        $people = People::where('organization_id', auth()->user()->organization_id)
+            ->with(['role', 'activeSkills'])
+            ->get();
+
+        $results = $scenarioRoles->flatMap(function ($sRole) use ($scenarioId, $people) {
+            $requiredSkills = ScenarioRoleSkill::where('scenario_role_skills.scenario_id', $scenarioId)
+                ->where('scenario_role_skills.role_id', $sRole->id)
+                ->join('skills', 'scenario_role_skills.skill_id', '=', 'skills.id')
+                ->select('scenario_role_skills.*', 'skills.name as skill_name')
+                ->get();
+
+            if ($requiredSkills->isEmpty()) {
+                return [];
+            }
+
+            return $people->map(function ($p) use ($requiredSkills, $sRole) {
+                $matchData = $this->calculatePersonMatch($p, $requiredSkills);
+
+                if ($matchData['match_percentage'] < 40) {
+                    return null;
+                }
+
+                return [
+                    'id' => $p->id.'-'.$sRole->id,
+                    'candidate_name' => $p->full_name,
+                    'current_role' => $p->role?->name ?? 'Sin Rol',
+                    'target_position' => $sRole->role->name,
+                    'match_percentage' => $matchData['match_percentage'],
+                    'risk_factors' => $matchData['match_percentage'] < 70 ? [['id' => 1, 'factor' => 'Brecha de competencias moderada']] : [],
+                    'productivity_timeline' => max(1, $matchData['total_required'] - $matchData['met_skills']),
+                    'skill_gaps' => $matchData['skill_gaps'],
+                    'notes' => 'Matching basado en el diseño del escenario.',
+                ];
+            })->filter();
+        })->sortByDesc('match_percentage')->values();
+
+        return response()->json(['data' => $results]);
     }
 
     /**
@@ -348,16 +390,119 @@ class Step2RoleCompetencyController extends Controller
      */
     public function getSuccessionPlans(int $scenarioId): JsonResponse
     {
-        $scenario = Scenario::where('id', $scenarioId)
+        $this->validateScenario($scenarioId);
+
+        $criticalRoles = ScenarioRole::where('scenario_id', $scenarioId)
+            ->whereIn('impact_level', ['critical', 'high'])
+            ->with('role')
+            ->get();
+
+        if ($criticalRoles->isEmpty()) {
+            return response()->json(['data' => []]);
+        }
+
+        $people = People::where('organization_id', auth()->user()->organization_id)
+            ->with(['role', 'activeSkills'])
+            ->get();
+
+        $plans = $criticalRoles->map(function ($sRole) use ($scenarioId, $people) {
+            $requiredSkills = ScenarioRoleSkill::where('scenario_id', $scenarioId)
+                ->where('role_id', $sRole->id)
+                ->get();
+
+            if ($requiredSkills->isEmpty()) {
+                return null;
+            }
+
+            return $this->calculateRoleSuccessionPlan($sRole, $people, $requiredSkills);
+        })->filter()->values();
+
+        return response()->json(['data' => $plans]);
+    }
+
+    private function validateScenario(int $scenarioId): void
+    {
+        Scenario::where('id', $scenarioId)
             ->where('organization_id', auth()->user()->organization_id)
             ->firstOrFail();
+    }
 
-        // En la práctica, esto vendría de análisis de sucesión
-        // Para MVP, retornar estructura vacía
-        $plans = collect();
+    private function calculatePersonMatch(People $person, $requiredSkills): array
+    {
+        $metSkills = 0;
+        $totalRequired = $requiredSkills->count();
+        $skillGaps = [];
 
-        return response()->json([
-            'data' => $plans,
-        ]);
+        foreach ($requiredSkills as $req) {
+            $pSkill = $person->activeSkills->firstWhere('skill_id', $req->skill_id);
+            $currentLevel = $pSkill ? (int) $pSkill->current_level : 0;
+            $requiredLevel = (int) $req->required_level;
+            $gap = max(0, $requiredLevel - $currentLevel);
+
+            if ($gap === 0) {
+                $metSkills++;
+            } else {
+                $skillGaps[] = [
+                    'id' => $req->id,
+                    'skill_name' => $req->skill_name ?? ($req->skill ? $req->skill->name : 'Unknown Skill'),
+                    'current_level' => $currentLevel,
+                    'required_level' => $requiredLevel,
+                ];
+            }
+        }
+
+        $matchPercentage = $totalRequired > 0 ? ($metSkills / $totalRequired) * 100 : 0;
+
+        return [
+            'match_percentage' => round($matchPercentage, 0),
+            'met_skills' => $metSkills,
+            'total_required' => $totalRequired,
+            'skill_gaps' => $skillGaps,
+        ];
+    }
+
+    private function calculateRoleSuccessionPlan($sRole, $people, $requiredSkills): array
+    {
+        $currentHolder = $people->firstWhere('role_id', $sRole->role_id);
+
+        $potentialSuccessors = $people
+            ->reject(fn($p) => $currentHolder && $p->id === $currentHolder->id)
+            ->map(function ($p) use ($requiredSkills) {
+                $match = $this->calculatePersonMatch($p, $requiredSkills);
+
+                if ($match['match_percentage'] < 60) {
+                    return null;
+                }
+
+                return [
+                    'id' => $p->id,
+                    'name' => $p->full_name,
+                    'readiness' => $match['match_percentage'],
+                    'current_role' => $p->role?->name ?? 'Sin Rol',
+                ];
+            })
+            ->filter()
+            ->sortByDesc('readiness')
+            ->values();
+
+        $primary = $potentialSuccessors->first();
+        $secondary = $potentialSuccessors->slice(1, 2)->values();
+
+        return [
+            'id' => $sRole->id,
+            'role_name' => $sRole->role->name,
+            'current_holder' => $currentHolder ? $currentHolder->full_name : 'Vacante / Externo',
+            'criticality_level' => $sRole->impact_level,
+            'primary_successor' => $primary,
+            'secondary_successors' => $secondary,
+            'tenure_years' => $currentHolder && $currentHolder->hire_date ? $currentHolder->hire_date->diffInYears(now()) : 2,
+            'planned_retirement' => '2028-12-31',
+            'months_to_retirement' => 34,
+            'development_plan' => $primary ? [
+                'description' => 'Programa de desarrollo de habilidades críticas para el rol.',
+                'duration' => '6 meses',
+            ] : null,
+            'mentoring_assigned' => (bool) $primary,
+        ];
     }
 }
