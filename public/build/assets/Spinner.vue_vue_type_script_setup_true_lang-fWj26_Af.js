@@ -1,1 +1,0 @@
-import{a9 as n,d as c,b as o,f as r,u as a,s as l,a5 as t}from"./app-B4Q7DtOZ.js";const i=n("LoaderCircleIcon",[["path",{d:"M21 12a9 9 0 1 1-6.219-8.56",key:"13zald"}]]),m=c({__name:"Spinner",props:{class:{}},setup(s){const e=s;return(p,d)=>(o(),r(a(i),{role:"status","aria-label":"Loading",class:l(a(t)("size-4 animate-spin",e.class))},null,8,["class"]))}});export{m as _};

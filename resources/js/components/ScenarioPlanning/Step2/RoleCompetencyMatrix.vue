@@ -194,23 +194,91 @@
                                             <div
                                                 class="mt-1 flex flex-wrap items-center gap-1.5"
                                             >
-                                                <span
-                                                    v-if="row.archetype"
-                                                    class="rounded border px-1.5 py-0.5 text-[9px] font-black tracking-tighter uppercase"
-                                                    :class="{
-                                                        'border-purple-200 bg-purple-50 text-purple-700':
-                                                            row.archetype ===
-                                                            'E',
-                                                        'border-blue-200 bg-blue-50 text-blue-700':
-                                                            row.archetype ===
-                                                            'T',
-                                                        'border-emerald-200 bg-emerald-50 text-emerald-700':
-                                                            row.archetype ===
-                                                            'O',
-                                                    }"
-                                                >
-                                                    {{ row.archetype }}
-                                                </span>
+                                                <v-tooltip location="top">
+                                                    <template
+                                                        #activator="{
+                                                            props: tooltipProps,
+                                                        }"
+                                                    >
+                                                        <v-chip
+                                                            v-if="row.archetype"
+                                                            v-bind="
+                                                                tooltipProps
+                                                            "
+                                                            size="small"
+                                                            variant="flat"
+                                                            :color="
+                                                                row.archetype ===
+                                                                'E'
+                                                                    ? 'deep-purple'
+                                                                    : row.archetype ===
+                                                                        'T'
+                                                                      ? 'blue'
+                                                                      : 'teal'
+                                                            "
+                                                            :prepend-icon="
+                                                                row.archetype ===
+                                                                'E'
+                                                                    ? 'mdi-chess-king'
+                                                                    : row.archetype ===
+                                                                        'T'
+                                                                      ? 'mdi-account-tie'
+                                                                      : 'mdi-wrench'
+                                                            "
+                                                            label
+                                                            class="font-weight-bold"
+                                                        >
+                                                            {{
+                                                                row.archetype ===
+                                                                'E'
+                                                                    ? 'Estratégico'
+                                                                    : row.archetype ===
+                                                                        'T'
+                                                                      ? 'Táctico'
+                                                                      : 'Operacional'
+                                                            }}
+                                                        </v-chip>
+                                                    </template>
+                                                    <div
+                                                        style="max-width: 260px"
+                                                    >
+                                                        <div
+                                                            class="font-weight-bold mb-1"
+                                                        >
+                                                            {{
+                                                                row.archetype ===
+                                                                'E'
+                                                                    ? '♟ Rol Estratégico'
+                                                                    : row.archetype ===
+                                                                        'T'
+                                                                      ? '🎯 Rol Táctico'
+                                                                      : '⚙️ Rol Operacional'
+                                                            }}
+                                                        </div>
+                                                        <div
+                                                            class="text-caption"
+                                                        >
+                                                            {{
+                                                                row.archetype ===
+                                                                'E'
+                                                                    ? 'Visión global, toma de decisiones de alto impacto. Niveles sugeridos: 4-5.'
+                                                                    : row.archetype ===
+                                                                        'T'
+                                                                      ? 'Coordinación de equipos y gestión experta. Niveles sugeridos: 2-4.'
+                                                                      : 'Ejecución técnica y operaciones. Niveles sugeridos: 1-3.'
+                                                            }}
+                                                        </div>
+                                                        <div
+                                                            class="text-caption font-italic mt-1"
+                                                        >
+                                                            Human Leverage:
+                                                            {{
+                                                                row.human_leverage ??
+                                                                '—'
+                                                            }}%
+                                                        </div>
+                                                    </div>
+                                                </v-tooltip>
                                                 <span
                                                     class="text-xs text-gray-500"
                                                 >
