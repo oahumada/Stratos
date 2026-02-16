@@ -82,7 +82,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue';
 import MatchingResults from '../Step2/MatchingResults.vue';
 import RoleForecastsTable from '../Step2/RoleForecastsTable.vue';
 import SkillGapsMatrix from '../Step2/SkillGapsMatrix.vue';
