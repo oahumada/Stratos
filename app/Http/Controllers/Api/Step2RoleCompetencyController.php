@@ -313,16 +313,20 @@ class Step2RoleCompetencyController extends Controller
                 'skills.name',
                 'competencies.name as competency_name'
             )
-            ->distinct()
-            ->orderBy('skills.name')
             ->get()
-            ->map(function ($skill) {
+            ->groupBy('id')
+            ->map(function ($group) {
+                $first = $group->first();
+
                 return [
-                    'id' => (int) $skill->id,
-                    'name' => $skill->name,
-                    'competency_name' => $skill->competency_name,
+                    'id' => (int) $first->id,
+                    'name' => $first->name,
+                    'competency_name' => $group->pluck('competency_name')->unique()->implode(', '),
                 ];
-            });
+            })
+            ->values()
+            ->sortBy('name')
+            ->values();
 
         // Brechas: required_level vs current_level
         $gaps = ScenarioRoleSkill::where('scenario_role_skills.scenario_id', $scenarioId)
@@ -336,14 +340,19 @@ class Step2RoleCompetencyController extends Controller
                 'scenario_role_skills.current_level'
             )
             ->get()
-            ->map(function ($gap) {
+            ->groupBy(fn ($gap) => $gap->skill_id . '-' . $gap->role_id)
+            ->map(function ($group) {
+                $first = $group->first();
+                $req = (int) $group->max('required_level');
+                $curr = (int) $group->max('current_level');
+
                 return [
-                    'skill_id' => (int) $gap->skill_id,
-                    'role_id' => (int) $gap->role_id,
-                    'role_name' => $gap->role_name,
-                    'current_level' => (int) ($gap->current_level ?? 0),
-                    'required_level' => (int) ($gap->required_level ?? 0),
-                    'gap' => (int) ($gap->required_level ?? 0) - (int) ($gap->current_level ?? 0),
+                    'skill_id' => (int) $first->skill_id,
+                    'role_id' => (int) $first->role_id,
+                    'role_name' => $first->role_name,
+                    'current_level' => $curr,
+                    'required_level' => $req,
+                    'gap' => $req - $curr,
                 ];
             })
             ->values();
