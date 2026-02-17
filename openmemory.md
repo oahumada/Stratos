@@ -399,6 +399,51 @@ POST /api/strategic-planning/scenarios/simulate-import
 - **Estado:** implementado y verificado mediante `php artisan tinker` (presencia del bloque `JSON_SCHEMA`).
     - 2026-02-07: `scripts/debug_generate.mjs` eliminado (archivo temporal de depuración).
 
+## Memory: Diseño Paso 2 - Roles ↔ Competencias (2026-02-17)
+
+- **Tipo:** project_fact / implementation
+- **Resumen:** Decisiones de diseño para Paso 2 (separar en Fase A: mapa de competencias; Fase B: análisis de impacto roles↔competencias) y reglas operacionales para distinguir "mapear" vs "nueva" vs "alias" vs `role_identity_change`.
+- **Decisiones clave registradas:**
+    - Separar el flujo en dos fases: (A) generar mapa jerárquico de competencias/skills; (B) análisis de impacto en roles actuales con propuestas (upskill/reskill/downskill/obsolete/new).
+    - Mantener todas las propuestas generadas por LLM en `status = 'in_incubation'` y `discovered_in_scenario_id` hasta aprobación humana.
+    - Añadir `scenario_allows_hiring` flag para aceptar/poner en cola propuestas de `new_role` y `new_competence` dependiendo del escenario.
+    - Forzar salida LLM estructurada (JSON schema incluido en prompt) e incluir `evidence_snippets` y `llm_confidence` en cada propuesta.
+
+- **Políticas y umbrales recomendados (configurable en `config/scenario.php`):**
+    - `competence_similarity`: auto-map >= 0.85; review 0.60–0.85; new < 0.60.
+    - `role_similarity`: auto-map >= 0.90; suggest 0.65–0.90; new < 0.65.
+    - `coverage_score` threshold para considerar que un rol existente cubre la propuesta: >= 0.7.
+    - `identity_change_threshold`: >40% de competencias reemplazadas → marcar `role_identity_change` (posible `new_role`).
+    - `evidence_min_count`: >=1 para incubar; >=3 para acciones estructurales (obsolescencia/headcount).
+
+- **Comportamiento post‑procesado (matcher service):**
+    - Crear `RoleCompetencyMatcherService` que haga:
+        - embeddings locales (EmbeddingService), bipartite matching entre competencias propuestas y catálogo, cálculo de `coverage_score`, `role_similarity`, y clasificación en colas `auto|review|incubate|block`.
+        - persistir `match_score`, `mapping_status` y `provenance` en pivots (`scenario_role_competencies`, `scenario_role_skills`) para auditoría.
+
+- **Terminología canónica adoptada:**
+    - `role` (catálogo), `role_draft`/`proposed_role` (LLM, incubating), `incubating`, `competency`, `proposed_competency`, `alias`/`merge_suggestion`, `match_score`, `coverage_score`, `identity_change`, `source` (`llm`|`manual`|`system`).
+
+- **Operaciones UI / Gobernanza:**
+    - Cola `incubation` con filtros y `similarity_warnings`, `coverage_score` y `evidence_snippets` visibles.
+    - Acciones operatorias: `approve (publish)`, `approve_as_draft`, `request_more_evidence`, `reject`.
+    - Bloquear `obsolete`/recortes automáticos sin `operator_signoff`.
+
+- **Pruebas sugeridas (casos base):**
+    1. Rol 100% nuevo → crear `role_draft` (incubating).
+    2. Rol rename/alias (sim 0.65–0.9) → suggest-map + review.
+    3. Competencia nueva (sim <0.6) → `proposed_competency` incubating.
+    4. Competencia alias (0.6–0.85) → review queue.
+    5. Rol existente con muchas competencias cambiadas (>40%) → `role_identity_change` → incubate as draft.
+
+- **Próximos pasos técnicos (para implementar):**
+    1. Añadir `config/scenario.php` con thresholds y flags.
+    2. Implementar `RoleCompetencyMatcherService` y llamarlo tras `ScenarioGenerationService` (job asíncrono recomendado).
+    3. Persistir metadatos de matching y exponer en `IncubationController` para UI.
+    4. Crear suite de tests con fixtures para los casos listados.
+
+- **Por qué se registró:** Para dejar constancia de criterios operacionales y evitar ambigüedad futura al implementar la lógica de matching y la UI de incubación.
+
     ## Memory: Implementation - Chunked LLM response assembly (2026-02-09)
     - **Tipo:** implementation (project fact)
     - **Propósito:** Cliente assemblea respuestas LLM transmitidas en chunks y prioriza endpoint `compacted` para obtener la respuesta final; mejora la UX del modal de respuesta evitando mostrar un modal vacío cuando sólo hay metadatos.
