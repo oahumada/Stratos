@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Scenario;
+use App\Models\ScenarioClosureStrategy;
+use App\Models\TalentBlueprint;
+use App\Models\Roles;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Exception;
 
 class ScenarioStrategyController extends Controller
 {
@@ -16,7 +20,7 @@ class ScenarioStrategyController extends Controller
     public function getGapsForAssignment($scenarioId): JsonResponse
     {
         try {
-            $scenario = Scenario::findOrFail($scenarioId);
+            Scenario::findOrFail($scenarioId);
 
             // Gaps simulados basados en el modelo de talentos/capacidades
             $gaps = [
@@ -64,7 +68,7 @@ class ScenarioStrategyController extends Controller
      */
     public function assignStrategy(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        $request->validate([
             'gap_id' => 'required|string',
             'strategy_type' => 'required|in:build,buy,borrow,bot',
             'rationale' => 'required|string|min:10',
@@ -143,6 +147,40 @@ class ScenarioStrategyController extends Controller
                         'risk_reduction_index' => 0.65,
                     ],
                 ],
+            ]);
+        }
+        catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+    /**
+     * Obtiene el listado de estrategias individuales para un escenario.
+     * GET /api/strategic-planning/scenarios/{id}/strategies
+     */
+    public function getStrategiesByScenario($scenarioId): JsonResponse
+    {
+        try {
+            $strategies = ScenarioClosureStrategy::with(['skill', 'role'])
+                ->where('scenario_id', $scenarioId)
+                ->get();
+                
+            $blueprints = TalentBlueprint::where('scenario_id', $scenarioId)->get()->keyBy('role_name');
+
+            $data = $strategies->map(function (ScenarioClosureStrategy $s) use ($blueprints) {
+                $roleName = $s->role ? $s->role->name : null;
+                $blueprint = $roleName ? ($blueprints[$roleName] ?? null) : null;
+                
+                $strategyArray = $s->toArray();
+                $strategyArray['skill_name'] = $s->skill ? $s->skill->name : 'General';
+                $strategyArray['role_name'] = $roleName;
+                $strategyArray['blueprint'] = $blueprint;
+                
+                return $strategyArray;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
             ]);
         }
         catch (\Exception $e) {

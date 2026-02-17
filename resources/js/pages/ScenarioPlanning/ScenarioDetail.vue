@@ -5,6 +5,10 @@ import StatusTimeline from '@/components/ScenarioPlanning/StatusTimeline.vue';
 import IncubatedCubeReview from '@/components/ScenarioPlanning/Step2/IncubatedCubeReview.vue';
 import RoleCompetencyMatrix from '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue';
 import OrganizationalContrast from '@/components/ScenarioPlanning/Step3/OrganizationalContrast.vue';
+import ClosingStrategies from '@/components/ScenarioPlanning/Step4/ClosingStrategies.vue';
+import BudgetingPlan from '@/components/ScenarioPlanning/Step5/BudgetingPlan.vue';
+import ScenarioComparison from '@/components/ScenarioPlanning/Step6/ScenarioComparison.vue';
+import FinalDashboard from '@/components/ScenarioPlanning/Step7/FinalDashboard.vue';
 import VersionHistoryModal from '@/components/ScenarioPlanning/VersionHistoryModal.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
@@ -56,7 +60,6 @@ const { showSuccess, showError } = useNotification();
 
 const scenario = ref<ScenarioPayload | null>(null);
 const loading = ref(false);
-const refreshing = ref(false);
 const savingStep1 = ref(false);
 const formData = ref({
     // Basic metadata
@@ -348,20 +351,6 @@ const simulateLLM = async () => {
         );
     } finally {
         loading.value = false;
-    }
-};
-
-const refreshStrategies = async () => {
-    refreshing.value = true;
-    try {
-        // En el futuro esto regenerará las estrategias basadas en brechas
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        showSuccess('Estrategias de cierre actualizadas');
-    } catch (e) {
-        console.error(e);
-        showError('Error al actualizar las estrategias');
-    } finally {
-        refreshing.value = false;
     }
 };
 
@@ -1172,90 +1161,23 @@ onMounted(() => {
                     </div>
 
                     <!-- Step 4: Estrategias de Cierre -->
-                    <div v-show="currentStep === 4" class="step-content">
-                        <v-container>
-                            <v-card>
-                                <v-card-title>
-                                    <v-icon class="mr-2">mdi-strategy</v-icon>
-                                    Estrategias de Cierre
-                                </v-card-title>
-                                <v-card-text>
-                                    <v-alert
-                                        type="info"
-                                        variant="tonal"
-                                        class="mb-4"
-                                    >
-                                        Define estrategias para cerrar las
-                                        brechas identificadas (capacitación,
-                                        contratación, etc.).
-                                    </v-alert>
-                                    <v-btn
-                                        color="primary"
-                                        @click="refreshStrategies"
-                                        :loading="refreshing"
-                                    >
-                                        Generar Estrategias (AI)
-                                    </v-btn>
-                                </v-card-text>
-                            </v-card>
-                        </v-container>
+                    <div v-if="currentStep === 4" class="step-content">
+                        <ClosingStrategies :scenario-id="scenarioId" />
                     </div>
 
-                    <!-- Step 5: Plan de Personal -->
+                    <!-- Step 5: Plan de Personal y Presupuesto -->
                     <div v-show="currentStep === 5" class="step-content">
-                        <v-container>
-                            <v-card>
-                                <v-card-title>
-                                    <v-icon class="mr-2"
-                                        >mdi-account-group</v-icon
-                                    >
-                                    Plan de Personal
-                                </v-card-title>
-                                <v-card-text>
-                                    <v-alert type="info" variant="tonal">
-                                        Planifica los recursos humanos
-                                        necesarios para ejecutar el escenario.
-                                    </v-alert>
-                                </v-card-text>
-                            </v-card>
-                        </v-container>
+                        <BudgetingPlan :scenario-id="scenarioId" />
                     </div>
 
-                    <!-- Step 6: Comparación -->
+                    <!-- Step 6: Comparación de Versiones -->
                     <div v-show="currentStep === 6" class="step-content">
-                        <v-container>
-                            <v-card>
-                                <v-card-title>
-                                    <v-icon class="mr-2">mdi-compare</v-icon>
-                                    Comparación de Escenarios
-                                </v-card-title>
-                                <v-card-text>
-                                    <v-alert type="info" variant="tonal">
-                                        Compara diferentes versiones del
-                                        escenario o escenarios alternativos.
-                                    </v-alert>
-                                </v-card-text>
-                            </v-card>
-                        </v-container>
+                        <ScenarioComparison :scenario-id="scenarioId" />
                     </div>
 
-                    <!-- Step 7: Dashboard -->
+                    <!-- Step 7: Dashboard Ejecutivo -->
                     <div v-show="currentStep === 7" class="step-content">
-                        <v-container>
-                            <v-card>
-                                <v-card-title>
-                                    <v-icon class="mr-2"
-                                        >mdi-view-dashboard</v-icon
-                                    >
-                                    Dashboard Ejecutivo
-                                </v-card-title>
-                                <v-card-text>
-                                    <v-alert type="info" variant="tonal">
-                                        Resumen ejecutivo y KPIs del escenario.
-                                    </v-alert>
-                                </v-card-text>
-                            </v-card>
-                        </v-container>
+                        <FinalDashboard :scenario-id="scenarioId" />
                     </div>
                 </template>
 

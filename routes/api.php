@@ -136,6 +136,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/scenarios/{id}/gaps-for-assignment', [\App\Http\Controllers\Api\ScenarioStrategyController::class, 'getGapsForAssignment']);
             Route::post('/strategies/assign', [\App\Http\Controllers\Api\ScenarioStrategyController::class, 'assignStrategy']);
             Route::get('/strategies/portfolio/{scenario_id}', [\App\Http\Controllers\Api\ScenarioStrategyController::class, 'getStrategyPortfolio']);
+            Route::get('/scenarios/{id}/strategies', [\App\Http\Controllers\Api\ScenarioStrategyController::class, 'getStrategiesByScenario']);
 
             // Test/Simulation Endpoints
             Route::post('/scenarios/{scenario}/simulate-import', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'simulateImport']);
@@ -154,235 +155,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dev API: manage capability_competencies pivot (competency assignments per capability per scenario)
     // Supports both creating new competencies and attaching existing ones
-    Route::post(
-        '/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies',
-        function (Illuminate\Http\Request $request, $scenarioId, $capabilityId) {
-            $user = auth()->user();
-            if (! $user) {
-                return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
-            }
-
-            $scenario = App\Models\Scenario::find($scenarioId);
-            if (! $scenario) {
-                return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
-            }
-            if ($scenario->organization_id !== ($user->organization_id ?? null)) {
-                return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
-            }
-
-            $cap = App\Models\Capability::find($capabilityId);
-            if (! $cap) {
-                return response()->json(['success' => false, 'message' => 'Capability not found'], 404);
-            }
-
-            // Accept either `competency_id` (use existing) or `competency` payload to create a new competency.
-            $competencyId = $request->input('competency_id');
-
-            try {
-                $result = \DB::transaction(
-                    function () use ($request, $scenarioId, $capabilityId, $competencyId, $user) {
-                        // If competency_id provided, validate existence and tenant
-                        if ($competencyId) {
-                            $comp = App\Models\Competency::find($competencyId);
-                            if (! $comp) {
-                                throw new \Exception('Competency not found');
-                            }
-                            if ($comp->organization_id !== ($user->organization_id ?? null)) {
-                                throw new \Exception('Forbidden');
-                            }
-                            $createdCompetencyId = $comp->id;
-                        } else {
-                            // Create new competency (without capability_id; the relationship is via the pivot table)
-                            $payload = $request->input('competency', []);
-                            $name = trim($payload['name'] ?? '');
-                            if (empty($name)) {
-                                throw new \Exception('Competency name is required');
-                            }
-                            $comp = App\Models\Competency::create([
-                                'organization_id' => $user->organization_id ?? null,
-                                'name' => $name,
-                                'description' => $payload['description'] ?? null,
-                            ]);
-                            $createdCompetencyId = $comp->id;
-                        }
-
-                        // Prepare pivot insert
-                        // Accept both `weight` and `strategic_weight` from frontend (map `strategic_weight` -> `weight`).
-                        $resolvedWeight = null;
-                        if ($request->has('weight')) {
-                            $resolvedWeight = (int) $request->input('weight');
-                        } elseif ($request->has('strategic_weight')) {
-                            $resolvedWeight = (int) $request->input('strategic_weight');
-                        }
-
-                        $insert = [
-                            'scenario_id' => $scenarioId,
-                            'capability_id' => $capabilityId,
-                            'competency_id' => $createdCompetencyId,
-                            'required_level' => (int) $request->input('required_level', 3),
-                            'rationale' => $request->input('rationale', null),
-                            'is_required' => (bool) $request->input('is_required', false),
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ];
-
-                        // Only include optional columns if they exist in the DB schema (tests may run against different snapshots)
-                        if (\Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'strategic_weight')) {
-                            $insert['strategic_weight'] = $resolvedWeight;
-                        } elseif (\Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'weight')) {
-                            $insert['weight'] = $resolvedWeight;
-                        }
-                        if (\Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'priority')) {
-                            $insert['priority'] = $request->has('priority') ? (int) $request->input('priority') : null;
-                        }
-
-                        $exists = \DB::table('capability_competencies')
-                            ->where('scenario_id', $scenarioId)
-                            ->where('capability_id', $capabilityId)
-                            ->where('competency_id', $createdCompetencyId)
-                            ->exists();
-                        if ($exists) {
-                            // return existing row info
-                            $row = \DB::table('capability_competencies')
-                                ->where('scenario_id', $scenarioId)
-                                ->where('capability_id', $capabilityId)
-                                ->where('competency_id', $createdCompetencyId)
-                                ->first();
-
-                            return ['status' => 'exists', 'row' => $row];
-                        }
-
-                        \DB::table('capability_competencies')->insert($insert);
-
-                        return ['status' => 'created', 'data' => $insert];
-                    }
-                );
-
-                if ($result['status'] === 'created') {
-                    return response()->json(['success' => true, 'data' => $result['data']], 201);
-                }
-
-                return response()->json(['success' => true, 'data' => $result['row'], 'note' => 'already_exists'], 200);
-            } catch (\Exception $e) {
-                \Log::error('Error creating capability_competency (POST): ' . $e->getMessage(), ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId]);
-                if (str_contains($e->getMessage(), 'Forbidden')) {
-                    return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
-                }
-                if (str_contains($e->getMessage(), 'Competency name is required')) {
-                    return response()->json(['success' => false, 'message' => 'Competency name is required'], 422);
-                }
-
-                return response()->json(['success' => false, 'message' => 'Server error creating relation'], 500);
-            }
-        }
-    );
-
-    Route::patch(
-        '/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies/{competencyId}',
-        function (Illuminate\Http\Request $request, $scenarioId, $capabilityId, $competencyId) {
-            $user = auth()->user();
-            if (! $user) {
-                return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
-            }
-            $scenario = App\Models\Scenario::find($scenarioId);
-            if (! $scenario) {
-                return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
-            }
-            if ($scenario->organization_id !== ($user->organization_id ?? null)) {
-                return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
-            }
-            $exists = \DB::table('capability_competencies')
-                ->where('scenario_id', $scenarioId)
-                ->where('capability_id', $capabilityId)
-                ->where('competency_id', $competencyId)
-                ->exists();
-            if (! $exists) {
-                return response()->json(['success' => false, 'message' => 'Relation not found'], 404);
-            }
-            $update = [];
-            // Support updating `priority` and accept `strategic_weight` as alias for `weight`.
-            foreach (['required_level', 'strategic_weight', 'priority', 'rationale', 'is_required'] as $f) {
-                if ($request->has($f)) {
-                    $update[$f] = $request->input($f);
-                }
-            }
-
-            // Accept `weight` as legacy alias and map to `strategic_weight` in the update payload.
-            if ($request->has('weight')) {
-                $update['strategic_weight'] = $request->input('weight');
-            }
-            // Also accept `is_critical` from UI and map to pivot's `is_required` boolean.
-            if ($request->has('is_critical') && ! $request->has('is_required')) {
-                $update['is_required'] = $request->input('is_critical');
-            }
-
-            // Normalize weight field to whatever column exists in DB to support different snapshots.
-            if (array_key_exists('strategic_weight', $update)) {
-                if (
-                    ! \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'strategic_weight')
-                    && \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'weight')
-                ) {
-                    $update['weight'] = $update['strategic_weight'];
-                    unset($update['strategic_weight']);
-                }
-            } elseif (array_key_exists('weight', $update)) {
-                if (
-                    ! \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'weight')
-                    && \Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', 'strategic_weight')
-                ) {
-                    $update['strategic_weight'] = $update['weight'];
-                    unset($update['weight']);
-                }
-            }
-
-            if (! empty($update)) {
-                $update['updated_at'] = now();
-                // Filter update keys to existing columns to avoid sqlite "no such column" errors in tests
-                $filtered = [];
-                foreach ($update as $k => $v) {
-                    if (\Illuminate\Support\Facades\Schema::hasColumn('capability_competencies', $k)) {
-                        $filtered[$k] = $v;
-                    }
-                }
-                if (! empty($filtered)) {
-                    \DB::table('capability_competencies')
-                        ->where('scenario_id', $scenarioId)
-                        ->where('capability_id', $capabilityId)
-                        ->where('competency_id', $competencyId)
-                        ->update($filtered);
-                }
-            }
-
-            return response()->json(['success' => true, 'updated' => $update]);
-        }
-    );
-
-    Route::delete(
-        '/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies/{competencyId}',
-        function (Illuminate\Http\Request $request, $scenarioId, $capabilityId, $competencyId) {
-            $user = auth()->user();
-            if (! $user) {
-                return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
-            }
-            $scenario = App\Models\Scenario::find($scenarioId);
-            if (! $scenario) {
-                return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
-            }
-            if ($scenario->organization_id !== ($user->organization_id ?? null)) {
-                return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
-            }
-            $deleted = \DB::table('capability_competencies')
-                ->where('scenario_id', $scenarioId)
-                ->where('capability_id', $capabilityId)
-                ->where('competency_id', $competencyId)
-                ->delete();
-            if ($deleted) {
-                return response()->json(['success' => true]);
-            }
-
-            return response()->json(['success' => false, 'message' => 'Relation not found'], 404);
-        }
-    );
+    Route::post('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies', [\App\Http\Controllers\Api\CapabilityCompetencyController::class, 'store']);
+    Route::patch('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies/{competencyId}', [\App\Http\Controllers\Api\CapabilityCompetencyController::class, 'update']);
+    Route::delete('/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies/{competencyId}', [\App\Http\Controllers\Api\CapabilityCompetencyController::class, 'destroy']);
 
     // Dev API: create a Capability under a Scenario (multi-tenant)
     Route::post(
@@ -1112,6 +887,8 @@ Route::prefix('strategic-planning')->group(function () {
     Route::post('scenarios/{id}/refresh-suggested-strategies', [\App\Http\Controllers\Api\ScenarioController::class, 'refreshSuggestedStrategies']);
     // Finalize / consolidate scenario for Budgeting phase
     Route::post('scenarios/{id}/finalize', [\App\Http\Controllers\Api\ScenarioController::class, 'finalizeScenario']);
+    Route::get('scenarios/{id}/compare-versions', [\App\Http\Controllers\Api\ScenarioController::class, 'compareVersions']);
+    Route::get('scenarios/{id}/summary', [\App\Http\Controllers\Api\ScenarioController::class, 'summarize']);
     Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
 });
 

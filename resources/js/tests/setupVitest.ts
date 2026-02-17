@@ -53,6 +53,7 @@ config.global.components = {
     'v-app': { template: '<div class="v-app"><slot/></div>' },
     'v-radio': { template: '<input type="radio" />' },
     'v-radio-group': { template: '<div class="v-radio-group"><slot/></div>' },
+    'v-table': { template: '<table><slot/></table>' },
 };
 
 // Default centralized mock for `useApi`. Tests can replace

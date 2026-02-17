@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 // app/Models/TalentBlueprint.php
 // Une el escenario con la estrategia de ingeniería
 class TalentBlueprint extends Model
 {
+    use HasFactory;
     // Support both legacy service attribute names and the actual DB columns.
     protected $fillable = [
         'scenario_id', 'role_name', 'role_description', 'estimated_fte',

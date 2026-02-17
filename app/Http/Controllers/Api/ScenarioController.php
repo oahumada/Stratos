@@ -23,7 +23,6 @@ class ScenarioController extends Controller
 
     public function __construct(
         private ScenarioRepository $scenarioRepo,
-        private ScenarioAnalysisService $analysisService,
         ScenarioAnalyticsService $analytics,
         RoleSkillDerivationService $derivation
     ) {
@@ -476,29 +475,61 @@ class ScenarioController extends Controller
             ->get();
 
         foreach ($gaps as $gap) {
-            // Determine strategy based on gap size and criticality
-            $gapSize = $gap->required_level - $gap->current_level;
-            $strategy = 'build'; // Default: Internal training
-            $strategyName = 'Internal Upskilling';
-            $description = "Develop internal talent to bridge the {$gapSize}-level gap.";
-
-            if ($gapSize > 2 || $gap->is_critical) {
-                // Large gap or critical skill -> Buy/Borrow
-                $strategy = 'buy';
-                $strategyName = 'External Hiring';
-                $description = "Hire external talent with required level {$gap->required_level}.";
+            // Obtener el Blueprint de talento para el rol, si existe
+            $role = \App\Models\Roles::find($gap->role_id);
+            $blueprint = null;
+            if ($role) {
+                $blueprint = \App\Models\TalentBlueprint::where('scenario_id', $scenario->id)
+                    ->where('role_name', $role->name)
+                    ->first();
             }
 
-            // Check if strategy already exists for this skill/scenario to avoid duplicates
+            // Determinar estrategia base
+            $gapSize = $gap->required_level - $gap->current_level;
+            $strategy = 'build'; 
+            $strategyName = 'Internal Upskilling';
+            $description = "Desarrollar talento interno para cubrir la brecha de nivel {$gapSize}.";
+
+            if ($blueprint) {
+                // Si el blueprint sugiere carga sintética mayor al 50%
+                if ($blueprint->synthetic_leverage > 50) {
+                    $strategy = 'bot';
+                    $strategyName = 'AI Agent / Automation';
+                    $description = "Asignar carga al Talento Sintético ({$blueprint->synthetic_leverage}%). " . ($blueprint->agent_specs['logic_justification'] ?? '');
+                } elseif ($blueprint->recommended_strategy === 'Buy') {
+                    $strategy = 'buy';
+                    $strategyName = 'External Hiring';
+                    $description = "Contratación externa sugerida por el Blueprint de Talento.";
+                } elseif ($gapSize > 2 || $gap->is_critical) {
+                    $strategy = 'buy';
+                    $strategyName = 'External Hiring';
+                    $description = "Contratación externa para brecha crítica de nivel {$gapSize}.";
+                }
+                
+                // Añadir nota de mix humano/sintético
+                if ($blueprint->human_leverage > 0 && $blueprint->synthetic_leverage > 0) {
+                    $description .= " (Mix: {$blueprint->human_leverage}% Humano / {$blueprint->synthetic_leverage}% Sintético)";
+                }
+            } else {
+                if ($gapSize > 2 || $gap->is_critical) {
+                    $strategy = 'buy';
+                    $strategyName = 'External Hiring';
+                    $description = "Contratación externa para brecha de nivel {$gapSize} o habilidad crítica.";
+                }
+            }
+
+            // Check if strategy already exists for this skill/role/scenario to avoid duplicates
             $exists = DB::table('scenario_closure_strategies')
                 ->where('scenario_id', $scenario->id)
                 ->where('skill_id', $gap->skill_id)
+                ->where('role_id', $gap->role_id)
                 ->exists();
 
             if (! $exists) {
-                $id = DB::table('scenario_closure_strategies')->insertGetId([
+                $strategyId = DB::table('scenario_closure_strategies')->insertGetId([
                     'scenario_id' => $scenario->id,
                     'skill_id' => $gap->skill_id,
+                    'role_id' => $gap->role_id,
                     'strategy' => $strategy,
                     'strategy_name' => $strategyName,
                     'description' => $description,
@@ -506,7 +537,7 @@ class ScenarioController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                if ($id) {
+                if ($strategyId) {
                     $created++;
                 }
             }
@@ -554,6 +585,55 @@ class ScenarioController extends Controller
         }
     }
 
+    /**
+     * API: Comparar KPIs entre diferentes versiones de escenarios (Paso 6)
+     */
+    public function compareVersions(Request $request): JsonResponse
+    {
+        $ids = $request->input('ids', []);
+        
+        if (empty($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se proporcionaron IDs para comparar'
+            ], 400);
+        }
+
+        $scenarios = Scenario::whereIn('id', $ids)->get();
+        $comparison = [];
+
+        foreach ($scenarios as $scenario) {
+            $iqData = $this->analytics->calculateScenarioIQ($scenario->id);
+            
+            // Sumar costos estimados de las estrategias de cierre
+            $totalCost = \App\Models\ScenarioClosureStrategy::where('scenario_id', $scenario->id)
+                ->sum('estimated_cost');
+            
+            // Sumar FTEs requeridos vs actuales
+            $demand = \App\Models\ScenarioSkillDemand::where('scenario_id', $scenario->id)
+                ->selectRaw('SUM(required_headcount) as total_req, SUM(current_headcount) as total_curr')
+                ->first();
+
+            $comparison[] = [
+                'id' => $scenario->id,
+                'name' => $scenario->name,
+                'version' => $scenario->version_number,
+                'iq' => $iqData['iq'] ?? 0,
+                'total_cost' => (float)$totalCost,
+                'total_req_fte' => (int)($demand->total_req ?? 0),
+                'total_curr_fte' => (int)($demand->total_curr ?? 0),
+                'gap_fte' => max(0, (int)($demand->total_req ?? 0) - (int)($demand->total_curr ?? 0)),
+                'status' => $scenario->decision_status,
+                'created_at' => $scenario->created_at,
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $comparison
+        ]);
+    }
+
     // app/Http/Controllers/ScenarioController.php
     public function orchestrate(Scenario $scenario)
     {
@@ -567,5 +647,76 @@ class ScenarioController extends Controller
             'message' => 'Orchestration initiated',
             'blueprints_processed' => $scenario->talentBlueprints->count(),
         ]);
+    }
+    /**
+     * API: Obtener resumen ejecutivo consolidado (Paso 7)
+     */
+    public function summarize($id): JsonResponse
+    {
+        $iqData = $this->analytics->calculateScenarioIQ($id);
+        
+        // Costos por estrategia
+        $strategies = \App\Models\ScenarioClosureStrategy::where('scenario_id', $id)
+            ->select('strategy', \DB::raw('SUM(estimated_cost) as total_cost'))
+            ->groupBy('strategy')
+            ->get();
+        
+        // FTEs Consolidados
+        $demand = \App\Models\ScenarioSkillDemand::where('scenario_id', $id)
+            ->selectRaw('SUM(required_headcount) as total_req, SUM(current_headcount) as total_curr')
+            ->first();
+
+        // Gaps Críticos (Top 5 por headcount)
+        $criticalGaps = \App\Models\ScenarioSkillDemand::where('scenario_id', $id)
+            ->with('skill')
+            ->orderByDesc(\DB::raw('required_headcount - current_headcount'))
+            ->limit(5)
+            ->get()
+            ->map(fn($d) => [
+                'skill' => $d->skill->name,
+                'gap' => max(0, $d->required_headcount - $d->current_headcount),
+                'priority' => $d->priority
+            ]);
+
+        // Synthetization Index: Promedio ponderado de leverage sintético por FTE
+        $blueprints = \App\Models\TalentBlueprint::where('scenario_id', $id)->get();
+        $totalFte = $blueprints->sum('total_fte_required');
+        $weightedSynthetic = 0;
+        
+        if ($totalFte > 0) {
+            foreach ($blueprints as $bp) {
+                // synthetic_leverage is typically 0-100
+                $weightedSynthetic += ($bp->total_fte_required * ($bp->synthetic_leverage ?? 0));
+            }
+            $mix = round($weightedSynthetic / $totalFte, 1);
+        } else {
+            $mix = 0;
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'iq' => $iqData['iq'] ?? 0,
+                'confidence' => $iqData['confidence_score'] ?? 0,
+                'investment' => $strategies,
+                'total_investment' => $strategies->sum('total_cost'),
+                'fte' => [
+                    'required' => (int)($demand->total_req ?? 0),
+                    'current' => (int)($demand->total_curr ?? 0),
+                    'gap' => max(0, (int)($demand->total_req ?? 0) - (int)($demand->total_curr ?? 0))
+                ],
+                'critical_gaps' => $criticalGaps,
+                'synthetization_index' => $mix,
+                'risk_level' => $this->calculateRiskLevel($iqData['iq'] ?? 0, $demand)
+            ]
+        ]);
+    }
+
+    private function calculateRiskLevel($iq, $demand)
+    {
+        $gap = max(0, (int)($demand->total_req ?? 0) - (int)($demand->total_curr ?? 0));
+        if ($iq > 70 && $gap < 10) return 'Low';
+        if ($iq < 40 || $gap > 50) return 'High';
+        return 'Medium';
     }
 }

@@ -15,6 +15,10 @@ class ScenarioFactory extends Factory
             'description' => fake()->paragraph(),
             'status' => 'draft',
             'time_horizon_weeks' => fake()->randomElement([12, 24, 36, 48]),
+            'horizon_months' => 12,
+            'fiscal_year' => date('Y'),
+            'owner_user_id' => \App\Models\User::factory(),
+            'created_by' => \App\Models\User::factory(),
         ];
     }
 }

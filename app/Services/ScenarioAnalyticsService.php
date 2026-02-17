@@ -162,15 +162,15 @@ class ScenarioAnalyticsService
             'self_assessment' => 0.3,
         ];
 
-        $weightedSum = PeopleRoleSkills::selectRaw('
+        $weightedSum = PeopleRoleSkills::selectRaw("
             SUM(CASE 
-                WHEN evidence_source = "test" THEN 1.0
-                WHEN evidence_source = "certification" THEN 0.9
-                WHEN evidence_source = "manager_review" THEN 0.7
-                WHEN evidence_source = "self_assessment" THEN 0.3
+                WHEN evidence_source = 'test' THEN 1.0
+                WHEN evidence_source = 'certification' THEN 0.9
+                WHEN evidence_source = 'manager_review' THEN 0.7
+                WHEN evidence_source = 'self_assessment' THEN 0.3
                 ELSE 0
             END) as weighted_confidence
-        ')->value('weighted_confidence') ?: 0;
+        ")->value('weighted_confidence') ?: 0;
 
         return round($weightedSum / $total, 2);
     }

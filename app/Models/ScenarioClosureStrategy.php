@@ -14,6 +14,7 @@ class ScenarioClosureStrategy extends Model
     protected $fillable = [
         'scenario_id',
         'skill_id',
+        'role_id',
         'strategy',
         'strategy_name',
         'description',
@@ -49,6 +50,11 @@ class ScenarioClosureStrategy extends Model
     public function assignedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Roles::class, 'role_id');
     }
 
     // Scopes

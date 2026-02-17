@@ -21,9 +21,9 @@ class TalentBlueprintFactory extends Factory
             'estimated_fte' => $this->faker->randomFloat(2, 0.5, 10),
             'human_percentage' => $human,
             'synthetic_percentage' => $synthetic,
-            'strategy_suggestion' => $this->faker->randomElement(['Buy', 'Synthetic', 'Hybrid']),
-            'logic_justification' => $this->faker->sentence(10),
-            'suggested_agent_type' => $this->faker->randomElement(['assistant', 'specialist', null]),
+            'recommended_strategy' => $this->faker->randomElement(['Buy', 'Synthetic', 'Hybrid']),
+            //'logic_justification' => $this->faker->sentence(10), // Column doesn't exist
+            'agent_specs' => ['type' => $this->faker->randomElement(['assistant', 'specialist', null])],
             'key_competencies' => $this->faker->randomElements(['data', 'engineering', 'product', 'ml', 'ops'], 3),
         ];
     }

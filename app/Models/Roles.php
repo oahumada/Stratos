@@ -9,8 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Roles extends Model
 {
+    use HasFactory;
     protected $table = 'roles';
 
     protected $fillable = ['organization_id', 'llm_id', 'name', 'level', 'description', 'status', 'discovered_in_scenario_id', 'embedding'];
