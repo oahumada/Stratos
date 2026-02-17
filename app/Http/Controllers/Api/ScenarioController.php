@@ -476,60 +476,67 @@ class ScenarioController extends Controller
 
         foreach ($gaps as $gap) {
             // Obtener el Blueprint de talento para el rol, si existe
-            $role = \App\Models\Roles::find($gap->role_id);
+            // $gap->role_id refers to likely ScenarioRole id in this context (Step 2 logic)
+            $scenarioRole = \App\Models\ScenarioRole::find($gap->role_id);
+            if (! $scenarioRole) continue;
+
+            $role = \App\Models\Roles::find($scenarioRole->role_id);
+            if (! $role) continue;
+
             $blueprint = null;
             if ($role) {
+                // ... same blueprint logic
                 $blueprint = \App\Models\TalentBlueprint::where('scenario_id', $scenario->id)
                     ->where('role_name', $role->name)
                     ->first();
             }
 
             // Determinar estrategia base
+            // ... (strategy logic remains same but truncated for replacement context) ...
             $gapSize = $gap->required_level - $gap->current_level;
             $strategy = 'build'; 
             $strategyName = 'Internal Upskilling';
             $description = "Desarrollar talento interno para cubrir la brecha de nivel {$gapSize}.";
-
+            
             if ($blueprint) {
-                // Si el blueprint sugiere carga sintética mayor al 50%
                 if ($blueprint->synthetic_leverage > 50) {
-                    $strategy = 'bot';
-                    $strategyName = 'AI Agent / Automation';
-                    $description = "Asignar carga al Talento Sintético ({$blueprint->synthetic_leverage}%). " . ($blueprint->agent_specs['logic_justification'] ?? '');
+                     $strategy = 'bot';
+                     $strategyName = 'AI Agent / Automation';
+                     $description = "Asignar carga al Talento Sintético ({$blueprint->synthetic_leverage}%). " . ($blueprint->agent_specs['logic_justification'] ?? '');
                 } elseif ($blueprint->recommended_strategy === 'Buy') {
-                    $strategy = 'buy';
-                    $strategyName = 'External Hiring';
-                    $description = "Contratación externa sugerida por el Blueprint de Talento.";
+                     $strategy = 'buy';
+                     $strategyName = 'External Hiring';
+                     $description = "Contratación externa sugerida por el Blueprint de Talento.";
                 } elseif ($gapSize > 2 || $gap->is_critical) {
-                    $strategy = 'buy';
-                    $strategyName = 'External Hiring';
-                    $description = "Contratación externa para brecha crítica de nivel {$gapSize}.";
+                     $strategy = 'buy';
+                     $strategyName = 'External Hiring';
+                     $description = "Contratación externa para brecha crítica de nivel {$gapSize}.";
                 }
                 
-                // Añadir nota de mix humano/sintético
                 if ($blueprint->human_leverage > 0 && $blueprint->synthetic_leverage > 0) {
-                    $description .= " (Mix: {$blueprint->human_leverage}% Humano / {$blueprint->synthetic_leverage}% Sintético)";
+                     $description .= " (Mix: {$blueprint->human_leverage}% Humano / {$blueprint->synthetic_leverage}% Sintético)";
                 }
             } else {
-                if ($gapSize > 2 || $gap->is_critical) {
-                    $strategy = 'buy';
-                    $strategyName = 'External Hiring';
-                    $description = "Contratación externa para brecha de nivel {$gapSize} o habilidad crítica.";
-                }
+                 if ($gapSize > 2 || $gap->is_critical) {
+                     $strategy = 'buy';
+                     $strategyName = 'External Hiring';
+                     $description = "Contratación externa para brecha de nivel {$gapSize} o habilidad crítica.";
+                 }
             }
 
             // Check if strategy already exists for this skill/role/scenario to avoid duplicates
+            // We use the actual Role ID here, not the ScenarioRole ID
             $exists = DB::table('scenario_closure_strategies')
                 ->where('scenario_id', $scenario->id)
                 ->where('skill_id', $gap->skill_id)
-                ->where('role_id', $gap->role_id)
+                ->where('role_id', $role->id)
                 ->exists();
 
             if (! $exists) {
                 $strategyId = DB::table('scenario_closure_strategies')->insertGetId([
                     'scenario_id' => $scenario->id,
                     'skill_id' => $gap->skill_id,
-                    'role_id' => $gap->role_id,
+                    'role_id' => $role->id,
                     'strategy' => $strategy,
                     'strategy_name' => $strategyName,
                     'description' => $description,
