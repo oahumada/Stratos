@@ -88,6 +88,11 @@ class Scenario extends Model
         return $this->hasMany(ScenarioRoleSkill::class);
     }
 
+    public function closureStrategies(): HasMany
+    {
+        return $this->hasMany(\App\Models\ScenarioClosureStrategy::class, 'scenario_id');
+    }
+
     public function statusEvents()
     {
         return $this->hasMany(\App\Models\ScenarioStatusEvent::class, 'scenario_id');
@@ -111,7 +116,7 @@ class Scenario extends Model
     {
         static::creating(function ($model) {
             if (empty($model->code)) {
-                $model->code = 'SCN-'.strtoupper(substr(bin2hex(random_bytes(3)), 0, 6)).'-'.time();
+                $model->code = 'SCN-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 6)) . '-' . time();
             }
             // Ensure start/end dates exist to satisfy NOT NULL DB constraints
             if (empty($model->start_date)) {

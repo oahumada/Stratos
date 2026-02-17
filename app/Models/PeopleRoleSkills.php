@@ -36,13 +36,14 @@ class PeopleRoleSkills extends Model
      */
     public function getCurrentLevelAttribute($value)
     {
-        // If a legacy 'level' column was provided (e.g. tests/fixtures), prefer it
-        if (array_key_exists('level', $this->attributes) && $this->attributes['level'] !== null) {
-            return (int) $this->attributes['level'];
+        // 1. Prioritize the actual current_level column if it has a value
+        if (! is_null($value)) {
+            return (int) $value;
         }
 
-        if (! is_null($value) && $value !== '') {
-            return (int) $value;
+        // 2. Fallback: If a legacy 'level' column exists (e.g. old fixtures), use it
+        if (array_key_exists('level', $this->attributes) && $this->attributes['level'] !== null) {
+            return (int) $this->attributes['level'];
         }
 
         return 0;

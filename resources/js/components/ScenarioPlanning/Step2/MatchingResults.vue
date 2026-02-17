@@ -1,9 +1,20 @@
 <template>
     <div class="matching-results-container">
         <div class="mb-6">
-            <h3 class="text-h5 mb-4 font-semibold">
-                Resultados de Matching Candidato-Posición
-            </h3>
+            <div class="flex items-center justify-between">
+                <h3 class="text-h5 mb-4 font-semibold">
+                    Resultados de Matching Candidato-Posición
+                </h3>
+                <v-btn
+                    icon
+                    variant="text"
+                    size="large"
+                    class="ml-2"
+                    @click="showLegendDialog = true"
+                >
+                    <v-icon size="28">mdi-information-outline</v-icon>
+                </v-btn>
+            </div>
             <p class="mb-4 text-sm text-gray-600">
                 Evaluación de compatibilidad entre candidatos y posiciones
                 requeridas
@@ -223,10 +234,39 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <!-- Legend Dialog -->
+        <v-dialog v-model="showLegendDialog" max-width="600px">
+            <v-card>
+                <v-card-title>Leyenda - Matching</v-card-title>
+                <v-card-text class="pa-4">
+                    <v-list dense>
+                        <v-list-item
+                            v-for="item in legendItems"
+                            :key="item.title"
+                        >
+                            <v-list-item-title class="font-medium">{{
+                                item.title
+                            }}</v-list-item-title>
+                            <v-list-item-subtitle class="text--secondary">{{
+                                item.description
+                            }}</v-list-item-subtitle>
+                        </v-list-item>
+                    </v-list>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn variant="text" @click="showLegendDialog = false"
+                        >Cerrar</v-btn
+                    >
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
 <script setup lang="ts">
+import { useApi } from '@/composables/useApi';
 import { usePage } from '@inertiajs/vue3';
 import { onMounted, ref, watch } from 'vue';
 
@@ -265,22 +305,52 @@ const error = ref<string | null>(null);
 const results = ref<MatchingResult[]>([]);
 const showDetailsDialog = ref(false);
 const selectedResult = ref<MatchingResult | null>(null);
+const showLegendDialog = ref(false);
+const legendItems = ref([
+    {
+        title: 'Match % (Compatibilidad)',
+        description:
+            'Porcentaje de correspondencia candidato–posición (0–100), calculado a partir de skills y factores adicionales.',
+    },
+    {
+        title: 'Timeline de Productividad',
+        description:
+            'Meses estimados para que el candidato alcance productividad completa en la posición.',
+    },
+    {
+        title: 'Factores de Riesgo',
+        description:
+            'Riesgos relevantes que afectan idoneidad (disponibilidad, brechas críticas, movilidad).',
+    },
+    {
+        title: 'Brechas de Skills',
+        description:
+            'Listado resumido de skills con nivel actual → requerido para priorizar acciones.',
+    },
+    {
+        title: 'Notas',
+        description:
+            'Comentarios cualitativos sobre el candidato o la asignación.',
+    },
+]);
 
 const page = usePage(); // Declare page variable
 
+const api = useApi();
+
 const loadResults = async () => {
+    if (!props.scenarioId) return;
+
     try {
         loading.value = true;
-        const response = await fetch(
+        const response: any = await api.get(
             `/api/scenarios/${props.scenarioId}/step2/matching-results`,
         );
 
-        if (!response.ok) throw new Error('Error al cargar resultados');
-
-        const data = await response.json();
-        results.value = data.data || [];
+        results.value = response.data || [];
     } catch (err: any) {
-        error.value = err.message || 'Error al cargar resultados de matching';
+        error.value =
+            err.response?.data?.message || 'Error al cargar resultados';
     } finally {
         loading.value = false;
     }
@@ -304,19 +374,9 @@ const viewGaps = (result: MatchingResult) => {
 };
 
 const acceptMatch = async (id: number) => {
-    try {
-        const apiUrl = (page.props as any).apiUrl || '/api';
-        const response = await fetch(
-            `${apiUrl}/matching-results/${id}/accept`,
-            { method: 'POST' },
-        );
-
-        if (!response.ok) throw new Error('Error al aceptar match');
-
-        await loadResults();
-    } catch (err: any) {
-        error.value = err.message || 'Error al aceptar match';
-    }
+    // This functionality is a placeholder for now
+    console.log('Accepting match for result id:', id);
+    alert('Funcionalidad de aceptar match en desarrollo');
 };
 
 onMounted(() => {

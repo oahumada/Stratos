@@ -429,8 +429,73 @@ export const useScenarioPlanningStore = defineStore('scenarioPlanning', {
             this.errors.matches = null;
 
             try {
-                this.matchesByScenario.set(scenarioId, []);
-                return [];
+                const res = await axios.get(
+                    `/api/strategic-planning/scenarios/${scenarioId}/step2/matching-results`,
+                );
+
+                // Backend returns { data: [...] }
+                const payload = res?.data?.data ?? res?.data ?? [];
+
+                const mapped = Array.isArray(payload)
+                    ? payload.map((r: any) => {
+                          const score =
+                              r.match_percentage ?? r.match_score ?? 0;
+                          const timeline =
+                              r.productivity_timeline ??
+                              r.productivity_timeline_weeks ??
+                              0;
+                          const readiness =
+                              timeline <= 1
+                                  ? 'immediate'
+                                  : timeline <= 3
+                                    ? 'short_term'
+                                    : timeline <= 12
+                                      ? 'long_term'
+                                      : 'not_ready';
+                          const skillGaps = Array.isArray(r.skill_gaps)
+                              ? r.skill_gaps.map((g: any) =>
+                                    typeof g === 'string'
+                                        ? g
+                                        : g.skill_name || g.name || g,
+                                )
+                              : [];
+
+                          const matchScore = Math.round(Number(score) || 0);
+
+                          const risk_level =
+                              matchScore >= 80
+                                  ? 'low'
+                                  : matchScore >= 60
+                                    ? 'medium'
+                                    : 'high';
+
+                          const transition_type =
+                              skillGaps.length > 0 ? 'reskilling' : 'lateral';
+
+                          return {
+                              id:
+                                  r.id ??
+                                  `${r.candidate_id || 'p'}-${r.target_role_id || 'r'}`,
+                              candidate_name:
+                                  r.candidate_name ?? r.full_name ?? 'Unknown',
+                              current_role:
+                                  r.current_role ?? r.current_position ?? '—',
+                              target_role:
+                                  r.target_role ??
+                                  r.target_position ??
+                                  r.target_role_name ??
+                                  '—',
+                              match_score: matchScore,
+                              readiness_level: readiness,
+                              skill_gaps: skillGaps,
+                              transition_type: transition_type,
+                              risk_level: risk_level,
+                          } as any;
+                      })
+                    : [];
+
+                this.matchesByScenario.set(scenarioId, mapped);
+                return mapped;
             } catch (error: any) {
                 this.errors.matches =
                     error.message || 'Failed to fetch matches';

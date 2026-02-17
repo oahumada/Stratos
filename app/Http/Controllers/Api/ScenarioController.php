@@ -356,7 +356,7 @@ class ScenarioController extends Controller
             'fiscal_year' => $validated['fiscal_year'] ?? (int) date('Y'),  // Default al año actual si no se proporciona
             'start_date' => ($validated['start_date'] ?? null) ? \Carbon\Carbon::parse($validated['start_date'])->toDateString() : now()->toDateString(),
             'end_date' => ($validated['end_date'] ?? null) ? \Carbon\Carbon::parse($validated['end_date'])->toDateString() : now()->addMonths(12)->toDateString(),
-            'code' => $validated['code'] ?? ('SCN-'.strtoupper(substr(md5(uniqid()), 0, 8))),
+            'code' => $validated['code'] ?? ('SCN-' . strtoupper(substr(md5(uniqid()), 0, 8))),
             'owner_user_id' => $validated['owner_user_id'] ?? $user->id,
         ];
 
@@ -470,23 +470,88 @@ class ScenarioController extends Controller
 
         $created = 0;
         // Create a simple proposed strategy per demanded skill
-        foreach (\App\Models\ScenarioSkillDemand::where('scenario_id', $scenario->id)->get() as $d) {
-            $id = DB::table('scenario_closure_strategies')->insertGetId([
-                'scenario_id' => $scenario->id,
-                'skill_id' => $d->skill_id,
-                'strategy' => 'build',
-                'strategy_name' => 'Auto suggested',
-                'description' => 'Auto-generated suggested strategy',
-                'status' => 'proposed',
-                'created_at' => now()->toDateTimeString(),
-                'updated_at' => now()->toDateTimeString(),
-            ]);
-            if ($id) {
-                $created++;
+        // Create strategies based on actual skill gaps (high priority)
+        $gaps = \App\Models\ScenarioRoleSkill::where('scenario_id', $scenario->id)
+            ->whereRaw('required_level > current_level')
+            ->get();
+
+        foreach ($gaps as $gap) {
+            // Determine strategy based on gap size and criticality
+            $gapSize = $gap->required_level - $gap->current_level;
+            $strategy = 'build'; // Default: Internal training
+            $strategyName = 'Internal Upskilling';
+            $description = "Develop internal talent to bridge the {$gapSize}-level gap.";
+
+            if ($gapSize > 2 || $gap->is_critical) {
+                // Large gap or critical skill -> Buy/Borrow
+                $strategy = 'buy';
+                $strategyName = 'External Hiring';
+                $description = "Hire external talent with required level {$gap->required_level}.";
+            }
+
+            // Check if strategy already exists for this skill/scenario to avoid duplicates
+            $exists = DB::table('scenario_closure_strategies')
+                ->where('scenario_id', $scenario->id)
+                ->where('skill_id', $gap->skill_id)
+                ->exists();
+
+            if (! $exists) {
+                $id = DB::table('scenario_closure_strategies')->insertGetId([
+                    'scenario_id' => $scenario->id,
+                    'skill_id' => $gap->skill_id,
+                    'strategy' => $strategy,
+                    'strategy_name' => $strategyName,
+                    'description' => $description,
+                    'status' => 'proposed',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                if ($id) {
+                    $created++;
+                }
             }
         }
 
         return response()->json(['success' => true, 'message' => 'Suggested strategies refreshed', 'created' => $created]);
+    }
+
+    /**
+     * API: Finalize / Consolidate scenario to move it into budgeting-ready state.
+     * Sets a decision_status and returns the updated scenario payload.
+     */
+    public function finalizeScenario($id, Request $request): JsonResponse
+    {
+        $scenario = $this->scenarioRepo->getScenarioById((int) $id);
+
+        if (! $scenario) {
+            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+        }
+
+        $user = auth()->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        if ($scenario->organization_id !== $user->organization_id) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        // Use ScenarioService to transition decision_status to 'consolidated'
+        $service = app(\App\Services\ScenarioService::class);
+        $notes = $request->input('notes');
+        try {
+            // Use an allowed decision_status value ('approved') to move scenario to budgeting-ready state
+            $updated = $service->transitionDecisionStatus($scenario, 'approved', $user, $notes);
+
+            // Return fresh payload via repository to include eager loads
+            $fresh = $this->scenarioRepo->getScenarioById((int) $id);
+
+            return response()->json(['success' => true, 'message' => 'Scenario finalized', 'data' => $fresh]);
+        } catch (\Throwable $e) {
+            \Log::error('Error finalizing scenario', ['id' => $id, 'error' => $e->getMessage()]);
+
+            return response()->json(['success' => false, 'message' => 'Error finalizing scenario'], 500);
+        }
     }
 
     // app/Http/Controllers/ScenarioController.php
@@ -503,6 +568,4 @@ class ScenarioController extends Controller
             'blueprints_processed' => $scenario->talentBlueprints->count(),
         ]);
     }
-
-    
 }

@@ -37,6 +37,7 @@ class ScenarioRepository
         return Scenario::with([
             'owner',
             'capabilities.competencies.skills',
+            'closureStrategies.skill',
             'statusEvents',
             'parent',
         ])->find($id);

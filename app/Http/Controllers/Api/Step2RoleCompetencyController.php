@@ -340,7 +340,7 @@ class Step2RoleCompetencyController extends Controller
                 'scenario_role_skills.current_level'
             )
             ->get()
-            ->groupBy(fn ($gap) => $gap->skill_id . '-' . $gap->role_id)
+            ->groupBy(fn ($gap) => $gap->skill_id.'-'.$gap->role_id)
             ->map(function ($group) {
                 $first = $group->first();
                 $req = (int) $group->max('required_level');
@@ -440,7 +440,7 @@ class Step2RoleCompetencyController extends Controller
 
         $plans = $criticalRoles->map(function ($sRole) use ($scenarioId, $people) {
             $requiredSkills = ScenarioRoleSkill::where('scenario_id', $scenarioId)
-                ->where('role_id', $sRole->role_id)
+                ->where('role_id', $sRole->id) // Corregido: usar ID de scenario_roles
                 ->get();
 
             if ($requiredSkills->isEmpty()) {
@@ -468,13 +468,20 @@ class Step2RoleCompetencyController extends Controller
 
         foreach ($requiredSkills as $req) {
             $pSkill = $person->activeSkills->firstWhere('skill_id', $req->skill_id);
-            $currentLevel = $pSkill ? (int) $pSkill->current_level : 0;
-            $requiredLevel = (int) $req->required_level;
-            $gap = max(0, $requiredLevel - $currentLevel);
+            $currentLevel = $pSkill ? (float) $pSkill->current_level : 0.0;
+            $requiredLevel = (float) $req->required_level;
 
-            if ($gap === 0) {
-                $metSkills++;
+            if ($requiredLevel > 0) {
+                // Contribución proporcional (máximo 1.0 por skill)
+                $contribution = min(1.0, $currentLevel / $requiredLevel);
+                $metSkills += $contribution;
             } else {
+                // Si no requiere nivel, cualquier cosa es 100%
+                $metSkills += 1.0;
+            }
+
+            $gap = max(0, (int) $requiredLevel - (int) $currentLevel);
+            if ($gap > 0) {
                 $skillGaps[] = [
                     'id' => $req->id,
                     'skill_name' => $req->skill_name ?? ($req->skill ? $req->skill->name : 'Unknown Skill'),
@@ -499,7 +506,7 @@ class Step2RoleCompetencyController extends Controller
         $currentHolder = $people->firstWhere('role_id', $sRole->role_id);
 
         $potentialSuccessors = $people
-            ->reject(fn($p) => $currentHolder && $p->id === $currentHolder->id)
+            ->reject(fn ($p) => $currentHolder && $p->id === $currentHolder->id)
             ->map(function ($p) use ($requiredSkills) {
                 $match = $this->calculatePersonMatch($p, $requiredSkills);
 
@@ -548,6 +555,7 @@ class Step2RoleCompetencyController extends Controller
         if ($percentage >= 75) {
             return 12;
         }
+
         return 24;
     }
 
@@ -561,6 +569,7 @@ class Step2RoleCompetencyController extends Controller
         } elseif ($percentage >= 60) {
             $level = 'ready_24_months';
         }
+
         return $level;
     }
 }
