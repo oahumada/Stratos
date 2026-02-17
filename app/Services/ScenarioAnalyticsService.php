@@ -118,10 +118,17 @@ class ScenarioAnalyticsService
         $rolesEvaluated = 0;
 
         foreach ($demands as $demand) {
-            // Obtener nivel promedio actual de las personas en ese rol
-            $avgCurrentLevel = PeopleRoleSkills::where('role_id', $demand->role_id)
-                ->where('skill_id', $skillId)
-                ->avg('current_level') ?: 0;
+            // Obtener el ID de rol base desde scenario_roles ya que demand->role_id es un ID de la tabla scenario_roles
+            $baseRole = \DB::table('scenario_roles')->where('id', $demand->role_id)->first();
+            $baseRoleId = $baseRole ? $baseRole->role_id : null;
+
+            // Obtener nivel promedio actual de las personas en ese rol base
+            $avgCurrentLevel = 0;
+            if ($baseRoleId) {
+                $avgCurrentLevel = PeopleRoleSkills::where('role_id', $baseRoleId)
+                    ->where('skill_id', $skillId)
+                    ->avg('current_level') ?: 0;
+            }
 
             // Calcular readiness: min(1, current/required)
             $readiness = $demand->required_level > 0

@@ -291,20 +291,38 @@ class Step2RoleCompetencyController extends Controller
             ->where('organization_id', auth()->user()->organization_id)
             ->firstOrFail();
 
-        // Roles en escenario
         $roles = ScenarioRole::where('scenario_id', $scenarioId)
             ->join('roles', 'scenario_roles.role_id', '=', 'roles.id')
             ->select('scenario_roles.id', 'roles.name', 'scenario_roles.fte')
-            ->get();
+            ->get()
+            ->map(function ($role) {
+                return [
+                    'id' => (int) $role->id,
+                    'name' => $role->name,
+                    'fte' => (float) $role->fte,
+                ];
+            });
 
         // Skills requeridos en escenario (vía competencias)
         $skills = \App\Models\Skill::join('competency_skills', 'skills.id', '=', 'competency_skills.skill_id')
             ->join('scenario_role_competencies', 'competency_skills.competency_id', '=', 'scenario_role_competencies.competency_id')
+            ->join('competencies', 'competency_skills.competency_id', '=', 'competencies.id')
             ->where('scenario_role_competencies.scenario_id', $scenarioId)
+            ->select(
+                'skills.id',
+                'skills.name',
+                'competencies.name as competency_name'
+            )
             ->distinct()
-            ->select('skills.id', 'skills.name', 'competency_skills.competency_id')
-            ->with('competency:id,name')
-            ->get();
+            ->orderBy('skills.name')
+            ->get()
+            ->map(function ($skill) {
+                return [
+                    'id' => (int) $skill->id,
+                    'name' => $skill->name,
+                    'competency_name' => $skill->competency_name,
+                ];
+            });
 
         // Brechas: required_level vs current_level
         $gaps = ScenarioRoleSkill::where('scenario_role_skills.scenario_id', $scenarioId)
@@ -313,16 +331,22 @@ class Step2RoleCompetencyController extends Controller
             ->select(
                 'scenario_role_skills.skill_id',
                 'scenario_role_skills.role_id',
-                self::ROLE_NAME_SELECT,
+                'roles.name as role_name',
                 'scenario_role_skills.required_level',
                 'scenario_role_skills.current_level'
             )
             ->get()
             ->map(function ($gap) {
-                $gap->gap = $gap->required_level - ($gap->current_level ?? 0);
-
-                return $gap;
-            });
+                return [
+                    'skill_id' => (int) $gap->skill_id,
+                    'role_id' => (int) $gap->role_id,
+                    'role_name' => $gap->role_name,
+                    'current_level' => (int) ($gap->current_level ?? 0),
+                    'required_level' => (int) ($gap->required_level ?? 0),
+                    'gap' => (int) ($gap->required_level ?? 0) - (int) ($gap->current_level ?? 0),
+                ];
+            })
+            ->values();
 
         return response()->json([
             'roles' => $roles,
@@ -351,7 +375,7 @@ class Step2RoleCompetencyController extends Controller
 
         $results = $scenarioRoles->flatMap(function ($sRole) use ($scenarioId, $people) {
             $requiredSkills = ScenarioRoleSkill::where('scenario_role_skills.scenario_id', $scenarioId)
-                ->where('scenario_role_skills.role_id', $sRole->role_id)
+                ->where('scenario_role_skills.role_id', $sRole->id) // Corregido: usar id de scenario_roles
                 ->join('skills', 'scenario_role_skills.skill_id', '=', 'skills.id')
                 ->select('scenario_role_skills.*', 'skills.name as skill_name')
                 ->get();

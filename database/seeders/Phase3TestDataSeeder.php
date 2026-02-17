@@ -59,7 +59,7 @@ class Phase3TestDataSeeder extends Seeder
         $roleDev = Roles::firstOrCreate(['name' => self::ROLE_CLOUD_DEV, 'organization_id' => $orgId]);
 
         // 5. Add Roles to Scenario with impact levels
-        ScenarioRole::create([
+        $sRoleAI = ScenarioRole::create([
             'scenario_id' => $scenario->id,
             'role_id' => $roleAI->id,
             'impact_level' => 'critical',
@@ -67,7 +67,7 @@ class Phase3TestDataSeeder extends Seeder
             'evolution_type' => 'transformation',
         ]);
 
-        ScenarioRole::create([
+        $sRoleDev = ScenarioRole::create([
             'scenario_id' => $scenario->id,
             'role_id' => $roleDev->id,
             'impact_level' => 'medium',
@@ -79,26 +79,29 @@ class Phase3TestDataSeeder extends Seeder
         // AI Lead needs GenAI (Lvl 5) and Strategic Vision (Lvl 4)
         ScenarioRoleSkill::create([
             'scenario_id' => $scenario->id,
-            'role_id' => $roleAI->id,
+            'role_id' => $sRoleAI->id,
             'skill_id' => $skills['GenAI implementation'],
             'required_level' => 5,
+            'current_level' => 2,
             'change_type' => 'new',
             'is_critical' => true,
         ]);
         ScenarioRoleSkill::create([
             'scenario_id' => $scenario->id,
-            'role_id' => $roleAI->id,
+            'role_id' => $sRoleAI->id,
             'skill_id' => $skills['Strategic Vision'],
             'required_level' => 4,
+            'current_level' => 3,
             'change_type' => 'evolution',
         ]);
 
         // Cloud Dev needs Cloud Architecture (Lvl 4) and Python (Lvl 4)
         ScenarioRoleSkill::create([
             'scenario_id' => $scenario->id,
-            'role_id' => $roleDev->id,
+            'role_id' => $sRoleDev->id,
             'skill_id' => $skills['Cloud Architecture'],
             'required_level' => 4,
+            'current_level' => 3,
             'change_type' => 'evolution',
         ]);
 

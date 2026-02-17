@@ -57,16 +57,29 @@ class RoleSkillDerivationService
                     // Opción 2 (más sofisticada): Ponderar por el peso de la skill
                     // $requiredLevel = $this->calculateWeightedLevel($scenarioComp->required_level, $cs->weight);
 
+                    // Obtener nivel promedio actual de las personas en ese rol (base rol)
+                    $baseRoleId = DB::table('scenario_roles')
+                        ->where('id', $roleId)
+                        ->value('role_id');
+
+                    $avgCurrentLevel = 0;
+                    if ($baseRoleId) {
+                        $avgCurrentLevel = DB::table('people_role_skills')
+                            ->where('role_id', $baseRoleId)
+                            ->where('skill_id', $cs->skill_id)
+                            ->avg('current_level') ?: 0;
+                    }
+
                     ScenarioRoleSkill::create([
                         'scenario_id' => $scenarioId,
                         'role_id' => $roleId,
                         'skill_id' => $cs->skill_id,
-                        'required_level' => $requiredLevel,
+                        'current_level' => round($avgCurrentLevel),
+                        'required_level' => max(1, $requiredLevel),
                         'is_critical' => $scenarioComp->is_core, // Heredar criticidad
                         'source' => 'competency',
                         'competency_id' => $scenarioComp->competency_id,
                         'change_type' => $scenarioComp->change_type,
-                        'rationale' => "Derivada de competencia: {$scenarioComp->competency->name}",
                     ]);
 
                     $createdCount++;

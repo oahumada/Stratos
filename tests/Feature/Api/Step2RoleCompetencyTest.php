@@ -33,8 +33,8 @@ test('it returns real headcount in role forecasts', function () {
     // Charlie has roleAI
     $data = $response->json('data');
     
-    $aiLead = collect($data)->firstWhere('role_name', 'AI Lead');
-    $cloudDev = collect($data)->firstWhere('role_name', 'Cloud Dev');
+    $aiLead = collect($data)->firstWhere('role_name', Phase3TestDataSeeder::ROLE_AI_LEAD);
+    $cloudDev = collect($data)->firstWhere('role_name', Phase3TestDataSeeder::ROLE_CLOUD_DEV);
 
     expect($aiLead['fte_current'])->toEqual(1.0); // Charlie
     expect($cloudDev['fte_current'])->toEqual(2.0); // Alice & Bob
@@ -50,11 +50,11 @@ test('it calculates matching results based on skills', function () {
     $aliceMatch = collect($data)->firstWhere('candidate_name', 'Alice Ready');
     expect($aliceMatch)->not->toBeNull();
     expect($aliceMatch['match_percentage'])->toEqual(100.0);
-    expect($aliceMatch['target_position'])->toBe('AI Lead');
+    expect($aliceMatch['target_position'])->toBe(Phase3TestDataSeeder::ROLE_AI_LEAD);
 
     // Bob shouldn't match AI Lead well
     $bobMatch = collect($data)->firstWhere('candidate_name', 'Bob Developer');
-    if ($bobMatch && $bobMatch['target_position'] === 'AI Lead') {
+    if ($bobMatch && $bobMatch['target_position'] === Phase3TestDataSeeder::ROLE_AI_LEAD) {
         expect($bobMatch['match_percentage'])->toBeLessThan(100);
     }
 });
@@ -66,9 +66,43 @@ test('it generates succession plans for critical roles', function () {
     $response->assertStatus(200);
     $data = $response->json('data');
 
-    $aiPlan = collect($data)->firstWhere('role_name', 'AI Lead');
+    $aiPlan = collect($data)->firstWhere('role_name', Phase3TestDataSeeder::ROLE_AI_LEAD);
     expect($aiPlan)->not->toBeNull();
     expect($aiPlan['criticality_level'])->toBe('critical');
     expect($aiPlan['current_holder'])->toBe('Charlie Holder');
     expect($aiPlan['primary_successor']['name'])->toBe('Alice Ready');
+});
+
+test('it returns skill gaps matrix', function () {
+    $response = $this->actingAs($this->user)
+        ->getJson("/api/scenarios/{$this->scenario->id}/step2/skill-gaps-matrix");
+
+    $response->assertStatus(200);
+    $response->assertJsonStructure([
+        'roles' => [
+            '*' => [
+                'id',
+                'name',
+                'fte',
+            ]
+        ],
+        'skills' => [
+            '*' => [
+                'id',
+                'name',
+                'competency_id',
+                'competency_name',
+            ]
+        ],
+        'gaps' => [
+            '*' => [
+                'skill_id',
+                'role_id',
+                'role_name',
+                'required_level',
+                'current_level',
+                'gap',
+            ]
+        ],
+    ]);
 });

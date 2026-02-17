@@ -104,7 +104,7 @@ class ScenarioSeeder extends Seeder
             ['name' => 'Product Manager', 'organization_id' => $orgId],
             ['description' => 'Auto-seeded role']
         );
-        ScenarioRole::firstOrCreate([
+        $sRole = ScenarioRole::firstOrCreate([
             'scenario_id' => $scenario->id,
             'role_id' => $role->id,
         ], [
@@ -113,9 +113,10 @@ class ScenarioSeeder extends Seeder
 
         ScenarioRoleSkill::create([
             'scenario_id' => $scenario->id,
-            'role_id' => $role->id,
+            'role_id' => $sRole->id,
             'skill_id' => $skillIncubadaId,
             'required_level' => 4,
+            'current_level' => 2,
             'change_type' => 'new',
         ]);
 

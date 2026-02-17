@@ -77,6 +77,13 @@ class Skill extends Model
             ->withTimestamps();
     }
 
+    public function competencies(): BelongsToMany
+    {
+        return $this->belongsToMany(Competency::class, 'competency_skills', 'skill_id', 'competency_id')
+            ->withPivot('weight', 'priority')
+            ->withTimestamps();
+    }
+
     public function roleSkills(): HasMany
     {
         return $this->hasMany(RoleSkill::class, 'skill_id');

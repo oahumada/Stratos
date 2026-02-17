@@ -11,11 +11,13 @@ class ScenarioRoleSkill extends Model
 
     protected $table = 'scenario_role_skills';
 
-    protected $fillable = ['scenario_id', 'role_id', 'skill_id', 'required_level', 'change_type', 'is_critical', 'source', 'competency_id', 'competency_version_id', 'metadata', 'created_by'];
+    protected $fillable = ['scenario_id', 'role_id', 'skill_id', 'current_level', 'required_level', 'change_type', 'is_critical', 'source', 'competency_id', 'competency_version_id', 'metadata', 'created_by'];
 
     protected $casts = [
         'metadata' => 'array',
         'is_critical' => 'boolean',
+        'current_level' => 'integer',
+        'required_level' => 'integer',
     ];
 
     public function scenario()
@@ -23,9 +25,16 @@ class ScenarioRoleSkill extends Model
         return $this->belongsTo(Scenario::class, 'scenario_id');
     }
 
+    public function scenarioRole()
+    {
+        return $this->belongsTo(ScenarioRole::class, 'role_id');
+    }
+
     public function role()
     {
-        return $this->belongsTo(Roles::class, 'role_id');
+        // This remains for backward compatibility if needed, 
+        // but it actually points to scenario_roles table in Step 2 logic.
+        return $this->belongsTo(ScenarioRole::class, 'role_id');
     }
 
     public function skill()
