@@ -22,16 +22,16 @@ class TalentBlueprintService
                 'scenario_id' => $scenario->id,
                 'role_name' => $role['name'] ?? $role['role_name'],
                 'role_description' => $role['description'] ?? ($role['role_description'] ?? null),
-                'total_fte_required' => $role['estimated_fte'] ?? null,
-                'human_leverage' => $role['talent_composition']['human_percentage'] ?? ($role['human_leverage'] ?? null),
-                'synthetic_leverage' => $role['talent_composition']['synthetic_percentage'] ?? ($role['synthetic_leverage'] ?? null),
-                'recommended_strategy' => $role['talent_composition']['strategy_suggestion'] ?? ($role['recommended_strategy'] ?? null),
+                'total_fte_required' => $role['estimated_fte'] ?? 1.0,
+                'human_leverage' => $role['talent_composition']['human_percentage'] ?? ($role['human_percentage'] ?? 0),
+                'synthetic_leverage' => $role['talent_composition']['synthetic_percentage'] ?? ($role['synthetic_percentage'] ?? 0),
+                'recommended_strategy' => $role['talent_composition']['strategy_suggestion'] ?? ($role['recommended_strategy'] ?? 'Build'), // Default to Build
                 'status' => 'in_incubation',
                 'key_competencies' => $role['key_competencies'] ?? [],
                 'agent_specs' => [
                     'description' => $role['description'] ?? ($role['role_description'] ?? null),
                     'suggested_agent_type' => $role['suggested_agent_type'] ?? null,
-                    'logic_justification' => $role['talent_composition']['logic_justification'] ?? null,
+                    'logic_justification' => $role['talent_composition']['logic_justification'] ?? ($role['strategic_justification'] ?? null),
                 ],
             ]);
 

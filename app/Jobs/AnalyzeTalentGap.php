@@ -56,8 +56,8 @@ class AnalyzeTalentGap implements ShouldQueue
         $payload = [
             'role_context' => [
                 'role_id' => $gapRecord->role_id,
-                'role_name' => $gapRecord->role->name ?? 'Unknown Role',
-                'design_purpose' => $gapRecord->role->description ?? 'No description provided'
+                'role_name' => $gapRecord->role->role->name ?? 'Unknown Role',
+                'design_purpose' => $gapRecord->role->role->description ?? 'No description provided'
             ],
             'competency_context' => [
                 'competency_name' => $gapRecord->competency->name ?? 'Unknown Competency',

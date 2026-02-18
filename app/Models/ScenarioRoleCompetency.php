@@ -39,7 +39,7 @@ class ScenarioRoleCompetency extends Model
 
     public function role(): BelongsTo
     {
-        return $this->belongsTo(Roles::class);
+        return $this->belongsTo(ScenarioRole::class, 'role_id');
     }
 
     public function competency(): BelongsTo

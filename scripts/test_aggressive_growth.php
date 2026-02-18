@@ -61,14 +61,23 @@ try {
     echo "✨ Blueprint real recibido con éxito!\n";
 
     // 3. Aceptar la generación para crear el escenario real
-    echo "💡 Aceptando blueprint y creando escenario...\n";
+    echo "💡 Aceptando blueprint y creando escenario (con import=true)...\n";
     $request = new \Illuminate\Http\Request();
+    $request->merge(['import' => 'true']);
     // Forzamos el usuario en el request para evitar 'Unauthenticated'
     $request->setUserResolver(fn() => $user);
+    
+    // Aseguramos que el flag de import esté activo para la prueba
+    config(['features.import_generation' => true]);
     
     $response = app(\App\Http\Controllers\Api\ScenarioGenerationController::class)->accept($request, $generation->id);
     $responseData = json_decode($response->getContent(), true);
     
+    if (isset($responseData['import_errors'])) {
+        echo "❌ ERRORES DE IMPORTACIÓN:\n";
+        print_r($responseData['import_errors']);
+    }
+
     if (empty($responseData['success'])) {
         throw new \Exception("Error al aceptar la generación: " . print_r($responseData, true));
     }
@@ -85,8 +94,9 @@ try {
 
     // 5. Disparar Análisis de Gaps (en modo sincrónico)
     echo "🔍 Lanzando Análisis de brechas (Gap Analysis - Sincrónico)...\n";
-    foreach ($scenario->roles as $role) {
-        \App\Jobs\AnalyzeTalentGap::dispatchSync($scenario->id, $role->id);
+    $gaps = \App\Models\ScenarioRoleCompetency::where('scenario_id', $scenarioId)->get();
+    foreach ($gaps as $gap) {
+        \App\Jobs\AnalyzeTalentGap::dispatchSync($gap->id);
     }
     
     // 6. Generar Estrategias Sugeridas

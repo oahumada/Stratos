@@ -23,8 +23,11 @@ class MockProvider implements LLMProviderInterface
             throw new \App\Services\LLMProviders\Exceptions\LLMRateLimitException('Simulated rate limit', $retry);
         }
 
+        // Loosen detection and add logging
+        \Log::info('MockProvider generating for prompt: ' . substr($prompt, 0, 100));
+
         // Smart Mock for "Crecimiento Agresivo" / "Aggressive Growth"
-        if (stripos($prompt, 'Crecimiento Agresivo') !== false || stripos($prompt, 'Aggressive Growth') !== false || stripos($prompt, 'expansión') !== false) {
+        if (stripos($prompt, 'Crecimiento') !== false || stripos($prompt, 'Aggressive') !== false || stripos($prompt, 'expansi') !== false) {
             $response = [
                 'scenario_metadata' => [
                     'name' => 'Expansión Estratégica LATAM 2026',

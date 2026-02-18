@@ -549,6 +549,9 @@ EOT;
 
         return \DB::transaction(function () use ($generation, $data) {
             $orgId = $generation->organization_id;
+            $caps = $data['capabilities'] ?? [];
+            $roles = $data['suggested_roles'] ?? [];
+            \Log::info("DEBUG IMPORT: caps=".count($caps)." roles=".count($roles)." org=$orgId gen={$generation->id}");
 
             // 1. Resolve or Create Scenario
             $scenario = $generation->scenario;
@@ -742,17 +745,23 @@ EOT;
             if (!empty($suggestedRoles)) {
                 $stats['roles'] = 0;
                 foreach ($suggestedRoles as $roleData) {
-                    $role = \App\Models\Roles::updateOrCreate(
-                        [
-                            'organization_id' => $orgId,
-                            'name' => $roleData['name'],
-                        ],
-                        [
-                            'description' => $roleData['description'] ?? null,
-                            'status' => 'in_incubation',
-                            'discovered_in_scenario_id' => $scenario->id,
-                        ]
-                    );
+                    \Log::info("DEBUG: Processing role '{$roleData['name']}'");
+                    try {
+                        $role = \App\Models\Roles::updateOrCreate(
+                            [
+                                'organization_id' => $orgId,
+                                'name' => $roleData['name'],
+                            ],
+                            [
+                                'description' => $roleData['description'] ?? null,
+                                'status' => 'in_incubation',
+                                'discovered_in_scenario_id' => $scenario->id,
+                            ]
+                        );
+                        \Log::info("DEBUG: Created/Updated role ID: " . ($role ? $role->id : 'null'));
+                    } catch (\Exception $e) {
+                         \Log::error("DEBUG: Role creation failed: " . $e->getMessage());
+                    }
                     $stats['roles']++;
 
                     // Generate embedding for role
@@ -783,15 +792,23 @@ EOT;
                     }
 
                     // Link Role to Scenario (Pivot)
-                    DB::table('scenario_roles')->updateOrInsert(
-                        ['scenario_id' => $scenario->id, 'role_id' => $role->id],
-                        [
-                            'fte' => $roleData['estimated_fte'] ?? 1,
-                            'rationale' => $roleData['talent_composition']['logic_justification'] ?? null,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]
-                    );
+                    $rationale = $roleData['talent_composition']['logic_justification'] ?? ($roleData['strategic_justification'] ?? null);
+                    
+                    try {
+                        $scenarioRole = \App\Models\ScenarioRole::updateOrCreate(
+                            ['scenario_id' => $scenario->id, 'role_id' => $role->id],
+                            [
+                                'fte' => $roleData['estimated_fte'] ?? 1,
+                                'rationale' => $rationale,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]
+                        );
+                        \Log::info("DEBUG: Linked ScenarioRole ID: " . ($scenarioRole ? $scenarioRole->id : 'null'));
+                    } catch (\Exception $e) {
+                         \Log::error("DEBUG: ScenarioRole link failed: " . $e->getMessage());
+                         continue; // Skip competencies if link failed
+                    }
 
                     // 3.1 Link Roles to their specified Competencies
                     $roleCompetencies = $roleData['key_competencies'] ?? ($roleData['required_competencies'] ?? []);
@@ -804,12 +821,12 @@ EOT;
                             DB::table('scenario_role_competencies')->updateOrInsert(
                                 [
                                     'scenario_id' => $scenario->id,
-                                    'role_id' => $role->id,
+                                    'role_id' => $scenarioRole->id, // CORRECT: ID of the scenario_role record
                                     'competency_id' => $competency->id
                                 ],
                                 [
-                                    'required_level' => 4, // Default high required level for strategic roles
-                                    'importance_weight' => 10,
+                                    'required_level' => 4, 
+                                    'is_core' => true,
                                     'created_at' => now(),
                                     'updated_at' => now(),
                                 ]
