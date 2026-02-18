@@ -11,6 +11,7 @@ class CompetencyFactory extends Factory
     public function definition(): array
     {
         return [
+            'organization_id' => \App\Models\Organization::factory(),
             'name' => fake()->words(3, true),
             'description' => fake()->sentence(),
             'status' => 'active',

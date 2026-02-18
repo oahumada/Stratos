@@ -125,16 +125,24 @@
                                         {{ strategy.estimated_time_weeks }}
                                         semanas
                                     </v-chip>
-                                    <v-chip
-                                        size="x-small"
-                                        label
-                                        :color="
-                                            getRiskColor(strategy.risk_level)
-                                        "
-                                    >
                                         Riesgo: {{ strategy.risk_level }}
                                     </v-chip>
+                                    <v-chip v-if="strategy.ia_confidence_score" size="x-small" label color="indigo-lighten-4">
+                                        <v-icon start size="12">mdi-robot</v-icon>
+                                        IA Conf: {{ Math.round(strategy.ia_confidence_score * 100) }}%
+                                    </v-chip>
                                 </div>
+
+                                <!-- IA Rationale -->
+                                <v-alert v-if="strategy.ia_strategy_rationale" 
+                                    density="compact" 
+                                    type="info" 
+                                    variant="tonal" 
+                                    class="mt-3 text-caption"
+                                    icon="mdi-brain"
+                                >
+                                    <strong>Insight IA:</strong> {{ strategy.ia_strategy_rationale }}
+                                </v-alert>
                             </v-card-text>
 
                             <v-divider></v-divider>

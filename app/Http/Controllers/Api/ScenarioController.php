@@ -468,6 +468,18 @@ class ScenarioController extends Controller
         }
 
         $created = 0;
+        // 2. AI-Driven Analysis: Dispatch jobs for each competency gap
+        $competencyGaps = \App\Models\ScenarioRoleCompetency::where('scenario_id', $scenario->id)
+            ->get();
+
+        foreach ($competencyGaps as $cGap) {
+            $currentLevel = 0; // TODO: Real level
+            if ($cGap->required_level > $currentLevel) {
+                \App\Jobs\AnalyzeTalentGap::dispatch($cGap->id);
+                $created++; // Count AI jobs as "created" suggestions for now
+            }
+        }
+
         // Create a simple proposed strategy per demanded skill
         // Create strategies based on actual skill gaps (high priority)
         $gaps = \App\Models\ScenarioRoleSkill::where('scenario_id', $scenario->id)

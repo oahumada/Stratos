@@ -60,4 +60,9 @@ return [
         'key' => env('OPENAI_API_KEY'),
     ],
 
+    'python_intel' => [
+        'base_url' => env('PYTHON_INTEL_URL', 'http://localhost:8000'),
+        'timeout' => env('PYTHON_INTEL_TIMEOUT', 30),
+    ],
+
 ];

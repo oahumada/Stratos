@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+crewai
+python-dotenv
+pydantic
+langchain-openai
+httpx
+# Removed explicit langchain/langgraph to let crewai resolve its own compatible versions

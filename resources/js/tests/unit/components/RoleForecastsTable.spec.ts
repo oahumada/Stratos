@@ -2,8 +2,13 @@ import RoleForecastsTable from '@/components/ScenarioPlanning/Step2/RoleForecast
 import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock fetch
-global.fetch = vi.fn();
+const mockGet = vi.fn();
+
+vi.mock('@/composables/useApi', () => ({
+    useApi: () => ({
+        get: mockGet,
+    }),
+}));
 
 describe('RoleForecastsTable.vue', () => {
     beforeEach(() => {
@@ -39,10 +44,7 @@ describe('RoleForecastsTable.vue', () => {
             ],
         };
 
-        (global.fetch as any).mockResolvedValueOnce({
-            ok: true,
-            json: async () => mockForecasts,
-        });
+        mockGet.mockResolvedValue(mockForecasts);
 
         const wrapper = mount(RoleForecastsTable, {
             props: {
@@ -52,7 +54,7 @@ describe('RoleForecastsTable.vue', () => {
 
         await flushPromises();
 
-        expect(global.fetch).toHaveBeenCalledWith(
+        expect(mockGet).toHaveBeenCalledWith(
             '/api/scenarios/1/step2/role-forecasts',
         );
         expect(wrapper.vm.forecasts).toHaveLength(1);
@@ -86,10 +88,7 @@ describe('RoleForecastsTable.vue', () => {
             ],
         };
 
-        (global.fetch as any).mockResolvedValueOnce({
-            ok: true,
-            json: async () => mockForecasts,
-        });
+        mockGet.mockResolvedValue(mockForecasts);
 
         const wrapper = mount(RoleForecastsTable, {
             props: {
@@ -104,8 +103,12 @@ describe('RoleForecastsTable.vue', () => {
     });
 
     it('shows error message on fetch failure', async () => {
-        (global.fetch as any).mockResolvedValueOnce({
-            ok: false,
+        mockGet.mockRejectedValue({
+            response: {
+                data: {
+                    message: 'Error fetching',
+                },
+            },
         });
 
         const wrapper = mount(RoleForecastsTable, {
@@ -120,10 +123,7 @@ describe('RoleForecastsTable.vue', () => {
     });
 
     it('handles empty forecast list', async () => {
-        (global.fetch as any).mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({ data: [] }),
-        });
+        mockGet.mockResolvedValue({ data: [] });
 
         const wrapper = mount(RoleForecastsTable, {
             props: {
@@ -139,38 +139,32 @@ describe('RoleForecastsTable.vue', () => {
     });
 
     it('updates data when scenarioId prop changes', async () => {
-        (global.fetch as any)
+        mockGet
             .mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    data: [
-                        {
-                            id: 1,
-                            role_id: 1,
-                            role_name: 'PM',
-                            fte_current: 1,
-                            fte_future: 2,
-                            evolution_type: 'transformation',
-                            impact_level: 'medium',
-                        },
-                    ],
-                }),
+                data: [
+                    {
+                        id: 1,
+                        role_id: 1,
+                        role_name: 'PM',
+                        fte_current: 1,
+                        fte_future: 2,
+                        evolution_type: 'transformation',
+                        impact_level: 'medium',
+                    },
+                ],
             })
             .mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    data: [
-                        {
-                            id: 2,
-                            role_id: 2,
-                            role_name: 'Engineer',
-                            fte_current: 3,
-                            fte_future: 5,
-                            evolution_type: 'transformation',
-                            impact_level: 'high',
-                        },
-                    ],
-                }),
+                data: [
+                    {
+                        id: 2,
+                        role_id: 2,
+                        role_name: 'Engineer',
+                        fte_current: 3,
+                        fte_future: 5,
+                        evolution_type: 'transformation',
+                        impact_level: 'high',
+                    },
+                ],
             });
 
         const wrapper = mount(RoleForecastsTable, {

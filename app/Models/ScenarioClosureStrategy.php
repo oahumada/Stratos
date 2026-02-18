@@ -26,6 +26,9 @@ class ScenarioClosureStrategy extends Model
         'action_items',
         'assigned_to',
         'target_completion_date',
+        'ia_confidence_score',
+        'ia_strategy_rationale',
+        'is_ia_generated',
     ];
 
     protected $casts = [
@@ -34,6 +37,8 @@ class ScenarioClosureStrategy extends Model
         'success_probability' => 'decimal:2',
         'action_items' => 'array',
         'target_completion_date' => 'date',
+        'ia_confidence_score' => 'float',
+        'is_ia_generated' => 'boolean',
     ];
 
     // Relaciones
