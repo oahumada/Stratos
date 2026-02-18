@@ -125,23 +125,43 @@
                                         {{ strategy.estimated_time_weeks }}
                                         semanas
                                     </v-chip>
+                                    <v-chip
+                                        v-if="strategy.risk_level"
+                                        size="x-small"
+                                        label
+                                    >
                                         Riesgo: {{ strategy.risk_level }}
                                     </v-chip>
-                                    <v-chip v-if="strategy.ia_confidence_score" size="x-small" label color="indigo-lighten-4">
-                                        <v-icon start size="12">mdi-robot</v-icon>
-                                        IA Conf: {{ Math.round(strategy.ia_confidence_score * 100) }}%
+                                    <v-chip
+                                        v-if="strategy.ia_confidence_score"
+                                        size="x-small"
+                                        label
+                                        color="indigo-lighten-4"
+                                    >
+                                        <v-icon start size="12"
+                                            >mdi-robot</v-icon
+                                        >
+                                        IA Conf:
+                                        {{
+                                            Math.round(
+                                                strategy.ia_confidence_score *
+                                                    100,
+                                            )
+                                        }}%
                                     </v-chip>
                                 </div>
 
                                 <!-- IA Rationale -->
-                                <v-alert v-if="strategy.ia_strategy_rationale" 
-                                    density="compact" 
-                                    type="info" 
-                                    variant="tonal" 
-                                    class="mt-3 text-caption"
+                                <v-alert
+                                    v-if="strategy.ia_strategy_rationale"
+                                    density="compact"
+                                    type="info"
+                                    variant="tonal"
+                                    class="text-caption mt-3"
                                     icon="mdi-brain"
                                 >
-                                    <strong>Insight IA:</strong> {{ strategy.ia_strategy_rationale }}
+                                    <strong>Insight IA:</strong>
+                                    {{ strategy.ia_strategy_rationale }}
                                 </v-alert>
                             </v-card-text>
 

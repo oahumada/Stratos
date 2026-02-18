@@ -50,6 +50,7 @@ type ScenarioPayload = {
     skill_demands?: any[];
     source_generation_id?: number | null;
     accepted_prompt?: string | null;
+    updated_at?: string | null;
 };
 
 defineOptions({ layout: AppLayout });
@@ -719,8 +720,7 @@ onMounted(() => {
                                 small
                                 variant="text"
                                 @click="openAcceptedPromptDialog"
-                                >Ver prompt aceptado</v-btn
-                            >
+                                >Ver prompt aceptado</v-btn>
                             <v-chip
                                 v-if="scenario.decision_status"
                                 size="x-small"
@@ -850,8 +850,7 @@ onMounted(() => {
                                         variant="text"
                                         @click="promoteIncubated"
                                         title="Promover incubadas"
-                                        >Promover todas</v-btn
-                                    >
+                                        >Promover todas</v-btn>
                                 </v-card-title>
                                 <v-card-text>
                                     <div v-if="loadingTree">
@@ -895,8 +894,7 @@ onMounted(() => {
                                                                     cap,
                                                                 )
                                                             "
-                                                            >Revisar</v-btn
-                                                        >
+                                                            >Revisar</v-btn>
                                                     </div>
                                                 </div>
                                                 <div class="mt-2 ml-4">
@@ -913,8 +911,7 @@ onMounted(() => {
                                                                 >•
                                                                 {{
                                                                     comp.name
-                                                                }}</span
-                                                            >
+                                                                }}</span>
                                                             <v-btn
                                                                 size="x-small"
                                                                 variant="text"
@@ -923,8 +920,7 @@ onMounted(() => {
                                                                         comp.id,
                                                                     )
                                                                 "
-                                                                >Ver/Editar</v-btn
-                                                            >
+                                                                >Ver/Editar</v-btn>
                                                         </div>
                                                         <div
                                                             class="ml-4 text-sm text-gray-700"
@@ -933,15 +929,15 @@ onMounted(() => {
                                                                 v-for="s in comp.skills"
                                                                 :key="s.id"
                                                                 class="mr-3"
-                                                                >{{ s.name }}
+                                                            >
+                                                                {{ s.name }}
                                                                 <small
                                                                     v-if="
                                                                         s.is_incubating
                                                                     "
                                                                     class="text-yellow-700"
-                                                                    >(incubation)</small
-                                                                ></span
-                                                            >
+                                                                    >(incubation)</small>
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1112,8 +1108,7 @@ onMounted(() => {
                                         class="rounded-full bg-emerald-500 p-2"
                                     >
                                         <v-icon color="white"
-                                            >mdi-check-all</v-icon
-                                        >
+                                            >mdi-check-all</v-icon>
                                     </div>
                                     <div>
                                         <h4
@@ -1308,8 +1303,7 @@ onMounted(() => {
                     <v-card-actions>
                         <v-spacer />
                         <v-btn text @click="showAcceptedPromptDialog = false"
-                            >Cerrar</v-btn
-                        >
+                            >Cerrar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
