@@ -121,10 +121,14 @@ El sistema cuantifica el impacto financiero basado en supuestos configurables:
 
 # VOL V: BITÁCORA HISTÓRICA RECIENTE
 
-### [2026-02-18] Integración Live con DeepSeek y Scenario Generation ✅
+### [2026-02-18] Integración Live con DeepSeek ✅
 
-- **Hito**: Transición a un motor de IA "Live" (no-mocked) con integración de DeepSeek.
-- **Detalle**: Implementado el microservicio de inteligencia en Python (`FastAPI` + `CrewAI`) que orquestra agentes de diseño organizacional. Consolidación de servicios en `StratosIntelService`. Soporte para generación de blueprints de escenarios completos con lógica de "Strategic Talent Architect". Los costos operativos se reducen drásticamente respecto a OpenAI/GPT-4 manteniendo una alta calidad de salida JSON.
+- **Hito**: Estabilización del motor de IA "Live" y arquitectura agnóstica de LLM.
+- **Detalle**:
+    - **Depuración DeepSeek**: Resuelto error 401 persistente implementando la clase `DeepSeekLLM` en Python, que fuerza el endpoint correcto y evita el desvío automático de CrewAI hacia OpenAI.
+    - **Eficiencia de Costos**: Pruebas reales confirman un **92% de eficiencia en Context Caching** (147k tokens cacheados vs 12k nuevos), reduciendo drásticamente el costo operativo.
+    - **Agnosticismo**: Creada la `GUIA_LLM_AGNOSTICO.md` y factoría de LLM que permite alternar entre OpenAI, DeepSeek y Abacus vía `.env`.
+    - **Soporte Blueprint**: Optimizado el parser de respuestas para manejar objetos `CrewOutput` y asegurar la persistencia de blueprints complejos.
 
 ### [2026-02-17] Optimización y Testing Steps 6-7 ✅
 

@@ -7,6 +7,7 @@ Este documento centraliza toda la documentación relacionada con la capa de inte
 ## 🏗️ Arquitectura y Conexión
 
 - **[GUIA_CONEXION_LLM.md](GUIA_CONEXION_LLM.md)** - ⭐⭐ **LEER PRIMERO**
+- **[GUIA_LLM_AGNOSTICO.md](GUIA_LLM_AGNOSTICO.md)** - Guía para proveedores (OpenAI, DeepSeek, Abacus).
     - Configuración del Microservicio Python.
     - Variables de entorno para DeepSeek.
     - Flujo de comunicación Laravel ↔ Python.
