@@ -481,7 +481,7 @@ const openDetail = (item: TableItem) => {
     detailOpen.value = true;
 };
 
-defineExpose({ openDetail });
+defineExpose({ openDetail, loadItems });
 
 const displayHeaders = computed(() => {
     return mergedTableConfig.value.headers.map((header: any) => {

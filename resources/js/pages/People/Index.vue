@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import { ref } from 'vue';
 import FormSchema from '../form-template/FormSchema.vue';
-
-// Import JSON configs
 import configJson from './people-form/config.json';
 import filtersJson from './people-form/filters.json';
 import itemFormJson from './people-form/itemForm.json';
+
+import AssessmentChat from '@/components/Assessments/AssessmentChat.vue';
+import FeedbackRequestDialog from '@/components/Assessments/FeedbackRequestDialog.vue';
 import tableConfigJson from './people-form/tableConfig.json';
 
 defineOptions({ layout: AppLayout });
@@ -93,10 +95,19 @@ const formatDate = (value: any): string => {
     }
     return value as string;
 };
+
+const formRef = ref(null);
+
+const handleRefresh = () => {
+    if (formRef.value) {
+        (formRef.value as any).loadItems();
+    }
+};
 </script>
 
 <template>
     <FormSchema
+        ref="formRef"
         :config="config"
         :table-config="tableConfig"
         :item-form="itemForm"
@@ -128,6 +139,7 @@ const formatDate = (value: any): string => {
                     @update:modelValue="setTab"
                 >
                     <v-tab value="active">Skills Activas</v-tab>
+                    <v-tab value="psychometric">Potencial AI</v-tab>
                     <v-tab value="history">Historial</v-tab>
                 </v-tabs>
                 <div class="d-flex align-center gap-2">
@@ -181,6 +193,110 @@ const formatDate = (value: any): string => {
                     >
                         Sin skills activas en el pivote `people_role_skills`.
                     </v-alert>
+                </v-window-item>
+
+                <v-window-item value="psychometric">
+                    <div v-if="item.psychometric_profiles?.length" class="pa-1">
+                        <v-alert
+                            type="success"
+                            variant="tonal"
+                            class="mb-4"
+                            density="compact"
+                        >
+                            {{
+                                item.metadata?.summary_report ||
+                                'Perfil analizado satisfactoriamente.'
+                            }}
+                        </v-alert>
+
+                        <v-alert
+                            v-if="item.metadata?.blind_spots?.length"
+                            type="warning"
+                            variant="tonal"
+                            class="mb-4"
+                            density="compact"
+                            icon="mdi-eye-off"
+                        >
+                            <template #title
+                                >Visualización de Puntos Ciegos</template
+                            >
+                            <ul class="mt-2 pl-4">
+                                <li
+                                    v-for="(spot, i) in item.metadata
+                                        .blind_spots"
+                                    :key="i"
+                                >
+                                    {{ spot }}
+                                </li>
+                            </ul>
+                        </v-alert>
+
+                        <div class="text-subtitle-2 mb-3">
+                            Rasgos y Aptitudes Detectadas
+                        </div>
+                        <v-row>
+                            <v-col
+                                v-for="trait in item.psychometric_profiles"
+                                :key="trait.id"
+                                cols="12"
+                                md="6"
+                            >
+                                <v-card
+                                    flat
+                                    border
+                                    class="pa-3 bg-light-blue-lighten-5"
+                                >
+                                    <div
+                                        class="d-flex justify-space-between align-center mb-1"
+                                    >
+                                        <div
+                                            class="text-caption font-weight-bold text-uppercase"
+                                        >
+                                            {{ trait.trait_name }}
+                                        </div>
+                                        <div class="text-h6 font-weight-black">
+                                            {{
+                                                (trait.score * 100).toFixed(0)
+                                            }}%
+                                        </div>
+                                    </div>
+                                    <v-progress-linear
+                                        :model-value="trait.score * 100"
+                                        color="primary"
+                                        height="6"
+                                        rounded
+                                    ></v-progress-linear>
+                                    <div
+                                        class="text-caption mt-2 line-clamp-2 text-secondary"
+                                    >
+                                        {{ trait.rationale }}
+                                    </div>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+
+                        <v-divider class="my-4"></v-divider>
+                        <div class="d-flex justify-center gap-3">
+                            <v-btn
+                                size="small"
+                                variant="text"
+                                color="primary"
+                                prepend-icon="mdi-refresh"
+                            >
+                                Re-evaluar Potencial
+                            </v-btn>
+                            <FeedbackRequestDialog
+                                :subject-id="item.id"
+                                @requested="handleRefresh"
+                            />
+                        </div>
+                    </div>
+                    <div v-else>
+                        <AssessmentChat
+                            :person-id="item.id"
+                            @completed="handleRefresh"
+                        />
+                    </div>
                 </v-window-item>
 
                 <v-window-item value="history">

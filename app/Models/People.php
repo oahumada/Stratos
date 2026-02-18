@@ -128,4 +128,9 @@ class People extends Model
     {
         return $this->skills->count();
     }
+
+    public function psychometricProfiles(): HasMany
+    {
+        return $this->hasMany(PsychometricProfile::class, 'people_id');
+    }
 }

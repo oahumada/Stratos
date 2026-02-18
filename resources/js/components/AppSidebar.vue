@@ -81,7 +81,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Talento 360°',
-        href: '/strategic-planning',
+        href: '/talento360',
         icon: Talento360Icon,
     },
     {

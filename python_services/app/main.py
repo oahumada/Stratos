@@ -37,6 +37,32 @@ class StrategyRecommendation(BaseModel):
     reasoning_summary: str = Field(..., description="A concise explanation of why this strategy was chosen")
     action_plan: list[str] = Field(..., description="A list of specific, actionable steps to implement the strategy")
 
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatSessionRequest(BaseModel):
+    person_name: str
+    context: str
+    history: list[ChatMessage]
+    language: str = "es"
+
+class AnalysisResponse(BaseModel):
+    traits: list[dict]
+    overall_potential: float
+    summary_report: str
+    blind_spots: list[str] = Field(default_factory=list, description="Strengths seen by others but not by the subject, or vice-versa")
+
+class FeedbackItem(BaseModel):
+    relationship: str
+    content: str
+
+class ThreeSixtyAnalysisRequest(BaseModel):
+    person_name: str
+    interview_history: list[ChatMessage]
+    external_feedback: list[FeedbackItem]
+    language: str = "es"
+
 # Custom LLM Wrapper to force DeepSeek configuration
 class DeepSeekLLM(ChatOpenAI):
     """
@@ -242,6 +268,200 @@ def generate_scenario(request: ScenarioRequest):
             return json.loads(raw_output)
         except Exception:
             return {"raw_output": str(result), "error": "Could not parse JSON output"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/interview/chat")
+def interview_chat(request: ChatSessionRequest):
+    if os.getenv("STRATOS_MOCK_IA", "false").lower() == "true":
+        return {"role": "assistant", "content": f"[MOCK] Hola {request.person_name}, cuéntame más sobre tu experiencia en {request.context}."}
+
+    try:
+        interviewer = Agent(
+            role='Expert Psychometric Interviewer',
+            goal='Conduct deep, insightful interviews to understand personality, potential, and values.',
+            backstory="""You are a senior clinical psychologist and HR assessment expert. 
+            You excel at asking follow-up questions that reveal the underlying character and potential of a person. 
+            You are empathetic but thorough. You avoid generic questions and focus on high-impact situational queries.""",
+            verbose=True,
+            allow_delegation=False,
+            llm=get_llm(temperature=0.7)
+        )
+
+        history_str = "\n".join([f"{m.role}: {m.content}" for m in request.history])
+
+        task_description = f"""
+        CONTINUE THE INTERVIEW with {request.person_name} in {request.language}.
+        
+        CONTEXT: {request.context}
+        
+        CURRENT CHAT HISTORY:
+        {history_str}
+        
+        YOUR TASK:
+        Analyze the history and provide the NEXT response or question to the user.
+        If it's the beginning (empty history), introduce yourself and start the interview politely.
+        If the interview seems to reach a natural conclusion, wrap it up gracefully.
+        
+        RESPONSE FORMAT:
+        Provide only the text for the next message. No JSON, no preamble.
+        """
+
+        chat_task = Task(
+            description=task_description,
+            agent=interviewer,
+            expected_output="The text content for the next message in the interview."
+        )
+
+        crew = Crew(
+            agents=[interviewer],
+            tasks=[chat_task],
+            verbose=True,
+            memory=False,
+            process=Process.sequential
+        )
+
+        result = crew.kickoff()
+        return {"role": "assistant", "content": str(result)}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/interview/analyze")
+def interview_analyze(request: ChatSessionRequest):
+    if os.getenv("STRATOS_MOCK_IA", "false").lower() == "true":
+        return {
+            "traits": [
+                {"name": "Resilience", "score": 0.85, "rationale": "Shows high adaptability in complex scenarios."},
+                {"name": "Leadership", "score": 0.70, "rationale": "Demonstrates clear vision but lacks delegating practice."}
+            ],
+            "overall_potential": 0.8,
+            "summary_report": "Candidate shows strong technical-strategic alignment."
+        }
+
+    try:
+        analyst = Agent(
+            role='Talent Assessment Analyst',
+            goal='Synthesize interview data into a psychometric profile.',
+            backstory="""You are an expert in behavioral analysis and psychometry. 
+            You transform interview transcripts into objective data points about potential and personality.""",
+            verbose=True,
+            allow_delegation=False,
+            llm=get_llm(temperature=0.2)
+        )
+
+        history_str = "\n".join([f"{m.role}: {m.content}" for m in request.history])
+
+        task_description = f"""
+        ANALYZE THE FULL INTERVIEW with {request.person_name}.
+        
+        CONTEXT: {request.context}
+        
+        FULL CHAT HISTORY:
+        {history_str}
+        
+        YOUR TASK:
+        Generates a psychometric profile based on the conversation. 
+        Identify at least 3 key traits (scores 0.0 to 1.0) with their rationales.
+        Calculate an overall potential score.
+        Write a concise summary report.
+        
+        OUTPUT FORMAT:
+        Must be a JSON object matching AnalysisResponse model.
+        Return ONLY the JSON.
+        """
+
+        analysis_task = Task(
+            description=task_description,
+            agent=analyst,
+            expected_output="A structured JSON object with psychometric traits and summary.",
+            output_json=AnalysisResponse
+        )
+
+        crew = Crew(
+            agents=[analyst],
+            tasks=[analysis_task],
+            verbose=True,
+            memory=False,
+            process=Process.sequential
+        )
+
+        result = crew.kickoff()
+        
+        if hasattr(result, 'json_dict') and result.json_dict:
+            return result.json_dict
+        return json.loads(str(result))
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/interview/analyze-360")
+def interview_analyze_360(request: ThreeSixtyAnalysisRequest):
+    if os.getenv("STRATOS_MOCK_IA", "false").lower() == "true":
+        return {
+            "traits": [{"name": "Mock Trait", "score": 0.85, "rationale": "Mock rationale"}],
+            "overall_potential": 0.8,
+            "summary_report": "[MOCK] Perfil 360 analizado exitosamente.",
+            "blind_spots": ["Auto-percepción de liderazgo vs realidad del equipo"]
+        }
+
+    try:
+        analyst = Agent(
+            role='Expert Talent Assessment Analyst',
+            goal='Synthesize multiple sources of information to create a 360-degree psychometric profile.',
+            backstory="""You are a world-class organizational psychologist. You excel at finding 
+            patterns between what a person says and what others observe. You identify 'blind spots' 
+            and 'hidden strengths' with pinpoint accuracy.""",
+            llm=DeepSeekLLM(),
+            verbose=True,
+            allow_delegation=False
+        )
+
+        history_str = "\n".join([f"{m.role}: {m.content}" for m in request.interview_history])
+        feedback_str = "\n".join([f"[{f.relationship}]: {f.content}" for f in request.external_feedback])
+
+        task_description = f"""
+        Analyze the following person: {request.person_name}
+        
+        SOURCE 1: PSYCHOMETRIC INTERVIEW
+        {history_str}
+        
+        SOURCE 2: EXTERNAL FEEDBACK (PEERS, SUPERVISORS, ETC.)
+        {feedback_str}
+        
+        YOUR TASK:
+        1. Synthesize both sources to generate a high-precision psychometric profile.
+        2. Identify at least 3 traits with scores and rationales.
+        3. Identify specific BLIND SPOTS (differences between self-perception in interview and external feedback).
+        4. Calculate an overall potential score.
+        5. Write a comprehensive summary report in {request.language}.
+        
+        OUTPUT FORMAT:
+        Must be a JSON object matching AnalysisResponse model.
+        Return ONLY the JSON.
+        """
+
+        analysis_task = Task(
+            description=task_description,
+            agent=analyst,
+            expected_output="A structured 360-degree JSON report.",
+            output_json=AnalysisResponse
+        )
+
+        crew = Crew(
+            agents=[analyst],
+            tasks=[analysis_task],
+            verbose=True,
+            memory=False,
+            process=Process.sequential
+        )
+
+        result = crew.kickoff()
+        
+        if hasattr(result, 'json_dict') and result.json_dict:
+            return result.json_dict
+        return json.loads(str(result))
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

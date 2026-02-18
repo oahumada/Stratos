@@ -129,6 +129,7 @@ El sistema cuantifica el impacto financiero basado en supuestos configurables:
     - **Eficiencia de Costos**: Pruebas reales confirman un **92% de eficiencia en Context Caching** (147k tokens cacheados vs 12k nuevos), reduciendo drásticamente el costo operativo.
     - **Agnosticismo**: Creada la `GUIA_LLM_AGNOSTICO.md` y factoría de LLM que permite alternar entre OpenAI, DeepSeek y Abacus vía `.env`.
     - **Soporte Blueprint**: Optimizado el parser de respuestas para manejar objetos `CrewOutput` y asegurar la persistencia de blueprints complejos.
+- **Triangulación 360 y Blind Spots**: Implementado el flujo completo de feedback de terceros. La IA ahora cruza la auto-percepción con feedback externo para detectar "Puntos Ciegos" y validar fortalezas, integrando widgets de alerta proactiva en el Dashboard.
 
 ### [2026-02-17] Optimización y Testing Steps 6-7 ✅
 

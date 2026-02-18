@@ -1,5 +1,5 @@
-<script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import PendingFeedback from '@/components/Assessments/PendingFeedback.vue';
 import { computed, ref } from 'vue';
 import { useTheme as useVuetifyTheme } from 'vuetify';
 
@@ -219,6 +219,7 @@ void _getStatusColor;
 
 <template>
     <div class="pa-6">
+        <PendingFeedback />
         <!-- Header -->
         <div class="mb-6">
             <div

@@ -85,6 +85,10 @@ Route::get('/strategic-planning/{id}', function ($id) {
     return Inertia::render('ScenarioPlanning/ScenarioDetail', ['id' => $id]);
 })->middleware(['auth', 'verified'])->name('strategic-planning.show');
 
+Route::get('/talento360', function () {
+    return Inertia::render('Talento360/Dashboard');
+})->middleware(['auth', 'verified'])->name('talento360.index');
+
 Route::prefix('scenarios')->group(function () {
     Route::get('{id}/iq', [ScenarioController::class, 'getIQ']);
     Route::get('{id}/roles/{roleId}/competency-gaps', [ScenarioController::class, 'getCompetencyGaps']);

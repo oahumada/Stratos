@@ -148,6 +148,21 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/scenarios/{id}/incubated-items', [\App\Http\Controllers\Api\IncubationController::class, 'index']);
             Route::post('/scenarios/{id}/incubated-items/approve', [\App\Http\Controllers\Api\IncubationController::class, 'approve']);
             Route::post('/scenarios/{id}/incubated-items/reject', [\App\Http\Controllers\Api\IncubationController::class, 'reject']);
+
+            // Assessments & Psychometrics (Fase 4: Talento 360)
+            Route::prefix('assessments')->group(function () {
+                Route::post('/sessions', [\App\Http\Controllers\Api\AssessmentController::class, 'startSession']);
+                Route::get('/sessions/{id}', [\App\Http\Controllers\Api\AssessmentController::class, 'getSession']);
+                Route::post('/sessions/{id}/messages', [\App\Http\Controllers\Api\AssessmentController::class, 'sendMessage']);
+                Route::post('/sessions/{id}/analyze', [\App\Http\Controllers\Api\AssessmentController::class, 'analyze']);
+                Route::get('/metrics', [\App\Http\Controllers\Api\Talento360Controller::class, 'metrics']);
+                
+                Route::prefix('feedback')->group(function () {
+                    Route::post('/request', [\App\Http\Controllers\Api\AssessmentController::class, 'requestFeedback']);
+                    Route::post('/submit', [\App\Http\Controllers\Api\AssessmentController::class, 'submitFeedback']);
+                    Route::get('/pending', [\App\Http\Controllers\Api\AssessmentController::class, 'getPendingRequests']);
+                });
+            });
         }
     );
 
