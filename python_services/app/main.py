@@ -3,10 +3,22 @@ from pydantic import BaseModel, Field
 from crewai import Agent, Task, Crew, Process
 from langchain_openai import ChatOpenAI
 import os
+import json
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+# Force environment variable for libraries that might check it directly
+# langchain might use OPENAI_API_BASE, while openai v1 uses OPENAI_BASE_URL
+os.environ["OPENAI_API_BASE"] = os.getenv("OPENAI_API_BASE", "https://api.deepseek.com")
+os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_API_BASE", "https://api.deepseek.com") 
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
+
+# Debug Configuration
+# print(f"DEBUG: Using OPENAI_API_BASE={os.environ['OPENAI_API_BASE']}")
+# print(f"DEBUG: Using OPENAI_BASE_URL={os.environ['OPENAI_BASE_URL']}")
+# print(f"DEBUG: Using OPENAI_MODEL_NAME={os.getenv('OPENAI_MODEL_NAME', 'deepseek-chat')}")
 
 # Check for API key
 if not os.getenv("OPENAI_API_KEY") and os.getenv("STRATOS_MOCK_IA", "false").lower() == "false":
@@ -27,6 +39,48 @@ class StrategyRecommendation(BaseModel):
     confidence_score: float = Field(..., description="Confidence level in the recommendation (0.0 to 1.0)")
     reasoning_summary: str = Field(..., description="A concise explanation of why this strategy was chosen")
     action_plan: list[str] = Field(..., description="A list of specific, actionable steps to implement the strategy")
+
+# Custom LLM Wrapper to force DeepSeek configuration
+class DeepSeekLLM(ChatOpenAI):
+    """
+    Wrapper for DeepSeek API to ensure CrewAI uses the correct Base URL.
+    This bypasses potential default OpenAI routing in CrewAI's internal handling.
+    """
+    def __init__(self, temperature=0.7, **kwargs):
+        super().__init__(
+            model="deepseek-chat",
+            temperature=temperature,
+            base_url="https://api.deepseek.com",
+            api_key=os.getenv("OPENAI_API_KEY"),
+            **kwargs
+        )
+
+# LLM Factory function
+def get_llm(temperature=0.7):
+    # Check explicitly for DeepSeek
+    api_base = os.getenv("OPENAI_API_BASE", "")
+    model_name = os.getenv("OPENAI_MODEL_NAME", "")
+    
+    if "deepseek" in api_base or "deepseek" in model_name:
+        # Use Custom Wrapper for DeepSeek
+        print(f"DEBUG: returning DeepSeekLLM with temp={temperature}")
+        return DeepSeekLLM(temperature=temperature)
+    
+    # Check for Abacus (future expansion)
+    elif "abacus" in api_base:
+        return ChatOpenAI(
+            model="gpt-4", # Abacus maps this
+            temperature=temperature,
+            base_url=api_base,
+            api_key=os.getenv("OPENAI_API_KEY")
+        )
+    else:
+        # Default to Standard OpenAI
+        return ChatOpenAI(
+            model=model_name or "gpt-4-turbo",
+            temperature=temperature,
+            api_key=os.getenv("OPENAI_API_KEY")
+        )
 
 app = FastAPI(title="Stratos Intel Service", version="0.1.0")
 
@@ -58,12 +112,7 @@ def analyze_gap(request: GapAnalysisRequest):
             You prefer 'Build' (Training) for smaller gaps in core talent, and 'Buy' (Hiring) for urgent, large gaps in critical new technologies.""",
             verbose=True,
             allow_delegation=False,
-            llm=ChatOpenAI(
-                model=os.getenv("OPENAI_MODEL_NAME", "deepseek-chat"), 
-                temperature=0.7,
-                base_url=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com"),
-                api_key=os.getenv("OPENAI_API_KEY")
-            )
+            llm=get_llm(temperature=0.7)
         )
 
         # 2. Define the Task
@@ -99,11 +148,26 @@ def analyze_gap(request: GapAnalysisRequest):
             agents=[analyst],
             tasks=[analysis_task],
             verbose=True,
-            process=Process.sequential
+            process=Process.sequential,
+            memory=False, # Disable memory to prevent default OpenAI embedding usage
+            embedder={
+                "provider": "google",
+                "config": {"model": "models/embedding-001"}
+            } if os.getenv("UseGoogleEmbeddings") else None 
+            # Actually just memory=False is enough to stop it from trying to embed
         )
 
         result = crew.kickoff()
-        return result
+        
+        # Handle CrewOutput object properly
+        if hasattr(result, 'json_dict') and result.json_dict:
+            return result.json_dict
+        elif hasattr(result, 'raw'):
+            return json.loads(result.raw)
+        elif isinstance(result, str):
+            return json.loads(result)
+        else:
+            return result # Fallback, though likely to fail validation if not dict
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -134,12 +198,7 @@ def generate_scenario(request: ScenarioRequest):
             You understand the synergy between Human and Synthetic (AI) talent.""",
             verbose=True,
             allow_delegation=False,
-            llm=ChatOpenAI(
-                model=os.getenv("OPENAI_MODEL_NAME", "deepseek-chat"), 
-                temperature=0.3, # Lower temperature for structural tasks
-                base_url=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com"),
-                api_key=os.getenv("OPENAI_API_KEY")
-            )
+            llm=get_llm(temperature=0.3)
         )
 
         # 2. Define the Task
@@ -171,7 +230,9 @@ def generate_scenario(request: ScenarioRequest):
         crew = Crew(
             agents=[architect],
             tasks=[architect_task],
-            verbose=True
+            verbose=True,
+            memory=False, # Prevent default OpenAI embeddings
+            process=Process.sequential
         )
 
         result = crew.kickoff()
