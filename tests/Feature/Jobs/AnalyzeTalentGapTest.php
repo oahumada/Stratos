@@ -4,7 +4,7 @@ namespace Tests\Feature\Jobs;
 
 use App\Jobs\AnalyzeTalentGap;
 use App\Models\ScenarioRoleCompetency;
-use App\Services\Intelligence\GapAnalysisService;
+use App\Services\Intelligence\StratosIntelService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -40,7 +40,7 @@ it('analyzes a talent gap and updates the database with IA strategy', function (
 
     // 3. Execute Job
     $job = new AnalyzeTalentGap($gapRecord->id);
-    $job->handle(new GapAnalysisService());
+    $job->handle(new StratosIntelService());
 
     // 4. Verify Database
     $gapRecord->refresh();

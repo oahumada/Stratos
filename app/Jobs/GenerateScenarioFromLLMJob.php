@@ -6,6 +6,7 @@ use App\Models\GenerationChunk;
 use App\Models\ScenarioGeneration;
 use App\Services\AbacusClient;
 use App\Services\GenerationRedisBuffer;
+use App\Services\Intelligence\StratosIntelService;
 use App\Services\LLMClient;
 use App\Services\LLMProviders\Exceptions\LLMRateLimitException;
 use App\Services\LLMProviders\Exceptions\LLMServerException;
@@ -30,7 +31,7 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
         $this->generationId = $generationId;
     }
 
-    public function handle(LLMClient $llm, ?AbacusClient $abacus = null)
+    public function handle(LLMClient $llm, ?AbacusClient $abacus = null, ?StratosIntelService $intel = null)
     {
         $generation = ScenarioGeneration::find($this->generationId);
         if (! $generation) {
@@ -39,6 +40,10 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
 
         if ($abacus === null) {
             $abacus = app(AbacusClient::class);
+        }
+
+        if ($intel === null) {
+            $intel = app(StratosIntelService::class);
         }
 
         $generation->status = 'processing';
@@ -225,6 +230,55 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
                         $lastFlush = microtime(true);
                     }
                 });
+            } elseif ($provider === 'intel') {
+                // Use the new Python Intelligence Service
+                Log::info('Using Intel Provider for scenario generation', ['generation_id' => $generation->id]);
+                
+                // Get company name from metadata if possible, else use default
+                $companyName = $generation->metadata['company_name'] ?? ($generation->organization->name ?? 'Stratos Org');
+                $lang = $generation->metadata['language'] ?? 'es';
+
+                // Mark sent time
+                $generation->metadata = array_merge($generation->metadata ?? [], ['sent_at' => now()->toDateTimeString()]);
+                $generation->save();
+
+                $res = $intel->generateScenario($companyName, $generation->prompt ?? '', $lang);
+
+                if (! $res) {
+                    throw new Exception("Intel service failed to return a response.");
+                }
+
+                // Intel service returns the full JSON. Treat as a single block for logic compatibility.
+                $text = json_encode($res, JSON_UNESCAPED_UNICODE);
+                $assembled .= $text;
+                $buffer .= $text;
+
+                // Mark completion milestones
+                $generation->metadata = array_merge($generation->metadata ?? [], [
+                    'first_chunk_at' => now()->toDateTimeString(),
+                    'last_chunk_at' => now()->toDateTimeString(),
+                ]);
+                $generation->save();
+
+                try {
+                    if ($useDb) {
+                        GenerationChunk::create([
+                            'scenario_generation_id' => $generation->id,
+                            'sequence' => $seq++,
+                            'chunk' => $buffer,
+                        ]);
+                    }
+                    if ($useRedis) {
+                        $orgId = $generation->organization_id ?? ($generation->metadata['organization_id'] ?? null);
+                        $scenarioId = $generation->metadata['scenario_id'] ?? null;
+                        $redisBuf->pushChunk((int) $orgId, (int) $generation->id, $buffer, null, $scenarioId);
+                    }
+                } catch (\Throwable $e) {
+                    Log::error('Failed to persist intel chunk: '.$e->getMessage(), ['generation_id' => $generation->id]);
+                }
+
+                $buffer = '';
+                $result = $res;
             } else {
                 // Fallback for non-Abacus providers: call generate() (tests often provide a
                 // mocked LLMClient that implements generate()). Emit a single delta

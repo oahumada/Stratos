@@ -9,7 +9,7 @@ use App\Models\Competency;
 use App\Models\Skill;
 use App\Models\Organization;
 use App\Models\User;
-use App\Services\Intelligence\GapAnalysisService;
+use App\Services\Intelligence\StratosIntelService;
 use App\Jobs\AnalyzeTalentGap;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -81,7 +81,7 @@ it('orchestrates end-to-end ai strategy generation', function () {
 
     // 4. Manually run the job to verify the rest of the chain
     $job = new AnalyzeTalentGap($cGap->id);
-    $job->handle(new GapAnalysisService());
+    $job->handle(new StratosIntelService());
 
     // 5. Verify official strategy table
     $this->assertDatabaseHas('scenario_closure_strategies', [

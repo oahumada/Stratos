@@ -5,7 +5,7 @@ namespace App\Services\Intelligence;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class GapAnalysisService
+class StratosIntelService
 {
     protected string $baseUrl;
     protected int $timeout;
@@ -45,7 +45,40 @@ class GapAnalysisService
             return null;
 
         } catch (\Exception $e) {
-            Log::error('Exception calling Python service', ['message' => $e->getMessage()]);
+            Log::error('Exception calling Python service (analyzeGap)', ['message' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    /**
+     * Generate a scenario using the Python Intelligence Service (DeepSeek/GPT).
+     */
+    public function generateScenario(string $companyName, string $instruction, string $language = 'es'): ?array
+    {
+        try {
+            Log::info('Sending scenario generation request to Python service', ['company' => $companyName]);
+
+            $response = Http::timeout(120) // Scenarios take longer
+                ->post("{$this->baseUrl}/generate-scenario", [
+                    'company_name' => $companyName,
+                    'instruction' => $instruction,
+                    'language' => $language
+                ]);
+
+            if ($response->successful()) {
+                Log::info('Received scenario generation from Python service');
+                return $response->json();
+            }
+
+            Log::error('Failed to generate scenario from Python service', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Exception calling Python service (generateScenario)', ['message' => $e->getMessage()]);
             return null;
         }
     }

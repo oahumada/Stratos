@@ -1,6 +1,6 @@
 # Master Stratos Memory – Single Source of Truth
 
-**Última actualización:** 17 Febrero 2026  
+**Última actualización:** 18 Febrero 2026  
 **Status Global:**
 
 - Core MVP (Backend/Frontend) ✅ COMPLETADO
@@ -120,6 +120,11 @@ El sistema cuantifica el impacto financiero basado en supuestos configurables:
 ---
 
 # VOL V: BITÁCORA HISTÓRICA RECIENTE
+
+### [2026-02-18] Integración Live con DeepSeek y Scenario Generation ✅
+
+- **Hito**: Transición a un motor de IA "Live" (no-mocked) con integración de DeepSeek.
+- **Detalle**: Implementado el microservicio de inteligencia en Python (`FastAPI` + `CrewAI`) que orquestra agentes de diseño organizacional. Consolidación de servicios en `StratosIntelService`. Soporte para generación de blueprints de escenarios completos con lógica de "Strategic Talent Architect". Los costos operativos se reducen drásticamente respecto a OpenAI/GPT-4 manteniendo una alta calidad de salida JSON.
 
 ### [2026-02-17] Optimización y Testing Steps 6-7 ✅
 

@@ -112,6 +112,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/strategic-planning/scenarios/generate/preview', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'preview']);
     // ABACUS-backed immediate generation endpoint (uses AbacusClient streaming)
     Route::post('/strategic-planning/scenarios/generate/abacus', [\App\Http\Controllers\Api\ScenarioGenerationAbacusController::class, 'generate']);
+    // INTEL-backed generation endpoint (uses StratosIntelService / Python microservice)
+    Route::post('/strategic-planning/scenarios/generate/intel', [\App\Http\Controllers\Api\ScenarioGenerationIntelController::class, 'generate']);
     Route::get('/strategic-planning/scenarios/generate/{id}', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'show']);
     Route::post('/strategic-planning/scenarios/generate/{id}/accept', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'accept']);
     // Read streaming chunks for a generation (for UI progress/debug)

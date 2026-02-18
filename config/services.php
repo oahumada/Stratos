@@ -63,6 +63,7 @@ return [
     'python_intel' => [
         'base_url' => env('PYTHON_INTEL_URL', 'http://localhost:8000'),
         'timeout' => env('PYTHON_INTEL_TIMEOUT', 30),
+        'default_provider' => env('INTEL_DEFAULT_PROVIDER', 'intel'),
     ],
 
 ];

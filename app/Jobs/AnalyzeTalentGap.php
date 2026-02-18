@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Services\Intelligence\GapAnalysisService;
+use App\Services\Intelligence\StratosIntelService;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleCompetency;
 use Illuminate\Bus\Queueable;
@@ -31,7 +31,7 @@ class AnalyzeTalentGap implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(GapAnalysisService $intelService): void
+    public function handle(StratosIntelService $intelService): void
     {
         Log::info("Starting AnalyzeTalentGap job for ID: {$this->scenarioRoleCompetencyId}");
 

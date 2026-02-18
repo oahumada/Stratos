@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\Intelligence\GapAnalysisService;
+use App\Services\Intelligence\StratosIntelService;
 use Illuminate\Support\Facades\Http;
 
 it('recommends a strategy by calling the python service', function () {
@@ -13,7 +13,7 @@ it('recommends a strategy by calling the python service', function () {
         ], 200),
     ]);
 
-    $service = new GapAnalysisService();
+    $service = new StratosIntelService();
     $result = $service->analyzeGap([
         'role_context' => ['role_id' => 1, 'role_name' => 'Tester'],
         'competency_context' => ['competency_name' => 'PHP', 'required_level' => 3, 'current_level' => 1, 'gap_size' => 2],
@@ -30,7 +30,7 @@ it('handles python service failure gracefully', function () {
         'http://localhost:8000/analyze-gap' => Http::response([], 500),
     ]);
 
-    $service = new GapAnalysisService();
+    $service = new StratosIntelService();
     $result = $service->analyzeGap([]);
 
     expect($result)->toBeNull();

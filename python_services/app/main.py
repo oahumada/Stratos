@@ -50,7 +50,6 @@ def analyze_gap(request: GapAnalysisRequest):
         )
 
     try:
-        # 1. Define the Agent
         analyst = Agent(
             role='Senior Talent Strategy Consultant',
             goal='Analyze competency gaps and recommend the most effective closure strategy (Buy, Build, Borrow) based on business context.',
@@ -59,7 +58,12 @@ def analyze_gap(request: GapAnalysisRequest):
             You prefer 'Build' (Training) for smaller gaps in core talent, and 'Buy' (Hiring) for urgent, large gaps in critical new technologies.""",
             verbose=True,
             allow_delegation=False,
-            llm=ChatOpenAI(model_name=os.getenv("OPENAI_MODEL_NAME", "gpt-4o"), temperature=0.7)
+            llm=ChatOpenAI(
+                model_name=os.getenv("OPENAI_MODEL_NAME", "deepseek-chat"), 
+                temperature=0.7,
+                openai_api_base=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com"),
+                openai_api_key=os.getenv("OPENAI_API_KEY")
+            )
         )
 
         # 2. Define the Task
@@ -100,6 +104,83 @@ def analyze_gap(request: GapAnalysisRequest):
 
         result = crew.kickoff()
         return result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class ScenarioRequest(BaseModel):
+    company_name: str
+    instruction: str
+    language: str = "es"
+
+@app.post("/generate-scenario")
+def generate_scenario(request: ScenarioRequest):
+    # Check if we should use Mock mode
+    if os.getenv("STRATOS_MOCK_IA", "false").lower() == "true":
+        return {
+            "scenario_metadata": {"name": "Mock Scenario", "generated_at": "2026-02-18", "confidence_score": 0.9},
+            "capabilities": [],
+            "suggested_roles": []
+        }
+
+    try:
+        # 1. Define the Architect Agent
+        architect = Agent(
+            role='Strategic Talent Architect',
+            goal='Design complex organizational competency maps and hybrid talent blueprints.',
+            backstory="""You are a world-class organizational designer. 
+            You specialize in translating business instructions into structured capability models.
+            You understand the synergy between Human and Synthetic (AI) talent.""",
+            verbose=True,
+            allow_delegation=False,
+            llm=ChatOpenAI(
+                model_name=os.getenv("OPENAI_MODEL_NAME", "deepseek-chat"), 
+                temperature=0.3, # Lower temperature for structural tasks
+                openai_api_base=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com"),
+                openai_api_key=os.getenv("OPENAI_API_KEY")
+            )
+        )
+
+        # 2. Define the Task
+        # We'll use a very structured prompt similar to the one in Laravel
+        task_description = f"""
+        DESIGN A TALENT ENGINEERING BLUEPRINT for {request.company_name}.
+        
+        INSTRUCTIONS:
+        {request.instruction}
+        
+        LANGUAGE: {request.language}
+        
+        OUTPUT REQUIREMENTS:
+        - Return ONLY a single valid JSON object.
+        - Must include scenario_metadata, capabilities (with competencies and skills), competencies (flat list), skills (flat list), suggested_roles, impact_analysis, confidence_score, and assumptions.
+        - Every suggested role MUST have a talent_composition (human_percentage, synthetic_percentage).
+        """
+
+        architect_task = Task(
+            description=task_description,
+            agent=architect,
+            expected_output="A full, complex JSON object matching the Stratos Talent Engineering Blueprint schema."
+        )
+
+        # 3. Execution
+        crew = Crew(
+            agents=[architect],
+            tasks=[architect_task],
+            verbose=True
+        )
+
+        result = crew.kickoff()
+        
+        # Result from kickoff might be a string if output_json wasn't used, 
+        # but let's assume we want to parse it as JSON.
+        import json
+        try:
+            # CrewAI 0.28+ result is a CrewOutput object, raw is result.raw
+            raw_output = str(result)
+            return json.loads(raw_output)
+        except Exception:
+            return {"raw_output": str(result), "error": "Could not parse JSON output"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

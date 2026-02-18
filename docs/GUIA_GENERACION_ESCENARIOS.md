@@ -77,38 +77,38 @@ Hitos:
 2. Cuestionario de Contexto Estratégico (para el operador)
 
 - SECCIÓN 1: IDENTIDAD ORGANIZACIONAL
-  - `company_name` (texto)
-  - `industry` (dropdown)
-  - `sub_industry` (texto)
-  - `company_size` (número)
-  - `geographic_scope` (dropdown)
-  - `organizational_cycle` (dropdown)
+    - `company_name` (texto)
+    - `industry` (dropdown)
+    - `sub_industry` (texto)
+    - `company_size` (número)
+    - `geographic_scope` (dropdown)
+    - `organizational_cycle` (dropdown)
 
 - SECCIÓN 2: SITUACIÓN ACTUAL
-  - `current_challenges` (textarea)
-  - `current_capabilities` (textarea)
-  - `current_gaps` (textarea)
-  - `current_roles_count` (número)
-  - `has_formal_competency_model` (boolean)
+    - `current_challenges` (textarea)
+    - `current_capabilities` (textarea)
+    - `current_gaps` (textarea)
+    - `current_roles_count` (número)
+    - `has_formal_competency_model` (boolean)
 
 - SECCIÓN 3: INTENCIÓN ESTRATÉGICA
-  - `strategic_goal` (textarea)
-  - `target_markets` (textarea)
-  - `expected_growth` (dropdown)
-  - `transformation_type` (checkboxes)
-  - `key_initiatives` (textarea)
+    - `strategic_goal` (textarea)
+    - `target_markets` (textarea)
+    - `expected_growth` (dropdown)
+    - `transformation_type` (checkboxes)
+    - `key_initiatives` (textarea)
 
 - SECCIÓN 4: RESTRICCIONES Y RECURSOS
-  - `budget_level` (dropdown)
-  - `talent_availability` (dropdown)
-  - `training_capacity` (dropdown)
-  - `technology_maturity` (dropdown)
-  - `critical_constraints` (textarea)
+    - `budget_level` (dropdown)
+    - `talent_availability` (dropdown)
+    - `training_capacity` (dropdown)
+    - `technology_maturity` (dropdown)
+    - `critical_constraints` (textarea)
 
 - SECCIÓN 5: HORIZONTE TEMPORAL
-  - `time_horizon` (dropdown)
-  - `urgency_level` (dropdown)
-  - `milestones` (textarea)
+    - `time_horizon` (dropdown)
+    - `urgency_level` (dropdown)
+    - `milestones` (textarea)
 
 3. Instrucciones operativas para la IA
 
@@ -130,22 +130,22 @@ Hitos:
 5. Diseño Backend (sugerido)
 
 - Nueva tabla `scenario_generations` (migration):
-  - id, organization_id, created_by, prompt (text), llm_response (json), generated_at, confidence_score (decimal), status (queued/complete/failed), metadata (json), model_version, redacted boolean, timestamps.
+    - id, organization_id, created_by, prompt (text), llm_response (json), generated_at, confidence_score (decimal), status (queued/complete/failed), metadata (json), model_version, redacted boolean, timestamps.
 - Servicio: `ScenarioGenerationService`
-  - Método `preparePrompt(data, user, org)` → construye prompt estructurado + añade contexto desde `openmemory.md` u otros recursos del repo.
-  - Método `enqueueGeneration(prompt, meta)` → crea `scenario_generations` con status `queued` y dispatch de Job `GenerateScenarioFromLLMJob`.
+    - Método `preparePrompt(data, user, org)` → construye prompt estructurado + añade contexto desde `openmemory.md` u otros recursos del repo.
+    - Método `enqueueGeneration(prompt, meta)` → crea `scenario_generations` con status `queued` y dispatch de Job `GenerateScenarioFromLLMJob`.
 - Job `GenerateScenarioFromLLMJob`
-  - Llama al LLM (cliente configurable), guarda respuesta en `llm_response`, extrae `confidence_score` y setea `status=complete`.
-  - En caso de error setea `status=failed` y registra intentos.
+    - Llama al LLM (cliente configurable), guarda respuesta en `llm_response`, extrae `confidence_score` y setea `status=complete`.
+    - En caso de error setea `status=failed` y registra intentos.
 - Endpoint API (`POST /api/strategic-planning/scenarios/generate`)
-  - Requiere autenticación y `organization_id`; valida campos mínimos; retorna `generation_id` y `status`.
+    - Requiere autenticación y `organization_id`; valida campos mínimos; retorna `generation_id` y `status`.
 - Endpoint de consulta (`GET /api/strategic-planning/scenarios/generate/{id}`)
-  - Devuelve `llm_response`, metadata, estado.
+    - Devuelve `llm_response`, metadata, estado.
 
 6. Diseño Frontend (sugerido)
 
 - Wizard 5 pantallas como componentes en `resources/js/pages/ScenarioPlanning/GenerateWizard/`:
-  - `StepIdentity.vue`, `StepSituation.vue`, `StepIntent.vue`, `StepResources.vue`, `StepHorizon.vue`.
+    - `StepIdentity.vue`, `StepSituation.vue`, `StepIntent.vue`, `StepResources.vue`, `StepHorizon.vue`.
 - Estado temporal con Pinia `useScenarioGenerationStore` (almacena campos, validaciones, progreso, preview).
 - Botón `Generar` que llama `POST /api/.../generate` y muestra loader y barra de progreso.
 - Revisión: usar un modal tipo `ChangeSetModal.vue` para mostrar salida friendly + JSON toggle, permitir `Guardar como borrador` o `Crear Scenario`.
@@ -265,6 +265,27 @@ npm run test:e2e:headed
     ```
     - Asegúrate de levantar el servidor (`php artisan serve` o equivalente) y que `LLM_PROVIDER=mock` en el entorno de E2E.
 
+- **Provider en producción: INTEL (DeepSeek / Python Microservice)**
+- Variables requeridas:
+  - `INTEL_DEFAULT_PROVIDER=intel` — Habilita el nuevo flujo vía microservicio Python.
+  - `PYTHON_INTEL_URL=http://localhost:8000` — URL del microservicio.
+  - `PYTHON_INTEL_TIMEOUT=30` — Timeout para la petición.
+
+- **Comportamiento del job y manejo de errores (Intel):**
+  - Al usar el proveedor `intel`, el job `GenerateScenarioFromLLMJob` no realiza streaming. En su lugar, solicita al microservicio Python que ejecute el flujo de agentes (CrewAI) y devuelva el objeto JSON completo.
+  - El resultado se persiste como un único chunk en el sistema de almacenamiento (ej. Redis/DB) para mantener compatibilidad con la UI de polling.
+  - El microservicio Python cuenta con sus propios mecanismos de reintento y validación de salida JSON.
+
+- **Notas para pruebas de aceptación manual desde navegador:**
+  - Usar GenerateWizard: rellenar los 5 pasos → `Preview` → `Generate` → comprobar en UI el polling del `generation_id` hasta `complete` y revisar `llm_response` en el modal.
+  - Para probar errores/latencias, usar `MockProvider` que puede simular 429/5xx (activar `LLM_MOCK_SIMULATE_429=true`).
+  - Para pruebas con LLM real, coordinar claves y activar `LLM_ENABLED`/feature-flag en staging; limitar el número de llamadas y monitorizar coste.
+
+- **Comportamiento del job y manejo de errores:**
+  - Marca `status=processing` al iniciar; guarda `llm_response` redacted al completar.
+  - Reintenta automáticamente en `LLMRateLimitException` con backoff exponencial (máx 5 intentos).
+  - En fallos 5xx o excepciones marca `status=failed` y persiste metadata con mensaje.
+
 - **Variables de entorno y cómo habilitar provider real (con precaución):**
   - **Provider en producción: ABACUS (NO OpenAI)**
   - Variables ABACUS requeridas:
@@ -303,13 +324,13 @@ Si deseas, puedo:
 ````
 
 - Variables de entorno: copie `.env.playwright.example` a `.env.playwright` o exporte en CI las siguientes variables mínimas:
-  - `BASE_URL` — URL donde corre la app de pruebas (ej. `http://localhost:8000`).
-  - `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD` — credenciales de usuario E2E.
-  - `LLM_PROVIDER` — en CI usar `mock` para evitar llamadas reales.
+    - `BASE_URL` — URL donde corre la app de pruebas (ej. `http://localhost:8000`).
+    - `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD` — credenciales de usuario E2E.
+    - `LLM_PROVIDER` — en CI usar `mock` para evitar llamadas reales.
 
 - Helpers recomendados (ubicación): `src/tests/e2e/helpers/`
-  - `login.ts` — helper para login por UI o API.
-  - `intercepts.ts` — helpers para interceptar endpoints LLM/preview/generate/status y servir fixtures.
+    - `login.ts` — helper para login por UI o API.
+    - `intercepts.ts` — helpers para interceptar endpoints LLM/preview/generate/status y servir fixtures.
 
 - Fixtures LLM: colocar respuestas controladas en `src/tests/fixtures/llm/` y usarlas en `intercepts.ts`.
 
@@ -321,55 +342,55 @@ Si deseas, puedo:
 name: Playwright E2E
 
 on:
-  pull_request:
-    branches: [main]
+    pull_request:
+        branches: [main]
 
 jobs:
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-      - name: Install dependencies (frontend)
-        working-directory: src
-        run: npm ci
-      - name: Install Playwright browsers
-        working-directory: src
-        run: npx playwright install --with-deps
-      - name: Run Playwright E2E
-        working-directory: src
-        env:
-          BASE_URL: ${{ secrets.E2E_BASE_URL }}
-          LLM_PROVIDER: mock
-          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
-          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
-        run: npm run test:e2e
+    e2e:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+            - name: Install dependencies (frontend)
+              working-directory: src
+              run: npm ci
+            - name: Install Playwright browsers
+              working-directory: src
+              run: npx playwright install --with-deps
+            - name: Run Playwright E2E
+              working-directory: src
+              env:
+                  BASE_URL: ${{ secrets.E2E_BASE_URL }}
+                  LLM_PROVIDER: mock
+                  E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+                  E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+              run: npm run test:e2e
 ```
 
 16. LLM en CI / producción — configuración y recomendaciones (añadido)
 
 - Variables y adapter:
-  - `LLM_PROVIDER` — `mock|openai|anthropic|internal`.
-  - `LLM_API_KEY` — sólo en entornos controlados; NO en logs ni reportes.
-  - `LLM_MODE` — `production|test` (forzar `test` en CI).
+    - `LLM_PROVIDER` — `mock|openai|anthropic|internal`.
+    - `LLM_API_KEY` — sólo en entornos controlados; NO en logs ni reportes.
+    - `LLM_MODE` — `production|test` (forzar `test` en CI).
 
 - Recomendación de infraestructura:
-  - Implementar un `LLMClient` adaptador con una opción `mock` que lea fixtures desde `tests/fixtures/llm/` cuando `LLM_PROVIDER=mock`.
-  - En CI siempre exportar `LLM_PROVIDER=mock` para evitar llamadas externas. Añadir comprobación en startup/tests para fallar si `LLM_PROVIDER` es `production` y no se ha autorizado.
+    - Implementar un `LLMClient` adaptador con una opción `mock` que lea fixtures desde `tests/fixtures/llm/` cuando `LLM_PROVIDER=mock`.
+    - En CI siempre exportar `LLM_PROVIDER=mock` para evitar llamadas externas. Añadir comprobación en startup/tests para fallar si `LLM_PROVIDER` es `production` y no se ha autorizado.
 
 17. Edge-cases y tests adicionales (añadido)
 
 - Redacción / redaction:
-  - Test que envíe un prompt que contenga PII en preview y comprobar que el backend redactor elimina PII antes de persistir.
+    - Test que envíe un prompt que contenga PII en preview y comprobar que el backend redactor elimina PII antes de persistir.
 - Rate limits / errores LLM:
-  - Mockear respuestas `429` y `5xx` en `GenerateScenarioFromLLMJob` y comprobar reintentos/backoff y marcado `failed` tras N intentos.
+    - Mockear respuestas `429` y `5xx` en `GenerateScenarioFromLLMJob` y comprobar reintentos/backoff y marcado `failed` tras N intentos.
 - Reintentos / idempotencia:
-  - Tests de job que aseguren idempotencia (no duplicar `scenario` al reintentar).
+    - Tests de job que aseguren idempotencia (no duplicar `scenario` al reintentar).
 - Validación del payload LLM:
-  - Tests que comprueben la validación del JSON devuelto por LLM y rechazo cuando no cumple schema.
+    - Tests que comprueben la validación del JSON devuelto por LLM y rechazo cuando no cumple schema.
 
 18. Seguridad / secretos (añadido)
 

@@ -80,22 +80,25 @@ class ScenarioGenerationController extends Controller
         $prompt = $composed['prompt'] ?? '';
         $instructionMeta = $composed['instruction'] ?? null;
 
-        // Prefer Abacus provider for UI-initiated generations from the wizard.
-        // Align behavior with `scripts/generate_via_abacus.php`: determine model from
-        // config('services.abacus.model') or env, and include it as an explicit
-        // override so the Abacus client uses the chosen model.
-        $model = config('services.abacus.model') ?: env('ABACUS_MODEL', 'gpt-5');
-        $providerOptions = [
-            'overrides' => ['model' => $model],
+        // Determine provider (default to abacus for backward compatibility unless configured)
+        $provider = config('services.python_intel.default_provider', 'abacus');
+        
+        $metadata = [
+            'initiator' => $user->id,
+            'provider' => $provider,
+            'used_instruction' => $instructionMeta,
         ];
 
-        $metadata = array_merge([
-            'initiator' => $user->id,
-            'provider' => 'abacus',
-            'provider_options' => $providerOptions,
-            // record which model we attempted to use for traceability (mirrors script behavior)
-            'used_provider_model' => $model,
-        ], ['used_instruction' => $instructionMeta]);
+        if ($provider === 'abacus') {
+            $model = config('services.abacus.model') ?: env('ABACUS_MODEL', 'gpt-5');
+            $metadata['provider_options'] = [
+                'overrides' => ['model' => $model],
+            ];
+            $metadata['used_provider_model'] = $model;
+        } elseif ($provider === 'intel') {
+            $metadata['company_name'] = $org->name;
+            $metadata['language'] = $payload['instruction_language'] ?? 'es';
+        }
 
         $generation = $svc->enqueueGeneration($prompt, $orgId, $user->id, $metadata);
 
