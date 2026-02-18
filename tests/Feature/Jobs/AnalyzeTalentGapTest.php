@@ -16,7 +16,7 @@ it('analyzes a talent gap and updates the database with IA strategy', function (
     $role = \App\Models\Roles::factory()->create();
     
     // Create the mapping in scenario_roles
-    \App\Models\ScenarioRole::factory()->create([
+    $sRole = \App\Models\ScenarioRole::factory()->create([
         'scenario_id' => $scenario->id,
         'role_id' => $role->id,
     ]);
@@ -24,13 +24,14 @@ it('analyzes a talent gap and updates the database with IA strategy', function (
     // Now create the competency gap record
     $gapRecord = ScenarioRoleCompetency::factory()->create([
         'scenario_id' => $scenario->id,
-        'role_id' => $role->id,
+        'role_id' => $sRole->id,
         'required_level' => 3,
     ]);
 
     // 2. Mock Python Service
+    $intelUrl = config('services.python_intel.base_url');
     Http::fake([
-        'http://localhost:8000/analyze-gap' => Http::response([
+        "{$intelUrl}/analyze-gap" => Http::response([
             'strategy' => 'Build',
             'confidence_score' => 0.85,
             'reasoning_summary' => 'The gap is small enough for internal training.',
@@ -40,7 +41,7 @@ it('analyzes a talent gap and updates the database with IA strategy', function (
 
     // 3. Execute Job
     $job = new AnalyzeTalentGap($gapRecord->id);
-    $job->handle(new StratosIntelService());
+    app()->call([$job, 'handle']);
 
     // 4. Verify Database
     $gapRecord->refresh();

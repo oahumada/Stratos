@@ -61,8 +61,9 @@ it('orchestrates end-to-end ai strategy generation', function () {
     ]);
 
     // 2. Mock AI Service
+    $intelUrl = config('services.python_intel.base_url');
     Http::fake([
-        'http://localhost:8000/analyze-gap' => Http::response([
+        "{$intelUrl}/analyze-gap" => Http::response([
             'strategy' => 'Borrow',
             'confidence_score' => 0.92,
             'reasoning_summary' => 'Need external experts for rapid growth.',
@@ -81,7 +82,7 @@ it('orchestrates end-to-end ai strategy generation', function () {
 
     // 4. Manually run the job to verify the rest of the chain
     $job = new AnalyzeTalentGap($cGap->id);
-    $job->handle(new StratosIntelService());
+    app()->call([$job, 'handle']);
 
     // 5. Verify official strategy table
     $this->assertDatabaseHas('scenario_closure_strategies', [
