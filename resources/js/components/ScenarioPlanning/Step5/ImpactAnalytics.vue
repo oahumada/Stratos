@@ -12,9 +12,25 @@
                                 >Visualización de Impacto Estratégico (IA)</span
                             >
                         </div>
-                        <v-chip size="small" color="white" variant="outlined">
-                            Proyección a {{ horizon }} meses
-                        </v-chip>
+                        <div class="d-flex align-center gap-2">
+                            <v-chip
+                                size="small"
+                                color="white"
+                                variant="outlined"
+                            >
+                                Proyección a {{ horizon }} meses
+                            </v-chip>
+                            <v-btn
+                                prepend-icon="mdi-printer"
+                                variant="text"
+                                color="white"
+                                size="small"
+                                class="ml-2"
+                                @click="printReport"
+                            >
+                                Exportar
+                            </v-btn>
+                        </div>
                     </v-card-title>
 
                     <v-card-text class="pa-6">
@@ -157,6 +173,65 @@
                                 </div>
 
                                 <div
+                                    class="impact-summary-box pa-4 bg-grey-lighten-4 mb-4 rounded border"
+                                >
+                                    <div
+                                        class="text-subtitle-2 font-weight-bold d-flex align-center justify-space-between mb-2 text-primary"
+                                    >
+                                        <span>Riesgo de Ejecución</span>
+                                        <v-chip
+                                            size="x-small"
+                                            :color="
+                                                getRiskColor(
+                                                    impactData?.risk_level,
+                                                )
+                                            "
+                                            class="text-uppercase"
+                                        >
+                                            {{
+                                                impactData?.risk_level || 'Bajo'
+                                            }}
+                                        </v-chip>
+                                    </div>
+                                    <v-progress-linear
+                                        :model-value="
+                                            impactData?.risk_score || 0
+                                        "
+                                        :color="
+                                            getRiskColor(impactData?.risk_level)
+                                        "
+                                        height="8"
+                                        rounded
+                                        class="mb-3"
+                                    ></v-progress-linear>
+
+                                    <div
+                                        v-if="impactData?.risk_factors?.length"
+                                        class="risk-factors"
+                                    >
+                                        <div
+                                            v-for="(
+                                                factor, idx
+                                            ) in impactData.risk_factors"
+                                            :key="idx"
+                                            class="d-flex align-start text-caption mb-1"
+                                        >
+                                            <v-icon
+                                                icon="mdi-alert-circle-outline"
+                                                size="14"
+                                                :color="
+                                                    getRiskColor(
+                                                        impactData?.risk_level,
+                                                    )
+                                                "
+                                                class="mt-1 mr-2"
+                                            />
+                                            <span>{{ factor }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div
                                     class="impact-summary-box pa-4 bg-grey-lighten-4 rounded border"
                                 >
                                     <div
@@ -269,6 +344,13 @@ const fetchData = async () => {
             productivity_index: 92,
             time_to_fill: 14,
             estimated_roi: 3.2,
+            risk_score: 42,
+            risk_level: 'Medio',
+            risk_factors: [
+                'Dependencia moderada de contrataciones externas (35%)',
+                'Calidad de datos de origen en nivel aceptable (72%)',
+                'Curva de aprendizaje de agentes IA estimada en 16 semanas',
+            ],
             tfc_breakdown: [
                 { type: 'buy', weeks: 12, count: 2 },
                 { type: 'build', weeks: 24, count: 5 },
@@ -292,6 +374,21 @@ const fetchData = async () => {
         setTimeout(initChart, 100);
     } finally {
         loading.value = false;
+    }
+};
+
+const getRiskColor = (level: string) => {
+    switch (level?.toLowerCase()) {
+        case 'crítico':
+            return 'red-darken-4';
+        case 'alto':
+            return 'error';
+        case 'medio':
+            return 'warning';
+        case 'bajo':
+            return 'success';
+        default:
+            return 'grey';
     }
 };
 
@@ -381,6 +478,10 @@ const initChart = () => {
     });
 };
 
+const printReport = () => {
+    globalThis.print();
+};
+
 onMounted(fetchData);
 
 watch(() => props.scenarioId, fetchData);
@@ -423,5 +524,47 @@ watch(() => props.scenarioId, fetchData);
 
 .tfc-bar:last-child {
     border-right: none;
+}
+
+@media print {
+    /* Hide everything except this card */
+    :deep(header),
+    :deep(nav),
+    :deep(footer),
+    :deep(.v-btn),
+    :deep(.v-slider) {
+        display: none !important;
+    }
+
+    .impact-analytics {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .v-card {
+        box-shadow: none !important;
+        border: 1px solid #eee !important;
+    }
+
+    .chart-container {
+        height: 450px !important; /* Larger for print */
+    }
+
+    .bg-primary {
+        background-color: #2563eb !important;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .text-white {
+        color: white !important;
+    }
+
+    .pa-6 {
+        padding: 20px !important;
+    }
 }
 </style>

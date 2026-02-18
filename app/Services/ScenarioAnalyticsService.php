@@ -248,6 +248,7 @@ class ScenarioAnalyticsService
         }
 
         $gapClosure = $totalStrategies > 0 ? 85 : 0;
+        $riskData = $this->calculateRiskScore($scenarioId, $strategyStats, $actualLevels);
         
         return [
             'gap_closure' => $gapClosure,
@@ -258,13 +259,84 @@ class ScenarioAnalyticsService
                 'weeks' => $tfcBreakdown[$s->strategy] ?? 12,
                 'count' => $s->count
             ]),
-            'estimated_roi' => $totalCost > 0 ? round((($gapClosure * 5000) / $totalCost), 2) : 0, // ROI Simplificado: Valor del Gap vs Inversión
-            'summary' => "Basado en " . $totalStrategies . " acciones estratégicas, la organización proyecta un cierre de brechas del " . $gapClosure . "%. El tiempo estimado para alcanzar la plena capacidad operativa es de " . $weightedTFC . " semanas.",
+            'estimated_roi' => $totalCost > 0 ? round((($gapClosure * 5000) / $totalCost), 2) : 0,
+            'risk_score' => $riskData['score'],
+            'risk_level' => $riskData['level'],
+            'risk_factors' => $riskData['factors'],
+            'summary' => "Basado en " . $totalStrategies . " acciones estratégicas, la organización proyecta un cierre de brechas del " . $gapClosure . "%. " . $riskData['summary'],
             'chart' => [
                 'labels' => $labels,
                 'actual' => $actualLevels,
                 'projected' => $projectedLevels
             ]
+        ];
+    }
+
+    /**
+     * Calcula el nivel de riesgo de ejecución del escenario.
+     */
+    private function calculateRiskScore(int $scenarioId, $strategyStats, array $actualLevels): array
+    {
+        $score = 0;
+        $factors = [];
+        $totalStrategies = $strategyStats->sum('count') ?: 1;
+        
+        $stats = $strategyStats->pluck('count', 'strategy')->toArray();
+        $buyPct = (($stats['buy'] ?? 0) / $totalStrategies) * 100;
+        $buildPct = (($stats['build'] ?? 0) / $totalStrategies) * 100;
+        $botPct = (($stats['bot'] ?? 0) / $totalStrategies) * 100;
+
+        // 1. Riesgo por dependencia de mercado (BUY)
+        if ($buyPct > 40) {
+            $score += 25;
+            $factors[] = "Alta dependencia de contratación externa (" . round($buyPct) . "%). Riesgo de volatilidad salarial y escasez de talento.";
+        }
+
+        // 2. Riesgo por tiempos de maduración (BUILD)
+        if ($buildPct > 50) {
+            $score += 20;
+            $factors[] = "Carga excesiva en desarrollo interno. Riesgo de fatiga organizacional y retrasos en upskilling.";
+        }
+
+        // 3. Riesgo de implementación tecnológica (BOT)
+        if ($botPct > 30) {
+            $score += 30;
+            $factors[] = "Alta transformación hacia IA (" . round($botPct) . "%). Riesgo de fricción cultural y desafíos de integración técnica.";
+        }
+
+        // 4. Riesgo por calidad de datos (Confidence Score)
+        $confidence = $this->getConfidenceScore($scenarioId);
+        if ($confidence < 0.6) {
+            $penalty = (0.6 - $confidence) * 50;
+            $score += $penalty;
+            $factors[] = "Baja calidad de evidencia en datos de origen (Confidence: " . ($confidence * 100) . "%). El plan podría basarse en supuestos imprecisos.";
+        }
+
+        // 5. Riesgo por profundidad de brecha
+        $avgActual = count($actualLevels) > 0 ? array_sum($actualLevels) / count($actualLevels) : 100;
+        if ($avgActual < 40) {
+            $score += 20;
+            $factors[] = "Brechas de competencia críticas identificadas. La magnitud del cambio requerido es estructuralmente alta.";
+        }
+
+        $score = min(100, round($score));
+        $level = 'Bajo';
+        if ($score > 75) $level = 'Crítico';
+        elseif ($score > 50) $level = 'Alto';
+        elseif ($score > 25) $level = 'Medio';
+
+        $summary = "El riesgo de ejecución se califica como **" . $level . "** (" . $score . "/100).";
+        if ($score > 60) {
+            $summary .= " Se recomienda revisar los factores de mitigación de la brecha logística.";
+        } else {
+            $summary .= " El plan es balanceado y ejecutable dentro de los márgenes estándar.";
+        }
+
+        return [
+            'score' => $score,
+            'level' => $level,
+            'factors' => $factors,
+            'summary' => $summary
         ];
     }
 }

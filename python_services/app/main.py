@@ -9,16 +9,13 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+
 # Force environment variable for libraries that might check it directly
 # langchain might use OPENAI_API_BASE, while openai v1 uses OPENAI_BASE_URL
-os.environ["OPENAI_API_BASE"] = os.getenv("OPENAI_API_BASE", "https://api.deepseek.com")
-os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_API_BASE", "https://api.deepseek.com") 
+os.environ["OPENAI_API_BASE"] = os.getenv("OPENAI_API_BASE", DEEPSEEK_BASE_URL)
+os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_API_BASE", DEEPSEEK_BASE_URL) 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
-
-# Debug Configuration
-# print(f"DEBUG: Using OPENAI_API_BASE={os.environ['OPENAI_API_BASE']}")
-# print(f"DEBUG: Using OPENAI_BASE_URL={os.environ['OPENAI_BASE_URL']}")
-# print(f"DEBUG: Using OPENAI_MODEL_NAME={os.getenv('OPENAI_MODEL_NAME', 'deepseek-chat')}")
 
 # Check for API key
 if not os.getenv("OPENAI_API_KEY") and os.getenv("STRATOS_MOCK_IA", "false").lower() == "false":
@@ -50,7 +47,7 @@ class DeepSeekLLM(ChatOpenAI):
         super().__init__(
             model="deepseek-chat",
             temperature=temperature,
-            base_url="https://api.deepseek.com",
+            base_url=DEEPSEEK_BASE_URL,
             api_key=os.getenv("OPENAI_API_KEY"),
             **kwargs
         )
@@ -63,7 +60,6 @@ def get_llm(temperature=0.7):
     
     if "deepseek" in api_base or "deepseek" in model_name:
         # Use Custom Wrapper for DeepSeek
-        print(f"DEBUG: returning DeepSeekLLM with temp={temperature}")
         return DeepSeekLLM(temperature=temperature)
     
     # Check for Abacus (future expansion)
