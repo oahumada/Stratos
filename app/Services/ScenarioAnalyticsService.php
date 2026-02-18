@@ -104,42 +104,50 @@ class ScenarioAnalyticsService
      */
     public function calculateSkillReadiness(int $scenarioId, int $skillId): float
     {
-        // Obtener todas las demandas de esta skill en el escenario
         $demands = ScenarioRoleSkill::where('scenario_id', $scenarioId)
             ->where('skill_id', $skillId)
-            ->where('change_type', '!=', 'obsolete') // Ignorar skills obsoletas
+            ->where('change_type', '!=', 'obsolete')
             ->get();
 
         if ($demands->isEmpty()) {
-            return 1.0; // Si no se requiere, estamos "listos"
+            return 1.0;
         }
 
         $readinessSum = 0;
-        $rolesEvaluated = 0;
-
         foreach ($demands as $demand) {
-            // Obtener el ID de rol base desde scenario_roles ya que demand->role_id es un ID de la tabla scenario_roles
-            $baseRole = \DB::table('scenario_roles')->where('id', $demand->role_id)->first();
-            $baseRoleId = $baseRole ? $baseRole->role_id : null;
+            $baseRoleId = \DB::table('scenario_roles')
+                ->where('id', $demand->role_id)
+                ->value('role_id');
 
-            // Obtener nivel promedio actual de las personas en ese rol base
-            $avgCurrentLevel = 0;
-            if ($baseRoleId) {
-                $avgCurrentLevel = PeopleRoleSkills::where('role_id', $baseRoleId)
-                    ->where('skill_id', $skillId)
-                    ->avg('current_level') ?: 0;
-            }
+            $avgCurrentLevel = $this->getAverageLevelForRoleAndSkill($baseRoleId, $skillId);
 
-            // Calcular readiness: min(1, current/required)
-            $readiness = $demand->required_level > 0
+            $readinessSum += $demand->required_level > 0
                 ? min(1, $avgCurrentLevel / $demand->required_level)
                 : 1;
-
-            $readinessSum += $readiness;
-            $rolesEvaluated++;
         }
 
-        return $rolesEvaluated > 0 ? $readinessSum / $rolesEvaluated : 0;
+        return $readinessSum / $demands->count();
+    }
+
+    private function getAverageLevelForRoleAndSkill(?int $roleId, int $skillId): float
+    {
+        if (!$roleId) {
+            return 0;
+        }
+
+        $hipoAvg = PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
+            ->where('people_role_skills.role_id', $roleId)
+            ->where('people_role_skills.skill_id', $skillId)
+            ->where('people.is_high_potential', true)
+            ->avg('people_role_skills.current_level');
+
+        if ($hipoAvg !== null) {
+            return (float) $hipoAvg;
+        }
+
+        return (float) (PeopleRoleSkills::where('role_id', $roleId)
+            ->where('skill_id', $skillId)
+            ->avg('current_level') ?: 0);
     }
 
     /**
@@ -176,31 +184,87 @@ class ScenarioAnalyticsService
     }
 
     /**
-     * Obtiene un breakdown detallado de gaps por competencia.
+     * Calcula el impacto proyectado del escenario basado en las estrategias aplicadas.
      */
-    public function getCompetencyGapAnalysis(int $scenarioId, int $roleId): array
+    public function calculateImpact(int $scenarioId): array
     {
-        $competencies = ScenarioRoleCompetency::where('scenario_id', $scenarioId)
-            ->where('role_id', $roleId)
-            ->with('competency.competencySkills.skill')
+        $scenario = Scenario::with(['capabilities.competencies'])->findOrFail($scenarioId);
+        
+        $labels = [];
+        $actualLevels = [];
+        $projectedLevels = [];
+        
+        // 1. Obtener todas las competencias vinculadas al escenario
+        $competencies = \DB::table('capability_competencies')
+            ->join('competencies', 'capability_competencies.competency_id', '=', 'competencies.id')
+            ->where('capability_competencies.scenario_id', $scenarioId)
+            ->select('competencies.id', 'competencies.name')
+            ->distinct()
             ->get();
 
-        $gaps = [];
+        foreach ($competencies as $comp) {
+            $actual = $this->calculateCompetencyReadiness($scenarioId, $comp->id) * 100;
+            
+            // Proyectado: Buscamos si hay estrategias aprobadas/propuestas para skills de esta competencia
+            // Simplificación: si hay estrategias, el gap se reduce un 80% (marginal impact)
+            $strategiesCount = \DB::table('scenario_closure_strategies')
+                ->join('competency_skills', 'scenario_closure_strategies.skill_id', '=', 'competency_skills.skill_id')
+                ->where('scenario_closure_strategies.scenario_id', $scenarioId)
+                ->where('competency_skills.competency_id', $comp->id)
+                ->count();
 
-        foreach ($competencies as $scenarioComp) {
-            $readiness = $this->calculateCompetencyReadiness($scenarioId, $scenarioComp->competency_id);
+            $improvement = $strategiesCount > 0 ? (100 - $actual) * 0.85 : 0;
+            $projected = $actual + $improvement;
 
-            $gaps[] = [
-                'competency_id' => $scenarioComp->competency_id,
-                'competency_name' => $scenarioComp->competency->name,
-                'required_level' => $scenarioComp->required_level,
-                'readiness' => round($readiness * 100, 1),
-                'gap' => round((1 - $readiness) * 100, 1),
-                'is_core' => $scenarioComp->is_core,
-                'change_type' => $scenarioComp->change_type,
-            ];
+            $labels[] = $comp->name;
+            $actualLevels[] = round($actual, 1);
+            $projectedLevels[] = round($projected, 1);
         }
 
-        return $gaps;
+        // KPIs Mejorados basados en datos reales de estrategias
+        $strategyStats = \DB::table('scenario_closure_strategies')
+            ->where('scenario_id', $scenarioId)
+            ->select('strategy', \DB::raw('count(*) as count'), \DB::raw('sum(estimated_cost) as total_cost'))
+            ->groupBy('strategy')
+            ->get();
+
+        $totalStrategies = $strategyStats->sum('count');
+        $totalCost = $strategyStats->sum('total_cost');
+
+        // Desglose de Tiempo a Plena Capacidad (TFC)
+        $tfcBreakdown = [
+            'buy' => 12,    // Semanas promedio para contratar + onboarding
+            'build' => 24,  // Semanas promedio para upskilling real
+            'borrow' => 6,  // Semanas promedio para freelance/outsourcing
+            'bot' => 16     // Semanas promedio para implementación AI
+        ];
+
+        $weightedTFC = 0;
+        if ($totalStrategies > 0) {
+            foreach ($strategyStats as $stat) {
+                $weightedTFC += ($stat->count * ($tfcBreakdown[$stat->strategy] ?? 12));
+            }
+            $weightedTFC = round($weightedTFC / $totalStrategies, 1);
+        }
+
+        $gapClosure = $totalStrategies > 0 ? 85 : 0;
+        
+        return [
+            'gap_closure' => $gapClosure,
+            'productivity_index' => 15 + ($gapClosure * 0.8),
+            'time_to_fill' => $weightedTFC ?: 12,
+            'tfc_breakdown' => $strategyStats->map(fn($s) => [
+                'type' => $s->strategy,
+                'weeks' => $tfcBreakdown[$s->strategy] ?? 12,
+                'count' => $s->count
+            ]),
+            'estimated_roi' => $totalCost > 0 ? round((($gapClosure * 5000) / $totalCost), 2) : 0, // ROI Simplificado: Valor del Gap vs Inversión
+            'summary' => "Basado en " . $totalStrategies . " acciones estratégicas, la organización proyecta un cierre de brechas del " . $gapClosure . "%. El tiempo estimado para alcanzar la plena capacidad operativa es de " . $weightedTFC . " semanas.",
+            'chart' => [
+                'labels' => $labels,
+                'actual' => $actualLevels,
+                'projected' => $projectedLevels
+            ]
+        ];
     }
 }

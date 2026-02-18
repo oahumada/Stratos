@@ -31,7 +31,7 @@ class AnalyzeTalentGap implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(StratosIntelService $intelService): void
+    public function handle(StratosIntelService $intelService, \App\Services\Intelligence\MarketIntelligenceService $marketService): void
     {
         Log::info("Starting AnalyzeTalentGap job for ID: {$this->scenarioRoleCompetencyId}");
 
@@ -69,7 +69,7 @@ class AnalyzeTalentGap implements ShouldQueue
                 'current_headcount' => 1,
                 'talent_status' => 'Unknown'
             ],
-            'market_context' => null
+            'market_context' => $marketService->getRoleMarketContext($gapRecord->role_id)
         ];
 
         // 3. Call the Intelligence Service
@@ -145,7 +145,21 @@ class AnalyzeTalentGap implements ShouldQueue
             return 0;
         }
 
-        // Average proficiency of incumbents in those skills
+        // 1. Try to get average proficiency of High Potential incumbents
+        $hipoAvg = \DB::table('people_role_skills')
+            ->join('people', 'people_role_skills.people_id', '=', 'people.id')
+            ->where('people_role_skills.role_id', $scenarioRole->role_id)
+            ->whereIn('people_role_skills.skill_id', $skillIds)
+            ->where('people_role_skills.is_active', true)
+            ->where('people.is_high_potential', true)
+            ->avg('people_role_skills.current_level');
+
+        if ($hipoAvg !== null) {
+            Log::info("Using High Potential talent average for gap analysis", ['role_id' => $scenarioRole->role_id, 'avg' => $hipoAvg]);
+            return round((float) $hipoAvg, 1);
+        }
+
+        // 2. Fallback: Average proficiency of all incumbents in those skills
         $avg = \DB::table('people_role_skills')
             ->where('role_id', $scenarioRole->role_id)
             ->whereIn('skill_id', $skillIds)

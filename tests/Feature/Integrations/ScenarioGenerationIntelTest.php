@@ -83,7 +83,7 @@ class ScenarioGenerationIntelTest extends TestCase
         ];
 
         Http::fake([
-            'http://localhost:8000/generate-scenario' => Http::response($mockResponse, 200),
+            config('services.python_intel.base_url') . '/generate-scenario' => Http::response($mockResponse, 200),
         ]);
 
         $job = new GenerateScenarioFromLLMJob($generation->id);

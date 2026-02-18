@@ -151,6 +151,17 @@ Hitos:
 - Revisión: usar un modal tipo `ChangeSetModal.vue` para mostrar salida friendly + JSON toggle, permitir `Guardar como borrador` o `Crear Scenario`.
 - UX: permitir editar campos del JSON resultante antes de aceptar; mostrar `confidence_score` y `assumptions`.
 
+    6.1 Visualización de Impacto Estratégico (Paso 5)
+
+Tras la generación y refinamiento, el sistema ofrece una vista analítica del impacto proyectado:
+
+- **Gráfico de Radar Interactivo**: Compara el nivel de competencias "Actual" (priorizando empleados High Potential) vs el impacto esperado de la IA.
+- **Control de Simulación**: Slider de "Factor de Confianza" que permite al CHRO visualizar escenarios optimistas o conservadores en tiempo real.
+- **Métricas de ROI y TFC**:
+    - **Time to Full Capacity (TFC)**: Desglose visual del tiempo de maduración basado en estrategias Build (24 sem), Buy (12 sem), Borrow (6 sem) y Bot (16 sem).
+    - **Productivity Index**: Mejora estimada en la eficiencia operativa.
+- **Resumen Narrativo**: Explicación generada por IA sobre el valor estratégico del plan seleccionado.
+
 7. Integración con modelos existentes
 
 - Multi-tenant: forzar `organization_id` en calls y persistencia.

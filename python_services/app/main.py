@@ -59,10 +59,10 @@ def analyze_gap(request: GapAnalysisRequest):
             verbose=True,
             allow_delegation=False,
             llm=ChatOpenAI(
-                model_name=os.getenv("OPENAI_MODEL_NAME", "deepseek-chat"), 
+                model=os.getenv("OPENAI_MODEL_NAME", "deepseek-chat"), 
                 temperature=0.7,
-                openai_api_base=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com"),
-                openai_api_key=os.getenv("OPENAI_API_KEY")
+                base_url=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com"),
+                api_key=os.getenv("OPENAI_API_KEY")
             )
         )
 
@@ -112,6 +112,7 @@ class ScenarioRequest(BaseModel):
     company_name: str
     instruction: str
     language: str = "es"
+    market_context: dict | None = None
 
 @app.post("/generate-scenario")
 def generate_scenario(request: ScenarioRequest):
@@ -134,10 +135,10 @@ def generate_scenario(request: ScenarioRequest):
             verbose=True,
             allow_delegation=False,
             llm=ChatOpenAI(
-                model_name=os.getenv("OPENAI_MODEL_NAME", "deepseek-chat"), 
+                model=os.getenv("OPENAI_MODEL_NAME", "deepseek-chat"), 
                 temperature=0.3, # Lower temperature for structural tasks
-                openai_api_base=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com"),
-                openai_api_key=os.getenv("OPENAI_API_KEY")
+                base_url=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com"),
+                api_key=os.getenv("OPENAI_API_KEY")
             )
         )
 
@@ -148,6 +149,9 @@ def generate_scenario(request: ScenarioRequest):
         
         INSTRUCTIONS:
         {request.instruction}
+        
+        MARKET DATA:
+        {request.market_context or 'Not provided (use general knowledge)'}
         
         LANGUAGE: {request.language}
         

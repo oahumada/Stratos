@@ -11,6 +11,7 @@
 - **[ROADMAP_ESTRATEGICO_2026.md](ROADMAP_ESTRATEGICO_2026.md)** - 🗺️ **VISIÓN LARGO PLAZO Y TALENTO 360**
 - **[PLAN_DE_ATAQUE_EXCELENCIA.md](PLAN_DE_ATAQUE_EXCELENCIA.md)** - ⭐⭐⭐ **VISIÓN Y PLAN DE ATAQUE**
 - **[DIA6_INICIO_RESUMEN.md](DIA6_INICIO_RESUMEN.md)** - ⭐ Resumen de Día 6 (leer hoy)
+- **[INTELIGENCIA_INDEX.md](INTELIGENCIA_INDEX.md)** - 🧠 **AI HUB: DeepSeek, Microservicio Python y Agentes** (Hito 18-Feb)
 
 ---
 

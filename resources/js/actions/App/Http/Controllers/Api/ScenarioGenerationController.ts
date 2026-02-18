@@ -57,7 +57,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::demo
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:352
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:355
 * @route '/api/strategic-planning/scenarios/generate/demo'
 */
 export const demo = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -72,7 +72,7 @@ demo.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::demo
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:352
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:355
 * @route '/api/strategic-planning/scenarios/generate/demo'
 */
 demo.url = (options?: RouteQueryOptions) => {
@@ -81,7 +81,7 @@ demo.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::demo
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:352
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:355
 * @route '/api/strategic-planning/scenarios/generate/demo'
 */
 demo.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -91,7 +91,7 @@ demo.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::demo
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:352
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:355
 * @route '/api/strategic-planning/scenarios/generate/demo'
 */
 const demoForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -101,7 +101,7 @@ const demoForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => (
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::demo
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:352
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:355
 * @route '/api/strategic-planning/scenarios/generate/demo'
 */
 demoForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -113,7 +113,7 @@ demo.form = demoForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::preview
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:105
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:108
 * @route '/api/strategic-planning/scenarios/generate/preview'
 */
 export const preview = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -128,7 +128,7 @@ preview.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::preview
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:105
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:108
 * @route '/api/strategic-planning/scenarios/generate/preview'
 */
 preview.url = (options?: RouteQueryOptions) => {
@@ -137,7 +137,7 @@ preview.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::preview
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:105
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:108
 * @route '/api/strategic-planning/scenarios/generate/preview'
 */
 preview.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -147,7 +147,7 @@ preview.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::preview
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:105
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:108
 * @route '/api/strategic-planning/scenarios/generate/preview'
 */
 const previewForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -157,7 +157,7 @@ const previewForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::preview
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:105
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:108
 * @route '/api/strategic-planning/scenarios/generate/preview'
 */
 previewForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -169,7 +169,7 @@ preview.form = previewForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::show
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:171
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:174
 * @route '/api/strategic-planning/scenarios/generate/{id}'
 */
 export const show = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -184,7 +184,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::show
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:171
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:174
 * @route '/api/strategic-planning/scenarios/generate/{id}'
 */
 show.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -211,7 +211,7 @@ show.url = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::show
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:171
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:174
 * @route '/api/strategic-planning/scenarios/generate/{id}'
 */
 show.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -221,7 +221,7 @@ show.get = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::show
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:171
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:174
 * @route '/api/strategic-planning/scenarios/generate/{id}'
 */
 show.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -231,7 +231,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::show
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:171
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:174
 * @route '/api/strategic-planning/scenarios/generate/{id}'
 */
 const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -241,7 +241,7 @@ const showForm = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::show
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:171
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:174
 * @route '/api/strategic-planning/scenarios/generate/{id}'
 */
 showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -251,7 +251,7 @@ showForm.get = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::show
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:171
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:174
 * @route '/api/strategic-planning/scenarios/generate/{id}'
 */
 showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -268,7 +268,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::accept
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:205
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:208
 * @route '/api/strategic-planning/scenarios/generate/{id}/accept'
 */
 export const accept = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -283,7 +283,7 @@ accept.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::accept
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:205
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:208
 * @route '/api/strategic-planning/scenarios/generate/{id}/accept'
 */
 accept.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -310,7 +310,7 @@ accept.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::accept
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:205
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:208
 * @route '/api/strategic-planning/scenarios/generate/{id}/accept'
 */
 accept.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -320,7 +320,7 @@ accept.post = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::accept
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:205
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:208
 * @route '/api/strategic-planning/scenarios/generate/{id}/accept'
 */
 const acceptForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -330,7 +330,7 @@ const acceptForm = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::accept
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:205
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:208
 * @route '/api/strategic-planning/scenarios/generate/{id}/accept'
 */
 acceptForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -342,7 +342,7 @@ accept.form = acceptForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::simulateImport
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:360
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:363
 * @route '/api/strategic-planning/scenarios/{scenario}/simulate-import'
 */
 export const simulateImport = (args: { scenario: string | number } | [scenario: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -357,7 +357,7 @@ simulateImport.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::simulateImport
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:360
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:363
 * @route '/api/strategic-planning/scenarios/{scenario}/simulate-import'
 */
 simulateImport.url = (args: { scenario: string | number } | [scenario: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -384,7 +384,7 @@ simulateImport.url = (args: { scenario: string | number } | [scenario: string | 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::simulateImport
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:360
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:363
 * @route '/api/strategic-planning/scenarios/{scenario}/simulate-import'
 */
 simulateImport.post = (args: { scenario: string | number } | [scenario: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -394,7 +394,7 @@ simulateImport.post = (args: { scenario: string | number } | [scenario: string |
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::simulateImport
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:360
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:363
 * @route '/api/strategic-planning/scenarios/{scenario}/simulate-import'
 */
 const simulateImportForm = (args: { scenario: string | number } | [scenario: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -404,7 +404,7 @@ const simulateImportForm = (args: { scenario: string | number } | [scenario: str
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationController::simulateImport
-* @see app/Http/Controllers/Api/ScenarioGenerationController.php:360
+* @see app/Http/Controllers/Api/ScenarioGenerationController.php:363
 * @route '/api/strategic-planning/scenarios/{scenario}/simulate-import'
 */
 simulateImportForm.post = (args: { scenario: string | number } | [scenario: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

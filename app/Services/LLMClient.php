@@ -16,6 +16,9 @@ class LLMClient
             case 'openai':
                 $this->provider = new LLMProviders\OpenAIProvider(config('llm.openai', []));
                 break;
+            case 'intel':
+                $this->provider = new \App\Services\LLMProviders\IntelProvider(config('services.python_intel', []));
+                break;
             case 'mock':
             default:
                 $this->provider = new LLMProviders\MockProvider(config('llm.mock', []));

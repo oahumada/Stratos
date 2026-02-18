@@ -9,12 +9,14 @@ import PromptInstructionController from './PromptInstructionController'
 import ChangeSetController from './ChangeSetController'
 import ScenarioGenerationController from './ScenarioGenerationController'
 import ScenarioGenerationAbacusController from './ScenarioGenerationAbacusController'
+import ScenarioGenerationIntelController from './ScenarioGenerationIntelController'
 import GenerationChunkController from './GenerationChunkController'
 import ScenarioSimulationController from './ScenarioSimulationController'
 import ScenarioRoiController from './ScenarioRoiController'
 import ScenarioStrategyController from './ScenarioStrategyController'
 import IncubationController from './IncubationController'
 import TelemetryController from './TelemetryController'
+import CapabilityCompetencyController from './CapabilityCompetencyController'
 import ScenarioTemplateController from './ScenarioTemplateController'
 import Step2RoleCompetencyController from './Step2RoleCompetencyController'
 import CatalogsController from './CatalogsController'
@@ -31,12 +33,14 @@ const Api = {
     ChangeSetController: Object.assign(ChangeSetController, ChangeSetController),
     ScenarioGenerationController: Object.assign(ScenarioGenerationController, ScenarioGenerationController),
     ScenarioGenerationAbacusController: Object.assign(ScenarioGenerationAbacusController, ScenarioGenerationAbacusController),
+    ScenarioGenerationIntelController: Object.assign(ScenarioGenerationIntelController, ScenarioGenerationIntelController),
     GenerationChunkController: Object.assign(GenerationChunkController, GenerationChunkController),
     ScenarioSimulationController: Object.assign(ScenarioSimulationController, ScenarioSimulationController),
     ScenarioRoiController: Object.assign(ScenarioRoiController, ScenarioRoiController),
     ScenarioStrategyController: Object.assign(ScenarioStrategyController, ScenarioStrategyController),
     IncubationController: Object.assign(IncubationController, IncubationController),
     TelemetryController: Object.assign(TelemetryController, TelemetryController),
+    CapabilityCompetencyController: Object.assign(CapabilityCompetencyController, CapabilityCompetencyController),
     ScenarioTemplateController: Object.assign(ScenarioTemplateController, ScenarioTemplateController),
     Step2RoleCompetencyController: Object.assign(Step2RoleCompetencyController, Step2RoleCompetencyController),
     CatalogsController: Object.assign(CatalogsController, CatalogsController),

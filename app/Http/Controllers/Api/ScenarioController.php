@@ -731,6 +731,26 @@ class ScenarioController extends Controller
         ]);
     }
 
+    /**
+     * API: Obtener visualización de impacto (Paso 5)
+     */
+    public function getImpact($id): JsonResponse
+    {
+        $user = auth()->user();
+        $scenario = Scenario::findOrFail($id);
+
+        if ($scenario->organization_id !== $user->organization_id) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        $impact = $this->analytics->calculateImpact($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $impact
+        ]);
+    }
+
     private function calculateRiskLevel($iq, $demand)
     {
         $gap = max(0, (int)($demand->total_req ?? 0) - (int)($demand->total_curr ?? 0));

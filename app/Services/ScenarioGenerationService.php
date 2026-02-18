@@ -792,6 +792,30 @@ EOT;
                             'updated_at' => now(),
                         ]
                     );
+
+                    // 3.1 Link Roles to their specified Competencies
+                    $roleCompetencies = $roleData['key_competencies'] ?? ($roleData['required_competencies'] ?? []);
+                    foreach ($roleCompetencies as $compName) {
+                        $competency = \App\Models\Competency::where('organization_id', $orgId)
+                            ->where('name', $compName)
+                            ->first();
+                        
+                        if ($competency) {
+                            DB::table('scenario_role_competencies')->updateOrInsert(
+                                [
+                                    'scenario_id' => $scenario->id,
+                                    'role_id' => $role->id,
+                                    'competency_id' => $competency->id
+                                ],
+                                [
+                                    'required_level' => 4, // Default high required level for strategic roles
+                                    'importance_weight' => 10,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ]
+                            );
+                        }
+                    }
                 }
 
                 if (class_exists(\App\Services\TalentBlueprintService::class)) {

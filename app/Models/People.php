@@ -26,12 +26,14 @@ class People extends Model
         'department_id',
         'hire_date',
         'photo_url',
+        'is_high_potential',
     ];
 
     protected $appends = ['skills_count'];
 
     protected $casts = [
         'hire_date' => 'date',
+        'is_high_potential' => 'boolean',
     ];
 
     protected static function booted()

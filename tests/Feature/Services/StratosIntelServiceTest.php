@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Http;
 
 it('recommends a strategy by calling the python service', function () {
     Http::fake([
-        'http://localhost:8000/analyze-gap' => Http::response([
+        config('services.python_intel.base_url') . '/analyze-gap' => Http::response([
             'strategy' => 'Build',
             'confidence_score' => 0.9,
             'reasoning_summary' => 'Test reason',
@@ -27,7 +27,7 @@ it('recommends a strategy by calling the python service', function () {
 
 it('handles python service failure gracefully', function () {
     Http::fake([
-        'http://localhost:8000/analyze-gap' => Http::response([], 500),
+        config('services.python_intel.base_url') . '/analyze-gap' => Http::response([], 500),
     ]);
 
     $service = new StratosIntelService();

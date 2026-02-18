@@ -282,6 +282,24 @@
 
 ---
 
+---
+
+### 14. **INTELIGENCIA_INDEX.md** 🧠 AI HUB & DEEPSEEK
+
+**Propósito**: Centralizar la documentación de IA y Agentes  
+**Audiencia**: Developers, Architects, Data Scientists  
+**Lectura**: 10 minutos  
+**Qué contiene**:
+
+- Enlaces a guías de conexión LLM (DeepSeek).
+- Documentación del Microservicio Python (CrewAI).
+- Hitos de integración de Escenarios y Gaps.
+- **PLAN_ATAQUE_INTELIGENCIA_KICKSTART.md**: Hoja de ruta inmediata.
+
+**Cuándo leer**: Para trabajar en features predictivas o generativas.
+
+---
+
 ## 🗂️ Documentos de Referencia (Anteriores, Contexto)
 
 Estos documentos existen antes de hoy pero son útiles como contexto:

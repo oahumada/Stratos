@@ -238,11 +238,15 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
                 $companyName = $generation->metadata['company_name'] ?? ($generation->organization->name ?? 'Stratos Org');
                 $lang = $generation->metadata['language'] ?? 'es';
 
+                // Get general market context for the organization
+                $marketService = app(\App\Services\Intelligence\MarketIntelligenceService::class);
+                $marketContext = $marketService->getRoleMarketContext(0); // 0 or null for general context
+
                 // Mark sent time
                 $generation->metadata = array_merge($generation->metadata ?? [], ['sent_at' => now()->toDateTimeString()]);
                 $generation->save();
 
-                $res = $intel->generateScenario($companyName, $generation->prompt ?? '', $lang);
+                $res = $intel->generateScenario($companyName, $generation->prompt ?? '', $lang, $marketContext);
 
                 if (! $res) {
                     throw new Exception("Intel service failed to return a response.");

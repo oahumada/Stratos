@@ -139,6 +139,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/strategies/assign', [\App\Http\Controllers\Api\ScenarioStrategyController::class, 'assignStrategy']);
             Route::get('/strategies/portfolio/{scenario_id}', [\App\Http\Controllers\Api\ScenarioStrategyController::class, 'getStrategyPortfolio']);
             Route::get('/scenarios/{id}/strategies', [\App\Http\Controllers\Api\ScenarioStrategyController::class, 'getStrategiesByScenario']);
+            Route::get('/scenarios/{id}/impact', [\App\Http\Controllers\Api\ScenarioController::class, 'getImpact']);
 
             // Test/Simulation Endpoints
             Route::post('/scenarios/{scenario}/simulate-import', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'simulateImport']);

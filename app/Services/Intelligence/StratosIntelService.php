@@ -53,7 +53,7 @@ class StratosIntelService
     /**
      * Generate a scenario using the Python Intelligence Service (DeepSeek/GPT).
      */
-    public function generateScenario(string $companyName, string $instruction, string $language = 'es'): ?array
+    public function generateScenario(string $companyName, string $instruction, string $language = 'es', ?array $marketContext = null): ?array
     {
         try {
             Log::info('Sending scenario generation request to Python service', ['company' => $companyName]);
@@ -62,7 +62,8 @@ class StratosIntelService
                 ->post("{$this->baseUrl}/generate-scenario", [
                     'company_name' => $companyName,
                     'instruction' => $instruction,
-                    'language' => $language
+                    'language' => $language,
+                    'market_context' => $marketContext
                 ]);
 
             if ($response->successful()) {
