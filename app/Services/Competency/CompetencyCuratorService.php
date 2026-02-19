@@ -22,18 +22,18 @@ class CompetencyCuratorService
     public function curateSkill(int $skillId): array
     {
         $skill = Skill::findOrFail($skillId);
-        
+
         $prompt = "Actúa como Curador de Competencias de Stratos. Necesito definir los 5 niveles de dominio (estilo BARS) para la habilidad: '{$skill->name}'.
-        
+
         Contexto de la habilidad: {$skill->description}
         Categoría: {$skill->category}
-        
+
         Para cada uno de los 5 niveles (1: Novato, 2: Principiante, 3: Competente, 4: Avanzado, 5: Experto), proporciona:
         1. level_name: El nombre del nivel.
         2. behavioral_description: Descripción detallada del comportamiento observable.
         3. learning_content: Contenido de aprendizaje clave para alcanzar o dominar este nivel.
         4. performance_indicator: Un indicador clave de desempeño (KPI) objetivo para validar este nivel.
-        
+
         Responde estrictamente en formato JSON con la siguiente estructura:
         {
           \"levels\": [
@@ -54,7 +54,7 @@ class CompetencyCuratorService
 
             if (!isset($data['levels']) || !is_array($data['levels'])) {
                 // Fallback si no devolvió el formato esperado pero el texto raw contiene algo útil
-                throw new \RuntimeException("Formato de respuesta inválido del agente.");
+                throw new \InvalidArgumentException("Formato de respuesta inválido del agente.");
             }
 
             $curatedLevels = [];
@@ -89,13 +89,13 @@ class CompetencyCuratorService
     public function generateQuestions(int $skillId): array
     {
         $skill = Skill::with('barsLevels')->findOrFail($skillId);
-        
+
         if ($skill->barsLevels->isEmpty()) {
             return ['status' => 'error', 'message' => 'No existen niveles BARS definidos para esta skill. Ejecute curateSkill primero.'];
         }
 
         $prompt = "Actúa como Curador de Competencias y Experto en Entrevistas. Necesito generar preguntas de validación para la habilidad: '{$skill->name}'.
-        
+
         Para cada uno de los 5 niveles, basándote estrictamente en su 'Performance Indicator', genera 1 pregunta clave para validar si el candidato realmente cumple con ese nivel.
         La pregunta debe ser conductual o situacional (ej: 'Cuéntame de una vez que...').
 
@@ -123,7 +123,7 @@ class CompetencyCuratorService
             foreach ($data['questions'] ?? [] as $q) {
                 \App\Models\SkillQuestionBank::updateOrCreate(
                     [
-                        'skill_id' => $skill->id, 
+                        'skill_id' => $skill->id,
                         'level' => $q['level'],
                         'question' => $q['question'] // Evitar duplicados exactos
                     ],

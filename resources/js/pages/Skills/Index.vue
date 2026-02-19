@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import SkillLevelChip from '@/components/SkillLevelChip.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import {
+    Config,
+    FilterConfig,
+    ItemForm,
+    TableConfig,
+} from '@/types/form-schema';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import FormSchema from '../form-template/FormSchema.vue';
@@ -30,6 +36,37 @@ onMounted(async () => {
         console.error('Error loading skill levels:', error);
     }
 });
+
+const curating = ref(false);
+const generatingQuestions = ref(false);
+
+const curateSkill = async (id: number, refresh: () => void) => {
+    curating.value = true;
+    try {
+        await axios.post(
+            `/api/strategic-planning/assessments/curator/skills/${id}/curate`,
+        );
+        refresh();
+    } catch (error) {
+        console.error('Error curating skill:', error);
+    } finally {
+        curating.value = false;
+    }
+};
+
+const generateQuestions = async (id: number, refresh: () => void) => {
+    generatingQuestions.value = true;
+    try {
+        await axios.post(
+            `/api/strategic-planning/assessments/curator/skills/${id}/generate-questions`,
+        );
+        refresh();
+    } catch (error) {
+        console.error('Error generating questions:', error);
+    } finally {
+        generatingQuestions.value = false;
+    }
+};
 
 // Helper to get level name (kept for future use)
 const _getLevelName = (level: number) => {
@@ -63,71 +100,11 @@ const getSkillPeople = (item: any) => {
     return item.people_role_skills || [];
 };
 
-interface FormField {
-    key: string;
-    label: string;
-    type:
-        | 'text'
-        | 'email'
-        | 'number'
-        | 'password'
-        | 'select'
-        | 'checkbox'
-        | 'textarea'
-        | 'date'
-        | 'time'
-        | 'switch';
-    rules?: ((v: any) => boolean | string)[];
-    placeholder?: string;
-    items?: any[];
-}
-
-interface TableHeader {
-    text: string;
-    value: string;
-    type?: 'date' | 'text' | 'number';
-    sortable?: boolean;
-    filterable?: boolean;
-}
-
-interface Config {
-    endpoints: {
-        index: string;
-        apiUrl: string;
-    };
-    titulo: string;
-    descripcion?: string;
-    permisos?: {
-        crear: boolean;
-        editar: boolean;
-        eliminar: boolean;
-    };
-}
-
-interface TableConfig {
-    headers: TableHeader[];
-    options?: Record<string, any>;
-}
-
-interface ItemForm {
-    fields: FormField[];
-    catalogs?: string[];
-    layout?: string;
-}
-
-interface FilterConfig {
-    field: string;
-    type: 'text' | 'select' | 'date';
-    label: string;
-    items?: any[];
-    placeholder?: string;
-}
-
 // Load configs from JSON files
 const config: Config = configJson as Config;
-const tableConfig: TableConfig = tableConfigJson as TableConfig;
-const itemForm: ItemForm = itemFormJson as ItemForm;
-const filters: FilterConfig[] = filtersJson as FilterConfig[];
+const tableConfig: TableConfig = tableConfigJson as unknown as TableConfig;
+const itemForm: ItemForm = itemFormJson as unknown as ItemForm;
+const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
 // Skill levels descriptions
 const skillLevelDescriptions = [
@@ -233,19 +210,23 @@ const skillLevelDescriptions = [
         :item-form="itemForm"
         :filters="filters"
     >
-        <template #detail="{ item }">
+        <template #detail="{ item, refresh }">
             <v-tabs v-model="detailTab">
                 <v-tab value="info">
                     <v-icon start>mdi-information</v-icon>
                     Información
                 </v-tab>
-                <v-tab value="roles">
-                    <v-icon start>mdi-account-tie</v-icon>
-                    Roles ({{ item.roles_count || 0 }})
-                </v-tab>
                 <v-tab value="people">
                     <v-icon start>mdi-account-group</v-icon>
                     Personas ({{ item.people_count || 0 }})
+                </v-tab>
+                <v-tab value="bars">
+                    <v-icon start>mdi-stairs</v-icon>
+                    BARS / Niveles
+                </v-tab>
+                <v-tab value="questions">
+                    <v-icon start>mdi-database-search</v-icon>
+                    Preguntas
                 </v-tab>
             </v-tabs>
 
@@ -303,6 +284,35 @@ const skillLevelDescriptions = [
                                 </v-list-item-title>
                             </v-list-item>
                         </v-list>
+
+                        <v-divider class="my-3"></v-divider>
+
+                        <div class="d-flex gap-2">
+                            <v-btn
+                                color="indigo"
+                                prepend-icon="mdi-auto-fix"
+                                :loading="curating"
+                                @click="curateSkill(item.id, refresh)"
+                                variant="tonal"
+                                size="small"
+                            >
+                                Curar con IA (BARS)
+                            </v-btn>
+                            <v-btn
+                                v-if="
+                                    item.bars_levels &&
+                                    item.bars_levels.length > 0
+                                "
+                                color="teal"
+                                prepend-icon="mdi-chat-question"
+                                :loading="generatingQuestions"
+                                @click="generateQuestions(item.id, refresh)"
+                                variant="tonal"
+                                size="small"
+                            >
+                                Generar Preguntas
+                            </v-btn>
+                        </div>
                     </v-card>
                 </v-window-item>
 
@@ -458,6 +468,228 @@ const skillLevelDescriptions = [
                                         nivel(es)
                                     </v-chip>
                                 </v-list-item-subtitle>
+                            </v-list-item>
+                        </v-list>
+                    </v-card>
+                </v-window-item>
+
+                <!-- BARS Tab -->
+                <v-window-item value="bars">
+                    <v-card flat border class="pa-3">
+                        <div
+                            class="d-flex justify-space-between align-center mb-3"
+                        >
+                            <div class="text-subtitle-2">
+                                Definiciones BARS (Behaviorally Anchored Rating
+                                Scales)
+                            </div>
+                        </div>
+
+                        <div
+                            v-if="
+                                !item.bars_levels ||
+                                item.bars_levels.length === 0
+                            "
+                            class="py-8 text-center"
+                            border
+                        >
+                            <v-icon
+                                size="48"
+                                color="grey-lighten-1"
+                                class="mb-2"
+                                >mdi-stairs</v-icon
+                            >
+                            <div class="text-body-2 text-secondary">
+                                No hay definiciones de niveles curadas para esta
+                                skill.
+                            </div>
+                            <v-btn
+                                color="indigo"
+                                variant="tonal"
+                                class="mt-4"
+                                prepend-icon="mdi-auto-fix"
+                                :loading="curating"
+                                @click="curateSkill(item.id, refresh)"
+                            >
+                                Generar Definiciones con AI
+                            </v-btn>
+                        </div>
+
+                        <div v-else border>
+                            <v-expansion-panels variant="accordion">
+                                <v-expansion-panel
+                                    v-for="level in item.bars_levels"
+                                    :key="level.id"
+                                >
+                                    <v-expansion-panel-title>
+                                        <div class="d-flex align-center gap-4">
+                                            <v-chip
+                                                :color="
+                                                    level.level > 3
+                                                        ? 'success'
+                                                        : level.level === 3
+                                                          ? 'primary'
+                                                          : 'warning'
+                                                "
+                                                size="small"
+                                            >
+                                                Nivel {{ level.level }}
+                                            </v-chip>
+                                            <span class="font-weight-medium">{{
+                                                level.level_name
+                                            }}</span>
+                                        </div>
+                                    </v-expansion-panel-title>
+                                    <v-expansion-panel-text>
+                                        <div class="mb-4">
+                                            <div
+                                                class="text-caption font-weight-bold text-uppercase text-grey-darken-1 mb-1"
+                                            >
+                                                Comportamiento Esperado
+                                            </div>
+                                            <div class="text-body-2">
+                                                {{
+                                                    level.behavioral_description
+                                                }}
+                                            </div>
+                                        </div>
+                                        <v-divider class="mb-4"></v-divider>
+                                        <v-row>
+                                            <v-col cols="12" md="6">
+                                                <div
+                                                    class="text-caption font-weight-bold text-uppercase text-indigo mb-1"
+                                                >
+                                                    Contenido de Aprendizaje
+                                                </div>
+                                                <div class="text-body-2">
+                                                    {{ level.learning_content }}
+                                                </div>
+                                            </v-col>
+                                            <v-col cols="12" md="6">
+                                                <div
+                                                    class="text-caption font-weight-bold text-uppercase text-teal mb-1"
+                                                >
+                                                    Indicador de Desempeño (KPI)
+                                                </div>
+                                                <div class="text-body-2">
+                                                    {{
+                                                        level.performance_indicator
+                                                    }}
+                                                </div>
+                                            </v-col>
+                                        </v-row>
+                                    </v-expansion-panel-text>
+                                </v-expansion-panel>
+                            </v-expansion-panels>
+                        </div>
+                    </v-card>
+                </v-window-item>
+
+                <!-- Questions Tab -->
+                <v-window-item value="questions">
+                    <v-card flat border class="pa-3">
+                        <div
+                            class="d-flex justify-space-between align-center mb-3"
+                        >
+                            <div class="text-subtitle-2">
+                                Banco de Preguntas de Validación
+                            </div>
+                            <v-btn
+                                v-if="
+                                    item.questions && item.questions.length > 0
+                                "
+                                color="teal"
+                                size="small"
+                                variant="text"
+                                prepend-icon="mdi-refresh"
+                                :loading="generatingQuestions"
+                                @click="generateQuestions(item.id, refresh)"
+                            >
+                                Regenerar
+                            </v-btn>
+                        </div>
+
+                        <div
+                            v-if="
+                                !item.questions || item.questions.length === 0
+                            "
+                            class="py-8 text-center"
+                            border
+                        >
+                            <v-icon
+                                size="48"
+                                color="grey-lighten-1"
+                                class="mb-2"
+                                >mdi-database-search</v-icon
+                            >
+                            <div class="text-body-2 text-secondary">
+                                No hay preguntas generadas para esta skill.
+                            </div>
+                            <v-btn
+                                :disabled="
+                                    !item.bars_levels ||
+                                    item.bars_levels.length === 0
+                                "
+                                color="teal"
+                                variant="tonal"
+                                class="mt-4"
+                                prepend-icon="mdi-chat-question"
+                                :loading="generatingQuestions"
+                                @click="generateQuestions(item.id, refresh)"
+                            >
+                                Generar Preguntas con AI
+                            </v-btn>
+                            <div
+                                v-if="
+                                    !item.bars_levels ||
+                                    item.bars_levels.length === 0
+                                "
+                                class="text-caption text-error mt-2"
+                            >
+                                Requiere curar los niveles BARS primero.
+                            </div>
+                        </div>
+
+                        <v-list v-else density="compact">
+                            <v-list-item
+                                v-for="q in item.questions"
+                                :key="q.id"
+                                class="mb-3"
+                                border
+                                rounded
+                            >
+                                <template #prepend>
+                                    <v-avatar
+                                        :color="
+                                            q.level > 3
+                                                ? 'success-lighten-4'
+                                                : 'warning-lighten-4'
+                                        "
+                                        class="mr-3"
+                                    >
+                                        <span
+                                            class="text-body-2 font-weight-bold"
+                                            :class="
+                                                q.level > 3
+                                                    ? 'text-success-darken-2'
+                                                    : 'text-warning-darken-2'
+                                            "
+                                            >L{{ q.level }}</span
+                                        >
+                                    </v-avatar>
+                                </template>
+                                <v-list-item-title
+                                    class="text-body-2 text-wrap"
+                                    >{{ q.question }}</v-list-item-title
+                                >
+                                <template #append>
+                                    <v-chip
+                                        size="x-small"
+                                        variant="outlined"
+                                        color="grey"
+                                        >{{ q.question_type }}</v-chip
+                                    >
+                                </template>
                             </v-list-item>
                         </v-list>
                     </v-card>

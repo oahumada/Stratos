@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import SkillLevelChip from '@/components/SkillLevelChip.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import {
+    Config,
+    FilterConfig,
+    ItemForm,
+    TableConfig,
+} from '@/types/form-schema';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import FormSchema from '../form-template/FormSchema.vue';
@@ -29,6 +35,19 @@ onMounted(async () => {
         console.error('Error loading skill levels:', error);
     }
 });
+
+const designing = ref(false);
+const designRole = async (id: number, refresh: () => void) => {
+    designing.value = true;
+    try {
+        await axios.post(`/api/strategic-planning/roles/${id}/design`);
+        refresh();
+    } catch (error) {
+        console.error('Error designing role:', error);
+    } finally {
+        designing.value = false;
+    }
+};
 
 // Helpers to map relations safely
 const getRoleSkills = (item: any) => {
@@ -63,71 +82,11 @@ const getPersonDepartment = (person: any) => {
     );
 };
 
-interface FormField {
-    key: string;
-    label: string;
-    type:
-        | 'text'
-        | 'email'
-        | 'number'
-        | 'password'
-        | 'select'
-        | 'checkbox'
-        | 'textarea'
-        | 'date'
-        | 'time'
-        | 'switch';
-    rules?: ((v: any) => boolean | string)[];
-    placeholder?: string;
-    items?: any[];
-}
-
-interface TableHeader {
-    text: string;
-    value: string;
-    type?: 'date' | 'text' | 'number';
-    sortable?: boolean;
-    filterable?: boolean;
-}
-
-interface Config {
-    endpoints: {
-        index: string;
-        apiUrl: string;
-    };
-    titulo: string;
-    descripcion?: string;
-    permisos?: {
-        crear: boolean;
-        editar: boolean;
-        eliminar: boolean;
-    };
-}
-
-interface TableConfig {
-    headers: TableHeader[];
-    options?: Record<string, any>;
-}
-
-interface ItemForm {
-    fields: FormField[];
-    catalogs?: string[];
-    layout?: string;
-}
-
-interface FilterConfig {
-    field: string;
-    type: 'text' | 'select' | 'date';
-    label: string;
-    items?: any[];
-    placeholder?: string;
-}
-
 // Load configs from JSON files
 const config: Config = configJson as Config;
-const tableConfig: TableConfig = tableConfigJson as TableConfig;
-const itemForm: ItemForm = itemFormJson as ItemForm;
-const filters: FilterConfig[] = filtersJson as FilterConfig[];
+const tableConfig: TableConfig = tableConfigJson as unknown as TableConfig;
+const itemForm: ItemForm = itemFormJson as unknown as ItemForm;
+const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 </script>
 
 <template>
@@ -138,7 +97,7 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
         :filters="filters"
         enable-row-detail
     >
-        <template #detail="{ item }">
+        <template #detail="{ item, refresh }">
             <v-tabs v-model="detailTab">
                 <v-tab value="info">
                     <v-icon start>mdi-information</v-icon>
@@ -156,6 +115,10 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
                         item.people?.length ||
                         0
                     }})
+                </v-tab>
+                <v-tab value="ai-design">
+                    <v-icon start>mdi-cube-outline</v-icon>
+                    Diseño de Rol (AI)
                 </v-tab>
             </v-tabs>
 
@@ -179,6 +142,19 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
                                 </v-list-item-title>
                             </v-list-item>
                         </v-list>
+
+                        <v-divider class="my-3"></v-divider>
+
+                        <v-btn
+                            color="indigo"
+                            prepend-icon="mdi-auto-fix"
+                            :loading="designing"
+                            @click="designRole(item.id, refresh)"
+                            variant="tonal"
+                            size="small"
+                        >
+                            Diseñar con AI (Modelo Cubo)
+                        </v-btn>
                     </v-card>
                 </v-window-item>
 
@@ -282,11 +258,241 @@ const filters: FilterConfig[] = filtersJson as FilterConfig[];
                         </v-list>
                     </v-card>
                 </v-window-item>
+
+                <!-- AI Design Tab -->
+                <v-window-item value="ai-design">
+                    <v-card flat border class="pa-3">
+                        <div
+                            class="d-flex justify-space-between align-center mb-4"
+                        >
+                            <div class="text-subtitle-2">
+                                Análisis de Diseño (Role Cube Methodology)
+                            </div>
+                            <v-btn
+                                v-if="item.ai_archetype_config"
+                                color="indigo"
+                                size="small"
+                                variant="text"
+                                prepend-icon="mdi-refresh"
+                                :loading="designing"
+                                @click="designRole(item.id, refresh)"
+                            >
+                                Volver a analizar
+                            </v-btn>
+                        </div>
+
+                        <div
+                            v-if="!item.ai_archetype_config"
+                            class="bg-grey-lighten-4 rounded py-8 text-center"
+                        >
+                            <v-icon
+                                size="64"
+                                color="grey-lighten-1"
+                                class="mb-4"
+                                >mdi-cube-scan</v-icon
+                            >
+                            <div class="text-h6 text-grey-darken-1">
+                                Diseño no analizado
+                            </div>
+                            <p class="text-body-2 mb-6 text-secondary">
+                                Usa la Inteligencia Artificial para definir las
+                                coordenadas de este rol en la organización.
+                            </p>
+                            <v-btn
+                                color="indigo"
+                                size="large"
+                                prepend-icon="mdi-auto-fix"
+                                :loading="designing"
+                                @click="designRole(item.id, refresh)"
+                            >
+                                Analizar con IA
+                            </v-btn>
+                        </div>
+
+                        <div v-else>
+                            <v-row>
+                                <!-- Cube Visualization -->
+                                <v-col cols="12" md="4">
+                                    <v-card
+                                        variant="outlined"
+                                        class="pa-4 bg-indigo-lighten-5 border-indigo"
+                                    >
+                                        <div
+                                            class="text-overline text-indigo font-weight-bold mb-2"
+                                        >
+                                            COORDENADAS DEL CUBO
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <div
+                                                class="text-caption text-grey-darken-1 text-uppercase mb-1 italic"
+                                            >
+                                                Eje X: Arquetipo
+                                            </div>
+                                            <div class="d-flex align-center">
+                                                <v-chip
+                                                    color="indigo"
+                                                    size="small"
+                                                    class="mr-2"
+                                                    >{{
+                                                        item.ai_archetype_config
+                                                            .cube_coordinates
+                                                            .x_archetype
+                                                    }}</v-chip
+                                                >
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <div
+                                                class="text-caption text-grey-darken-1 text-uppercase mb-1 italic"
+                                            >
+                                                Eje Y: Maestría
+                                            </div>
+                                            <div class="d-flex align-center">
+                                                <v-rating
+                                                    :model-value="
+                                                        item.ai_archetype_config
+                                                            .cube_coordinates
+                                                            .y_mastery_level
+                                                    "
+                                                    length="5"
+                                                    readonly
+                                                    density="compact"
+                                                    color="indigo"
+                                                    active-color="indigo"
+                                                ></v-rating>
+                                                <span
+                                                    class="font-weight-bold ml-2"
+                                                    >{{
+                                                        item.ai_archetype_config
+                                                            .cube_coordinates
+                                                            .y_mastery_level
+                                                    }}/5</span
+                                                >
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <div
+                                                class="text-caption text-grey-darken-1 text-uppercase mb-1 italic"
+                                            >
+                                                Eje Z: Proceso
+                                            </div>
+                                            <div
+                                                class="text-body-2 font-weight-medium text-indigo-darken-2"
+                                            >
+                                                {{
+                                                    item.ai_archetype_config
+                                                        .cube_coordinates
+                                                        .z_business_process
+                                                }}
+                                            </div>
+                                        </div>
+                                    </v-card>
+
+                                    <v-card
+                                        variant="flat"
+                                        class="pa-4 bg-grey-lighten-4 mt-4 border"
+                                    >
+                                        <div
+                                            class="text-caption font-weight-bold text-grey-darken-2 mb-2"
+                                        >
+                                            JUSTIFICACIÓN DEL DISEÑO
+                                        </div>
+                                        <div
+                                            class="text-body-2 text-grey-darken-3 italic"
+                                        >
+                                            "{{
+                                                item.ai_archetype_config
+                                                    .cube_coordinates
+                                                    .justification
+                                            }}"
+                                        </div>
+                                    </v-card>
+                                </v-col>
+
+                                <!-- Competencies & Suggestions -->
+                                <v-col cols="12" md="8">
+                                    <div class="mb-6">
+                                        <div
+                                            class="text-subtitle-2 font-weight-bold d-flex align-center mb-3"
+                                        >
+                                            <v-icon start color="teal"
+                                                >mdi-check-decagram</v-icon
+                                            >
+                                            Competencias Core Sugeridas
+                                        </div>
+                                        <v-list
+                                            border
+                                            rounded
+                                            density="compact"
+                                            class="bg-transparent"
+                                        >
+                                            <v-list-item
+                                                v-for="(comp, i) in item
+                                                    .ai_archetype_config
+                                                    .core_competencies"
+                                                :key="i"
+                                                border
+                                                class="mb-2"
+                                            >
+                                                <v-list-item-title
+                                                    class="font-weight-bold text-body-2 d-flex align-center"
+                                                >
+                                                    {{ comp.name }}
+                                                    <v-chip
+                                                        size="x-small"
+                                                        class="ml-2"
+                                                        color="teal"
+                                                        variant="outlined"
+                                                        >Nivel
+                                                        {{ comp.level }}</v-chip
+                                                    >
+                                                </v-list-item-title>
+                                                <v-list-item-subtitle
+                                                    class="text-caption mt-1"
+                                                    >{{
+                                                        comp.rationale
+                                                    }}</v-list-item-subtitle
+                                                >
+                                            </v-list-item>
+                                        </v-list>
+                                    </div>
+
+                                    <div>
+                                        <div
+                                            class="text-subtitle-2 font-weight-bold d-flex align-center mb-3"
+                                        >
+                                            <v-icon start color="amber-darken-2"
+                                                >mdi-lightbulb-on</v-icon
+                                            >
+                                            Nitidez Organizacional
+                                        </div>
+                                        <v-alert
+                                            color="amber-lighten-5"
+                                            border="start"
+                                            border-color="amber-darken-2"
+                                            class="text-body-2 text-grey-darken-3"
+                                        >
+                                            {{
+                                                item.ai_archetype_config
+                                                    .organizational_suggestions
+                                            }}
+                                        </v-alert>
+                                    </div>
+                                </v-col>
+                            </v-row>
+                        </div>
+                    </v-card>
+                </v-window-item>
             </v-window>
         </template>
     </FormSchema>
 </template>
 
 <style scoped>
-/* Custom styles */
+.italic {
+    font-style: italic;
+}
 </style>

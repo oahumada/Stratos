@@ -17,13 +17,13 @@ class Roles extends Model
     protected $table = 'roles';
 
     protected $fillable = [
-        'organization_id', 
-        'llm_id', 
-        'name', 
-        'level', 
-        'description', 
-        'status', 
-        'discovered_in_scenario_id', 
+        'organization_id',
+        'llm_id',
+        'name',
+        'level',
+        'description',
+        'status',
+        'discovered_in_scenario_id',
         'embedding',
         'ai_archetype_config'
     ];

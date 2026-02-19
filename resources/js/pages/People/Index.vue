@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import {
+    Config,
+    FilterConfig,
+    ItemForm,
+    TableConfig,
+} from '@/types/form-schema';
 import { ref } from 'vue';
 import FormSchema from '../form-template/FormSchema.vue';
 import configJson from './people-form/config.json';
@@ -12,72 +18,11 @@ import tableConfigJson from './people-form/tableConfig.json';
 
 defineOptions({ layout: AppLayout });
 
-interface FormField {
-    key: string;
-    label: string;
-    type:
-        | 'text'
-        | 'email'
-        | 'number'
-        | 'password'
-        | 'select'
-        | 'checkbox'
-        | 'textarea'
-        | 'date'
-        | 'time'
-        | 'switch';
-    rules?: ((v: any) => boolean | string)[];
-    placeholder?: string;
-    items?: any[];
-}
-
-interface TableHeader {
-    text: string;
-    value: string;
-    type?: 'date' | 'text' | 'number';
-    sortable?: boolean;
-    filterable?: boolean;
-}
-
-interface Config {
-    endpoints: {
-        index: string;
-        apiUrl: string;
-    };
-    titulo: string;
-    descripcion?: string;
-    permisos?: {
-        crear: boolean;
-        editar: boolean;
-        eliminar: boolean;
-    };
-}
-
-interface TableConfig {
-    headers: TableHeader[];
-    options?: Record<string, any>;
-}
-
-interface ItemForm {
-    fields: FormField[];
-    catalogs?: string[];
-    layout?: string;
-}
-
-interface FilterConfig {
-    field: string;
-    type: 'text' | 'select' | 'date';
-    label: string;
-    items?: any[];
-    placeholder?: string;
-    catalogKey?: string;
-}
-
 // Load configs from JSON files
 const config: Config = configJson as Config;
-const tableConfig: TableConfig = tableConfigJson as TableConfig;
-const itemForm: ItemForm = itemFormJson as ItemForm;
-const filters: FilterConfig[] = filtersJson as FilterConfig[];
+const tableConfig: TableConfig = tableConfigJson as unknown as TableConfig;
+const itemForm: ItemForm = itemFormJson as unknown as ItemForm;
+const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
 const formatDate = (value: any): string => {
     if (!value) return '';

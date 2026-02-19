@@ -134,61 +134,74 @@ Nuestra implementación seguirá fases iterativas, asegurando valor en cada paso
 
 ### **Fase 1: Fundamentos Sólidos (Estado Actual 📍)**
 
-- [x] CRUD de Roles y Competencias (MySQL/Postgres).
-- [x] Diseño de Escenarios y Talento Base.
-- [x] Cálculo de Brechas (Gaps) simple en PHP.
-- [ ] Migración completa a PostgreSQL + pgvector (si aún no se ha hecho).
+- [x] CRUD de Roles y Competencias (MySQL/Postgres).  
+    _Completado antes de 2026-02-17_
+- [x] Diseño de Escenarios y Talento Base.  
+    _Completado antes de 2026-02-17_
+- [x] Cálculo de Brechas (Gaps) simple en PHP.  
+    _Completado antes de 2026-02-17_
+- [x] Migración completa a PostgreSQL + pgvector.  
+    _Completado al 100% (2026-02-19)_
 
 ### **Fase 2: El Puente de Agentes (Siguiente Paso Inmediato 🚀)**
 
 - **Objetivo:** Que el sistema "piense" sobre los datos existentes.
-- [ ] Crear microservicio/script Python básico.
-- [ ] Definir el contrato JSON (Input: Brecha detectada -> Output: Estrategia sugerida).
-- [ ] Implementar el primer Agente Simple (CrewAI): "El Analista de Brechas".
-    - _Tarea:_ Leer un Gap de competencia y sugerir si es mejor "Comprar" (Contratar) o "Construir" (Capacitar) basado en reglas simples y consulta a LLM.
+- [x] Crear microservicio/script Python básico.  
+    _Completado (python_services/app/main.py, 2026-02-18)_
+- [x] Definir el contrato JSON (Input: Brecha detectada -> Output: Estrategia sugerida).  
+    _Completado (2026-02-18)_
+- [~] Implementar el primer Agente Simple (CrewAI): "El Analista de Brechas".  
+    _PoC funcional en main.py, falta prompt final y despliegue productivo (2026-02-19)_
 
 ### **Fase 3: Inteligencia Estratégica & Automatización**
 
 - **Objetivo:** Cerrar el ciclo con acción.
-- [ ] Integrar n8n para notificar sugerencias.
-- [ ] Refinar Agentes con LangGraph para flujos más complejos (ej: "Investigar salario de mercado" antes de sugerir contratación).
-- [ ] Frontend: Mostrar el "Razonamiento" del agente en la UI de Vue (no solo el resultado, sino el _porqué_).
+- [ ] Integrar n8n para notificar sugerencias.  
+    _Pendiente (2026-02-19)_
+- [ ] Refinar Agentes con LangGraph para flujos más complejos.  
+    _Pendiente (2026-02-19)_
+- [ ] Frontend: Mostrar el "Razonamiento" del agente en la UI de Vue.  
+    _Pendiente (2026-02-19)_
 
 ### **Fase 4: La "Conciencia" (Knowledge Graph)**
 
 - **Objetivo:** Entender el impacto sistémico.
-- [ ] Levantar instancia de Neo4j.
-- [ ] Script de sincronización (ETL): Postgres -> Neo4j.
-- [ ] Primera funcionalidad de Grafo: "Análisis de Impacto de Retiro" (Si Juan se va, ¿qué competencias críticas perdemos y quién más las tiene?).
+- [x] Levantar instancia de Neo4j.  
+    _Completado (2026-02-17)_
+- [x] Script de sincronización (ETL): Postgres -> Neo4j.  
+    _Completado (python_services/neo4j_etl.py, 2026-02-18)_
+- [x] Primera funcionalidad de Grafo: "Análisis de Impacto de Retiro".  
+    _Completado (2026-02-18)_
 
 ### **Fase 5: Módulos Avanzados (El "Futuro")**
 
 - **Objetivo:** Expansión horizontal de la inteligencia.
-- [ ] **Chatbot Entrevistador:** Agente que realiza Entrevistas de Incidentes Críticos (BEI) para extraer evidencias conductuales reales, no hipotéticas.
-- [ ] **Psicometría Cognitiva & Inferencial:**
-    - Uso de agentes para inferir rasgos de personalidad (Big Five/DISC) a partir de patrones de lenguaje y código (GitHub/Comunicaciones), reduciendo la necesidad de tests invasivos.
-    - Validación cruzada de "Evidencias de Resultados" contra el Grafo de Conocimiento (¿Realmente ese proyecto tuvo el impacto que el candidato dice?).
-- [ ] **Evaluación 360° Viva:** Análisis de contribución basado en grafos de interacción y reputación técnica, no jerarquía.
-- [ ] **People Experience (PX) & Engagement:**
-    - **Termómetro Organizacional:** Análisis de sentimiento en tiempo real y encuestas de pulso dinámicas.
-    - **Reconocimiento y Kudos:** Sistema de feedback positivo basado en grafos de contribución.
-    - **Journey Mapping:** Visualización del ciclo de vida del colaborador (Onboarding, Crecimiento, Offboarding).
-- [ ] **E-Learning & LMS Integration:**
-    - **Orquestación de Aprendizaje:** Conexión nativa con plataformas LXP/LMS (Moodle, Coursera, LinkedIn Learning).
-    - **Sincronización de Progreso:** Actualización automática de la "Memoria" de Stratos tras completar certificaciones externas.
-    - **Marketplace de Cursos:** Sugerencias inteligentes de formación pagada/gratuita integradas en los Smart Paths.
+- [ ] Chatbot Entrevistador (BEI).  
+    _Pendiente (2026-02-19)_
+- [ ] Psicometría Cognitiva & Inferencial.  
+    _Pendiente (2026-02-19)_
+- [ ] Evaluación 360° Viva.  
+    _Pendiente (2026-02-19)_
+- [ ] People Experience (PX) & Engagement.  
+    _Pendiente (2026-02-19)_
+- [ ] E-Learning & LMS Integration.  
+    _Pendiente (2026-02-19)_
 
----
+----
 
 ## 5. Próximos Pasos (TODO List - Sesiones Inmediatas)
 
 ### Para la Sesión de "Introducción de Agentes":
 
-1.  [ ] **Infraestructura Python:** Preparar el entorno virtual y scripts base en `/python_services/`.
-2.  [ ] **Contrato de Datos:** Definir exactamente qué campos del `Step 2` (Gaps detectados) se enviarán al agente.
-3.  [ ] **Primer Prompt:** Diseñar el prompt del "Talent Strategy Agent" para CrewAI.
-4.  [ ] **Integración Laravel:** Crear el Job `AnalyzeTalentGap` que dispare el proceso de Python.
+1.  [x] Infraestructura Python: entorno virtual y scripts base en `/python_services/`.  
+        _Completado (2026-02-18)_
+2.  [x] Contrato de Datos: definir campos enviados al agente.  
+        _Completado (2026-02-18)_
+3.  [~] Primer Prompt: diseñar el prompt del "Talent Strategy Agent" para CrewAI.  
+        _En progreso, falta prompt final (2026-02-19)_
+4.  [x] Integración Laravel: Job `AnalyzeTalentGap` que dispara proceso Python.  
+        _Completado (2026-02-18)_
 
----
+----
 
 _Este documento es vivo. Se actualizará conforme aprendamos y evolucionemos el sistema._

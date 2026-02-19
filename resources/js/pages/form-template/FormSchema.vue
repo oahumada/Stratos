@@ -6,73 +6,17 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { useTheme as useVuetifyTheme } from 'vuetify';
 import FormData from './FormData.vue';
 
-interface TableHeader {
-    key: string;
-    text: string;
-    value: string;
-    type?: 'date' | 'text' | 'number';
-    sortable?: boolean;
-    filterable?: boolean;
-}
-
-interface FormField {
-    key: string;
-    type:
-        | 'text'
-        | 'select'
-        | 'date'
-        | 'time'
-        | 'switch'
-        | 'checkbox'
-        | 'number'
-        | 'email'
-        | 'password'
-        | 'textarea';
-    label: string;
-    required?: boolean;
-    rules?: Array<any>;
-    placeholder?: string;
-    items?: any[];
-}
+import {
+    Config,
+    FilterConfig,
+    ItemForm,
+    TableConfig,
+    TableHeader,
+} from '@/types/form-schema';
 
 interface CatalogItem {
     id: number | string;
     name: string;
-}
-
-interface FilterConfig {
-    field: string;
-    type: 'text' | 'select' | 'date';
-    label: string;
-    items?: any[];
-    placeholder?: string;
-    catalogKey?: string;
-}
-
-interface Config {
-    endpoints: {
-        index: string;
-        apiUrl: string;
-    };
-    titulo: string;
-    descripcion?: string;
-    permisos?: {
-        crear: boolean;
-        editar: boolean;
-        eliminar: boolean;
-    };
-    detail?: boolean;
-}
-
-interface TableConfig {
-    headers: TableHeader[];
-    options?: Record<string, any>;
-}
-
-interface ItemForm {
-    fields: FormField[];
-    catalogs?: any[];
-    layout?: string;
 }
 
 interface TableItem {
@@ -244,6 +188,16 @@ const loadItems = async () => {
         }
 
         items.value = parsed?.data || parsed || [];
+
+        // Update detail item if open
+        if (detailOpen.value && detailItem.value) {
+            const updated = items.value.find(
+                (i) => i.id === detailItem.value?.id,
+            );
+            if (updated) {
+                detailItem.value = updated;
+            }
+        }
     } catch (err: any) {
         error.value = err.message || 'Failed to load records';
         console.error('loadItems error', err);
@@ -484,25 +438,25 @@ const openDetail = (item: TableItem) => {
 defineExpose({ openDetail, loadItems });
 
 const displayHeaders = computed(() => {
-    return mergedTableConfig.value.headers.map((header: any) => {
+    return mergedTableConfig.value.headers.map((header: TableHeader) => {
         const origKey = header.value || header.key;
         const safeKey = String(origKey).replace(/\./g, '__');
         return {
+            ...header,
             title: header.text || header.title,
             key: safeKey,
             value: safeKey,
             origKey,
-            ...header,
         };
     });
 });
 
 // Process items to add derived fields for nested keys (replace dots with __)
-const processedItems = computed(() => {
+const processedItems = computed<TableItem[]>(() => {
     const headers = mergedTableConfig.value.headers || [];
-    return filteredItems.value.map((item: any) => {
-        const out = { ...item } as Record<string, any>;
-        headers.forEach((h: any) => {
+    return filteredItems.value.map((item: TableItem) => {
+        const out = { ...item } as TableItem;
+        headers.forEach((h: TableHeader) => {
             const orig = h.value || h.key;
             if (orig && String(orig).includes('.')) {
                 const safe = String(orig).replace(/\./g, '__');
@@ -878,6 +832,7 @@ onMounted(() => {
                     :tab="detailTab"
                     :set-tab="setDetailTab"
                     :sync="syncWithRole"
+                    :refresh="loadItems"
                     :close="
                         () => {
                             detailOpen = false;

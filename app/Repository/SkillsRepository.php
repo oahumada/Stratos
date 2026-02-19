@@ -23,6 +23,8 @@ class SkillsRepository extends Repository
             ->select('skills.*')
             ->with([
                 'roles',
+                'barsLevels',
+                'questions',
                 'peopleRoleSkills' => function ($query) {
                     $query->where('is_active', true)
                         ->select('id', 'people_id', 'skill_id', 'current_level', 'required_level', 'is_active')

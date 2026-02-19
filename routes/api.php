@@ -152,6 +152,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/scenarios/{id}/incubated-items/approve', [\App\Http\Controllers\Api\IncubationController::class, 'approve']);
             Route::post('/scenarios/{id}/incubated-items/reject', [\App\Http\Controllers\Api\IncubationController::class, 'reject']);
 
+            // AI Role Designer
+            Route::post('/roles/{id}/design', [\App\Http\Controllers\Api\RoleDesignerController::class, 'design']);
+
             // Assessments & Psychometrics (Fase 4: Talento 360)
             Route::prefix('assessments')->group(function () {
                 Route::post('/sessions', [\App\Http\Controllers\Api\AssessmentController::class, 'startSession']);
@@ -164,6 +167,12 @@ Route::middleware('auth:sanctum')->group(function () {
                     Route::post('/request', [\App\Http\Controllers\Api\AssessmentController::class, 'requestFeedback']);
                     Route::post('/submit', [\App\Http\Controllers\Api\AssessmentController::class, 'submitFeedback']);
                     Route::get('/pending', [\App\Http\Controllers\Api\AssessmentController::class, 'getPendingRequests']);
+                });
+
+                // AI Curator routes
+                Route::prefix('curator')->group(function () {
+                    Route::post('/skills/{id}/curate', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'curate']);
+                    Route::post('/skills/{id}/generate-questions', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'generateQuestions']);
                 });
             });
         }
