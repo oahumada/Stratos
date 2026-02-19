@@ -35,20 +35,26 @@ class AuthServiceProvider extends ServiceProvider
 
         // Gate para controlar ejecución del sync Neo4j
         Gate::define('sync-neo4j', function (User $user) {
-            // Si el usuario tiene atributo is_admin (DB o dinámico) y es true, permitir
-            if (! empty($user->is_admin)) {
-                return true;
+            // Si usa Spatie Permission, preferir permiso explícito
+            if (method_exists($user, 'can')) {
+                try {
+                    if ($user->can('sync_neo4j')) {
+                        return true;
+                    }
+                } catch (\Throwable $e) {}
             }
 
-            // Si el modelo tiene un método hasRole, usarlo para comprobar rol 'admin'
+            // Fallback: admin role o is_admin
             if (method_exists($user, 'hasRole')) {
                 try {
-                    return $user->hasRole('admin');
-                } catch (\Throwable $e) {
-                    return false;
-                }
+                    if ($user->hasRole('admin')) {
+                        return true;
+                    }
+                } catch (\Throwable $e) {}
             }
-
+            if (!empty($user->is_admin)) {
+                return true;
+            }
             return false;
         });
     }

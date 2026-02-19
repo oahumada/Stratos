@@ -65,12 +65,14 @@ Automatización y despliegue
         - `GET /status` — muestra `sync_checkpoints`.
 
 Artisan Command & Job (Laravel)
+
 - Se agregó el comando Artisan `neo4j:sync` para disparar el ETL desde el backend Laravel.
     - Uso: `php artisan neo4j:sync --via=script` (ejecuta `python_services/neo4j_etl.py` localmente)
     - Uso: `php artisan neo4j:sync --via=fastapi` (llama a la URL configurada en `NEO4J_ETL_SERVICE_URL`)
 - También se añadió el `App\Jobs\RunNeo4jSyncJob` que implementa `ShouldQueue` y puede encolarse con `dispatch(new RunNeo4jSyncJob('fastapi'))`.
 
 Recomendación operativa:
+
 - Preferir `--via=fastapi` en entornos donde el microservicio Python esté desplegado (mayor observabilidad y separación de responsabilidades).
 - En entornos donde no exista el servicio, usar `--via=script` o encolar el `RunNeo4jSyncJob` para ejecución asíncrona por `queue:work`.
 

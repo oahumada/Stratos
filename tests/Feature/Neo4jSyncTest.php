@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Traits\HasRoles;
 use App\Jobs\RunNeo4jSyncJob;
 use App\Models\User;
 
@@ -18,10 +19,8 @@ it('api endpoint dispatches job when authorized', function () {
     Bus::fake();
 
     $user = User::factory()->create();
-    // avoid persisting non-existing column; set in-memory flag
-    $user->is_admin = true;
-
-    // Ensure Gate allows the action in this test
+    // Simular permiso con Spatie (si está disponible)
+    // Forzar autorización redefiniendo el Gate para este test
     Gate::define('sync-neo4j', fn ($u) => true);
 
     $this->actingAs($user, 'sanctum')
