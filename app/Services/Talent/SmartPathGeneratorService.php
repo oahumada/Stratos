@@ -76,7 +76,7 @@ class SmartPathGeneratorService
             'development_path_id' => $path->id,
             'title' => "Curso: {$skill->name} - Nivel {$intensity}",
             'description' => "Completar módulo de aprendizaje formal para adquirir bases teóricas de nivel {$intensity}.",
-            'type' => 'course',
+            'type' => 'training',
             'strategy' => 'build',
             'order' => 1,
             'status' => 'pending',
@@ -95,8 +95,8 @@ class SmartPathGeneratorService
             'development_path_id' => $path->id,
             'title' => "Mentoría con {$mentorName}",
             'description' => "Sesiones quincenales para revisar progreso y discutir casos prácticos con {$mentorName}.",
-            'type' => 'mentorship',
-            'strategy' => 'borrow_internal',
+            'type' => 'mentoring',
+            'strategy' => 'borrow',
             'order' => 2,
             'status' => 'pending',
             'estimated_hours' => 12, // 1 hora x 12 sesiones (6 meses)
@@ -111,7 +111,13 @@ class SmartPathGeneratorService
             'title' => "Proyecto Práctico: Aplicación de {$skill->name}",
             'description' => "Asumir responsabilidad de un entregable clave que requiera el uso activo de {$skill->name} bajo supervisión.",
             'type' => 'project',
-            'strategy' => 'apply',
+            'strategy' => 'build', // 'Apply' isn't an option, use 'build' (internal development) or 'practice' if available?
+            // Migration has 'practice'. Let's use 'practice'.
+            // Wait, schema says: enum('type', ['training', 'practice', 'project', 'mentoring'])
+            // Strategy says: enum('strategy', ['build', 'buy', 'borrow', 'bot'])
+            // So Type='project', Strategy='build' is valid.
+            // Or Type='practice', Strategy='build'.
+            // Project fits better here. Strategy 'build' fits "Internal development".
             'order' => 3,
             'status' => 'pending',
             'estimated_hours' => $gap > 1 ? 120 : 40,

@@ -26,13 +26,13 @@ class MentorMatchingService
         $experts = PeopleRoleSkills::where('skill_id', $skillId)
             ->where('current_level', '>=', $minLevel)
             ->where('verified', true) // Asegura que no sea solo autopercepción
-            ->with(['people.organization', 'role'])
+            ->with(['person.organization', 'role'])
             ->limit($limit + 5) // Fetch extra para filtrar por performance después
             ->get();
 
         // 2. Extraer los perfiles de personas
         $mentors = $experts->map(function ($expert) {
-            $person = $expert->people;
+            $person = $expert->person;
             
             // Simulación de Performance Check (hasta que tengamos tabla real)
             // En un sistema real, cruzaríamos con PerformanceRating

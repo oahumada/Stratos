@@ -23,7 +23,7 @@ class SmartPathGenerationTest extends TestCase
         parent::setUp();
         
         // Setup basic data
-        $org = \App\Models\Organization::factory()->create(['id' => 1]);
+        $org = \App\Models\Organization::factory()->create();
         $role = \App\Models\Roles::factory()->create();
         $this->person = People::factory()->create([
             'organization_id' => $org->id,
@@ -55,27 +55,32 @@ class SmartPathGenerationTest extends TestCase
         
         $this->assertDatabaseHas('development_actions', [
             'development_path_id' => $path->id,
-            'type' => 'course',
+            'type' => 'training',
             'strategy' => 'build'
         ]);
 
         $this->assertDatabaseHas('development_actions', [
             'development_path_id' => $path->id,
-            'type' => 'mentorship',
-            'strategy' => 'borrow_internal'
+            'type' => 'mentoring',
+            'strategy' => 'borrow'
         ]);
 
         $this->assertDatabaseHas('development_actions', [
             'development_path_id' => $path->id,
             'type' => 'project',
-            'strategy' => 'apply'
+            'strategy' => 'build'
         ]);
     }
 
     public function test_matches_a_mentor_if_available()
     {
         // Create an expert
-        $expert = People::factory()->create(['first_name' => 'Guido', 'last_name' => 'Van Rossum', 'status' => 'active']);
+        $expert = People::factory()->create([
+            'first_name' => 'Guido', 
+            'last_name' => 'Van Rossum', 
+            'status' => 'active',
+            'organization_id' => $this->person->organization_id
+        ]);
         $role = \App\Models\Roles::factory()->create();
         
         // Assign expert skill
@@ -91,7 +96,7 @@ class SmartPathGenerationTest extends TestCase
         $path = $service->generatePath($this->person->id, $this->skill->id, 1, 3);
         
         $actions = $path->actions;
-        $mentorAction = $actions->where('type', 'mentorship')->first();
+        $mentorAction = $actions->where('type', 'mentoring')->first();
 
         // Should mention the expert
         $this->assertStringContainsString('Guido Van Rossum', $mentorAction->title);

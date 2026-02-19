@@ -140,6 +140,7 @@ const handleRefresh = () => {
                 >
                     <v-tab value="active">Skills Activas</v-tab>
                     <v-tab value="psychometric">Potencial AI</v-tab>
+                    <v-tab value="development">Desarrollo</v-tab>
                     <v-tab value="history">Historial</v-tab>
                 </v-tabs>
                 <div class="d-flex align-center gap-2">
@@ -297,6 +298,13 @@ const handleRefresh = () => {
                             @completed="handleRefresh"
                         />
                     </div>
+                </v-window-item>
+
+                <v-window-item value="development">
+                    <DevelopmentTab
+                        :person-id="item.id"
+                        :skills="item.skills || []"
+                    />
                 </v-window-item>
 
                 <v-window-item value="history">

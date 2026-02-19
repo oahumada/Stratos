@@ -22,11 +22,18 @@ class DevelopmentPathController extends Controller
     /**
      * Lista todas las rutas de desarrollo
      */
-    public function index(): JsonResponse
+    /**
+     * Lista todas las rutas de desarrollo
+     */
+    public function index(Request $request): JsonResponse
     {
-        $paths = DevelopmentPath::with(['people', 'targetRole', 'actions'])
-            ->latest()
-            ->get()
+        $query = DevelopmentPath::with(['people', 'targetRole', 'actions'])->latest();
+
+        if ($request->has('people_id')) {
+            $query->where('people_id', $request->query('people_id'));
+        }
+
+        $paths = $query->get()
             ->map(function ($path) {
                 return [
                     'id' => $path->id,
