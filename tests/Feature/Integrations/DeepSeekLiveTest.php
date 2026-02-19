@@ -14,6 +14,13 @@ class DeepSeekLiveTest extends TestCase
     {
         $service = new StratosIntelService();
         
+        // Skip if service is not reachable
+        try {
+            \Illuminate\Support\Facades\Http::get(config('services.python_intel.base_url') . '/');
+        } catch (\Exception $e) {
+            $this->markTestSkipped('Python Intelligence Service is not reachable at ' . config('services.python_intel.base_url'));
+        }
+        
         $gapData = [
             'role_context' => [
                 'role_id' => 101,
