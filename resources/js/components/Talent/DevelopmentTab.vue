@@ -98,8 +98,29 @@
                                     </div>
 
                                     <!-- Embedded Mentor Card for Mentoring Actions -->
+                                    <div v-if="action.mentor" class="mt-3 mb-2">
+                                        <MentorCard
+                                            :mentor="
+                                                formatMentor(action.mentor)
+                                            "
+                                            @request="openSessionDialog(action)"
+                                        />
+                                        <div class="d-flex justify-end pr-2">
+                                            <v-btn
+                                                variant="text"
+                                                size="x-small"
+                                                color="primary"
+                                                prepend-icon="mdi-history"
+                                                @click="
+                                                    openSessionDialog(action)
+                                                "
+                                            >
+                                                Bitácora de Sesiones
+                                            </v-btn>
+                                        </div>
+                                    </div>
                                     <div
-                                        v-if="
+                                        v-else-if="
                                             action.type === 'mentoring' ||
                                             action.type === 'mentorship'
                                         "
@@ -126,25 +147,17 @@
                                                     <div
                                                         class="text-caption font-weight-bold"
                                                     >
-                                                        Acción de Mentoría
+                                                        Buscando Mentor...
                                                     </div>
                                                     <div class="text-caption">
-                                                        Conecta con expertos
-                                                        internos
+                                                        Pendiente de asignación
                                                     </div>
                                                 </div>
-                                                <v-spacer></v-spacer>
-                                                <v-btn
-                                                    size="small"
-                                                    variant="text"
-                                                    color="primary"
-                                                    >Ver Detalles</v-btn
-                                                >
                                             </div>
                                         </v-sheet>
                                     </div>
 
-                                    <div class="mt-1">
+                                    <div class="d-flex align-center mt-1 gap-2">
                                         <v-chip
                                             size="x-small"
                                             prepend-icon="mdi-clock-outline"
@@ -152,9 +165,114 @@
                                         >
                                             {{ action.estimated_hours }}h
                                         </v-chip>
-                                        <v-chip size="x-small" color="grey">
+
+                                        <v-menu transition="scale-transition">
+                                            <template
+                                                v-slot:activator="{ props }"
+                                            >
+                                                <v-chip
+                                                    size="x-small"
+                                                    :color="
+                                                        getActionStatusColor(
+                                                            action.status,
+                                                        )
+                                                    "
+                                                    v-bind="props"
+                                                    class="cursor-pointer"
+                                                    :loading="
+                                                        updatingActionId ===
+                                                        action.id
+                                                    "
+                                                >
+                                                    {{ action.status }}
+                                                    <v-icon
+                                                        end
+                                                        icon="mdi-chevron-down"
+                                                        size="10"
+                                                    ></v-icon>
+                                                </v-chip>
+                                            </template>
+                                            <v-list
+                                                density="compact"
+                                                min-width="120"
+                                            >
+                                                <v-list-item
+                                                    v-for="status in [
+                                                        'pending',
+                                                        'in_progress',
+                                                        'completed',
+                                                        'cancelled',
+                                                    ]"
+                                                    :key="status"
+                                                    @click="
+                                                        updateActionStatus(
+                                                            action.id,
+                                                            status,
+                                                        )
+                                                    "
+                                                    :active="
+                                                        action.status === status
+                                                    "
+                                                    :color="
+                                                        getActionStatusColor(
+                                                            status,
+                                                        )
+                                                    "
+                                                >
+                                                    <v-list-item-title
+                                                        class="text-caption text-capitalize"
+                                                    >
+                                                        {{
+                                                            status.replace(
+                                                                '_',
+                                                                ' ',
+                                                            )
+                                                        }}
+                                                    </v-list-item-title>
+                                                </v-list-item>
+                                            </v-list>
+                                        </v-menu>
+
+                                        <v-chip
+                                            size="x-small"
+                                            color="grey"
+                                            variant="tonal"
+                                        >
                                             {{ action.type }}
                                         </v-chip>
+
+                                        <v-btn
+                                            icon="mdi-paperclip"
+                                            size="x-small"
+                                            variant="text"
+                                            color="grey"
+                                            @click="openEvidenceDialog(action)"
+                                            title="Gestionar Evidencias"
+                                        ></v-btn>
+
+                                        <template v-if="action.lms_course_id">
+                                            <v-btn
+                                                icon="mdi-play-network-outline"
+                                                size="x-small"
+                                                variant="text"
+                                                color="primary"
+                                                @click="launchLms(action.id)"
+                                                title="Lanzar Curso LMS"
+                                            ></v-btn>
+                                            <v-btn
+                                                icon="mdi-sync"
+                                                size="x-small"
+                                                variant="text"
+                                                color="success"
+                                                :loading="
+                                                    syncingLmsId === action.id
+                                                "
+                                                @click="
+                                                    syncLmsProgress(action.id)
+                                                "
+                                                title="Sincronizar Progreso"
+                                            ></v-btn>
+                                        </template>
                                     </div>
                                 </div>
                             </v-timeline-item>
@@ -171,12 +289,23 @@
         :skills="skills"
         @generated="fetchPaths"
     />
+
+    <MentorshipSessionDialog
+        ref="sessionDialog"
+        :action-id="selectedAction?.id"
+        :action-title="selectedAction?.title"
+    />
+
+    <EvidenceDialog ref="evidenceDialog" :action-id="selectedAction?.id" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import axios from 'axios';
 import { onMounted, ref, watch } from 'vue';
 import CreatePathDialog from './CreatePathDialog.vue';
+import EvidenceDialog from './EvidenceDialog.vue';
+import MentorCard from './MentorCard.vue';
+import MentorshipSessionDialog from './MentorshipSessionDialog.vue';
 
 const props = defineProps({
     personId: {
@@ -191,8 +320,15 @@ const props = defineProps({
 
 const paths = ref([]);
 const loading = ref(false);
+const updatingActionId = ref<number | null>(null);
+const syncingLmsId = ref<number | null>(null);
 const panel = ref(0);
-const createDialog = ref(null);
+const createDialog = ref<InstanceType<typeof CreatePathDialog> | null>(null);
+const sessionDialog = ref<InstanceType<typeof MentorshipSessionDialog> | null>(
+    null,
+);
+const evidenceDialog = ref<InstanceType<typeof EvidenceDialog> | null>(null);
+const selectedAction = ref<any>(null);
 
 const fetchPaths = async () => {
     loading.value = true;
@@ -208,8 +344,74 @@ const fetchPaths = async () => {
     }
 };
 
+const updateActionStatus = async (actionId, newStatus) => {
+    updatingActionId.value = actionId;
+    try {
+        await axios.patch(`/api/development-actions/${actionId}/status`, {
+            status: newStatus,
+        });
+        await fetchPaths();
+    } catch (e) {
+        console.error('Error updating action status', e);
+    } finally {
+        updatingActionId.value = null;
+    }
+};
+
 const openCreateDialog = () => {
     createDialog.value?.open();
+};
+
+const formatMentor = (mentorData: any) => {
+    return {
+        id: mentorData.id,
+        full_name:
+            mentorData.full_name ||
+            `${mentorData.first_name} ${mentorData.last_name}`,
+        role: mentorData.role?.name || 'Experto',
+        match_score: 95, // Mock score
+        expertise_level: 5,
+        avatar: mentorData.photo_url || null,
+    };
+};
+
+const openSessionDialog = (action: any) => {
+    selectedAction.value = action;
+    setTimeout(() => {
+        sessionDialog.value?.open();
+    }, 50);
+};
+
+const openEvidenceDialog = (action: any) => {
+    selectedAction.value = action;
+    setTimeout(() => {
+        evidenceDialog.value?.open();
+    }, 50);
+};
+
+const launchLms = async (actionId: number) => {
+    try {
+        const response = await axios.post(
+            `/api/development-actions/${actionId}/launch-lms`,
+        );
+        if (response.data.url) {
+            window.open(response.data.url, '_blank');
+        }
+    } catch (e) {
+        console.error('Error launching LMS', e);
+    }
+};
+
+const syncLmsProgress = async (actionId: number) => {
+    syncingLmsId.value = actionId;
+    try {
+        await axios.post(`/api/development-actions/${actionId}/sync-lms`);
+        await fetchPaths();
+    } catch (e) {
+        console.error('Error syncing LMS progress', e);
+    } finally {
+        syncingLmsId.value = null;
+    }
 };
 
 onMounted(() => {
@@ -235,6 +437,19 @@ const getStatusColor = (status) => {
             return 'blue';
         default:
             return 'primary';
+    }
+};
+
+const getActionStatusColor = (status) => {
+    switch (status) {
+        case 'completed':
+            return 'success';
+        case 'in_progress':
+            return 'warning';
+        case 'cancelled':
+            return 'error';
+        default:
+            return 'grey';
     }
 };
 

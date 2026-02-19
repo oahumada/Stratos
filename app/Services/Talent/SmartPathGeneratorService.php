@@ -19,7 +19,7 @@ class SmartPathGeneratorService
 
     /**
      * Genera un plan de desarrollo automático basado en la brecha detectada.
-     * 
+     *
      * @param int $peopleId
      * @param int $skillId
      * @param int $currentLevel
@@ -89,7 +89,9 @@ class SmartPathGeneratorService
     {
         // Buscar mentor
         $mentors = $this->mentorService->findMentors($skill->id, 4, 1);
-        $mentorName = $mentors->isNotEmpty() ? $mentors->first()->full_name : 'Experto Externo';
+        $mentor = $mentors->first();
+        $mentorName = $mentor ? $mentor['full_name'] : 'Experto Externo';
+        $mentorId = $mentor ? $mentor['id'] : null;
 
         DevelopmentAction::create([
             'development_path_id' => $path->id,
@@ -97,6 +99,7 @@ class SmartPathGeneratorService
             'description' => "Sesiones quincenales para revisar progreso y discutir casos prácticos con {$mentorName}.",
             'type' => 'mentoring',
             'strategy' => 'borrow',
+            'mentor_id' => $mentorId,
             'order' => 2,
             'status' => 'pending',
             'estimated_hours' => 12, // 1 hora x 12 sesiones (6 meses)

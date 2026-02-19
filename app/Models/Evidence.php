@@ -12,7 +12,7 @@ class Evidence extends Model
     use HasFactory;
 
     protected $fillable = [
-        'evaluation_id', 'type', 'title', 'description',
+        'evaluation_id', 'development_action_id', 'type', 'title', 'description',
         'file_path', 'external_url', 'metadata',
         'validated_by', 'validated_at',
     ];
@@ -31,5 +31,10 @@ class Evidence extends Model
     public function validator()
     {
         return $this->belongsTo(User::class, 'validated_by');
+    }
+
+    public function developmentAction()
+    {
+        return $this->belongsTo(DevelopmentAction::class);
     }
 }

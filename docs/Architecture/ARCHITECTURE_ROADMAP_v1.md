@@ -168,7 +168,14 @@ Nuestra implementación seguirá fases iterativas, asegurando valor en cada paso
     - Uso de agentes para inferir rasgos de personalidad (Big Five/DISC) a partir de patrones de lenguaje y código (GitHub/Comunicaciones), reduciendo la necesidad de tests invasivos.
     - Validación cruzada de "Evidencias de Resultados" contra el Grafo de Conocimiento (¿Realmente ese proyecto tuvo el impacto que el candidato dice?).
 - [ ] **Evaluación 360° Viva:** Análisis de contribución basado en grafos de interacción y reputación técnica, no jerarquía.
-- [ ] **Termómetro Organizacional:** Análisis de sentimiento en tiempo real.
+- [ ] **People Experience (PX) & Engagement:**
+    - **Termómetro Organizacional:** Análisis de sentimiento en tiempo real y encuestas de pulso dinámicas.
+    - **Reconocimiento y Kudos:** Sistema de feedback positivo basado en grafos de contribución.
+    - **Journey Mapping:** Visualización del ciclo de vida del colaborador (Onboarding, Crecimiento, Offboarding).
+- [ ] **E-Learning & LMS Integration:**
+    - **Orquestación de Aprendizaje:** Conexión nativa con plataformas LXP/LMS (Moodle, Coursera, LinkedIn Learning).
+    - **Sincronización de Progreso:** Actualización automática de la "Memoria" de Stratos tras completar certificaciones externas.
+    - **Marketplace de Cursos:** Sugerencias inteligentes de formación pagada/gratuita integradas en los Smart Paths.
 
 ---
 

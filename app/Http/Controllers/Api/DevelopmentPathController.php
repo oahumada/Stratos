@@ -22,12 +22,9 @@ class DevelopmentPathController extends Controller
     /**
      * Lista todas las rutas de desarrollo
      */
-    /**
-     * Lista todas las rutas de desarrollo
-     */
     public function index(Request $request): JsonResponse
     {
-        $query = DevelopmentPath::with(['people', 'targetRole', 'actions'])->latest();
+        $query = DevelopmentPath::with(['people', 'targetRole', 'actions.mentor'])->latest();
 
         if ($request->has('people_id')) {
             $query->where('people_id', $request->query('people_id'));
@@ -58,17 +55,14 @@ class DevelopmentPathController extends Controller
 
     /**
      * Genera una nueva ruta de desarrollo
-     * Soporta dos modos:
-     * 1. Plan de Carrera (basado en Roles)
-     * 2. Cierre de Brechas (basado en Skills)
      */
     public function generate(Request $request): JsonResponse
     {
         try {
             $data = $request->validate([
                 'people_id' => ['required', 'integer'],
-                'role_id' => ['nullable', 'integer'], // Modo Carrera
-                'skill_id' => ['nullable', 'integer'], // Modo Gap
+                'role_id' => ['nullable', 'integer'],
+                'skill_id' => ['nullable', 'integer'],
                 'current_level' => ['nullable', 'integer'],
                 'target_level' => ['nullable', 'integer'],
             ]);
@@ -78,50 +72,11 @@ class DevelopmentPathController extends Controller
                 return response()->json(['error' => 'Persona no encontrada'], 404);
             }
 
-            // Modo 2: Skill Gap Closure (Smart Path)
             if (!empty($data['skill_id'])) {
-                $currentLevel = $data['current_level'] ?? 1;
-                $targetLevel = $data['target_level'] ?? 3;
-                
-                $path = $this->smartGenerator->generatePath(
-                    $people->id,
-                    $data['skill_id'],
-                    $currentLevel,
-                    $targetLevel
-                );
-
-                return response()->json(['data' => $path->load('actions')], 201);
+                return $this->handleSmartPath($data, $people);
             }
 
-            // Modo 1: Career Path (Legacy/Role based)
-            $role = null;
-            if (! empty($data['role_id'])) {
-                $role = Roles::find($data['role_id']);
-            }
-
-            if (! $role) {
-                return response()->json(['error' => 'Debe especificar un Rol o una Skill'], 422);
-            }
-
-            $service = new DevelopmentPathService;
-            $path = $service->generate($people, $role);
-
-            return response()->json([
-                'data' => [
-                    'id' => $path->id,
-                    'status' => $path->status,
-                    'estimated_duration_months' => $path->estimated_duration_months,
-                    'steps' => $path->steps,
-                    'people' => [
-                        'id' => $people->id,
-                        'name' => $people->full_name ?? ($people->first_name.' '.$people->last_name),
-                    ],
-                    'target_role' => [
-                        'id' => $role->id,
-                        'name' => $role->name,
-                    ],
-                ],
-            ], 201);
+            return $this->handleLegacyCareerPath($data, $people);
         } catch (\Exception $e) {
             \Log::error('Development path generation error: '.$e->getMessage(), [
                 'people_id' => $request->input('people_id'),
@@ -133,6 +88,50 @@ class DevelopmentPathController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    protected function handleSmartPath(array $data, People $people): JsonResponse
+    {
+        $currentLevel = $data['current_level'] ?? 1;
+        $targetLevel = $data['target_level'] ?? 3;
+        
+        $path = $this->smartGenerator->generatePath(
+            $people->id,
+            $data['skill_id'],
+            $currentLevel,
+            $targetLevel
+        );
+
+        return response()->json(['data' => $path->load('actions')], 201);
+    }
+
+    protected function handleLegacyCareerPath(array $data, People $people): JsonResponse
+    {
+        $role = !empty($data['role_id']) ? Roles::find($data['role_id']) : null;
+
+        if (! $role) {
+            return response()->json(['error' => 'Debe especificar un Rol o una Skill'], 422);
+        }
+
+        $service = new DevelopmentPathService;
+        $path = $service->generate($people, $role);
+
+        return response()->json([
+            'data' => [
+                'id' => $path->id,
+                'status' => $path->status,
+                'estimated_duration_months' => $path->estimated_duration_months,
+                'steps' => $path->steps,
+                'people' => [
+                    'id' => $people->id,
+                    'name' => $people->full_name ?? ($people->first_name.' '.$people->last_name),
+                ],
+                'target_role' => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                ],
+            ],
+        ], 201);
     }
 
     /**

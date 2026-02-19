@@ -11,6 +11,16 @@ Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::c
 Route::get('/development-paths', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'index']);
 Route::post('/development-paths/generate', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'generate']);
 Route::delete('/development-paths/{id}', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'destroy']);
+Route::patch('/development-actions/{id}/status', [\App\Http\Controllers\Api\DevelopmentActionController::class, 'updateStatus']);
+Route::get('/mentorship-sessions', [\App\Http\Controllers\Api\MentorshipSessionController::class, 'index']);
+Route::post('/mentorship-sessions', [\App\Http\Controllers\Api\MentorshipSessionController::class, 'store']);
+Route::patch('/mentorship-sessions/{id}', [\App\Http\Controllers\Api\MentorshipSessionController::class, 'update']);
+Route::delete('/mentorship-sessions/{id}', [\App\Http\Controllers\Api\MentorshipSessionController::class, 'destroy']);
+Route::get('/evidences', [\App\Http\Controllers\Api\EvidenceController::class, 'index']);
+Route::post('/evidences', [\App\Http\Controllers\Api\EvidenceController::class, 'store']);
+Route::delete('/evidences/{id}', [\App\Http\Controllers\Api\EvidenceController::class, 'destroy']);
+Route::post('/development-actions/{id}/launch-lms', [\App\Http\Controllers\Api\DevelopmentActionController::class, 'launchLms']);
+Route::post('/development-actions/{id}/sync-lms', [\App\Http\Controllers\Api\DevelopmentActionController::class, 'syncLms']);
 
 // Job Openings (Día 4-5)
 Route::get('/job-openings', [\App\Http\Controllers\Api\JobOpeningController::class, 'index']);
