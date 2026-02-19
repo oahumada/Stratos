@@ -11,7 +11,14 @@ class BarsLevel extends Model
 
     protected $table = 'bars_levels';
 
-    protected $fillable = ['skill_id', 'level', 'level_name', 'behavioral_description'];
+    protected $fillable = [
+        'skill_id', 
+        'level', 
+        'level_name', 
+        'behavioral_description',
+        'learning_content',
+        'performance_indicator'
+    ];
 
     // Relaciones
     public function skill()

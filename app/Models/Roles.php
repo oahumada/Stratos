@@ -16,10 +16,22 @@ class Roles extends Model
     use HasFactory;
     protected $table = 'roles';
 
-    protected $fillable = ['organization_id', 'llm_id', 'name', 'level', 'description', 'status', 'discovered_in_scenario_id', 'embedding'];
+    protected $fillable = [
+        'organization_id', 
+        'llm_id', 
+        'name', 
+        'level', 
+        'description', 
+        'status', 
+        'discovered_in_scenario_id', 
+        'embedding',
+        'ai_archetype_config'
+    ];
 
     protected $casts = [
         'level' => 'string',
+        'ai_archetype_config' => 'array',
+        'embedding' => 'array',
     ];
 
     protected static function booted()

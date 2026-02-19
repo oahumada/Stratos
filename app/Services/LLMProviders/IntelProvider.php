@@ -17,7 +17,7 @@ class IntelProvider implements LLMProviderInterface
     /**
      * Generate a response from the Python Intelligence service.
      */
-    public function generate(string $prompt): array
+    public function generate(string $prompt, array $options = []): array
     {
         // Extract basic data from prompt or assume defaults for scenario generation
         // Note: IntelProvider is primarily intended for Scenario Blueprint generation via Python.

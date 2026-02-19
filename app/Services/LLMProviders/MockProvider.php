@@ -13,7 +13,7 @@ class MockProvider implements LLMProviderInterface
         $this->config = $config;
     }
 
-    public function generate(string $prompt): array
+    public function generate(string $prompt, array $options = []): array
     {
         $now = now()->toIso8601String();
 

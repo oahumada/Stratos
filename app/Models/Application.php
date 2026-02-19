@@ -13,11 +13,15 @@ class Application extends Model
         'people_id',
         'status',
         'message',
+        'ai_analysis',
+        'match_score',
         'applied_at',
     ];
 
     protected $casts = [
         'status' => 'string',
+        'ai_analysis' => 'array',
+        'match_score' => 'integer',
         'applied_at' => 'datetime',
     ];
 

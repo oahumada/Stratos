@@ -15,11 +15,13 @@ class PulseSurvey extends Model
         'questions',
         'is_active',
         'department_id',
+        'ai_report',
     ];
 
     protected $casts = [
         'questions' => 'array',
         'is_active' => 'boolean',
+        'ai_report' => 'array',
     ];
 
     public function responses()

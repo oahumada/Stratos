@@ -17,6 +17,7 @@ Para lograr esto, evolucionamos de una arquitectura monolítica tradicional a un
 ## Documentación Relacionada
 
 - **Modelo Conceptual:** [Referencia del Modelo de Competencias (Iceberg Dinámico)](./COMPETENCY_MODEL_REFERENCE.md) - _Fundamento teórico-científico de cómo Stratos entiende y evalúa el talento._
+- **Orquestación de Agentes:** [Guía de Agentes IA (La Fuerza Digital)](./AGENT_ORCHESTRATION_GUIDE.md) - _Documentación detallada de los objetivos, personas y modelos de IA de cada agente especializado._
 
 ---
 

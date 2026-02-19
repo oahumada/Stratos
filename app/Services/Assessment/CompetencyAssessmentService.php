@@ -4,12 +4,19 @@ namespace App\Services\Assessment;
 
 use App\Models\AssessmentFeedback;
 use App\Models\PeopleRoleSkills;
+use App\Services\AiOrchestratorService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CompetencyAssessmentService
 {
+    protected AiOrchestratorService $orchestrator;
+
+    public function __construct(AiOrchestratorService $orchestrator)
+    {
+        $this->orchestrator = $orchestrator;
+    }
     /**
      * Weights for different relationship types in 360 feedback.
      */
@@ -144,5 +151,57 @@ class CompetencyAssessmentService
         }
 
         return $results;
+    }
+
+    /**
+     * Usa al Orquestador 360 para calibrar resultados con alta dispersión.
+     */
+    public function calibrateSkillWithAgent(int $peopleId, int $skillId): array
+    {
+        $feedbacks = AssessmentFeedback::join('assessment_requests', 'assessment_feedback.assessment_request_id', '=', 'assessment_requests.id')
+            ->where('assessment_requests.subject_id', $peopleId)
+            ->where('assessment_feedback.skill_id', $skillId)
+            ->where('assessment_requests.status', 'completed')
+            ->with(['skill'])
+            ->get();
+
+        if ($feedbacks->count() < 2) {
+            return ['status' => 'error', 'message' => 'Insuficiente data para calibración.'];
+        }
+
+        $skillName = $feedbacks->first()->skill->name ?? 'Skill #' . $skillId;
+        
+        $prompt = "Necesito que calibres la evaluación de la competencia '{$skillName}' para un colaborador. 
+        Tengo los siguientes feedbacks contrastantes:\n";
+        
+        foreach ($feedbacks as $f) {
+            $prompt .= "- Rol: {$f->relationship}, Puntaje: {$f->score}, Comentario: " . ($f->answer ?? 'Sin comentario') . "\n";
+        }
+
+        $prompt .= "\nPor favor, analiza si hay sesgos, identifica qué perspectiva parece más objetiva y propón un Puntaje Calibrado (1-5) y una Justificación Técnica breve.";
+
+        try {
+            $result = $this->orchestrator->agentThink('Orquestador 360', $prompt);
+            
+            // Si el agente devolvió un JSON con 'calibrated_score' y 'justification'
+            $calibration = $result['response'];
+            
+            // Actualizar el registro con la calibración del agente
+            PeopleRoleSkills::updateOrCreate(
+                ['people_id' => $peopleId, 'skill_id' => $skillId, 'is_active' => true],
+                [
+                    'current_level' => $calibration['calibrated_score'] ?? round($feedbacks->avg('score')),
+                    'notes' => "[CALIBRADO POR IA]: " . ($calibration['justification'] ?? $calibration['raw_text'] ?? 'Calibración completada.'),
+                    'verified' => true,
+                    'evaluated_at' => now(),
+                    'evidence_source' => 'Talent360_AgentCalibration'
+                ]
+            );
+
+            return ['status' => 'calibrated', 'result' => $calibration];
+        } catch (\Exception $e) {
+            Log::error("Error en calibración con agente: " . $e->getMessage());
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
     }
 }

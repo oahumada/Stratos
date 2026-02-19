@@ -37,6 +37,9 @@ const PeopleExperienceIcon = defineComponent(
 const Talento360Icon = defineComponent(
     () => () => h(VIcon, { icon: 'mdi-account-convert', size: 20 }),
 );
+const TalentAgentsIcon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-robot-vacuum-variant', size: 20 }),
+);
 
 const mainNavItems: NavItem[] = [
     {
@@ -86,8 +89,13 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'People Experience',
-        href: '/strategic-planning',
+        href: '/people-experience',
         icon: PeopleExperienceIcon,
+    },
+    {
+        title: 'Talent Agents',
+        href: '/talent-agents',
+        icon: TalentAgentsIcon,
     },
 ];
 

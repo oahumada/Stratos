@@ -13,7 +13,7 @@ class OpenAIProvider implements LLMProviderInterface
         $this->config = $config;
     }
 
-    public function generate(string $prompt): array
+    public function generate(string $prompt, array $options = []): array
     {
         $apiKey = $this->config['api_key'] ?? env('LLM_API_KEY');
         $model = $this->config['model'] ?? env('LLM_OPENAI_MODEL', 'gpt-4o');

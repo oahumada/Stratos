@@ -21,6 +21,11 @@ Route::post('/evidences', [\App\Http\Controllers\Api\EvidenceController::class, 
 Route::delete('/evidences/{id}', [\App\Http\Controllers\Api\EvidenceController::class, 'destroy']);
 Route::post('/development-actions/{id}/launch-lms', [\App\Http\Controllers\Api\DevelopmentActionController::class, 'launchLms']);
 Route::post('/development-actions/{id}/sync-lms', [\App\Http\Controllers\Api\DevelopmentActionController::class, 'syncLms']);
+Route::get('/pulse-surveys', [\App\Http\Controllers\Api\PulseController::class, 'index']);
+Route::get('/pulse-surveys/{id}', [\App\Http\Controllers\Api\PulseController::class, 'show']);
+Route::post('/pulse-responses', [\App\Http\Controllers\Api\PulseController::class, 'storeResponse']);
+Route::get('/agents', [\App\Http\Controllers\Api\AgentController::class, 'index']);
+Route::post('/agents/test', [\App\Http\Controllers\Api\AgentController::class, 'testAgent']);
 
 // Job Openings (Día 4-5)
 Route::get('/job-openings', [\App\Http\Controllers\Api\JobOpeningController::class, 'index']);
