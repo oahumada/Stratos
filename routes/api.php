@@ -400,6 +400,9 @@ Route::middleware('auth:sanctum')->group(function () {
         }
     );
 
+    // Neo4j Sync control endpoint (protegido)
+    Route::post('/neo4j/sync', [\App\Http\Controllers\Neo4jSyncController::class, 'sync']);
+
     // Dev API: create a Competency entity (multi-tenant safe)
     Route::post(
         '/competencies',

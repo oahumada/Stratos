@@ -1,3 +1,53 @@
+from fastapi import FastAPI, BackgroundTasks
+import os
+import subprocess
+import json
+import psycopg2
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+app = FastAPI(title='Stratos Neo4j ETL Service')
+
+
+def run_etl_process():
+    env = os.environ.copy()
+    # Ejecutar el PoC ETL existente
+    proc = subprocess.run(['python', 'neo4j_etl.py'], cwd=BASE_DIR, env=env, capture_output=True, text=True)
+    return {'returncode': proc.returncode, 'stdout': proc.stdout, 'stderr': proc.stderr}
+
+
+def get_pg_conn():
+    dsn = os.getenv('PG_DSN')
+    if not dsn:
+        raise RuntimeError('PG_DSN no definido')
+    return psycopg2.connect(dsn)
+
+
+@app.get('/health')
+def health():
+    return {'status': 'ok'}
+
+
+@app.post('/sync')
+def sync(background_tasks: BackgroundTasks):
+    """Dispara el ETL en background y devuelve ACK inmediato."""
+    background_tasks.add_task(run_etl_process)
+    return {'status': 'started'}
+
+
+@app.get('/status')
+def status():
+    """Devuelve los últimos checkpoints almacenados en Postgres."""
+    conn = get_pg_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT job_name, entity, organization_id, last_synced_at FROM sync_checkpoints ORDER BY job_name, entity")
+            rows = cur.fetchall()
+            keys = ['job_name', 'entity', 'organization_id', 'last_synced_at']
+            data = [dict(zip(keys, r)) for r in rows]
+    finally:
+        conn.close()
+    return {'checkpoints': data}
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from crewai import Agent, Task, Crew, Process

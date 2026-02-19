@@ -97,6 +97,16 @@ class Skill extends Model
         return $this->hasMany(PeopleRoleSkills::class, 'skill_id');
     }
 
+    public function barsLevels(): HasMany
+    {
+        return $this->hasMany(BarsLevel::class)->orderBy('level');
+    }
+
+    public function questions(): HasMany
+    {
+        return $this->hasMany(SkillQuestionBank::class);
+    }
+
     /**
      * Get the count of roles that require this skill
      */

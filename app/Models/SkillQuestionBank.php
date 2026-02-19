@@ -14,10 +14,17 @@ class SkillQuestionBank extends Model
 
     protected $fillable = [
         'skill_id',
+        'level',
         'archetype',
         'target_relationship',
         'question',
+        'question_type',
         'is_global',
+    ];
+
+    protected $casts = [
+        'level' => 'integer',
+        'is_global' => 'boolean',
     ];
 
     public function skill(): BelongsTo
