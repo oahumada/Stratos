@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
 
+/**
+ * @property \App\Models\Organizations $org
+ * @property \App\Models\User $user
+ * @property \App\Models\People $person
+ */
 beforeEach(function () {
     $this->org = Organizations::factory()->create();
     $this->user = User::factory()->create(['organization_id' => $this->org->id]);
@@ -116,8 +121,10 @@ it('can analyze a session with external feedback (360)', function () {
     $session->messages()->create(['role' => 'assistant', 'content' => 'Response 1']);
     $session->messages()->create(['role' => 'user', 'content' => 'Message 2']);
 
-    // Create external feedback
+    // Create external feedback with BARS
     $evaluator = People::factory()->create(['organization_id' => $this->org->id]);
+    $skill = \App\Models\Skill::factory()->create(['organization_id' => $this->org->id]);
+    
     $request = \App\Models\AssessmentRequest::create([
         'organization_id' => $this->org->id,
         'subject_id' => $this->person->id,
@@ -127,7 +134,10 @@ it('can analyze a session with external feedback (360)', function () {
     ]);
     $request->feedback()->create([
         'question' => 'How is it?',
-        'answer' => 'Very professional'
+        'answer' => 'Very professional',
+        'skill_id' => $skill->id,
+        'score' => 4,
+        'confidence_level' => 90
     ]);
 
     $mockAnalysis = [
@@ -148,4 +158,12 @@ it('can analyze a session with external feedback (360)', function () {
 
     $response->assertStatus(200);
     $response->assertJsonPath('session.metadata.blind_spots.0', 'Team sees leadership subject does not');
+    
+    // Assert BARS calculation updated the skill level
+    $this->assertDatabaseHas('people_role_skills', [
+        'people_id' => $this->person->id,
+        'skill_id' => $skill->id,
+        'current_level' => 4,
+        'evidence_source' => 'Talent360'
+    ]);
 });

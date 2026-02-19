@@ -19,7 +19,8 @@ class CatalogsRepository
             'roles' => fn () => \App\Models\Roles::select('id', 'name', 'level')->get(),
             'skills' => fn () => \App\Models\Skill::select('id', 'name', 'category', 'is_critical')->get(),
             'departments' => fn () => \App\Models\Departments::select('id', 'name')->get(),
-            'skill_levels' => fn () => \App\Models\SkillLevelDefinition::orderBy('level')->get(),
+            'skill_levels' => fn () => \App\Models\CompetencyLevelBars::all(), // Updated to BARS
+            'bars_levels' => fn () => \App\Models\CompetencyLevelBars::all(),
         ];
 
         $catalogos = [];

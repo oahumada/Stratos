@@ -20,6 +20,8 @@ class PeopleRoleSkills extends Model
         'expires_at',
         'evaluated_by',
         'notes',
+        'evidence_source', // Added for BARS
+        'verified',
     ];
 
     protected $casts = [

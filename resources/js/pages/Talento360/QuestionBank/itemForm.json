@@ -1,0 +1,48 @@
+{
+    "fields": [
+        {
+            "key": "skill_id",
+            "label": "Habilidad",
+            "type": "select",
+            "placeholder": "Seleccione una habilidad",
+            "rules": ["required"],
+            "catalog": "skills"
+        },
+        {
+            "key": "archetype",
+            "label": "Arquetipo",
+            "type": "select",
+            "placeholder": "Seleccione un arquetipo",
+            "items": [
+                { "id": "Liderazgo", "name": "Liderazgo" },
+                { "id": "Técnico", "name": "Técnico" },
+                { "id": "Operativo", "name": "Operativo" },
+                { "id": "Comercial", "name": "Comercial" }
+            ]
+        },
+        {
+            "key": "target_relationship",
+            "label": "Relación del Evaluador",
+            "type": "select",
+            "items": [
+                { "id": "self", "name": "Autoevaluación" },
+                { "id": "boss", "name": "Jefe Directo" },
+                { "id": "peer", "name": "Par (Colega)" },
+                { "id": "subordinate", "name": "Subordinado" },
+                { "id": "all", "name": "Todas las relaciones" }
+            ]
+        },
+        {
+            "key": "question",
+            "label": "Pregunta",
+            "type": "textarea",
+            "placeholder": "Escriba la pregunta maestra..."
+        },
+        {
+            "key": "is_global",
+            "label": "Pregunta Global",
+            "type": "switch"
+        }
+    ],
+    "catalogs": ["skills"]
+}

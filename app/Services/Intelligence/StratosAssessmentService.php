@@ -80,7 +80,7 @@ class StratosAssessmentService
         }
     }
 
-    public function analyzeThreeSixty(AssessmentSession $session, array $externalFeedback)
+    public function analyzeThreeSixty(AssessmentSession $session, array $externalFeedback, array $performanceData = [])
     {
         $history = $session->messages()
             ->orderBy('created_at', 'asc')
@@ -91,10 +91,14 @@ class StratosAssessmentService
             ]);
 
         try {
-            $response = Http::post("{$this->baseUrl}/interview/analyze-360", [
+            $url = "{$this->baseUrl}/interview/analyze-360";
+            Log::info("Calling Python Service: $url");
+
+            $response = Http::post($url, [
                 'person_name' => $session->person->full_name,
                 'interview_history' => $history,
                 'external_feedback' => $externalFeedback,
+                'performance_data' => $performanceData, // KPI data added
                 'language' => 'es'
             ]);
 

@@ -1,0 +1,13 @@
+{
+    "endpoints": {
+        "index": "SkillQuestionBank",
+        "apiUrl": "/api/SkillQuestionBank"
+    },
+    "titulo": "Banco de Preguntas 360°",
+    "descripcion": "Gestión de preguntas maestras para evaluaciones multi-fuente por competencia.",
+    "permisos": {
+        "crear": true,
+        "editar": true,
+        "eliminar": true
+    }
+}

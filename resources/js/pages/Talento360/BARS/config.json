@@ -1,0 +1,13 @@
+{
+    "endpoints": {
+        "index": "CompetencyLevelBars",
+        "apiUrl": "/api/CompetencyLevelBars"
+    },
+    "titulo": "Definiciones BARS",
+    "descripcion": "Gestión de niveles conductuales (1-5) por competencia.",
+    "permisos": {
+        "crear": true,
+        "editar": true,
+        "eliminar": true
+    }
+}

@@ -21,6 +21,16 @@
                                 Proyección a {{ horizon }} meses
                             </v-chip>
                             <v-btn
+                                prepend-icon="mdi-file-excel"
+                                variant="text"
+                                color="white"
+                                size="small"
+                                class="ml-2"
+                                @click="downloadFinancialReport"
+                            >
+                                CFO Report
+                            </v-btn>
+                            <v-btn
                                 prepend-icon="mdi-printer"
                                 variant="text"
                                 color="white"
@@ -28,7 +38,7 @@
                                 class="ml-2"
                                 @click="printReport"
                             >
-                                Exportar
+                                Imprimir
                             </v-btn>
                         </div>
                     </v-card-title>
@@ -229,6 +239,41 @@
                                             <span>{{ factor }}</span>
                                         </div>
                                     </div>
+
+                                    <v-divider
+                                        v-if="
+                                            impactData?.mitigations?.length > 0
+                                        "
+                                        class="border-opacity-50 my-3"
+                                    ></v-divider>
+
+                                    <div
+                                        v-if="
+                                            impactData?.mitigations?.length > 0
+                                        "
+                                        class="mitigations mt-2"
+                                    >
+                                        <div
+                                            class="text-caption font-weight-bold text-teal-darken-2 mb-1"
+                                        >
+                                            Acciones de Mitigación Sugeridas
+                                        </div>
+                                        <div
+                                            v-for="(
+                                                action, idx
+                                            ) in impactData.mitigations"
+                                            :key="'m-' + idx"
+                                            class="d-flex align-start text-caption text-teal-darken-1 mb-1"
+                                        >
+                                            <v-icon
+                                                icon="mdi-shield-check"
+                                                size="14"
+                                                color="teal"
+                                                class="mt-1 mr-2"
+                                            />
+                                            <span>{{ action }}</span>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div
@@ -350,6 +395,10 @@ const fetchData = async () => {
                 'Dependencia moderada de contrataciones externas (35%)',
                 'Calidad de datos de origen en nivel aceptable (72%)',
                 'Curva de aprendizaje de agentes IA estimada en 16 semanas',
+            ],
+            mitigations: [
+                'Validar capacidades actuales mediante evaluación técnica express.',
+                'Iniciar programa de gestión del cambio tecnológico (Adopción IA).',
             ],
             tfc_breakdown: [
                 { type: 'buy', weeks: 12, count: 2 },
@@ -480,6 +529,11 @@ const initChart = () => {
 
 const printReport = () => {
     globalThis.print();
+};
+
+const downloadFinancialReport = () => {
+    const url = `/api/strategic-planning/scenarios/${props.scenarioId}/export-financial`;
+    window.open(url, '_blank');
 };
 
 onMounted(fetchData);

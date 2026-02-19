@@ -1,0 +1,18 @@
+[
+    {
+        "field": "skill_id",
+        "type": "select",
+        "label": "Habilidad",
+        "catalog": "skills"
+    },
+    {
+        "field": "archetype",
+        "type": "select",
+        "label": "Arquetipo",
+        "items": [
+            { "id": "Liderazgo", "name": "Liderazgo" },
+            { "id": "Técnico", "name": "Técnico" },
+            { "id": "Operativo", "name": "Operativo" }
+        ]
+    }
+]

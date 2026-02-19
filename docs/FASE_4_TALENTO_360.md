@@ -64,11 +64,13 @@ El modelo 360° de Stratos ofrece una metodología estructurada, flexible y robu
 
 Se han implementado tres tablas principales para gestionar el ciclo de vida de las evaluaciones:
 
+- **`competency_levels_bars`**: Definiciones de los 5 niveles de comportamiento para cada habilidad (BARS).
+- **`skill_question_bank`**: Banco de preguntas maestrías por habilidad y arquetipo.
 - **`assessment_sessions`**: Registro de la sesión de entrevista (tipo, estado, metadatos de potencial).
 - **`assessment_messages`**: Registro histórico (log) de la conversación entre el humano y el agente de IA.
 - **`psychometric_profiles`**: Resultados estructurados del análisis (Rasgo, Puntaje, Justificación).
 - **`assessment_requests`**: Gestión de solicitudes de feedback a terceros (evaluador, sujeto, relación, token).
-- **`assessment_feedback`**: Almacenamiento de respuestas cualitativas de los colaboradores.
+- **`assessment_feedback`**: Almacenamiento de respuestas cualitativas y puntajes BARS (score, evidence, confidence).
 
 **Modelos:**
 
@@ -106,44 +108,62 @@ El sistema ya no depende únicamente de lo que el colaborador dice. Stratos ahor
     - **Puntos Ciegos**: Rasgos positivos vistos por otros pero no por el sujeto, o debilidades no reconocidas.
     - **Gaps de Credibilidad**: Discrepancias significativas en el nivel de maestría técnica o conductual.
 
+## 🔮 Metodología BARS (Behaviorally Anchored Rating Scales)
+
+La gestión del feedback se ha profesionalizado mediante un modelo de "Escalas de Comportamiento":
+
+### 1. Estructura de Captura
+
+- **Feedback Estructurado**: Ya no son solo opiniones abiertas. Utilizamos el modelo BARS para calificar habilidades en una escala del 1 al 5, donde cada nivel tiene una descripción conductual precisa.
+- **Evidencia Obligatoria**: Para puntajes extremos (1 o 5), el sistema exige un link o justificación de evidencia (URL, Jira, Documento), garantizando objetividad.
+- **Nivel de Confianza (Confidence Score)**: Cada evaluador indica qué tan seguro está de su calificación (0-100%).
+
+### 2. Motor de Cálculo (`CompetencyAssessmentService`)
+
+El cálculo del "Nivel Actual" de una competencia no es un promedio simple. Stratos aplica:
+
+- **Ponderación por Rol**: Jefe (40%) > Pares (30%) > Subordinados (20%) > Auto (10%).
+- ** Ajuste de Confianza**: Las calificaciones con baja confianza (investigador incierto) pesan menos en el resultado final.
+- **Análisis de Dispersión (SD)**: Si la Desviación Estándar entre evaluadores supera `1.5`, el sistema marca la habilidad como **"Requiere Calibración"** (verified = false).
+
+### 3. Integración de KPIs de Negocio (`PerformanceDataService`)
+
+Para aterrizar el "Potencial" a la "Realidad", el sistema inyecta datos duros de desempeño en el análisis de IA:
+
+- **Ventas / Objetivos**: Cumplimiento % trimestral.
+- **NPS / Calidad**: Métricas de satisfacción del cliente.
+- **Velocidad**: Métricas de entrega de proyectos.
+
+Esta triangulación (Psicometría + Feedback 360° + KPIs) permite detectar:
+
+- **High Potentials Reales**: Alto potencial + Alto desempeño.
+- **Underachievers**: Alto potencial + Bajo desempeño (Problema motivacional o de entorno).
+- **Overachievers**: Bajo potencial + Alto desempeño (Riesgo de burnout o techo técnico).
+
 ---
 
 ## 💻 Interfaz de Usuario (Vue 3 + Vuetify)
 
 ### 💬 Chat de Evaluación (`AssessmentChat.vue`)
 
-Componente interactivo que permite a cualquier colaborador realizar su entrevista. Incluye:
-
-- Feedback visual de "pensamiento" de la IA.
-- Gestión de estados (Inicio, En progreso, Analizando).
-- Scroll automático y diseño premium.
-
-### 👤 Ficha de Talento (`People/Index.vue`)
-
-Integración de una nueva pestaña **"Potencial AI"** que:
-
-- Muestra el chat si no hay evaluación previa.
-- Presenta un dashboard de resultados (Radar de rasgos y reporte ejecutivo) si ya fue analizado.
-
-### 📊 Dashboard Talento 360° (`Talento360/Dashboard.vue`)
-
-Vista gerencial (C-Level) que consolida:
-
-- **Índice de Potencial Organizacional**: Promedio global de la compañía.
-- **Mapa de Rasgos**: Gráfico de radar con el promedio de rasgos detectados.
-- **High Potentials**: Identificación automática de colaboradores con potencial > 80%.
-- **Actividad Reciente**: Log de las últimas evaluaciones concluidas.
+... (contenido previo) ...
 
 ### 🛡️ Gestión de Feedback (`PendingFeedback.vue`)
 
-Integrado en el Dashboard principal, este componente alerta proactivamente al colaborador sobre solicitudes de feedback pendientes, permitiendo responder preguntas clave en una interfaz limpia y rápida.
+Integrado en el Dashboard principal, este componente alerta proactivamente al colaborador sobre solicitudes de feedback pendientes.
+
+- **Selección Inteligente**: Al abrir un request, el sistema ya pre-seleccionó las preguntas BARS relevantes para las habilidades del sujeto y la relación con el evaluador.
+- **`FeedbackFormBARS.vue`**: Componente visual interactivo para calificación conductual.
 
 ---
 
 ## ✅ Validación y Calidad
 
-- **Tests Unitarios/Feature**: `tests/Feature/Api/AssessmentApiTest.php` cubre el flujo completo de API, incluyendo el caso de **Análisis 360**.
-- **Agnosticismo**: Totalmente compatible con DeepSeek, Abacus o OpenAI configurado vía `.env`.
+- **Tests Unitarios/Feature**: `tests/Feature/Api/AssessmentApiTest.php` valida:
+    - Flujo de entrevista.
+    - Captura de feedback 360°.
+    - **Cálculo automático de niveles de competencia** tras el análisis.
+- **Agnosticismo**: Compatible con DeepSeek, Abacus o OpenAI.
 
 ---
 
@@ -154,3 +174,5 @@ Integrado en el Dashboard principal, este componente alerta proactivamente al co
 3. Ir a la pestaña **Potencial AI**.
 4. Hacer clic en **"Comenzar Entrevista"**.
 5. Al finalizar, hacer clic en **"Finalizar y Analizar"**.
+6. (Automático) El sistema solicita feedback 360 a pares predefinidos.
+7. Al completarse el feedback, se actualiza el perfil de competencias.

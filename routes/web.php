@@ -89,6 +89,14 @@ Route::get('/talento360', function () {
     return Inertia::render('Talento360/Dashboard');
 })->middleware(['auth', 'verified'])->name('talento360.index');
 
+Route::get('/talento360/bars', function () {
+    return Inertia::render('Talento360/BARS/Index');
+})->middleware(['auth', 'verified'])->name('talento360.bars.index');
+
+Route::get('/talento360/question-bank', function () {
+    return Inertia::render('Talento360/QuestionBank/Index');
+})->middleware(['auth', 'verified'])->name('talento360.qb.index');
+
 Route::prefix('scenarios')->group(function () {
     Route::get('{id}/iq', [ScenarioController::class, 'getIQ']);
     Route::get('{id}/roles/{roleId}/competency-gaps', [ScenarioController::class, 'getCompetencyGaps']);

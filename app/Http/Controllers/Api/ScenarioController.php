@@ -758,4 +758,77 @@ class ScenarioController extends Controller
         if ($iq < 40 || $gap > 50) return 'High';
         return 'Medium';
     }
+
+    /**
+     * API: Exportar reporte financiero detallado (Excel/CSV)
+     */
+    public function exportFinancial($id)
+    {
+        $scenario = Scenario::findOrFail($id);
+        
+        if ($scenario->organization_id !== auth()->user()->organization_id) {
+            abort(403);
+        }
+
+        $fileName = 'Stratos_Financial_Report_' . $scenario->code . '_' . date('Y-m-d') . '.csv';
+
+        $strategies = \DB::table('scenario_closure_strategies')
+            ->join('skills', 'scenario_closure_strategies.skill_id', '=', 'skills.id')
+            ->join('roles', 'scenario_closure_strategies.role_id', '=', 'roles.id')
+            ->where('scenario_closure_strategies.scenario_id', $id)
+            ->select(
+                'scenario_closure_strategies.id',
+                'roles.name as role_name',
+                'skills.name as skill_name',
+                'scenario_closure_strategies.strategy',
+                'scenario_closure_strategies.description',
+                'scenario_closure_strategies.estimated_cost',
+                'scenario_closure_strategies.status'
+            )
+            ->get();
+            
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() use ($strategies, $scenario) {
+            $file = fopen('php://output', 'w');
+            
+            // Header Info
+            fputcsv($file, ['Stratos Intelligent Planning - Financial Report']);
+            fputcsv($file, ['Scenario:', $scenario->name]);
+            fputcsv($file, ['Code:', $scenario->code]);
+            fputcsv($file, ['Generated:', date('Y-m-d H:i:s')]);
+            fputcsv($file, []); // Empty line
+
+            // Column Headers
+            fputcsv($file, ['ID', 'Role', 'Skill', 'Strategy Type', 'Description', 'Estimated Cost (USD)', 'Status']);
+
+            $totalCost = 0;
+
+            foreach ($strategies as $row) {
+                $totalCost += $row->estimated_cost;
+                fputcsv($file, [
+                    $row->id,
+                    $row->role_name,
+                    $row->skill_name,
+                    strtoupper($row->strategy),
+                    $row->description,
+                    number_format($row->estimated_cost, 2),
+                    ucfirst($row->status)
+                ]);
+            }
+            
+            fputcsv($file, []);
+            fputcsv($file, ['', '', '', '', 'TOTAL INVESTMENT:', number_format($totalCost, 2)]);
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

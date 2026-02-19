@@ -72,3 +72,32 @@
 - **Refinamiento de Mitigaciones**: Proponer acciones específicas para los riesgos detectados.
 - **Exportación de Costos (CFO)**: Evaluar la adición de una exportación a Excel con el desglose detallado de presupuestos.
 - **Integración con Learning Paths**: Conectar los "gaps" psicométricos detectados con sugerencias de cursos o mentorías (Fase 5).
+
+### 7. Profundización Metodológica: Modelo BARS (Behaviorally Anchored Rating Scales) 🚀
+
+- **Estandarización de Feedback**: Se implementó el modelo BARS para eliminar la subjetividad en las evaluaciones 360°.
+- **Nuevas Estructuras de Datos**:
+    - `competency_levels_bars`: Catálogo de comportamientos observables por nivel (1-5).
+    - `assessment_feedback`: Enriquecida con `score` (1-5), `evidence_url` y `confidence_level`.
+- **Experiencia de Usuario (UX)**:
+    - Nuevo componente `FeedbackFormBARS.vue` que guía visualmente al evaluador.
+    - Exigencia de evidencia para puntuaciones extremas (1 o 5) para aumentar la validez.
+- **Validación Técnica**:
+    - APIs actualizadas para procesar estructuras de feedback complejas.
+    - Tests de integración (`AssessmentApiTest`) validados exitosamente.
+- **Lógica de Cálculo (Backend)**:
+    - Implementado `CompetencyAssessmentService` para calcular el "Nivel Actual (N)" mediante promedios ponderados (Jefe 40%, Pares 30%, etc.).
+    - Actualización automática de la tabla `people_role_skills` al cerrar el análisis de sesión.
+    - Verificación mediante tests automatizados de la actualización de niveles de competencia.
+- **Selección Inteligente de Preguntas**:
+    - Al crear una solicitud de feedback (AssessmentRequest), el sistema ahora pre-carga automáticamente las preguntas más relevantes del `SkillQuestionBank` basándose en las competencias activas del evaluado y la relación con el evaluador.
+- **Integración de Desempeño (KPIs)**:
+    - Se creó `PerformanceDataService` (Mock) para simular la ingesta de datos de rendimiento real (Ventas, NPS, Cumplimiento de Proyectos).
+    - Estos datos se inyectan en el prompt del análisis 360°, permitiendo a la IA correlacionar rasgos de personalidad con resultados de negocio tangibles.
+
+### 8. Inicio Fase 5: Learning Paths 🚀
+
+- **Diseño**: Documentado en `docs/FASE_5_LEARNING_PATHS.md`.
+- **Mentor Matching**: Implementado servicio `MentorMatchingService` para encontrar expertos internos (Nivel >= 4).
+- **Endpoint**: `GET /api/talent/mentors/suggest` expuesto.
+- **UI**: Nuevo componente `MentorCard.vue` para visualizar coincidencias de mentoría.

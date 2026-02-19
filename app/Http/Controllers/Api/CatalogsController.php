@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 
 class CatalogsController extends Controller
 {
-    public function getCatalogs(Request $request)
+    public function index(Request $request)
     {
-        $requested = $request->input('endpoints', []);
+        $requested = $request->input('endpoints', $request->input('catalogs', []));
         $repo = new CatalogsRepository;
         $catalogs = $repo->getCatalogs($requested);
 

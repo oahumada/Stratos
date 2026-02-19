@@ -1,0 +1,20 @@
+[
+    {
+        "field": "skill_id",
+        "type": "select",
+        "label": "Habilidad",
+        "catalog": "skills"
+    },
+    {
+        "field": "level",
+        "type": "select",
+        "label": "Nivel (1-5)",
+        "items": [
+            { "id": 1, "name": "1 - Básico" },
+            { "id": 2, "name": "2 - Intermedio" },
+            { "id": 3, "name": "3 - Avanzado" },
+            { "id": 4, "name": "4 - Experto" },
+            { "id": 5, "name": "5 - Maestro" }
+        ]
+    }
+]

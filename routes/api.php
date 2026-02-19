@@ -4,23 +4,7 @@ use App\Http\Controllers\Api\CatalogsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/* // Catálogos dinámicos para selectores Route::get('/catalogs', function (Illuminate\Http\Request $request) {
- $endpoints = $request->query('endpoints', []);
- $result = [];
- foreach ((array) $endpoints as $endpoint) {
- try {
- $result[$endpoint] = match ($endpoint) {
- 'role', 'roles' => \App\Models\Roles::select('id', 'name')->get(),
- 'skill', 'skills' => \App\Models\Skill::select('id', 'name', 'category')->get(),
- 'department', 'departments' => \App\Models\Department::select('id', 'name')->get(),
- default => [],
- };
- } catch (\Exception $e) {
- \Log::error("Catalog error for {$endpoint}: " . $e->getMessage());
- $result[$endpoint] = [];
- }
- }
- return response()->json($result); }); */
+Route::get('/catalogs', [\App\Http\Controllers\Api\CatalogsController::class, 'index']);
 
 // Core services
 Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::class, 'analyze']);
@@ -48,6 +32,9 @@ Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController:
 // Marketplace (Día 5 - Internal opportunities)
 Route::get('/people/{people_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']); // Vista candidato
 Route::get('/marketplace/recruiter', [\App\Http\Controllers\Api\MarketplaceController::class, 'recruiterView']); // Vista reclutador
+
+// Talent & Mentorship (Fase 5)
+Route::get('/talent/mentors/suggest', [\App\Http\Controllers\Api\MentorController::class, 'suggest']);
 
 // Scenario Planning
 
@@ -140,6 +127,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/strategies/portfolio/{scenario_id}', [\App\Http\Controllers\Api\ScenarioStrategyController::class, 'getStrategyPortfolio']);
             Route::get('/scenarios/{id}/strategies', [\App\Http\Controllers\Api\ScenarioStrategyController::class, 'getStrategiesByScenario']);
             Route::get('/scenarios/{id}/impact', [\App\Http\Controllers\Api\ScenarioController::class, 'getImpact']);
+            Route::get('/scenarios/{id}/export-financial', [\App\Http\Controllers\Api\ScenarioController::class, 'exportFinancial']);
 
             // Test/Simulation Endpoints
             Route::post('/scenarios/{scenario}/simulate-import', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'simulateImport']);

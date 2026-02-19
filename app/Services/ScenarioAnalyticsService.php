@@ -286,22 +286,29 @@ class ScenarioAnalyticsService
         $buildPct = (($stats['build'] ?? 0) / $totalStrategies) * 100;
         $botPct = (($stats['bot'] ?? 0) / $totalStrategies) * 100;
 
+        // ... (risk calculation logic remains)
+
+        $mitigations = [];
+
         // 1. Riesgo por dependencia de mercado (BUY)
         if ($buyPct > 40) {
             $score += 25;
             $factors[] = "Alta dependencia de contratación externa (" . round($buyPct) . "%). Riesgo de volatilidad salarial y escasez de talento.";
+            $mitigations[] = "Diversificar fuentes de reclutamiento e implementar programas de referidos para reducir costo por contratación.";
         }
 
         // 2. Riesgo por tiempos de maduración (BUILD)
         if ($buildPct > 50) {
             $score += 20;
             $factors[] = "Carga excesiva en desarrollo interno. Riesgo de fatiga organizacional y retrasos en upskilling.";
+            $mitigations[] = "Asociarse con plataformas ed-tech externas o bootcamps para acelerar la curva de aprendizaje (Upskilling rápido).";
         }
 
         // 3. Riesgo de implementación tecnológica (BOT)
         if ($botPct > 30) {
             $score += 30;
             $factors[] = "Alta transformación hacia IA (" . round($botPct) . "%). Riesgo de fricción cultural y desafíos de integración técnica.";
+            $mitigations[] = "Implementar un programa robusto de Gestión del Cambio y adopción tecnológica temprana (Change Management).";
         }
 
         // 4. Riesgo por calidad de datos (Confidence Score)
@@ -309,7 +316,8 @@ class ScenarioAnalyticsService
         if ($confidence < 0.6) {
             $penalty = (0.6 - $confidence) * 50;
             $score += $penalty;
-            $factors[] = "Baja calidad de evidencia en datos de origen (Confidence: " . ($confidence * 100) . "%). El plan podría basarse en supuestos imprecisos.";
+            $factors[] = "Baja calidad de evidencia en datos de origen (Confidence: " . number_format($confidence * 100, 1) . "%). El plan podría basarse en supuestos imprecisos.";
+            $mitigations[] = "Lanzar una campaña de evaluación 360° o validación técnica express para confirmar el inventario de habilidades actual.";
         }
 
         // 5. Riesgo por profundidad de brecha
@@ -317,17 +325,18 @@ class ScenarioAnalyticsService
         if ($avgActual < 40) {
             $score += 20;
             $factors[] = "Brechas de competencia críticas identificadas. La magnitud del cambio requerido es estructuralmente alta.";
+            $mitigations[] = "Contratar expertos interinos (Estrategia Borrow) para cubrir roles clave mientras se desarrolla la capacidad interna a largo plazo.";
         }
 
         $score = min(100, round($score));
         $level = 'Bajo';
-        if ($score > 75) $level = 'Crítico';
-        elseif ($score > 50) $level = 'Alto';
-        elseif ($score > 25) $level = 'Medio';
+        if ($score >= 75) $level = 'Crítico';
+        elseif ($score >= 50) $level = 'Alto';
+        elseif ($score >= 25) $level = 'Medio';
 
         $summary = "El riesgo de ejecución se califica como **" . $level . "** (" . $score . "/100).";
-        if ($score > 60) {
-            $summary .= " Se recomienda revisar los factores de mitigación de la brecha logística.";
+        if ($score > 40) {
+            $summary .= " Se han identificado " . count($mitigations) . " acciones de mitigación recomendadas.";
         } else {
             $summary .= " El plan es balanceado y ejecutable dentro de los márgenes estándar.";
         }
@@ -336,6 +345,7 @@ class ScenarioAnalyticsService
             'score' => $score,
             'level' => $level,
             'factors' => $factors,
+            'mitigations' => $mitigations,
             'summary' => $summary
         ];
     }

@@ -1,0 +1,9 @@
+{
+    "headers": [
+        { "text": "ID", "value": "id", "sortable": true },
+        { "text": "Habilidad", "value": "skill.name", "sortable": true },
+        { "text": "Nivel", "value": "level", "sortable": true },
+        { "text": "Nombre", "value": "name", "sortable": true },
+        { "text": "Descripción", "value": "description", "sortable": false }
+    ]
+}

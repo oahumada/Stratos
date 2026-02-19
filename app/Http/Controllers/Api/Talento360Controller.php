@@ -19,10 +19,12 @@ class Talento360Controller extends Controller
         $organizationId = auth()->user()->organization_id;
 
         // 1. Promedio de potencial global
+        // 1. Promedio de potencial global (MySQL JSON extraction)
         $avgPotential = DB::table('assessment_sessions')
             ->where('organization_id', $organizationId)
             ->where('status', 'analyzed')
-            ->avg(DB::raw("CAST(JSON_EXTRACT(metadata, '$.overall_potential') AS DECIMAL(4,2))"));
+            ->selectRaw("AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.overall_potential')) AS DECIMAL(10,2))) as avg_potential")
+            ->value('avg_potential');
 
         // 2. Distribución de rasgos (Promedio por rasgo)
         $traitDistribution = PsychometricProfile::join('people', 'psychometric_profiles.people_id', '=', 'people.id')
@@ -33,11 +35,12 @@ class Talento360Controller extends Controller
             ->get();
 
         // 3. Conteo de High Potentials (Potencial > 0.8)
-        $highPotentialCount = DB::table('assessment_sessions')
+        $highPotentialQuery = DB::table('assessment_sessions')
             ->where('organization_id', $organizationId)
             ->where('status', 'analyzed')
-            ->where(DB::raw("CAST(JSON_EXTRACT(metadata, '$.overall_potential') AS DECIMAL(4,2))"), '>', 0.8)
-            ->count();
+            ->whereRaw("CAST(JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.overall_potential')) AS DECIMAL(10,2)) > ?", [0.8]);
+
+        $highPotentialCount = $highPotentialQuery->count();
 
         // 4. Últimas evaluaciones
         $latestAssessments = AssessmentSession::with('person')

@@ -16,7 +16,9 @@ use Illuminate\Support\Str;
 class AssessmentController extends Controller
 {
     public function __construct(
-        private StratosAssessmentService $service
+        private StratosAssessmentService $service,
+        private \App\Services\Assessment\CompetencyAssessmentService $competencyService,
+        private \App\Services\Performance\PerformanceDataService $kpiService
     ) {}
 
     /**
@@ -104,22 +106,46 @@ class AssessmentController extends Controller
         }
 
         // 1. Obtener feedback externo si existe
+        // 1. Obtener feedback externo enriquecido
         $externalFeedback = AssessmentFeedback::join('assessment_requests', 'assessment_feedback.assessment_request_id', '=', 'assessment_requests.id')
+            ->leftJoin('skills', 'assessment_feedback.skill_id', '=', 'skills.id')
             ->where('assessment_requests.subject_id', $session->people_id)
             ->where('assessment_requests.status', 'completed')
-            ->select('assessment_requests.relationship', 'assessment_feedback.answer as content')
+            ->select(
+                'assessment_requests.relationship',
+                'assessment_feedback.question',
+                'assessment_feedback.answer as content',
+                'skills.name as skill_name',
+                'assessment_feedback.score',
+                'assessment_feedback.confidence_level'
+            )
             ->get()
+            ->map(function ($item) {
+                return [
+                    'relationship' => $item->relationship,
+                    'question' => $item->question,
+                    'content' => $item->content,
+                    'skill_context' => $item->skill_name ? [
+                        'skill' => $item->skill_name,
+                        'score' => $item->score,
+                        'confidence' => $item->confidence_level
+                    ] : null
+                ];
+            })
             ->toArray();
 
-        // 2. Ejecutar análisis (Normal o 360)
+        // 2. Obtener datos de desempeño (KPIs)
+        $performanceData = $this->kpiService->getPerformanceData($session->people_id);
+
+        // 3. Ejecutar análisis (Normal o 360)
         if (!empty($externalFeedback)) {
-            $analysis = $this->service->analyzeThreeSixty($session, $externalFeedback);
+            $analysis = $this->service->analyzeThreeSixty($session, $externalFeedback, $performanceData);
         } else {
             $analysis = $this->service->analyzeSession($session);
         }
 
         if ($analysis) {
-            return DB::transaction(function () use ($session, $analysis) {
+            return DB::transaction(function () use ($session, $analysis, $externalFeedback) {
                 // Guardar resultados psicométricos
                 foreach ($analysis['traits'] as $trait) {
                     PsychometricProfile::create([
@@ -140,6 +166,11 @@ class AssessmentController extends Controller
                         'blind_spots' => $analysis['blind_spots'] ?? []
                     ])
                 ]);
+
+                // Calculate and update competency levels (BARS)
+                if (!empty($externalFeedback)) {
+                   $this->competencyService->updateAllSkillsForPerson($session->people_id);
+                }
 
                 return response()->json([
                     'success' => true,
@@ -162,14 +193,58 @@ class AssessmentController extends Controller
             'relationship' => 'required|string'
         ]);
 
-        $requestFeedback = AssessmentRequest::create([
-            'organization_id' => auth()->user()->organization_id,
-            'subject_id' => $validated['subject_id'],
-            'evaluator_id' => $validated['evaluator_id'],
-            'relationship' => $validated['relationship'],
-            'status' => 'pending',
-            'token' => Str::random(40)
-        ]);
+        $requestFeedback = DB::transaction(function () use ($validated) {
+            $req = AssessmentRequest::create([
+                'organization_id' => auth()->user()->organization_id,
+                'subject_id' => $validated['subject_id'],
+                'evaluator_id' => $validated['evaluator_id'],
+                'relationship' => $validated['relationship'],
+                'status' => 'pending',
+                'token' => Str::random(40)
+            ]);
+
+            // Intelligent Question Selection (BARS)
+            $subject = \App\Models\People::with('activeSkills')->find($validated['subject_id']);
+            
+            if ($subject && $subject->activeSkills->isNotEmpty()) {
+                foreach ($subject->activeSkills as $roleSkill) {
+                    // Try to find specific questions for this skill and relationship
+                    $questions = \App\Models\SkillQuestionBank::where('skill_id', $roleSkill->skill_id)
+                        ->where(function($q) use ($validated) {
+                            $q->where('target_relationship', $validated['relationship'])
+                              ->orWhere('is_global', true);
+                        })
+                        ->inRandomOrder()
+                        ->take(1) // Select 1 question per skill
+                        ->get();
+
+                if ($questions->isNotEmpty()) {
+                    foreach ($questions as $q) {
+                        $req->feedback()->create([
+                            'skill_id' => $roleSkill->skill_id,
+                            'question' => $q->question,
+                            'answer' => null
+                        ]);
+                    }
+                } else {
+                    // Fallback: Create a generic BARS placeholder for this skill
+                    $req->feedback()->create([
+                        'skill_id' => $roleSkill->skill_id,
+                        'question' => 'Evalúe el nivel de competencia observado.',
+                        'answer' => null
+                    ]);
+                }
+                }
+            }
+            
+            // Add one personalized open-ended question
+            $req->feedback()->create([
+                'question' => '¿Qué recomendación de mejora le daría a esta persona?',
+                'answer' => null
+            ]);
+
+            return $req;
+        });
 
         return response()->json($requestFeedback);
     }
@@ -182,8 +257,13 @@ class AssessmentController extends Controller
         $validated = $request->validate([
             'request_id' => 'required|exists:assessment_requests,id',
             'answers' => 'required|array',
-            'answers.*.question' => 'required|string',
-            'answers.*.answer' => 'required|string',
+            'answers.*.id' => 'nullable|exists:assessment_feedback,id',
+            'answers.*.question' => 'nullable|string',
+            'answers.*.answer' => 'nullable|string',
+            'answers.*.skill_id' => 'nullable|exists:skills,id',
+            'answers.*.score' => 'nullable|integer|between:1,5',
+            'answers.*.evidence_url' => 'nullable|url',
+            'answers.*.confidence_level' => 'nullable|integer|between:0,100',
         ]);
 
         $assessmentRequest = AssessmentRequest::findOrFail($validated['request_id']);
@@ -194,10 +274,34 @@ class AssessmentController extends Controller
 
         return DB::transaction(function() use ($assessmentRequest, $validated) {
             foreach ($validated['answers'] as $item) {
-                $assessmentRequest->feedback()->create([
-                    'question' => $item['question'],
-                    'answer' => $item['answer']
-                ]);
+                // Determine if it's BARS or standard Q&A
+                $isBARS = isset($item['skill_id']) && isset($item['score']);
+                $skillId = $item['skill_id'] ?? null;
+                $score = $item['score'] ?? null;
+                $evidenceUrl = $item['evidence_url'] ?? null;
+                $confidenceLevel = $item['confidence_level'] ?? null;
+                
+                $question = $item['question'] ?? ($isBARS ? 'Evaluación de competencia' : 'Pregunta general');
+                $answer = $item['answer'] ?? ($isBARS ? ('Nivel asignado: ' . $score) : 'Sin respuesta');
+
+                $data = [
+                    'question' => $question,
+                    'answer' => $answer,
+                    'skill_id' => $skillId,
+                    'score' => $score,
+                    'evidence_url' => $evidenceUrl,
+                    'confidence_level' => $confidenceLevel,
+                ];
+
+                if (isset($item['id'])) {
+                    // Update existing pre-filled feedback
+                     $assessmentRequest->feedback()
+                        ->where('id', $item['id'])
+                        ->update($data);
+                } else {
+                    // Create new feedback
+                    $assessmentRequest->feedback()->create($data);
+                }
             }
 
             $assessmentRequest->update([
@@ -216,7 +320,7 @@ class AssessmentController extends Controller
             return response()->json([]);
         }
 
-        $requests = AssessmentRequest::with('subject')
+        $requests = AssessmentRequest::with(['subject', 'feedback'])
             ->where('evaluator_id', $person->id)
             ->where('status', 'pending')
             ->get();

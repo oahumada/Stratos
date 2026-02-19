@@ -1,0 +1,44 @@
+{
+    "fields": [
+        {
+            "key": "skill_id",
+            "label": "Habilidad",
+            "type": "select",
+            "placeholder": "Seleccione una habilidad",
+            "rules": ["required"],
+            "catalog": "skills"
+        },
+        {
+            "key": "level",
+            "label": "Nivel (1-5)",
+            "type": "select",
+            "items": [
+                { "id": 1, "name": "1 - Básico" },
+                { "id": 2, "name": "2 - Intermedio" },
+                { "id": 3, "name": "3 - Avanzado" },
+                { "id": 4, "name": "4 - Experto" },
+                { "id": 5, "name": "5 - Maestro" }
+            ],
+            "rules": ["required"]
+        },
+        {
+            "key": "name",
+            "label": "Nombre del Nivel",
+            "type": "text",
+            "placeholder": "Ej: Novato, Experto, Líder"
+        },
+        {
+            "key": "description",
+            "label": "Descripción Conductual (BARS)",
+            "type": "textarea",
+            "placeholder": "Describa el comportamiento observable..."
+        },
+        {
+            "key": "key_behaviors",
+            "label": "Comportamientos Clave (JSON)",
+            "type": "textarea",
+            "placeholder": "[\"Comportamiento 1\", \"Comportamiento 2\"]"
+        }
+    ],
+    "catalogs": ["skills"]
+}
