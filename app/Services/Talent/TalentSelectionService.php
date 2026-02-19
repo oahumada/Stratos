@@ -45,14 +45,26 @@ class TalentSelectionService
 
         try {
             $result = $this->orchestrator->agentThink('Selector de Talento', $prompt);
+            $analysis = $result['response'];
+
+            // Extraer match_score si viene en el JSON
+            $matchScore = $analysis['match_score'] ?? $analysis['match'] ?? null;
+            if (is_string($matchScore)) {
+                $matchScore = (int) filter_var($matchScore, FILTER_SANITIZE_NUMBER_INT);
+            }
             
-            // Guardar el análisis en la aplicación (suponiendo que tenemos un campo para ello o en logs)
-            Log::info("Análisis de Selector de Talento completado para APP #{$applicationId}");
+            // Guardar el análisis en la aplicación
+            $application->update([
+                'ai_analysis' => $analysis,
+                'match_score' => $matchScore
+            ]);
+
+            Log::info("Análisis de Selector de Talento persistido para APP #{$applicationId}");
             
             return [
                 'status' => 'analyzed',
                 'candidate' => $candidateName,
-                'analysis' => $result['response']
+                'analysis' => $analysis
             ];
         } catch (\Exception $e) {
             Log::error("Error en análisis de talento: " . $e->getMessage());

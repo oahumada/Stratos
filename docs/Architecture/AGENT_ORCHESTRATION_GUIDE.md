@@ -91,14 +91,19 @@ Stratos utiliza una **Arquitectura Multi-Agente (MAS)** donde cada agente tiene 
 
 ### 8. Diseñador de Roles (The Blueprint)
 
-- **Objetivo**: Diseñar y estructurar la orgánica de cargos, asegurando que cada rol tenga las competencias correctas y mantenga la coherencia con el catálogo global.
-- **Persona**: Estratégico, metódico y experto en orgánica organizacional. Valora la escalabilidad y la nitidez en la definición de responsabilidades.
+- **Objetivo**: Diseñar y estructurar la orgánica de cargos utilizando el **Modelo de Cubo de Roles**, asegurando que cada rol tenga las competencias correctas y mantenga la coherencia con el catálogo global.
+- **Persona**: Estratégico, metódico y experto en orgánica organizacional. Especialista en la arquitectura 3D del talento (X, Y, Z).
 - **IA (Brain)**: DeepSeek Chat (v3).
+- **Metodología (Cubo de Roles)**:
+    - **Eje X (Arquetipo)**: Clasificación en Estratégico, Táctico u Operativo.
+    - **Eje Y (Maestría)**: Nivel de exigencia y madurez del rol (1-5).
+    - **Eje Z (Proceso)**: Anclaje al flujo de valor o proceso de negocio específico.
 - **Expertise**:
     - `role_architecture`: Diseño de estructuras de cargos y niveles.
-    - `competency_profiling`: Asignación precisa de habilidades y niveles de dominio a cada rol.
-    - `role_archetypes`: Creación de plantillas estándar para roles comunes (ej: Senior Dev, HR Business Partner).
-    - `catalog_alignment`: Análisis de duplicidad y match entre roles existentes y nuevos roles en incubación.
+    - `role_cube_methodology`: Aplicación del modelo de coordenadas para la nitidez organizacional.
+    - `competency_profiling`: Asignación precisa de habilidades y niveles de dominio.
+    - `role_archetypes`: Creación de plantillas estándar.
+    - `catalog_alignment`: Análisis de duplicidad y match.
 - **Uso en Stratos**: Es el agente clave para el módulo de **Planificación de Escenarios** y la transición de roles "en incubación" al catálogo oficial.
 
 ---

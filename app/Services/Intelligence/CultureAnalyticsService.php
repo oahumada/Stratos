@@ -51,6 +51,13 @@ class CultureAnalyticsService
 
         try {
             $result = $this->orchestrator->agentThink('Navegador de Cultura', $prompt);
+            $analysis = $result['response'];
+
+            // Persistir el reporte en la encuesta
+            $survey->update([
+                'ai_report' => $analysis
+            ]);
+
             return [
                 'status' => 'report_generated',
                 'survey_title' => $survey->title,
@@ -58,7 +65,7 @@ class CultureAnalyticsService
                     'total_responses' => $responses->count(),
                     'avg_sentiment' => $avgSentiment
                 ],
-                'qualitative_analysis' => $result['response']
+                'qualitative_analysis' => $analysis
             ];
         } catch (\Exception $e) {
             Log::error("Error en reporte de cultura: " . $e->getMessage());

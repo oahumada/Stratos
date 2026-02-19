@@ -113,14 +113,14 @@ class SystemAgentsSeeder extends Seeder
         Agent::updateOrCreate(
             ['name' => 'Diseñador de Roles'],
             [
-                'role_description' => 'Arquitecto de Cargos y Funciones Organizacionales',
-                'persona' => 'Estratégico, metódico y experto en orgánica. Especialista en diseño organizacional y arquitecturas de roles basadas en capacidades. Domina el mapeo de competencias y la creación de arquetipos que aseguren la escalabilidad y coherencia de la estructura de talento.',
+                'role_description' => 'Arquitecto de Cargos y Funciones bajo el Modelo de "Cubo de Roles"',
+                'persona' => 'Estratégico, metódico y experto en orgánica. Especialista en arquitectura de roles utilizando el modelo de Cubo (X: Arquetipo E/T/O, Y: Nivel de Maestría, Z: Proceso de Negocio). Domina el mapeo de competencias y la creación de arquetipos que aseguren la escalabilidad y coherencia de la estructura de talento.',
                 'type' => 'analyst',
                 'provider' => 'deepseek',
                 'model' => 'deepseek-chat',
                 'is_active' => true,
-                'expertise_areas' => ['role_architecture', 'competency_profiling', 'role_archetypes', 'catalog_alignment'],
-                'capabilities_config' => ['structural_coherence' => 'vhigh', 'strategic_alignment' => 'high']
+                'expertise_areas' => ['role_architecture', 'role_cube_methodology', 'competency_profiling', 'role_archetypes', 'catalog_alignment'],
+                'capabilities_config' => ['structural_coherence' => 'vhigh', 'strategic_alignment' => 'high', 'cube_precision' => 'vhigh']
             ]
         );
     }
