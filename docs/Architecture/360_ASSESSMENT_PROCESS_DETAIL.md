@@ -2,6 +2,32 @@
 
 Este documento describe con precisión técnica y funcional el flujo completo del módulo Talento 360 en Stratos, desde la orquestación inicial hasta la generación de insights por IA.
 
+## 0. Diagrama de Flujo del Proceso
+
+```mermaid
+graph TD
+    A[Unidad de Comando Cerbero] -->|Trigger: Periodicity/Event| B(Orquestador 360)
+    B -->|Consulta Mapa Cerbero| C{Identificar Actores}
+
+    C -->|Subject| D[Entrevista AI Chat]
+    C -->|Manager/Peers/Sub| E[Feedback 360 - Token Seguro]
+
+    D --> F(Stratos Intelligence Engine)
+    E --> F
+    G[(KPIs & Desempeño)] --> F
+
+    F -->|DeepSeek R1 Analysis| H{Generar Insights}
+
+    H --> I[Cálculo de Potencial]
+    H --> J[Detección de Puntos Ciegos]
+    H --> K[Planes de Desarrollo Smart]
+
+    style A fill:#3b82f6,stroke:#fff,color:#fff
+    style B fill:#1d4ed8,stroke:#fff,color:#fff
+    style F fill:#8b5cf6,stroke:#fff,color:#fff
+    style H fill:#f59e0b,stroke:#fff,color:#fff
+```
+
 ---
 
 ## 1. Fase de Configuración y Disparo (Orquestación)

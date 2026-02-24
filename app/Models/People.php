@@ -133,4 +133,30 @@ class People extends Model
     {
         return $this->hasMany(PsychometricProfile::class, 'people_id');
     }
+
+    /**
+     * Relaciones de Red Social / Jerarquía 360
+     */
+    public function relations(): HasMany
+    {
+        return $this->hasMany(PeopleRelationship::class, 'person_id');
+    }
+
+    public function managers()
+    {
+        return $this->belongsToMany(People::class, 'people_relationships', 'person_id', 'related_person_id')
+            ->wherePivot('relationship_type', 'manager');
+    }
+
+    public function peers()
+    {
+        return $this->belongsToMany(People::class, 'people_relationships', 'person_id', 'related_person_id')
+            ->wherePivot('relationship_type', 'peer');
+    }
+
+    public function subordinates()
+    {
+        return $this->belongsToMany(People::class, 'people_relationships', 'person_id', 'related_person_id')
+            ->wherePivot('relationship_type', 'subordinate');
+    }
 }

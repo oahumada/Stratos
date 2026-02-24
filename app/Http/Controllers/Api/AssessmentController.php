@@ -106,11 +106,23 @@ class AssessmentController extends Controller
             return response()->json(['message' => 'Insuficientes mensajes para analizar'], 400);
         }
 
-        // 1. Obtener feedback externo si existe
-        // 1. Obtener feedback externo enriquecido
-        $externalFeedback = AssessmentFeedback::join('assessment_requests', 'assessment_feedback.assessment_request_id', '=', 'assessment_requests.id')
+        $externalFeedback = $this->getExternalFeedbackEnriched($session->people_id);
+        $performanceData = $this->kpiService->getPerformanceData($session->people_id);
+
+        $analysis = $this->performAnalysis($session, $externalFeedback, $performanceData);
+
+        if (!$analysis) {
+            return response()->json(['message' => 'Error en el análisis de la sesión'], 500);
+        }
+
+        return $this->saveAnalysisResults($session, $analysis, !empty($externalFeedback));
+    }
+
+    private function getExternalFeedbackEnriched($peopleId)
+    {
+        return AssessmentFeedback::join('assessment_requests', 'assessment_feedback.assessment_request_id', '=', 'assessment_requests.id')
             ->leftJoin('skills', 'assessment_feedback.skill_id', '=', 'skills.id')
-            ->where('assessment_requests.subject_id', $session->people_id)
+            ->where('assessment_requests.subject_id', $peopleId)
             ->where('assessment_requests.status', 'completed')
             ->select(
                 'assessment_requests.relationship',
@@ -121,66 +133,58 @@ class AssessmentController extends Controller
                 'assessment_feedback.confidence_level'
             )
             ->get()
-            ->map(function ($item) {
-                return [
-                    'relationship' => $item->relationship,
-                    'question' => $item->question,
-                    'content' => $item->content,
-                    'skill_context' => $item->skill_name ? [
-                        'skill' => $item->skill_name,
-                        'score' => $item->score,
-                        'confidence' => $item->confidence_level
-                    ] : null
-                ];
-            })
+            ->map(fn($item) => [
+                'relationship' => $item->relationship,
+                'question' => $item->question,
+                'content' => $item->content,
+                'skill_context' => $item->skill_name ? [
+                    'skill' => $item->skill_name,
+                    'score' => $item->score,
+                    'confidence' => $item->confidence_level
+                ] : null
+            ])
             ->toArray();
+    }
 
-        // 2. Obtener datos de desempeño (KPIs)
-        $performanceData = $this->kpiService->getPerformanceData($session->people_id);
+    private function performAnalysis($session, $externalFeedback, $performanceData)
+    {
+        return !empty($externalFeedback)
+            ? $this->service->analyzeThreeSixty($session, $externalFeedback, $performanceData)
+            : $this->service->analyzeSession($session);
+    }
 
-        // 3. Ejecutar análisis (Normal o 360)
-        if (!empty($externalFeedback)) {
-            $analysis = $this->service->analyzeThreeSixty($session, $externalFeedback, $performanceData);
-        } else {
-            $analysis = $this->service->analyzeSession($session);
-        }
-
-        if ($analysis) {
-            return DB::transaction(function () use ($session, $analysis, $externalFeedback) {
-                // Guardar resultados psicométricos
-                foreach ($analysis['traits'] as $trait) {
-                    PsychometricProfile::create([
-                        'people_id' => $session->people_id,
-                        'assessment_session_id' => $session->id,
-                        'trait_name' => $trait['name'],
-                        'score' => $trait['score'],
-                        'rationale' => $trait['rationale']
-                    ]);
-                }
-
-                $session->update([
-                    'status' => 'analyzed',
-                    'completed_at' => now(),
-                    'metadata' => array_merge($session->metadata ?? [], [
-                        'overall_potential' => $analysis['overall_potential'],
-                        'summary_report' => $analysis['summary_report'],
-                        'blind_spots' => $analysis['blind_spots'] ?? []
-                    ])
+    private function saveAnalysisResults($session, $analysis, $hasExternalFeedback)
+    {
+        return DB::transaction(function () use ($session, $analysis, $hasExternalFeedback) {
+            foreach ($analysis['traits'] as $trait) {
+                PsychometricProfile::create([
+                    'people_id' => $session->people_id,
+                    'assessment_session_id' => $session->id,
+                    'trait_name' => $trait['name'],
+                    'score' => $trait['score'],
+                    'rationale' => $trait['rationale']
                 ]);
+            }
 
-                // Calculate and update competency levels (BARS)
-                if (!empty($externalFeedback)) {
-                   $this->competencyService->updateAllSkillsForPerson($session->people_id);
-                }
+            $session->update([
+                'status' => 'analyzed',
+                'completed_at' => now(),
+                'metadata' => array_merge($session->metadata ?? [], [
+                    'overall_potential' => $analysis['overall_potential'],
+                    'summary_report' => $analysis['summary_report'],
+                    'blind_spots' => $analysis['blind_spots'] ?? []
+                ])
+            ]);
 
-                return response()->json([
-                    'success' => true,
-                    'session' => $session->load('psychometricProfiles')
-                ]);
-            });
-        }
+            if ($hasExternalFeedback) {
+                $this->competencyService->updateAllSkillsForPerson($session->people_id);
+            }
 
-        return response()->json(['message' => 'Error en el análisis de la sesión'], 500);
+            return response()->json([
+                'success' => true,
+                'session' => $session->load('psychometricProfiles')
+            ]);
+        });
     }
 
     /**
@@ -407,5 +411,87 @@ class AssessmentController extends Controller
             $assessmentRequest->update(['status' => 'completed', 'completed_at' => now()]);
             return response()->json(['success' => true]);
         });
+    }
+
+    /**
+     * Disparar el ciclo completo 360 basado en el mapa de relaciones 'Cerbero'.
+     */
+    public function triggerThreeSixty(Request $request)
+    {
+        $validated = $request->validate([
+            'people_id' => 'required|exists:people,id',
+        ]);
+
+        $subject = \App\Models\People::with(['managers', 'peers', 'subordinates', 'activeSkills'])->findOrFail($validated['people_id']);
+
+        return DB::transaction(function () use ($subject) {
+            // 1. Crear sesión de autoevaluación (Chat AI)
+            $session = AssessmentSession::create([
+                'organization_id' => $subject->organization_id,
+                'people_id' => $subject->id,
+                'type' => 'psychometric',
+                'status' => 'started',
+                'started_at' => now(),
+            ]);
+
+            // 2. Disparar solicitudes a Jefes
+            foreach ($subject->managers as $manager) {
+                $this->dispatchFeedbackRequest($subject, $manager, 'manager');
+            }
+
+            // 3. Disparar solicitudes a Pares
+            foreach ($subject->peers as $peer) {
+                $this->dispatchFeedbackRequest($subject, $peer, 'peer');
+            }
+
+            // 4. Disparar solicitudes a Subordinados
+            foreach ($subject->subordinates as $sub) {
+                $this->dispatchFeedbackRequest($subject, $sub, 'subordinate');
+            }
+
+            return response()->json([
+                'message' => 'Ciclo 360 disparado con éxito.',
+                'subject' => $subject->full_name,
+                'session_id' => $session->id,
+                'counts' => [
+                    'managers' => $subject->managers->count(),
+                    'peers' => $subject->peers->count(),
+                    'subordinates' => $subject->subordinates->count(),
+                ]
+            ]);
+        });
+    }
+
+    /**
+     * Helper para despachar solicitudes individuales.
+     */
+    private function dispatchFeedbackRequest($subject, $evaluator, $relationship)
+    {
+        $req = AssessmentRequest::create([
+            'organization_id' => $subject->organization_id,
+            'subject_id' => $subject->id,
+            'evaluator_id' => $evaluator->id,
+            'relationship' => $relationship,
+            'status' => 'pending',
+            'token' => Str::random(40)
+        ]);
+
+        foreach ($subject->activeSkills as $roleSkill) {
+            $q = \App\Models\SkillQuestionBank::where('skill_id', $roleSkill->skill_id)
+                ->where(function($query) use ($relationship) {
+                    $query->where('target_relationship', $relationship)
+                          ->orWhere('is_global', true);
+                })
+                ->inRandomOrder()
+                ->first();
+
+            $req->feedback()->create([
+                'skill_id' => $roleSkill->skill_id,
+                'question' => $q ? $q->question : 'Evalúe el desempeño en ' . $roleSkill->skill->name,
+                'answer' => ''
+            ]);
+        }
+
+        return $req;
     }
 }

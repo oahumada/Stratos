@@ -110,9 +110,22 @@ class ThreeSixtyTestCaseSeeder extends Seeder
             }
         }
 
-        $this->command->info("--- CASO DE PRUEBA LISTO ---");
-        $this->command->info("ID Sujeto: {$subject->id}");
-        $this->command->info("Token Jefe: {$bossReq->token}");
-        $this->command->info("Token Par: {$peerReq->token}");
+        // 5. Configurar Mapa de Relaciones (Unidad de Comando Cerbero)
+        \App\Models\PeopleRelationship::updateOrCreate([
+            'person_id' => $subject->id,
+            'related_person_id' => $boss->id,
+            'relationship_type' => 'manager'
+        ]);
+
+        \App\Models\PeopleRelationship::updateOrCreate([
+            'person_id' => $subject->id,
+            'related_person_id' => $peer->id,
+            'relationship_type' => 'peer'
+        ]);
+
+        echo "--- CASO DE PRUEBA LISTO ---\n";
+        echo "ID Sujeto: {$subject->id}\n";
+        echo "Token Jefe: " . $bossReq->token . "\n";
+        echo "Token Par: " . $peerReq->token . "\n";
     }
 }

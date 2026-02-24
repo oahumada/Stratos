@@ -135,73 +135,74 @@ Nuestra implementación seguirá fases iterativas, asegurando valor en cada paso
 ### **Fase 1: Fundamentos Sólidos (Estado Actual 📍)**
 
 - [x] CRUD de Roles y Competencias (MySQL/Postgres).  
-    _Completado antes de 2026-02-17_
+       _Completado antes de 2026-02-17_
 - [x] Diseño de Escenarios y Talento Base.  
-    _Completado antes de 2026-02-17_
+       _Completado antes de 2026-02-17_
 - [x] Cálculo de Brechas (Gaps) simple en PHP.  
-    _Completado antes de 2026-02-17_
+       _Completado antes de 2026-02-17_
 - [x] Migración completa a PostgreSQL + pgvector.  
-    _Completado al 100% (2026-02-19)_
+       _Completado al 100% (2026-02-19)_
 
 ### **Fase 2: El Puente de Agentes (Siguiente Paso Inmediato 🚀)**
 
 - **Objetivo:** Que el sistema "piense" sobre los datos existentes.
 - [x] Crear microservicio/script Python básico.  
-    _Completado (python_services/app/main.py, 2026-02-18)_
+       _Completado (python_services/app/main.py, 2026-02-18)_
 - [x] Definir el contrato JSON (Input: Brecha detectada -> Output: Estrategia sugerida).  
-    _Completado (2026-02-18)_
+       _Completado (2026-02-18)_
 - [~] Implementar el primer Agente Simple (CrewAI): "El Analista de Brechas".  
-    _PoC funcional en main.py, falta prompt final y despliegue productivo (2026-02-19)_
+   _PoC funcional en main.py, falta prompt final y despliegue productivo (2026-02-19)_
 
 ### **Fase 3: Inteligencia Estratégica & Automatización**
 
 - **Objetivo:** Cerrar el ciclo con acción.
 - [ ] Integrar n8n para notificar sugerencias.  
-    _Pendiente (2026-02-19)_
+       _Pendiente (2026-02-19)_
 - [ ] Refinar Agentes con LangGraph para flujos más complejos.  
-    _Pendiente (2026-02-19)_
+       _Pendiente (2026-02-19)_
 - [ ] Frontend: Mostrar el "Razonamiento" del agente en la UI de Vue.  
-    _Pendiente (2026-02-19)_
+       _Pendiente (2026-02-19)_
 
 ### **Fase 4: La "Conciencia" (Knowledge Graph)**
 
 - **Objetivo:** Entender el impacto sistémico.
 - [x] Levantar instancia de Neo4j.  
-    _Completado (2026-02-17)_
+       _Completado (2026-02-17)_
 - [x] Script de sincronización (ETL): Postgres -> Neo4j.  
-    _Completado (python_services/neo4j_etl.py, 2026-02-18)_
+       _Completado (python_services/neo4j_etl.py, 2026-02-18)_
 - [x] Primera funcionalidad de Grafo: "Análisis de Impacto de Retiro".  
-    _Completado (2026-02-18)_
+       _Completado (2026-02-18)_
 
-### **Fase 5: Módulos Avanzados (El "Futuro")**
+### **Fase 5: Módulos Avanzados (En Ejecución 🚀)**
 
-- **Objetivo:** Expansión horizontal de la inteligencia.
-- [ ] Chatbot Entrevistador (BEI).  
-    _Pendiente (2026-02-19)_
-- [ ] Psicometría Cognitiva & Inferencial.  
-    _Pendiente (2026-02-19)_
-- [ ] Evaluación 360° Viva.  
-    _Pendiente (2026-02-19)_
-- [ ] People Experience (PX) & Engagement.  
-    _Pendiente (2026-02-19)_
-- [ ] E-Learning & LMS Integration.  
-    _Pendiente (2026-02-19)_
+- **Objetivo:** Expansión horizontal de la inteligencia y gobernanza.
+- [x] **Evaluación 360° Viva:** Implementación de feedback multidireccional con lógica BARS y tokens seguros.
+      _Completado (2026-02-24)_
+- [x] **Mapa de Relaciones Cerbero:** Motor de gobernanza social para identificar jefes, pares y subordinados de forma explícita.
+      _Completado (2026-02-24)_
+- [x] **Unidad de Comando Cerbero (Assessment Policies):** Automatización de periodicidad y disparadores por eventos.
+      _Completado (2026-02-24)_
+- [~] **Chatbot Entrevistador (BEI):** Orquestación de entrevistas psicométricas vía chat con IA.
+  _En progreso (2026-02-19)_
+- [ ] **Psicometría Cognitiva & Inferencial.**
+- [ ] **People Experience (PX) & Engagement.**
+- [ ] **E-Learning & LMS Integration.**
 
-----
+---
 
 ## 5. Próximos Pasos (TODO List - Sesiones Inmediatas)
 
 ### Para la Sesión de "Introducción de Agentes":
 
 1.  [x] Infraestructura Python: entorno virtual y scripts base en `/python_services/`.  
-        _Completado (2026-02-18)_
+         _Completado (2026-02-18)_
 2.  [x] Contrato de Datos: definir campos enviados al agente.  
-        _Completado (2026-02-18)_
+         _Completado (2026-02-18)_
 3.  [~] Primer Prompt: diseñar el prompt del "Talent Strategy Agent" para CrewAI.  
-        _En progreso, falta prompt final (2026-02-19)_
+     _En progreso, falta prompt final (2026-02-19)_
 4.  [x] Integración Laravel: Job `AnalyzeTalentGap` que dispara proceso Python.  
-        _Completado (2026-02-18)_
+         _Completado (2026-02-18)_
 
-----
+---
 
 _Este documento es vivo. Se actualizará conforme aprendamos y evolucionemos el sistema._
