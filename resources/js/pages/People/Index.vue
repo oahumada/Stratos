@@ -14,6 +14,7 @@ import itemFormJson from './people-form/itemForm.json';
 
 import AssessmentChat from '@/components/Assessments/AssessmentChat.vue';
 import FeedbackRequestDialog from '@/components/Assessments/FeedbackRequestDialog.vue';
+import DevelopmentTab from '@/components/Talent/DevelopmentTab.vue';
 import tableConfigJson from './people-form/tableConfig.json';
 
 defineOptions({ layout: AppLayout });

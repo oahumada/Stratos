@@ -734,6 +734,30 @@ class ScenarioController extends Controller
     /**
      * API: Obtener visualización de impacto (Paso 5)
      */
+    public function getVersions($id): JsonResponse
+    {
+        $scenario = Scenario::findOrFail($id);
+        
+        // Return all scenarios in the same version group, or at least itself
+        $query = Scenario::query();
+        
+        if ($scenario->version_group_id) {
+            $query->where('version_group_id', $scenario->version_group_id);
+        } else {
+            $query->where('id', $id);
+        }
+        
+        $versions = $query->with('owner')
+            ->orderBy('version_number', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'versions' => $versions
+        ]);
+    }
+
     public function getImpact($id): JsonResponse
     {
         $user = auth()->user();

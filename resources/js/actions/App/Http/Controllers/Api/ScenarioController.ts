@@ -280,7 +280,7 @@ getCapabilityTree.form = getCapabilityTreeForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::getImpact
-* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @see app/Http/Controllers/Api/ScenarioController.php:761
 * @route '/api/strategic-planning/scenarios/{id}/impact'
 */
 export const getImpact = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -295,7 +295,7 @@ getImpact.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::getImpact
-* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @see app/Http/Controllers/Api/ScenarioController.php:761
 * @route '/api/strategic-planning/scenarios/{id}/impact'
 */
 getImpact.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -322,7 +322,7 @@ getImpact.url = (args: { id: string | number } | [id: string | number ] | string
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::getImpact
-* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @see app/Http/Controllers/Api/ScenarioController.php:761
 * @route '/api/strategic-planning/scenarios/{id}/impact'
 */
 getImpact.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -332,7 +332,7 @@ getImpact.get = (args: { id: string | number } | [id: string | number ] | string
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::getImpact
-* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @see app/Http/Controllers/Api/ScenarioController.php:761
 * @route '/api/strategic-planning/scenarios/{id}/impact'
 */
 getImpact.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -342,7 +342,7 @@ getImpact.head = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::getImpact
-* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @see app/Http/Controllers/Api/ScenarioController.php:761
 * @route '/api/strategic-planning/scenarios/{id}/impact'
 */
 const getImpactForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -352,7 +352,7 @@ const getImpactForm = (args: { id: string | number } | [id: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::getImpact
-* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @see app/Http/Controllers/Api/ScenarioController.php:761
 * @route '/api/strategic-planning/scenarios/{id}/impact'
 */
 getImpactForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -362,7 +362,7 @@ getImpactForm.get = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::getImpact
-* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @see app/Http/Controllers/Api/ScenarioController.php:761
 * @route '/api/strategic-planning/scenarios/{id}/impact'
 */
 getImpactForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -379,7 +379,7 @@ getImpact.form = getImpactForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
-* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @see app/Http/Controllers/Api/ScenarioController.php:789
 * @route '/api/strategic-planning/scenarios/{id}/export-financial'
 */
 export const exportFinancial = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -394,7 +394,7 @@ exportFinancial.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
-* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @see app/Http/Controllers/Api/ScenarioController.php:789
 * @route '/api/strategic-planning/scenarios/{id}/export-financial'
 */
 exportFinancial.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -421,7 +421,7 @@ exportFinancial.url = (args: { id: string | number } | [id: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
-* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @see app/Http/Controllers/Api/ScenarioController.php:789
 * @route '/api/strategic-planning/scenarios/{id}/export-financial'
 */
 exportFinancial.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -431,7 +431,7 @@ exportFinancial.get = (args: { id: string | number } | [id: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
-* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @see app/Http/Controllers/Api/ScenarioController.php:789
 * @route '/api/strategic-planning/scenarios/{id}/export-financial'
 */
 exportFinancial.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -441,7 +441,7 @@ exportFinancial.head = (args: { id: string | number } | [id: string | number ] |
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
-* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @see app/Http/Controllers/Api/ScenarioController.php:789
 * @route '/api/strategic-planning/scenarios/{id}/export-financial'
 */
 const exportFinancialForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -451,7 +451,7 @@ const exportFinancialForm = (args: { id: string | number } | [id: string | numbe
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
-* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @see app/Http/Controllers/Api/ScenarioController.php:789
 * @route '/api/strategic-planning/scenarios/{id}/export-financial'
 */
 exportFinancialForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -461,7 +461,7 @@ exportFinancialForm.get = (args: { id: string | number } | [id: string | number 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
-* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @see app/Http/Controllers/Api/ScenarioController.php:789
 * @route '/api/strategic-planning/scenarios/{id}/export-financial'
 */
 exportFinancialForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

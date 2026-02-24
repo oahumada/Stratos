@@ -1,4 +1,3 @@
-adelante
 <script setup lang="ts">
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -144,5 +143,4 @@ const footerNavItems: NavItem[] = [
             <NavUser />
         </SidebarFooter>
     </Sidebar>
-    <slot />
 </template>

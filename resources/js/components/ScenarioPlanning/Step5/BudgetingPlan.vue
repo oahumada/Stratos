@@ -282,6 +282,7 @@
 import { useNotification } from '@/composables/useNotification';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
+import ImpactAnalytics from './ImpactAnalytics.vue';
 
 const props = defineProps({
     scenarioId: {

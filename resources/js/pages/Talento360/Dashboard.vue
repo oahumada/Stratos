@@ -248,7 +248,13 @@ const getPotentialColor = (score: number) => {
                             >
                                 <template v-slot:prepend>
                                     <v-avatar color="grey-lighten-3">
-                                        {{ assessment.person_name.charAt(0) }}
+                                        {{
+                                            assessment.person_name
+                                                ? assessment.person_name.charAt(
+                                                      0,
+                                                  )
+                                                : '?'
+                                        }}
                                     </v-avatar>
                                 </template>
                                 <v-list-item-title class="font-weight-bold">{{

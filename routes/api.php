@@ -41,7 +41,7 @@ if (!defined('PATH_COMPETENCIES_ID')) {
     define('PATH_COMPETENCIES_ID', '/competencies/{id}');
 }
 
-Route::get('/catalogs', [\App\Http\Controllers\Api\CatalogsController::class, 'index']);
+Route::get('/catalogs', [\App\Http\Controllers\Api\CatalogsController::class, 'index'])->name('catalogs.index');
 
 // Public Assessment Feedback (Access via Token)
 Route::get('/assessments/feedback/{token}', [\App\Http\Controllers\Api\AssessmentController::class, 'showByToken']);
@@ -957,7 +957,6 @@ Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group
 });
 
 // Catálogos dinámicos para selectores
-Route::get('catalogs', [CatalogsController::class, 'getCatalogs'])->name('catalogs.index');
 require __DIR__ . '/form-schema-complete.php';
 
 // TODO: recordar que estas rutas están protegidas por el middleware 'auth' en RouteServiceProvider.php y son Multinenant deben filtrar el organization_id del usuario autenticado
