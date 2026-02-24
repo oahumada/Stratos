@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
+// import AppLayout from '@/layouts/AppLayout.vue';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 
-defineOptions({ layout: AppLayout });
+// defineOptions({ layout: AppLayout });
 
 interface Trait {
     trait_name: string;

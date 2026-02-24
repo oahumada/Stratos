@@ -13,10 +13,10 @@ import SkillGapsChart from './Charts/SkillGapsChart.vue';
 import SuccessionRiskChart from './Charts/SuccessionRiskChart.vue';
 import MatchingResults from './MatchingResults.vue';
 import RoleForecastsTable from './RoleForecastsTable.vue';
-import SkillGapsMatrix from './SkillGapsMatrix.vue';
-import SuccessionPlanCard from './SuccessionPlanCard.vue';
 import ScenarioRoiCalculator from './ScenarioRoiCalculator.vue';
 import ScenarioStrategyAssigner from './ScenarioStrategyAssigner.vue';
+import SkillGapsMatrix from './SkillGapsMatrix.vue';
+import SuccessionPlanCard from './SuccessionPlanCard.vue';
 
 defineOptions({ layout: AppLayout });
 
@@ -762,7 +762,9 @@ onMounted(() => {
                                         <div
                                             class="text-h3 text-success text-center"
                                         >
-                                            +{{ simulationResults.net_capacity_gap }}
+                                            +{{
+                                                simulationResults.net_capacity_gap
+                                            }}
                                         </div>
                                         <div class="text-caption text-center">
                                             Brecha de capacidad neta
@@ -842,7 +844,7 @@ onMounted(() => {
                                                                 data.gap > 0
                                                                     ? 'success'
                                                                     : 'error'
-                                                                "
+                                                            "
                                                             size="small"
                                                         >
                                                             {{
@@ -907,7 +909,7 @@ onMounted(() => {
                                                         >
                                                             {{
                                                                 Math.round(
-                                                                    skill.internal_availability_pct
+                                                                    skill.internal_availability_pct,
                                                                 )
                                                             }}%
                                                         </v-progress-linear>
@@ -976,12 +978,10 @@ onMounted(() => {
                             density="comfortable"
                             class="mt-4"
                         >
-                            <!-- eslint-disable-next-line vue/valid-v-slot -->
-                            <template #item.capability="{ item }">
+                            <template #[`item.capability`]="{ item }">
                                 <strong>{{ item.capability }}</strong>
                             </template>
-                            <!-- eslint-disable-next-line vue/valid-v-slot -->
-                            <template #item.risk_status="{ item }">
+                            <template #[`item.risk_status`]="{ item }">
                                 <v-chip
                                     :color="getRiskColor(item.risk_status)"
                                     text-color="white"
@@ -990,8 +990,11 @@ onMounted(() => {
                                     {{ item.risk_status }}
                                 </v-chip>
                             </template>
-                            <!-- eslint-disable-next-line vue/valid-v-slot -->
-                            <template #item.internal_succession.ready_now="{ item }">
+                            <template
+                                #[`item.internal_succession.ready_now`]="{
+                                    item,
+                                }"
+                            >
                                 <v-chip
                                     :color="
                                         item.internal_succession.ready_now > 0

@@ -21,6 +21,9 @@ Route::get('/scenario-demo', function () {
     return Inertia::render('ScenarioDemo');
 });
 
+// External Assessment Feedback Form (Public)
+Route::get('/assessments/feedback/{token}', [\App\Http\Controllers\Api\AssessmentController::class, 'showExternalForm']);
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
@@ -96,6 +99,10 @@ Route::get('/talento360/bars', function () {
 Route::get('/talento360/question-bank', function () {
     return Inertia::render('Talento360/QuestionBank/Index');
 })->middleware(['auth', 'verified'])->name('talento360.qb.index');
+
+Route::get('/talento360/command-center', function () {
+    return Inertia::render('Talento360/CommandCenter');
+})->middleware(['auth', 'verified'])->name('talento360.command-center');
 
 Route::get('/people-experience', function () {
     return Inertia::render('PeopleExperience/Index');

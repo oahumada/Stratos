@@ -220,8 +220,7 @@ onMounted(() => {
                 class="elevation-1"
                 @click:row="selectScenario"
             >
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.status="{ item }">
+                <template #[`item.status`]="{ item }">
                     <v-chip
                         :color="getStatusColor(item.status)"
                         text-color="white"
@@ -231,8 +230,7 @@ onMounted(() => {
                     </v-chip>
                 </template>
 
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.actions="{ item }">
+                <template #[`item.actions`]="{ item }">
                     <v-btn
                         icon
                         size="small"

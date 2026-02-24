@@ -178,8 +178,7 @@ onMounted(() => {
                 item-key="id"
                 class="elevation-0"
             >
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.skill_name="{ item }">
+                <template #[`item.skill_name`]="{ item }">
                     <div class="d-flex align-center">
                         <v-icon size="small" class="mr-2"
                             >mdi-lightbulb-on-outline</v-icon
@@ -195,8 +194,7 @@ onMounted(() => {
                     </div>
                 </template>
 
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.strategy="{ item }">
+                <template #[`item.strategy`]="{ item }">
                     <v-chip
                         size="small"
                         color="primary"
@@ -206,20 +204,16 @@ onMounted(() => {
                     >
                 </template>
 
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.estimated_cost="{ item }">{{
+                <template #[`item.estimated_cost`]="{ item }">{{
                     formatMoney(item.estimated_cost)
                 }}</template>
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.estimated_time_weeks="{ item }">{{
+                <template #[`item.estimated_time_weeks`]="{ item }">{{
                     item.estimated_time_weeks || '—'
                 }}</template>
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.success_probability="{ item }">{{
+                <template #[`item.success_probability`]="{ item }">{{
                     formatProb(item.success_probability)
                 }}</template>
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.risk_level="{ item }">
+                <template #[`item.risk_level`]="{ item }">
                     <v-chip
                         size="small"
                         :color="
@@ -234,8 +228,7 @@ onMounted(() => {
                         {{ item.risk_level || '—' }}
                     </v-chip>
                 </template>
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.status="{ item }">
+                <template #[`item.status`]="{ item }">
                     <v-chip
                         size="small"
                         :color="

@@ -59,8 +59,7 @@
                 density="comfortable"
             >
                 <!-- Role Name with icon -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.role_name="{ item }">
+                <template #[`item.role_name`]="{ item }">
                     <div class="d-flex align-center">
                         <v-icon size="small" class="mr-2">
                             {{ getRoleIcon(item.role_name) }}
@@ -70,8 +69,7 @@
                 </template>
 
                 <!-- Current Headcount -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.current_headcount="{ item }">
+                <template #[`item.current_headcount`]="{ item }">
                     <v-chip
                         :color="getHeadcountColor(item.current_headcount)"
                         text-color="white"
@@ -82,8 +80,7 @@
                 </template>
 
                 <!-- Projected Headcount (Editable) -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.projected_headcount="{ item }">
+                <template #[`item.projected_headcount`]="{ item }">
                     <v-text-field
                         v-model.number="item.projected_headcount"
                         type="number"
@@ -98,8 +95,7 @@
                 </template>
 
                 <!-- Growth Rate -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.growth_rate="{ item }">
+                <template #[`item.growth_rate`]="{ item }">
                     <div class="d-flex align-center">
                         <v-progress-linear
                             :value="item.growth_rate"
@@ -113,8 +109,7 @@
                 </template>
 
                 <!-- Critical Skills -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.critical_skills="{ item }">
+                <template #[`item.critical_skills`]="{ item }">
                     <div class="d-flex flex-wrap gap-2">
                         <v-chip
                             v-for="skill in (item.critical_skills || []).slice(
@@ -139,8 +134,7 @@
                 </template>
 
                 <!-- Emerging Skills -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.emerging_skills="{ item }">
+                <template #[`item.emerging_skills`]="{ item }">
                     <div class="d-flex flex-wrap gap-2">
                         <v-chip
                             v-for="skill in (item.emerging_skills || []).slice(
@@ -165,8 +159,7 @@
                 </template>
 
                 <!-- Criticality Badge -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.criticality_level="{ item }">
+                <template #[`item.criticality_level`]="{ item }">
                     <v-chip
                         :color="getCriticalityColor(item.criticality_level)"
                         text-color="white"
@@ -177,8 +170,7 @@
                 </template>
 
                 <!-- Actions -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.actions="{ item }">
+                <template #[`item.actions`]="{ item }">
                     <v-menu>
                         <template v-slot:activator="{ props }">
                             <v-btn icon size="small" v-bind="props">

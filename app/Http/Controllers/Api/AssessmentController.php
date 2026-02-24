@@ -12,6 +12,7 @@ use App\Services\Intelligence\StratosAssessmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class AssessmentController extends Controller
 {
@@ -326,5 +327,85 @@ class AssessmentController extends Controller
             ->get();
 
         return response()->json($requests);
+    }
+
+    /**
+     * Obtener una solicitud de feedback por su token único (acceso externo).
+     */
+    public function showByToken($token)
+    {
+        $request = AssessmentRequest::with(['subject', 'feedback.skill'])
+            ->where('token', $token)
+            ->firstOrFail();
+
+        if ($request->status === 'completed') {
+            return response()->json(['message' => 'Esta evaluación ya ha sido completada.'], 400);
+        }
+
+        return response()->json($request);
+    }
+
+    /**
+     * Renderizar el formulario de feedback premium (vía Inertia).
+     */
+    public function showExternalForm($token)
+    {
+        $request = AssessmentRequest::with(['subject', 'feedback.skill'])
+            ->where('token', $token)
+            ->firstOrFail();
+
+        if ($request->status === 'completed') {
+            return Inertia::render('Welcome', [
+                'message' => 'Esta evaluación ya ha sido completada. ¡Gracias!'
+            ]);
+        }
+
+        return Inertia::render('Assessments/ExternalFeedback', [
+            'token' => $token,
+            'request' => $request
+        ]);
+    }
+
+    /**
+     * Enviar feedback desde el acceso público usando el token.
+     */
+    public function submitFeedbackGuest(Request $request)
+    {
+        $validated = $request->validate([
+            'token' => 'required|string|exists:assessment_requests,token',
+            'answers' => 'required|array',
+            'answers.*.id' => 'nullable|exists:assessment_feedback,id',
+            'answers.*.question' => 'nullable|string',
+            'answers.*.answer' => 'nullable|string',
+            'answers.*.skill_id' => 'nullable|exists:skills,id',
+            'answers.*.score' => 'nullable|integer|between:1,5',
+        ]);
+
+        $assessmentRequest = AssessmentRequest::where('token', $validated['token'])->firstOrFail();
+
+        if ($assessmentRequest->status === 'completed') {
+            return response()->json(['message' => 'Feedback ya enviado'], 400);
+        }
+
+        return DB::transaction(function() use ($assessmentRequest, $validated) {
+            foreach ($validated['answers'] as $item) {
+                $isBARS = isset($item['skill_id']) && isset($item['score']);
+                $data = [
+                    'question' => $item['question'] ?? ($isBARS ? 'Evaluación de competencia' : 'Pregunta general'),
+                    'answer' => $item['answer'] ?? ($isBARS ? ('Nivel: ' . $item['score']) : 'Sin respuesta'),
+                    'skill_id' => $item['skill_id'] ?? null,
+                    'score' => $item['score'] ?? null,
+                ];
+
+                if (isset($item['id'])) {
+                    $assessmentRequest->feedback()->where('id', $item['id'])->update($data);
+                } else {
+                    $assessmentRequest->feedback()->create($data);
+                }
+            }
+
+            $assessmentRequest->update(['status' => 'completed', 'completed_at' => now()]);
+            return response()->json(['success' => true]);
+        });
     }
 }

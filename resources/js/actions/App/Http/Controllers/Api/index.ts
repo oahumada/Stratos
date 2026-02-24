@@ -1,9 +1,17 @@
+import CatalogsController from './CatalogsController'
+import AssessmentController from './AssessmentController'
 import GapAnalysisController from './GapAnalysisController'
 import DevelopmentPathController from './DevelopmentPathController'
+import DevelopmentActionController from './DevelopmentActionController'
+import MentorshipSessionController from './MentorshipSessionController'
+import EvidenceController from './EvidenceController'
+import PulseController from './PulseController'
+import AgentController from './AgentController'
 import JobOpeningController from './JobOpeningController'
 import ApplicationController from './ApplicationController'
 import DashboardController from './DashboardController'
 import MarketplaceController from './MarketplaceController'
+import MentorController from './MentorController'
 import ScenarioController from './ScenarioController'
 import PromptInstructionController from './PromptInstructionController'
 import ChangeSetController from './ChangeSetController'
@@ -15,19 +23,29 @@ import ScenarioSimulationController from './ScenarioSimulationController'
 import ScenarioRoiController from './ScenarioRoiController'
 import ScenarioStrategyController from './ScenarioStrategyController'
 import IncubationController from './IncubationController'
+import RoleDesignerController from './RoleDesignerController'
+import Talento360Controller from './Talento360Controller'
+import CompetencyCuratorController from './CompetencyCuratorController'
 import TelemetryController from './TelemetryController'
 import CapabilityCompetencyController from './CapabilityCompetencyController'
 import ScenarioTemplateController from './ScenarioTemplateController'
 import Step2RoleCompetencyController from './Step2RoleCompetencyController'
-import CatalogsController from './CatalogsController'
 
 const Api = {
+    CatalogsController: Object.assign(CatalogsController, CatalogsController),
+    AssessmentController: Object.assign(AssessmentController, AssessmentController),
     GapAnalysisController: Object.assign(GapAnalysisController, GapAnalysisController),
     DevelopmentPathController: Object.assign(DevelopmentPathController, DevelopmentPathController),
+    DevelopmentActionController: Object.assign(DevelopmentActionController, DevelopmentActionController),
+    MentorshipSessionController: Object.assign(MentorshipSessionController, MentorshipSessionController),
+    EvidenceController: Object.assign(EvidenceController, EvidenceController),
+    PulseController: Object.assign(PulseController, PulseController),
+    AgentController: Object.assign(AgentController, AgentController),
     JobOpeningController: Object.assign(JobOpeningController, JobOpeningController),
     ApplicationController: Object.assign(ApplicationController, ApplicationController),
     DashboardController: Object.assign(DashboardController, DashboardController),
     MarketplaceController: Object.assign(MarketplaceController, MarketplaceController),
+    MentorController: Object.assign(MentorController, MentorController),
     ScenarioController: Object.assign(ScenarioController, ScenarioController),
     PromptInstructionController: Object.assign(PromptInstructionController, PromptInstructionController),
     ChangeSetController: Object.assign(ChangeSetController, ChangeSetController),
@@ -39,11 +57,13 @@ const Api = {
     ScenarioRoiController: Object.assign(ScenarioRoiController, ScenarioRoiController),
     ScenarioStrategyController: Object.assign(ScenarioStrategyController, ScenarioStrategyController),
     IncubationController: Object.assign(IncubationController, IncubationController),
+    RoleDesignerController: Object.assign(RoleDesignerController, RoleDesignerController),
+    Talento360Controller: Object.assign(Talento360Controller, Talento360Controller),
+    CompetencyCuratorController: Object.assign(CompetencyCuratorController, CompetencyCuratorController),
     TelemetryController: Object.assign(TelemetryController, TelemetryController),
     CapabilityCompetencyController: Object.assign(CapabilityCompetencyController, CapabilityCompetencyController),
     ScenarioTemplateController: Object.assign(ScenarioTemplateController, ScenarioTemplateController),
     Step2RoleCompetencyController: Object.assign(Step2RoleCompetencyController, Step2RoleCompetencyController),
-    CatalogsController: Object.assign(CatalogsController, CatalogsController),
 }
 
 export default Api

@@ -378,6 +378,105 @@ getImpactForm.head = (args: { id: string | number } | [id: string | number ] | s
 getImpact.form = getImpactForm
 
 /**
+* @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
+* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @route '/api/strategic-planning/scenarios/{id}/export-financial'
+*/
+export const exportFinancial = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportFinancial.url(args, options),
+    method: 'get',
+})
+
+exportFinancial.definition = {
+    methods: ["get","head"],
+    url: '/api/strategic-planning/scenarios/{id}/export-financial',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
+* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @route '/api/strategic-planning/scenarios/{id}/export-financial'
+*/
+exportFinancial.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            id: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        id: args.id,
+    }
+
+    return exportFinancial.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
+* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @route '/api/strategic-planning/scenarios/{id}/export-financial'
+*/
+exportFinancial.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportFinancial.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
+* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @route '/api/strategic-planning/scenarios/{id}/export-financial'
+*/
+exportFinancial.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: exportFinancial.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
+* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @route '/api/strategic-planning/scenarios/{id}/export-financial'
+*/
+const exportFinancialForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportFinancial.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
+* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @route '/api/strategic-planning/scenarios/{id}/export-financial'
+*/
+exportFinancialForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportFinancial.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::exportFinancial
+* @see app/Http/Controllers/Api/ScenarioController.php:765
+* @route '/api/strategic-planning/scenarios/{id}/export-financial'
+*/
+exportFinancialForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportFinancial.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+exportFinancial.form = exportFinancialForm
+
+/**
 * @see \App\Http\Controllers\Api\ScenarioController::store
 * @see app/Http/Controllers/Api/ScenarioController.php:325
 * @route '/api/strategic-planning/scenarios'
@@ -1429,6 +1528,6 @@ deriveAllSkillsForm.post = (args: { id: string | number } | [id: string | number
 
 deriveAllSkills.form = deriveAllSkillsForm
 
-const ScenarioController = { listScenarios, showScenario, getCapabilityTree, getImpact, store, updateScenario, instantiateFromTemplate, calculateGaps, refreshSuggestedStrategies, finalizeScenario, compareVersions, summarize, orchestrate, getIQ, getCompetencyGaps, deriveSkills, deriveAllSkills }
+const ScenarioController = { listScenarios, showScenario, getCapabilityTree, getImpact, exportFinancial, store, updateScenario, instantiateFromTemplate, calculateGaps, refreshSuggestedStrategies, finalizeScenario, compareVersions, summarize, orchestrate, getIQ, getCompetencyGaps, deriveSkills, deriveAllSkills }
 
 export default ScenarioController

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\CatalogsController::getCatalogs
-* @see app/Http/Controllers/Api/CatalogsController.php:11
+* @see app/Http/Controllers/Api/CatalogsController.php:0
 * @route '/api/catalogs'
 */
 export const getCatalogs = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ getCatalogs.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\CatalogsController::getCatalogs
-* @see app/Http/Controllers/Api/CatalogsController.php:11
+* @see app/Http/Controllers/Api/CatalogsController.php:0
 * @route '/api/catalogs'
 */
 getCatalogs.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ getCatalogs.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\CatalogsController::getCatalogs
-* @see app/Http/Controllers/Api/CatalogsController.php:11
+* @see app/Http/Controllers/Api/CatalogsController.php:0
 * @route '/api/catalogs'
 */
 getCatalogs.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ getCatalogs.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\CatalogsController::getCatalogs
-* @see app/Http/Controllers/Api/CatalogsController.php:11
+* @see app/Http/Controllers/Api/CatalogsController.php:0
 * @route '/api/catalogs'
 */
 getCatalogs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ getCatalogs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\CatalogsController::getCatalogs
-* @see app/Http/Controllers/Api/CatalogsController.php:11
+* @see app/Http/Controllers/Api/CatalogsController.php:0
 * @route '/api/catalogs'
 */
 const getCatalogsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const getCatalogsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 
 /**
 * @see \App\Http\Controllers\Api\CatalogsController::getCatalogs
-* @see app/Http/Controllers/Api/CatalogsController.php:11
+* @see app/Http/Controllers/Api/CatalogsController.php:0
 * @route '/api/catalogs'
 */
 getCatalogsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ getCatalogsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 
 /**
 * @see \App\Http\Controllers\Api\CatalogsController::getCatalogs
-* @see app/Http/Controllers/Api/CatalogsController.php:11
+* @see app/Http/Controllers/Api/CatalogsController.php:0
 * @route '/api/catalogs'
 */
 getCatalogsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

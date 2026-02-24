@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
-* @see routes/form-schema-complete.php:35
+* @see routes/form-schema-complete.php:37
 * @route '/api/people'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/form-schema-complete.php:35
+* @see routes/form-schema-complete.php:37
 * @route '/api/people'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/form-schema-complete.php:35
+* @see routes/form-schema-complete.php:37
 * @route '/api/people'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:35
+* @see routes/form-schema-complete.php:37
 * @route '/api/people'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -40,7 +40,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:35
+* @see routes/form-schema-complete.php:37
 * @route '/api/people'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -49,7 +49,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/form-schema-complete.php:35
+* @see routes/form-schema-complete.php:37
 * @route '/api/people'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -58,7 +58,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:35
+* @see routes/form-schema-complete.php:37
 * @route '/api/people'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -74,7 +74,7 @@ indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 index.form = indexForm
 
 /**
-* @see routes/form-schema-complete.php:42
+* @see routes/form-schema-complete.php:44
 * @route '/api/people'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -88,7 +88,7 @@ store.definition = {
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see routes/form-schema-complete.php:42
+* @see routes/form-schema-complete.php:44
 * @route '/api/people'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -96,7 +96,7 @@ store.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/form-schema-complete.php:42
+* @see routes/form-schema-complete.php:44
 * @route '/api/people'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -105,7 +105,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:42
+* @see routes/form-schema-complete.php:44
 * @route '/api/people'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -114,7 +114,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 })
 
 /**
-* @see routes/form-schema-complete.php:42
+* @see routes/form-schema-complete.php:44
 * @route '/api/people'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -125,7 +125,7 @@ storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => (
 store.form = storeForm
 
 /**
-* @see routes/form-schema-complete.php:49
+* @see routes/form-schema-complete.php:51
 * @route '/api/people/{id}'
 */
 export const show = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -139,7 +139,7 @@ show.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/form-schema-complete.php:49
+* @see routes/form-schema-complete.php:51
 * @route '/api/people/{id}'
 */
 show.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -165,7 +165,7 @@ show.url = (args: { id: string | number } | [id: string | number ] | string | nu
 }
 
 /**
-* @see routes/form-schema-complete.php:49
+* @see routes/form-schema-complete.php:51
 * @route '/api/people/{id}'
 */
 show.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -174,7 +174,7 @@ show.get = (args: { id: string | number } | [id: string | number ] | string | nu
 })
 
 /**
-* @see routes/form-schema-complete.php:49
+* @see routes/form-schema-complete.php:51
 * @route '/api/people/{id}'
 */
 show.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -183,7 +183,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 })
 
 /**
-* @see routes/form-schema-complete.php:49
+* @see routes/form-schema-complete.php:51
 * @route '/api/people/{id}'
 */
 const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -192,7 +192,7 @@ const showForm = (args: { id: string | number } | [id: string | number ] | strin
 })
 
 /**
-* @see routes/form-schema-complete.php:49
+* @see routes/form-schema-complete.php:51
 * @route '/api/people/{id}'
 */
 showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -201,7 +201,7 @@ showForm.get = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
-* @see routes/form-schema-complete.php:49
+* @see routes/form-schema-complete.php:51
 * @route '/api/people/{id}'
 */
 showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -217,7 +217,7 @@ showForm.head = (args: { id: string | number } | [id: string | number ] | string
 show.form = showForm
 
 /**
-* @see routes/form-schema-complete.php:56
+* @see routes/form-schema-complete.php:58
 * @route '/api/people/{id}'
 */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -231,7 +231,7 @@ update.definition = {
 } satisfies RouteDefinition<["put"]>
 
 /**
-* @see routes/form-schema-complete.php:56
+* @see routes/form-schema-complete.php:58
 * @route '/api/people/{id}'
 */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -257,7 +257,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 }
 
 /**
-* @see routes/form-schema-complete.php:56
+* @see routes/form-schema-complete.php:58
 * @route '/api/people/{id}'
 */
 update.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -266,7 +266,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 })
 
 /**
-* @see routes/form-schema-complete.php:56
+* @see routes/form-schema-complete.php:58
 * @route '/api/people/{id}'
 */
 const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -280,7 +280,7 @@ const updateForm = (args: { id: string | number } | [id: string | number ] | str
 })
 
 /**
-* @see routes/form-schema-complete.php:56
+* @see routes/form-schema-complete.php:58
 * @route '/api/people/{id}'
 */
 updateForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -296,7 +296,7 @@ updateForm.put = (args: { id: string | number } | [id: string | number ] | strin
 update.form = updateForm
 
 /**
-* @see routes/form-schema-complete.php:63
+* @see routes/form-schema-complete.php:65
 * @route '/api/people/{id}'
 */
 export const patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -310,7 +310,7 @@ patch.definition = {
 } satisfies RouteDefinition<["patch"]>
 
 /**
-* @see routes/form-schema-complete.php:63
+* @see routes/form-schema-complete.php:65
 * @route '/api/people/{id}'
 */
 patch.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -336,7 +336,7 @@ patch.url = (args: { id: string | number } | [id: string | number ] | string | n
 }
 
 /**
-* @see routes/form-schema-complete.php:63
+* @see routes/form-schema-complete.php:65
 * @route '/api/people/{id}'
 */
 patch.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -345,7 +345,7 @@ patch.patch = (args: { id: string | number } | [id: string | number ] | string |
 })
 
 /**
-* @see routes/form-schema-complete.php:63
+* @see routes/form-schema-complete.php:65
 * @route '/api/people/{id}'
 */
 const patchForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -359,7 +359,7 @@ const patchForm = (args: { id: string | number } | [id: string | number ] | stri
 })
 
 /**
-* @see routes/form-schema-complete.php:63
+* @see routes/form-schema-complete.php:65
 * @route '/api/people/{id}'
 */
 patchForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -375,7 +375,7 @@ patchForm.patch = (args: { id: string | number } | [id: string | number ] | stri
 patch.form = patchForm
 
 /**
-* @see routes/form-schema-complete.php:70
+* @see routes/form-schema-complete.php:72
 * @route '/api/people/{id}'
 */
 export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -389,7 +389,7 @@ destroy.definition = {
 } satisfies RouteDefinition<["delete"]>
 
 /**
-* @see routes/form-schema-complete.php:70
+* @see routes/form-schema-complete.php:72
 * @route '/api/people/{id}'
 */
 destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -415,7 +415,7 @@ destroy.url = (args: { id: string | number } | [id: string | number ] | string |
 }
 
 /**
-* @see routes/form-schema-complete.php:70
+* @see routes/form-schema-complete.php:72
 * @route '/api/people/{id}'
 */
 destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -424,7 +424,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 })
 
 /**
-* @see routes/form-schema-complete.php:70
+* @see routes/form-schema-complete.php:72
 * @route '/api/people/{id}'
 */
 const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -438,7 +438,7 @@ const destroyForm = (args: { id: string | number } | [id: string | number ] | st
 })
 
 /**
-* @see routes/form-schema-complete.php:70
+* @see routes/form-schema-complete.php:72
 * @route '/api/people/{id}'
 */
 destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -454,7 +454,7 @@ destroyForm.delete = (args: { id: string | number } | [id: string | number ] | s
 destroy.form = destroyForm
 
 /**
-* @see routes/form-schema-complete.php:77
+* @see routes/form-schema-complete.php:79
 * @route '/api/people/search'
 */
 export const search = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -468,7 +468,7 @@ search.definition = {
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see routes/form-schema-complete.php:77
+* @see routes/form-schema-complete.php:79
 * @route '/api/people/search'
 */
 search.url = (options?: RouteQueryOptions) => {
@@ -476,7 +476,7 @@ search.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/form-schema-complete.php:77
+* @see routes/form-schema-complete.php:79
 * @route '/api/people/search'
 */
 search.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -485,7 +485,7 @@ search.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:77
+* @see routes/form-schema-complete.php:79
 * @route '/api/people/search'
 */
 const searchForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -494,7 +494,7 @@ const searchForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 })
 
 /**
-* @see routes/form-schema-complete.php:77
+* @see routes/form-schema-complete.php:79
 * @route '/api/people/search'
 */
 searchForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -505,7 +505,7 @@ searchForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 search.form = searchForm
 
 /**
-* @see routes/form-schema-complete.php:84
+* @see routes/form-schema-complete.php:86
 * @route '/api/people/search-with-paciente'
 */
 export const searchWithPaciente = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -519,7 +519,7 @@ searchWithPaciente.definition = {
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see routes/form-schema-complete.php:84
+* @see routes/form-schema-complete.php:86
 * @route '/api/people/search-with-paciente'
 */
 searchWithPaciente.url = (options?: RouteQueryOptions) => {
@@ -527,7 +527,7 @@ searchWithPaciente.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/form-schema-complete.php:84
+* @see routes/form-schema-complete.php:86
 * @route '/api/people/search-with-paciente'
 */
 searchWithPaciente.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -536,7 +536,7 @@ searchWithPaciente.post = (options?: RouteQueryOptions): RouteDefinition<'post'>
 })
 
 /**
-* @see routes/form-schema-complete.php:84
+* @see routes/form-schema-complete.php:86
 * @route '/api/people/search-with-paciente'
 */
 const searchWithPacienteForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -545,7 +545,7 @@ const searchWithPacienteForm = (options?: RouteQueryOptions): RouteFormDefinitio
 })
 
 /**
-* @see routes/form-schema-complete.php:84
+* @see routes/form-schema-complete.php:86
 * @route '/api/people/search-with-paciente'
 */
 searchWithPacienteForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

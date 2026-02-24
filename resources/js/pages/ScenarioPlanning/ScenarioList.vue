@@ -263,8 +263,7 @@ onMounted(() => {
                     v-model:selected="selectedScenarioIds"
                     class="elevation-0"
                 >
-                    <!-- eslint-disable-next-line vue/valid-v-slot -->
-                    <template #item.decision_status="{ item }">
+                    <template #[`item.decision_status`]="{ item }">
                         <v-chip
                             :color="decisionStatusColor(item.decision_status)"
                             size="small"
@@ -275,8 +274,7 @@ onMounted(() => {
                         </v-chip>
                     </template>
 
-                    <!-- eslint-disable-next-line vue/valid-v-slot -->
-                    <template #item.execution_status="{ item }">
+                    <template #[`item.execution_status`]="{ item }">
                         <v-chip
                             v-if="item.decision_status === 'approved'"
                             :color="executionStatusColor(item.execution_status)"
@@ -297,8 +295,7 @@ onMounted(() => {
                         </v-chip>
                     </template>
 
-                    <!-- eslint-disable-next-line vue/valid-v-slot -->
-                    <template #item.version_number="{ item }">
+                    <template #[`item.version_number`]="{ item }">
                         <div v-if="item.version_number" class="text-caption">
                             <v-icon
                                 icon="mdi-history"
@@ -319,8 +316,7 @@ onMounted(() => {
                         <span v-else class="text-medium-emphasis">—</span>
                     </template>
 
-                    <!-- eslint-disable-next-line vue/valid-v-slot -->
-                    <template #item.actions="{ item }">
+                    <template #[`item.actions`]="{ item }">
                         <div class="d-flex gap-1">
                             <v-tooltip text="Ver detalle">
                                 <template #activator="{ props }">

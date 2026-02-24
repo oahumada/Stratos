@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
-* @see routes/web.php:38
+* @see routes/web.php:41
 * @route '/people'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:38
+* @see routes/web.php:41
 * @route '/people'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:38
+* @see routes/web.php:41
 * @route '/people'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:38
+* @see routes/web.php:41
 * @route '/people'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -40,7 +40,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:38
+* @see routes/web.php:41
 * @route '/people'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -49,7 +49,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:38
+* @see routes/web.php:41
 * @route '/people'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -58,7 +58,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:38
+* @see routes/web.php:41
 * @route '/people'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -74,7 +74,7 @@ indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 index.form = indexForm
 
 /**
-* @see routes/web.php:42
+* @see routes/web.php:45
 * @route '/people/{id}'
 */
 export const show = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -88,7 +88,7 @@ show.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:42
+* @see routes/web.php:45
 * @route '/people/{id}'
 */
 show.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -114,7 +114,7 @@ show.url = (args: { id: string | number } | [id: string | number ] | string | nu
 }
 
 /**
-* @see routes/web.php:42
+* @see routes/web.php:45
 * @route '/people/{id}'
 */
 show.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -123,7 +123,7 @@ show.get = (args: { id: string | number } | [id: string | number ] | string | nu
 })
 
 /**
-* @see routes/web.php:42
+* @see routes/web.php:45
 * @route '/people/{id}'
 */
 show.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -132,7 +132,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 })
 
 /**
-* @see routes/web.php:42
+* @see routes/web.php:45
 * @route '/people/{id}'
 */
 const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ const showForm = (args: { id: string | number } | [id: string | number ] | strin
 })
 
 /**
-* @see routes/web.php:42
+* @see routes/web.php:45
 * @route '/people/{id}'
 */
 showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -150,7 +150,7 @@ showForm.get = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
-* @see routes/web.php:42
+* @see routes/web.php:45
 * @route '/people/{id}'
 */
 showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

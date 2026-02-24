@@ -43,7 +43,10 @@ onMounted(load);
         <v-row class="mb-4" align="center">
             <v-col><h2>Escenarios</h2></v-col>
             <v-col class="text-right">
-                <v-btn color="primary" :to="{ name: 'scenario-planning.create' }">
+                <v-btn
+                    color="primary"
+                    :to="{ name: 'scenario-planning.create' }"
+                >
                     <v-icon start>mdi-plus</v-icon>
                     Nuevo Escenario
                 </v-btn>
@@ -57,8 +60,7 @@ onMounted(load);
                 :loading="loading"
                 density="comfortable"
             >
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.name="{ item }">
+                <template #[`item.name`]="{ item }">
                     <RouterLink
                         :to="{
                             name: 'scenario-planning.show',
@@ -67,8 +69,7 @@ onMounted(load);
                         >{{ item.name }}</RouterLink
                     >
                 </template>
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.status="{ item }">
+                <template #[`item.status`]="{ item }">
                     <v-chip
                         size="small"
                         :color="

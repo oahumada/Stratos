@@ -661,8 +661,7 @@ onMounted(() => {
                 <!-- Relationship/date columns are rendered from derived fields in `processedItems` to avoid dynamic slot names -->
 
                 <!-- Actions Column -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.actions="{ item }">
+                <template #[`item.actions`]="{ item }">
                     <div class="d-flex gap-2">
                         <v-btn
                             v-if="mergedConfig.permisos?.editar"

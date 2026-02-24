@@ -267,7 +267,7 @@
                             class="bg-transparent"
                             hide-default-footer
                         >
-                            <template v-slot:item.type="{ item }">
+                            <template #[`item.type`]="{ item }">
                                 <v-chip
                                     size="x-small"
                                     :color="getTypeColor(item.type)"
@@ -276,7 +276,7 @@
                                     {{ item.type.toUpperCase() }}
                                 </v-chip>
                             </template>
-                            <template v-slot:item.sentiment_score="{ item }">
+                            <template #[`item.sentiment_score`]="{ item }">
                                 <div class="d-flex align-center">
                                     <v-progress-linear
                                         :model-value="item.sentiment_score"
@@ -291,7 +291,7 @@
                                     >
                                 </div>
                             </template>
-                            <template v-slot:item.actions="{ item }">
+                            <template #[`item.actions`]="{ item }">
                                 <v-btn
                                     icon="mdi-eye-outline"
                                     variant="text"
@@ -324,7 +324,16 @@ const breadcrumbs = [
     { title: 'People Experience', href: '/people-experience' },
 ];
 
-const surveys = ref([]);
+interface Survey {
+    id: number;
+    title: string;
+    type: string;
+    responses_count: number;
+    sentiment_score: number;
+    created_at: string;
+}
+
+const surveys = ref<Survey[]>([]);
 const loading = ref(false);
 
 const headers = [
@@ -341,7 +350,7 @@ const fetchSurveys = async () => {
     try {
         const response = await axios.get('/api/pulse-surveys');
         // Mocking some scores for the UI display
-        surveys.value = response.data.data.map((s) => ({
+        surveys.value = response.data.data.map((s: any) => ({
             ...s,
             sentiment_score: Math.floor(Math.random() * (90 - 40 + 1)) + 40,
             created_at: new Date(s.created_at).toLocaleDateString(),
@@ -366,7 +375,7 @@ const getTypeColor = (type: string) => {
     }
 };
 
-const viewResults = (survey: any) => {
+const viewResults = (survey: Survey) => {
     console.log('Viewing results for', survey.id);
 };
 

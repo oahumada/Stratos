@@ -152,24 +152,19 @@ onMounted(() => {
                 item-key="scenario_id"
                 class="elevation-0"
             >
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.total_cost="{ item }">{{
+                <template #[`item.total_cost`]="{ item }">{{
                     formatMoney(item.total_cost)
                 }}</template>
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.max_timeline_weeks="{ item }">{{
+                <template #[`item.max_timeline_weeks`]="{ item }">{{
                     item.max_timeline_weeks || '—'
                 }}</template>
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.average_risk_score="{ item }">{{
+                <template #[`item.average_risk_score`]="{ item }">{{
                     item.average_risk_score?.toFixed(2) ?? '—'
                 }}</template>
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.expected_coverage="{ item }">{{
+                <template #[`item.expected_coverage`]="{ item }">{{
                     formatPct(item.expected_coverage)
                 }}</template>
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template #item.estimated_roi="{ item }">{{
+                <template #[`item.estimated_roi`]="{ item }">{{
                     item.estimated_roi
                         ? item.estimated_roi.toFixed(2) + 'x'
                         : '—'

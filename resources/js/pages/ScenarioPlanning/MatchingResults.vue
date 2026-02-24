@@ -111,8 +111,7 @@
                 density="comfortable"
             >
                 <!-- Candidate -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.candidate_name="{ item }">
+                <template #[`item.candidate_name`]="{ item }">
                     <div class="d-flex align-center">
                         <v-avatar size="32" class="mr-2" color="primary">
                             {{ getInitials(item.candidate_name) }}
@@ -129,8 +128,7 @@
                 </template>
 
                 <!-- Target Role -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.target_role="{ item }">
+                <template #[`item.target_role`]="{ item }">
                     <div class="d-flex align-center">
                         <v-icon size="small" class="mr-2"
                             >mdi-briefcase-check</v-icon
@@ -140,8 +138,7 @@
                 </template>
 
                 <!-- Match Score Progress -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.match_score="{ item }">
+                <template #[`item.match_score`]="{ item }">
                     <div class="d-flex align-center">
                         <v-progress-linear
                             :value="item.match_score"
@@ -158,8 +155,7 @@
                 </template>
 
                 <!-- Readiness Level -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.readiness_level="{ item }">
+                <template #[`item.readiness_level`]="{ item }">
                     <v-chip
                         :color="getReadinessColor(item.readiness_level)"
                         text-color="white"
@@ -170,8 +166,7 @@
                 </template>
 
                 <!-- Transition Type -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.transition_type="{ item }">
+                <template #[`item.transition_type`]="{ item }">
                     <v-chip
                         :color="getTransitionColor(item.transition_type)"
                         variant="outlined"
@@ -182,8 +177,7 @@
                 </template>
 
                 <!-- Skill Gaps -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.skill_gaps="{ item }">
+                <template #[`item.skill_gaps`]="{ item }">
                     <div v-if="item.skill_gaps && item.skill_gaps.length > 0">
                         <v-chip
                             v-for="gap in (item.skill_gaps || []).slice(0, 2)"
@@ -212,8 +206,7 @@
                 </template>
 
                 <!-- Risk Level -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.risk_level="{ item }">
+                <template #[`item.risk_level`]="{ item }">
                     <v-chip
                         :color="getRiskColor(item.risk_level)"
                         text-color="white"
@@ -224,8 +217,7 @@
                 </template>
 
                 <!-- Actions -->
-                <!-- eslint-disable-next-line vue/valid-v-slot -->
-                <template v-slot:item.actions="{ item }">
+                <template #[`item.actions`]="{ item }">
                     <v-menu>
                         <template v-slot:activator="{ props }">
                             <v-btn icon size="small" v-bind="props">
@@ -412,13 +404,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import {
     useStrategicPlanningScenariosStore,
     type Match,
 } from '@/stores/scenarioPlanningScenariosStore';
+import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps<{
     scenarioId: number;
