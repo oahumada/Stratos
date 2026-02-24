@@ -1,0 +1,32 @@
+{
+  "fields": [
+    {
+      "key": "person_id",
+      "label": "Sujeto / Evaluado",
+      "type": "select",
+      "required": true,
+      "placeholder": "Seleccione a la persona principal"
+    },
+    {
+      "key": "relationship_type",
+      "label": "Tipo de Vínculo",
+      "type": "select",
+      "required": true,
+      "items": [
+        { "name": "Jefe (Manager)", "id": "manager" },
+        { "name": "Par (Peer)", "id": "peer" },
+        { "name": "Subordinado (Subordinate)", "id": "subordinate" },
+        { "name": "Mentor", "id": "mentor" },
+        { "name": "Otro", "id": "other" }
+      ]
+    },
+    {
+      "key": "related_person_id",
+      "label": "Persona Relacionada",
+      "type": "select",
+      "required": true,
+      "placeholder": "Seleccione a la persona vinculada"
+    }
+  ],
+  "catalogs": ["people"]
+}

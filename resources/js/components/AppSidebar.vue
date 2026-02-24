@@ -40,6 +40,9 @@ const Talento360Icon = defineComponent(
 const TalentAgentsIcon = defineComponent(
     () => () => h(VIcon, { icon: 'mdi-robot-vacuum-variant', size: 20 }),
 );
+const CerberoMapIcon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-transit-connection-variant', size: 20 }),
+);
 
 const mainNavItems: NavItem[] = [
     {
@@ -61,6 +64,11 @@ const mainNavItems: NavItem[] = [
         title: 'Skills',
         href: '/skills',
         icon: SkillsIcon,
+    },
+    {
+        title: 'Mapa Cerbero',
+        href: '/talento360/relationships',
+        icon: CerberoMapIcon,
     },
     {
         title: 'Gap Analysis',

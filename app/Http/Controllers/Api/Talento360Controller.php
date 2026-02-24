@@ -19,11 +19,10 @@ class Talento360Controller extends Controller
         $organizationId = auth()->user()->organization_id;
 
         // 1. Promedio de potencial global
-        // 1. Promedio de potencial global (MySQL JSON extraction)
         $avgPotential = DB::table('assessment_sessions')
             ->where('organization_id', $organizationId)
             ->where('status', 'analyzed')
-            ->selectRaw("AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.overall_potential')) AS DECIMAL(10,2))) as avg_potential")
+            ->selectRaw("AVG(CAST(metadata->>'overall_potential' AS DECIMAL)) as avg_potential")
             ->value('avg_potential');
 
         // 2. Distribución de rasgos (Promedio por rasgo)
@@ -38,7 +37,7 @@ class Talento360Controller extends Controller
         $highPotentialQuery = DB::table('assessment_sessions')
             ->where('organization_id', $organizationId)
             ->where('status', 'analyzed')
-            ->whereRaw("CAST(JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.overall_potential')) AS DECIMAL(10,2)) > ?", [0.8]);
+            ->whereRaw("CAST(metadata->>'overall_potential' AS DECIMAL) > ?", [0.8]);
 
         $highPotentialCount = $highPotentialQuery->count();
 

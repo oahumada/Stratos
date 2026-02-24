@@ -1,10 +1,8 @@
 <script setup lang="ts">
-// import AppLayout from '@/layouts/AppLayout.vue';
+import { router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
-
-// defineOptions({ layout: AppLayout });
 
 interface Trait {
     trait_name: string;
@@ -106,13 +104,23 @@ const getPotentialColor = (score: number) => {
                             organizacionales
                         </p>
                     </div>
-                    <v-btn
-                        color="primary"
-                        prepend-icon="mdi-account-search"
-                        to="/people"
-                    >
-                        Evaluar Colaboradores
-                    </v-btn>
+                    <div class="d-flex gap-2">
+                        <v-btn
+                            color="secondary"
+                            variant="outlined"
+                            prepend-icon="mdi-transit-connection-variant"
+                            @click="router.visit('/talento360/relationships')"
+                        >
+                            Gestionar Mapa Cerbero
+                        </v-btn>
+                        <v-btn
+                            color="primary"
+                            prepend-icon="mdi-account-search"
+                            @click="router.visit('/people')"
+                        >
+                            Evaluar Colaboradores
+                        </v-btn>
+                    </div>
                 </div>
             </v-col>
         </v-row>
@@ -231,6 +239,12 @@ const getPotentialColor = (score: number) => {
                                 v-for="assessment in metrics.latest_assessments"
                                 :key="assessment.id"
                                 class="border-bottom-light px-0"
+                                link
+                                @click="
+                                    router.visit(
+                                        '/talento360/results/' + assessment.id,
+                                    )
+                                "
                             >
                                 <template v-slot:prepend>
                                     <v-avatar color="grey-lighten-3">
@@ -276,7 +290,7 @@ const getPotentialColor = (score: number) => {
                             block
                             color="primary"
                             class="mt-2"
-                            to="/people"
+                            @click="router.visit('/people')"
                         >
                             Ver todo el talento
                         </v-btn>

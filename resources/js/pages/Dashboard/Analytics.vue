@@ -1,3 +1,4 @@
+<script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import PendingFeedback from '@/components/Assessments/PendingFeedback.vue';
 import { computed, ref } from 'vue';

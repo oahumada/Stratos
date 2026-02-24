@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see routes/form-schema-complete.php:38
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: index.url(options),
@@ -10,12 +10,12 @@ export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 index.definition = {
     methods: ["get","head"],
-    url: '/api/departments',
+    url: '/api/people-relationships',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see routes/form-schema-complete.php:38
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 index.url = (options?: RouteQueryOptions) => {
     return index.definition.url + queryParams(options)
@@ -23,7 +23,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see routes/form-schema-complete.php:38
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: index.url(options),
@@ -32,7 +32,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see routes/form-schema-complete.php:38
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
@@ -41,7 +41,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see routes/form-schema-complete.php:38
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: index.url(options),
@@ -50,7 +50,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see routes/form-schema-complete.php:38
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: index.url(options),
@@ -59,7 +59,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see routes/form-schema-complete.php:38
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: index.url({
@@ -75,7 +75,7 @@ index.form = indexForm
 
 /**
 * @see routes/form-schema-complete.php:45
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
@@ -84,12 +84,12 @@ export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
 
 store.definition = {
     methods: ["post"],
-    url: '/api/departments',
+    url: '/api/people-relationships',
 } satisfies RouteDefinition<["post"]>
 
 /**
 * @see routes/form-schema-complete.php:45
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 store.url = (options?: RouteQueryOptions) => {
     return store.definition.url + queryParams(options)
@@ -97,7 +97,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see routes/form-schema-complete.php:45
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
@@ -106,7 +106,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see routes/form-schema-complete.php:45
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: store.url(options),
@@ -115,7 +115,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see routes/form-schema-complete.php:45
-* @route '/api/departments'
+* @route '/api/people-relationships'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: store.url(options),
@@ -126,7 +126,7 @@ store.form = storeForm
 
 /**
 * @see routes/form-schema-complete.php:52
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 export const show = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
@@ -135,12 +135,12 @@ export const show = (args: { id: string | number } | [id: string | number ] | st
 
 show.definition = {
     methods: ["get","head"],
-    url: '/api/departments/{id}',
+    url: '/api/people-relationships/{id}',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see routes/form-schema-complete.php:52
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 show.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
@@ -166,7 +166,7 @@ show.url = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see routes/form-schema-complete.php:52
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 show.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
@@ -175,7 +175,7 @@ show.get = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see routes/form-schema-complete.php:52
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 show.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
@@ -184,7 +184,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 
 /**
 * @see routes/form-schema-complete.php:52
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: show.url(args, options),
@@ -193,7 +193,7 @@ const showForm = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see routes/form-schema-complete.php:52
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: show.url(args, options),
@@ -202,7 +202,7 @@ showForm.get = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see routes/form-schema-complete.php:52
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: show.url(args, {
@@ -218,7 +218,7 @@ show.form = showForm
 
 /**
 * @see routes/form-schema-complete.php:59
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
@@ -227,12 +227,12 @@ export const update = (args: { id: string | number } | [id: string | number ] | 
 
 update.definition = {
     methods: ["put"],
-    url: '/api/departments/{id}',
+    url: '/api/people-relationships/{id}',
 } satisfies RouteDefinition<["put"]>
 
 /**
 * @see routes/form-schema-complete.php:59
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
@@ -258,7 +258,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see routes/form-schema-complete.php:59
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 update.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
@@ -267,7 +267,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see routes/form-schema-complete.php:59
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
@@ -281,7 +281,7 @@ const updateForm = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see routes/form-schema-complete.php:59
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 updateForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
@@ -297,7 +297,7 @@ update.form = updateForm
 
 /**
 * @see routes/form-schema-complete.php:66
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 export const patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: patch.url(args, options),
@@ -306,12 +306,12 @@ export const patch = (args: { id: string | number } | [id: string | number ] | s
 
 patch.definition = {
     methods: ["patch"],
-    url: '/api/departments/{id}',
+    url: '/api/people-relationships/{id}',
 } satisfies RouteDefinition<["patch"]>
 
 /**
 * @see routes/form-schema-complete.php:66
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 patch.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
@@ -337,7 +337,7 @@ patch.url = (args: { id: string | number } | [id: string | number ] | string | n
 
 /**
 * @see routes/form-schema-complete.php:66
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 patch.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: patch.url(args, options),
@@ -346,7 +346,7 @@ patch.patch = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see routes/form-schema-complete.php:66
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 const patchForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: patch.url(args, {
@@ -360,7 +360,7 @@ const patchForm = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see routes/form-schema-complete.php:66
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 patchForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: patch.url(args, {
@@ -376,7 +376,7 @@ patch.form = patchForm
 
 /**
 * @see routes/form-schema-complete.php:73
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
@@ -385,12 +385,12 @@ export const destroy = (args: { id: string | number } | [id: string | number ] |
 
 destroy.definition = {
     methods: ["delete"],
-    url: '/api/departments/{id}',
+    url: '/api/people-relationships/{id}',
 } satisfies RouteDefinition<["delete"]>
 
 /**
 * @see routes/form-schema-complete.php:73
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
@@ -416,7 +416,7 @@ destroy.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see routes/form-schema-complete.php:73
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
@@ -425,7 +425,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see routes/form-schema-complete.php:73
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
@@ -439,7 +439,7 @@ const destroyForm = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see routes/form-schema-complete.php:73
-* @route '/api/departments/{id}'
+* @route '/api/people-relationships/{id}'
 */
 destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
@@ -455,7 +455,7 @@ destroy.form = destroyForm
 
 /**
 * @see routes/form-schema-complete.php:80
-* @route '/api/departments/search'
+* @route '/api/people-relationships/search'
 */
 export const search = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: search.url(options),
@@ -464,12 +464,12 @@ export const search = (options?: RouteQueryOptions): RouteDefinition<'post'> => 
 
 search.definition = {
     methods: ["post"],
-    url: '/api/departments/search',
+    url: '/api/people-relationships/search',
 } satisfies RouteDefinition<["post"]>
 
 /**
 * @see routes/form-schema-complete.php:80
-* @route '/api/departments/search'
+* @route '/api/people-relationships/search'
 */
 search.url = (options?: RouteQueryOptions) => {
     return search.definition.url + queryParams(options)
@@ -477,7 +477,7 @@ search.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see routes/form-schema-complete.php:80
-* @route '/api/departments/search'
+* @route '/api/people-relationships/search'
 */
 search.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: search.url(options),
@@ -486,7 +486,7 @@ search.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see routes/form-schema-complete.php:80
-* @route '/api/departments/search'
+* @route '/api/people-relationships/search'
 */
 const searchForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: search.url(options),
@@ -495,7 +495,7 @@ const searchForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see routes/form-schema-complete.php:80
-* @route '/api/departments/search'
+* @route '/api/people-relationships/search'
 */
 searchForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: search.url(options),
@@ -506,7 +506,7 @@ search.form = searchForm
 
 /**
 * @see routes/form-schema-complete.php:87
-* @route '/api/departments/search-with-paciente'
+* @route '/api/people-relationships/search-with-paciente'
 */
 export const searchWithPaciente = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: searchWithPaciente.url(options),
@@ -515,12 +515,12 @@ export const searchWithPaciente = (options?: RouteQueryOptions): RouteDefinition
 
 searchWithPaciente.definition = {
     methods: ["post"],
-    url: '/api/departments/search-with-paciente',
+    url: '/api/people-relationships/search-with-paciente',
 } satisfies RouteDefinition<["post"]>
 
 /**
 * @see routes/form-schema-complete.php:87
-* @route '/api/departments/search-with-paciente'
+* @route '/api/people-relationships/search-with-paciente'
 */
 searchWithPaciente.url = (options?: RouteQueryOptions) => {
     return searchWithPaciente.definition.url + queryParams(options)
@@ -528,7 +528,7 @@ searchWithPaciente.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see routes/form-schema-complete.php:87
-* @route '/api/departments/search-with-paciente'
+* @route '/api/people-relationships/search-with-paciente'
 */
 searchWithPaciente.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: searchWithPaciente.url(options),
@@ -537,7 +537,7 @@ searchWithPaciente.post = (options?: RouteQueryOptions): RouteDefinition<'post'>
 
 /**
 * @see routes/form-schema-complete.php:87
-* @route '/api/departments/search-with-paciente'
+* @route '/api/people-relationships/search-with-paciente'
 */
 const searchWithPacienteForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: searchWithPaciente.url(options),
@@ -546,7 +546,7 @@ const searchWithPacienteForm = (options?: RouteQueryOptions): RouteFormDefinitio
 
 /**
 * @see routes/form-schema-complete.php:87
-* @route '/api/departments/search-with-paciente'
+* @route '/api/people-relationships/search-with-paciente'
 */
 searchWithPacienteForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: searchWithPaciente.url(options),
@@ -555,7 +555,7 @@ searchWithPacienteForm.post = (options?: RouteQueryOptions): RouteFormDefinition
 
 searchWithPaciente.form = searchWithPacienteForm
 
-const departments = {
+const peopleRelationships = {
     index: Object.assign(index, index),
     store: Object.assign(store, store),
     show: Object.assign(show, show),
@@ -566,4 +566,4 @@ const departments = {
     searchWithPaciente: Object.assign(searchWithPaciente, searchWithPaciente),
 }
 
-export default departments
+export default peopleRelationships

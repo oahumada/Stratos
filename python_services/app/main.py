@@ -102,6 +102,7 @@ class AnalysisResponse(BaseModel):
     overall_potential: float
     summary_report: str
     blind_spots: list[str] = Field(default_factory=list, description="Strengths seen by others but not by the subject, or vice-versa")
+    ai_reasoning_flow: list[str] = Field(default_factory=list, description="The logical steps the AI took to reach the conclusions")
 
 class FeedbackItem(BaseModel):
     relationship: str
@@ -450,10 +451,28 @@ def interview_analyze(request: ChatSessionRequest):
 def interview_analyze_360(request: ThreeSixtyAnalysisRequest):
     if os.getenv("STRATOS_MOCK_IA", "false").lower() == "true":
         return {
-            "traits": [{"name": "Mock Trait", "score": 0.85, "rationale": "Mock rationale"}],
-            "overall_potential": 0.8,
-            "summary_report": "[MOCK] Perfil 360 analizado exitosamente.",
-            "blind_spots": ["Auto-percepción de liderazgo vs realidad del equipo"]
+            "traits": [
+                {
+                    "name": "Adaptabilidad Avanzada", 
+                    "score": 0.92, 
+                    "rationale": "Demostró una capacidad excepcional para pivotar entre contextos técnicos y de negocio durante la entrevista, validado por testimonios de sus pares sobre su manejo de crisis."
+                },
+                {
+                    "name": "Liderazgo de Influencia", 
+                    "score": 0.78, 
+                    "rationale": "Aunque no tiene reportes directos, sus pares lo identifican como el líder informal del equipo en decisiones arquitectónicas."
+                }
+            ],
+            "overall_potential": 0.88,
+            "summary_report": "[MOCK] Perfil 360 analizado con éxito. El sujeto presenta una alta alineación con el rol de Arquiteco de Soluciones, destacando en competencias transversales de resiliencia.",
+            "blind_spots": ["Auto-percepción de liderazgo vs realidad del equipo: El sujeto se ve como contribuidor individual, pero el equipo lo percibe como mentor."],
+            "ai_reasoning_flow": [
+                "Extracción de entidades clave de la transcripción de entrevista.",
+                "Correlación de feedback de pares con hitos de proyectos en el historial.",
+                "Detección de discrepancias en auto-percepción de liderazgo (Nivel 4 de confianza).",
+                "Cruce de datos con KPIs de desempeño histórico.",
+                "Generación de síntesis de rasgos psicométricos finales."
+            ]
         }
 
     try:
@@ -485,7 +504,8 @@ def interview_analyze_360(request: ThreeSixtyAnalysisRequest):
         2. Identify at least 3 traits with scores and rationales.
         3. Identify specific BLIND SPOTS (differences between self-perception in interview and external feedback).
         4. Calculate an overall potential score.
-        5. Write a comprehensive summary report in {request.language}.
+        5. Document the logical steps taken (ai_reasoning_flow) to reach these conclusions.
+        6. Write a comprehensive summary report in {request.language}.
         
         OUTPUT FORMAT:
         Must be a JSON object matching AnalysisResponse model.

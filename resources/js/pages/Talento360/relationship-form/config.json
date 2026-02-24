@@ -1,0 +1,8 @@
+{
+  "titulo": "Mapa de Relaciones Cerbero",
+  "descripcion": "Gestión dinámica de vínculos jerárquicos y funcionales (Jefes, Pares, Subordinados, Mentores).",
+  "endpoints": {
+    "index": "/api/people-relationships",
+    "apiUrl": "/api/people-relationships"
+  }
+}

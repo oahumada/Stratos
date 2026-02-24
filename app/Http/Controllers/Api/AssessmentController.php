@@ -172,7 +172,8 @@ class AssessmentController extends Controller
                 'metadata' => array_merge($session->metadata ?? [], [
                     'overall_potential' => $analysis['overall_potential'],
                     'summary_report' => $analysis['summary_report'],
-                    'blind_spots' => $analysis['blind_spots'] ?? []
+                    'blind_spots' => $analysis['blind_spots'] ?? [],
+                    'ai_reasoning_flow' => $analysis['ai_reasoning_flow'] ?? []
                 ])
             ]);
 

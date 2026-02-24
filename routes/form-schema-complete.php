@@ -24,6 +24,7 @@ $formSchemaModels = [
     'Roles' => 'roles',  // Plural para consistencia con API
     'CompetencyLevelBars' => 'CompetencyLevelBars',
     'SkillQuestionBank' => 'SkillQuestionBank',
+    'PeopleRelationship' => 'people-relationships',
 ];
 
 // Envolver todas las rutas FormSchema en middleware de autenticación

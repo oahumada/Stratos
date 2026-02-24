@@ -84,11 +84,14 @@ Cuando el sujeto finaliza su entrevista y los evaluadores completan sus formular
 
 ## 4. Fase de Resultados y Acciones
 
-### 4.1 Dashboard de Resultados
+### 4.1 Informe de Inteligencia Estratégica (Explicabilidad IA)
 
-- **Gráfico de Radar:** Comparativa visual de competencias (Yo vs Otros).
-- **Reporte de Hallazgos:** Texto generado por IA resumiendo fortalezas y áreas críticas de desarrollo.
-- **Identificación de High Potentials:** Los usuarios con potencial > 0.8 son marcados automáticamente para planes de sucesión.
+El reporte final no es solo una tabla de puntajes; es un informe narrativo auditable:
+
+- **AI Reasoning Flow:** Visualización de los pasos lógicos seguidos por el agente (ej: "Contrastando auto-percepción con feedback de subordinados").
+- **Evidence-Based Rationale:** Cada rasgo diagnosticado incluye una justificación basada en evidencia textual extraída de las fuentes.
+- **Detección de "Blind Spots":** Identificación automática de brechas entre la auto-percepción y la percepción del entorno.
+- **Gráfico de Arquitectura Cognitiva:** Visualización tipo radar para entender el balance de competencias del sujeto.
 
 ### 4.2 Cierre del Ciclo (Feedback Loop)
 

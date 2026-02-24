@@ -29,7 +29,7 @@ class People extends Model
         'is_high_potential',
     ];
 
-    protected $appends = ['skills_count'];
+    protected $appends = ['skills_count', 'full_name'];
 
     protected $casts = [
         'hire_date' => 'date',

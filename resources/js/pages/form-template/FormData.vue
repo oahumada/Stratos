@@ -153,6 +153,8 @@ const getSelectItems = (fieldKey: string): any[] => {
         department: 'departments',
         role: 'roles',
         skill: 'skills',
+        person: 'people',
+        related_person: 'people',
     };
 
     const catalogName = pluralMap[singularName] || singularName;

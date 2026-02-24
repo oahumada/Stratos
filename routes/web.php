@@ -92,6 +92,14 @@ Route::get('/talento360', function () {
     return Inertia::render('Talento360/Dashboard');
 })->middleware(['auth', 'verified'])->name('talento360.index');
 
+Route::get('/talento360/results/{id}', function ($id) {
+    return Inertia::render('Talento360/AssessmentResults', ['sessionId' => $id]);
+})->middleware(['auth', 'verified'])->name('talento360.results');
+
+Route::get('/talento360/relationships', function () {
+    return Inertia::render('Talento360/RelationshipMap');
+})->middleware(['auth', 'verified'])->name('talento360.relationships');
+
 Route::get('/talento360/bars', function () {
     return Inertia::render('Talento360/BARS/Index');
 })->middleware(['auth', 'verified'])->name('talento360.bars.index');

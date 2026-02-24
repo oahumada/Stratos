@@ -21,6 +21,12 @@ class CatalogsRepository
             'departments' => fn () => \App\Models\Departments::select('id', 'name')->get(),
             'skill_levels' => fn () => \App\Models\CompetencyLevelBars::all(), // Updated to BARS
             'bars_levels' => fn () => \App\Models\CompetencyLevelBars::all(),
+            'people' => fn () => \App\Models\People::all()->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'name' => $p->full_name,
+                ];
+            }),
         ];
 
         $catalogos = [];

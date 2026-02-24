@@ -27,7 +27,15 @@ La interfaz `ExternalFeedback.vue` no es solo un formulario; es la carta de pres
 - **Principios de Diseño:** Glassmorphism, animaciones suaves, micro-interacciones (ratings dinámicos).
 - **Seguridad Invisible:** Uso de tokens de 40 caracteres (`Str::random(40)`) para acceso sin login, eliminando la fricción de entrada pero manteniendo el anonimato y la seguridad.
 
-## 4. Refactorización para la Serie A
+## 4. IA Explicable (Explicability-First Design)
+
+En Stratos, la IA no es una "caja negra". Cada conclusión debe ser auditable.
+
+- **Cognitive Stepper:** Hemos introducido el `ai_reasoning_flow` en el contrato de datos. Esto muestra al usuario los pasos lógicos que el agente siguió (ej: "Analizando feedback de pares", "Contrastando con KPIs").
+- **Evidencia Detallada (Rationale):** Cada rasgo psicométrico detectado debe incluir un `rationale` (justificación) basado en evidencia real extraída de las entrevistas o feedback.
+- **Transparencia UI:** La vista `AssessmentResults.vue` prioriza el _por qué_ sobre el _qué_, construyendo confianza con el usuario final.
+
+## 5. Refactorización para la Serie A
 
 El `AssessmentController` fue refactorizado siguiendo el patrón de **Separación de Responsabilidades**.
 
