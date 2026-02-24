@@ -165,6 +165,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/scenarios/generate/{id}/compacted', [\App\Http\Controllers\Api\GenerationChunkController::class, 'compacted']);
     // Lightweight progress endpoint used by the wizard for polling progress and quick assembly
     Route::get('/strategic-planning/scenarios/generate/{id}/progress', [\App\Http\Controllers\Api\GenerationChunkController::class, 'progress']);
+    Route::get('/strategic-planning/scenarios/{id}/versions', [\App\Http\Controllers\Api\ScenarioController::class, 'getVersions']);
 
     // Scenario Planning - Simulation & Strategic Talent Modeling
     Route::prefix('strategic-planning')->group(

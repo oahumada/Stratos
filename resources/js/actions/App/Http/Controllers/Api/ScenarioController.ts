@@ -279,6 +279,105 @@ getCapabilityTreeForm.head = (args: { id: string | number } | [id: string | numb
 getCapabilityTree.form = getCapabilityTreeForm
 
 /**
+* @see \App\Http\Controllers\Api\ScenarioController::getVersions
+* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @route '/api/strategic-planning/scenarios/{id}/versions'
+*/
+export const getVersions = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: getVersions.url(args, options),
+    method: 'get',
+})
+
+getVersions.definition = {
+    methods: ["get","head"],
+    url: '/api/strategic-planning/scenarios/{id}/versions',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::getVersions
+* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @route '/api/strategic-planning/scenarios/{id}/versions'
+*/
+getVersions.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            id: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        id: args.id,
+    }
+
+    return getVersions.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::getVersions
+* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @route '/api/strategic-planning/scenarios/{id}/versions'
+*/
+getVersions.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: getVersions.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::getVersions
+* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @route '/api/strategic-planning/scenarios/{id}/versions'
+*/
+getVersions.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: getVersions.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::getVersions
+* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @route '/api/strategic-planning/scenarios/{id}/versions'
+*/
+const getVersionsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getVersions.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::getVersions
+* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @route '/api/strategic-planning/scenarios/{id}/versions'
+*/
+getVersionsForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getVersions.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::getVersions
+* @see app/Http/Controllers/Api/ScenarioController.php:737
+* @route '/api/strategic-planning/scenarios/{id}/versions'
+*/
+getVersionsForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getVersions.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+getVersions.form = getVersionsForm
+
+/**
 * @see \App\Http\Controllers\Api\ScenarioController::getImpact
 * @see app/Http/Controllers/Api/ScenarioController.php:761
 * @route '/api/strategic-planning/scenarios/{id}/impact'
@@ -1528,6 +1627,6 @@ deriveAllSkillsForm.post = (args: { id: string | number } | [id: string | number
 
 deriveAllSkills.form = deriveAllSkillsForm
 
-const ScenarioController = { listScenarios, showScenario, getCapabilityTree, getImpact, exportFinancial, store, updateScenario, instantiateFromTemplate, calculateGaps, refreshSuggestedStrategies, finalizeScenario, compareVersions, summarize, orchestrate, getIQ, getCompetencyGaps, deriveSkills, deriveAllSkills }
+const ScenarioController = { listScenarios, showScenario, getCapabilityTree, getVersions, getImpact, exportFinancial, store, updateScenario, instantiateFromTemplate, calculateGaps, refreshSuggestedStrategies, finalizeScenario, compareVersions, summarize, orchestrate, getIQ, getCompetencyGaps, deriveSkills, deriveAllSkills }
 
 export default ScenarioController

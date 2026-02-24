@@ -18,7 +18,7 @@
 
         <v-window v-model="activeTab">
             <v-window-item value="impact">
-                <ImpactAnalytics :scenario-id="scenarioId" />
+                <ImpactAnalyticsDashboard :scenario-id="scenarioId" />
             </v-window-item>
 
             <v-window-item value="budget">
@@ -282,7 +282,15 @@
 import { useNotification } from '@/composables/useNotification';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
-import ImpactAnalytics from './ImpactAnalytics.vue';
+import ImpactAnalyticsDashboard from './ImpactAnalytics.vue';
+
+onMounted(() => {
+    console.debug('[BudgetingPlan] Mounted for scenario:', props.scenarioId);
+    console.debug(
+        '[BudgetingPlan] ImpactAnalyticsDashboard available?',
+        !!ImpactAnalyticsDashboard,
+    );
+});
 
 const props = defineProps({
     scenarioId: {

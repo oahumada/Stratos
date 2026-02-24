@@ -2,8 +2,8 @@ import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
-import { defineConfig } from 'vite';
 import path from 'path';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
     plugins: [
@@ -34,6 +34,9 @@ export default defineConfig({
         host: '127.0.0.1',
         hmr: {
             host: 'localhost',
+        },
+        watch: {
+            ignored: ['**/vendor/**', '**/node_modules/**', '**/.git/**'],
         },
     },
     // Ensure d3 is pre-bundled and not treated as external during SSR
