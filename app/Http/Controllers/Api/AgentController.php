@@ -56,4 +56,23 @@ class AgentController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Actualiza la configuración de un agente.
+     */
+    public function update(Request $request, Agent $agent): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string'],
+            'role_description' => ['required', 'string'],
+            'persona' => ['required', 'string'],
+            'provider' => ['required', 'string'],
+            'model' => ['required', 'string'],
+            'expertise_areas' => ['nullable', 'array'],
+        ]);
+
+        $agent->update($data);
+
+        return response()->json(['data' => $agent]);
+    }
 }

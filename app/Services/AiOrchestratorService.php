@@ -12,7 +12,7 @@ class AiOrchestratorService
     /**
      * Hace que un agente específico "piense" y responda a una tarea.
      */
-    public function agentThink(string $agentName, string $taskPrompt): array
+    public function agentThink(string $agentName, string $taskPrompt, ?string $systemPromptOverride = null): array
     {
         $agent = Agent::where('name', $agentName)->first();
 
@@ -29,7 +29,7 @@ class AiOrchestratorService
         
         $options = [
             'persona' => $agent->persona,
-            'system_prompt' => $this->buildSystemPrompt($agent),
+            'system_prompt' => $systemPromptOverride ?? $this->buildSystemPrompt($agent),
             'temperature' => $agent->capabilities_config['temperature'] ?? 0.6,
         ];
 

@@ -653,7 +653,24 @@ class ScenarioController extends Controller
         ]);
     }
 
-    // app/Http/Controllers/ScenarioController.php
+    /**
+     * Paso 2: Orquestación de Agentes para Diseño de Talento.
+     * Invoca a los agentes de Diseño de Roles y Curador de Competencias.
+     */
+    public function designTalent($id, \App\Services\Talent\TalentDesignOrchestratorService $svc)
+    {
+        $result = $svc->orchestrate((int) $id);
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['error'] ?? 'Error en la orquestación'
+            ], 500);
+        }
+
+        return response()->json($result);
+    }
+
     public function orchestrate(Scenario $scenario)
     {
         $orchestrator = app(OrchestrationService::class);

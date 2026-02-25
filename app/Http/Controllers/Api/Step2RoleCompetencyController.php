@@ -56,14 +56,10 @@ class Step2RoleCompetencyController extends Controller
             ->get();
 
         // Competencias disponibles (sin filtro de escenario, son globales)
-        // Incluimos `category` para que el frontend pueda agrupar por capacidad
-        // Obtener competencias junto con la capacidad (capability) asociada
-        // para agrupar en el frontend por la capacidad del pivote `capability_competencies`.
-        // Nota: una competencia puede estar asociada a varias capacidades; la devolveremos
-        // una fila por asociación (competency + capability).
+        // Usamos leftJoin para no perder competencias que no tengan capacidad asignada.
         $competencies = \DB::table('competencies')
-            ->join('capability_competencies', 'competencies.id', '=', 'capability_competencies.competency_id')
-            ->join('capabilities', 'capability_competencies.capability_id', '=', 'capabilities.id')
+            ->leftJoin('capability_competencies', 'competencies.id', '=', 'capability_competencies.competency_id')
+            ->leftJoin('capabilities', 'capability_competencies.capability_id', '=', 'capabilities.id')
             ->where('competencies.organization_id', auth()->user()->organization_id)
             ->select(
                 'competencies.id',
@@ -76,8 +72,10 @@ class Step2RoleCompetencyController extends Controller
             ->get();
 
         // Mappings: Qué competencias están asignadas a cada rol
+        // IMPORTANTE: 'role' aquí es la relación a ScenarioRole, que NO tiene columna 'name'.
+        // La quitamos del select para evitar SQL error.
         $mappings = ScenarioRoleCompetency::where('scenario_id', $scenarioId)
-            ->with(['role:id,name', 'competency:id,name'])
+            ->with(['role', 'competency:id,name'])
             ->select('id', 'scenario_id', 'role_id', 'competency_id', 'competency_version_id', 'required_level', 'is_core', 'is_referent', 'change_type', 'rationale')
             ->get();
 

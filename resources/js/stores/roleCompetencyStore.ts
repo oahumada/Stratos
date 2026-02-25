@@ -56,7 +56,7 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
     // Computed
     const matrixRows = computed(() => {
         return roles.value.map((role) => ({
-            roleId: role.role_id,
+            roleId: role.id, // ID del pivote (scenario_roles.id)
             roleName: role.role_name,
             fte: role.fte || 0,
             status: role.role_change,
@@ -66,7 +66,7 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
                 mappings.value
                     .filter(
                         (m) =>
-                            m.role_id === role.role_id &&
+                            m.role_id === role.id &&
                             m.scenario_id === scenarioId.value,
                     )
                     .map((m) => [m.competency_id, m]),
@@ -226,6 +226,32 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
         }
     };
 
+    const designTalent = async () => {
+        if (!scenarioId.value) return;
+        loading.value = true;
+        error.value = null;
+        try {
+            const response = await fetch(
+                `/api/scenarios/${scenarioId.value}/step2/design-talent`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                },
+            );
+
+            if (!response.ok)
+                throw new Error('Error en la orquestación de talento');
+            const res = await response.json();
+
+            return res.proposals;
+        } catch (err: any) {
+            error.value = err.message || 'Error en la orquestación';
+            return null;
+        } finally {
+            loading.value = false;
+        }
+    };
+
     const getMapping = (
         roleId: number,
         competencyId: number,
@@ -264,6 +290,7 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
         saveMapping,
         removeMapping,
         addNewRole,
+        designTalent,
         getMapping,
         clearMessages,
     };

@@ -66,6 +66,7 @@ Route::get('/pulse-surveys', [\App\Http\Controllers\Api\PulseController::class, 
 Route::get('/pulse-surveys/{id}', [\App\Http\Controllers\Api\PulseController::class, 'show']);
 Route::post('/pulse-responses', [\App\Http\Controllers\Api\PulseController::class, 'storeResponse']);
 Route::get('/agents', [\App\Http\Controllers\Api\AgentController::class, 'index']);
+Route::put('/agents/{agent}', [\App\Http\Controllers\Api\AgentController::class, 'update']);
 Route::post('/agents/test', [\App\Http\Controllers\Api\AgentController::class, 'testAgent']);
 
 // Job Openings (Día 4-5)
@@ -955,6 +956,7 @@ Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group
     Route::get('skill-gaps-matrix', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getSkillGapsMatrix']);
     Route::get('matching-results', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getMatchingResults']);
     Route::get('succession-plans', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getSuccessionPlans']);
+    Route::post('design-talent', [\App\Http\Controllers\Api\ScenarioController::class, 'designTalent']);
 });
 
 // Catálogos dinámicos para selectores

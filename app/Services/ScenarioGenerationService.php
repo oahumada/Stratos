@@ -16,17 +16,18 @@ use App\Services\EmbeddingService;
 
 class ScenarioGenerationService
 {
-    public function preparePrompt(array $data, User $user, Organizations $org, string $lang = 'es'): string
+    public function preparePrompt(array $data, User $user, Organizations $org, string $lang = 'es', string $type = 'planner'): string
     {
         // Minimal builder: merge template with provided data. Can be extended.
         $template = '';
         // Safely attempt to load template when app basePath is available
         if (function_exists('app') && is_callable([app(), 'basePath'])) {
             // Prefer compact prompt templates used by the wizard (language-specific)
+            $filename = ($type === 'planner') ? 'scenario_planner_' . $lang . '.md' : 'default_' . $lang . '.md';
+            
             $templateCandidates = [
+                app()->basePath('resources/prompt_instructions/' . $filename),
                 app()->basePath('resources/prompt_instructions/default_' . $lang . '.md'),
-                //app()->basePath('resources/prompt_templates/abacus_modal_prompt.md'),
-                //app()->basePath('docs/GUIA_GENERACION_ESCENARIOS.md'),
             ];
             foreach ($templateCandidates as $templatePath) {
                 if ($templatePath && file_exists($templatePath)) {
@@ -342,9 +343,9 @@ EOT;
      * Priority: client-provided instruction in payload > DB latest instruction > file fallback.
      * Returns array: ['prompt' => string, 'instruction' => ['content'=>string|null,'source'=>string,'language'=>string]]
      */
-    public function composePromptWithInstruction(array $data, User $user, Organizations $org, string $lang = 'es', ?int $instructionId = null): array
+    public function composePromptWithInstruction(array $data, User $user, Organizations $org, string $lang = 'es', ?int $instructionId = null, string $type = 'planner'): array
     {
-        $basePrompt = $this->preparePrompt($data, $user, $org, $lang);
+        $basePrompt = $this->preparePrompt($data, $user, $org, $lang, $type);
 
         $instructionContent = null;
         $instructionSource = 'none';

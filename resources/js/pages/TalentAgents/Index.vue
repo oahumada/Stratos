@@ -1,241 +1,264 @@
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <v-container
-            fluid
-            class="pa-6 bg-grey-lighten-4 fill-height align-start"
-        >
-            <v-row>
-                <v-col cols="12">
-                    <div class="d-flex align-center mb-6">
-                        <div>
-                            <h1 class="text-h4 font-weight-bold mb-1">
-                                Talent Agents Hub
-                            </h1>
-                            <p class="text-subtitle-1 text-grey-darken-1">
-                                Gestión de la fuerza laboral digital y agentes
-                                especializados.
-                            </p>
-                        </div>
-                        <v-spacer></v-spacer>
-                        <v-btn
-                            color="primary"
-                            prepend-icon="mdi-robot-outline"
-                            class="text-none"
-                            disabled
-                        >
-                            Entrenar Nuevo Agente
-                        </v-btn>
+    <v-container fluid class="pa-6 bg-grey-lighten-4 fill-height align-start">
+        <v-row>
+            <v-col cols="12">
+                <div class="d-flex align-center mb-6">
+                    <div>
+                        <h1 class="text-h4 font-weight-bold mb-1">
+                            Talent Agents Hub
+                        </h1>
+                        <p class="text-subtitle-1 text-grey-darken-1">
+                            Gestión de la fuerza laboral digital y agentes
+                            especializados.
+                        </p>
                     </div>
-                </v-col>
-
-                <!-- Featured System Agents -->
-                <v-col v-for="agent in agents" :key="agent.id" cols="12" md="4">
-                    <v-card
-                        class="fill-height d-flex flex-column overflow-hidden rounded-xl"
-                        elevation="1"
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        prepend-icon="mdi-robot-outline"
+                        class="text-none"
+                        disabled
                     >
-                        <div
-                            :class="['pa-6', getAgentHeaderClass(agent)]"
-                            style="position: relative"
-                        >
+                        Entrenar Nuevo Agente
+                    </v-btn>
+                </div>
+            </v-col>
+
+            <!-- Featured System Agents -->
+            <v-col v-for="agent in agents" :key="agent.id" cols="12" md="4">
+                <v-card
+                    class="fill-height d-flex flex-column overflow-hidden rounded-xl"
+                    elevation="1"
+                >
+                    <div
+                        :class="['pa-6', getAgentHeaderClass(agent)]"
+                        style="position: relative"
+                    >
+                        <div class="d-flex align-center mb-4">
                             <v-avatar
-                                size="64"
-                                class="elevation-2 border-xl mb-4"
-                                color="white"
+                                :color="getAgentColor(agent.name)"
+                                size="56"
+                                class="elevation-3 mr-4 rounded-xl"
                             >
                                 <v-icon
-                                    :icon="getAgentIcon(agent.name)"
-                                    :color="getAgentColor(agent.name)"
                                     size="32"
+                                    color="white"
+                                    :icon="getAgentIcon(agent.name)"
                                 ></v-icon>
                             </v-avatar>
-                            <div class="text-h6 font-weight-bold">
-                                {{ agent.name }}
-                            </div>
-                            <div class="text-subtitle-2 opacity-80">
-                                {{ agent.role_description }}
-                            </div>
-
-                            <v-chip
-                                size="x-small"
-                                color="white"
-                                variant="flat"
-                                class="position-absolute"
-                                style="top: 24px; right: 24px"
-                            >
-                                <v-icon
-                                    start
-                                    icon="mdi-circle"
-                                    size="8"
+                            <div>
+                                <h3 class="text-h6 font-weight-bold">
+                                    {{ agent.name }}
+                                </h3>
+                                <v-chip
+                                    size="x-small"
                                     color="success"
-                                ></v-icon>
-                                ACTIVO
-                            </v-chip>
+                                    variant="flat"
+                                    class="font-weight-bold"
+                                >
+                                    <v-icon
+                                        start
+                                        icon="mdi-circle"
+                                        size="8"
+                                    ></v-icon>
+                                    ACTIVO
+                                </v-chip>
+                            </div>
+                            <v-spacer></v-spacer>
+                            <v-btn
+                                icon="mdi-dots-vertical"
+                                variant="text"
+                                size="small"
+                            ></v-btn>
                         </div>
+                        <div
+                            class="text-body-2 font-weight-medium line-clamp-2"
+                            style="height: 40px"
+                        >
+                            {{ agent.role_description }}
+                        </div>
+                    </div>
 
-                        <v-card-text class="pa-6 flex-grow-1">
-                            <div class="text-body-2 font-weight-bold mb-2">
-                                Persona:
+                    <v-card-text class="pa-6 flex-grow-1">
+                        <div class="mb-4">
+                            <div class="text-caption text-grey mb-1">
+                                CORE EXPERTISE
                             </div>
-                            <p
-                                class="text-caption text-grey-darken-1 mb-4 italic"
-                            >
-                                "{{ agent.persona }}"
-                            </p>
-
-                            <div class="text-body-2 font-weight-bold mb-2">
-                                Áreas de Expertise:
-                            </div>
-                            <div class="d-flex mb-4 flex-wrap gap-1">
+                            <div class="d-flex flex-wrap gap-2">
                                 <v-chip
                                     v-for="area in agent.expertise_areas"
                                     :key="area"
                                     size="x-small"
                                     variant="tonal"
-                                    class="mr-1 mb-1"
+                                    class="mt-1 mr-1"
                                 >
                                     {{ formatExpertise(area) }}
                                 </v-chip>
                             </div>
+                        </div>
 
-                            <div
-                                class="bg-grey-lighten-4 pa-3 mt-auto rounded-lg"
-                            >
-                                <div
-                                    class="d-flex justify-space-between text-caption mb-1"
-                                >
-                                    <span class="text-grey font-weight-medium"
-                                        >Modelo:</span
-                                    >
-                                    <span class="font-weight-bold">{{
-                                        agent.model
-                                    }}</span>
+                        <div class="d-flex align-center mt-auto">
+                            <div class="mr-4">
+                                <div class="text-caption text-grey">
+                                    BRAIN ENGINE
                                 </div>
-                                <div
-                                    class="d-flex justify-space-between text-caption"
-                                >
-                                    <span class="text-grey font-weight-medium"
-                                        >Proveedor:</span
-                                    >
-                                    <span
-                                        class="font-weight-bold text-uppercase"
-                                        >{{ agent.provider }}</span
-                                    >
+                                <div class="text-body-2 font-weight-bold">
+                                    {{ agent.model }}
                                 </div>
                             </div>
-                        </v-card-text>
-
-                        <v-divider></v-divider>
-
-                        <v-card-actions class="pa-4 bg-grey-lighten-5">
-                            <v-btn
-                                variant="text"
-                                size="small"
-                                class="text-none"
-                                color="primary"
-                                >Configurar</v-btn
-                            >
-                            <v-spacer></v-spacer>
-                            <v-btn
-                                variant="tonal"
-                                size="small"
-                                class="text-none px-4"
-                                color="primary"
-                                >Ver Logs</v-btn
-                            >
-                        </v-card-actions>
-                    </v-card>
-                </v-col>
-
-                <!-- AI System Metrics -->
-                <v-col cols="12" md="8">
-                    <v-card class="pa-6 rounded-xl" elevation="1">
-                        <h3 class="text-h6 font-weight-bold mb-4">
-                            Uso de API & Performance
-                        </h3>
-                        <v-row>
-                            <v-col cols="4">
-                                <div class="text-caption text-grey mb-1">
-                                    Tokens Consumidos (Hoy)
+                            <div>
+                                <div class="text-caption text-grey">
+                                    PROVIDER
                                 </div>
-                                <div class="text-h6">124.5k</div>
-                            </v-col>
-                            <v-col cols="4">
-                                <div class="text-caption text-grey mb-1">
-                                    Latencia Promedio
-                                </div>
-                                <div class="text-h6 text-success">1.2s</div>
-                            </v-col>
-                            <v-col cols="4">
-                                <div class="text-caption text-grey mb-1">
-                                    Éxito en Tareas
-                                </div>
-                                <div class="text-h6 text-primary">98.2%</div>
-                            </v-col>
-                        </v-row>
-                        <v-divider class="my-4"></v-divider>
-                        <v-progress-linear
-                            model-value="65"
-                            color="primary"
-                            height="10"
-                            rounded
-                            class="mt-2"
-                        ></v-progress-linear>
-                        <div
-                            class="d-flex justify-space-between text-caption mt-2"
-                        >
-                            <span>Cuota Mensual Utilizada</span>
-                            <span class="font-weight-bold"
-                                >65% ($42.30 / $100.00)</span
-                            >
+                                <span class="font-weight-bold text-uppercase">{{
+                                    agent.provider
+                                }}</span>
+                            </div>
                         </div>
-                    </v-card>
-                </v-col>
+                    </v-card-text>
 
-                <v-col cols="12" md="4">
-                    <v-card
-                        class="pa-6 fill-height rounded-xl bg-primary text-white"
-                        elevation="2"
-                    >
-                        <v-icon
-                            icon="mdi-head-snowflake-outline"
-                            size="48"
-                            class="mb-4"
-                        ></v-icon>
-                        <h3 class="text-h6 font-weight-bold mb-2">
-                            Visión Multi-Agente
-                        </h3>
-                        <p class="text-body-2 mb-4 opacity-80">
-                            Stratos orquestará pronto flujos donde el
-                            <strong>Estratega</strong> diseña el plan y el
-                            <strong>Coach</strong> lo ejecuta, trabajando en
-                            paralelo.
-                        </p>
+                    <v-divider></v-divider>
+
+                    <v-card-actions class="pa-4 bg-grey-lighten-5">
                         <v-btn
-                            color="white"
-                            variant="flat"
-                            block
-                            class="text-none mt-auto"
+                            variant="text"
                             size="small"
+                            class="text-none"
+                            color="primary"
+                            @click="openConfig(agent)"
+                            >Configurar</v-btn
                         >
-                            Explorar LangGraph Vision
-                        </v-btn>
-                    </v-card>
-                </v-col>
-            </v-row>
-        </v-container>
-    </AppLayout>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            variant="tonal"
+                            size="small"
+                            class="text-none px-4"
+                            color="primary"
+                            @click="handleShowLogs(agent)"
+                            >Ver Logs</v-btn
+                        >
+                    </v-card-actions>
+                </v-card>
+            </v-col>
+
+            <!-- AI System Metrics -->
+            <v-col cols="12" md="8">
+                <v-card class="pa-6 rounded-xl" elevation="1">
+                    <h3 class="text-h6 font-weight-bold mb-4">
+                        Uso de API & Performance
+                    </h3>
+                    <v-row>
+                        <v-col cols="4">
+                            <div class="text-caption text-grey mb-1">
+                                Tokens Consumidos (Hoy)
+                            </div>
+                            <div class="text-h6">124.5k</div>
+                        </v-col>
+                        <v-col cols="4">
+                            <div class="text-caption text-grey mb-1">
+                                Latencia Promedio
+                            </div>
+                            <div class="text-h6 text-success">1.2s</div>
+                        </v-col>
+                        <v-col cols="4">
+                            <div class="text-caption text-grey mb-1">
+                                Éxito en Tareas
+                            </div>
+                            <div class="text-h6 text-primary">98.2%</div>
+                        </v-col>
+                    </v-row>
+                    <v-divider class="my-4"></v-divider>
+                    <v-progress-linear
+                        model-value="65"
+                        color="primary"
+                        height="10"
+                        rounded
+                        class="mt-2"
+                    ></v-progress-linear>
+                    <div class="d-flex justify-space-between text-caption mt-2">
+                        <span>Cuota Mensual Utilizada</span>
+                        <span class="font-weight-bold"
+                            >65% ($42.30 / $100.00)</span
+                        >
+                    </div>
+                </v-card>
+            </v-col>
+
+            <v-col cols="12" md="4">
+                <v-card
+                    class="pa-6 fill-height rounded-xl bg-primary text-white"
+                    elevation="2"
+                >
+                    <v-icon
+                        icon="mdi-head-snowflake-outline"
+                        size="48"
+                        class="mb-4"
+                    ></v-icon>
+                    <h3 class="text-h6 font-weight-bold mb-2">
+                        Orquestación Multi-Agente
+                    </h3>
+                    <p class="text-body-2 mb-4 opacity-80">
+                        Stratos ahora utiliza agentes orquestados por misiones:
+                        el
+                        <strong>Estratega</strong> diseña el Blueprint de
+                        capacidades, mientras el
+                        <strong>Diseñador de Roles</strong> y el
+                        <strong>Curador de Competencias</strong> colaboran para
+                        evolucionar tu catálogo organizacional.
+                    </p>
+                    <div class="bg-opacity-10 pa-3 mb-4 rounded-lg bg-white">
+                        <div class="text-caption font-weight-bold mb-1">
+                            MISIONES ACTUALES:
+                        </div>
+                        <div class="text-caption">
+                            • Paso 1: Planificación de Escenarios (Blueprint)
+                        </div>
+                        <div class="text-caption">
+                            • Paso 2: Diseño de Talento (Roles & Mappings)
+                        </div>
+                    </div>
+                    <v-btn
+                        color="white"
+                        variant="flat"
+                        block
+                        class="text-none mt-auto"
+                        size="small"
+                        to="/docs/technical/multi_agent_talent_design"
+                    >
+                        Leer Documentación Técnica
+                    </v-btn>
+                </v-card>
+            </v-col>
+        </v-row>
+
+        <AgentConfigurationModal
+            :visible="showConfigModal"
+            :agent="selectedAgent"
+            :loading="savingConfig"
+            @close="showConfigModal = false"
+            @save="handleSaveConfig"
+        />
+
+        <v-snackbar
+            v-model="showSuccessSnackbar"
+            color="success"
+            rounded="pill"
+            elevation="24"
+        >
+            {{ successMessage }}
+            <template #actions>
+                <v-btn variant="text" @click="showSuccessSnackbar = false"
+                    >Cerrar</v-btn
+                >
+            </template>
+        </v-snackbar>
+    </v-container>
 </template>
 
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
+import AgentConfigurationModal from '@/components/TalentAgents/AgentConfigurationModal.vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
-
-const breadcrumbs = [
-    { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Talent Agents', href: '/talent-agents' },
-];
 
 interface Agent {
     id: number;
@@ -250,6 +273,11 @@ interface Agent {
 
 const agents = ref<Agent[]>([]);
 const loading = ref(false);
+const showConfigModal = ref(false);
+const selectedAgent = ref<Agent | null>(null);
+const savingConfig = ref(false);
+const showSuccessSnackbar = ref(false);
+const successMessage = ref('');
 
 const fetchAgents = async () => {
     loading.value = true;
@@ -261,6 +289,31 @@ const fetchAgents = async () => {
     } finally {
         loading.value = false;
     }
+};
+
+const openConfig = (agent: Agent) => {
+    selectedAgent.value = agent;
+    showConfigModal.value = true;
+};
+
+const handleSaveConfig = async (agentData: any) => {
+    savingConfig.value = true;
+    try {
+        await axios.put(`/api/agents/${agentData.id}`, agentData);
+        await fetchAgents();
+        showConfigModal.value = false;
+        successMessage.value = 'Configuración guardada correctamente';
+        showSuccessSnackbar.value = true;
+    } catch (e) {
+        console.error('Error saving agent config', e);
+    } finally {
+        savingConfig.value = false;
+    }
+};
+
+const handleShowLogs = (agent: Agent) => {
+    successMessage.value = `Mostrando logs recientes para ${agent.name} (Simulado)`;
+    showSuccessSnackbar.value = true;
 };
 
 const getAgentHeaderClass = (agent: any) => {

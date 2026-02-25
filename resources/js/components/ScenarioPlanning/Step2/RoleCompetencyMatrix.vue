@@ -15,6 +15,15 @@
                 </div>
                 <div class="flex gap-2">
                     <v-btn
+                        color="secondary"
+                        variant="outlined"
+                        prepend-icon="mdi-robot"
+                        :loading="isDesigning"
+                        @click="handleDesignTalent"
+                    >
+                        Consultar Agentes
+                    </v-btn>
+                    <v-btn
                         color="primary"
                         prepend-icon="mdi-plus"
                         @click="showAddRoleDialog = true"
@@ -353,6 +362,14 @@
             @save="handleAddRole"
             @close="showAddRoleDialog = false"
         />
+
+        <!-- Agent Proposals Modal -->
+        <AgentProposalsModal
+            :visible="showAgentProposals"
+            :loading="isDesigning"
+            :proposals="agentProposals"
+            @close="showAgentProposals = false"
+        />
     </div>
 </template>
 
@@ -360,6 +377,7 @@
 import { useRoleCompetencyStore } from '@/stores/roleCompetencyStore';
 import { computed, onMounted, ref, watch } from 'vue';
 import AddRoleDialog from './AddRoleDialog.vue';
+import AgentProposalsModal from './AgentProposalsModal.vue';
 import CellContent from './CellContent.vue';
 import RoleCompetencyStateModal from './RoleCompetencyStateModal.vue';
 
@@ -382,6 +400,23 @@ const selectedMapping = ref<{
     mapping: any;
 } | null>(null);
 const showSuccess = ref(false);
+const isDesigning = ref(false);
+const showAgentProposals = ref(false);
+const agentProposals = ref<any>(null);
+
+const handleDesignTalent = async () => {
+    isDesigning.value = true;
+    showAgentProposals.value = true;
+    try {
+        const proposals = await store.designTalent();
+        if (proposals) {
+            agentProposals.value = proposals;
+            console.log('Propuestas de Agentes:', proposals);
+        }
+    } finally {
+        isDesigning.value = false;
+    }
+};
 
 const categories = computed(() => {
     const map: Record<string, any[]> = {};
@@ -424,7 +459,7 @@ watch(
 );
 
 const openEditModal = (roleId: number, competencyId: number) => {
-    const role = store.roles.find((r) => r.role_id === roleId);
+    const role = store.roles.find((r) => r.id === roleId);
     const competency = store.competencies.find((c) => c.id === competencyId);
     const mapping = store.getMapping(roleId, competencyId);
 
