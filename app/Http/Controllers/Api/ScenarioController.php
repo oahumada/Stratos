@@ -654,8 +654,9 @@ class ScenarioController extends Controller
     }
 
     /**
-     * Paso 2: Orquestación de Agentes para Diseño de Talento.
-     * Invoca a los agentes de Diseño de Roles y Curador de Competencias.
+     * Paso 2 - Fase 1: Orquestación de Agentes para Diseño de Talento.
+     * Invoca al agente Diseñador de Roles con contexto enriquecido (blueprint,
+     * catálogo activo, roles del escenario y mappings ya existentes).
      */
     public function designTalent($id, \App\Services\Talent\TalentDesignOrchestratorService $svc)
     {
@@ -669,6 +670,88 @@ class ScenarioController extends Controller
         }
 
         return response()->json($result);
+    }
+
+    /**
+     * Paso 2 - Fase 2: Aplica en batch las propuestas aprobadas por el usuario.
+     * POST /api/scenarios/{id}/step2/agent-proposals/apply
+     *
+     * Body esperado:
+     * {
+     *   "approved_role_proposals": [...],
+     *   "approved_catalog_proposals": [...]
+     * }
+     */
+    public function applyAgentProposals(Request $request, $id, \App\Services\Talent\TalentDesignOrchestratorService $svc): JsonResponse
+    {
+        $scenario = Scenario::findOrFail($id);
+
+        $user = auth()->user();
+        if (!$user || $scenario->organization_id !== $user->organization_id) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'approved_role_proposals'               => 'required|array',
+            'approved_role_proposals.*.type'         => 'required|string|in:NEW,EVOLVE,REPLACE',
+            'approved_role_proposals.*.proposed_name' => 'required_if:approved_role_proposals.*.type,NEW|string',
+            'approved_role_proposals.*.target_role_id' => 'required_unless:approved_role_proposals.*.type,NEW|integer',
+            'approved_role_proposals.*.archetype'    => 'nullable|string|in:E,T,O',
+            'approved_role_proposals.*.fte_suggested' => 'nullable|numeric|min:0.1',
+            'approved_role_proposals.*.competency_mappings'               => 'nullable|array',
+            'approved_role_proposals.*.competency_mappings.*.competency_name' => 'nullable|string',
+            'approved_role_proposals.*.competency_mappings.*.competency_id'   => 'nullable|integer',
+            'approved_role_proposals.*.competency_mappings.*.change_type'     => 'nullable|string|in:maintenance,transformation,enrichment,extinction',
+            'approved_role_proposals.*.competency_mappings.*.required_level'  => 'nullable|integer|between:1,5',
+            'approved_role_proposals.*.competency_mappings.*.is_core'         => 'nullable|boolean',
+            'approved_catalog_proposals'             => 'nullable|array',
+            'approved_catalog_proposals.*.type'      => 'required|string|in:ADD,MODIFY,REPLACE',
+            'approved_catalog_proposals.*.proposed_name' => 'required|string',
+            'approved_catalog_proposals.*.competency_id'  => 'nullable|integer',
+            'approved_catalog_proposals.*.action_rationale' => 'nullable|string',
+        ]);
+
+        $result = $svc->applyProposals(
+            (int) $id,
+            $validated['approved_role_proposals'],
+            $validated['approved_catalog_proposals'] ?? []
+        );
+
+        if (!$result['success']) {
+            return response()->json(['success' => false, 'message' => $result['error'] ?? 'Error al aplicar propuestas'], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Propuestas aplicadas correctamente',
+            'stats'   => $result['stats'],
+        ]);
+    }
+
+    /**
+     * Paso 2 - Fase 4: Aprobación final del diseño de talento.
+     * Mueve roles, competencias y skills nuevos a estado incubation.
+     * POST /api/scenarios/{id}/step2/finalize
+     */
+    public function finalizeStep2(Request $request, $id, \App\Services\Talent\TalentDesignOrchestratorService $svc): JsonResponse
+    {
+        $scenario = Scenario::findOrFail($id);
+
+        $user = auth()->user();
+        if (!$user || $scenario->organization_id !== $user->organization_id) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        $result = $svc->finalizeStep2((int) $id);
+
+        if (!$result['success']) {
+            return response()->json(['success' => false, 'message' => $result['error']], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $result['message'],
+        ]);
     }
 
     public function orchestrate(Scenario $scenario)

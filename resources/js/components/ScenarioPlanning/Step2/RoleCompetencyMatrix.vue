@@ -30,6 +30,14 @@
                     >
                         + Nuevo Rol
                     </v-btn>
+                    <v-btn
+                        color="success"
+                        variant="flat"
+                        prepend-icon="mdi-flag-checkered"
+                        @click="showFinalizeDialog = true"
+                    >
+                        Finalizar Paso 2
+                    </v-btn>
                 </div>
             </div>
         </div>
@@ -363,13 +371,59 @@
             @close="showAddRoleDialog = false"
         />
 
-        <!-- Agent Proposals Modal -->
+        <!-- Agent Proposals Modal (Fase 2 - Panel de Revisión) -->
         <AgentProposalsModal
             :visible="showAgentProposals"
             :loading="isDesigning"
             :proposals="agentProposals"
             @close="showAgentProposals = false"
+            @applied="handleApplied"
         />
+
+        <!-- Finalizar Paso 2 - Dialog de confirmación -->
+        <v-dialog v-model="showFinalizeDialog" max-width="520" persistent>
+            <v-card>
+                <v-card-title class="pa-4 d-flex align-center">
+                    <v-icon color="success" class="mr-2"
+                        >mdi-flag-checkered</v-icon
+                    >
+                    Finalizar Paso 2 — Diseño de Talento
+                </v-card-title>
+                <v-card-text>
+                    <v-alert
+                        type="warning"
+                        variant="tonal"
+                        class="mb-4"
+                        icon="mdi-alert"
+                    >
+                        Esta acción moverá todos los
+                        <strong>roles nuevos</strong>,
+                        <strong>competencias</strong> y
+                        <strong>skills</strong> del escenario al estado
+                        <strong>incubación</strong>. No podrás deshacer esta
+                        operación desde esta vista.
+                    </v-alert>
+                    <p class="text-body-2">
+                        ¿Estás seguro que deseas continuar?
+                    </p>
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn variant="text" @click="showFinalizeDialog = false"
+                        >Cancelar</v-btn
+                    >
+                    <v-spacer />
+                    <v-btn
+                        color="success"
+                        variant="flat"
+                        :loading="isFinalizing"
+                        @click="handleFinalize"
+                    >
+                        <v-icon start>mdi-check-bold</v-icon>Confirmar y
+                        finalizar
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -404,6 +458,9 @@ const isDesigning = ref(false);
 const showAgentProposals = ref(false);
 const agentProposals = ref<any>(null);
 
+const showFinalizeDialog = ref(false);
+const isFinalizing = ref(false);
+
 const handleDesignTalent = async () => {
     isDesigning.value = true;
     showAgentProposals.value = true;
@@ -411,10 +468,33 @@ const handleDesignTalent = async () => {
         const proposals = await store.designTalent();
         if (proposals) {
             agentProposals.value = proposals;
-            console.log('Propuestas de Agentes:', proposals);
         }
     } finally {
         isDesigning.value = false;
+    }
+};
+
+/** Llamado cuando el Panel de Revisión confirma las propuestas aprobadas */
+const handleApplied = async () => {
+    showAgentProposals.value = false;
+    agentProposals.value = null;
+    showSuccess.value = true;
+};
+
+/** Finalización del Paso 2 con pre-conditions del backend */
+const handleFinalize = async () => {
+    isFinalizing.value = true;
+    try {
+        const result = await store.finalizeStep2();
+        if (result.success) {
+            showFinalizeDialog.value = false;
+            showSuccess.value = true;
+        } else {
+            // El error ya fue puesto en store.error por la acción
+            showFinalizeDialog.value = false;
+        }
+    } finally {
+        isFinalizing.value = false;
     }
 };
 

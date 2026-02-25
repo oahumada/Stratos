@@ -1,10 +1,11 @@
 # Master Stratos Memory – Single Source of Truth
 
-**Última actualización:** 18 Febrero 2026  
+**Última actualización:** 24 Febrero 2026
 **Status Global:**
 
 - Core MVP (Backend/Frontend) ✅ COMPLETADO
 - Scenario Planning (Fases 1-7) ✅ COMPLETADO
+- **Paso 2 — Diseño de Roles y Competencias v2.0** ✅ REDISEÑADO (2026-02-24)
 - Metodología de 7 Pasos Estratégicos ✅ IMPLEMENTADA
 - Patrón CRUD: ✅ Consolidado en FormSchemaController
 
@@ -111,7 +112,13 @@ El sistema cuantifica el impacto financiero basado en supuestos configurables:
 - `GET  /api/scenarios/{id}/step2/matching-results` // Matching técnico.
 - `GET  /api/scenarios/{id}/step2/succession-plans` // Planes de Sucesión.
 
-## 2. Endpoints Core (Legacy MVP)
+## 2. Endpoints Paso 2 — Diseño de Roles (nuevo 2026-02-24)
+
+- `POST /api/scenarios/{id}/step2/design-talent` // Orquesta agente y devuelve propuestas JSON.
+- `POST /api/scenarios/{id}/step2/agent-proposals/apply` // Aplica en batch propuestas aprobadas.
+- `POST /api/scenarios/{id}/step2/finalize` // Mueve roles/comps/skills a incubación.
+
+## 3. Endpoints Core (Legacy MVP)
 
 - `GET /api/dashboard/metrics` // KPIs generales de talento.
 - `GET /api/People` // Listado de talento con filtros.
@@ -120,6 +127,20 @@ El sistema cuantifica el impacto financiero basado en supuestos configurables:
 ---
 
 # VOL V: BITÁCORA HISTÓRICA RECIENTE
+
+### [2026-02-24] Rediseño Paso 2: Panel de Revisión de Propuestas ✅
+
+- **Hito**: Implementación completa del flujo rediseñado del Paso 2 de Scenario Planning.
+- **Backend**:
+    - Migración `source` enum('agent','manual','auto') en `scenario_role_competencies`.
+    - `TalentDesignOrchestratorService` refactorizado: prompt enriquecido con roles/mappings actuales, métodos `applyProposals()` y `finalizeStep2()`, helper `resolveCompetencyId()`.
+    - Endpoints nuevos: `POST /step2/agent-proposals/apply` y `POST /step2/finalize`.
+- **Frontend**:
+    - `AgentProposalsModal.vue` reescrito como Panel de Revisión full-screen con edición inline, semáforo Cubo, bulk actions, y confirmación en batch.
+    - `roleCompetencyStore.ts` con acciones `applyAgentProposals()` y `finalizeStep2()`.
+    - `RoleCompetencyMatrix.vue` con botón "Finalizar Paso 2" y dialog de confirmación.
+- **Deuda técnica abierta**: badge 🤖/👤 en celdas, reducer cognitiva en `applyProposals`, actualizar prompt `talent_design_orchestration_es.md`.
+- **Doc de referencia**: `docs/PASO2_DISEÑO_ROL_COMPETENCIA.md` (v2.0) y `docs/SESION_2026_02_24_RESUMEN.md`.
 
 ### [2026-02-18] Integración Live con DeepSeek ✅
 

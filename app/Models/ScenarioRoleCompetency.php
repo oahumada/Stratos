@@ -23,6 +23,7 @@ class ScenarioRoleCompetency extends Model
         'strategy_rationale',
         'ia_confidence_score',
         'ia_action_plan',
+        'source', // 'agent' | 'manual' | 'auto'
     ];
 
     protected $casts = [

@@ -27,6 +27,7 @@ export interface RoleCompetencyMapping {
     change_type: 'maintenance' | 'transformation' | 'enrichment' | 'extinction';
     rationale: string;
     competency_version_id?: number | null;
+    source?: 'agent' | 'manual' | 'auto';
 }
 
 export interface RowData {
@@ -244,9 +245,107 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
             const res = await response.json();
 
             return res.proposals;
-        } catch (err: any) {
-            error.value = err.message || 'Error en la orquestación';
+        } catch (err: unknown) {
+            error.value =
+                err instanceof Error ? err.message : 'Error en la orquestación';
             return null;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    /**
+     * FASE 2: Aplica en batch las propuestas aprobadas por el usuario.
+     * Llama a POST /api/scenarios/{id}/step2/agent-proposals/apply
+     */
+    const applyAgentProposals = async (
+        approvedRoleProposals: unknown[],
+        approvedCatalogProposals: unknown[],
+    ): Promise<boolean> => {
+        if (!scenarioId.value) return false;
+        loading.value = true;
+        error.value = null;
+        try {
+            const response = await fetch(
+                `/api/scenarios/${scenarioId.value}/step2/agent-proposals/apply`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-XSRF-TOKEN': decodeURIComponent(
+                            document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ??
+                                '',
+                        ),
+                    },
+                    body: JSON.stringify({
+                        approved_role_proposals: approvedRoleProposals,
+                        approved_catalog_proposals: approvedCatalogProposals,
+                    }),
+                },
+            );
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.message ?? 'Error al aplicar propuestas');
+            }
+
+            const res = await response.json();
+            success.value = `Propuestas aplicadas: ${res.stats?.roles_created ?? 0} roles, ${res.stats?.mappings_created ?? 0} competencias.`;
+            setTimeout(() => (success.value = null), 5000);
+
+            // Recargar la matriz con los datos actualizados
+            await loadScenarioData(scenarioId.value);
+            return true;
+        } catch (err: unknown) {
+            error.value =
+                err instanceof Error
+                    ? err.message
+                    : 'Error al aplicar propuestas';
+            return false;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    /**
+     * FASE 4: Aprobación final — mueve roles y competencias a incubación.
+     * Llama a POST /api/scenarios/{id}/step2/finalize
+     */
+    const finalizeStep2 = async (): Promise<{
+        success: boolean;
+        message?: string;
+    }> => {
+        if (!scenarioId.value) return { success: false };
+        loading.value = true;
+        error.value = null;
+        try {
+            const response = await fetch(
+                `/api/scenarios/${scenarioId.value}/step2/finalize`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-XSRF-TOKEN': decodeURIComponent(
+                            document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ??
+                                '',
+                        ),
+                    },
+                },
+            );
+
+            const res = await response.json();
+
+            if (!response.ok) {
+                throw new Error(res.message ?? 'Error al finalizar el Paso 2');
+            }
+
+            success.value = res.message ?? 'Paso 2 finalizado correctamente.';
+            return { success: true, message: res.message };
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error ? err.message : 'Error al finalizar';
+            error.value = message;
+            return { success: false, message };
         } finally {
             loading.value = false;
         }
@@ -291,6 +390,8 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
         removeMapping,
         addNewRole,
         designTalent,
+        applyAgentProposals,
+        finalizeStep2,
         getMapping,
         clearMessages,
     };

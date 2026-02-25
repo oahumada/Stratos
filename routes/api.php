@@ -957,6 +957,8 @@ Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group
     Route::get('matching-results', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getMatchingResults']);
     Route::get('succession-plans', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getSuccessionPlans']);
     Route::post('design-talent', [\App\Http\Controllers\Api\ScenarioController::class, 'designTalent']);
+    Route::post('agent-proposals/apply', [\App\Http\Controllers\Api\ScenarioController::class, 'applyAgentProposals']);
+    Route::post('finalize', [\App\Http\Controllers\Api\ScenarioController::class, 'finalizeStep2']);
 });
 
 // Catálogos dinámicos para selectores
