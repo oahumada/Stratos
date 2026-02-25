@@ -634,7 +634,7 @@ const fetchData = async () => {
     loading.value = true;
     try {
         const res = await axios.get(
-            `/api/strategic-planning/scenarios/${props.scenarioId}/incubated-items`,
+            `/api/scenarios/${props.scenarioId}/step2/cube`,
         );
         const remoteData = res.data.data || res.data;
         capabilities.value = remoteData.capabilities || [];
@@ -642,7 +642,7 @@ const fetchData = async () => {
         competencies.value = remoteData.competencies || [];
     } catch (e: any) {
         console.error('Fetch error:', e);
-        showError('No se pudieron cargar los datos del laboratorio.');
+        showError('No se pudieron cargar los datos del Cubo.');
     } finally {
         loading.value = false;
     }
@@ -665,22 +665,24 @@ const getArchetypeClasses = (role: Role) => {
 const getRolesForCapability = (cap: Capability) => {
     if (!roles.value.length) return [];
 
-    // Si la capacidad tiene llm_id, buscamos roles cuyas competencias empiecen con ese ID
-    if (cap.llm_id) {
+    // Agrupar roles por capability: un rol aparece en una capability
+    // si tiene al menos una competencia perteneciente a esa capability.
+    const rolesInCap = roles.value.filter((role) => {
+        const comps = role.key_competencies;
+        if (Array.isArray(comps)) {
+            return comps.some((c: any) => c.capability_id === cap.id);
+        }
+        return false;
+    });
+
+    // Si ningún rol tiene competencias de esta cap, mostrar roles sin capability asignada
+    if (rolesInCap.length === 0 && cap.id === capabilities.value[0]?.id) {
         return roles.value.filter((role) => {
             const comps = role.key_competencies;
-            if (Array.isArray(comps)) {
-                return comps.some((c) => String(c).startsWith(cap.llm_id!));
-            }
-            return false;
+            return !Array.isArray(comps) || comps.length === 0;
         });
     }
-
-    // Fallback: si es la primera capacidad, mostramos todo
-    if (capabilities.value.length > 0 && cap.id === capabilities.value[0].id) {
-        return roles.value;
-    }
-    return [];
+    return rolesInCap;
 };
 
 const getCompetenciesForRole = (role: Role) => {

@@ -959,6 +959,8 @@ Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group
     Route::post('design-talent', [\App\Http\Controllers\Api\ScenarioController::class, 'designTalent']);
     Route::post('agent-proposals/apply', [\App\Http\Controllers\Api\ScenarioController::class, 'applyAgentProposals']);
     Route::post('finalize', [\App\Http\Controllers\Api\ScenarioController::class, 'finalizeStep2']);
+    Route::get('cube', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getCubeData']);
+    Route::post('engine/generate-bars', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'generateBars']);
 });
 
 // Catálogos dinámicos para selectores

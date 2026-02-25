@@ -1,10 +1,5 @@
 <template>
-    <v-dialog
-        :model-value="visible"
-        fullscreen
-        transition="dialog-bottom-transition"
-        persistent
-    >
+    <v-dialog :model-value="visible" max-width="1100" scrollable persistent>
         <v-card>
             <!-- Header -->
             <v-toolbar color="secondary" dark>
@@ -66,7 +61,11 @@
             </div>
 
             <!-- Main content -->
-            <v-card-text v-else class="pa-6">
+            <v-card-text
+                v-else
+                class="pa-6"
+                style="max-height: 70vh; overflow-y: auto"
+            >
                 <!-- Info banner -->
                 <v-alert
                     type="info"
@@ -354,13 +353,45 @@
                                                     mandatory
                                                     color="primary"
                                                 >
-                                                    <v-btn
+                                                    <v-tooltip
                                                         v-for="n in 5"
                                                         :key="n"
-                                                        :value="n"
-                                                        size="x-small"
-                                                        >{{ n }}</v-btn
+                                                        location="top"
+                                                        max-width="280"
                                                     >
+                                                        <template
+                                                            #activator="{
+                                                                props: tp,
+                                                            }"
+                                                        >
+                                                            <v-btn
+                                                                v-bind="tp"
+                                                                :value="n"
+                                                                size="x-small"
+                                                                >{{ n }}</v-btn
+                                                            >
+                                                        </template>
+                                                        <div
+                                                            class="text-caption"
+                                                        >
+                                                            <div
+                                                                class="font-weight-bold mb-1"
+                                                            >
+                                                                {{
+                                                                    LEVEL_DESCRIPTIONS[
+                                                                        n
+                                                                    ]?.label
+                                                                }}
+                                                            </div>
+                                                            <div>
+                                                                {{
+                                                                    LEVEL_DESCRIPTIONS[
+                                                                        n
+                                                                    ]?.detail
+                                                                }}
+                                                            </div>
+                                                        </div>
+                                                    </v-tooltip>
                                                 </v-btn-toggle>
                                             </td>
                                             <td class="text-center">
@@ -427,10 +458,9 @@
                                         : 'mdi-check'
                                 "
                                 @click="
-                                    role._status =
-                                        role._status === 'approved'
-                                            ? 'pending'
-                                            : 'approved'
+                                    role._status === 'approved'
+                                        ? (role._status = 'pending')
+                                        : approveRole(role)
                                 "
                             >
                                 {{
@@ -682,6 +712,7 @@ interface Props {
     visible: boolean;
     loading?: boolean;
     proposals?: Proposals | null;
+    scenarioId?: number | null;
 }
 
 const props = defineProps<Props>();
@@ -737,8 +768,30 @@ const approvedCatalogCount = computed(
 
 // ─── Bulk actions ─────────────────────────────────────────────────────────────
 
+/**
+ * Aprueba un rol y auto-aprueba las catalog proposals que coincidan
+ * por nombre con las competency_mappings del rol aprobado.
+ */
+const approveRole = (role: RoleProposal) => {
+    role._status = 'approved';
+    // Auto-aprobar catalog proposals relacionadas
+    const mappingNames = new Set(
+        (role.competency_mappings ?? []).map((m) =>
+            m.competency_name?.trim().toLowerCase(),
+        ),
+    );
+    localCatalogProposals.value.forEach((c) => {
+        if (
+            c._status !== 'rejected' &&
+            mappingNames.has(c.proposed_name?.trim().toLowerCase())
+        ) {
+            c._status = 'approved';
+        }
+    });
+};
+
 const approveAllRoles = () =>
-    localRoleProposals.value.forEach((r) => (r._status = 'approved'));
+    localRoleProposals.value.forEach((r) => approveRole(r));
 const rejectAllRoles = () =>
     localRoleProposals.value.forEach((r) => (r._status = 'rejected'));
 const approveAllCatalog = () =>
@@ -756,9 +809,8 @@ const confirmApply = async () => {
         (c) => c._status === 'approved',
     );
 
-    // Obtener scenarioId desde la URL
-    const pathParts = window.location.pathname.split('/');
-    const scenarioId = pathParts[pathParts.indexOf('scenarios') + 1] ?? null;
+    // Usar el scenarioId recibido como prop
+    const scenarioId = props.scenarioId;
 
     if (!scenarioId) {
         alert('No se pudo determinar el ID del escenario.');
@@ -886,6 +938,31 @@ const archetypeLabel = (arch?: string): string => {
         default:
             return 'Sin definir';
     }
+};
+
+// ─── Level descriptions ───────────────────────────────────────────────────────
+
+const LEVEL_DESCRIPTIONS: Record<number, { label: string; detail: string }> = {
+    1: {
+        label: 'Nivel 1 — Básico',
+        detail: 'Conocimiento teórico introductorio. Requiere supervisión constante y guía para ejecutar tareas. Adecuado para roles en formación.',
+    },
+    2: {
+        label: 'Nivel 2 — En desarrollo',
+        detail: 'Puede ejecutar tareas rutinarias con supervisión ocasional. Comprende los conceptos fundamentales y empieza a aplicarlos de forma independiente.',
+    },
+    3: {
+        label: 'Nivel 3 — Competente',
+        detail: 'Trabaja de forma autónoma en situaciones estándar. Resuelve problemas de complejidad media y comparte conocimiento con el equipo.',
+    },
+    4: {
+        label: 'Nivel 4 — Avanzado',
+        detail: 'Referente técnico interno. Lidera iniciativas complejas, mentorea a otros y propone mejoras a los procesos existentes.',
+    },
+    5: {
+        label: 'Nivel 5 — Experto',
+        detail: 'Autoridad reconocida en la organización. Define estándares, innova en la disciplina y puede representar a la empresa externamente.',
+    },
 };
 
 // ─── Cube semaphore logic ─────────────────────────────────────────────────────

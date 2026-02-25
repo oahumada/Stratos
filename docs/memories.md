@@ -228,3 +228,76 @@ Para validación y storytelling, el sistema utiliza la empresa **"TechCorp"**:
 ---
 
 _Fin de la Memoria Unificada._
+
+---
+
+# 📋 BACKLOG TÉCNICO (Deuda Funcional Registrada)
+
+> Tareas identificadas durante el desarrollo, pendientes de priorización para una iteración futura.
+> **Solo se registran aquí tareas que el equipo ha analizado y decidido conscientemente diferir.**
+
+---
+
+## BL-001 — Arquitectura de Agentes v2: Vector Search + Agentes Colaborativos
+
+**Registrada:** 25 Febrero 2026
+**Estado:** 🔵 PENDIENTE — diferida hasta validar el flujo actual de Step 2
+**Prelación:** Alta (mejora directa de calidad de propuestas del agente)
+
+### Contexto
+
+El agente "Diseñador de Roles" actual envía el catálogo completo de roles y competencias como texto plano en el prompt (contexto lineal). Esto tiene dos limitaciones:
+
+1. **Truncamiento de tokens**: Con catálogos grandes, el JSON de respuesta se corta (`finish_reason: length`).
+2. **Precisión semántica limitada**: El LLM infiere similitud en lenguaje natural sin comparación vectorial explícita.
+
+### Arquitectura propuesta
+
+```
+FASE 1 (pre-cómputo): EmbeddingService genera y guarda vectores de todos los
+roles y competencias del catálogo en pgvector.
+
+FASE 2 (en tiempo real, Step 2):
+  ┌─── Agente Diseñador de Roles ───────────────────────────┐
+  │  1. Recibe gaps del blueprint del Paso 1                │
+  │  2. Por cada gap: top-K roles similares vía cosine      │
+  │  3. Propone type: NEW / EVOLVE / REPLACE con candidatos │
+  └──────────────────────────────────────────────────────────┘
+           ↓ para cada rol propuesto
+  ┌─── Agente Curador de Competencias ──────────────────────┐
+  │  1. Recibe el rol propuesto                             │
+  │  2. top-K competencias similares vía vector search      │
+  │  3. Propone competency_mappings con reglas del Cubo     │
+  └──────────────────────────────────────────────────────────┘
+```
+
+### Beneficios esperados
+
+- El LLM recibe solo los N candidatos más relevantes → prompts más cortos → cero truncamiento
+- Similitud explícita y auditable (score numérico registrable)
+- Los dos agentes pueden correr en paralelo por rol → latencia reducida
+- Posibilidad de mostrar al usuario el `similarity_score` como evidencia de la propuesta
+
+### Archivos ya preparados
+
+- `app/Services/EmbeddingService.php` — ya implementado para OpenAI
+- pgvector — habilitado en la BD (`config/services.php`)
+- `AiOrchestratorService::agentThink()` — extensible para runs paralelos
+
+### Prerequisito para activar
+
+- Validar que el flujo actual (contexto textual) satisface las necesidades operativas del usuario
+- Evaluar costo de embeddings vs. beneficio de precisión para el catálogo de la org
+
+### Gap identificado en pruebas (25 Feb 2026)
+
+Durante la validación del flujo con el escenario "Transformación digital", se observó que el agente **no asigna competencias transversales** a roles coordinadores:
+
+- **Product Manager** y **Change Management Lead** no recibieron "Gestión de Proyectos y Métodos Ágiles", aunque ambos roles la requieren en el contexto de una transformación digital.
+- El agente prioriza competencias "core" del rol pero pierde las intersecciones entre dominios (ej. un CMO también coordina proyectos, un PM también gestiona el cambio).
+
+**Causa raíz probable:** El prompt actual describe cada rol de forma independiente. El Curador de Competencias no tiene contexto del _archetype_ del rol ni de las competencias que YA tiene asignadas al momento de proponer nuevas.
+
+**Solución en BL-001:** El Agente Curador de Competencias (v2) recibirá como input el rol + su archetype + competency_mappings existentes + competencias del blueprint por capability, y usará vector search para identificar competencias transversales que no son "core" pero sí complementarias según el dominio.
+
+---

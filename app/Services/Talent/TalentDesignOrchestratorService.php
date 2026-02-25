@@ -84,20 +84,20 @@ class TalentDesignOrchestratorService
         $promptPath = resource_path('prompt_instructions/talent_design_orchestration_es.md');
         $systemInstructions = file_exists($promptPath)
             ? file_get_contents($promptPath)
-            : 'Actúa como Diseñador de Roles y Curador de Competencias.';
+            : 'Actúa como Ingeniero de Talento.';
 
         // 7. Construir el task prompt enriquecido
         $taskPrompt = $this->buildTaskPrompt($scenario, $targetBlueprint, $currentRoles, $currentCompetencies, $scenarioRoles, $existingMappings);
 
         try {
-            $result = $this->ai->agentThink('Diseñador de Roles', $taskPrompt, $systemInstructions);
+            $result = $this->ai->agentThink('Ingeniero de Talento', $taskPrompt, $systemInstructions);
 
             return [
                 'success'   => true,
                 'proposals' => $result['response'] ?? $result,
                 'metadata'  => [
                     'scenario_id'        => $scenarioId,
-                    'agent'              => 'Diseñador de Roles',
+                    'agent'              => 'Ingeniero de Talento',
                     'existing_mappings'  => count($existingMappings),
                     'scenario_roles'     => count($scenarioRoles),
                 ]
@@ -271,7 +271,8 @@ class TalentDesignOrchestratorService
             // Skills derivadas → incubation
             DB::table('skills')
                 ->where('discovered_in_scenario_id', $scenarioId)
-                ->update(['maturity_status' => 'incubation']);
+                ->update(['status' => 'incubation']);
+
 
             // Marcar el escenario como paso 2 completado
             Scenario::where('id', $scenarioId)->update([
@@ -280,6 +281,48 @@ class TalentDesignOrchestratorService
         });
 
         return ['success' => true, 'message' => 'Paso 2 finalizado. Roles y competencias en incubación.'];
+    }
+
+    /**
+     * Genera un Blueprint de Ingeniería (BARS) para una competencia en un rol específico.
+     */
+    public function generateEngineeringBlueprint(int $scenarioId, string $roleName, string $competencyName, int $level, string $archetype): array
+    {
+        $scenario = Scenario::findOrFail($scenarioId);
+        
+        // System Prompt: El Ing. de Talento
+        $systemInstructions = "Actúa como Ingeniero de Talento Senior experto en SFIA 8 y metodologías BARS. 
+        Tu misión es redactar la ingeniería de detalle (conductas observables) para una competencia específica.
+        Debes seguir estrictamente los descriptores de nivel de Stratos:
+        1: Ayuda (Básico), 2: Aplica (Intermedio), 3: Habilita (Avanzado), 4: Asegura (Experto), 5: Maestro (Inspira).
+        
+        CONTEXTO DEL ROL:
+        - Arquetipo: {$archetype} (E=Estratégico, T=Táctico, O=Operacional)
+        - Nivel SFIA Objetivo: {$level}
+        
+        REGLAS DE REDACCIÓN:
+        - Behaviour: Conductas observables.
+        - Attitude: Mindset esperado.
+        - Responsibility: Qué resultados garantiza.
+        - Skills: Sub-habilidades técnicas necesarias.
+        
+        Devuelve SOLO un JSON con las claves: behaviour[], attitude[], responsibility[], skills[].";
+
+        $taskPrompt = "Genera el Blueprint de Ingeniería para:
+        ROL: {$roleName}
+        COMPETENCIA: {$competencyName}
+        NIVEL OBJETIVO: {$level}
+        CONTEXTO ESCENARIO: {$scenario->description}
+        
+        Asegúrate de que las conductas reflejen el nivel {$level} de maestría para un arquetipo {$archetype}.";
+
+        try {
+            $result = $this->ai->agentThink('Ingeniero de Talento', $taskPrompt, $systemInstructions);
+            return $result['response'] ?? $result;
+        } catch (\Exception $e) {
+            Log::error("Error generando BARS IA: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────

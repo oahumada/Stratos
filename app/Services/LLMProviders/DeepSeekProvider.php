@@ -50,8 +50,9 @@ class DeepSeekProvider implements LLMProviderInterface
         $payload = json_encode([
             'model' => $model,
             'messages' => $messages,
-            'temperature' => $options['temperature'] ?? 0.7,
-            'max_tokens' => $options['max_tokens'] ?? 2000,
+            'temperature' => $options['temperature'] ?? 0.2,
+            'max_tokens' => $options['max_tokens'] ?? 2048,
+
         ]);
 
         $ch = curl_init($endpoint);
@@ -76,17 +77,30 @@ class DeepSeekProvider implements LLMProviderInterface
 
         $data = json_decode($result, true);
         $content = $data['choices'][0]['message']['content'] ?? '';
-        
+        $finishReason = $data['choices'][0]['finish_reason'] ?? 'stop';
+
+        // Detectar truncamiento — el JSON estará incompleto
+        if ($finishReason === 'length') {
+            Log::warning('DeepSeek response truncated (finish_reason=length)', [
+                'prompt_tokens'     => $data['usage']['prompt_tokens'] ?? 0,
+                'completion_tokens' => $data['usage']['completion_tokens'] ?? 0,
+            ]);
+            throw new \RuntimeException(
+                'La respuesta del agente fue truncada por límite de tokens. '
+                . 'Reduce la cantidad de roles o simplifica el escenario.'
+            );
+        }
+
         // Limpiar bloques de código markdown si existen (ej: ```json ... ```)
         $cleanContent = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($content));
-        
+
         // Intentar parsear si el agente pidió JSON
         $json = json_decode($cleanContent, true);
-        
+
         return [
-            'response' => is_array($json) ? $json : ['raw_text' => $content],
-            'confidence' => 0.9,
-            'model_version' => $model
+            'response'      => is_array($json) ? $json : ['raw_text' => $content],
+            'confidence'    => 0.9,
+            'model_version' => $model,
         ];
     }
 }

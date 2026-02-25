@@ -26,10 +26,10 @@ class OpenAIProvider implements LLMProviderInterface
         $payload = json_encode([
             'model' => $model,
             'messages' => [
-                ['role' => 'system', 'content' => 'You are a structured scenario generator.'],
+                ['role' => 'system', 'content' => $options['system_prompt'] ?? 'You are a structured talent engineer.'],
                 ['role' => 'user', 'content' => $prompt],
             ],
-            'temperature' => 0.2,
+            'temperature' => $options['temperature'] ?? 0.2,
             'max_tokens' => 1500,
         ]);
 
@@ -92,7 +92,8 @@ class OpenAIProvider implements LLMProviderInterface
         $assistant = $data['choices'][0]['message']['content'] ?? null;
 
         // Attempt to parse JSON from assistant; if fails, return raw text under 'raw_text'
-        $parsed = json_decode($assistant, true);
+        $cleaned = preg_replace('/^```json\s*|\s*```$/i', '', trim($assistant));
+        $parsed = json_decode($cleaned, true);
         $responsePayload = is_array($parsed) ? $parsed : ['raw_text' => $assistant];
 
         return [

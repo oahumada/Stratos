@@ -692,30 +692,52 @@ class ScenarioController extends Controller
         }
 
         $validated = $request->validate([
-            'approved_role_proposals'               => 'required|array',
-            'approved_role_proposals.*.type'         => 'required|string|in:NEW,EVOLVE,REPLACE',
-            'approved_role_proposals.*.proposed_name' => 'required_if:approved_role_proposals.*.type,NEW|string',
-            'approved_role_proposals.*.target_role_id' => 'required_unless:approved_role_proposals.*.type,NEW|integer',
-            'approved_role_proposals.*.archetype'    => 'nullable|string|in:E,T,O',
-            'approved_role_proposals.*.fte_suggested' => 'nullable|numeric|min:0.1',
-            'approved_role_proposals.*.competency_mappings'               => 'nullable|array',
+            'approved_role_proposals'                                      => 'present|array',
+            'approved_role_proposals.*.type'                               => 'required|string|in:NEW,EVOLVE,REPLACE',
+            'approved_role_proposals.*.proposed_name'                      => 'nullable|string',
+            'approved_role_proposals.*.target_role_id'                     => 'nullable|integer',
+            'approved_role_proposals.*.archetype'                                => 'nullable|string|in:E,T,O',
+            'approved_role_proposals.*.fte_suggested'                          => 'nullable|numeric|min:0.1',
+            'approved_role_proposals.*.talent_composition'                     => 'nullable|array',
+            'approved_role_proposals.*.talent_composition.human_percentage'    => 'nullable|numeric|between:0,100',
+            'approved_role_proposals.*.talent_composition.synthetic_percentage'=> 'nullable|numeric|between:0,100',
+            'approved_role_proposals.*.talent_composition.logic_justification' => 'nullable|string',
+            'approved_role_proposals.*.competency_mappings'                    => 'nullable|array',
             'approved_role_proposals.*.competency_mappings.*.competency_name' => 'nullable|string',
             'approved_role_proposals.*.competency_mappings.*.competency_id'   => 'nullable|integer',
             'approved_role_proposals.*.competency_mappings.*.change_type'     => 'nullable|string|in:maintenance,transformation,enrichment,extinction',
             'approved_role_proposals.*.competency_mappings.*.required_level'  => 'nullable|integer|between:1,5',
             'approved_role_proposals.*.competency_mappings.*.is_core'         => 'nullable|boolean',
-            'approved_catalog_proposals'             => 'nullable|array',
-            'approved_catalog_proposals.*.type'      => 'required|string|in:ADD,MODIFY,REPLACE',
-            'approved_catalog_proposals.*.proposed_name' => 'required|string',
-            'approved_catalog_proposals.*.competency_id'  => 'nullable|integer',
-            'approved_catalog_proposals.*.action_rationale' => 'nullable|string',
+            'approved_catalog_proposals'                                   => 'nullable|array',
+            'approved_catalog_proposals.*.type'                            => 'required|string|in:ADD,MODIFY,REPLACE',
+            'approved_catalog_proposals.*.proposed_name'                   => 'required|string',
+            'approved_catalog_proposals.*.competency_id'                   => 'nullable|integer',
+            'approved_catalog_proposals.*.action_rationale'                => 'nullable|string',
         ]);
 
-        $result = $svc->applyProposals(
-            (int) $id,
-            $validated['approved_role_proposals'],
-            $validated['approved_catalog_proposals'] ?? []
-        );
+        \Log::info('applyAgentProposals called', [
+            'scenario_id'      => $id,
+            'roles_count'      => count($validated['approved_role_proposals']),
+            'catalog_count'    => count($validated['approved_catalog_proposals'] ?? []),
+            'role_types'       => array_column($validated['approved_role_proposals'], 'type'),
+        ]);
+
+        try {
+            $result = $svc->applyProposals(
+                (int) $id,
+                $validated['approved_role_proposals'],
+                $validated['approved_catalog_proposals'] ?? []
+            );
+        } catch (\Throwable $e) {
+            \Log::error('applyAgentProposals exception', [
+                'scenario_id' => $id,
+                'error'       => $e->getMessage(),
+                'trace'       => $e->getTraceAsString(),
+            ]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+
+        \Log::info('applyAgentProposals result', ['scenario_id' => $id, 'stats' => $result['stats'] ?? []]);
 
         if (!$result['success']) {
             return response()->json(['success' => false, 'message' => $result['error'] ?? 'Error al aplicar propuestas'], 500);
@@ -727,6 +749,7 @@ class ScenarioController extends Controller
             'stats'   => $result['stats'],
         ]);
     }
+
 
     /**
      * Paso 2 - Fase 4: Aprobación final del diseño de talento.

@@ -311,7 +311,7 @@
                                         class="border-b border-gray-200 p-0"
                                     >
                                         <div
-                                            class="flex h-24 w-32 cursor-pointer items-center justify-center border-r border-gray-200 transition hover:bg-gray-50"
+                                            class="relative flex h-24 w-32 cursor-pointer items-center justify-center border-r border-gray-200 transition hover:bg-gray-50"
                                             @click="
                                                 openEditModal(
                                                     row.roleId,
@@ -376,6 +376,7 @@
             :visible="showAgentProposals"
             :loading="isDesigning"
             :proposals="agentProposals"
+            :scenario-id="props.scenarioId"
             @close="showAgentProposals = false"
             @applied="handleApplied"
         />
@@ -478,6 +479,8 @@ const handleDesignTalent = async () => {
 const handleApplied = async () => {
     showAgentProposals.value = false;
     agentProposals.value = null;
+    // Recargar la matriz para mostrar los nuevos roles y mappings
+    await store.loadScenarioData(props.scenarioId);
     showSuccess.value = true;
 };
 
@@ -568,6 +571,11 @@ const saveMapping = async (mappingData: any) => {
         is_core: mappingData.is_core,
         change_type: mappingData.change_type,
         rationale: mappingData.rationale,
+        competency_version_id:
+            mappingData.competency_version_id ||
+            selectedMapping.value.mapping?.competency_version_id,
+        current_level: mappingData.current_level,
+        timeline_months: mappingData.timeline_months,
     };
 
     await store.saveMapping(newMapping);

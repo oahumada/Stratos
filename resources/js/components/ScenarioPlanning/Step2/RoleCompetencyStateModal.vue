@@ -501,26 +501,22 @@
     </v-dialog>
 
     <!-- Separate dialog for transformation (contains Bars/Transform form) -->
-    <v-dialog
-        :model-value="showTransform"
-        max-width="900px"
-        @update:model-value="(val) => (showTransform = val)"
-    >
-        <v-card>
-            <v-card-text>
-                <TransformModal
-                    :competencyId="props.competencyId"
-                    @transformed="handleTransformed"
-                    @close="showTransform = false"
-                />
-            </v-card-text>
-        </v-card>
-    </v-dialog>
+    <EngineeringBlueprintSheet
+        v-if="showTransform"
+        :competency-id="props.competencyId"
+        :competency-name="props.competencyName"
+        :role-name="props.roleName"
+        :archetype="props.archetype || 'T'"
+        :required-level="formData.required_level"
+        :initial-bars="props.mapping?.metadata?.bars"
+        @transformed="handleTransformed"
+        @close="showTransform = false"
+    />
 </template>
 
 <script setup lang="ts">
+import EngineeringBlueprintSheet from '@/components/ScenarioPlanning/Step3/EngineeringBlueprintSheet.vue';
 import InfoLegend from '@/components/Ui/InfoLegend.vue';
-import TransformModal from '@/pages/ScenarioPlanning/TransformModal.vue';
 import { useRoleCompetencyStore } from '@/stores/roleCompetencyStore';
 import { useTransformStore } from '@/stores/transformStore';
 import { computed, onMounted, ref, watch } from 'vue';

@@ -240,9 +240,13 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
                 },
             );
 
-            if (!response.ok)
-                throw new Error('Error en la orquestación de talento');
             const res = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    res.message ?? 'Error en la orquestación de talento',
+                );
+            }
 
             return res.proposals;
         } catch (err: unknown) {

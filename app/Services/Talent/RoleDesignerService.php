@@ -24,7 +24,7 @@ class RoleDesignerService
         $roleModel = $isScenario ? ScenarioRole::with('role')->findOrFail($roleId) : Roles::findOrFail($roleId);
         $roleName = $isScenario ? ($roleModel->role->name ?? 'Rol en Incubación') : $roleModel->name;
         
-        $prompt = "Actúa como Diseñador de Roles de Stratos. Necesito que apliques la metodología de 'Cubo de Roles' (X, Y, Z) para el siguiente cargo: '{$roleName}'.
+        $prompt = "Actúa como Ingeniero de Talento de Stratos. Necesito que apliques la metodología de 'Cubo de Roles' (X, Y, Z) para el siguiente cargo: '{$roleName}'.
         
         Descripción actual: " . ($isScenario ? $roleModel->rationale : $roleModel->description) . "
         
@@ -52,7 +52,7 @@ class RoleDesignerService
         }";
 
         try {
-            $result = $this->orchestrator->agentThink('Diseñador de Roles', $prompt);
+            $result = $this->orchestrator->agentThink('Ingeniero de Talento', $prompt);
             $analysis = $result['response'];
 
             // Persistir en el modelo correspondiente

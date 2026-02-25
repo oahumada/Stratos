@@ -49,7 +49,7 @@ class CompetencyCuratorService
         }";
 
         try {
-            $result = $this->orchestrator->agentThink('Curador de Competencias', $prompt);
+            $result = $this->orchestrator->agentThink('Ingeniero de Talento', $prompt);
             $data = $result['response'];
 
             if (!isset($data['levels']) || !is_array($data['levels'])) {
@@ -115,7 +115,7 @@ class CompetencyCuratorService
         }";
 
         try {
-            $result = $this->orchestrator->agentThink('Curador de Competencias', $prompt);
+            $result = $this->orchestrator->agentThink('Ingeniero de Talento', $prompt);
             $data = $result['response'];
 
             $questionsCreated = [];

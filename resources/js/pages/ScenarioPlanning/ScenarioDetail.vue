@@ -720,7 +720,8 @@ onMounted(() => {
                                 small
                                 variant="text"
                                 @click="openAcceptedPromptDialog"
-                                >Ver prompt aceptado</v-btn>
+                                >Ver prompt aceptado</v-btn
+                            >
                             <v-chip
                                 v-if="scenario.decision_status"
                                 size="x-small"
@@ -850,7 +851,8 @@ onMounted(() => {
                                         variant="text"
                                         @click="promoteIncubated"
                                         title="Promover incubadas"
-                                        >Promover todas</v-btn>
+                                        >Promover todas</v-btn
+                                    >
                                 </v-card-title>
                                 <v-card-text>
                                     <div v-if="loadingTree">
@@ -894,7 +896,8 @@ onMounted(() => {
                                                                     cap,
                                                                 )
                                                             "
-                                                            >Revisar</v-btn>
+                                                            >Revisar</v-btn
+                                                        >
                                                     </div>
                                                 </div>
                                                 <div class="mt-2 ml-4">
@@ -911,7 +914,8 @@ onMounted(() => {
                                                                 >•
                                                                 {{
                                                                     comp.name
-                                                                }}</span>
+                                                                }}</span
+                                                            >
                                                             <v-btn
                                                                 size="x-small"
                                                                 variant="text"
@@ -920,7 +924,8 @@ onMounted(() => {
                                                                         comp.id,
                                                                     )
                                                                 "
-                                                                >Ver/Editar</v-btn>
+                                                                >Ver/Editar</v-btn
+                                                            >
                                                         </div>
                                                         <div
                                                             class="ml-4 text-sm text-gray-700"
@@ -936,7 +941,8 @@ onMounted(() => {
                                                                         s.is_incubating
                                                                     "
                                                                     class="text-yellow-700"
-                                                                    >(incubation)</small>
+                                                                    >(incubation)</small
+                                                                >
                                                             </span>
                                                         </div>
                                                     </div>
@@ -1042,102 +1048,44 @@ onMounted(() => {
                     <!-- Step 2: Mapeo Roles-Competencias -->
                     <div v-if="currentStep === 2" class="step-content">
                         <div v-if="scenarioId > 0">
-                            <!-- Puente de Transición / Fase de Conciliación -->
-                            <div
-                                v-if="
-                                    [
-                                        'draft',
-                                        'incubating',
-                                        'incubated',
-                                    ].includes(scenario?.status)
-                                "
-                                class="mb-8 overflow-hidden rounded-xl border border-indigo-100 bg-gradient-to-br from-white to-indigo-50/30 shadow-sm"
-                            >
-                                <div
-                                    class="d-flex align-center justify-space-between bg-indigo-50/50 px-6 py-4"
-                                >
-                                    <div>
-                                        <h3
-                                            class="text-h6 font-weight-bold mb-0 text-indigo-900"
-                                        >
-                                            Fase de Conciliación Estratégica
-                                        </h3>
-                                        <div
-                                            class="text-caption text-indigo-700"
-                                        >
-                                            Puente de Transición: Valida el
-                                            diseño incubado antes de la
-                                            ingeniería de detalle.
-                                        </div>
-                                    </div>
-                                    <v-btn
-                                        size="small"
-                                        variant="flat"
-                                        color="indigo-darken-2"
-                                        @click="simulateLLM"
-                                        prepend-icon="mdi-auto-fix"
-                                        class="text-none"
-                                    >
-                                        Simular IA (Full Concept)
-                                    </v-btn>
-                                </div>
-
-                                <div class="pa-6">
-                                    <IncubatedCubeReview
-                                        :scenario-id="Number(scenarioId)"
-                                        :key="`incubated-${scenarioId}-${scenario?.updated_at || ''}`"
-                                        @approved="loadScenario"
-                                    />
-                                </div>
-
-                                <v-divider class="my-8" />
-                                <h3
-                                    class="text-h6 font-weight-bold mb-4 text-slate-800"
-                                >
-                                    Matriz de Ingeniería de Roles (Pivote Final)
-                                </h3>
-                            </div>
-
-                            <!-- Estado: Diseño Consolidado -->
-                            <div
-                                v-else
-                                class="mb-8 flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50/30 p-6"
-                            >
-                                <div class="flex items-center gap-4">
-                                    <div
-                                        class="rounded-full bg-emerald-500 p-2"
-                                    >
-                                        <v-icon color="white"
-                                            >mdi-check-all</v-icon>
-                                    </div>
-                                    <div>
-                                        <h4
-                                            class="text-lg font-bold text-emerald-900"
-                                        >
-                                            Diseño Consolidado
-                                        </h4>
-                                        <p class="text-sm text-emerald-700">
-                                            La estructura ha sido aprobada.
-                                            Ahora puedes precisar las brechas en
-                                            la matriz inferior.
-                                        </p>
-                                    </div>
-                                </div>
-                                <v-btn
-                                    variant="text"
-                                    color="emerald-darken-2"
-                                    size="small"
-                                    prepend-icon="mdi-history"
-                                    @click="scenario.status = 'incubating'"
-                                >
-                                    Reabrir Laboratorio
-                                </v-btn>
-                            </div>
-
+                            <!-- 1. Matriz de Ingeniería (Primero) -->
                             <RoleCompetencyMatrix
                                 :scenario-id="scenarioId"
                                 :key="`rcm-${scenarioId}-${currentStep}-${scenario?.updated_at || ''}`"
                             />
+
+                            <!-- 2. Cubo de Validación (Validación Final) -->
+                            <div class="mt-10 border-t border-slate-100 pt-10">
+                                <div
+                                    class="d-flex align-center mb-6 gap-3 px-2"
+                                >
+                                    <div
+                                        class="rounded-lg bg-indigo-600 p-2 shadow-lg shadow-indigo-100"
+                                    >
+                                        <v-icon color="white" size="20"
+                                            >mdi-cube-scan</v-icon
+                                        >
+                                    </div>
+                                    <div>
+                                        <h3
+                                            class="text-h6 font-weight-bold mb-0 text-indigo-900"
+                                        >
+                                            Cubo de Ingeniería Organizacional
+                                        </h3>
+                                        <div
+                                            class="text-caption text-indigo-700"
+                                        >
+                                            Validación de consistencia:
+                                            Arquetipos × Competencias × FTE
+                                        </div>
+                                    </div>
+                                </div>
+                                <IncubatedCubeReview
+                                    :scenario-id="Number(scenarioId)"
+                                    :key="`cube-${scenarioId}-${scenario?.updated_at || ''}`"
+                                    @approved="loadScenario"
+                                />
+                            </div>
                         </div>
                         <div v-else class="flex justify-center py-8">
                             <v-progress-circular
@@ -1303,7 +1251,8 @@ onMounted(() => {
                     <v-card-actions>
                         <v-spacer />
                         <v-btn text @click="showAcceptedPromptDialog = false"
-                            >Cerrar</v-btn>
+                            >Cerrar</v-btn
+                        >
                     </v-card-actions>
                 </v-card>
             </v-dialog>

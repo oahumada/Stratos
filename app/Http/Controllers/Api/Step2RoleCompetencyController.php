@@ -25,7 +25,8 @@ class Step2RoleCompetencyController extends Controller
     private const ROLE_NAME_SELECT = 'roles.name as role_name';
 
     public function __construct(
-        private RoleSkillDerivationService $derivationService
+        private RoleSkillDerivationService $derivationService,
+        private \App\Services\Talent\TalentDesignOrchestratorService $orchestrator
     ) {}
 
     /**
@@ -55,28 +56,67 @@ class Step2RoleCompetencyController extends Controller
             )
             ->get();
 
-        // Competencias disponibles (sin filtro de escenario, son globales)
-        // Usamos leftJoin para no perder competencias que no tengan capacidad asignada.
+        // Competencias del escenario: solo las que pertenecen a capabilities
+        // incluidas en este escenario (Paso 1), tal como muestra el diagrama de nodos.
+        // También incluimos cualquier competencia que ya tenga un mapping en el escenario
+        // (por si fue asignada manualmente o por el agente fuera del blueprint base).
+        $scenarioCompetencyIds = \DB::table('scenario_capabilities')
+            ->where('scenario_capabilities.scenario_id', $scenarioId)
+            ->join('capability_competencies', 'scenario_capabilities.capability_id', '=', 'capability_competencies.capability_id')
+            ->pluck('capability_competencies.competency_id')
+            ->unique();
+
+        // IDs ya mapeados en este escenario (no perder data existente)
+        $mappedCompetencyIds = \DB::table('scenario_role_competencies')
+            ->where('scenario_id', $scenarioId)
+            ->whereNotNull('competency_id')
+            ->pluck('competency_id');
+
+        $allRelevantIds = $scenarioCompetencyIds->merge($mappedCompetencyIds)->unique()->values();
+
+        // El JOIN de capability_competencies se restringe a las capabilities
+        // del escenario, así cada competencia muestra su pestaña correcta.
+        // Las competencias mapeadas por el agente pero sin capability del escenario
+        // aparecen bajo 'General'.
+        $scenarioCapabilityIds = \DB::table('scenario_capabilities')
+            ->where('scenario_id', $scenarioId)
+            ->pluck('capability_id');
+
+        // Competencias: se muestran las del escenario (y las ya mapeadas).
+        // Para capability_name usamos la asociación del catálogo priorizando
+        // las capabilities del escenario — si la competencia pertenece a más
+        // de una capability, mostramos la del escenario; si no, cualquier otra.
+        // Así se evita el fallback a 'General' cuando sí existe asociación.
         $competencies = \DB::table('competencies')
             ->leftJoin('capability_competencies', 'competencies.id', '=', 'capability_competencies.competency_id')
             ->leftJoin('capabilities', 'capability_competencies.capability_id', '=', 'capabilities.id')
             ->where('competencies.organization_id', auth()->user()->organization_id)
+            ->whereIn('competencies.id', $allRelevantIds->isEmpty()
+                ? \DB::table('competencies')
+                    ->where('organization_id', auth()->user()->organization_id)
+                    ->pluck('id')
+                : $allRelevantIds
+            )
             ->select(
                 'competencies.id',
                 'competencies.name',
-                'capability_competencies.capability_id',
-                \DB::raw("COALESCE(capabilities.name, 'General') as capability_name")
+                \DB::raw('MIN(capability_competencies.capability_id) as capability_id'),
+                \DB::raw("COALESCE(MIN(CASE WHEN capability_competencies.capability_id IN ("
+                    . implode(',', $scenarioCapabilityIds->toArray() ?: [0])
+                    . ") THEN capabilities.name END), MIN(capabilities.name), 'General') as capability_name")
             )
+            ->groupBy('competencies.id', 'competencies.name')
             ->orderBy('capability_name')
             ->orderBy('competencies.name')
             ->get();
 
-        // Mappings: Qué competencias están asignadas a cada rol
-        // IMPORTANTE: 'role' aquí es la relación a ScenarioRole, que NO tiene columna 'name'.
-        // La quitamos del select para evitar SQL error.
+
+
+        // Mappings: Qué competencias están asignadas a cada rol.
+        // Incluye 'source' para que el frontend muestre 🤖/👤/⚙️ correctamente.
         $mappings = ScenarioRoleCompetency::where('scenario_id', $scenarioId)
-            ->with(['role', 'competency:id,name'])
-            ->select('id', 'scenario_id', 'role_id', 'competency_id', 'competency_version_id', 'required_level', 'is_core', 'is_referent', 'change_type', 'rationale')
+            ->with(['role', 'competency:id,name', 'version:id,metadata'])
+            ->select('id', 'scenario_id', 'role_id', 'competency_id', 'competency_version_id', 'required_level', 'is_core', 'is_referent', 'change_type', 'rationale', 'source')
             ->get();
 
         return response()->json([
@@ -111,22 +151,30 @@ class Step2RoleCompetencyController extends Controller
             'timeline_months' => 'nullable|integer|in:6,12,18,24',
         ]);
 
-        return DB::transaction(function () use ($scenarioId, $validated) {
-            $mapping = ScenarioRoleCompetency::updateOrCreate(
-                [
-                    'scenario_id' => $scenarioId,
-                    'role_id' => $validated['role_id'],
-                    'competency_id' => $validated['competency_id'],
-                ],
-                [
-                    'required_level' => $validated['required_level'],
-                    'is_core' => $validated['is_core'] ?? false,
-                    'is_referent' => $validated['is_referent'] ?? false,
-                    'change_type' => $validated['change_type'],
-                    'rationale' => $validated['rationale'],
-                    'competency_version_id' => $validated['competency_version_id'] ?? null,
-                ]
-            );
+        return DB::transaction(function () use ($scenarioId, $validated, $request) {
+            $mapping = ScenarioRoleCompetency::where([
+                'scenario_id' => $scenarioId,
+                'role_id' => $validated['role_id'],
+                'competency_id' => $validated['competency_id'],
+            ])->first() ?? new ScenarioRoleCompetency([
+                'scenario_id' => $scenarioId,
+                'role_id' => $validated['role_id'],
+                'competency_id' => $validated['competency_id'],
+            ]);
+
+            $mapping->required_level = $validated['required_level'];
+            $mapping->is_core = $validated['is_core'] ?? $mapping->is_core ?? false;
+            $mapping->is_referent = $validated['is_referent'] ?? $mapping->is_referent ?? false;
+            $mapping->change_type = $validated['change_type'];
+            $mapping->rationale = $validated['rationale'] ?? $mapping->rationale;
+            
+            if ($request->has('competency_version_id')) {
+                $mapping->competency_version_id = $validated['competency_version_id'];
+            }
+
+            $mapping->save();
+
+            $mapping->load('version:id,metadata');
 
             // Derivar automáticamente skills basados en esta competencia
             // Usa el método deriveSkillsFromCompetencies del servicio
@@ -569,5 +617,132 @@ class Step2RoleCompetencyController extends Controller
         }
 
         return $level;
+    }
+
+    /**
+     * GET /api/scenarios/{scenarioId}/step2/cube
+     * Datos para el Cubo de Ingeniería Organizacional al final del Paso 2.
+     * Lee de scenario_roles (datos ya consolidados en la matriz).
+     */
+    public function getCubeData(int $scenarioId): JsonResponse
+    {
+        $orgId = auth()->user()->organization_id;
+
+        Scenario::where('id', $scenarioId)
+            ->where('organization_id', $orgId)
+            ->firstOrFail();
+
+        // 1. Capabilities del escenario
+        $capabilities = DB::table('scenario_capabilities')
+            ->join('capabilities', 'scenario_capabilities.capability_id', '=', 'capabilities.id')
+            ->where('scenario_capabilities.scenario_id', $scenarioId)
+            ->select(
+                'capabilities.id',
+                'capabilities.name',
+                DB::raw("COALESCE(capabilities.category, 'Core Business') as category"),
+            )
+            ->orderBy('capabilities.name')
+            ->get();
+
+        // 2. Roles del escenario con datos del Cubo
+        $scenarioRoles = DB::table('scenario_roles')
+            ->join('roles', 'scenario_roles.role_id', '=', 'roles.id')
+            ->where('scenario_roles.scenario_id', $scenarioId)
+            ->select(
+                'scenario_roles.id as sr_id',
+                'roles.id as role_id',
+                'roles.name as role_name',
+                'roles.description as role_description',
+                'scenario_roles.archetype',
+                'scenario_roles.fte',
+                'scenario_roles.human_leverage',
+                'scenario_roles.role_change',
+            )
+            ->orderBy('roles.name')
+            ->get();
+
+        // 3. Competencias por rol (con capability)
+        $mappings = DB::table('scenario_role_competencies')
+            ->join('competencies', 'scenario_role_competencies.competency_id', '=', 'competencies.id')
+            ->leftJoin('capability_competencies', 'competencies.id', '=', 'capability_competencies.competency_id')
+            ->leftJoin('capabilities', function ($join) use ($scenarioId) {
+                $join->on('capability_competencies.capability_id', '=', 'capabilities.id')
+                    ->whereExists(function ($q) use ($scenarioId) {
+                        $q->select(DB::raw(1))
+                          ->from('scenario_capabilities')
+                          ->whereColumn('scenario_capabilities.capability_id', 'capabilities.id')
+                          ->where('scenario_capabilities.scenario_id', $scenarioId);
+                    });
+            })
+            ->where('scenario_role_competencies.scenario_id', $scenarioId)
+            ->select(
+                'scenario_role_competencies.role_id',
+                'competencies.id as competency_id',
+                'competencies.name as competency_name',
+                'scenario_role_competencies.required_level',
+                'scenario_role_competencies.change_type',
+                'capability_competencies.capability_id',
+            )
+            ->get()
+            ->groupBy('role_id');
+
+        // 4. Construir respuesta
+        $rolesData = $scenarioRoles->map(function ($sr) use ($mappings) {
+            $roleMappings = $mappings->get($sr->role_id, collect());
+            $keyCompetencies = $roleMappings->map(fn($m) => [
+                'name'          => $m->competency_name,
+                'level'         => $m->required_level ?? 3,
+                'change_type'   => $m->change_type,
+                'capability_id' => $m->capability_id,
+            ])->values()->toArray();
+
+            return [
+                'id'                 => $sr->sr_id,
+                'role_id'            => $sr->role_id,
+                'role_name'          => $sr->role_name,
+                'role_description'   => $sr->role_description ?? '',
+                'archetype'          => $sr->archetype ?? 'O',
+                'fte'                => (float) ($sr->fte ?? 1.0),
+                'human_leverage'     => (int) ($sr->human_leverage ?? 50),
+                'role_change'        => $sr->role_change ?? 'modify',
+                'key_competencies'   => $keyCompetencies,
+                'similarity_warnings'=> [],
+            ];
+        });
+
+        return response()->json([
+            'data' => [
+                'capabilities' => $capabilities->values(),
+                'roles'        => $rolesData->values(),
+                'competencies' => [],
+            ],
+        ]);
+    }
+
+    /**
+     * POST /api/scenarios/{scenarioId}/step2/engine/generate-bars
+     */
+    public function generateBars(Request $request, int $scenarioId): JsonResponse
+    {
+        $validated = $request->validate([
+            'role_name' => 'required|string',
+            'competency_name' => 'required|string',
+            'required_level' => 'required|integer|between:1,5',
+            'archetype' => 'required|string|in:E,T,O',
+        ]);
+
+        try {
+            $bars = $this->orchestrator->generateEngineeringBlueprint(
+                $scenarioId,
+                $validated['role_name'],
+                $validated['competency_name'],
+                $validated['required_level'],
+                $validated['archetype']
+            );
+
+            return response()->json(['success' => true, 'bars' => $bars]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 }

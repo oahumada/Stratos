@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ScenarioRoleCompetency extends Model
 {
     use HasFactory;
+
+    protected $appends = ['metadata'];
+
     protected $fillable = [
         'scenario_id',
         'role_id',
@@ -46,5 +49,19 @@ class ScenarioRoleCompetency extends Model
     public function competency(): BelongsTo
     {
         return $this->belongsTo(Competency::class);
+    }
+
+    public function version(): BelongsTo
+    {
+        return $this->belongsTo(CompetencyVersion::class, 'competency_version_id');
+    }
+
+    /**
+     * Accesor para obtener la metadata de la versión vinculada.
+     * Esto permite una transición suave en el frontend que espera mapping.metadata.
+     */
+    public function getMetadataAttribute()
+    {
+        return $this->version ? $this->version->metadata : null;
     }
 }
