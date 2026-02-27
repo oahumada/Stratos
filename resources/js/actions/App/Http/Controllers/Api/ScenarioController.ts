@@ -1210,6 +1210,90 @@ summarizeForm.head = (args: { id: string | number } | [id: string | number ] | s
 summarize.form = summarizeForm
 
 /**
+* @see \App\Http\Controllers\Api\ScenarioController::destroyScenario
+* @see app/Http/Controllers/Api/ScenarioController.php:985
+* @route '/api/strategic-planning/scenarios/{id}'
+*/
+export const destroyScenario = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroyScenario.url(args, options),
+    method: 'delete',
+})
+
+destroyScenario.definition = {
+    methods: ["delete"],
+    url: '/api/strategic-planning/scenarios/{id}',
+} satisfies RouteDefinition<["delete"]>
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::destroyScenario
+* @see app/Http/Controllers/Api/ScenarioController.php:985
+* @route '/api/strategic-planning/scenarios/{id}'
+*/
+destroyScenario.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            id: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        id: args.id,
+    }
+
+    return destroyScenario.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::destroyScenario
+* @see app/Http/Controllers/Api/ScenarioController.php:985
+* @route '/api/strategic-planning/scenarios/{id}'
+*/
+destroyScenario.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroyScenario.url(args, options),
+    method: 'delete',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::destroyScenario
+* @see app/Http/Controllers/Api/ScenarioController.php:985
+* @route '/api/strategic-planning/scenarios/{id}'
+*/
+const destroyScenarioForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroyScenario.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::destroyScenario
+* @see app/Http/Controllers/Api/ScenarioController.php:985
+* @route '/api/strategic-planning/scenarios/{id}'
+*/
+destroyScenarioForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroyScenario.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroyScenario.form = destroyScenarioForm
+
+/**
 * @see \App\Http\Controllers\Api\ScenarioController::orchestrate
 * @see app/Http/Controllers/Api/ScenarioController.php:780
 * @route '/api/strategic-planning/scenarios/{id}/orchestrate'
@@ -1849,6 +1933,6 @@ deriveAllSkillsForm.post = (args: { id: string | number } | [id: string | number
 
 deriveAllSkills.form = deriveAllSkillsForm
 
-const ScenarioController = { listScenarios, showScenario, getCapabilityTree, getVersions, getImpact, exportFinancial, store, updateScenario, instantiateFromTemplate, calculateGaps, refreshSuggestedStrategies, finalizeScenario, compareVersions, summarize, orchestrate, designTalent, applyAgentProposals, finalizeStep2, getIQ, getCompetencyGaps, deriveSkills, deriveAllSkills }
+const ScenarioController = { listScenarios, showScenario, getCapabilityTree, getVersions, getImpact, exportFinancial, store, updateScenario, instantiateFromTemplate, calculateGaps, refreshSuggestedStrategies, finalizeScenario, compareVersions, summarize, destroyScenario, orchestrate, designTalent, applyAgentProposals, finalizeStep2, getIQ, getCompetencyGaps, deriveSkills, deriveAllSkills }
 
 export default ScenarioController

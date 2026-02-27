@@ -141,7 +141,7 @@ watch(
     () => props.agent,
     (newVal) => {
         if (newVal) {
-            editedAgent.value = structuredClone(newVal);
+            editedAgent.value = JSON.parse(JSON.stringify(newVal));
         }
     },
     { immediate: true },

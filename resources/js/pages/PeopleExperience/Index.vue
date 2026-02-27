@@ -1,5 +1,4 @@
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
         <v-container
             fluid
             class="pa-6 bg-grey-lighten-4 fill-height align-start"
@@ -311,18 +310,11 @@
                 </v-col>
             </v-row>
         </v-container>
-    </AppLayout>
 </template>
 
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
-
-const breadcrumbs = [
-    { title: 'Dashboard', href: '/dashboard' },
-    { title: 'People Experience', href: '/people-experience' },
-];
 
 interface Survey {
     id: number;

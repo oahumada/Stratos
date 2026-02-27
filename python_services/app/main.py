@@ -1,13 +1,30 @@
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, HTTPException
+from pydantic import BaseModel, Field
+from crewai import Agent, Task, Crew, Process
+from langchain_openai import ChatOpenAI
 import os
 import subprocess
 import json
 import psycopg2
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
-app = FastAPI(title='Stratos Neo4j ETL Service')
+app = FastAPI(title="Stratos Intel & ETL Service", version="0.1.0")
 
+DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+
+# Force environment variable for libraries that might check it directly
+os.environ["OPENAI_API_BASE"] = os.getenv("OPENAI_API_BASE", DEEPSEEK_BASE_URL)
+os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_API_BASE", DEEPSEEK_BASE_URL) 
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
+
+# Check for API key
+if not os.getenv("OPENAI_API_KEY") and os.getenv("STRATOS_MOCK_IA", "false").lower() == "false":
+    print("WARNING: OPENAI_API_KEY is not set. The agent will likely fail.")
 
 def run_etl_process():
     env = os.environ.copy()
@@ -26,6 +43,10 @@ def get_pg_conn():
 @app.get('/health')
 def health():
     return {'status': 'ok'}
+
+@app.get("/")
+def read_root():
+    return {"status": "online", "message": "Stratos Intelligence Core (Powered by CrewAI & GPT-4o)"}
 
 
 @app.post('/sync')
@@ -48,28 +69,6 @@ def status():
     finally:
         conn.close()
     return {'checkpoints': data}
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
-from crewai import Agent, Task, Crew, Process
-from langchain_openai import ChatOpenAI
-import os
-import json
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
-
-DEEPSEEK_BASE_URL = "https://api.deepseek.com"
-
-# Force environment variable for libraries that might check it directly
-# langchain might use OPENAI_API_BASE, while openai v1 uses OPENAI_BASE_URL
-os.environ["OPENAI_API_BASE"] = os.getenv("OPENAI_API_BASE", DEEPSEEK_BASE_URL)
-os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_API_BASE", DEEPSEEK_BASE_URL) 
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
-
-# Check for API key
-if not os.getenv("OPENAI_API_KEY") and os.getenv("STRATOS_MOCK_IA", "false").lower() == "false":
-    print("WARNING: OPENAI_API_KEY is not set. The agent will likely fail.")
 
 # Define the data models based on DATA_CONTRACT.md
 class GapData(BaseModel):
@@ -154,12 +153,6 @@ def get_llm(temperature=0.7):
             temperature=temperature,
             api_key=os.getenv("OPENAI_API_KEY")
         )
-
-app = FastAPI(title="Stratos Intel Service", version="0.1.0")
-
-@app.get("/")
-def read_root():
-    return {"status": "online", "message": "Stratos Intelligence Core (Powered by CrewAI & GPT-4o)"}
 
 @app.post("/analyze-gap", response_model=StrategyRecommendation)
 def analyze_gap(request: GapAnalysisRequest):

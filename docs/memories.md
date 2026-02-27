@@ -1,10 +1,11 @@
 # Master Stratos Memory – Single Source of Truth
 
-**Última actualización:** 24 Febrero 2026
+**Última actualización:** 25 Febrero 2026
 **Status Global:**
 
 - Core MVP (Backend/Frontend) ✅ COMPLETADO
 - Scenario Planning (Fases 1-7) ✅ COMPLETADO
+- **Estandarización IA: Ingeniero de Talento** ✅ UNIFICADO (2026-02-25)
 - **Paso 2 — Diseño de Roles y Competencias v2.0** ✅ REDISEÑADO (2026-02-24)
 - Metodología de 7 Pasos Estratégicos ✅ IMPLEMENTADA
 - Patrón CRUD: ✅ Consolidado en FormSchemaController
@@ -127,6 +128,18 @@ El sistema cuantifica el impacto financiero basado en supuestos configurables:
 ---
 
 # VOL V: BITÁCORA HISTÓRICA RECIENTE
+
+### [2026-02-25] Estandarización de Identidad IA y Persistencia de BARS ✅
+
+- **Hito**: Unificación de la identidad de los agentes bajo el nombre "Ingeniero de Talento" y corrección de la pérdida de datos en la ingeniería de detalle.
+- **Backend**:
+    - Estandarización de nombres en base de datos (Modelo `Agent`) y servicios (`TalentDesignOrchestratorService`, `CompetencyCuratorService`, `RoleDesignerService`).
+    - Mejora en `ScenarioRoleCompetency.php`: añadido accesor virtual `metadata` vinculado a `CompetencyVersion`.
+    - Refactor del controlador `Step2RoleCompetencyController` para carga persistente de versiones de IA.
+- **Frontend**:
+    - `EngineeringBlueprintSheet.vue`: eliminado fallo de importación de `vue-router`, robustecido el parser de `scenarioId` desde URL.
+    - `RoleCompetencyMatrix.vue`: corregido payload de guardado para preservar versiones de IA.
+- **Doc de referencia**: `docs/SESION_2026_02_25_RESUMEN.md`.
 
 ### [2026-02-24] Rediseño Paso 2: Panel de Revisión de Propuestas ✅
 

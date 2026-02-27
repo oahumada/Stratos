@@ -939,6 +939,7 @@ Route::prefix('strategic-planning')->group(function () {
     Route::get('scenarios/{id}/compare-versions', [\App\Http\Controllers\Api\ScenarioController::class, 'compareVersions']);
     Route::get('scenarios/{id}/summary', [\App\Http\Controllers\Api\ScenarioController::class, 'summarize']);
     Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
+    Route::delete('scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'destroyScenario']);
 });
 
 // Talent Engineering

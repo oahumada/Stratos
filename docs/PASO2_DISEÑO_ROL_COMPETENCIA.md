@@ -1,8 +1,8 @@
 # Paso 2: Diseño de Roles y Competencias — Guía de Rediseño
 
-> **Versión:** 2.0
-> **Fecha:** 2026-02-24
-> **Estado:** ✅ IMPLEMENTADO — Backend completo · Frontend Fases 1–4 operativo
+> **Versión:** 2.1
+> **Fecha:** 2026-02-25
+> **Estado:** ✅ ESTABILIZADO — Backend unificado · Persistencia de BARS corregida
 > **Contexto:** Documento de referencia para el rediseño del Paso 2 del wizard de Planificación de Escenarios en Stratos.
 
 ---
@@ -107,6 +107,7 @@ Cada asignación rol-competencia en la matriz tiene un tipo de cambio que indica
 ╠═════════════════════════════════════════════════════════════════════╣
 ║  Ruta: POST /api/scenarios/{id}/step2/design-talent                 ║
 ║  Servicio: TalentDesignOrchestratorService::orchestrate()           ║
+║  Agente: **Ingeniero de Talento** (unificado 2026-02-25)            ║
 ║                                                                     ║
 ║  Input que recibe el agente:                                        ║
 ║  • Blueprint Paso 1 (caps → comps → skills → roles sugeridos)       ║

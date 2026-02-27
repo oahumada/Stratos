@@ -978,4 +978,42 @@ class ScenarioController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    /**
+     * API: Eliminar un escenario (Destroy)
+     */
+    public function destroyScenario($id): JsonResponse
+    {
+        $scenario = Scenario::find($id);
+
+        if (!$scenario) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Scenario not found',
+            ], 404);
+        }
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        if ($scenario->organization_id !== $user->organization_id) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        try {
+            $scenario->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Scenario deleted successfully',
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Error deleting scenario ' . $id . ': ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting scenario',
+            ], 500);
+        }
+    }
 }
