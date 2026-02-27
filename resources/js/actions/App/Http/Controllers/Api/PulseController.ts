@@ -235,6 +235,87 @@ storeResponseForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'pos
 
 storeResponse.form = storeResponseForm
 
-const PulseController = { index, show, storeResponse }
+/**
+* @see \App\Http\Controllers\Api\PulseController::healthScan
+* @see app/Http/Controllers/Api/PulseController.php:89
+* @route '/api/pulse/health-scan'
+*/
+export const healthScan = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: healthScan.url(options),
+    method: 'get',
+})
+
+healthScan.definition = {
+    methods: ["get","head"],
+    url: '/api/pulse/health-scan',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::healthScan
+* @see app/Http/Controllers/Api/PulseController.php:89
+* @route '/api/pulse/health-scan'
+*/
+healthScan.url = (options?: RouteQueryOptions) => {
+    return healthScan.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::healthScan
+* @see app/Http/Controllers/Api/PulseController.php:89
+* @route '/api/pulse/health-scan'
+*/
+healthScan.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: healthScan.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::healthScan
+* @see app/Http/Controllers/Api/PulseController.php:89
+* @route '/api/pulse/health-scan'
+*/
+healthScan.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: healthScan.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::healthScan
+* @see app/Http/Controllers/Api/PulseController.php:89
+* @route '/api/pulse/health-scan'
+*/
+const healthScanForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: healthScan.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::healthScan
+* @see app/Http/Controllers/Api/PulseController.php:89
+* @route '/api/pulse/health-scan'
+*/
+healthScanForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: healthScan.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::healthScan
+* @see app/Http/Controllers/Api/PulseController.php:89
+* @route '/api/pulse/health-scan'
+*/
+healthScanForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: healthScan.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+healthScan.form = healthScanForm
+
+const PulseController = { index, show, storeResponse, healthScan }
 
 export default PulseController

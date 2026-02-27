@@ -29,6 +29,14 @@ class PsychometricProfile extends Model
         return $this->belongsTo(People::class, 'people_id');
     }
 
+    /**
+     * Alias for person() — used by CultureSentinelService.
+     */
+    public function people(): BelongsTo
+    {
+        return $this->person();
+    }
+
     public function session(): BelongsTo
     {
         return $this->belongsTo(AssessmentSession::class, 'assessment_session_id');

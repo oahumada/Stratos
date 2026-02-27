@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 import bars from './bars'
 import qb from './qb'
 /**
-* @see routes/web.php:91
+* @see routes/web.php:92
 * @route '/talento360'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:91
+* @see routes/web.php:92
 * @route '/talento360'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -24,7 +24,7 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:91
+* @see routes/web.php:92
 * @route '/talento360'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -33,7 +33,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:91
+* @see routes/web.php:92
 * @route '/talento360'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -42,7 +42,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:91
+* @see routes/web.php:92
 * @route '/talento360'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -51,7 +51,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:91
+* @see routes/web.php:92
 * @route '/talento360'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -60,7 +60,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:91
+* @see routes/web.php:92
 * @route '/talento360'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -76,7 +76,7 @@ indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 index.form = indexForm
 
 /**
-* @see routes/web.php:95
+* @see routes/web.php:96
 * @route '/talento360/results/{id}'
 */
 export const results = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -90,7 +90,7 @@ results.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:95
+* @see routes/web.php:96
 * @route '/talento360/results/{id}'
 */
 results.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -116,7 +116,7 @@ results.url = (args: { id: string | number } | [id: string | number ] | string |
 }
 
 /**
-* @see routes/web.php:95
+* @see routes/web.php:96
 * @route '/talento360/results/{id}'
 */
 results.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -125,7 +125,7 @@ results.get = (args: { id: string | number } | [id: string | number ] | string |
 })
 
 /**
-* @see routes/web.php:95
+* @see routes/web.php:96
 * @route '/talento360/results/{id}'
 */
 results.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -134,7 +134,7 @@ results.head = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
-* @see routes/web.php:95
+* @see routes/web.php:96
 * @route '/talento360/results/{id}'
 */
 const resultsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -143,7 +143,7 @@ const resultsForm = (args: { id: string | number } | [id: string | number ] | st
 })
 
 /**
-* @see routes/web.php:95
+* @see routes/web.php:96
 * @route '/talento360/results/{id}'
 */
 resultsForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -152,7 +152,7 @@ resultsForm.get = (args: { id: string | number } | [id: string | number ] | stri
 })
 
 /**
-* @see routes/web.php:95
+* @see routes/web.php:96
 * @route '/talento360/results/{id}'
 */
 resultsForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -168,7 +168,7 @@ resultsForm.head = (args: { id: string | number } | [id: string | number ] | str
 results.form = resultsForm
 
 /**
-* @see routes/web.php:99
+* @see routes/web.php:100
 * @route '/talento360/relationships'
 */
 export const relationships = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -182,7 +182,7 @@ relationships.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:99
+* @see routes/web.php:100
 * @route '/talento360/relationships'
 */
 relationships.url = (options?: RouteQueryOptions) => {
@@ -190,7 +190,7 @@ relationships.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:99
+* @see routes/web.php:100
 * @route '/talento360/relationships'
 */
 relationships.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -199,7 +199,7 @@ relationships.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:99
+* @see routes/web.php:100
 * @route '/talento360/relationships'
 */
 relationships.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -208,7 +208,7 @@ relationships.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 })
 
 /**
-* @see routes/web.php:99
+* @see routes/web.php:100
 * @route '/talento360/relationships'
 */
 const relationshipsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -217,7 +217,7 @@ const relationshipsForm = (options?: RouteQueryOptions): RouteFormDefinition<'ge
 })
 
 /**
-* @see routes/web.php:99
+* @see routes/web.php:100
 * @route '/talento360/relationships'
 */
 relationshipsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -226,7 +226,7 @@ relationshipsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 })
 
 /**
-* @see routes/web.php:99
+* @see routes/web.php:100
 * @route '/talento360/relationships'
 */
 relationshipsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -242,7 +242,7 @@ relationshipsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get
 relationships.form = relationshipsForm
 
 /**
-* @see routes/web.php:111
+* @see routes/web.php:112
 * @route '/talento360/command-center'
 */
 export const commandCenter = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -256,7 +256,7 @@ commandCenter.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:111
+* @see routes/web.php:112
 * @route '/talento360/command-center'
 */
 commandCenter.url = (options?: RouteQueryOptions) => {
@@ -264,7 +264,7 @@ commandCenter.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:111
+* @see routes/web.php:112
 * @route '/talento360/command-center'
 */
 commandCenter.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -273,7 +273,7 @@ commandCenter.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:111
+* @see routes/web.php:112
 * @route '/talento360/command-center'
 */
 commandCenter.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -282,7 +282,7 @@ commandCenter.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 })
 
 /**
-* @see routes/web.php:111
+* @see routes/web.php:112
 * @route '/talento360/command-center'
 */
 const commandCenterForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -291,7 +291,7 @@ const commandCenterForm = (options?: RouteQueryOptions): RouteFormDefinition<'ge
 })
 
 /**
-* @see routes/web.php:111
+* @see routes/web.php:112
 * @route '/talento360/command-center'
 */
 commandCenterForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -300,7 +300,7 @@ commandCenterForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 })
 
 /**
-* @see routes/web.php:111
+* @see routes/web.php:112
 * @route '/talento360/command-center'
 */
 commandCenterForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

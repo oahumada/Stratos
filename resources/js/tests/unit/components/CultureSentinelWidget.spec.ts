@@ -54,8 +54,8 @@ describe('CultureSentinelWidget.vue', () => {
 
         const wrapper = mount(CultureSentinelWidget);
 
-        // Trigger scan
-        await wrapper.find('.sentinel-header .v-btn').trigger('click');
+        // Trigger scan via vm method directly (Vuetify buttons don't render as standard HTML in jsdom)
+        await wrapper.vm.runScan();
         await flushPromises();
 
         expect(mockGet).toHaveBeenCalledWith('/api/pulse/health-scan');
@@ -97,7 +97,7 @@ describe('CultureSentinelWidget.vue', () => {
         });
 
         const wrapper = mount(CultureSentinelWidget);
-        await wrapper.find('.sentinel-header .v-btn').trigger('click');
+        await wrapper.vm.runScan();
         await flushPromises();
 
         expect(wrapper.vm.anomalies).toHaveLength(2);
@@ -137,7 +137,7 @@ describe('CultureSentinelWidget.vue', () => {
         mockGet.mockRejectedValue(new Error('Network error'));
 
         const wrapper = mount(CultureSentinelWidget);
-        await wrapper.find('.sentinel-header .v-btn').trigger('click');
+        await wrapper.vm.runScan();
         await flushPromises();
 
         // Should not crash, scanning should be false after error
@@ -168,7 +168,7 @@ describe('CultureSentinelWidget.vue', () => {
         });
 
         const wrapper = mount(CultureSentinelWidget);
-        await wrapper.find('.sentinel-header .v-btn').trigger('click');
+        await wrapper.vm.runScan();
         await flushPromises();
 
         expect(wrapper.vm.aiAnalysis).not.toBeNull();
