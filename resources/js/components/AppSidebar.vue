@@ -95,6 +95,13 @@ const mainNavItems: NavItem[] = [
         icon: Talento360Icon,
     },
     {
+        title: 'Comando 360',
+        href: '/talento360/comando',
+        icon: defineComponent(
+            () => () => h(VIcon, { icon: 'mdi-rocket-launch', size: 20 }),
+        ),
+    },
+    {
         title: 'People Experience',
         href: '/people-experience',
         icon: PeopleExperienceIcon,

@@ -243,68 +243,68 @@ relationships.form = relationshipsForm
 
 /**
 * @see routes/web.php:112
-* @route '/talento360/command-center'
+* @route '/talento360/comando'
 */
-export const commandCenter = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: commandCenter.url(options),
+export const comando = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: comando.url(options),
     method: 'get',
 })
 
-commandCenter.definition = {
+comando.definition = {
     methods: ["get","head"],
-    url: '/talento360/command-center',
+    url: '/talento360/comando',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see routes/web.php:112
-* @route '/talento360/command-center'
+* @route '/talento360/comando'
 */
-commandCenter.url = (options?: RouteQueryOptions) => {
-    return commandCenter.definition.url + queryParams(options)
+comando.url = (options?: RouteQueryOptions) => {
+    return comando.definition.url + queryParams(options)
 }
 
 /**
 * @see routes/web.php:112
-* @route '/talento360/command-center'
+* @route '/talento360/comando'
 */
-commandCenter.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: commandCenter.url(options),
+comando.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: comando.url(options),
     method: 'get',
 })
 
 /**
 * @see routes/web.php:112
-* @route '/talento360/command-center'
+* @route '/talento360/comando'
 */
-commandCenter.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: commandCenter.url(options),
+comando.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: comando.url(options),
     method: 'head',
 })
 
 /**
 * @see routes/web.php:112
-* @route '/talento360/command-center'
+* @route '/talento360/comando'
 */
-const commandCenterForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: commandCenter.url(options),
+const comandoForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: comando.url(options),
     method: 'get',
 })
 
 /**
 * @see routes/web.php:112
-* @route '/talento360/command-center'
+* @route '/talento360/comando'
 */
-commandCenterForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: commandCenter.url(options),
+comandoForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: comando.url(options),
     method: 'get',
 })
 
 /**
 * @see routes/web.php:112
-* @route '/talento360/command-center'
+* @route '/talento360/comando'
 */
-commandCenterForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: commandCenter.url({
+comandoForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: comando.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -313,7 +313,7 @@ commandCenterForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get
     method: 'get',
 })
 
-commandCenter.form = commandCenterForm
+comando.form = comandoForm
 
 const talento360 = {
     index: Object.assign(index, index),
@@ -321,7 +321,7 @@ const talento360 = {
     relationships: Object.assign(relationships, relationships),
     bars: Object.assign(bars, bars),
     qb: Object.assign(qb, qb),
-    commandCenter: Object.assign(commandCenter, commandCenter),
+    comando: Object.assign(comando, comando),
 }
 
 export default talento360

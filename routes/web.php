@@ -109,9 +109,9 @@ Route::get('/talento360/question-bank', function () {
     return Inertia::render('Talento360/QuestionBank/Index');
 })->middleware(['auth', 'verified'])->name('talento360.qb.index');
 
-Route::get('/talento360/command-center', function () {
-    return Inertia::render('Talento360/CommandCenter');
-})->middleware(['auth', 'verified'])->name('talento360.command-center');
+Route::get('/talento360/comando', function () {
+    return Inertia::render('Talento360/Comando');
+})->middleware(['auth', 'verified'])->name('talento360.comando');
 
 Route::get('/people-experience', function () {
     return Inertia::render('PeopleExperience/Index');
