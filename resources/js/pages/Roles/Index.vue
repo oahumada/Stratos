@@ -19,6 +19,15 @@ import tableConfigJson from './roles-form/tableConfig.json';
 
 defineOptions({ layout: AppLayout });
 
+// Wizard state
+const showCubeWizard = ref(false);
+const formSchemaRef = ref<any>(null);
+
+const onRoleCreated = () => {
+    formSchemaRef.value?.loadItems();
+    showCubeWizard.value = false;
+};
+
 // Detail tab state
 const detailTab = ref('info');
 
@@ -91,12 +100,26 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
 <template>
     <FormSchema
+        ref="formSchemaRef"
         :config="config"
         :table-config="tableConfig"
         :item-form="itemForm"
         :filters="filters"
         enable-row-detail
     >
+        <template #extra-actions>
+            <v-btn
+                prepend-icon="mdi-cube-send"
+                color="indigo"
+                variant="elevated"
+                size="large"
+                class="ml-2"
+                @click="showCubeWizard = true"
+            >
+                Diseñar con Cubo AI
+            </v-btn>
+        </template>
+
         <template #detail="{ item, refresh }">
             <v-tabs v-model="detailTab">
                 <v-tab value="info">
@@ -521,6 +544,8 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
             </v-window>
         </template>
     </FormSchema>
+
+    <RoleCubeWizard v-model="showCubeWizard" @created="onRoleCreated" />
 </template>
 
 <style scoped>

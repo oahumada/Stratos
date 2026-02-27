@@ -227,18 +227,26 @@ class Step2RoleCompetencyController extends Controller
         $validated = $request->validate([
             'role_id' => 'nullable|integer|exists:roles,id',
             'role_name' => 'nullable|string|max:255',
+            'role_description' => 'nullable|string',
             'fte' => 'required|numeric|min:0.1',
             'role_change' => 'required|string|in:create,modify,eliminate,maintain',
             'evolution_type' => 'required|string|in:new_role,upgrade_skills,transformation,downsize,elimination',
             'impact_level' => 'required|string|in:critical,high,medium,low',
             'rationale' => 'nullable|string',
+            'cube_dimensions' => 'nullable|array',
+            'competencies' => 'nullable|array',
+            'ai_archetype_config' => 'nullable|array'
         ]);
 
-        // Si no existe role_id, crear uno nuevo
+        // Si no existe role_id, crear uno nuevo en el catálogo (como in_incubation)
         if (empty($validated['role_id'])) {
             $role = \App\Models\Roles::create([
                 'organization_id' => auth()->user()->organization_id,
                 'name' => $validated['role_name'],
+                'description' => $validated['role_description'] ?? null,
+                'status' => 'in_incubation',
+                'ai_archetype_config' => $validated['ai_archetype_config'] ?? null,
+                'cube_dimensions' => $validated['cube_dimensions'] ?? null,
             ]);
             $roleId = $role->id;
         } else {
@@ -256,35 +264,59 @@ class Step2RoleCompetencyController extends Controller
                 'evolution_type' => $validated['evolution_type'],
                 'impact_level' => $validated['impact_level'],
                 'rationale' => $validated['rationale'] ?? null,
+                'archetype' => $validated['cube_dimensions']['x_archetype'] ?? $validated['ai_archetype_config']['cube_coordinates']['x_archetype'] ?? null,
+                'human_leverage' => $validated['cube_dimensions']['human_leverage'] ?? null,
+                'ai_suggestions' => $validated['ai_archetype_config'] ?? null,
             ]
         );
+
+        // Si se pasaron competencias, grabarlas en scenario_role_competencies
+        if ($request->has('competencies') && is_array($request->competencies)) {
+            foreach ($request->competencies as $compData) {
+                // Buscar o crear skill en catálogo
+                $skill = \App\Models\Skill::firstOrCreate(
+                    [
+                        'name' => $compData['name'],
+                        'organization_id' => auth()->user()->organization_id
+                    ],
+                    [
+                        'category' => 'Competency',
+                        'description' => $compData['rationale'] ?? null
+                    ]
+                );
+
+                // Como esto suele ser para roles nuevos en el escenario, el cambio es 'enrichment' por defecto
+                ScenarioRoleCompetency::updateOrCreate(
+                    [
+                        'scenario_id' => $scenarioId,
+                        'role_id' => $scenarioRole->id,
+                        'competency_id' => $skill->id, // Usamos el ID de la competencia/skill
+                    ],
+                    [
+                        'required_level' => $compData['level'] ?? 3,
+                        'change_type' => 'enrichment',
+                        'rationale' => $compData['rationale'] ?? null,
+                        'source' => 'agent'
+                    ]
+                );
+            }
+
+            // Disparar derivación de skills
+            $this->derivationService->deriveSkillsFromCompetencies($scenarioId, $scenarioRole->id);
+        }
 
         // Cargar la relación con el rol para obtener el nombre
         $scenarioRole->load('role');
 
-        // Formatear la respuesta para que coincida con el formato esperado por el frontend
-        $roleData = [
-            'id' => $scenarioRole->id,
-            'scenario_id' => $scenarioRole->scenario_id,
-            'role_id' => $scenarioRole->role_id,
-            'role_name' => $scenarioRole->role->name,
-            'fte' => $scenarioRole->fte,
-            'role_change' => $scenarioRole->role_change,
-            'evolution_type' => $scenarioRole->evolution_type,
-            'impact_level' => $scenarioRole->impact_level,
-            'rationale' => $scenarioRole->rationale,
-            'human_leverage' => $scenarioRole->human_leverage,
-            'archetype' => $scenarioRole->archetype,
-        ];
-
         return response()->json([
             'success' => true,
-            'role' => $roleData,
+            'role' => $scenarioRole,
             'message' => $scenarioRole->wasRecentlyCreated
-                ? 'Rol agregado al escenario'
+                ? 'Rol agregado al escenario con diseño de Cubo'
                 : 'Rol actualizado en el escenario',
         ], $scenarioRole->wasRecentlyCreated ? 201 : 200);
     }
+
 
     /**
      * GET /api/v1/scenarios/{scenarioId}/step2/role-forecasts

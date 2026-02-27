@@ -23,10 +23,19 @@ class RoleDesignerService
     {
         $roleModel = $isScenario ? ScenarioRole::with('role')->findOrFail($roleId) : Roles::findOrFail($roleId);
         $roleName = $isScenario ? ($roleModel->role->name ?? 'Rol en Incubación') : $roleModel->name;
+        $description = $isScenario ? $roleModel->rationale : $roleModel->description;
+
+        return $this->analyzePreview($roleName, $description, $roleModel, $isScenario);
+    }
+
+    /**
+     * Realiza un análisis previo (sin persistir necesariamente en un ID existente).
+     */
+    public function analyzePreview(string $name, ?string $description, $roleModel = null, bool $isScenario = false): array
+    {
+        $prompt = "Actúa como Ingeniero de Talento de Stratos. Necesito que apliques la metodología de 'Cubo de Roles' (X, Y, Z) para el siguiente cargo: '{$name}'.
         
-        $prompt = "Actúa como Ingeniero de Talento de Stratos. Necesito que apliques la metodología de 'Cubo de Roles' (X, Y, Z) para el siguiente cargo: '{$roleName}'.
-        
-        Descripción actual: " . ($isScenario ? $roleModel->rationale : $roleModel->description) . "
+        Descripción actual: {$description}
         
         Por favor, define las coordenadas del cubo:
         1. Eje X (Arquetipo): ¿Es Estratégico, Táctico u Operativo? Justifica.
@@ -55,24 +64,24 @@ class RoleDesignerService
             $result = $this->orchestrator->agentThink('Ingeniero de Talento', $prompt);
             $analysis = $result['response'];
 
-            // Persistir en el modelo correspondiente
-            if ($isScenario) {
-                $roleModel->update(['ai_suggestions' => $analysis]);
-            } else {
-                $roleModel->update(['ai_archetype_config' => $analysis]);
+            // Si hay un modelo, persistir
+            if ($roleModel) {
+                if ($isScenario) {
+                    $roleModel->update(['ai_suggestions' => $analysis]);
+                } else {
+                    $roleModel->update(['ai_archetype_config' => $analysis]);
+                }
             }
-
-            Log::info("Diseño de Cubo de Roles completado para: {$roleName}");
 
             return [
                 'status' => 'success',
-                'role' => $roleName,
+                'role' => $name,
                 'cube' => $analysis['cube_coordinates'] ?? null,
                 'analysis' => $analysis
             ];
 
         } catch (\Exception $e) {
-            Log::error("Error diseñando rol {$roleName}: " . $e->getMessage());
+            Log::error("Error analizando rol {$name}: " . $e->getMessage());
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }

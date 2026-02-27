@@ -226,6 +226,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/scenarios/{id}/incubated-items/reject', [\App\Http\Controllers\Api\IncubationController::class, 'reject']);
 
             // AI Role Designer
+            Route::post('/roles/analyze-preview', [\App\Http\Controllers\Api\RoleDesignerController::class, 'analyzePreview']);
             Route::post('/roles/{id}/design', [\App\Http\Controllers\Api\RoleDesignerController::class, 'design']);
 
             // Assessments & Psychometrics (Fase 4: Talento 360)
@@ -993,6 +994,12 @@ Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group
     Route::post('finalize', [\App\Http\Controllers\Api\ScenarioController::class, 'finalizeStep2']);
     Route::get('cube', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getCubeData']);
     Route::post('engine/generate-bars', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'generateBars']);
+});
+
+// Role Management Specialized
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/roles', [\App\Http\Controllers\Api\RoleController::class, 'store']);
+    Route::get('/roles/{id}', [\App\Http\Controllers\Api\RoleController::class, 'show']);
 });
 
 // Catálogos dinámicos para selectores

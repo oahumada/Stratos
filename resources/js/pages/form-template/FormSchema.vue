@@ -541,6 +541,7 @@ onMounted(() => {
             >
                 New Record
             </v-btn>
+            <slot name="extra-actions"></slot>
         </div>
 
         <!-- Filters -->

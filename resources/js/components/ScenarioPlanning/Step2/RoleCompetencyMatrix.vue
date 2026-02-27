@@ -16,6 +16,14 @@
                 <div class="flex gap-2">
                     <v-btn
                         color="secondary"
+                        variant="tonal"
+                        prepend-icon="mdi-cube-outline"
+                        @click="showCubeWizard = true"
+                    >
+                        Diseñar con Cubo AI
+                    </v-btn>
+                    <v-btn
+                        color="secondary"
                         variant="outlined"
                         prepend-icon="mdi-robot"
                         :loading="isDesigning"
@@ -381,6 +389,14 @@
             @applied="handleApplied"
         />
 
+        <!-- Role Cube Wizard Integration -->
+        <RoleCubeWizard
+            :visible="showCubeWizard"
+            :scenario-id="props.scenarioId"
+            @close="showCubeWizard = false"
+            @created="handleRoleCreated"
+        />
+
         <!-- Finalizar Paso 2 - Dialog de confirmación -->
         <v-dialog v-model="showFinalizeDialog" max-width="520" persistent>
             <v-card>
@@ -445,6 +461,7 @@ const store = useRoleCompetencyStore();
 
 const showEditModal = ref(false);
 const showAddRoleDialog = ref(false);
+const showCubeWizard = ref(false);
 const activeTab = ref(0);
 const selectedMapping = ref<{
     roleId: number;
@@ -592,6 +609,9 @@ const removeMapping = async (roleId: number, competencyId: number) => {
 const handleAddRole = async (roleData: any) => {
     await store.addNewRole(roleData);
     showAddRoleDialog.value = false;
+};
+const handleRoleCreated = async () => {
+    await store.loadScenarioData(props.scenarioId);
 };
 </script>
 
