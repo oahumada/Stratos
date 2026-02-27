@@ -107,6 +107,13 @@ const mainNavItems: NavItem[] = [
         icon: PeopleExperienceIcon,
     },
     {
+        title: 'Comando PX',
+        href: '/people-experience/comando',
+        icon: defineComponent(
+            () => () => h(VIcon, { icon: 'mdi-brain', size: 20 }),
+        ),
+    },
+    {
         title: 'Talent Agents',
         href: '/talent-agents',
         icon: TalentAgentsIcon,

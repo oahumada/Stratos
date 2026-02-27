@@ -12,6 +12,7 @@ import MarketplaceController from './MarketplaceController'
 import MentorController from './MentorController'
 import AuthController from './AuthController'
 import AssessmentCycleController from './AssessmentCycleController'
+import PxCampaignController from './PxCampaignController'
 import GapAnalysisController from './GapAnalysisController'
 import DevelopmentPathController from './DevelopmentPathController'
 import ScenarioController from './ScenarioController'
@@ -48,6 +49,7 @@ const Api = {
     MentorController: Object.assign(MentorController, MentorController),
     AuthController: Object.assign(AuthController, AuthController),
     AssessmentCycleController: Object.assign(AssessmentCycleController, AssessmentCycleController),
+    PxCampaignController: Object.assign(PxCampaignController, PxCampaignController),
     GapAnalysisController: Object.assign(GapAnalysisController, GapAnalysisController),
     DevelopmentPathController: Object.assign(DevelopmentPathController, DevelopmentPathController),
     ScenarioController: Object.assign(ScenarioController, ScenarioController),

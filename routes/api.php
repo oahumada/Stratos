@@ -143,6 +143,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Talento 360 Command Center
     Route::apiResource('assessment-cycles', \App\Http\Controllers\Api\AssessmentCycleController::class)
         ->middleware('permission:assessments.manage');
+        
+    // People Experience Command Center
+    Route::apiResource('px-campaigns', \App\Http\Controllers\Api\PxCampaignController::class)
+        ->middleware('permission:assessments.manage');
 
     Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::class, 'analyze']);
     Route::get('/development-paths', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'index']);

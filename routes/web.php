@@ -117,6 +117,10 @@ Route::get('/people-experience', function () {
     return Inertia::render('PeopleExperience/Index');
 })->middleware(['auth', 'verified'])->name('people-experience.index');
 
+Route::get('/people-experience/comando', function () {
+    return Inertia::render('PeopleExperience/ComandoPx');
+})->middleware(['auth', 'verified'])->name('people-experience.comando');
+
 Route::get('/talent-agents', function () {
     return Inertia::render('TalentAgents/Index');
 })->middleware(['auth', 'verified'])->name('talent-agents.index');
