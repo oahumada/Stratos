@@ -13,6 +13,7 @@ class AssessmentRequest extends Model
 
     protected $fillable = [
         'organization_id',
+        'assessment_cycle_id',
         'evaluator_id',
         'subject_id',
         'relationship',
@@ -27,7 +28,12 @@ class AssessmentRequest extends Model
 
     public function organization(): BelongsTo
     {
-        return $this->belongsTo(Organizations::class);
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function cycle(): BelongsTo
+    {
+        return $this->belongsTo(AssessmentCycle::class, 'assessment_cycle_id');
     }
 
     public function evaluator(): BelongsTo

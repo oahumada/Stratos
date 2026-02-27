@@ -17,8 +17,18 @@ class AssessmentCycleController extends Controller
         $orgId = $request->user()->organization_id;
 
         $cycles = AssessmentCycle::where('organization_id', $orgId)
+            ->withCount(['requests as total_requests'])
+            ->withCount(['requests as completed_requests' => function($query) {
+                $query->where('status', 'completed');
+            }])
             ->orderBy('created_at', 'desc')
             ->get();
+
+        $cycles->each(function($cycle) {
+            $cycle->completion_rate = $cycle->total_requests > 0 
+                ? round(($cycle->completed_requests / $cycle->total_requests) * 100) 
+                : 0;
+        });
 
         return response()->json(['data' => $cycles]);
     }
