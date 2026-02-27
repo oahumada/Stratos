@@ -27,6 +27,8 @@ class CatalogsRepository
                     'name' => $p->full_name,
                 ];
             }),
+            'agents' => fn () => \App\Models\Agent::select('id', 'name')->get(),
+            'blueprints' => fn () => \App\Models\TalentBlueprint::select('id', 'name')->get(),
         ];
 
         $catalogos = [];

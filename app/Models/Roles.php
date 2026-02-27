@@ -25,13 +25,17 @@ class Roles extends Model
         'status',
         'discovered_in_scenario_id',
         'embedding',
-        'ai_archetype_config'
+        'ai_archetype_config',
+        'agent_id',
+        'blueprint_id',
+        'cube_dimensions',
     ];
 
     protected $casts = [
         'level' => 'string',
         'ai_archetype_config' => 'array',
         'embedding' => 'array',
+        'cube_dimensions' => 'array',
     ];
 
     protected static function booted()
@@ -47,6 +51,16 @@ class Roles extends Model
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class, 'agent_id');
+    }
+
+    public function blueprint(): BelongsTo
+    {
+        return $this->belongsTo(TalentBlueprint::class, 'blueprint_id');
     }
 
     public function skills(): BelongsToMany

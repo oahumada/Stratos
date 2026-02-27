@@ -141,6 +141,38 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                     {{ item.description }}
                                 </v-list-item-title>
                             </v-list-item>
+                            <v-list-item v-if="item.agent">
+                                <v-list-item-title class="text-body-2">
+                                    <strong>AI Agent:</strong>
+                                    <v-chip
+                                        size="small"
+                                        color="indigo"
+                                        variant="flat"
+                                        class="ml-2"
+                                    >
+                                        <v-icon start size="small"
+                                            >mdi-robot</v-icon
+                                        >
+                                        {{ item.agent.name }}
+                                    </v-chip>
+                                </v-list-item-title>
+                            </v-list-item>
+                            <v-list-item v-if="item.blueprint">
+                                <v-list-item-title class="text-body-2">
+                                    <strong>Plantilla:</strong>
+                                    <v-chip
+                                        size="small"
+                                        color="blue-grey"
+                                        variant="outlined"
+                                        class="ml-2"
+                                    >
+                                        <v-icon start size="small"
+                                            >mdi-file-document-outline</v-icon
+                                        >
+                                        {{ item.blueprint.name }}
+                                    </v-chip>
+                                </v-list-item-title>
+                            </v-list-item>
                         </v-list>
 
                         <v-divider class="my-3"></v-divider>

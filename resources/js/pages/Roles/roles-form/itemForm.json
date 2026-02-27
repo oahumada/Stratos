@@ -2,18 +2,32 @@
     "fields": [
         {
             "key": "name",
-            "label": "Role Name",
+            "label": "Nombre del Rol",
             "type": "text",
-            "placeholder": "Enter role name",
+            "placeholder": "Ej. Tech Lead",
             "rules": ["required", "min:3"]
         },
         {
             "key": "description",
-            "label": "Description",
+            "label": "Descripción",
             "type": "textarea",
-            "placeholder": "Enter role description",
+            "placeholder": "Misión o responsabilidades del rol",
             "rules": ["required"]
+        },
+        {
+            "key": "agent_id",
+            "label": "AI Agent Principal",
+            "type": "select",
+            "catalog": "agents",
+            "placeholder": "Seleccione el Agente Orquestador"
+        },
+        {
+            "key": "blueprint_id",
+            "label": "Plantilla Base",
+            "type": "select",
+            "catalog": "blueprints",
+            "placeholder": "Seleccione el Blueprint o Plantilla Arquitectónica"
         }
     ],
-    "catalogs": []
+    "catalogs": ["agents", "blueprints"]
 }

@@ -30,6 +30,7 @@ class RolesRepository extends Repository
             ->withCount('skills')
             ->withCount(['people as people_count' => function ($query) {
                 $query->withoutGlobalScope('organization');
-            }]);
+            }])
+            ->with(['agent', 'blueprint']);
     }
 }

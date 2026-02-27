@@ -6,8 +6,13 @@
             "sortable": true
         },
         {
-            "text": "Description",
-            "value": "description",
+            "text": "Agent",
+            "value": "agent.name",
+            "sortable": true
+        },
+        {
+            "text": "Plantilla",
+            "value": "blueprint.name",
             "sortable": true
         },
         {
