@@ -49,7 +49,14 @@ const loadPaths = async () => {
     loading.value = true;
     try {
         const response = await axios.get('/api/development-paths');
-        paths.value = response.data.data || response.data;
+        const data = response.data.data || response.data;
+        paths.value = Array.isArray(data)
+            ? data.map((path: any) => ({
+                  ...path,
+                  steps: path.steps || [],
+              }))
+            : [];
+
         if (paths.value.length > 0) {
             expandedPath.value = paths.value[0].id;
         }
@@ -94,6 +101,7 @@ const getActionColor = (actionType: string): string => {
 
 // Calculate total duration
 const calculateTotalDuration = (steps: DevelopmentStep[]): number => {
+    if (!steps || !Array.isArray(steps)) return 0;
     return steps.reduce(
         (total, step) => total + (step.estimated_duration_days || 0),
         0,
@@ -433,10 +441,13 @@ onMounted(() => {
                                 <v-icon start size="small"
                                     >mdi-clock-outline</v-icon
                                 >
-                                {{ calculateTotalDuration(path.steps) }} días
+                                {{
+                                    calculateTotalDuration(path.steps || [])
+                                }}
+                                días
                             </v-chip>
                             <div class="text-caption text-medium-emphasis">
-                                {{ path.steps.length }} pasos
+                                {{ (path.steps || []).length }} pasos
                             </div>
                         </div>
                         <v-btn

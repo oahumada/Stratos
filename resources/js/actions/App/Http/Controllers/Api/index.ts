@@ -1,7 +1,5 @@
 import CatalogsController from './CatalogsController'
 import AssessmentController from './AssessmentController'
-import GapAnalysisController from './GapAnalysisController'
-import DevelopmentPathController from './DevelopmentPathController'
 import DevelopmentActionController from './DevelopmentActionController'
 import MentorshipSessionController from './MentorshipSessionController'
 import EvidenceController from './EvidenceController'
@@ -12,6 +10,8 @@ import ApplicationController from './ApplicationController'
 import DashboardController from './DashboardController'
 import MarketplaceController from './MarketplaceController'
 import MentorController from './MentorController'
+import GapAnalysisController from './GapAnalysisController'
+import DevelopmentPathController from './DevelopmentPathController'
 import ScenarioController from './ScenarioController'
 import PromptInstructionController from './PromptInstructionController'
 import ChangeSetController from './ChangeSetController'
@@ -34,8 +34,6 @@ import Step2RoleCompetencyController from './Step2RoleCompetencyController'
 const Api = {
     CatalogsController: Object.assign(CatalogsController, CatalogsController),
     AssessmentController: Object.assign(AssessmentController, AssessmentController),
-    GapAnalysisController: Object.assign(GapAnalysisController, GapAnalysisController),
-    DevelopmentPathController: Object.assign(DevelopmentPathController, DevelopmentPathController),
     DevelopmentActionController: Object.assign(DevelopmentActionController, DevelopmentActionController),
     MentorshipSessionController: Object.assign(MentorshipSessionController, MentorshipSessionController),
     EvidenceController: Object.assign(EvidenceController, EvidenceController),
@@ -46,6 +44,8 @@ const Api = {
     DashboardController: Object.assign(DashboardController, DashboardController),
     MarketplaceController: Object.assign(MarketplaceController, MarketplaceController),
     MentorController: Object.assign(MentorController, MentorController),
+    GapAnalysisController: Object.assign(GapAnalysisController, GapAnalysisController),
+    DevelopmentPathController: Object.assign(DevelopmentPathController, DevelopmentPathController),
     ScenarioController: Object.assign(ScenarioController, ScenarioController),
     PromptInstructionController: Object.assign(PromptInstructionController, PromptInstructionController),
     ChangeSetController: Object.assign(ChangeSetController, ChangeSetController),

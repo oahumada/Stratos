@@ -5,21 +5,17 @@ namespace App\Services;
 use App\Models\DevelopmentPath;
 use App\Models\People;
 use App\Models\Roles;
+use App\Services\AiOrchestratorService;
+use Illuminate\Support\Facades\Log;
 
 class DevelopmentPathService
 {
-    /**
-     * Genera una ruta de desarrollo personalizada basada en gap analysis.
-     *
-     * Lógica según especificación:
-     * - Gap 1: reading (15-20 días)
-     * - Gap 2: course + practice (45-50 días)
-     * - Gap 3: course + mentorship + project (75-90 días)
-     * - Gap 4+: course + mentorship + project + workshop (100-120 días)
-     * - Skills críticas: + certification (15 días extra)
-     *
-     * Priorización: críticas primero, mayor gap primero
-     */
+    protected $ai;
+
+    public function __construct(AiOrchestratorService $ai)
+    {
+        $this->ai = $ai;
+    }
     public function generate(People $people, Roles $targetRole): DevelopmentPath
     {
         $gapService = new GapAnalysisService;
@@ -36,35 +32,48 @@ class DevelopmentPathService
             ]);
 
         $steps = [];
-        $order = 1;
-        $totalDays = 0;
+        
+        // Intentar generación con Agente Inteligente
+        try {
+            Log::info("Iniciando generación de ruta con Agente para {$people->id}");
+            $agentSteps = $this->generateStepsWithAgent($people, $targetRole, $gaps);
+            if (!empty($agentSteps)) {
+                $steps = $agentSteps;
+                Log::info("Ruta generada exitosamente por el Agente (" . count($steps) . " pasos)");
+            }
+        } catch (\Exception $e) {
+            Log::warning("Agentic learning path failed, falling back to legacy rules: " . $e->getMessage());
+        }
 
-        foreach ($gaps as $gap) {
-            $gapValue = (int) $gap['gap'];
-            $isCritical = (bool) ($gap['is_critical'] ?? false);
-            $skillName = $gap['skill_name'];
-            $skillId = $gap['skill_id'];
+        // Fallback a lógica legacy si el agente falla o no devuelve pasos
+        if (empty($steps)) {
+            $order = 1;
+            foreach ($gaps as $gap) {
+                $gapValue = (int) $gap['gap'];
+                $isCritical = (bool) ($gap['is_critical'] ?? false);
+                $skillName = $gap['skill_name'];
+                $skillId = $gap['skill_id'];
 
-            // Generar pasos según el gap
-            $gapSteps = $this->generateStepsForGap($skillId, $skillName, $gapValue, $isCritical);
+                $gapSteps = $this->generateStepsForGap($skillId, $skillName, $gapValue, $isCritical);
 
-            foreach ($gapSteps as $step) {
-                $steps[] = array_merge($step, ['order' => $order++]);
-                $totalDays += $step['estimated_duration_days'];
+                foreach ($gapSteps as $step) {
+                    $steps[] = array_merge($step, ['order' => $order++]);
+                }
             }
         }
 
-        // Convertir días a meses (30 días = 1 mes) y asegurar entero para la columna DB
+        // Calcular duración total
+        $totalDays = collect($steps)->sum('estimated_duration_days');
         $estimatedMonths = (int) max(1, round($totalDays / 30));
 
-        // Obtener organization_id de la persona o del usuario autenticado
+        // Obtener organization_id
         $organizationId = $people->organization_id;
         if (! $organizationId && auth()->check()) {
             $organizationId = auth()->user()->organization_id;
         }
 
         $peopleName = $people->full_name ?? ($people->first_name.' '.$people->last_name);
-        $actionTitle = "Ruta automática de aprendizaje para {$peopleName} → {$targetRole->name}";
+        $actionTitle = "Ruta personalizada de aprendizaje para {$peopleName} → {$targetRole->name}";
 
         return DevelopmentPath::create([
             'action_title' => $actionTitle,
@@ -75,6 +84,47 @@ class DevelopmentPathService
             'estimated_duration_months' => $estimatedMonths,
             'steps' => $steps,
         ]);
+    }
+
+    /**
+     * Usa al Agente "Arquitecto de Aprendizaje" para generar una ruta pedagógica.
+     */
+    protected function generateStepsWithAgent(People $people, Roles $targetRole, $gaps): array
+    {
+        $peopleName = $people->full_name ?? ($people->first_name . ' ' . $people->last_name);
+        
+        $taskPrompt = "Persona: {$peopleName}\n";
+        $taskPrompt .= "Rol Objetivo: {$targetRole->name}\n";
+        $taskPrompt .= "Descripción del Rol: " . ($targetRole->description ?? 'N/A') . "\n";
+        $taskPrompt .= "Brechas detectadas (Gaps a cerrar):\n";
+        
+        foreach ($gaps as $gap) {
+            $critical = $gap['is_critical'] ? '[CRÍTICA]' : '';
+            $taskPrompt .= "- Skill: {$gap['skill_name']}, Brecha: {$gap['gap']} niveles {$critical}\n";
+        }
+        
+        $taskPrompt .= "\nINSTRUCCIÓN: Genera una secuencia lógica de pasos de aprendizaje (Learning Path). ";
+        $taskPrompt .= "Para cada paso utiliza este formato JSON exacto: { \"order\": int, \"action_type\": \"course|mentorship|project|certification|workshop|reading|practice\", \"skill_name\": \"string\", \"description\": \"descripción pedagógica personalizada y motivadora\", \"estimated_duration_days\": int }.\n";
+        $taskPrompt .= "LINEAMIENTOS TÉCNICOS:\n";
+        $taskPrompt .= "- Gap 1: ~20 días totales (actividad tipo reading/estudio)\n";
+        $taskPrompt .= "- Gap 2: ~45 días (actividades combinadas tipo course + practice)\n";
+        $taskPrompt .= "- Gap 3: ~80 días (course + mentorship + project)\n";
+        $taskPrompt .= "- Gap 4+: ~110 días (course + mentorship + workshop + project)\n";
+        $taskPrompt .= "- Skills críticas: añade siempre un paso final de 'certification' (15 días).\n";
+        $taskPrompt .= "IMPORTANTE: Resume o agrupa si hay demasiadas skills para no crear una ruta infinita. Devuelve SOLO un JSON con la clave 'steps' conteniendo el array de objetos.";
+
+        $result = $this->ai->agentThink('Arquitecto de Aprendizaje', $taskPrompt);
+        
+        // Extraer respuesta (soporta si viene como 'response' o directo)
+        $response = $result['response'] ?? $result;
+        
+        // Si es string (markdown code block), limpiar
+        if (is_string($response)) {
+            $response = preg_replace('/(^```json\s*)|(```$)/m', '', $response);
+            $response = json_decode(trim($response), true);
+        }
+        
+        return $response['steps'] ?? [];
     }
 
     /**

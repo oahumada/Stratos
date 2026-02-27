@@ -13,10 +13,14 @@ use Illuminate\Http\Request;
 class DevelopmentPathController extends Controller
 {
     protected $smartGenerator;
+    protected $pathService;
 
-    public function __construct(\App\Services\Talent\SmartPathGeneratorService $smartGenerator)
-    {
+    public function __construct(
+        \App\Services\Talent\SmartPathGeneratorService $smartGenerator,
+        DevelopmentPathService $pathService
+    ) {
         $this->smartGenerator = $smartGenerator;
+        $this->pathService = $pathService;
     }
 
     /**
@@ -45,6 +49,7 @@ class DevelopmentPathController extends Controller
                     'status' => $path->status,
                     'estimated_duration_months' => $path->estimated_duration_months,
                     'progress' => $path->progress ?? 0,
+                    'steps' => $path->steps ?? [],
                     'actions' => $path->actions, // Include the detailed actions
                     'created_at' => $path->created_at->toIso8601String(),
                 ];
@@ -113,8 +118,7 @@ class DevelopmentPathController extends Controller
             return response()->json(['error' => 'Debe especificar un Rol o una Skill'], 422);
         }
 
-        $service = new DevelopmentPathService;
-        $path = $service->generate($people, $role);
+        $path = $this->pathService->generate($people, $role);
 
         return response()->json([
             'data' => [

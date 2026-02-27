@@ -48,10 +48,6 @@ Route::get('/assessments/feedback/{token}', [\App\Http\Controllers\Api\Assessmen
 Route::post('/assessments/feedback/submit-guest', [\App\Http\Controllers\Api\AssessmentController::class, 'submitFeedbackGuest']);
 
 // Core services
-Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::class, 'analyze']);
-Route::get('/development-paths', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'index']);
-Route::post('/development-paths/generate', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'generate']);
-Route::delete('/development-paths/{id}', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'destroy']);
 Route::patch('/development-actions/{id}/status', [\App\Http\Controllers\Api\DevelopmentActionController::class, 'updateStatus']);
 Route::get('/mentorship-sessions', [\App\Http\Controllers\Api\MentorshipSessionController::class, 'index']);
 Route::post('/mentorship-sessions', [\App\Http\Controllers\Api\MentorshipSessionController::class, 'store']);
@@ -129,6 +125,11 @@ Route::get('/talent/mentors/suggest', [\App\Http\Controllers\Api\MentorControlle
 
 // Scenario Planning API (canonical, without /v1 prefix)
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::class, 'analyze']);
+    Route::get('/development-paths', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'index']);
+    Route::post('/development-paths/generate', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'generate']);
+    Route::delete('/development-paths/{id}', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'destroy']);
+
     Route::get('/strategic-planning/scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
     // Prompt / Instruction management for generation wizard (register before the {id} route)
     Route::get('/strategic-planning/scenarios/instructions', [\App\Http\Controllers\Api\PromptInstructionController::class, 'index']);

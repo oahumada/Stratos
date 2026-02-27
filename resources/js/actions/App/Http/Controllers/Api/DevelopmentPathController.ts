@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:25
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:29
 * @route '/api/development-paths'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:25
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:29
 * @route '/api/development-paths'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:25
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:29
 * @route '/api/development-paths'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:25
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:29
 * @route '/api/development-paths'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:25
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:29
 * @route '/api/development-paths'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:25
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:29
 * @route '/api/development-paths'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:25
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:29
 * @route '/api/development-paths'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::generate
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:59
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:64
 * @route '/api/development-paths/generate'
 */
 export const generate = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ generate.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::generate
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:59
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:64
 * @route '/api/development-paths/generate'
 */
 generate.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ generate.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::generate
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:59
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:64
 * @route '/api/development-paths/generate'
 */
 generate.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ generate.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::generate
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:59
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:64
 * @route '/api/development-paths/generate'
 */
 const generateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const generateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> 
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::generate
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:59
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:64
 * @route '/api/development-paths/generate'
 */
 generateForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ generate.form = generateForm
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:140
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:144
 * @route '/api/development-paths/{id}'
 */
 export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -153,7 +153,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:140
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:144
 * @route '/api/development-paths/{id}'
 */
 destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -180,7 +180,7 @@ destroy.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:140
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:144
 * @route '/api/development-paths/{id}'
 */
 destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -190,7 +190,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:140
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:144
 * @route '/api/development-paths/{id}'
 */
 const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -205,7 +205,7 @@ const destroyForm = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:140
+* @see app/Http/Controllers/Api/DevelopmentPathController.php:144
 * @route '/api/development-paths/{id}'
 */
 destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
