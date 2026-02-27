@@ -8,28 +8,43 @@ import { edit as editProfile } from '@/routes/profile';
 import { show } from '@/routes/two-factor';
 import { edit as editPassword } from '@/routes/user-password';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
-const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Perfil',
-        href: editProfile(),
-    },
-    {
-        title: 'Clave',
-        href: editPassword(),
-    },
-    {
-        title: 'Auth de Dos Factores',
-        href: show(),
-    },
-    {
-        title: 'Apariencia',
-        href: editAppearance(),
-    },
-];
+const page = usePage();
 
-const currentPath = typeof window !== undefined ? window.location.pathname : '';
+const sidebarNavItems = computed<NavItem[]>(() => {
+    const items: NavItem[] = [
+        {
+            title: 'Perfil',
+            href: editProfile(),
+        },
+        {
+            title: 'Clave',
+            href: editPassword(),
+        },
+        {
+            title: 'Auth de Dos Factores',
+            href: show(),
+        },
+        {
+            title: 'Apariencia',
+            href: editAppearance(),
+        },
+    ];
+
+    if ((page.props.auth.user as any).role === 'admin') {
+        items.push({
+            title: 'Seguridad y RBAC',
+            href: '/settings/security',
+        });
+    }
+
+    return items;
+});
+
+const currentPath =
+    typeof window !== 'undefined' ? window.location.pathname : '';
 </script>
 
 <template>

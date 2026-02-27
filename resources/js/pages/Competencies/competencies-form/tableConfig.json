@@ -1,0 +1,42 @@
+{
+    "searchPlaceholder": "Buscar competencias...",
+    "headers": [
+        {
+            "title": "Nombre",
+            "key": "name",
+            "sortable": true
+        },
+        {
+            "title": "Descripción",
+            "key": "description",
+            "sortable": true
+        },
+        {
+            "title": "Agent",
+            "key": "agent.name",
+            "sortable": true
+        },
+        {
+            "title": "Habilidades (#)",
+            "key": "skills_count",
+            "sortable": true
+        },
+        {
+            "title": "Estado",
+            "key": "status",
+            "sortable": true
+        },
+        {
+            "title": "Acciones",
+            "key": "actions",
+            "sortable": false,
+            "align": "end"
+        }
+    ],
+    "defaultSort": [
+        {
+            "key": "name",
+            "order": "asc"
+        }
+    ]
+}

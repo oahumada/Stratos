@@ -1,0 +1,14 @@
+[
+    {
+        "name": "status",
+        "label": "Estado",
+        "type": "select",
+        "options": [
+            { "title": "Todos", "value": "" },
+            { "title": "Activa", "value": "active" },
+            { "title": "Borrador", "value": "draft" },
+            { "title": "Archivada", "value": "archived" }
+        ],
+        "default": ""
+    }
+]

@@ -9,60 +9,102 @@ use Inertia\Inertia;
 class FormSchemaController extends Controller
 {
     protected $repository;
-
     protected $modelClass;
-
     protected $repositoryClass;
+
+    /**
+     * Authorize action for a given model
+     */
+    protected function authorizeAction(string $modelName, string $action)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401, 'Unauthenticated');
+        }
+
+        // Special case for admins
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        $module = strtolower($modelName);
+        
+        // Map common actions to permission suffixes
+        $permSuffix = match ($action) {
+            'index', 'show', 'search', 'searchWithPeople' => 'view',
+            'store', 'update', 'destroy' => 'manage',
+            default => 'view'
+        };
+
+        $permission = "{$module}.{$permSuffix}";
+
+        if (!$user->hasPermission($permission)) {
+            // Check for more specific permissions if general manage fails
+            $specificPerm = "{$module}.{$action}";
+            if (!$user->hasPermission($specificPerm)) {
+                abort(403, "No tienes permiso para '{$permission}' en el módulo {$module}.");
+            }
+        }
+    }
 
     /**
      * Inicializa el controlador con el modelo y repositorio correspondiente
      */
-    public function initializeForModel(string $modelName)
+    public function initializeForModel(string $modelName, string $action = 'view')
     {
-        // Mapeo de nombres de modelo a sus clases
-        $this->modelClass = "App\\Models\\{$modelName}";
-        $this->repositoryClass = "App\\Repository\\{$modelName}Repository";
+        $this->authorizeAction($modelName, $action);
+        
+        $this->resolveModelAndRepository($modelName);
 
-        // Verificar que las clases existan; si no, intentar formas singular/plural alternas
-        if (! class_exists($this->modelClass)) {
-            // Try singular (trim trailing 's')
-            $altModelName = rtrim($modelName, 's');
-            $altModelClass = "App\\Models\\{$altModelName}";
-            if (class_exists($altModelClass)) {
-                $this->modelClass = $altModelClass;
-                // adjust repository class to match available repository (plural/singular)
-                $altRepoClass = "App\\Repository\\{$altModelName}Repository";
-                if (class_exists($altRepoClass)) {
-                    $this->repositoryClass = $altRepoClass;
-                }
-            } else {
-                // Try plural (append 's') only if not already plural
-                $altModelName2 = $modelName.'s';
-                $altModelClass2 = "App\\Models\\{$altModelName2}";
-                if (class_exists($altModelClass2)) {
-                    $this->modelClass = $altModelClass2;
-                    $altRepoClass2 = "App\\Repository\\{$altModelName2}Repository";
-                    if (class_exists($altRepoClass2)) {
-                        $this->repositoryClass = $altRepoClass2;
-                    }
-                }
-            }
-        }
-
-        // Final verification
-        if (! class_exists($this->modelClass)) {
-            throw new \Exception("Model class {$this->modelClass} not found");
-        }
-
-        if (! class_exists($this->repositoryClass)) {
-            throw new \Exception("Repository class {$this->repositoryClass} not found");
-        }
-
-        // Instanciar el repositorio
         $model = new $this->modelClass;
         $this->repository = new $this->repositoryClass($model);
 
         return $this;
+    }
+
+    private function resolveModelAndRepository(string $modelName): void
+    {
+        $this->modelClass = "App\\Models\\{$modelName}";
+        $this->repositoryClass = "App\\Repository\\{$modelName}Repository";
+
+        if (!class_exists($this->modelClass)) {
+            $this->tryAlternativeClasses($modelName);
+        }
+
+        if (!class_exists($this->modelClass)) {
+            throw new \Exception("Model class {$this->modelClass} not found");
+        }
+
+        if (!class_exists($this->repositoryClass)) {
+            throw new \Exception("Repository class {$this->repositoryClass} not found");
+        }
+    }
+
+    private function tryAlternativeClasses(string $modelName): void
+    {
+        // Try singular
+        $singular = rtrim($modelName, 's');
+        $singularClass = "App\\Models\\{$singular}";
+        
+        if (class_exists($singularClass)) {
+            $this->modelClass = $singularClass;
+            $repoClass = "App\\Repository\\{$singular}Repository";
+            if (class_exists($repoClass)) {
+                $this->repositoryClass = $repoClass;
+            }
+            return;
+        }
+
+        // Try plural
+        $plural = $modelName . 's';
+        $pluralClass = "App\\Models\\{$plural}";
+        if (class_exists($pluralClass)) {
+            $this->modelClass = $pluralClass;
+            $repoClass = "App\\Repository\\{$plural}Repository";
+            if (class_exists($repoClass)) {
+                $this->repositoryClass = $repoClass;
+            }
+        }
     }
 
     /**
@@ -70,7 +112,7 @@ class FormSchemaController extends Controller
      */
     public function index(string $modelName)
     {
-        $this->initializeForModel($modelName);
+        $this->initializeForModel($modelName, 'index');
 
         // Mapeo de modelos a sus vistas correspondientes
         $viewMap = $this->getViewMap();
@@ -85,7 +127,7 @@ class FormSchemaController extends Controller
      */
     public function consulta(string $modelName)
     {
-        $this->initializeForModel($modelName);
+        $this->initializeForModel($modelName, 'view');
 
         $consultaViewMap = $this->getConsultaViewMap();
         $viewName = $consultaViewMap[$modelName] ?? "Consultas/Consulta{$modelName}";
@@ -99,7 +141,7 @@ class FormSchemaController extends Controller
     public function store(Request $request, string $modelName)
     {
         try {
-            $this->initializeForModel($modelName);
+            $this->initializeForModel($modelName, 'store');
 
             return $this->repository->store($request);
         } catch (\Exception $e) {
@@ -118,7 +160,7 @@ class FormSchemaController extends Controller
     public function update(Request $request, string $modelName, $id = null)
     {
         try {
-            $this->initializeForModel($modelName);
+            $this->initializeForModel($modelName, 'update');
 
             // Ensure the ID is present in the request payload.
             // If the route provides an $id, inject it into the payload at the top level
@@ -149,7 +191,7 @@ class FormSchemaController extends Controller
     {
         Log::info("FormSchemaController::destroy called for {$modelName} with ID: {$id}");
         try {
-            $this->initializeForModel($modelName);
+            $this->initializeForModel($modelName, 'destroy');
 
             return $this->repository->destroy($id);
         } catch (\Exception $e) {
@@ -169,7 +211,7 @@ class FormSchemaController extends Controller
     public function show(Request $request, string $modelName, $id = null)
     {
         try {
-            $this->initializeForModel($modelName);
+            $this->initializeForModel($modelName, 'show');
 
             return $this->repository->show($request, $id);
         } catch (\Exception $e) {
@@ -189,7 +231,7 @@ class FormSchemaController extends Controller
     {
         try {
 
-            $this->initializeForModel($modelName);
+            $this->initializeForModel($modelName, 'search');
 
             return $this->repository->search($request);
         } catch (\Exception $e) {
@@ -208,7 +250,7 @@ class FormSchemaController extends Controller
     public function searchWithPeople(Request $request, string $modelName)
     {
         try {
-            $this->initializeForModel($modelName);
+            $this->initializeForModel($modelName, 'searchWithPeople');
 
             return $this->repository->searchWithPeople($request);
         } catch (\Exception $e) {
@@ -221,29 +263,6 @@ class FormSchemaController extends Controller
         }
     }
 
-    /**
-     * Búsqueda peoplealizada (si el repositorio la implementa)
-     */
-    /*public function search(Request $request, string $modelName, $id = null)
-    {
-        try {
-            $this->initializeForModel($modelName);
-
-            if (method_exists($this->repository, 'search')) {
-                return $this->repository->search($id ?? $request);
-            }
-
-            // Fallback a search
-            return $this->search($request, $modelName);
-
-        } catch (\Exception $e) {
-            Log::error("Error in FormSchemaController::search for {$modelName}: " . $e->getMessage());
-            return response()->json([
-                'message' => 'Error en la búsqueda',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    } */
 
     /**
      * Mapeo de modelos a sus vistas principales

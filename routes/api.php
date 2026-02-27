@@ -143,6 +143,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Talento 360 Command Center
     Route::apiResource('assessment-cycles', \App\Http\Controllers\Api\AssessmentCycleController::class)
         ->middleware('permission:assessments.manage');
+
+    Route::get('/people/profile/{id}', [\App\Http\Controllers\Api\PeopleProfileController::class, 'show']);
+
+    Route::get('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'index']);
+    Route::post('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'update']);
         
     // People Experience Command Center
     Route::apiResource('px-campaigns', \App\Http\Controllers\Api\PxCampaignController::class)
@@ -241,6 +246,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::prefix('curator')->group(function () {
                     Route::post('/skills/{id}/curate', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'curate']);
                     Route::post('/skills/{id}/generate-questions', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'generateQuestions']);
+                    Route::post('/competencies/{id}/curate', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'curateCompetency']);
                 });
             });
         }

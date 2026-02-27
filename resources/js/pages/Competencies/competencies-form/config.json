@@ -1,0 +1,12 @@
+{
+    "title": "Catálogo de Competencias",
+    "apiUrl": "/api/competencies",
+    "primaryKey": "id",
+    "permissions": {
+        "read": true,
+        "create": true,
+        "update": true,
+        "delete": true
+    },
+    "defaultView": "table"
+}

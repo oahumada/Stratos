@@ -1,3 +1,4 @@
+import competencies from './competencies'
 import people from './people'
 import skills from './skills'
 import departments from './departments'
@@ -7,6 +8,7 @@ import SkillQuestionBank from './SkillQuestionBank'
 import peopleRelationships from './people-relationships'
 
 const api = {
+    competencies: Object.assign(competencies, competencies),
     people: Object.assign(people, people),
     skills: Object.assign(skills, skills),
     departments: Object.assign(departments, departments),

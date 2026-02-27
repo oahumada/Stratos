@@ -3,17 +3,106 @@
 namespace App\Services\Competency;
 
 use App\Models\Skill;
+use App\Models\Competency;
 use App\Models\BarsLevel;
 use App\Services\AiOrchestratorService;
 use Illuminate\Support\Facades\Log;
 
 class CompetencyCuratorService
 {
+    const DEFAULT_AGENT = 'Ingeniero de Talento';
+
     protected AiOrchestratorService $orchestrator;
 
     public function __construct(AiOrchestratorService $orchestrator)
     {
         $this->orchestrator = $orchestrator;
+    }
+
+    /**
+     * Curar una Competencia completa: define descripción si falta, define skills, los asocia y los cura.
+     */
+    public function curateCompetency(int $competencyId): array
+    {
+        $competency = Competency::with(['agent', 'skills'])->findOrFail($competencyId);
+        $agentName = $competency->agent ? $competency->agent->name : self::DEFAULT_AGENT;
+
+        $prompt = "Actúa como {$agentName} de Stratos. Necesitamos diseñar la competencia clave de talento: '{$competency->name}'.
+        
+        Dado el título de la competencia y cualquier contexto previo ('{$competency->description}'), realiza lo siguiente:
+        1. Mejora la descripción de la competencia.
+        2. Identifica y proporciona entre 2 y 4 habilidades subyacentes (skills) críticas para esta competencia.
+        
+        Responde estrictamente en formato JSON con esta estructura:
+        {
+          \"description\": \"Mejor descripción detallada\",
+          \"skills\": [
+            { \"name\": \"Nombre de Habilidad 1\", \"category\": \"Técnica/Blanda\", \"description\": \"...\" },
+            { \"name\": \"...\", \"category\": \"...\", \"description\": \"...\" }
+          ]
+        }";
+
+        try {
+            // 1. Obtener la arquitectura de la competencia desde IA
+            $result = $this->orchestrator->agentThink($agentName, $prompt);
+            $data = $result['response'];
+
+            if (!isset($data['skills'])) {
+                throw new \InvalidArgumentException("Formato de respuesta inválido de {$agentName}.");
+            }
+
+            // 2. Almacenar la descripción mejorada
+            $competency->description = $data['description'] ?? $competency->description;
+            $competency->save();
+
+            $skillIdsCreatedOrFound = [];
+
+            // 3. Crear las habilidades (Skills) si no existen y asociarlas
+            foreach ($data['skills'] as $sData) {
+                // Buscamos si ya existe por nombre, de lo contrario la creamos
+                $skill = Skill::firstOrCreate(
+                    ['name' => $sData['name']],
+                    [
+                        'organization_id' => $competency->organization_id,
+                        'description' => $sData['description'],
+                        'category' => $sData['category']
+                    ]
+                );
+                
+                $skillIdsCreatedOrFound[] = $skill->id;
+
+                // Relacionamos la Skill a la Competencia
+                if (!$competency->skills()->where('skill_id', $skill->id)->exists()) {
+                    $competency->skills()->attach($skill->id, [
+                        'weight' => 100,
+                        'priority' => 'high',
+                        'required_level' => 3,
+                        'is_required' => true,
+                    ]);
+                }
+            }
+
+            // 4. Iniciar la curaduría de cada Skill (generación de BARS, unidades, etc) interactuando con el propio orquestador
+            $barsCuratedCount = 0;
+            foreach ($skillIdsCreatedOrFound as $sId) {
+                // Here we call the existing curateSkill logic
+                $curateResult = $this->curateSkill($sId);
+                if ($curateResult['status'] === 'success') {
+                    $barsCuratedCount++;
+                }
+            }
+
+            return [
+                'status' => 'success',
+                'competency' => $competency->name,
+                'skills_analyzed' => count($skillIdsCreatedOrFound),
+                'skills_curated' => $barsCuratedCount
+            ];
+
+        } catch (\Exception $e) {
+            Log::error("Error curando competencia #{$competencyId}: " . $e->getMessage());
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
     }
 
     /**
@@ -49,7 +138,7 @@ class CompetencyCuratorService
         }";
 
         try {
-            $result = $this->orchestrator->agentThink('Ingeniero de Talento', $prompt);
+            $result = $this->orchestrator->agentThink(self::DEFAULT_AGENT, $prompt);
             $data = $result['response'];
 
             if (!isset($data['levels']) || !is_array($data['levels'])) {
@@ -115,7 +204,7 @@ class CompetencyCuratorService
         }";
 
         try {
-            $result = $this->orchestrator->agentThink('Ingeniero de Talento', $prompt);
+            $result = $this->orchestrator->agentThink(self::DEFAULT_AGENT, $prompt);
             $data = $result['response'];
 
             $questionsCreated = [];

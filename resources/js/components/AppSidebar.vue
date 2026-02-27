@@ -60,6 +60,13 @@ const mainNavItems: NavItem[] = [
         icon: BookOpen,
     },
     {
+        title: 'Competencies',
+        href: '/competencies',
+        icon: defineComponent(
+            () => () => h(VIcon, { icon: 'mdi-puzzle', size: 20 }),
+        ),
+    },
+    {
         title: 'Skills',
         href: '/skills',
         icon: SkillsIcon,

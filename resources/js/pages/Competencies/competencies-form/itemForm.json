@@ -1,0 +1,37 @@
+{
+    "fields": [
+        {
+            "name": "name",
+            "label": "Nombre de la Competencia",
+            "type": "text",
+            "rules": "required|min:3",
+            "required": true
+        },
+        {
+            "name": "description",
+            "label": "Descripción",
+            "type": "textarea"
+        },
+        {
+            "name": "agent_id",
+            "label": "Agente AI de Diseño",
+            "type": "select",
+            "optionsSource": "agents",
+            "itemValue": "id",
+            "itemTitle": "name",
+            "hint": "Agente designado para curar las habilidades y criterios de esta competencia"
+        },
+        {
+            "name": "status",
+            "label": "Estado",
+            "type": "select",
+            "options": [
+                { "value": "active", "title": "Activa" },
+                { "value": "draft", "title": "Borrador" },
+                { "value": "archived", "title": "Archivada" }
+            ],
+            "default": "active"
+        }
+    ],
+    "catalogs": ["agents"]
+}

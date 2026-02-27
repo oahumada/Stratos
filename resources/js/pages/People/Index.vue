@@ -101,6 +101,15 @@ const handleRefresh = () => {
                     </v-btn>
                     <v-btn
                         size="small"
+                        color="primary"
+                        variant="elevated"
+                        prepend-icon="mdi-account-details"
+                        @click="$inertia.visit(`/people/${item.id}`)"
+                    >
+                        Ver Perfil Completo
+                    </v-btn>
+                    <v-btn
+                        size="small"
                         variant="text"
                         icon="mdi-close"
                         @click="close"

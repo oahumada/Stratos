@@ -15,6 +15,17 @@ class CompetencyCuratorController extends Controller
         $this->curatorService = $curatorService;
     }
 
+    public function curateCompetency(Request $request, $id)
+    {
+        $result = $this->curatorService->curateCompetency($id);
+        
+        if ($result['status'] === 'success') {
+            return response()->json($result);
+        }
+
+        return response()->json($result, 500);
+    }
+
     /**
      * Curar una habilidad: Generar niveles BARS, contenido de aprendizaje e indicadores.
      */

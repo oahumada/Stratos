@@ -12,11 +12,17 @@ class Competency extends Model
 
     protected $table = 'competencies';
 
-    protected $fillable = ['organization_id', 'llm_id', 'name', 'description', 'status', 'discovered_in_scenario_id', 'embedding'];
+    protected $fillable = ['organization_id', 'llm_id', 'name', 'description', 'status', 'discovered_in_scenario_id', 'embedding', 'agent_id', 'cube_dimensions'];
 
     protected $casts = [
         'llm_id' => 'string',
+        'cube_dimensions' => 'array',
     ];
+
+    public function agent()
+    {
+        return $this->belongsTo(Agent::class, 'agent_id');
+    }
 
     /**
      * Relación N:N con Capabilities vía tabla pivote capability_competencies

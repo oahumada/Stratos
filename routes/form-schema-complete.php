@@ -22,6 +22,7 @@ $formSchemaModels = [
     'Skills' => 'skills',
     'Departments' => 'departments',
     'Roles' => 'roles',  // Plural para consistencia con API
+    'Competency' => 'competencies',
     'CompetencyLevelBars' => 'CompetencyLevelBars',
     'SkillQuestionBank' => 'SkillQuestionBank',
     'PeopleRelationship' => 'people-relationships',
@@ -113,25 +114,3 @@ Route::group([], function () use ($formSchemaModels) {
 | No necesita mapeo separado - usa el mapeo FormSchema existente
 |
 */
-/*
-// Generar rutas de consulta automáticamente desde el mapeo FormSchema existente
-foreach ($formSchemaModels as $modelName => $routeName) {
-    // Convertir route-name de FormSchema (kebab-case) a consulta (snake_case)
-//    $consultaRouteName = str_replace('_', '-', $routeName);
-    $consultaRouteName = $routeName;
-
-    // Ruta principal de consulta (GET /consulta/{route-name})
-    Route::get("consulta/{$consultaRouteName}", function () use ($modelName) {
-        // Determinar el componente Vue basado en el modelo
-        $vueComponent = 'subpages/consultas/Consulta' . $modelName . 'Generic';
-
-        // Si no existe el componente genérico, usar el componente original
-        $componentPath = resource_path("js/pages/{$vueComponent}.vue");
-        if (!file_exists($componentPath)) {
-            $vueComponent = 'subpages/consultas/Consulta' . $modelName;
-        }
-
-        return Inertia::render($vueComponent);
-    })->name($consultaRouteName . '.consulta');
-}
- */
