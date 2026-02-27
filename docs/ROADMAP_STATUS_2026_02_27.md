@@ -33,13 +33,13 @@
 
 ### 🟢 Bloque B: Expandiendo Stratos
 
-| #   | Feature        |    Estado     | Detalle                                      |
-| :-- | :------------- | :-----------: | :------------------------------------------- |
-| B1  | Neo4j Live     | ⏳ Esperando  | Requiere infraestructura de Neo4j.           |
-| B2  | Notificaciones | 🔄 Base lista | Structure para Slack/Teams/Email definida.   |
-| B3  | Investor Demo  | 🔄 Prototipo  | Dashboard ejecutivo en iteración.            |
-| B4  | API Hardening  |  ✅ Parcial   | Refactorización de controllers + middleware. |
-| B5  | Mobile PX      |  ⏳ Próximo   | Depende de A6 completar secciones v2.        |
+| #   | Feature        |    Estado     | Detalle                                          |
+| :-- | :------------- | :-----------: | :----------------------------------------------- |
+| B1  | Neo4j Live     |   ✅ Listo    | Infraestructura Neo4j (Docker) y ETL operativos. |
+| B2  | Notificaciones | 🔄 Base lista | Structure para Slack/Teams/Email definida.       |
+| B3  | Investor Demo  | 🔄 Prototipo  | Dashboard ejecutivo en iteración.                |
+| B4  | API Hardening  |  ✅ Parcial   | Refactorización de controllers + middleware.     |
+| B5  | Mobile PX      |  ⏳ Próximo   | Depende de A6 completar secciones v2.            |
 
 ---
 
@@ -175,7 +175,8 @@ Boton "Nuevo Ciclo" -> Wizard (nombre, alcance, instrumentos, resumen previsuali
     - Chatbot integrado (Mentor AI in-page float button)
 
 2. **Pendiente para Bloque B:**
-    - Neo4j Live y Hardening
+    - Neo4j Live (Infraestructura Neo4j Docker + ETL Incremental integrados)
+    - Hardening de APIs (A5 complementario)
 
 3. **B5: Mobile PX — Responsive Enhancement**
     - Optimización de "Mi Stratos" para experiencia móvil nativa

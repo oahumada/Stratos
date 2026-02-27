@@ -48,13 +48,12 @@ class RunNeo4jSync extends Command
             return 2;
         }
 
-        // Default: run local script
-        $this->info('Running local ETL script: python_services/neo4j_etl.py');
+        // Default: run local script using virtualenv
+        $this->info('Running local ETL script: python_services/neo4j_etl.py (using venv)');
         $script = base_path('python_services/neo4j_etl.py');
-        $process = new Process([PHP_BINARY ?? 'python3', ''], null);
-
-        // Use python3 explicit call
-        $process = new Process(['python3', $script]);
+        $pythonPath = base_path('python_services/venv/bin/python3');
+        
+        $process = new Process([$pythonPath, $script]);
         $process->setTimeout(3600);
 
         $process->run(function ($type, $buffer) {
