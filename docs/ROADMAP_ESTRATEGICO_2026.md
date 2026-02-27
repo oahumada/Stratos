@@ -25,40 +25,48 @@ Este documento define la visión, las fases de desarrollo y la arquitectura para
 ### Fase 4: Talento 360 - Psicometría y Chatbot (Finalizada ✅)
 
 - **Logro:** Implementación de IA Entrevistadora (CrewAI), triangulación 360° con modelo BARS y detección de "Blind Spots".
+- **Evolución Unicornio:** Integración del **Guardián de la Cultura** (alineación con Manifiesto) y **Predictor de Éxito Estratégico** (ROI y Sinergia).
 - **Visualización:** Mapas de calor de rasgos y Dashboards de High Potentials operativos.
 
 ### Fase 5: IA Avanzada y Learning Paths (En curso 🚀)
 
 - **FOCO:** Desarrollo de rutas de aprendizaje y mentoría.
 - **Hito Actual:** Implementado `MentorMatchingService` y detección de expertos internos.
+- **Diferenciador:** Generación de **Learning Blueprints** automáticos basados en la probabilidad de éxito y gaps predictivos.
 - **Estrategia de Agentes:** Diseño de **Stratos Sentinel** (Monitoreo de Calidad) y **Stratos Guide** (Asistente Contextual).
 
-### Fase 6: Escalabilidad, Seguridad y Producción
+### Fase 6: Expansión de Ingeniería de Talento (Próximamente 🦄)
 
-- **FOCO:** Robustez de mercado.
-- **Detalle:** Multi-tenant, seguridad avanzada, Auditoría de IA y cumplimiento normativo.
-
----
-
-## 🏗️ Arquitectura de Agentes Especializados
-
-### 1. Stratos Sentinel (SRE/QA Agent)
-
-- **Misión:** Monitoreo de logs, detección de inconsistencias metodológicas y aseguramiento de la calidad del software mediante análisis de excepciones en tiempo real.
-
-### 2. Stratos Guide (Helpdesk Agent)
-
-- **Misión:** Asistente contextual RAG para el usuario final. Explica la metodología del Cubo, guía en la navegación y resuelve dudas técnicas "on-the-fly".
+- **I. Escenarios Agénticos:** Simulación de cambios organizacionales y "Gemelos Digitales".
+- **II. Selección Inteligente:** Matching técnico-cultural agéntico para adquisición de talento.
+- **III. People Experience (PX):** Hiper-personalización de la experiencia del colaborador y monitoreo de satisfacción proactivo.
 
 ---
 
-## 🛠️ Próximos Pasos Técnicos Inmediatos (Actualizado 19-Feb-2026)
+## 🛠️ Próximos Pasos Técnicos Inmediatos (Actualizado 27-Feb-2026)
 
-1.  **Refinamiento de Mitigaciones:** Traducir los Risk Scorings en acciones automáticas de remediación.
-2.  **Expansión de Learning Paths:** Conectar los gaps de competencias detectados en 360 con el catálogo de cursos.
-3.  **Audit Trail Inteligente:** Implementar un registro de acciones explicadas por IA para transparencia total.
-4.  **Optimización FormSchema:** Continuar la extracción de lógica hacia servicios y composables para máxima reutilización.
-5.  **Pilotaje de Agentes:** Prototipar el asistente `Stratos Guide` como componente flotante en módulos críticos.
+1.  **Refinamiento de Mitigaciones:** Automatización de acciones de remediación (MitigationService) integrada en ciclo 360. ✅
+2.  **Expansión de Learning Paths:** Conexión de gaps con CourseCatalogService y enriquecimiento de prompts agénticos. ✅
+3.  **Implementación de Escenario IQ (Bloque 1):** Motor de simulación orgánico y gemelo digital funcional. ✅
+4.  **Audit Trail Inteligente:** Logging de razonamiento IA (Stratos Sentinel) implementado para transparencia total. ✅
+5.  **Optimización FormSchema:** Refactorización de AssessmentController para reducir complejidad (16 -> 8). ✅
+6.  **Portal de Candidatos Agéntico:** Interfaz premium de Resonancia ADN y Matching de Selección activa. ✅
+
+---
+
+## 🏗️ Arquitectura de Agentes Especializados (Core Update)
+
+### 1. Stratos Sentinel (AI Ethics & Integrity)
+
+- **Misión:** Auditor de transparencia. Custodia el Audit Trail y asegura que las decisiones agénticas sigan el Manifiesto Stratos.
+
+### 2. Matchmaker de Resonancia (High-Fidelity Selection)
+
+- **Misión:** Predice el acoplamiento ADN entre candidatos y cultura/blueprint técnico.
+
+### 3. Simulador Orgánico (Scenario Engine)
+
+- **Misión:** Proyecta el impacto de cambios en el Grafo de Conocimiento y calcula KPIs de éxito futuro.
 
 ---
 

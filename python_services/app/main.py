@@ -26,6 +26,25 @@ os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
 if not os.getenv("OPENAI_API_KEY") and os.getenv("STRATOS_MOCK_IA", "false").lower() == "false":
     print("WARNING: OPENAI_API_KEY is not set. The agent will likely fail.")
 
+# --- NÚCLEO DE IDENTIDAD ORGANIZACIONAL ---
+# Aquí se cargan la Misión, Visión y Valores. Idealmente esto vendría de la DB.
+CULTURE_MANIFESTO = {
+    "mission": "Transformar la gestión del talento mediante ingeniería de datos e IA, democratizando el acceso a trayectorias de crecimiento profesional.",
+    "vision": "Convertirnos en el sistema operativo del talento para las organizaciones del futuro, donde cada persona alcanza su máximo potencial.",
+    "values": [
+        "Innovación con Propósito: No creamos tecnología por crearla, sino para resolver problemas humanos.",
+        "Transparencia Radical: Creemos en la claridad de datos para la toma de decisiones justa.",
+        "Aprendizaje Continuo (Growth Mindset): El potencial es dinámico, no estático.",
+        "Excelencia Técnica: Nos apasiona la calidad en cada línea de código y cada insight analítico."
+    ],
+    "principles": [
+        "Las personas primero, el software después.",
+        "Datos para empoderar, no para vigilar.",
+        "Simplicidad en la complejidad."
+    ]
+}
+# ------------------------------------------
+
 def run_etl_process():
     env = os.environ.copy()
     # Ejecutar el PoC ETL existente
@@ -99,9 +118,13 @@ class ChatSessionRequest(BaseModel):
 class AnalysisResponse(BaseModel):
     traits: list[dict]
     overall_potential: float
+    cultural_fit: float = Field(..., description="Score from 0.0 to 1.0 representing alignment with organizational values")
+    success_probability: float = Field(..., description="Probability of success in the target role/context (0.0 to 1.0)")
     summary_report: str
-    blind_spots: list[str] = Field(default_factory=list, description="Strengths seen by others but not by the subject, or vice-versa")
+    cultural_analysis: str = Field(..., description="Detailed analysis of alignment with mission, vision, and values")
+    team_synergy_preview: str = Field(..., description="Analysis of how this person's profile interacts with a hypothetical or actual team team")
     ai_reasoning_flow: list[str] = Field(default_factory=list, description="The logical steps the AI took to reach the conclusions")
+    blind_spots: list[str] = Field(default_factory=list, description="Strengths seen by others but not by the subject, or vice-versa")
 
 class FeedbackItem(BaseModel):
     relationship: str
@@ -112,6 +135,18 @@ class ThreeSixtyAnalysisRequest(BaseModel):
     interview_history: list[ChatMessage]
     external_feedback: list[FeedbackItem]
     language: str = "es"
+
+class MatchingRequest(BaseModel):
+    candidate_profile: dict = Field(..., description="The psychometric and skills profile of the candidate")
+    blueprint: dict = Field(..., description="The requirements and context of the role or scenario blueprint")
+    language: str = "es"
+
+class MatchingResponse(BaseModel):
+    match_score: float = Field(..., description="Overall resonance score between candidate and blueprint (0.0 to 1.0)")
+    resonance_analysis: str = Field(..., description="Detailed explanation of the technical and cultural fit")
+    gap_closure_recommendations: list[str] = Field(..., description="Key training or onboarding actions to bridge the gaps")
+    success_probability: float = Field(..., description="Predicted probability of success in this specific role (0.0 to 1.0)")
+    synergy_prognosis: str = Field(..., description="Prognosis of how this candidate fits into the existing team dynamics")
 
 # Custom LLM Wrapper to force DeepSeek configuration
 class DeepSeekLLM(ChatOpenAI):
@@ -323,11 +358,12 @@ def interview_chat(request: ChatSessionRequest):
 
     try:
         interviewer = Agent(
-            role='Expert Psychometric Interviewer',
-            goal='Conduct deep, insightful interviews to understand personality, potential, and values.',
-            backstory="""You are a senior clinical psychologist and HR assessment expert. 
-            You excel at asking follow-up questions that reveal the underlying character and potential of a person. 
-            You are empathetic but thorough. You avoid generic questions and focus on high-impact situational queries.""",
+            role='Expert Psychometric Interviewer (DISC & Learning Agility Specialist)',
+            goal='Conduct deep, insightful interviews to understand personality, potential, and values through DISC and Learning Agility lenses.',
+            backstory="""You are a senior organizational psychologist specializing in DISC profiling and the 4 pillars of Learning Agility. 
+            You excel at asking situational follow-up questions that reveal if a person is Dominant (D), Influential (I), Steady (S), or Conscientious (C). 
+            You also probe for Mental, People, Change, and Results Agility.
+            You are empathetic but thorough, avoiding generic questions to reveal underlying potential.""",
             verbose=True,
             allow_delegation=False,
             llm=get_llm(temperature=0.7)
@@ -386,10 +422,10 @@ def interview_analyze(request: ChatSessionRequest):
 
     try:
         analyst = Agent(
-            role='Talent Assessment Analyst',
-            goal='Synthesize interview data into a psychometric profile.',
-            backstory="""You are an expert in behavioral analysis and psychometry. 
-            You transform interview transcripts into objective data points about potential and personality.""",
+            role='Talent Assessment & DISC Analyst',
+            goal='Synthesize interview data into a psychometric profile using DISC and Learning Agility frameworks.',
+            backstory="""You are an expert in behavioral analysis, DISC profiling, and Learning Agility. 
+            You transform interview transcripts into objective data points about potential, categorizing traits within the DISC quadrants and Agility pillars.""",
             verbose=True,
             allow_delegation=False,
             llm=get_llm(temperature=0.2)
@@ -457,24 +493,49 @@ def interview_analyze_360(request: ThreeSixtyAnalysisRequest):
                 }
             ],
             "overall_potential": 0.88,
-            "summary_report": "[MOCK] Perfil 360 analizado con éxito. El sujeto presenta una alta alineación con el rol de Arquiteco de Soluciones, destacando en competencias transversales de resiliencia.",
+            "cultural_fit": 0.95,
+            "success_probability": 0.91,
+            "summary_report": "[MOCK] Perfil Unicornio analizado con éxito. El sujeto presenta una alta alineación con el rol de Arquiteco de Soluciones, destacando en competencias transversales de resiliencia y un fit cultural excepcional.",
+            "cultural_analysis": "El sujeto personifica el valor de 'Transparencia Radical' al admitir fallos técnicos previos y mostrar una mentalidad de crecimiento (Growth Mindset) alineada con la visión de Stratos.",
+            "team_synergy_preview": "Actuará como un acelerador de talento en equipos técnicos, compensando la falta de comunicación de perfiles puramente técnicos con su alta inteligencia emocional y DISC de tipo Influente.",
             "blind_spots": ["Auto-percepción de liderazgo vs realidad del equipo: El sujeto se ve como contribuidor individual, pero el equipo lo percibe como mentor."],
             "ai_reasoning_flow": [
                 "Extracción de entidades clave de la transcripción de entrevista.",
-                "Correlación de feedback de pares con hitos de proyectos en el historial.",
-                "Detección de discrepancias en auto-percepción de liderazgo (Nivel 4 de confianza).",
-                "Cruce de datos con KPIs de desempeño histórico.",
-                "Generación de síntesis de rasgos psicométricos finales."
+                "Correlación de feedback de pares con el Manifiesto de Cultura.",
+                "Cruce de datos de DISC con pilares de Learning Agility.",
+                "Cálculo de probabilidad de éxito basado en Gaps vs Trayectoria.",
+                "Síntesis final de Ingeniería de Talento."
             ]
         }
 
     try:
         analyst = Agent(
-            role='Expert Talent Assessment Analyst',
-            goal='Synthesize multiple sources of information to create a 360-degree psychometric profile.',
+            role='Expert Talent Assessment & DISC Specialist',
+            goal='Analyze professional potential, DISC profiling, and Learning Agility from multiple sources.',
             backstory="""You are a world-class organizational psychologist. You excel at finding 
-            patterns between what a person says and what others observe. You identify 'blind spots' 
-            and 'hidden strengths' with pinpoint accuracy.""",
+            patterns between what a person says and what others observe, through the lens of DISC (D, I, S, C) and Learning Agility (Mental, People, Change, Results).""",
+            llm=DeepSeekLLM(),
+            verbose=True,
+            allow_delegation=False
+        )
+
+        guardian = Agent(
+            role='Guardian of Organizational Culture',
+            goal='Assess cultural alignment and ethical resonance with the company manifold.',
+            backstory=f"""You are the protector of the company's identity. 
+            CULTURE MANIFESTO: {json.dumps(CULTURE_MANIFESTO)}
+            You look for shared purpose and long-term belonging. You alert on cultural toxins.""",
+            llm=DeepSeekLLM(),
+            verbose=True,
+            allow_delegation=False
+        )
+
+        predictor = Agent(
+            role='Strategic Success Predictor (Talent ROI Analyst)',
+            goal='Predict the probability of success and ROI for this specific talent trajectory.',
+            backstory="""You are a data-driven talent economist. You analyze the intersection of 
+            Potential, Culture, and Skills Gaps to calculate the success_probability. 
+            You look at the 'Time to Peak Performance' and predict team synergy impacts.""",
             llm=DeepSeekLLM(),
             verbose=True,
             allow_delegation=False
@@ -484,37 +545,99 @@ def interview_analyze_360(request: ThreeSixtyAnalysisRequest):
         feedback_str = "\n".join([f"[{f.relationship}]: {f.content}" for f in request.external_feedback])
 
         task_description = f"""
-        Analyze the following person: {request.person_name}
+        EXECUTE HIGH-LEVEL TALENT ENGINEERING ANALYSIS for: {request.person_name}
         
-        SOURCE 1: PSYCHOMETRIC INTERVIEW
-        {history_str}
+        DATA INPUTS:
+        - INTERVIEW: {history_str}
+        - 360° FEEDBACK: {feedback_str}
         
-        SOURCE 2: EXTERNAL FEEDBACK (PEERS, SUPERVISORS, ETC.)
-        {feedback_str}
+        AGENT DIRECTIVES:
+        1. [ANALYST]: Detailed DISC + Learning Agility profiling. (traits, blind_spots)
+        2. [GUARDIAN]: Deep Cultural Analysis vs Manifest. (cultural_fit, cultural_analysis)
+        3. [PREDICTOR]: Calculate success_probability (0-1) and team_synergy_preview. Consider Gaps vs Potential.
+        4. [SYNTHESIS]: Generate objective overall_potential and the final summary_report in {request.language}.
         
-        YOUR TASK:
-        1. Synthesize both sources to generate a high-precision psychometric profile.
-        2. Identify at least 3 traits with scores and rationales.
-        3. Identify specific BLIND SPOTS (differences between self-perception in interview and external feedback).
-        4. Calculate an overall potential score.
-        5. Document the logical steps taken (ai_reasoning_flow) to reach these conclusions.
-        6. Write a comprehensive summary report in {request.language}.
-        
-        OUTPUT FORMAT:
-        Must be a JSON object matching AnalysisResponse model.
-        Return ONLY the JSON.
+        This analysis must be worthy of a Fortune 500 strategic planning board.
         """
 
         analysis_task = Task(
             description=task_description,
             agent=analyst,
-            expected_output="A structured 360-degree JSON report.",
+            expected_output="A predictive, multi-agent Talent Engineering JSON report.",
             output_json=AnalysisResponse
         )
 
         crew = Crew(
-            agents=[analyst],
+            agents=[analyst, guardian, predictor],
             tasks=[analysis_task],
+            verbose=True,
+            memory=False,
+            process=Process.sequential
+        )
+
+        result = crew.kickoff()
+        
+        if hasattr(result, 'json_dict') and result.json_dict:
+            return result.json_dict
+        return json.loads(str(result))
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/match-talent", response_model=MatchingResponse)
+def match_talent(request: MatchingRequest):
+    if os.getenv("STRATOS_MOCK_IA", "false").lower() == "true":
+        return {
+            "match_score": 0.82,
+            "resonance_analysis": "[MOCK] El candidato presenta una resonancia técnica alta (0.9) pero una alineación cultural moderada (0.7) con el valor de 'Transparencia Radical'. Sin embargo, su Learning Agility compensa los gaps estructurales.",
+            "gap_closure_recommendations": [
+                "Plan de Onboarding centrado en metodologías ágiles propias de la empresa.",
+                "Sesión de alineación de valores con el Guardián de Cultura."
+            ],
+            "success_probability": 0.85,
+            "synergy_prognosis": "Fomentará una cultura de feedback constructivo en el equipo receptor."
+        }
+
+    try:
+        matchmaker = Agent(
+            role='Expert Talent Matchmaker & ROI Forecaster',
+            goal='Execute high-fidelity resonance analysis between candidate profiles and role blueprints.',
+            backstory="""You are an expert in organizational fit and talent engineering. 
+            You don't just look for matches; you look for SYNERGY. You analyze the candidate's psychometric 
+            traits (DISC/Agility) against the Blueprint requirements (Capabilities/Skills/Composition).
+            Your conclusions determine if a hire is a high-ROI strategic investment.""",
+            llm=DeepSeekLLM(temperature=0.2),
+            verbose=True,
+            allow_delegation=False
+        )
+
+        task_description = f"""
+        PERFORM STRATEGIC MATCHING ANALYSIS:
+        
+        CANDIDATE PROFILE: {json.dumps(request.candidate_profile)}
+        ROLE BLUEPRINT: {json.dumps(request.blueprint)}
+        
+        YOUR TASK:
+        1. Calculate a 'match_score' (0.0-1.0) based on total alignment.
+        2. Perform a 'resonance_analysis' (technical and cultural).
+        3. Predict 'success_probability' based on historical data patterns and Learning Agility.
+        4. Provide 'gap_closure_recommendations' for the first 90 days.
+        5. Provide a 'synergy_prognosis' (team fit).
+        
+        RESPONSE:
+        Return ONLY a JSON object matching the MatchingResponse model in {request.language}.
+        """
+
+        match_task = Task(
+            description=task_description,
+            agent=matchmaker,
+            expected_output="A structured JSON object with matching scores and resonance analysis.",
+            output_json=MatchingResponse
+        )
+
+        crew = Crew(
+            agents=[matchmaker],
+            tasks=[match_task],
             verbose=True,
             memory=False,
             process=Process.sequential

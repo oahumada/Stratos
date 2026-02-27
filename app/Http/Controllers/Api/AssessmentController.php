@@ -156,26 +156,23 @@ class AssessmentController extends Controller
     private function saveAnalysisResults($session, $analysis, $hasExternalFeedback)
     {
         return DB::transaction(function () use ($session, $analysis, $hasExternalFeedback) {
-            foreach ($analysis['traits'] as $trait) {
-                PsychometricProfile::create([
-                    'people_id' => $session->people_id,
-                    'assessment_session_id' => $session->id,
-                    'trait_name' => $trait['name'],
-                    'score' => $trait['score'],
-                    'rationale' => $trait['rationale']
-                ]);
-            }
+            $this->savePsychometricProfiles($session, $analysis);
+            $this->updateSessionStatus($session, $analysis);
 
-            $session->update([
-                'status' => 'analyzed',
-                'completed_at' => now(),
-                'metadata' => array_merge($session->metadata ?? [], [
-                    'overall_potential' => $analysis['overall_potential'],
-                    'summary_report' => $analysis['summary_report'],
-                    'blind_spots' => $analysis['blind_spots'] ?? [],
-                    'ai_reasoning_flow' => $analysis['ai_reasoning_flow'] ?? []
-                ])
-            ]);
+            // Automatizar Mitigaciones (Paso 1 del Roadmap)
+            $mitigationService = new \App\Services\MitigationService;
+            $suggestions = $mitigationService->generateSuggestions($analysis);
+            $mitigationService->persistMitigations($session->person, $suggestions);
+
+            // Registrar en Audit Trail (Paso 4 del Roadmap)
+            $audit = new \App\Services\AuditTrailService;
+            $audit->logDecision(
+                'Assessment360',
+                "session_{$session->id}",
+                "Potential Assessment: {$analysis['overall_potential']}",
+                $analysis['ai_reasoning_flow'] ?? [],
+                'Cerbero (360 Analyst)'
+            );
 
             if ($hasExternalFeedback) {
                 $this->competencyService->updateAllSkillsForPerson($session->people_id);
@@ -186,6 +183,41 @@ class AssessmentController extends Controller
                 'session' => $session->load('psychometricProfiles')
             ]);
         });
+    }
+
+    private function savePsychometricProfiles($session, $analysis)
+    {
+        if (!isset($analysis['traits']) || !is_array($analysis['traits'])) {
+            return;
+        }
+
+        foreach ($analysis['traits'] as $trait) {
+            PsychometricProfile::create([
+                'people_id' => $session->people_id,
+                'assessment_session_id' => $session->id,
+                'trait_name' => $trait['name'] ?? 'Unknown',
+                'score' => $trait['score'] ?? 0,
+                'rationale' => $trait['rationale'] ?? 'No rationale provided'
+            ]);
+        }
+    }
+
+    private function updateSessionStatus($session, $analysis)
+    {
+        $session->update([
+            'status' => 'analyzed',
+            'completed_at' => now(),
+            'metadata' => array_merge($session->metadata ?? [], [
+                'overall_potential' => $analysis['overall_potential'] ?? 'N/A',
+                'cultural_fit' => $analysis['cultural_fit'] ?? 0,
+                'success_probability' => $analysis['success_probability'] ?? 0,
+                'summary_report' => $analysis['summary_report'] ?? 'Error generando reporte',
+                'cultural_analysis' => $analysis['cultural_analysis'] ?? 'Análisis cultural no disponible',
+                'team_synergy_preview' => $analysis['team_synergy_preview'] ?? 'Análisis de sinergia no disponible',
+                'blind_spots' => $analysis['blind_spots'] ?? [],
+                'ai_reasoning_flow' => $analysis['ai_reasoning_flow'] ?? []
+            ])
+        ]);
     }
 
     /**

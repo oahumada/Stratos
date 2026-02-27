@@ -198,23 +198,28 @@
                         Orquestación Multi-Agente
                     </h3>
                     <p class="text-body-2 mb-4 opacity-80">
-                        Stratos ahora utiliza agentes orquestados por misiones:
-                        el
-                        <strong>Estratega</strong> diseña el Blueprint de
-                        capacidades, mientras el
-                        <strong>Diseñador de Roles</strong> y el
-                        <strong>Curador de Competencias</strong> colaboran para
-                        evolucionar tu catálogo organizacional.
+                        Stratos evoluciona hacia una orquestación total: el
+                        <strong>Estratega</strong> y el
+                        <strong>Simulador</strong> diseñan el futuro orgánico,
+                        mientras el <strong>Matchmaker</strong> y el
+                        <strong>Sentinel</strong> aseguran la resonancia y
+                        transparencia del talento.
                     </p>
                     <div class="bg-opacity-10 pa-3 mb-4 rounded-lg bg-white">
                         <div class="text-caption font-weight-bold mb-1">
                             MISIONES ACTUALES:
                         </div>
                         <div class="text-caption">
-                            • Paso 1: Planificación de Escenarios (Blueprint)
+                            • Paso 1: Escenario IQ (Simulación Orgánica)
                         </div>
                         <div class="text-caption">
-                            • Paso 2: Diseño de Talento (Roles & Mappings)
+                            • Paso 2: Diseño de Talento (Cubo de Roles)
+                        </div>
+                        <div class="text-caption">
+                            • Paso 3: Selección por Resonancia ADN
+                        </div>
+                        <div class="text-caption">
+                            • Paso 4: Audit Trail & Integridad (Sentinel)
                         </div>
                     </div>
                     <v-btn
@@ -333,6 +338,12 @@ const getAgentHeaderClass = (agent: any) => {
         return 'bg-indigo-lighten-4 text-indigo-darken-4';
     if (agent.name.includes('Diseñador'))
         return 'bg-blue-grey-lighten-4 text-blue-grey-darken-4';
+    if (agent.name.includes('Simulador'))
+        return 'bg-deep-orange-lighten-4 text-deep-orange-darken-4';
+    if (agent.name.includes('Sentinel'))
+        return 'bg-red-lighten-4 text-red-darken-4';
+    if (agent.name.includes('Matchmaker'))
+        return 'bg-pink-lighten-4 text-pink-darken-4';
     return 'bg-grey-lighten-3';
 };
 
@@ -345,6 +356,9 @@ const getAgentIcon = (name: string) => {
     if (name.includes('Arquitecto')) return 'mdi-school';
     if (name.includes('Curador')) return 'mdi-book-open-page-variant-outline';
     if (name.includes('Diseñador')) return 'mdi-vector-arrange-below';
+    if (name.includes('Simulador')) return 'mdi-molecule';
+    if (name.includes('Sentinel')) return 'mdi-shield-eye-outline';
+    if (name.includes('Matchmaker')) return 'mdi-heart-flash';
     return 'mdi-robot';
 };
 
@@ -357,6 +371,9 @@ const getAgentColor = (name: string) => {
     if (name.includes('Arquitecto')) return 'teal-darken-3';
     if (name.includes('Curador')) return 'indigo-darken-3';
     if (name.includes('Diseñador')) return 'blue-grey-darken-3';
+    if (name.includes('Simulador')) return 'deep-orange-darken-4';
+    if (name.includes('Sentinel')) return 'red-darken-4';
+    if (name.includes('Matchmaker')) return 'pink-darken-4';
     return 'grey-darken-2';
 };
 

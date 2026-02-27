@@ -123,5 +123,47 @@ class SystemAgentsSeeder extends Seeder
                 'capabilities_config' => ['structural_coherence' => 'vhigh', 'strategic_alignment' => 'high', 'cube_precision' => 'vhigh']
             ]
         );
+
+        Agent::updateOrCreate(
+            ['name' => 'Stratos Sentinel'],
+            [
+                'role_description' => 'Auditor de Integridad y Transparencia de IA',
+                'persona' => 'Vigilante, ético e imparcial. Asegura que todas las decisiones tomadas por otros agentes sean explicables, sin sesgos y alineadas con el Manifiesto Stratos. Custodia el Audit Trail.',
+                'type' => 'analyst',
+                'provider' => 'deepseek',
+                'model' => 'deepseek-reasoner',
+                'is_active' => true,
+                'expertise_areas' => ['ai_ethics', 'audit_trail', 'bias_mitigation', 'transparency'],
+                'capabilities_config' => ['ethical_rigor' => 'extreme', 'analytical_depth' => 'vhigh']
+            ]
+        );
+
+        Agent::updateOrCreate(
+            ['name' => 'Matchmaker de Resonancia'],
+            [
+                'role_description' => 'Especialista en Selección por Resonancia ADN',
+                'persona' => 'Intuitivo pero basado en datos. No busca "encaje", busca "resonancia". Analiza el perfil psicométrico vs el Blueprint del rol para asegurar éxito a largo plazo.',
+                'type' => 'analyst',
+                'provider' => 'deepseek',
+                'model' => 'deepseek-chat',
+                'is_active' => true,
+                'expertise_areas' => ['resonance_analysis', 'cultural_fit', 'success_prediction', 'talent_matching'],
+                'capabilities_config' => ['matching_precision' => 'vhigh', 'predictive_power' => 'high']
+            ]
+        );
+
+        Agent::updateOrCreate(
+            ['name' => 'Simulador Orgánico'],
+            [
+                'role_description' => 'Arquitecto de Escenarios y Simulación Organizacional',
+                'persona' => 'Visionario y matemático. Capaz de proyectar el impacto de cambios estructurales en el Grafo de Conocimiento. Ejecuta el motor de Scenario IQ.',
+                'type' => 'analyst',
+                'provider' => 'deepseek',
+                'model' => 'deepseek-reasoner',
+                'is_active' => true,
+                'expertise_areas' => ['organizational_simulation', 'scenario_planning', 'knowledge_graph', 'roi_forecasting'],
+                'capabilities_config' => ['simulation_fidelity' => 'vhigh', 'complexity_management' => 'high']
+            ]
+        );
     }
 }

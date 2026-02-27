@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../wayfinder'
 /**
 * @see \Laravel\Fortify\Http\Controllers\AuthenticatedSessionController::login
 * @see vendor/laravel/fortify/src/Http/Controllers/AuthenticatedSessionController.php:47
@@ -364,3 +364,95 @@ dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 })
 
 dashboard.form = dashboardForm
+
+/**
+* @see routes/web.php:123
+* @route '/candidate-portal/{id}'
+*/
+export const candidatePortal = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: candidatePortal.url(args, options),
+    method: 'get',
+})
+
+candidatePortal.definition = {
+    methods: ["get","head"],
+    url: '/candidate-portal/{id}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:123
+* @route '/candidate-portal/{id}'
+*/
+candidatePortal.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            id: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        id: args.id,
+    }
+
+    return candidatePortal.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see routes/web.php:123
+* @route '/candidate-portal/{id}'
+*/
+candidatePortal.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: candidatePortal.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:123
+* @route '/candidate-portal/{id}'
+*/
+candidatePortal.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: candidatePortal.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:123
+* @route '/candidate-portal/{id}'
+*/
+const candidatePortalForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: candidatePortal.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:123
+* @route '/candidate-portal/{id}'
+*/
+candidatePortalForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: candidatePortal.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:123
+* @route '/candidate-portal/{id}'
+*/
+candidatePortalForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: candidatePortal.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+candidatePortal.form = candidatePortalForm

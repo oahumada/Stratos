@@ -22,6 +22,7 @@ import {
 } from 'vue';
 
 // Composables refactorizados (Fase 1: modularización)
+import ScenarioSimulationStatus from '@/components/ScenarioPlanning/ScenarioSimulationStatus.vue';
 import { useScenarioAPI } from '@/composables/useScenarioAPI';
 import { useScenarioEdges } from '@/composables/useScenarioEdges';
 import { useScenarioLayout } from '@/composables/useScenarioLayout';
@@ -8425,6 +8426,18 @@ if (!edges.value) edges.value = [];
                     No hay capacidades para mostrar.
                 </div>
                 <!-- debug controls removed -->
+                <ScenarioSimulationStatus
+                    v-if="!focusedNode && !selectedChild"
+                    :metrics="{
+                        success_probability: 82,
+                        synergy_score: 8.9,
+                        cultural_friction: 14,
+                        time_to_peak: 5,
+                        key_node: 'Inferencia de IA',
+                        recommendation: 'Refuerzo de Pipeline RAG',
+                    }"
+                    @re-run="loadTreeFromApiWrapper(scenario?.id)"
+                />
             </div>
         </div>
     </div>

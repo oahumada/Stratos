@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\Log;
 class StratosAssessmentService
 {
     protected string $baseUrl;
+    protected int $timeout;
 
     public function __construct()
     {
         $this->baseUrl = config('services.python_intel.base_url');
+        $this->timeout = config('services.python_intel.timeout', 30);
     }
 
     /**
@@ -29,7 +31,7 @@ class StratosAssessmentService
             ]);
 
         try {
-            $response = Http::post("{$this->baseUrl}/interview/chat", [
+            $response = Http::timeout($this->timeout)->post("{$this->baseUrl}/interview/chat", [
                 'person_name' => $session->person->full_name,
                 'context' => $session->type . ' interview for ' . ($session->scenario?->name ?? 'general assessment'),
                 'history' => $history,
@@ -62,7 +64,7 @@ class StratosAssessmentService
             ]);
 
         try {
-            $response = Http::post("{$this->baseUrl}/interview/analyze", [
+            $response = Http::timeout(120)->post("{$this->baseUrl}/interview/analyze", [
                 'person_name' => $session->person->full_name,
                 'context' => $session->type . ' interview for ' . ($session->scenario?->name ?? 'general assessment'),
                 'history' => $history
@@ -94,7 +96,7 @@ class StratosAssessmentService
             $url = "{$this->baseUrl}/interview/analyze-360";
             Log::info("Calling Python Service: $url");
 
-            $response = Http::post($url, [
+            $response = Http::timeout(180)->post($url, [
                 'person_name' => $session->person->full_name,
                 'interview_history' => $history,
                 'external_feedback' => $externalFeedback,
@@ -110,6 +112,30 @@ class StratosAssessmentService
             return null;
         } catch (\Exception $e) {
             Log::error('StratosAssessmentService 360 Analysis Exception: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function matchCandidate(array $candidateProfile, array $blueprint, string $language = 'es')
+    {
+        try {
+            $url = "{$this->baseUrl}/match-talent";
+            Log::info("Calling Python Service for Matching: $url");
+
+            $response = Http::timeout(120)->post($url, [
+                'candidate_profile' => $candidateProfile,
+                'blueprint' => $blueprint,
+                'language' => $language
+            ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            Log::error('StratosAssessmentService Matching Error: ' . $response->body());
+            return null;
+        } catch (\Exception $e) {
+            Log::error('StratosAssessmentService Matching Exception: ' . $e->getMessage());
             return null;
         }
     }

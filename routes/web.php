@@ -120,6 +120,10 @@ Route::get('/talent-agents', function () {
     return Inertia::render('TalentAgents/Index');
 })->middleware(['auth', 'verified'])->name('talent-agents.index');
 
+Route::get('/candidate-portal/{id}', function ($id) {
+    return Inertia::render('Selection/CandidatePortal', ['applicationId' => $id]);
+})->name('candidate-portal');
+
 Route::prefix('scenarios')->group(function () {
     Route::get('{id}/iq', [ScenarioController::class, 'getIQ']);
     Route::get('{id}/roles/{roleId}/competency-gaps', [ScenarioController::class, 'getCompetencyGaps']);

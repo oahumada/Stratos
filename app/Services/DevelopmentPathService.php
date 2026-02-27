@@ -110,7 +110,15 @@ class DevelopmentPathService
         $taskPrompt .= "- Gap 2: ~45 días (actividades combinadas tipo course + practice)\n";
         $taskPrompt .= "- Gap 3: ~80 días (course + mentorship + project)\n";
         $taskPrompt .= "- Gap 4+: ~110 días (course + mentorship + workshop + project)\n";
-        $taskPrompt .= "- Skills críticas: añade siempre un paso final de 'certification' (15 días).\n";
+        $taskPrompt .= "Skills críticas: añade siempre un paso final de 'certification' (15 días).\n";
+        
+        $catalogService = new CourseCatalogService;
+        $resources = [];
+        foreach ($gaps as $gap) {
+            $resources[$gap['skill_name']] = $catalogService->findCoursesBySkill($gap['skill_name']);
+        }
+        $taskPrompt .= "RECURSOS DISPONIBLES EN CATÁLOGO: " . json_encode($resources) . "\n";
+        
         $taskPrompt .= "IMPORTANTE: Resume o agrupa si hay demasiadas skills para no crear una ruta infinita. Devuelve SOLO un JSON con la clave 'steps' conteniendo el array de objetos.";
 
         $result = $this->ai->agentThink('Arquitecto de Aprendizaje', $taskPrompt);
@@ -153,7 +161,7 @@ class DevelopmentPathService
                     'action_type' => 'course',
                     'skill_id' => $skillId,
                     'skill_name' => $skillName,
-                    'description' => "Curso intensivo de {$skillName} con enfoque práctico",
+                    'description' => "Curso intensivo de {$skillName} con enfoque práctico. RECOMENDADO: " . $this->getRecommendedCourse($skillName),
                     'estimated_duration_days' => rand(25, 30),
                     'status' => 'draft',
                 ];
@@ -245,5 +253,13 @@ class DevelopmentPathService
         }
 
         return $steps;
+    }
+
+    private function getRecommendedCourse(string $skillName): string
+    {
+        $catalog = new CourseCatalogService;
+        $courses = $catalog->findCoursesBySkill($skillName);
+        $best = $courses[0] ?? null;
+        return $best ? "{$best['title']} ({$best['provider']})" : "Curso General de {$skillName}";
     }
 }
