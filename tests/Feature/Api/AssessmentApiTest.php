@@ -17,7 +17,13 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->org = Organizations::factory()->create();
     $this->user = User::factory()->create(['organization_id' => $this->org->id]);
-    $this->person = People::factory()->create(['organization_id' => $this->org->id]);
+    
+    // Ensure a role exists for the person to avoid Not Null violations in DevelopmentPath
+    $role = \App\Models\Roles::factory()->create(['organization_id' => $this->org->id]);
+    $this->person = People::factory()->create([
+        'organization_id' => $this->org->id,
+        'role_id' => $role->id
+    ]);
 });
 
 it('can start an assessment session', function () {
