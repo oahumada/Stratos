@@ -26,8 +26,8 @@
 | :-- | :----------------------- | :--------------------: | :------------------------------------------------------------------ |
 | A1  | Módulo de Comando 360    |    🔄 En desarrollo    | Backend listo, Frontend `Comando.vue` en iteración.                 |
 | A2  | Roles con Cubo Completo  |   ✅ **Finalizado**    | `RoleCubeWizard.vue` integrado en Matrix Step 2 + creación directa. |
-| A3  | Competencias Agénticas   |      🔄 En curso       | `AiOrchestratorService` genera competencias con BARS.               |
-| A4  | Criterios de Rendimiento |      🔄 En curso       | Criterios BARS integrados en prompt de evaluación.                  |
+| A3  | Competencias Agénticas   |   ✅ **Finalizado**    | `AiOrchestratorService` genera competencias con BARS y las vincula. |
+| A4  | Criterios de Rendimiento |   ✅ **Finalizado**    | Skills incubadas generadas y enlazadas a la CompetencyVersion BARS. |
 | A5  | RBAC (Permisos)          |  ✅ **Implementado**   | Middleware + composable + sidebar reactivo + UI admin.              |
 | A6  | "Mi Stratos" Portal      | ✅ **v1 Implementada** | Dashboard premium con glassmorphism, KPIs, gaps, learning paths.    |
 
@@ -103,7 +103,24 @@
 - Micro-animaciones: hover scale, translateY, fade transitions
 - Responsive: sidebar → tabs en mobile
 
-### 3. Corrección de Bug en RoleCompetencyMatrix
+### 3. Cubo de Roles y Competencias AI (A2, A3, A4)
+
+**Problema resuelto:** Faltaba conectar el flujo de generación del diseño de roles (Role Cube) y llevar esos datos a metadatos complejos de competencias (niveles, anclajes BARS) de forma automatizada.
+
+**Solución implementada:**
+
+| Componente                | Archivo                                                     | Función                                                       |
+| ------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------- |
+| **Integración Matrix**    | `RoleCompetencyMatrix.vue`                                  | Evento `@created` repuebla la matriz tras el Role Cube        |
+| **Controlador**           | `Step2RoleCompetencyController.php`                         | Cambio de target a `Competency` (no `Skill`) para mapping     |
+| **Generación BARS**       | `AiOrchestratorService` & `TalentDesignOrchestratorService` | Prompts refinados para emitir comportamientos y Skills        |
+| **Transformación (Save)** | `TransformCompetencyController.php`                         | Lee requerimiento y guarda automáticamente `Skills` incubadas |
+| **UI Ingeniería**         | `EngineeringBlueprintSheet.vue`                             | Permite edición fina antes de grabar permanentemente          |
+
+**Flujo End-to-End validado:**
+RoleCubeWizard -> Actualización de Matriz en tiempo real -> Clic en estado -> Transformación -> EngineeringBlueprintSheet (Generar AI) -> Confirmación -> Competencia versionada con Skills base vinculadas.
+
+### 4. Corrección de Bug en RoleCompetencyMatrix
 
 **Problema:** `fetchInitialData` no existía como método en `roleCompetencyStore`.
 **Fix:** Renombrado a `loadScenarioData` en `handleRoleCreated()`.
