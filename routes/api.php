@@ -61,6 +61,18 @@ Route::post('/development-actions/{id}/sync-lms', [\App\Http\Controllers\Api\Dev
 Route::get('/pulse-surveys', [\App\Http\Controllers\Api\PulseController::class, 'index']);
 Route::get('/pulse-surveys/{id}', [\App\Http\Controllers\Api\PulseController::class, 'show']);
 Route::post('/pulse-responses', [\App\Http\Controllers\Api\PulseController::class, 'storeResponse']);
+Route::get('/pulse/health-scan', [\App\Http\Controllers\Api\PulseController::class, 'healthScan']);
+
+// Talent DNA Extraction
+Route::post('/talent/dna-extract/{personId}', function ($personId) {
+    $service = app(\App\Services\Talent\TalentSelectionService::class);
+    try {
+        $result = $service->extractHighPerformerDNA((int)$personId);
+        return response()->json(['success' => true, 'data' => $result]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+});
 Route::get('/agents', [\App\Http\Controllers\Api\AgentController::class, 'index']);
 Route::put('/agents/{agent}', [\App\Http\Controllers\Api\AgentController::class, 'update']);
 Route::post('/agents/test', [\App\Http\Controllers\Api\AgentController::class, 'testAgent']);
@@ -174,6 +186,7 @@ Route::middleware('auth:sanctum')->group(function () {
         function () {
             // Simulation (Paso 1 - Final Stage)
             Route::post('/scenarios/{id}/simulate-growth', [\App\Http\Controllers\Api\ScenarioSimulationController::class, 'simulateGrowth']);
+            Route::post('/scenarios/{id}/mitigate', [\App\Http\Controllers\Api\ScenarioSimulationController::class, 'getMitigationPlan']);
             Route::get('/critical-talents', [\App\Http\Controllers\Api\ScenarioSimulationController::class, 'getCriticalTalents']);
 
             // ROI Calculator (CFO Perspective)

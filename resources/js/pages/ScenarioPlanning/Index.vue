@@ -8428,6 +8428,7 @@ if (!edges.value) edges.value = [];
                 <!-- debug controls removed -->
                 <ScenarioSimulationStatus
                     v-if="!focusedNode && !selectedChild"
+                    :scenario-id="scenario?.id"
                     :metrics="{
                         success_probability: 82,
                         synergy_score: 8.9,

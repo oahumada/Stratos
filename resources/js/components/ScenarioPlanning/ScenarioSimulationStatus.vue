@@ -99,14 +99,57 @@
         >
             Recalcular Escenario
         </v-btn>
+
+        <v-btn
+            block
+            color="pink-darken-1"
+            class="text-none mt-2 shadow-lg"
+            prepend-icon="mdi-shield-check"
+            size="small"
+            :loading="mitigating"
+            @click="getMitigationPlan"
+        >
+            Generar Plan de Remediación
+        </v-btn>
+
+        <div v-if="mitigationPlan" class="animate-fade-in mt-4">
+            <v-divider class="border-opacity-25 mb-4"></v-divider>
+            <div
+                class="text-caption font-weight-bold mb-2 tracking-wider text-pink-300 uppercase"
+            >
+                Plan de Remediación (Sentinel):
+            </div>
+            <div class="space-y-2">
+                <div
+                    v-for="(action, i) in mitigationPlan.actions"
+                    :key="i"
+                    class="pa-2 rounded border border-white/5 bg-white/5 text-xs text-white/80"
+                >
+                    • {{ action }}
+                </div>
+            </div>
+            <div
+                class="pa-2 mt-3 rounded border border-cyan-500/20 bg-cyan-950/30 text-xs"
+            >
+                <v-icon
+                    icon="mdi-school"
+                    size="14"
+                    class="mr-1"
+                    color="cyan"
+                ></v-icon>
+                <strong>Capacitación:</strong> {{ mitigationPlan.training }}
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { defineEmits, defineProps } from 'vue';
+import axios from 'axios';
+import { defineEmits, defineProps, ref } from 'vue';
 
 const props = defineProps({
     visible: { type: Boolean, default: true },
+    scenarioId: { type: [Number, String], required: true },
     metrics: {
         type: Object,
         default: () => ({
@@ -121,6 +164,30 @@ const props = defineProps({
 });
 
 defineEmits(['re-run']);
+
+const mitigating = ref(false);
+const mitigationPlan = ref<{
+    actions: string[];
+    training: string;
+    security_insight: string;
+} | null>(null);
+
+const getMitigationPlan = async () => {
+    mitigating.value = true;
+    try {
+        const response = await axios.post(
+            `/api/strategic-planning/scenarios/${props.scenarioId}/mitigate`,
+            {
+                metrics: props.metrics,
+            },
+        );
+        mitigationPlan.value = response.data.plan;
+    } catch (error) {
+        console.error('Error al mitigar:', error);
+    } finally {
+        mitigating.value = false;
+    }
+};
 </script>
 
 <style scoped>

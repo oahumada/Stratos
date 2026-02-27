@@ -99,4 +99,36 @@ class TalentSelectionService
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }
+
+    /**
+     * Extrae el 'Blueprint de Éxito' (DNA) de una persona de alto rendimiento.
+     */
+    public function extractHighPerformerDNA(int $personId): array
+    {
+        $person = \App\Models\People::with(['activeSkills.skill', 'psychometricProfiles'])->findOrFail($personId);
+        
+        $skills = $person->activeSkills->map(fn($s) => $s->skill->name)->implode(', ');
+        $traits = $person->psychometricProfiles->map(fn($p) => "{$p->trait_name}: {$p->score}")->implode(', ');
+        
+        $prompt = "Actúa como el Matchmaker de Resonancia. Estoy analizando a un 'High Performer' de la organización para decodificar su DNA de éxito.
+        
+        Datos del Perfil Exitoso:
+        - Nombre: {$person->full_name}
+        - Skills Dominantes: {$skills}
+        - Rasgos Psicofisiológicos (DISC): {$traits}
+        
+        Por favor:
+        1. Define el 'Persona de Éxito' para este rol.
+        2. Identifica el 'Gen Dominante' (la característica más crítica que lo hace exitoso).
+        3. Crea un perfil de búsqueda optimizado para encontrar clones de este talento.
+        
+        Responde en formato JSON con: 'success_persona', 'dominant_gene', 'search_profile' (string).";
+
+        try {
+            $result = $this->orchestrator->agentThink('Matchmaker de Resonancia', $prompt);
+            return $result['response'];
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
 }

@@ -116,6 +116,16 @@ Estos módulos no están aislados; se retroalimentan a través de una **Única F
 - 🧠 **[Especificación Scenario IQ](file:///home/omar/Stratos/docs/Architecture/SCENARIO_IQ_TECHNICAL_SPEC.md)**: El motor de simulación organizacional.
 - 🎯 **[Especificación Selección Inteligente](file:///home/omar/Stratos/docs/Architecture/SMART_SELECTION_TECHNICAL_SPEC.md)**: El motor de resonancia agéntica.
 
+### V. Funcionalidades Unicornio (Ventaja Injusta Ejecutada)
+
+Estas capacidades transforman a Stratos de una plataforma de análisis a un **motor de acción autónomo**:
+
+1. **Auto-Remediación Agéntica:** Cuando Scenario IQ detecta fricción cultural o riesgo estratégico, el **Stratos Sentinel** genera automáticamente un plan de mitigación con acciones concretas, capacitaciones sugeridas y validación ética. Ya no mostramos solo el problema; entregamos la solución.
+
+2. **Clonación de DNA de High-Performers:** El **Matchmaker de Resonancia** puede decodificar el "Blueprint de Éxito" de cualquier empleado estrella —su combinación única de DISC, skills y estilo cultural— y crear un perfil de búsqueda para encontrar candidatos con resonancia idéntica en el mercado.
+
+3. **Culture Sentinel (Pulso Vivo):** Un monitor de salud organizacional en tiempo real que detecta anomalías en sentimiento, participación y distribución de rasgos. No esperamos la encuesta anual; el Sentinel escanea continuamente y alerta al liderazgo con diagnósticos ejecutivos y acciones prioritarias.
+
 ---
 
 ## 9. Talento 360: El Motor de Verdad "Cerbero"

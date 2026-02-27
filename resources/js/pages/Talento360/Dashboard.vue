@@ -88,6 +88,37 @@ const getPotentialColor = (score: number) => {
     if (score >= 0.5) return 'warning';
     return 'error';
 };
+
+// DNA Cloning Feature
+const dnaDialog = ref(false);
+const dnaLoading = ref(false);
+const dnaResult = ref<{
+    success_persona: string;
+    dominant_gene: string;
+    search_profile: string;
+} | null>(null);
+const selectedPerson = ref<{ id: number; name: string } | null>(null);
+
+const openDnaExtractor = () => {
+    dnaDialog.value = true;
+    dnaResult.value = null;
+};
+
+const extractDNA = async (personId: number, personName: string) => {
+    selectedPerson.value = { id: personId, name: personName };
+    dnaLoading.value = true;
+    dnaResult.value = null;
+    try {
+        const response = await axios.post(
+            `/api/talent/dna-extract/${personId}`,
+        );
+        dnaResult.value = response.data.data;
+    } catch (error) {
+        console.error('Error extrayendo DNA:', error);
+    } finally {
+        dnaLoading.value = false;
+    }
+};
 </script>
 
 <template>
@@ -167,8 +198,21 @@ const getPotentialColor = (score: number) => {
                                 >mdi-star</v-icon
                             >
                         </div>
-                        <div class="text-caption text-secondary">
-                            Candidatos a liderazgo
+                        <div
+                            class="d-flex align-center justify-space-between mt-1"
+                        >
+                            <div class="text-caption text-secondary">
+                                Candidatos a liderazgo
+                            </div>
+                            <v-btn
+                                size="x-small"
+                                variant="tonal"
+                                color="deep-purple"
+                                prepend-icon="mdi-dna"
+                                @click="openDnaExtractor"
+                            >
+                                DNA
+                            </v-btn>
                         </div>
                     </v-card>
                 </v-col>
@@ -304,6 +348,174 @@ const getPotentialColor = (score: number) => {
                 </v-col>
             </v-row>
         </template>
+
+        <!-- DNA Cloning Dialog -->
+        <v-dialog v-model="dnaDialog" max-width="600" persistent>
+            <v-card class="rounded-xl" color="grey-darken-4">
+                <v-card-title class="d-flex align-center pa-5">
+                    <v-icon
+                        icon="mdi-dna"
+                        color="deep-purple-accent-2"
+                        class="mr-2"
+                    ></v-icon>
+                    DNA Cloning: Extraer Blueprint de Éxito
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        icon="mdi-close"
+                        variant="text"
+                        size="small"
+                        @click="dnaDialog = false"
+                    ></v-btn>
+                </v-card-title>
+
+                <v-card-text class="pa-5">
+                    <p class="text-body-2 text-grey-lighten-1 mb-4">
+                        Selecciona un High-Performer para extraer su DNA de
+                        éxito. El Matchmaker de Resonancia analizará su
+                        combinación de skills, DISC y estilo cultural para crear
+                        un perfil cloneable.
+                    </p>
+
+                    <!-- Person Selection -->
+                    <div v-if="!dnaLoading && !dnaResult">
+                        <v-list bg-color="transparent">
+                            <v-list-item
+                                v-for="assessment in metrics.latest_assessments.filter(
+                                    (a) => a.potential >= 0.7,
+                                )"
+                                :key="'dna-' + assessment.id"
+                                class="mb-2 rounded-lg border border-white/5"
+                                @click="
+                                    extractDNA(
+                                        assessment.id,
+                                        assessment.person_name,
+                                    )
+                                "
+                            >
+                                <template v-slot:prepend>
+                                    <v-avatar
+                                        color="deep-purple-darken-3"
+                                        size="36"
+                                    >
+                                        {{
+                                            assessment.person_name?.charAt(0) ||
+                                            '?'
+                                        }}
+                                    </v-avatar>
+                                </template>
+                                <v-list-item-title class="font-weight-bold">{{
+                                    assessment.person_name
+                                }}</v-list-item-title>
+                                <v-list-item-subtitle
+                                    >Potencial:
+                                    {{
+                                        (assessment.potential * 100).toFixed(0)
+                                    }}%</v-list-item-subtitle
+                                >
+                                <template v-slot:append>
+                                    <v-icon
+                                        icon="mdi-chevron-right"
+                                        size="20"
+                                    ></v-icon>
+                                </template>
+                            </v-list-item>
+                        </v-list>
+                        <p
+                            v-if="
+                                !metrics.latest_assessments.filter(
+                                    (a) => a.potential >= 0.7,
+                                ).length
+                            "
+                            class="text-grey py-6 text-center"
+                        >
+                            No hay High-Performers evaluados todavía.
+                        </p>
+                    </div>
+
+                    <!-- Loading -->
+                    <div v-if="dnaLoading" class="py-8 text-center">
+                        <v-progress-circular
+                            indeterminate
+                            color="deep-purple-accent-2"
+                            size="64"
+                        ></v-progress-circular>
+                        <p class="text-grey-lighten-1 mt-4">
+                            Matchmaker de Resonancia analizando DNA de
+                            <strong>{{ selectedPerson?.name }}</strong
+                            >...
+                        </p>
+                    </div>
+
+                    <!-- Results -->
+                    <div v-if="dnaResult && !dnaLoading">
+                        <v-alert
+                            type="success"
+                            variant="tonal"
+                            class="mb-4"
+                            density="compact"
+                        >
+                            DNA de
+                            <strong>{{ selectedPerson?.name }}</strong> extraído
+                            exitosamente.
+                        </v-alert>
+
+                        <v-card
+                            color="grey-darken-3"
+                            class="pa-4 mb-3 rounded-lg"
+                        >
+                            <div
+                                class="text-caption text-deep-purple-accent-2 font-weight-bold mb-1"
+                            >
+                                PERSONA DE ÉXITO
+                            </div>
+                            <p class="text-body-2 text-white">
+                                {{ dnaResult.success_persona }}
+                            </p>
+                        </v-card>
+
+                        <v-card
+                            color="grey-darken-3"
+                            class="pa-4 mb-3 rounded-lg"
+                        >
+                            <div
+                                class="text-caption text-amber-accent-2 font-weight-bold mb-1"
+                            >
+                                GEN DOMINANTE
+                            </div>
+                            <p class="text-body-2 text-white">
+                                {{ dnaResult.dominant_gene }}
+                            </p>
+                        </v-card>
+
+                        <v-card color="grey-darken-3" class="pa-4 rounded-lg">
+                            <div
+                                class="text-caption text-cyan-accent-2 font-weight-bold mb-1"
+                            >
+                                PERFIL DE BÚSQUEDA
+                            </div>
+                            <p class="text-body-2 text-white">
+                                {{ dnaResult.search_profile }}
+                            </p>
+                        </v-card>
+                    </div>
+                </v-card-text>
+
+                <v-card-actions class="pa-5 pt-0">
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        v-if="dnaResult"
+                        variant="tonal"
+                        color="deep-purple-accent-2"
+                        @click="dnaResult = null"
+                    >
+                        Extraer Otro
+                    </v-btn>
+                    <v-btn variant="text" @click="dnaDialog = false"
+                        >Cerrar</v-btn
+                    >
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 

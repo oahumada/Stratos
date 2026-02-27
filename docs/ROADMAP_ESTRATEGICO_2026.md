@@ -51,6 +51,19 @@ Este documento define la visión, las fases de desarrollo y la arquitectura para
 4.  **Audit Trail Inteligente:** Logging de razonamiento IA (Stratos Sentinel) implementado para transparencia total. ✅
 5.  **Optimización FormSchema:** Refactorización de AssessmentController para reducir complejidad (16 -> 8). ✅
 6.  **Portal de Candidatos Agéntico:** Interfaz premium de Resonancia ADN y Matching de Selección activa. ✅
+7.  **Auto-Remediación en Scenario IQ:** Botón de mitigación instantánea con plan generado por Sentinel. ✅
+8.  **DNA Cloning de High-Performers:** Extracción de Blueprint de Éxito vía Matchmaker de Resonancia. ✅
+9.  **Culture Sentinel Widget:** Monitor de salud organizacional en tiempo real con detección de anomalías. ✅
+
+---
+
+## 🔮 Próxima Ola (Wave 2 — Marzo 2026)
+
+1.  **Integración Neo4j Live:** Conectar el Simulador Orgánico con el Grafo de Conocimiento real para proyecciones dinámicas.
+2.  **Notificaciones Proactivas:** El Culture Sentinel envía alertas a Slack/Teams cuando detecta anomalías de alta severidad.
+3.  **Panel de Socios / Investor Demo:** Dashboard ejecutivo con las métricas de impacto de Stratos para presentaciones a inversionistas.
+4.  **API Hardening:** Rate limiting, validación de payloads y tests de integración para todos los endpoints agénticos.
+5.  **Mobile-First PX:** Experiencia de empleado optimizada para móvil con micro-interacciones y notificaciones push.
 
 ---
 
@@ -58,11 +71,11 @@ Este documento define la visión, las fases de desarrollo y la arquitectura para
 
 ### 1. Stratos Sentinel (AI Ethics & Integrity)
 
-- **Misión:** Auditor de transparencia. Custodia el Audit Trail y asegura que las decisiones agénticas sigan el Manifiesto Stratos.
+- **Misión:** Auditor de transparencia. Custodia el Audit Trail, genera planes de remediación y escanea la salud organizacional.
 
 ### 2. Matchmaker de Resonancia (High-Fidelity Selection)
 
-- **Misión:** Predice el acoplamiento ADN entre candidatos y cultura/blueprint técnico.
+- **Misión:** Predice el acoplamiento ADN entre candidatos y cultura/blueprint técnico. Decodifica el DNA de high-performers para clonación estratégica.
 
 ### 3. Simulador Orgánico (Scenario Engine)
 

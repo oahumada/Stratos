@@ -87,7 +87,7 @@ class ScenarioSimulationController extends Controller
         $scenarioId = $request->input('scenario_id');
 
         try {
-            $scenario = Scenario::findOrFail($scenarioId);
+            Scenario::findOrFail($scenarioId);
 
             $criticalTalents = [
                 [
@@ -122,6 +122,32 @@ class ScenarioSimulationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener talentos críticos: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Generar plan de mitigación instantánea.
+     * POST /api/strategic-planning/scenarios/{id}/mitigate
+     */
+    public function getMitigationPlan($id, Request $request, \App\Services\Scenario\ScenarioMitigationService $service): JsonResponse
+    {
+        $metrics = $request->input('metrics', [
+            'success_probability' => 78,
+            'synergy_score' => 8.4,
+            'cultural_friction' => 12,
+        ]);
+
+        try {
+            $plan = $service->generateMitigationPlan((int)$id, $metrics);
+            return response()->json([
+                'success' => true,
+                'plan' => $plan
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar mitigación: ' . $e->getMessage()
             ], 500);
         }
     }

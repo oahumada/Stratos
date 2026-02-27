@@ -79,8 +79,35 @@ La joya no termina en el análisis. El `PotentialScore` y los `Blind Spots` se i
 
 1. **Talent Intelligence Dashboard:** Para comparativas de HiPos (High Potentials).
 2. **Learning Path Generator:** Para que la ruta de aprendizaje no sea genérica, sino que se enfoque en corregir los puntos ciegos detectados.
+3. **Culture Sentinel (Pulso Vivo):** Los perfiles psicométricos alimentan el `CultureSentinelService`, que monitorea en tiempo real la distribución de rasgos y detecta anomalías organizacionales (ej: caída de liderazgo en un área crítica).
+4. **DNA Cloning (Selección Inteligente):** Los High-Performers identificados en el 360 alimentan al `Matchmaker de Resonancia` vía `extractHighPerformerDNA`, creando benchmarks de éxito para la selección de talento externo.
 
 ---
 
-_Documento de Ingeniería de Talento - Stratos v2.1_
-_Actualizado: 26 de Febrero de 2026_
+## 6. Culture Sentinel — Monitor de Salud Organizacional
+
+El módulo Cerbero ya no termina con el reporte individual. Los datos agregados alimentan al **Culture Sentinel** (`CultureSentinelService`), un sistema de detección temprana que:
+
+- **Recopila señales** de Pulsos de Satisfacción y Perfiles Psicométricos.
+- **Detecta anomalías** mediante umbrales inteligentes (sentimiento bajo, tendencia descendente, baja participación).
+- **Analiza con IA** invocando al agente **Stratos Sentinel** para generar diagnósticos ejecutivos y acciones de CEO.
+- **Calcula un Health Score** (0-100) ponderando sentimiento, tendencia y participación.
+
+### Widget de Dashboard (`CultureSentinelWidget.vue`)
+
+- Anillo de Health Score con colores dinámicos (verde/ámbar/rojo).
+- Lista de anomalías con severidad y badges visuales.
+- Diagnóstico del Sentinel con acciones prioritarias.
+- Identificación del "Nodo Crítico" organizacional.
+- Animación de brillo pulsante cuando hay anomalías de alta severidad.
+
+### Endpoint
+
+| Método | Ruta                     | Controlador                  | Descripción                                      |
+| :----- | :----------------------- | :--------------------------- | :----------------------------------------------- |
+| `GET`  | `/api/pulse/health-scan` | `PulseController@healthScan` | Ejecuta escaneo completo de salud organizacional |
+
+---
+
+_Documento de Ingeniería de Talento - Stratos v2.2_
+_Actualizado: 27 de Febrero de 2026_

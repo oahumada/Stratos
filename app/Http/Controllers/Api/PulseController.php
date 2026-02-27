@@ -81,4 +81,23 @@ class PulseController extends Controller
         // Asumiendo escala 1-5, normalizar a 0-100
         return ($total / ($count * 5)) * 100;
     }
+
+    /**
+     * Ejecuta un escaneo de salud organizacional con el Culture Sentinel.
+     * GET /api/pulse/health-scan
+     */
+    public function healthScan(Request $request, \App\Services\CultureSentinelService $sentinel): JsonResponse
+    {
+        $orgId = auth()->user()->organization_id;
+
+        try {
+            $result = $sentinel->runHealthScan($orgId);
+            return response()->json(['success' => true, 'data' => $result]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error en escaneo de salud: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

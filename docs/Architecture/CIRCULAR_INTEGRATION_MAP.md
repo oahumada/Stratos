@@ -18,11 +18,25 @@ graph TD
     F -->|Actualiza Skills| G[Digital Twin / Grafo]
     G -->|Informa Siguiente Ciclo| E
 
+    D -->|High-Performer DNA| I[DNA Cloning]
+    I -->|Perfil de Búsqueda| C
+
+    D -->|Perfiles Psicométricos| J[Culture Sentinel]
+    K[Pulse Surveys] -->|Sentimiento| J
+    J -->|Anomalías y Diagnóstico| L[CEO Actions]
+    E -->|Riesgo Detectado| M[Auto-Remediación]
+    M -->|Plan de Mitigación| E
+
     subgraph "Inteligencia Predictiva"
         H[Predictor de Éxito / ROI]
         H -.-> C
         H -.-> D
         H -.-> E
+    end
+
+    subgraph "Monitoreo Continuo"
+        J
+        M
     end
 ```
 

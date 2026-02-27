@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ScenarioController;
+use App\Http\Controllers\Api\ScenarioSimulationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -129,6 +130,8 @@ Route::prefix('scenarios')->group(function () {
     Route::get('{id}/roles/{roleId}/competency-gaps', [ScenarioController::class, 'getCompetencyGaps']);
     Route::post('{id}/roles/{roleId}/derive-skills', [ScenarioController::class, 'deriveSkills']);
     Route::post('{id}/derive-all-skills', [ScenarioController::class, 'deriveAllSkills']);
+    Route::post('{id}/simulate-growth', [ScenarioSimulationController::class, 'simulateGrowth']);
+    Route::post('{id}/mitigate', [ScenarioSimulationController::class, 'getMitigationPlan']);
 });
 
 require __DIR__.'/settings.php';

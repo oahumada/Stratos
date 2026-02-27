@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CultureSentinelWidget from '@/components/Dashboard/CultureSentinelWidget.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
@@ -260,6 +261,13 @@ onMounted(() => {
                             </div>
                         </v-card-text>
                     </v-card>
+                </v-col>
+            </v-row>
+
+            <!-- Culture Sentinel: Organizational Health Monitor -->
+            <v-row v-if="metrics && !loading" class="mt-6">
+                <v-col cols="12" md="6">
+                    <CultureSentinelWidget />
                 </v-col>
             </v-row>
 
