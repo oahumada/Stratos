@@ -2680,3 +2680,102 @@ export function useProjectCrud() {
 - **Total Test Cases:** 85+ (14 Pest + 70+ Vitest)
 - **Status:** ✅ All code ready | ⏳ Execution blocked by DB migration
 - **Next:** Fix migration → Execute all tests → Phase 3 Documentation
+
+---
+
+## 🧪 Patrones de Testing y Lecciones Aprendidas (2026-02-27)
+
+### Resumen de Sesión
+
+Se creó una suite de tests completa para las **Funcionalidades Unicornio** (Auto-Remediación, DNA Cloning, Culture Sentinel). Durante el proceso se descubrieron bugs reales y patrones críticos que deben seguirse para futuros tests.
+
+**Commits:**
+
+- `feat: Funcionalidades Unicornio — Auto-Remediación, DNA Cloning, Culture Sentinel` (18 archivos, 1,144 líneas)
+- `test: suite completa para Funcionalidades Unicornio — 6 archivos de test`
+- `fix: corregir tests y bug en PsychometricProfile.people() alias`
+
+### 🔴 CRÍTICO: Mockear AiOrchestratorService, NO Http::fake
+
+El `AiOrchestratorService` **no hace llamadas HTTP directas**. Internamente busca un `Agent` en la DB por nombre y usa `DeepSeekProvider` o `OpenAIProvider`. Si usas `Http::fake()`, las llamadas NO se interceptan.
+
+```php
+// ❌ INCORRECTO — NO intercepta las llamadas
+Http::fake(['*' => Http::response([...], 200)]);
+
+// ✅ CORRECTO — Mock del servicio directamente
+$mockOrchestrator = Mockery::mock(AiOrchestratorService::class);
+$mockOrchestrator->shouldReceive('agentThink')
+    ->andReturn([
+        'response' => [
+            'diagnosis' => 'Resultado mockeado',
+            'ceo_actions' => ['Acción 1'],
+            'critical_node' => 'Ninguno',
+        ],
+    ]);
+$this->app->instance(AiOrchestratorService::class, $mockOrchestrator);
+```
+
+**Servicios afectados:** `CultureSentinelService`, `ScenarioMitigationService`, `TalentSelectionService`
+
+### 🔴 CRÍTICO: Vuetify + jsdom = No DOM Selectors
+
+Los componentes Vuetify (`v-btn`, `v-card`, `v-dialog`) **no generan HTML estándar en jsdom**. Selectores como `.find('.v-btn')` retornan un DOMWrapper vacío.
+
+```typescript
+// ❌ INCORRECTO — Error: Cannot call trigger on an empty DOMWrapper
+await wrapper.find('.sentinel-header .v-btn').trigger('click');
+
+// ✅ CORRECTO — Llamar métodos del componente directamente
+await wrapper.vm.runScan();
+await flushPromises();
+expect(wrapper.vm.healthScore).toBe(78);
+```
+
+**Nota:** Los TS lint warnings de "La propiedad 'X' no existe en ComponentPublicInstance" son falsos positivos. Los `<script setup>` SFCs exponen refs en runtime que TS no infiere estáticamente.
+
+### 🟡 AuditTrailService NO persiste a DB
+
+`AuditTrailService::logDecision()` actualmente solo escribe a logs:
+
+- `Log::info(...)` — log general
+- `Log::channel('ai_audit')->info(...)` — log estructurado
+
+**No existe tabla `audit_trails`** (planificada para Fase 2). Usar Log spy en tests:
+
+```php
+Log::shouldReceive('info')->atLeast()->once();
+Log::shouldReceive('channel')->with('ai_audit')->atLeast()->once()->andReturnSelf();
+```
+
+### 🟡 Bug Corregido: PsychometricProfile.people()
+
+El modelo `PsychometricProfile` tenía la relación `person()` pero `CultureSentinelService` llamaba `people()`. Se agregó alias `people()` → `person()`.
+
+**Convención del proyecto:** Las relaciones hacia `People` se llaman `people()` en la mayoría de modelos.
+
+### Factories Creadas
+
+| Factory                      | Modelo              | Archivo                                             |
+| :--------------------------- | :------------------ | :-------------------------------------------------- |
+| `PulseResponseFactory`       | PulseResponse       | `database/factories/PulseResponseFactory.php`       |
+| `PulseSurveyFactory`         | PulseSurvey         | `database/factories/PulseSurveyFactory.php`         |
+| `PsychometricProfileFactory` | PsychometricProfile | `database/factories/PsychometricProfileFactory.php` |
+
+### Test Suite Creada (38 tests, 6 archivos)
+
+**Backend (Pest) — 15/15 ✅**
+
+| Archivo                                         | Tests | Cobertura                                                                   |
+| :---------------------------------------------- | :---: | :-------------------------------------------------------------------------- |
+| `tests/Feature/Api/ScenarioMitigationTest.php`  |   5   | Happy path, JSON structure, default metrics, 404, actions array             |
+| `tests/Feature/Api/CultureSentinelTest.php`     |   6   | Structure, low sentiment, low participation, health score, profiles, org_id |
+| `tests/Feature/Api/TalentDnaExtractionTest.php` |   4   | Full extraction, persona validation, 500 error, empty person                |
+
+**Frontend (Vitest) — 23/23 ✅**
+
+| Archivo                                                               | Tests | Cobertura                                                                        |
+| :-------------------------------------------------------------------- | :---: | :------------------------------------------------------------------------------- |
+| `resources/js/tests/unit/components/CultureSentinelWidget.spec.ts`    |   8   | Render, empty state, health score, anomalies, colors, trend, error, AI diagnosis |
+| `resources/js/tests/unit/components/ScenarioSimulationStatus.spec.ts` |   7   | Visibility, KPIs, mitigation button, API call, results, error                    |
+| `resources/js/pages/__tests__/Talento360Dashboard.dna.spec.ts`        |   8   | Metrics load, DNA button, dialog, HiPo filter, extraction, error, result reset   |

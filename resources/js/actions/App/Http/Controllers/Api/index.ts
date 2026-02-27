@@ -10,6 +10,7 @@ import ApplicationController from './ApplicationController'
 import DashboardController from './DashboardController'
 import MarketplaceController from './MarketplaceController'
 import MentorController from './MentorController'
+import AuthController from './AuthController'
 import GapAnalysisController from './GapAnalysisController'
 import DevelopmentPathController from './DevelopmentPathController'
 import ScenarioController from './ScenarioController'
@@ -44,6 +45,7 @@ const Api = {
     DashboardController: Object.assign(DashboardController, DashboardController),
     MarketplaceController: Object.assign(MarketplaceController, MarketplaceController),
     MentorController: Object.assign(MentorController, MentorController),
+    AuthController: Object.assign(AuthController, AuthController),
     GapAnalysisController: Object.assign(GapAnalysisController, GapAnalysisController),
     DevelopmentPathController: Object.assign(DevelopmentPathController, DevelopmentPathController),
     ScenarioController: Object.assign(ScenarioController, ScenarioController),

@@ -137,6 +137,9 @@ Route::get('/talent/mentors/suggest', [\App\Http\Controllers\Api\MentorControlle
 
 // Scenario Planning API (canonical, without /v1 prefix)
 Route::middleware('auth:sanctum')->group(function () {
+    // Auth & Permissions
+    Route::get('/auth/me', [\App\Http\Controllers\Api\AuthController::class, 'me']);
+
     Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::class, 'analyze']);
     Route::get('/development-paths', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'index']);
     Route::post('/development-paths/generate', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'generate']);
