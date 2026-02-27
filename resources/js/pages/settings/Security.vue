@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SettingsLayout from '@/layouts/SettingsLayout.vue';
+import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';

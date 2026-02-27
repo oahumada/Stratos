@@ -366,7 +366,7 @@ dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 dashboard.form = dashboardForm
 
 /**
-* @see routes/web.php:128
+* @see routes/web.php:136
 * @route '/candidate-portal/{id}'
 */
 export const candidatePortal = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -380,7 +380,7 @@ candidatePortal.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:128
+* @see routes/web.php:136
 * @route '/candidate-portal/{id}'
 */
 candidatePortal.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -406,7 +406,7 @@ candidatePortal.url = (args: { id: string | number } | [id: string | number ] | 
 }
 
 /**
-* @see routes/web.php:128
+* @see routes/web.php:136
 * @route '/candidate-portal/{id}'
 */
 candidatePortal.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -415,7 +415,7 @@ candidatePortal.get = (args: { id: string | number } | [id: string | number ] | 
 })
 
 /**
-* @see routes/web.php:128
+* @see routes/web.php:136
 * @route '/candidate-portal/{id}'
 */
 candidatePortal.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -424,7 +424,7 @@ candidatePortal.head = (args: { id: string | number } | [id: string | number ] |
 })
 
 /**
-* @see routes/web.php:128
+* @see routes/web.php:136
 * @route '/candidate-portal/{id}'
 */
 const candidatePortalForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -433,7 +433,7 @@ const candidatePortalForm = (args: { id: string | number } | [id: string | numbe
 })
 
 /**
-* @see routes/web.php:128
+* @see routes/web.php:136
 * @route '/candidate-portal/{id}'
 */
 candidatePortalForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -442,7 +442,7 @@ candidatePortalForm.get = (args: { id: string | number } | [id: string | number 
 })
 
 /**
-* @see routes/web.php:128
+* @see routes/web.php:136
 * @route '/candidate-portal/{id}'
 */
 candidatePortalForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

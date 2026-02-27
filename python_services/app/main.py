@@ -128,12 +128,15 @@ class AnalysisResponse(BaseModel):
 
 class FeedbackItem(BaseModel):
     relationship: str
-    content: str
+    question: str | None = None
+    content: str | None = None
+    skill_context: dict | None = None
 
 class ThreeSixtyAnalysisRequest(BaseModel):
     person_name: str
     interview_history: list[ChatMessage]
     external_feedback: list[FeedbackItem]
+    performance_data: list[dict] | None = None
     language: str = "es"
 
 class MatchingRequest(BaseModel):
@@ -542,19 +545,32 @@ def interview_analyze_360(request: ThreeSixtyAnalysisRequest):
         )
 
         history_str = "\n".join([f"{m.role}: {m.content}" for m in request.interview_history])
-        feedback_str = "\n".join([f"[{f.relationship}]: {f.content}" for f in request.external_feedback])
+        
+        def format_feedback(f):
+            base = f"[{f.relationship}]"
+            if f.skill_context:
+                bars_info = f" | BARS Score: {f.skill_context.get('score')} | Skill: {f.skill_context.get('skill')}"
+                base += bars_info
+            if f.question:
+                base += f" | Q: {f.question}"
+            base += f" | A: {f.content}"
+            return base
+            
+        feedback_str = "\n".join([format_feedback(f) for f in request.external_feedback])
+        performance_str = json.dumps(request.performance_data) if request.performance_data else "No Performance KPI Data"
 
         task_description = f"""
         EXECUTE HIGH-LEVEL TALENT ENGINEERING ANALYSIS for: {request.person_name}
         
         DATA INPUTS:
         - INTERVIEW: {history_str}
-        - 360° FEEDBACK: {feedback_str}
+        - 360° FEEDBACK (Includes BARS anchored questions & general feedback): {feedback_str}
+        - PERFORMANCE DATA / KPIs: {performance_str}
         
         AGENT DIRECTIVES:
-        1. [ANALYST]: Detailed DISC + Learning Agility profiling. (traits, blind_spots)
+        1. [ANALYST]: Detailed DISC + Learning Agility profiling. (traits, blind_spots). USE BARS SCORES from 360° FEEDBACK to objectively calibrate Technical/Behavioral proficiency levels.
         2. [GUARDIAN]: Deep Cultural Analysis vs Manifest. (cultural_fit, cultural_analysis)
-        3. [PREDICTOR]: Calculate success_probability (0-1) and team_synergy_preview. Consider Gaps vs Potential.
+        3. [PREDICTOR]: Calculate success_probability (0-1) and team_synergy_preview. Consider Gaps vs Potential and quantitative KPI Data.
         4. [SYNTHESIS]: Generate objective overall_potential and the final summary_report in {request.language}.
         
         This analysis must be worthy of a Fortune 500 strategic planning board.

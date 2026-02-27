@@ -112,18 +112,27 @@ class CompetencyCuratorService
     {
         $skill = Skill::findOrFail($skillId);
 
-        $prompt = "Actúa como Curador de Competencias de Stratos. Necesito definir los 5 niveles de dominio (estilo BARS) para la habilidad: '{$skill->name}'.
+        $prompt = "Actúa como Curador de Competencias Senior de Stratos, experto en diseño organizacional y SFIA 8.
+        Necesito definir los 5 niveles de dominio (estilo BARS - Behaviorally Anchored Rating Scales) para la habilidad: '{$skill->name}'.
 
         Contexto de la habilidad: {$skill->description}
         Categoría: {$skill->category}
 
-        Para cada uno de los 5 niveles (1: Novato, 2: Principiante, 3: Competente, 4: Avanzado, 5: Experto), proporciona:
-        1. level_name: El nombre del nivel.
-        2. behavioral_description: Descripción detallada del comportamiento observable.
-        3. learning_content: Contenido de aprendizaje clave para alcanzar o dominar este nivel.
-        4. performance_indicator: Un indicador clave de desempeño (KPI) objetivo para validar este nivel.
+        Sigue estrictamente los Descriptores de Nivel de Stratos:
+        Nivel 1: Ayuda (Básico, realiza tareas guiadas).
+        Nivel 2: Aplica (Intermedio, trabaja con autonomía en tareas estándar).
+        Nivel 3: Habilita (Avanzado, soluciona problemas expertos y apoya a otros).
+        Nivel 4: Asegura (Experto, define estándares y estrategias de dominio).
+        Nivel 5: Maestro (Inspira, lidera e innova a nivel organizacional/referencial).
 
-        Responde estrictamente en formato JSON con la siguiente estructura:
+        Para cada uno de los 5 niveles, proporciona:
+        1. level_name: El nombre descriptivo de Stratos (Ayuda, Aplica, etc.).
+        2. behavioral_description: 3-4 conductas observables y medibles que caracterizan este nivel.
+        3. learning_content: Recursos, conocimientos o metodologías clave para dominar este nivel.
+        4. performance_indicator: Un KPI objetivo (indicador de desempeño) para validar el cumplimiento del nivel.
+        5. agentic_rationale: Breve explicación técnica de por qué este nivel se diferencia del anterior.
+
+        Responde estrictamente en formato JSON:
         {
           \"levels\": [
             {
@@ -131,7 +140,8 @@ class CompetencyCuratorService
               \"level_name\": \"...\",
               \"behavioral_description\": \"...\",
               \"learning_content\": \"...\",
-              \"performance_indicator\": \"...\"
+              \"performance_indicator\": \"...\",
+              \"agentic_rationale\": \"...\"
             },
             ...
           ]

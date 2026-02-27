@@ -1,5 +1,61 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
+* @see \App\Http\Controllers\Api\RoleDesignerController::analyzePreview
+* @see app/Http/Controllers/Api/RoleDesignerController.php:36
+* @route '/api/strategic-planning/roles/analyze-preview'
+*/
+export const analyzePreview = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: analyzePreview.url(options),
+    method: 'post',
+})
+
+analyzePreview.definition = {
+    methods: ["post"],
+    url: '/api/strategic-planning/roles/analyze-preview',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::analyzePreview
+* @see app/Http/Controllers/Api/RoleDesignerController.php:36
+* @route '/api/strategic-planning/roles/analyze-preview'
+*/
+analyzePreview.url = (options?: RouteQueryOptions) => {
+    return analyzePreview.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::analyzePreview
+* @see app/Http/Controllers/Api/RoleDesignerController.php:36
+* @route '/api/strategic-planning/roles/analyze-preview'
+*/
+analyzePreview.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: analyzePreview.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::analyzePreview
+* @see app/Http/Controllers/Api/RoleDesignerController.php:36
+* @route '/api/strategic-planning/roles/analyze-preview'
+*/
+const analyzePreviewForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: analyzePreview.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::analyzePreview
+* @see app/Http/Controllers/Api/RoleDesignerController.php:36
+* @route '/api/strategic-planning/roles/analyze-preview'
+*/
+analyzePreviewForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: analyzePreview.url(options),
+    method: 'post',
+})
+
+analyzePreview.form = analyzePreviewForm
+
+/**
 * @see \App\Http\Controllers\Api\RoleDesignerController::design
 * @see app/Http/Controllers/Api/RoleDesignerController.php:21
 * @route '/api/strategic-planning/roles/{id}/design'
@@ -73,6 +129,6 @@ designForm.post = (args: { id: string | number } | [id: string | number ] | stri
 
 design.form = designForm
 
-const RoleDesignerController = { design }
+const RoleDesignerController = { analyzePreview, design }
 
 export default RoleDesignerController

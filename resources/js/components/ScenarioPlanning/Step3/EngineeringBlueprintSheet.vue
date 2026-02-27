@@ -80,11 +80,30 @@
                         <span>SINTÉTICO 30%</span>
                     </div>
                 </div>
-                <div class="dna-item">
+                <div class="dna-item mb-4">
                     <label>Descriptor de Nivel (SFIA)</label>
                     <p class="text-caption text-indigo-100">
                         {{ sfiaDescriptor }}
                     </p>
+                </div>
+
+                <div v-if="barsData.agentic_rationale" class="dna-item mb-4">
+                    <label>Racional del Agente</label>
+                    <p class="text-xs text-indigo-100 italic">
+                        "{{ barsData.agentic_rationale }}"
+                    </p>
+                </div>
+
+                <div v-if="barsData.learning_guidance" class="dna-item">
+                    <label>Guía de Aprendizaje</label>
+                    <div
+                        class="rounded bg-indigo-900/40 p-2 text-xs text-indigo-100"
+                    >
+                        <v-icon size="12" class="mr-1"
+                            >mdi-book-open-page-variant</v-icon
+                        >
+                        {{ barsData.learning_guidance }}
+                    </div>
                 </div>
             </aside>
 
@@ -202,6 +221,8 @@ const barsData = reactive<any>({
               typeof s === 'string' ? { name: s } : s,
           )
         : [],
+    agentic_rationale: props.initialBars?.agentic_rationale || '',
+    learning_guidance: props.initialBars?.learning_guidance || '',
 });
 
 const barsSections = [
@@ -306,6 +327,8 @@ const generateWithAi = async () => {
                       typeof s === 'string' ? { name: s } : s,
                   )
                 : [];
+            barsData.agentic_rationale = generated.agentic_rationale || '';
+            barsData.learning_guidance = generated.learning_guidance || '';
         }
     } catch (err) {
         console.error('Error in AI engine generation', err);
@@ -330,6 +353,8 @@ const saveBlueprint = async () => {
                     attitude: barsData.attitude,
                     responsibility: barsData.responsibility,
                     skills: barsData.skills,
+                    agentic_rationale: barsData.agentic_rationale,
+                    learning_guidance: barsData.learning_guidance,
                 },
             },
             create_skills_incubated: true,

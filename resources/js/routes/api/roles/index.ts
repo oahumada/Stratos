@@ -1,79 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
-* @see routes/form-schema-complete.php:39
-* @route '/api/roles'
-*/
-export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-
-index.definition = {
-    methods: ["get","head"],
-    url: '/api/roles',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see routes/form-schema-complete.php:39
-* @route '/api/roles'
-*/
-index.url = (options?: RouteQueryOptions) => {
-    return index.definition.url + queryParams(options)
-}
-
-/**
-* @see routes/form-schema-complete.php:39
-* @route '/api/roles'
-*/
-index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/form-schema-complete.php:39
-* @route '/api/roles'
-*/
-index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: index.url(options),
-    method: 'head',
-})
-
-/**
-* @see routes/form-schema-complete.php:39
-* @route '/api/roles'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/form-schema-complete.php:39
-* @route '/api/roles'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/form-schema-complete.php:39
-* @route '/api/roles'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see routes/form-schema-complete.php:46
 * @route '/api/roles'
 */
@@ -215,6 +141,80 @@ showForm.head = (args: { id: string | number } | [id: string | number ] | string
 })
 
 show.form = showForm
+
+/**
+* @see routes/form-schema-complete.php:39
+* @route '/api/roles'
+*/
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/api/roles',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/form-schema-complete.php:39
+* @route '/api/roles'
+*/
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/form-schema-complete.php:39
+* @route '/api/roles'
+*/
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/form-schema-complete.php:39
+* @route '/api/roles'
+*/
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/form-schema-complete.php:39
+* @route '/api/roles'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/form-schema-complete.php:39
+* @route '/api/roles'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/form-schema-complete.php:39
+* @route '/api/roles'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
 
 /**
 * @see routes/form-schema-complete.php:60
@@ -556,9 +556,9 @@ searchWithPacienteForm.post = (options?: RouteQueryOptions): RouteFormDefinition
 searchWithPaciente.form = searchWithPacienteForm
 
 const roles = {
-    index: Object.assign(index, index),
     store: Object.assign(store, store),
     show: Object.assign(show, show),
+    index: Object.assign(index, index),
     update: Object.assign(update, update),
     patch: Object.assign(patch, patch),
     destroy: Object.assign(destroy, destroy),

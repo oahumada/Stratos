@@ -22,14 +22,14 @@
 
 ### 🔵 Bloque A: Completitud Funcional
 
-| #   | Feature                  |         Estado         | Detalle                                                             |
-| :-- | :----------------------- | :--------------------: | :------------------------------------------------------------------ |
-| A1  | Módulo de Comando 360    |    🔄 En desarrollo    | Backend listo, Frontend `Comando.vue` en iteración.                 |
-| A2  | Roles con Cubo Completo  |   ✅ **Finalizado**    | `RoleCubeWizard.vue` integrado en Matrix Step 2 + creación directa. |
-| A3  | Competencias Agénticas   |   ✅ **Finalizado**    | `AiOrchestratorService` genera competencias con BARS y las vincula. |
-| A4  | Criterios de Rendimiento |   ✅ **Finalizado**    | Skills incubadas generadas y enlazadas a la CompetencyVersion BARS. |
-| A5  | RBAC (Permisos)          |  ✅ **Implementado**   | Middleware + composable + sidebar reactivo + UI admin.              |
-| A6  | "Mi Stratos" Portal      | ✅ **v1 Implementada** | Dashboard premium con glassmorphism, KPIs, gaps, learning paths.    |
+| #   | Feature                  |         Estado         | Detalle                                                                     |
+| :-- | :----------------------- | :--------------------: | :-------------------------------------------------------------------------- |
+| A1  | Módulo de Comando 360    |   ✅ **Finalizado**    | Backend configurado, Frontend `Comando.vue` con wizard y activación nativa. |
+| A2  | Roles con Cubo Completo  |   ✅ **Finalizado**    | `RoleCubeWizard.vue` integrado en Matrix Step 2 + creación directa.         |
+| A3  | Competencias Agénticas   |   ✅ **Finalizado**    | `AiOrchestratorService` genera competencias con BARS y las vincula.         |
+| A4  | Criterios de Rendimiento |   ✅ **Finalizado**    | Skills incubadas generadas y enlazadas a la CompetencyVersion BARS.         |
+| A5  | RBAC (Permisos)          |  ✅ **Implementado**   | Middleware + composable + sidebar reactivo + UI admin.                      |
+| A6  | "Mi Stratos" Portal      | ✅ **v1 Implementada** | Dashboard premium con glassmorphism, KPIs, gaps, learning paths.            |
 
 ### 🟢 Bloque B: Expandiendo Stratos
 
@@ -92,8 +92,8 @@
 - ✅ Mi Brecha (gap analysis visual con match % y gaps individuales)
 - ✅ Mi Ruta (learning paths con % de avance y acciones completadas)
 - ✅ Conversaciones (sesiones de evaluación/mentor/pulse activas)
-- ⏳ Mi ADN (perfil psicométrico)
-- ⏳ Mis Logros (gamificación)
+- ✅ Mi ADN (perfil psicométrico integrado)
+- ✅ Mis Logros (gamificación UI y badges)
 - ⏳ Mis Evaluaciones (resultados 360 históricos)
 
 **Diseño:**
@@ -120,10 +120,39 @@
 **Flujo End-to-End validado:**
 RoleCubeWizard -> Actualización de Matriz en tiempo real -> Clic en estado -> Transformación -> EngineeringBlueprintSheet (Generar AI) -> Confirmación -> Competencia versionada con Skills base vinculadas.
 
-### 4. Corrección de Bug en RoleCompetencyMatrix
+### 4. Integración Cerbero & BARS (A3/A4 completado)
+
+**Problema resuelto:** El motor de IA (Cerbero) no estaba utilizando el contexto cuantitativo de BARS ni KPIs de desempeño en el análisis 360, lo que restaba precisión predictiva sobre los niveles de dominio.
+
+**Solución implementada:**
+
+| Componente               | Archivo                        | Función                                                                                                      |
+| ------------------------ | ------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| **Pydantic Schemas**     | `python_services/app/main.py`  | Ampliación de `FeedbackItem` y `ThreeSixtyAnalysisRequest` para recibir metadata BARS y JSON de Performance. |
+| **Python Agent Prompts** | `python_services/app/main.py`  | Agentes Analyst y Predictor de Cerbero ahora correlacionan scores con niveles estratificados.                |
+| **Curator Prompt**       | `CompetencyCuratorService.php` | Nomenclatura oficial de Stratos añadida (Ayuda, Aplica, Habilita, Asegura, Maestro).                         |
+
+### 5. Corrección de Bug en RoleCompetencyMatrix
 
 **Problema:** `fetchInitialData` no existía como método en `roleCompetencyStore`.
 **Fix:** Renombrado a `loadScenarioData` en `handleRoleCreated()`.
+
+### 6. Módulo Comando 360 (A1)
+
+**Problema resuelto:** Faltaba completar la interfaz y la logística de frontend para lanzar y orquestar ciclos de evaluación a la medida con las configuraciones (instrumentos, scopes) requeridas.
+
+**Solución implementada:**
+
+| Componente                | Archivo                                         | Función                                                 |
+| ------------------------- | ----------------------------------------------- | ------------------------------------------------------- |
+| **Página Vue API**        | `Comando.vue`                                   | Vista principal de listado y wizard de nuevos ciclos.   |
+| **Integración Endpoints** | `Comando.vue` & `AssessmentCycleController.php` | Conexión a `POST` (create cycle), `PUT` (activación).   |
+| **Wizard Configuración**  | `Comando.vue`                                   | Configuración paso a paso con previsualización de data. |
+| **Dashboard Action**      | `Comando.vue`                                   | Acción para revisar métricas de "Ciclos Activos".       |
+| **Corrección Errores**    | múltiples (Vue, Vite)                           | Arreglo de scripts y tipos para compilación exitosa.    |
+
+**Flujo End-to-End validado:**
+Boton "Nuevo Ciclo" -> Wizard (nombre, alcance, instrumentos, resumen previsualizado) -> Guardar como draft -> Acción de interfaz nativa "Lanzar Oficialmente" -> Transición de draft a `active` -> Seguimiento Dashboard.
 
 ---
 
@@ -138,25 +167,21 @@ RoleCubeWizard -> Actualización de Matriz en tiempo real -> Clic en estado -> T
 
 ---
 
-## 🎯 Próximos Pasos
+## 🎯 Próximos Pasos Completados (A6 v2 Parcial)
 
-1. **A1: Comando 360 — Completar Frontend**
-    - Wizard de creación de ciclos (3 pasos)
-    - Preview de participantes/instrumentos
-    - Activación y seguimiento de ciclos
+1. **A6 v2: Secciones terminadas:**
+    - Mi ADN (perfil psicométrico integrado, UI completado)
+    - Mis Logros (badges y gamificación leve, UI completado)
+    - Chatbot integrado (Mentor AI in-page float button)
 
-2. **A3/A4: Competencias Agénticas — Completar flujo**
-    - Criterios de rendimiento integrados en prompt de Cerbero
-    - Anclajes BARS vinculados a evaluación automatizada
+2. **Pendiente para Bloque B:**
+    - Neo4j Live y Hardening
 
-3. **A6 v2: Secciones pendientes**
-    - Mi ADN (perfil psicométrico integrado)
-    - Mis Logros (badges y gamificación leve)
-    - Chatbot integrado (Mentor AI in-page)
-
-4. **B5: Mobile PX — Responsive Enhancement**
+3. **B5: Mobile PX — Responsive Enhancement**
     - Optimización de "Mi Stratos" para experiencia móvil nativa
 
 ---
+
+# Logros
 
 _Este documento sirve como referencia para el estado del proyecto al cierre de la sesión del 27 de febrero de 2026._

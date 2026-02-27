@@ -10,10 +10,10 @@
 
 | #   | Feature                                                                                           | Prioridad | Dependencias          |
 | :-- | :------------------------------------------------------------------------------------------------ | :-------: | :-------------------- | ------------------ |
-| A1  | **Módulo de Comando 360** — Configuración de ciclos de evaluación                                 |  🔴 Alta  | Talento360 existente  |
-| A2  | **Creación de Roles con Cubo completo** — Agente del Rol, plantilla, arquetipos                   |  🔴 Alta  | Cubo, Agentes         |
-| A3  | **Creación de Competencias Agéntica** — Skills, unidades de aprendizaje, criterios de rendimiento |  🔴 Alta  | AiOrchestratorService |
-| A4  | **Clarificación de Criterios de Rendimiento** — Cómo el Evaluador 360 usa criterios BARS          | 🟡 Media  | A3                    |
+| A1  | **Módulo de Comando 360** — Configuración de ciclos de evaluación                                 |  🔴 Alta  | Talento360 existente  | ✅ Implementado    |
+| A2  | **Creación de Roles con Cubo completo** — Agente del Rol, plantilla, arquetipos                   |  🔴 Alta  | Cubo, Agentes         | ✅ Implementado    |
+| A3  | **Creación de Competencias Agéntica** — Skills, unidades de aprendizaje, criterios de rendimiento |  🔴 Alta  | AiOrchestratorService | ✅ Implementado    |
+| A4  | **Clarificación de Criterios de Rendimiento** — Cómo el Evaluador 360 usa criterios BARS          | 🟡 Media  | A3                    | ✅ Implementado    |
 | A5  | **Módulo de Roles/Permisos (RBAC)** — Control de acceso CRUD                                      |  🔴 Alta  | -                     | ✅ Implementado    |
 | A6  | **"Mi Stratos" — Portal de Persona** — Experiencia del colaborador completa                       |  🔴 Alta  | A1-A5                 | ✅ v1 Implementada |
 
@@ -34,6 +34,8 @@
 ### Propósito
 
 Centro de configuración para el ciclo de evaluación Talento 360. Define **cuándo**, **cómo** y **a quién** se evalúa.
+
+### Estado: ✅ Completado (27-Feb-2026)
 
 ### Configuraciones
 
@@ -116,6 +118,8 @@ Schema::create('assessment_cycles', function (Blueprint $table) {
 
 Completar el flujo de creación de roles usando el modelo del Cubo (Eje X: Arquetipo, Eje Y: Maestría, Eje Z: Proceso, Factor t: Contexto).
 
+### Estado: ✅ Completado (27-Feb-2026)
+
 ### Flujo
 
 ```mermaid
@@ -152,6 +156,8 @@ graph TD
 ### Propósito
 
 Usar el Agente de Talento para generar competencias completas: definición, skills atómicas, unidades de aprendizaje y **criterios de rendimiento (BARS)**.
+
+### Estado: ✅ Completado (27-Feb-2026)
 
 ### Estructura Generada por el Agente
 
@@ -210,6 +216,8 @@ Usar el Agente de Talento para generar competencias completas: definición, skil
 ### Propósito
 
 Definir exactamente cómo el **Agente Evaluador 360 (Cerbero)** usa los criterios de rendimiento durante la evaluación.
+
+### Estado: ✅ Completado (27-Feb-2026)
 
 ### Flujo de Uso
 

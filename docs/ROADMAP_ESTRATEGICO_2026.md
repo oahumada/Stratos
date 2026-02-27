@@ -65,9 +65,9 @@ Este documento define la visión, las fases de desarrollo y la arquitectura para
 
 | #     | Feature                            |         Estado         |
 | :---- | :--------------------------------- | :--------------------: |
-| A1    | Módulo de Comando 360              |    🔄 En desarrollo    |
+| A1    | Módulo de Comando 360              |     ✅ Finalizado      |
 | A2    | Roles con Cubo Completo            |     ✅ Finalizado      |
-| A3/A4 | Competencias Agénticas + Criterios |      🔄 En curso       |
+| A3/A4 | Competencias Agénticas + Criterios |     ✅ Finalizado      |
 | A5    | RBAC (Permisos)                    |  ✅ **Implementado**   |
 | A6    | "Mi Stratos" Portal                | ✅ **v1 Implementada** |
 

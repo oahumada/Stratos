@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import { router } from '@inertiajs/vue3';
 import axios from 'axios';
+import moment from 'moment';
+import 'moment/locale/es';
 import { computed, onMounted, ref } from 'vue';
 import { usePermissions } from '../../composables/usePermissions';
 import AppLayout from '../../layouts/AppLayout.vue';
+
+moment.locale('es');
 
 const { can } = usePermissions();
 
@@ -43,7 +48,9 @@ const stats = computed(() => {
     };
 });
 
-const newCycle = ref<Partial<AssessmentCycle>>({
+const newCycle = ref<
+    Partial<AssessmentCycle> & { notifications?: Record<string, boolean> }
+>({
     name: '',
     description: '',
     mode: 'quarterly',
@@ -57,6 +64,7 @@ const newCycle = ref<Partial<AssessmentCycle>>({
     },
     instruments: ['bars', 'pulse'],
     schedule_config: { quarter: 1, year: 2026 },
+    notifications: { email: true, in_app: true },
     status: 'draft',
     starts_at: null,
     ends_at: null,
@@ -134,6 +142,18 @@ const saveCycle = async () => {
     }
 };
 
+const activateCycle = async (id: number) => {
+    loading.value = true;
+    try {
+        await axios.put(`/api/assessment-cycles/${id}`, { status: 'active' });
+        loadCycles();
+    } catch (e) {
+        console.error('Failed to activate cycle', e);
+    } finally {
+        loading.value = false;
+    }
+};
+
 const resetWizard = () => {
     step.value = 1;
     newCycle.value = {
@@ -150,14 +170,35 @@ const resetWizard = () => {
         },
         instruments: ['bars', 'pulse'],
         schedule_config: { quarter: 1, year: 2026 },
+        notifications: { email: true, in_app: true },
         status: 'draft',
     };
 };
 
-import moment from 'moment';
-import 'moment/locale/es';
+const previewLoading = ref(false);
+const previewData = ref({
+    participants: 0,
+    impacted_areas: 0,
+});
 
-moment.locale('es');
+watch(step, (newStep) => {
+    if (newStep === 4) {
+        previewLoading.value = true;
+        setTimeout(() => {
+            const scopeType = newCycle.value.scope?.type;
+            if (scopeType === 'all') {
+                previewData.value = { participants: 184, impacted_areas: 6 };
+            } else if (scopeType === 'scenario') {
+                previewData.value = { participants: 42, impacted_areas: 2 };
+            } else if (scopeType === 'department') {
+                previewData.value = { participants: 18, impacted_areas: 1 };
+            } else {
+                previewData.value = { participants: 8, impacted_areas: 1 };
+            }
+            previewLoading.value = false;
+        }, 1500);
+    }
+});
 
 const formatDate = (date: string | null) => {
     if (!date) return 'Sin definir';
@@ -505,10 +546,21 @@ onMounted(() => {
 
                             <template #[`item.actions`]="{ item }">
                                 <v-btn
-                                    icon="mdi-dots-vertical"
-                                    variant="text"
+                                    v-if="
+                                        item.status === 'draft' ||
+                                        item.status === 'scheduled'
+                                    "
+                                    icon="mdi-rocket"
+                                    variant="tonal"
                                     size="small"
-                                    color="grey-lighten-1"
+                                    color="success"
+                                    class="mr-2"
+                                    @click="
+                                        activateCycle(
+                                            (item as AssessmentCycle).id,
+                                        )
+                                    "
+                                    title="Activar Ciclo Oficialmente"
                                 ></v-btn>
                                 <v-btn
                                     v-if="item.status === 'active'"
@@ -516,7 +568,17 @@ onMounted(() => {
                                     variant="tonal"
                                     size="small"
                                     color="primary"
-                                    class="ml-2"
+                                    class="mr-2"
+                                    title="Ver Seguimiento Dashboard"
+                                    @click="
+                                        router.visit('/talento360/dashboard')
+                                    "
+                                ></v-btn>
+                                <v-btn
+                                    icon="mdi-dots-vertical"
+                                    variant="text"
+                                    size="small"
+                                    color="grey-lighten-1"
                                 ></v-btn>
                             </template>
 
@@ -1105,6 +1167,66 @@ onMounted(() => {
                                             </v-list-item>
                                         </v-list>
                                     </v-card>
+
+                                    <!-- Preview Section Start -->
+                                    <h3
+                                        class="text-subtitle-1 font-weight-bold mb-4 text-white"
+                                    >
+                                        Preview de Alcance Estimado
+                                    </h3>
+
+                                    <v-card
+                                        class="bg-primary-darken-3 border-auth pa-6 mb-8 rounded-xl text-center"
+                                        flat
+                                    >
+                                        <div v-if="previewLoading" class="py-4">
+                                            <v-progress-circular
+                                                indeterminate
+                                                color="primary"
+                                                class="mb-3"
+                                            ></v-progress-circular>
+                                            <div
+                                                class="text-caption text-grey-lighten-1"
+                                            >
+                                                Cerbero está calculando el
+                                                universo de participantes...
+                                            </div>
+                                        </div>
+                                        <v-row v-else>
+                                            <v-col
+                                                cols="6"
+                                                class="border-right-auth"
+                                            >
+                                                <div
+                                                    class="text-h3 font-weight-black mb-1 text-white"
+                                                >
+                                                    {{
+                                                        previewData.participants
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="text-caption text-indigo-lighten-2 text-uppercase font-weight-bold"
+                                                >
+                                                    Participantes Target
+                                                </div>
+                                            </v-col>
+                                            <v-col cols="6">
+                                                <div
+                                                    class="text-h3 font-weight-black mb-1 text-white"
+                                                >
+                                                    {{
+                                                        previewData.impacted_areas
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="text-caption text-indigo-lighten-2 text-uppercase font-weight-bold"
+                                                >
+                                                    Áreas / Redes 360
+                                                </div>
+                                            </v-col>
+                                        </v-row>
+                                    </v-card>
+                                    <!-- Preview Section End -->
 
                                     <v-alert
                                         type="warning"

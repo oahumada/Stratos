@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::store
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:29
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:39
 * @route '/api/assessment-cycles'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::store
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:29
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:39
 * @route '/api/assessment-cycles'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::store
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:29
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:39
 * @route '/api/assessment-cycles'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::store
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:29
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:39
 * @route '/api/assessment-cycles'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::store
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:29
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:39
 * @route '/api/assessment-cycles'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::show
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:69
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:79
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 export const show = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -153,7 +153,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::show
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:69
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:79
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 show.url = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -180,7 +180,7 @@ show.url = (args: { assessment_cycle: string | number } | [assessment_cycle: str
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::show
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:69
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:79
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 show.get = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +190,7 @@ show.get = (args: { assessment_cycle: string | number } | [assessment_cycle: str
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::show
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:69
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:79
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 show.head = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +200,7 @@ show.head = (args: { assessment_cycle: string | number } | [assessment_cycle: st
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::show
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:69
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:79
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 const showForm = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +210,7 @@ const showForm = (args: { assessment_cycle: string | number } | [assessment_cycl
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::show
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:69
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:79
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 showForm.get = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -220,7 +220,7 @@ showForm.get = (args: { assessment_cycle: string | number } | [assessment_cycle:
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::show
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:69
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:79
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 showForm.head = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -237,7 +237,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::update
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:81
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:91
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 export const update = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -252,7 +252,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::update
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:81
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:91
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 update.url = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -279,7 +279,7 @@ update.url = (args: { assessment_cycle: string | number } | [assessment_cycle: s
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::update
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:81
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:91
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 update.put = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -289,7 +289,7 @@ update.put = (args: { assessment_cycle: string | number } | [assessment_cycle: s
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::update
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:81
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:91
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 update.patch = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -299,7 +299,7 @@ update.patch = (args: { assessment_cycle: string | number } | [assessment_cycle:
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::update
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:81
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:91
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 const updateForm = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -314,7 +314,7 @@ const updateForm = (args: { assessment_cycle: string | number } | [assessment_cy
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::update
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:81
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:91
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 updateForm.put = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -329,7 +329,7 @@ updateForm.put = (args: { assessment_cycle: string | number } | [assessment_cycl
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::update
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:81
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:91
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 updateForm.patch = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -346,7 +346,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::destroy
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:118
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:128
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 export const destroy = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -361,7 +361,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::destroy
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:118
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:128
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 destroy.url = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -388,7 +388,7 @@ destroy.url = (args: { assessment_cycle: string | number } | [assessment_cycle: 
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::destroy
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:118
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:128
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 destroy.delete = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -398,7 +398,7 @@ destroy.delete = (args: { assessment_cycle: string | number } | [assessment_cycl
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::destroy
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:118
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:128
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 const destroyForm = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -413,7 +413,7 @@ const destroyForm = (args: { assessment_cycle: string | number } | [assessment_c
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::destroy
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:118
+* @see app/Http/Controllers/Api/AssessmentCycleController.php:128
 * @route '/api/assessment-cycles/{assessment_cycle}'
 */
 destroyForm.delete = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

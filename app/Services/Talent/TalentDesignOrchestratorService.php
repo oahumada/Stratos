@@ -291,34 +291,47 @@ class TalentDesignOrchestratorService
         $scenario = Scenario::findOrFail($scenarioId);
         
         // System Prompt: El Ing. de Talento
-        $systemInstructions = "Actúa como Ingeniero de Talento Senior experto en SFIA 8 y metodologías BARS. 
-        Tu misión es redactar la ingeniería de detalle (conductas observables) para una competencia específica.
-        Debes seguir estrictamente los descriptores de nivel de Stratos:
-        1: Ayuda (Básico), 2: Aplica (Intermedio), 3: Habilita (Avanzado), 4: Asegura (Experto), 5: Maestro (Inspira).
-        
-        CONTEXTO DEL ROL:
-        - Arquetipo: {$archetype} (E=Estratégico, T=Táctico, O=Operacional)
-        - Nivel SFIA Objetivo: {$level}
-        
-        REGLAS DE REDACCIÓN:
-        - Behaviour: Conductas observables.
-        - Attitude: Mindset esperado.
-        - Responsibility: Qué resultados garantiza.
-        - Skills: Sub-habilidades técnicas necesarias.
-        
-        Devuelve SOLO un JSON con las claves: behaviour[], attitude[], responsibility[], skills[].";
+        $systemInstructions = "Actúa como Ingeniero de Talento Senior de Stratos, experto en Diseño Organizacional basado en SFIA 8 y metodologías de Alto Desempeño.
+        Tu misión es redactar la ingeniería de detalle (Blueprints BARS) para una competencia en un rol específico del futuro.
 
-        $taskPrompt = "Genera el Blueprint de Ingeniería para:
+        DEBES seguir estrictamente los Descriptores de Nivel de Stratos:
+        1: Ayuda (Se le dice qué hacer, supervisión total).
+        2: Aplica (Sigue procesos estándar, autonomía en ejecución).
+        3: Habilita (Toma decisiones expertas, guía a otros en la técnica).
+        4: Asegura (Define el 'cómo' organizacional, garantiza calidad y estándares).
+        5: Maestro (Estrategia global, innovación, mentoría de alto nivel e inspiración).
+
+        ESTRUCTURA DEL BLUEPRINT:
+        - behaviour[]: Conductas específicas y medibles (Ej. 'Aplica metodología Agile para...')
+        - attitude[]: Mindset y disposición esperada (Ej. 'Mentalidad de crecimiento ante fallos técnicos')
+        - responsibility[]: Resultados que garantiza y accountability (Ej. 'Asegura la escalabilidad del sistema')
+        - technical_skills[]: Habilidades técnicas del DNA de este nivel.
+        - agentic_rationale: Explicación de por qué este diseño es crítico para un arquetipo {$archetype}.
+        - learning_guidance: Sugerencia de 1-2 temas clave para que el colaborador progrese en este nivel.
+
+        CONTEXTO DEL ROL:
+        - Arquetipo: {$archetype} (E=Estratégico, T=Táctico, O=Operacional).
+        
+        Devuelve SOLO un JSON con las claves: behaviour[], attitude[], responsibility[], technical_skills[], agentic_rationale, learning_guidance.";
+
+        $taskPrompt = "Genera el Blueprint de Ingeniería (BARS) para:
         ROL: {$roleName}
         COMPETENCIA: {$competencyName}
         NIVEL OBJETIVO: {$level}
         CONTEXTO ESCENARIO: {$scenario->description}
         
-        Asegúrate de que las conductas reflejen el nivel {$level} de maestría para un arquetipo {$archetype}.";
+        Asegúrate de que la profundidad técnica y el nivel de autonomía sean COHERENTES con un nivel de maestría {$level} según SFIA 8 y un arquetipo {$archetype}.";
 
         try {
             $result = $this->ai->agentThink('Ingeniero de Talento', $taskPrompt, $systemInstructions);
-            return $result['response'] ?? $result;
+            $parsed = $result['response'] ?? $result;
+            
+            // Map technical_skills to skills if needed for frontend compatibility
+            if (isset($parsed['technical_skills']) && !isset($parsed['skills'])) {
+                $parsed['skills'] = $parsed['technical_skills'];
+            }
+            
+            return $parsed;
         } catch (\Exception $e) {
             Log::error("Error generando BARS IA: " . $e->getMessage());
             throw $e;

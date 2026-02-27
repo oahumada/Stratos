@@ -1,13 +1,9 @@
 <script setup lang="ts">
+import AssessmentChat from '@/components/Assessments/AssessmentChat.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Mi Stratos', href: '/mi-stratos' },
-];
 
 interface PersonData {
     person: {
@@ -71,6 +67,11 @@ const loading = ref(true);
 const data = ref<PersonData | null>(null);
 const activeSection = ref('dashboard');
 const greeting = ref('');
+const isMentorChatOpen = ref(false);
+
+const toggleMentorChat = () => {
+    isMentorChatOpen.value = !isMentorChatOpen.value;
+};
 
 // Greeting based on time of day
 const updateGreeting = () => {
@@ -171,6 +172,8 @@ const sidebarSections = [
     { key: 'gaps', icon: 'mdi-target', label: 'Mi Brecha' },
     { key: 'learning', icon: 'mdi-school', label: 'Mi Ruta' },
     { key: 'conversations', icon: 'mdi-forum', label: 'Conversaciones' },
+    { key: 'dna', icon: 'mdi-dna', label: 'Mi ADN' },
+    { key: 'achievements', icon: 'mdi-trophy', label: 'Mis Logros' },
 ];
 
 onMounted(() => {
@@ -673,9 +676,7 @@ defineOptions({ layout: AppLayout });
                                                         variant="tonal"
                                                         color="primary"
                                                     >
-                                                        {{
-                                                            comp.skills.length
-                                                        }}
+                                                        {{ comp.skills.length }}
                                                         skills
                                                     </v-chip>
                                                 </div>
@@ -987,9 +988,7 @@ defineOptions({ layout: AppLayout });
                                                 class="text-caption text-grey mt-2"
                                             >
                                                 {{ path.completed_actions }} de
-                                                {{
-                                                    path.total_actions
-                                                }}
+                                                {{ path.total_actions }}
                                                 acciones completadas
                                             </div>
                                         </v-card-text>
@@ -1085,8 +1084,305 @@ defineOptions({ layout: AppLayout });
                             </v-row>
                         </div>
                     </transition>
+
+                    <!-- SECTION: Mi ADN (Psychometric Profile) -->
+                    <transition name="fade" mode="out-in">
+                        <div v-if="activeSection === 'dna'" key="dna">
+                            <h2 class="section-title">
+                                <v-icon class="mr-2" color="primary"
+                                    >mdi-dna</v-icon
+                                >
+                                Mi ADN Profesional
+                            </h2>
+
+                            <v-card
+                                v-if="data?.psychometric"
+                                class="glass-card mb-6"
+                                flat
+                            >
+                                <v-card-text>
+                                    <div class="d-flex align-center mb-6">
+                                        <v-icon
+                                            size="36"
+                                            color="purple-lighten-2"
+                                            class="mr-4"
+                                            >mdi-brain</v-icon
+                                        >
+                                        <div>
+                                            <h3
+                                                class="text-h6 font-weight-bold"
+                                            >
+                                                Perfil Psicométrico
+                                            </h3>
+                                            <p class="text-grey text-body-2">
+                                                Basado en evaluaciones 360 y
+                                                análisis de Cerbero AI.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <v-row v-if="data.psychometric.traits">
+                                        <v-col
+                                            v-for="trait in data.psychometric
+                                                .traits"
+                                            :key="trait.name"
+                                            cols="12"
+                                            md="6"
+                                        >
+                                            <div class="trait-row mb-4">
+                                                <div
+                                                    class="d-flex justify-space-between align-center mb-1"
+                                                >
+                                                    <span
+                                                        class="font-weight-medium text-body-1"
+                                                        >{{ trait.name }}</span
+                                                    >
+                                                    <span
+                                                        class="text-caption font-weight-bold"
+                                                        :style="{
+                                                            color: kpiColor(
+                                                                trait.score *
+                                                                    100,
+                                                            ),
+                                                        }"
+                                                        >{{
+                                                            Math.round(
+                                                                trait.score *
+                                                                    100,
+                                                            )
+                                                        }}%</span
+                                                    >
+                                                </div>
+                                                <v-progress-linear
+                                                    :model-value="
+                                                        trait.score * 100
+                                                    "
+                                                    :color="
+                                                        kpiColor(
+                                                            trait.score * 100,
+                                                        )
+                                                    "
+                                                    height="8"
+                                                    rounded
+                                                    striped
+                                                />
+                                                <p
+                                                    class="text-caption text-grey mt-2"
+                                                >
+                                                    {{ trait.rationale }}
+                                                </p>
+                                            </div>
+                                        </v-col>
+                                    </v-row>
+                                </v-card-text>
+                            </v-card>
+
+                            <!-- Blind Spots -->
+                            <v-card
+                                v-if="
+                                    data?.psychometric?.blind_spots?.length > 0
+                                "
+                                class="glass-card"
+                                flat
+                            >
+                                <v-card-text>
+                                    <h4
+                                        class="text-h6 font-weight-bold d-flex align-center mb-4"
+                                    >
+                                        <v-icon color="warning" class="mr-2"
+                                            >mdi-eye-off</v-icon
+                                        >
+                                        Blind Spots (Puntos Ciegos)
+                                    </h4>
+                                    <v-list bg-color="transparent" class="px-0">
+                                        <v-list-item
+                                            v-for="(spot, i) in data
+                                                .psychometric.blind_spots"
+                                            :key="i"
+                                            class="px-0"
+                                        >
+                                            <template #prepend>
+                                                <v-icon
+                                                    color="error"
+                                                    size="small"
+                                                    >mdi-alert-circle-outline</v-icon
+                                                >
+                                            </template>
+                                            <v-list-item-title
+                                                class="text-body-2 text-grey-lighten-1 text-wrap"
+                                                style="line-height: 1.4"
+                                            >
+                                                {{ spot }}
+                                            </v-list-item-title>
+                                        </v-list-item>
+                                    </v-list>
+                                </v-card-text>
+                            </v-card>
+
+                            <div
+                                v-else-if="!data?.psychometric"
+                                class="empty-panel py-8 text-center"
+                            >
+                                <v-icon size="48" color="grey-lighten-1"
+                                    >mdi-head-question</v-icon
+                                >
+                                <p class="text-grey mt-2">
+                                    No hay un perfil psicométrico generado aún.
+                                    Participa en tu primera evaluación.
+                                </p>
+                            </div>
+                        </div>
+                    </transition>
+
+                    <!-- SECTION: Mis Logros -->
+                    <transition name="fade" mode="out-in">
+                        <div
+                            v-if="activeSection === 'achievements'"
+                            key="achievements"
+                        >
+                            <h2 class="section-title">
+                                <v-icon class="mr-2" color="primary"
+                                    >mdi-trophy</v-icon
+                                >
+                                Mis Logros
+                            </h2>
+
+                            <v-row>
+                                <v-col cols="12" sm="6" md="4">
+                                    <div class="achievement-card earned">
+                                        <div class="achievement-icon">
+                                            <v-icon size="40" color="amber"
+                                                >mdi-star-shooting</v-icon
+                                            >
+                                        </div>
+                                        <h4 class="achievement-title">
+                                            High Potential
+                                        </h4>
+                                        <p class="achievement-desc">
+                                            Identificado en el top 10% de
+                                            desempeño anual
+                                        </p>
+                                    </div>
+                                </v-col>
+                                <v-col cols="12" sm="6" md="4">
+                                    <div class="achievement-card earned">
+                                        <div class="achievement-icon">
+                                            <v-icon size="40" color="cyan"
+                                                >mdi-rocket-launch</v-icon
+                                            >
+                                        </div>
+                                        <h4 class="achievement-title">
+                                            Fast Learner
+                                        </h4>
+                                        <p class="achievement-desc">
+                                            Completaste tu primer Learning Path
+                                            en tiempo récord
+                                        </p>
+                                    </div>
+                                </v-col>
+                                <v-col cols="12" sm="6" md="4">
+                                    <div class="achievement-card locked">
+                                        <div class="achievement-icon">
+                                            <v-icon size="40" color="grey"
+                                                >mdi-lock</v-icon
+                                            >
+                                        </div>
+                                        <h4 class="achievement-title">
+                                            Líder Adaptativo
+                                        </h4>
+                                        <p class="achievement-desc">
+                                            Requiere 80% en Competencia de
+                                            Liderazgo
+                                        </p>
+                                    </div>
+                                </v-col>
+                            </v-row>
+
+                            <!-- Gamification Level -->
+                            <v-card class="glass-card mt-6" flat>
+                                <v-card-text
+                                    class="d-flex flex-column align-center py-6 text-center"
+                                >
+                                    <v-avatar
+                                        size="80"
+                                        color="rgba(103, 58, 183, 0.2)"
+                                        class="mb-4"
+                                        style="border: 2px solid #7c4dff"
+                                    >
+                                        <span
+                                            class="text-h4 font-weight-black text-purple-lighten-2"
+                                            >L4</span
+                                        >
+                                    </v-avatar>
+                                    <h3 class="text-h5 font-weight-bold mb-1">
+                                        Nivel 4: Especialista
+                                    </h3>
+                                    <p class="text-body-2 text-grey mb-4">
+                                        Te faltan 450 XP para el Nivel 5
+                                    </p>
+                                    <v-progress-linear
+                                        model-value="65"
+                                        color="purple-accent-2"
+                                        height="12"
+                                        rounded
+                                        striped
+                                        style="width: 100%; max-width: 400px"
+                                    />
+                                </v-card-text>
+                            </v-card>
+                        </div>
+                    </transition>
                 </div>
             </div>
+
+            <!-- Floating Mentor AI Button -->
+            <v-btn
+                icon="mdi-robot"
+                color="secondary"
+                size="large"
+                elevation="8"
+                class="mentor-fab"
+                @click="toggleMentorChat"
+            />
+
+            <!-- Mentor AI Chat Dialog -->
+            <v-dialog
+                v-model="isMentorChatOpen"
+                max-width="600px"
+                transition="dialog-bottom-transition"
+            >
+                <v-card
+                    class="glass-card"
+                    style="background: rgba(36, 36, 62, 0.95) !important"
+                >
+                    <v-toolbar
+                        color="transparent"
+                        title="Mentor AI"
+                        class="text-white"
+                    >
+                        <template #prepend>
+                            <v-icon color="secondary" class="ml-4"
+                                >mdi-robot</v-icon
+                            >
+                        </template>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            icon="mdi-close"
+                            variant="text"
+                            @click="isMentorChatOpen = false"
+                            class="mr-2"
+                        ></v-btn>
+                    </v-toolbar>
+                    <v-card-text class="pa-0">
+                        <AssessmentChat
+                            v-if="person"
+                            :person-id="person.id"
+                            type="mentor"
+                            @completed="isMentorChatOpen = false"
+                        />
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
         </template>
     </div>
 </template>
@@ -1487,5 +1783,107 @@ defineOptions({ layout: AppLayout });
     .hero-name {
         font-size: 1.5rem;
     }
+}
+
+/* Psychometric & Achievements Styles */
+.trait-row {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.achievement-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    height: 100%;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.achievement-card.earned {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.achievement-card.locked {
+    opacity: 0.6;
+    filter: grayscale(100%);
+}
+
+.achievement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.achievement-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.achievement-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.achievement-desc {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.4;
+}
+
+/* Floating Mentor Action Button */
+.mentor-fab {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 99;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    animation: glow-pulse 3s infinite;
+}
+
+@keyframes glow-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 15px rgba(76, 175, 80, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    }
+}
+
+:deep(.assessment-chat) {
+    border-radius: 0 0 16px 16px;
+    background: transparent;
+}
+:deep(.assessment-chat .chat-messages-bg) {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+:deep(.assessment-chat .text-subtitle-2),
+:deep(.assessment-chat .text-body-2) {
+    color: #fff !important;
+}
+:deep(.assessment-chat .v-field__input) {
+    color: #fff;
 }
 </style>
