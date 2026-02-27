@@ -4,6 +4,8 @@ import type { Component } from 'vue';
 
 export interface Auth {
     user: User;
+    role: string;
+    permissions: string[];
 }
 
 export interface BreadcrumbItem {
@@ -16,6 +18,8 @@ export interface NavItem {
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon | Component;
     isActive?: boolean;
+    requiredPermission?: string;
+    requiredRole?: string[];
 }
 
 export type AppPageProps<

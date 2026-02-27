@@ -111,7 +111,7 @@ Route::get('/talento360/question-bank', function () {
 
 Route::get('/talento360/comando', function () {
     return Inertia::render('Talento360/Comando');
-})->middleware(['auth', 'verified'])->name('talento360.comando');
+})->middleware(['auth', 'verified', 'role:admin,hr_leader'])->name('talento360.comando');
 
 Route::get('/people-experience', function () {
     return Inertia::render('PeopleExperience/Index');
@@ -119,11 +119,19 @@ Route::get('/people-experience', function () {
 
 Route::get('/people-experience/comando', function () {
     return Inertia::render('PeopleExperience/ComandoPx');
-})->middleware(['auth', 'verified'])->name('people-experience.comando');
+})->middleware(['auth', 'verified', 'role:admin,hr_leader'])->name('people-experience.comando');
 
 Route::get('/talent-agents', function () {
     return Inertia::render('TalentAgents/Index');
-})->middleware(['auth', 'verified'])->name('talent-agents.index');
+})->middleware(['auth', 'verified', 'role:admin,hr_leader'])->name('talent-agents.index');
+
+Route::get('/mi-stratos', function () {
+    return Inertia::render('MiStratos/Index');
+})->middleware(['auth', 'verified'])->name('mi-stratos.index');
+
+Route::get('/settings/rbac', function () {
+    return Inertia::render('settings/RBAC');
+})->middleware(['auth', 'verified', 'role:admin'])->name('settings.rbac');
 
 Route::get('/candidate-portal/{id}', function ($id) {
     return Inertia::render('Selection/CandidatePortal', ['applicationId' => $id]);

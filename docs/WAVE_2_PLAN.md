@@ -9,13 +9,13 @@
 ### 🔵 Bloque A: Completitud Funcional (Items del creador)
 
 | #   | Feature                                                                                           | Prioridad | Dependencias          |
-| :-- | :------------------------------------------------------------------------------------------------ | :-------: | :-------------------- |
+| :-- | :------------------------------------------------------------------------------------------------ | :-------: | :-------------------- | ------------------ |
 | A1  | **Módulo de Comando 360** — Configuración de ciclos de evaluación                                 |  🔴 Alta  | Talento360 existente  |
 | A2  | **Creación de Roles con Cubo completo** — Agente del Rol, plantilla, arquetipos                   |  🔴 Alta  | Cubo, Agentes         |
 | A3  | **Creación de Competencias Agéntica** — Skills, unidades de aprendizaje, criterios de rendimiento |  🔴 Alta  | AiOrchestratorService |
 | A4  | **Clarificación de Criterios de Rendimiento** — Cómo el Evaluador 360 usa criterios BARS          | 🟡 Media  | A3                    |
-| A5  | **Módulo de Roles/Permisos (RBAC)** — Control de acceso CRUD                                      |  🔴 Alta  | -                     |
-| A6  | **"Mi Stratos" — Portal de Persona** — Experiencia del colaborador completa                       |  🔴 Alta  | A1-A5                 |
+| A5  | **Módulo de Roles/Permisos (RBAC)** — Control de acceso CRUD                                      |  🔴 Alta  | -                     | ✅ Implementado    |
+| A6  | **"Mi Stratos" — Portal de Persona** — Experiencia del colaborador completa                       |  🔴 Alta  | A1-A5                 | ✅ v1 Implementada |
 
 ### 🟢 Bloque B: Roadmap Original Wave 2
 
@@ -253,90 +253,136 @@ Definir exactamente cómo el **Agente Evaluador 360 (Cerbero)** usa los criterio
 
 ---
 
-## 🔵 A5: Módulo de Roles/Permisos (RBAC)
+## 🔵 A5: Módulo de Roles/Permisos (RBAC) — ✅ IMPLEMENTADO
 
 ### Propósito
 
 Control de acceso basado en roles para autorizar/denegar operaciones CRUD en toda la plataforma.
 
-### Roles del Sistema
+### Estado: ✅ Completado (27-Feb-2026)
 
-| Rol            | Descripción                      | Acceso                                    |
-| :------------- | :------------------------------- | :---------------------------------------- |
-| `admin`        | Administrador de la organización | Full CRUD en todo                         |
-| `hr_leader`    | Líder de RRHH                    | CRUD en talento, evaluaciones, escenarios |
-| `manager`      | Jefe de equipo                   | Read de su equipo, create evaluaciones    |
-| `collaborator` | Colaborador                      | Read de su perfil, respond evaluaciones   |
-| `observer`     | Observador / Inversionista       | Read-only de dashboards                   |
+### Arquitectura Implementada
 
-### Implementación
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      BACKEND (Laravel 11)                   │
+│                                                             │
+│  HasSystemRole trait (app/Traits/HasSystemRole.php)          │
+│  ├── hasRole(), hasPermission(), can()                       │
+│  ├── getPermissions() — cacheado 1h por rol                 │
+│  └── isAdmin(), isHrOrAbove()                               │
+│                                                             │
+│  Middleware (bootstrap/app.php):                            │
+│  ├── 'role:admin,hr_leader' → CheckRole.php                 │
+│  └── 'permission:scenarios.create' → CheckPermission.php    │
+│                                                             │
+│  HandleInertiaRequests → comparte role + permissions[]       │
+│                                                             │
+│  RBACController → GET/POST /api/rbac (admin only)           │
+├─────────────────────────────────────────────────────────────┤
+│                      FRONTEND (Vue 3)                       │
+│                                                             │
+│  usePermissions() composable (Singleton reactivo)            │
+│  ├── can('scenarios.create') → bool                         │
+│  ├── canModule('scenarios') → bool                          │
+│  ├── hasRole('admin', 'hr_leader') → bool                   │
+│  └── isAtLeast('manager') → bool (jerarquía)                │
+│                                                             │
+│  AppSidebar.vue → filtra NavItems por requiredPermission     │
+│  settings/RBAC.vue → UI admin para gestión de permisos       │
+└─────────────────────────────────────────────────────────────┘
+```
 
-- Laravel Policies + Gates
-- Middleware `can:` en rutas API
-- Tabla `role_user` con roles del sistema (no confundir con roles de negocio)
-- Componente `v-if="can('edit', 'competencies')"` en frontend
+### Roles del Sistema (5 niveles)
+
+| Rol            | Identificador  | Permisos | Acceso                                    |
+| :------------- | :------------- | :------: | :---------------------------------------- |
+| `admin`        | Administrador  |    18    | Full CRUD en todo                         |
+| `hr_leader`    | Líder RRHH     |    13    | CRUD en talento, evaluaciones, escenarios |
+| `manager`      | Jefe de equipo |    8     | Read equipo, create evaluaciones          |
+| `collaborator` | Colaborador    |    2     | Mi Stratos, respond evaluaciones          |
+| `observer`     | Observador     |    3     | Read-only dashboards                      |
+
+### Implementación Detallada
+
+- **Migración:** `2026_02_27_014700_create_rbac_tables.php` — tablas `permissions` + `role_permissions`
+- **Seeder:** `RolePermissionSeeder.php` — 18 permisos, 45 mappings
+- **Middleware:** `CheckRole`, `CheckPermission` — registrados en bootstrap/app.php
+- **Inertia:** Permisos compartidos vía `HandleInertiaRequests` (instantáneo, sin API call)
+- **Composable:** `usePermissions.ts` — lee de Inertia o API fallback
+- **Sidebar:** `AppSidebar.vue` — items con `requiredPermission` / `requiredRole`
+- **UI Admin:** `settings/RBAC.vue` — gestión visual de la matriz de permisos
+
+> 📖 Documentación completa: [`docs/Architecture/RBAC_SYSTEM.md`](./Architecture/RBAC_SYSTEM.md)
 
 ---
 
-## 🔵 A6: "Mi Stratos" — Portal de Persona
+## 🔵 A6: "Mi Stratos" — Portal de Persona — ✅ v1 IMPLEMENTADA
 
 ### Propósito
 
 Interfaz centrada en el colaborador. Es su espacio personal dentro de Stratos donde ve, interactúa y crece.
 
-### Arquitectura de la Interfaz
+### Estado: ✅ v1 Implementada (27-Feb-2026)
+
+### Arquitectura Implementada
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│  MI STRATOS                           Carlos Mendoza    │
-│  Tech Lead · Cubo: T4 · Potencial: 85%                 │
-├─────────────────┬───────────────────────────────────────┤
-│                 │                                       │
-│  🏠 Mi Perfil   │  ┌─────────────────────────────────┐  │
-│  📊 Mi Rol      │  │  DASHBOARD PERSONAL              │  │
-│  🧬 Mi ADN      │  │                                 │  │
-│  🎯 Mi Brecha   │  │  Potencial: ████████░░ 85%      │  │
-│  📚 Mi Ruta     │  │  Readiness: ██████░░░░ 72%      │  │
-│  💬 Mis Convs.  │  │  Learning:  ████░░░░░░ 45%      │  │
-│  🏆 Mis Logros  │  │                                 │  │
-│  📋 Mis Evals.  │  │  Próximo Hito:                  │  │
-│                 │  │  "Completar módulo de ML" (3d)   │  │
-│                 │  │                                 │  │
-│                 │  │  Escenario Activo:               │  │
-│                 │  │  "Expansión LATAM Q2" ▶          │  │
-│                 │  │                                 │  │
-│                 │  └─────────────────────────────────┘  │
-│                 │                                       │
-│                 │  ┌─────────────────────────────────┐  │
-│                 │  │  CONVERSACIONES ACTIVAS          │  │
-│                 │  │                                 │  │
-│                 │  │  🤖 Mentor AI — Sesión pendiente │  │
-│                 │  │  🫀 Pulse Check — Disponible     │  │
-│                 │  │  📋 Eval 360 Q1 — En progreso   │  │
-│                 │  └─────────────────────────────────┘  │
-│                 │                                       │
-└─────────────────┴───────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  BACKEND                                                    │
+│  MiStratosController.php → GET /api/mi-stratos/dashboard    │
+│  ├── Carga People con relaciones (role, skills, dept, etc.) │
+│  ├── Calcula Gap Analysis vía GapAnalysisService            │
+│  ├── Agrega Learning Paths con progreso                     │
+│  ├── Lista Assessment Sessions activas                      │
+│  └── Calcula KPIs: Potencial, Readiness, Learning, Skills   │
+├─────────────────────────────────────────────────────────────┤
+│  FRONTEND: pages/MiStratos/Index.vue                        │
+│  ├── Hero Header (avatar, rol, cubo, arquetipo, KPI match)  │
+│  ├── Mini Sidebar con 5 secciones                           │
+│  ├── Dashboard: 4 KPI cards + paneles resumen               │
+│  ├── Mi Rol: competencias con barras de progreso por skill  │
+│  ├── Mi Brecha: gap analysis visual con brechas detectadas  │
+│  ├── Mi Ruta: learning paths con % de avance                │
+│  └── Conversaciones: sesiones de evaluación activas         │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Secciones
+### Diseño Visual
 
-| Sección                | Contenido                                           | Fuente de Datos                       |
-| :--------------------- | :-------------------------------------------------- | :------------------------------------ |
-| **Mi Perfil**          | Datos personales, foto, bio                         | `people`                              |
-| **Mi Rol**             | Rol actual, arquetipo, Cubo, competencias asignadas | `roles`, `role_competencies`          |
-| **Mi ADN**             | Perfil psicométrico, rasgos dominantes, fortalezas  | `psychometric_profiles`               |
-| **Mi Brecha**          | Gaps detectados, plan de remediación, prioridades   | `skill_gaps`, `mitigation_plans`      |
-| **Mi Ruta**            | Learning path, cursos, avance, próximos hitos       | `learning_paths`, `learning_progress` |
-| **Mis Conversaciones** | Mentor AI, Pulse Check, Evaluador 360               | `assessment_sessions`, chatbot        |
-| **Mis Logros**         | Badges, milestones, reconocimientos                 | `achievements` (nueva)                |
-| **Mis Evaluaciones**   | Resultados 360, histórico, tendencias               | `assessment_results`                  |
+- **Background:** Gradiente profundo `#0f0c29 → #1a1a3e → #24243e`
+- **Cards:** Glassmorphism con `backdrop-filter: blur(12px)` y bordes semitransparentes
+- **KPIs:** Colores de estado dinámicos (verde ≥80%, naranja ≥60%, rojo <40%)
+- **Animaciones:** Hover scale en avatar, translateY en cards, transiciones fade entre secciones
+- **Responsive:** Sidebar se convierte en tabs horizontales en mobile
 
-### Visión UX
+### Secciones Implementadas (v1)
 
-- **Diseño:** Dark mode premium, glassmorphism, micro-animaciones
-- **Tono:** Personal, empoderador, no corporativo
-- **Gamificación leve:** Progress bars, badges, streaks de aprendizaje
-- **Chatbot integrado:** El colaborador puede hablar con su Mentor AI desde aquí
+| Sección       | Contenido                                | Fuente de Datos            | Estado |
+| :------------ | :--------------------------------------- | :------------------------- | :----: |
+| **Dashboard** | 4 KPI cards + paneles de resumen         | KPIs calculados, agregados |   ✅   |
+| **Mi Rol**    | Competencias con barras skill-by-skill   | `roles`, `role_skills`     |   ✅   |
+| **Mi Brecha** | Gap analysis con match % y lista de gaps | `GapAnalysisService`       |   ✅   |
+| **Mi Ruta**   | Learning paths con progreso y acciones   | `development_paths`        |   ✅   |
+| **Convs.**    | Sesiones activas de evaluación/mentor    | `assessment_sessions`      |   ✅   |
+
+### Secciones Planeadas (v2)
+
+| Sección              | Contenido                               | Estado |
+| :------------------- | :-------------------------------------- | :----: |
+| **Mi ADN**           | Perfil psicométrico, rasgos, fortalezas |   ⏳   |
+| **Mis Logros**       | Badges, milestones, gamificación        |   ⏳   |
+| **Mis Evaluaciones** | Resultados 360, histórico, tendencias   |   ⏳   |
+| **Chatbot**          | Mentor AI integrado in-page             |   ⏳   |
+
+### Archivos
+
+| Archivo                                            | Propósito                                           |
+| -------------------------------------------------- | --------------------------------------------------- |
+| `app/Http/Controllers/Api/MiStratosController.php` | Backend — agrega toda la data del usuario           |
+| `resources/js/pages/MiStratos/Index.vue`           | Frontend — portal premium con glassmorphism         |
+| `routes/web.php`                                   | Ruta `/mi-stratos` (auth, verified)                 |
+| `routes/api.php`                                   | Endpoint `/api/mi-stratos/dashboard` (auth:sanctum) |
 
 ---
 

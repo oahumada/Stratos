@@ -73,9 +73,9 @@ Route::post('/talent/dna-extract/{personId}', function ($personId) {
         return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
     }
 });
-Route::get('/agents', [\App\Http\Controllers\Api\AgentController::class, 'index']);
-Route::put('/agents/{agent}', [\App\Http\Controllers\Api\AgentController::class, 'update']);
-Route::post('/agents/test', [\App\Http\Controllers\Api\AgentController::class, 'testAgent']);
+Route::get('/agents', [\App\Http\Controllers\Api\AgentController::class, 'index'])->middleware('permission:agents.view');
+Route::put('/agents/{agent}', [\App\Http\Controllers\Api\AgentController::class, 'update'])->middleware('permission:agents.manage');
+Route::post('/agents/test', [\App\Http\Controllers\Api\AgentController::class, 'testAgent'])->middleware('permission:agents.manage');
 
 // Job Openings (Día 4-5)
 Route::get('/job-openings', [\App\Http\Controllers\Api\JobOpeningController::class, 'index']);
@@ -140,14 +140,17 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth & Permissions
     Route::get('/auth/me', [\App\Http\Controllers\Api\AuthController::class, 'me']);
 
+    // Mi Stratos — Portal Personal
+    Route::get('/mi-stratos/dashboard', [\App\Http\Controllers\Api\MiStratosController::class, 'dashboard']);
+
     // Talento 360 Command Center
     Route::apiResource('assessment-cycles', \App\Http\Controllers\Api\AssessmentCycleController::class)
         ->middleware('permission:assessments.manage');
 
     Route::get('/people/profile/{id}', [\App\Http\Controllers\Api\PeopleProfileController::class, 'show']);
 
-    Route::get('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'index']);
-    Route::post('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'update']);
+    Route::get('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'index'])->middleware('role:admin');
+    Route::post('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'update'])->middleware('role:admin');
         
     // People Experience Command Center
     Route::apiResource('px-campaigns', \App\Http\Controllers\Api\PxCampaignController::class)

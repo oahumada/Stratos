@@ -273,15 +273,15 @@ class Step2RoleCompetencyController extends Controller
         // Si se pasaron competencias, grabarlas en scenario_role_competencies
         if ($request->has('competencies') && is_array($request->competencies)) {
             foreach ($request->competencies as $compData) {
-                // Buscar o crear skill en catálogo
-                $skill = \App\Models\Skill::firstOrCreate(
+                // Buscar o crear competencia en catálogo
+                $competency = \App\Models\Competency::firstOrCreate(
                     [
                         'name' => $compData['name'],
                         'organization_id' => auth()->user()->organization_id
                     ],
                     [
-                        'category' => 'Competency',
-                        'description' => $compData['rationale'] ?? null
+                        'description' => $compData['rationale'] ?? null,
+                        'status' => 'in_incubation'
                     ]
                 );
 
@@ -290,7 +290,7 @@ class Step2RoleCompetencyController extends Controller
                     [
                         'scenario_id' => $scenarioId,
                         'role_id' => $scenarioRole->id,
-                        'competency_id' => $skill->id, // Usamos el ID de la competencia/skill
+                        'competency_id' => $competency->id, // Usamos el ID de la competencia
                     ],
                     [
                         'required_level' => $compData['level'] ?? 3,

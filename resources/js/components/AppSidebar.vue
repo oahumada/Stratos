@@ -11,10 +11,11 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { usePermissions } from '@/composables/usePermissions';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Star, User } from 'lucide-vue-next';
-import { defineComponent, h } from 'vue';
+import { computed, defineComponent, h } from 'vue';
 import { VIcon } from 'vuetify/components';
 import AppLogo from './AppLogo.vue';
 
@@ -42,90 +43,148 @@ const TalentAgentsIcon = defineComponent(
 const CerberoMapIcon = defineComponent(
     () => () => h(VIcon, { icon: 'mdi-transit-connection-variant', size: 20 }),
 );
+const MiStratosIcon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-account-star', size: 20 }),
+);
 
-const mainNavItems: NavItem[] = [
+const { can, hasRole } = usePermissions();
+
+const allNavItems: NavItem[] = [
+    // Visible for everyone
+    {
+        title: 'Mi Stratos',
+        href: '/mi-stratos',
+        icon: MiStratosIcon,
+    },
     {
         title: 'Dashboard',
         href: '/dashboard/analytics',
         icon: LayoutGrid,
     },
+    // People management — requires people.view
     {
         title: 'People',
         href: '/people',
         icon: User,
+        requiredPermission: 'people.view',
     },
+    // Roles — requires roles.view
     {
         title: 'Roles',
         href: '/roles',
         icon: BookOpen,
+        requiredPermission: 'roles.view',
     },
+    // Competencies — requires competencies.view
     {
         title: 'Competencies',
         href: '/competencies',
         icon: defineComponent(
             () => () => h(VIcon, { icon: 'mdi-puzzle', size: 20 }),
         ),
+        requiredPermission: 'competencies.view',
     },
+    // Skills — requires competencies.view
     {
         title: 'Skills',
         href: '/skills',
         icon: SkillsIcon,
+        requiredPermission: 'competencies.view',
     },
+    // Cerbero Map — requires assessments.view
     {
         title: 'Mapa Cerbero',
         href: '/talento360/relationships',
         icon: CerberoMapIcon,
+        requiredPermission: 'assessments.view',
     },
+    // Gap Analysis — requires people.view
     {
         title: 'Gap Analysis',
         href: '/gap-analysis',
         icon: GapAnalysisIcon,
+        requiredPermission: 'people.view',
     },
+    // Learning Paths — requires people.view
     {
         title: 'Learning Paths',
         href: '/learning-paths',
         icon: Star,
+        requiredPermission: 'people.view',
     },
+    // Marketplace — requires people.view
     {
         title: 'Marketplace',
         href: '/marketplace',
         icon: MarketplaceIcon,
+        requiredPermission: 'people.view',
     },
+    // Strategic Scenarios — requires scenarios.view
     {
         title: 'Strategic Talent Scenarios',
         href: '/scenario-planning',
         icon: ScenarioPlanningIcon,
+        requiredPermission: 'scenarios.view',
     },
+    // Talento 360 — requires assessments.view
     {
         title: 'Talento 360°',
         href: '/talento360',
         icon: Talento360Icon,
+        requiredPermission: 'assessments.view',
     },
+    // Comando 360 — admin/hr_leader only
     {
         title: 'Comando 360',
         href: '/talento360/comando',
         icon: defineComponent(
             () => () => h(VIcon, { icon: 'mdi-rocket-launch', size: 20 }),
         ),
+        requiredRole: ['admin', 'hr_leader'],
     },
+    // People Experience — requires people.view
     {
         title: 'People Experience',
         href: '/people-experience',
         icon: PeopleExperienceIcon,
+        requiredPermission: 'people.view',
     },
+    // Comando PX — admin/hr_leader only
     {
         title: 'Comando PX',
         href: '/people-experience/comando',
         icon: defineComponent(
             () => () => h(VIcon, { icon: 'mdi-brain', size: 20 }),
         ),
+        requiredRole: ['admin', 'hr_leader'],
     },
+    // Talent Agents — requires agents.view
     {
         title: 'Talent Agents',
         href: '/talent-agents',
         icon: TalentAgentsIcon,
+        requiredPermission: 'agents.view',
     },
 ];
+
+/**
+ * Filter nav items based on RBAC permissions and roles.
+ */
+const mainNavItems = computed<NavItem[]>(() => {
+    return allNavItems.filter((item) => {
+        // No restriction? Always show
+        if (!item.requiredPermission && !item.requiredRole) return true;
+
+        // Check permission
+        if (item.requiredPermission && !can(item.requiredPermission))
+            return false;
+
+        // Check role
+        if (item.requiredRole && !hasRole(...item.requiredRole)) return false;
+
+        return true;
+    });
+});
 
 const footerNavItems: NavItem[] = [
     {

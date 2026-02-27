@@ -42,6 +42,30 @@ class TransformCompetencyController
             'created_by' => $user->id ?? null,
         ]);
 
-        return response()->json(['success' => true, 'data' => $cv], 201);
+        $createdSkills = [];
+        if ($request->boolean('create_skills_incubated') && isset($validated['metadata']['bars']['skills'])) {
+            foreach ($validated['metadata']['bars']['skills'] as $skillData) {
+                $skillName = is_array($skillData) ? ($skillData['name'] ?? null) : $skillData;
+                if (!empty($skillName)) {
+                    $skill = \App\Models\Skill::firstOrCreate([
+                        'organization_id' => $competency->organization_id,
+                        'name' => $skillName
+                    ], [
+                        'status' => 'incubation',
+                        'category' => 'Skill',
+                        'description' => 'Generado por IA en Blueprint de Ingeniería',
+                    ]);
+
+                    $competency->skills()->syncWithoutDetaching([$skill->id]);
+                    
+                    $createdSkills[] = $skill;
+                }
+            }
+        }
+
+        $responseData = $cv->toArray();
+        $responseData['created_skills'] = $createdSkills;
+
+        return response()->json(['success' => true, 'data' => $responseData], 201);
     }
 }

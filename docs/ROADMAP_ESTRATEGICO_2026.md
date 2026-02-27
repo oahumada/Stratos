@@ -54,16 +54,34 @@ Este documento define la visión, las fases de desarrollo y la arquitectura para
 7.  **Auto-Remediación en Scenario IQ:** Botón de mitigación instantánea con plan generado por Sentinel. ✅
 8.  **DNA Cloning de High-Performers:** Extracción de Blueprint de Éxito vía Matchmaker de Resonancia. ✅
 9.  **Culture Sentinel Widget:** Monitor de salud organizacional en tiempo real con detección de anomalías. ✅
+10. **RBAC Completo (A5):** Middleware, composable, sidebar reactivo, UI admin de gestión de permisos. ✅
+11. **Portal "Mi Stratos" v1 (A6):** Dashboard personal premium con dark mode, glassmorphism y micro-animaciones. ✅
 
 ---
 
-## 🔮 Próxima Ola (Wave 2 — Marzo 2026)
+## 🔮 Próxima Ola (Wave 2 — Febrero/Marzo 2026)
 
-1.  **Integración Neo4j Live:** Conectar el Simulador Orgánico con el Grafo de Conocimiento real para proyecciones dinámicas.
-2.  **Notificaciones Proactivas:** El Culture Sentinel envía alertas a Slack/Teams cuando detecta anomalías de alta severidad.
-3.  **Panel de Socios / Investor Demo:** Dashboard ejecutivo con las métricas de impacto de Stratos para presentaciones a inversionistas.
-4.  **API Hardening:** Rate limiting, validación de payloads y tests de integración para todos los endpoints agénticos.
-5.  **Mobile-First PX:** Experiencia de empleado optimizada para móvil con micro-interacciones y notificaciones push.
+### Bloque A: Completitud Funcional
+
+| #     | Feature                            |         Estado         |
+| :---- | :--------------------------------- | :--------------------: |
+| A1    | Módulo de Comando 360              |    🔄 En desarrollo    |
+| A2    | Roles con Cubo Completo            |     ✅ Finalizado      |
+| A3/A4 | Competencias Agénticas + Criterios |      🔄 En curso       |
+| A5    | RBAC (Permisos)                    |  ✅ **Implementado**   |
+| A6    | "Mi Stratos" Portal                | ✅ **v1 Implementada** |
+
+### Bloque B: Expansión
+
+| #   | Feature        |       Estado        |
+| :-- | :------------- | :-----------------: |
+| B1  | Neo4j Live     | ⏳ Esperando infra  |
+| B2  | Notificaciones | 🔄 Estructura lista |
+| B3  | Investor Demo  |    🔄 Prototipo     |
+| B4  | API Hardening  | ✅ Refactorización  |
+| B5  | Mobile PX      |     ⏳ Próximo      |
+
+> 📖 Detalle completo: [`docs/WAVE_2_PLAN.md`](./WAVE_2_PLAN.md)
 
 ---
 
