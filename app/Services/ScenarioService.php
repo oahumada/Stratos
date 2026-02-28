@@ -7,11 +7,11 @@ use App\Repository\ScenarioRepository;
 
 class ScenarioService
 {
-    public function __construct(private ScenarioRepository $repository) {}
+    public function __construct() {}
 
     public function runFullAnalysis(int $scenarioId): array
     {
-        $scenario = StrategicPlanningScenarios::find($scenarioId);
+        $scenario = Scenario::find($scenarioId);
         if (! $scenario) {
             throw new \Exception('Scenario not found');
         }
@@ -132,5 +132,69 @@ class ScenarioService
             ],
             'gaps' => $gaps,
         ];
+    }
+
+    /**
+     * Get the hierarchical capability tree for a scenario.
+     */
+    public function getCapabilityTree(int $scenarioId): array
+    {
+        $scenarioAnalytics = app(\App\Services\ScenarioAnalyticsService::class);
+
+        $scenario = Scenario::with([
+            'capabilities' => function ($q) use ($scenarioId) {
+                $q->with([
+                    'competencies' => function ($qc) use ($scenarioId) {
+                        $qc->wherePivot('scenario_id', $scenarioId)
+                            ->with('skills');
+                    },
+                ]);
+            },
+        ])->findOrFail($scenarioId);
+
+        return $scenario->capabilities->map(function ($capability) use ($scenarioId, $scenarioAnalytics) {
+            return [
+                'id' => $capability->id,
+                'type' => $capability->type ?? null,
+                'category' => $capability->category ?? null,
+                'name' => $capability->name,
+                'description' => $capability->description ?? null,
+                'importance' => $capability->importance ?? null,
+                'position_x' => $capability->position_x ?? null,
+                'position_y' => $capability->position_y ?? null,
+                'strategic_role' => $capability->pivot?->strategic_role ?? null,
+                'strategic_weight' => $capability->pivot?->strategic_weight ?? $capability->pivot?->weight ?? null,
+                'priority' => $capability->pivot?->priority ?? null,
+                'rationale' => $capability->pivot?->rationale ?? null,
+                'required_level' => $capability->pivot?->required_level ?? null,
+                'is_critical' => $capability->pivot?->is_critical ?? null,
+                'is_incubating' => $capability->isIncubating(),
+                'readiness' => round($scenarioAnalytics->calculateCapabilityReadiness($scenarioId, $capability->id) * 100, 1),
+                'competencies' => $capability->competencies->map(function ($comp) use ($scenarioId, $scenarioAnalytics) {
+                    return [
+                        'id' => $comp->id,
+                        'name' => $comp->name,
+                        'description' => $comp->description ?? null,
+                        'readiness' => round($scenarioAnalytics->calculateCompetencyReadiness($scenarioId, $comp->id) * 100, 1),
+                        'pivot' => [
+                            'strategic_weight' => $comp->pivot?->strategic_weight ?? $comp->pivot?->weight ?? null,
+                            'priority' => $comp->pivot?->priority ?? null,
+                            'required_level' => $comp->pivot?->required_level ?? null,
+                            'is_critical' => $comp->pivot?->is_critical ?? null,
+                            'rationale' => $comp->pivot?->rationale ?? null,
+                        ],
+                        'skills' => $comp->skills->map(function ($skill) use ($scenarioId, $scenarioAnalytics) {
+                            return [
+                                'id' => $skill->id,
+                                'name' => $skill->name,
+                                'weight' => $skill->pivot->weight ?? null,
+                                'is_incubating' => ! is_null($skill->discovered_in_scenario_id),
+                                'readiness' => round($scenarioAnalytics->calculateSkillReadiness($scenarioId, $skill->id) * 100, 1),
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+        })->toArray();
     }
 }

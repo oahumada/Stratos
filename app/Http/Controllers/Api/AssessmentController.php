@@ -45,7 +45,7 @@ class AssessmentController extends Controller
         // Opcional: Podríamos disparar el primer mensaje de bienvenida aquí
         // llamando al servicio inmediatamente si queremos que el AI empiece.
 
-        return response()->json($session->load('person', 'agent'));
+        return $this->successResponse($session->load('person', 'agent'));
     }
 
     /**
@@ -57,7 +57,7 @@ class AssessmentController extends Controller
             $q->orderBy('created_at', 'asc');
         }, 'person', 'psychometricProfiles'])->findOrFail($id);
 
-        return response()->json($session);
+        return $this->successResponse($session);
     }
 
     /**
@@ -88,10 +88,10 @@ class AssessmentController extends Controller
                     'role' => $aiResponse['role'],
                     'content' => $aiResponse['content']
                 ]);
-                return response()->json($aiMessage);
+                return $this->successResponse($aiMessage);
             }
 
-            return response()->json(['message' => 'Error al obtener respuesta de la IA'], 500);
+            return $this->errorResponse('Error al obtener respuesta de la IA', 500);
         });
     }
 
@@ -103,7 +103,7 @@ class AssessmentController extends Controller
         $session = AssessmentSession::findOrFail($id);
 
         if ($session->messages()->count() < 3) {
-            return response()->json(['message' => 'Insuficientes mensajes para analizar'], 400);
+            return $this->errorResponse('Insuficientes mensajes para analizar');
         }
 
         $externalFeedback = $this->getExternalFeedbackEnriched($session->people_id);
@@ -112,7 +112,7 @@ class AssessmentController extends Controller
         $analysis = $this->performAnalysis($session, $externalFeedback, $performanceData);
 
         if (!$analysis) {
-            return response()->json(['message' => 'Error en el análisis de la sesión'], 500);
+            return $this->errorResponse('Error en el análisis de la sesión', 500);
         }
 
         return $this->saveAnalysisResults($session, $analysis, !empty($externalFeedback));
@@ -178,10 +178,7 @@ class AssessmentController extends Controller
                 $this->competencyService->updateAllSkillsForPerson($session->people_id);
             }
 
-            return response()->json([
-                'success' => true,
-                'session' => $session->load('psychometricProfiles')
-            ]);
+            return $this->successResponse($session->load('psychometricProfiles'), 'Análisis completado');
         });
     }
 
@@ -284,7 +281,7 @@ class AssessmentController extends Controller
             return $req;
         });
 
-        return response()->json($requestFeedback);
+        return $this->successResponse($requestFeedback, 'Solicitud de feedback enviada');
     }
 
     /**
@@ -307,7 +304,7 @@ class AssessmentController extends Controller
         $assessmentRequest = AssessmentRequest::findOrFail($validated['request_id']);
 
         if ($assessmentRequest->status === 'completed') {
-            return response()->json(['message' => 'Feedback ya enviado'], 400);
+            return $this->errorResponse('Feedback ya enviado');
         }
 
         return DB::transaction(function() use ($assessmentRequest, $validated) {
@@ -347,7 +344,7 @@ class AssessmentController extends Controller
                 'completed_at' => now()
             ]);
 
-            return response()->json(['success' => true]);
+            return $this->successResponse(null, 'Feedback enviado correctamente');
         });
     }
 
@@ -363,7 +360,7 @@ class AssessmentController extends Controller
             ->where('status', 'pending')
             ->get();
 
-        return response()->json($requests);
+        return $this->successResponse($requests);
     }
 
     /**
@@ -376,10 +373,10 @@ class AssessmentController extends Controller
             ->firstOrFail();
 
         if ($request->status === 'completed') {
-            return response()->json(['message' => 'Esta evaluación ya ha sido completada.'], 400);
+            return $this->errorResponse('Esta evaluación ya ha sido completada.');
         }
 
-        return response()->json($request);
+        return $this->successResponse($request);
     }
 
     /**
@@ -421,7 +418,7 @@ class AssessmentController extends Controller
         $assessmentRequest = AssessmentRequest::where('token', $validated['token'])->firstOrFail();
 
         if ($assessmentRequest->status === 'completed') {
-            return response()->json(['message' => 'Feedback ya enviado'], 400);
+            return $this->errorResponse('Feedback ya enviado');
         }
 
         return DB::transaction(function() use ($assessmentRequest, $validated) {
@@ -442,7 +439,7 @@ class AssessmentController extends Controller
             }
 
             $assessmentRequest->update(['status' => 'completed', 'completed_at' => now()]);
-            return response()->json(['success' => true]);
+            return $this->successResponse(null, 'Feedback enviado con éxito');
         });
     }
 
@@ -482,8 +479,7 @@ class AssessmentController extends Controller
                 $this->dispatchFeedbackRequest($subject, $sub, 'subordinate');
             }
 
-            return response()->json([
-                'message' => 'Ciclo 360 disparado con éxito.',
+            return $this->successResponse([
                 'subject' => $subject->full_name,
                 'session_id' => $session->id,
                 'counts' => [
@@ -491,7 +487,7 @@ class AssessmentController extends Controller
                     'peers' => $subject->peers->count(),
                     'subordinates' => $subject->subordinates->count(),
                 ]
-            ]);
+            ], 'Ciclo 360 disparado con éxito.');
         });
     }
 

@@ -46,6 +46,9 @@ const CerberoMapIcon = defineComponent(
 const MiStratosIcon = defineComponent(
     () => () => h(VIcon, { icon: 'mdi-account-star', size: 20 }),
 );
+const InvestorRadarIcon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-radar', size: 20 }),
+);
 
 const { can, hasRole } = usePermissions();
 
@@ -60,6 +63,12 @@ const allNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/dashboard/analytics',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Investor Radar',
+        href: '/dashboard/investor',
+        icon: InvestorRadarIcon,
+        requiredRole: ['admin', 'hr_leader', 'observer'],
     },
     // People management — requires people.view
     {

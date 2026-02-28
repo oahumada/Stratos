@@ -31,17 +31,33 @@
 | A5  | RBAC (Permisos)          |  ✅ **Implementado**   | Middleware + composable + sidebar reactivo + UI admin.                      |
 | A6  | "Mi Stratos" Portal      | ✅ **v1 Implementada** | Dashboard premium con glassmorphism, KPIs, gaps, learning paths.            |
 
-### 🟢 Bloque B: Expandiendo Stratos
+### 🟢 Bloque B: Visualización y Robustez
 
-| #   | Feature        |    Estado     | Detalle                                          |
-| :-- | :------------- | :-----------: | :----------------------------------------------- |
-| B1  | Neo4j Live     |   ✅ Listo    | Infraestructura Neo4j (Docker) y ETL operativos. |
-| B2  | Notificaciones | 🔄 Base lista | Structure para Slack/Teams/Email definida.       |
-| B3  | Investor Demo  | 🔄 Prototipo  | Dashboard ejecutivo en iteración.                |
-| B4  | API Hardening  |  ✅ Parcial   | Refactorización de controllers + middleware.     |
-| B5  | Mobile PX      |  ⏳ Próximo   | Depende de A6 completar secciones v2.            |
+| #   | Feature       |    Estado     | Detalle                                                               |
+| :-- | :------------ | :-----------: | :-------------------------------------------------------------------- |
+| B1  | Neo4j Live    |   ✅ Listo    | Infraestructura Neo4j (Docker) y ETL operativos.                      |
+| B3  | Investor Demo | ✅ Finalizado | Dashboard ejecutivo premium (ROI & Analytics).                        |
+| B4  | API Hardening | ✅ Finalizado | Estandarización de respuestas, refactor de servicios y controladores. |
 
 ---
+
+### 🟣 Bloque C: Inteligencia de Escala (Scenario IQ)
+
+| #   | Feature          |    Estado    | Detalle                                       |
+| :-- | :--------------- | :----------: | :-------------------------------------------- |
+| C2  | Simulador Crisis | ⏳ Pendiente | Engine de simulación de riesgos (War-gaming). |
+| C3  | Career Paths     | ⏳ Pendiente | Algoritmos de trayectoria en el grafo.        |
+
+### 🟠 Bloque D: Movilidad y Ecosistema de Talento (Empoderamiento)
+
+| #   | Feature               |    Estado     | Detalle                                                |
+| :-- | :-------------------- | :-----------: | :----------------------------------------------------- |
+| D1  | Gateway Híbrido       | 🔄 En diseño  | Portal Mobile + Acceso sin fricción (Magic Links).     |
+| D2  | LMS & Mentor Hub      | ⏳ Pendiente  | Orquestador de aprendizaje: alertas de avance y citas. |
+| D3  | Marketplace Activo    | ⏳ Pendiente  | Matchmaking predictivo (IA) para movilidad interna.    |
+| D4  | Gamificación Creativa | ⏳ Pendiente  | Badges, niveles de maestría y "Quests" de aplicación.  |
+| D5  | Timeline Evolutivo    | ⏳ Pendiente  | Historial de ADN y trayectoria de crecimiento.         |
+| D6  | Smart Notifications   | 🔄 Base lista | "Nudging" proactivo en Slack, Teams y Push.            |
 
 ## ✅ Logros de la Sesión (27-Feb-2026)
 
@@ -174,13 +190,79 @@ Boton "Nuevo Ciclo" -> Wizard (nombre, alcance, instrumentos, resumen previsuali
     - Mis Logros (badges y gamificación leve, UI completado)
     - Chatbot integrado (Mentor AI in-page float button)
 
-2. **Pendiente para Bloque B:**
-    - Neo4j Live (Infraestructura Neo4j Docker + ETL Incremental integrados)
-    - Hardening de APIs (A5 complementario)
+2. **Pendiente Inmediato (Bloque B):**
+    - **B3: Investor Demo:** Dashboard de alto impacto para C-Suite. ✅ **Completado.**
+    - **B4: API Hardening:** Limpieza de controllers y estandarización Cerbero. ✅ **Finalizado.**
 
-3. **B5: Mobile PX — Responsive Enhancement**
-    - Optimización de "Mi Stratos" para experiencia móvil nativa
+3. **Estrategia Bloque D: Talent Ecosystem & Mobility (Nueva Visión):**
+    - **D1: Gateway Híbrido:** Mobile PX se convierte en la puerta de entrada para `People`. Acceso "one-click" vía Magic Links (sin contraseñas) o SSO corporativo.
+    - **D2: LMS & Mentor Bridge (El Orquestador):** Stratos no es una biblioteca, es el **Cerebro**. Conecta la brecha de skills con el contenido exacto del LMS. Alerta sobre mentorías pendientes para asegurar que el ADN crezca. Proactividad: _"Recuerda que tienes el módulo 2 pendiente"_ o _"Tu cita con el mentor es en 2 días"_.
+    - **D3: Marketplace & Mobility:** Salto de un tablero pasivo a un **Recomendador de Carrera Activo**. Matchmaking basado en IA que compite en inteligencia con la Intranet tradicional.
+    - **D4: Gamificación Creativa (The Hero's Journey):** No solo medallas, sino un sistema de **"Niveles de Maestría"**. El paso de Aprendiz a Mentor se visualiza como un logro de prestigio que desbloquea nuevas funciones en el Marketplace.
+    - **D5: Trayectoria Evolutiva (DNA Timeline):** Visualización del progreso histórico. El colaborador es dueño de su dato: _"Así era mi ADN en 2024, así he crecido en 2026"_.
+    - **D6: Smart Notifications (Nudging):** Recordatorios proactivos: _"Llevas un 30% de avance en tu Learning Path"_, _"Tu racha de aprendizaje está en peligro"_.
+    - **D7: Blindaje Octalysis:** Aplicación de los 8 Core Drives de Yu-kai Chou para asegurar la motivación intrínseca y extrínseca del colaborador.
 
+---
+
+## 💎 Visión Detallada: Stratos como Talent Experience Platform (TXP)
+
+Este bloque transforma a Stratos en el punto de encuentro diario entre la estrategia de RRHH y la aspiración de crecimiento del individuo de forma **entretenida, creativa y proactiva**.
+
+### 1. El Portal de la Persona (Gateway Híbrido & UX Premium)
+
+No es un panel administrativo, es la **Identidad Digital del Talento**. Resolvemos el dilema de acceso para que nadie se quede fuera:
+
+- **Acceso Híbrido**: Entrada "one-click" mediante **Magic Links** (enviados por email/Slack) para una entrada sin fricción ni contraseñas, o **SSO corporativo** para integración total.
+- **Mobile First**: Interfaz optimizada para el colaborador en movimiento, con una UI de alto impacto (Glassmorphism) que invita a explorar su propio potencial.
+- **DNA Timeline**: El colaborador es dueño de su dato histórico. Una visualización cronológica que permite comparar: _"¿Cómo era mi ADN en 2024 y cómo he evolucionado mi maestría en 2026?"_.
+
+### 2. LMS & Mentor Hub (El "Cerebro" Orquestador y Proactivo)
+
+Stratos no es una biblioteca pasiva de cursos; es el motor que da sentido al aprendizaje mediante el **Nudging (Nivel de acompañamiento constante)**:
+
+- **Alertas de Acción Real**: La plataforma envía recordatorios inteligentes con voz propia:
+    - _"Recuerda que tienes el **módulo 2** pendiente en tu ruta de aprendizaje."_
+    - _"La fecha para que te reúnas con tu **mentor** vence en 2 días."_
+    - _"Llevas un **30% de avance** en tu Learning Path, ¡no te detengas ahora!"_.
+- **Deep Linking**: El botón "Cerrar Brechas" dispara directamente al contenido específico dentro del LMS, eliminando la pérdida de tiempo en búsquedas.
+- **Social Learning**: Gestiona la logística de mentoría uniendo a "Maestros" (Nivel 5) con "Aprendices", asegurando que el conocimiento fluya de forma orgánica.
+
+### 3. Marketplace Predictivo vs. Intranet Pasiva
+
+Stratos no compite con la intranet, la **potencia e integra** mediante un "LinkedIn Interno" de alta precisión:
+
+- **Matchmaking Activo**: Mientras la intranet es un tablero estático de anuncios, Stratos es un **Recomendador de Carrera**. La IA le dice al colaborador: _"Basado en tu ADN y tus nuevas skills, eres un 90% match para este proyecto. ¿Te postulamos?"_.
+- **Movilidad Sin Sesgos**: Las recomendaciones se basan en datos de competencias reales y potencial predictivo, democratizando el acceso a oportunidades de crecimiento.
+- **Recompensas en el Marketplace**: El avance en el aprendizaje desbloquea de forma anticipada el acceso a vacantes estratégicas antes de que sean visibles para el resto de la organización.
+
+### 4. Gamificación Creativa (The Hero's Journey)
+
+Transformamos el aprendizaje en un proceso **creativo y entretenido** para asegurar el engagement:
+
+- **Mapa de Carrera Interactivo**: El progreso no es una lista, es un mapa que se "descubre" (Fog of War) a medida que el usuario gana XP y Skills.
+- **Quests de Aplicación Proactiva**: La IA genera desafíos en el mundo real: _"Aplica este principio de liderazgo en tu próxima reunión y solicita feedback"_. Al completar la misión, el usuario gana XP hacia su siguiente nivel de maestría.
+- **Sistema de Prestigio**: Alcanzar el nivel "Maestro" desbloquea el estatus de **Mentor**, permitiendo al usuario "apadrinar" a otros y ganando puntos de prestigio social en la red.
+- **Racha de Aprendizaje (Streaks)**: Gamificación del hábito diario ("Tu racha está en peligro") para fomentar la recurrencia.
+
+### 5. Blindaje de Motivación: Framework Octalysis
+
+Para asegurar que la gamificación no sea un parche temporal de "puntos y medallas", aplicamos los 8 Core Drives de Yu-kai Chou:
+
+| Impulso (Core Drive)           | Aplicación en Stratos                                                                            |
+| :----------------------------- | :----------------------------------------------------------------------------------------------- |
+| **1. Significado Épico**       | El colaborador ve cómo su crecimiento impacta en la **supervivencia/innovación** de su empresa.  |
+| **2. Desarrollo y Logro**      | **Niveles de Maestría** visuales y progreso tangible de Aprendiz a Mentor.                       |
+| **3. Empoderamiento Creativo** | **IA-Quests**: Desafíos que requieren pensamiento crítico y resolución de problemas.             |
+| **4. Propiedad**               | **DNA Timeline**: El sentimiento de que el perfil y sus logros son un **activo personal**.       |
+| **5. Influencia Social**       | **Mentor Hub & Leaderboards**: Prestigio social y reconocimiento entre pares.                    |
+| **6. Escasez**                 | **Acceso Exclusive**: Vacantes o proyectos que solo se desbloquean al alcanzar niveles altos.    |
+| **7. Imprevisibilidad**        | **Fog of War**: Curiosidad por descubrir nuevas rutas y skills en el mapa interactivo.           |
+| **8. Pérdida / Evitación**     | **Streaks**: Motivación para no perder la racha de aprendizaje o el estatus de _High Potential_. |
+
+- **Motivación "White Hat" (Positiva):** Aprovechamos el Significado Épico, el Logro y el Empoderamiento Creativo para que el empleado crezca por convicción propia.
+- **Motivación "Right Brain" (Intrínseca):** El Social Learning y la Curiosidad (Fog of War) aseguran que la plataforma sea adictivamente útil.
+- **Moneda de Cambio Real:** Al usar la Escasez (acceso exclusivo a vacantes), el esfuerzo de aprendizaje se traduce en beneficios tangibles de carrera.
 ---
 
 # Logros

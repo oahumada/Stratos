@@ -39,6 +39,10 @@ Route::get('/dashboard/analytics', function () {
     return Inertia::render('Dashboard/Analytics');
 })->middleware(['auth', 'verified'])->name('dashboard.analytics');
 
+Route::get('/dashboard/investor', function () {
+    return Inertia::render('Dashboard/Investor');
+})->middleware(['auth', 'verified', 'role:admin,hr_leader,observer'])->name('dashboard.investor');
+
 Route::get('/people', function () {
     return Inertia::render('People/Index');
 })->middleware(['auth', 'verified'])->name('people.index');

@@ -33,78 +33,33 @@ class ScenarioController extends Controller
     /**
      * Obtiene el IQ y métricas clave del escenario.
      */
-    public function getIQ($id)
+    public function getIQ($id): JsonResponse
     {
-        $scenario = Scenario::with('capabilities.competencies.skills')->findOrFail($id);
+        $iqData = $this->analytics->calculateScenarioIQ($id);
 
-        $capCount = $scenario->capabilities->count();
-        $totalCapReadiness = 0;
-        $totalCompReadiness = 0;
-        $totalSkillReadiness = 0;
-        $compCount = 0;
-        $skillCount = 0;
-
-        foreach ($scenario->capabilities as $cap) {
-            $capReady = $this->analytics->calculateCapabilityReadiness($id, $cap->id) ?? 0;
-            $totalCapReadiness += $capReady;
-
-            foreach ($cap->competencies as $comp) {
-                $compReady = $this->analytics->calculateCompetencyReadiness($id, $comp->id) ?? 0;
-                $totalCompReadiness += $compReady;
-                $compCount++;
-
-                foreach ($comp->skills as $skill) {
-                    $skillReady = $this->analytics->calculateSkillReadiness($id, $skill->id) ?? 0;
-                    $totalSkillReadiness += $skillReady;
-                    $skillCount++;
-                }
-            }
-        }
-
-        $avgCap = $capCount ? ($totalCapReadiness / $capCount) : 0;
-        $avgComp = $compCount ? ($totalCompReadiness / $compCount) : 0;
-        $avgSkill = $skillCount ? ($totalSkillReadiness / $skillCount) : 0;
-
-        $metrics = [
-            'scenario_id' => $scenario->id,
-            'capability_count' => $capCount,
-            'competency_count' => $compCount,
-            'skill_count' => $skillCount,
-            'avg_capability_readiness_pct' => round($avgCap * 100, 1),
-            'avg_competency_readiness_pct' => round($avgComp * 100, 1),
-            'avg_skill_readiness_pct' => round($avgSkill * 100, 1),
-            $this->analytics->calculateScenarioIQ($id),
-        ];
-
-        return response()->json($metrics);
+        return $this->successResponse($iqData);
     }
 
     /**
      * POST /api/scenarios/{id}/roles/{roleId}/derive-skills
      * Deriva skills desde competencias para un rol específico
      */
-    public function deriveSkills($id, $roleId)
+    public function deriveSkills($id, $roleId): JsonResponse
     {
         $result = $this->derivation->deriveSkillsFromCompetencies($id, $roleId);
 
-        return response()->json([
-            'message' => 'Skills derivadas exitosamente',
-            'stats' => $result,
-        ]);
+        return $this->successResponse($result, 'Skills derivadas exitosamente');
     }
 
     /**
      * POST /api/scenarios/{id}/derive-all-skills
      * Deriva skills para todos los roles del escenario
      */
-    public function deriveAllSkills($id)
+    public function deriveAllSkills($id): JsonResponse
     {
         $results = $this->derivation->deriveAllSkillsForScenario($id);
 
-        return response()->json([
-            'message' => 'Skills derivadas para todos los roles',
-            'results' => $results,
-        ]);
+        return $this->successResponse($results, 'Skills derivadas para todos los roles');
     }
 
     /**
@@ -114,7 +69,7 @@ class ScenarioController extends Controller
     {
         $user = auth()->user();
         if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return $this->unauthorizedResponse();
         }
         $organizationId = $user->organization_id;
 
@@ -125,9 +80,8 @@ class ScenarioController extends Controller
 
         $scenarios = $this->scenarioRepo->getScenariosByOrganization($organizationId, $filters);
 
-        return response()->json([
-            'success' => true,
-            'data' => $scenarios->items(),
+        return $this->successResponse([
+            'items' => $scenarios->items(),
             'pagination' => [
                 'current_page' => $scenarios->currentPage(),
                 'total' => $scenarios->total(),
@@ -140,84 +94,18 @@ class ScenarioController extends Controller
     /**
      * Obtiene el árbol jerárquico de capacidades para el escenario.
      */
-    public function getCapabilityTree($id)
+    public function getCapabilityTree($id): JsonResponse
     {
-        $scenarioId = $id; // Store the scenario ID to use in closures
-        try {
-            \Log::info('GET capability-tree called', ['scenario_id' => $scenarioId, 'user_id' => auth()->id() ?? null]);
-        } catch (\Throwable $e) { /* ignore logging failures */
-        }
-        $scenario = Scenario::with([
-            'capabilities' => function ($q) use ($scenarioId) {
-                $q->with([
-                    'competencies' => function ($qc) use ($scenarioId) {
-                        // Only load competencies linked to this scenario via the pivot
-                        $qc->wherePivot('scenario_id', $scenarioId)
-                            ->with('skills');
-                    },
-                ]);
-            },
-        ])->findOrFail($id);
+        $service = app(\App\Services\ScenarioService::class);
+        $tree = $service->getCapabilityTree((int) $id);
 
-        $tree = $scenario->capabilities->map(function ($capability) use ($id) {
-            return [
-                'id' => $capability->id,
-                'type' => $capability->type ?? null,
-                'category' => $capability->category ?? null,
-                'name' => $capability->name,
-                'description' => $capability->description ?? null,
-                'importance' => $capability->importance ?? null,
-                'position_x' => $capability->position_x ?? null,
-                'position_y' => $capability->position_y ?? null,
-                'strategic_role' => $capability->pivot?->strategic_role ?? null,
-                'strategic_weight' => $capability->pivot?->strategic_weight ?? $capability->pivot?->weight ?? null,
-                'priority' => $capability->pivot?->priority ?? null,
-                'rationale' => $capability->pivot?->rationale ?? null,
-                'required_level' => $capability->pivot?->required_level ?? null,
-                'is_critical' => $capability->pivot?->is_critical ?? null,
-                'is_incubating' => $capability->isIncubating(),
-                'readiness' => round($this->analytics->calculateCapabilityReadiness($id, $capability->id) * 100, 1),
-                'competencies' => $capability->competencies->map(function ($comp) use ($id) {
-                    return [
-                        'id' => $comp->id,
-                        'name' => $comp->name,
-                        'description' => $comp->description ?? null,
-                        'readiness' => round($this->analytics->calculateCompetencyReadiness($id, $comp->id) * 100, 1),
-                        // include pivot attributes for capability<->competency relation so frontend can show/edit them
-                        'pivot' => [
-                            'strategic_weight' => $comp->pivot?->strategic_weight ?? $comp->pivot?->weight ?? null,
-                            'priority' => $comp->pivot?->priority ?? null,
-                            'required_level' => $comp->pivot?->required_level ?? null,
-                            'is_critical' => $comp->pivot?->is_critical ?? null,
-                            'rationale' => $comp->pivot?->rationale ?? null,
-                        ],
-                        'skills' => $comp->skills->map(function ($skill) use ($id) {
-                            return [
-                                'id' => $skill->id,
-                                'name' => $skill->name,
-                                'weight' => $skill->pivot->weight ?? null,
-                                'is_incubating' => ! is_null($skill->discovered_in_scenario_id),
-                                'readiness' => round($this->analytics->calculateSkillReadiness($id, $skill->id) * 100, 1),
-                            ];
-                        }),
-                    ];
-                }),
-            ];
-        });
-
-        try {
-            $count = is_countable($tree) ? count($tree) : 0;
-            \Log::info('Returning capability-tree', ['scenario_id' => $scenarioId, 'items' => $count]);
-        } catch (\Throwable $e) { /* ignore logging failures */
-        }
-
-        return response()->json($tree);
+        return $this->successResponse($tree);
     }
 
     /**
      * Aprueba el escenario y "gradúa" las capacidades/skills incubadas.
      */
-    public function approve($id)
+    public function approve($id): JsonResponse
     {
         return DB::transaction(function () use ($id) {
             $scenario = Scenario::findOrFail($id);
@@ -226,7 +114,7 @@ class ScenarioController extends Controller
             Capability::where('discovered_in_scenario_id', $id)
                 ->update(['status' => 'active']);
 
-            // 2. Graduar Skills (asumiendo tabla skills tiene discovered_in_scenario_id)
+            // 2. Graduar Skills
             DB::table('skills')
                 ->where('discovered_in_scenario_id', $id)
                 ->update(['maturity_status' => 'established']);
@@ -234,7 +122,7 @@ class ScenarioController extends Controller
             // 3. Cambiar estado del escenario
             $scenario->update(['status' => 'approved']);
 
-            return response()->json(['message' => 'Escenario aprobado y capacidades graduadas con éxito.']);
+            return $this->successResponse(null, 'Escenario aprobado y capacidades graduadas con éxito.');
         });
     }
 
@@ -279,20 +167,17 @@ class ScenarioController extends Controller
         $scenario = $this->scenarioRepo->getScenarioById((int) $id);
 
         if (! $scenario) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Scenario not found',
-            ], 404);
+            return $this->notFoundResponse('Scenario not found');
         }
 
         // Tenant isolation: only allow access to scenarios within the user's organization
         $user = auth()->user();
         if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return $this->unauthorizedResponse();
         }
         $userOrg = $user->organization_id;
         if ($scenario->organization_id !== $userOrg) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            return $this->forbiddenResponse();
         }
 
         // Prepare payload and hide accepted prompt unless authorized
@@ -313,10 +198,7 @@ class ScenarioController extends Controller
             }
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $payload,
-        ]);
+        return $this->successResponse($payload);
     }
 
     /**
@@ -340,7 +222,7 @@ class ScenarioController extends Controller
 
         $user = auth()->user();
         if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return $this->unauthorizedResponse();
         }
 
         // Preparar datos para crear scenario
@@ -362,11 +244,7 @@ class ScenarioController extends Controller
         // Use Eloquent to create scenario (triggers model events for code generation)
         $scenario = Scenario::create($data);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Scenario created',
-            'data' => $scenario->toArray(),
-        ], 201);
+        return $this->successResponse($scenario, 'Scenario created', 201);
     }
 
     /**
@@ -377,21 +255,21 @@ class ScenarioController extends Controller
         $scenario = $this->scenarioRepo->getScenarioById((int) $id);
 
         if (! $scenario) {
-            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+            return $this->notFoundResponse('Scenario not found');
         }
 
         $user = auth()->user();
         if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return $this->unauthorizedResponse();
         }
 
         if ($scenario->organization_id !== $user->organization_id) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            return $this->forbiddenResponse();
         }
 
         $updated = $this->scenarioRepo->updateScenario((int) $id, $request->all());
 
-        return response()->json(['success' => true, 'data' => $updated]);
+        return $this->successResponse($updated);
     }
 
     /**
@@ -401,12 +279,12 @@ class ScenarioController extends Controller
     {
         $template = ScenarioTemplate::find($templateId);
         if (! $template) {
-            return response()->json(['success' => false, 'message' => 'Template not found'], 404);
+            return $this->notFoundResponse('Template not found');
         }
 
         $user = auth()->user();
         if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return $this->unauthorizedResponse();
         }
 
         $data = [
@@ -424,11 +302,11 @@ class ScenarioController extends Controller
 
         $skillDemands = $template->config['predefined_skills'] ?? [];
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Scenario instantiated from template',
-            'data' => array_merge($scenario->toArray(), ['skill_demands' => $skillDemands, 'template_id' => $template->id]),
-        ], 201);
+        return $this->successResponse(
+            array_merge($scenario->toArray(), ['skill_demands' => $skillDemands, 'template_id' => $template->id]),
+            'Scenario instantiated from template',
+            201
+        );
     }
 
     /**
@@ -438,13 +316,13 @@ class ScenarioController extends Controller
     {
         $scenario = $this->scenarioRepo->getScenarioById((int) $id);
         if (! $scenario) {
-            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+            return $this->notFoundResponse('Scenario not found');
         }
         // Use service to build a proper gap structure
         $service = app(\App\Services\ScenarioService::class);
         $payload = $service->calculateScenarioGaps($scenario);
 
-        return response()->json(['success' => true, 'data' => $payload]);
+        return $this->successResponse($payload);
     }
 
     /**
@@ -574,16 +452,16 @@ class ScenarioController extends Controller
         $scenario = $this->scenarioRepo->getScenarioById((int) $id);
 
         if (! $scenario) {
-            return response()->json(['success' => false, 'message' => 'Scenario not found'], 404);
+            return $this->notFoundResponse('Scenario not found');
         }
 
         $user = auth()->user();
         if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return $this->unauthorizedResponse();
         }
 
         if ($scenario->organization_id !== $user->organization_id) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            return $this->forbiddenResponse();
         }
 
         // Use ScenarioService to transition decision_status to 'consolidated'
@@ -596,11 +474,11 @@ class ScenarioController extends Controller
             // Return fresh payload via repository to include eager loads
             $fresh = $this->scenarioRepo->getScenarioById((int) $id);
 
-            return response()->json(['success' => true, 'message' => 'Scenario finalized', 'data' => $fresh]);
+            return $this->successResponse($fresh, 'Scenario finalized');
         } catch (\Throwable $e) {
             \Log::error('Error finalizing scenario', ['id' => $id, 'error' => $e->getMessage()]);
 
-            return response()->json(['success' => false, 'message' => 'Error finalizing scenario'], 500);
+            return $this->errorResponse('Error finalizing scenario', 500);
         }
     }
 
@@ -612,10 +490,7 @@ class ScenarioController extends Controller
         $ids = $request->input('ids', []);
         
         if (empty($ids)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se proporcionaron IDs para comparar'
-            ], 400);
+            return $this->errorResponse('No se proporcionaron IDs para comparar');
         }
 
         $scenarios = Scenario::whereIn('id', $ids)->get();
@@ -647,40 +522,22 @@ class ScenarioController extends Controller
             ];
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $comparison
-        ]);
+        return $this->successResponse($comparison);
     }
 
-    /**
-     * Paso 2 - Fase 1: Orquestación de Agentes para Diseño de Talento.
-     * Invoca al agente Diseñador de Roles con contexto enriquecido (blueprint,
-     * catálogo activo, roles del escenario y mappings ya existentes).
-     */
-    public function designTalent($id, \App\Services\Talent\TalentDesignOrchestratorService $svc)
+    public function designTalent($id, \App\Services\Talent\TalentDesignOrchestratorService $svc): JsonResponse
     {
         $result = $svc->orchestrate((int) $id);
 
         if (!$result['success']) {
-            return response()->json([
-                'success' => false,
-                'message' => $result['error'] ?? 'Error en la orquestación'
-            ], 500);
+            return $this->errorResponse($result['error'] ?? 'Error en la orquestación', 500);
         }
 
-        return response()->json($result);
+        return $this->successResponse($result);
     }
 
     /**
      * Paso 2 - Fase 2: Aplica en batch las propuestas aprobadas por el usuario.
-     * POST /api/scenarios/{id}/step2/agent-proposals/apply
-     *
-     * Body esperado:
-     * {
-     *   "approved_role_proposals": [...],
-     *   "approved_catalog_proposals": [...]
-     * }
      */
     public function applyAgentProposals(Request $request, $id, \App\Services\Talent\TalentDesignOrchestratorService $svc): JsonResponse
     {
@@ -688,7 +545,7 @@ class ScenarioController extends Controller
 
         $user = auth()->user();
         if (!$user || $scenario->organization_id !== $user->organization_id) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            return $this->forbiddenResponse();
         }
 
         $validated = $request->validate([
@@ -715,13 +572,6 @@ class ScenarioController extends Controller
             'approved_catalog_proposals.*.action_rationale'                => 'nullable|string',
         ]);
 
-        \Log::info('applyAgentProposals called', [
-            'scenario_id'      => $id,
-            'roles_count'      => count($validated['approved_role_proposals']),
-            'catalog_count'    => count($validated['approved_catalog_proposals'] ?? []),
-            'role_types'       => array_column($validated['approved_role_proposals'], 'type'),
-        ]);
-
         try {
             $result = $svc->applyProposals(
                 (int) $id,
@@ -729,32 +579,19 @@ class ScenarioController extends Controller
                 $validated['approved_catalog_proposals'] ?? []
             );
         } catch (\Throwable $e) {
-            \Log::error('applyAgentProposals exception', [
-                'scenario_id' => $id,
-                'error'       => $e->getMessage(),
-                'trace'       => $e->getTraceAsString(),
-            ]);
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            \Log::error('applyAgentProposals exception', ['scenario_id' => $id, 'error' => $e->getMessage()]);
+            return $this->errorResponse($e->getMessage(), 500);
         }
-
-        \Log::info('applyAgentProposals result', ['scenario_id' => $id, 'stats' => $result['stats'] ?? []]);
 
         if (!$result['success']) {
-            return response()->json(['success' => false, 'message' => $result['error'] ?? 'Error al aplicar propuestas'], 500);
+            return $this->errorResponse($result['error'] ?? 'Error al aplicar propuestas', 500);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Propuestas aplicadas correctamente',
-            'stats'   => $result['stats'],
-        ]);
+        return $this->successResponse($result['stats'], 'Propuestas aplicadas correctamente');
     }
-
 
     /**
      * Paso 2 - Fase 4: Aprobación final del diseño de talento.
-     * Mueve roles, competencias y skills nuevos a estado incubation.
-     * POST /api/scenarios/{id}/step2/finalize
      */
     public function finalizeStep2(Request $request, $id, \App\Services\Talent\TalentDesignOrchestratorService $svc): JsonResponse
     {
@@ -762,33 +599,16 @@ class ScenarioController extends Controller
 
         $user = auth()->user();
         if (!$user || $scenario->organization_id !== $user->organization_id) {
-            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+            return $this->forbiddenResponse();
         }
 
         $result = $svc->finalizeStep2((int) $id);
 
         if (!$result['success']) {
-            return response()->json(['success' => false, 'message' => $result['error']], 422);
+            return $this->errorResponse($result['error'], 422);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => $result['message'],
-        ]);
-    }
-
-    public function orchestrate(Scenario $scenario)
-    {
-        $orchestrator = app(OrchestrationService::class);
-
-        foreach ($scenario->talentBlueprints as $blueprint) {
-            $orchestrator->executeStrategy($blueprint);
-        }
-
-        return response()->json([
-            'message' => 'Orchestration initiated',
-            'blueprints_processed' => $scenario->talentBlueprints->count(),
-        ]);
+        return $this->successResponse(null, $result['message']);
     }
     /**
      * API: Obtener resumen ejecutivo consolidado (Paso 7)
@@ -835,22 +655,19 @@ class ScenarioController extends Controller
             $mix = 0;
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'iq' => $iqData['iq'] ?? 0,
-                'confidence' => $iqData['confidence_score'] ?? 0,
-                'investment' => $strategies,
-                'total_investment' => $strategies->sum('total_cost'),
-                'fte' => [
-                    'required' => (int)($demand->total_req ?? 0),
-                    'current' => (int)($demand->total_curr ?? 0),
-                    'gap' => max(0, (int)($demand->total_req ?? 0) - (int)($demand->total_curr ?? 0))
-                ],
-                'critical_gaps' => $criticalGaps,
-                'synthetization_index' => $mix,
-                'risk_level' => $this->calculateRiskLevel($iqData['iq'] ?? 0, $demand)
-            ]
+        return $this->successResponse([
+            'iq' => $iqData['iq'] ?? 0,
+            'confidence' => $iqData['confidence_score'] ?? 0,
+            'investment' => $strategies,
+            'total_investment' => $strategies->sum('total_cost'),
+            'fte' => [
+                'required' => (int)($demand->total_req ?? 0),
+                'current' => (int)($demand->total_curr ?? 0),
+                'gap' => max(0, (int)($demand->total_req ?? 0) - (int)($demand->total_curr ?? 0))
+            ],
+            'critical_gaps' => $criticalGaps,
+            'synthetization_index' => $mix,
+            'risk_level' => $this->calculateRiskLevel($iqData['iq'] ?? 0, $demand)
         ]);
     }
 
@@ -875,10 +692,7 @@ class ScenarioController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'versions' => $versions
-        ]);
+        return $this->successResponse($versions);
     }
 
     public function getImpact($id): JsonResponse
@@ -892,10 +706,7 @@ class ScenarioController extends Controller
 
         $impact = $this->analytics->calculateImpact($id);
 
-        return response()->json([
-            'success' => true,
-            'data' => $impact
-        ]);
+        return $this->successResponse($impact);
     }
 
     private function calculateRiskLevel($iq, $demand)
@@ -1004,16 +815,10 @@ class ScenarioController extends Controller
 
         try {
             $scenario->delete();
-            return response()->json([
-                'success' => true,
-                'message' => 'Scenario deleted successfully',
-            ]);
+            return $this->successResponse(null, 'Scenario deleted successfully');
         } catch (\Throwable $e) {
             \Log::error('Error deleting scenario ' . $id . ': ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Error deleting scenario',
-            ], 500);
+            return $this->errorResponse('Error deleting scenario', 500);
         }
     }
 }
