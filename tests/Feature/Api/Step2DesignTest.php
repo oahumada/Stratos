@@ -94,8 +94,8 @@ describe('applyAgentProposals', function () {
 
         $res->assertStatus(200)
             ->assertJson(['success' => true])
-            ->assertJsonPath('stats.roles_created', 1)
-            ->assertJsonPath('stats.mappings_created', 1);
+            ->assertJsonPath('data.roles_created', 1)
+            ->assertJsonPath('data.mappings_created', 1);
 
         // Debe existir un ScenarioRole creado
         $this->assertDatabaseHas('scenario_roles', [

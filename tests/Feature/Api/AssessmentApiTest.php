@@ -63,7 +63,10 @@ it('can send a message and get ai response', function () {
         ]);
 
     $response->assertStatus(200);
-    $response->assertJson($mockResponse);
+    $response->assertJson([
+        'success' => true,
+        'data' => $mockResponse
+    ]);
 
     $this->assertDatabaseHas('assessment_messages', [
         'assessment_session_id' => $session->id,
@@ -163,7 +166,7 @@ it('can analyze a session with external feedback (360)', function () {
         ->postJson("/api/strategic-planning/assessments/sessions/{$session->id}/analyze");
 
     $response->assertStatus(200);
-    $response->assertJsonPath('session.metadata.blind_spots.0', 'Team sees leadership subject does not');
+    $response->assertJsonPath('data.metadata.blind_spots.0', 'Team sees leadership subject does not');
     
     // Assert BARS calculation updated the skill level
     $this->assertDatabaseHas('people_role_skills', [
