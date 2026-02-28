@@ -56,8 +56,12 @@
 | D2  | LMS & Mentor Hub      | ⏳ Pendiente  | Orquestador de aprendizaje: alertas de avance y citas. |
 | D3  | Marketplace Activo    | ⏳ Pendiente  | Matchmaking predictivo (IA) para movilidad interna.    |
 | D4  | Gamificación Creativa | ⏳ Pendiente  | Badges, niveles de maestría y "Quests" de aplicación.  |
-| D5  | Timeline Evolutivo    | ⏳ Pendiente  | Historial de ADN y trayectoria de crecimiento.         |
-| D6  | Smart Notifications   | 🔄 Base lista | "Nudging" proactivo en Slack, Teams y Push.            |
+| D5  | Misiones de Gremio    | ⏳ Pendiente  | Desafíos colectivos para cerrar brechas de equipo.     |
+| D6  | Timeline Evolutivo    | ⏳ Pendiente  | Historial de ADN y trayectoria de crecimiento.         |
+| D7  | Smart Notifications   | 🔄 Base lista | "Nudging" proactivo en Slack, Teams y Push.            |
+| D8  | Talent Pass (CV 2.0)  | ⏳ Pendiente  | Portabilidad del ADN: perfil exportable/compartible.   |
+| D9  | Sovereign Identity    | ⏳ Pendiente  | Credenciales Verificables (W3C) + Nodo Blockchain.     |
+| D10 | Blindaje Octalysis    |   ✅ Diseño   | Aplicación de los 8 Core Drives de Yu-kai Chou.        |
 
 ## ✅ Logros de la Sesión (27-Feb-2026)
 
@@ -216,6 +220,10 @@ No es un panel administrativo, es la **Identidad Digital del Talento**. Resolvem
 - **Acceso Híbrido**: Entrada "one-click" mediante **Magic Links** (enviados por email/Slack) para una entrada sin fricción ni contraseñas, o **SSO corporativo** para integración total.
 - **Mobile First**: Interfaz optimizada para el colaborador en movimiento, con una UI de alto impacto (Glassmorphism) que invita a explorar su propio potencial.
 - **DNA Timeline**: El colaborador es dueño de su dato histórico. Una visualización cronológica que permite comparar: _"¿Cómo era mi ADN en 2024 y cómo he evolucionado mi maestría en 2026?"_.
+- **Sovereign Talent Pass (Blockchain & SSI)**: El perfil de ADN no es solo un PDF; son **Credenciales Verificables (W3C Standard)** firmadas digitalmente por Stratos.
+    - **Identidad Soberana (DID)**: El colaborador es el único dueño de su "bóveda de talento" mediante su propio identificador descentralizado.
+    - **Anclaje en Blockchain**: Registro inmutable de hitos de aprendizaje. Si el colaborador cambia de empresa, sus certificaciones viajan con él en su wallet digital, verificables instantáneamente por terceros sin intermediarios (Confianza Cero).
+    - **Privacidad Selectiva**: El colaborador decide qué skills mostrar y a quién, protegiendo su historial detallado pero validando su maestría real.
 
 ### 2. LMS & Mentor Hub (El "Cerebro" Orquestador y Proactivo)
 
@@ -236,16 +244,25 @@ Stratos no compite con la intranet, la **potencia e integra** mediante un "Linke
 - **Movilidad Sin Sesgos**: Las recomendaciones se basan en datos de competencias reales y potencial predictivo, democratizando el acceso a oportunidades de crecimiento.
 - **Recompensas en el Marketplace**: El avance en el aprendizaje desbloquea de forma anticipada el acceso a vacantes estratégicas antes de que sean visibles para el resto de la organización.
 
-### 4. Gamificación Creativa (The Hero's Journey)
+### 4. Gamificación Creativa (The Hero's Journey & Collective Quests)
 
-Transformamos el aprendizaje en un proceso **creativo y entretenido** para asegurar el engagement:
+Transformamos el aprendizaje en un proceso **creativo, social y entretenido** para asegurar el engagement:
 
 - **Mapa de Carrera Interactivo**: El progreso no es una lista, es un mapa que se "descubre" (Fog of War) a medida que el usuario gana XP y Skills.
-- **Quests de Aplicación Proactiva**: La IA genera desafíos en el mundo real: _"Aplica este principio de liderazgo en tu próxima reunión y solicita feedback"_. Al completar la misión, el usuario gana XP hacia su siguiente nivel de maestría.
-- **Sistema de Prestigio**: Alcanzar el nivel "Maestro" desbloquea el estatus de **Mentor**, permitiendo al usuario "apadrinar" a otros y ganando puntos de prestigio social en la red.
+- **Quests de Aplicación Proactiva**: Desafíos en el mundo real generados por IA: _"Aplica este principio de liderazgo y solicita feedback"_.
+- **Misiones de Gremio (Squad Quests)**: Desafíos colectivos para equipos. Si el equipo cierra una brecha estratégica común, todos ganan recompensas. Esto fomenta que los expertos ayuden a los novatos (Core Drive 5).
+- **Sistema de Prestigio**: Alcanzar el nivel "Maestro" desbloquea el estatus de **Mentor**, permitiendo apadrinar a otros.
 - **Racha de Aprendizaje (Streaks)**: Gamificación del hábito diario ("Tu racha está en peligro") para fomentar la recurrencia.
 
-### 5. Blindaje de Motivación: Framework Octalysis
+### 5. El Cierre del Círculo Estratégico (Strategic Loop)
+
+Stratos conecta el crecimiento del Individuo con la supervivencia de la Organización:
+
+- **Impacto Real en el Negocio**: Cuando un colaborador mejora su ADN en una Skill crítica, el **KPI de Riesgo del Escenario Estratégico (Bloque C)** se reduce automáticamente. El CEO ve cómo el aprendizaje individual está blindando la empresa.
+- **Visibilidad Ejecutiva**: El C-Suite visualiza en tiempo real cómo la inversión en el Bloque D reduce el riesgo detectado en las simulaciones de crisis.
+- **Retorno de Aprendizaje (ROA)**: Visualización inmediata del valor táctico de cada "badge" ganado por los colaboradores.
+
+### 6. Blindaje de Motivación: Framework Octalysis
 
 Para asegurar que la gamificación no sea un parche temporal de "puntos y medallas", aplicamos los 8 Core Drives de Yu-kai Chou:
 
@@ -263,6 +280,7 @@ Para asegurar que la gamificación no sea un parche temporal de "puntos y medall
 - **Motivación "White Hat" (Positiva):** Aprovechamos el Significado Épico, el Logro y el Empoderamiento Creativo para que el empleado crezca por convicción propia.
 - **Motivación "Right Brain" (Intrínseca):** El Social Learning y la Curiosidad (Fog of War) aseguran que la plataforma sea adictivamente útil.
 - **Moneda de Cambio Real:** Al usar la Escasez (acceso exclusivo a vacantes), el esfuerzo de aprendizaje se traduce en beneficios tangibles de carrera.
+
 ---
 
 # Logros
