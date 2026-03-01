@@ -1,12 +1,44 @@
 <script setup lang="ts">
+import {
+    PhBrain,
+    PhCalendar,
+    PhCaretLeft,
+    PhCaretRight,
+    PhChartLineUp,
+    PhCheckCircle,
+    PhCloudSun,
+    PhDotsThreeVertical,
+    PhFire,
+    PhHeart,
+    PhHeartbeat,
+    PhMagnifyingGlass,
+    PhNumberCircleFour,
+    PhNumberCircleOne,
+    PhNumberCircleThree,
+    PhNumberCircleTwo,
+    PhPlus,
+    PhPulse,
+    PhRadio,
+    PhRobot,
+    PhSealCheck,
+    PhShieldCheck,
+    PhShieldWarning,
+    PhSmiley,
+    PhTag,
+    PhTarget,
+    PhUserCheck,
+} from '@phosphor-icons/vue';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { enUS, es } from 'date-fns/locale';
 import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import StButtonGlass from '../../components/StButtonGlass.vue';
 import { usePermissions } from '../../composables/usePermissions';
 import AppLayout from '../../layouts/AppLayout.vue';
 
 const { can } = usePermissions();
+const { t, locale } = useI18n();
 
 interface PxCampaign {
     id: number;
@@ -34,7 +66,7 @@ const stats = computed(() => {
         active: campaigns.value.filter((c) => c.status === 'active').length,
         avg_engagement: 84, // Mock
         sentiment_index: 4.2, // Mock 1-5
-        burnout_risk: 'Bajo', // Mock
+        burnout_risk: t('px_command.risk_low'), // Mock
     };
 });
 
@@ -50,56 +82,55 @@ const newCampaign = ref<Partial<PxCampaign>>({
     ends_at: null,
 });
 
-const modeOptions = [
+const modeOptions = computed(() => [
     {
-        title: 'IA Autónoma',
+        title: t('px_command.modes.ai_autonomous'),
         value: 'agent_autonomous',
-        icon: 'mdi-robot-confused',
-        desc: 'Sentinel decide el mejor momento para preguntar.',
+        icon: PhRobot,
+        desc: t('px_command.modes.ai_autonomous_desc'),
     },
     {
-        title: 'Recurrente',
+        title: t('px_command.modes.recurring'),
         value: 'recurring',
-        icon: 'mdi-calendar-repeat',
-        desc: 'Mediciones periódicas programadas.',
+        icon: PhCalendar,
+        desc: t('px_command.modes.recurring_desc'),
     },
     {
-        title: 'Pulso Específico',
+        title: t('px_command.modes.specific_date'),
         value: 'specific_date',
-        icon: 'mdi-target',
-        desc: 'Envío masivo en una fecha y hora exacta.',
+        icon: PhTarget,
+        desc: t('px_command.modes.specific_date_desc'),
     },
-];
+]);
 
-const topicOptions = [
+const topicOptions = computed(() => [
+    { title: t('px_command.topics.clima'), value: 'clima', icon: PhCloudSun },
+    { title: t('px_command.topics.stress'), value: 'stress', icon: PhFire },
     {
-        title: 'Clima Laboral',
-        value: 'clima',
-        icon: 'mdi-weather-partly-cloudy',
-    },
-    { title: 'Estrés & Burnout', value: 'stress', icon: 'mdi-fire-alert' },
-    {
-        title: 'Felicidad (eNPS)',
+        title: t('px_command.topics.happiness'),
         value: 'happiness',
-        icon: 'mdi-emoticon-happy-outline',
+        icon: PhSmiley,
     },
     {
-        title: 'Salud Ocupacional',
+        title: t('px_command.topics.health'),
         value: 'health',
-        icon: 'mdi-hospital-box-outline',
+        icon: PhHeartbeat,
     },
     {
-        title: 'Liderazgo & Apoyo',
+        title: t('px_command.topics.leadership'),
         value: 'leadership',
-        icon: 'mdi-account-tie',
+        icon: PhUserCheck,
     },
-];
+]);
 
-const scopeOptions = [
-    { title: 'Muestra Aleatoria (IA)', value: 'randomized_sample' },
-    { title: 'Población Total', value: 'all' },
-    { title: 'Departamentos Críticos', value: 'department' },
-];
+const scopeOptions = computed(() => [
+    {
+        title: t('px_command.scopes.randomized_sample'),
+        value: 'randomized_sample',
+    },
+    { title: t('px_command.scopes.all'), value: 'all' },
+    { title: t('px_command.scopes.department'), value: 'department' },
+]);
 
 const loadCampaigns = async () => {
     loading.value = true;
@@ -141,8 +172,10 @@ const resetWizard = () => {
 };
 
 const formatDate = (date: string | null) => {
-    if (!date) return 'IA Decide';
-    return format(new Date(date), 'dd MMM yyyy', { locale: es });
+    if (!date) return t('px_command.date_ia_decides');
+    return format(new Date(date), 'dd MMM yyyy', {
+        locale: locale.value === 'es' ? es : enUS,
+    });
 };
 
 const getStatusColor = (status: string) => {
@@ -172,26 +205,27 @@ onMounted(() => {
                     <h1
                         class="text-h3 font-weight-black mb-2 tracking-tight text-white"
                     >
-                        Estrategia
-                        <span class="text-success">People Experience</span>
+                        {{ $t('px_command.title') }}
+                        <span class="text-success">{{
+                            $t('px_command.title_highlight')
+                        }}</span>
                     </h1>
                     <p class="text-h6 font-weight-regular text-grey-lighten-1">
-                        Monitoreo preventivo de salud organizacional y
-                        engagement.
+                        {{ $t('px_command.subtitle') }}
                     </p>
                 </div>
 
-                <v-btn
+                <StButtonGlass
                     v-if="can('assessments.manage')"
-                    prepend-icon="mdi-brain"
+                    :icon="PhBrain"
                     variant="flat"
                     color="success"
                     height="56"
                     class="elevation-xl mt-md-0 mt-4 rounded-xl px-8"
                     @click="wizardDialog = true"
                 >
-                    Lanzar Campaña
-                </v-btn>
+                    {{ $t('px_command.launch_campaign') }}
+                </StButtonGlass>
             </div>
 
             <!-- Dashboard Stats Row -->
@@ -219,23 +253,24 @@ onMounted(() => {
                                 size="56"
                                 class="mr-4 rounded-xl"
                             >
-                                <v-icon
-                                    :icon="
+                                <component
+                                    :is="
                                         key === 'active'
-                                            ? 'mdi-pulse'
+                                            ? PhPulse
                                             : key === 'avg_engagement'
-                                              ? 'mdi-heart'
+                                              ? PhHeart
                                               : key === 'sentiment_index'
-                                                ? 'mdi-face-smile'
-                                                : 'mdi-shield-alert'
+                                                ? PhSmiley
+                                                : PhShieldWarning
                                     "
+                                    weight="fill"
                                     :color="
                                         key === 'burnout_risk'
                                             ? 'white'
-                                            : 'success'
+                                            : 'rgb(var(--v-theme-success))'
                                     "
-                                    size="32"
-                                ></v-icon>
+                                    :size="32"
+                                />
                             </v-avatar>
                             <div>
                                 <div
@@ -247,7 +282,7 @@ onMounted(() => {
                                 <div
                                     class="text-caption text-grey-lighten-1 text-uppercase font-weight-bold"
                                 >
-                                    {{ key.replace('_', ' ') }}
+                                    {{ $t(`px_command.metrics.${key}`) }}
                                 </div>
                             </div>
                         </v-card-text>
@@ -264,40 +299,60 @@ onMounted(() => {
                     >
                         <v-toolbar color="transparent" class="px-4 py-2">
                             <v-toolbar-title
-                                class="text-h6 font-weight-bold text-white"
+                                class="text-h6 font-weight-bold d-flex align-center text-white"
                             >
-                                <v-icon
-                                    icon="mdi-history"
-                                    color="success"
+                                <PhClockCounterClockwise
+                                    color="rgb(var(--v-theme-success))"
                                     class="mr-2"
-                                ></v-icon>
-                                Campañas Vigentes & Historial
+                                    :size="24"
+                                />
+                                {{ $t('px_command.history_title') }}
                             </v-toolbar-title>
                             <v-spacer></v-spacer>
                             <v-text-field
-                                placeholder="Buscar campaña..."
-                                prepend-inner-icon="mdi-magnify"
+                                :placeholder="
+                                    $t('px_command.search_placeholder')
+                                "
                                 variant="solo"
                                 hide-details
                                 density="compact"
                                 class="max-width-300 mr-4"
                                 rounded="lg"
-                            ></v-text-field>
+                            >
+                                <template #prepend-inner>
+                                    <PhMagnifyingGlass
+                                        :size="20"
+                                        class="text-grey-lighten-1 mr-2"
+                                    />
+                                </template>
+                            </v-text-field>
                         </v-toolbar>
 
                         <v-divider color="white" class="opacity-10"></v-divider>
 
                         <v-data-table
                             :headers="[
-                                { title: 'Nombre de Campaña', key: 'name' },
-                                { title: 'Tópicos', key: 'topics' },
-                                { title: 'Despliegue', key: 'mode' },
                                 {
-                                    title: 'Impacto IA',
+                                    title: $t('px_command.headers.name'),
+                                    key: 'name',
+                                },
+                                {
+                                    title: $t('px_command.headers.topics'),
+                                    key: 'topics',
+                                },
+                                {
+                                    title: $t('px_command.headers.mode'),
+                                    key: 'mode',
+                                },
+                                {
+                                    title: $t('px_command.headers.impact'),
                                     key: 'impact',
                                     sortable: false,
                                 },
-                                { title: 'Estado', key: 'status' },
+                                {
+                                    title: $t('px_command.headers.status'),
+                                    key: 'status',
+                                },
                                 {
                                     title: '',
                                     key: 'actions',
@@ -322,7 +377,7 @@ onMounted(() => {
                                     >
                                         {{
                                             item.description ||
-                                            'Prospección activa'
+                                            $t('px_command.default_desc')
                                         }}
                                     </div>
                                 </div>
@@ -353,15 +408,16 @@ onMounted(() => {
                                     variant="outlined"
                                     color="success-lighten-1"
                                 >
-                                    <v-icon
-                                        start
-                                        :icon="
+                                    <component
+                                        class="mr-2"
+                                        :is="
                                             modeOptions.find(
                                                 (o) => o.value === item.mode,
-                                            )?.icon || 'mdi-broadcast'
+                                            )?.icon || PhRadio
                                         "
-                                        size="14"
-                                    ></v-icon>
+                                        :size="14"
+                                        weight="bold"
+                                    />
                                     {{
                                         modeOptions.find(
                                             (o) => o.value === item.mode,
@@ -403,40 +459,40 @@ onMounted(() => {
 
                             <template #[`item.actions`]="{ item }">
                                 <v-btn
-                                    icon="mdi-dots-vertical"
                                     variant="text"
                                     size="small"
                                     color="grey-lighten-1"
-                                ></v-btn>
+                                >
+                                    <PhDotsThreeVertical :size="20" />
+                                </v-btn>
                                 <v-btn
                                     v-if="item.status === 'active'"
-                                    icon="mdi-chart-line"
                                     variant="tonal"
                                     size="small"
                                     color="success"
                                     class="ml-2"
-                                ></v-btn>
+                                >
+                                    <PhChartLineUp :size="20" />
+                                </v-btn>
                             </template>
 
                             <template #no-data>
                                 <div class="pa-12 text-center">
-                                    <v-icon
-                                        icon="mdi-shield-check-outline"
-                                        size="64"
-                                        color="grey-darken-3"
-                                        class="mb-4"
-                                    ></v-icon>
+                                    <PhShieldCheckOutline
+                                        :size="64"
+                                        class="text-grey-darken-3 mb-4"
+                                        weight="light"
+                                    />
                                     <p class="text-grey mb-4">
-                                        No hay campañas configuradas para People
-                                        Experience.
+                                        {{ $t('px_command.no_campaigns') }}
                                     </p>
-                                    <v-btn
-                                        variant="flat"
+                                    <StButtonGlass
                                         color="success"
-                                        prepend-icon="mdi-plus"
+                                        :icon="PhPlus"
                                         @click="wizardDialog = true"
-                                        >Lanzar Primera Campaña</v-btn
                                     >
+                                        {{ $t('px_command.launch_first') }}
+                                    </StButtonGlass>
                                 </div>
                             </template>
                         </v-data-table>
@@ -460,19 +516,19 @@ onMounted(() => {
                         class="bg-success-darken-4 pa-6 d-flex flex-column border-right-auth"
                     >
                         <div class="mb-8">
-                            <v-icon
-                                icon="mdi-heart-pulse"
-                                color="success"
-                                size="32"
+                            <PhHeartbeat
+                                color="rgb(var(--v-theme-success))"
+                                :size="32"
+                                weight="fill"
                                 class="mb-2"
-                            ></v-icon>
+                            />
                             <h3
                                 class="text-h5 font-weight-bold mb-1 text-white"
                             >
-                                Diseño PX
+                                {{ $t('px_command.wizard.title') }}
                             </h3>
                             <p class="text-caption text-grey-lighten-1">
-                                Configura la escucha activa de la organización.
+                                {{ $t('px_command.wizard.subtitle') }}
                             </p>
                         </div>
 
@@ -485,35 +541,87 @@ onMounted(() => {
                             >
                                 <v-list-item
                                     :active="step === 1"
-                                    prepend-icon="mdi-numeric-1-circle"
-                                    title="Tópicos & Objetivo"
                                     class="mb-2 rounded-lg"
                                     @click="step = 1"
-                                ></v-list-item>
+                                >
+                                    <template #prepend>
+                                        <PhNumberCircleOne
+                                            :size="20"
+                                            class="mr-3"
+                                            :color="
+                                                step === 1
+                                                    ? 'rgb(var(--v-theme-success))'
+                                                    : 'grey'
+                                            "
+                                        />
+                                    </template>
+                                    <v-list-item-title>{{
+                                        $t('px_command.wizard.step1_title')
+                                    }}</v-list-item-title>
+                                </v-list-item>
                                 <v-list-item
                                     :active="step === 2"
                                     :disabled="step < 2"
-                                    prepend-icon="mdi-numeric-2-circle"
-                                    title="Frecuencia & Modo"
                                     class="mb-2 rounded-lg"
                                     @click="step = 2"
-                                ></v-list-item>
+                                >
+                                    <template #prepend>
+                                        <PhNumberCircleTwo
+                                            :size="20"
+                                            class="mr-3"
+                                            :color="
+                                                step === 2
+                                                    ? 'rgb(var(--v-theme-success))'
+                                                    : 'grey'
+                                            "
+                                        />
+                                    </template>
+                                    <v-list-item-title>{{
+                                        $t('px_command.wizard.step2_title')
+                                    }}</v-list-item-title>
+                                </v-list-item>
                                 <v-list-item
                                     :active="step === 3"
                                     :disabled="step < 3"
-                                    prepend-icon="mdi-numeric-3-circle"
-                                    title="Alcance (Scope)"
                                     class="mb-2 rounded-lg"
                                     @click="step = 3"
-                                ></v-list-item>
+                                >
+                                    <template #prepend>
+                                        <PhNumberCircleThree
+                                            :size="20"
+                                            class="mr-3"
+                                            :color="
+                                                step === 3
+                                                    ? 'rgb(var(--v-theme-success))'
+                                                    : 'grey'
+                                            "
+                                        />
+                                    </template>
+                                    <v-list-item-title>{{
+                                        $t('px_command.wizard.step3_title')
+                                    }}</v-list-item-title>
+                                </v-list-item>
                                 <v-list-item
                                     :active="step === 4"
                                     :disabled="step < 4"
-                                    prepend-icon="mdi-numeric-4-circle"
-                                    title="Validación"
                                     class="mb-2 rounded-lg"
                                     @click="step = 4"
-                                ></v-list-item>
+                                >
+                                    <template #prepend>
+                                        <PhNumberCircleFour
+                                            :size="20"
+                                            class="mr-3"
+                                            :color="
+                                                step === 4
+                                                    ? 'rgb(var(--v-theme-success))'
+                                                    : 'grey'
+                                            "
+                                        />
+                                    </template>
+                                    <v-list-item-title>{{
+                                        $t('px_command.wizard.step4_title')
+                                    }}</v-list-item-title>
+                                </v-list-item>
                             </v-list>
                         </div>
 
@@ -524,7 +632,7 @@ onMounted(() => {
                             class="rounded-lg"
                             @click="wizardDialog = false"
                         >
-                            Cerrar
+                            {{ $t('px_command.wizard.close') }}
                         </v-btn>
                     </v-col>
 
@@ -548,20 +656,35 @@ onMounted(() => {
                                         <h2
                                             class="text-h4 font-weight-bold mb-2 text-white"
                                         >
-                                            Foco de Medición
+                                            {{
+                                                $t(
+                                                    'px_command.wizard.step1.title',
+                                                )
+                                            }}
                                         </h2>
                                         <p
                                             class="text-body-1 text-grey-lighten-1"
                                         >
-                                            ¿Qué dimensiones de la experiencia
-                                            humana queremos monitorear?
+                                            {{
+                                                $t(
+                                                    'px_command.wizard.step1.desc',
+                                                )
+                                            }}
                                         </p>
                                     </div>
 
                                     <v-text-field
                                         v-model="newCampaign.name"
-                                        label="Nombre de la Campaña"
-                                        placeholder="Ej. Termómetro de Burnout 2026"
+                                        :label="
+                                            $t(
+                                                'px_command.wizard.step1.name_label',
+                                            )
+                                        "
+                                        :placeholder="
+                                            $t(
+                                                'px_command.wizard.step1.name_placeholder',
+                                            )
+                                        "
                                         variant="filled"
                                         color="success"
                                         bg-color="rgba(255,255,255,0.05)"
@@ -571,7 +694,11 @@ onMounted(() => {
                                     <h3
                                         class="text-subtitle-1 font-weight-bold mb-4 text-white"
                                     >
-                                        Dimensiones a Evaluar
+                                        {{
+                                            $t(
+                                                'px_command.wizard.step1.dimensions',
+                                            )
+                                        }}
                                     </h3>
                                     <v-row>
                                         <v-col
@@ -618,10 +745,11 @@ onMounted(() => {
                                                         size="40"
                                                         class="mr-3"
                                                     >
-                                                        <v-icon
-                                                            :icon="topic.icon"
-                                                            size="20"
-                                                        ></v-icon>
+                                                        <component
+                                                            :is="topic.icon"
+                                                            :size="20"
+                                                            weight="fill"
+                                                        />
                                                     </v-avatar>
                                                     <div
                                                         class="text-subtitle-1 font-weight-bold text-white"
@@ -645,14 +773,20 @@ onMounted(() => {
                                         <h2
                                             class="text-h4 font-weight-bold mb-2 text-white"
                                         >
-                                            Motor de Distribución
+                                            {{
+                                                $t(
+                                                    'px_command.wizard.step2.title',
+                                                )
+                                            }}
                                         </h2>
                                         <p
                                             class="text-body-1 text-grey-lighten-1"
                                         >
-                                            Define el nivel de autonomía de la
-                                            IA para capturar el sentimiento
-                                            organizacional.
+                                            {{
+                                                $t(
+                                                    'px_command.wizard.step2.desc',
+                                                )
+                                            }}
                                         </p>
                                     </div>
 
@@ -689,10 +823,11 @@ onMounted(() => {
                                                         size="48"
                                                         class="mr-4"
                                                     >
-                                                        <v-icon
-                                                            :icon="mode.icon"
-                                                            size="24"
-                                                        ></v-icon>
+                                                        <component
+                                                            :is="mode.icon"
+                                                            :size="24"
+                                                            weight="duotone"
+                                                        />
                                                     </v-avatar>
                                                     <div class="flex-grow-1">
                                                         <div
@@ -706,14 +841,15 @@ onMounted(() => {
                                                             {{ mode.desc }}
                                                         </div>
                                                     </div>
-                                                    <v-icon
+                                                    <PhCheckCircle
                                                         v-if="
                                                             newCampaign.mode ===
                                                             mode.value
                                                         "
-                                                        icon="mdi-check-circle"
-                                                        color="success"
-                                                    ></v-icon>
+                                                        weight="fill"
+                                                        :size="24"
+                                                        color="rgb(var(--v-theme-success))"
+                                                    />
                                                 </div>
                                             </v-card>
                                         </v-col>
@@ -728,14 +864,21 @@ onMounted(() => {
                                         variant="tonal"
                                         class="border-success rounded-xl opacity-90"
                                     >
-                                        <strong
-                                            >Inteligencia Sentinel
-                                            Activa:</strong
-                                        >
-                                        La IA analizará la carga de trabajo de
-                                        cada usuario y lanzará las
-                                        micro-encuestas solo cuando detecte una
-                                        ventana de baja fricción emocional.
+                                        <PhRobot
+                                            :size="20"
+                                            class="d-inline-block mr-2"
+                                            weight="duotone"
+                                        />
+                                        <strong>{{
+                                            $t(
+                                                'px_command.wizard.step2.ai_enabled',
+                                            )
+                                        }}</strong>
+                                        {{
+                                            $t(
+                                                'px_command.wizard.step2.ai_desc',
+                                            )
+                                        }}
                                     </v-alert>
                                 </v-window-item>
 
@@ -750,20 +893,30 @@ onMounted(() => {
                                         <h2
                                             class="text-h4 font-weight-bold mb-2 text-white"
                                         >
-                                            Alcance de Prospección
+                                            {{
+                                                $t(
+                                                    'px_command.wizard.step3.title',
+                                                )
+                                            }}
                                         </h2>
                                         <p
                                             class="text-body-1 text-grey-lighten-1"
                                         >
-                                            Configura a qué porcentaje de la
-                                            población debe impactar esta
-                                            campaña.
+                                            {{
+                                                $t(
+                                                    'px_command.wizard.step3.desc',
+                                                )
+                                            }}
                                         </p>
                                     </div>
 
                                     <v-select
                                         v-model="newCampaign.scope!.type"
-                                        label="Segmentación de Muestra"
+                                        :label="
+                                            $t(
+                                                'px_command.wizard.step3.segmentation',
+                                            )
+                                        "
                                         :items="scopeOptions"
                                         variant="filled"
                                         bg-color="rgba(255,255,255,0.05)"
@@ -785,7 +938,11 @@ onMounted(() => {
                                         <div
                                             class="text-subtitle-1 text-grey mb-6"
                                         >
-                                            Tráfico aleatorio diario por usuario
+                                            {{
+                                                $t(
+                                                    'px_command.wizard.step3.random_traffic',
+                                                )
+                                            }}
                                         </div>
                                         <v-slider
                                             v-model="
@@ -801,10 +958,15 @@ onMounted(() => {
                                         <p
                                             class="text-caption text-grey-lighten-1"
                                         >
-                                            Una muestra del
-                                            {{ newCampaign.scope!.target_pct }}%
-                                            garantiza anonimato y reduce la
-                                            fatiga de encuesta.
+                                            {{
+                                                $t(
+                                                    'px_command.wizard.step3.sample_desc',
+                                                    {
+                                                        pct: newCampaign.scope!
+                                                            .target_pct,
+                                                    },
+                                                )
+                                            }}
                                         </p>
                                     </div>
                                 </v-window-item>
@@ -817,22 +979,29 @@ onMounted(() => {
                                             size="80"
                                             class="elevation-xl mb-4"
                                         >
-                                            <v-icon
-                                                icon="mdi-shield-check"
-                                                size="48"
+                                            <PhShieldCheck
+                                                :size="48"
                                                 color="white"
-                                            ></v-icon>
+                                                weight="fill"
+                                            />
                                         </v-avatar>
                                         <h2
                                             class="text-h4 font-weight-bold mb-2 text-white"
                                         >
-                                            Campaña Lista
+                                            {{
+                                                $t(
+                                                    'px_command.wizard.step4.title',
+                                                )
+                                            }}
                                         </h2>
                                         <p
                                             class="text-body-1 text-grey-lighten-1"
                                         >
-                                            Revisa el ADN de la campaña antes
-                                            del despliegue en Sentinel.
+                                            {{
+                                                $t(
+                                                    'px_command.wizard.step4.desc',
+                                                )
+                                            }}
                                         </p>
                                     </div>
 
@@ -844,22 +1013,25 @@ onMounted(() => {
                                             class="pa-0"
                                         >
                                             <v-list-item class="px-6 py-4">
-                                                <template #prepend
-                                                    ><v-icon
-                                                        icon="mdi-tag-text-outline"
-                                                        color="success"
-                                                    ></v-icon
-                                                ></template>
+                                                <template #prepend>
+                                                    <PhTag
+                                                        :size="24"
+                                                        class="text-success mr-4"
+                                                    />
+                                                </template>
                                                 <v-list-item-title
-                                                    class="font-weight-bold text-white"
+                                                    class="font-weight-bold mb-1 text-white"
                                                     >{{
                                                         newCampaign.name
                                                     }}</v-list-item-title
                                                 >
                                                 <v-list-item-subtitle
                                                     class="text-grey"
-                                                    >Nombre de la
-                                                    Campaña</v-list-item-subtitle
+                                                    >{{
+                                                        $t(
+                                                            'px_command.wizard.step4.name',
+                                                        )
+                                                    }}</v-list-item-subtitle
                                                 >
                                             </v-list-item>
                                             <v-divider
@@ -874,7 +1046,7 @@ onMounted(() => {
                                                         class="px-6 py-4"
                                                     >
                                                         <v-list-item-title
-                                                            class="font-weight-bold text-white"
+                                                            class="font-weight-bold mb-1 text-white"
                                                             >{{
                                                                 modeOptions.find(
                                                                     (o) =>
@@ -885,7 +1057,11 @@ onMounted(() => {
                                                         >
                                                         <v-list-item-subtitle
                                                             class="text-grey"
-                                                            >Distribución</v-list-item-subtitle
+                                                            >{{
+                                                                $t(
+                                                                    'px_command.wizard.step4.distribution',
+                                                                )
+                                                            }}</v-list-item-subtitle
                                                         >
                                                     </v-list-item>
                                                 </v-col>
@@ -894,17 +1070,25 @@ onMounted(() => {
                                                         class="px-6 py-4"
                                                     >
                                                         <v-list-item-title
-                                                            class="font-weight-bold text-white"
+                                                            class="font-weight-bold mb-1 text-white"
                                                             >{{
                                                                 newCampaign
                                                                     .topics
                                                                     ?.length
                                                             }}
-                                                            Dimensiones</v-list-item-title
+                                                            {{
+                                                                $t(
+                                                                    'px_command.wizard.step4.dimensions',
+                                                                )
+                                                            }}</v-list-item-title
                                                         >
                                                         <v-list-item-subtitle
                                                             class="text-grey"
-                                                            >Métricas</v-list-item-subtitle
+                                                            >{{
+                                                                $t(
+                                                                    'px_command.wizard.step4.metrics',
+                                                                )
+                                                            }}</v-list-item-subtitle
                                                         >
                                                     </v-list-item>
                                                 </v-col>
@@ -916,13 +1100,22 @@ onMounted(() => {
                                         type="success"
                                         variant="tonal"
                                         border="start"
-                                        class="rounded-xl"
-                                        icon="mdi-robot"
+                                        class="rounded-xl px-1 py-1"
                                     >
-                                        Sentinel monitoreará el tráfico y
-                                        enviará notificaciones preventivas si
-                                        detecta riesgos de burnout en los
-                                        departamentos seleccionados.
+                                        <div class="d-flex pa-2 align-center">
+                                            <PhRobot
+                                                :size="24"
+                                                class="text-success mr-3 flex-shrink-0"
+                                                weight="duotone"
+                                            />
+                                            <div>
+                                                {{
+                                                    $t(
+                                                        'px_command.wizard.step4.ai_desc',
+                                                    )
+                                                }}
+                                            </div>
+                                        </div>
                                     </v-alert>
                                 </v-window-item>
                             </v-window>
@@ -933,35 +1126,42 @@ onMounted(() => {
                         <div
                             class="pa-8 d-flex justify-space-between align-center"
                         >
-                            <v-btn
+                            <StButtonGlass
                                 v-if="step > 1"
                                 variant="text"
-                                prepend-icon="mdi-chevron-left"
+                                :icon="PhCaretLeft"
                                 color="grey-lighten-1"
                                 @click="step--"
-                                >Regresar</v-btn
+                                >{{
+                                    $t('px_command.wizard.actions.back')
+                                }}</StButtonGlass
                             >
                             <div v-else></div>
 
-                            <v-btn
+                            <StButtonGlass
                                 v-if="step < 4"
                                 color="success"
                                 height="48"
                                 class="rounded-lg px-8"
-                                append-icon="mdi-chevron-right"
+                                :icon="PhCaretRight"
+                                right-icon
                                 @click="step++"
-                                >Siguiente Paso</v-btn
+                                >{{
+                                    $t('px_command.wizard.actions.next')
+                                }}</StButtonGlass
                             >
 
-                            <v-btn
+                            <StButtonGlass
                                 v-else
                                 color="success"
                                 height="48"
                                 class="shadow-premium rounded-lg px-8"
                                 :loading="saving"
-                                prepend-icon="mdi-check-decagram"
+                                :icon="PhSealCheck"
                                 @click="saveCampaign"
-                                >Establecer Campaña</v-btn
+                                >{{
+                                    $t('px_command.wizard.actions.launch')
+                                }}</StButtonGlass
                             >
                         </div>
                     </v-col>

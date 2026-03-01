@@ -32,12 +32,14 @@
                         <h2
                             class="mb-1 text-xl leading-none font-black tracking-tight text-white"
                         >
-                            Agentic Role Design Proposals
+                            {{ $t('agent_proposals.title') }}
                         </h2>
                         <div class="flex items-center gap-2">
                             <span
                                 class="text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                >Strategy Engine:</span
+                                >{{
+                                    $t('agent_proposals.strategy_engine')
+                                }}</span
                             >
                             <span class="text-xs font-bold text-indigo-400"
                                 >Collaboration Protocol v2.4</span
@@ -54,7 +56,7 @@
                     >
                         <span
                             class="text-[9px] font-black tracking-widest text-white/30 uppercase"
-                            >Alignment Score</span
+                            >{{ $t('agent_proposals.alignment_score') }}</span
                         >
                         <div class="flex items-center gap-2">
                             <div
@@ -111,13 +113,12 @@
                     <p
                         class="mb-2 text-lg font-black tracking-tight text-white"
                     >
-                        Agents are collaborating...
+                        {{ $t('agent_proposals.loading_title') }}
                     </p>
                     <p
                         class="max-w-sm text-center text-sm font-bold text-white/40"
                     >
-                        Analyzing strategic blueprint, organizational catalog,
-                        and talent archetypes
+                        {{ $t('agent_proposals.loading_desc') }}
                     </p>
                 </div>
 
@@ -136,10 +137,10 @@
                     <p
                         class="mb-2 text-lg font-black tracking-tight text-white"
                     >
-                        No proposals available.
+                        {{ $t('agent_proposals.empty_title') }}
                     </p>
                     <p class="text-sm font-bold text-white/40">
-                        Try re-consulting the agents to generate new designs.
+                        {{ $t('agent_proposals.empty_desc') }}
                     </p>
                 </div>
 
@@ -164,18 +165,12 @@
                                 <h3
                                     class="mb-1 text-sm font-black tracking-widest text-indigo-200 uppercase"
                                 >
-                                    Design Protocol
+                                    {{ $t('agent_proposals.protocol_title') }}
                                 </h3>
                                 <p
                                     class="text-sm leading-relaxed font-medium text-white/70"
-                                >
-                                    The <strong>Role Designer</strong> has
-                                    proposed adjustments based on the strategic
-                                    session. Review each role, verify its
-                                    <strong>competency mapping</strong> and
-                                    <strong>archetype</strong>, then approve to
-                                    commit changes to the scenario matrix.
-                                </p>
+                                    v-html="$t('agent_proposals.protocol_desc')"
+                                ></p>
                             </div>
                         </div>
                     </div>
@@ -195,7 +190,9 @@
                                     <h3
                                         class="text-lg font-black tracking-tight text-white"
                                     >
-                                        Proposed Roles
+                                        {{
+                                            $t('agent_proposals.proposed_roles')
+                                        }}
                                     </h3>
                                     <div class="flex items-center gap-2">
                                         <StBadgeGlass
@@ -206,9 +203,12 @@
                                             "
                                             size="sm"
                                         >
-                                            {{ approvedRoleCount }} /
-                                            {{ localRoleProposals.length }}
-                                            Approved
+                                            {{
+                                                $t('agent_proposals.approved', {
+                                                    count: approvedRoleCount,
+                                                    total: localRoleProposals.length,
+                                                })
+                                            }}
                                         </StBadgeGlass>
                                     </div>
                                 </div>
@@ -220,7 +220,7 @@
                                     @click="approveAllRoles"
                                     icon="mdi-check-all"
                                 >
-                                    Approve All
+                                    {{ $t('agent_proposals.approve_all') }}
                                 </StButtonGlass>
                                 <StButtonGlass
                                     variant="ghost"
@@ -228,7 +228,7 @@
                                     @click="rejectAllRoles"
                                     icon="mdi-close-circle"
                                 >
-                                    Reject All
+                                    {{ $t('agent_proposals.reject_all') }}
                                 </StButtonGlass>
                             </div>
                         </div>
@@ -298,7 +298,11 @@
                                             >
                                                 <v-icon size="14" class="mr-1"
                                                     >mdi-check-circle</v-icon
-                                                >Approved
+                                                >{{
+                                                    $t(
+                                                        'agent_proposals.roles.approved',
+                                                    )
+                                                }}
                                             </StBadgeGlass>
                                             <div class="flex gap-1">
                                                 <StButtonGlass
@@ -330,8 +334,12 @@
                                                     {{
                                                         role._status ===
                                                         'approved'
-                                                            ? 'Undo'
-                                                            : 'Approve'
+                                                            ? $t(
+                                                                  'agent_proposals.undo',
+                                                              )
+                                                            : $t(
+                                                                  'agent_proposals.approve_role',
+                                                              )
                                                     }}
                                                 </StButtonGlass>
                                             </div>
@@ -348,7 +356,7 @@
                                             <div class="space-y-3">
                                                 <span
                                                     class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                                    >Role Archetype</span
+                                                    >{{ $t('agent_proposals.role_archetype') }}</span
                                                 >
                                                 <div class="flex gap-2">
                                                     <button
@@ -385,7 +393,7 @@
                                             <div class="space-y-3">
                                                 <span
                                                     class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                                    >Target FTE</span
+                                                    >{{ $t('agent_proposals.target_fte') }}</span
                                                 >
                                                 <div
                                                     class="flex items-center gap-3"
@@ -401,7 +409,7 @@
                                                     />
                                                     <span
                                                         class="text-xs font-bold text-white/20"
-                                                        >Units</span
+                                                        >{{ $t('agent_proposals.units') }}</span
                                                     >
                                                 </div>
                                             </div>
@@ -413,7 +421,7 @@
                                             >
                                                 <span
                                                     class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                                    >Talent Composition</span
+                                                    >{{ $t('agent_proposals.talent_composition') }}</span
                                                 >
                                                 <div
                                                     class="flex items-center gap-4"
@@ -473,10 +481,7 @@
                                         >
                                             <span
                                                 class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                                >Proposed Mapping ({{
-                                                    role.competency_mappings
-                                                        .length
-                                                }})</span
+                                                >{{ $t('agent_proposals.proposed_mapping', { count: role.competency_mappings.length }) }}</span
                                             >
 
                                             <div
@@ -490,27 +495,27 @@
                                                             <th
                                                                 class="px-4 py-3 text-[10px] font-black tracking-widest text-white/30 uppercase"
                                                             >
-                                                                Competency
+                                                                {{ $t('agent_proposals.col_competency') }}
                                                             </th>
                                                             <th
                                                                 class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
                                                             >
-                                                                Change Type
+                                                                {{ $t('agent_proposals.col_change_type') }}
                                                             </th>
                                                             <th
                                                                 class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
                                                             >
-                                                                Required Level
+                                                                {{ $t('agent_proposals.col_req_level') }}
                                                             </th>
                                                             <th
                                                                 class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
                                                             >
-                                                                Core
+                                                                {{ $t('agent_proposals.col_core') }}
                                                             </th>
                                                             <th
                                                                 class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
                                                             >
-                                                                Diagnostic
+                                                                {{ $t('agent_proposals.col_diagnostic') }}
                                                             </th>
                                                         </tr>
                                                     </thead>
@@ -637,7 +642,7 @@
                                         @click="role._status = 'pending'"
                                         icon="mdi-undo"
                                     >
-                                        Restore Role
+                                        {{ $t('agent_proposals.restore_role') }}
                                     </StButtonGlass>
                                 </div>
                             </div>
@@ -661,7 +666,7 @@
                                     <h3
                                         class="text-lg font-black tracking-tight text-white"
                                     >
-                                        Proposed Catalog Updates
+                                        {{ $t('agent_proposals.proposed_catalog') }}
                                     </h3>
                                     <div class="flex items-center gap-2">
                                         <StBadgeGlass
@@ -672,9 +677,7 @@
                                             "
                                             size="sm"
                                         >
-                                            {{ approvedCatalogCount }} /
-                                            {{ localCatalogProposals.length }}
-                                            Approved
+                                            {{ $t('agent_proposals.approved', { count: approvedCatalogCount, total: localCatalogProposals.length }) }}
                                         </StBadgeGlass>
                                     </div>
                                 </div>
@@ -685,14 +688,14 @@
                                     size="sm"
                                     @click="approveAllCatalog"
                                     icon="mdi-check-all"
-                                    >Approve All</StButtonGlass
+                                    >{{ $t('agent_proposals.approve_all') }}</StButtonGlass
                                 >
                                 <StButtonGlass
                                     variant="ghost"
                                     size="sm"
                                     @click="rejectAllCatalog"
                                     icon="mdi-close-circle"
-                                    >Reject All</StButtonGlass
+                                    >{{ $t('agent_proposals.reject_all') }}</StButtonGlass
                                 >
                             </div>
                         </div>
@@ -785,15 +788,15 @@
                     <div class="flex flex-col">
                         <span
                             class="text-[10px] font-black tracking-widest text-white/30 uppercase"
-                            >Selected Blueprint</span
+                            >{{ $t('agent_proposals.selected_blueprint') }}</span
                         >
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-black text-white"
-                                >{{ approvedRoleCount }} Roles</span
+                                >{{ $t('agent_proposals.roles_count', { count: approvedRoleCount }) }}</span
                             >
                             <div class="h-1 w-1 rounded-full bg-white/20"></div>
                             <span class="text-sm font-black text-white"
-                                >{{ approvedCatalogCount }} Competencies</span
+                                >{{ $t('agent_proposals.competencies_count', { count: approvedCatalogCount }) }}</span
                             >
                         </div>
                     </div>
@@ -801,7 +804,7 @@
 
                 <div class="flex gap-3">
                     <StButtonGlass variant="ghost" @click="$emit('close')"
-                        >Cancel</StButtonGlass
+                        >{{ $t('agent_proposals.cancel') }}</StButtonGlass
                     >
                     <StButtonGlass
                         variant="primary"
@@ -813,7 +816,7 @@
                         "
                         icon="mdi-check-all"
                     >
-                        Commit Changes
+                        {{ $t('agent_proposals.commit_changes') }}
                     </StButtonGlass>
                 </div>
             </div>
@@ -826,6 +829,9 @@ import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

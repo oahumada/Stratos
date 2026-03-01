@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
+import { PhX } from '@phosphor-icons/vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import FeedbackFormBARS from './FeedbackFormBARS.vue';
+
+const { t } = useI18n();
 
 const pendingRequests = ref<any[]>([]);
 const loading = ref(true);
@@ -59,7 +64,9 @@ const openFeedbackForm = async (request: any) => {
                         id: fb.id, // Important for updates
                         type: 'bars',
                         skill_id: fb.skill_id,
-                        skill: skill || { name: 'Unknown Skill' },
+                        skill: skill || {
+                            name: t('pending_feedback.unknown_skill'),
+                        },
                         levels: skillLevels,
                         question:
                             fb.question || 'Evalúa el nivel de competencia:',
@@ -139,7 +146,6 @@ const submitFeedback = async () => {
 onMounted(loadRequests);
 </script>
 <template>
-    <script></script>
     <div v-if="pendingRequests.length > 0" class="mb-10">
         <StCardGlass
             class="overflow-hidden border-indigo-500/20 bg-indigo-500/5"
@@ -160,17 +166,16 @@ onMounted(loadRequests);
                         <h2
                             class="text-h5 font-weight-black mb-1 tracking-tight text-white"
                         >
-                            Pending
-                            <span class="text-indigo-400">Feedback 360</span>
+                            {{ $t('pending_feedback.title') }}
                         </h2>
-                        <div class="text-body-2 font-medium text-white/50">
-                            Synthesize professional insights for
-                            <span
-                                class="font-bold tracking-wider text-indigo-300 uppercase"
-                                >{{ pendingRequests.length }}</span
-                            >
-                            collaborators.
-                        </div>
+                        <div
+                            class="text-body-2 font-medium text-white/50"
+                            v-html="
+                                $t('pending_feedback.subtitle', {
+                                    count: `<span class='font-bold tracking-wider text-indigo-300 uppercase'>${pendingRequests.length}</span>`,
+                                })
+                            "
+                        ></div>
                     </div>
                 </div>
 
@@ -218,24 +223,31 @@ onMounted(loadRequests);
                             <div
                                 class="text-h6 font-weight-black leading-tight text-white"
                             >
-                                Analysis for
-                                {{ selectedRequest.subject.full_name }}
+                                {{
+                                    $t('pending_feedback.analysis_for', {
+                                        name: selectedRequest.subject.full_name,
+                                    })
+                                }}
                             </div>
                             <div
                                 class="text-caption mt-1 font-bold tracking-widest text-indigo-400 uppercase"
                             >
-                                {{ selectedRequest.relationship }} Correlation
+                                {{
+                                    $t('pending_feedback.correlation', {
+                                        relationship:
+                                            selectedRequest.relationship,
+                                    })
+                                }}
                             </div>
                         </div>
                     </div>
-                    <v-btn
-                        icon
-                        variant="text"
-                        color="white/40"
+                    <StButtonGlass
+                        variant="ghost"
+                        circle
+                        :icon="PhX"
+                        class="!text-white/40 hover:!text-white"
                         @click="dialog = false"
-                    >
-                        <v-icon>mdi-close</v-icon>
-                    </v-btn>
+                    />
                 </div>
 
                 <div
@@ -252,13 +264,19 @@ onMounted(loadRequests);
                             <div
                                 class="text-caption font-weight-black mb-4 tracking-widest text-white/40 uppercase"
                             >
-                                Strategic Insight: {{ item.question }}
+                                {{
+                                    $t('pending_feedback.strategic_insight', {
+                                        question: item.question,
+                                    })
+                                }}
                             </div>
                             <v-textarea
                                 v-model="item.answer"
                                 variant="outlined"
                                 rows="4"
-                                placeholder="Capture detailed qualitative observations..."
+                                :placeholder="
+                                    $t('pending_feedback.capture_details')
+                                "
                                 hide-details="auto"
                                 class="glass-input-premium"
                                 persistent-placeholder
@@ -281,23 +299,17 @@ onMounted(loadRequests);
                 <div
                     class="flex items-center justify-end gap-4 border-t border-white/10 bg-white/5 px-8 py-6"
                 >
-                    <v-btn
-                        variant="text"
-                        color="white/50"
-                        class="font-weight-bold"
-                        @click="dialog = false"
-                        >Close</v-btn
-                    >
-                    <v-btn
-                        color="indigo-700"
-                        size="large"
-                        rounded="xl"
-                        class="font-weight-bold px-8"
+                    <StButtonGlass variant="ghost" @click="dialog = false">
+                        {{ $t('pending_feedback.close') }}
+                    </StButtonGlass>
+                    <StButtonGlass
+                        variant="primary"
+                        class="!px-8"
                         :loading="submitting"
                         @click="submitFeedback"
                     >
-                        Submit Assessment
-                    </v-btn>
+                        {{ $t('pending_feedback.submit') }}
+                    </StButtonGlass>
                 </div>
             </div>
         </v-dialog>

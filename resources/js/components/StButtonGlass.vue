@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { cn } from '@/lib/utils';
+import type { Component } from 'vue';
 import { computed } from 'vue';
 
 interface Props {
@@ -9,7 +10,8 @@ interface Props {
     disabled?: boolean;
     block?: boolean;
     circle?: boolean;
-    icon?: string;
+    icon?: string | Component;
+    iconWeight?: 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone';
     class?: string;
 }
 
@@ -20,6 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
     disabled: false,
     block: false,
     circle: false,
+    iconWeight: 'regular',
 });
 
 const variantClasses = {
@@ -58,12 +61,21 @@ const classes = computed(() => {
             width="2"
             class="mr-2"
         />
+        <!-- Soporte para antiguos iconos MDI como string -->
         <v-icon
-            v-if="icon && !loading"
+            v-if="icon && typeof icon === 'string' && !loading"
             :size="size === 'sm' ? 16 : 20"
             :class="['shrink-0', $slots.default && !circle ? 'mr-2' : '']"
             >{{ icon }}</v-icon
         >
+        <!-- Soporte para nuevos iconos componetizados (Phosphor, etc.) -->
+        <component
+            :is="icon"
+            v-else-if="icon && typeof icon !== 'string' && !loading"
+            :size="size === 'sm' ? 16 : 20"
+            :weight="iconWeight"
+            :class="['shrink-0', $slots.default && !circle ? 'mr-2' : '']"
+        />
         <slot v-if="!circle" />
     </button>
 </template>

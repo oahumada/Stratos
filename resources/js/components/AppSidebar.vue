@@ -14,7 +14,14 @@ import {
 import { usePermissions } from '@/composables/usePermissions';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Star, User } from 'lucide-vue-next';
+import {
+    BookOpen,
+    Folder,
+    LayoutGrid,
+    Lock,
+    Star,
+    User,
+} from 'lucide-vue-next';
 import { computed, defineComponent, h } from 'vue';
 import { VIcon } from 'vuetify/components';
 import AppLogo from './AppLogo.vue';
@@ -173,6 +180,12 @@ const allNavItems: NavItem[] = [
         href: '/talent-agents',
         icon: TalentAgentsIcon,
         requiredPermission: 'agents.view',
+    },
+    {
+        title: 'Roles & Permisos',
+        href: '/settings/rbac',
+        icon: Lock,
+        requiredRole: ['admin'],
     },
 ];
 

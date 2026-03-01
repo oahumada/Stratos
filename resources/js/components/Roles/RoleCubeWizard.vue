@@ -2,13 +2,26 @@
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
+import {
+    PhArrowLeft,
+    PhCheck,
+    PhMagicWand,
+    PhPlus,
+    PhRobot,
+    PhSealCheck,
+    PhTrash,
+    PhX,
+} from '@phosphor-icons/vue';
 import axios from 'axios';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
     visible: boolean;
     scenarioId?: number | null;
 }>();
+
+const { t } = useI18n();
 
 const emit = defineEmits(['close', 'created']);
 
@@ -17,11 +30,11 @@ const currentStep = ref(1);
 const analyzing = ref(false);
 const saving = ref(false);
 
-const steps = [
-    { title: 'Goal Definition', desc: 'Purpose & Mission' },
-    { title: 'Cube Mapping', desc: 'Structural Coords' },
-    { title: 'Blueprint', desc: 'Skill Architecture' },
-];
+const steps = computed(() => [
+    { title: t('role_wizard.step1_title'), desc: t('role_wizard.step1_desc') },
+    { title: t('role_wizard.step2_title'), desc: t('role_wizard.step2_desc') },
+    { title: t('role_wizard.step3_title'), desc: t('role_wizard.step3_desc') },
+]);
 
 const form = ref({
     name: '',
@@ -83,9 +96,9 @@ const removeSkill = (index: number) => {
 
 const addSkill = () => {
     form.value.competencies.push({
-        name: 'New Capacity',
+        name: t('role_wizard.new_capacity'),
         level: 3,
-        rationale: 'Manually defined by architect.',
+        rationale: t('role_wizard.manual_rationale'),
     });
 };
 
@@ -153,19 +166,19 @@ const saveRole = async () => {
                 <StButtonGlass
                     variant="ghost"
                     circle
-                    icon="mdi-close"
+                    :icon="PhX"
                     @click="close"
                 />
                 <div class="ml-6">
                     <h1
                         class="flex items-center gap-3 text-xl font-black tracking-tight text-white"
                     >
-                        Role Architect
+                        {{ $t('role_wizard.title') }}
                         <StBadgeGlass
                             variant="glass"
                             size="sm"
                             class="border !border-white/10 !px-2 text-[9px] tracking-widest text-white/40 uppercase"
-                            >AI-Powered</StBadgeGlass
+                            >{{ $t('role_wizard.ai_powered') }}</StBadgeGlass
                         >
                     </h1>
                 </div>
@@ -175,16 +188,16 @@ const saveRole = async () => {
                         <div
                             class="text-[9px] font-black tracking-[0.2em] text-white/20 uppercase"
                         >
-                            Core Orchestrator
+                            {{ $t('role_wizard.core_orchestrator') }}
                         </div>
                         <div class="text-xs font-bold text-indigo-400">
-                            Cerbero Neural Engine
+                            {{ $t('role_wizard.cerbero_engine') }}
                         </div>
                     </div>
                     <div
                         class="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
                     >
-                        <v-icon color="white" size="20">mdi-robot-glow</v-icon>
+                        <PhRobot color="white" :size="20" weight="duotone" />
                     </div>
                 </div>
             </header>
@@ -241,13 +254,12 @@ const saveRole = async () => {
                         <div
                             class="mb-2 text-[9px] font-black tracking-[0.2em] text-indigo-400 uppercase"
                         >
-                            Protocol Note
+                            {{ $t('role_wizard.protocol_note') }}
                         </div>
                         <p
                             class="text-[11px] leading-relaxed text-white/40 italic"
                         >
-                            Structural design ensures role depth aligns with
-                            strategic organizational velocity.
+                            {{ $t('role_wizard.protocol_desc') }}
                         </p>
                     </StCardGlass>
                 </aside>
@@ -267,18 +279,12 @@ const saveRole = async () => {
                                 <h2
                                     class="text-4xl leading-tight font-black tracking-tight text-white"
                                 >
-                                    Define the
-                                    <span
-                                        class="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent"
-                                        >Execution Node</span
-                                    >
+                                    {{ $t('role_wizard.define_node') }}
                                 </h2>
                                 <p
                                     class="max-w-2xl text-lg leading-relaxed font-medium text-white/50"
                                 >
-                                    Describe the primary mission and critical
-                                    priorities. AI will synthesize the
-                                    multi-dimensional coordinates.
+                                    {{ $t('role_wizard.define_node_desc') }}
                                 </p>
                             </div>
 
@@ -286,12 +292,20 @@ const saveRole = async () => {
                                 <div class="space-y-2">
                                     <label
                                         class="ml-1 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                        >Architectural Label</label
+                                        >{{
+                                            $t(
+                                                'role_wizard.architectural_label',
+                                            )
+                                        }}</label
                                     >
                                     <input
                                         v-model="form.name"
                                         type="text"
-                                        placeholder="e.g., Strategic Horizon Lead"
+                                        :placeholder="
+                                            $t(
+                                                'role_wizard.architectural_placeholder',
+                                            )
+                                        "
                                         class="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-lg text-white placeholder-white/10 transition-all focus:border-indigo-500/50 focus:bg-white/[0.07] focus:outline-none"
                                     />
                                 </div>
@@ -299,12 +313,18 @@ const saveRole = async () => {
                                 <div class="space-y-2">
                                     <label
                                         class="ml-1 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                        >Mission Synthesis</label
+                                        >{{
+                                            $t('role_wizard.mission_synthesis')
+                                        }}</label
                                     >
                                     <textarea
                                         v-model="form.description"
                                         rows="6"
-                                        placeholder="What is the strategic reason for this role? What are the top impact domains?"
+                                        :placeholder="
+                                            $t(
+                                                'role_wizard.mission_placeholder',
+                                            )
+                                        "
                                         class="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-base text-white placeholder-white/10 transition-all focus:border-indigo-500/50 focus:bg-white/[0.07] focus:outline-none"
                                     ></textarea>
                                 </div>
@@ -317,10 +337,10 @@ const saveRole = async () => {
                                     :disabled="!form.name || !form.description"
                                     :loading="analyzing"
                                     @click="analyzeRole"
-                                    icon="mdi-auto-fix"
+                                    :icon="PhMagicWand"
                                     class="!px-12"
                                 >
-                                    Initiate Synthesis
+                                    {{ $t('role_wizard.initiate_synthesis') }}
                                 </StButtonGlass>
                             </div>
                         </div>
@@ -336,28 +356,27 @@ const saveRole = async () => {
                                     <h2
                                         class="text-4xl font-black tracking-tight text-white"
                                     >
-                                        Cube
-                                        <span class="text-indigo-400"
-                                            >Dimensions</span
-                                        >
+                                        {{ $t('role_wizard.cube_dimensions') }}
                                     </h2>
                                     <p
                                         class="text-base font-medium text-white/50"
                                     >
-                                        Neural engine suggested these
-                                        coordinates based on the organizational
-                                        lattice.
+                                        {{ $t('role_wizard.cube_desc') }}
                                     </p>
                                 </div>
                                 <div
                                     class="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2"
                                 >
-                                    <v-icon size="14" color="emerald-400"
-                                        >mdi-robot-check</v-icon
-                                    >
+                                    <Robot
+                                        color="#34d399"
+                                        :size="14"
+                                        weight="duotone"
+                                    />
                                     <span
                                         class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
-                                        >Analysis Complete</span
+                                        >{{
+                                            $t('role_wizard.analysis_complete')
+                                        }}</span
                                     >
                                 </div>
                             </div>
@@ -370,7 +389,9 @@ const saveRole = async () => {
                                     <div class="space-y-6">
                                         <label
                                             class="ml-1 text-[10px] font-black tracking-[0.3em] text-white/30 uppercase"
-                                            >Axis X: Behavioral Archetype</label
+                                            >{{
+                                                $t('role_wizard.axis_x')
+                                            }}</label
                                         >
                                         <div class="grid grid-cols-3 gap-4">
                                             <button
@@ -392,39 +413,63 @@ const saveRole = async () => {
                                                         : 'border-white/5 bg-white/2 hover:bg-white/5'
                                                 "
                                             >
-                                                <v-icon
-                                                    size="32"
-                                                    :color="
+                                                <component
+                                                    :is="
+                                                        arc === 'Strategic'
+                                                            ? Crown
+                                                            : arc === 'Tactical'
+                                                              ? Crosshair
+                                                              : NavigationArrow
+                                                    "
+                                                    :size="32"
+                                                    :weight="
                                                         form.cube
                                                             .x_archetype === arc
-                                                            ? 'indigo-300'
-                                                            : 'white/20'
+                                                            ? 'duotone'
+                                                            : 'regular'
                                                     "
-                                                >
-                                                    {{
-                                                        arc === 'Strategic'
-                                                            ? 'mdi-chess-king'
-                                                            : arc === 'Tactical'
-                                                              ? 'mdi-chess-rook'
-                                                              : 'mdi-chess-pawn'
-                                                    }}
-                                                </v-icon>
+                                                    :class="
+                                                        form.cube
+                                                            .x_archetype === arc
+                                                            ? 'text-indigo-300'
+                                                            : 'text-white/20'
+                                                    "
+                                                />
                                                 <div class="text-center">
                                                     <div
                                                         class="mb-1 text-sm font-black text-white"
                                                     >
-                                                        {{ arc }}
+                                                        {{
+                                                            arc === 'Strategic'
+                                                                ? $t(
+                                                                      'role_wizard.axis_x_strategic',
+                                                                  )
+                                                                : arc ===
+                                                                    'Tactical'
+                                                                  ? $t(
+                                                                        'role_wizard.axis_x_tactical',
+                                                                    )
+                                                                  : $t(
+                                                                        'role_wizard.axis_x_operational',
+                                                                    )
+                                                        }}
                                                     </div>
                                                     <div
                                                         class="text-[9px] font-bold text-white/30 uppercase"
                                                     >
                                                         {{
                                                             arc === 'Strategic'
-                                                                ? 'Horizon 3'
+                                                                ? $t(
+                                                                      'role_wizard.horizon_3',
+                                                                  )
                                                                 : arc ===
                                                                     'Tactical'
-                                                                  ? 'Horizon 2'
-                                                                  : 'Horizon 1'
+                                                                  ? $t(
+                                                                        'role_wizard.horizon_2',
+                                                                    )
+                                                                  : $t(
+                                                                        'role_wizard.horizon_1',
+                                                                    )
                                                         }}
                                                     </div>
                                                 </div>
@@ -439,13 +484,17 @@ const saveRole = async () => {
                                         >
                                             <label
                                                 class="ml-1 text-[10px] font-black tracking-[0.3em] text-white/30 uppercase"
-                                                >Axis Y: Mastery Level</label
+                                                >{{
+                                                    $t('role_wizard.axis_y')
+                                                }}</label
                                             >
                                             <span
                                                 class="text-2xl font-black text-indigo-400"
-                                                >Tier
-                                                {{
-                                                    form.cube.y_mastery_level
+                                                >{{
+                                                    $t('role_wizard.tier', {
+                                                        level: form.cube
+                                                            .y_mastery_level,
+                                                    })
                                                 }}</span
                                             >
                                         </div>
@@ -469,15 +518,20 @@ const saveRole = async () => {
                                     <div class="space-y-4">
                                         <label
                                             class="ml-1 text-[10px] font-black tracking-[0.3em] text-white/30 uppercase"
-                                            >Axis Z: Business Process
-                                            Anchor</label
+                                            >{{
+                                                $t('role_wizard.axis_z')
+                                            }}</label
                                         >
                                         <input
                                             v-model="
                                                 form.cube.z_business_process
                                             "
                                             type="text"
-                                            placeholder="Specify process domain..."
+                                            :placeholder="
+                                                $t(
+                                                    'role_wizard.anchor_placeholder',
+                                                )
+                                            "
                                             class="w-full rounded-2xl border border-white/10 bg-white/2 px-6 py-5 text-base text-white placeholder-white/10 transition-all focus:border-indigo-500/50 focus:outline-none"
                                         />
                                     </div>
@@ -491,13 +545,19 @@ const saveRole = async () => {
                                         <div
                                             class="mb-6 flex items-center gap-3"
                                         >
-                                            <v-icon color="indigo-400" size="18"
-                                                >mdi-head-snowflake-outline</v-icon
-                                            >
+                                            <Brain
+                                                color="#818cf8"
+                                                :size="18"
+                                                weight="duotone"
+                                            />
                                             <h4
                                                 class="text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
                                             >
-                                                Synthesis Rationale
+                                                {{
+                                                    $t(
+                                                        'role_wizard.synthesis_rationale',
+                                                    )
+                                                }}
                                             </h4>
                                         </div>
                                         <p
@@ -513,15 +573,19 @@ const saveRole = async () => {
                                         <div
                                             class="mb-6 flex items-center gap-3"
                                         >
-                                            <v-icon
-                                                color="emerald-400"
-                                                size="18"
-                                                >mdi-auto-fix</v-icon
-                                            >
+                                            <PhMagicWand
+                                                color="#34d399"
+                                                :size="18"
+                                                weight="duotone"
+                                            />
                                             <h4
                                                 class="text-[10px] font-black tracking-[0.2em] text-emerald-400 uppercase"
                                             >
-                                                Optimization Tip
+                                                {{
+                                                    $t(
+                                                        'role_wizard.optimization_tip',
+                                                    )
+                                                }}
                                             </h4>
                                         </div>
                                         <div
@@ -536,16 +600,20 @@ const saveRole = async () => {
                             <div class="flex justify-end gap-4 pt-8">
                                 <StButtonGlass
                                     variant="ghost"
-                                    icon="mdi-arrow-left"
+                                    :icon="PhArrowLeft"
                                     @click="currentStep--"
-                                    >Back Stage</StButtonGlass
+                                    >{{
+                                        $t('role_wizard.back_stage')
+                                    }}</StButtonGlass
                                 >
                                 <StButtonGlass
                                     variant="primary"
-                                    icon="mdi-check"
+                                    :icon="PhCheck"
                                     @click="currentStep++"
                                     class="!px-12"
-                                    >Confirm Architecture</StButtonGlass
+                                    >{{
+                                        $t('role_wizard.confirm_arch')
+                                    }}</StButtonGlass
                                 >
                             </div>
                         </div>
@@ -560,14 +628,10 @@ const saveRole = async () => {
                                 <h2
                                     class="text-4xl font-black tracking-tight text-white"
                                 >
-                                    Capacity
-                                    <span class="text-purple-400"
-                                        >Blueprint</span
-                                    >
+                                    {{ $t('role_wizard.capacity_blueprint') }}
                                 </h2>
                                 <p class="text-base font-medium text-white/50">
-                                    Define the core strategic assets required
-                                    for this architectural node.
+                                    {{ $t('role_wizard.capacity_desc') }}
                                 </p>
                             </div>
 
@@ -581,22 +645,34 @@ const saveRole = async () => {
                                             <th
                                                 class="px-8 py-6 !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
                                             >
-                                                Strategic Capacity
+                                                {{
+                                                    $t(
+                                                        'role_wizard.strategic_capacity',
+                                                    )
+                                                }}
                                             </th>
                                             <th
                                                 class="px-4 py-6 text-center !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
                                             >
-                                                Mastery Req.
+                                                {{
+                                                    $t(
+                                                        'role_wizard.mastery_req',
+                                                    )
+                                                }}
                                             </th>
                                             <th
                                                 class="px-4 py-6 !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
                                             >
-                                                AI Rationale
+                                                {{
+                                                    $t(
+                                                        'role_wizard.ai_rationale',
+                                                    )
+                                                }}
                                             </th>
                                             <th
                                                 class="px-8 py-6 text-right !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
                                             >
-                                                Ops
+                                                {{ $t('role_wizard.ops') }}
                                             </th>
                                         </tr>
                                     </thead>
@@ -637,7 +713,7 @@ const saveRole = async () => {
                                                     variant="ghost"
                                                     circle
                                                     size="sm"
-                                                    icon="mdi-delete-outline"
+                                                    :icon="PhTrash"
                                                     class="!text-rose-500/40 hover:!text-rose-500"
                                                     @click="removeSkill(idx)"
                                                 />
@@ -651,9 +727,11 @@ const saveRole = async () => {
                                     <StButtonGlass
                                         variant="ghost"
                                         size="sm"
-                                        icon="mdi-plus"
+                                        :icon="PhPlus"
                                         @click="addSkill"
-                                        >Add Manual Definition</StButtonGlass
+                                        >{{
+                                            $t('role_wizard.add_manual')
+                                        }}</StButtonGlass
                                     >
                                 </div>
                             </StCardGlass>
@@ -661,17 +739,21 @@ const saveRole = async () => {
                             <div class="flex justify-end gap-4 pt-12">
                                 <StButtonGlass
                                     variant="ghost"
-                                    icon="mdi-arrow-left"
+                                    :icon="PhArrowLeft"
                                     @click="currentStep--"
-                                    >Adjustment Phase</StButtonGlass
+                                    >{{
+                                        $t('role_wizard.adjustment_phase')
+                                    }}</StButtonGlass
                                 >
                                 <StButtonGlass
                                     variant="secondary"
                                     :loading="saving"
-                                    icon="mdi-check-decagram"
+                                    :icon="PhSealCheck"
                                     @click="saveRole"
                                     class="!px-12"
-                                    >Deploy To Architecture</StButtonGlass
+                                    >{{
+                                        $t('role_wizard.deploy_arch')
+                                    }}</StButtonGlass
                                 >
                             </div>
                         </div>

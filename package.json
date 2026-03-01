@@ -60,6 +60,7 @@
         "@kyvg/vue3-notification": "^3.4.2",
         "@mdi/font": "^7.4.47",
         "@mdi/js": "^7.4.47",
+        "@phosphor-icons/vue": "^2.2.1",
         "@vueuse/core": "^12.8.2",
         "apexcharts": "^5.3.6",
         "chart.js": "^4.5.1",
