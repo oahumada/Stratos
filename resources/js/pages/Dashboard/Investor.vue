@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import StCardGlass from '@/components/StCardGlass.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
@@ -185,7 +186,7 @@ defineOptions({ layout: AppLayout });
         <v-row v-if="!loading && dashboardData" class="mb-8">
             <!-- ROI Card -->
             <v-col cols="12" sm="6" md="3">
-                <div class="glass-card roi-highlight">
+                <StCardGlass class="pa-6" :no-hover="false">
                     <div class="card-icon">
                         <v-icon color="emerald-accent-3">mdi-cash-check</v-icon>
                     </div>
@@ -202,12 +203,12 @@ defineOptions({ layout: AppLayout });
                             >Estimated Savings in Hiring/Upskilling</span
                         >
                     </div>
-                </div>
+                </StCardGlass>
             </v-col>
 
             <!-- Readiness Card -->
             <v-col cols="12" sm="6" md="3">
-                <div class="glass-card">
+                <StCardGlass class="pa-6">
                     <div class="card-icon">
                         <v-icon color="indigo-accent-2">mdi-shield-star</v-icon>
                     </div>
@@ -227,12 +228,12 @@ defineOptions({ layout: AppLayout });
                             ></v-progress-linear>
                         </div>
                     </div>
-                </div>
+                </StCardGlass>
             </v-col>
 
             <!-- Critical Risk Card -->
             <v-col cols="12" sm="6" md="3">
-                <div class="glass-card">
+                <StCardGlass class="pa-6">
                     <div class="card-icon">
                         <v-icon color="rose-accent-2"
                             >mdi-alert-decagram</v-icon
@@ -247,12 +248,12 @@ defineOptions({ layout: AppLayout });
                             >Critical Skill Gaps in Core Roles</span
                         >
                     </div>
-                </div>
+                </StCardGlass>
             </v-col>
 
             <!-- AI Augmentation Card -->
             <v-col cols="12" sm="6" md="3">
-                <div class="glass-card">
+                <StCardGlass class="pa-6">
                     <div class="card-icon">
                         <v-icon color="cyan-accent-2"
                             >mdi-robot-industrial</v-icon
@@ -267,7 +268,7 @@ defineOptions({ layout: AppLayout });
                             >Efficiency gain via Synthetic Tasks</span
                         >
                     </div>
-                </div>
+                </StCardGlass>
             </v-col>
         </v-row>
 
@@ -285,29 +286,26 @@ defineOptions({ layout: AppLayout });
         <v-row v-if="!loading && dashboardData">
             <!-- Left Chart: Dept Readiness -->
             <v-col cols="12" md="8">
-                <div class="glass-card chart-container p-6">
+                <StCardGlass class="pa-6" :no-hover="true">
                     <div class="d-flex justify-space-between align-center mb-6">
                         <h3 class="text-h6 font-weight-bold text-white">
                             Organizational Readiness by Unit
                         </h3>
-                        <v-chip
-                            size="small"
-                            variant="tonal"
-                            color="indigo-accent-2"
-                            >Real-time Data</v-chip
-                        >
+                        <div class="st-badge-live bg-indigo-500 text-white">
+                            Live Data
+                        </div>
                     </div>
                     <VueApexCharts
                         height="350"
                         :options="departmentChartOptions"
                         :series="departmentSeries"
                     />
-                </div>
+                </StCardGlass>
             </v-col>
 
             <!-- Right Chart: Skill Distribution -->
             <v-col cols="12" md="4">
-                <div class="glass-card chart-container p-6">
+                <StCardGlass class="pa-6" :no-hover="true">
                     <h3 class="text-h6 font-weight-bold mb-6 text-white">
                         Skill Inventory Health
                     </h3>
@@ -316,14 +314,17 @@ defineOptions({ layout: AppLayout });
                         :options="skillDistributionOptions"
                         :series="skillSeries"
                     />
-                </div>
+                </StCardGlass>
             </v-col>
         </v-row>
 
         <!-- Footer / Forecast Section -->
         <v-row v-if="!loading && dashboardData" class="mt-8">
             <v-col cols="12">
-                <div class="glass-card forecast-banner p-8">
+                <StCardGlass
+                    class="pa-8 border-indigo-500/20 bg-indigo-900/10"
+                    :no-hover="true"
+                >
                     <v-row align="center">
                         <v-col cols="12" md="7">
                             <h2
@@ -360,7 +361,7 @@ defineOptions({ layout: AppLayout });
                             >
                         </v-col>
                     </v-row>
-                </div>
+                </StCardGlass>
             </v-col>
         </v-row>
     </div>
@@ -368,37 +369,7 @@ defineOptions({ layout: AppLayout });
 
 <style scoped>
 .investor-container {
-    min-height: 100vh;
-    padding: 2rem;
-    background: radial-gradient(circle at top right, #1e1b4b, #0f172a 60%);
-    color: #f8fafc;
-}
-
-.badge {
-    background: #ef4444;
-    color: white;
-    font-size: 0.7rem;
-    padding: 0.1rem 0.5rem;
-    border-radius: 99px;
-    vertical-align: middle;
-    text-transform: uppercase;
-    letter-spacing: 0.05rem;
-}
-
-.glass-card {
-    background: rgba(30, 41, 59, 0.5);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 1.5rem;
-    padding: 1.5rem;
-    height: 100%;
-    transition: all 0.3s ease;
-}
-
-.glass-card:hover {
-    background: rgba(30, 41, 59, 0.7);
-    border-color: rgba(99, 102, 241, 0.3);
-    transform: translateY(-4px);
+    padding: 1rem;
 }
 
 .card-icon {
@@ -433,39 +404,14 @@ defineOptions({ layout: AppLayout });
     color: #64748b;
 }
 
-.roi-highlight {
-    background: linear-gradient(
-        135deg,
-        rgba(30, 41, 59, 1),
-        rgba(6, 78, 59, 0.3)
-    );
-}
-
-.chart-container {
-    background: rgba(15, 23, 42, 0.8);
-}
-
-.forecast-banner {
-    background: linear-gradient(
-        90deg,
-        rgba(30, 41, 59, 0.8),
-        rgba(67, 56, 202, 0.2)
-    );
-    border-left: 6px solid #6366f1;
-}
-
 .glass-card-skeleton {
     background: rgba(30, 41, 59, 0.3) !important;
     border-radius: 1.5rem !important;
 }
 
-/* Transitions */
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.5s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
+@media (max-width: 960px) {
+    .investor-container {
+        padding: 1rem;
+    }
 }
 </style>

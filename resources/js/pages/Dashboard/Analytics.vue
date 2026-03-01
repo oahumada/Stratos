@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import PendingFeedback from '@/components/Assessments/PendingFeedback.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { computed, ref } from 'vue';
 import { useTheme as useVuetifyTheme } from 'vuetify';
 
@@ -208,86 +209,93 @@ const getTrendColor = (trend: number): string => {
     return 'grey';
 };
 
-const headerGradient = computed(() => {
-    const theme = vuetifyTheme.global.current.value;
-    return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
-});
-
 // mark intentionally-unused bindings to satisfy linter during refactor
 void _loading.value;
 void _getStatusColor;
 </script>
 
 <template>
-    <div class="pa-6">
+    <div class="pa-8">
         <PendingFeedback />
-        <!-- Header -->
-        <div class="mb-6">
+        <!-- Executive Header -->
+        <header class="mb-10">
             <div
-                class="d-flex align-center justify-space-between pa-6"
-                :style="{ background: headerGradient }"
-                style="border-radius: 12px"
+                class="d-flex align-center justify-space-between flex-wrap gap-4"
             >
                 <div>
-                    <div class="text-overline text-uppercase text-white">
-                        Analytics
+                    <div class="d-flex align-center mb-2 gap-2">
+                        <v-icon color="indigo-accent-2" size="small"
+                            >mdi-chart-box-outline</v-icon
+                        >
+                        <span
+                            class="text-overline font-weight-bold text-slate-400"
+                            >Intelligence Hub</span
+                        >
                     </div>
-                    <h1
-                        class="text-h4 font-weight-bold mb-1"
-                        style="color: white"
-                    >
-                        Dashboard de Talento
+                    <h1 class="text-h3 font-weight-black mb-2 text-white">
+                        Talent
+                        <span class="text-indigo-accent-2">Analytics</span>
                     </h1>
-                    <p
-                        class="text-body-2"
-                        style="color: rgba(255, 255, 255, 0.85)"
-                    >
-                        Visión integral de métricas de talento, marketplace y
-                        reclutamiento
+                    <p class="text-subtitle-1 text-slate-400">
+                        Strategic oversight of organizational health and
+                        workforce potential
                     </p>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- Period Selector -->
-        <div class="mb-6">
-            <v-card elevation="0" variant="outlined">
-                <v-card-text class="pa-4">
-                    <div class="d-flex align-center justify-space-between">
-                        <span class="text-body-2 font-weight-medium"
-                            >Período:</span
+        <!-- Period Selector Glass -->
+        <StCardGlass class="mb-8" :no-hover="true">
+            <div
+                class="d-flex align-center justify-space-between flex-wrap gap-4"
+            >
+                <div class="d-flex align-center gap-4">
+                    <span
+                        class="text-subtitle-2 font-weight-bold text-slate-300"
+                        >Analysis Period:</span
+                    >
+                    <v-chip-group
+                        v-model="selectedPeriod"
+                        selected-class="text-indigo-accent-2 bg-indigo-500/10"
+                        mandatory
+                    >
+                        <v-chip value="week" variant="text" class="text-none"
+                            >Week</v-chip
                         >
-                        <v-chip-group
-                            v-model="selectedPeriod"
-                            selected-class="text-primary"
+                        <v-chip value="month" variant="text" class="text-none"
+                            >Month</v-chip
                         >
-                            <v-chip value="week" variant="outlined" filter
-                                >Semana</v-chip
-                            >
-                            <v-chip value="month" variant="outlined" filter
-                                >Mes</v-chip
-                            >
-                            <v-chip value="quarter" variant="outlined" filter
-                                >Trimestre</v-chip
-                            >
-                            <v-chip value="year" variant="outlined" filter
-                                >Año</v-chip
-                            >
-                        </v-chip-group>
-                        <div class="text-caption text-medium-emphasis ml-4">
-                            ℹ️ Datos actualizados: Hoy a las 14:32
-                        </div>
-                    </div>
-                </v-card-text>
-            </v-card>
-        </div>
+                        <v-chip value="quarter" variant="text" class="text-none"
+                            >Quarter</v-chip
+                        >
+                        <v-chip value="year" variant="text" class="text-none"
+                            >Year</v-chip
+                        >
+                    </v-chip-group>
+                </div>
+                <div
+                    class="d-flex align-center text-caption rounded-pill gap-2 bg-black/20 px-3 py-1 text-slate-500"
+                >
+                    <v-icon size="12">mdi-refresh</v-icon>
+                    Last update: Today, 14:32
+                </div>
+            </div>
+        </StCardGlass>
 
         <!-- Key Metrics Row -->
-        <div class="mb-6">
-            <h2 class="text-h6 font-weight-bold mb-4">
-                Indicadores Clave (KPIs)
-            </h2>
-            <v-row class="gap-4">
+        <div class="mb-10">
+            <div class="d-flex align-center justify-space-between mb-6">
+                <h2 class="text-h6 font-weight-bold text-slate-200">
+                    Executive Outlook (KPIs)
+                </h2>
+                <v-btn
+                    variant="text"
+                    density="comfortable"
+                    icon="mdi-dots-horizontal"
+                    color="slate-400"
+                ></v-btn>
+            </div>
+            <v-row class="gap-0">
                 <v-col
                     v-for="metric in keyMetrics"
                     :key="metric.title"
@@ -295,151 +303,151 @@ void _getStatusColor;
                     sm="6"
                     md="3"
                 >
-                    <v-card elevation="0" variant="outlined" class="h-100">
-                        <v-card-text class="pa-6">
-                            <div
-                                class="d-flex align-center justify-space-between mb-4"
+                    <StCardGlass class="pa-6 h-100">
+                        <div
+                            class="d-flex align-center justify-space-between mb-4"
+                        >
+                            <v-avatar
+                                :color="`${metric.color}-lighten-4`"
+                                size="44"
+                                class="rounded-lg"
+                                variant="tonal"
                             >
-                                <v-avatar :color="metric.color" size="40">
-                                    <v-icon
-                                        :color="
-                                            metric.color === 'error'
-                                                ? 'white'
-                                                : 'white'
-                                        "
-                                        >{{ metric.icon }}</v-icon
-                                    >
-                                </v-avatar>
-                                <v-chip
-                                    size="small"
-                                    :color="metric.color"
-                                    variant="tonal"
-                                >
-                                    {{
-                                        metric.color === 'primary'
-                                            ? 'Info'
-                                            : metric.color
-                                    }}
-                                </v-chip>
-                            </div>
-                            <div class="text-h5 font-weight-bold mb-1">
-                                {{ metric.value }}
-                            </div>
-                            <div class="text-caption text-medium-emphasis">
-                                {{ metric.title }}
-                            </div>
-                            <div class="text-body-2 text-grey mt-2">
-                                {{ metric.subtitle }}
-                            </div>
-                        </v-card-text>
-                    </v-card>
+                                <v-icon :color="metric.color" size="24">{{
+                                    metric.icon
+                                }}</v-icon>
+                            </v-avatar>
+                            <div class="st-badge-live">Real-time</div>
+                        </div>
+                        <div class="text-h4 font-weight-black mb-1 text-white">
+                            {{ metric.value }}
+                        </div>
+                        <div
+                            class="text-overline font-weight-bold mb-2 text-slate-500"
+                        >
+                            {{ metric.title }}
+                        </div>
+                        <div class="text-body-2 text-slate-400">
+                            {{ metric.subtitle }}
+                        </div>
+                    </StCardGlass>
                 </v-col>
             </v-row>
         </div>
 
         <!-- Talent Readiness + Candidate Distribution Row -->
-        <v-row class="mb-6 gap-4">
+        <v-row class="mb-10">
             <!-- Talent Readiness -->
             <v-col cols="12" md="6">
-                <h2 class="text-h6 font-weight-bold mb-4">
-                    Estado del Talento
+                <h2 class="text-h6 font-weight-bold mb-4 text-slate-200">
+                    Workforce Ready Index
                 </h2>
-                <v-card elevation="0" variant="outlined">
-                    <v-card-text class="pa-6">
-                        <v-list class="pa-0">
-                            <template
-                                v-for="(item, index) in talentReadiness"
-                                :key="item.category"
-                            >
-                                <v-list-item class="px-0 py-3">
-                                    <template #prepend>
-                                        <v-avatar
-                                            :color="item.color"
-                                            size="36"
-                                            class="mr-3"
-                                        >
-                                            <v-icon size="20" color="white">{{
-                                                item.icon
-                                            }}</v-icon>
-                                        </v-avatar>
-                                    </template>
-                                    <v-list-item-title
-                                        class="font-weight-medium"
-                                        >{{ item.category }}</v-list-item-title
+                <StCardGlass class="pa-6" :no-hover="true">
+                    <v-list class="pa-0 bg-transparent" dark>
+                        <template
+                            v-for="(item, index) in talentReadiness"
+                            :key="item.category"
+                        >
+                            <v-list-item class="px-0 py-4">
+                                <template #prepend>
+                                    <v-avatar
+                                        :color="`${item.color}-lighten-4`"
+                                        size="40"
+                                        class="mr-4 rounded-lg"
+                                        variant="tonal"
                                     >
-                                    <template #append>
-                                        <div class="text-h6 font-weight-bold">
-                                            {{ item.value }}
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-divider
-                                    v-if="index < talentReadiness.length - 1"
-                                    class="my-2"
-                                />
-                            </template>
-                        </v-list>
-                    </v-card-text>
-                </v-card>
+                                        <v-icon size="20" :color="item.color">{{
+                                            item.icon
+                                        }}</v-icon>
+                                    </v-avatar>
+                                </template>
+                                <v-list-item-title
+                                    class="font-weight-bold text-slate-200"
+                                >
+                                    {{ item.category }}
+                                </v-list-item-title>
+                                <template #append>
+                                    <div
+                                        class="text-h5 font-weight-black text-white"
+                                    >
+                                        {{ item.value }}
+                                    </div>
+                                </template>
+                            </v-list-item>
+                            <v-divider
+                                v-if="index < talentReadiness.length - 1"
+                                class="border-white/5"
+                            />
+                        </template>
+                    </v-list>
+                </StCardGlass>
             </v-col>
 
             <!-- Candidate Distribution -->
             <v-col cols="12" md="6">
-                <h2 class="text-h6 font-weight-bold mb-4">
-                    Distribución de Candidatos Marketplace
+                <h2 class="text-h6 font-weight-bold mb-4 text-slate-200">
+                    Skill Quality Spectrum
                 </h2>
-                <v-card elevation="0" variant="outlined">
-                    <v-card-text class="pa-6">
-                        <v-list class="pa-0">
-                            <template
-                                v-for="(item, index) in candidateDistribution"
-                                :key="item.label"
-                            >
-                                <v-list-item class="px-0 py-4">
-                                    <template #prepend>
-                                        <div
-                                            style="min-width: 40px"
-                                            class="mr-3"
-                                        >
-                                            <v-chip
-                                                size="small"
-                                                :color="item.color"
-                                                variant="flat"
-                                                text-color="white"
-                                            >
-                                                {{ item.percentage }}%
-                                            </v-chip>
-                                        </div>
-                                    </template>
-                                    <v-list-item-title
-                                        class="font-weight-medium"
-                                        >{{ item.label }}</v-list-item-title
+                <StCardGlass class="pa-6" :no-hover="true">
+                    <v-list class="pa-0 bg-transparent">
+                        <template
+                            v-for="(item, index) in candidateDistribution"
+                            :key="item.label"
+                        >
+                            <v-list-item class="px-0 py-4">
+                                <template #prepend>
+                                    <div
+                                        style="min-width: 60px"
+                                        class="mr-4 text-center"
                                     >
-                                    <template #append>
-                                        <div class="text-h6 font-weight-bold">
-                                            {{ item.value }}
+                                        <div
+                                            class="text-h6 font-weight-black text-white"
+                                        >
+                                            {{ item.percentage }}%
                                         </div>
-                                    </template>
-                                </v-list-item>
-                                <v-divider
-                                    v-if="
-                                        index < candidateDistribution.length - 1
-                                    "
-                                    class="my-2"
-                                />
-                            </template>
-                        </v-list>
-                    </v-card-text>
-                </v-card>
+                                        <div
+                                            class="text-tiny font-weight-bold text-slate-500 uppercase"
+                                        >
+                                            Match
+                                        </div>
+                                    </div>
+                                </template>
+                                <v-list-item-title
+                                    class="font-weight-bold text-slate-200"
+                                >
+                                    {{ item.label }}
+                                </v-list-item-title>
+                                <template #append>
+                                    <div class="d-flex align-center gap-2">
+                                        <span
+                                            class="text-h5 font-weight-black text-white"
+                                            >{{ item.value }}</span
+                                        >
+                                        <v-icon size="small" :color="item.color"
+                                            >mdi-chart-line</v-icon
+                                        >
+                                    </div>
+                                </template>
+                            </v-list-item>
+                            <v-divider
+                                v-if="index < candidateDistribution.length - 1"
+                                class="border-white/5"
+                            />
+                        </template>
+                    </v-list>
+                </StCardGlass>
             </v-col>
         </v-row>
 
         <!-- Risk Indicators -->
-        <div class="mb-6">
-            <h2 class="text-h6 font-weight-bold mb-4">
-                Indicadores de Riesgo 🚨
+        <div class="mb-10">
+            <h2
+                class="text-h6 font-weight-bold flex-center mb-6 gap-2 text-slate-200"
+            >
+                <v-icon color="rose-accent-4">mdi-shield-alert-outline</v-icon>
+                Risk Analysis & Vulnerabilities
             </h2>
-            <v-row class="gap-4">
+            <v-row class="gap-0">
                 <v-col
                     v-for="risk in riskIndicators"
                     :key="risk.title"
@@ -447,281 +455,370 @@ void _getStatusColor;
                     sm="6"
                     md="3"
                 >
-                    <v-card
-                        elevation="0"
-                        variant="outlined"
+                    <StCardGlass
+                        class="pa-6 h-100"
                         :style="{
-                            borderTopColor: `var(--v-${risk.color})`,
-                            borderTopWidth: '4px',
+                            borderTopColor: `rgba(var(--v-theme-${risk.color}), 0.3) !important`,
+                            borderTopWidth: '3px !important',
                         }"
                     >
-                        <v-card-text class="pa-6">
-                            <div
-                                class="d-flex align-center justify-space-between mb-3"
+                        <div
+                            class="d-flex align-center justify-space-between mb-4"
+                        >
+                            <v-avatar
+                                :color="`${risk.color}`"
+                                size="36"
+                                class="rounded-lg"
+                                variant="tonal"
                             >
-                                <v-avatar :color="risk.color" size="36">
-                                    <v-icon size="20" color="white">{{
-                                        risk.icon
-                                    }}</v-icon>
-                                </v-avatar>
-                                <v-icon
-                                    :color="getTrendColor(risk.trend)"
-                                    size="20"
-                                    >{{ getTrendIcon(risk.trend) }}</v-icon
-                                >
-                            </div>
-                            <div class="text-h5 font-weight-bold mb-1">
-                                {{ risk.value }}
-                            </div>
-                            <div class="text-caption text-medium-emphasis">
-                                {{ risk.title }}
-                            </div>
-                            <div class="text-body-2 text-grey mt-2">
-                                {{ risk.subtitle }}
-                            </div>
-                            <div
-                                v-if="risk.trend !== 0"
-                                class="text-caption mt-2"
-                                :class="`text-${getTrendColor(risk.trend)}`"
+                                <v-icon size="20">{{ risk.icon }}</v-icon>
+                            </v-avatar>
+                            <v-icon
+                                :color="getTrendColor(risk.trend)"
+                                size="20"
+                                >{{ getTrendIcon(risk.trend) }}</v-icon
                             >
-                                {{ risk.trend > 0 ? '↑' : '↓' }}
-                                {{ Math.abs(risk.trend) }} vs período anterior
-                            </div>
-                        </v-card-text>
-                    </v-card>
+                        </div>
+                        <div
+                            class="text-h4 font-weight-black text-rose-accent-1 mb-1"
+                        >
+                            {{ risk.value }}
+                        </div>
+                        <div
+                            class="text-overline font-weight-bold mb-2 text-slate-500"
+                        >
+                            {{ risk.title }}
+                        </div>
+                        <div class="text-body-2 text-slate-400">
+                            {{ risk.subtitle }}
+                        </div>
+                    </StCardGlass>
                 </v-col>
             </v-row>
         </div>
 
         <!-- Development & Skills Section -->
-        <v-row class="mb-6 gap-4">
+        <v-row class="mb-10">
             <v-col cols="12" md="6">
-                <h2 class="text-h6 font-weight-bold mb-4">
-                    Desarrollo & Capacitación
+                <h2 class="text-h6 font-weight-bold mb-4 text-slate-200">
+                    Growth & Capabilities
                 </h2>
-                <v-card elevation="0" variant="outlined">
-                    <v-card-text class="pa-6">
-                        <div class="mb-6">
-                            <div
-                                class="d-flex justify-space-between align-center mb-2"
+                <StCardGlass class="pa-8" :no-hover="true">
+                    <div class="mb-8">
+                        <div
+                            class="d-flex justify-space-between align-center mb-3"
+                        >
+                            <span
+                                class="text-subtitle-1 font-weight-bold text-slate-300"
+                                >Active Learning Nodes</span
                             >
-                                <span class="text-body-2 font-weight-medium"
-                                    >Planes de Desarrollo Activos</span
-                                >
-                                <span class="text-h6 font-weight-bold">{{
+                            <span
+                                class="text-h5 font-weight-black text-emerald-accent-2"
+                            >
+                                {{
                                     dashboardData.developmentMetrics
                                         .developmentPlansActive
-                                }}</span>
-                            </div>
-                            <v-progress-linear
-                                :value="
-                                    (dashboardData.developmentMetrics
-                                        .developmentPlansActive /
-                                        20) *
-                                    100
-                                "
-                                color="success"
-                                height="8"
-                            />
+                                }}
+                            </span>
                         </div>
-                        <v-divider class="my-4" />
-                        <div class="mb-6">
-                            <div
-                                class="d-flex justify-space-between align-center mb-2"
+                        <v-progress-linear
+                            model-value="65"
+                            color="emerald-accent-2"
+                            height="6"
+                            rounded
+                            class="mb-1 opacity-60"
+                        />
+                    </div>
+                    <v-divider class="mb-8 border-white/5" />
+                    <div class="mb-8">
+                        <div
+                            class="d-flex justify-space-between align-center mb-3"
+                        >
+                            <span
+                                class="text-subtitle-1 font-weight-bold text-slate-300"
+                                >Mastery Certifications</span
                             >
-                                <span class="text-body-2 font-weight-medium"
-                                    >Cursos Completados</span
-                                >
-                                <span class="text-h6 font-weight-bold">{{
+                            <span
+                                class="text-h5 font-weight-black text-cyan-accent-2"
+                            >
+                                {{
                                     dashboardData.developmentMetrics
                                         .completedCourses
-                                }}</span>
-                            </div>
-                            <v-progress-linear
-                                :value="
-                                    (dashboardData.developmentMetrics
-                                        .completedCourses /
-                                        30) *
-                                    100
-                                "
-                                color="info"
-                                height="8"
-                            />
+                                }}
+                            </span>
                         </div>
-                        <v-divider class="my-4" />
-                        <div>
-                            <div
-                                class="d-flex justify-space-between align-center mb-2"
+                        <v-progress-linear
+                            model-value="82"
+                            color="cyan-accent-2"
+                            height="6"
+                            rounded
+                            class="mb-1 opacity-60"
+                        />
+                    </div>
+                    <v-divider class="mb-8 border-white/5" />
+                    <div>
+                        <div
+                            class="d-flex justify-space-between align-center mb-3"
+                        >
+                            <span
+                                class="text-subtitle-1 font-weight-bold text-slate-300"
+                                >Skill Map Density</span
                             >
-                                <span class="text-body-2 font-weight-medium"
-                                    >Cobertura de Skills</span
-                                >
-                                <span class="text-h6 font-weight-bold"
-                                    >{{
-                                        dashboardData.developmentMetrics
-                                            .skillsCovered
-                                    }}
-                                    skills</span
-                                >
-                            </div>
-                            <v-progress-linear
-                                :value="
-                                    (dashboardData.developmentMetrics
-                                        .skillsCovered /
-                                        200) *
-                                    100
-                                "
-                                color="warning"
-                                height="8"
-                            />
+                            <span
+                                class="text-h5 font-weight-black text-indigo-accent-2"
+                            >
+                                {{
+                                    dashboardData.developmentMetrics
+                                        .skillsCovered
+                                }}
+                                Units
+                            </span>
                         </div>
-                    </v-card-text>
-                </v-card>
+                        <v-progress-linear
+                            model-value="45"
+                            color="indigo-accent-2"
+                            height="6"
+                            rounded
+                            class="mb-1 opacity-60"
+                        />
+                    </div>
+                </StCardGlass>
             </v-col>
 
             <v-col cols="12" md="6">
-                <h2 class="text-h6 font-weight-bold mb-4">
-                    Métricas de Reclutamiento
+                <h2 class="text-h6 font-weight-bold mb-4 text-slate-200">
+                    Acquisition Pipeline
                 </h2>
-                <v-card elevation="0" variant="outlined">
-                    <v-card-text class="pa-6">
-                        <v-list class="pa-0">
-                            <v-list-item class="px-0 py-3">
-                                <v-list-item-title class="text-body-2"
-                                    >Tiempo Promedio de
-                                    Contratación</v-list-item-title
+                <StCardGlass class="pa-4" :no-hover="true">
+                    <v-list class="pa-0 bg-transparent">
+                        <v-list-item class="border-b border-white/5 px-3 py-4">
+                            <v-list-item-title
+                                class="font-weight-bold text-slate-300"
+                                >Average Time to Fill</v-list-item-title
+                            >
+                            <template #append>
+                                <div
+                                    class="st-badge-live bg-indigo-500/10 text-indigo-300"
                                 >
-                                <template #append>
-                                    <span class="font-weight-bold"
-                                        >{{
-                                            dashboardData.recruitmentMetrics
-                                                .averageTimeToHire
-                                        }}
-                                        días</span
-                                    >
-                                </template>
-                            </v-list-item>
-                            <v-divider class="my-2" />
-                            <v-list-item class="px-0 py-3">
-                                <v-list-item-title class="text-body-2"
-                                    >Contrataciones Internas</v-list-item-title
-                                >
-                                <template #append>
-                                    <span class="font-weight-bold">{{
+                                    {{
+                                        dashboardData.recruitmentMetrics
+                                            .averageTimeToHire
+                                    }}
+                                    Days
+                                </div>
+                            </template>
+                        </v-list-item>
+                        <v-list-item class="border-b border-white/5 px-3 py-4">
+                            <v-list-item-title
+                                class="font-weight-bold text-slate-300"
+                                >Immersive Placements</v-list-item-title
+                            >
+                            <template #append>
+                                <span
+                                    class="text-h6 font-weight-black text-white"
+                                    >{{
                                         dashboardData.recruitmentMetrics
                                             .internalPromotions
-                                    }}</span>
-                                </template>
-                            </v-list-item>
-                            <v-divider class="my-2" />
-                            <v-list-item class="px-0 py-3">
-                                <v-list-item-title class="text-body-2"
-                                    >Contrataciones Externas</v-list-item-title
+                                    }}</span
                                 >
-                                <template #append>
-                                    <span class="font-weight-bold">{{
+                            </template>
+                        </v-list-item>
+                        <v-list-item class="border-b border-white/5 px-3 py-4">
+                            <v-list-item-title
+                                class="font-weight-bold text-slate-300"
+                                >External Acquisitions</v-list-item-title
+                            >
+                            <template #append>
+                                <span
+                                    class="text-h6 font-weight-black text-white"
+                                    >{{
                                         dashboardData.recruitmentMetrics
                                             .externalHires
-                                    }}</span>
-                                </template>
-                            </v-list-item>
-                            <v-divider class="my-2" />
-                            <v-list-item class="px-0 py-3">
-                                <v-list-item-title class="text-body-2"
-                                    >Nuevos en Últimos 30
-                                    Días</v-list-item-title
+                                    }}</span
                                 >
-                                <template #append>
-                                    <v-chip
+                            </template>
+                        </v-list-item>
+                        <v-list-item class="px-3 py-4">
+                            <v-list-item-title
+                                class="font-weight-bold text-slate-300"
+                                >Velocity (Last 30d)</v-list-item-title
+                            >
+                            <template #append>
+                                <div class="d-flex align-center gap-2">
+                                    <v-icon
+                                        color="emerald-accent-2"
                                         size="small"
-                                        color="success"
-                                        variant="flat"
-                                        text-color="white"
+                                        >mdi-trending-up</v-icon
                                     >
-                                        +{{
+                                    <span
+                                        class="text-h5 font-weight-black text-emerald-accent-2"
+                                        >+{{
                                             dashboardData.talentMetrics
                                                 .newHiresLast30Days
-                                        }}
-                                    </v-chip>
-                                </template>
-                            </v-list-item>
-                        </v-list>
-                    </v-card-text>
-                </v-card>
+                                        }}</span
+                                    >
+                                </div>
+                            </template>
+                        </v-list-item>
+                    </v-list>
+                </StCardGlass>
             </v-col>
         </v-row>
 
         <!-- Alerts & Recommendations -->
-        <div class="mb-6">
-            <h2 class="text-h6 font-weight-bold mb-4">
-                Recomendaciones & Alertas
+        <div class="mb-10">
+            <h2
+                class="text-h6 font-weight-bold flex-center mb-6 gap-2 text-slate-200"
+            >
+                <v-icon color="indigo-accent-2">mdi-lighthouse</v-icon>
+                AI Insights & Directives
             </h2>
-            <v-alert type="error" variant="tonal" class="mb-3" prominent>
-                <template #prepend>
-                    <v-icon>mdi-alert-circle</v-icon>
-                </template>
-                <div class="font-weight-bold">
-                    {{ dashboardData.riskMetrics.talentAtRisk }} Empleados en
-                    Riesgo
+            <StCardGlass
+                class="pa-0 mb-4 overflow-hidden"
+                :no-hover="true"
+                style="border-left: 4px solid #f43f5e !important"
+            >
+                <div class="pa-6 d-flex align-start gap-4">
+                    <v-avatar
+                        color="rose-accent-4"
+                        rounded="lg"
+                        size="44"
+                        variant="tonal"
+                    >
+                        <v-icon color="rose-accent-2"
+                            >mdi-alert-decagram</v-icon
+                        >
+                    </v-avatar>
+                    <div>
+                        <div
+                            class="text-h6 font-weight-black text-rose-accent-2 mb-1"
+                        >
+                            Critical Talent Attrition Risk
+                        </div>
+                        <div class="text-body-1 text-slate-300">
+                            <strong
+                                >{{
+                                    dashboardData.riskMetrics.talentAtRisk
+                                }}
+                                key employees</strong
+                            >
+                            are showing high attrition probability. Immediate
+                            retention strategy engagement is advised for these
+                            critical nodes.
+                        </div>
+                    </div>
                 </div>
-                <div class="text-body-2 mt-1">
-                    Se recomienda realizar retención inmediata con estos 5
-                    empleados.
-                </div>
-            </v-alert>
+            </StCardGlass>
 
-            <v-alert type="warning" variant="tonal" class="mb-3">
-                <template #prepend>
-                    <v-icon>mdi-information</v-icon>
-                </template>
-                <div class="font-weight-bold">
-                    {{
-                        dashboardData.marketplaceMetrics
-                            .positionsWithoutCandidates
-                    }}
-                    Posiciones sin Candidatos Viables
+            <StCardGlass
+                class="pa-0 mb-4 overflow-hidden"
+                :no-hover="true"
+                style="border-left: 4px solid #fbbf24 !important"
+            >
+                <div class="pa-6 d-flex align-start gap-4">
+                    <v-avatar
+                        color="amber-accent-4"
+                        rounded="lg"
+                        size="44"
+                        variant="tonal"
+                    >
+                        <v-icon color="amber-accent-2"
+                            >mdi-account-search</v-icon
+                        >
+                    </v-avatar>
+                    <div>
+                        <div
+                            class="text-h6 font-weight-black text-amber-accent-2 mb-1"
+                        >
+                            Marketplace Supply Deficiency
+                        </div>
+                        <div class="text-body-1 text-slate-300">
+                            <strong
+                                >{{
+                                    dashboardData.marketplaceMetrics
+                                        .positionsWithoutCandidates
+                                }}
+                                technical positions</strong
+                            >
+                            lack viable internal candidates. Initiation of
+                            external sourcing for Senior Backend & Data clusters
+                            is recommended.
+                        </div>
+                    </div>
                 </div>
-                <div class="text-body-2 mt-1">
-                    Iniciar búsqueda externa para: Senior Backend (urgente),
-                    Data Scientist (moderado).
-                </div>
-            </v-alert>
+            </StCardGlass>
 
-            <v-alert type="success" variant="tonal">
-                <template #prepend>
-                    <v-icon>mdi-check-circle</v-icon>
-                </template>
-                <div class="font-weight-bold">
-                    {{
-                        dashboardData.talentMetrics.employeesReadyForPromotion
-                    }}
-                    Candidatos para Promoción
+            <StCardGlass
+                class="pa-0 overflow-hidden"
+                :no-hover="true"
+                style="border-left: 4px solid #10b981 !important"
+            >
+                <div class="pa-6 d-flex align-start gap-4">
+                    <v-avatar
+                        color="emerald-accent-4"
+                        rounded="lg"
+                        size="44"
+                        variant="tonal"
+                    >
+                        <v-icon color="emerald-accent-2"
+                            >mdi-rocket-launch</v-icon
+                        >
+                    </v-avatar>
+                    <div>
+                        <div
+                            class="text-h6 font-weight-black text-emerald-accent-2 mb-1"
+                        >
+                            Promotion Opportunity Window
+                        </div>
+                        <div class="text-body-1 text-slate-300">
+                            <strong
+                                >{{
+                                    dashboardData.talentMetrics
+                                        .employeesReadyForPromotion
+                                }}
+                                high-potential assets</strong
+                            >
+                            have achieved ≥80% skill match for advanced roles.
+                            Career path acceleration suggested.
+                        </div>
+                    </div>
                 </div>
-                <div class="text-body-2 mt-1">
-                    23 empleados con match ≥80% están listos para nuevos roles.
-                    Considera planes de carrera.
-                </div>
-            </v-alert>
+            </StCardGlass>
         </div>
 
-        <!-- Footer Note -->
-        <v-card elevation="0" variant="outlined" color="blue-grey-50">
-            <v-card-text class="pa-4">
-                <v-icon size="16" class="mr-2">mdi-information-outline</v-icon>
-                <span class="text-body-2 text-medium-emphasis">
-                    <strong>Nota:</strong> Este dashboard actualmente muestra
-                    datos mockados para demostrar el potencial visual e
-                    indicadores disponibles. En la próxima fase se conectará a
-                    datos reales del sistema.
-                </span>
-            </v-card-text>
-        </v-card>
+        <!-- Footer Glass Note -->
+        <StCardGlass class="pa-4 bg-black/40" :no-hover="true">
+            <div class="d-flex align-center gap-3">
+                <v-icon size="20" color="slate-500"
+                    >mdi-information-outline</v-icon
+                >
+                <div class="text-body-2 text-slate-400">
+                    <strong class="text-slate-300">System Note:</strong> This
+                    intelligence report is currently utilizing simulated
+                    high-fidelity datasets. Integration with live organizational
+                    ERP nodes is pending Phase 2 deployment.
+                </div>
+            </div>
+        </StCardGlass>
     </div>
 </template>
 
 <style scoped>
-.gap-4 {
-    gap: 16px;
+.text-tiny {
+    font-size: 0.65rem;
+}
+
+.text-slate-200 {
+    color: #e2e8f0;
+}
+.text-slate-300 {
+    color: #cbd5e1;
+}
+.text-slate-400 {
+    color: #94a3b8;
+}
+.text-slate-500 {
+    color: #64748b;
 }
 
 .h-100 {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { fetchCatalogs, post, put, remove } from '@/apiHelper';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { usePage } from '@inertiajs/vue3';
 import { useNotification } from '@kyvg/vue3-notification';
 import { computed, onMounted, reactive, ref } from 'vue';
@@ -38,21 +39,6 @@ const hexToRgb = (hex: string): string => {
 };
 
 // Get theme colors reactively
-const headerGradient = computed(() => {
-    const theme = vuetifyTheme.global.current.value;
-    return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
-});
-
-const createBtnGradient = computed(() => {
-    const theme = vuetifyTheme.global.current.value;
-    return `linear-gradient(135deg, ${theme.colors.accent} 0%, ${theme.colors.primary} 100%)`;
-});
-
-const tableHeaderGradient = computed(() => {
-    const theme = vuetifyTheme.global.current.value;
-    return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
-});
-
 const dialogHeaderGradient = computed(() => {
     const theme = vuetifyTheme.global.current.value;
     return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
@@ -510,109 +496,124 @@ onMounted(() => {
 </script>
 
 <template>
-    <div
-        class="pa-4"
-        :style="{ '--table-gradient': tableHeaderGradient } as any"
-    >
-        <!-- Header -->
-        <div
-            class="d-flex justify-space-between align-center mb-4"
-            :style="{ background: headerGradient }"
-            style="padding: 1.5rem; border-radius: 8px"
-        >
-            <div>
-                <h1 class="text-h4 font-weight-bold mb-2" style="color: white">
-                    {{ mergedConfig.titulo }}
-                </h1>
-                <p
-                    class="text-subtitle2"
-                    style="color: rgba(255, 255, 255, 0.85)"
-                >
-                    {{ mergedConfig.descripcion }}
-                </p>
-            </div>
-            <v-btn
-                v-if="mergedConfig.permisos?.crear"
-                prepend-icon="mdi-plus"
-                @click="openCreateDialog"
-                size="large"
-                variant="tonal"
-                :style="{ background: createBtnGradient, color: 'white' }"
+    <div class="pa-6">
+        <!-- Dashboard-style Header -->
+        <header class="mb-8">
+            <div
+                class="d-flex align-center justify-space-between flex-wrap gap-4"
             >
-                New Record
-            </v-btn>
-            <slot name="extra-actions"></slot>
-        </div>
-
-        <!-- Filters -->
-        <v-card
-            v-if="filters && filters.length > 0"
-            class="mb-4"
-            variant="outlined"
-        >
-            <v-card-text>
-                <v-row dense>
-                    <v-col cols="12" sm="6" :md="12 / (filters.length + 1)">
-                        <v-text-field
-                            v-model="searchQuery"
-                            label="Search"
-                            placeholder="Search records..."
-                            prepend-icon="mdi-magnify"
-                            variant="outlined"
-                            density="compact"
-                            clearable
-                        />
-                    </v-col>
-                    <v-col
-                        v-for="filter in enrichedFilters"
-                        :key="filter.field"
-                        cols="12"
-                        sm="6"
-                        :md="12 / (enrichedFilters.length + 1)"
+                <div>
+                    <h1 class="text-h4 font-weight-black mb-1 text-white">
+                        {{ mergedConfig.titulo }}
+                        <span class="st-badge-live ml-2">Active</span>
+                    </h1>
+                    <p class="text-subtitle-1 text-slate-400">
+                        {{ mergedConfig.descripcion }}
+                    </p>
+                </div>
+                <div class="header-actions d-flex gap-3">
+                    <v-btn
+                        v-if="mergedConfig.permisos?.crear"
+                        prepend-icon="mdi-plus"
+                        @click="openCreateDialog"
+                        color="indigo-accent-2"
+                        rounded="lg"
+                        variant="elevated"
+                        elevation="4"
+                        size="large"
                     >
-                        <v-text-field
-                            v-if="filter.type === 'text'"
-                            v-model="filterValues[filter.field]"
-                            :label="filter.label"
-                            :placeholder="filter.placeholder"
-                            variant="outlined"
-                            density="compact"
-                            clearable
-                        />
-                        <v-select
-                            v-else-if="filter.type === 'select'"
-                            v-model="filterValues[filter.field]"
-                            :label="filter.label"
-                            :items="filter.items || []"
-                            item-title="name"
-                            item-value="id"
-                            variant="outlined"
-                            density="compact"
-                            clearable
-                        />
-                        <v-text-field
-                            v-else-if="filter.type === 'date'"
-                            v-model="filterValues[filter.field]"
-                            :label="filter.label"
-                            type="date"
-                            variant="outlined"
-                            density="compact"
-                            clearable
-                        />
-                    </v-col>
-                    <v-col cols="12" sm="6" :md="12 / (filters.length + 1)">
-                        <v-btn
-                            color="secondary"
-                            variant="outlined"
-                            block
-                            @click="resetFilters"
-                        >
-                            Reset Filters
-                        </v-btn>
-                    </v-col>
-                </v-row>
-            </v-card-text>
-        </v-card>
+                        New {{ mergedConfig.titulo.replace(/s$/i, '') }}
+                    </v-btn>
+                    <slot name="extra-actions"></slot>
+                </div>
+            </div>
+        </header>
+
+        <!-- Filters Section in Glass Card -->
+        <StCardGlass v-if="filters && filters.length > 0" class="mb-6">
+            <div class="d-flex align-center mb-4 gap-2">
+                <v-icon color="indigo-accent-2" size="small"
+                    >mdi-filter-variant</v-icon
+                >
+                <span class="text-overline font-weight-bold text-slate-300"
+                    >Smart Filters</span
+                >
+            </div>
+            <v-row dense>
+                <v-col cols="12" sm="6" :md="12 / (filters.length + 1)">
+                    <v-text-field
+                        v-model="searchQuery"
+                        label="Global Search"
+                        placeholder="Search records..."
+                        prepend-inner-icon="mdi-magnify"
+                        variant="outlined"
+                        density="comfortable"
+                        rounded="lg"
+                        hide-details
+                        class="glass-input"
+                    />
+                </v-col>
+                <v-col
+                    v-for="filter in enrichedFilters"
+                    :key="filter.field"
+                    cols="12"
+                    sm="6"
+                    :md="12 / (enrichedFilters.length + 1)"
+                >
+                    <v-text-field
+                        v-if="filter.type === 'text'"
+                        v-model="filterValues[filter.field]"
+                        :label="filter.label"
+                        :placeholder="filter.placeholder"
+                        variant="outlined"
+                        density="comfortable"
+                        rounded="lg"
+                        hide-details
+                        class="glass-input"
+                    />
+                    <v-select
+                        v-else-if="filter.type === 'select'"
+                        v-model="filterValues[filter.field]"
+                        :label="filter.label"
+                        :items="filter.items || []"
+                        item-title="name"
+                        item-value="id"
+                        variant="outlined"
+                        density="comfortable"
+                        rounded="lg"
+                        hide-details
+                        class="glass-input"
+                    />
+                    <v-text-field
+                        v-else-if="filter.type === 'date'"
+                        v-model="filterValues[filter.field]"
+                        :label="filter.label"
+                        type="date"
+                        variant="outlined"
+                        density="comfortable"
+                        rounded="lg"
+                        hide-details
+                        class="glass-input"
+                    />
+                </v-col>
+                <v-col
+                    cols="12"
+                    sm="6"
+                    :md="12 / (filters.length + 1)"
+                    class="d-flex align-center"
+                >
+                    <v-btn
+                        variant="text"
+                        color="slate-400"
+                        prepend-icon="mdi-filter-off"
+                        @click="resetFilters"
+                        class="text-none"
+                    >
+                        Clear Filters
+                    </v-btn>
+                </v-col>
+            </v-row>
+        </StCardGlass>
 
         <!-- Search Bar (if no custom filters) -->
         <v-card v-else class="mb-4" variant="outlined">
@@ -647,57 +648,66 @@ onMounted(() => {
             {{ error }}
         </v-alert>
 
-        <!-- Data Table -->
-        <v-card v-if="!loading">
+        <!-- Main Content Table in Glass Card -->
+        <StCardGlass
+            v-if="!loading"
+            class="pa-0 overflow-hidden"
+            :no-hover="true"
+        >
             <v-data-table
                 :headers="displayHeaders"
                 :items="processedItems"
-                class="elevation-0"
+                class="glass-table"
                 density="comfortable"
                 hover
                 mobile-breakpoint="md"
-                :style="{ '--table-gradient': tableHeaderGradient } as any"
                 @click:row="onRowClick"
             >
-                <!-- Relationship/date columns are rendered from derived fields in `processedItems` to avoid dynamic slot names -->
-
                 <!-- Actions Column -->
                 <template #[`item.actions`]="{ item }">
                     <div class="d-flex gap-2">
                         <v-btn
                             v-if="mergedConfig.permisos?.editar"
-                            class="action-btn"
                             icon="mdi-pencil"
-                            size="large"
-                            color="primary"
+                            size="small"
+                            color="indigo-lighten-4"
                             variant="tonal"
                             @click.stop="openEditDialog(item)"
-                            title="Editar"
+                            class="rounded-lg"
                         />
                         <v-btn
                             v-if="mergedConfig.permisos?.eliminar"
-                            class="action-btn"
                             icon="mdi-trash-can"
-                            size="large"
-                            color="error"
+                            size="small"
+                            color="rose-accent-2"
                             variant="tonal"
                             @click.stop="openDeleteDialog(item)"
-                            title="Borrar"
+                            class="rounded-lg"
                         />
                     </div>
                 </template>
 
                 <!-- No data -->
                 <template #no-data>
-                    <div class="text-grey py-8 text-center">
-                        <v-icon size="48" class="mb-4"
-                            >mdi-inbox-outline</v-icon
+                    <div class="py-12 text-center">
+                        <v-icon size="64" color="slate-600" class="mb-4"
+                            >mdi-folder-open-outline</v-icon
                         >
-                        <p>No records found</p>
+                        <p class="text-h6 text-slate-400">
+                            No records found matching your criteria
+                        </p>
+                        <v-btn
+                            variant="text"
+                            color="indigo-accent-2"
+                            @click="resetFilters"
+                            class="mt-2"
+                        >
+                            Reset all filters
+                        </v-btn>
                     </div>
                 </template>
             </v-data-table>
-        </v-card>
+        </StCardGlass>
     </div>
 
     <!-- Form Dialog -->
@@ -707,22 +717,25 @@ onMounted(() => {
         persistent
         transition="dialog-transition"
     >
-        <v-card class="form-dialog" elevation="24">
+        <StCardGlass class="pa-0 overflow-hidden" :no-hover="true">
             <!-- Header with gradient -->
             <div
                 class="dialog-header-gradient"
                 :style="{ background: dialogHeaderGradient }"
             >
-                <v-card-title class="text-h5 font-weight-bold text-white">
-                    <v-icon class="mr-2">{{
+                <div
+                    class="text-h5 font-weight-bold d-flex align-center text-white"
+                >
+                    <v-icon class="mr-3">{{
                         editingItem ? 'mdi-pencil' : 'mdi-plus-circle'
                     }}</v-icon>
-                    {{ editingItem ? 'Edit Record' : 'New Record' }}
-                </v-card-title>
+                    {{ editingItem ? 'Edit' : 'Create' }}
+                    {{ mergedConfig.titulo.replace(/s$/i, '') }}
+                </div>
             </div>
 
-            <v-card-text
-                class="py-6"
+            <div
+                class="pa-8"
                 :style="
                     {
                         '--form-primary':
@@ -736,60 +749,68 @@ onMounted(() => {
                     :initial-data="editingItem || undefined"
                     :catalogs="catalogs"
                 />
-            </v-card-text>
+            </div>
 
-            <v-divider />
+            <v-divider class="border-white/5" />
 
-            <v-card-actions class="pa-4">
-                <v-spacer />
+            <div class="pa-4 d-flex justify-end gap-3">
                 <v-btn
-                    color="secondary"
-                    variant="outlined"
+                    color="slate-400"
+                    variant="text"
                     @click="closeDialog"
                     size="large"
+                    class="text-none"
                 >
-                    <v-icon left>mdi-close</v-icon>
                     Cancel
                 </v-btn>
                 <v-btn
                     @click="saveItem"
                     :loading="saving"
                     size="large"
-                    variant="tonal"
-                    :style="{ background: createBtnGradient, color: 'white' }"
+                    variant="elevated"
+                    color="indigo-accent-2"
+                    rounded="lg"
+                    class="px-8"
                 >
-                    <v-icon left>{{
-                        editingItem ? 'mdi-check-circle' : 'mdi-plus-circle'
-                    }}</v-icon>
-                    {{ editingItem ? 'Update' : 'Create' }}
+                    {{ editingItem ? 'Save Changes' : 'Create Record' }}
                 </v-btn>
-            </v-card-actions>
-        </v-card>
+            </div>
+        </StCardGlass>
     </v-dialog>
 
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialogOpen" max-width="400px">
-        <v-card>
-            <v-card-title>Confirm Delete</v-card-title>
-            <v-card-text>
-                Are you sure you want to delete this record?
-                <br />
-                <small class="text-error">This action cannot be undone.</small>
-            </v-card-text>
-            <v-card-actions>
-                <v-spacer />
+        <StCardGlass class="pa-0" :no-hover="true">
+            <div class="pa-6">
+                <div class="text-h6 mb-2 text-white">Confirm Delete</div>
+                <div class="text-body-1 text-slate-400">
+                    Are you sure you want to delete this record?
+                    <br />
+                    <small class="text-rose-accent-2"
+                        >This action cannot be undone.</small
+                    >
+                </div>
+            </div>
+            <v-divider class="border-white/5" />
+            <div class="pa-4 d-flex justify-end gap-2">
                 <v-btn
-                    color="secondary"
+                    color="slate-400"
                     variant="text"
                     @click="deleteDialogOpen = false"
                 >
                     Cancel
                 </v-btn>
-                <v-btn color="error" @click="deleteItem" :loading="saving">
-                    Delete
+                <v-btn
+                    color="rose-accent-4"
+                    variant="elevated"
+                    @click="deleteItem"
+                    :loading="saving"
+                    rounded="lg"
+                >
+                    Delete Permanently
                 </v-btn>
-            </v-card-actions>
-        </v-card>
+            </div>
+        </StCardGlass>
     </v-dialog>
 
     <!-- Detail Drawer (row click) using dialog to avoid layout injection requirement -->
@@ -801,13 +822,14 @@ onMounted(() => {
         scrim="transparent"
         transition="dialog-right-transition"
     >
-        <v-card
-            class="pa-4"
+        <StCardGlass
+            class="pa-6"
             height="100%"
             style="
                 min-height: 100vh;
-                border-left: 1px solid var(--v-theme-surface-variant);
+                border-left: 1px solid rgba(255, 255, 255, 0.1);
             "
+            :no-hover="true"
         >
             <div class="d-flex align-center justify-space-between mb-3">
                 <div>
@@ -865,20 +887,14 @@ onMounted(() => {
             <div v-else class="mt-6 text-center text-secondary">
                 Selecciona una fila para ver detalle.
             </div>
-        </v-card>
+        </StCardGlass>
     </v-dialog>
 </template>
 
 <style scoped>
 /* Form Dialog Styles */
-.form-dialog {
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
-}
-
 .dialog-header-gradient {
-    padding: 1.5rem;
+    padding: 1.5rem 2rem;
     display: flex;
     align-items: center;
     position: relative;
@@ -889,42 +905,15 @@ onMounted(() => {
     content: '';
     position: absolute;
     top: 0;
-    right: -50%;
-    width: 100%;
+    right: -20%;
+    width: 60%;
     height: 100%;
     background: radial-gradient(
         circle,
-        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.15) 0%,
         transparent 70%
     );
     z-index: 0;
-}
-
-.dialog-header-gradient :deep(.v-card-title) {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-}
-
-/* Action buttons: avoid shared focus/hover states */
-:deep(.action-btn) {
-    outline: none;
-    box-shadow: none;
-}
-
-:deep(.action-btn:focus) {
-    outline: none;
-    box-shadow: none;
-}
-
-:deep(.action-btn:focus-visible) {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
-}
-
-:deep(.v-data-table) {
-    background: transparent;
 }
 
 /* Mobile responsive styles */
@@ -976,20 +965,55 @@ onMounted(() => {
     }
 }
 
-/* Desktop styles */
-:deep(.v-data-table thead tr) {
-    background: var(
-        --table-gradient,
-        linear-gradient(135deg, #667eea 0%, #764ba2 100%)
-    );
+.glass-input :deep(.v-field__outline) {
+    --v-field-border-opacity: 0.1;
+}
+
+.glass-input :deep(.v-field--focused .v-field__outline) {
+    --v-field-border-opacity: 0.4;
+    color: var(--stratos-accent-indigo) !important;
+}
+
+.glass-table {
+    background: transparent !important;
+    color: #cbd5e1 !important;
+}
+
+:deep(.v-data-table) {
+    background: transparent !important;
+}
+
+:deep(.v-data-table thead) {
+    background: rgba(255, 255, 255, 0.03) !important;
 }
 
 :deep(.v-data-table thead th) {
-    font-weight: 700;
-    color: white !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+:deep(.v-data-table tbody td) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+    padding: 1rem !important;
 }
 
 :deep(.v-data-table tbody tr:hover) {
-    background-color: #f5f5f5 !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.text-slate-400 {
+    color: #94a3b8 !important;
+}
+
+.text-slate-300 {
+    color: #cbd5e1 !important;
+}
+
+.text-slate-600 {
+    color: #475569 !important;
 }
 </style>

@@ -121,133 +121,174 @@ defineExpose({ startSession });
 </script>
 
 <template>
-    <div class="assessment-chat d-flex flex-column" style="height: 500px">
+    <div class="assessment-container flex h-full min-h-[500px] flex-col">
         <div
             v-if="!session"
-            class="d-flex flex-column align-center fill-height justify-center"
+            class="d-flex flex-column align-center flex-grow justify-center py-12"
         >
-            <v-icon size="64" color="primary" class="mb-4">mdi-brain</v-icon>
-            <div class="text-h6 mb-2">Evaluación de Potencial AI</div>
-            <div class="text-body-2 mb-6 px-10 text-center text-secondary">
-                Inicia una entrevista interactiva orquestada por IA para
-                descubrir rasgos psicométricos y potencial oculto.
+            <div class="icon-pulse mb-8">
+                <v-icon size="80" color="indigo-400">mdi-brain</v-icon>
             </div>
+            <h2
+                class="text-h4 font-weight-black mb-2 tracking-tighter text-white"
+            >
+                AI Potential <span class="text-indigo-400">Assessment</span>
+            </h2>
+            <p
+                class="text-h6 font-weight-regular mb-10 max-w-2xl px-12 text-center leading-relaxed text-white/50"
+            >
+                Enter an interactive session orchestrated by Stratos AI to
+                uncover psychometric traits and hidden talent potential.
+            </p>
             <v-btn
-                color="primary"
-                prepend-icon="mdi-play"
+                color="indigo-700"
+                size="x-large"
+                rounded="xl"
+                class="font-weight-bold px-10"
+                prepend-icon="mdi-auto-fix"
                 @click="startSession"
                 :loading="loading"
+                elevation="12"
             >
-                Comenzar Entrevista
+                Launch Interview
             </v-btn>
         </div>
 
         <template v-else>
             <!-- Chat Header -->
             <div
-                class="d-flex align-center justify-space-between border-bottom pb-3"
+                class="flex items-center justify-between border-b border-white/10 pb-6"
             >
-                <div class="d-flex align-center">
-                    <v-avatar color="primary" size="32" class="mr-2">
-                        <v-icon size="18" color="white">mdi-robot</v-icon>
-                    </v-avatar>
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <v-avatar
+                            color="indigo-700"
+                            size="48"
+                            class="border border-indigo-400/30"
+                        >
+                            <v-icon size="24" color="white"
+                                >mdi-robot-glow</v-icon
+                            >
+                        </v-avatar>
+                        <div
+                            class="absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 border-slate-900 bg-emerald-500"
+                        ></div>
+                    </div>
                     <div>
-                        <div class="text-subtitle-2 font-weight-bold">
-                            Stratos AI Interviewer
+                        <div
+                            class="text-h6 font-weight-black leading-tight text-white"
+                        >
+                            Cerbero AI
                         </div>
                         <div
-                            class="text-caption text-success d-flex align-center"
+                            class="text-caption flex items-center gap-1 font-bold tracking-widest text-emerald-400 uppercase"
                         >
-                            <v-icon size="10" class="mr-1">mdi-circle</v-icon>
-                            En línea
+                            Active Session
                         </div>
                     </div>
                 </div>
                 <v-btn
                     v-if="messages.length >= 3"
-                    size="small"
-                    color="success"
-                    variant="tonal"
-                    label="Finalizar y Analizar"
+                    size="large"
+                    color="emerald-600"
+                    variant="flat"
+                    rounded="xl"
+                    class="font-weight-bold px-6"
                     @click="finishAndAnalyze"
                     :loading="analyzing"
+                    elevation="8"
                 >
-                    Finalizar y Analizar
+                    Complete & Analyze
                 </v-btn>
             </div>
 
             <!-- Messages Area -->
             <div
                 ref="chatContainer"
-                class="pa-4 chat-messages-bg my-2 flex-grow-1 overflow-y-auto"
+                class="scrollbar-hide my-4 flex-grow-1 overflow-y-auto px-2 py-8"
             >
                 <div
                     v-for="(msg, i) in messages"
                     :key="i"
                     :class="[
-                        'd-flex mb-4',
+                        'mb-6 flex animate-in duration-500 fade-in slide-in-from-bottom-4',
                         msg.role === 'user' ? 'justify-end' : 'justify-start',
                     ]"
                 >
                     <div
                         :class="[
-                            'pa-3 text-body-2 rounded-lg',
+                            'text-body-1 max-w-[85%] rounded-2xl px-6 py-4 leading-relaxed',
                             msg.role === 'user'
-                                ? 'custom-shadow-user bg-primary text-white'
-                                : 'custom-shadow-ai border bg-white',
+                                ? 'rounded-tr-none border border-indigo-500 bg-indigo-600 font-medium text-white shadow-lg shadow-indigo-900/20'
+                                : 'rounded-tl-none border border-white/10 bg-white/5 text-white/90 backdrop-blur-md',
                         ]"
-                        style="max-width: 80%"
                     >
                         {{ msg.content }}
                     </div>
                 </div>
 
-                <div v-if="loading" class="d-flex mb-4 justify-start">
+                <div
+                    v-if="loading"
+                    class="mb-6 flex animate-pulse justify-start"
+                >
                     <div
-                        class="pa-3 d-flex align-center rounded-lg border bg-white"
+                        class="flex items-center gap-3 rounded-2xl rounded-tl-none border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-md"
                     >
-                        <v-progress-circular
-                            indeterminate
-                            size="16"
-                            width="2"
-                            color="primary"
-                            class="mr-2"
-                        ></v-progress-circular>
-                        <span class="text-caption text-secondary"
-                            >La IA está pensando...</span
+                        <div class="flex gap-1">
+                            <div
+                                class="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-400 [animation-delay:-0.3s]"
+                            ></div>
+                            <div
+                                class="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-400 [animation-delay:-0.15s]"
+                            ></div>
+                            <div
+                                class="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-400"
+                            ></div>
+                        </div>
+                        <span
+                            class="text-caption font-bold tracking-widest text-white/40 uppercase"
+                            >Cerbero is thinking</span
                         >
                     </div>
                 </div>
             </div>
 
             <!-- Input Area -->
-            <div class="pt-2">
-                <v-text-field
-                    v-model="newMessage"
-                    placeholder="Escribe tu respuesta aquí..."
-                    hide-details
-                    full-width
-                    density="comfortable"
-                    variant="outlined"
-                    @keyup.enter="sendMessage"
-                    :disabled="loading || analyzing"
+            <div class="mt-auto pt-4">
+                <div class="group relative">
+                    <v-text-field
+                        v-model="newMessage"
+                        placeholder="Type your response here..."
+                        hide-details
+                        full-width
+                        density="comfortable"
+                        variant="outlined"
+                        class="glass-input-premium"
+                        @keyup.enter="sendMessage"
+                        :disabled="loading || analyzing"
+                        persistent-placeholder
+                    >
+                        <template #append-inner>
+                            <v-btn
+                                icon="mdi-send"
+                                size="small"
+                                variant="flat"
+                                color="indigo-600"
+                                class="mr-[-4px] rounded-lg"
+                                @click="sendMessage"
+                                :disabled="
+                                    !newMessage.trim() || loading || analyzing
+                                "
+                                elevation="4"
+                            ></v-btn>
+                        </template>
+                    </v-text-field>
+                </div>
+                <div
+                    class="text-caption mt-4 text-center font-medium text-white/30 italic"
                 >
-                    <template #append-inner>
-                        <v-btn
-                            icon="mdi-send"
-                            size="small"
-                            variant="text"
-                            color="primary"
-                            @click="sendMessage"
-                            :disabled="
-                                !newMessage.trim() || loading || analyzing
-                            "
-                        ></v-btn>
-                    </template>
-                </v-text-field>
-                <div class="text-caption mt-1 text-center text-secondary">
-                    Tus respuestas son procesadas por Stratos AI para generar un
-                    perfil de potencial.
+                    Conversations are analyzed in real-time by Stratos AI to map
+                    functional and cognitive patterns.
                 </div>
             </div>
         </template>
@@ -255,20 +296,54 @@ defineExpose({ startSession });
 </template>
 
 <style scoped>
-.chat-messages-bg {
-    background-color: #f8fafc;
-    border-radius: 8px;
+.assessment-container {
+    background: transparent;
 }
 
-.custom-shadow-user {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
 }
 
-.custom-shadow-ai {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
-.border-bottom {
-    border-bottom: 1px solid #e2e8f0;
+.icon-pulse {
+    animation: icon-float 3s ease-in-out infinite;
+}
+
+@keyframes icon-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.glass-input-premium :deep(.v-field) {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    transition: all 0.3s ease;
+}
+
+.glass-input-premium :deep(.v-field--focused) {
+    border-color: rgba(99, 102, 241, 0.4) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+}
+
+.glass-input-premium :deep(.v-field__input) {
+    color: white !important;
+    font-size: 1rem !important;
+}
+
+.glass-input-premium :deep(.v-field__placeholder) {
+    color: rgba(255, 255, 255, 0.2) !important;
 }
 </style>

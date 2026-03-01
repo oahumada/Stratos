@@ -20,12 +20,12 @@ const hasUser = computed(() => !!page.props?.auth?.user);
 </script>
 
 <template>
-    <AppShell variant="sidebar">
+    <AppShell variant="sidebar" class="st-glass-container">
         <template v-if="hasUser">
             <AppSidebar />
         </template>
 
-        <AppContent variant="sidebar" class="overflow-x-hidden">
+        <AppContent variant="sidebar" class="overflow-x-hidden !bg-transparent">
             <template v-if="hasUser">
                 <AppSidebarHeader :breadcrumbs="breadcrumbs" />
             </template>

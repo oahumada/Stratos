@@ -1,333 +1,475 @@
 <template>
-    <div class="role-competency-matrix">
-        <!-- Header -->
-        <div class="matrix-header mb-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-2xl font-bold">
-                        {{ store.scenarioName || 'Escenario' }}
-                    </h2>
-                    <p class="mt-1 text-gray-600">
-                        Mapeo: Roles ↔ Competencias (Horizonte:
-                        {{ store.horizonMonths }}
-                        meses)
-                    </p>
-                </div>
-                <div class="flex gap-2">
-                    <v-btn
-                        color="secondary"
-                        variant="tonal"
-                        prepend-icon="mdi-cube-outline"
-                        @click="showCubeWizard = true"
-                    >
-                        Diseñar con Cubo AI
-                    </v-btn>
-                    <v-btn
-                        color="secondary"
-                        variant="outlined"
-                        prepend-icon="mdi-robot"
-                        :loading="isDesigning"
-                        @click="handleDesignTalent"
-                    >
-                        Consultar Agentes
-                    </v-btn>
-                    <v-btn
-                        color="primary"
-                        prepend-icon="mdi-plus"
-                        @click="showAddRoleDialog = true"
-                    >
-                        + Nuevo Rol
-                    </v-btn>
-                    <v-btn
-                        color="success"
-                        variant="flat"
-                        prepend-icon="mdi-flag-checkered"
-                        @click="showFinalizeDialog = true"
-                    >
-                        Finalizar Paso 2
-                    </v-btn>
-                </div>
-            </div>
-        </div>
-
-        <!-- Alerts -->
-        <div v-if="store.error" class="mb-4">
-            <v-alert type="error" closable @click:close="store.clearMessages()">
-                {{ store.error }}
-            </v-alert>
-        </div>
-        <v-snackbar v-model="showSuccess" color="success" timeout="2000">
-            <div class="d-flex align-center">
-                <v-icon class="mr-2">mdi-check-circle</v-icon>
-                {{ store.success }}
-            </div>
-        </v-snackbar>
-
-        <!-- Loading -->
-        <div v-if="store.loading" class="flex justify-center py-8">
-            <v-progress-circular
-                indeterminate
-                color="primary"
-            ></v-progress-circular>
-        </div>
-
-        <div v-else>
-            <!-- Instructions -->
-            <div class="mb-4 rounded border-l-4 border-blue-500 bg-blue-50 p-4">
-                <div class="flex items-start gap-3">
-                    <v-icon icon="mdi-information" class="mt-1 text-blue-600" />
-                    <div>
-                        <h3 class="mb-1 font-semibold text-blue-800">
-                            Cómo asignar competencias
-                        </h3>
-                        <p class="text-sm text-blue-700">
-                            Haz click en cualquier celda para asignar una
-                            competencia a un rol. Las celdas vacías muestran un
-                            ícono + para indicar que se pueden asignar.
-                        </p>
-                        <p class="mt-2 text-sm text-blue-700">
-                            Paso 2 consiste en conectar competencias con roles y
-                            definir su transición (mantención, transformación,
-                            enriquecimiento o extinción) de forma simple y
-                            visual.
-                        </p>
+    <div class="role-competency-matrix space-y-8 pb-32">
+        <!-- Dashboard Header: The Strategic Bridge -->
+        <div
+            class="matrix-header animate-in duration-700 fade-in slide-in-from-top-4"
+        >
+            <div
+                class="flex flex-col justify-between gap-8 md:flex-row md:items-end"
+            >
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
+                        >
+                            <v-icon color="indigo-300" size="28"
+                                >mdi-molecule</v-icon
+                            >
+                        </div>
+                        <div>
+                            <h2
+                                class="text-3xl leading-none font-black tracking-tight text-white"
+                            >
+                                {{ store.scenarioName || 'Scenario Design' }}
+                            </h2>
+                            <div class="mt-2 flex items-center gap-3">
+                                <StBadgeGlass
+                                    variant="primary"
+                                    size="sm"
+                                    class="!px-3"
+                                >
+                                    Engineering Phase
+                                </StBadgeGlass>
+                                <span
+                                    class="text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                                >
+                                    Horizon:
+                                    <span class="text-indigo-400"
+                                        >{{ store.horizonMonths }} Months</span
+                                    >
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <StButtonGlass
+                        variant="ghost"
+                        icon="mdi-cube-scan"
+                        @click="showCubeWizard = true"
+                    >
+                        AI Cube Architect
+                    </StButtonGlass>
+                    <StButtonGlass
+                        variant="glass"
+                        icon="mdi-robot-vacuum-variant"
+                        :loading="isDesigning"
+                        @click="handleDesignTalent"
+                        class="!text-indigo-300"
+                    >
+                        Agent Consultation
+                    </StButtonGlass>
+                    <div class="mx-2 h-8 w-px bg-white/10"></div>
+                    <StButtonGlass
+                        variant="secondary"
+                        icon="mdi-plus-thick"
+                        @click="showAddRoleDialog = true"
+                    >
+                        New Role
+                    </StButtonGlass>
+                    <StButtonGlass
+                        variant="primary"
+                        icon="mdi-check-decagram"
+                        @click="showFinalizeDialog = true"
+                    >
+                        Commit Design
+                    </StButtonGlass>
+                </div>
             </div>
+        </div>
 
-            <!-- Tabs por categoría -->
-            <v-card>
-                <v-tabs
-                    v-model="activeTab"
-                    bg-color="gray-100"
-                    class="border-b"
+        <!-- Global Alerts & Feedback -->
+        <v-expand-transition>
+            <div v-if="store.error" class="mb-6">
+                <StCardGlass
+                    variant="glass"
+                    border-accent="red"
+                    class="!bg-red-500/5"
                 >
-                    <v-tab
-                        v-for="(cat, idx) in categories"
-                        :key="cat.name"
-                        :value="idx"
-                        :class="activeTab === idx ? 'bg-blue-50' : ''"
-                    >
-                        <v-tooltip :text="cat.name" location="top">
-                            <template #activator="{ props: tooltipProps }">
-                                <span
-                                    v-bind="tooltipProps"
-                                    class="tab-label text-truncate"
-                                >
-                                    {{ cat.name }}
-                                </span>
-                            </template>
-                        </v-tooltip>
-                        <v-badge
-                            :content="countMappedInCategory(cat.name)"
-                            color="primary"
-                            location="top end"
-                            offset-x="-8"
-                            offset-y="-8"
+                    <div class="flex items-center gap-4 text-red-200">
+                        <div
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/20 text-red-400"
+                        >
+                            <v-icon size="20">mdi-alert-circle</v-icon>
+                        </div>
+                        <p class="flex-grow text-sm font-medium">
+                            {{ store.error }}
+                        </p>
+                        <StButtonGlass
+                            variant="ghost"
+                            circle
+                            size="sm"
+                            icon="mdi-close"
+                            @click="store.clearMessages()"
                         />
-                    </v-tab>
-                </v-tabs>
+                    </div>
+                </StCardGlass>
+            </div>
+        </v-expand-transition>
 
-                <!-- Tab Content -->
-                <v-window v-model="activeTab" class="matrix-container">
-                    <v-window-item
+        <v-snackbar
+            v-model="showSuccess"
+            color="transparent"
+            elevation="0"
+            timeout="3000"
+            location="top right"
+        >
+            <StCardGlass
+                variant="glass"
+                border-accent="emerald"
+                class="min-w-[300px] !bg-emerald-500/10 shadow-[0_20px_50px_rgba(16,185,129,0.2)] backdrop-blur-3xl"
+            >
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400"
+                    >
+                        <v-icon size="20">mdi-check-decagram</v-icon>
+                    </div>
+                    <div>
+                        <div
+                            class="mb-0.5 text-[10px] font-black tracking-widest text-emerald-400/60 uppercase"
+                        >
+                            Operation Successful
+                        </div>
+                        <div class="text-sm font-bold text-white">
+                            {{ store.success || 'Changes saved in the cloud.' }}
+                        </div>
+                    </div>
+                </div>
+            </StCardGlass>
+        </v-snackbar>
+
+        <!-- Loading State: Neural Analysis -->
+        <div
+            v-if="store.loading"
+            class="flex flex-col items-center justify-center gap-8 py-32"
+        >
+            <div class="relative">
+                <div
+                    class="absolute inset-0 animate-ping rounded-full bg-indigo-500/20"
+                ></div>
+                <v-progress-circular
+                    indeterminate
+                    color="indigo-400"
+                    size="84"
+                    width="4"
+                    class="relative"
+                ></v-progress-circular>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <v-icon color="indigo-400" size="32"
+                        >mdi-chart-scatter-plot</v-icon
+                    >
+                </div>
+            </div>
+            <div class="text-center">
+                <h3 class="mb-1 text-lg font-black tracking-tight text-white">
+                    Mapping DNA Structures
+                </h3>
+                <span
+                    class="animate-pulse text-[10px] font-black tracking-[0.4em] text-white/30 uppercase"
+                >
+                    Analyzing Role-Competency Intersection
+                </span>
+            </div>
+        </div>
+
+        <div
+            v-else
+            class="animate-in duration-1000 fade-in slide-in-from-bottom-6"
+        >
+            <!-- Design Logic Guide -->
+            <StCardGlass
+                variant="glass"
+                class="mb-10 overflow-hidden !p-2"
+                :no-hover="true"
+            >
+                <div
+                    class="relative flex flex-col items-start gap-8 p-6 md:flex-row md:items-center"
+                >
+                    <div
+                        class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/10"
+                    >
+                        <v-icon
+                            icon="mdi-head-cog-outline"
+                            color="indigo-300"
+                            size="32"
+                        />
+                    </div>
+                    <div class="flex-grow">
+                        <h3
+                            class="mb-2 text-sm font-black tracking-[0.2em] text-white/40 uppercase"
+                        >
+                            Engineering Principles
+                        </h3>
+                        <p
+                            class="max-w-4xl text-sm leading-relaxed font-medium text-white/70"
+                        >
+                            Establish the structural links between
+                            <span class="font-bold text-indigo-400"
+                                >Strategic Assets</span
+                            >
+                            (Competencies) and
+                            <span class="font-bold text-indigo-400"
+                                >Execution Nodes</span
+                            >
+                            (Roles). Define evolution vectors:
+                            <span class="font-bold text-white italic"
+                                >Stabilization, Upskilling, or
+                                Transformation</span
+                            >.
+                        </p>
+                    </div>
+                    <div
+                        class="flex hidden shrink-0 items-center gap-4 border-l border-white/5 pl-8 lg:flex"
+                    >
+                        <div class="text-center">
+                            <div
+                                class="mb-1 text-2xl leading-none font-black text-white"
+                            >
+                                {{ totalMappings }}
+                            </div>
+                            <div
+                                class="text-[10px] font-black tracking-widest text-white/20 uppercase"
+                            >
+                                Active Links
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </StCardGlass>
+
+            <!-- Main Engineering Matrix Container -->
+            <StCardGlass
+                variant="glass"
+                class="overflow-hidden border-white/5 !p-0 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
+                :no-hover="true"
+            >
+                <!-- Category Navigation (Z-Axis) -->
+                <nav
+                    class="no-scrollbar flex items-center gap-1 overflow-x-auto border-b border-white/5 bg-white/2 p-3"
+                >
+                    <button
                         v-for="(cat, idx) in categories"
                         :key="cat.name"
-                        :value="idx"
+                        @click="activeTab = idx"
+                        :class="[
+                            'group relative flex items-center gap-4 rounded-xl px-6 py-3.5 transition-all duration-500',
+                            activeTab === idx
+                                ? 'bg-indigo-500/10 text-white'
+                                : 'text-white/40 hover:bg-white/5 hover:text-white/70',
+                        ]"
                     >
-                        <table class="matrix-table">
-                            <thead>
-                                <tr>
-                                    <th
-                                        class="role-column-header sticky left-0 z-20 border-b border-gray-300 bg-gray-100"
-                                    >
-                                        <div
-                                            class="group flex w-48 items-center justify-between p-3"
-                                        >
-                                            <strong>Rol</strong>
-                                            <div
-                                                class="cursor-col-resize opacity-0 transition-opacity group-hover:opacity-100"
-                                            >
-                                                ⋮⋮
-                                            </div>
-                                        </div>
-                                    </th>
-                                    <th
-                                        v-for="comp in cat.comps"
-                                        :key="comp.id"
-                                        class="border-b border-gray-300 bg-gray-50"
-                                    >
-                                        <div class="w-32 p-3 text-center">
-                                            <v-tooltip
-                                                :text="comp.name"
-                                                location="top"
-                                            >
-                                                <template
-                                                    #activator="{
-                                                        props: tooltipProps,
-                                                    }"
-                                                >
-                                                    <div
-                                                        v-bind="tooltipProps"
-                                                        class="text-truncate comp-name text-sm font-semibold"
-                                                    >
-                                                        {{ comp.name }}
-                                                    </div>
-                                                </template>
-                                            </v-tooltip>
-                                            <v-tooltip
-                                                :text="
-                                                    comp.capability_name ||
-                                                    comp.category
-                                                "
-                                                location="top"
-                                            >
-                                                <template
-                                                    #activator="{
-                                                        props: tooltipProps,
-                                                    }"
-                                                >
-                                                    <div
-                                                        v-bind="tooltipProps"
-                                                        class="text-truncate comp-capability text-xs text-gray-500"
-                                                    >
-                                                        {{
-                                                            comp.capability_name ||
-                                                            comp.category
-                                                        }}
-                                                    </div>
-                                                </template>
-                                            </v-tooltip>
-                                        </div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    v-for="row in store.matrixRows"
-                                    :key="row.roleId"
+                        <div
+                            v-if="activeTab === idx"
+                            class="absolute inset-x-4 -bottom-3 h-0.5 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.8)]"
+                        ></div>
+                        <span
+                            class="text-xs font-black tracking-[0.15em] whitespace-nowrap uppercase"
+                            >{{ cat.name }}</span
+                        >
+                        <StBadgeGlass
+                            :variant="activeTab === idx ? 'primary' : 'glass'"
+                            size="sm"
+                            class="!rounded-lg transition-all duration-500"
+                            :class="
+                                activeTab === idx
+                                    ? 'scale-110 shadow-[0_0_10px_rgba(99,102,241,0.3)]'
+                                    : 'bg-white/5 opacity-40'
+                            "
+                        >
+                            {{ countMappedInCategory(cat.name) }}
+                        </StBadgeGlass>
+                    </button>
+                </nav>
+
+                <!-- Matrix Interface -->
+                <div
+                    class="no-scrollbar custom-scrollbar relative max-h-[70vh] overflow-x-auto"
+                >
+                    <table class="w-full border-separate border-spacing-0">
+                        <thead class="sticky top-0 z-30">
+                            <tr class="bg-black/40 backdrop-blur-3xl">
+                                <th
+                                    class="sticky left-0 z-40 min-w-[300px] border-r border-b border-white/10 bg-black/60 p-0 text-left"
                                 >
-                                    <td
-                                        class="sticky left-0 z-10 border-b border-gray-200 bg-white"
-                                    >
+                                    <div class="px-8 py-6">
                                         <div
-                                            class="w-48 border-r border-gray-200 p-3"
+                                            class="mb-1 text-[10px] font-black tracking-[0.3em] text-white/20 uppercase"
                                         >
-                                            <div class="font-semibold">
+                                            Architecture
+                                        </div>
+                                        <h4
+                                            class="text-sm font-black tracking-tight text-indigo-300"
+                                        >
+                                            Role Specification
+                                        </h4>
+                                    </div>
+                                </th>
+                                <th
+                                    v-for="comp in categories[activeTab]?.comps"
+                                    :key="comp.id"
+                                    class="min-w-[200px] border-r border-b border-white/10 p-6 text-center transition-colors hover:bg-white/5"
+                                >
+                                    <div class="space-y-3">
+                                        <div class="flex justify-center">
+                                            <div
+                                                class="h-1.5 w-1.5 rounded-full bg-indigo-400/30 transition-all duration-300 group-hover:bg-indigo-400"
+                                            ></div>
+                                        </div>
+                                        <h5
+                                            class="line-clamp-2 h-[36px] text-[11px] leading-relaxed font-black tracking-widest text-white/60 uppercase"
+                                        >
+                                            {{ comp.name }}
+                                        </h5>
+                                        <div
+                                            class="text-[9px] font-black tracking-tighter text-indigo-400/40 uppercase"
+                                        >
+                                            {{
+                                                comp.capability_name ||
+                                                comp.category
+                                            }}
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="row in store.matrixRows"
+                                :key="row.roleId"
+                                class="group transition-all duration-300"
+                            >
+                                <td
+                                    class="sticky left-0 z-20 border-r border-b border-white/5 bg-black/40 p-8 backdrop-blur-2xl transition-colors group-hover:bg-white/[0.03]"
+                                >
+                                    <div class="space-y-4">
+                                        <div
+                                            class="role-name-link cursor-pointer transition-transform hover:translate-x-1"
+                                        >
+                                            <div
+                                                class="text-base font-black tracking-tight text-white transition-colors group-hover:text-indigo-300"
+                                            >
                                                 {{ row.roleName }}
                                             </div>
+                                        </div>
+
+                                        <div class="flex flex-col gap-3">
                                             <div
-                                                class="mt-1 flex flex-wrap items-center gap-1.5"
+                                                class="flex items-center gap-2"
                                             >
-                                                <v-tooltip location="top">
-                                                    <template
-                                                        #activator="{
-                                                            props: tooltipProps,
-                                                        }"
-                                                    >
-                                                        <v-chip
-                                                            v-if="row.archetype"
-                                                            v-bind="
-                                                                tooltipProps
-                                                            "
-                                                            size="small"
-                                                            variant="flat"
-                                                            :color="
-                                                                row.archetype ===
-                                                                'E'
-                                                                    ? 'deep-purple'
-                                                                    : row.archetype ===
-                                                                        'T'
-                                                                      ? 'blue'
-                                                                      : 'teal'
-                                                            "
-                                                            :prepend-icon="
-                                                                row.archetype ===
-                                                                'E'
-                                                                    ? 'mdi-chess-king'
-                                                                    : row.archetype ===
-                                                                        'T'
-                                                                      ? 'mdi-account-tie'
-                                                                      : 'mdi-wrench'
-                                                            "
-                                                            label
-                                                            class="font-weight-bold"
-                                                        >
-                                                            {{
-                                                                row.archetype ===
-                                                                'E'
-                                                                    ? 'Estratégico'
-                                                                    : row.archetype ===
-                                                                        'T'
-                                                                      ? 'Táctico'
-                                                                      : 'Operacional'
-                                                            }}
-                                                        </v-chip>
-                                                    </template>
-                                                    <div
-                                                        style="max-width: 260px"
-                                                    >
-                                                        <div
-                                                            class="font-weight-bold mb-1"
-                                                        >
-                                                            {{
-                                                                row.archetype ===
-                                                                'E'
-                                                                    ? '♟ Rol Estratégico'
-                                                                    : row.archetype ===
-                                                                        'T'
-                                                                      ? '🎯 Rol Táctico'
-                                                                      : '⚙️ Rol Operacional'
-                                                            }}
-                                                        </div>
-                                                        <div
-                                                            class="text-caption"
-                                                        >
-                                                            {{
-                                                                row.archetype ===
-                                                                'E'
-                                                                    ? 'Visión global, toma de decisiones de alto impacto. Niveles objetivo sugeridos: 4-5.'
-                                                                    : row.archetype ===
-                                                                        'T'
-                                                                      ? 'Coordinación de equipos y gestión experta. Niveles objetivo sugeridos: 2-4.'
-                                                                      : 'Ejecución técnica y operaciones. Niveles objetivo sugeridos: 1-3.'
-                                                            }}
-                                                        </div>
-                                                        <div
-                                                            class="text-caption font-italic mt-1"
-                                                        >
-                                                            Human Leverage:
-                                                            {{
-                                                                row.human_leverage ??
-                                                                '—'
-                                                            }}%
-                                                        </div>
-                                                    </div>
-                                                </v-tooltip>
-                                                <span
-                                                    class="text-xs text-gray-500"
+                                                <StBadgeGlass
+                                                    v-if="row.archetype"
+                                                    :variant="
+                                                        row.archetype === 'E'
+                                                            ? 'primary'
+                                                            : row.archetype ===
+                                                                'T'
+                                                              ? 'secondary'
+                                                              : 'glass'
+                                                    "
+                                                    size="sm"
+                                                    class="text-[9px] font-black tracking-widest"
                                                 >
-                                                    {{ row.fte }} FTE •
-                                                    {{ row.status }}
-                                                </span>
+                                                    <v-icon
+                                                        size="10"
+                                                        class="mr-1.5"
+                                                        :icon="
+                                                            row.archetype ===
+                                                            'E'
+                                                                ? 'mdi-chess-king'
+                                                                : row.archetype ===
+                                                                    'T'
+                                                                  ? 'mdi-account-tie'
+                                                                  : 'mdi-wrench'
+                                                        "
+                                                    />
+                                                    {{
+                                                        row.archetype === 'E'
+                                                            ? 'STRATEGIC'
+                                                            : row.archetype ===
+                                                                'T'
+                                                              ? 'TACTICAL'
+                                                              : 'OPERATIONAL'
+                                                    }}
+                                                </StBadgeGlass>
+                                            </div>
+                                            <div
+                                                class="flex items-center gap-4 text-[10px] font-bold tracking-widest text-white/20 uppercase"
+                                            >
+                                                <div
+                                                    class="flex items-center gap-1.5"
+                                                >
+                                                    <v-icon
+                                                        size="12"
+                                                        color="white/20"
+                                                        >mdi-account-group</v-icon
+                                                    >
+                                                    <span
+                                                        >{{ row.fte }} FTE</span
+                                                    >
+                                                </div>
+                                                <div
+                                                    class="h-1 w-1 rounded-full bg-white/5"
+                                                ></div>
+                                                <div
+                                                    class="flex items-center gap-1.5"
+                                                    :class="
+                                                        row.status === 'new'
+                                                            ? 'text-indigo-400/80'
+                                                            : ''
+                                                    "
+                                                >
+                                                    <v-icon
+                                                        size="12"
+                                                        :color="
+                                                            row.status === 'new'
+                                                                ? 'indigo-400/60'
+                                                                : 'white/20'
+                                                        "
+                                                    >
+                                                        {{
+                                                            row.status === 'new'
+                                                                ? 'mdi-plus-circle-outline'
+                                                                : 'mdi-check-circle-outline'
+                                                        }}
+                                                    </v-icon>
+                                                    <span>{{
+                                                        row.status
+                                                    }}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td
-                                        v-for="comp in cat.comps"
-                                        :key="`${row.roleId}-${comp.id}`"
-                                        class="border-b border-gray-200 p-0"
+                                    </div>
+                                </td>
+                                <td
+                                    v-for="comp in categories[activeTab]?.comps"
+                                    :key="`${row.roleId}-${comp.id}`"
+                                    class="group/cell border-r border-b border-white/5 p-0 transition-colors"
+                                >
+                                    <div
+                                        class="relative flex h-36 w-full cursor-pointer items-center justify-center transition-all duration-500 hover:bg-indigo-500/15"
+                                        @click="
+                                            openEditModal(row.roleId, comp.id)
+                                        "
                                     >
-                                        <div
-                                            class="relative flex h-24 w-32 cursor-pointer items-center justify-center border-r border-gray-200 transition hover:bg-gray-50"
-                                            @click="
-                                                openEditModal(
-                                                    row.roleId,
-                                                    comp.id,
-                                                )
-                                            "
-                                        >
+                                        <transition name="scale" mode="out-in">
+                                            <div
+                                                v-if="
+                                                    !row.mappings.get(comp.id)
+                                                "
+                                                class="scale-75 transform opacity-0 transition-all duration-500 group-hover/cell:scale-100 group-hover/cell:opacity-100"
+                                            >
+                                                <div
+                                                    class="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/20 shadow-xl group-hover/cell:border-indigo-500/30 group-hover/cell:bg-indigo-500/10 group-hover/cell:text-indigo-300"
+                                                >
+                                                    <v-icon size="18"
+                                                        >mdi-molecule</v-icon
+                                                    >
+                                                </div>
+                                            </div>
                                             <CellContent
+                                                v-else
                                                 :mapping="
                                                     row.mappings.get(comp.id)
                                                 "
@@ -348,17 +490,17 @@
                                                     )
                                                 "
                                             />
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </v-window-item>
-                </v-window>
-            </v-card>
+                                        </transition>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </StCardGlass>
         </div>
 
-        <!-- Edit Modal -->
+        <!-- System Modals & Dialogs -->
         <RoleCompetencyStateModal
             v-if="selectedMapping"
             :visible="showEditModal"
@@ -372,14 +514,12 @@
             @close="showEditModal = false"
         />
 
-        <!-- Add Role Dialog -->
         <AddRoleDialog
             :visible="showAddRoleDialog"
             @save="handleAddRole"
             @close="showAddRoleDialog = false"
         />
 
-        <!-- Agent Proposals Modal (Fase 2 - Panel de Revisión) -->
         <AgentProposalsModal
             :visible="showAgentProposals"
             :loading="isDesigning"
@@ -389,7 +529,6 @@
             @applied="handleApplied"
         />
 
-        <!-- Role Cube Wizard Integration -->
         <RoleCubeWizard
             :visible="showCubeWizard"
             :scenario-id="props.scenarioId"
@@ -397,60 +536,130 @@
             @created="handleRoleCreated"
         />
 
-        <!-- Finalizar Paso 2 - Dialog de confirmación -->
-        <v-dialog v-model="showFinalizeDialog" max-width="520" persistent>
-            <v-card>
-                <v-card-title class="pa-4 d-flex align-center">
-                    <v-icon color="success" class="mr-2"
-                        >mdi-flag-checkered</v-icon
+        <!-- Finalize Design Stage: Critical confirmation -->
+        <v-dialog v-model="showFinalizeDialog" max-width="580" persistent>
+            <StCardGlass
+                variant="glass"
+                border-accent="indigo"
+                class="overflow-hidden bg-[#0a0f1d]/95 !p-0 backdrop-blur-3xl"
+                :no-hover="true"
+            >
+                <div
+                    class="flex items-center gap-5 border-b border-white/10 bg-indigo-50/10 px-8 py-6"
+                >
+                    <div
+                        class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-indigo-400/30 bg-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
                     >
-                    Finalizar Paso 2 — Diseño de Talento
-                </v-card-title>
-                <v-card-text>
-                    <v-alert
-                        type="warning"
-                        variant="tonal"
-                        class="mb-4"
-                        icon="mdi-alert"
+                        <v-icon color="indigo-300" size="32"
+                            >mdi-shield-check-outline</v-icon
+                        >
+                    </div>
+                    <div>
+                        <h2 class="text-xl leading-tight font-black text-white">
+                            Finalize Design Stage
+                        </h2>
+                        <div
+                            class="text-[10px] font-black tracking-widest text-indigo-400 uppercase"
+                        >
+                            Strategic Commitment Protocol
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6 px-10 py-8">
+                    <p
+                        class="text-sm leading-relaxed font-medium text-white/70"
                     >
-                        Esta acción moverá todos los
-                        <strong>roles nuevos</strong>,
-                        <strong>competencias</strong> y
-                        <strong>skills</strong> del escenario al estado
-                        <strong>incubación</strong>. No podrás deshacer esta
-                        operación desde esta vista.
-                    </v-alert>
-                    <p class="text-body-2">
-                        ¿Estás seguro que deseas continuar?
+                        You are about to finalize the architectural design phase
+                        for
+                        <span class="font-black text-white italic"
+                            >"{{ store.scenarioName }}"</span
+                        >. This operation is structural.
                     </p>
-                </v-card-text>
-                <v-card-actions>
-                    <v-btn variant="text" @click="showFinalizeDialog = false"
-                        >Cancelar</v-btn
+
+                    <div
+                        class="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6"
                     >
-                    <v-spacer />
-                    <v-btn
-                        color="success"
-                        variant="flat"
+                        <div class="mb-3 flex items-center gap-3">
+                            <v-icon color="amber-400" size="20"
+                                >mdi-alert-decagram</v-icon
+                            >
+                            <span
+                                class="text-xs font-black tracking-widest text-amber-400 uppercase"
+                                >Structural Warning</span
+                            >
+                        </div>
+                        <p
+                            class="text-[11px] leading-relaxed font-medium text-amber-200/60"
+                        >
+                            This transition will migrate all PROPOSED entities
+                            (roles, competencies, and skill links) into the
+                            <span
+                                class="font-bold text-white underline decoration-amber-500/50"
+                                >INCUBATION STATE</span
+                            >. These records will be promoted to the engineering
+                            laboratory for final catalog reconciliation.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col gap-2 pt-2">
+                        <div
+                            class="flex items-center gap-3 text-xs text-white/40"
+                        >
+                            <v-icon size="16" color="emerald-400"
+                                >mdi-check-circle-outline</v-icon
+                            >
+                            <span
+                                >Lock tactical design of current scenario.</span
+                            >
+                        </div>
+                        <div
+                            class="flex items-center gap-3 text-xs text-white/40"
+                        >
+                            <v-icon size="16" color="emerald-400"
+                                >mdi-check-circle-outline</v-icon
+                            >
+                            <span>Generate master records for incubation.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center justify-end gap-3 border-t border-white/5 bg-black/40 px-8 py-6"
+                >
+                    <StButtonGlass
+                        variant="ghost"
+                        @click="showFinalizeDialog = false"
+                    >
+                        Return to Design
+                    </StButtonGlass>
+                    <StButtonGlass
+                        variant="primary"
                         :loading="isFinalizing"
                         @click="handleFinalize"
                     >
-                        <v-icon start>mdi-check-bold</v-icon>Confirmar y
-                        finalizar
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
+                        <template #prepend>
+                            <v-icon size="18">mdi-lock-check</v-icon>
+                        </template>
+                        Confirm & Lock Design
+                    </StButtonGlass>
+                </div>
+            </StCardGlass>
         </v-dialog>
     </div>
 </template>
 
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { useRoleCompetencyStore } from '@/stores/roleCompetencyStore';
 import { computed, onMounted, ref, watch } from 'vue';
 import AddRoleDialog from './AddRoleDialog.vue';
 import AgentProposalsModal from './AgentProposalsModal.vue';
 import CellContent from './CellContent.vue';
 import RoleCompetencyStateModal from './RoleCompetencyStateModal.vue';
+import RoleCubeWizard from './RoleCubeWizard.vue';
 
 interface Props {
     scenarioId: number;
@@ -479,6 +688,14 @@ const agentProposals = ref<any>(null);
 const showFinalizeDialog = ref(false);
 const isFinalizing = ref(false);
 
+const totalMappings = computed(() => {
+    let count = 0;
+    store.matrixRows.forEach((row) => {
+        count += row.mappings?.size || 0;
+    });
+    return count;
+});
+
 const handleDesignTalent = async () => {
     isDesigning.value = true;
     showAgentProposals.value = true;
@@ -492,16 +709,13 @@ const handleDesignTalent = async () => {
     }
 };
 
-/** Llamado cuando el Panel de Revisión confirma las propuestas aprobadas */
 const handleApplied = async () => {
     showAgentProposals.value = false;
     agentProposals.value = null;
-    // Recargar la matriz para mostrar los nuevos roles y mappings
     await store.loadScenarioData(props.scenarioId);
     showSuccess.value = true;
 };
 
-/** Finalización del Paso 2 con pre-conditions del backend */
 const handleFinalize = async () => {
     isFinalizing.value = true;
     try {
@@ -510,7 +724,6 @@ const handleFinalize = async () => {
             showFinalizeDialog.value = false;
             showSuccess.value = true;
         } else {
-            // El error ya fue puesto en store.error por la acción
             showFinalizeDialog.value = false;
         }
     } finally {
@@ -601,7 +814,7 @@ const saveMapping = async (mappingData: any) => {
 
 const removeMapping = async (roleId: number, competencyId: number) => {
     const mapping = store.getMapping(roleId, competencyId);
-    if (mapping && confirm('¿Eliminar esta asociación?')) {
+    if (mapping && confirm('Remove this association?')) {
         await store.removeMapping(roleId, competencyId, mapping.id);
     }
 };
@@ -616,67 +829,42 @@ const handleRoleCreated = async () => {
 </script>
 
 <style scoped>
-.matrix-container {
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    background: white;
-    overflow-x: auto;
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
 }
-
-.matrix-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.875rem;
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
-
-.matrix-table th {
-    padding: 0;
-    text-align: center;
-    vertical-align: middle;
-}
-
-.matrix-table td {
-    padding: 0;
-}
-
-.matrix-header {
-    padding: 1.5rem;
-    background: white;
-}
-
-.matrix-table .w-32 {
-    min-width: 160px;
-}
-
-.text-truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.tab-label {
-    max-width: 140px;
-    display: inline-block;
-}
-
-.comp-name {
-    max-width: 140px;
-}
-
-.comp-capability {
-    max-width: 140px;
-}
-
-.role-column-header {
-    resize: horizontal;
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
 }
-
-.cursor-col-resize {
-    cursor: col-resize;
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
-:deep(.v-tab.bg-blue-50) {
-    background-color: rgba(59, 130, 246, 0.1) !important;
+.scale-enter-active,
+.scale-leave-active {
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.scale-enter-from,
+.scale-leave-to {
+    transform: scale(0.9);
+    opacity: 0;
 }
 </style>

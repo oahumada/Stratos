@@ -1,490 +1,7 @@
-<template>
-    <v-dialog
-        v-model="internalVisible"
-        fullscreen
-        transition="dialog-bottom-transition"
-        persistent
-    >
-        <v-card class="cube-wizard-card">
-            <v-toolbar flat color="transparent" class="px-4">
-                <v-btn icon @click="close">
-                    <v-icon>mdi-close</v-icon>
-                </v-btn>
-                <v-toolbar-title class="text-h5 font-weight-bold gradient-text">
-                    Role Designer Explorer
-                </v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-chip color="secondary" variant="flat" class="mr-4">
-                    <v-icon start size="small">mdi-robot-glow</v-icon>
-                    Cerbero AI Orchestrator
-                </v-chip>
-            </v-toolbar>
-
-            <v-card-text class="pa-0 overflow-hidden">
-                <v-row no-gutters class="fill-height">
-                    <!-- Left Sidebar: Progress -->
-                    <v-col
-                        cols="12"
-                        md="3"
-                        class="wizard-sidebar pa-6 text-white"
-                    >
-                        <div class="sidebar-content">
-                            <div class="text-overline mb-6 opacity-70">
-                                Design Journey
-                            </div>
-
-                            <div class="steps-container">
-                                <div
-                                    v-for="(step, i) in steps"
-                                    :key="i"
-                                    :class="[
-                                        'step-item',
-                                        {
-                                            active: currentStep === i + 1,
-                                            completed: currentStep > i + 1,
-                                        },
-                                    ]"
-                                >
-                                    <div class="step-icon">
-                                        <v-icon v-if="currentStep > i + 1"
-                                            >mdi-check</v-icon
-                                        >
-                                        <span v-else>{{ i + 1 }}</span>
-                                    </div>
-                                    <div class="step-info">
-                                        <div class="step-title">
-                                            {{ step.title }}
-                                        </div>
-                                        <div class="step-desc">
-                                            {{ step.desc }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <v-spacer></v-spacer>
-
-                            <div class="sidebar-footer">
-                                <v-card
-                                    variant="tonal"
-                                    class="pa-4 bg-white-transparent border-white-op"
-                                >
-                                    <div
-                                        class="text-caption font-weight-bold mb-1"
-                                    >
-                                        CUBE METHODOLOGY v2
-                                    </div>
-                                    <div class="text-body-2 opacity-80">
-                                        Define roles based on multidimensional
-                                        impact and organizational clarity.
-                                    </div>
-                                </v-card>
-                            </div>
-                        </div>
-                    </v-col>
-
-                    <!-- Main Content area -->
-                    <v-col cols="12" md="9" class="wizard-main pa-8">
-                        <transition name="fade-slide" mode="out-in">
-                            <!-- Step 1: Definition -->
-                            <div
-                                v-if="currentStep === 1"
-                                :key="1"
-                                class="step-content"
-                            >
-                                <div class="text-h4 font-weight-bold mb-2">
-                                    Let's define the new role
-                                </div>
-                                <div class="text-body-1 mb-8 text-secondary">
-                                    Tell Cerbero about the purpose and
-                                    responsibilities. AI will suggest the cube
-                                    coordinates.
-                                </div>
-
-                                <v-text-field
-                                    v-model="form.name"
-                                    label="Role Name"
-                                    placeholder="e.g., Strategic Growth Lead"
-                                    variant="outlined"
-                                    class="mb-6"
-                                    prepend-inner-icon="mdi-account-tie"
-                                    clearable
-                                ></v-text-field>
-
-                                <v-textarea
-                                    v-model="form.description"
-                                    label="Role Purpose / Mission"
-                                    placeholder="What does this role achieve? What are the top 3 priorities?"
-                                    variant="outlined"
-                                    rows="6"
-                                    prepend-inner-icon="mdi-text-box-outline"
-                                    counter
-                                ></v-textarea>
-
-                                <div class="d-flex mt-8 justify-end">
-                                    <v-btn
-                                        color="primary"
-                                        size="x-large"
-                                        rounded="xl"
-                                        :disabled="
-                                            !form.name || !form.description
-                                        "
-                                        :loading="analyzing"
-                                        @click="analyzeRole"
-                                        append-icon="mdi-auto-fix"
-                                        elevation="4"
-                                    >
-                                        Analyze with AI
-                                    </v-btn>
-                                </div>
-                            </div>
-
-                            <!-- Step 2: Cube Mapping -->
-                            <div
-                                v-else-if="currentStep === 2"
-                                :key="2"
-                                class="step-content"
-                            >
-                                <div class="d-flex align-center mb-6">
-                                    <div>
-                                        <div class="text-h4 font-weight-bold">
-                                            Cube Dimensions Mapping
-                                        </div>
-                                        <div class="text-body-1 text-secondary">
-                                            Cerbero suggested these coordinates.
-                                            You can fine-tune them.
-                                        </div>
-                                    </div>
-                                    <v-spacer></v-spacer>
-                                    <v-chip
-                                        color="info"
-                                        variant="tonal"
-                                        prepend-icon="mdi-robot"
-                                        >AI Suggestions Ready</v-chip
-                                    >
-                                </div>
-
-                                <v-row>
-                                    <v-col cols="12" md="8">
-                                        <v-row>
-                                            <!-- Eje X -->
-                                            <v-col cols="12">
-                                                <v-label
-                                                    class="font-weight-bold mb-4"
-                                                    >Axis X: Archetype (Impact
-                                                    Scope)</v-label
-                                                >
-                                                <v-btn-toggle
-                                                    v-model="
-                                                        form.cube.x_archetype
-                                                    "
-                                                    mandatory
-                                                    color="primary"
-                                                    variant="outlined"
-                                                    class="d-flex w-100"
-                                                >
-                                                    <v-btn
-                                                        value="Strategic"
-                                                        class="h-auto flex-grow-1 py-4"
-                                                    >
-                                                        <div
-                                                            class="d-flex flex-column align-center"
-                                                        >
-                                                            <v-icon
-                                                                size="32"
-                                                                class="mb-1"
-                                                                >mdi-chess-king</v-icon
-                                                            >
-                                                            <span
-                                                                >Strategic</span
-                                                            >
-                                                            <div
-                                                                class="text-caption opacity-60"
-                                                            >
-                                                                Long-term /
-                                                                Direction
-                                                            </div>
-                                                        </div>
-                                                    </v-btn>
-                                                    <v-btn
-                                                        value="Tactical"
-                                                        class="h-auto flex-grow-1 py-4"
-                                                    >
-                                                        <div
-                                                            class="d-flex flex-column align-center"
-                                                        >
-                                                            <v-icon
-                                                                size="32"
-                                                                class="mb-1"
-                                                                >mdi-chess-rook</v-icon
-                                                            >
-                                                            <span
-                                                                >Tactical</span
-                                                            >
-                                                            <div
-                                                                class="text-caption opacity-60"
-                                                            >
-                                                                Medium-term /
-                                                                Org
-                                                            </div>
-                                                        </div>
-                                                    </v-btn>
-                                                    <v-btn
-                                                        value="Operational"
-                                                        class="h-auto flex-grow-1 py-4"
-                                                    >
-                                                        <div
-                                                            class="d-flex flex-column align-center"
-                                                        >
-                                                            <v-icon
-                                                                size="32"
-                                                                class="mb-1"
-                                                                >mdi-chess-pawn</v-icon
-                                                            >
-                                                            <span
-                                                                >Operational</span
-                                                            >
-                                                            <div
-                                                                class="text-caption opacity-60"
-                                                            >
-                                                                Action /
-                                                                Efficiency
-                                                            </div>
-                                                        </div>
-                                                    </v-btn>
-                                                </v-btn-toggle>
-                                            </v-col>
-
-                                            <!-- Eje Y -->
-                                            <v-col cols="12" class="mt-4">
-                                                <div
-                                                    class="d-flex justify-space-between align-center mb-4"
-                                                >
-                                                    <v-label
-                                                        class="font-weight-bold"
-                                                        >Axis Y: Mastery Level
-                                                        (Expertise
-                                                        Required)</v-label
-                                                    >
-                                                    <v-chip
-                                                        size="small"
-                                                        color="primary"
-                                                        >Level
-                                                        {{
-                                                            form.cube
-                                                                .y_mastery_level
-                                                        }}</v-chip
-                                                    >
-                                                </div>
-                                                <v-slider
-                                                    v-model="
-                                                        form.cube
-                                                            .y_mastery_level
-                                                    "
-                                                    :min="1"
-                                                    :max="5"
-                                                    :step="1"
-                                                    show-ticks="always"
-                                                    thumb-label="always"
-                                                    color="secondary"
-                                                >
-                                                    <template
-                                                        #tick-label="{ tick }"
-                                                    >
-                                                        {{ tick.value }}
-                                                    </template>
-                                                </v-slider>
-                                            </v-col>
-
-                                            <!-- Eje Z -->
-                                            <v-col cols="12" class="mt-4">
-                                                <v-label
-                                                    class="font-weight-bold mb-2"
-                                                    >Axis Z: Business Process
-                                                    (Value Stream)</v-label
-                                                >
-                                                <v-text-field
-                                                    v-model="
-                                                        form.cube
-                                                            .z_business_process
-                                                    "
-                                                    variant="underlined"
-                                                    prepend-icon="mdi-sitemap-outline"
-                                                    placeholder="Identify the main business process"
-                                                ></v-text-field>
-                                            </v-col>
-                                        </v-row>
-                                    </v-col>
-
-                                    <!-- Sidebar details -->
-                                    <v-col cols="12" md="4">
-                                        <v-card
-                                            variant="flat"
-                                            border
-                                            class="pa-4 bg-surface-variant-op h-100"
-                                        >
-                                            <div
-                                                class="text-subtitle-2 font-weight-bold mb-2"
-                                            >
-                                                AI Rationale
-                                            </div>
-                                            <p class="text-body-2 mb-4 italic">
-                                                "{{ form.cube.justification }}"
-                                            </p>
-
-                                            <v-divider class="mb-4"></v-divider>
-
-                                            <div
-                                                class="text-subtitle-2 font-weight-bold mb-2"
-                                            >
-                                                Nitidez Suggestions
-                                            </div>
-                                            <v-alert
-                                                type="info"
-                                                variant="tonal"
-                                                density="compact"
-                                                class="text-caption"
-                                            >
-                                                {{ form.suggestions }}
-                                            </v-alert>
-                                        </v-card>
-                                    </v-col>
-                                </v-row>
-
-                                <div class="d-flex mt-8 justify-end gap-4">
-                                    <v-btn variant="text" @click="currentStep--"
-                                        >Back</v-btn
-                                    >
-                                    <v-btn
-                                        color="primary"
-                                        size="large"
-                                        rounded="lg"
-                                        @click="currentStep++"
-                                    >
-                                        Confirm Coordinates
-                                    </v-btn>
-                                </div>
-                            </div>
-
-                            <!-- Step 3: Skills -->
-                            <div
-                                v-else-if="currentStep === 3"
-                                :key="3"
-                                class="step-content"
-                            >
-                                <div
-                                    class="text-h4 font-weight-bold text-gradient mb-6"
-                                >
-                                    Competency Blueprint
-                                </div>
-
-                                <v-card
-                                    variant="outlined"
-                                    border
-                                    class="pa-0 mb-6 overflow-hidden rounded-xl"
-                                >
-                                    <v-table density="comfortable">
-                                        <thead class="bg-surface-variant">
-                                            <tr>
-                                                <th
-                                                    scope="col"
-                                                    class="text-overline"
-                                                >
-                                                    Competency / Skill
-                                                </th>
-                                                <th
-                                                    scope="col"
-                                                    class="text-overline text-center"
-                                                >
-                                                    Required Level
-                                                </th>
-                                                <th
-                                                    scope="col"
-                                                    class="text-overline"
-                                                >
-                                                    Rationale
-                                                </th>
-                                                <th
-                                                    scope="col"
-                                                    class="text-overline"
-                                                >
-                                                    Action
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr
-                                                v-for="(
-                                                    skill, idx
-                                                ) in form.competencies"
-                                                :key="idx"
-                                            >
-                                                <td class="font-weight-bold">
-                                                    {{ skill.name }}
-                                                </td>
-                                                <td class="text-center">
-                                                    <v-rating
-                                                        v-model="skill.level"
-                                                        density="compact"
-                                                        color="amber-darken-2"
-                                                        active-color="amber-darken-2"
-                                                        size="small"
-                                                    ></v-rating>
-                                                </td>
-                                                <td
-                                                    class="text-caption py-2 text-secondary"
-                                                >
-                                                    {{ skill.rationale }}
-                                                </td>
-                                                <td>
-                                                    <v-btn
-                                                        icon="mdi-delete-outline"
-                                                        variant="text"
-                                                        size="small"
-                                                        color="error"
-                                                        @click="
-                                                            removeSkill(idx)
-                                                        "
-                                                    ></v-btn>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </v-table>
-                                </v-card>
-
-                                <div class="d-flex align-center mt-4 gap-4">
-                                    <v-btn
-                                        prepend-icon="mdi-plus"
-                                        variant="tonal"
-                                        color="secondary"
-                                        @click="addSkill"
-                                    >
-                                        Add Competency
-                                    </v-btn>
-                                    <v-spacer></v-spacer>
-                                    <v-btn variant="text" @click="currentStep--"
-                                        >Back</v-btn
-                                    >
-                                    <v-btn
-                                        color="success"
-                                        size="large"
-                                        rounded="lg"
-                                        :loading="saving"
-                                        @click="saveRole"
-                                    >
-                                        Finalize & Create Role
-                                    </v-btn>
-                                </div>
-                            </div>
-                        </transition>
-                    </v-col>
-                </v-row>
-            </v-card-text>
-        </v-card>
-    </v-dialog>
-</template>
-
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import axios from 'axios';
 import { ref, watch } from 'vue';
 
@@ -501,16 +18,16 @@ const analyzing = ref(false);
 const saving = ref(false);
 
 const steps = [
-    { title: 'Goal Definition', desc: 'Purpose and Mission' },
+    { title: 'Goal Definition', desc: 'Purpose & Mission' },
     { title: 'Cube Mapping', desc: 'Structural Coords' },
-    { title: 'Competencies', desc: 'Skill Blueprint' },
+    { title: 'Blueprint', desc: 'Skill Architecture' },
 ];
 
 const form = ref({
     name: '',
     description: '',
     cube: {
-        x_archetype: 'Tactical',
+        x_archetype: 'Tactical' as 'Strategic' | 'Tactical' | 'Operational',
         y_mastery_level: 3,
         z_business_process: '',
         justification: '',
@@ -523,6 +40,7 @@ watch(
     () => props.visible,
     (val) => {
         internalVisible.value = val;
+        if (val) currentStep.value = 1;
     },
 );
 
@@ -534,7 +52,6 @@ const close = () => {
 const analyzeRole = async () => {
     analyzing.value = true;
     try {
-        // En lugar de usar un ID, mandamos la data para análisis previo
         const response = await axios.post(
             '/api/strategic-planning/roles/analyze-preview',
             {
@@ -554,7 +71,7 @@ const analyzeRole = async () => {
 
         currentStep.value = 2;
     } catch (error) {
-        console.error('Error analyzing role:', error);
+        console.error('Neural analysis error:', error);
     } finally {
         analyzing.value = false;
     }
@@ -566,9 +83,9 @@ const removeSkill = (index: number) => {
 
 const addSkill = () => {
     form.value.competencies.push({
-        name: 'New Competency',
+        name: 'New Capacity',
         level: 3,
-        rationale: 'Added manually by user.',
+        rationale: 'Manually defined by architect.',
     });
 };
 
@@ -577,8 +94,8 @@ const saveRole = async () => {
     try {
         const payload = {
             name: form.value.name,
-            role_name: form.value.name, // compatibility
-            role_description: form.value.description, // compatibility
+            role_name: form.value.name,
+            role_description: form.value.description,
             description: form.value.description,
             cube_dimensions: form.value.cube,
             competencies: form.value.competencies,
@@ -587,7 +104,6 @@ const saveRole = async () => {
                 core_competencies: form.value.competencies,
                 organizational_suggestions: form.value.suggestions,
             },
-            // Scenario specific fields defaults
             fte: 1,
             role_change: 'create',
             evolution_type: 'new_role',
@@ -603,131 +119,606 @@ const saveRole = async () => {
         emit('created');
         close();
     } catch (error) {
-        console.error('Error saving role:', error);
+        console.error('Saving sequence failed:', error);
     } finally {
         saving.value = false;
     }
 };
 </script>
 
+<template>
+    <v-dialog
+        v-model="internalVisible"
+        fullscreen
+        transition="dialog-bottom-transition"
+        persistent
+    >
+        <div
+            class="st-glass-container relative flex h-full w-full flex-col overflow-hidden bg-[#020617] selection:bg-indigo-500/30"
+        >
+            <!-- Background Glows -->
+            <div class="pointer-events-none fixed inset-0">
+                <div
+                    class="absolute -top-[10%] -left-[10%] h-[40%] w-[40%] rounded-full bg-indigo-500/5 blur-[120px]"
+                ></div>
+                <div
+                    class="absolute top-[20%] -right-[10%] h-[35%] w-[35%] rounded-full bg-purple-500/5 blur-[120px]"
+                ></div>
+            </div>
+
+            <!-- Header -->
+            <header
+                class="z-10 flex items-center border-b border-white/5 bg-white/2 px-8 py-4 backdrop-blur-xl"
+            >
+                <StButtonGlass
+                    variant="ghost"
+                    circle
+                    icon="mdi-close"
+                    @click="close"
+                />
+                <div class="ml-6">
+                    <h1
+                        class="flex items-center gap-3 text-xl font-black tracking-tight text-white"
+                    >
+                        Role Architect
+                        <StBadgeGlass
+                            variant="glass"
+                            size="sm"
+                            class="border !border-white/10 !px-2 text-[9px] tracking-widest text-white/40 uppercase"
+                            >AI-Powered</StBadgeGlass
+                        >
+                    </h1>
+                </div>
+                <v-spacer></v-spacer>
+                <div class="flex items-center gap-4">
+                    <div class="hidden text-right sm:block">
+                        <div
+                            class="text-[9px] font-black tracking-[0.2em] text-white/20 uppercase"
+                        >
+                            Core Orchestrator
+                        </div>
+                        <div class="text-xs font-bold text-indigo-400">
+                            Cerbero Neural Engine
+                        </div>
+                    </div>
+                    <div
+                        class="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
+                    >
+                        <v-icon color="white" size="20">mdi-robot-glow</v-icon>
+                    </div>
+                </div>
+            </header>
+
+            <div
+                class="relative z-10 flex flex-grow flex-col overflow-hidden md:flex-row"
+            >
+                <!-- Navigation -->
+                <aside
+                    class="pa-8 flex w-full flex-col border-r border-white/5 bg-white/2 md:w-80"
+                >
+                    <nav class="space-y-4">
+                        <div
+                            v-for="(step, i) in steps"
+                            :key="i"
+                            class="flex items-start gap-4 rounded-2xl p-4 transition-all duration-500"
+                            :class="[
+                                currentStep === i + 1
+                                    ? 'border border-indigo-500/20 bg-indigo-500/10 shadow-lg'
+                                    : 'pointer-events-none opacity-40 grayscale',
+                            ]"
+                        >
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-black"
+                                :class="
+                                    currentStep === i + 1
+                                        ? 'shadow-glow bg-indigo-500 text-white'
+                                        : 'bg-white/5 text-white/50'
+                                "
+                            >
+                                {{ i + 1 }}
+                            </div>
+                            <div>
+                                <div
+                                    class="mb-1 text-sm leading-tight font-black text-white"
+                                >
+                                    {{ step.title }}
+                                </div>
+                                <div
+                                    class="text-[10px] font-medium tracking-widest text-white/40 uppercase"
+                                >
+                                    {{ step.desc }}
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <v-spacer></v-spacer>
+
+                    <StCardGlass
+                        variant="glass"
+                        class="border-white/5 !bg-white/2 !p-5"
+                    >
+                        <div
+                            class="mb-2 text-[9px] font-black tracking-[0.2em] text-indigo-400 uppercase"
+                        >
+                            Protocol Note
+                        </div>
+                        <p
+                            class="text-[11px] leading-relaxed text-white/40 italic"
+                        >
+                            Structural design ensures role depth aligns with
+                            strategic organizational velocity.
+                        </p>
+                    </StCardGlass>
+                </aside>
+
+                <!-- Step Content -->
+                <main
+                    class="custom-scrollbar flex-1 overflow-y-auto p-12 lg:p-20"
+                >
+                    <transition name="fade-slide" mode="out-in">
+                        <!-- Step 1: Definition -->
+                        <div
+                            v-if="currentStep === 1"
+                            :key="1"
+                            class="mx-auto max-w-3xl space-y-12"
+                        >
+                            <div class="space-y-4">
+                                <h2
+                                    class="text-4xl leading-tight font-black tracking-tight text-white"
+                                >
+                                    Define the
+                                    <span
+                                        class="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent"
+                                        >Execution Node</span
+                                    >
+                                </h2>
+                                <p
+                                    class="max-w-2xl text-lg leading-relaxed font-medium text-white/50"
+                                >
+                                    Describe the primary mission and critical
+                                    priorities. AI will synthesize the
+                                    multi-dimensional coordinates.
+                                </p>
+                            </div>
+
+                            <div class="space-y-8">
+                                <div class="space-y-2">
+                                    <label
+                                        class="ml-1 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                                        >Architectural Label</label
+                                    >
+                                    <input
+                                        v-model="form.name"
+                                        type="text"
+                                        placeholder="e.g., Strategic Horizon Lead"
+                                        class="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-lg text-white placeholder-white/10 transition-all focus:border-indigo-500/50 focus:bg-white/[0.07] focus:outline-none"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="ml-1 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                                        >Mission Synthesis</label
+                                    >
+                                    <textarea
+                                        v-model="form.description"
+                                        rows="6"
+                                        placeholder="What is the strategic reason for this role? What are the top impact domains?"
+                                        class="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-base text-white placeholder-white/10 transition-all focus:border-indigo-500/50 focus:bg-white/[0.07] focus:outline-none"
+                                    ></textarea>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end pt-8">
+                                <StButtonGlass
+                                    variant="primary"
+                                    size="lg"
+                                    :disabled="!form.name || !form.description"
+                                    :loading="analyzing"
+                                    @click="analyzeRole"
+                                    icon="mdi-auto-fix"
+                                    class="!px-12"
+                                >
+                                    Initiate Synthesis
+                                </StButtonGlass>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Cube Mapping -->
+                        <div
+                            v-else-if="currentStep === 2"
+                            :key="2"
+                            class="mx-auto max-w-5xl space-y-12"
+                        >
+                            <div class="flex items-end justify-between">
+                                <div class="space-y-4">
+                                    <h2
+                                        class="text-4xl font-black tracking-tight text-white"
+                                    >
+                                        Cube
+                                        <span class="text-indigo-400"
+                                            >Dimensions</span
+                                        >
+                                    </h2>
+                                    <p
+                                        class="text-base font-medium text-white/50"
+                                    >
+                                        Neural engine suggested these
+                                        coordinates based on the organizational
+                                        lattice.
+                                    </p>
+                                </div>
+                                <div
+                                    class="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2"
+                                >
+                                    <v-icon size="14" color="emerald-400"
+                                        >mdi-robot-check</v-icon
+                                    >
+                                    <span
+                                        class="text-[10px] font-black tracking-widest text-emerald-400 uppercase"
+                                        >Analysis Complete</span
+                                    >
+                                </div>
+                            </div>
+
+                            <div
+                                class="grid grid-cols-1 gap-12 lg:grid-cols-12"
+                            >
+                                <div class="space-y-10 lg:col-span-7">
+                                    <!-- Axis X -->
+                                    <div class="space-y-6">
+                                        <label
+                                            class="ml-1 text-[10px] font-black tracking-[0.3em] text-white/30 uppercase"
+                                            >Axis X: Behavioral Archetype</label
+                                        >
+                                        <div class="grid grid-cols-3 gap-4">
+                                            <button
+                                                v-for="arc in [
+                                                    'Strategic',
+                                                    'Tactical',
+                                                    'Operational',
+                                                ]"
+                                                :key="arc"
+                                                @click="
+                                                    form.cube.x_archetype =
+                                                        arc as any
+                                                "
+                                                class="flex flex-col items-center gap-4 rounded-2xl border p-6 transition-all duration-500"
+                                                :class="
+                                                    form.cube.x_archetype ===
+                                                    arc
+                                                        ? 'shadow-glow border-indigo-500/50 bg-indigo-500/20'
+                                                        : 'border-white/5 bg-white/2 hover:bg-white/5'
+                                                "
+                                            >
+                                                <v-icon
+                                                    size="32"
+                                                    :color="
+                                                        form.cube
+                                                            .x_archetype === arc
+                                                            ? 'indigo-300'
+                                                            : 'white/20'
+                                                    "
+                                                >
+                                                    {{
+                                                        arc === 'Strategic'
+                                                            ? 'mdi-chess-king'
+                                                            : arc === 'Tactical'
+                                                              ? 'mdi-chess-rook'
+                                                              : 'mdi-chess-pawn'
+                                                    }}
+                                                </v-icon>
+                                                <div class="text-center">
+                                                    <div
+                                                        class="mb-1 text-sm font-black text-white"
+                                                    >
+                                                        {{ arc }}
+                                                    </div>
+                                                    <div
+                                                        class="text-[9px] font-bold text-white/30 uppercase"
+                                                    >
+                                                        {{
+                                                            arc === 'Strategic'
+                                                                ? 'Horizon 3'
+                                                                : arc ===
+                                                                    'Tactical'
+                                                                  ? 'Horizon 2'
+                                                                  : 'Horizon 1'
+                                                        }}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Axis Y -->
+                                    <div class="space-y-6">
+                                        <div
+                                            class="mb-2 flex items-center justify-between"
+                                        >
+                                            <label
+                                                class="ml-1 text-[10px] font-black tracking-[0.3em] text-white/30 uppercase"
+                                                >Axis Y: Mastery Level</label
+                                            >
+                                            <span
+                                                class="text-2xl font-black text-indigo-400"
+                                                >Tier
+                                                {{
+                                                    form.cube.y_mastery_level
+                                                }}</span
+                                            >
+                                        </div>
+                                        <div class="px-4">
+                                            <v-slider
+                                                v-model="
+                                                    form.cube.y_mastery_level
+                                                "
+                                                :min="1"
+                                                :max="5"
+                                                :step="1"
+                                                show-ticks="always"
+                                                thumb-label="always"
+                                                color="indigo-500"
+                                                track-color="white/10"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <!-- Axis Z -->
+                                    <div class="space-y-4">
+                                        <label
+                                            class="ml-1 text-[10px] font-black tracking-[0.3em] text-white/30 uppercase"
+                                            >Axis Z: Business Process
+                                            Anchor</label
+                                        >
+                                        <input
+                                            v-model="
+                                                form.cube.z_business_process
+                                            "
+                                            type="text"
+                                            placeholder="Specify process domain..."
+                                            class="w-full rounded-2xl border border-white/10 bg-white/2 px-6 py-5 text-base text-white placeholder-white/10 transition-all focus:border-indigo-500/50 focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="space-y-6 lg:col-span-5">
+                                    <StCardGlass
+                                        variant="glass"
+                                        class="border-indigo-400/20 !bg-indigo-500/5 !p-8"
+                                    >
+                                        <div
+                                            class="mb-6 flex items-center gap-3"
+                                        >
+                                            <v-icon color="indigo-400" size="18"
+                                                >mdi-head-snowflake-outline</v-icon
+                                            >
+                                            <h4
+                                                class="text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
+                                            >
+                                                Synthesis Rationale
+                                            </h4>
+                                        </div>
+                                        <p
+                                            class="mb-8 text-base leading-relaxed text-white/70 italic"
+                                        >
+                                            "{{ form.cube.justification }}"
+                                        </p>
+
+                                        <v-divider
+                                            class="mb-8 border-white/5"
+                                        ></v-divider>
+
+                                        <div
+                                            class="mb-6 flex items-center gap-3"
+                                        >
+                                            <v-icon
+                                                color="emerald-400"
+                                                size="18"
+                                                >mdi-auto-fix</v-icon
+                                            >
+                                            <h4
+                                                class="text-[10px] font-black tracking-[0.2em] text-emerald-400 uppercase"
+                                            >
+                                                Optimization Tip
+                                            </h4>
+                                        </div>
+                                        <div
+                                            class="rounded-xl border border-emerald-500/10 bg-emerald-500/5 p-5 text-xs leading-relaxed font-medium text-emerald-100/60"
+                                        >
+                                            {{ form.suggestions }}
+                                        </div>
+                                    </StCardGlass>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-4 pt-8">
+                                <StButtonGlass
+                                    variant="ghost"
+                                    icon="mdi-arrow-left"
+                                    @click="currentStep--"
+                                    >Back Stage</StButtonGlass
+                                >
+                                <StButtonGlass
+                                    variant="primary"
+                                    icon="mdi-check"
+                                    @click="currentStep++"
+                                    class="!px-12"
+                                    >Confirm Architecture</StButtonGlass
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Blueprint -->
+                        <div
+                            v-else-if="currentStep === 3"
+                            :key="3"
+                            class="mx-auto max-w-5xl space-y-12"
+                        >
+                            <div class="space-y-4">
+                                <h2
+                                    class="text-4xl font-black tracking-tight text-white"
+                                >
+                                    Capacity
+                                    <span class="text-purple-400"
+                                        >Blueprint</span
+                                    >
+                                </h2>
+                                <p class="text-base font-medium text-white/50">
+                                    Define the core strategic assets required
+                                    for this architectural node.
+                                </p>
+                            </div>
+
+                            <StCardGlass
+                                variant="glass"
+                                class="overflow-hidden border-white/10 !p-0"
+                            >
+                                <v-table class="st-glass-table w-full">
+                                    <thead>
+                                        <tr class="bg-white/5">
+                                            <th
+                                                class="px-8 py-6 !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
+                                            >
+                                                Strategic Capacity
+                                            </th>
+                                            <th
+                                                class="px-4 py-6 text-center !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
+                                            >
+                                                Mastery Req.
+                                            </th>
+                                            <th
+                                                class="px-4 py-6 !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
+                                            >
+                                                AI Rationale
+                                            </th>
+                                            <th
+                                                class="px-8 py-6 text-right !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
+                                            >
+                                                Ops
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-white/5">
+                                        <tr
+                                            v-for="(
+                                                skill, idx
+                                            ) in form.competencies"
+                                            :key="idx"
+                                            class="transition-colors hover:bg-white/5"
+                                        >
+                                            <td class="px-8 py-6">
+                                                <input
+                                                    v-model="skill.name"
+                                                    class="w-full border-none bg-transparent font-bold text-white transition-colors focus:text-indigo-300 focus:outline-none"
+                                                />
+                                            </td>
+                                            <td class="px-4 py-6">
+                                                <div
+                                                    class="flex justify-center"
+                                                >
+                                                    <v-rating
+                                                        v-model="skill.level"
+                                                        density="compact"
+                                                        color="amber-lighten-2"
+                                                        active-color="amber-lighten-2"
+                                                        size="small"
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="max-w-xs truncate px-4 py-6 text-[11px] font-medium text-white/40 italic"
+                                            >
+                                                {{ skill.rationale }}
+                                            </td>
+                                            <td class="px-8 py-6 text-right">
+                                                <StButtonGlass
+                                                    variant="ghost"
+                                                    circle
+                                                    size="sm"
+                                                    icon="mdi-delete-outline"
+                                                    class="!text-rose-500/40 hover:!text-rose-500"
+                                                    @click="removeSkill(idx)"
+                                                />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </v-table>
+                                <div
+                                    class="border-t border-white/10 bg-white/2 p-6"
+                                >
+                                    <StButtonGlass
+                                        variant="ghost"
+                                        size="sm"
+                                        icon="mdi-plus"
+                                        @click="addSkill"
+                                        >Add Manual Definition</StButtonGlass
+                                    >
+                                </div>
+                            </StCardGlass>
+
+                            <div class="flex justify-end gap-4 pt-12">
+                                <StButtonGlass
+                                    variant="ghost"
+                                    icon="mdi-arrow-left"
+                                    @click="currentStep--"
+                                    >Adjustment Phase</StButtonGlass
+                                >
+                                <StButtonGlass
+                                    variant="secondary"
+                                    :loading="saving"
+                                    icon="mdi-check-decagram"
+                                    @click="saveRole"
+                                    class="!px-12"
+                                    >Deploy To Architecture</StButtonGlass
+                                >
+                            </div>
+                        </div>
+                    </transition>
+                </main>
+            </div>
+        </div>
+    </v-dialog>
+</template>
+
 <style scoped>
-.cube-wizard-card {
-    background: #0f172a !important; /* Slate 900 */
-    color: white !important;
+.st-glass-container {
+    background: radial-gradient(circle at top left, #0f172a 0%, #020617 100%);
 }
 
-.wizard-sidebar {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-    height: 100%;
-}
-
-.sidebar-content {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.step-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 24px;
-    opacity: 0.4;
-    transition: all 0.3s ease;
-}
-
-.step-item.active {
-    opacity: 1;
-    transform: translateX(10px);
-}
-
-.step-item.completed {
-    opacity: 0.8;
-}
-
-.step-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.step-item.active .step-icon {
-    background: var(--v-primary-base);
-    border-color: white;
-}
-
-.step-item.completed .step-icon {
-    background: #10b981; /* Emerald 500 */
-    border-color: #34d399;
-}
-
-.step-title {
-    font-weight: bold;
-    font-size: 16px;
-}
-
-.step-desc {
-    font-size: 12px;
-    opacity: 0.7;
-}
-
-.wizard-main {
-    background: #f8fafc; /* Slate 50 */
-    color: #0f172a;
-    border-top-left-radius: 24px;
-    border-bottom-left-radius: 24px;
-}
-
-.gradient-text {
-    background: linear-gradient(45deg, #6366f1, #a855f7);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+.shadow-glow {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
 }
 
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-    transition: all 0.4s ease;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 .fade-slide-enter-from {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateY(20px) scale(0.98);
 }
-
 .fade-slide-leave-to {
     opacity: 0;
-    transform: translateX(-30px);
+    transform: translateY(-20px) scale(1.02);
 }
 
-.bg-white-transparent {
-    background: rgba(255, 255, 255, 0.05) !important;
+.st-glass-table :deep(th) {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05) !important;
+}
+.st-glass-table :deep(td) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
 }
 
-.border-white-op {
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
 }
-
-.bg-surface-variant-op {
-    background: rgba(var(--v-theme-surface-variant), 0.05) !important;
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
 }
-
-.italic {
-    font-style: italic;
-}
-
-.text-gradient {
-    background: linear-gradient(120deg, #1e293b, #6366f1);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.5);
+    border-radius: 4px;
 }
 </style>

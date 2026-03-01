@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import { useScenarioPlanning } from '@/composables/useStrategicPlanningScenarios';
@@ -8,7 +10,6 @@ import { onMounted, ref } from 'vue';
 const props = defineProps<{ scenarioId?: number }>();
 
 const api = useApi();
-
 const { createPlan } = useScenarioPlanning();
 const { showSuccess, showError } = useNotification();
 
@@ -16,15 +17,15 @@ const loading = ref(false);
 const form = ref({
     name: '',
     description: '',
-    start_date: new Date().toISOString().split('T')[0], // Hoy
+    start_date: new Date().toISOString().split('T')[0],
     end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
         .toISOString()
-        .split('T')[0], // Hoy + 1 año
+        .split('T')[0],
     planning_horizon_months: 12,
     scope_type: 'organization_wide',
     owner_user_id: null as number | null,
     sponsor_user_id: null as number | null,
-    fiscal_year: new Date().getFullYear(), // Año actual
+    fiscal_year: new Date().getFullYear(),
     strategic_context: '',
 });
 
@@ -33,18 +34,10 @@ const skillDemands = ref<any[]>([]);
 const scenarioData = ref<any>(null);
 const showRolesDialog = ref(false);
 const showSkillsDialog = ref(false);
-
-const rolesCount = () => {
-    const roles = planData.value?.scope_roles || [];
-    return Array.isArray(roles) ? roles.length : 0;
-};
-
-const skillsCount = () => {
-    const skills = planData.value?.skill_demands || skillDemands.value || [];
-    return Array.isArray(skills) ? skills.length : 0;
-};
 const editedSkills = ref<any[]>([]);
 const editedRoles = ref<any[]>([]);
+
+const users = ref<any[]>([]);
 
 const initEdited = () => {
     const skills = planData.value?.skill_demands || skillDemands.value || [];
@@ -52,7 +45,7 @@ const initEdited = () => {
         id: s.id,
         skill_id: s.skill_id,
         include: true,
-        action: 'include', // include | ignore | create_role | map_role
+        action: 'include',
         role_id: s.role_id || null,
         required_headcount: s.required_headcount || 0,
         required_level: s.required_level || null,
@@ -70,18 +63,16 @@ const initEdited = () => {
     }));
 };
 
-const users = ref<any[]>([]);
 const loadUsers = async () => {
     try {
         const res: any = await api.get('/api/users');
         users.value = res?.data ?? res ?? [];
     } catch (e) {
-        void e;
+        console.error('Failed to load neural identities', e);
     }
 };
 
 const mapScope = (s: string) => {
-    // map template scope values -> plan scope values
     switch (s) {
         case 'organization':
             return 'organization_wide';
@@ -95,28 +86,23 @@ const mapScope = (s: string) => {
 };
 
 onMounted(async () => {
-    // First, try localStorage prefill (created-from-template fallback)
     try {
         const raw = localStorage.getItem('wfp_prefill');
         if (raw) {
             const data = JSON.parse(raw);
             if (data.name) form.value.name = data.name;
-            if (data.description) form.value.owner_user_id = null;
             if (data.time_horizon_weeks)
                 form.value.planning_horizon_months = Math.round(
                     (data.time_horizon_weeks || 0) / 4,
                 );
             if (data.scope_type)
                 form.value.scope_type = mapScope(data.scope_type);
-
-            // remove prefill after reading
             localStorage.removeItem('wfp_prefill');
         }
     } catch (e) {
-        void e;
+        console.error(e);
     }
 
-    // If we have a scenarioId, prefer fetching the scenario (and its workforce_plan)
     if (props.scenarioId) {
         try {
             const resp: any = await api.get(
@@ -134,17 +120,14 @@ onMounted(async () => {
                         plan.planning_horizon_months;
                 if (plan.start_date) form.value.start_date = plan.start_date;
                 if (plan.end_date) form.value.end_date = plan.end_date;
-                if (plan.scope_type) {
-                    form.value.scope_type = plan.scope_type;
-                }
+                if (plan.scope_type) form.value.scope_type = plan.scope_type;
             }
-            // also capture scenario-level skill_demands (from template)
             if (data?.skill_demands && Array.isArray(data.skill_demands)) {
                 skillDemands.value = data.skill_demands;
             }
             await loadUsers();
         } catch (e) {
-            void e;
+            console.error(e);
         }
     }
 });
@@ -152,592 +135,379 @@ onMounted(async () => {
 const submit = async () => {
     loading.value = true;
     try {
-        const payload = { ...form.value };
-        const plan = await createPlan(payload as any);
-        showSuccess('Plan creado correctamente');
-        // update local plan data so wizard shows created entries
-        if (plan) {
-            planData.value = plan;
-        }
-        return plan;
-    } catch (e: any) {
-        void e;
-        showError('Error al crear el plan');
-        throw e;
+        const plan = await createPlan(form.value as any);
+        showSuccess('Neural workforce plan initialized');
+        if (plan) planData.value = plan;
+    } catch (e) {
+        showError('Neural architecture error: failed to initialize plan');
     } finally {
         loading.value = false;
     }
 };
 
 const openPlan = () => {
-    if (planData.value && planData.value.id) {
+    if (planData.value?.id) {
         router.visit(
             `/strategic-planning/scenario-planning/${planData.value.id}`,
         );
     }
 };
 
-const importRolesFromSkills = async () => {
-    if (!planData.value || !planData.value.id) {
-        showError('Crea primero el Plan antes de importar roles');
-        return;
-    }
-    const planId = planData.value.id;
-    const wp = useScenarioPlanning();
-    const items = (
-        planData.value?.skill_demands ||
-        skillDemands.value ||
-        []
-    ).filter((s: any) => s.role_id);
-    if (!items.length) {
-        showError('No hay roles detectados en las skills importadas');
-        return;
-    }
-    try {
-        const promises = items.map((s: any) =>
-            wp.addScopeRole(planId, {
-                role_id: s.role_id,
-                inclusion_reason: 'critical',
-                notes: s.rationale || '',
-            }),
-        );
-        await Promise.all(promises);
-        showSuccess(`Importados ${items.length} roles al alcance del plan`);
-    } catch (e) {
-        void e;
-        showError('Error al importar roles');
-    }
-};
-
-const importUnitsFromSkills = async () => {
-    if (!planData.value || !planData.value.id) {
-        showError('Crea primero el Plan antes de importar unidades');
-        return;
-    }
-    const planId = planData.value.id;
-    const wp = useScenarioPlanning();
-    const items = (
-        planData.value?.skill_demands ||
-        skillDemands.value ||
-        []
-    ).filter((s: any) => s.department || s.unit_name || s.unit_id);
-    if (!items.length) {
-        showError('No hay unidades detectadas en las skills importadas');
-        return;
-    }
-    try {
-        const promises = items.map((s: any) =>
-            wp.addScopeUnit(planId, {
-                unit_type: s.unit_type || 'department',
-                unit_id: s.unit_id || null,
-                unit_name: s.unit_name || s.department || 'Imported unit',
-                inclusion_reason: 'growth',
-                notes: s.rationale || '',
-            }),
-        );
-        await Promise.all(promises);
-        showSuccess(`Importadas ${items.length} unidades al alcance del plan`);
-    } catch (e) {
-        void e;
-        showError('Error al importar unidades');
-    }
-};
 const saveStep1 = async () => {
-    if (!props.scenarioId) {
-        showError('No hay escenario seleccionado');
-        return;
-    }
-    const payload = {
-        step1: {
-            metadata: {
-                name: form.value.name,
-                start_date: form.value.start_date,
-                end_date: form.value.end_date,
-                planning_horizon_months: form.value.planning_horizon_months,
-                scope_type: form.value.scope_type,
-            },
-            skills: editedSkills.value,
-            roles: editedRoles.value,
-        },
-    };
-
+    if (!props.scenarioId) return;
     try {
+        const payload = {
+            step1: {
+                metadata: {
+                    name: form.value.name,
+                    start_date: form.value.start_date,
+                    end_date: form.value.end_date,
+                    planning_horizon_months: form.value.planning_horizon_months,
+                    scope_type: form.value.scope_type,
+                },
+                skills: editedSkills.value,
+                roles: editedRoles.value,
+            },
+        };
         await api.patch(
             `/api/strategic-planning/scenarios/${props.scenarioId}`,
             payload,
         );
-        showSuccess('Cambios guardados en el escenario');
+        showSuccess('Neural foundation updated');
     } catch (e) {
-        void e;
-        showError('Error al guardar los cambios');
+        showError('Critical sync failure');
     }
 };
 </script>
 
 <template>
-    <div class="create-plan-wizard pa-4">
-        <!-- Si ya existe un Workforce Plan asociado, ocultar el formulario de creación
-         y mostrar acciones / navegación hacia el plan y los componentes de Fase 1 -->
-        <div v-if="!planData">
-            <v-form>
-                <v-row>
-                    <v-col cols="12" md="8">
-                        <v-text-field
-                            v-model="form.name"
-                            label="Nombre del plan"
-                            required
-                        />
-                        <v-textarea
-                            v-model="form.description"
-                            label="Descripción"
-                            rows="2"
-                        />
-                    </v-col>
-                    <v-col cols="12" md="4">
-                        <v-select
-                            v-model="form.scope_type"
-                            :items="[
-                                'organization_wide',
-                                'business_unit',
-                                'department',
-                                'critical_roles_only',
-                            ]"
-                            label="Tipo de alcance"
-                        />
-                    </v-col>
-                </v-row>
+    <div
+        class="create-plan-wizard animate-in space-y-8 duration-700 fade-in slide-in-from-bottom-4"
+    >
+        <!-- Dashboard Header -->
+        <div class="flex items-center justify-between">
+            <div class="flex flex-col gap-1">
+                <h3 class="text-2xl font-black tracking-tight text-white">
+                    System Foundation
+                </h3>
+                <p class="text-sm font-medium text-white/50">
+                    Configure tactical parameters and strategic scope.
+                </p>
+            </div>
+            <StButtonGlass
+                v-if="planData"
+                variant="primary"
+                icon="mdi-open-in-new"
+                @click="openPlan"
+            >
+                Open Operational Plan
+            </StButtonGlass>
+        </div>
 
-                <v-row>
-                    <v-col cols="12" md="4">
-                        <v-text-field
+        <div v-if="!planData">
+            <StCardGlass variant="glass" class="space-y-6">
+                <!-- Name & Description -->
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    <div class="space-y-4 md:col-span-2">
+                        <div class="space-y-1.5">
+                            <label
+                                class="ml-1 text-[10px] font-black tracking-widest text-indigo-400 uppercase"
+                                >Plan Identifier</label
+                            >
+                            <input
+                                v-model="form.name"
+                                type="text"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/20 transition-colors focus:border-indigo-500/50 focus:outline-none"
+                                placeholder="Strategic Alpha Horizon..."
+                            />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label
+                                class="ml-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >Contextual Description</label
+                            >
+                            <textarea
+                                v-model="form.description"
+                                rows="3"
+                                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/20 transition-colors focus:border-indigo-500/50 focus:outline-none"
+                                placeholder="Describe the strategic intent..."
+                            ></textarea>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label
+                                class="ml-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >Architectural Scope</label
+                            >
+                            <select
+                                v-model="form.scope_type"
+                                class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-colors focus:border-indigo-500/50 focus:outline-none"
+                            >
+                                <option value="organization_wide">
+                                    Organization Wide
+                                </option>
+                                <option value="business_unit">
+                                    Business Unit
+                                </option>
+                                <option value="department">Departmental</option>
+                                <option value="critical_roles_only">
+                                    Critical Roles Only
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    <div class="space-y-1.5">
+                        <label
+                            class="ml-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >Deployment Start</label
+                        >
+                        <input
                             v-model="form.start_date"
-                            label="Fecha inicio (YYYY-MM-DD)"
+                            type="date"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-colors focus:border-indigo-500/50 focus:outline-none"
                         />
-                    </v-col>
-                    <v-col cols="12" md="4">
-                        <v-text-field
+                    </div>
+                    <div class="space-y-1.5">
+                        <label
+                            class="ml-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >Neural Termination</label
+                        >
+                        <input
                             v-model="form.end_date"
-                            label="Fecha término (YYYY-MM-DD)"
+                            type="date"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-colors focus:border-indigo-500/50 focus:outline-none"
                         />
-                    </v-col>
-                    <v-col cols="12" md="4">
-                        <v-text-field
+                    </div>
+                    <div class="space-y-1.5">
+                        <label
+                            class="ml-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >Horizon (Months)</label
+                        >
+                        <input
                             v-model="form.planning_horizon_months"
                             type="number"
-                            label="Horizonte (meses)"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-colors focus:border-indigo-500/50 focus:outline-none"
                         />
-                    </v-col>
-                </v-row>
+                    </div>
+                </div>
 
-                <v-row>
-                    <v-col cols="12" md="4">
-                        <v-select
+                <div
+                    class="grid grid-cols-1 gap-6 border-t border-white/5 pt-4 md:grid-cols-3"
+                >
+                    <div class="space-y-1.5">
+                        <label
+                            class="ml-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >Operational Owner</label
+                        >
+                        <select
                             v-model="form.owner_user_id"
-                            :items="users"
-                            item-title="name"
-                            item-value="id"
-                            label="Owner"
-                            dense
-                            clearable
-                        />
-                    </v-col>
-                    <v-col cols="12" md="4">
-                        <v-select
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-colors focus:border-indigo-500/50 focus:outline-none"
+                        >
+                            <option :value="null">Unassigned</option>
+                            <option
+                                v-for="u in users"
+                                :key="u.id"
+                                :value="u.id"
+                            >
+                                {{ u.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label
+                            class="ml-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >Strategic Sponsor</label
+                        >
+                        <select
                             v-model="form.sponsor_user_id"
-                            :items="users"
-                            item-title="name"
-                            item-value="id"
-                            label="Sponsor"
-                            dense
-                            clearable
-                        />
-                    </v-col>
-                    <v-col cols="12" md="4">
-                        <v-text-field
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-colors focus:border-indigo-500/50 focus:outline-none"
+                        >
+                            <option :value="null">Unassigned</option>
+                            <option
+                                v-for="u in users"
+                                :key="u.id"
+                                :value="u.id"
+                            >
+                                {{ u.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label
+                            class="ml-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >Fiscal Year</label
+                        >
+                        <input
                             v-model="form.fiscal_year"
                             type="number"
-                            label="Año fiscal"
+                            class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-colors focus:border-indigo-500/50 focus:outline-none"
                         />
-                    </v-col>
-                </v-row>
+                    </div>
+                </div>
 
-                <v-row>
-                    <v-col cols="12">
-                        <v-textarea
-                            v-model="form.strategic_context"
-                            label="Contexto estratégico"
-                            rows="2"
-                        />
-                    </v-col>
-                </v-row>
-
-                <v-row class="mt-3">
-                    <v-col class="text-right">
-                        <v-btn
-                            color="primary"
-                            :loading="loading"
-                            @click="submit"
-                            >Crear Plan</v-btn
-                        >
-                    </v-col>
-                </v-row>
-            </v-form>
+                <div class="flex justify-end pt-4">
+                    <StButtonGlass
+                        variant="primary"
+                        :loading="loading"
+                        @click="submit"
+                        class="!px-12"
+                    >
+                        Initialize Plan
+                    </StButtonGlass>
+                </div>
+            </StCardGlass>
         </div>
 
-        <div v-else class="mb-4">
-            <v-row>
-                <v-col cols="12" class="d-flex justify-end">
-                    <v-btn
-                        color="primary"
-                        variant="outlined"
-                        @click="openPlan"
-                        prepend-icon="mdi-open-in-new"
-                        >Abrir Plan</v-btn
-                    >
-                </v-col>
-            </v-row>
-            <v-alert type="info" class="mt-2"
-                >Este escenario ya tiene un Plan de Dotación asociado. Aquí se
-                muestran los elementos importados de Fase 1.</v-alert
+        <!-- Pre-filled Data (Phase 1) -->
+        <div v-if="planData || skillDemands.length" class="space-y-6">
+            <StCardGlass
+                variant="glass"
+                border-accent="indigo"
+                class="overflow-hidden !p-0"
             >
-        </div>
-        <!-- Quick import actions -->
-        <div
-            class="mt-2"
-            v-if="planData || (skillDemands && skillDemands.length)"
-        >
-            <v-row class="mb-3">
-                <v-col cols="12" md="6">
-                    <v-btn
-                        color="secondary"
-                        variant="outlined"
-                        @click="importRolesFromSkills"
-                        :disabled="!skillDemands || !skillDemands.length"
-                        >Importar roles desde skills</v-btn
+                <div
+                    class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4"
+                >
+                    <v-icon
+                        icon="mdi-database-eye-outline"
+                        color="indigo-400"
+                        size="18"
+                    />
+                    <h4
+                        class="text-xs font-black tracking-widest text-white uppercase"
                     >
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-btn
-                        color="secondary"
-                        variant="outlined"
-                        @click="importUnitsFromSkills"
-                        :disabled="!skillDemands || !skillDemands.length"
-                        >Importar unidades desde skills</v-btn
-                    >
-                </v-col>
-            </v-row>
-            <v-row>
-                <v-col cols="12" class="text-right">
-                    <v-btn color="primary" @click="saveStep1"
-                        >Guardar Step 1</v-btn
-                    >
-                </v-col>
-            </v-row>
-        </div>
-        <div class="mt-6">
-            <v-divider class="mb-4" />
-            <h4>Datos prellenados (Fase 1)</h4>
-            <div v-if="planData || (skillDemands && skillDemands.length)">
-                <v-row>
-                    <v-col cols="12" md="6">
-                        <h5>Unidades incluidas</h5>
-                        <v-list
-                            v-if="
-                                planData.scope_units &&
-                                planData.scope_units.length
-                            "
+                        Neural Artifact Extraction
+                    </h4>
+                </div>
+
+                <div class="grid grid-cols-1 gap-8 p-6 md:grid-cols-2">
+                    <!-- Scope Units -->
+                    <div class="space-y-4">
+                        <h5
+                            class="text-[10px] font-black tracking-widest text-white/40 uppercase"
                         >
-                            <v-list-item
+                            Associated Business Nodes
+                        </h5>
+                        <div
+                            v-if="planData?.scope_units?.length"
+                            class="space-y-2"
+                        >
+                            <div
                                 v-for="u in planData.scope_units"
                                 :key="u.id"
-                            >
-                                <div class="list-item-content">
-                                    <div class="font-weight-medium">
-                                        {{ u.unit_name }}
-                                    </div>
-                                    <div class="text--secondary">
-                                        {{ u.unit_type }} —
-                                        {{ u.inclusion_reason }}
-                                    </div>
-                                </div>
-                            </v-list-item>
-                        </v-list>
-                        <v-alert v-else type="info"
-                            >No hay unidades predefinidas.</v-alert
-                        >
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <h5>Skills predefinidas</h5>
-                        <div
-                            v-if="
-                                (planData &&
-                                    planData.skill_demands &&
-                                    planData.skill_demands.length) ||
-                                (skillDemands && skillDemands.length)
-                            "
-                        >
-                            <div
-                                v-if="
-                                    planData?.scope_type ===
-                                        'organization_wide' ||
-                                    skillsCount() > 10
-                                "
+                                class="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3"
                             >
                                 <div>
-                                    Skills transversales: {{ skillsCount() }}
-                                </div>
-                                <v-btn
-                                    text
-                                    small
-                                    color="primary"
-                                    @click="showSkillsDialog = true"
-                                    >Ver detalle</v-btn
-                                >
-                            </div>
-                            <v-list v-else>
-                                <v-list-item
-                                    v-for="s in planData?.skill_demands ||
-                                    skillDemands"
-                                    :key="s.id"
-                                >
-                                    <div class="list-item-content">
-                                        <div class="font-weight-medium">
-                                            Skill #{{ s.skill_id || s.skill }}
-                                        </div>
-                                        <div class="text--secondary">
-                                            Requeridos:
-                                            {{ s.required_headcount }} · Nivel:
-                                            {{ s.required_level }} · Prioridad:
-                                            {{ s.priority }}
-                                        </div>
+                                    <div class="text-sm font-bold text-white">
+                                        {{ u.unit_name }}
                                     </div>
-                                </v-list-item>
-                            </v-list>
+                                    <div
+                                        class="text-[10px] font-bold text-white/30 uppercase"
+                                    >
+                                        {{ u.unit_type }}
+                                    </div>
+                                </div>
+                                <div
+                                    class="text-[10px] font-black text-indigo-400 uppercase opacity-60"
+                                >
+                                    {{ u.inclusion_reason }}
+                                </div>
+                            </div>
                         </div>
-                        <v-alert v-else type="info"
-                            >No hay skills predefinidas.</v-alert
+                        <div v-else class="text-xs text-white/20 italic">
+                            No business nodes registered.
+                        </div>
+                    </div>
+
+                    <!-- Skill Demands -->
+                    <div class="space-y-4">
+                        <h5
+                            class="text-[10px] font-black tracking-widest text-white/40 uppercase"
                         >
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <h5>Roles incluidos</h5>
-                        <div
-                            v-if="
-                                planData.scope_roles &&
-                                planData.scope_roles.length
-                            "
-                        >
+                            Capability Deficit Projections
+                        </h5>
+                        <div v-if="editedSkills.length" class="space-y-2">
                             <div
-                                v-if="
-                                    planData.scope_type ===
-                                        'organization_wide' || rolesCount() > 10
-                                "
+                                v-for="s in editedSkills.slice(0, 5)"
+                                :key="s.id"
+                                class="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3"
                             >
-                                <div>Roles afectados: {{ rolesCount() }}</div>
-                                <v-btn
-                                    text
-                                    small
-                                    color="primary"
-                                    @click="showRolesDialog = true"
-                                    >Ver detalle</v-btn
-                                >
-                            </div>
-                            <v-list v-else>
-                                <v-list-item
-                                    v-for="r in planData.scope_roles"
-                                    :key="r.id"
-                                >
-                                    <div class="list-item-content">
-                                        <div class="font-weight-medium">
-                                            Role #{{ r.role_id }}
-                                        </div>
-                                        <div class="text--secondary">
-                                            {{ r.inclusion_reason }} —
-                                            {{ r.notes }}
-                                        </div>
+                                <div>
+                                    <div class="text-sm font-bold text-white">
+                                        Neural Pattern #{{ s.skill_id }}
                                     </div>
-                                </v-list-item>
-                            </v-list>
-                        </div>
-                        <v-alert v-else type="info"
-                            >No hay roles predefinidos.</v-alert
-                        >
-                    </v-col>
-                </v-row>
-
-                <v-row class="mt-4">
-                    <v-col cols="12">
-                        <h5>Proyectos de transformación</h5>
-                        <v-list
-                            v-if="
-                                planData.transformation_projects &&
-                                planData.transformation_projects.length
-                            "
-                        >
-                            <v-list-item
-                                v-for="p in planData.transformation_projects"
-                                :key="p.id"
-                            >
-                                <div class="list-item-content">
-                                    <div class="font-weight-medium">
-                                        {{ p.project_name }}
-                                    </div>
-                                    <div class="text--secondary">
-                                        {{ p.project_type }} — Impacto:
-                                        {{ p.estimated_fte_impact || '—' }}
+                                    <div
+                                        class="text-[10px] font-bold text-white/30 uppercase"
+                                    >
+                                        RQ: {{ s.required_headcount }} FTEs
                                     </div>
                                 </div>
-                            </v-list-item>
-                        </v-list>
-                        <v-alert v-else type="info"
-                            >No hay proyectos predefinidos.</v-alert
-                        >
-                    </v-col>
-                </v-row>
-            </div>
-            <div v-else>
-                <v-alert type="info"
-                    >No hay datos de Fase 1 asociados. Puedes crear el plan
-                    manualmente.</v-alert
-                >
-            </div>
-        </div>
-        <!-- Roles detail dialog -->
-        <v-dialog v-model="showRolesDialog" width="800">
-            <v-card>
-                <v-card-title>Roles afectados</v-card-title>
-                <v-card-text>
-                    <v-row
-                        v-for="(r, idx) in editedRoles"
-                        :key="r.id"
-                        class="mb-2"
-                    >
-                        <v-col cols="12" md="4">
-                            <div class="text-subtitle-1">
-                                Role #{{ r.role_id }}
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="h-1.5 w-1.5 rounded-full"
+                                        :class="
+                                            s.priority === 'critical'
+                                                ? 'bg-rose-500'
+                                                : 'bg-amber-500'
+                                        "
+                                    ></div>
+                                    <div
+                                        class="text-[10px] font-black text-white/40 uppercase"
+                                    >
+                                        {{ s.priority }}
+                                    </div>
+                                </div>
                             </div>
-                        </v-col>
-                        <v-col cols="12" md="3">
-                            <v-select
-                                v-model="editedRoles[idx].inclusion_reason"
-                                :items="[
-                                    'critical',
-                                    'hard_to_fill',
-                                    'transformation',
-                                    'high_risk',
-                                    'other',
-                                ]"
-                                label="Razón de inclusión"
-                                dense
-                            />
-                        </v-col>
-                        <v-col cols="12" md="4">
-                            <v-text-field
-                                v-model="editedRoles[idx].notes"
-                                label="Notas"
-                                dense
-                            />
-                        </v-col>
-                        <v-col cols="12" md="1">
-                            <v-checkbox
-                                v-model="editedRoles[idx].include"
-                                label="Incluir"
-                                dense
-                            />
-                        </v-col>
-                    </v-row>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer />
-                    <v-btn text color="primary" @click="showRolesDialog = false"
-                        >Cerrar</v-btn
-                    >
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+                            <div
+                                v-if="editedSkills.length > 5"
+                                class="text-right"
+                            >
+                                <button
+                                    @click="showSkillsDialog = true"
+                                    class="text-[10px] font-black text-indigo-400 uppercase hover:text-indigo-300"
+                                >
+                                    View All
+                                    {{ editedSkills.length }} Projections
+                                </button>
+                            </div>
+                        </div>
+                        <div v-else class="text-xs text-white/20 italic">
+                            No neural deficits identified.
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Skills detail dialog -->
-        <v-dialog v-model="showSkillsDialog" width="900">
-            <v-card>
-                <v-card-title>Skills predefinidas</v-card-title>
-                <v-card-text>
-                    <v-row
-                        class="mb-2"
-                        v-for="(s, idx) in editedSkills"
-                        :key="s.id"
+                <div
+                    class="flex items-center justify-between border-t border-white/5 bg-indigo-500/5 px-6 py-4"
+                >
+                    <p class="text-[11px] font-medium text-white/40 italic">
+                        System foundation is immutable once operational. Adjust
+                        in configuration node if necessary.
+                    </p>
+                    <StButtonGlass variant="ghost" size="sm" @click="saveStep1"
+                        >Commit Foundation Adjustments</StButtonGlass
                     >
-                        <v-col cols="12" md="3">
-                            <div class="text-subtitle-2">
-                                Skill #{{ s.skill_id }}
-                            </div>
-                        </v-col>
-                        <v-col cols="12" md="2">
-                            <v-text-field
-                                v-model="editedSkills[idx].required_headcount"
-                                type="number"
-                                label="Headcount"
-                                dense
-                            />
-                        </v-col>
-                        <v-col cols="12" md="2">
-                            <v-text-field
-                                v-model="editedSkills[idx].required_level"
-                                label="Nivel"
-                                dense
-                            />
-                        </v-col>
-                        <v-col cols="12" md="2">
-                            <v-select
-                                v-model="editedSkills[idx].priority"
-                                :items="['low', 'medium', 'high', 'critical']"
-                                label="Prioridad"
-                                dense
-                            />
-                        </v-col>
-                        <v-col cols="12" md="2">
-                            <v-select
-                                v-model="editedSkills[idx].action"
-                                :items="[
-                                    'include',
-                                    'ignore',
-                                    'create_role',
-                                    'map_role',
-                                ]"
-                                label="Acción"
-                                dense
-                            />
-                        </v-col>
-                        <v-col cols="12" md="1">
-                            <v-checkbox
-                                v-model="editedSkills[idx].include"
-                                label="Incluir"
-                                dense
-                            />
-                        </v-col>
-                        <v-col cols="12" md="12">
-                            <v-text-field
-                                v-model="editedSkills[idx].rationale"
-                                label="Rationale / Notes"
-                                dense
-                            />
-                        </v-col>
-                    </v-row>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                        text
-                        color="primary"
-                        @click="showSkillsDialog = false"
-                        >Cerrar</v-btn
-                    >
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+                </div>
+            </StCardGlass>
+        </div>
     </div>
 </template>
 
 <style scoped>
-.create-plan-wizard {
-    max-width: 980px;
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+select option {
+    background-color: #111827;
+    color: white;
 }
 </style>

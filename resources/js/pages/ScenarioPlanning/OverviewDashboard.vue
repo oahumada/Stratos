@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -7,10 +9,6 @@ import { computed, onMounted, ref } from 'vue';
 import CoverageChart from './Charts/CoverageChart.vue';
 import DepartmentGapsChart from './Charts/DepartmentGapsChart.vue';
 import HeadcountChart from './Charts/HeadcountChart.vue';
-import MatchScoreDistributionChart from './Charts/MatchScoreDistributionChart.vue';
-import ReadinessTimelineChart from './Charts/ReadinessTimelineChart.vue';
-import SkillGapsChart from './Charts/SkillGapsChart.vue';
-import SuccessionRiskChart from './Charts/SuccessionRiskChart.vue';
 import MatchingResults from './MatchingResults.vue';
 import RoleForecastsTable from './RoleForecastsTable.vue';
 import ScenarioRoiCalculator from './ScenarioRoiCalculator.vue';
@@ -82,8 +80,6 @@ const formatNumber = (num: number): string => {
 
 // Helper functions for chart data aggregation
 const countGapsByPriority = (priority: string): number => {
-    // This will be populated by data from the store in the next phase
-    // For now return mock data that will be replaced by store getters
     const gapPriorities: { [key: string]: number } = {
         critical: 3,
         high: 4,
@@ -94,7 +90,6 @@ const countGapsByPriority = (priority: string): number => {
 };
 
 const countByReadiness = (level: string): number => {
-    // Mock data - will be populated from store
     const readinessCounts: { [key: string]: number } = {
         immediately: 3,
         within_six: 4,
@@ -105,7 +100,6 @@ const countByReadiness = (level: string): number => {
 };
 
 const getAllMatchScores = (): number[] => {
-    // Mock data - will be populated from store
     return [95, 87, 92, 78, 84, 91, 56, 71, 88, 82];
 };
 
@@ -125,14 +119,12 @@ const loadScenario = async () => {
         const scenario = (response as any).data;
         scenarioName.value = scenario.name;
         scenarioDescription.value = scenario.description;
-        // Analytics legacy deshabilitado temporalmente
     } catch (e) {
         void e;
         showError('Failed to load scenario');
     }
 };
 
-// Analytics legacy deshabilitado temporalmente hasta migrar al nuevo módulo
 const loadAnalytics = async () => {
     return;
 };
@@ -214,7 +206,6 @@ const runAnalysis = async () => {
         );
         const result: any = (res as any).data || res;
         if (result && result.summary) {
-            // Mapear algunos KPIs a tarjetas existentes cuando sea posible
             analytics.value.total_skills_required =
                 result.summary.total_required_skills ||
                 analytics.value.total_skills_required;
@@ -257,12 +248,10 @@ const generateStrategies = async () => {
     }
 };
 
-// mark some bindings referenced to avoid unused-var during staged refactor
 void page;
 void loadAnalytics;
 
 const downloadReport = () => {
-    // TODO: Implement report download
     showSuccess('Descarga de reporte aún no implementada');
 };
 
@@ -273,163 +262,320 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="overview-dashboard">
-        <v-container fluid>
-            <v-row class="mb-4">
-                <v-col cols="12" md="8">
-                    <h2>Escenario: {{ scenarioName }}</h2>
-                    <p class="text-subtitle-2">{{ scenarioDescription }}</p>
-                </v-col>
-                <v-col cols="12" md="4" class="text-right">
-                    <v-btn
-                        color="primary"
-                        @click="runAnalysis"
+    <div class="st-glass-container pa-8">
+        <!-- Dashboard Header -->
+        <header class="mb-10">
+            <div
+                class="d-flex align-center justify-space-between flex-wrap gap-6"
+            >
+                <div class="flex-grow-1">
+                    <div class="d-flex align-center mb-2 gap-3">
+                        <v-btn
+                            icon
+                            variant="text"
+                            color="white"
+                            @click="
+                                $inertia.visit('/strategic-planning/scenarios')
+                            "
+                            class="rounded-xl border border-white/10 bg-white/5"
+                        >
+                            <v-icon>mdi-arrow-left</v-icon>
+                        </v-btn>
+                        <h1
+                            class="text-h3 font-weight-black tracking-tighter text-white"
+                        >
+                            {{ scenarioName || 'Scenario Detail' }}
+                            <span class="st-badge-live ml-2">SIMULATION</span>
+                        </h1>
+                    </div>
+                    <p
+                        class="text-h6 font-weight-regular max-w-2xl leading-relaxed text-indigo-100/60"
+                    >
+                        {{
+                            scenarioDescription ||
+                            'Executive Strategic Overview and Performance Projections'
+                        }}
+                    </p>
+                </div>
+
+                <div class="header-actions d-flex items-center gap-4">
+                    <StButtonGlass
+                        variant="glass"
+                        icon="mdi-refresh"
                         :loading="analyzing"
-                        prepend-icon="mdi-refresh"
-                        class="mr-2"
+                        @click="runAnalysis"
                     >
-                        Ejecutar Análisis
-                    </v-btn>
-                    <v-btn
-                        color="success"
+                        Analyze Gaps
+                    </StButtonGlass>
+
+                    <StButtonGlass
+                        variant="secondary"
+                        icon="mdi-lightbulb-on"
                         @click="generateStrategies"
-                        prepend-icon="mdi-lightbulb-on"
-                        class="mr-2"
                     >
-                        Generar Estrategias
-                    </v-btn>
-                    <v-btn
-                        color="secondary"
+                        Generate Strategies
+                    </StButtonGlass>
+
+                    <StButtonGlass
+                        variant="ghost"
+                        icon="mdi-download"
                         @click="downloadReport"
-                        prepend-icon="mdi-download"
                     >
-                        Exportar
-                    </v-btn>
-                </v-col>
-            </v-row>
+                        Export
+                    </StButtonGlass>
+                </div>
+            </div>
+        </header>
 
-            <!-- Navigation Tabs -->
-            <v-row class="mb-4">
-                <v-col cols="12">
-                    <v-tabs v-model="activeTab" bg-color="primary">
-                        <v-tab value="overview">Resumen</v-tab>
-                        <v-tab value="simulator">
-                            <v-icon start>mdi-chart-timeline</v-icon>
-                            Simulador de Crecimiento
-                        </v-tab>
-                        <v-tab value="critical">
-                            <v-icon start>mdi-alert-circle</v-icon>
-                            Talentos Críticos ({{ criticalTalentsCount }})
-                        </v-tab>
-                        <v-tab value="forecasts">Proyecciones de Roles</v-tab>
-                        <v-tab value="matches">Coincidencias de Talento</v-tab>
-                        <v-tab value="gaps">Brechas de Habilidades</v-tab>
-                        <v-tab value="succession">Planes de Sucesión</v-tab>
-                        <v-tab value="roi">
-                            <v-icon start>mdi-calculator</v-icon>
-                            Análisis ROI
-                        </v-tab>
-                        <v-tab value="strategies">
-                            <v-icon start>mdi-target</v-icon>
-                            Asignar Estrategias
-                        </v-tab>
-                    </v-tabs>
-                </v-col>
-            </v-row>
+        <!-- Executive Navigation -->
+        <div class="tab-scroll-container mb-10">
+            <v-tabs
+                v-model="activeTab"
+                bg-color="transparent"
+                color="indigo-accent-2"
+                align-tabs="start"
+                class="glass-tabs"
+            >
+                <v-tab
+                    value="overview"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-view-dashboard</v-icon>Overview
+                </v-tab>
+                <v-tab
+                    value="simulator"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-chart-timeline</v-icon>Simulator
+                </v-tab>
+                <v-tab
+                    value="critical"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-alert-decagram</v-icon>Critical Risk ({{
+                        criticalTalentsCount
+                    }})
+                </v-tab>
+                <v-tab
+                    value="forecasts"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-account-clock</v-icon>Forecasts
+                </v-tab>
+                <v-tab
+                    value="matches"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-transit-connection-variant</v-icon>Matches
+                </v-tab>
+                <v-tab
+                    value="gaps"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-lightning-bolt</v-icon>Skill Gaps
+                </v-tab>
+                <v-tab
+                    value="succession"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-sync</v-icon>Succession
+                </v-tab>
+                <v-tab
+                    value="roi"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-calculator</v-icon>ROI Analysis
+                </v-tab>
+                <v-tab
+                    value="strategies"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-target</v-icon>Strategies
+                </v-tab>
+            </v-tabs>
+        </div>
 
-            <!-- Tab Content -->
-            <div v-show="activeTab === 'overview'">
-                <!-- KPI Cards -->
-                <v-row class="mb-4">
-                    <v-col cols="12" md="3">
-                        <v-card>
-                            <v-card-text>
-                                <div class="text-overline">Dotación Total</div>
-                                <div class="text-h4">
-                                    {{
-                                        analytics.total_headcount_current || '0'
-                                    }}
+        <!-- Main Content Transitions -->
+        <div class="tab-content-wrapper overflow-hidden pb-12">
+            <transition name="fade-slide" mode="out-in">
+                <!-- Tab: Overview -->
+                <div v-if="activeTab === 'overview'" :key="'overview'">
+                    <!-- KPI Cards -->
+                    <v-row class="mb-8">
+                        <v-col cols="12" sm="6" md="3">
+                            <StCardGlass
+                                class="pa-6 relative h-full overflow-hidden border-white/5"
+                                :no-hover="false"
+                            >
+                                <div class="kpi-accent bg-indigo-500"></div>
+                                <div
+                                    class="text-overline font-weight-black pl-2 tracking-widest text-white/50"
+                                >
+                                    Current Headcount
                                 </div>
-                                <div class="text-caption">
-                                    Actual →
-                                    {{
-                                        analytics.total_headcount_projected ||
-                                        '0'
-                                    }}
+                                <div
+                                    class="d-flex mt-2 gap-2 pl-2 align-baseline"
+                                >
+                                    <div
+                                        class="text-h3 font-weight-black text-white"
+                                    >
+                                        {{
+                                            formatNumber(
+                                                analytics.total_headcount_current,
+                                            )
+                                        }}
+                                    </div>
+                                    <div
+                                        class="text-caption font-weight-bold text-indigo-300"
+                                    >
+                                        <v-icon size="14"
+                                            >mdi-arrow-right</v-icon
+                                        >
+                                        {{
+                                            formatNumber(
+                                                analytics.total_headcount_projected,
+                                            )
+                                        }}
+                                    </div>
                                 </div>
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
+                            </StCardGlass>
+                        </v-col>
 
-                    <v-col cols="12" md="3">
-                        <v-card>
-                            <v-card-text>
-                                <div class="text-overline">
-                                    Crecimiento Neto
+                        <v-col cols="12" sm="6" md="3">
+                            <StCardGlass
+                                class="pa-6 relative h-full overflow-hidden border-white/5"
+                                :no-hover="false"
+                            >
+                                <div class="kpi-accent bg-emerald-500"></div>
+                                <div
+                                    class="text-overline font-weight-black pl-2 tracking-widest text-white/50"
+                                >
+                                    Net Capacity Expansion
                                 </div>
-                                <div class="text-h4">
-                                    {{ analytics.net_growth || '0' }}
+                                <div
+                                    class="d-flex mt-2 gap-2 pl-2 align-baseline"
+                                >
+                                    <div
+                                        class="text-h3 font-weight-black text-emerald-400"
+                                    >
+                                        {{ analytics.net_growth > 0 ? '+' : ''
+                                        }}{{
+                                            formatNumber(analytics.net_growth)
+                                        }}
+                                    </div>
+                                    <div
+                                        class="text-caption font-weight-bold ml-2 tracking-tighter text-emerald-200/50 uppercase"
+                                    >
+                                        FTE IMPACT
+                                    </div>
                                 </div>
-                                <div class="text-caption">
-                                    {{
-                                        analytics.net_growth > 0
-                                            ? 'Expansión'
-                                            : 'Reducción'
-                                    }}
-                                </div>
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
+                            </StCardGlass>
+                        </v-col>
 
-                    <v-col cols="12" md="3">
-                        <v-card>
-                            <v-card-text>
-                                <div class="text-overline">
-                                    Cobertura Interna
+                        <v-col cols="12" sm="6" md="3">
+                            <StCardGlass
+                                class="pa-6 relative h-full overflow-hidden border-white/5"
+                                :no-hover="false"
+                            >
+                                <div class="kpi-accent bg-amber-500"></div>
+                                <div
+                                    class="text-overline font-weight-black pl-2 tracking-widest text-white/50"
+                                >
+                                    Internal Coverage
                                 </div>
-                                <div class="text-h4">
-                                    {{
-                                        analytics.internal_coverage_percentage ||
-                                        '0'
-                                    }}%
+                                <div
+                                    class="d-flex mt-2 gap-2 pl-2 align-baseline"
+                                >
+                                    <div
+                                        class="text-h3 font-weight-black text-amber-200"
+                                    >
+                                        {{
+                                            analytics.internal_coverage_percentage
+                                        }}%
+                                    </div>
+                                    <div
+                                        class="text-caption font-weight-bold ml-2 tracking-tighter text-amber-400/50 uppercase"
+                                    >
+                                        Gap:
+                                        {{ analytics.external_gap_percentage }}%
+                                    </div>
                                 </div>
-                                <div class="text-caption">
-                                    Brecha Externa:
-                                    {{
-                                        analytics.external_gap_percentage ||
-                                        '0'
-                                    }}%
-                                </div>
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
+                                <v-progress-linear
+                                    :model-value="
+                                        analytics.internal_coverage_percentage
+                                    "
+                                    color="amber-400"
+                                    height="4"
+                                    class="mt-4 rounded-xl"
+                                />
+                            </StCardGlass>
+                        </v-col>
 
-                    <v-col cols="12" md="3">
-                        <v-card>
-                            <v-card-text>
-                                <div class="text-overline">
-                                    Riesgo de Sucesión
+                        <v-col cols="12" sm="6" md="3">
+                            <StCardGlass
+                                class="pa-6 relative h-full overflow-hidden border-white/5"
+                                :no-hover="false"
+                            >
+                                <div class="kpi-accent bg-rose-500"></div>
+                                <div
+                                    class="text-overline font-weight-black pl-2 tracking-widest text-white/50"
+                                >
+                                    Succession Risk
                                 </div>
-                                <div class="text-h4">
-                                    {{
-                                        analytics.succession_risk_percentage ||
-                                        '0'
-                                    }}%
+                                <div
+                                    class="d-flex mt-2 gap-2 pl-2 align-baseline"
+                                >
+                                    <div
+                                        class="text-h3 font-weight-black text-rose-400"
+                                    >
+                                        {{
+                                            analytics.succession_risk_percentage
+                                        }}%
+                                    </div>
+                                    <div
+                                        class="st-badge-live ml-2 border border-rose-500/30 bg-rose-500/20 text-rose-400"
+                                    >
+                                        CRITICAL
+                                    </div>
                                 </div>
-                                <div class="text-caption">
-                                    Roles críticos en riesgo
-                                </div>
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
-                </v-row>
+                            </StCardGlass>
+                        </v-col>
+                    </v-row>
 
-                <!-- Primary Charts Row -->
-                <v-row class="mb-4">
-                    <v-col cols="12" md="6">
-                        <v-card>
-                            <v-card-title>Proyección de Dotación</v-card-title>
-                            <v-card-text>
+                    <!-- Chart & Insights Row -->
+                    <v-row class="mb-8">
+                        <v-col cols="12" md="8">
+                            <StCardGlass
+                                class="pa-8 h-full border-white/5"
+                                :no-hover="true"
+                            >
+                                <div
+                                    class="d-flex align-center justify-space-between mb-8"
+                                >
+                                    <h3
+                                        class="text-h5 font-weight-black tracking-tight text-white"
+                                    >
+                                        Capacity Evolution Projections
+                                    </h3>
+                                    <div class="d-flex gap-2">
+                                        <v-chip
+                                            size="small"
+                                            variant="tonal"
+                                            color="indigo-accent-2"
+                                            label
+                                            class="rounded-lg"
+                                            >CURRENT</v-chip
+                                        >
+                                        <v-chip
+                                            size="small"
+                                            variant="tonal"
+                                            color="emerald-accent-2"
+                                            label
+                                            class="rounded-lg"
+                                            >PROJECTED</v-chip
+                                        >
+                                    </div>
+                                </div>
                                 <HeadcountChart
                                     :currentHeadcount="
                                         analytics.total_headcount_current
@@ -438,14 +584,85 @@ onMounted(() => {
                                         analytics.total_headcount_projected
                                     "
                                 />
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
+                            </StCardGlass>
+                        </v-col>
 
-                    <v-col cols="12" md="6">
-                        <v-card>
-                            <v-card-title>Cobertura Interna</v-card-title>
-                            <v-card-text>
+                        <v-col cols="12" md="4">
+                            <StCardGlass
+                                class="pa-8 h-full border-indigo-400/20 bg-indigo-900/10"
+                                :no-hover="true"
+                            >
+                                <h3
+                                    class="text-h5 font-weight-black mb-8 tracking-tight text-indigo-300 uppercase"
+                                >
+                                    Strategic Forecast
+                                </h3>
+                                <div class="space-y-8">
+                                    <div class="insight-item">
+                                        <div
+                                            class="text-caption font-weight-black mb-1 tracking-widest text-white/40 uppercase"
+                                        >
+                                            Estimated ROI Gain
+                                        </div>
+                                        <div
+                                            class="text-h3 font-weight-black text-emerald-400"
+                                        >
+                                            ${{
+                                                formatNumber(
+                                                    analytics.estimated_training_cost,
+                                                )
+                                            }}
+                                        </div>
+                                        <div
+                                            class="text-body-2 mt-1 leading-relaxed text-white/50"
+                                        >
+                                            Yield from optimized strategic
+                                            upskilling deployment.
+                                        </div>
+                                    </div>
+                                    <v-divider class="border-white/5" />
+                                    <div class="insight-item">
+                                        <div
+                                            class="text-caption font-weight-black mb-1 tracking-widest text-white/40 uppercase"
+                                        >
+                                            Human Risk Points
+                                        </div>
+                                        <div
+                                            class="text-h3 font-weight-black text-white"
+                                        >
+                                            {{ analytics.high_risk_positions }}
+                                        </div>
+                                        <div
+                                            class="text-body-2 mt-1 leading-relaxed text-white/50"
+                                        >
+                                            Specific roles lacking viable direct
+                                            successors within 12 months.
+                                        </div>
+                                    </div>
+                                    <StButtonGlass
+                                        block
+                                        variant="primary"
+                                        class="mt-8"
+                                        icon="mdi-shield-check"
+                                    >
+                                        Security Audit
+                                    </StButtonGlass>
+                                </div>
+                            </StCardGlass>
+                        </v-col>
+                    </v-row>
+
+                    <v-row>
+                        <v-col cols="12" md="6">
+                            <StCardGlass
+                                class="pa-8 h-full border-white/5"
+                                :no-hover="true"
+                            >
+                                <h3
+                                    class="text-h5 font-weight-black mb-8 tracking-tight text-white uppercase"
+                                >
+                                    Talent Pool Composition
+                                </h3>
                                 <CoverageChart
                                     :internalCoverage="
                                         analytics.internal_coverage_percentage
@@ -454,239 +671,83 @@ onMounted(() => {
                                         analytics.external_gap_percentage
                                     "
                                 />
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
-                </v-row>
-
-                <!-- Secondary Charts Row -->
-                <v-row class="mb-4">
-                    <v-col cols="12" md="6">
-                        <v-card>
-                            <v-card-title
-                                >Brechas de Habilidades por
-                                Prioridad</v-card-title
+                            </StCardGlass>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <StCardGlass
+                                class="pa-8 h-full border-white/5"
+                                :no-hover="true"
                             >
-                            <v-card-text>
-                                <SkillGapsChart
-                                    :criticalGaps="
-                                        countGapsByPriority('critical')
-                                    "
-                                    :highGaps="countGapsByPriority('high')"
-                                    :mediumGaps="countGapsByPriority('medium')"
-                                    :lowGaps="countGapsByPriority('low')"
-                                />
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
-
-                    <v-col cols="12" md="6">
-                        <v-card>
-                            <v-card-title
-                                >Evaluación de Riesgo de Sucesión</v-card-title
-                            >
-                            <v-card-text>
-                                <SuccessionRiskChart
-                                    :riskPercentage="
-                                        analytics.succession_risk_percentage
-                                    "
-                                />
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
-                </v-row>
-
-                <!-- Tertiary Charts Row -->
-                <v-row class="mb-4">
-                    <v-col cols="12" md="4">
-                        <v-card>
-                            <v-card-title
-                                >Cronograma de Preparación</v-card-title
-                            >
-                            <v-card-text>
-                                <ReadinessTimelineChart
-                                    :immediatelyReady="
-                                        countByReadiness('immediately')
-                                    "
-                                    :readyWithinSix="
-                                        countByReadiness('within_six')
-                                    "
-                                    :readyWithinTwelve="
-                                        countByReadiness('within_twelve')
-                                    "
-                                    :beyondTwelve="
-                                        countByReadiness('beyond_twelve')
-                                    "
-                                />
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
-
-                    <v-col cols="12" md="4">
-                        <v-card>
-                            <v-card-title
-                                >Distribución de Puntuación</v-card-title
-                            >
-                            <v-card-text>
-                                <MatchScoreDistributionChart
-                                    :scores="getAllMatchScores()"
-                                />
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
-
-                    <v-col cols="12" md="4">
-                        <v-card>
-                            <v-card-title
-                                >Brechas por Departamento</v-card-title
-                            >
-                            <v-card-text>
+                                <h3
+                                    class="text-h5 font-weight-black mb-8 tracking-tight text-white uppercase"
+                                >
+                                    Execution Gaps by Department
+                                </h3>
                                 <DepartmentGapsChart
                                     :departments="getDepartments()"
                                     :gapCounts="getGapCountsByDepartment()"
                                 />
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
-                </v-row>
+                            </StCardGlass>
+                        </v-col>
+                    </v-row>
+                </div>
 
-                <!-- Risk Summary -->
-                <v-row>
-                    <v-col cols="12" md="6">
-                        <v-card>
-                            <v-card-title>Resumen de Riesgos</v-card-title>
-                            <v-list>
-                                <v-list-item>
-                                    <v-list-item-title
-                                        >Posiciones de Alto
-                                        Riesgo</v-list-item-title
-                                    >
-                                    <v-list-item-subtitle>{{
-                                        analytics.high_risk_positions
-                                    }}</v-list-item-subtitle>
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-list-item-title
-                                        >Posiciones de Riesgo
-                                        Medio</v-list-item-title
-                                    >
-                                    <v-list-item-subtitle>{{
-                                        analytics.medium_risk_positions
-                                    }}</v-list-item-subtitle>
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-list-item-title
-                                        >Habilidades Críticas en
-                                        Riesgo</v-list-item-title
-                                    >
-                                    <v-list-item-subtitle>{{
-                                        analytics.critical_skills_at_risk
-                                    }}</v-list-item-subtitle>
-                                </v-list-item>
-                            </v-list>
-                        </v-card>
-                    </v-col>
+                <!-- Tab: Simulator -->
+                <div
+                    v-else-if="activeTab === 'simulator'"
+                    :key="'simulator'"
+                    class="tab-content-anim"
+                >
+                    <StCardGlass class="pa-8 border-white/10" :no-hover="true">
+                        <div class="d-flex align-center mb-10 gap-4">
+                            <v-avatar
+                                color="indigo-700"
+                                size="48"
+                                class="elevation-10"
+                            >
+                                <v-icon color="white"
+                                    >mdi-chart-timeline</v-icon
+                                >
+                            </v-avatar>
+                            <div>
+                                <h2
+                                    class="text-h4 font-weight-black tracking-tighter text-white"
+                                >
+                                    Growth Engine Simulator
+                                </h2>
+                                <p
+                                    class="text-subtitle-1 leading-none text-white/50"
+                                >
+                                    Simulate scaling impacts on talent readiness
+                                    and operational cost.
+                                </p>
+                            </div>
+                        </div>
 
-                    <v-col cols="12" md="6">
-                        <v-card>
-                            <v-card-title>Estimaciones de Costo</v-card-title>
-                            <v-list>
-                                <v-list-item>
-                                    <v-list-item-title
-                                        >Costo de
-                                        Reclutamiento</v-list-item-title
-                                    >
-                                    <v-list-item-subtitle
-                                        >${{
-                                            formatNumber(
-                                                analytics.estimated_recruitment_cost,
-                                            )
-                                        }}</v-list-item-subtitle
-                                    >
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-list-item-title
-                                        >Costo de
-                                        Capacitación</v-list-item-title
-                                    >
-                                    <v-list-item-subtitle
-                                        >${{
-                                            formatNumber(
-                                                analytics.estimated_training_cost,
-                                            )
-                                        }}</v-list-item-subtitle
-                                    >
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-list-item-title
-                                        >Cronograma de Contratación
-                                        Externa</v-list-item-title
-                                    >
-                                    <v-list-item-subtitle
-                                        >{{
-                                            analytics.estimated_external_hiring_months
-                                        }}
-                                        meses</v-list-item-subtitle
-                                    >
-                                </v-list-item>
-                            </v-list>
-                        </v-card>
-                    </v-col>
-                </v-row>
-
-                <!-- Action Buttons -->
-                <v-row class="mt-4">
-                    <v-col cols="12">
-                        <v-btn
-                            color="primary"
-                            @click="runAnalysis"
-                            :loading="analyzing"
-                            prepend-icon="mdi-refresh"
+                        <v-row
+                            class="align-center pa-6 mb-10 rounded-2xl border border-white/5 bg-white/5"
                         >
-                            Ejecutar Análisis Completo
-                        </v-btn>
-                        <v-btn
-                            color="secondary"
-                            @click="downloadReport"
-                            prepend-icon="mdi-download"
-                            class="ml-2"
-                        >
-                            Descargar Reporte
-                        </v-btn>
-                    </v-col>
-                </v-row>
-            </div>
-
-            <!-- Growth Simulator Tab -->
-            <div v-show="activeTab === 'simulator'">
-                <v-card>
-                    <v-card-title class="text-h5 bg-primary">
-                        <v-icon start>mdi-chart-timeline</v-icon>
-                        Simulador de Escenarios de Crecimiento
-                    </v-card-title>
-                    <v-card-text>
-                        <v-row class="mt-4">
                             <v-col cols="12" md="3">
                                 <v-text-field
                                     v-model.number="
                                         simulationParams.growth_percentage
                                     "
-                                    label="Crecimiento %"
+                                    label="Org Growth (%)"
                                     type="number"
                                     suffix="%"
-                                    min="0"
-                                    max="100"
-                                    density="comfortable"
                                     variant="outlined"
+                                    class="glass-input"
+                                    hide-details
                                 />
                             </v-col>
                             <v-col cols="12" md="3">
                                 <v-select
                                     v-model="simulationParams.horizon_months"
                                     :items="[12, 18, 24, 36]"
-                                    label="Horizonte (meses)"
-                                    density="comfortable"
+                                    label="Horizon (Months)"
                                     variant="outlined"
+                                    class="glass-input"
+                                    hide-details
                                 />
                             </v-col>
                             <v-col cols="12" md="3">
@@ -694,134 +755,105 @@ onMounted(() => {
                                     v-model.number="
                                         simulationParams.external_hiring_ratio
                                     "
-                                    label="Contratación Externa %"
+                                    label="External Hiring Ratio"
                                     type="number"
                                     suffix="%"
-                                    min="0"
-                                    max="100"
-                                    density="comfortable"
                                     variant="outlined"
+                                    class="glass-input"
+                                    hide-details
                                 />
                             </v-col>
                             <v-col cols="12" md="3">
-                                <v-btn
-                                    color="primary"
-                                    size="large"
-                                    @click="runSimulation"
+                                <StButtonGlass
                                     block
+                                    variant="secondary"
+                                    size="lg"
+                                    @click="runSimulation"
+                                    icon="mdi-play"
                                 >
-                                    <v-icon start>mdi-play</v-icon>
-                                    Ejecutar Simulación
-                                </v-btn>
+                                    Run Simulation
+                                </StButtonGlass>
                             </v-col>
                         </v-row>
 
-                        <v-divider class="my-4"></v-divider>
-
-                        <!-- Simulation Results -->
-                        <v-row v-if="simulationResults" class="mt-4">
-                            <v-col cols="12" md="4">
-                                <v-card color="blue-lighten-5">
-                                    <v-card-title
-                                        >Proyección de Dotación</v-card-title
-                                    >
-                                    <v-card-text>
-                                        <v-row>
-                                            <v-col cols="6" class="text-center">
-                                                <div class="text-h4">
-                                                    {{
-                                                        simulationResults.current_talent_pool
-                                                    }}
-                                                </div>
-                                                <div class="text-caption">
-                                                    Pool de Talento Actual
-                                                </div>
-                                            </v-col>
-                                            <v-col cols="6" class="text-center">
-                                                <div
-                                                    class="text-h4 text-primary"
-                                                >
-                                                    {{
-                                                        simulationResults.projected_talent_requirement
-                                                    }}
-                                                </div>
-                                                <div class="text-caption">
-                                                    Requerimientos Proyectados
-                                                </div>
-                                            </v-col>
-                                        </v-row>
-                                    </v-card-text>
-                                </v-card>
-                            </v-col>
-                            <v-col cols="12" md="4">
-                                <v-card color="green-lighten-5">
-                                    <v-card-title
-                                        >Crecimiento Neto</v-card-title
-                                    >
-                                    <v-card-text>
-                                        <div
-                                            class="text-h3 text-success text-center"
-                                        >
-                                            +{{
-                                                simulationResults.net_capacity_gap
-                                            }}
-                                        </div>
-                                        <div class="text-caption text-center">
-                                            Brecha de capacidad neta
-                                        </div>
-                                    </v-card-text>
-                                </v-card>
-                            </v-col>
-                            <v-col cols="12" md="4">
-                                <v-card color="orange-lighten-5">
-                                    <v-card-title>Costo Estimado</v-card-title>
-                                    <v-card-text>
-                                        <div class="text-h4 text-center">
-                                            ${{
+                        <div v-if="simulationResults">
+                            <v-row class="mb-10">
+                                <v-col
+                                    cols="12"
+                                    md="4"
+                                    v-for="(stat, idx) in [
+                                        {
+                                            label: 'Projected Talent Req',
+                                            val: simulationResults.projected_talent_requirement,
+                                            color: 'indigo-400',
+                                        },
+                                        {
+                                            label: 'Net Capacity Gap',
+                                            val: simulationResults.net_capacity_gap,
+                                            color: 'rose-400',
+                                        },
+                                        {
+                                            label: 'Total Estimated OpEx',
+                                            val:
+                                                '$' +
                                                 formatNumber(
                                                     simulationResults
                                                         .estimated_cost
                                                         ?.total || 0,
-                                                )
-                                            }}
-                                        </div>
-                                        <div class="text-caption text-center">
-                                            Reclutamiento: ${{
-                                                formatNumber(
-                                                    simulationResults
-                                                        .estimated_cost
-                                                        ?.recruitment || 0,
-                                                )
-                                            }}<br />
-                                            Capacitación: ${{
-                                                formatNumber(
-                                                    simulationResults
-                                                        .estimated_cost
-                                                        ?.training || 0,
-                                                )
-                                            }}
-                                        </div>
-                                    </v-card-text>
-                                </v-card>
-                            </v-col>
-                        </v-row>
-
-                        <!-- Department Breakdown -->
-                        <v-row v-if="simulationResults">
-                            <v-col cols="12">
-                                <v-card>
-                                    <v-card-title
-                                        >Distribución por
-                                        Departamento</v-card-title
+                                                ),
+                                            color: 'emerald-400',
+                                        },
+                                    ]"
+                                    :key="idx"
+                                >
+                                    <div
+                                        class="pa-8 rounded-3xl border border-white/10 bg-white/5 text-center transition-all hover:bg-white/10"
                                     >
-                                    <v-card-text>
-                                        <v-table density="comfortable">
+                                        <div
+                                            class="text-caption font-weight-black mb-2 tracking-widest text-white/30 uppercase"
+                                        >
+                                            {{ stat.label }}
+                                        </div>
+                                        <div
+                                            class="text-h3 font-weight-black"
+                                            :class="'text-' + stat.color"
+                                        >
+                                            {{ stat.val }}
+                                        </div>
+                                    </div>
+                                </v-col>
+                            </v-row>
+
+                            <v-row>
+                                <v-col cols="12">
+                                    <StCardGlass
+                                        class="pa-0 overflow-hidden border-white/5"
+                                        :no-hover="true"
+                                    >
+                                        <v-table class="glass-table">
                                             <thead>
                                                 <tr>
-                                                    <th>Departamento</th>
-                                                    <th>Actual</th>
-                                                    <th>Proyectado</th>
-                                                    <th>Brecha</th>
+                                                    <th
+                                                        class="text-overline font-weight-black pl-8 text-white/40"
+                                                    >
+                                                        Strategic Capability
+                                                        Area
+                                                    </th>
+                                                    <th
+                                                        class="text-overline font-weight-black text-center text-white/40"
+                                                    >
+                                                        Current FTE
+                                                    </th>
+                                                    <th
+                                                        class="text-overline font-weight-black text-center text-white/40"
+                                                    >
+                                                        Projected Req
+                                                    </th>
+                                                    <th
+                                                        class="text-overline font-weight-black pr-8 text-right text-white/40"
+                                                    >
+                                                        Net Delta
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -831,24 +863,40 @@ onMounted(() => {
                                                     ) in simulationResults.by_capability_area"
                                                     :key="cat"
                                                 >
-                                                    <td>{{ cat }}</td>
-                                                    <td>{{ data.current }}</td>
-                                                    <td>
-                                                        <strong>{{
-                                                            data.projected
-                                                        }}</strong>
+                                                    <td
+                                                        class="font-weight-black pl-8 text-white"
+                                                    >
+                                                        {{ cat }}
                                                     </td>
-                                                    <td>
+                                                    <td
+                                                        class="text-center text-white/70"
+                                                    >
+                                                        {{ data.current }}
+                                                    </td>
+                                                    <td
+                                                        class="font-weight-black text-center text-indigo-300"
+                                                    >
+                                                        {{ data.projected }}
+                                                    </td>
+                                                    <td class="pr-8 text-right">
                                                         <v-chip
                                                             :color="
-                                                                data.gap > 0
-                                                                    ? 'success'
-                                                                    : 'error'
+                                                                data.gap >= 0
+                                                                    ? 'emerald-500/20'
+                                                                    : 'rose-500/20'
+                                                            "
+                                                            :text-color="
+                                                                data.gap >= 0
+                                                                    ? 'emerald-400'
+                                                                    : 'rose-400'
                                                             "
                                                             size="small"
+                                                            variant="flat"
+                                                            border
+                                                            class="font-weight-bold"
                                                         >
                                                             {{
-                                                                data.gap > 0
+                                                                data.gap >= 0
                                                                     ? '+'
                                                                     : ''
                                                             }}{{ data.gap }}
@@ -857,135 +905,68 @@ onMounted(() => {
                                                 </tr>
                                             </tbody>
                                         </v-table>
-                                    </v-card-text>
-                                </v-card>
-                            </v-col>
-                        </v-row>
+                                    </StCardGlass>
+                                </v-col>
+                            </v-row>
+                        </div>
+                    </StCardGlass>
+                </div>
 
-                        <!-- Skills Needed -->
-                        <v-row v-if="simulationResults?.skills_needed">
-                            <v-col cols="12">
-                                <v-card>
-                                    <v-card-title
-                                        >Habilidades Más
-                                        Demandadas</v-card-title
-                                    >
-                                    <v-card-text>
-                                        <v-table density="comfortable">
-                                            <thead>
-                                                <tr>
-                                                    <th>Habilidad</th>
-                                                    <th>Cantidad Requerida</th>
-                                                    <th>
-                                                        Disponibilidad Interna
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr
-                                                    v-for="skill in simulationResults.strategic_skills_needed"
-                                                    :key="skill.skill_id"
-                                                >
-                                                    <td>
-                                                        {{ skill.skill_name }}
-                                                    </td>
-                                                    <td>
-                                                        <strong>{{
-                                                            skill.count_needed
-                                                        }}</strong>
-                                                    </td>
-                                                    <td>
-                                                        <v-progress-linear
-                                                            :model-value="
-                                                                skill.internal_availability_pct
-                                                            "
-                                                            :color="
-                                                                skill.internal_availability_pct >
-                                                                50
-                                                                    ? 'success'
-                                                                    : 'warning'
-                                                            "
-                                                            height="20"
-                                                        >
-                                                            {{
-                                                                Math.round(
-                                                                    skill.internal_availability_pct,
-                                                                )
-                                                            }}%
-                                                        </v-progress-linear>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </v-table>
-                                    </v-card-text>
-                                </v-card>
-                            </v-col>
-                        </v-row>
-
-                        <!-- Critical Risks -->
-                        <v-row v-if="simulationResults?.critical_risks?.length">
-                            <v-col cols="12">
-                                <v-card color="red-lighten-5">
-                                    <v-card-title>
-                                        <v-icon start color="error"
-                                            >mdi-alert</v-icon
-                                        >
-                                        Riesgos Críticos Identificados
-                                    </v-card-title>
-                                    <v-card-text>
-                                        <v-list>
-                                            <v-list-item
-                                                v-for="(
-                                                    risk, idx
-                                                ) in simulationResults.critical_talent_risks"
-                                                :key="idx"
-                                            >
-                                                <v-list-item-title>{{
-                                                    risk.role
-                                                }}</v-list-item-title>
-                                                <v-list-item-subtitle>
-                                                    <v-chip
-                                                        color="error"
-                                                        size="small"
-                                                        class="mr-2"
-                                                        >{{
-                                                            risk.critical_level
-                                                        }}</v-chip
-                                                    >
-                                                    {{ risk.recommendation }}
-                                                </v-list-item-subtitle>
-                                            </v-list-item>
-                                        </v-list>
-                                    </v-card-text>
-                                </v-card>
-                            </v-col>
-                        </v-row>
-                    </v-card-text>
-                </v-card>
-            </div>
-
-            <!-- Critical Talents Tab -->
-            <div v-show="activeTab === 'critical'">
-                <v-card>
-                    <v-card-title class="text-h5 bg-error">
-                        <v-icon start>mdi-alert-circle</v-icon>
-                        Talentos Críticos & Riesgo de Orquestación
-                    </v-card-title>
-                    <v-card-text>
+                <!-- Tab: Critical Talents -->
+                <div
+                    v-else-if="activeTab === 'critical'"
+                    :key="'critical'"
+                    class="tab-content-anim"
+                >
+                    <StCardGlass
+                        class="pa-0 overflow-hidden border-white/10"
+                        :no-hover="true"
+                    >
+                        <div
+                            class="pa-8 border-b border-white/5 bg-rose-900/10"
+                        >
+                            <h2
+                                class="text-h4 font-weight-black d-flex align-center gap-3 tracking-tighter text-rose-300"
+                            >
+                                <v-icon color="rose-400" size="40"
+                                    >mdi-alert-decagram</v-icon
+                                >
+                                Critical Talent Exposure Map
+                            </h2>
+                            <p class="text-body-1 mt-2 text-rose-200/50">
+                                Identification of bottleneck roles and
+                                high-impact succession risks.
+                            </p>
+                        </div>
                         <v-data-table
                             :headers="criticalTalentsHeaders"
                             :items="criticalTalents"
+                            class="glass-table"
                             density="comfortable"
-                            class="mt-4"
                         >
                             <template #[`item.capability`]="{ item }">
-                                <strong>{{ item.capability }}</strong>
+                                <div class="font-weight-black pl-4 text-white">
+                                    {{ item.capability }}
+                                </div>
                             </template>
                             <template #[`item.risk_status`]="{ item }">
                                 <v-chip
-                                    :color="getRiskColor(item.risk_status)"
-                                    text-color="white"
+                                    :color="
+                                        getRiskColor(item.risk_status) ===
+                                        'error'
+                                            ? 'red-500/20'
+                                            : 'orange-500/20'
+                                    "
+                                    :text-color="
+                                        getRiskColor(item.risk_status) ===
+                                        'error'
+                                            ? 'red-400'
+                                            : 'orange-400'
+                                    "
+                                    variant="flat"
                                     size="small"
+                                    border
+                                    class="font-weight-black px-4"
                                 >
                                     {{ item.risk_status }}
                                 </v-chip>
@@ -995,57 +976,187 @@ onMounted(() => {
                                     item,
                                 }"
                             >
-                                <v-chip
-                                    :color="
-                                        item.internal_succession.ready_now > 0
-                                            ? 'success'
-                                            : 'error'
-                                    "
-                                    size="small"
-                                >
-                                    {{ item.internal_succession.ready_now }}
-                                </v-chip>
+                                <div class="d-flex align-center gap-2">
+                                    <v-avatar
+                                        :color="
+                                            item.internal_succession.ready_now >
+                                            0
+                                                ? 'emerald-500/20'
+                                                : 'rose-500/20'
+                                        "
+                                        size="28"
+                                        class="border border-white/10"
+                                    >
+                                        <span
+                                            class="text-caption font-weight-black"
+                                            :class="
+                                                item.internal_succession
+                                                    .ready_now > 0
+                                                    ? 'text-emerald-400'
+                                                    : 'text-rose-400'
+                                            "
+                                        >
+                                            {{
+                                                item.internal_succession
+                                                    .ready_now
+                                            }}
+                                        </span>
+                                    </v-avatar>
+                                    <span class="text-body-2 text-white/50"
+                                        >Ready Now</span
+                                    >
+                                </div>
                             </template>
                         </v-data-table>
-                    </v-card-text>
-                </v-card>
-            </div>
+                    </StCardGlass>
+                </div>
 
-            <!-- Role Forecasts Tab -->
-            <div v-show="activeTab === 'forecasts'">
-                <RoleForecastsTable :scenarioId="scenarioId" />
-            </div>
-
-            <!-- Talent Matches Tab -->
-            <div v-show="activeTab === 'matches'">
-                <MatchingResults :scenarioId="scenarioId" />
-            </div>
-
-            <!-- Skill Gaps Tab -->
-            <div v-show="activeTab === 'gaps'">
-                <SkillGapsMatrix :scenarioId="scenarioId" />
-            </div>
-
-            <!-- Succession Plans Tab -->
-            <div v-show="activeTab === 'succession'">
-                <SuccessionPlanCard :scenarioId="scenarioId" />
-            </div>
-
-            <!-- ROI Calculator Tab -->
-            <div v-show="activeTab === 'roi'">
-                <ScenarioRoiCalculator :scenarioId="scenarioId" />
-            </div>
-
-            <!-- Strategy Assigner Tab -->
-            <div v-show="activeTab === 'strategies'">
-                <ScenarioStrategyAssigner :scenarioId="scenarioId" />
-            </div>
-        </v-container>
+                <!-- Shared / Legacy Modular Tabs -->
+                <div
+                    v-else-if="activeTab === 'forecasts'"
+                    :key="'forecasts'"
+                    class="tab-content-anim"
+                >
+                    <RoleForecastsTable :scenarioId="scenarioId" />
+                </div>
+                <div
+                    v-else-if="activeTab === 'matches'"
+                    :key="'matches'"
+                    class="tab-content-anim"
+                >
+                    <MatchingResults :scenarioId="scenarioId" />
+                </div>
+                <div
+                    v-else-if="activeTab === 'gaps'"
+                    :key="'gaps'"
+                    class="tab-content-anim"
+                >
+                    <SkillGapsMatrix :scenarioId="scenarioId" />
+                </div>
+                <div
+                    v-else-if="activeTab === 'succession'"
+                    :key="'succession'"
+                    class="tab-content-anim"
+                >
+                    <SuccessionPlanCard :scenarioId="scenarioId" />
+                </div>
+                <div
+                    v-else-if="activeTab === 'roi'"
+                    :key="'roi'"
+                    class="tab-content-anim"
+                >
+                    <ScenarioRoiCalculator :scenarioId="scenarioId" />
+                </div>
+                <div
+                    v-else-if="activeTab === 'strategies'"
+                    :key="'strategies'"
+                    class="tab-content-anim"
+                >
+                    <ScenarioStrategyAssigner :scenarioId="scenarioId" />
+                </div>
+            </transition>
+        </div>
     </div>
 </template>
 
 <style scoped>
-.overview-dashboard {
-    padding: 20px;
+.st-glass-container {
+    background:
+        radial-gradient(circle at top left, rgba(30, 30, 50, 0.4), transparent),
+        radial-gradient(
+            circle at bottom right,
+            rgba(20, 10, 40, 0.4),
+            transparent
+        );
+    min-height: 100vh;
+}
+
+.tab-scroll-container {
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.tab-scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+.kpi-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    opacity: 0.6;
+}
+
+.glass-tabs :deep(.v-tab) {
+    height: 64px !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+    border-bottom: 2px solid transparent !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px !important;
+}
+
+.glass-tabs :deep(.v-tab--selected) {
+    color: #818cf8 !important;
+    background: linear-gradient(
+        to top,
+        rgba(99, 102, 241, 0.1),
+        transparent
+    ) !important;
+}
+
+.glass-table {
+    background: transparent !important;
+}
+
+.glass-table :deep(th) {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    height: 56px !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.glass-table :deep(td) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+    height: 72px !important;
+}
+
+.glass-table :deep(tr:hover) {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.tab-content-anim {
+    animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.roi-item {
+    transition: transform 0.3s ease;
+}
+.roi-item:hover {
+    transform: translateX(4px);
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: all 0.3s ease;
+}
+.fade-slide-enter-from {
+    opacity: 0;
+    transform: translateX(10px);
+}
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateX(-10px);
 }
 </style>

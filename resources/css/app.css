@@ -160,6 +160,24 @@
     --sidebar-border: hsl(0 0% 15.9%);
     --sidebar-ring: hsl(217.2 91.2% 59.8%);
     --sidebar: hsl(240 5.9% 10%);
+
+    /* Stratos Glass Design Tokens */
+    --stratos-bg-main: #0f172a;
+    --stratos-bg-gradient: radial-gradient(
+        circle at top right,
+        #1e1b4b,
+        #0f172a 60%
+    );
+    --stratos-glass-bg: rgba(30, 41, 59, 0.5);
+    --stratos-glass-bg-hover: rgba(30, 41, 59, 0.7);
+    --stratos-glass-border: rgba(255, 255, 255, 0.05);
+    --stratos-glass-border-hover: rgba(99, 102, 241, 0.3);
+    --stratos-glass-blur: blur(12px);
+
+    --stratos-accent-indigo: #6366f1;
+    --stratos-accent-emerald: #10b981;
+    --stratos-accent-rose: #f43f5e;
+    --stratos-accent-cyan: #22d3ee;
 }
 
 @layer base {
@@ -185,5 +203,56 @@
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    /* Stratos UI Suite */
+    .st-glass-container {
+        min-height: 100vh;
+        background: var(--stratos-bg-gradient);
+        color: #f8fafc;
+    }
+
+    .st-card-glass {
+        background: var(--stratos-glass-bg);
+        backdrop-filter: var(--stratos-glass-blur);
+        border: 1px solid var(--stratos-glass-border);
+        border-radius: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .st-card-glass:hover {
+        background: var(--stratos-glass-bg-hover);
+        border-color: var(--stratos-glass-border-hover);
+        transform: translateY(-4px);
+    }
+
+    .st-text-premium {
+        @apply font-bold tracking-tight text-white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .st-badge-live {
+        @apply rounded-full bg-red-500 px-2 py-0.5 align-middle text-[0.7rem] tracking-wider text-white uppercase;
+    }
+
+    .glass-input :deep(.v-field),
+    .v-input.glass-input .v-field {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .glass-input :deep(.v-field--focused),
+    .v-input.glass-input .v-field--focused {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(99, 102, 241, 0.4) !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+    }
+
+    .glass-input :deep(.v-label),
+    .v-input.glass-input .v-label {
+        color: rgba(255, 255, 255, 0.5) !important;
+        font-weight: 500 !important;
     }
 }

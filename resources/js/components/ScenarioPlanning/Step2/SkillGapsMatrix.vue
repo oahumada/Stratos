@@ -1,297 +1,421 @@
 <template>
-    <div class="skill-gaps-matrix-container">
-        <div class="mb-6">
-            <div class="flex items-center justify-between">
-                <h3 class="text-h5 mb-4 font-semibold">
-                    Matriz de Brechas de Skills
-                </h3>
-                <v-btn
-                    icon
-                    variant="text"
-                    size="large"
-                    class="ml-2"
-                    @click="showLegendDialog = true"
-                >
-                    <v-icon size="28">mdi-information-outline</v-icon>
-                </v-btn>
-            </div>
-            <p class="mb-4 text-sm text-gray-600">
-                Análisis visual de las diferencias entre skills actuales y
-                requeridos
-            </p>
+    <div class="skill-gaps-matrix-container relative min-h-[500px]">
+        <!-- Background Elements -->
+        <div
+            class="pointer-events-none absolute -top-24 -right-24 h-96 w-96 bg-indigo-500/10 blur-[120px]"
+        ></div>
+        <div
+            class="pointer-events-none absolute -bottom-24 -left-24 h-96 w-96 bg-emerald-500/10 blur-[120px]"
+        ></div>
 
-            <!-- Filters -->
-            <div class="mb-4 flex flex-wrap gap-4">
-                <v-select
-                    v-model="filterBy"
-                    :items="['all', 'role', 'competency']"
-                    label="Filtrar por:"
-                    density="compact"
-                    style="width: 150px"
-                />
-                <v-text-field
-                    v-model="searchQuery"
-                    placeholder="Buscar skill..."
-                    density="compact"
-                    style="width: 250px"
+        <!-- Header -->
+        <div
+            class="relative z-10 mb-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
+        >
+            <div>
+                <h3 class="mb-1 text-2xl font-black tracking-tight text-white">
+                    Skill Gaps <span class="text-indigo-400">Heatmap</span>
+                </h3>
+                <p class="text-sm font-medium text-white/40">
+                    Visual differential analysis between current inventory and
+                    strategic requirements
+                </p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div
+                    class="flex items-center gap-2 rounded-2xl border border-white/5 bg-white/5 p-1 px-3"
+                >
+                    <v-icon size="16" class="text-white/20">mdi-magnify</v-icon>
+                    <input
+                        v-model="searchQuery"
+                        type="text"
+                        placeholder="Search skill..."
+                        class="bg-transparent text-sm font-bold text-white outline-none placeholder:text-white/20"
+                    />
+                </div>
+                <StButtonGlass
+                    variant="ghost"
+                    circle
+                    icon="mdi-information-outline"
+                    @click="showLegendDialog = true"
                 />
             </div>
         </div>
 
         <!-- Alerts -->
-        <v-alert
-            v-if="error"
-            type="error"
-            closable
-            @click:close="error = null"
-            class="mb-4"
-        >
-            {{ error }}
-        </v-alert>
+        <transition name="fade">
+            <div
+                v-if="error"
+                class="mb-6 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4"
+            >
+                <div class="flex items-center gap-3">
+                    <v-icon color="rose-400" size="20">mdi-alert-circle</v-icon>
+                    <span class="text-sm font-bold text-rose-200">{{
+                        error
+                    }}</span>
+                </div>
+            </div>
+        </transition>
 
-        <!-- Loading -->
-        <div v-if="loading" class="flex justify-center py-8">
-            <v-progress-circular indeterminate color="primary" />
+        <!-- Main Heatmap -->
+        <div
+            v-if="loading"
+            class="flex flex-col items-center justify-center py-24"
+        >
+            <v-progress-circular
+                indeterminate
+                color="indigo-400"
+                size="64"
+                width="3"
+            />
+            <span
+                class="mt-4 text-xs font-black tracking-widest text-indigo-400/60 uppercase"
+                >Mapping Talent Topology...</span
+            >
         </div>
 
-        <!-- Heat Map Table -->
-        <div v-else class="overflow-x-auto">
-            <table class="w-full border-collapse bg-white">
-                <thead>
-                    <tr class="sticky top-0 z-10 bg-gray-100">
-                        <th
-                            class="sticky left-0 z-20 border bg-gray-100 px-4 py-3 text-left font-semibold"
-                        >
-                            Skill / Rol
-                        </th>
-                        <th
-                            v-for="role in roles"
-                            :key="role.id"
-                            class="min-w-120 border px-3 py-3 text-center font-semibold"
-                        >
-                            <div class="text-sm">{{ role.name }}</div>
-                            <div class="text-xs text-gray-500">
-                                {{ role.fte }} FTE
-                            </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="skill in filteredSkills"
-                        :key="skill.id"
-                        class="hover:bg-gray-50"
-                    >
-                        <!-- Skill Name -->
-                        <td
-                            class="sticky left-0 z-10 w-250 border bg-white px-4 py-3 font-medium"
-                        >
-                            <div class="font-semibold">{{ skill.name }}</div>
-                            <div class="text-xs text-gray-500">
-                                {{ skill.competency_name }}
-                            </div>
-                        </td>
-
-                        <!-- Gap Cells -->
-                        <td
-                            v-for="role in roles"
-                            :key="`${skill.id}-${role.id}`"
-                            class="border px-3 py-3 text-center"
-                        >
-                            <div class="flex flex-col items-center gap-1">
-                                <!-- Heat Map Cell -->
-                                <div
-                                    :style="{
-                                        backgroundColor: getGapColor(
-                                            skill.id,
-                                            role.id,
-                                        ),
-                                        width: '60px',
-                                        height: '60px',
-                                        borderRadius: '4px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        cursor: 'pointer',
-                                    }"
-                                    class="transition-shadow hover:shadow-md"
-                                    @click="showGapDetail(skill, role)"
+        <div
+            v-else
+            class="relative overflow-hidden rounded-3xl border border-white/10 bg-black/20 backdrop-blur-md"
+        >
+            <div class="custom-scrollbar overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-white/5">
+                            <th
+                                class="sticky left-0 z-20 border-r border-b border-white/5 bg-black/60 px-6 py-4 text-left backdrop-blur-xl"
+                            >
+                                <span
+                                    class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                    >Skill Architecture</span
                                 >
-                                    <span class="text-sm font-bold text-white">
-                                        {{ getGapValue(skill.id, role.id) }}
-                                    </span>
+                            </th>
+                            <th
+                                v-for="role in roles"
+                                :key="role.id"
+                                class="min-w-[140px] border-b border-white/5 px-4 py-4 text-center"
+                            >
+                                <div
+                                    class="mb-1 text-sm leading-tight font-black text-white"
+                                >
+                                    {{ role.name }}
                                 </div>
+                                <StBadgeGlass variant="glass" size="xs"
+                                    >{{ role.fte }} FTE</StBadgeGlass
+                                >
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <tr
+                            v-for="skill in filteredSkills"
+                            :key="skill.id"
+                            class="group hover:bg-white-[0.02] transition-colors"
+                        >
+                            <!-- Skill Name Header (Sticky) -->
+                            <td
+                                class="sticky left-0 z-10 border-r border-white/5 bg-black/60 px-6 py-4 backdrop-blur-xl"
+                            >
+                                <div
+                                    class="font-black text-white transition-colors group-hover:text-indigo-300"
+                                >
+                                    {{ skill.name }}
+                                </div>
+                                <div
+                                    class="mt-0.5 text-[9px] font-bold tracking-widest text-white/20 uppercase"
+                                >
+                                    {{ skill.competency_name }}
+                                </div>
+                            </td>
 
-                                <!-- Levels Info -->
-                                <div class="mt-1 text-xs text-gray-600">
-                                    <div>
-                                        {{ getCurrentLevel(skill.id, role.id) }}
-                                        →
-                                        {{
+                            <!-- Gap Cells -->
+                            <td
+                                v-for="role in roles"
+                                :key="`${skill.id}-${role.id}`"
+                                class="p-4 text-center"
+                            >
+                                <div class="flex flex-col items-center gap-2">
+                                    <!-- Cell with Dynamic Glow -->
+                                    <button
+                                        class="relative flex h-14 w-14 items-center justify-center rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95"
+                                        :style="getGapStyle(skill.id, role.id)"
+                                        @click="showGapDetail(skill, role)"
+                                    >
+                                        <div
+                                            class="absolute inset-0 rounded-xl opacity-40 blur-lg transition-transform group-hover:scale-110"
+                                            :style="{
+                                                backgroundColor: getGapColor(
+                                                    skill.id,
+                                                    role.id,
+                                                ),
+                                            }"
+                                        ></div>
+                                        <span
+                                            class="relative text-sm font-black text-white"
+                                        >
+                                            {{ getGapValue(skill.id, role.id) }}
+                                        </span>
+                                    </button>
+
+                                    <!-- Delta Indicator -->
+                                    <div
+                                        class="text-[10px] font-black tracking-tighter text-white/30 transition-colors group-hover:text-white/60"
+                                    >
+                                        L{{
+                                            getCurrentLevel(skill.id, role.id)
+                                        }}
+                                        <v-icon size="8" class="mx-0.5"
+                                            >mdi-arrow-right</v-icon
+                                        >
+                                        L{{
                                             getRequiredLevel(skill.id, role.id)
                                         }}
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Legend -->
-        <div class="mt-6 rounded-lg bg-gray-50 p-4">
-            <p class="mb-3 text-sm font-semibold">Leyenda de Brechas:</p>
-            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <!-- Compact Legend -->
+        <div
+            class="relative z-10 mt-8 flex flex-wrap items-center gap-8 rounded-3xl border border-white/5 bg-white/5 px-8 py-6"
+        >
+            <span
+                class="text-[10px] font-black tracking-[0.2em] text-white/20 uppercase italic"
+                >Anomaly Index:</span
+            >
+            <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2">
                     <div
-                        class="h-8 w-8 rounded"
-                        style="background-color: #4caf50"
+                        class="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
                     ></div>
-                    <span class="text-sm">Sin Brecha (0)</span>
+                    <span class="text-[10px] font-bold text-white/60 uppercase"
+                        >Aligned (0)</span
+                    >
                 </div>
                 <div class="flex items-center gap-2">
                     <div
-                        class="h-8 w-8 rounded"
-                        style="background-color: #81c784"
+                        class="h-3 w-3 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]"
                     ></div>
-                    <span class="text-sm">Brecha Leve (1)</span>
+                    <span class="text-[10px] font-bold text-white/60 uppercase"
+                        >Mild (-1)</span
+                    >
                 </div>
                 <div class="flex items-center gap-2">
                     <div
-                        class="h-8 w-8 rounded"
-                        style="background-color: #ff9800"
+                        class="h-3 w-3 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]"
                     ></div>
-                    <span class="text-sm">Brecha Media (2)</span>
+                    <span class="text-[10px] font-bold text-white/60 uppercase"
+                        >Medium (-2)</span
+                    >
                 </div>
                 <div class="flex items-center gap-2">
                     <div
-                        class="h-8 w-8 rounded"
-                        style="background-color: #f44336"
+                        class="h-3 w-3 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]"
                     ></div>
-                    <span class="text-sm">Brecha Alta (3+)</span>
+                    <span class="text-[10px] font-bold text-white/60 uppercase"
+                        >Critical (-3+)</span
+                    >
                 </div>
             </div>
         </div>
 
-        <!-- Legend Dialog (same content as compact legend) -->
-        <v-dialog v-model="showLegendDialog" max-width="700px">
-            <v-card>
-                <v-card-title>Leyenda - Brechas de Skills</v-card-title>
-                <v-card-text class="pa-4">
-                    <v-list dense>
-                        <v-list-item
-                            v-for="item in legendItems"
-                            :key="item.title"
+        <!-- Detail Modal -->
+        <v-dialog
+            v-model="showDetailDialog"
+            max-width="500px"
+            class="backdrop-blur-sm"
+        >
+            <StCardGlass
+                v-if="selectedGap"
+                variant="media"
+                class="overflow-hidden border-indigo-500/20"
+            >
+                <div
+                    class="flex items-center justify-between border-b border-white/5 p-6"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5"
                         >
-                            <v-list-item-title class="font-medium">{{
-                                item.title
-                            }}</v-list-item-title>
-                            <v-list-item-subtitle class="text--secondary">{{
-                                item.description
-                            }}</v-list-item-subtitle>
-                        </v-list-item>
-                    </v-list>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn variant="text" @click="showLegendDialog = false"
-                        >Cerrar</v-btn
+                            <v-icon color="indigo-300" size="24"
+                                >mdi-crosshairs-gps</v-icon
+                            >
+                        </div>
+                        <div>
+                            <h2
+                                class="mb-1 text-xl leading-none font-black text-white"
+                            >
+                                Gap Analytics
+                            </h2>
+                            <p
+                                class="text-xs font-bold tracking-widest text-white/40 uppercase"
+                            >
+                                {{ selectedGap.role_name }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-8 p-8">
+                    <div class="text-center">
+                        <h3
+                            class="text-2xl leading-tight font-black tracking-tight text-white"
+                        >
+                            {{ selectedGap.skill_name }}
+                        </h3>
+                        <StBadgeGlass
+                            variant="glass"
+                            size="xs"
+                            class="mt-2 tracking-widest text-indigo-400 uppercase"
+                            >{{ selectedGap.competency_name }}</StBadgeGlass
+                        >
+                    </div>
+
+                    <div
+                        class="flex items-center justify-around rounded-3xl border border-white/5 bg-black/40 p-8 shadow-2xl"
                     >
-                </v-card-actions>
-            </v-card>
+                        <div class="flex flex-col items-center gap-2">
+                            <span
+                                class="text-[9px] font-black tracking-widest text-white/30 uppercase"
+                                >Current Level</span
+                            >
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-5xl font-black text-white"
+                                    >L{{ selectedGap.current_level }}</span
+                                >
+                                <span class="text-xs font-bold text-white/20"
+                                    >/ 5</span
+                                >
+                            </div>
+                        </div>
+                        <v-icon class="animate-pulse text-white/10"
+                            >mdi-arrow-right-bold-outline</v-icon
+                        >
+                        <div class="flex flex-col items-center gap-2">
+                            <span
+                                class="text-[9px] font-black tracking-widest text-white/30 uppercase"
+                                >Required Level</span
+                            >
+                            <div class="flex items-baseline gap-1">
+                                <span
+                                    class="text-5xl font-black text-indigo-400"
+                                    >L{{ selectedGap.required_level }}</span
+                                >
+                                <span class="text-xs font-bold text-white/20"
+                                    >/ 5</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        v-if="selectedGap.gap > 0"
+                        class="flex items-start gap-4 rounded-3xl border border-rose-500/20 bg-rose-500/10 p-6"
+                    >
+                        <v-icon color="rose-400">mdi-alert-decagram</v-icon>
+                        <div>
+                            <h4 class="text-sm font-black text-rose-200">
+                                Deficiency Detected
+                            </h4>
+                            <p
+                                class="mt-1 text-xs font-medium text-rose-200/60"
+                            >
+                                This talent vector requires
+                                {{ selectedGap.gap }} mastery levels to achieve
+                                strategic alignment for the current role
+                                definition.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div v-if="selectedGap.learning_path" class="space-y-4">
+                        <h4
+                            class="text-[10px] font-black tracking-widest text-indigo-400 uppercase"
+                        >
+                            Acceleration Protocol
+                        </h4>
+                        <div
+                            class="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm leading-relaxed text-white/70 italic"
+                        >
+                            "{{ selectedGap.learning_path }}"
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="flex justify-end gap-3 border-t border-white/5 bg-black/40 p-6"
+                >
+                    <StButtonGlass
+                        variant="ghost"
+                        @click="showDetailDialog = false"
+                        >Dismiss</StButtonGlass
+                    >
+                    <StButtonGlass
+                        variant="secondary"
+                        icon="mdi-head-lightbulb-outline"
+                        @click="suggestLearning"
+                        >Generate Plan</StButtonGlass
+                    >
+                </div>
+            </StCardGlass>
         </v-dialog>
 
-        <!-- Detail Dialog -->
-        <v-dialog v-model="showDetailDialog" max-width="400px">
-            <v-card v-if="selectedGap">
-                <v-card-title
-                    >{{ selectedGap.skill_name }} -
-                    {{ selectedGap.role_name }}</v-card-title
+        <!-- Legend Sidebar or Dialog -->
+        <v-dialog v-model="showLegendDialog" max-width="600px">
+            <StCardGlass variant="media">
+                <div
+                    class="flex items-center gap-3 border-b border-white/5 p-6"
                 >
-                <v-card-text class="space-y-4 py-6">
-                    <div>
-                        <p class="mb-1 text-sm font-semibold">Competencia:</p>
-                        <p>{{ selectedGap.competency_name }}</p>
-                    </div>
-
-                    <div class="flex gap-8">
-                        <div>
-                            <p class="mb-1 text-xs font-semibold text-gray-600">
-                                ACTUAL
+                    <v-icon color="indigo-400">mdi-map-legend</v-icon>
+                    <h2
+                        class="text-xl font-black tracking-tighter text-white uppercase"
+                    >
+                        Heatmap Logic
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                        <div
+                            v-for="item in legendItems"
+                            :key="item.title"
+                            class="space-y-1"
+                        >
+                            <h4
+                                class="text-xs font-black tracking-widest text-indigo-300 uppercase"
+                            >
+                                {{ item.title }}
+                            </h4>
+                            <p
+                                class="text-[11px] leading-tight font-medium text-white/40"
+                            >
+                                {{ item.description }}
                             </p>
-                            <div class="flex items-center gap-2">
-                                <div class="text-3xl font-bold text-blue-600">
-                                    {{ selectedGap.current_level }}
-                                </div>
-                                <p class="text-xs text-gray-600">/ 5</p>
-                            </div>
-                        </div>
-                        <div class="text-2xl font-light text-gray-400">→</div>
-                        <div>
-                            <p class="mb-1 text-xs font-semibold text-gray-600">
-                                REQUERIDO
-                            </p>
-                            <div class="flex items-center gap-2">
-                                <div class="text-3xl font-bold text-green-600">
-                                    {{ selectedGap.required_level }}
-                                </div>
-                                <p class="text-xs text-gray-600">/ 5</p>
-                            </div>
                         </div>
                     </div>
-
-                    <div>
-                        <p class="mb-2 text-sm font-semibold">
-                            Brecha: {{ selectedGap.gap }} niveles
-                        </p>
-                        <v-progress-linear
-                            :model-value="
-                                (selectedGap.current_level /
-                                    selectedGap.required_level) *
-                                100
-                            "
-                            color="blue"
-                            height="8"
-                        />
-                    </div>
-
-                    <div
-                        v-if="selectedGap.learning_path"
-                        class="rounded bg-blue-50 p-3"
+                </div>
+                <div class="flex justify-end border-t border-white/5 p-6">
+                    <StButtonGlass
+                        variant="primary"
+                        size="sm"
+                        @click="showLegendDialog = false"
+                        >Close</StButtonGlass
                     >
-                        <p class="mb-2 text-sm font-semibold">
-                            Ruta de Aprendizaje:
-                        </p>
-                        <p class="text-sm">{{ selectedGap.learning_path }}</p>
-                    </div>
-
-                    <div
-                        v-if="selectedGap.timeline_months"
-                        class="rounded bg-amber-50 p-3"
-                    >
-                        <p class="text-sm font-semibold">
-                            Timeline estimado:
-                            {{ selectedGap.timeline_months }} meses
-                        </p>
-                    </div>
-                </v-card-text>
-                <v-card-actions>
-                    <v-btn variant="text" @click="showDetailDialog = false"
-                        >Cerrar</v-btn
-                    >
-                    <v-btn color="primary" @click="suggestLearning"
-                        >Sugerir Aprendizaje</v-btn
-                    >
-                </v-card-actions>
-            </v-card>
+                </div>
+            </StCardGlass>
         </v-dialog>
     </div>
 </template>
 
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { useApi } from '@/composables/useApi';
-import { usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 
 interface Role {
@@ -332,51 +456,46 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const page = usePage();
 const loading = ref(true);
 const error = ref<string | null>(null);
 
 const showLegendDialog = ref(false);
-const legendItems = ref([
+const legendItems = [
     {
-        title: 'Brecha (Gap)',
+        title: 'Gap Differental',
         description:
-            'Diferencia entre el nivel requerido y el nivel actual (required_level − current_level). Valor positivo = niveles faltantes; 0 o negativo = sin brecha.',
+            'Arithmetic difference between target proficiency and current mastery (required - current).',
     },
     {
-        title: 'Nivel Actual',
+        title: 'Talent Level (L)',
         description:
-            'Evaluación actual de la skill en una escala (p. ej., 0–5).',
+            'Normalized mastery scale from 1 (Novice) to 5 (Domain Expert).',
     },
     {
-        title: 'Nivel Requerido',
+        title: 'Heatmap Cells',
         description:
-            'Nivel objetivo necesario para la posición/competencia (p. ej., 0–5).',
+            'Interactive nodes containing discrete gap values and trend vectors.',
     },
     {
-        title: 'Valor de celda',
-        description: '✓ indica sin brecha; -N indica N niveles faltantes.',
-    },
-    {
-        title: 'Color (Heatmap)',
+        title: 'Architecture Node',
         description:
-            'Verde = sin brecha; Amarillo = leve; Naranja = media; Rojo = alta.',
+            'Specific skills mapped to organizational core competencies.',
     },
     {
-        title: 'FTE',
-        description: 'Full-Time Equivalent requerido para ese rol.',
+        title: 'Full-Time Equiv (FTE)',
+        description:
+            'Total human/synthetic bandwidth required for the specific role node.',
     },
     {
-        title: 'Timeline de productividad',
-        description: 'Meses estimados para alcanzar productividad esperada.',
+        title: 'Acceleration Protocol',
+        description: 'AI-generated pathway to mitigate proficiency deficits.',
     },
-]);
+];
 
 const roles = ref<Role[]>([]);
 const skills = ref<Skill[]>([]);
 const gapMatrix = ref<GapMatrix>({});
 
-const filterBy = ref('all');
 const searchQuery = ref('');
 
 const showDetailDialog = ref(false);
@@ -406,7 +525,6 @@ const loadData = async () => {
         roles.value = data.roles || [];
         skills.value = data.skills || [];
 
-        // Construir matriz de brechas
         const matrix: any = {};
         if (data.gaps) {
             for (const gap of data.gaps) {
@@ -417,7 +535,8 @@ const loadData = async () => {
         gapMatrix.value = matrix;
     } catch (err: any) {
         error.value =
-            err.response?.data?.message || 'Error al cargar matriz de brechas';
+            err.response?.data?.message ||
+            'Spectral synthesis of gap matrix failed';
     } finally {
         loading.value = false;
     }
@@ -425,13 +544,23 @@ const loadData = async () => {
 
 const getGapColor = (skillId: number, roleId: number): string => {
     const gap = gapMatrix.value[skillId]?.[roleId];
-    if (!gap) return '#f5f5f5'; // No data / gray
+    if (!gap) return 'rgba(255, 255, 255, 0.05)';
 
     const gapSize = gap.required_level - gap.current_level;
-    if (gapSize <= 0) return '#4caf50'; // Green (No gap)
-    if (gapSize === 1) return '#ffeb3b'; // Yellow (Low)
-    if (gapSize === 2) return '#ff9800'; // Orange (Medium)
-    return '#f44336'; // Red (High)
+    if (gapSize <= 0) return '#10b981'; // emerald-500
+    if (gapSize === 1) return '#fbbf24'; // amber-400
+    if (gapSize === 2) return '#f97316'; // orange-500
+    return '#f43f5e'; // rose-500
+};
+
+const getGapStyle = (skillId: number, roleId: number) => {
+    const color = getGapColor(skillId, roleId);
+    const isEmpty = !gapMatrix.value[skillId]?.[roleId];
+
+    return {
+        backgroundColor: `${color}${isEmpty ? '' : '15'}`,
+        borderColor: `${color}${isEmpty ? '10' : '40'}`,
+    };
 };
 
 const getGapValue = (skillId: number, roleId: number): string => {
@@ -465,10 +594,10 @@ const showGapDetail = (skill: any, role: any) => {
 };
 
 const suggestLearning = () => {
-    if (selectedGap.value) {
-        console.log('Suggest learning for:', selectedGap.value.skill_name);
-        // Implementar lógica de sugerencia de aprendizaje
-    }
+    console.log(
+        'Synthesizing learning path for:',
+        selectedGap.value?.skill_name,
+    );
 };
 
 onMounted(() => {
@@ -477,37 +606,18 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.skill-gaps-matrix-container {
-    padding: 1.5rem;
+.custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
 }
-
-table {
-    border-collapse: collapse;
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
 }
-
-.min-w-120 {
-    min-width: 120px;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
 }
-
-.w-250 {
-    width: 250px;
-}
-
-.grid {
-    display: grid;
-}
-
-.grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-@media (min-width: 768px) {
-    .md\:grid-cols-4 {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-}
-
-.gap-4 {
-    gap: 1rem;
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.4);
 }
 </style>

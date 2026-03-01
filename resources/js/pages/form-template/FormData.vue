@@ -371,91 +371,55 @@ defineExpose({
 }
 
 .form-col {
-    padding: 0.5rem !important;
+    padding: 0.75rem !important;
 }
 
-/* Input Field Styles */
+/* Input Field Styles - Stratos Glass Edition */
 :deep(.form-field .v-field) {
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.8) 0%,
-        rgba(255, 255, 255, 0.6) 100%
-    );
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 12px !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
 :deep(.form-field:focus-within .v-field) {
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 1) 0%,
-        rgba(255, 255, 255, 0.95) 100%
-    );
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(99, 102, 241, 0.4) !important; /* indigo-500/40 */
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.1) !important;
 }
 
 :deep(.form-field .v-field__outline) {
-    border-color: var(--form-primary, var(--v-theme-primary)) !important;
+    display: none !important; /* Hide standard outline to use our custom border */
 }
 
-:deep(.form-field:focus-within .v-field__outline) {
-    border-color: var(--form-primary, var(--v-theme-primary)) !important;
-}
-
-/* Ensure Vuetify focused state also uses the themed color */
-:deep(.form-field .v-field--focused .v-field__outline) {
-    border-color: var(--form-primary, var(--v-theme-primary)) !important;
-}
-
-:deep(.form-field .v-label) {
-    color: rgba(0, 0, 0, 0.7) !important;
-    font-weight: 600;
-    transition: all 0.2s ease;
+:deep(.v-label) {
+    color: #94a3b8 !important; /* slate-400 */
+    font-weight: 500;
     font-size: 0.875rem;
+    opacity: 1 !important;
 }
 
 :deep(.form-field:focus-within .v-label) {
-    color: var(--form-primary, var(--v-theme-primary)) !important;
+    color: #818cf8 !important; /* indigo-400 */
 }
 
-:deep(.form-field .v-field__prepend-inner .v-icon) {
-    color: rgba(0, 0, 0, 0.5);
+:deep(.v-field__prepend-inner .v-icon) {
+    color: #64748b !important; /* slate-500 */
     transition: color 0.2s ease;
-    margin-right: 0.5rem;
 }
 
 :deep(.form-field:focus-within .v-field__prepend-inner .v-icon) {
-    color: var(--form-primary);
+    color: #818cf8 !important;
 }
 
-:deep(.form-field .v-field__input) {
-    color: rgba(0, 0, 0, 0.87);
+:deep(.v-field__input) {
+    color: #f1f5f9 !important; /* slate-100 */
     font-size: 0.95rem;
 }
 
-:deep(.form-field .v-field__input::placeholder) {
-    color: rgba(0, 0, 0, 0.4);
-}
-
-/* Error State */
-:deep(.form-field.error .v-field) {
-    background: linear-gradient(
-        135deg,
-        rgba(239, 68, 68, 0.05) 0%,
-        rgba(220, 38, 38, 0.05) 100%
-    );
-}
-
-:deep(.form-field.error .v-field__outline) {
-    border-color: var(--v-error) !important;
-}
-
-:deep(.form-field .v-messages) {
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-    color: var(--v-error);
+:deep(.v-field__input::placeholder) {
+    color: #475569 !important; /* slate-600 */
+    opacity: 1 !important;
 }
 
 /* Checkbox and Switch Styles */
@@ -466,21 +430,27 @@ defineExpose({
     padding: 0.5rem 0;
 }
 
-:deep(.form-checkbox .v-label) {
-    color: #424242;
+:deep(.v-selection-control__label) {
+    color: #cbd5e1 !important; /* slate-300 */
     font-weight: 500;
-    font-size: 0.875rem;
 }
 
-:deep(.form-switch .v-label) {
-    color: #424242;
-    font-weight: 500;
-    font-size: 0.875rem;
+:deep(.v-checkbox .v-selection-control__input .v-icon),
+:deep(.v-switch .v-selection-control__input .v-icon) {
+    color: #6366f1 !important;
+}
+
+/* Validation Errors */
+:deep(.v-messages) {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    color: #fb7185 !important; /* rose-400 */
+    opacity: 1 !important;
 }
 
 @media (max-width: 960px) {
     .form-row {
-        gap: 1rem;
+        gap: 0.5rem;
     }
 }
 </style>

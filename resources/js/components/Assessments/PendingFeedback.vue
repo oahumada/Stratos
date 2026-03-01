@@ -1,6 +1,6 @@
-<script setup lang="ts">
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import FeedbackFormBARS from './FeedbackFormBARS.vue';
 
 const pendingRequests = ref<any[]>([]);
@@ -139,78 +139,89 @@ onMounted(loadRequests);
 </script>
 
 <template>
-    <div v-if="pendingRequests.length > 0" class="mb-6">
-        <v-alert
-            color="indigo-lighten-5"
-            border="start"
-            border-color="indigo"
-            elevation="1"
+    <div v-if="pendingRequests.length > 0" class="mb-10">
+        <StCardGlass
+            class="overflow-hidden border-indigo-500/20 bg-indigo-500/5"
+            :no-hover="true"
         >
-            <template #prepend>
-                <v-icon color="indigo" size="large">mdi-account-heart</v-icon>
-            </template>
-
-            <div class="d-flex align-center justify-space-between w-100">
-                <div>
-                    <div class="text-subtitle-1 font-weight-bold indigo--text">
-                        Feedback 360 Pendiente (Metodología BARS)
+            <div class="px-8 py-6 flex items-center justify-between flex-wrap gap-6">
+                <div class="flex items-center gap-6">
+                    <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                        <v-icon color="indigo-400" size="32">mdi-account-heart</v-icon>
                     </div>
-                    <div class="text-body-2 text-secondary">
-                        Tienes {{ pendingRequests.length }} solicitudes de
-                        feedback pendientes por completar.
+                    <div>
+                        <h2 class="text-h5 font-weight-black text-white tracking-tight mb-1">
+                            Pending <span class="text-indigo-400">Feedback 360</span>
+                        </h2>
+                        <div class="text-body-2 text-white/50 font-medium">
+                            Synthesize professional insights for <span class="text-indigo-300 font-bold uppercase tracking-wider">{{ pendingRequests.length }}</span> collaborators.
+                        </div>
                     </div>
                 </div>
-                <div
-                    class="d-flex pa-1 gap-2 overflow-x-auto"
-                    style="max-width: 60%"
-                >
-                    <v-chip
+                
+                <div class="flex flex-wrap gap-3">
+                    <button
                         v-for="req in pendingRequests"
                         :key="req.id"
-                        closable
                         @click="openFeedbackForm(req)"
-                        class="ma-1"
-                        color="indigo"
-                        variant="flat"
+                        class="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm hover:bg-indigo-600 hover:border-indigo-500 transition-all duration-300 flex items-center gap-2 group"
                     >
+                        <v-avatar size="24" class="opacity-80 group-hover:opacity-100 border border-white/20">
+                            <v-icon size="14">mdi-account</v-icon>
+                        </v-avatar>
                         {{ req.subject.full_name }}
-                    </v-chip>
+                    </button>
                 </div>
             </div>
-        </v-alert>
+        </StCardGlass>
 
         <!-- Feedback Form Dialog -->
-        <v-dialog v-model="dialog" max-width="900" persistent>
-            <v-card
+        <v-dialog v-model="dialog" max-width="1000" persistent>
+            <div
                 v-if="selectedRequest"
-                class="d-flex flex-column"
+                class="st-glass-container relative flex flex-col h-full overflow-hidden border-none shadow-2xl"
                 style="max-height: 90vh"
             >
-                <v-card-title class="bg-indigo flex-shrink-0 py-4 text-white">
-                    Feedback para {{ selectedRequest.subject.full_name }}
-                    <div class="text-caption text-indigo-lighten-4">
-                        Relación: {{ selectedRequest.relationship }}
+                <!-- Dialog Header -->
+                <div class="px-8 py-6 border-b border-white/10 bg-white/5 flex items-center justify-between">
+                    <div class="flex items-center gap-5">
+                        <v-avatar color="indigo-700" size="56" class="border border-indigo-400/30">
+                            <v-icon size="28" color="white">mdi-account-star</v-icon>
+                        </v-avatar>
+                        <div>
+                            <div class="text-h6 font-weight-black text-white leading-tight">
+                                Analysis for {{ selectedRequest.subject.full_name }}
+                            </div>
+                            <div class="text-caption text-indigo-400 font-bold uppercase tracking-widest mt-1">
+                                {{ selectedRequest.relationship }} Correlation
+                            </div>
+                        </div>
                     </div>
-                </v-card-title>
+                    <v-btn icon variant="text" color="white/40" @click="dialog = false">
+                        <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                </div>
 
-                <v-card-text class="pa-6 overflow-y-auto">
+                <div class="pa-10 overflow-y-auto overflow-x-hidden flex-grow scrollbar-hide">
                     <div
                         v-for="(item, i) in feedbackItems"
                         :key="i"
-                        class="mb-6"
+                        class="mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                        :style="{ animationDelay: (i * 100) + 'ms' }"
                     >
                         <!-- Open Question -->
-                        <div v-if="item.type === 'open'">
-                            <div class="text-subtitle-2 indigo--text mb-2">
-                                {{ item.question }}
+                        <div v-if="item.type === 'open'" class="max-w-4xl">
+                            <div class="text-caption font-weight-black text-white/40 uppercase tracking-widest mb-4">
+                                Strategic Insight: {{ item.question }}
                             </div>
                             <v-textarea
                                 v-model="item.answer"
                                 variant="outlined"
-                                density="comfortable"
-                                rows="3"
-                                placeholder="Escribe tu observación detallada aquí..."
+                                rows="4"
+                                placeholder="Capture detailed qualitative observations..."
                                 hide-details="auto"
+                                class="glass-input-premium"
+                                persistent-placeholder
                             ></v-textarea>
                         </div>
 
@@ -225,29 +236,28 @@ onMounted(loadRequests);
                                 v-model:confidence="item.confidence_level"
                             />
                         </div>
-
-                        <v-divider
-                            v-if="i < feedbackItems.length - 1"
-                            class="my-6"
-                        ></v-divider>
                     </div>
-                </v-card-text>
+                </div>
 
-                <v-card-actions
-                    class="pa-4 flex-shrink-0 border-t bg-white pt-0"
-                >
-                    <v-spacer></v-spacer>
-                    <v-btn variant="text" @click="dialog = false">Cerrar</v-btn>
+                <div class="px-8 py-6 border-t border-white/10 bg-white/5 flex items-center justify-end gap-4">
                     <v-btn
-                        color="indigo"
-                        variant="flat"
+                        variant="text"
+                        color="white/50"
+                        class="font-weight-bold"
+                        @click="dialog = false"
+                    >Close</v-btn>
+                    <v-btn
+                        color="indigo-700"
+                        size="large"
+                        rounded="xl"
+                        class="px-8 font-weight-bold"
                         :loading="submitting"
                         @click="submitFeedback"
                     >
-                        Enviar Evaluación
+                        Submit Assessment
                     </v-btn>
-                </v-card-actions>
-            </v-card>
+                </div>
+            </div>
         </v-dialog>
     </div>
 </template>

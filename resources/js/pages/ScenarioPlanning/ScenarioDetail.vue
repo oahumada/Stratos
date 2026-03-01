@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import IncubatedReviewModal from '@/components/IncubatedReviewModal.vue';
-import ChangeSetModal from '@/components/ScenarioPlanning/ChangeSetModal.vue';
-import StatusTimeline from '@/components/ScenarioPlanning/StatusTimeline.vue';
+import { useApi } from '@/composables/useApi';
+import { useNotification } from '@/composables/useNotification';
+import { Head, router } from '@inertiajs/vue3';
+import { computed, onMounted, ref, watch } from 'vue';
+
+// Components
+import ScenarioStepperComponent from '@/components/ScenarioPlanning/ScenarioStepperComponent.vue';
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
+
+// Step Components
+import PrototypeMap from '@/components/ScenarioPlanning/PrototypeMap.vue';
 import IncubatedCubeReview from '@/components/ScenarioPlanning/Step2/IncubatedCubeReview.vue';
 import RoleCompetencyMatrix from '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue';
 import OrganizationalContrast from '@/components/ScenarioPlanning/Step3/OrganizationalContrast.vue';
@@ -9,1293 +19,542 @@ import ClosingStrategies from '@/components/ScenarioPlanning/Step4/ClosingStrate
 import BudgetingPlan from '@/components/ScenarioPlanning/Step5/BudgetingPlan.vue';
 import ScenarioComparison from '@/components/ScenarioPlanning/Step6/ScenarioComparison.vue';
 import FinalDashboard from '@/components/ScenarioPlanning/Step7/FinalDashboard.vue';
+
+// Modals
+import IncubatedReviewModal from '@/components/IncubatedReviewModal.vue';
+import StatusTimeline from '@/components/ScenarioPlanning/StatusTimeline.vue';
 import VersionHistoryModal from '@/components/ScenarioPlanning/VersionHistoryModal.vue';
-import { useApi } from '@/composables/useApi';
-import { useNotification } from '@/composables/useNotification';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { router, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, ref, watch } from 'vue';
-import GenerateWizard from './GenerateWizard/GenerateWizard.vue';
-import PrototypeMap from './Index.vue';
 
-type Props = {
-    id: number | string;
-};
+const props = defineProps<{
+    scenarioId: number;
+    initialStep?: number;
+}>();
 
-type ScenarioPayload = {
-    id: number;
-    name: string;
-    description?: string;
-    scenario_type?: string;
-    status: string;
-    decision_status: string;
-    execution_status: string;
-    current_step?: number;
-    is_current_version?: boolean;
-    version_number?: number;
-    version_group_id?: string;
-    parent_id?: number | null;
-    time_horizon_weeks?: number;
-    estimated_budget?: number;
-    created_at?: string;
-    created_by?: number | null;
-    scope_type?: string;
-    scope_id?: number | null;
-    horizon_months?: number;
-    planning_horizon_months?: number;
-    start_date?: string | null;
-    end_date?: string | null;
-    owner?: string | null;
-    scenario_skills?: any[];
-    skill_demands?: any[];
-    source_generation_id?: number | null;
-    accepted_prompt?: string | null;
-    updated_at?: string | null;
-};
-
-defineOptions({ layout: AppLayout });
-
-const props = defineProps<Props>();
 const api = useApi();
 const { showSuccess, showError } = useNotification();
 
-const scenario = ref<ScenarioPayload | null>(null);
-const loading = ref(false);
-const savingStep1 = ref(false);
-const formData = ref({
-    // Basic metadata
-    id: null as number | null,
-    name: '',
-    description: '',
-    scenario_type: '',
-    status: 'draft',
-    decision_status: '',
-    execution_status: '',
-    current_step: 1,
-    is_current_version: false,
-    version_number: null as number | null,
-    version_group_id: null as string | null,
-    parent_id: null as number | null,
-
-    // Time / horizon
-    planning_horizon_months: 12,
-    horizon_months: 12,
-    time_horizon_weeks: null as number | null,
-    start_date: null as string | null,
-    end_date: null as string | null,
-
-    // other
-    owner: null as string | null,
-    estimated_budget: null as number | null,
-    scope_type: '',
-    scope_id: null as number | null,
-    import_to_plan: false,
-});
-
-const fieldErrors = ref<Record<string, string[]>>({});
-const roles = ref<any[]>([]);
-const rolesLoading = ref(false);
-const scenarioSkills = ref<any[]>([]);
-const roleActions = ref<Record<number, string>>({});
-const departments = ref<any[]>([]);
-const deptLoading = ref(false);
-const roleFamilies = ref<any[]>([]);
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const includedCount = computed(
-    () =>
-        Object.values(roleActions.value).filter((v) => v === 'include').length,
-);
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const importCount = computed(
-    () => Object.values(roleActions.value).filter((v) => v === 'import').length,
-);
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ignoredCount = computed(
-    () => Object.values(roleActions.value).filter((v) => v === 'ignore').length,
-);
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const roleHeaders = ref([
-    { title: 'Rol', key: 'name' },
-    { title: 'Departamento', key: 'department' },
-    { title: 'Familia', key: 'family' },
-    { title: 'Acciones', key: 'actions', sortable: false },
-]);
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const activeTab = ref<
-    | 'stepper'
-    | 'overview'
-    | 'gaps'
-    | 'strategies'
-    | 'matches'
-    | 'forecasts'
-    | 'comparisons'
-    | 'succession'
-    | 'actions'
->('stepper');
-const currentStep = ref(1);
-const versionHistoryRef = ref<InstanceType<typeof VersionHistoryModal> | null>(
-    null,
-);
-const showChangeSet = ref(false);
-const changeSetId = ref<number | null>(null);
-const creatingChangeSet = ref(false);
-const statusTimelineRef = ref<InstanceType<typeof StatusTimeline> | null>(null);
-const showGenerateWizard = ref(false);
+// State
+const scenario = ref<any>(null);
+const loading = ref(true);
+const currentStep = ref(props.initialStep || 1);
 const showIncubatedReview = ref(false);
-const selectedIncubated = ref<any | null>(null);
-const showAcceptedPromptDialog = ref(false);
+const selectedIncubated = ref<any>(null);
+const loadingTree = ref(false);
+const incubatedTree = ref<any[]>([]);
 
-const scenarioId = computed(() => {
-    const value =
-        typeof props.id === 'string' ? Number.parseInt(props.id, 10) : props.id;
-    return Number.isNaN(value) ? 0 : value;
-});
+const versionHistoryRef = ref<any>(null);
+const statusTimelineRef = ref<any>(null);
 
-// Compute whether the current user can view the accepted prompt (defensive UI-side check)
-const page = usePage();
-const canViewAcceptedPrompt = computed(() => {
-    try {
-        const user = (page as any).props?.auth?.user ?? null;
-        if (!user) return false;
-        const role = user.role ?? null;
-        if (['admin', 'approver', 'owner', 'superadmin'].includes(role))
-            return true;
-        // allow if user is creator/owner of the scenario (frontend best-effort)
-        return scenario.value
-            ? (scenario.value.created_by ?? null) === user.id
-            : false;
-    } catch {
-        return false;
+// Computed
+const scenarioStatus = computed(() => scenario.value?.status || 'draft');
+
+const statusConfig = computed(() => {
+    switch (scenarioStatus.value) {
+        case 'active':
+            return { color: 'emerald', icon: 'mdi-check-circle' };
+        case 'review':
+            return { color: 'amber', icon: 'mdi-eye-outline' };
+        case 'completed':
+            return { color: 'indigo', icon: 'mdi-star' };
+        default:
+            return { color: 'white/40', icon: 'mdi-circle-edit-outline' };
     }
 });
 
+// Methods
 const loadScenario = async () => {
-    if (!scenarioId.value || scenarioId.value <= 0) return;
     loading.value = true;
     try {
-        const response = await api.get(
-            `/api/strategic-planning/scenarios/${scenarioId.value}`,
+        const res: any = await api.get(
+            `/api/strategic-planning/scenarios/${props.scenarioId}`,
         );
-        const data = (response as any)?.data ?? response;
-        scenario.value = data;
-        // scenario payload loaded
-        currentStep.value = scenario.value?.current_step || 1;
-        // populate simple form data for step1
-        formData.value.name = scenario.value?.name ?? '';
-        formData.value.description = scenario.value?.description ?? '';
-        formData.value.scope_type = scenario.value?.scope_type ?? '';
-        formData.value.planning_horizon_months =
-            scenario.value?.horizon_months ??
-            scenario.value?.planning_horizon_months ??
-            12;
-        formData.value.horizon_months =
-            scenario.value?.horizon_months ??
-            formData.value.planning_horizon_months;
-        formData.value.time_horizon_weeks =
-            scenario.value?.time_horizon_weeks ?? null;
-        formData.value.start_date = scenario.value?.start_date ?? null;
-        formData.value.end_date = scenario.value?.end_date ?? null;
-        formData.value.owner = scenario.value?.owner ?? null;
-        formData.value.scope_id = scenario.value?.scope_id ?? null;
-
-        // advanced / tracking fields
-        formData.value.id = scenario.value?.id ?? null;
-        formData.value.scenario_type = scenario.value?.scenario_type ?? '';
-        formData.value.status = scenario.value?.status ?? 'draft';
-        formData.value.decision_status = scenario.value?.decision_status ?? '';
-        formData.value.execution_status =
-            scenario.value?.execution_status ?? '';
-        formData.value.current_step =
-            scenario.value?.current_step ?? formData.value.current_step;
-        formData.value.is_current_version =
-            scenario.value?.is_current_version ?? false;
-        formData.value.version_number = scenario.value?.version_number ?? null;
-        formData.value.version_group_id =
-            scenario.value?.version_group_id ?? null;
-        formData.value.parent_id = scenario.value?.parent_id ?? null;
-        formData.value.estimated_budget =
-            scenario.value?.estimated_budget ?? null;
-        // load departments/role families if applicable
-        if (
-            formData.value.scope_type === 'department' ||
-            formData.value.scope_type === 'role_family'
-        ) {
-            await loadDepartments();
-        }
-        // populate scenarioSkills from scenario payload if available
-        scenarioSkills.value = (
-            scenario.value?.scenario_skills ||
-            scenario.value?.skill_demands ||
-            []
-        ).map((s: any) => ({
-            id: s.id || null,
-            skill_id: s.skill_id || s.id || null,
-            required_level: s.required_level ?? s.level ?? 1,
-            required_headcount:
-                s.required_headcount ?? s.required_headcount ?? 1,
-            priority: s.priority || 'medium',
-            rationale: s.rationale || s.notes || '',
-        }));
-        // load roles for step1 based on scope (kept but roles will be unused in Phase 1)
-        await loadRoles();
-        // load capability tree (incubated entities)
-        await loadCapabilityTree();
-        // load import audit for associated generation (if any)
-        if (scenario.value?.source_generation_id) await loadImportAudit();
+        scenario.value = res?.data ?? res;
+        if (currentStep.value === 1) await loadIncubatedTree();
     } catch {
-        showError('No se pudo cargar el escenario');
+        showError('Neural sync failed');
     } finally {
         loading.value = false;
     }
 };
 
-const incubatedTree = ref<any[]>([]);
-const loadingTree = ref(false);
-
-const importAudit = ref<any[]>([]);
-const loadingImportAudit = ref(false);
-
-const loadCapabilityTree = async () => {
-    if (!scenarioId.value || scenarioId.value <= 0) return;
+const loadIncubatedTree = async () => {
     loadingTree.value = true;
     try {
         const res: any = await api.get(
-            `/api/strategic-planning/scenarios/${scenarioId.value}/capability-tree`,
+            `/api/scenarios/${props.scenarioId}/step1/incubated-tree`,
         );
-        incubatedTree.value = (res as any)?.data ?? res ?? [];
+        incubatedTree.value = res?.data ?? res ?? [];
     } catch (e) {
-        console.error('Error loading capability tree', e);
-        incubatedTree.value = [];
+        console.error(e);
     } finally {
         loadingTree.value = false;
     }
 };
 
-const openIncubatedReview = (cap: any) => {
-    selectedIncubated.value = cap;
+const nextStep = () => {
+    if (currentStep.value < 7) currentStep.value++;
+};
+const prevStep = () => {
+    if (currentStep.value > 1) currentStep.value--;
+};
+
+const goBack = () => router.visit('/strategic-planning/scenarios');
+
+const handleVersionSelected = (vId: number) => {
+    router.visit(`/strategic-planning/scenario-planning/${vId}`);
+};
+
+const handleStatusChanged = () => loadScenario();
+
+const openIncubatedReview = (item: any) => {
+    selectedIncubated.value = item;
     showIncubatedReview.value = true;
 };
 
-const onPromoted = async () => {
-    // refresh tree after single promote
-    await loadCapabilityTree();
-    // also refresh the scenario to update counts
-    await loadScenario();
-};
-
-const openAcceptedPromptDialog = async () => {
-    if (!scenario.value || !scenario.value.source_generation_id) return;
-    showAcceptedPromptDialog.value = true;
-    try {
-        await api.post(
-            `/api/strategic-planning/scenarios/generate/${scenario.value.source_generation_id}/record-view`,
-        );
-    } catch (e) {
-        // ignore errors; non-blocking
-        console.error('record view failed', e);
-    }
-};
-
-const loadImportAudit = async () => {
-    if (!scenario.value || !scenario.value.source_generation_id) return;
-    loadingImportAudit.value = true;
-    try {
-        const res: any = await api.get(
-            `/api/strategic-planning/scenarios/generate/${scenario.value.source_generation_id}`,
-        );
-        const data = (res as any)?.data ?? res;
-        importAudit.value = data?.metadata?.import_audit ?? [];
-    } catch (e) {
-        console.error('Error loading import audit', e);
-        importAudit.value = [];
-    } finally {
-        loadingImportAudit.value = false;
-    }
-};
-
-const goToCompetency = (id: number) => {
-    router.visit(`/competencies/${id}`);
+const onPromoted = () => {
+    showIncubatedReview.value = false;
+    loadScenario();
 };
 
 const promoteIncubated = async () => {
-    if (!scenarioId.value) return;
     try {
-        await api.post(
-            `/api/strategic-planning/scenarios/${scenarioId.value}/approve`,
-        );
-        showSuccess('Entidades incubadas promovidas');
-        await loadScenario();
-    } catch (e) {
-        console.error(e);
-        showError('Error promoviendo entidades');
-    }
-};
-
-const simulateLLM = async () => {
-    if (!scenarioId.value) return;
-    loading.value = true;
-    try {
-        await api.post(
-            `/api/strategic-planning/scenarios/${scenarioId.value}/simulate-import`,
-        );
-        showSuccess(
-            'Simulación de respuesta LLM completada. Estructura generada.',
-        );
-        // Refresh full state
-        await loadScenario();
-        // Force refresh of child components if needed
-    } catch (e: any) {
-        console.error(e);
-        showError(
-            'Error al simular importación: ' +
-                (e.response?.data?.message || e.message),
-        );
-    } finally {
-        loading.value = false;
-    }
-};
-
-const loadRoles = async () => {
-    // fetch roles filtered by scope_type if provided
-    rolesLoading.value = true;
-    try {
-        const params: any = {};
-        if (formData.value.scope_type)
-            params.scope_type = formData.value.scope_type;
-        if (formData.value.scope_id) params.scope_id = formData.value.scope_id;
-        const res = await api.get('/api/roles', params);
-        roles.value = (res as any)?.data ?? res;
-        // derive role families from roles (attribute on role)
-        const famMap: Record<string, any> = {};
-        roles.value.forEach((r: any) => {
-            const fid =
-                r.role_family_id || (r.role_family && r.role_family.id) || null;
-            const fname =
-                r.role_family_name ||
-                (r.role_family && r.role_family.name) ||
-                r.role_family ||
-                null;
-            if (fid && !famMap[fid]) famMap[fid] = { id: fid, name: fname };
-        });
-        roleFamilies.value = Object.values(famMap);
-        // initialize actions for newly loaded roles
-        roles.value.forEach((r: any) => {
-            if (!roleActions.value[r.id]) roleActions.value[r.id] = 'ignore';
-        });
+        await api.post(`/api/scenarios/${props.scenarioId}/step1/promote-all`);
+        showSuccess('All incubated entities promoted to architecture');
+        loadScenario();
     } catch {
-        // ignore silently; roles are optional
-    } finally {
-        rolesLoading.value = false;
+        showError('Promotion failure');
     }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const setAllActions = (action: string) => {
-    roles.value.forEach((r: any) => {
-        roleActions.value[r.id] = action;
-    });
-};
+onMounted(loadScenario);
 
 watch(
-    () => formData.value.scope_type,
-    async (nv, ov) => {
-        if (nv !== ov) await loadRoles();
+    () => currentStep.value,
+    (val) => {
+        if (val === 1) loadIncubatedTree();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     },
 );
-
-watch(
-    () => formData.value.scope_id,
-    async (nv, ov) => {
-        if (nv !== ov) await loadRoles();
-    },
-);
-
-const loadDepartments = async () => {
-    deptLoading.value = true;
-    try {
-        const res = await api.get('/api/departments');
-        departments.value = (res as any)?.data ?? res;
-    } catch {
-        // ignore
-    } finally {
-        deptLoading.value = false;
-    }
-};
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const saveStep1 = async () => {
-    if (!scenarioId.value || scenarioId.value <= 0) return;
-    savingStep1.value = true;
-    fieldErrors.value = {};
-
-    // client-side validation
-    if (!validateStep1()) {
-        savingStep1.value = false;
-        return;
-    }
-
-    try {
-        const payload = {
-            step1: {
-                metadata: {
-                    id: formData.value.id,
-                    name: formData.value.name,
-                    description: formData.value.description,
-                    scenario_type: formData.value.scenario_type,
-                    status: formData.value.status,
-                    decision_status: formData.value.decision_status,
-                    execution_status: formData.value.execution_status,
-                    current_step: formData.value.current_step,
-                    is_current_version: formData.value.is_current_version,
-                    version_number: formData.value.version_number,
-                    version_group_id: formData.value.version_group_id,
-                    parent_id: formData.value.parent_id,
-
-                    planning_horizon_months:
-                        formData.value.planning_horizon_months,
-                    horizon_months: formData.value.horizon_months,
-                    time_horizon_weeks: formData.value.time_horizon_weeks,
-                    start_date: formData.value.start_date,
-                    end_date: formData.value.end_date,
-
-                    owner: formData.value.owner,
-                    scope_type: formData.value.scope_type,
-                    scope_id: formData.value.scope_id,
-                    estimated_budget: formData.value.estimated_budget,
-                },
-                // scenario skills for Phase 1
-                skills: scenarioSkills.value.map((s: any) => ({
-                    id: s.id || null,
-                    skill_id: s.skill_id,
-                    required_level: s.required_level,
-                    required_headcount: s.required_headcount,
-                    priority: s.priority,
-                    rationale: s.rationale,
-                })),
-                import_to_plan: formData.value.import_to_plan,
-            },
-        };
-
-        const res = await api.patch(
-            `/api/strategic-planning/scenarios/${scenarioId.value}`,
-            payload,
-        );
-        const updated = (res as any)?.data ?? res;
-        scenario.value = updated;
-        showSuccess('Paso 1 guardado');
-    } catch (err: any) {
-        // extract validation errors if provided by server
-        if (err?.response?.data) {
-            const data = err.response.data;
-            if (data.errors) fieldErrors.value = data.errors;
-            if (data.message) showError(data.message);
-            else showError('No se pudo guardar el Paso 1');
-        } else {
-            showError('No se pudo guardar el Paso 1');
-        }
-    } finally {
-        savingStep1.value = false;
-    }
-};
-
-function validateStep1() {
-    const errors: Record<string, string[]> = {};
-    if (!formData.value.name || !formData.value.name.trim()) {
-        errors.name = ['El nombre es requerido'];
-    }
-    if (
-        !formData.value.planning_horizon_months ||
-        formData.value.planning_horizon_months <= 0
-    ) {
-        errors.planning_horizon_months = ['El horizonte debe ser mayor que 0'];
-    }
-    if (formData.value.start_date && formData.value.end_date) {
-        const s = new Date(formData.value.start_date);
-        const e = new Date(formData.value.end_date);
-        if (s > e)
-            errors.start_date = [
-                'La fecha de inicio no puede ser posterior a la fecha fin',
-            ];
-    }
-
-    // Scenario skills validation: each item must have a skill selected
-    if (
-        Array.isArray(scenarioSkills.value) &&
-        scenarioSkills.value.length > 0
-    ) {
-        const missing = scenarioSkills.value.some((s: any) => !s.skill_id);
-        if (missing) {
-            errors.scenario_skills = [
-                'Todas las filas deben tener una skill seleccionada',
-            ];
-        }
-    }
-
-    fieldErrors.value = errors;
-    return Object.keys(errors).length === 0;
-}
-
-const handleStatusChanged = () => {
-    loadScenario();
-};
-
-const openVersionHistory = () => {
-    versionHistoryRef.value?.openDialog();
-};
-
-const closeChangeSetModal = () => {
-    showChangeSet.value = false;
-    changeSetId.value = null;
-};
-
-const openChangeSetModal = async () => {
-    if (!scenarioId.value || scenarioId.value <= 0) return;
-    creatingChangeSet.value = true;
-    try {
-        const res: any = await api.post(
-            `/api/strategic-planning/scenarios/${scenarioId.value}/change-sets`,
-            {},
-        );
-        const cs = (res as any)?.data ?? res;
-        // accommodate both { data: cs } and direct cs responses
-        changeSetId.value = cs?.id ?? (cs?.data && cs.data.id) ?? null;
-        if (changeSetId.value) showChangeSet.value = true;
-        else showError('No se pudo obtener el ChangeSet');
-    } catch (e) {
-        console.error(e);
-        const friendly =
-            (e as any)?.friendlyMessage ||
-            (e as any)?.message ||
-            'No se pudo generar el ChangeSet';
-        showError(friendly);
-    } finally {
-        creatingChangeSet.value = false;
-    }
-};
-
-const handleVersionSelected = (id: number) => {
-    // Navigate to the web route (Inertia page) not the API JSON endpoint
-    router.visit(`/strategic-planning/${id}`);
-};
-
-// Definición de los 7 pasos del workflow
-const stepperItems = [
-    {
-        value: 1,
-        title: 'Mapa',
-        icon: 'mdi-map',
-        subtitle: 'Visualización del escenario',
-    },
-    {
-        value: 2,
-        title: 'Diseño',
-        icon: 'mdi-table',
-        subtitle: 'Ingeniería de Roles',
-    },
-    {
-        value: 3,
-        title: 'Contraste',
-        icon: 'mdi-scale-balance',
-        subtitle: 'Realidad vs Diseño',
-    },
-    {
-        value: 4,
-        title: 'Estrategias',
-        icon: 'mdi-strategy',
-        subtitle: 'Cierre de brechas',
-    },
-    {
-        value: 5,
-        title: 'Planificación',
-        icon: 'mdi-account-group',
-        subtitle: 'Plan de personal',
-    },
-    {
-        value: 6,
-        title: 'Comparar',
-        icon: 'mdi-compare',
-        subtitle: 'Versiones de escenario',
-    },
-    {
-        value: 7,
-        title: 'Dashboard',
-        icon: 'mdi-view-dashboard',
-        subtitle: 'KPIs y Gestión',
-    },
-];
-
-const currentStepInfo = computed(
-    () =>
-        stepperItems.find((s) => s.value === currentStep.value) ||
-        stepperItems[0],
-);
-
-const goBack = () => {
-    router.visit('/scenario-planning');
-};
-
-const goToStep = (step: number) => {
-    if (step >= 1 && step <= stepperItems.length) {
-        currentStep.value = step;
-        // Actualizar URL con el step actual
-        const url = new URL(globalThis.location.href);
-        url.searchParams.set('step', String(step));
-        globalThis.history.replaceState({}, '', url.toString());
-    }
-};
-
-const nextStep = () => {
-    if (currentStep.value < stepperItems.length) {
-        goToStep(currentStep.value + 1);
-    }
-};
-
-const prevStep = () => {
-    if (currentStep.value > 1) {
-        goToStep(currentStep.value - 1);
-    }
-};
-
-// Parsear step desde query param
-const parseInitialStep = () => {
-    try {
-        const url = new URL(globalThis.location.href);
-        const stepParam = url.searchParams.get('step');
-        const viewParam = url.searchParams.get('view');
-
-        // Si viene con ?view=map, ir al paso 1
-        if (viewParam === 'map') {
-            currentStep.value = 1;
-            return;
-        }
-
-        if (stepParam) {
-            const stepNum = Number.parseInt(stepParam, 10);
-            if (stepNum >= 1 && stepNum <= stepperItems.length) {
-                currentStep.value = stepNum;
-            }
-        }
-    } catch {}
-};
-
-onMounted(() => {
-    parseInitialStep();
-    loadScenario();
-});
 </script>
 
 <template>
-    <v-app>
-        <div class="scenario-detail-wrapper">
-            <!-- Header con navegación (usando v-sheet en lugar de v-app-bar) -->
-            <v-sheet
-                color="surface"
-                class="border-b"
-                style="position: sticky; top: 0; z-index: 10"
-            >
-                <v-container fluid class="pa-2">
-                    <v-row no-gutters align="center">
-                        <v-col cols="auto">
-                            <v-btn
-                                icon="mdi-arrow-left"
-                                variant="text"
-                                @click="goBack"
-                            />
-                        </v-col>
+    <div
+        class="scenario-detail-root min-h-screen overflow-x-hidden bg-[#020617] text-white selection:bg-indigo-500/30"
+    >
+        <Head :title="scenario?.name || 'Scenario Detail'" />
 
-                        <v-col
-                            v-if="scenario"
-                            cols="auto"
-                            class="d-flex align-center flex-grow-1 gap-2"
-                        >
-                            <span class="font-weight-medium">{{
-                                scenario.name
+        <!-- Background Elements -->
+        <div class="pointer-events-none fixed inset-0 overflow-hidden">
+            <div
+                class="absolute -top-[10%] -left-[10%] h-[40%] w-[40%] rounded-full bg-indigo-500/10 blur-[120px]"
+            ></div>
+            <div
+                class="absolute top-[20%] -right-[10%] h-[35%] w-[35%] rounded-full bg-purple-500/10 blur-[120px]"
+            ></div>
+            <div
+                class="absolute -bottom-[10%] left-[20%] h-[30%] w-[30%] rounded-full bg-blue-500/10 blur-[120px]"
+            ></div>
+            <div
+                class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay brightness-100 contrast-150"
+            ></div>
+        </div>
+
+        <!-- App Bar / Header -->
+        <header
+            class="sticky top-0 z-[100] w-full border-b border-white/5 bg-[#020617]/40 backdrop-blur-xl"
+        >
+            <div
+                class="mx-auto flex h-20 max-w-[1600px] items-center justify-between px-6"
+            >
+                <!-- Left: Title & Status -->
+                <div class="flex items-center gap-6">
+                    <StButtonGlass
+                        variant="ghost"
+                        circle
+                        icon="mdi-arrow-left"
+                        @click="goBack"
+                    />
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-3">
+                            <h1 class="text-xl font-black tracking-tight">
+                                {{
+                                    scenario?.name || 'Loading Architecture...'
+                                }}
+                            </h1>
+                            <StBadgeGlass
+                                :variant="statusConfig.color"
+                                size="sm"
+                                class="flex items-center gap-1.5 !px-3 text-[10px] tracking-widest uppercase"
+                            >
+                                <v-icon :icon="statusConfig.icon" size="12" />
+                                {{ scenarioStatus }}
+                            </StBadgeGlass>
+                        </div>
+                        <div class="mt-0.5 flex items-center gap-2">
+                            <span
+                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >Protocol Version</span
+                            >
+                            <span class="text-[10px] font-bold text-indigo-400"
+                                >v{{ scenario?.version_number || '1.0' }}</span
+                            >
+                            <span class="mx-1 text-white/10">|</span>
+                            <span
+                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >Last Sync</span
+                            >
+                            <span class="text-[10px] font-bold text-white/50">{{
+                                scenario?.updated_at_human || 'Just now'
                             }}</span>
-                            <v-btn
-                                v-if="
-                                    canViewAcceptedPrompt &&
-                                    scenario.source_generation_id &&
-                                    scenario.accepted_prompt
-                                "
-                                small
-                                variant="text"
-                                @click="openAcceptedPromptDialog"
-                                >Ver prompt aceptado</v-btn
-                            >
-                            <v-chip
-                                v-if="scenario.decision_status"
-                                size="x-small"
-                                :color="
-                                    scenario.decision_status === 'approved'
-                                        ? 'success'
-                                        : scenario.decision_status ===
-                                            'rejected'
-                                          ? 'error'
-                                          : 'warning'
-                                "
-                            >
-                                {{ scenario.decision_status }}
-                            </v-chip>
-                        </v-col>
-
-                        <v-col v-else cols="auto" class="flex-grow-1">
-                            <v-skeleton-loader type="text" width="200" />
-                        </v-col>
-
-                        <v-col cols="auto" class="d-flex align-center gap-2">
-                            <v-chip
-                                variant="tonal"
-                                color="primary"
-                                size="small"
-                            >
-                                Paso {{ currentStep }}/{{ stepperItems.length }}
-                            </v-chip>
-                            <v-btn
-                                icon="mdi-history"
-                                variant="text"
-                                size="small"
-                                @click="openVersionHistory"
-                                title="Historial de versiones"
-                            />
-                            <v-btn
-                                icon="mdi-source-branch"
-                                variant="text"
-                                size="small"
-                                :loading="creatingChangeSet"
-                                @click="openChangeSetModal"
-                                title="ChangeSet"
-                            />
-                            <v-btn
-                                icon="mdi-robot"
-                                variant="text"
-                                size="small"
-                                data-test="generate-wizard-button"
-                                @click="showGenerateWizard = true"
-                                title="Generar escenario"
-                            />
-                        </v-col>
-                    </v-row>
-                </v-container>
-            </v-sheet>
-
-            <!-- Stepper horizontal compacto -->
-            <v-sheet
-                color="grey-lighten-4"
-                class="stepper-nav border-b px-2 py-1"
-            >
-                <div class="d-flex align-center flex-wrap justify-center gap-1">
-                    <v-btn
-                        v-for="step in stepperItems"
-                        :key="step.value"
-                        :variant="currentStep === step.value ? 'flat' : 'text'"
-                        :color="
-                            currentStep === step.value ? 'primary' : 'default'
-                        "
-                        size="small"
-                        :prepend-icon="step.icon"
-                        @click="goToStep(step.value)"
-                        class="step-btn"
-                    >
-                        <span class="d-none d-md-inline">{{ step.title }}</span>
-                        <span class="d-md-none">{{ step.value }}</span>
-                    </v-btn>
+                        </div>
+                    </div>
                 </div>
-            </v-sheet>
 
-            <!-- Contenido del step actual -->
-            <div class="scenario-content">
-                <v-progress-linear
-                    v-if="loading"
-                    indeterminate
-                    color="primary"
-                />
-
-                <template v-else-if="scenario">
-                    <!-- Step 1: Mapa de Escenario -->
-                    <div
-                        v-show="currentStep === 1"
-                        class="step-content step-map"
+                <!-- Right: Actions -->
+                <div class="flex items-center gap-3">
+                    <StButtonGlass
+                        variant="ghost"
+                        size="sm"
+                        icon="mdi-history"
+                        @click="versionHistoryRef?.open()"
+                        >Timeline</StButtonGlass
                     >
+                    <StButtonGlass
+                        variant="ghost"
+                        size="sm"
+                        icon="mdi-list-status"
+                        @click="statusTimelineRef?.open()"
+                        >Lifecycle</StButtonGlass
+                    >
+                    <div class="mx-2 h-6 w-px bg-white/10"></div>
+                    <StButtonGlass
+                        variant="primary"
+                        size="sm"
+                        icon="mdi-shield-edit-outline"
+                        >Commit Design</StButtonGlass
+                    >
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout with Stepper -->
+        <div class="mx-auto flex max-w-[1600px] items-start gap-8 p-8">
+            <!-- Fixed Left Sidebar: Stepper -->
+            <aside class="sticky top-28 w-80 shrink-0">
+                <ScenarioStepperComponent v-model="currentStep" />
+
+                <!-- Tactical Stats Card -->
+                <StCardGlass
+                    variant="glass"
+                    class="mt-8 border-white/5 bg-white/2 !p-6"
+                >
+                    <h4
+                        class="mb-4 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                    >
+                        Neural Metrics
+                    </h4>
+                    <div class="space-y-4">
+                        <div class="flex items-end justify-between">
+                            <span class="text-xs font-medium text-white/50"
+                                >Convergence</span
+                            >
+                            <span class="text-lg font-black text-indigo-400"
+                                >94.2%</span
+                            >
+                        </div>
                         <div
-                            class="mb-4 rounded border-l-4 border-blue-500 bg-blue-50 p-4"
+                            class="h-1 w-full overflow-hidden rounded-full bg-white/5"
                         >
-                            <div class="d-flex align-start gap-3">
-                                <v-icon
-                                    icon="mdi-information"
-                                    class="mt-1 text-blue-600"
-                                />
-                                <div>
-                                    <h3
-                                        class="font-weight-semibold mb-1 text-blue-800"
-                                    >
-                                        ¿En qué consiste el Paso 1?
-                                    </h3>
-                                    <p class="text-body-2 mb-0 text-blue-700">
-                                        Diseñar el escenario definiendo
-                                        capacidades estratégicas y competencias
-                                        (existentes o nuevas) que darán base al
-                                        mapa del escenario.
-                                    </p>
+                            <div
+                                class="h-full w-[94.2%] bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
+                            ></div>
+                        </div>
+                        <div class="mt-6 grid grid-cols-2 gap-4">
+                            <div
+                                class="rounded-xl border border-white/5 bg-white/5 p-3"
+                            >
+                                <div
+                                    class="mb-1 text-[9px] font-black tracking-widest text-white/20 uppercase"
+                                >
+                                    Entities
+                                </div>
+                                <div class="text-lg font-black">
+                                    {{ scenario?.entities_count || 24 }}
+                                </div>
+                            </div>
+                            <div
+                                class="rounded-xl border border-white/5 bg-white/5 p-3"
+                            >
+                                <div
+                                    class="mb-1 text-[9px] font-black tracking-widest text-white/20 uppercase"
+                                >
+                                    Alerts
+                                </div>
+                                <div class="text-lg font-black text-rose-400">
+                                    02
                                 </div>
                             </div>
                         </div>
-                        <PrototypeMap :scenario="scenario" />
-                        <div class="mt-4">
-                            <v-card class="pa-3">
-                                <v-card-title>
-                                    <v-icon class="mr-2">mdi-seed</v-icon>
-                                    Entidades incubadas en este escenario
-                                    <v-spacer />
-                                    <v-btn
-                                        small
-                                        variant="text"
-                                        @click="promoteIncubated"
-                                        title="Promover incubadas"
-                                        >Promover todas</v-btn
+                    </div>
+                </StCardGlass>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="min-w-0 flex-1 pb-32">
+                <transition name="fade-slide" mode="out-in" appear>
+                    <div
+                        :key="currentStep"
+                        class="animate-in duration-700 fade-in slide-in-from-bottom-4"
+                    >
+                        <template v-if="scenario">
+                            <!-- Step 1 -->
+                            <div v-if="currentStep === 1" class="space-y-8">
+                                <PrototypeMap :scenario="scenario" />
+
+                                <StCardGlass
+                                    variant="glass"
+                                    class="overflow-hidden border-white/10 bg-white/5 !p-0"
+                                >
+                                    <div
+                                        class="flex items-center justify-between border-b border-white/5 bg-white/5 px-8 py-5"
                                     >
-                                </v-card-title>
-                                <v-card-text>
-                                    <div v-if="loadingTree">
-                                        <v-progress-linear
-                                            indeterminate
-                                            color="primary"
-                                        />
-                                    </div>
-                                    <div v-else>
-                                        <div v-if="incubatedTree.length === 0">
-                                            No se encontraron entidades
-                                            incubadas.
+                                        <div class="flex items-center gap-3">
+                                            <v-icon color="indigo-400" size="20"
+                                                >mdi-seed-outline</v-icon
+                                            >
+                                            <h2
+                                                class="text-lg text-sm font-black tracking-tight tracking-widest text-white uppercase"
+                                            >
+                                                Incubated Entities
+                                            </h2>
                                         </div>
-                                        <div v-else>
+                                        <StButtonGlass
+                                            variant="ghost"
+                                            size="sm"
+                                            @click="promoteIncubated"
+                                            icon="mdi-rocket-launch"
+                                            >Promote All</StButtonGlass
+                                        >
+                                    </div>
+                                    <div class="p-8">
+                                        <div
+                                            v-if="loadingTree"
+                                            class="flex justify-center py-12"
+                                        >
+                                            <v-progress-circular
+                                                indeterminate
+                                                color="indigo-400"
+                                            />
+                                        </div>
+                                        <div
+                                            v-else-if="!incubatedTree.length"
+                                            class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/2 py-12"
+                                        >
+                                            <v-icon
+                                                size="32"
+                                                color="white/10"
+                                                class="mb-4"
+                                                >mdi-cube-off-outline</v-icon
+                                            >
+                                            <p
+                                                class="text-sm font-medium text-white/30"
+                                            >
+                                                Architecture foundation is
+                                                stable. No new elements pending.
+                                            </p>
+                                        </div>
+                                        <div
+                                            v-else
+                                            class="grid grid-cols-1 gap-6 md:grid-cols-2"
+                                        >
                                             <div
                                                 v-for="cap in incubatedTree"
                                                 :key="cap.id"
-                                                class="mb-3"
+                                                class="group rounded-2xl border border-white/5 bg-white/5 p-5 transition-all hover:border-indigo-500/30"
                                             >
                                                 <div
-                                                    class="d-flex align-center justify-space-between"
+                                                    class="mb-4 flex items-center justify-between"
                                                 >
                                                     <div>
-                                                        <strong>{{
-                                                            cap.name
-                                                        }}</strong>
-                                                        <div
-                                                            class="text-sm text-gray-600"
+                                                        <h4
+                                                            class="text-base font-black text-white transition-colors group-hover:text-indigo-300"
+                                                        >
+                                                            {{ cap.name }}
+                                                        </h4>
+                                                        <p
+                                                            class="line-clamp-1 truncate text-[11px] text-white/40"
                                                         >
                                                             {{
                                                                 cap.description
                                                             }}
-                                                        </div>
+                                                        </p>
                                                     </div>
-                                                    <div>
-                                                        <v-btn
-                                                            size="x-small"
-                                                            variant="text"
-                                                            @click="
-                                                                openIncubatedReview(
-                                                                    cap,
-                                                                )
-                                                            "
-                                                            >Revisar</v-btn
-                                                        >
-                                                    </div>
+                                                    <StButtonGlass
+                                                        size="sm"
+                                                        variant="glass"
+                                                        circle
+                                                        icon="mdi-eye"
+                                                        @click="
+                                                            openIncubatedReview(
+                                                                cap,
+                                                            )
+                                                        "
+                                                    />
                                                 </div>
-                                                <div class="mt-2 ml-4">
-                                                    <div
-                                                        v-for="comp in cap.competencies"
-                                                        :key="comp.id"
-                                                        class="mb-1"
-                                                    >
-                                                        <div
-                                                            class="d-flex align-center gap-2"
-                                                        >
-                                                            <span
-                                                                class="text-sm"
-                                                                >•
-                                                                {{
-                                                                    comp.name
-                                                                }}</span
-                                                            >
-                                                            <v-btn
-                                                                size="x-small"
-                                                                variant="text"
-                                                                @click="
-                                                                    goToCompetency(
-                                                                        comp.id,
-                                                                    )
-                                                                "
-                                                                >Ver/Editar</v-btn
-                                                            >
-                                                        </div>
-                                                        <div
-                                                            class="ml-4 text-sm text-gray-700"
-                                                        >
-                                                            <span
-                                                                v-for="s in comp.skills"
-                                                                :key="s.id"
-                                                                class="mr-3"
-                                                            >
-                                                                {{ s.name }}
-                                                                <small
-                                                                    v-if="
-                                                                        s.is_incubating
-                                                                    "
-                                                                    class="text-yellow-700"
-                                                                    >(incubation)</small
-                                                                >
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </v-card-text>
-
-                                <v-card-text>
-                                    <div
-                                        v-if="
-                                            scenario &&
-                                            scenario.source_generation_id
-                                        "
-                                    >
-                                        <h4 class="mb-2">
-                                            Registro de importación
-                                        </h4>
-                                        <div v-if="loadingImportAudit">
-                                            <v-progress-linear
-                                                indeterminate
-                                                color="primary"
-                                            />
-                                        </div>
-                                        <div v-else>
-                                            <div
-                                                v-if="importAudit.length === 0"
-                                            >
-                                                No hay registros de importación.
-                                            </div>
-                                            <div v-else>
                                                 <div
-                                                    v-for="(
-                                                        entry, idx
-                                                    ) in importAudit"
-                                                    :key="idx"
-                                                    class="mb-3"
+                                                    class="flex flex-wrap gap-2"
                                                 >
-                                                    <div
-                                                        class="text-sm text-gray-700"
+                                                    <StBadgeGlass
+                                                        v-for="c in cap.competencies"
+                                                        :key="c.id"
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        >{{
+                                                            c.name
+                                                        }}</StBadgeGlass
                                                     >
-                                                        <strong>{{
-                                                            entry.attempted_at ||
-                                                            entry.attempted ||
-                                                            '—'
-                                                        }}</strong>
-                                                        —
-                                                        <em>{{
-                                                            entry.attempted_by ||
-                                                            'Sistema'
-                                                        }}</em>
-                                                    </div>
-                                                    <div>
-                                                        Resultado:
-                                                        <strong>{{
-                                                            entry.result
-                                                        }}</strong>
-                                                    </div>
-                                                    <div
-                                                        v-if="entry.error"
-                                                        class="mt-1"
-                                                    >
-                                                        <div
-                                                            class="text-sm text-red-700"
-                                                        >
-                                                            Error:
-                                                        </div>
-                                                        <pre class="text-sm">{{
-                                                            JSON.stringify(
-                                                                entry.error,
-                                                                null,
-                                                                2,
-                                                            )
-                                                        }}</pre>
-                                                    </div>
-                                                    <div
-                                                        v-if="entry.report"
-                                                        class="mt-1"
-                                                    >
-                                                        <div
-                                                            class="text-sm text-green-700"
-                                                        >
-                                                            Reporte:
-                                                        </div>
-                                                        <pre class="text-sm">{{
-                                                            JSON.stringify(
-                                                                entry.report,
-                                                                null,
-                                                                2,
-                                                            )
-                                                        }}</pre>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </v-card-text>
-                            </v-card>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: Mapeo Roles-Competencias -->
-                    <div v-if="currentStep === 2" class="step-content">
-                        <div v-if="scenarioId > 0">
-                            <!-- 1. Matriz de Ingeniería (Primero) -->
-                            <RoleCompetencyMatrix
-                                :scenario-id="scenarioId"
-                                :key="`rcm-${scenarioId}-${currentStep}-${scenario?.updated_at || ''}`"
-                            />
-
-                            <!-- 2. Cubo de Validación (Validación Final) -->
-                            <div class="mt-10 border-t border-slate-100 pt-10">
-                                <div
-                                    class="d-flex align-center mb-6 gap-3 px-2"
-                                >
-                                    <div
-                                        class="rounded-lg bg-indigo-600 p-2 shadow-lg shadow-indigo-100"
-                                    >
-                                        <v-icon color="white" size="20"
-                                            >mdi-cube-scan</v-icon
-                                        >
-                                    </div>
-                                    <div>
-                                        <h3
-                                            class="text-h6 font-weight-bold mb-0 text-indigo-900"
-                                        >
-                                            Cubo de Ingeniería Organizacional
-                                        </h3>
-                                        <div
-                                            class="text-caption text-indigo-700"
-                                        >
-                                            Validación de consistencia:
-                                            Arquetipos × Competencias × FTE
-                                        </div>
-                                    </div>
-                                </div>
-                                <IncubatedCubeReview
-                                    :scenario-id="Number(scenarioId)"
-                                    :key="`cube-${scenarioId}-${scenario?.updated_at || ''}`"
-                                    @approved="loadScenario"
-                                />
+                                </StCardGlass>
                             </div>
-                        </div>
-                        <div v-else class="flex justify-center py-8">
-                            <v-progress-circular
-                                indeterminate
-                                color="primary"
-                            ></v-progress-circular>
-                            <span class="ml-2">Cargando escenario...</span>
-                        </div>
+
+                            <!-- Step 2 -->
+                            <div v-if="currentStep === 2" class="space-y-12">
+                                <RoleCompetencyMatrix
+                                    :scenario-id="scenarioId"
+                                />
+                                <div class="border-t border-white/5 pt-8">
+                                    <IncubatedCubeReview
+                                        :scenario-id="scenarioId"
+                                        @approved="loadScenario"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Step 3-7 components remain the same as they were already refactored -->
+                            <OrganizationalContrast
+                                v-if="currentStep === 3"
+                                :scenario-id="scenarioId"
+                            />
+                            <ClosingStrategies
+                                v-if="currentStep === 4"
+                                :scenario-id="scenarioId"
+                            />
+                            <BudgetingPlan
+                                v-if="currentStep === 5"
+                                :scenario-id="scenarioId"
+                            />
+                            <ScenarioComparison
+                                v-if="currentStep === 6"
+                                :scenario-id="scenarioId"
+                            />
+                            <FinalDashboard
+                                v-if="currentStep === 7"
+                                :scenario-id="scenarioId"
+                            />
+                        </template>
                     </div>
-
-                    <!-- Step 3: Contraste con la Realidad -->
-                    <div v-show="currentStep === 3" class="step-content">
-                        <OrganizationalContrast
-                            :scenario-id="Number(scenarioId)"
-                        />
-                    </div>
-
-                    <!-- Step 4: Estrategias de Cierre -->
-                    <div v-if="currentStep === 4" class="step-content">
-                        <ClosingStrategies :scenario-id="scenarioId" />
-                    </div>
-
-                    <!-- Step 5: Plan de Personal y Presupuesto -->
-                    <div v-show="currentStep === 5" class="step-content">
-                        <BudgetingPlan :scenario-id="scenarioId" />
-                    </div>
-
-                    <!-- Step 6: Comparación de Versiones -->
-                    <div v-show="currentStep === 6" class="step-content">
-                        <ScenarioComparison :scenario-id="scenarioId" />
-                    </div>
-
-                    <!-- Step 7: Dashboard Ejecutivo -->
-                    <div v-show="currentStep === 7" class="step-content">
-                        <FinalDashboard :scenario-id="scenarioId" />
-                    </div>
-                </template>
-
-                <template v-else>
-                    <v-container>
-                        <v-alert type="error" variant="tonal">
-                            No se pudo cargar el escenario.
-                        </v-alert>
-                    </v-container>
-                </template>
-            </div>
-
-            <!-- Footer con navegación entre steps (usando v-sheet) -->
-            <v-sheet
-                color="surface"
-                class="border-t"
-                style="
-                    position: fixed;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    z-index: 10;
-                "
-            >
-                <v-container fluid class="pa-2">
-                    <v-row no-gutters align="center">
-                        <v-col cols="4">
-                            <v-btn
-                                v-if="currentStep > 1"
-                                variant="text"
-                                size="small"
-                                prepend-icon="mdi-chevron-left"
-                                @click="prevStep"
-                            >
-                                <span class="d-none d-sm-inline">{{
-                                    stepperItems[currentStep - 2]?.title
-                                }}</span>
-                                <span class="d-sm-none">Anterior</span>
-                            </v-btn>
-                        </v-col>
-
-                        <v-col cols="4" class="text-center">
-                            <span class="text-caption text-medium-emphasis">
-                                {{ currentStepInfo.title }}:
-                                {{ currentStepInfo.subtitle }}
-                            </span>
-                        </v-col>
-
-                        <v-col cols="4" class="text-right">
-                            <v-btn
-                                v-if="currentStep < stepperItems.length"
-                                variant="tonal"
-                                color="primary"
-                                size="small"
-                                append-icon="mdi-chevron-right"
-                                @click="nextStep"
-                            >
-                                <span class="d-none d-sm-inline">{{
-                                    stepperItems[currentStep]?.title
-                                }}</span>
-                                <span class="d-sm-none">Siguiente</span>
-                            </v-btn>
-                            <v-btn
-                                v-else
-                                variant="flat"
-                                color="success"
-                                size="small"
-                                prepend-icon="mdi-check"
-                                @click="goBack"
-                            >
-                                Finalizar
-                            </v-btn>
-                        </v-col>
-                    </v-row>
-                </v-container>
-            </v-sheet>
-
-            <!-- Modales -->
-            <VersionHistoryModal
-                v-if="scenarioId && scenarioId > 0 && scenario"
-                ref="versionHistoryRef"
-                :scenario-id="scenarioId"
-                :version-group-id="scenario.version_group_id || ''"
-                :current-version="scenario.version_number || 1"
-                @version-selected="handleVersionSelected"
-            />
-            <StatusTimeline
-                v-if="scenarioId && scenarioId > 0"
-                ref="statusTimelineRef"
-                :scenario-id="scenarioId"
-                @status-changed="handleStatusChanged"
-            />
-            <v-dialog v-model="showChangeSet" max-width="900" scrollable>
-                <v-card>
-                    <v-card-text>
-                        <ChangeSetModal
-                            v-if="changeSetId"
-                            :id="changeSetId"
-                            title="ChangeSet"
-                            @close="closeChangeSetModal"
-                        />
-                    </v-card-text>
-                </v-card>
-            </v-dialog>
-            <v-dialog v-model="showGenerateWizard" max-width="1000">
-                <v-card>
-                    <v-card-text>
-                        <GenerateWizard />
-                    </v-card-text>
-                </v-card>
-            </v-dialog>
-            <IncubatedReviewModal
-                v-model:modal="showIncubatedReview"
-                :item="selectedIncubated"
-                :scenario-id="scenarioId"
-                @close="showIncubatedReview = false"
-                @promoted="onPromoted"
-            />
-
-            <v-dialog v-model="showAcceptedPromptDialog" max-width="800">
-                <v-card>
-                    <v-card-title>Prompt aceptado</v-card-title>
-                    <v-card-text>
-                        <pre v-if="scenario">{{
-                            scenario.accepted_prompt
-                        }}</pre>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="showAcceptedPromptDialog = false"
-                            >Cerrar</v-btn
-                        >
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+                </transition>
+            </main>
         </div>
-    </v-app>
+
+        <!-- Sticky Footer Navigation -->
+        <footer
+            class="fixed right-0 bottom-0 left-0 z-[100] border-t border-white/5 bg-[#020617]/60 backdrop-blur-xl"
+        >
+            <div
+                class="mx-auto flex h-20 max-w-[1600px] items-center justify-between px-8"
+            >
+                <div>
+                    <StButtonGlass
+                        v-if="currentStep > 1"
+                        variant="ghost"
+                        icon="mdi-chevron-left"
+                        @click="prevStep"
+                        >Back Stage</StButtonGlass
+                    >
+                </div>
+
+                <div class="flex items-center gap-1">
+                    <div
+                        v-for="i in 7"
+                        :key="i"
+                        class="h-1.5 rounded-full transition-all duration-500"
+                        :class="[
+                            i === currentStep
+                                ? 'w-8 bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.6)]'
+                                : i < currentStep
+                                  ? 'w-4 bg-emerald-500/50'
+                                  : 'w-2 bg-white/10',
+                        ]"
+                    ></div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <StButtonGlass
+                        v-if="currentStep < 7"
+                        variant="primary"
+                        icon="mdi-chevron-right"
+                        @click="nextStep"
+                        class="!px-12"
+                        >Next Protocol</StButtonGlass
+                    >
+                    <StButtonGlass
+                        v-else
+                        variant="secondary"
+                        icon="mdi-check-all"
+                        @click="goBack"
+                        class="!px-12"
+                        >Finalize Design</StButtonGlass
+                    >
+                </div>
+            </div>
+        </footer>
+
+        <!-- Modals -->
+        <VersionHistoryModal
+            ref="versionHistoryRef"
+            :scenario-id="scenarioId"
+            :version-group-id="scenario?.version_group_id"
+            :current-version="scenario?.version_number"
+            @version-selected="handleVersionSelected"
+        />
+        <StatusTimeline
+            ref="statusTimelineRef"
+            :scenario-id="scenarioId"
+            @status-changed="handleStatusChanged"
+        />
+        <IncubatedReviewModal
+            v-model="showIncubatedReview"
+            :item="selectedIncubated"
+            :scenario-id="scenarioId"
+            @close="showIncubatedReview = false"
+            @promoted="onPromoted"
+        />
+    </div>
 </template>
 
 <style scoped>
-.scenario-detail-wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-slide-enter-from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+}
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-30px) scale(1.02);
 }
 
-.stepper-nav {
-    position: sticky;
-    top: 56px;
-    z-index: 9;
-}
-
-.step-btn {
-    min-width: auto;
-}
-
-.scenario-content {
-    flex: 1;
-    overflow: auto;
-    padding-bottom: 80px;
-    padding-top: 10px;
-}
-
-.step-content {
-    min-height: auto;
-}
-
-.step-map {
-    height: min(70vh, 640px);
-    min-height: 420px;
-    padding: 0;
-}
-
-.step-map :deep(.prototype-map-root) {
-    height: 100%;
-    max-height: 100%;
+.scenario-detail-root :deep(.prototype-map-root) {
+    height: 70vh;
+    min-height: 500px;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 </style>

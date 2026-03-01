@@ -1,666 +1,830 @@
 <template>
-    <v-dialog :model-value="visible" max-width="1100" scrollable persistent>
-        <v-card>
+    <v-dialog
+        :model-value="visible"
+        max-width="1100"
+        scrollable
+        persistent
+        class="backdrop-blur-sm"
+    >
+        <StCardGlass
+            variant="media"
+            class="relative flex h-full !max-h-[90vh] flex-col overflow-hidden"
+        >
+            <!-- Header Glow -->
+            <div
+                class="pointer-events-none absolute -top-24 -right-24 h-96 w-96 bg-indigo-500/10 blur-[120px]"
+            ></div>
+            <div
+                class="pointer-events-none absolute -bottom-24 -left-24 h-96 w-96 bg-emerald-500/10 blur-[120px]"
+            ></div>
+
             <!-- Header -->
-            <v-toolbar color="secondary" dark>
-                <v-icon start class="ml-4">mdi-robot</v-icon>
-                <v-toolbar-title>
-                    Propuestas del Agente Diseñador de Roles
-                </v-toolbar-title>
-                <v-spacer />
-
-                <!-- Alignment score badge -->
-                <v-chip
-                    v-if="proposals?.alignment_score"
-                    color="white"
-                    text-color="secondary"
-                    class="font-weight-bold mr-4"
-                    prepend-icon="mdi-chart-line"
-                >
-                    Alineación:
-                    {{ Math.round((proposals.alignment_score ?? 0) * 100) }}%
-                </v-chip>
-
-                <v-btn icon @click="$emit('close')">
-                    <v-icon>mdi-close</v-icon>
-                </v-btn>
-            </v-toolbar>
-
-            <!-- Loading state -->
             <div
-                v-if="loading"
-                class="d-flex flex-column align-center justify-center"
-                style="min-height: 400px"
+                class="z-10 flex items-center justify-between gap-4 border-b border-white/5 p-6"
             >
-                <v-progress-circular
-                    indeterminate
-                    color="secondary"
-                    size="64"
-                />
-                <p class="text-h6 text-medium-emphasis mt-6">
-                    Los agentes están colaborando...
-                </p>
-                <p class="text-body-2 text-medium-emphasis mt-2">
-                    Analizando blueprint estratégico y catálogo organizacional
-                </p>
-            </div>
-
-            <!-- Empty state -->
-            <div
-                v-else-if="!proposals"
-                class="d-flex flex-column align-center justify-center"
-                style="min-height: 400px"
-            >
-                <v-icon size="80" color="grey-lighten-1">mdi-robot-off</v-icon>
-                <p class="text-h6 text-medium-emphasis mt-4">
-                    No hay propuestas disponibles.
-                </p>
-                <p class="text-body-2 text-medium-emphasis">
-                    Intenta consultar de nuevo a los agentes.
-                </p>
-            </div>
-
-            <!-- Main content -->
-            <v-card-text
-                v-else
-                class="pa-6"
-                style="max-height: 70vh; overflow-y: auto"
-            >
-                <!-- Info banner -->
-                <v-alert
-                    type="info"
-                    variant="tonal"
-                    class="mb-6"
-                    icon="mdi-information-outline"
-                >
-                    El <strong>Diseñador de Roles</strong> propone los
-                    siguientes cambios basado en el blueprint estratégico y el
-                    catálogo actual. Revisa cada propuesta, ajusta el arquetipo
-                    o el nivel de competencias si lo necesitas, y aprueba las
-                    que quieras aplicar a la matriz.
-                </v-alert>
-
-                <!-- ═══════════════════════════════════════ -->
-                <!-- SECCIÓN: ROLES -->
-                <!-- ═══════════════════════════════════════ -->
-                <div class="d-flex align-center justify-space-between mb-4">
-                    <div class="d-flex align-center gap-2">
-                        <v-icon color="primary" size="20"
-                            >mdi-account-tie</v-icon
-                        >
-                        <h3 class="text-h6 font-weight-bold">
-                            Roles Propuestos
-                            <v-chip
-                                size="small"
-                                class="ml-2"
-                                :color="
-                                    approvedRoleCount > 0 ? 'primary' : 'grey'
-                                "
-                            >
-                                {{ approvedRoleCount }} /
-                                {{ localRoleProposals.length }}
-                            </v-chip>
-                        </h3>
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-500/20"
+                    >
+                        <v-icon color="indigo-300" size="24">mdi-robot</v-icon>
                     </div>
-                    <div class="d-flex gap-2">
-                        <v-btn
-                            size="small"
-                            variant="tonal"
-                            color="success"
-                            @click="approveAllRoles"
+                    <div>
+                        <h2
+                            class="mb-1 text-xl leading-none font-black tracking-tight text-white"
                         >
-                            <v-icon start>mdi-check-all</v-icon>Aprobar todos
-                        </v-btn>
-                        <v-btn
-                            size="small"
-                            variant="tonal"
-                            color="error"
-                            @click="rejectAllRoles"
-                        >
-                            <v-icon start>mdi-close-circle</v-icon>Rechazar
-                            todos
-                        </v-btn>
+                            Agentic Role Design Proposals
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                                >Strategy Engine:</span
+                            >
+                            <span class="text-xs font-bold text-indigo-400"
+                                >Collaboration Protocol v2.4</span
+                            >
+                        </div>
                     </div>
                 </div>
 
-                <div
-                    v-for="(role, idx) in localRoleProposals"
-                    :key="`role-${idx}`"
-                    class="mb-4"
-                >
-                    <v-card
-                        :variant="
-                            role._status === 'rejected' ? 'text' : 'outlined'
-                        "
-                        :class="{
-                            'border-success': role._status === 'approved',
-                            'border-error opacity-50':
-                                role._status === 'rejected',
-                            'proposal-card': true,
-                        }"
+                <div class="flex items-center gap-4">
+                    <!-- Alignment score badge -->
+                    <div
+                        v-if="proposals?.alignment_score"
+                        class="hidden flex-col items-end md:flex"
                     >
-                        <!-- Card header -->
-                        <v-card-item>
-                            <template #prepend>
-                                <v-chip
-                                    :color="getTypeColor(role.type)"
-                                    size="small"
-                                    label
-                                    class="font-weight-bold mr-2"
-                                >
-                                    <v-icon start size="14">{{
-                                        getTypeIcon(role.type)
-                                    }}</v-icon>
-                                    {{ role.type?.toUpperCase() }}
-                                </v-chip>
-                            </template>
-
-                            <v-card-title class="text-body-1 font-weight-bold">
-                                {{ role.proposed_name }}
-                            </v-card-title>
-
-                            <v-card-subtitle
-                                v-if="role.proposed_description"
-                                class="mt-1"
-                            >
-                                {{ role.proposed_description }}
-                            </v-card-subtitle>
-
-                            <template #append>
-                                <!-- Status chip -->
-                                <v-chip
-                                    v-if="role._status === 'approved'"
-                                    color="success"
-                                    size="small"
-                                    variant="flat"
-                                    prepend-icon="mdi-check-circle"
-                                    >Aprobado</v-chip
-                                >
-                                <v-chip
-                                    v-else-if="role._status === 'rejected'"
-                                    color="error"
-                                    size="small"
-                                    variant="flat"
-                                    prepend-icon="mdi-close-circle"
-                                    >Rechazado</v-chip
-                                >
-                                <v-chip
-                                    v-else
-                                    color="grey"
-                                    size="small"
-                                    variant="tonal"
-                                    >Pendiente</v-chip
-                                >
-                            </template>
-                        </v-card-item>
-
-                        <v-divider v-if="role._status !== 'rejected'" />
-
-                        <v-card-text v-if="role._status !== 'rejected'">
-                            <v-row>
-                                <!-- Archetype selector -->
-                                <v-col cols="12" md="3">
-                                    <v-label
-                                        class="text-caption font-weight-medium d-block mb-1"
-                                    >
-                                        Arquetipo (Cubo)
-                                    </v-label>
-                                    <v-btn-toggle
-                                        v-model="role.archetype"
-                                        density="compact"
-                                        rounded="lg"
-                                        mandatory
-                                        color="primary"
-                                        border
-                                    >
-                                        <v-btn value="E" size="small">E</v-btn>
-                                        <v-btn value="T" size="small">T</v-btn>
-                                        <v-btn value="O" size="small">O</v-btn>
-                                    </v-btn-toggle>
-                                    <div
-                                        class="text-caption text-medium-emphasis mt-1"
-                                    >
-                                        {{ archetypeLabel(role.archetype) }}
-                                    </div>
-                                </v-col>
-
-                                <!-- FTE -->
-                                <v-col cols="12" md="2">
-                                    <v-label
-                                        class="text-caption font-weight-medium d-block mb-1"
-                                        >FTE Sugerido</v-label
-                                    >
-                                    <v-text-field
-                                        v-model.number="role.fte_suggested"
-                                        type="number"
-                                        min="0.1"
-                                        step="0.5"
-                                        density="compact"
-                                        variant="outlined"
-                                        hide-details
-                                    />
-                                </v-col>
-
-                                <!-- Human/IA mix -->
-                                <v-col
-                                    v-if="role.talent_composition"
-                                    cols="12"
-                                    md="3"
-                                >
-                                    <v-label
-                                        class="text-caption font-weight-medium d-block mb-1"
-                                    >
-                                        Mix Humano / IA
-                                    </v-label>
-                                    <div class="d-flex align-center mt-1 gap-2">
-                                        <v-icon size="16" color="primary"
-                                            >mdi-account</v-icon
-                                        >
-                                        <span
-                                            class="text-body-2 font-weight-medium"
-                                            >{{
-                                                role.talent_composition
-                                                    .human_percentage
-                                            }}%</span
-                                        >
-                                        <span
-                                            class="text-caption text-medium-emphasis"
-                                            >/</span
-                                        >
-                                        <v-icon size="16" color="secondary"
-                                            >mdi-robot</v-icon
-                                        >
-                                        <span
-                                            class="text-body-2 font-weight-medium"
-                                            >{{
-                                                role.talent_composition
-                                                    .synthetic_percentage
-                                            }}%</span
-                                        >
-                                    </div>
-                                    <div
-                                        class="text-caption text-medium-emphasis mt-1"
-                                    >
-                                        {{
-                                            role.talent_composition
-                                                .logic_justification
-                                        }}
-                                    </div>
-                                </v-col>
-                            </v-row>
-
-                            <!-- Competency mappings table -->
+                        <span
+                            class="text-[9px] font-black tracking-widest text-white/30 uppercase"
+                            >Alignment Score</span
+                        >
+                        <div class="flex items-center gap-2">
                             <div
-                                v-if="role.competency_mappings?.length"
-                                class="mt-4"
+                                class="mt-1 h-1.5 w-24 overflow-hidden rounded-full border border-white/10 bg-white/5"
                             >
-                                <v-label
-                                    class="text-caption font-weight-medium d-block mb-2"
+                                <div
+                                    class="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all duration-1000"
+                                    :style="{
+                                        width: `${Math.round((proposals.alignment_score ?? 0) * 100)}%`,
+                                    }"
+                                ></div>
+                            </div>
+                            <span class="text-sm font-black text-indigo-300"
+                                >{{
+                                    Math.round(
+                                        (proposals.alignment_score ?? 0) * 100,
+                                    )
+                                }}%</span
+                            >
+                        </div>
+                    </div>
+
+                    <StButtonGlass
+                        variant="ghost"
+                        size="sm"
+                        circle
+                        icon="mdi-close"
+                        @click="$emit('close')"
+                    />
+                </div>
+            </div>
+
+            <div class="custom-scrollbar relative flex-1 overflow-y-auto">
+                <!-- Loading state -->
+                <div
+                    v-if="loading"
+                    class="flex flex-col items-center justify-center py-24"
+                >
+                    <div class="relative mb-8">
+                        <div
+                            class="absolute inset-0 scale-150 animate-pulse rounded-full bg-indigo-500/20 blur-2xl"
+                        ></div>
+                        <v-progress-circular
+                            indeterminate
+                            color="indigo-400"
+                            size="80"
+                            width="2"
+                        >
+                            <v-icon color="indigo-300" size="32"
+                                >mdi-robot-outline</v-icon
+                            >
+                        </v-progress-circular>
+                    </div>
+                    <p
+                        class="mb-2 text-lg font-black tracking-tight text-white"
+                    >
+                        Agents are collaborating...
+                    </p>
+                    <p
+                        class="max-w-sm text-center text-sm font-bold text-white/40"
+                    >
+                        Analyzing strategic blueprint, organizational catalog,
+                        and talent archetypes
+                    </p>
+                </div>
+
+                <!-- Empty state -->
+                <div
+                    v-else-if="!proposals"
+                    class="flex flex-col items-center justify-center py-24"
+                >
+                    <div
+                        class="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl border border-white/10 bg-white/5"
+                    >
+                        <v-icon size="40" color="white/20"
+                            >mdi-robot-off</v-icon
+                        >
+                    </div>
+                    <p
+                        class="mb-2 text-lg font-black tracking-tight text-white"
+                    >
+                        No proposals available.
+                    </p>
+                    <p class="text-sm font-bold text-white/40">
+                        Try re-consulting the agents to generate new designs.
+                    </p>
+                </div>
+
+                <!-- Main content -->
+                <div v-else class="space-y-12 p-8">
+                    <!-- Intro Alert -->
+                    <div
+                        class="relative overflow-hidden rounded-3xl border border-indigo-500/20 bg-indigo-500/10 p-6 backdrop-blur-xl"
+                    >
+                        <div
+                            class="pointer-events-none absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-indigo-500/10 blur-3xl"
+                        ></div>
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-500/20"
+                            >
+                                <v-icon color="indigo-300" size="20"
+                                    >mdi-information-outline</v-icon
                                 >
-                                    Competencias propuestas ({{
-                                        role.competency_mappings.length
-                                    }})
-                                </v-label>
-                                <v-table
-                                    density="compact"
-                                    class="rounded-lg border"
+                            </div>
+                            <div>
+                                <h3
+                                    class="mb-1 text-sm font-black tracking-widest text-indigo-200 uppercase"
                                 >
-                                    <thead>
-                                        <tr>
-                                            <th>Competencia</th>
-                                            <th>Tipo cambio</th>
-                                            <th class="text-center">
-                                                Nivel req.
-                                            </th>
-                                            <th class="text-center">Core</th>
-                                            <th>Semáforo</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr
-                                            v-for="(
-                                                mapping, mIdx
-                                            ) in role.competency_mappings"
-                                            :key="mIdx"
+                                    Design Protocol
+                                </h3>
+                                <p
+                                    class="text-sm leading-relaxed font-medium text-white/70"
+                                >
+                                    The <strong>Role Designer</strong> has
+                                    proposed adjustments based on the strategic
+                                    session. Review each role, verify its
+                                    <strong>competency mapping</strong> and
+                                    <strong>archetype</strong>, then approve to
+                                    commit changes to the scenario matrix.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ROLES SECTION -->
+                    <section>
+                        <div class="mb-8 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5"
+                                >
+                                    <v-icon size="20" color="white/60"
+                                        >mdi-account-tie</v-icon
+                                    >
+                                </div>
+                                <div>
+                                    <h3
+                                        class="text-lg font-black tracking-tight text-white"
+                                    >
+                                        Proposed Roles
+                                    </h3>
+                                    <div class="flex items-center gap-2">
+                                        <StBadgeGlass
+                                            :variant="
+                                                approvedRoleCount > 0
+                                                    ? 'primary'
+                                                    : 'glass'
+                                            "
+                                            size="sm"
                                         >
-                                            <td class="text-body-2">
-                                                {{ mapping.competency_name }}
-                                            </td>
-                                            <td>
-                                                <v-chip
-                                                    :color="
-                                                        getChangeTypeColor(
-                                                            mapping.change_type,
-                                                        )
-                                                    "
-                                                    size="x-small"
-                                                    label
+                                            {{ approvedRoleCount }} /
+                                            {{ localRoleProposals.length }}
+                                            Approved
+                                        </StBadgeGlass>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <StButtonGlass
+                                    variant="ghost"
+                                    size="sm"
+                                    @click="approveAllRoles"
+                                    icon="mdi-check-all"
+                                >
+                                    Approve All
+                                </StButtonGlass>
+                                <StButtonGlass
+                                    variant="ghost"
+                                    size="sm"
+                                    @click="rejectAllRoles"
+                                    icon="mdi-close-circle"
+                                >
+                                    Reject All
+                                </StButtonGlass>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <div
+                                v-for="(role, idx) in localRoleProposals"
+                                :key="`role-${idx}`"
+                                :class="`group relative transition-all duration-300 ${
+                                    role._status === 'rejected'
+                                        ? 'pointer-events-none opacity-40 grayscale'
+                                        : ''
+                                }`"
+                            >
+                                <div
+                                    :class="`overflow-hidden rounded-3xl border transition-all duration-500 ${
+                                        role._status === 'approved'
+                                            ? 'border-indigo-500/30 bg-indigo-500/5 shadow-[0_0_40px_rgba(99,102,241,0.05)]'
+                                            : 'border-white/10 bg-white/5'
+                                    }`"
+                                >
+                                    <!-- Role Header -->
+                                    <div
+                                        class="flex flex-col justify-between gap-4 border-b border-white/5 bg-white/5 p-6 md:flex-row md:items-center"
+                                    >
+                                        <div class="flex items-center gap-4">
+                                            <StBadgeGlass
+                                                :variant="
+                                                    getTypeVariant(role.type)
+                                                "
+                                                size="md"
+                                            >
+                                                <v-icon
+                                                    size="14"
+                                                    class="mr-1.5"
+                                                    >{{
+                                                        getTypeIcon(role.type)
+                                                    }}</v-icon
+                                                >
+                                                {{ role.type }}
+                                            </StBadgeGlass>
+                                            <div>
+                                                <h4
+                                                    class="text-base font-black tracking-tight text-white"
+                                                >
+                                                    {{ role.proposed_name }}
+                                                </h4>
+                                                <p
+                                                    class="line-clamp-1 max-w-md truncate text-xs leading-tight font-medium text-white/40"
                                                 >
                                                     {{
-                                                        changeTypeLabel(
-                                                            mapping.change_type,
+                                                        role.proposed_description
+                                                    }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            class="flex shrink-0 items-center gap-2"
+                                        >
+                                            <StBadgeGlass
+                                                v-if="
+                                                    role._status === 'approved'
+                                                "
+                                                variant="secondary"
+                                                size="sm"
+                                            >
+                                                <v-icon size="14" class="mr-1"
+                                                    >mdi-check-circle</v-icon
+                                                >Approved
+                                            </StBadgeGlass>
+                                            <div class="flex gap-1">
+                                                <StButtonGlass
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    circle
+                                                    icon="mdi-close"
+                                                    @click="
+                                                        role._status =
+                                                            'rejected'
+                                                    "
+                                                />
+                                                <StButtonGlass
+                                                    :variant="
+                                                        role._status ===
+                                                        'approved'
+                                                            ? 'secondary'
+                                                            : 'primary'
+                                                    "
+                                                    size="sm"
+                                                    @click="
+                                                        role._status ===
+                                                        'approved'
+                                                            ? (role._status =
+                                                                  'pending')
+                                                            : approveRole(role)
+                                                    "
+                                                >
+                                                    {{
+                                                        role._status ===
+                                                        'approved'
+                                                            ? 'Undo'
+                                                            : 'Approve'
+                                                    }}
+                                                </StButtonGlass>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Role Content -->
+                                    <div class="space-y-8 p-6">
+                                        <!-- Controls Row -->
+                                        <div
+                                            class="grid grid-cols-1 gap-6 md:grid-cols-4"
+                                        >
+                                            <!-- Archetype -->
+                                            <div class="space-y-3">
+                                                <span
+                                                    class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                                                    >Role Archetype</span
+                                                >
+                                                <div class="flex gap-2">
+                                                    <button
+                                                        v-for="a in [
+                                                            'E',
+                                                            'T',
+                                                            'O',
+                                                        ]"
+                                                        :key="a"
+                                                        @click="
+                                                            role.archetype = a
+                                                        "
+                                                        :class="`h-10 w-10 rounded-xl border font-black transition-all duration-300 ${
+                                                            role.archetype === a
+                                                                ? 'border-indigo-400 bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.3)]'
+                                                                : 'border-white/10 bg-white/5 text-white/30 hover:border-white/20'
+                                                        }`"
+                                                    >
+                                                        {{ a }}
+                                                    </button>
+                                                </div>
+                                                <div
+                                                    class="text-[10px] font-bold text-indigo-400/60 uppercase"
+                                                >
+                                                    {{
+                                                        archetypeLabel(
+                                                            role.archetype,
                                                         )
                                                     }}
-                                                </v-chip>
-                                            </td>
-                                            <td class="text-center">
-                                                <v-btn-toggle
-                                                    v-model="
-                                                        mapping.required_level
-                                                    "
-                                                    density="compact"
-                                                    border
-                                                    mandatory
-                                                    color="primary"
+                                                </div>
+                                            </div>
+
+                                            <!-- FTE -->
+                                            <div class="space-y-3">
+                                                <span
+                                                    class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                                                    >Target FTE</span
                                                 >
-                                                    <v-tooltip
-                                                        v-for="n in 5"
-                                                        :key="n"
-                                                        location="top"
-                                                        max-width="280"
+                                                <div
+                                                    class="flex items-center gap-3"
+                                                >
+                                                    <input
+                                                        v-model.number="
+                                                            role.fte_suggested
+                                                        "
+                                                        type="number"
+                                                        step="0.1"
+                                                        min="0.1"
+                                                        class="w-20 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm font-black text-white focus:border-indigo-500/50 focus:outline-none"
+                                                    />
+                                                    <span
+                                                        class="text-xs font-bold text-white/20"
+                                                        >Units</span
                                                     >
-                                                        <template
-                                                            #activator="{
-                                                                props: tp,
-                                                            }"
-                                                        >
-                                                            <v-btn
-                                                                v-bind="tp"
-                                                                :value="n"
-                                                                size="x-small"
-                                                                >{{ n }}</v-btn
-                                                            >
-                                                        </template>
-                                                        <div
-                                                            class="text-caption"
-                                                        >
-                                                            <div
-                                                                class="font-weight-bold mb-1"
-                                                            >
-                                                                {{
-                                                                    LEVEL_DESCRIPTIONS[
-                                                                        n
-                                                                    ]?.label
-                                                                }}
-                                                            </div>
-                                                            <div>
-                                                                {{
-                                                                    LEVEL_DESCRIPTIONS[
-                                                                        n
-                                                                    ]?.detail
-                                                                }}
-                                                            </div>
-                                                        </div>
-                                                    </v-tooltip>
-                                                </v-btn-toggle>
-                                            </td>
-                                            <td class="text-center">
-                                                <v-checkbox
-                                                    v-model="mapping.is_core"
-                                                    density="compact"
-                                                    hide-details
-                                                    color="primary"
-                                                />
-                                            </td>
-                                            <td>
-                                                <v-icon
-                                                    :color="
-                                                        cubeSignalColor(
-                                                            role.archetype,
-                                                            mapping.required_level,
-                                                            mapping.is_core,
-                                                        )
-                                                    "
-                                                    size="18"
-                                                    :title="
-                                                        cubeSignalLabel(
-                                                            role.archetype,
-                                                            mapping.required_level,
-                                                            mapping.is_core,
-                                                        )
-                                                    "
+                                                </div>
+                                            </div>
+
+                                            <!-- Composition -->
+                                            <div
+                                                v-if="role.talent_composition"
+                                                class="space-y-3 md:col-span-2"
+                                            >
+                                                <span
+                                                    class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                                                    >Talent Composition</span
                                                 >
-                                                    mdi-circle
-                                                </v-icon>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </v-table>
+                                                <div
+                                                    class="flex items-center gap-4"
+                                                >
+                                                    <div
+                                                        class="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-2 px-4"
+                                                    >
+                                                        <v-icon
+                                                            size="16"
+                                                            color="indigo-300"
+                                                            >mdi-account</v-icon
+                                                        >
+                                                        <span
+                                                            class="text-sm font-black text-white"
+                                                            >{{
+                                                                role
+                                                                    .talent_composition
+                                                                    .human_percentage
+                                                            }}%</span
+                                                        >
+                                                        <div
+                                                            class="mx-1 h-3 w-px bg-white/10"
+                                                        ></div>
+                                                        <v-icon
+                                                            size="16"
+                                                            color="emerald-300"
+                                                            >mdi-robot</v-icon
+                                                        >
+                                                        <span
+                                                            class="text-sm font-black text-white"
+                                                            >{{
+                                                                role
+                                                                    .talent_composition
+                                                                    .synthetic_percentage
+                                                            }}%</span
+                                                        >
+                                                    </div>
+                                                    <p
+                                                        class="text-[10px] leading-tight font-medium text-white/40 italic"
+                                                    >
+                                                        "{{
+                                                            role
+                                                                .talent_composition
+                                                                .logic_justification
+                                                        }}"
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Competencies Table -->
+                                        <div
+                                            v-if="
+                                                role.competency_mappings?.length
+                                            "
+                                            class="space-y-4"
+                                        >
+                                            <span
+                                                class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                                                >Proposed Mapping ({{
+                                                    role.competency_mappings
+                                                        .length
+                                                }})</span
+                                            >
+
+                                            <div
+                                                class="overflow-hidden rounded-2xl border border-white/5 bg-black/10"
+                                            >
+                                                <table
+                                                    class="w-full border-collapse text-left"
+                                                >
+                                                    <thead>
+                                                        <tr class="bg-white/5">
+                                                            <th
+                                                                class="px-4 py-3 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                                            >
+                                                                Competency
+                                                            </th>
+                                                            <th
+                                                                class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                                            >
+                                                                Change Type
+                                                            </th>
+                                                            <th
+                                                                class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                                            >
+                                                                Required Level
+                                                            </th>
+                                                            <th
+                                                                class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                                            >
+                                                                Core
+                                                            </th>
+                                                            <th
+                                                                class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                                            >
+                                                                Diagnostic
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody
+                                                        class="divide-y divide-white/5"
+                                                    >
+                                                        <tr
+                                                            v-for="(
+                                                                mapping, mIdx
+                                                            ) in role.competency_mappings"
+                                                            :key="mIdx"
+                                                            class="transition-colors hover:bg-white/5"
+                                                        >
+                                                            <td
+                                                                class="px-4 py-3"
+                                                            >
+                                                                <span
+                                                                    class="text-sm font-bold text-white"
+                                                                    >{{
+                                                                        mapping.competency_name
+                                                                    }}</span
+                                                                >
+                                                            </td>
+                                                            <td
+                                                                class="px-4 py-3 text-center"
+                                                            >
+                                                                <StBadgeGlass
+                                                                    :variant="
+                                                                        getChangeTypeVariant(
+                                                                            mapping.change_type,
+                                                                        )
+                                                                    "
+                                                                    size="sm"
+                                                                >
+                                                                    {{
+                                                                        changeTypeLabel(
+                                                                            mapping.change_type,
+                                                                        )
+                                                                    }}
+                                                                </StBadgeGlass>
+                                                            </td>
+                                                            <td
+                                                                class="px-4 py-3"
+                                                            >
+                                                                <div
+                                                                    class="flex items-center justify-center gap-1"
+                                                                >
+                                                                    <button
+                                                                        v-for="n in 5"
+                                                                        :key="n"
+                                                                        @click="
+                                                                            mapping.required_level =
+                                                                                n
+                                                                        "
+                                                                        :class="`pointer-events-auto h-7 w-7 rounded-lg text-[10px] font-black transition-all ${
+                                                                            mapping.required_level ===
+                                                                            n
+                                                                                ? 'bg-indigo-500 text-white'
+                                                                                : 'bg-white/5 text-white/20 hover:text-white/40'
+                                                                        }`"
+                                                                        :title="
+                                                                            LEVEL_DESCRIPTIONS[
+                                                                                n
+                                                                            ]
+                                                                                .detail
+                                                                        "
+                                                                    >
+                                                                        {{ n }}
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                            <td
+                                                                class="px-4 py-3 text-center"
+                                                            >
+                                                                <v-checkbox
+                                                                    v-model="
+                                                                        mapping.is_core
+                                                                    "
+                                                                    hide-details
+                                                                    density="compact"
+                                                                    color="indigo-accent-2"
+                                                                    class="d-inline-flex"
+                                                                />
+                                                            </td>
+                                                            <td
+                                                                class="px-4 py-3 text-center"
+                                                            >
+                                                                <v-icon
+                                                                    :color="
+                                                                        cubeSignalColor(
+                                                                            role.archetype,
+                                                                            mapping.required_level,
+                                                                            mapping.is_core,
+                                                                        )
+                                                                    "
+                                                                    size="14"
+                                                                    class="drop-shadow-[0_0_8px_currentColor]"
+                                                                    :title="
+                                                                        cubeSignalLabel(
+                                                                            role.archetype,
+                                                                            mapping.required_level,
+                                                                            mapping.is_core,
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    mdi-circle
+                                                                </v-icon>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Restores button for rejected state -->
+                                <div
+                                    v-if="role._status === 'rejected'"
+                                    class="absolute inset-0 z-10 flex items-center justify-center"
+                                >
+                                    <StButtonGlass
+                                        variant="primary"
+                                        @click="role._status = 'pending'"
+                                        icon="mdi-undo"
+                                    >
+                                        Restore Role
+                                    </StButtonGlass>
+                                </div>
                             </div>
-                        </v-card-text>
+                        </div>
+                    </section>
 
-                        <!-- Actions -->
-                        <v-card-actions v-if="role._status !== 'rejected'">
-                            <v-spacer />
-                            <v-btn
-                                size="small"
-                                color="error"
-                                variant="text"
-                                prepend-icon="mdi-close"
-                                @click="role._status = 'rejected'"
-                                >Rechazar</v-btn
-                            >
-                            <v-btn
-                                size="small"
-                                :color="
-                                    role._status === 'approved'
-                                        ? 'success'
-                                        : 'primary'
-                                "
-                                :variant="
-                                    role._status === 'approved'
-                                        ? 'flat'
-                                        : 'tonal'
-                                "
-                                :prepend-icon="
-                                    role._status === 'approved'
-                                        ? 'mdi-check-circle'
-                                        : 'mdi-check'
-                                "
-                                @click="
-                                    role._status === 'approved'
-                                        ? (role._status = 'pending')
-                                        : approveRole(role)
-                                "
-                            >
-                                {{
-                                    role._status === 'approved'
-                                        ? 'Aprobado ✓'
-                                        : 'Aprobar'
-                                }}
-                            </v-btn>
-                        </v-card-actions>
-                        <v-card-actions v-else>
-                            <v-btn
-                                size="small"
-                                variant="text"
-                                @click="role._status = 'pending'"
-                            >
-                                <v-icon start>mdi-undo</v-icon>Restaurar
-                            </v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </div>
+                    <v-divider class="border-white/5" />
 
-                <!-- ═══════════════════════════════════════ -->
-                <!-- SECCIÓN: COMPETENCIAS -->
-                <!-- ═══════════════════════════════════════ -->
-                <v-divider class="my-6" />
-
-                <div class="d-flex align-center justify-space-between mb-4">
-                    <div class="d-flex align-center gap-2">
-                        <v-icon color="teal" size="20">mdi-certificate</v-icon>
-                        <h3 class="text-h6 font-weight-bold">
-                            Propuestas de Catálogo
-                            <v-chip
-                                size="small"
-                                class="ml-2"
-                                :color="
-                                    approvedCatalogCount > 0 ? 'teal' : 'grey'
-                                "
-                            >
-                                {{ approvedCatalogCount }} /
-                                {{ localCatalogProposals.length }}
-                            </v-chip>
-                        </h3>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <v-btn
-                            size="small"
-                            variant="tonal"
-                            color="teal"
-                            @click="approveAllCatalog"
-                        >
-                            <v-icon start>mdi-check-all</v-icon>Aprobar todos
-                        </v-btn>
-                        <v-btn
-                            size="small"
-                            variant="tonal"
-                            color="error"
-                            @click="rejectAllCatalog"
-                        >
-                            <v-icon start>mdi-close-circle</v-icon>Rechazar
-                            todos
-                        </v-btn>
-                    </div>
-                </div>
-
-                <v-card
-                    v-for="(comp, idx) in localCatalogProposals"
-                    :key="`comp-${idx}`"
-                    :variant="comp._status === 'rejected' ? 'text' : 'outlined'"
-                    :class="{
-                        'border-teal': comp._status === 'approved',
-                        'opacity-50': comp._status === 'rejected',
-                        'mb-3': true,
-                    }"
-                >
-                    <v-card-item>
-                        <template #prepend>
-                            <v-chip
-                                :color="getCatalogTypeColor(comp.type)"
-                                size="small"
-                                label
-                                class="mr-2"
-                            >
-                                {{ comp.type?.toUpperCase() }}
-                            </v-chip>
-                        </template>
-
-                        <v-card-title class="text-body-1">{{
-                            comp.proposed_name
-                        }}</v-card-title>
-                        <v-card-subtitle>{{
-                            comp.action_rationale
-                        }}</v-card-subtitle>
-
-                        <template #append>
-                            <div class="d-flex align-center gap-2">
-                                <v-chip
-                                    v-if="comp._status === 'approved'"
-                                    color="teal"
-                                    size="small"
-                                    variant="flat"
-                                    prepend-icon="mdi-check-circle"
-                                    >Aprobado</v-chip
+                    <!-- CATALOG SECTION -->
+                    <section>
+                        <div class="mb-8 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5"
                                 >
-                                <v-chip
-                                    v-else-if="comp._status === 'rejected'"
-                                    color="error"
-                                    size="small"
-                                    variant="flat"
-                                    prepend-icon="mdi-close-circle"
-                                    >Rechazado</v-chip
+                                    <v-icon size="20" color="white/60"
+                                        >mdi-certificate</v-icon
+                                    >
+                                </div>
+                                <div>
+                                    <h3
+                                        class="text-lg font-black tracking-tight text-white"
+                                    >
+                                        Proposed Catalog Updates
+                                    </h3>
+                                    <div class="flex items-center gap-2">
+                                        <StBadgeGlass
+                                            :variant="
+                                                approvedCatalogCount > 0
+                                                    ? 'secondary'
+                                                    : 'glass'
+                                            "
+                                            size="sm"
+                                        >
+                                            {{ approvedCatalogCount }} /
+                                            {{ localCatalogProposals.length }}
+                                            Approved
+                                        </StBadgeGlass>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <StButtonGlass
+                                    variant="ghost"
+                                    size="sm"
+                                    @click="approveAllCatalog"
+                                    icon="mdi-check-all"
+                                    >Approve All</StButtonGlass
                                 >
+                                <StButtonGlass
+                                    variant="ghost"
+                                    size="sm"
+                                    @click="rejectAllCatalog"
+                                    icon="mdi-close-circle"
+                                    >Reject All</StButtonGlass
+                                >
+                            </div>
+                        </div>
 
-                                <v-btn
-                                    v-if="comp._status !== 'rejected'"
-                                    icon="mdi-close"
-                                    density="compact"
-                                    size="small"
-                                    color="error"
-                                    variant="text"
-                                    @click="comp._status = 'rejected'"
-                                />
-                                <v-btn
-                                    v-if="comp._status === 'rejected'"
-                                    icon="mdi-undo"
-                                    density="compact"
-                                    size="small"
-                                    variant="text"
-                                    @click="comp._status = 'pending'"
-                                />
-                                <v-btn
-                                    v-if="comp._status !== 'rejected'"
-                                    :icon="
-                                        comp._status === 'approved'
-                                            ? 'mdi-check-circle'
-                                            : 'mdi-check'
-                                    "
-                                    density="compact"
-                                    size="small"
-                                    :color="
-                                        comp._status === 'approved'
-                                            ? 'teal'
-                                            : 'grey'
-                                    "
-                                    :variant="
-                                        comp._status === 'approved'
-                                            ? 'flat'
-                                            : 'tonal'
-                                    "
-                                    @click="
-                                        comp._status =
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div
+                                v-for="(comp, idx) in localCatalogProposals"
+                                :key="`comp-${idx}`"
+                                :class="`flex items-center justify-between gap-4 rounded-2xl border p-4 transition-all duration-300 ${
+                                    comp._status === 'rejected'
+                                        ? 'pointer-events-none border-white/5 bg-transparent opacity-40 grayscale'
+                                        : comp._status === 'approved'
+                                          ? 'border-emerald-500/20 bg-emerald-500/5'
+                                          : 'border-white/10 bg-white/5'
+                                }`"
+                            >
+                                <div class="flex flex-1 items-center gap-4">
+                                    <StBadgeGlass
+                                        :variant="
+                                            getCatalogTypeVariant(comp.type)
+                                        "
+                                        size="sm"
+                                    >
+                                        {{ comp.type }}
+                                    </StBadgeGlass>
+                                    <div class="flex-1">
+                                        <div
+                                            class="text-sm font-bold text-white"
+                                        >
+                                            {{ comp.proposed_name }}
+                                        </div>
+                                        <div
+                                            class="max-w-[200px] truncate text-[10px] text-white/30"
+                                        >
+                                            {{ comp.action_rationale }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex shrink-0 items-center gap-1">
+                                    <StButtonGlass
+                                        v-if="comp._status !== 'rejected'"
+                                        variant="ghost"
+                                        size="sm"
+                                        circle
+                                        icon="mdi-close"
+                                        @click="comp._status = 'rejected'"
+                                    />
+                                    <StButtonGlass
+                                        v-if="comp._status === 'rejected'"
+                                        variant="ghost"
+                                        size="sm"
+                                        circle
+                                        icon="mdi-undo"
+                                        @click="comp._status = 'pending'"
+                                    />
+                                    <StButtonGlass
+                                        v-if="comp._status !== 'rejected'"
+                                        :variant="
                                             comp._status === 'approved'
-                                                ? 'pending'
-                                                : 'approved'
-                                    "
-                                />
+                                                ? 'secondary'
+                                                : 'glass'
+                                        "
+                                        size="sm"
+                                        circle
+                                        :icon="
+                                            comp._status === 'approved'
+                                                ? 'mdi-check-circle'
+                                                : 'mdi-circle-outline'
+                                        "
+                                        @click="
+                                            comp._status =
+                                                comp._status === 'approved'
+                                                    ? 'pending'
+                                                    : 'approved'
+                                        "
+                                    />
+                                </div>
                             </div>
-                        </template>
-                    </v-card-item>
-                </v-card>
-            </v-card-text>
+                        </div>
+                    </section>
+                </div>
+            </div>
 
-            <!-- Footer sticky con resumen y botón de confirmación -->
-            <v-divider />
-            <v-card-actions class="pa-4 bg-surface-variant">
-                <span class="text-body-2 text-medium-emphasis">
-                    <strong>{{ approvedRoleCount }}</strong> roles y
-                    <strong>{{ approvedCatalogCount }}</strong> competencias
-                    seleccionadas
-                    <span
-                        v-if="
+            <!-- Modal Actions (Footer) -->
+            <div
+                class="z-10 flex items-center justify-between border-t border-white/5 bg-black/20 p-6"
+            >
+                <div class="flex items-center gap-4">
+                    <div class="flex flex-col">
+                        <span
+                            class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >Selected Blueprint</span
+                        >
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-black text-white"
+                                >{{ approvedRoleCount }} Roles</span
+                            >
+                            <div class="h-1 w-1 rounded-full bg-white/20"></div>
+                            <span class="text-sm font-black text-white"
+                                >{{ approvedCatalogCount }} Competencies</span
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <StButtonGlass variant="ghost" @click="$emit('close')"
+                        >Cancel</StButtonGlass
+                    >
+                    <StButtonGlass
+                        variant="primary"
+                        @click="confirmApply"
+                        :loading="applying"
+                        :disabled="
                             approvedRoleCount === 0 &&
                             approvedCatalogCount === 0
                         "
-                        class="text-error"
+                        icon="mdi-check-all"
                     >
-                        — selecciona al menos uno para confirmar
-                    </span>
-                </span>
-                <v-spacer />
-                <v-btn variant="text" @click="$emit('close')">Cancelar</v-btn>
-                <v-btn
-                    color="secondary"
-                    variant="flat"
-                    prepend-icon="mdi-check-all"
-                    :loading="applying"
-                    :disabled="
-                        approvedRoleCount === 0 && approvedCatalogCount === 0
-                    "
-                    @click="confirmApply"
-                >
-                    Confirmar y aplicar ({{
-                        approvedRoleCount + approvedCatalogCount
-                    }})
-                </v-btn>
-            </v-card-actions>
-        </v-card>
+                        Commit Changes
+                    </StButtonGlass>
+                </div>
+            </div>
+        </StCardGlass>
     </v-dialog>
 </template>
 
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { computed, ref, watch } from 'vue';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -727,7 +891,7 @@ const applying = ref(false);
 const localRoleProposals = ref<RoleProposal[]>([]);
 const localCatalogProposals = ref<CatalogProposal[]>([]);
 
-// Reconstruir estado local cuando llegan nuevas propuestas
+// Rebuild local state when new proposals arrive
 watch(
     () => props.proposals,
     (proposals) => {
@@ -736,7 +900,7 @@ watch(
             (r) => ({
                 ...r,
                 archetype: r.archetype ?? 'T',
-                fte_suggested: r.fte_suggested ?? 1.0,
+                fte_suggested: r.fte_suggested ?? 1,
                 competency_mappings: (r.competency_mappings ?? []).map((m) => ({
                     ...m,
                 })),
@@ -769,12 +933,10 @@ const approvedCatalogCount = computed(
 // ─── Bulk actions ─────────────────────────────────────────────────────────────
 
 /**
- * Aprueba un rol y auto-aprueba las catalog proposals que coincidan
- * por nombre con las competency_mappings del rol aprobado.
+ * Approves a role and auto-approves matching catalog proposals.
  */
 const approveRole = (role: RoleProposal) => {
     role._status = 'approved';
-    // Auto-aprobar catalog proposals relacionadas
     const mappingNames = new Set(
         (role.competency_mappings ?? []).map((m) =>
             m.competency_name?.trim().toLowerCase(),
@@ -809,7 +971,6 @@ const confirmApply = async () => {
         (c) => c._status === 'approved',
     );
 
-    // Usar el scenarioId recibido como prop
     const scenarioId = props.scenarioId;
 
     if (!scenarioId) {
@@ -858,16 +1019,16 @@ const confirmApply = async () => {
 
 // ─── Display helpers ──────────────────────────────────────────────────────────
 
-const getTypeColor = (type: string): string => {
+const getTypeVariant = (type: string) => {
     switch (type?.toLowerCase()) {
         case 'new':
-            return 'success';
+            return 'secondary';
         case 'evolve':
-            return 'info';
+            return 'primary';
         case 'replace':
             return 'warning';
         default:
-            return 'grey';
+            return 'glass';
     }
 };
 
@@ -884,44 +1045,44 @@ const getTypeIcon = (type: string): string => {
     }
 };
 
-const getCatalogTypeColor = (type: string): string => {
+const getCatalogTypeVariant = (type: string) => {
     switch (type?.toLowerCase()) {
         case 'add':
-            return 'teal';
+            return 'secondary';
         case 'modify':
-            return 'blue';
+            return 'primary';
         case 'replace':
-            return 'orange';
+            return 'warning';
         default:
-            return 'grey';
+            return 'glass';
     }
 };
 
-const getChangeTypeColor = (ct: string): string => {
+const getChangeTypeVariant = (ct: string) => {
     switch (ct?.toLowerCase()) {
         case 'maintenance':
-            return 'success';
+            return 'secondary';
         case 'transformation':
-            return 'blue';
+            return 'primary';
         case 'enrichment':
-            return 'purple';
+            return 'glass';
         case 'extinction':
             return 'error';
         default:
-            return 'grey';
+            return 'glass';
     }
 };
 
 const changeTypeLabel = (ct: string): string => {
     switch (ct?.toLowerCase()) {
         case 'maintenance':
-            return '✅ Mantención';
+            return 'Maintain';
         case 'transformation':
-            return '🔄 Transform.';
+            return 'Transform';
         case 'enrichment':
-            return '📈 Enriq.';
+            return 'Enrich';
         case 'extinction':
-            return '📉 Extinción';
+            return 'Legacy';
         default:
             return ct ?? '—';
     }
@@ -930,13 +1091,13 @@ const changeTypeLabel = (ct: string): string => {
 const archetypeLabel = (arch?: string): string => {
     switch (arch) {
         case 'E':
-            return 'Estratégico';
+            return 'Strategic';
         case 'T':
-            return 'Táctico';
+            return 'Tactical';
         case 'O':
-            return 'Operacional';
+            return 'Operational';
         default:
-            return 'Sin definir';
+            return 'Undefined';
     }
 };
 
@@ -944,24 +1105,24 @@ const archetypeLabel = (arch?: string): string => {
 
 const LEVEL_DESCRIPTIONS: Record<number, { label: string; detail: string }> = {
     1: {
-        label: 'Nivel 1 — Básico',
-        detail: 'Conocimiento teórico introductorio. Requiere supervisión constante y guía para ejecutar tareas. Adecuado para roles en formación.',
+        label: 'Introductory',
+        detail: 'Theoretical basic knowledge. Requires constant supervision.',
     },
     2: {
-        label: 'Nivel 2 — En desarrollo',
-        detail: 'Puede ejecutar tareas rutinarias con supervisión ocasional. Comprende los conceptos fundamentales y empieza a aplicarlos de forma independiente.',
+        label: 'Developing',
+        detail: 'Executes routine tasks with occasional supervision.',
     },
     3: {
-        label: 'Nivel 3 — Competente',
-        detail: 'Trabaja de forma autónoma en situaciones estándar. Resuelve problemas de complejidad media y comparte conocimiento con el equipo.',
+        label: 'Competent',
+        detail: 'Autonomous in standard situations. Solves medium complexity problems.',
     },
     4: {
-        label: 'Nivel 4 — Avanzado',
-        detail: 'Referente técnico interno. Lidera iniciativas complejas, mentorea a otros y propone mejoras a los procesos existentes.',
+        label: 'Advanced',
+        detail: 'Internal technical reference. Mentors others and leads complex initiatives.',
     },
     5: {
-        label: 'Nivel 5 — Experto',
-        detail: 'Autoridad reconocida en la organización. Define estándares, innova en la disciplina y puede representar a la empresa externamente.',
+        label: 'Expert',
+        detail: 'Recognized authority. Defines standards and innovates in the discipline.',
     },
 };
 
@@ -974,10 +1135,10 @@ const cubeSignalColor = (
 ): string => {
     if (!archetype) return 'grey';
     const l = level ?? 0;
-    if (archetype === 'O' && l > 3 && !isCore) return 'orange';
-    if (archetype === 'T' && l > 4 && !isCore) return 'orange';
-    if (archetype === 'E' && l < 3 && !isCore) return 'blue';
-    return 'success';
+    if (archetype === 'O' && l > 3 && !isCore) return '#fbbf24'; // amber
+    if (archetype === 'T' && l > 4 && !isCore) return '#fbbf24';
+    if (archetype === 'E' && l < 3 && !isCore) return '#60a5fa'; // blue
+    return '#10b981'; // emerald
 };
 
 const cubeSignalLabel = (
@@ -986,26 +1147,25 @@ const cubeSignalLabel = (
     isCore: boolean,
 ): string => {
     const color = cubeSignalColor(archetype, level, isCore);
-    if (color === 'orange') return '⚠️ Posible sobrecarga para este arquetipo';
-    if (color === 'blue')
-        return 'ℹ️ Competencia de apoyo — nivel bajo para rol Estratégico';
-    return '✅ Coherente con el arquetipo';
+    if (color === '#fbbf24') return '⚠️ Potential overhead for this archetype';
+    if (color === '#60a5fa')
+        return 'ℹ️ Support competency — low level for Strategic role';
+    return '✅ Consistent with archetype';
 };
 </script>
 
 <style scoped>
-.proposal-card {
-    transition: border-color 0.2s ease;
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
 }
-.border-success {
-    border-color: rgb(var(--v-theme-success)) !important;
-    border-width: 2px !important;
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
 }
-.border-teal {
-    border-color: rgb(var(--v-theme-teal)) !important;
-    border-width: 2px !important;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
 }
-.border-error {
-    border-color: rgb(var(--v-theme-error)) !important;
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 </style>

@@ -23,7 +23,6 @@ const props = withDefaults(defineProps<Props>(), {
     decisionStatus: 'draft',
 });
 
-// expose individual props as refs for template usage
 const { currentStep, totalSteps, scenarioStatus, decisionStatus } =
     toRefs(props);
 
@@ -35,109 +34,82 @@ const emit = defineEmits<{
 const steps: Step[] = [
     {
         id: 1,
-        title: 'Definir Escenario',
-        description:
-            'Nombre, alcance, horizonte temporal y objetivos estratégicos',
+        title: 'Define Scenario',
+        description: 'Name, scope, time horizon and strategic objectives',
         icon: 'mdi-target',
         guardRules: [
-            'Debe tener nombre',
-            'Alcance definido (org/dept/role)',
-            'Horizonte temporal > 0 semanas',
+            'Must have a name',
+            'Defined scope (org/dept/role)',
+            'Time horizon > 0 weeks',
         ],
-        requiredFor: ['Todos los pasos posteriores dependen de esta base'],
+        requiredFor: ['All subsequent steps depend on this foundation'],
     },
     {
         id: 2,
-        title: 'Estimar Demanda',
-        description: 'Añadir roles y skills requeridos con niveles esperados',
+        title: 'Estimate Demand',
+        description: 'Add roles and required skills with expected levels',
         icon: 'mdi-chart-line',
         guardRules: [
-            'Al menos 1 skill demand añadido',
-            'Niveles de competencia definidos',
+            'At least 1 skill demand added',
+            'Competency levels defined',
         ],
-        requiredFor: ['Calcular brechas (paso 4)'],
+        requiredFor: ['Calculating gaps (step 4)'],
     },
     {
         id: 3,
-        title: 'Calcular Supply',
-        description: 'Evaluar disponibilidad actual de talento y capacidades',
+        title: 'Calculate Supply',
+        description: 'Assess current availability of talent and capabilities',
         icon: 'mdi-account-group',
         guardRules: [
-            'Demanda definida (paso 2)',
-            'Supply se calcula automáticamente',
+            'Demand defined (step 2)',
+            'Supply is automatically calculated',
         ],
-        requiredFor: ['Identificar gaps (paso 4)'],
+        requiredFor: ['Identifying gaps (step 4)'],
     },
     {
         id: 4,
-        title: 'Identificar Gaps',
-        description: 'Detectar brechas de headcount y nivel de competencia',
-        icon: 'mdi-alert-circle',
+        title: 'Identify Gaps',
+        description: 'Detect headcount breaches and competency level gaps',
+        icon: 'mdi-alert-circle-outline',
         guardRules: [
-            'Supply calculado',
-            'Al menos 1 gap detectado para continuar',
+            'Supply calculated',
+            'At least 1 gap detected to continue',
         ],
-        requiredFor: ['Generar estrategias (paso 5)'],
+        requiredFor: ['Generating strategies (step 5)'],
     },
     {
         id: 5,
-        title: 'Generar Estrategias',
-        description:
-            'Recomendar acciones: Buy, Build, Borrow, Bridge, Bind, Bot',
-        icon: 'mdi-lightbulb-on',
-        guardRules: [
-            'Gaps identificados',
-            'Preferencias de estrategia configuradas',
-        ],
-        requiredFor: ['Aprobación y ejecución'],
+        title: 'Generate Strategies',
+        description: 'Recommend actions: Buy, Build, Borrow, Bridge, Bind, Bot',
+        icon: 'mdi-lightbulb-on-outline',
+        guardRules: ['Gaps identified', 'Strategy preferences configured'],
+        requiredFor: ['Approval and execution'],
     },
     {
         id: 6,
-        title: 'Aprobar & Ejecutar',
-        description: 'Transicionar estado y comenzar implementación',
-        icon: 'mdi-play-circle',
-        guardRules: [
-            'decision_status = approved',
-            'Estrategias definidas',
-            'execution_status = planned antes de iniciar',
-        ],
-        requiredFor: ['Completar escenario'],
+        title: 'Cross-Benchmark',
+        description: 'Compare with previous versions and historical data',
+        icon: 'mdi-compare-horizontal',
+        guardRules: ['Strategies defined'],
+        requiredFor: ['Final approval'],
     },
     {
         id: 7,
-        title: 'Revisar Resultados',
-        description: 'Métricas, progreso y ajustes finales',
-        icon: 'mdi-chart-box',
-        guardRules: [
-            'execution_status = completed',
-            'Métricas de cierre calculadas',
-        ],
-        requiredFor: ['Crear nueva versión si se requieren cambios'],
+        title: 'Approve & Finalize',
+        description: 'Transition status and begin neural implementation',
+        icon: 'mdi-check-decagram-outline',
+        guardRules: ['Execution status = planned before starting'],
+        requiredFor: ['Completing scenario architecture'],
     },
 ];
 
 const canNavigateToStep = (stepId: number): boolean => {
     if (stepId <= props.currentStep) return true;
-
-    // No permitir saltos de más de 1 paso adelante (metodología secuencial)
     if (stepId > props.currentStep + 1) return false;
 
-    // Paso 6 requiere decision_status = 'approved'
-    if (stepId === 6 && props.decisionStatus !== 'approved') return false;
-
-    // Paso 7 requiere execution_status = 'completed'
-    if (stepId === 7 && props.scenarioStatus !== 'completed') return false;
-
+    // Custom logic per step if needed
     return true;
 };
-
-const getStepColor = (stepId: number): string => {
-    if (stepId < props.currentStep) return 'success';
-    if (stepId === props.currentStep) return 'primary';
-    return 'grey-lighten-1';
-};
-
-// getStepVariant intentionally removed — not used currently
 
 const handleStepClick = (stepId: number) => {
     if (canNavigateToStep(stepId)) {
@@ -146,176 +118,233 @@ const handleStepClick = (stepId: number) => {
     }
 };
 
-const stepStatus = computed(() => (stepId: number) => {
-    if (stepId < props.currentStep) return 'Completado';
-    if (stepId === props.currentStep) return 'En progreso';
-    return 'Pendiente';
-});
+const activeStep = computed(() =>
+    steps.find((s) => s.id === props.currentStep),
+);
 </script>
 
 <template>
-    <div class="scenario-stepper">
-        <v-stepper
-            :model-value="currentStep"
-            alt-labels
-            flat
-            hide-actions
-            class="elevation-0 bg-transparent"
-        >
-            <v-stepper-header>
-                <template v-for="(step, index) in steps" :key="step.id">
-                    <v-stepper-item
-                        :value="step.id"
-                        :complete="step.id < currentStep"
-                        :color="getStepColor(step.id)"
-                        :title="step.title"
-                        :subtitle="stepStatus(step.id)"
-                        :editable="canNavigateToStep(step.id)"
-                        @click="handleStepClick(step.id)"
-                    >
-                        <template #icon>
-                            <v-icon :icon="step.icon" />
-                        </template>
-                    </v-stepper-item>
+    <div class="scenario-stepper-container space-y-10">
+        <!-- New Premium Glass Stepper -->
+        <div class="relative">
+            <!-- Progress Line -->
+            <div class="absolute top-6 left-0 h-0.5 w-full bg-white/5">
+                <div
+                    class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-700"
+                    :style="{
+                        width:
+                            ((currentStep - 1) / (steps.length - 1)) * 100 +
+                            '%',
+                    }"
+                ></div>
+            </div>
 
-                    <v-divider
-                        v-if="index < steps.length - 1"
-                        :key="`divider-${step.id}`"
-                        :thickness="2"
-                        :color="
-                            step.id < currentStep ? 'success' : 'grey-lighten-2'
-                        "
-                    />
-                </template>
-            </v-stepper-header>
-
-            <v-stepper-window :model-value="currentStep">
-                <v-stepper-window-item
+            <div class="relative flex justify-between">
+                <div
                     v-for="step in steps"
                     :key="step.id"
-                    :value="step.id"
+                    class="group flex flex-col items-center gap-3"
+                    :class="[
+                        canNavigateToStep(step.id)
+                            ? 'cursor-pointer'
+                            : 'cursor-not-allowed opacity-40',
+                        step.id <= currentStep ? 'is-active' : '',
+                    ]"
+                    @click="handleStepClick(step.id)"
                 >
-                    <v-card flat class="mt-4">
-                        <v-card-title class="d-flex align-center">
-                            <v-icon
-                                :icon="step.icon"
-                                :color="getStepColor(step.id)"
-                                class="mr-2"
-                            />
-                            {{ step.title }}
-                        </v-card-title>
-                        <v-card-subtitle>{{
-                            step.description
-                        }}</v-card-subtitle>
+                    <!-- Step Node -->
+                    <div
+                        class="relative flex h-12 w-12 items-center justify-center rounded-2xl border-2 transition-all duration-500"
+                        :class="[
+                            step.id < currentStep
+                                ? 'border-emerald-400 bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+                                : step.id === currentStep
+                                  ? 'scale-110 border-indigo-400 bg-indigo-600 shadow-[0_0_25px_rgba(99,102,241,0.6)]'
+                                  : 'border-white/10 bg-black/40 hover:border-white/30',
+                        ]"
+                    >
+                        <v-icon
+                            :icon="
+                                step.id < currentStep ? 'mdi-check' : step.icon
+                            "
+                            :color="
+                                step.id <= currentStep ? 'white' : 'white/20'
+                            "
+                            size="20"
+                            class="transition-transform duration-500 group-hover:scale-110"
+                        />
+                    </div>
 
-                        <v-card-text>
-                            <v-alert
-                                v-if="step.guardRules.length > 0"
-                                type="info"
-                                variant="tonal"
-                                density="compact"
-                                class="mb-4"
-                            >
-                                <div class="text-subtitle-2 mb-2">
-                                    Guardrails - Requisitos:
+                    <!-- Label -->
+                    <div class="text-center">
+                        <div
+                            class="text-[10px] font-black tracking-widest uppercase transition-colors"
+                            :class="
+                                step.id === currentStep
+                                    ? 'text-indigo-400'
+                                    : 'text-white/20'
+                            "
+                        >
+                            Step {{ step.id }}
+                        </div>
+                        <div
+                            class="mt-1 text-xs font-black tracking-tight whitespace-nowrap transition-colors"
+                            :class="
+                                step.id <= currentStep
+                                    ? 'text-white'
+                                    : 'text-white/10'
+                            "
+                        >
+                            {{ step.title }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step Specific Content & Controls -->
+        <div class="step-window-animate">
+            <transition name="fade-slide" mode="out-in">
+                <div :key="currentStep" class="space-y-8">
+                    <!-- Step Guardrails (Collapsible or subtle) -->
+                    <div
+                        v-if="activeStep"
+                        class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                    >
+                        <div
+                            class="flex items-start gap-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-4"
+                        >
+                            <v-icon
+                                icon="mdi-shield-check-outline"
+                                color="indigo-400"
+                                size="20"
+                                class="mt-1"
+                            />
+                            <div>
+                                <div
+                                    class="mb-1 text-[10px] font-black tracking-widest text-indigo-400 uppercase"
+                                >
+                                    Architecture Guardrails
                                 </div>
-                                <ul class="pl-4">
+                                <ul class="space-y-1">
                                     <li
-                                        v-for="(rule, idx) in step.guardRules"
+                                        v-for="(
+                                            rule, idx
+                                        ) in activeStep.guardRules"
                                         :key="idx"
-                                        class="text-body-2"
+                                        class="flex items-center gap-2 text-[11px] font-medium text-white/50"
                                     >
+                                        <div
+                                            class="h-1 w-1 rounded-full bg-indigo-500"
+                                        ></div>
                                         {{ rule }}
                                     </li>
                                 </ul>
-                            </v-alert>
+                            </div>
+                        </div>
 
-                            <v-alert
-                                v-if="step.requiredFor.length > 0"
-                                type="warning"
-                                variant="outlined"
-                                density="compact"
-                            >
-                                <div class="text-subtitle-2 mb-1">
-                                    ⚠️ Este paso es requerido para:
+                        <div
+                            class="flex items-start gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4"
+                        >
+                            <v-icon
+                                icon="mdi-link-variant"
+                                color="amber-400"
+                                size="20"
+                                class="mt-1"
+                            />
+                            <div>
+                                <div
+                                    class="mb-1 text-[10px] font-black tracking-widest text-amber-400 uppercase"
+                                >
+                                    Downstream Dependencies
                                 </div>
-                                <ul class="mb-0 pl-4">
+                                <ul class="space-y-1">
                                     <li
-                                        v-for="(req, idx) in step.requiredFor"
+                                        v-for="(
+                                            req, idx
+                                        ) in activeStep.requiredFor"
                                         :key="idx"
-                                        class="text-body-2"
+                                        class="flex items-center gap-2 text-[11px] font-medium text-white/50"
                                     >
+                                        <div
+                                            class="h-1 w-1 rounded-full bg-amber-500"
+                                        ></div>
                                         {{ req }}
                                     </li>
                                 </ul>
-                            </v-alert>
-
-                            <!-- Slot para contenido específico del paso -->
-                            <div class="mt-4">
-                                <slot :name="`step-${step.id}`" :step="step" />
                             </div>
-                        </v-card-text>
+                        </div>
+                    </div>
 
-                        <v-card-actions class="justify-space-between px-4 pb-4">
-                            <v-btn
-                                v-if="step.id > 1"
-                                variant="outlined"
-                                prepend-icon="mdi-arrow-left"
-                                @click="handleStepClick(step.id - 1)"
-                            >
-                                Anterior
-                            </v-btn>
-                            <v-spacer v-else />
+                    <!-- Step Content Slot -->
+                    <div class="step-content">
+                        <slot
+                            :name="`step-${currentStep}`"
+                            :step="activeStep"
+                        />
+                    </div>
 
-                            <v-btn
-                                v-if="step.id < totalSteps"
-                                color="primary"
-                                :disabled="!canNavigateToStep(step.id + 1)"
-                                append-icon="mdi-arrow-right"
-                                @click="handleStepClick(step.id + 1)"
-                            >
-                                Siguiente
-                            </v-btn>
-                            <v-btn
-                                v-else
-                                color="success"
-                                prepend-icon="mdi-check-circle"
-                                :disabled="
-                                    decisionStatus !== 'approved' ||
-                                    scenarioStatus !== 'completed'
-                                "
-                            >
-                                Finalizar
-                            </v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-stepper-window-item>
-            </v-stepper-window>
-        </v-stepper>
+                    <!-- Navigation Footer -->
+                    <div
+                        class="flex items-center justify-between border-t border-white/10 pt-8"
+                    >
+                        <StButtonGlass
+                            v-if="currentStep > 1"
+                            variant="ghost"
+                            icon="mdi-arrow-left"
+                            @click="handleStepClick(currentStep - 1)"
+                        >
+                            Back to Step {{ currentStep - 1 }}
+                        </StButtonGlass>
+                        <div v-else></div>
+
+                        <StButtonGlass
+                            v-if="currentStep < totalSteps"
+                            variant="primary"
+                            icon="mdi-arrow-right"
+                            icon-position="right"
+                            :disabled="!canNavigateToStep(currentStep + 1)"
+                            @click="handleStepClick(currentStep + 1)"
+                        >
+                            Proceed to {{ steps[currentStep].title }}
+                        </StButtonGlass>
+                        <StButtonGlass
+                            v-else
+                            variant="primary"
+                            icon="mdi-check-decagram"
+                            :disabled="
+                                decisionStatus !== 'approved' &&
+                                scenarioStatus !== 'completed'
+                            "
+                        >
+                            Finalize Architecture
+                        </StButtonGlass>
+                    </div>
+                </div>
+            </transition>
+        </div>
     </div>
 </template>
 
 <style scoped>
-.scenario-stepper {
+.scenario-stepper-container {
     width: 100%;
 }
 
-:deep(.v-stepper-item) {
-    cursor: pointer;
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fade-slide-enter-from {
+    opacity: 0;
+    transform: translateX(30px);
+}
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateX(-30px);
 }
 
-:deep(.v-stepper-item:not(.v-stepper-item--editable)) {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-:deep(.v-stepper-item__avatar) {
-    transition: all 0.3s ease;
-}
-
-:deep(
-    .v-stepper-item:hover:not(.v-stepper-item--disabled) .v-stepper-item__avatar
-) {
-    transform: scale(1.1);
+.step-window-animate {
+    perspective: 1000px;
 }
 </style>
