@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import StButtonGlass from '@/components/StButtonGlass.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     Config,
@@ -6,9 +7,20 @@ import {
     ItemForm,
     TableConfig,
 } from '@/types/form-schema';
+import {
+    PhCheckCircle,
+    PhCircle,
+    PhInfo,
+    PhMagicWand,
+    PhRobot,
+    PhStar,
+} from '@phosphor-icons/vue';
 import axios from 'axios';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import FormSchema from '../form-template/FormSchema.vue';
+
+const { t } = useI18n();
 
 // Import JSON configs
 import configJson from './competencies-form/config.json';
@@ -45,158 +57,211 @@ const curateCompetency = async (id: number, refresh: () => void) => {
             :itemForm="itemFormJson as unknown as ItemForm"
             :filters="filtersJson as FilterConfig[]"
         >
-            <template #item-details="{ item, refresh }">
-                <v-card variant="flat">
-                    <v-tabs v-model="detailTab" color="primary">
-                        <v-tab value="info">
-                            <v-icon start>mdi-information</v-icon> Información
-                            Base
-                        </v-tab>
-                        <v-tab value="ai">
-                            <v-icon start>mdi-robot-outline</v-icon> Diseño AI
-                        </v-tab>
-                    </v-tabs>
+            <template #detail="{ item, refresh }">
+                <v-tabs
+                    v-model="detailTab"
+                    color="indigo-accent-2"
+                    class="mb-4"
+                >
+                    <v-tab value="info" class="text-none">
+                        <component :is="PhInfo" :size="18" class="mr-2" />
+                        {{ t('competencies_module.tabs.info') }}
+                    </v-tab>
+                    <v-tab value="ai" class="text-none">
+                        <component :is="PhRobot" :size="18" class="mr-2" />
+                        {{ t('competencies_module.tabs.ai_design') }}
+                    </v-tab>
+                </v-tabs>
 
-                    <v-card-text>
-                        <v-window v-model="detailTab">
-                            <v-window-item value="info">
-                                <v-card
-                                    variant="outlined"
-                                    class="pa-4 bg-grey-lighten-4"
+                <v-window v-model="detailTab">
+                    <v-window-item value="info">
+                        <v-card flat border class="pa-4 glass-card rounded-xl">
+                            <div
+                                class="text-subtitle-1 font-weight-bold font-premium mb-2 text-white"
+                            >
+                                {{ item.name }}
+                            </div>
+                            <template v-if="item.description">
+                                <div class="text-body-2 mb-4 text-slate-300">
+                                    {{ item.description }}
+                                </div>
+                            </template>
+                            <template v-else>
+                                <div
+                                    class="text-body-2 font-italic mb-4 text-slate-500"
                                 >
+                                    {{
+                                        t(
+                                            'competencies_module.info_section.no_description',
+                                        )
+                                    }}
+                                </div>
+                            </template>
+
+                            <v-divider
+                                class="mb-4"
+                                style="opacity: 0.05"
+                            ></v-divider>
+
+                            <div class="d-flex align-center gap-3">
+                                <v-chip
+                                    size="small"
+                                    :color="
+                                        item.status === 'active'
+                                            ? 'emerald-accent-2'
+                                            : 'slate-400'
+                                    "
+                                    variant="flat"
+                                    class="font-weight-bold rounded-lg"
+                                >
+                                    <component
+                                        :is="
+                                            item.status === 'active'
+                                                ? PhCheckCircle
+                                                : PhCircle
+                                        "
+                                        size="14"
+                                        class="mr-1"
+                                    />
+                                    {{
+                                        item.status === 'active'
+                                            ? t(
+                                                  'competencies_module.info_section.status_active',
+                                              )
+                                            : t(
+                                                  'competencies_module.info_section.status_draft',
+                                              )
+                                    }}
+                                </v-chip>
+
+                                <v-chip
+                                    v-if="item.skills_count > 0"
+                                    size="small"
+                                    color="indigo-accent-1"
+                                    variant="tonal"
+                                    class="font-weight-bold rounded-lg"
+                                >
+                                    <component
+                                        :is="PhStar"
+                                        size="14"
+                                        class="mr-1"
+                                    />
+                                    {{
+                                        t(
+                                            'competencies_module.info_section.skills_count',
+                                            { count: item.skills_count },
+                                        )
+                                    }}
+                                </v-chip>
+                            </div>
+
+                            <div v-if="item.agent" class="mt-4">
+                                <div class="text-caption mb-2 text-slate-400">
+                                    {{
+                                        t(
+                                            'competencies_module.info_section.ai_agent',
+                                        )
+                                    }}:
+                                </div>
+                                <v-chip
+                                    size="small"
+                                    color="indigo"
+                                    variant="flat"
+                                    class="rounded-lg"
+                                >
+                                    <component
+                                        :is="PhRobot"
+                                        size="14"
+                                        class="mr-2"
+                                    />
+                                    {{ item.agent.name }}
+                                </v-chip>
+                            </div>
+                        </v-card>
+                    </v-window-item>
+
+                    <v-window-item value="ai">
+                        <v-card flat border class="pa-4 glass-card rounded-xl">
+                            <div
+                                class="d-flex align-center justify-space-between mb-4 flex-wrap gap-4"
+                            >
+                                <div>
                                     <div
-                                        class="text-subtitle-1 font-weight-bold mb-2 text-primary"
+                                        class="text-subtitle-1 font-weight-bold font-premium text-white"
                                     >
-                                        {{ item.name }}
+                                        {{
+                                            t(
+                                                'competencies_module.ai_section.title',
+                                                {
+                                                    agent:
+                                                        item.agent?.name ||
+                                                        'Stratos AI',
+                                                },
+                                            )
+                                        }}
                                     </div>
-                                    <template v-if="item.description">
-                                        <div class="text-body-2 mb-4">
-                                            {{ item.description }}
-                                        </div>
-                                    </template>
-                                    <template v-else>
-                                        <div
-                                            class="text-body-2 text-medium-emphasis font-italic mb-4"
-                                        >
-                                            Sin descripción
-                                        </div>
-                                    </template>
-
-                                    <v-divider class="mb-4"></v-divider>
-
-                                    <div class="d-flex align-center gap-4">
-                                        <v-chip
-                                            size="small"
-                                            :color="
-                                                item.status === 'active'
-                                                    ? 'success'
-                                                    : 'grey'
-                                            "
-                                        >
-                                            <v-icon start size="small">
-                                                {{
-                                                    item.status === 'active'
-                                                        ? 'mdi-check-circle'
-                                                        : 'mdi-circle-outline'
-                                                }}
-                                            </v-icon>
-                                            {{
-                                                item.status === 'active'
-                                                    ? 'Activo'
-                                                    : 'Borrador'
-                                            }}
-                                        </v-chip>
-
-                                        <v-chip
-                                            v-if="item.skills_count > 0"
-                                            size="small"
-                                            color="info"
-                                            variant="flat"
-                                        >
-                                            <v-icon start size="small"
-                                                >mdi-star-circle</v-icon
-                                            >
-                                            {{ item.skills_count }} Skills
-                                            asociados
-                                        </v-chip>
+                                    <div class="text-caption text-slate-400">
+                                        {{
+                                            t(
+                                                'competencies_module.ai_section.description',
+                                            )
+                                        }}
                                     </div>
+                                </div>
+                                <StButtonGlass
+                                    variant="primary"
+                                    size="md"
+                                    :loading="curating"
+                                    :icon="PhMagicWand"
+                                    @click="curateCompetency(item.id, refresh)"
+                                >
+                                    {{
+                                        t(
+                                            'competencies_module.ai_section.curate_btn',
+                                        )
+                                    }}
+                                </StButtonGlass>
+                            </div>
 
-                                    <div v-if="item.agent" class="mt-4">
-                                        <div
-                                            class="text-caption text-medium-emphasis mb-1"
-                                        >
-                                            Agente de Diseño:
-                                        </div>
-                                        <v-chip
-                                            size="small"
-                                            color="indigo"
-                                            variant="flat"
-                                        >
-                                            <v-icon start size="small"
-                                                >mdi-robot</v-icon
-                                            >
-                                            {{ item.agent.name }}
-                                        </v-chip>
-                                    </div>
-                                </v-card>
-                            </v-window-item>
+                            <v-alert
+                                v-if="!item.skills_count"
+                                type="info"
+                                variant="tonal"
+                                class="rounded-xl border border-indigo-500/20"
+                                color="indigo-accent-1"
+                            >
+                                <template #title>{{
+                                    t(
+                                        'competencies_module.ai_section.alert_title',
+                                    )
+                                }}</template>
+                                {{
+                                    t(
+                                        'competencies_module.ai_section.alert_desc',
+                                    )
+                                }}
+                            </v-alert>
 
-                            <v-window-item value="ai">
-                                <v-card variant="outlined" class="pa-4">
-                                    <div
-                                        class="d-flex align-center justify-space-between mb-4"
-                                    >
-                                        <div>
-                                            <div
-                                                class="text-subtitle-1 font-weight-bold"
-                                            >
-                                                Curación con IA ({{
-                                                    item.agent?.name ||
-                                                    'Agente Genérico'
-                                                }})
-                                            </div>
-                                            <div
-                                                class="text-caption text-medium-emphasis"
-                                            >
-                                                Genera los detalles, BARS,
-                                                indicadores y learning paths
-                                                automáticamente.
-                                            </div>
-                                        </div>
-                                        <v-btn
-                                            color="indigo"
-                                            variant="flat"
-                                            :loading="curating"
-                                            @click="
-                                                curateCompetency(
-                                                    item.id,
-                                                    refresh,
-                                                )
-                                            "
-                                        >
-                                            <v-icon start
-                                                >mdi-magic-staff</v-icon
-                                            >
-                                            Curar Competencia
-                                        </v-btn>
-                                    </div>
-
-                                    <v-alert
-                                        type="info"
-                                        variant="tonal"
-                                        class="mb-4"
-                                        v-if="!item.skills_count"
-                                    >
-                                        <template #title>Atención</template>
-                                        Esta competencia aún no tiene skills
-                                        asociadas. La IA intentará derivar las
-                                        sub-habilidades primero.
-                                    </v-alert>
-                                </v-card>
-                            </v-window-item>
-                        </v-window>
-                    </v-card-text>
-                </v-card>
+                            <div
+                                v-else
+                                class="rounded-xl border border-dashed border-white/10 bg-white/5 py-12 text-center"
+                            >
+                                <component
+                                    :is="PhMagicWand"
+                                    :size="48"
+                                    class="text-indigo-accent-1 mb-3 opacity-50"
+                                />
+                                <div class="text-body-2 text-slate-400">
+                                    {{
+                                        t(
+                                            'competencies_module.ai_section.ready_desc',
+                                        )
+                                    }}
+                                </div>
+                            </div>
+                        </v-card>
+                    </v-window-item>
+                </v-window>
             </template>
         </FormSchema>
     </div>

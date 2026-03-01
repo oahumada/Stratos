@@ -18,7 +18,8 @@ import {
     PhPulse,
     PhRobot,
     PhRocketLaunch,
-    PhUserGroup,
+    PhTag,
+    PhUsers,
 } from '@phosphor-icons/vue';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -51,6 +52,7 @@ interface AssessmentCycle {
     instruments: string[];
     starts_at: string | null;
     ends_at: string | null;
+    completion_rate?: number;
     created_at: string;
 }
 
@@ -59,6 +61,7 @@ const loading = ref(false);
 const wizardDialog = ref(false);
 const saving = ref(false);
 const step = ref(1);
+const search = ref('');
 
 // Stats
 const stats = computed(() => {
@@ -269,9 +272,8 @@ onMounted(() => {
                 <StButtonGlass
                     v-if="can('assessments.manage')"
                     :icon="PhRocketLaunch"
-                    variant="flat"
-                    color="primary"
-                    height="56"
+                    variant="primary"
+                    size="lg"
                     class="mt-md-0 mt-4 px-8"
                     @click="wizardDialog = true"
                 >
@@ -327,7 +329,7 @@ onMounted(() => {
                                 size="56"
                                 class="mr-4 rounded-xl"
                             >
-                                <PhUserGroup
+                                <PhUsers
                                     color="rgb(var(--v-theme-success))"
                                     :size="32"
                                 />
@@ -518,6 +520,7 @@ onMounted(() => {
                             ]"
                             :items="cycles"
                             :loading="loading"
+                            :search="search"
                             class="bg-transparent"
                             theme="dark"
                         >
@@ -793,8 +796,7 @@ onMounted(() => {
 
                         <StButtonGlass
                             block
-                            variant="tonal"
-                            color="white"
+                            variant="ghost"
                             class="rounded-lg"
                             @click="wizardDialog = false"
                         >
@@ -1560,30 +1562,26 @@ onMounted(() => {
 
                             <StButtonGlass
                                 v-if="step < 4"
-                                color="primary"
-                                height="48"
+                                variant="primary"
+                                size="lg"
                                 class="rounded-lg px-8"
                                 @click="step++"
                             >
                                 {{
                                     $t('assessment_command.wizard.actions.next')
                                 }}
-                                <template #append>
-                                    <PhCaretRight :size="18" class="ml-1" />
-                                </template>
+                                <PhCaretRight :size="18" class="ml-1" />
                             </StButtonGlass>
 
                             <StButtonGlass
                                 v-else
-                                color="success"
-                                height="48"
+                                variant="secondary"
+                                size="lg"
+                                :icon="PhCheckCircle"
                                 class="font-weight-bold rounded-lg px-8"
                                 :loading="saving"
                                 @click="saveCycle"
                             >
-                                <template #prepend>
-                                    <PhCheckCircle :size="18" class="mr-1" />
-                                </template>
                                 {{
                                     $t(
                                         'assessment_command.wizard.actions.launch',

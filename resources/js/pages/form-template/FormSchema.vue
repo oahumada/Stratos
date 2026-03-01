@@ -3,7 +3,18 @@ import { fetchCatalogs, post, put, remove } from '@/apiHelper';
 import StCardGlass from '@/components/StCardGlass.vue';
 import { usePage } from '@inertiajs/vue3';
 import { useNotification } from '@kyvg/vue3-notification';
+import {
+    PhFolderOpen,
+    PhFunnel,
+    PhMagnifyingGlass,
+    PhPencil,
+    PhPlus,
+    PhPlusCircle,
+    PhTrash,
+    PhX,
+} from '@phosphor-icons/vue';
 import { computed, onMounted, reactive, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useTheme as useVuetifyTheme } from 'vuetify';
 import FormData from './FormData.vue';
 
@@ -29,6 +40,7 @@ const page = usePage();
 const user = computed(() => page.props.auth.user as any);
 const { notify } = useNotification();
 const vuetifyTheme = useVuetifyTheme();
+const { t } = useI18n();
 
 // Convertir hex a RGB
 const hexToRgb = (hex: string): string => {
@@ -505,7 +517,9 @@ onMounted(() => {
                 <div>
                     <h1 class="text-h4 font-weight-black mb-1 text-white">
                         {{ mergedConfig.titulo }}
-                        <span class="st-badge-live ml-2">Active</span>
+                        <span class="st-badge-live ml-2">{{
+                            t('form_schema.active_badge')
+                        }}</span>
                     </h1>
                     <p class="text-subtitle-1 text-slate-400">
                         {{ mergedConfig.descripcion }}
@@ -514,7 +528,6 @@ onMounted(() => {
                 <div class="header-actions d-flex gap-3">
                     <v-btn
                         v-if="mergedConfig.permisos?.crear"
-                        prepend-icon="mdi-plus"
                         @click="openCreateDialog"
                         color="indigo-accent-2"
                         rounded="lg"
@@ -522,7 +535,12 @@ onMounted(() => {
                         elevation="4"
                         size="large"
                     >
-                        New {{ mergedConfig.titulo.replace(/s$/i, '') }}
+                        <component :is="PhPlus" :size="20" class="mr-2" />
+                        {{
+                            t('form_schema.new_btn', {
+                                title: mergedConfig.titulo.replace(/s$/i, ''),
+                            })
+                        }}
                     </v-btn>
                     <slot name="extra-actions"></slot>
                 </div>
@@ -532,26 +550,35 @@ onMounted(() => {
         <!-- Filters Section in Glass Card -->
         <StCardGlass v-if="filters && filters.length > 0" class="mb-6">
             <div class="d-flex align-center mb-4 gap-2">
-                <v-icon color="indigo-accent-2" size="small"
-                    >mdi-filter-variant</v-icon
-                >
-                <span class="text-overline font-weight-bold text-slate-300"
-                    >Smart Filters</span
-                >
+                <component
+                    :is="PhFunnel"
+                    class="text-indigo-accent-2"
+                    :size="18"
+                />
+                <span class="text-overline font-weight-bold text-slate-300">
+                    {{ t('form_schema.filters_title') }}
+                </span>
             </div>
             <v-row dense>
                 <v-col cols="12" sm="6" :md="12 / (filters.length + 1)">
                     <v-text-field
                         v-model="searchQuery"
-                        label="Global Search"
-                        placeholder="Search records..."
-                        prepend-inner-icon="mdi-magnify"
+                        :label="t('form_schema.global_search')"
+                        :placeholder="t('form_schema.search_placeholder')"
                         variant="outlined"
                         density="comfortable"
                         rounded="lg"
                         hide-details
                         class="glass-input"
-                    />
+                    >
+                        <template #prepend-inner>
+                            <component
+                                :is="PhMagnifyingGlass"
+                                :size="18"
+                                class="text-slate-400"
+                            />
+                        </template>
+                    </v-text-field>
                 </v-col>
                 <v-col
                     v-for="filter in enrichedFilters"
@@ -605,11 +632,10 @@ onMounted(() => {
                     <v-btn
                         variant="text"
                         color="slate-400"
-                        prepend-icon="mdi-filter-off"
                         @click="resetFilters"
                         class="text-none"
                     >
-                        Clear Filters
+                        {{ t('form_schema.clear_filters') }}
                     </v-btn>
                 </v-col>
             </v-row>
@@ -620,21 +646,26 @@ onMounted(() => {
             <v-card-text>
                 <v-text-field
                     v-model="searchQuery"
-                    label="Search"
-                    placeholder="Search records..."
-                    prepend-icon="mdi-magnify"
+                    :label="t('form_schema.global_search')"
+                    :placeholder="t('form_schema.search_placeholder')"
                     variant="outlined"
                     density="compact"
                     clearable
-                />
+                >
+                    <template #prepend-inner>
+                        <component :is="PhMagnifyingGlass" :size="18" />
+                    </template>
+                </v-text-field>
             </v-card-text>
         </v-card>
 
         <!-- Loading & Error States -->
         <v-card v-if="loading" class="mb-4">
             <v-card-text class="py-8 text-center">
-                <v-progress-circular indeterminate color="primary" />
-                <p class="mt-4">Loading records...</p>
+                <v-progress-circular indeterminate color="indigo-accent-1" />
+                <p class="mt-4 text-slate-400">
+                    {{ t('form_schema.loading_records') }}
+                </p>
             </v-card-text>
         </v-card>
 
@@ -668,41 +699,47 @@ onMounted(() => {
                     <div class="d-flex gap-2">
                         <v-btn
                             v-if="mergedConfig.permisos?.editar"
-                            icon="mdi-pencil"
+                            icon
                             size="small"
-                            color="indigo-lighten-4"
+                            color="indigo-accent-1"
                             variant="tonal"
                             @click.stop="openEditDialog(item)"
                             class="rounded-lg"
-                        />
+                        >
+                            <component :is="PhPencil" :size="16" />
+                        </v-btn>
                         <v-btn
                             v-if="mergedConfig.permisos?.eliminar"
-                            icon="mdi-trash-can"
+                            icon
                             size="small"
                             color="rose-accent-2"
                             variant="tonal"
                             @click.stop="openDeleteDialog(item)"
                             class="rounded-lg"
-                        />
+                        >
+                            <component :is="PhTrash" :size="16" />
+                        </v-btn>
                     </div>
                 </template>
 
                 <!-- No data -->
                 <template #no-data>
                     <div class="py-12 text-center">
-                        <v-icon size="64" color="slate-600" class="mb-4"
-                            >mdi-folder-open-outline</v-icon
-                        >
+                        <component
+                            :is="PhFolderOpen"
+                            :size="48"
+                            class="mb-3 text-slate-600 opacity-50"
+                        />
                         <p class="text-h6 text-slate-400">
-                            No records found matching your criteria
+                            {{ t('form_schema.no_records') }}
                         </p>
                         <v-btn
                             variant="text"
                             color="indigo-accent-2"
                             @click="resetFilters"
-                            class="mt-2"
+                            class="text-none mt-2"
                         >
-                            Reset all filters
+                            {{ t('form_schema.reset_filters') }}
                         </v-btn>
                     </div>
                 </template>
@@ -724,12 +761,18 @@ onMounted(() => {
                 :style="{ background: dialogHeaderGradient }"
             >
                 <div
-                    class="text-h5 font-weight-bold d-flex align-center text-white"
+                    class="text-h5 font-weight-bold d-flex align-center font-premium text-white"
                 >
-                    <v-icon class="mr-3">{{
-                        editingItem ? 'mdi-pencil' : 'mdi-plus-circle'
-                    }}</v-icon>
-                    {{ editingItem ? 'Edit' : 'Create' }}
+                    <component
+                        :is="editingItem ? PhPencil : PhPlusCircle"
+                        size="24"
+                        class="mr-3 text-white"
+                    />
+                    {{
+                        editingItem
+                            ? t('form_schema.dialog.edit')
+                            : t('form_schema.dialog.create')
+                    }}
                     {{ mergedConfig.titulo.replace(/s$/i, '') }}
                 </div>
             </div>
@@ -761,7 +804,7 @@ onMounted(() => {
                     size="large"
                     class="text-none"
                 >
-                    Cancel
+                    {{ t('form_schema.dialog.cancel') }}
                 </v-btn>
                 <v-btn
                     @click="saveItem"
@@ -772,7 +815,11 @@ onMounted(() => {
                     rounded="lg"
                     class="px-8"
                 >
-                    {{ editingItem ? 'Save Changes' : 'Create Record' }}
+                    {{
+                        editingItem
+                            ? t('form_schema.dialog.save')
+                            : t('form_schema.dialog.create_record')
+                    }}
                 </v-btn>
             </div>
         </StCardGlass>
@@ -782,13 +829,15 @@ onMounted(() => {
     <v-dialog v-model="deleteDialogOpen" max-width="400px">
         <StCardGlass class="pa-0" :no-hover="true">
             <div class="pa-6">
-                <div class="text-h6 mb-2 text-white">Confirm Delete</div>
+                <div class="text-h6 font-premium mb-2 text-white">
+                    {{ t('form_schema.dialog.delete_confirm') }}
+                </div>
                 <div class="text-body-1 text-slate-400">
-                    Are you sure you want to delete this record?
+                    {{ t('form_schema.dialog.delete_ask') }}
                     <br />
-                    <small class="text-rose-accent-2"
-                        >This action cannot be undone.</small
-                    >
+                    <small class="text-rose-accent-2">
+                        {{ t('form_schema.dialog.delete_warning') }}
+                    </small>
                 </div>
             </div>
             <v-divider class="border-white/5" />
@@ -798,7 +847,7 @@ onMounted(() => {
                     variant="text"
                     @click="deleteDialogOpen = false"
                 >
-                    Cancel
+                    {{ t('form_schema.dialog.cancel') }}
                 </v-btn>
                 <v-btn
                     color="rose-accent-4"
@@ -807,7 +856,7 @@ onMounted(() => {
                     :loading="saving"
                     rounded="lg"
                 >
-                    Delete Permanently
+                    {{ t('form_schema.dialog.delete_btn') }}
                 </v-btn>
             </div>
         </StCardGlass>
@@ -834,17 +883,20 @@ onMounted(() => {
             <div class="d-flex align-center justify-space-between mb-3">
                 <div>
                     <div class="text-subtitle-1 font-weight-medium">
-                        Detalle
+                        {{ t('form_schema.active_badge') }}
                     </div>
                     <div class="text-body-2 text-secondary">
-                        Registro seleccionado
+                        {{ t('form_schema.no_records') }}
                     </div>
                 </div>
                 <v-btn
-                    icon="mdi-close"
+                    icon
                     variant="text"
                     @click="detailOpen = false"
-                />
+                    class="rounded-lg"
+                >
+                    <component :is="PhX" :size="20" />
+                </v-btn>
             </div>
 
             <div v-if="detailItem" class="d-flex flex-column gap-4">

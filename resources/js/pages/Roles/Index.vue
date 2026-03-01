@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import RoleCubeWizard from '@/components/Roles/RoleCubeWizard.vue';
 import SkillLevelChip from '@/components/SkillLevelChip.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     Config,
@@ -7,9 +9,25 @@ import {
     ItemForm,
     TableConfig,
 } from '@/types/form-schema';
+import {
+    PhArrowsClockwise,
+    PhCube,
+    PhFileText,
+    PhInfo,
+    PhLightbulb,
+    PhMagicWand,
+    PhRobot,
+    PhSealCheck,
+    PhStar,
+    PhUser,
+    PhUsers,
+} from '@phosphor-icons/vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import FormSchema from '../form-template/FormSchema.vue';
+
+const { t } = useI18n();
 
 // Import JSON configs
 import configJson from './roles-form/config.json';
@@ -108,158 +126,231 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
         enable-row-detail
     >
         <template #extra-actions>
-            <v-btn
-                prepend-icon="mdi-cube-send"
-                color="indigo"
-                variant="elevated"
-                size="large"
+            <StButtonGlass
+                :icon="PhCube"
+                variant="primary"
+                size="lg"
                 class="ml-2"
                 @click="showCubeWizard = true"
             >
-                Diseñar con Cubo AI
-            </v-btn>
+                {{ t('roles_module.ai_cube_design') }}
+            </StButtonGlass>
         </template>
 
         <template #detail="{ item, refresh }">
-            <v-tabs v-model="detailTab">
-                <v-tab value="info">
-                    <v-icon start>mdi-information</v-icon>
-                    Información
+            <v-tabs v-model="detailTab" color="indigo-accent-2" class="mb-4">
+                <v-tab value="info" class="text-none">
+                    <component :is="PhInfo" :size="18" class="mr-2" />
+                    {{ t('roles_module.tabs.info') }}
                 </v-tab>
-                <v-tab value="skills">
-                    <v-icon start>mdi-star-circle</v-icon>
-                    Skills ({{ item.skills_count || item.skills?.length || 0 }})
+                <v-tab value="skills" class="text-none">
+                    <component :is="PhStar" :size="18" class="mr-2" />
+                    {{
+                        t('roles_module.tabs.skills', {
+                            count:
+                                item.skills_count || item.skills?.length || 0,
+                        })
+                    }}
                 </v-tab>
-                <v-tab value="people">
-                    <v-icon start>mdi-account-group</v-icon>
-                    Personas ({{
-                        item.People_count ||
-                        item.people_count ||
-                        item.people?.length ||
-                        0
-                    }})
+                <v-tab value="people" class="text-none">
+                    <component :is="PhUsers" :size="18" class="mr-2" />
+                    {{
+                        t('roles_module.tabs.people', {
+                            count:
+                                item.People_count ||
+                                item.people_count ||
+                                item.people?.length ||
+                                0,
+                        })
+                    }}
                 </v-tab>
-                <v-tab value="ai-design">
-                    <v-icon start>mdi-cube-outline</v-icon>
-                    Diseño de Rol (AI)
+                <v-tab value="ai-design" class="text-none">
+                    <component :is="PhCube" :size="18" class="mr-2" />
+                    {{ t('roles_module.tabs.ai_design') }}
                 </v-tab>
             </v-tabs>
 
-            <v-window v-model="detailTab" class="mt-4">
+            <v-window v-model="detailTab">
                 <!-- Info Tab -->
                 <v-window-item value="info">
-                    <v-card flat border class="pa-3">
-                        <div class="text-subtitle-2 mb-3">
-                            Información del Rol
+                    <v-card flat border class="pa-4 glass-card rounded-xl">
+                        <div
+                            class="text-subtitle-1 font-weight-bold font-premium d-flex align-center mb-4 text-white"
+                        >
+                            <component
+                                :is="PhInfo"
+                                :size="20"
+                                class="text-indigo-accent-1 mr-2"
+                            />
+                            {{ t('roles_module.info_section.title') }}
                         </div>
-                        <v-list density="compact">
-                            <v-list-item>
+                        <v-list density="compact" class="pa-0 bg-transparent">
+                            <v-list-item class="px-0">
                                 <v-list-item-title class="text-body-2">
-                                    <strong>Nombre:</strong> {{ item.name }}
+                                    <strong class="text-indigo-accent-1"
+                                        >{{
+                                            t('roles_module.info_section.name')
+                                        }}:</strong
+                                    >
+                                    {{ item.name }}
                                 </v-list-item-title>
                             </v-list-item>
-                            <v-list-item v-if="item.description">
+                            <v-list-item v-if="item.description" class="px-0">
                                 <v-list-item-title class="text-body-2">
-                                    <strong>Descripción:</strong>
+                                    <strong class="text-indigo-accent-1"
+                                        >{{
+                                            t(
+                                                'roles_module.info_section.description',
+                                            )
+                                        }}:</strong
+                                    >
                                     {{ item.description }}
                                 </v-list-item-title>
                             </v-list-item>
-                            <v-list-item v-if="item.agent">
-                                <v-list-item-title class="text-body-2">
-                                    <strong>AI Agent:</strong>
+                            <v-list-item v-if="item.agent" class="px-0">
+                                <v-list-item-title
+                                    class="text-body-2 d-flex align-center"
+                                >
+                                    <strong class="text-indigo-accent-1"
+                                        >{{
+                                            t(
+                                                'roles_module.info_section.ai_agent',
+                                            )
+                                        }}:</strong
+                                    >
                                     <v-chip
                                         size="small"
                                         color="indigo"
                                         variant="flat"
-                                        class="ml-2"
+                                        class="ml-2 rounded-lg"
                                     >
-                                        <v-icon start size="small"
-                                            >mdi-robot</v-icon
-                                        >
+                                        <component
+                                            :is="PhRobot"
+                                            start
+                                            size="14"
+                                            class="mr-1"
+                                        />
                                         {{ item.agent.name }}
                                     </v-chip>
                                 </v-list-item-title>
                             </v-list-item>
-                            <v-list-item v-if="item.blueprint">
-                                <v-list-item-title class="text-body-2">
-                                    <strong>Plantilla:</strong>
+                            <v-list-item v-if="item.blueprint" class="px-0">
+                                <v-list-item-title
+                                    class="text-body-2 d-flex align-center"
+                                >
+                                    <strong class="text-indigo-accent-1"
+                                        >{{
+                                            t(
+                                                'roles_module.info_section.blueprint',
+                                            )
+                                        }}:</strong
+                                    >
                                     <v-chip
                                         size="small"
                                         color="blue-grey"
                                         variant="outlined"
-                                        class="ml-2"
+                                        class="ml-2 rounded-lg"
                                     >
-                                        <v-icon start size="small"
-                                            >mdi-file-document-outline</v-icon
-                                        >
+                                        <component
+                                            :is="PhFileText"
+                                            start
+                                            size="14"
+                                            class="mr-1"
+                                        />
                                         {{ item.blueprint.name }}
                                     </v-chip>
                                 </v-list-item-title>
                             </v-list-item>
                         </v-list>
 
-                        <v-divider class="my-3"></v-divider>
+                        <v-divider
+                            class="my-4"
+                            style="opacity: 0.05"
+                        ></v-divider>
 
-                        <v-btn
-                            color="indigo"
-                            prepend-icon="mdi-auto-fix"
+                        <StButtonGlass
+                            :icon="PhMagicWand"
+                            variant="primary"
+                            size="sm"
                             :loading="designing"
                             @click="designRole(item.id, refresh)"
-                            variant="tonal"
-                            size="small"
                         >
-                            Diseñar con AI (Modelo Cubo)
-                        </v-btn>
+                            {{ t('roles_module.info_section.design_btn') }}
+                        </StButtonGlass>
                     </v-card>
                 </v-window-item>
 
                 <!-- Skills Tab -->
                 <v-window-item value="skills">
-                    <v-card flat border class="pa-3">
-                        <div class="text-subtitle-2 mb-3">
-                            Skills requeridas
+                    <v-card flat border class="pa-4 glass-card rounded-xl">
+                        <div
+                            class="text-subtitle-1 font-weight-bold font-premium d-flex align-center mb-4 text-white"
+                        >
+                            <component
+                                :is="PhStar"
+                                :size="20"
+                                class="text-indigo-accent-1 mr-2"
+                            />
+                            {{ t('roles_module.skills_section.title') }}
                         </div>
                         <div
                             v-if="getRoleSkills(item).length === 0"
-                            class="py-4 text-center text-secondary"
+                            class="rounded-xl border border-dashed py-8 text-center text-slate-400"
                         >
-                            No hay skills asignadas
+                            {{ t('roles_module.skills_section.empty') }}
                         </div>
-                        <v-list v-else density="compact">
+                        <v-list
+                            v-else
+                            density="comfortable"
+                            class="pa-0 bg-transparent"
+                        >
                             <v-list-item
                                 v-for="skill in getRoleSkills(item)"
                                 :key="skill.id"
-                                class="mb-2"
-                                border
+                                class="glass-card mb-3 rounded-xl border"
                             >
                                 <template #prepend>
-                                    <v-avatar color="primary" size="32">
-                                        <v-icon size="small"
-                                            >mdi-star-circle</v-icon
-                                        >
+                                    <v-avatar color="indigo/10" size="36">
+                                        <component
+                                            :is="PhStar"
+                                            size="20"
+                                            class="text-indigo-accent-1"
+                                        />
                                     </v-avatar>
                                 </template>
                                 <v-list-item-title
-                                    class="text-body-2 font-weight-medium"
+                                    class="text-body-2 font-weight-bold text-white"
                                 >
                                     {{ skill.name }}
                                 </v-list-item-title>
-                                <v-list-item-subtitle class="text-caption">
-                                    Nivel requerido:
+                                <v-list-item-subtitle
+                                    class="text-caption d-flex align-center mt-1"
+                                >
+                                    <span class="mr-1 text-slate-400"
+                                        >{{
+                                            t(
+                                                'roles_module.skills_section.level',
+                                            )
+                                        }}:</span
+                                    >
                                     <SkillLevelChip
                                         :level="skill.required_level"
                                         :skill-levels="skillLevels"
-                                        color="black"
-                                        class="ml-1"
-                                        size="small"
+                                        color="white"
+                                        size="x-small"
                                     />
                                     <v-chip
                                         v-if="skill.is_critical"
-                                        size="small"
+                                        size="x-small"
                                         color="error"
-                                        class="ml-2"
+                                        variant="flat"
+                                        class="ml-2 rounded-lg"
                                     >
-                                        Crítica
+                                        {{
+                                            t(
+                                                'roles_module.skills_section.critical',
+                                            )
+                                        }}
                                     </v-chip>
                                 </v-list-item-subtitle>
                             </v-list-item>
@@ -269,40 +360,56 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
                 <!-- People Tab -->
                 <v-window-item value="people">
-                    <v-card flat border class="pa-3">
-                        <div class="text-subtitle-2 mb-3">
-                            Personas en este rol
+                    <v-card flat border class="pa-4 glass-card rounded-xl">
+                        <div
+                            class="text-subtitle-1 font-weight-bold font-premium d-flex align-center mb-4 text-white"
+                        >
+                            <component
+                                :is="PhUsers"
+                                :size="20"
+                                class="text-indigo-accent-1 mr-2"
+                            />
+                            {{ t('roles_module.people_section.title') }}
                         </div>
                         <div
                             v-if="getRolePeople(item).length === 0"
-                            class="py-4 text-center text-secondary"
+                            class="rounded-xl border border-dashed py-8 text-center text-slate-400"
                         >
-                            No hay personas asignadas
+                            {{ t('roles_module.people_section.empty') }}
                         </div>
-                        <v-list v-else density="compact">
+                        <v-list
+                            v-else
+                            density="comfortable"
+                            class="pa-0 bg-transparent"
+                        >
                             <v-list-item
                                 v-for="person in getRolePeople(item)"
                                 :key="person.id"
-                                class="mb-2"
-                                border
+                                class="glass-card mb-3 rounded-xl border"
                             >
                                 <template #prepend>
-                                    <v-avatar color="secondary" size="32">
-                                        <v-icon size="small"
-                                            >mdi-account</v-icon
-                                        >
+                                    <v-avatar color="slate/10" size="36">
+                                        <component
+                                            :is="PhUser"
+                                            size="20"
+                                            class="text-slate-300"
+                                        />
                                     </v-avatar>
                                 </template>
                                 <v-list-item-title
-                                    class="text-body-2 font-weight-medium"
+                                    class="text-body-2 font-weight-bold text-white"
                                 >
                                     {{ getPersonName(person) }}
                                 </v-list-item-title>
-                                <v-list-item-subtitle class="text-caption">
+                                <v-list-item-subtitle
+                                    class="text-caption mt-1 text-slate-400"
+                                >
                                     {{
                                         person.email
                                             ? `(${person.email})`
-                                            : '(Sin correo)'
+                                            : t(
+                                                  'roles_module.people_section.no_email',
+                                              )
                                     }}
                                     <span v-if="getPersonDepartment(person)">
                                         ·
@@ -316,52 +423,63 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
                 <!-- AI Design Tab -->
                 <v-window-item value="ai-design">
-                    <v-card flat border class="pa-3">
+                    <v-card flat border class="pa-4 glass-card rounded-xl">
                         <div
-                            class="d-flex justify-space-between align-center mb-4"
+                            class="d-flex justify-space-between align-center mb-6"
                         >
-                            <div class="text-subtitle-2">
-                                Análisis de Diseño (Role Cube Methodology)
+                            <div
+                                class="text-subtitle-1 font-weight-bold font-premium text-white"
+                            >
+                                {{ t('roles_module.ai_section.title') }}
                             </div>
-                            <v-btn
+                            <StButtonGlass
                                 v-if="item.ai_archetype_config"
-                                color="indigo"
-                                size="small"
-                                variant="text"
-                                prepend-icon="mdi-refresh"
+                                variant="ghost"
+                                size="sm"
+                                :icon="PhArrowsClockwise"
                                 :loading="designing"
                                 @click="designRole(item.id, refresh)"
                             >
-                                Volver a analizar
-                            </v-btn>
+                                {{ t('roles_module.ai_section.reanalyze') }}
+                            </StButtonGlass>
                         </div>
 
                         <div
                             v-if="!item.ai_archetype_config"
-                            class="bg-grey-lighten-4 rounded py-8 text-center"
+                            class="rounded-xl border border-dashed border-white/10 bg-white/5 py-12 text-center"
                         >
-                            <v-icon
-                                size="64"
-                                color="grey-lighten-1"
-                                class="mb-4"
-                                >mdi-cube-scan</v-icon
+                            <component
+                                :is="PhCube"
+                                :size="64"
+                                class="text-indigo-accent-2 mb-4 opacity-50"
+                            />
+                            <div
+                                class="text-h6 font-weight-bold font-premium mb-2 text-white"
                             >
-                            <div class="text-h6 text-grey-darken-1">
-                                Diseño no analizado
+                                {{
+                                    t(
+                                        'roles_module.ai_section.not_analyzed_title',
+                                    )
+                                }}
                             </div>
-                            <p class="text-body-2 mb-6 text-secondary">
-                                Usa la Inteligencia Artificial para definir las
-                                coordenadas de este rol en la organización.
+                            <p
+                                class="text-body-2 mx-auto mb-8 max-w-md text-slate-400"
+                            >
+                                {{
+                                    t(
+                                        'roles_module.ai_section.not_analyzed_desc',
+                                    )
+                                }}
                             </p>
-                            <v-btn
-                                color="indigo"
-                                size="large"
-                                prepend-icon="mdi-auto-fix"
+                            <StButtonGlass
+                                variant="primary"
+                                size="lg"
+                                :icon="PhMagicWand"
                                 :loading="designing"
                                 @click="designRole(item.id, refresh)"
                             >
-                                Analizar con IA
-                            </v-btn>
+                                {{ t('roles_module.ai_section.analyze_btn') }}
+                            </StButtonGlass>
                         </div>
 
                         <div v-else>
@@ -370,25 +488,34 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                 <v-col cols="12" md="4">
                                     <v-card
                                         variant="outlined"
-                                        class="pa-4 bg-indigo-lighten-5 border-indigo"
+                                        class="pa-5 rounded-xl border-indigo-500/30 bg-indigo-900/20"
                                     >
                                         <div
-                                            class="text-overline text-indigo font-weight-bold mb-2"
+                                            class="text-overline text-indigo-accent-1 font-weight-black mb-4 tracking-widest"
                                         >
-                                            COORDENADAS DEL CUBO
+                                            {{
+                                                t(
+                                                    'roles_module.ai_section.coordinates',
+                                                )
+                                            }}
                                         </div>
 
-                                        <div class="mb-4">
+                                        <div class="mb-5">
                                             <div
-                                                class="text-caption text-grey-darken-1 text-uppercase mb-1 italic"
+                                                class="text-caption text-uppercase font-weight-bold mb-2 text-slate-400"
                                             >
-                                                Eje X: Arquetipo
+                                                {{
+                                                    t(
+                                                        'roles_module.ai_section.axis_x',
+                                                    )
+                                                }}
                                             </div>
                                             <div class="d-flex align-center">
                                                 <v-chip
-                                                    color="indigo"
+                                                    color="indigo-accent-1"
                                                     size="small"
-                                                    class="mr-2"
+                                                    variant="flat"
+                                                    class="font-weight-black rounded-lg"
                                                     >{{
                                                         item.ai_archetype_config
                                                             .cube_coordinates
@@ -398,11 +525,15 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                             </div>
                                         </div>
 
-                                        <div class="mb-4">
+                                        <div class="mb-5">
                                             <div
-                                                class="text-caption text-grey-darken-1 text-uppercase mb-1 italic"
+                                                class="text-caption text-uppercase font-weight-bold mb-2 text-slate-400"
                                             >
-                                                Eje Y: Maestría
+                                                {{
+                                                    t(
+                                                        'roles_module.ai_section.axis_y',
+                                                    )
+                                                }}
                                             </div>
                                             <div class="d-flex align-center">
                                                 <v-rating
@@ -414,28 +545,36 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                                     length="5"
                                                     readonly
                                                     density="compact"
-                                                    color="indigo"
-                                                    active-color="indigo"
+                                                    color="amber-accent-1"
+                                                    active-color="amber-accent-1"
                                                 ></v-rating>
                                                 <span
-                                                    class="font-weight-bold ml-2"
+                                                    class="text-h6 font-weight-black font-premium ml-3 text-white"
                                                     >{{
                                                         item.ai_archetype_config
                                                             .cube_coordinates
                                                             .y_mastery_level
-                                                    }}/5</span
+                                                    }}{{
+                                                        t(
+                                                            'roles_module.ai_section.mastery_suffix',
+                                                        )
+                                                    }}</span
                                                 >
                                             </div>
                                         </div>
 
                                         <div class="mb-2">
                                             <div
-                                                class="text-caption text-grey-darken-1 text-uppercase mb-1 italic"
+                                                class="text-caption text-uppercase font-weight-bold mb-2 text-slate-400"
                                             >
-                                                Eje Z: Proceso
+                                                {{
+                                                    t(
+                                                        'roles_module.ai_section.axis_z',
+                                                    )
+                                                }}
                                             </div>
                                             <div
-                                                class="text-body-2 font-weight-medium text-indigo-darken-2"
+                                                class="text-body-1 font-weight-black text-indigo-accent-1 font-premium"
                                             >
                                                 {{
                                                     item.ai_archetype_config
@@ -448,15 +587,19 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
                                     <v-card
                                         variant="flat"
-                                        class="pa-4 bg-grey-lighten-4 mt-4 border"
+                                        class="pa-5 mt-5 rounded-xl border border-white/5 bg-white/5"
                                     >
                                         <div
-                                            class="text-caption font-weight-bold text-grey-darken-2 mb-2"
+                                            class="text-caption font-weight-bold mb-2 tracking-tighter text-slate-400 uppercase"
                                         >
-                                            JUSTIFICACIÓN DEL DISEÑO
+                                            {{
+                                                t(
+                                                    'roles_module.ai_section.justification',
+                                                )
+                                            }}
                                         </div>
                                         <div
-                                            class="text-body-2 text-grey-darken-3 italic"
+                                            class="text-body-2 leading-relaxed text-slate-300 italic"
                                         >
                                             "{{
                                                 item.ai_archetype_config
@@ -469,44 +612,47 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
                                 <!-- Competencies & Suggestions -->
                                 <v-col cols="12" md="8">
-                                    <div class="mb-6">
+                                    <div class="mb-8">
                                         <div
-                                            class="text-subtitle-2 font-weight-bold d-flex align-center mb-3"
+                                            class="text-subtitle-1 font-weight-bold font-premium d-flex align-center mb-4 text-white"
                                         >
-                                            <v-icon start color="teal"
-                                                >mdi-check-decagram</v-icon
-                                            >
-                                            Competencias Core Sugeridas
+                                            <component
+                                                :is="PhSealCheck"
+                                                :size="24"
+                                                class="text-emerald-accent-2 mr-2"
+                                            />
+                                            {{
+                                                t(
+                                                    'roles_module.ai_section.core_competencies',
+                                                )
+                                            }}
                                         </div>
                                         <v-list
-                                            border
-                                            rounded
+                                            class="pa-0 bg-transparent"
                                             density="compact"
-                                            class="bg-transparent"
                                         >
                                             <v-list-item
                                                 v-for="(comp, i) in item
                                                     .ai_archetype_config
                                                     .core_competencies"
                                                 :key="i"
-                                                border
-                                                class="mb-2"
+                                                class="glass-card pa-4 mb-3 rounded-xl border border-white/5"
                                             >
                                                 <v-list-item-title
-                                                    class="font-weight-bold text-body-2 d-flex align-center"
+                                                    class="font-weight-black text-body-1 d-flex align-center font-premium text-white"
                                                 >
                                                     {{ comp.name }}
                                                     <v-chip
                                                         size="x-small"
-                                                        class="ml-2"
-                                                        color="teal"
-                                                        variant="outlined"
-                                                        >Nivel
+                                                        class="font-weight-bold ml-3 rounded-lg"
+                                                        color="emerald-accent-2"
+                                                        variant="flat"
+                                                        >LVL
                                                         {{ comp.level }}</v-chip
                                                     >
                                                 </v-list-item-title>
                                                 <v-list-item-subtitle
-                                                    class="text-caption mt-1"
+                                                    class="text-body-2 line-height-relaxed mt-2 text-slate-400"
                                                     >{{
                                                         comp.rationale
                                                     }}</v-list-item-subtitle
@@ -517,23 +663,32 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
                                     <div>
                                         <div
-                                            class="text-subtitle-2 font-weight-bold d-flex align-center mb-3"
+                                            class="text-subtitle-1 font-weight-bold font-premium d-flex align-center mb-4 text-white"
                                         >
-                                            <v-icon start color="amber-darken-2"
-                                                >mdi-lightbulb-on</v-icon
-                                            >
-                                            Nitidez Organizacional
+                                            <component
+                                                :is="PhLightbulb"
+                                                :size="24"
+                                                class="text-amber-accent-1 mr-2"
+                                            />
+                                            {{
+                                                t(
+                                                    'roles_module.ai_section.org_clarity',
+                                                )
+                                            }}
                                         </div>
                                         <v-alert
-                                            color="amber-lighten-5"
-                                            border="start"
-                                            border-color="amber-darken-2"
-                                            class="text-body-2 text-grey-darken-3"
+                                            color="amber-accent-1"
+                                            variant="tonal"
+                                            class="rounded-xl border border-amber-500/20"
                                         >
-                                            {{
-                                                item.ai_archetype_config
-                                                    .organizational_suggestions
-                                            }}
+                                            <div
+                                                class="text-body-1 text-amber-accent-1 leading-relaxed"
+                                            >
+                                                {{
+                                                    item.ai_archetype_config
+                                                        .organizational_suggestions
+                                                }}
+                                            </div>
                                         </v-alert>
                                     </div>
                                 </v-col>
