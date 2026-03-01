@@ -1,286 +1,368 @@
 <template>
     <div class="development-tab">
-        <div v-if="loading" class="d-flex pa-4 justify-center">
-            <v-progress-circular
-                indeterminate
-                color="primary"
-            ></v-progress-circular>
+        <div v-if="loading" class="flex items-center justify-center p-8">
+            <div
+                class="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500/20 border-t-indigo-500"
+            />
         </div>
 
-        <div v-else-if="paths.length === 0" class="pa-4 text-center">
-            <v-icon size="64" color="grey lighten-2" class="mb-2"
-                >mdi-road-variant</v-icon
+        <div
+            v-else-if="paths.length === 0"
+            class="flex flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/5 py-12 text-center"
+        >
+            <div
+                class="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 text-white/20"
             >
-            <div class="text-h6 text-grey">
-                Sin planes de desarrollo activos
+                <PhRoadHorizon :size="32" />
             </div>
-            <div class="text-body-2 text-grey">
-                Esta persona no tiene asignado ningún plan de crecimiento o
-                cierre de brechas.
+            <div class="mb-6 max-w-sm text-sm font-medium text-white/40">
+                {{ t('talent_development.empty_state') }}
             </div>
-            <v-btn
-                color="primary"
-                variant="text"
-                class="mt-4"
+            <StButtonGlass
+                variant="primary"
+                :icon="PhRoadHorizon"
                 @click="openCreateDialog"
             >
-                Generar Plan
-            </v-btn>
+                {{ t('talent_development.generate_btn') }}
+            </StButtonGlass>
         </div>
 
-        <v-expansion-panels v-else v-model="panel" variant="accordion">
-            <v-expansion-panel
+        <div v-else class="space-y-4">
+            <div
                 v-for="path in paths"
                 :key="path.id"
-                elevation="0"
-                class="mb-2 rounded border"
+                class="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md transition-all duration-300"
+                :class="{
+                    'bg-white/10 ring-1 ring-indigo-500/30':
+                        activePathId === path.id,
+                }"
             >
-                <v-expansion-panel-title>
-                    <div class="d-flex align-center flex-grow-1">
-                        <v-icon
-                            :color="getStatusColor(path.status)"
-                            class="mr-3"
+                <div
+                    class="flex cursor-pointer items-center justify-between p-4"
+                    @click="togglePath(path.id)"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/40"
+                            :class="{
+                                'border-indigo-500/30 bg-indigo-500/10 text-indigo-400':
+                                    activePathId === path.id,
+                            }"
                         >
-                            {{ getStatusIcon(path.status) }}
-                        </v-icon>
+                            <PhRoadHorizon :size="20" />
+                        </div>
                         <div>
-                            <div class="font-weight-bold">
+                            <div
+                                class="text-sm font-bold tracking-tight text-white"
+                            >
                                 {{ path.action_title }}
                             </div>
-                            <div class="text-caption text-grey">
-                                Duración:
-                                {{ path.estimated_duration_months }} meses
+                            <div
+                                class="text-[10px] font-bold tracking-widest text-white/30 uppercase"
+                            >
+                                {{ path.estimated_duration_months }}
+                                {{ t('talent_development.months') }}
                             </div>
                         </div>
-                        <v-spacer></v-spacer>
-                        <v-chip
-                            size="small"
-                            :color="getStatusColor(path.status)"
-                            class="mr-2"
-                        >
-                            {{ path.status }}
-                        </v-chip>
                     </div>
-                </v-expansion-panel-title>
-
-                <v-expansion-panel-text>
-                    <div class="py-2">
-                        <div class="text-subtitle-2 mb-3">
-                            Acciones de Desarrollo (70-20-10)
-                        </div>
-
-                        <v-timeline
-                            density="compact"
-                            align="start"
-                            truncate-line="start"
+                    <div class="flex items-center gap-3">
+                        <StBadgeGlass :variant="getStatusVariant(path.status)">
+                            {{ path.status }}
+                        </StBadgeGlass>
+                        <div
+                            class="transition-transform duration-300"
+                            :class="{ 'rotate-180': activePathId === path.id }"
                         >
-                            <v-timeline-item
-                                v-for="action in path.actions"
-                                :key="action.id"
-                                :dot-color="getActionColor(action.type)"
-                                size="x-small"
-                            >
-                                <div class="mb-4">
-                                    <div class="font-weight-bold">
-                                        {{ action.title }}
-                                        <v-chip
-                                            size="x-small"
-                                            class="ml-2"
-                                            variant="outlined"
-                                        >
-                                            {{ action.strategy }}
-                                        </v-chip>
-                                    </div>
-                                    <div
-                                        class="text-body-2 text-grey-darken-1 mb-2"
-                                    >
-                                        {{ action.description }}
-                                    </div>
+                            <PhPlay
+                                :size="12"
+                                class="rotate-90 text-white/20"
+                            />
+                        </div>
+                    </div>
+                </div>
 
-                                    <!-- Embedded Mentor Card for Mentoring Actions -->
-                                    <div v-if="action.mentor" class="mt-3 mb-2">
-                                        <MentorCard
-                                            :mentor="
-                                                formatMentor(action.mentor)
-                                            "
-                                            @request="openSessionDialog(action)"
-                                        />
-                                        <div class="d-flex justify-end pr-2">
-                                            <v-btn
-                                                variant="text"
-                                                size="x-small"
-                                                color="primary"
-                                                prepend-icon="mdi-history"
-                                                @click="
+                <div
+                    v-if="activePathId === path.id"
+                    class="animate-in border-t border-white/10 p-6 duration-300 fade-in slide-in-from-top-2"
+                >
+                    <h4
+                        class="mb-6 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                    >
+                        {{ t('talent_development.actions_title') }} (70-20-10)
+                    </h4>
+
+                    <div
+                        class="relative space-y-8 pl-6 before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-px before:bg-white/10"
+                    >
+                        <div
+                            v-for="action in path.actions"
+                            :key="action.id"
+                            class="relative"
+                        >
+                            <div
+                                class="absolute top-1.5 -left-[23px] h-3 w-3 rounded-full border-2 border-slate-950 shadow-[0_0_0_2px_rgba(255,255,255,0.05)]"
+                                :class="getActionColorClass(action.type)"
+                            />
+
+                            <div
+                                class="group relative rounded-2xl border border-white/5 bg-white/5 p-4 transition-all hover:border-white/10"
+                            >
+                                <div
+                                    class="flex items-start justify-between gap-4"
+                                >
+                                    <div class="flex-1">
+                                        <div
+                                            class="mb-1 flex items-center gap-2"
+                                        >
+                                            <span
+                                                class="text-sm font-bold tracking-tight text-white"
+                                            >
+                                                {{ action.title }}
+                                            </span>
+                                            <StBadgeGlass
+                                                variant="glass"
+                                                size="sm"
+                                                class="text-[8px] opacity-50"
+                                            >
+                                                {{ action.strategy }}
+                                            </StBadgeGlass>
+                                        </div>
+                                        <p
+                                            class="mb-4 text-xs leading-relaxed text-white/50"
+                                        >
+                                            {{ action.description }}
+                                        </p>
+
+                                        <!-- Mentor Section -->
+                                        <div v-if="action.mentor" class="mb-4">
+                                            <MentorCard
+                                                :mentor="
+                                                    formatMentor(action.mentor)
+                                                "
+                                                @request="
                                                     openSessionDialog(action)
                                                 "
-                                            >
-                                                Bitácora de Sesiones
-                                            </v-btn>
-                                        </div>
-                                    </div>
-                                    <div
-                                        v-else-if="
-                                            action.type === 'mentoring' ||
-                                            action.type === 'mentorship'
-                                        "
-                                        class="mt-2"
-                                    >
-                                        <v-sheet
-                                            border
-                                            rounded
-                                            class="pa-3 bg-grey-lighten-4"
-                                        >
-                                            <div class="d-flex align-center">
-                                                <v-avatar
-                                                    color="secondary"
-                                                    size="32"
-                                                    class="mr-2"
+                                            />
+                                            <div class="flex justify-end pr-2">
+                                                <StButtonGlass
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    :icon="PhArrowsClockwise"
+                                                    @click="
+                                                        openSessionDialog(
+                                                            action,
+                                                        )
+                                                    "
                                                 >
-                                                    <v-icon
-                                                        icon="mdi-account-school"
-                                                        size="18"
-                                                        color="white"
-                                                    ></v-icon>
-                                                </v-avatar>
-                                                <div>
-                                                    <div
-                                                        class="text-caption font-weight-bold"
-                                                    >
-                                                        Buscando Mentor...
-                                                    </div>
-                                                    <div class="text-caption">
-                                                        Pendiente de asignación
-                                                    </div>
+                                                    {{
+                                                        t(
+                                                            'talent_development.session_log',
+                                                        )
+                                                    }}
+                                                </StButtonGlass>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            v-else-if="
+                                                action.type === 'mentoring' ||
+                                                action.type === 'mentorship'
+                                            "
+                                            class="mb-4 flex items-center gap-3 rounded-xl border border-white/5 bg-white/5 p-4"
+                                        >
+                                            <div
+                                                class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400"
+                                            >
+                                                <PhUsers :size="20" />
+                                            </div>
+                                            <div>
+                                                <div
+                                                    class="text-xs font-bold text-white"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'talent_development.searching_mentor',
+                                                        )
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'talent_development.pending_assignment',
+                                                        )
+                                                    }}
                                                 </div>
                                             </div>
-                                        </v-sheet>
-                                    </div>
+                                        </div>
 
-                                    <div class="d-flex align-center mt-1 gap-2">
-                                        <v-chip
-                                            size="x-small"
-                                            prepend-icon="mdi-clock-outline"
-                                            class="mr-1"
+                                        <!-- Action Footer -->
+                                        <div
+                                            class="flex flex-wrap items-center gap-4 border-t border-white/5 pt-4"
                                         >
-                                            {{ action.estimated_hours }}h
-                                        </v-chip>
+                                            <div
+                                                class="flex items-center gap-1.5 text-xs font-medium text-white/30"
+                                            >
+                                                <PhClock :size="14" />
+                                                {{ action.estimated_hours }}h
+                                            </div>
 
-                                        <v-menu transition="scale-transition">
-                                            <template
-                                                v-slot:activator="{ props }"
+                                            <div
+                                                class="flex items-center gap-2"
                                             >
-                                                <v-chip
-                                                    size="x-small"
-                                                    :color="
-                                                        getActionStatusColor(
-                                                            action.status,
-                                                        )
-                                                    "
-                                                    v-bind="props"
-                                                    class="cursor-pointer"
-                                                    :loading="
-                                                        updatingActionId ===
-                                                        action.id
-                                                    "
+                                                <div class="relative">
+                                                    <select
+                                                        class="cursor-pointer appearance-none rounded-lg border border-white/10 bg-white/5 py-1 pr-8 pl-2 text-[10px] font-black tracking-widest text-white/60 uppercase transition-all hover:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
+                                                        :value="action.status"
+                                                        @change="
+                                                            updateActionStatus(
+                                                                action.id,
+                                                                $event.target
+                                                                    .value,
+                                                            )
+                                                        "
+                                                        :disabled="
+                                                            updatingActionId ===
+                                                            action.id
+                                                        "
+                                                    >
+                                                        <option value="pending">
+                                                            {{
+                                                                t(
+                                                                    'talent_development.status.pending',
+                                                                )
+                                                            }}
+                                                        </option>
+                                                        <option
+                                                            value="in_progress"
+                                                        >
+                                                            {{
+                                                                t(
+                                                                    'talent_development.status.in_progress',
+                                                                )
+                                                            }}
+                                                        </option>
+                                                        <option
+                                                            value="completed"
+                                                        >
+                                                            {{
+                                                                t(
+                                                                    'talent_development.status.completed',
+                                                                )
+                                                            }}
+                                                        </option>
+                                                        <option
+                                                            value="cancelled"
+                                                        >
+                                                            {{
+                                                                t(
+                                                                    'talent_development.status.cancelled',
+                                                                )
+                                                            }}
+                                                        </option>
+                                                    </select>
+                                                    <div
+                                                        class="pointer-events-none absolute top-1.5 right-2 text-white/40"
+                                                    >
+                                                        <div
+                                                            v-if="
+                                                                updatingActionId ===
+                                                                action.id
+                                                            "
+                                                            class="h-3 w-3 animate-spin rounded-full border border-white/20 border-t-white"
+                                                        />
+                                                        <PhPlay
+                                                            v-else
+                                                            :size="8"
+                                                            class="rotate-90"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <StBadgeGlass
+                                                    variant="glass"
+                                                    size="sm"
+                                                    class="text-[8px] opacity-40"
                                                 >
-                                                    {{ action.status }}
-                                                    <v-icon
-                                                        end
-                                                        icon="mdi-chevron-down"
-                                                        size="10"
-                                                    ></v-icon>
-                                                </v-chip>
-                                            </template>
-                                            <v-list
-                                                density="compact"
-                                                min-width="120"
+                                                    {{ action.type }}
+                                                </StBadgeGlass>
+                                            </div>
+
+                                            <div
+                                                class="ml-auto flex items-center gap-2"
                                             >
-                                                <v-list-item
-                                                    v-for="status in [
-                                                        'pending',
-                                                        'in_progress',
-                                                        'completed',
-                                                        'cancelled',
-                                                    ]"
-                                                    :key="status"
+                                                <StButtonGlass
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    :icon="PhPaperclip"
+                                                    circle
                                                     @click="
-                                                        updateActionStatus(
-                                                            action.id,
-                                                            status,
+                                                        openEvidenceDialog(
+                                                            action,
                                                         )
                                                     "
-                                                    :active="
-                                                        action.status === status
-                                                    "
-                                                    :color="
-                                                        getActionStatusColor(
-                                                            status,
+                                                    :title="
+                                                        t(
+                                                            'talent_development.manage_evidence',
                                                         )
                                                     "
+                                                />
+
+                                                <template
+                                                    v-if="action.lms_course_id"
                                                 >
-                                                    <v-list-item-title
-                                                        class="text-caption text-capitalize"
+                                                    <StButtonGlass
+                                                        variant="primary"
+                                                        size="sm"
+                                                        :icon="PhPlayCircle"
+                                                        @click="
+                                                            launchLms(action.id)
+                                                        "
+                                                        :title="
+                                                            t(
+                                                                'talent_development.launch_lms',
+                                                            )
+                                                        "
                                                     >
                                                         {{
-                                                            status.replace(
-                                                                '_',
-                                                                ' ',
+                                                            t(
+                                                                'talent_development.launch_btn',
                                                             )
                                                         }}
-                                                    </v-list-item-title>
-                                                </v-list-item>
-                                            </v-list>
-                                        </v-menu>
-
-                                        <v-chip
-                                            size="x-small"
-                                            color="grey"
-                                            variant="tonal"
-                                        >
-                                            {{ action.type }}
-                                        </v-chip>
-
-                                        <v-btn
-                                            icon="mdi-paperclip"
-                                            size="x-small"
-                                            variant="text"
-                                            color="grey"
-                                            @click="openEvidenceDialog(action)"
-                                            title="Gestionar Evidencias"
-                                        ></v-btn>
-
-                                        <template v-if="action.lms_course_id">
-                                            <v-btn
-                                                icon="mdi-play-network-outline"
-                                                size="x-small"
-                                                variant="text"
-                                                color="primary"
-                                                @click="launchLms(action.id)"
-                                                title="Lanzar Curso LMS"
-                                            ></v-btn>
-                                            <v-btn
-                                                icon="mdi-sync"
-                                                size="x-small"
-                                                variant="text"
-                                                color="success"
-                                                :loading="
-                                                    syncingLmsId === action.id
-                                                "
-                                                @click="
-                                                    syncLmsProgress(action.id)
-                                                "
-                                                title="Sincronizar Progreso"
-                                            ></v-btn>
-                                        </template>
+                                                    </StButtonGlass>
+                                                    <StButtonGlass
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        :icon="
+                                                            PhArrowsClockwise
+                                                        "
+                                                        circle
+                                                        @click="
+                                                            syncLmsProgress(
+                                                                action.id,
+                                                            )
+                                                        "
+                                                        :loading="
+                                                            syncingLmsId ===
+                                                            action.id
+                                                        "
+                                                        :title="
+                                                            t(
+                                                                'talent_development.sync_lms',
+                                                            )
+                                                        "
+                                                    />
+                                                </template>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </v-timeline-item>
-                        </v-timeline>
+                            </div>
+                        </div>
                     </div>
-                </v-expansion-panel-text>
-            </v-expansion-panel>
-        </v-expansion-panels>
+                </div>
+            </div>
+        </div>
     </div>
 
     <CreatePathDialog
@@ -300,12 +382,26 @@
 </template>
 
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import {
+    PhArrowsClockwise,
+    PhClock,
+    PhPaperclip,
+    PhPlay,
+    PhPlayCircle,
+    PhRoadHorizon,
+    PhUsers,
+} from '@phosphor-icons/vue';
 import axios from 'axios';
 import { onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import CreatePathDialog from './CreatePathDialog.vue';
 import EvidenceDialog from './EvidenceDialog.vue';
 import MentorCard from './MentorCard.vue';
 import MentorshipSessionDialog from './MentorshipSessionDialog.vue';
+
+const { t } = useI18n();
 
 const props = defineProps({
     personId: {
@@ -322,13 +418,17 @@ const paths = ref([]);
 const loading = ref(false);
 const updatingActionId = ref<number | null>(null);
 const syncingLmsId = ref<number | null>(null);
-const panel = ref(0);
+const activePathId = ref<number | null>(null);
 const createDialog = ref<InstanceType<typeof CreatePathDialog> | null>(null);
 const sessionDialog = ref<InstanceType<typeof MentorshipSessionDialog> | null>(
     null,
 );
 const evidenceDialog = ref<InstanceType<typeof EvidenceDialog> | null>(null);
 const selectedAction = ref<any>(null);
+
+const togglePath = (id: number) => {
+    activePathId.value = activePathId.value === id ? null : id;
+};
 
 const fetchPaths = async () => {
     loading.value = true;
@@ -337,6 +437,9 @@ const fetchPaths = async () => {
             params: { people_id: props.personId },
         });
         paths.value = response.data.data;
+        if (paths.value.length > 0 && !activePathId.value) {
+            activePathId.value = paths.value[0].id;
+        }
     } catch (e) {
         console.error('Error fetching development paths', e);
     } finally {
@@ -427,55 +530,29 @@ watch(
     },
 );
 
-const getStatusColor = (status) => {
+const getStatusVariant = (status) => {
     switch (status) {
         case 'active':
             return 'success';
         case 'draft':
-            return 'grey';
+            return 'glass';
         case 'completed':
-            return 'blue';
-        default:
             return 'primary';
-    }
-};
-
-const getActionStatusColor = (status) => {
-    switch (status) {
-        case 'completed':
-            return 'success';
-        case 'in_progress':
-            return 'warning';
-        case 'cancelled':
-            return 'error';
         default:
-            return 'grey';
+            return 'glass';
     }
 };
 
-const getStatusIcon = (status) => {
-    switch (status) {
-        case 'active':
-            return 'mdi-play-circle';
-        case 'draft':
-            return 'mdi-pencil-circle';
-        case 'completed':
-            return 'mdi-check-circle';
-        default:
-            return 'mdi-circle-outline';
-    }
-};
-
-const getActionColor = (type) => {
+const getActionColorClass = (type) => {
     switch (type) {
         case 'training':
-            return 'info'; // Build (Course)
+            return 'bg-blue-400';
         case 'mentoring':
-            return 'success'; // Borrow (Mentor)
+            return 'bg-emerald-400';
         case 'project':
-            return 'warning'; // Apply (Project)
+            return 'bg-amber-400';
         default:
-            return 'grey';
+            return 'bg-slate-400';
     }
 };
 </script>

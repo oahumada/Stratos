@@ -12,16 +12,50 @@ import configJson from './people-form/config.json';
 import filtersJson from './people-form/filters.json';
 import itemFormJson from './people-form/itemForm.json';
 
-import AssessmentChat from '@/components/Assessments/AssessmentChat.vue';
-import FeedbackRequestDialog from '@/components/Assessments/FeedbackRequestDialog.vue';
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import AssessmentChat from '@/components/Talent/AssessmentChat.vue';
 import DevelopmentTab from '@/components/Talent/DevelopmentTab.vue';
+import FeedbackRequestDialog from '@/components/Talent/FeedbackRequestDialog.vue';
+import {
+    PhArrowsClockwise,
+    PhBuildings,
+    PhCalendar,
+    PhChartPolar,
+    PhCornersOut,
+    PhEnvelope,
+    PhEyeSlash,
+    PhRoadHorizon,
+    PhRocketLaunch,
+    PhTimer,
+    PhUser,
+    PhX,
+} from '@phosphor-icons/vue';
+import { useI18n } from 'vue-i18n';
 import tableConfigJson from './people-form/tableConfig.json';
 
 defineOptions({ layout: AppLayout });
 
+const { t } = useI18n();
+
 // Load configs from JSON files
-const config: Config = configJson as Config;
-const tableConfig: TableConfig = tableConfigJson as unknown as TableConfig;
+const config: Config = {
+    ...configJson,
+    titulo: t('people_module.title'),
+    descripcion: t('people_module.description'),
+} as Config;
+
+const tableConfig: TableConfig = {
+    ...tableConfigJson,
+    headers: (tableConfigJson.headers as any[]).map((h) => ({
+        ...h,
+        text:
+            h.value === 'actions'
+                ? ''
+                : t(`form_schema.headers.${h.value}`, h.text),
+    })),
+} as unknown as TableConfig;
+
 const itemForm: ItemForm = itemFormJson as unknown as ItemForm;
 const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
@@ -61,214 +95,348 @@ const handleRefresh = () => {
         :enable-row-detail="true"
     >
         <template #detail="{ item, tab, setTab, sync, close }">
-            <v-card flat border class="pa-3">
-                <div class="text-h6 font-weight-bold">
-                    {{ item.first_name }} {{ item.last_name }}
-                </div>
-                <div class="text-body-2 text-secondary">{{ item.email }}</div>
-                <div class="text-body-2">
-                    Depto: {{ item.department?.name || item.department_id }}
-                </div>
-                <div class="text-body-2">
-                    Rol: {{ item.role?.name || item.role_id }}
-                </div>
-                <div class="text-body-2">
-                    Hired: {{ formatDate(item.hire_date) }}
-                </div>
-            </v-card>
-
-            <div class="d-flex align-center justify-space-between mt-4">
-                <v-tabs
-                    :model-value="tab"
-                    density="compact"
-                    color="primary"
-                    @update:modelValue="setTab"
+            <div
+                class="relative mb-6 overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+            >
+                <div
+                    class="flex flex-col items-start justify-between gap-4 md:flex-row"
                 >
-                    <v-tab value="active">Skills Activas</v-tab>
-                    <v-tab value="psychometric">Potencial AI</v-tab>
-                    <v-tab value="development">Desarrollo</v-tab>
-                    <v-tab value="history">Historial</v-tab>
-                </v-tabs>
-                <div class="d-flex align-center gap-2">
-                    <v-btn
-                        size="small"
-                        color="primary"
-                        variant="tonal"
-                        prepend-icon="mdi-sync"
-                        @click="sync"
-                    >
-                        Sincronizar con rol
-                    </v-btn>
-                    <v-btn
-                        size="small"
-                        color="primary"
-                        variant="elevated"
-                        prepend-icon="mdi-account-details"
-                        @click="$inertia.visit(`/people/${item.id}`)"
-                    >
-                        Ver Perfil Completo
-                    </v-btn>
-                    <v-btn
-                        size="small"
-                        variant="text"
-                        icon="mdi-close"
-                        @click="close"
-                    />
-                </div>
-            </div>
-
-            <v-window :model-value="tab" class="mt-3">
-                <v-window-item value="active">
-                    <v-card flat border class="pa-3" v-if="item.skills?.length">
-                        <div class="text-subtitle-2 mb-2">Skills activas</div>
-                        <div class="d-flex flex-wrap gap-2">
-                            <v-chip
-                                v-for="skill in item.skills"
-                                :key="skill.id"
-                                size="small"
-                                class="text-capitalize"
-                                :color="
-                                    skill.pivot?.current_level >=
-                                    skill.pivot?.required_level
-                                        ? 'success'
-                                        : 'warning'
-                                "
-                                variant="tonal"
-                            >
-                                {{ skill.name }} ({{
-                                    skill.pivot?.current_level
-                                }}/{{ skill.pivot?.required_level }})
-                            </v-chip>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-16 w-16 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-500/10 shadow-lg shadow-indigo-500/20"
+                        >
+                            <PhUser :size="32" class="text-indigo-400" />
                         </div>
-                    </v-card>
-                    <v-alert
-                        v-else
-                        type="info"
-                        density="comfortable"
-                        variant="tonal"
-                    >
-                        Sin skills activas en el pivote `people_role_skills`.
-                    </v-alert>
-                </v-window-item>
-
-                <v-window-item value="psychometric">
-                    <div v-if="item.psychometric_profiles?.length" class="pa-1">
-                        <v-alert
-                            type="success"
-                            variant="tonal"
-                            class="mb-4"
-                            density="compact"
-                        >
-                            {{
-                                item.metadata?.summary_report ||
-                                'Perfil analizado satisfactoriamente.'
-                            }}
-                        </v-alert>
-
-                        <v-alert
-                            v-if="item.metadata?.blind_spots?.length"
-                            type="warning"
-                            variant="tonal"
-                            class="mb-4"
-                            density="compact"
-                            icon="mdi-eye-off"
-                        >
-                            <template #title
-                                >Visualización de Puntos Ciegos</template
+                        <div>
+                            <h2
+                                class="text-2xl font-black tracking-tight text-white"
                             >
-                            <ul class="mt-2 pl-4">
-                                <li
-                                    v-for="(spot, i) in item.metadata
-                                        .blind_spots"
-                                    :key="i"
+                                {{ item.first_name }} {{ item.last_name }}
+                            </h2>
+                            <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                                <span
+                                    class="flex items-center gap-1.5 text-xs font-medium text-white/50"
                                 >
-                                    {{ spot }}
-                                </li>
-                            </ul>
-                        </v-alert>
-
-                        <div class="text-subtitle-2 mb-3">
-                            Rasgos y Aptitudes Detectadas
+                                    <PhEnvelope :size="14" />
+                                    {{ item.email }}
+                                </span>
+                                <span
+                                    class="flex items-center gap-1.5 text-xs font-medium text-white/50"
+                                >
+                                    <PhBuildings :size="14" />
+                                    {{
+                                        item.department?.name ||
+                                        item.department_id
+                                    }}
+                                </span>
+                                <span
+                                    class="flex items-center gap-1.5 text-xs font-medium text-white/50"
+                                >
+                                    <PhCalendar :size="14" />
+                                    {{ t('people_module.profile.hired') }}:
+                                    {{ formatDate(item.hire_date) }}
+                                </span>
+                            </div>
                         </div>
-                        <v-row>
-                            <v-col
-                                v-for="trait in item.psychometric_profiles"
-                                :key="trait.id"
-                                cols="12"
-                                md="6"
+                    </div>
+                </div>
+
+                <div
+                    class="mt-8 flex flex-col items-center justify-between border-t border-white/5 pt-6 md:flex-row"
+                >
+                    <div
+                        class="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0"
+                    >
+                        <button
+                            v-for="tValue in [
+                                {
+                                    val: 'active',
+                                    icon: PhChartPolar,
+                                    label: t(
+                                        'people_module.tabs.active_skills',
+                                    ),
+                                },
+                                {
+                                    val: 'psychometric',
+                                    icon: PhRocketLaunch,
+                                    label: t('people_module.tabs.potential'),
+                                },
+                                {
+                                    val: 'development',
+                                    icon: PhRoadHorizon,
+                                    label: t('talent_development.title'),
+                                },
+                                {
+                                    val: 'history',
+                                    icon: PhTimer,
+                                    label: t('people_module.tabs.history'),
+                                },
+                            ]"
+                            :key="tValue.val"
+                            @click="setTab(tValue.val)"
+                            :class="[
+                                'flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold tracking-tight transition-all duration-300',
+                                tab === tValue.val
+                                    ? 'border border-indigo-500/30 bg-indigo-500/20 text-indigo-300'
+                                    : 'border border-transparent text-white/40 hover:bg-white/5 hover:text-white',
+                            ]"
+                        >
+                            <component :is="tValue.icon" :size="18" />
+                            {{ tValue.label }}
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <StButtonGlass
+                            size="sm"
+                            variant="secondary"
+                            :icon="PhArrowsClockwise"
+                            @click="sync"
+                        >
+                            {{ t('people_module.profile.sync_btn') }}
+                        </StButtonGlass>
+                        <StButtonGlass
+                            size="sm"
+                            variant="primary"
+                            :icon="PhCornersOut"
+                            @click="$inertia.visit(`/people/${item.id}`)"
+                        >
+                            {{ t('people_module.profile.view_profile') }}
+                        </StButtonGlass>
+                        <StButtonGlass
+                            size="sm"
+                            variant="ghost"
+                            :icon="PhX"
+                            circle
+                            @click="close"
+                        />
+                    </div>
+                </div>
+
+                <div
+                    class="mt-6 animate-in duration-500 fade-in slide-in-from-top-4"
+                >
+                    <div v-if="tab === 'active'">
+                        <div v-if="item.skills?.length" class="space-y-4">
+                            <h3
+                                class="text-xs font-black tracking-widest text-white/30 uppercase"
                             >
-                                <v-card
-                                    flat
-                                    border
-                                    class="pa-3 bg-light-blue-lighten-5"
+                                {{ t('people_module.skills.title') }}
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                <div
+                                    v-for="skill in item.skills"
+                                    :key="skill.id"
+                                    class="group flex items-center gap-3 rounded-2xl border border-white/5 bg-white/5 p-3 pr-4 transition-colors hover:bg-white/10"
                                 >
                                     <div
-                                        class="d-flex justify-space-between align-center mb-1"
+                                        class="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 transition-transform group-hover:scale-110"
+                                    >
+                                        <PhChartPolar :size="20" />
+                                    </div>
+                                    <div>
+                                        <div
+                                            class="text-sm font-bold tracking-tight text-white uppercase"
+                                        >
+                                            {{ skill.name }}
+                                        </div>
+                                        <div
+                                            class="mt-0.5 flex items-center gap-2"
+                                        >
+                                            <StBadgeGlass
+                                                :variant="
+                                                    skill.pivot
+                                                        ?.current_level >=
+                                                    skill.pivot?.required_level
+                                                        ? 'success'
+                                                        : 'warning'
+                                                "
+                                            >
+                                                {{ skill.pivot?.current_level }}
+                                                /
+                                                {{
+                                                    skill.pivot?.required_level
+                                                }}
+                                            </StBadgeGlass>
+                                            <span
+                                                class="text-[10px] font-bold tracking-widest text-white/30 uppercase"
+                                            >
+                                                {{
+                                                    t(
+                                                        'people_module.skills.level_label',
+                                                    )
+                                                }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            v-else
+                            class="flex flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/5 py-12 text-center"
+                        >
+                            <div
+                                class="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 text-white/20"
+                            >
+                                <PhChartPolar :size="32" />
+                            </div>
+                            <div class="text-sm font-medium text-white/40">
+                                {{ t('people_module.skills.empty') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="tab === 'psychometric'">
+                        <div
+                            v-if="item.psychometric_profiles?.length"
+                            class="space-y-6"
+                        >
+                            <div
+                                class="flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-400"
+                            >
+                                <PhRocketLaunch :size="24" />
+                                <div class="text-sm font-medium">
+                                    {{
+                                        item.metadata?.summary_report ||
+                                        t('people_module.potential.analyzed_ok')
+                                    }}
+                                </div>
+                            </div>
+
+                            <div
+                                v-if="item.metadata?.blind_spots?.length"
+                                class="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-5"
+                            >
+                                <div
+                                    class="mb-3 flex items-center gap-3 text-amber-400"
+                                >
+                                    <PhEyeSlash :size="20" />
+                                    <h4
+                                        class="text-sm font-black tracking-widest uppercase"
+                                    >
+                                        {{
+                                            t(
+                                                'people_module.potential.blind_spots',
+                                            )
+                                        }}
+                                    </h4>
+                                </div>
+                                <ul class="space-y-2">
+                                    <li
+                                        v-for="(spot, i) in item.metadata
+                                            .blind_spots"
+                                        :key="i"
+                                        class="flex items-start gap-2 text-sm text-white/70"
                                     >
                                         <div
-                                            class="text-caption font-weight-bold text-uppercase"
+                                            class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500"
+                                        />
+                                        {{ spot }}
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div
+                                    v-for="trait in item.psychometric_profiles"
+                                    :key="trait.id"
+                                    class="rounded-2xl border border-white/10 bg-white/5 p-5 transition-colors hover:border-indigo-500/30"
+                                >
+                                    <div
+                                        class="mb-3 flex items-end justify-between"
+                                    >
+                                        <span
+                                            class="text-[10px] font-black tracking-widest text-white/40 uppercase"
                                         >
                                             {{ trait.trait_name }}
-                                        </div>
-                                        <div class="text-h6 font-weight-black">
+                                        </span>
+                                        <span
+                                            class="text-xl font-black text-white"
+                                        >
                                             {{
                                                 (trait.score * 100).toFixed(0)
                                             }}%
-                                        </div>
+                                        </span>
                                     </div>
-                                    <v-progress-linear
-                                        :model-value="trait.score * 100"
-                                        color="primary"
-                                        height="6"
-                                        rounded
-                                    ></v-progress-linear>
                                     <div
-                                        class="text-caption mt-2 line-clamp-2 text-secondary"
+                                        class="h-2 w-full overflow-hidden rounded-full border border-white/5 bg-white/5"
+                                    >
+                                        <div
+                                            class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400"
+                                            :style="{
+                                                width: `${trait.score * 100}%`,
+                                            }"
+                                        />
+                                    </div>
+                                    <p
+                                        class="mt-3 text-xs leading-relaxed text-white/50"
                                     >
                                         {{ trait.rationale }}
-                                    </div>
-                                </v-card>
-                            </v-col>
-                        </v-row>
+                                    </p>
+                                </div>
+                            </div>
 
-                        <v-divider class="my-4"></v-divider>
-                        <div class="d-flex justify-center gap-3">
-                            <v-btn
-                                size="small"
-                                variant="text"
-                                color="primary"
-                                prepend-icon="mdi-refresh"
-                            >
-                                Re-evaluar Potencial
-                            </v-btn>
-                            <FeedbackRequestDialog
-                                :subject-id="item.id"
-                                @requested="handleRefresh"
+                            <div class="flex justify-center gap-4 pt-4">
+                                <StButtonGlass
+                                    variant="ghost"
+                                    :icon="PhArrowsClockwise"
+                                    @click="handleRefresh"
+                                >
+                                    {{
+                                        t(
+                                            'people_module.potential.reevaluate_btn',
+                                        )
+                                    }}
+                                </StButtonGlass>
+                                <FeedbackRequestDialog
+                                    :subject-id="item.id"
+                                    @requested="handleRefresh"
+                                />
+                            </div>
+                        </div>
+                        <div
+                            v-else
+                            class="overflow-hidden rounded-3xl border border-white/10"
+                        >
+                            <AssessmentChat
+                                :person-id="item.id"
+                                @completed="handleRefresh"
+                                class="w-full"
                             />
                         </div>
                     </div>
-                    <div v-else>
-                        <AssessmentChat
+
+                    <div v-if="tab === 'development'" class="space-y-4">
+                        <DevelopmentTab
                             :person-id="item.id"
-                            @completed="handleRefresh"
+                            :skills="item.skills || []"
                         />
                     </div>
-                </v-window-item>
 
-                <v-window-item value="development">
-                    <DevelopmentTab
-                        :person-id="item.id"
-                        :skills="item.skills || []"
-                    />
-                </v-window-item>
-
-                <v-window-item value="history">
-                    <v-alert type="info" density="comfortable" variant="tonal">
-                        Historial no cargado (requiere endpoint de
-                        `people_role_skills` inactivos).
-                    </v-alert>
-                </v-window-item>
-            </v-window>
+                    <div v-if="tab === 'history'">
+                        <div
+                            class="flex flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/5 py-12 text-center"
+                        >
+                            <div
+                                class="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 text-white/20"
+                            >
+                                <PhTimer :size="32" />
+                            </div>
+                            <div
+                                class="max-w-sm text-sm font-medium text-white/40"
+                            >
+                                {{
+                                    t(
+                                        'talent_development.history.empty',
+                                        t('people_module.history.empty'),
+                                    )
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </template>
     </FormSchema>
 </template>
