@@ -9,9 +9,10 @@
 - **[QUICK_START.md](QUICK_START.md)** - Cómo empezar (5 minutos)
 - **[CHEATSHEET_COMANDOS.md](CHEATSHEET_COMANDOS.md)** - Comandos útiles
 - **[ROADMAP_ESTRATEGICO_2026.md](ROADMAP_ESTRATEGICO_2026.md)** - 🗺️ **VISIÓN LARGO PLAZO Y TALENTO 360**
-- **[PLAN_DE_ATAQUE_EXCELENCIA.md](PLAN_DE_ATAQUE_EXCELENCIA.md)** - ⭐⭐⭐ **VISIÓN Y PLAN DE ATAQUE**
-- **[DIA6_INICIO_RESUMEN.md](DIA6_INICIO_RESUMEN.md)** - ⭐ Resumen de Día 6 (leer hoy)
-- **[INTELIGENCIA_INDEX.md](INTELIGENCIA_INDEX.md)** - 🧠 **AI HUB: DeepSeek, Microservicio Python y Agentes** (Hito 18-Feb)
+- **[ROADMAP_STATUS_2026_02_27.md](ROADMAP_STATUS_2026_02_27.md)** - 📊 Status Report Feb 27
+- **[SESION_2026_03_01_RESUMEN.md](SESION_2026_03_01_RESUMEN.md)** - 📊 Status Report Mar 01 (Glass Refactor)
+- **[INTELIGENCIA_INDEX.md](INTELIGENCIA_INDEX.md)** - 🧠 **AI HUB: DeepSeek, Microservicio Python y Agentes**
+- **[STRATOS_GLASS_DESIGN_SYSTEM.md](STRATOS_GLASS_DESIGN_SYSTEM.md)** - 🌌 **SISTEMA DE DISEÑO PREMIUM** (Phosphor & Glass)
 
 ---
 
@@ -34,9 +35,11 @@
     - Pasos 1-9: Llenar archivos, verificar
     - Troubleshooting
 - **[PROGRESO_PRIORITY1_COMPLETO.md](PROGRESO_PRIORITY1_COMPLETO.md)** - ✅ Status Priority 1 - COMPLETADO
-    - People/Index.vue ✅, Roles/Index.vue ✅, Skills/Index.vue ✅
-    - Dashboard ✅, Marketplace ✅, GapAnalysis ✅, LearningPaths ✅
-    - 100% reutilización, sin duplicación
+- **[STRATOS_GLASS_DESIGN_SYSTEM.md](STRATOS_GLASS_DESIGN_SYSTEM.md)** - 🌌 **SISTEMA DE DISEÑO PREMIUM**
+    - Uso de **Phosphor Icons** (Migración de MDI)
+    - Componentes `StCardGlass`, `StButtonGlass`, `StBadgeGlass`
+    - Estándares de **i18n nativo** en Vue Components
+- **[SESION_2026_03_01_RESUMEN.md](SESION_2026_03_01_RESUMEN.md)** - 🔄 Refactorización Core & Estandarización Glass (Mar 2026)
 
 ---
 
