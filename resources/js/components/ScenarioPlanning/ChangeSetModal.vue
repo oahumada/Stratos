@@ -1,190 +1,525 @@
 <template>
-  <div class="changeset-modal" role="dialog" aria-modal="true" :aria-labelledby="`changeset-title-${id}`" tabindex="-1" ref="modalRef">
-    <h3 :id="`changeset-title-${id}`">{{ title }}</h3>
-    <div v-if="preview && preview.ops && preview.ops.length">
-      <p><strong>Operaciones:</strong> {{ preview.ops.length }}</p>
-      <ol>
-        <li v-for="(op, i) in preview.ops" :key="i" :class="opClass(op.type)">
-          <div class="op-header">
-            <div>
-              <span class="op-badge">{{ opIcon(op.type) }}</span>
-              <strong>{{ i + 1 }}.</strong>
-              <em class="op-type">{{ op.type }}</em>
-            </div>
-            <div class="op-actions">
-              <button type="button" @click="toggle(i)" :aria-expanded="!collapsed[i]" :aria-controls="`op-details-${i}`">{{ collapsed[i] ? 'Mostrar' : 'Ocultar' }}</button>
-              <button type="button" @click="ignoreOp(i)" :aria-label="`Ignorar operación ${i + 1}: ${op.type}`">Ignorar</button>
-              <button type="button" @click="revertOp(i)" :aria-label="preview.ops[i] && preview.ops[i]._reverted ? `Deshacer revertir operación ${i + 1}` : `Revertir operación ${i + 1}`">{{ preview.ops[i] && preview.ops[i]._reverted ? 'Deshacer Revertir' : 'Revertir' }}</button>
-            </div>
-          </div>
-          <transition name="fade">
-            <div v-show="!collapsed[i]" class="op-details" :id="`op-details-${i}`">
-              <div v-if="op.payload && typeof op.payload === 'object' && !showRaw[i]">
-                <div class="op-payload-summary">
-                  <div v-for="(val, key) in op.payload" :key="key" class="payload-row">
-                    <strong>{{ key }}:</strong>
-                    <span v-if="typeof val === 'object'">{{ JSON.stringify(val) }}</span>
-                    <span v-else>{{ String(val) }}</span>
-                  </div>
+    <v-dialog
+        v-model="internalShow"
+        max-width="800"
+        scrollable
+        @click:outside="handleClose"
+    >
+        <StCardGlass
+            variant="glass"
+            border-accent="indigo"
+            class="flex max-h-[85vh] flex-col overflow-hidden !bg-[#0f172a]/95 !p-0 backdrop-blur-xl"
+        >
+            <!-- Header -->
+            <div
+                class="flex shrink-0 items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4"
+            >
+                <div class="flex items-center gap-3">
+                    <div
+                        class="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/10"
+                    >
+                        <v-icon color="indigo-400" size="20"
+                            >mdi-source-pull</v-icon
+                        >
+                    </div>
+                    <div>
+                        <h3
+                            class="text-lg font-black text-white"
+                            :id="`changeset-title-${id}`"
+                        >
+                            {{ title || 'ChangeSet Review' }}
+                        </h3>
+                        <p
+                            class="text-[10px] font-bold tracking-widest text-white/50 uppercase"
+                            v-if="preview?.ops?.length"
+                        >
+                            {{ preview.ops.length }} Operations Detected
+                        </p>
+                    </div>
                 </div>
-              </div>
-              <pre v-else>{{ JSON.stringify(op, null, 2) }}</pre>
-              <div class="op-row-actions">
-                <button type="button" @click="copyOp(i)" :aria-label="`Copiar operación ${i + 1}`">Copiar op</button>
-                <button type="button" @click="toggleRaw(i)" :aria-label="`Alternar vista JSON ${i + 1}`">{{ showRaw[i] ? 'Ocultar JSON' : 'Ver JSON' }}</button>
-                <span v-if="op._reverted" class="op-reverted">Revertida</span>
-              </div>
+                <StButtonGlass
+                    variant="ghost"
+                    icon="mdi-close"
+                    size="sm"
+                    circle
+                    @click="handleClose"
+                />
             </div>
-          </transition>
-        </li>
-      </ol>
-    </div>
-    <div v-else>
-      <div v-if="preview && preview.ops && preview.ops.length === 0" class="no-ops">
-        <v-alert type="info" variant="tonal">No hay operaciones en este ChangeSet.</v-alert>
-      </div>
-      <pre v-else-if="preview">{{ JSON.stringify(preview, null, 2) }}</pre>
-      <div v-else>No preview available</div>
-    </div>
-    <div class="actions">
-      <button @click="$emit('close')">Cerrar</button>
-      <button @click="apply" :disabled="loading || !canApply">Aplicar</button>
-      <button v-if="canApply" @click="approve" :disabled="loading">Aprobar</button>
-      <button v-if="canApply" @click="reject" :disabled="loading">Rechazar</button>
-    </div>
-  </div>
+
+            <!-- Content -->
+            <div class="custom-scrollbar grow overflow-y-auto p-6">
+                <div v-if="preview && preview.ops && preview.ops.length">
+                    <div class="space-y-4">
+                        <div
+                            v-for="(op, i) in preview.ops"
+                            :key="i"
+                            class="overflow-hidden rounded-xl border border-white/5 bg-black/20 transition-all duration-200"
+                            :class="[
+                                op._ignored ? 'opacity-50 grayscale' : '',
+                                opClass(op.type).bgClass,
+                            ]"
+                        >
+                            <!-- Operation Header -->
+                            <div
+                                class="flex cursor-pointer items-center justify-between border-b border-white/5 px-4 py-3 transition-colors hover:bg-white/5"
+                                @click="toggle(i)"
+                            >
+                                <div class="flex items-center gap-3">
+                                    <span class="text-lg">{{
+                                        opIcon(op.type)
+                                    }}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="text-xs font-bold text-white/50"
+                                            >{{ i + 1 }}.</span
+                                        >
+                                        <StBadgeGlass
+                                            :variant="
+                                                opClass(op.type).badgeVariant
+                                            "
+                                            size="sm"
+                                        >
+                                            {{ op.type.toUpperCase() }}
+                                        </StBadgeGlass>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="flex items-center gap-2"
+                                    @click.stop
+                                >
+                                    <StBadgeGlass
+                                        v-if="op._reverted"
+                                        variant="secondary"
+                                        size="sm"
+                                        >Reverted</StBadgeGlass
+                                    >
+                                    <StButtonGlass
+                                        variant="ghost"
+                                        size="sm"
+                                        :icon="
+                                            op._ignored
+                                                ? 'mdi-eye-off'
+                                                : 'mdi-eye'
+                                        "
+                                        @click.stop="ignoreOp(i)"
+                                        title="Ignore Operation"
+                                    />
+                                    <StButtonGlass
+                                        variant="ghost"
+                                        size="sm"
+                                        :icon="
+                                            op._reverted
+                                                ? 'mdi-undo-variant'
+                                                : 'mdi-undo'
+                                        "
+                                        @click.stop="revertOp(i)"
+                                        :title="
+                                            op._reverted
+                                                ? 'Undo Revert'
+                                                : 'Revert Operation'
+                                        "
+                                    />
+                                    <StButtonGlass
+                                        variant="ghost"
+                                        size="sm"
+                                        :icon="
+                                            collapsed[i]
+                                                ? 'mdi-chevron-down'
+                                                : 'mdi-chevron-up'
+                                        "
+                                        @click.stop="toggle(i)"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Operation Details -->
+                            <div
+                                v-show="!collapsed[i]"
+                                class="p-4"
+                                :id="`op-details-${i}`"
+                            >
+                                <div
+                                    v-if="
+                                        op.payload &&
+                                        typeof op.payload === 'object' &&
+                                        !showRaw[i]
+                                    "
+                                    class="space-y-2"
+                                >
+                                    <div
+                                        class="space-y-1 rounded-lg border border-white/5 bg-white/2 p-3"
+                                    >
+                                        <div
+                                            v-for="(val, key) in op.payload"
+                                            :key="key"
+                                            class="grid grid-cols-12 gap-2 text-xs"
+                                        >
+                                            <div
+                                                class="col-span-3 font-semibold text-white/60 capitalize"
+                                            >
+                                                {{
+                                                    String(key).replace(
+                                                        /_/g,
+                                                        ' ',
+                                                    )
+                                                }}:
+                                            </div>
+                                            <div
+                                                class="col-span-9 font-mono break-words text-white/90"
+                                            >
+                                                <template
+                                                    v-if="
+                                                        typeof val === 'object'
+                                                    "
+                                                    >{{
+                                                        JSON.stringify(val)
+                                                    }}</template
+                                                >
+                                                <template v-else>{{
+                                                    String(val)
+                                                }}</template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <pre
+                                    v-else
+                                    class="custom-scrollbar overflow-x-auto rounded-lg border border-white/5 bg-black/40 p-3 font-mono text-[11px] text-white/80"
+                                    >{{ JSON.stringify(op, null, 2) }}</pre
+                                >
+
+                                <div
+                                    class="mt-3 flex items-center justify-end gap-2 border-t border-white/5 pt-3"
+                                >
+                                    <StButtonGlass
+                                        variant="ghost"
+                                        size="sm"
+                                        icon="mdi-content-copy"
+                                        @click="copyOp(i)"
+                                        >Copy Data</StButtonGlass
+                                    >
+                                    <StButtonGlass
+                                        variant="ghost"
+                                        size="sm"
+                                        :icon="
+                                            showRaw[i]
+                                                ? 'mdi-code-braces-box'
+                                                : 'mdi-code-json'
+                                        "
+                                        @click="toggleRaw(i)"
+                                    >
+                                        {{
+                                            showRaw[i]
+                                                ? 'Structured View'
+                                                : 'Raw JSON'
+                                        }}
+                                    </StButtonGlass>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    v-else
+                    class="flex flex-col items-center justify-center py-12 text-center"
+                >
+                    <div
+                        v-if="
+                            preview && preview.ops && preview.ops.length === 0
+                        "
+                    >
+                        <v-icon size="48" color="white/20" class="mb-4"
+                            >mdi-check-all</v-icon
+                        >
+                        <h4 class="font-medium text-white/60">
+                            No Operations Present
+                        </h4>
+                        <p class="mt-1 text-xs text-white/40">
+                            This ChangeSet does not contain any executable
+                            operations.
+                        </p>
+                    </div>
+                    <div v-else-if="preview">
+                        <pre
+                            class="custom-scrollbar w-full overflow-x-auto rounded-lg bg-black/40 p-4 text-left font-mono text-[11px] text-white/80"
+                            >{{ JSON.stringify(preview, null, 2) }}</pre
+                        >
+                    </div>
+                    <div v-else class="flex flex-col items-center gap-3">
+                        <v-progress-circular
+                            v-if="loading"
+                            indeterminate
+                            color="indigo-400"
+                            size="32"
+                        />
+                        <span class="text-xs font-medium text-white/40">{{
+                            loading
+                                ? 'Analyzing changes...'
+                                : 'No preview available'
+                        }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div
+                class="flex shrink-0 items-center justify-between border-t border-white/10 bg-black/20 px-6 py-4"
+            >
+                <StButtonGlass variant="ghost" @click="handleClose"
+                    >Close</StButtonGlass
+                >
+                <div class="flex items-center gap-3">
+                    <StButtonGlass
+                        v-if="canApply"
+                        variant="secondary"
+                        icon="mdi-close-circle"
+                        :disabled="loading"
+                        @click="reject"
+                        >Reject</StButtonGlass
+                    >
+                    <StButtonGlass
+                        v-if="canApply"
+                        variant="primary"
+                        icon="mdi-check-circle"
+                        class="!border-emerald-500/50 !bg-emerald-500/20 hover:!bg-emerald-500/30"
+                        :disabled="loading"
+                        @click="approve"
+                        >Approve</StButtonGlass
+                    >
+                    <StButtonGlass
+                        variant="primary"
+                        icon="mdi-play-circle"
+                        :loading="loading"
+                        :disabled="!canApply"
+                        @click="apply"
+                        >Execute Apply</StButtonGlass
+                    >
+                </div>
+            </div>
+        </StCardGlass>
+    </v-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { useChangeSetStore } from '@/stores/changeSetStore';
+import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 export default defineComponent({
-  props: {
-    id: { type: Number, required: true },
-    title: { type: String, default: 'ChangeSet' },
-  },
-  setup(props, { emit }) {
-    const store = useChangeSetStore();
-    const preview = ref<any>(null);
-    const loading = ref(false);
-    const canApply = ref(false);
+    components: { StCardGlass, StButtonGlass, StBadgeGlass },
+    props: {
+        id: { type: Number, required: true },
+        title: { type: String, default: 'ChangeSet' },
+        modelValue: { type: Boolean, default: true },
+    },
+    emits: ['close', 'update:modelValue'],
+    setup(props, { emit }) {
+        const store = useChangeSetStore();
+        const preview = ref<any>(null);
+        const loading = ref(false);
+        const canApply = ref(false);
 
-    const collapsed = ref<boolean[]>([]);
-    const ignored = ref<Record<number, boolean>>({});
-    const showRaw = ref<Record<number, boolean>>({});
-    const modalRef = ref<HTMLElement | null>(null);
+        const internalShow = ref(props.modelValue);
 
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' || e.key === 'Esc') {
-        emit('close');
-      }
-    };
+        watch(
+            () => props.modelValue,
+            (val) => {
+                internalShow.value = val;
+                if (val) loadPreview();
+            },
+        );
 
-    const loadPreview = async () => {
-      loading.value = true;
-      try {
-        const res = await store.previewChangeSet(props.id);
-        preview.value = res.preview ?? res.data ?? res;
-        const ops = preview.value?.ops ?? [];
-        collapsed.value = ops.map(() => false);
-        try {
-          const pem = await store.canApplyChangeSet(props.id);
-          canApply.value = pem?.can_apply ?? pem?.data?.can_apply ?? false;
-        } catch (e) {
-          canApply.value = false;
-        }
-      } finally {
-        loading.value = false;
-      }
-    };
+        const handleClose = () => {
+            internalShow.value = false;
+            emit('update:modelValue', false);
+            emit('close');
+        };
 
-    const fmt = (v: any) => {
-      try { return JSON.stringify(v, null, 2); } catch (e) { return String(v); }
-    };
+        const collapsed = ref<boolean[]>([]);
+        const ignored = ref<Record<number, boolean>>({});
+        const showRaw = ref<Record<number, boolean>>({});
 
-    const revertOp = (i: number) => {
-      if (!preview.value || !Array.isArray(preview.value.ops)) return;
-      const op = preview.value.ops[i];
-      if (!op) return;
-      op._reverted = !op._reverted;
-      if (op._reverted) {
-        ignored.value[i] = true;
-        preview.value.ops = preview.value.ops.map((o: any, idx: number) => (ignored.value[idx] ? { ...o, _ignored: true } : o)).filter((o: any) => !o._ignored);
-        collapsed.value = preview.value.ops.map(() => false);
-      } else {
-        ignored.value = {};
-        loadPreview();
-      }
-    };
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                handleClose();
+            }
+        };
 
-    const toggle = (i: number) => { collapsed.value[i] = !collapsed.value[i]; };
+        const loadPreview = async () => {
+            loading.value = true;
+            try {
+                const res = await store.previewChangeSet(props.id);
+                preview.value = res.preview ?? res.data ?? res;
+                const ops = preview.value?.ops ?? [];
+                collapsed.value = ops.map(() => false);
+                try {
+                    const pem = await store.canApplyChangeSet(props.id);
+                    canApply.value =
+                        pem?.can_apply ?? pem?.data?.can_apply ?? false;
+                } catch (error_) {
+                    canApply.value = false;
+                }
+            } finally {
+                loading.value = false;
+            }
+        };
 
-    const ignoreOp = (i: number) => {
-      ignored.value[i] = true;
-      if (preview.value && Array.isArray(preview.value.ops)) {
-        preview.value.ops = preview.value.ops.map((op: any, idx: number) => (ignored.value[idx] ? { ...op, _ignored: true } : op)).filter((o: any) => !o._ignored);
-      }
-    };
+        const revertOp = (i: number) => {
+            if (!preview.value || !Array.isArray(preview.value.ops)) return;
+            const op = preview.value.ops[i];
+            if (!op) return;
+            op._reverted = !op._reverted;
+            if (op._reverted) {
+                ignored.value[i] = true;
+                preview.value.ops = preview.value.ops
+                    .map((o: any, idx: number) =>
+                        ignored.value[idx] ? { ...o, _ignored: true } : o,
+                    )
+                    .filter((o: any) => !o._ignored);
+                collapsed.value = preview.value.ops.map(() => false);
+            } else {
+                ignored.value = {};
+                loadPreview();
+            }
+        };
 
-    const copyOp = (i: number) => {
-      const op = preview.value?.ops?.[i];
-      if (!op) return;
-      const text = JSON.stringify(op, null, 2);
-      navigator.clipboard?.writeText(text).catch(() => {});
-    };
+        const toggle = (i: number) => {
+            collapsed.value[i] = !collapsed.value[i];
+        };
 
-    const toggleRaw = (i: number) => { showRaw.value[i] = !showRaw.value[i]; };
+        const ignoreOp = (i: number) => {
+            ignored.value[i] = !ignored.value[i];
+            if (preview.value && Array.isArray(preview.value.ops)) {
+                preview.value.ops[i]._ignored = ignored.value[i];
+            }
+        };
 
-    const opClass = (type: string) => {
-      if (!type) return 'op-default';
-      if (type.startsWith('create')) return 'op-create';
-      if (type.startsWith('update')) return 'op-update';
-      if (type.startsWith('delete') || type.includes('sunset')) return 'op-delete';
-      return 'op-default';
-    };
+        const copyOp = (i: number) => {
+            const op = preview.value?.ops?.[i];
+            if (!op) return;
+            const text = JSON.stringify(op, null, 2);
+            navigator.clipboard?.writeText(text).catch(() => {});
+        };
 
-    const opIcon = (type: string) => {
-      if (!type) return '⚙️';
-      if (type.startsWith('create')) return '➕';
-      if (type.startsWith('update')) return '✏️';
-      if (type.startsWith('delete') || type.includes('sunset')) return '🗑️';
-      return '⚙️';
-    };
+        const toggleRaw = (i: number) => {
+            showRaw.value[i] = !showRaw.value[i];
+        };
 
-    const apply = async () => {
-      loading.value = true;
-      try {
-        const ignoredIndexes = Object.keys(ignored.value).filter((k) => ignored.value[Number(k)]).map((k) => Number(k));
-        const payload = ignoredIndexes.length ? { ignored_indexes: ignoredIndexes } : undefined;
-        await store.applyChangeSet(props.id, payload);
-        window.location.reload();
-      } finally { loading.value = false; }
-    };
+        const opClass = (type: string) => {
+            const t = String(type || '').toLowerCase();
+            if (t.startsWith('create'))
+                return {
+                    bgClass: 'border-l-4 border-l-emerald-500',
+                    badgeVariant: 'success',
+                };
+            if (t.startsWith('update'))
+                return {
+                    bgClass: 'border-l-4 border-l-amber-500',
+                    badgeVariant: 'secondary',
+                };
+            if (t.startsWith('delete') || t.includes('sunset'))
+                return {
+                    bgClass: 'border-l-4 border-l-rose-500',
+                    badgeVariant: 'danger',
+                };
+            return {
+                bgClass: 'border-l-4 border-l-indigo-400',
+                badgeVariant: 'primary',
+            };
+        };
 
-    const approve = async () => { loading.value = true; try { await store.approveChangeSet(props.id); window.location.reload(); } finally { loading.value = false; } };
-    const reject = async () => { loading.value = true; try { await store.rejectChangeSet(props.id); window.location.reload(); } finally { loading.value = false; } };
+        const opIcon = (type: string) => {
+            const t = String(type || '').toLowerCase();
+            if (t.startsWith('create')) return '➕';
+            if (t.startsWith('update')) return '✏️';
+            if (t.startsWith('delete') || t.includes('sunset')) return '🗑️';
+            return '⚙️';
+        };
 
-    onMounted(() => { nextTick(() => { try { modalRef.value?.focus(); } catch (e) {} window.addEventListener('keydown', onKeyDown); }); });
-    onBeforeUnmount(() => { window.removeEventListener('keydown', onKeyDown); });
+        const apply = async () => {
+            loading.value = true;
+            try {
+                const ignoredIndexes = Object.keys(ignored.value)
+                    .filter((k) => ignored.value[Number(k)])
+                    .map(Number);
+                const payload = ignoredIndexes.length
+                    ? { ignored_indexes: ignoredIndexes }
+                    : undefined;
+                await store.applyChangeSet(props.id, payload);
+                globalThis.location.reload();
+            } finally {
+                loading.value = false;
+            }
+        };
 
-    loadPreview();
+        const approve = async () => {
+            loading.value = true;
+            try {
+                await store.approveChangeSet(props.id);
+                globalThis.location.reload();
+            } finally {
+                loading.value = false;
+            }
+        };
+        const reject = async () => {
+            loading.value = true;
+            try {
+                await store.rejectChangeSet(props.id);
+                globalThis.location.reload();
+            } finally {
+                loading.value = false;
+            }
+        };
 
-    return { preview, loading, apply, canApply, approve, reject, collapsed, toggle, ignoreOp, copyOp, opClass, opIcon, revertOp, ignored, modalRef, showRaw, toggleRaw };
-  },
+        onMounted(() => {
+            globalThis.addEventListener('keydown', onKeyDown);
+            if (internalShow.value) loadPreview();
+        });
+        onBeforeUnmount(() => {
+            globalThis.removeEventListener('keydown', onKeyDown);
+        });
+
+        return {
+            preview,
+            loading,
+            apply,
+            canApply,
+            approve,
+            reject,
+            collapsed,
+            toggle,
+            ignoreOp,
+            copyOp,
+            opClass,
+            opIcon,
+            revertOp,
+            ignored,
+            showRaw,
+            toggleRaw,
+            internalShow,
+            handleClose,
+        };
+    },
 });
 </script>
 
 <style scoped>
-.changeset-modal { padding: 1rem; }
-.actions { margin-top: 1rem; }
-.op-create { background: #e6ffed; border-left: 4px solid #2ecc71; padding: 0.5rem; margin-bottom: 0.5rem; }
-.op-update { background: #fffbe6; border-left: 4px solid #f1c40f; padding: 0.5rem; margin-bottom: 0.5rem; }
-.op-delete { background: #ffecec; border-left: 4px solid #e74c3c; padding: 0.5rem; margin-bottom: 0.5rem; }
-.op-default { background: #f4f6f8; border-left: 4px solid #95a5a6; padding: 0.5rem; margin-bottom: 0.5rem; }
-.op-badge { margin-right: 0.5rem; }
-.op-type { margin-left: 0.5rem; color: #2c3e50; }
-.op-details { margin-top: 0.25rem; }
-.op-payload-summary { padding: 0.5rem; background: rgba(0,0,0,0.03); border-radius: 4px; }
-.payload-row { margin-bottom: 0.25rem; }
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3);
+}
 </style>

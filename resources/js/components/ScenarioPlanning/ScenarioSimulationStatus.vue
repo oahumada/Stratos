@@ -1,151 +1,185 @@
 <template>
     <div
-        class="simulation-status-panel glass-panel-strong pa-4 elevation-5 rounded-xl"
+        class="simulation-status-panel flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0f172a]/80 pt-0 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] backdrop-blur-xl"
         v-if="visible"
     >
-        <div class="d-flex align-center mb-4">
-            <v-avatar color="deep-orange-darken-4" size="40" class="mr-3">
-                <v-icon icon="mdi-molecule" color="white"></v-icon>
-            </v-avatar>
-            <div>
-                <div class="text-overline line-height-1 text-white opacity-70">
-                    Scenario IQ
+        <!-- Header -->
+        <div
+            class="flex items-center border-b border-white/5 bg-gradient-to-r from-indigo-500/10 to-transparent p-4"
+        >
+            <div
+                class="mr-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-orange-500/30 bg-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.2)]"
+            >
+                <v-icon
+                    icon="mdi-molecule"
+                    color="orange-400"
+                    size="20"
+                ></v-icon>
+            </div>
+            <div class="flex-grow">
+                <div
+                    class="mb-0.5 text-[9px] font-black tracking-widest text-indigo-400/80 uppercase"
+                >
+                    {{ $t('scenario_iq') }}
                 </div>
-                <div class="text-h6 font-weight-bold text-white">
-                    Simulación Activa
+                <div class="text-sm font-bold text-white">
+                    {{ $t('active_simulation') }}
                 </div>
             </div>
-            <v-spacer></v-spacer>
-            <v-chip size="x-small" color="success" variant="flat"
-                >IA ANALYZING</v-chip
+            <StBadgeGlass
+                variant="success"
+                size="sm"
+                class="animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.3)]"
             >
+                {{ $t('ai_analyzing') }}
+            </StBadgeGlass>
         </div>
 
-        <v-divider class="border-opacity-25 mb-4"></v-divider>
-
-        <v-row dense>
-            <v-col cols="6">
+        <div class="space-y-4 p-4">
+            <!-- Metrics Grid -->
+            <div class="grid grid-cols-2 gap-3">
                 <div
-                    class="metric-card glass-panel pa-3 rounded-lg text-center"
+                    class="rounded-xl border border-white/5 bg-white/5 p-3 text-center transition-colors hover:bg-white/10"
                 >
-                    <div class="text-caption text-white opacity-60">
-                        Probabilidad Éxito
+                    <div
+                        class="mb-1 text-[10px] font-bold tracking-wider text-white/50 uppercase"
+                    >
+                        {{ $t('success_prob') }}
                     </div>
-                    <div class="text-h5 font-weight-bold text-cyan-accent-2">
+                    <div class="text-xl font-black text-cyan-400">
                         {{ metrics.success_probability }}%
                     </div>
                 </div>
-            </v-col>
-            <v-col cols="6">
                 <div
-                    class="metric-card glass-panel pa-3 rounded-lg text-center"
+                    class="rounded-xl border border-white/5 bg-white/5 p-3 text-center transition-colors hover:bg-white/10"
                 >
-                    <div class="text-caption text-white opacity-60">
-                        Sinergia Estimada
-                    </div>
                     <div
-                        class="text-h5 font-weight-bold text-light-green-accent-3"
+                        class="mb-1 text-[10px] font-bold tracking-wider text-white/50 uppercase"
                     >
+                        {{ $t('est_synergy') }}
+                    </div>
+                    <div class="text-xl font-black text-emerald-400">
                         {{ metrics.synergy_score }}/10
                     </div>
                 </div>
-            </v-col>
-            <v-col cols="6">
                 <div
-                    class="metric-card glass-panel pa-3 rounded-lg text-center"
+                    class="rounded-xl border border-white/5 bg-white/5 p-3 text-center transition-colors hover:bg-white/10"
                 >
-                    <div class="text-caption text-white opacity-60">
-                        Fricción Cultural
+                    <div
+                        class="mb-1 text-[10px] font-bold tracking-wider text-white/50 uppercase"
+                    >
+                        {{ $t('cultural_friction') }}
                     </div>
-                    <div class="text-h5 font-weight-bold text-orange-accent-2">
+                    <div class="text-xl font-black text-orange-400">
                         {{ metrics.cultural_friction }}%
                     </div>
                 </div>
-            </v-col>
-            <v-col cols="6">
                 <div
-                    class="metric-card glass-panel pa-3 rounded-lg text-center"
+                    class="rounded-xl border border-white/5 bg-white/5 p-3 text-center transition-colors hover:bg-white/10"
                 >
-                    <div class="text-caption text-white opacity-60">
-                        Tiempo Pico Perfección
+                    <div
+                        class="mb-1 text-[10px] font-bold tracking-wider text-white/50 uppercase"
+                    >
+                        {{ $t('time_to_peak') }}
                     </div>
-                    <div class="text-h5 font-weight-bold text-purple-accent-1">
+                    <div class="text-xl font-black text-purple-400">
                         {{ metrics.time_to_peak }}m
                     </div>
                 </div>
-            </v-col>
-        </v-row>
-
-        <div class="mt-4">
-            <div class="text-caption mb-2 text-white opacity-70">
-                Resumen del Simulador Orgánico:
             </div>
-            <div class="text-body-2 line-clamp-3 text-white italic">
-                "La estructura propuesta presenta un alto acoplamiento en el
-                nodo de {{ metrics.key_node }}. Recomiendo fortalecer las
-                capacidades de {{ metrics.recommendation }} para mitigar riesgos
-                de ejecución."
-            </div>
-        </div>
 
-        <v-btn
-            block
-            color="white"
-            variant="tonal"
-            class="text-none mt-4"
-            prepend-icon="mdi-refresh"
-            size="small"
-            @click="$emit('re-run')"
-        >
-            Recalcular Escenario
-        </v-btn>
-
-        <v-btn
-            block
-            color="pink-darken-1"
-            class="text-none mt-2 shadow-lg"
-            prepend-icon="mdi-shield-check"
-            size="small"
-            :loading="mitigating"
-            @click="getMitigationPlan"
-        >
-            Generar Plan de Remediación
-        </v-btn>
-
-        <div v-if="mitigationPlan" class="animate-fade-in mt-4">
-            <v-divider class="border-opacity-25 mb-4"></v-divider>
-            <div
-                class="text-caption font-weight-bold mb-2 tracking-wider text-pink-300 uppercase"
-            >
-                Plan de Remediación (Sentinel):
-            </div>
-            <div class="space-y-2">
+            <!-- Organic Simulator Insight -->
+            <div>
                 <div
-                    v-for="(action, i) in mitigationPlan.actions"
-                    :key="i"
-                    class="pa-2 rounded border border-white/5 bg-white/5 text-xs text-white/80"
+                    class="mb-2 text-[10px] font-bold tracking-widest text-white/50 uppercase"
                 >
-                    • {{ action }}
+                    Organic Simulator Insight:
+                </div>
+                <div
+                    class="border-l-2 border-indigo-500/50 pl-3 text-xs leading-relaxed text-white/80 italic"
+                >
+                    "The proposed structure presents a high coupling at the
+                    {{ metrics.key_node }} node. I recommend strengthening the
+                    capabilities of {{ metrics.recommendation }} to mitigate
+                    execution risks."
                 </div>
             </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-2 border-t border-white/5 pt-2">
+                <StButtonGlass
+                    variant="ghost"
+                    class="w-full justify-center"
+                    icon="mdi-refresh"
+                    @click="$emit('re-run')"
+                >
+                    {{ $t('recalculate') }}
+                </StButtonGlass>
+
+                <StButtonGlass
+                    variant="primary"
+                    class="w-full justify-center !border-pink-500/50 !bg-pink-600/20 text-pink-100 shadow-[0_0_15px_rgba(236,72,153,0.2)] hover:!bg-pink-600/30"
+                    icon="mdi-shield-check"
+                    :loading="mitigating"
+                    @click="getMitigationPlan"
+                >
+                    {{ $t('generate_remediation') }}
+                </StButtonGlass>
+            </div>
+
+            <!-- Remediation Plan -->
             <div
-                class="pa-2 mt-3 rounded border border-cyan-500/20 bg-cyan-950/30 text-xs"
+                v-if="mitigationPlan"
+                class="mt-2 animate-in duration-500 fade-in slide-in-from-top-2"
             >
-                <v-icon
-                    icon="mdi-school"
-                    size="14"
-                    class="mr-1"
-                    color="cyan"
-                ></v-icon>
-                <strong>Capacitación:</strong> {{ mitigationPlan.training }}
+                <div class="border-t border-white/5 pt-4">
+                    <div
+                        class="mb-3 flex items-center gap-2 text-[10px] font-black tracking-widest text-pink-400 uppercase"
+                    >
+                        <v-icon
+                            icon="mdi-shield-star"
+                            size="14"
+                            color="pink-400"
+                        />
+                        {{ $t('sentinel_plan') }}
+                    </div>
+                    <div class="space-y-2">
+                        <div
+                            v-for="(action, i) in mitigationPlan.actions"
+                            :key="i"
+                            class="flex items-start gap-2 rounded-lg border border-pink-500/10 bg-pink-500/5 p-2.5 text-xs leading-relaxed text-white/80"
+                        >
+                            <span class="mt-0.5 text-pink-400">•</span>
+                            <span>{{ action }}</span>
+                        </div>
+                    </div>
+                    <div
+                        class="mt-3 flex items-start gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-3 text-xs text-cyan-100/90"
+                    >
+                        <v-icon
+                            icon="mdi-school"
+                            size="16"
+                            class="mt-0.5 shrink-0"
+                            color="cyan-400"
+                        ></v-icon>
+                        <div>
+                            <strong class="font-bold text-cyan-300">{{
+                                $t('training_target')
+                            }}</strong>
+                            {{ mitigationPlan.training }}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
 import axios from 'axios';
-import { defineEmits, defineProps, ref } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
     visible: { type: Boolean, default: true },
@@ -157,8 +191,8 @@ const props = defineProps({
             synergy_score: 8.4,
             cultural_friction: 12,
             time_to_peak: 6,
-            key_node: 'Arquitectura de Datos',
-            recommendation: 'MLOps y Gobernanza',
+            key_node: 'Data Architecture',
+            recommendation: 'MLOps & Governance',
         }),
     },
 });
@@ -183,7 +217,7 @@ const getMitigationPlan = async () => {
         );
         mitigationPlan.value = response.data.plan;
     } catch (error) {
-        console.error('Error al mitigar:', error);
+        console.error('Error computing mitigation:', error);
     } finally {
         mitigating.value = false;
     }
@@ -195,19 +229,7 @@ const getMitigationPlan = async () => {
     position: absolute;
     bottom: 24px;
     right: 24px;
-    width: 340px;
+    width: 360px;
     z-index: 100;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(15, 23, 42, 0.8) !important;
-}
-
-.glass-panel {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.line-height-1 {
-    line-height: 1;
 }
 </style>

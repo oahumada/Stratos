@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import { computed, ref } from 'vue';
@@ -31,14 +34,14 @@ const transitionNotes = ref('');
 const executionNotes = ref('');
 const targetStatus = ref('');
 
-// Dialog state para crear versión
+// Dialog state to create a version
 const versionName = ref('');
 const versionDescription = ref('');
 const versionNotes = ref('');
 const copySkills = ref(true);
 const copyStrategies = ref(true);
 
-// Botones de transición de decision_status
+// decision_status transition buttons
 const decisionTransitions = computed(() => {
     const status = props.scenario.decision_status;
     const buttons: Array<{
@@ -47,51 +50,56 @@ const decisionTransitions = computed(() => {
         icon: string;
         toStatus: string;
         disabled: boolean;
+        variant: 'primary' | 'secondary' | 'glass' | 'ghost' | 'danger';
     }> = [];
 
     if (status === 'draft') {
         buttons.push({
-            label: 'Enviar a Aprobación',
+            label: 'Submit for Approval',
             color: 'primary',
             icon: 'mdi-send',
             toStatus: 'pending_approval',
             disabled: false,
+            variant: 'primary',
         });
     }
 
     if (status === 'pending_approval') {
         buttons.push(
             {
-                label: 'Aprobar',
+                label: 'Approve',
                 color: 'success',
                 icon: 'mdi-check-circle',
                 toStatus: 'approved',
                 disabled: false,
+                variant: 'primary',
             },
             {
-                label: 'Rechazar',
+                label: 'Reject',
                 color: 'error',
                 icon: 'mdi-close-circle',
                 toStatus: 'rejected',
                 disabled: false,
+                variant: 'danger',
             },
         );
     }
 
     if (status === 'rejected') {
         buttons.push({
-            label: 'Volver a Borrador',
+            label: 'Return to Draft',
             color: 'grey',
             icon: 'mdi-undo',
             toStatus: 'draft',
             disabled: false,
+            variant: 'ghost',
         });
     }
 
     return buttons;
 });
 
-// Botones de ejecución
+// Execution buttons
 const executionActions = computed(() => {
     const execStatus = props.scenario.execution_status;
     const decisionStatus = props.scenario.decision_status;
@@ -102,37 +110,41 @@ const executionActions = computed(() => {
         action: string;
         disabled: boolean;
         tooltip?: string;
+        variant: 'primary' | 'secondary' | 'glass' | 'ghost' | 'danger';
     }> = [];
 
     if (decisionStatus !== 'approved') {
-        return []; // No mostrar botones de ejecución si no está aprobado
+        return []; // Do not show execution buttons if not approved
     }
 
     if (execStatus === 'planned' || execStatus === 'paused') {
         buttons.push({
-            label: 'Iniciar Ejecución',
+            label: 'Start Execution',
             color: 'success',
             icon: 'mdi-play',
             action: 'start',
             disabled: false,
+            variant: 'primary',
         });
     }
 
     if (execStatus === 'in_progress') {
         buttons.push(
             {
-                label: 'Pausar',
+                label: 'Pause',
                 color: 'warning',
                 icon: 'mdi-pause',
                 action: 'pause',
                 disabled: false,
+                variant: 'secondary',
             },
             {
-                label: 'Completar',
+                label: 'Complete',
                 color: 'primary',
                 icon: 'mdi-check-bold',
                 action: 'complete',
                 disabled: false,
+                variant: 'primary',
             },
         );
     }
@@ -151,8 +163,6 @@ const canEdit = computed(() => {
     return props.scenario.decision_status !== 'approved';
 });
 
-// `canDelete` removed — not used in template
-
 const canSyncFromParent = computed(() => {
     return (
         props.scenario.parent_id !== null &&
@@ -160,7 +170,7 @@ const canSyncFromParent = computed(() => {
     );
 });
 
-// Transicionar estado de decisión
+// Transition decision state
 const openTransitionDialog = (toStatus: string) => {
     targetStatus.value = toStatus;
     transitionNotes.value = '';
@@ -177,18 +187,18 @@ const confirmTransition = async () => {
                 notes: transitionNotes.value || null,
             },
         );
-        showSuccess(`Estado transicionado a '${targetStatus.value}'`);
+        showSuccess(`State transitioned to '${targetStatus.value}'`);
         showTransitionDialog.value = false;
         emit('statusChanged');
         emit('refresh');
     } catch (error: any) {
-        showError(error?.message || 'Error al transicionar estado');
+        showError(error?.message || 'Failed to transition state');
     } finally {
         loading.value = false;
     }
 };
 
-// Acciones de ejecución
+// Execution actions
 const executeAction = async (action: string) => {
     loading.value = true;
     try {
@@ -199,14 +209,14 @@ const executeAction = async (action: string) => {
             },
         );
         showSuccess(
-            `Ejecución ${action === 'start' ? 'iniciada' : action === 'pause' ? 'pausada' : 'completada'}`,
+            `Execution ${action === 'start' ? 'started' : action === 'pause' ? 'paused' : 'completed'}`,
         );
         showExecutionDialog.value = false;
         executionNotes.value = '';
         emit('statusChanged');
         emit('refresh');
     } catch (error: any) {
-        showError(error?.message || `Error al ${action} ejecución`);
+        showError(error?.message || `Failed to ${action} execution`);
     } finally {
         loading.value = false;
     }
@@ -218,23 +228,23 @@ const openExecutionDialog = (action: string) => {
     showExecutionDialog.value = true;
 };
 
-// Sincronizar desde padre
+// Sync from parent
 const syncFromParent = async () => {
     loading.value = true;
     try {
         const res = await api.post(
             `/api/strategic-planning/scenarios/${props.scenario.id}/sync-parent`,
         );
-        showSuccess(res.message || 'Skills sincronizadas desde el padre');
+        showSuccess(res.message || 'Skills synchronized from parent');
         emit('refresh');
     } catch (error: any) {
-        showError(error?.message || 'Error al sincronizar skills');
+        showError(error?.message || 'Failed to sync skills');
     } finally {
         loading.value = false;
     }
 };
 
-// Crear nueva versión (inmutabilidad)
+// Create new version (immutability)
 const openVersionDialog = () => {
     showVersionDialog.value = true;
 };
@@ -246,42 +256,45 @@ const createNewVersion = async (payload: any) => {
             `/api/strategic-planning/scenarios/${props.scenario.id}/versions`,
             payload,
         );
-        showSuccess(res.message || 'Nueva versión creada');
+        showSuccess(res.message || 'New version created');
         showVersionDialog.value = false;
         emit('refresh');
-        // Redirigir a la nueva versión
+        // Redirect to new version
         if (res.data?.id) {
             globalThis.location.href = `/strategic-planning/scenarios/${res.data.id}`;
         }
     } catch (error: any) {
-        showError(error?.message || 'Error al crear versión');
+        showError(error?.message || 'Failed to create version');
     } finally {
         loading.value = false;
     }
 };
 
-// Estados para UI
+// UI States
 const decisionStatusBadge = computed(() => {
     const status = props.scenario.decision_status;
-    const map: Record<string, { color: string; text: string; icon: string }> = {
+    const map: Record<
+        string,
+        { color: 'glass' | 'primary' | 'secondary'; text: string; icon: string }
+    > = {
         draft: {
-            color: 'grey',
-            text: 'Borrador',
+            color: 'glass',
+            text: 'Draft',
             icon: 'mdi-file-document-edit',
         },
         pending_approval: {
-            color: 'warning',
-            text: 'Pendiente Aprobación',
+            color: 'secondary',
+            text: 'Pending Approval',
             icon: 'mdi-clock-alert',
         },
         approved: {
-            color: 'success',
-            text: 'Aprobado',
+            color: 'primary',
+            text: 'Approved',
             icon: 'mdi-check-circle',
         },
         rejected: {
-            color: 'error',
-            text: 'Rechazado',
+            color: 'secondary',
+            text: 'Rejected',
             icon: 'mdi-close-circle',
         },
     };
@@ -290,21 +303,32 @@ const decisionStatusBadge = computed(() => {
 
 const executionStatusBadge = computed(() => {
     const status = props.scenario.execution_status;
-    const map: Record<string, { color: string; text: string; icon: string }> = {
+    const map: Record<
+        string,
+        {
+            color: 'glass' | 'primary' | 'secondary' | 'success';
+            text: string;
+            icon: string;
+        }
+    > = {
         planned: {
-            color: 'grey-lighten-1',
-            text: 'Planificado',
+            color: 'glass',
+            text: 'Planned',
             icon: 'mdi-calendar-clock',
         },
         in_progress: {
             color: 'primary',
-            text: 'En Ejecución',
+            text: 'In Progress',
             icon: 'mdi-play-circle',
         },
-        paused: { color: 'warning', text: 'Pausado', icon: 'mdi-pause-circle' },
+        paused: {
+            color: 'secondary',
+            text: 'Paused',
+            icon: 'mdi-pause-circle',
+        },
         completed: {
             color: 'success',
-            text: 'Completado',
+            text: 'Completed',
             icon: 'mdi-check-circle-outline',
         },
     };
@@ -314,237 +338,312 @@ const executionStatusBadge = computed(() => {
 
 <template>
     <div class="scenario-actions-panel">
-        <!-- Badges de estado -->
-        <v-row class="mb-4">
-            <v-col cols="12" md="6">
-                <v-chip
-                    :color="decisionStatusBadge.color"
-                    :prepend-icon="decisionStatusBadge.icon"
-                    variant="flat"
-                    size="large"
-                    class="mr-2"
-                >
-                    {{ decisionStatusBadge.text }}
-                </v-chip>
-
-                <v-chip
-                    v-if="scenario.decision_status === 'approved'"
-                    :color="executionStatusBadge.color"
-                    :prepend-icon="executionStatusBadge.icon"
-                    variant="tonal"
-                    size="large"
-                >
-                    {{ executionStatusBadge.text }}
-                </v-chip>
-            </v-col>
-        </v-row>
-
-        <!-- Botones de transición de decisión -->
-        <v-row v-if="decisionTransitions.length > 0">
-            <v-col cols="12">
-                <div class="text-subtitle-2 text-medium-emphasis mb-2">
-                    Transiciones de Estado
-                </div>
-                <v-btn
-                    v-for="btn in decisionTransitions"
-                    :key="btn.toStatus"
-                    :color="btn.color"
-                    :prepend-icon="btn.icon"
-                    :disabled="btn.disabled"
-                    :loading="loading"
-                    variant="elevated"
-                    class="mr-2 mb-2"
-                    @click="openTransitionDialog(btn.toStatus)"
-                >
-                    {{ btn.label }}
-                </v-btn>
-            </v-col>
-        </v-row>
-
-        <!-- Botones de ejecución -->
-        <v-row v-if="executionActions.length > 0">
-            <v-col cols="12">
-                <div class="text-subtitle-2 text-medium-emphasis mb-2">
-                    Control de Ejecución
-                </div>
-                <v-btn
-                    v-for="btn in executionActions"
-                    :key="btn.action"
-                    :color="btn.color"
-                    :prepend-icon="btn.icon"
-                    :disabled="btn.disabled"
-                    :loading="loading"
-                    variant="elevated"
-                    class="mr-2 mb-2"
-                    @click="openExecutionDialog(btn.action)"
-                >
-                    {{ btn.label }}
-                </v-btn>
-            </v-col>
-        </v-row>
-
-        <!-- Botones de versionamiento y jerarquía -->
-        <v-row>
-            <v-col cols="12">
-                <v-divider class="my-4" />
-                <div class="text-subtitle-2 text-medium-emphasis mb-2">
-                    Acciones Adicionales
-                </div>
-
-                <v-btn
-                    v-if="canCreateVersion"
-                    color="purple"
-                    prepend-icon="mdi-content-copy"
-                    variant="outlined"
-                    class="mr-2 mb-2"
-                    :loading="loading"
-                    @click="openVersionDialog"
-                >
-                    Crear Nueva Versión
-                </v-btn>
-
-                <v-btn
-                    v-if="canSyncFromParent"
-                    color="info"
-                    prepend-icon="mdi-sync"
-                    variant="outlined"
-                    class="mr-2 mb-2"
-                    :loading="loading"
-                    @click="syncFromParent"
-                >
-                    Sincronizar Skills desde Padre
-                </v-btn>
-
-                <v-btn
-                    v-if="!canEdit"
-                    color="grey"
-                    prepend-icon="mdi-lock"
-                    variant="text"
-                    disabled
-                    class="mr-2 mb-2"
-                >
-                    Escenario Aprobado (Inmutable)
-                </v-btn>
-            </v-col>
-        </v-row>
-
-        <!-- Dialog: Confirmar transición -->
-        <v-dialog v-model="showTransitionDialog" max-width="500">
-            <v-card>
-                <v-card-title>Confirmar Transición</v-card-title>
-                <v-card-text>
-                    <p>
-                        ¿Confirmas transicionar el estado a
-                        <strong>{{ targetStatus }}</strong
-                        >?
-                    </p>
-                    <v-textarea
-                        v-model="transitionNotes"
-                        label="Notas (opcional)"
-                        rows="3"
-                        variant="outlined"
-                        class="mt-2"
-                    />
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer />
-                    <v-btn variant="text" @click="showTransitionDialog = false"
-                        >Cancelar</v-btn
+        <StCardGlass variant="glass" class="w-full">
+            <div class="flex flex-col gap-8 p-4">
+                <!-- Status Badges -->
+                <div class="flex flex-wrap items-center gap-4">
+                    <StBadgeGlass
+                        :variant="decisionStatusBadge.color"
+                        size="lg"
+                        class="shadow-sm"
                     >
-                    <v-btn
-                        color="primary"
+                        <v-icon
+                            :icon="decisionStatusBadge.icon"
+                            size="18"
+                            class="mr-2"
+                        />
+                        {{ decisionStatusBadge.text }}
+                    </StBadgeGlass>
+
+                    <StBadgeGlass
+                        v-if="scenario.decision_status === 'approved'"
+                        :variant="executionStatusBadge.color"
+                        size="lg"
+                    >
+                        <v-icon
+                            :icon="executionStatusBadge.icon"
+                            size="18"
+                            class="mr-2"
+                        />
+                        {{ executionStatusBadge.text }}
+                    </StBadgeGlass>
+                </div>
+
+                <!-- Decision Transition Buttons -->
+                <div
+                    v-if="decisionTransitions.length > 0"
+                    class="flex flex-col gap-3"
+                >
+                    <h4
+                        class="text-xs font-black tracking-widest text-white/50 uppercase"
+                    >
+                        State Transitions
+                    </h4>
+                    <div class="flex flex-wrap gap-3">
+                        <StButtonGlass
+                            v-for="btn in decisionTransitions"
+                            :key="btn.toStatus"
+                            :variant="btn.variant"
+                            :icon="btn.icon"
+                            :disabled="btn.disabled"
+                            :loading="loading"
+                            @click="openTransitionDialog(btn.toStatus)"
+                        >
+                            {{ btn.label }}
+                        </StButtonGlass>
+                    </div>
+                </div>
+
+                <!-- Execution Buttons -->
+                <div
+                    v-if="executionActions.length > 0"
+                    class="flex flex-col gap-3"
+                >
+                    <h4
+                        class="text-xs font-black tracking-widest text-white/50 uppercase"
+                    >
+                        Execution Control
+                    </h4>
+                    <div class="flex flex-wrap gap-3">
+                        <StButtonGlass
+                            v-for="btn in executionActions"
+                            :key="btn.action"
+                            :variant="btn.variant"
+                            :icon="btn.icon"
+                            :disabled="btn.disabled"
+                            :loading="loading"
+                            @click="openExecutionDialog(btn.action)"
+                        >
+                            {{ btn.label }}
+                        </StButtonGlass>
+                    </div>
+                </div>
+
+                <!-- Versioning and Hierarchy Buttons -->
+                <div class="flex flex-col gap-3 border-t border-white/10 pt-6">
+                    <h4
+                        class="text-xs font-black tracking-widest text-white/50 uppercase"
+                    >
+                        Additional Actions
+                    </h4>
+
+                    <div class="flex flex-wrap gap-3">
+                        <StButtonGlass
+                            v-if="canCreateVersion"
+                            variant="secondary"
+                            icon="mdi-content-copy"
+                            :loading="loading"
+                            @click="openVersionDialog"
+                            class="!border-purple-500/30 hover:!bg-purple-500/10"
+                        >
+                            Create New Version
+                        </StButtonGlass>
+
+                        <StButtonGlass
+                            v-if="canSyncFromParent"
+                            variant="glass"
+                            icon="mdi-sync"
+                            :loading="loading"
+                            @click="syncFromParent"
+                        >
+                            Sync Skills from Parent
+                        </StButtonGlass>
+
+                        <div
+                            v-if="!canEdit"
+                            class="flex items-center gap-2 rounded-lg border border-white/5 bg-white/5 px-4 py-2 opacity-60"
+                        >
+                            <v-icon icon="mdi-lock" size="16" color="white" />
+                            <span class="text-xs font-bold text-white"
+                                >Approved Scenario (Immutable)</span
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </StCardGlass>
+
+        <!-- Dialog: Confirm transition -->
+        <v-dialog v-model="showTransitionDialog" max-width="500">
+            <StCardGlass
+                variant="glass"
+                border-accent="indigo"
+                class="!bg-[#0f172a]/95 backdrop-blur-xl"
+            >
+                <div
+                    class="mb-4 flex items-center gap-3 border-b border-white/10 pb-4"
+                >
+                    <v-icon color="indigo-400">mdi-state-machine</v-icon>
+                    <h3 class="text-lg font-black text-white">
+                        Confirm Transition
+                    </h3>
+                </div>
+
+                <p class="mb-4 text-sm text-white/70">
+                    Are you sure you want to transition the state to
+                    <span class="font-bold text-white uppercase">{{
+                        targetStatus.replace('_', ' ')
+                    }}</span
+                    >?
+                </p>
+
+                <v-textarea
+                    v-model="transitionNotes"
+                    label="Notes (optional)"
+                    rows="3"
+                    variant="outlined"
+                    density="comfortable"
+                    bg-color="rgba(0,0,0,0.2)"
+                    class="mb-6"
+                    hide-details
+                />
+
+                <div class="flex justify-end gap-3">
+                    <StButtonGlass
+                        variant="ghost"
+                        @click="showTransitionDialog = false"
+                        >Cancel</StButtonGlass
+                    >
+                    <StButtonGlass
+                        variant="primary"
                         :loading="loading"
                         @click="confirmTransition"
-                        >Confirmar</v-btn
+                        >Confirm</StButtonGlass
                     >
-                </v-card-actions>
-            </v-card>
+                </div>
+            </StCardGlass>
         </v-dialog>
 
-        <!-- Dialog: Confirmar acción de ejecución -->
+        <!-- Dialog: Confirm execution action -->
         <v-dialog v-model="showExecutionDialog" max-width="500">
-            <v-card>
-                <v-card-title
-                    >Confirmar
-                    {{
-                        targetStatus === 'start'
-                            ? 'Inicio'
-                            : targetStatus === 'pause'
-                              ? 'Pausa'
-                              : 'Finalización'
-                    }}</v-card-title
+            <StCardGlass
+                variant="glass"
+                border-accent="indigo"
+                class="!bg-[#0f172a]/95 backdrop-blur-xl"
+            >
+                <div
+                    class="mb-4 flex items-center gap-3 border-b border-white/10 pb-4"
                 >
-                <v-card-text>
-                    <v-textarea
-                        v-model="executionNotes"
-                        label="Notas (opcional)"
-                        rows="3"
-                        variant="outlined"
-                    />
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer />
-                    <v-btn variant="text" @click="showExecutionDialog = false"
-                        >Cancelar</v-btn
+                    <v-icon color="indigo-400">mdi-lightning-bolt</v-icon>
+                    <h3 class="text-lg font-black text-white">
+                        Confirm
+                        {{
+                            targetStatus === 'start'
+                                ? 'Start'
+                                : targetStatus === 'pause'
+                                  ? 'Pause'
+                                  : 'Completion'
+                        }}
+                    </h3>
+                </div>
+
+                <v-textarea
+                    v-model="executionNotes"
+                    label="Notes (optional)"
+                    rows="3"
+                    variant="outlined"
+                    density="comfortable"
+                    bg-color="rgba(0,0,0,0.2)"
+                    class="mb-6"
+                    hide-details
+                />
+
+                <div class="flex justify-end gap-3">
+                    <StButtonGlass
+                        variant="ghost"
+                        @click="showExecutionDialog = false"
+                        >Cancel</StButtonGlass
                     >
-                    <v-btn
-                        color="primary"
+                    <StButtonGlass
+                        variant="primary"
                         :loading="loading"
                         @click="executeAction(targetStatus)"
-                        >Confirmar</v-btn
+                        >Confirm</StButtonGlass
                     >
-                </v-card-actions>
-            </v-card>
+                </div>
+            </StCardGlass>
         </v-dialog>
 
-        <!-- Dialog: Crear nueva versión -->
+        <!-- Dialog: Create new version -->
         <v-dialog v-model="showVersionDialog" max-width="600">
-            <v-card>
-                <v-card-title>Crear Nueva Versión (Inmutabilidad)</v-card-title>
-                <v-card-text>
-                    <p class="text-body-2 text-medium-emphasis mb-4">
-                        Se creará una copia editable del escenario actual. El
-                        escenario aprobado quedará inmutable.
-                    </p>
+            <StCardGlass
+                variant="glass"
+                border-accent="purple"
+                class="!bg-[#0f172a]/95 backdrop-blur-xl"
+            >
+                <div
+                    class="mb-4 flex items-center gap-3 border-b border-white/10 pb-4"
+                >
+                    <v-icon color="purple-400">mdi-source-branch</v-icon>
+                    <h3 class="text-lg font-black text-white">
+                        Create New Version (Immutability)
+                    </h3>
+                </div>
+
+                <p
+                    class="mb-6 text-xs leading-relaxed font-medium text-white/50"
+                >
+                    An editable copy of the current scenario will be created.
+                    The approved scenario will remain immutable.
+                </p>
+
+                <div class="mb-6 space-y-4">
                     <v-text-field
                         v-model="versionName"
-                        label="Nombre de la nueva versión *"
+                        label="New version name *"
                         variant="outlined"
-                        required
-                        class="mb-2"
+                        density="comfortable"
+                        bg-color="rgba(0,0,0,0.2)"
+                        hide-details
                     />
                     <v-textarea
                         v-model="versionDescription"
-                        label="Descripción"
+                        label="Description"
                         rows="2"
                         variant="outlined"
-                        class="mb-2"
+                        density="comfortable"
+                        bg-color="rgba(0,0,0,0.2)"
+                        hide-details
                     />
                     <v-textarea
                         v-model="versionNotes"
-                        label="Notas sobre cambios"
+                        label="Change notes"
                         rows="2"
                         variant="outlined"
-                        class="mb-2"
+                        density="comfortable"
+                        bg-color="rgba(0,0,0,0.2)"
+                        hide-details
                     />
-                    <v-checkbox
-                        v-model="copySkills"
-                        label="Copiar skills del escenario actual"
-                        density="compact"
-                    />
-                    <v-checkbox
-                        v-model="copyStrategies"
-                        label="Copiar estrategias del escenario actual"
-                        density="compact"
-                    />
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer />
-                    <v-btn variant="text" @click="showVersionDialog = false"
-                        >Cancelar</v-btn
+
+                    <div
+                        class="mt-4 flex flex-col gap-2 rounded-xl border border-white/5 bg-white/2 p-4"
                     >
-                    <v-btn
-                        color="purple"
+                        <v-checkbox
+                            v-model="copySkills"
+                            label="Copy skills from current scenario"
+                            density="compact"
+                            hide-details
+                            color="purple-400"
+                        />
+                        <v-checkbox
+                            v-model="copyStrategies"
+                            label="Copy strategies from current scenario"
+                            density="compact"
+                            hide-details
+                            color="purple-400"
+                        />
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <StButtonGlass
+                        variant="ghost"
+                        @click="showVersionDialog = false"
+                        >Cancel</StButtonGlass
+                    >
+                    <StButtonGlass
+                        variant="primary"
+                        class="!border-purple-500/50 !bg-purple-500/20 hover:!bg-purple-500/30"
                         :loading="loading"
                         :disabled="!versionName"
                         @click="
@@ -557,18 +656,24 @@ const executionStatusBadge = computed(() => {
                             })
                         "
                     >
-                        Crear Versión
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
+                        Create Version
+                    </StButtonGlass>
+                </div>
+            </StCardGlass>
         </v-dialog>
     </div>
 </template>
 
 <style scoped>
 .scenario-actions-panel {
-    padding: 16px;
-    background: rgba(var(--v-theme-surface), 0.5);
-    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+:deep(.v-field__input) {
+    color: white !important;
+}
+:deep(.v-label) {
+    color: rgba(255, 255, 255, 0.6) !important;
 }
 </style>

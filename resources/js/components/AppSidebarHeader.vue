@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import LocaleSelector from '@/components/LocaleSelector.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItemType } from '@/types';
@@ -24,6 +25,9 @@ withDefaults(
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
         </div>
-        <ThemeSelector />
+        <div class="flex items-center gap-2">
+            <ThemeSelector />
+            <LocaleSelector />
+        </div>
     </header>
 </template>

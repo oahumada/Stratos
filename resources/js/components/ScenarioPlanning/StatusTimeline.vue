@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import { computed, ref } from 'vue';
@@ -39,7 +42,7 @@ const loadStatusEvents = async () => {
         events.value = res.data?.status_events || [];
     } catch (e) {
         void e;
-        showError('Error al cargar historial de cambios');
+        showError('Failed to load status history');
     } finally {
         loading.value = false;
     }
@@ -60,7 +63,7 @@ const sortedEvents = computed(() => {
 });
 
 const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -81,33 +84,60 @@ const getEventIcon = (event: StatusEvent): string => {
 };
 
 const getEventColor = (event: StatusEvent): string => {
-    if (event.to_decision_status === 'approved') return 'success';
-    if (event.to_decision_status === 'rejected') return 'error';
-    if (event.to_decision_status === 'pending_approval') return 'warning';
-    if (event.to_execution_status === 'in_progress') return 'primary';
-    if (event.to_execution_status === 'paused') return 'warning';
-    if (event.to_execution_status === 'completed') return 'success';
-    return 'grey';
+    if (event.to_decision_status === 'approved') return 'emerald-400';
+    if (event.to_decision_status === 'rejected') return 'rose-400';
+    if (event.to_decision_status === 'pending_approval') return 'amber-400';
+    if (event.to_execution_status === 'in_progress') return 'indigo-400';
+    if (event.to_execution_status === 'paused') return 'amber-400';
+    if (event.to_execution_status === 'completed') return 'emerald-400';
+    return 'white/40';
+};
+
+const getEventBgColor = (event: StatusEvent): string => {
+    if (event.to_decision_status === 'approved') return 'emerald-500/10';
+    if (event.to_decision_status === 'rejected') return 'rose-500/10';
+    if (event.to_decision_status === 'pending_approval') return 'amber-500/10';
+    if (event.to_execution_status === 'in_progress') return 'indigo-500/10';
+    if (event.to_execution_status === 'paused') return 'amber-500/10';
+    if (event.to_execution_status === 'completed') return 'emerald-500/10';
+    return 'white/5';
+};
+
+const getEventBorderColor = (event: StatusEvent): string => {
+    if (event.to_decision_status === 'approved') return 'emerald-500/30';
+    if (event.to_decision_status === 'rejected') return 'rose-500/30';
+    if (event.to_decision_status === 'pending_approval') return 'amber-500/30';
+    if (event.to_execution_status === 'in_progress') return 'indigo-500/30';
+    if (event.to_execution_status === 'paused') return 'amber-500/30';
+    if (event.to_execution_status === 'completed') return 'emerald-500/30';
+    return 'white/10';
 };
 
 const getEventDescription = (event: StatusEvent): string => {
+    const formatStatus = (s: string) => {
+        return s
+            .split('_')
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ');
+    };
+
     let description = '';
 
     if (event.from_decision_status && event.to_decision_status) {
-        description += `Estado de decisión: ${event.from_decision_status} → ${event.to_decision_status}`;
+        description += `Decision: ${formatStatus(event.from_decision_status)} → ${formatStatus(event.to_decision_status)}`;
     } else if (event.to_decision_status) {
-        description += `Estado de decisión: ${event.to_decision_status}`;
+        description += `Decision: ${formatStatus(event.to_decision_status)}`;
     }
 
     if (event.from_execution_status && event.to_execution_status) {
         if (description) description += ' | ';
-        description += `Estado de ejecución: ${event.from_execution_status} → ${event.to_execution_status}`;
+        description += `Execution: ${formatStatus(event.from_execution_status)} → ${formatStatus(event.to_execution_status)}`;
     } else if (event.to_execution_status) {
         if (description) description += ' | ';
-        description += `Estado de ejecución: ${event.to_execution_status}`;
+        description += `Execution: ${formatStatus(event.to_execution_status)}`;
     }
 
-    return description || 'Cambio de estado';
+    return description || 'Status changed';
 };
 
 defineExpose({ openTimeline });
@@ -115,114 +145,197 @@ defineExpose({ openTimeline });
 
 <template>
     <div class="status-timeline">
-        <v-btn
-            color="grey-darken-1"
-            variant="outlined"
-            prepend-icon="mdi-timeline-clock"
+        <StButtonGlass
+            variant="ghost"
+            icon="mdi-timeline-clock"
             @click="openTimeline"
+            size="sm"
         >
-            Ver Historial de Cambios
-        </v-btn>
+            View History
+        </StButtonGlass>
 
-        <v-dialog v-model="showTimeline" max-width="800" scrollable>
-            <v-card>
-                <v-card-title class="d-flex align-center">
-                    <v-icon icon="mdi-timeline-clock" class="mr-2" />
-                    Audit Trail - Historial de Cambios de Estado
-                    <v-spacer />
-                    <v-chip color="primary" variant="flat" size="small">
-                        {{ events.length }} eventos
-                    </v-chip>
-                </v-card-title>
-
-                <v-divider />
-
-                <v-card-text style="max-height: 600px">
-                    <v-alert
-                        v-if="events.length === 0 && !loading"
-                        type="info"
-                        variant="tonal"
+        <v-dialog v-model="showTimeline" max-width="850" scrollable>
+            <StCardGlass
+                variant="glass"
+                class="overflow-hidden border-white/10 bg-[#0d1425]/98 !p-0 backdrop-blur-3xl"
+                :no-hover="true"
+            >
+                <!-- Modal Header -->
+                <div
+                    class="relative overflow-hidden border-b border-white/5 px-10 py-8"
+                >
+                    <div
+                        class="pointer-events-none absolute inset-x-0 -top-20 h-40 bg-indigo-500/10 blur-[60px]"
+                    ></div>
+                    <div
+                        class="relative z-10 flex items-center justify-between"
                     >
-                        No hay eventos de cambio de estado registrados
-                    </v-alert>
-
-                    <v-timeline
-                        side="end"
-                        align="start"
-                        density="compact"
-                        line-inset="12"
-                    >
-                        <v-timeline-item
-                            v-for="event in sortedEvents"
-                            :key="event.id"
-                            :dot-color="getEventColor(event)"
-                            size="small"
-                        >
-                            <template #icon>
-                                <v-icon
-                                    :icon="getEventIcon(event)"
-                                    size="small"
-                                />
-                            </template>
-
-                            <v-card elevation="2" class="mb-3">
-                                <v-card-title class="text-body-1 pb-2">
-                                    {{ getEventDescription(event) }}
-                                </v-card-title>
-
-                                <v-card-subtitle class="pb-2">
-                                    <v-icon
-                                        icon="mdi-account"
-                                        size="x-small"
-                                        class="mr-1"
-                                    />
-                                    {{ event.changed_by.name }}
-                                    <span
-                                        class="text-caption text-medium-emphasis ml-2"
-                                    >
-                                        · {{ formatDate(event.created_at) }}
-                                    </span>
-                                </v-card-subtitle>
-
-                                <v-card-text v-if="event.notes">
-                                    <v-alert
-                                        type="info"
-                                        variant="outlined"
-                                        density="compact"
-                                        class="text-body-2"
-                                    >
-                                        <strong>Notas:</strong>
-                                        {{ event.notes }}
-                                    </v-alert>
-                                </v-card-text>
-
-                                <v-card-text
-                                    v-else
-                                    class="text-caption text-medium-emphasis"
+                        <div class="flex items-center gap-5">
+                            <div
+                                class="flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-500/10 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
+                            >
+                                <v-icon color="indigo-400" size="24"
+                                    >mdi-timeline-clock</v-icon
                                 >
-                                    Sin notas adicionales
-                                </v-card-text>
-                            </v-card>
-                        </v-timeline-item>
-                    </v-timeline>
+                            </div>
+                            <div>
+                                <h2
+                                    class="mb-1 text-xl font-black tracking-tight text-white"
+                                >
+                                    Scenario Audit Trail
+                                </h2>
+                                <p
+                                    class="text-[10px] font-black tracking-widest text-white/40 uppercase"
+                                >
+                                    {{ events.length }} Status Events Recorded
+                                </p>
+                            </div>
+                        </div>
+                        <StButtonGlass
+                            variant="ghost"
+                            circle
+                            size="sm"
+                            icon="mdi-close"
+                            @click="showTimeline = false"
+                        />
+                    </div>
+                </div>
 
-                    <v-progress-linear
+                <div
+                    class="custom-scrollbar relative max-h-[70vh] overflow-y-auto px-10 py-10"
+                >
+                    <div
                         v-if="loading"
-                        indeterminate
-                        color="primary"
-                        class="mt-4"
-                    />
-                </v-card-text>
-
-                <v-divider />
-
-                <v-card-actions>
-                    <v-spacer />
-                    <v-btn variant="text" @click="showTimeline = false"
-                        >Cerrar</v-btn
+                        class="flex flex-col items-center justify-center py-20"
                     >
-                </v-card-actions>
-            </v-card>
+                        <v-progress-circular
+                            indeterminate
+                            color="indigo-400"
+                            size="48"
+                            width="3"
+                        />
+                        <span
+                            class="mt-4 text-[10px] font-black tracking-[0.3em] text-white/30 uppercase"
+                            >Retrieving Audit Logs...</span
+                        >
+                    </div>
+
+                    <div
+                        v-else-if="events.length === 0"
+                        class="flex flex-col items-center justify-center py-20 text-center"
+                    >
+                        <v-icon size="48" color="white/10" class="mb-4"
+                            >mdi-clipboard-text-clock-outline</v-icon
+                        >
+                        <h3 class="mb-1 text-lg font-black text-white/40">
+                            No Status Changes
+                        </h3>
+                        <p class="text-xs text-white/20">
+                            The scenario has not undergone any status
+                            transitions.
+                        </p>
+                    </div>
+
+                    <div v-else class="relative space-y-8">
+                        <div
+                            class="absolute top-4 bottom-4 left-[27px] w-px bg-gradient-to-b from-indigo-500/50 via-white/10 to-transparent"
+                        ></div>
+
+                        <div
+                            v-for="(event, index) in sortedEvents"
+                            :key="event.id"
+                            class="group relative pl-20 transition-all duration-300 hover:-translate-y-1"
+                        >
+                            <!-- Timeline Dot -->
+                            <div
+                                class="absolute left-6 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-white/10 bg-black/80 shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-colors group-hover:border-indigo-400 group-hover:bg-indigo-500 group-hover:shadow-[0_0_15px_rgba(99,102,241,0.6)]"
+                            ></div>
+
+                            <!-- Event Card -->
+                            <div
+                                class="rounded-2xl border p-5 backdrop-blur-xl transition-colors"
+                                :class="[
+                                    `border-${getEventBorderColor(event).split('/')[0]}/30`,
+                                    getEventBgColor(event),
+                                    'hover:border-white/20 hover:bg-white/10',
+                                ]"
+                                :style="{
+                                    borderColor: getEventBorderColor(
+                                        event,
+                                    ).includes('/')
+                                        ? ''
+                                        : getEventBorderColor(event),
+                                }"
+                            >
+                                <div
+                                    class="mb-4 flex flex-wrap items-start justify-between gap-4"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/40"
+                                        >
+                                            <v-icon
+                                                :color="
+                                                    getEventColor(event).split(
+                                                        '/',
+                                                    )[0]
+                                                "
+                                                size="20"
+                                                >{{
+                                                    getEventIcon(event)
+                                                }}</v-icon
+                                            >
+                                        </div>
+                                        <div>
+                                            <h4
+                                                class="text-sm font-black text-white"
+                                            >
+                                                {{ getEventDescription(event) }}
+                                            </h4>
+                                            <p
+                                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                            >
+                                                By {{ event.changed_by.name }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <StBadgeGlass variant="glass" size="xs">
+                                        {{ formatDate(event.created_at) }}
+                                    </StBadgeGlass>
+                                </div>
+
+                                <div
+                                    v-if="event.notes"
+                                    class="rounded-xl border border-white/5 bg-black/40 p-4"
+                                >
+                                    <div class="mb-2 flex items-center gap-2">
+                                        <v-icon size="14" color="white/20"
+                                            >mdi-text-box-outline</v-icon
+                                        >
+                                        <span
+                                            class="text-[9px] font-black tracking-widest text-white/40 uppercase"
+                                            >Commit Notes</span
+                                        >
+                                    </div>
+                                    <p
+                                        class="text-xs leading-relaxed font-medium text-white/70 italic"
+                                    >
+                                        "{{ event.notes }}"
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="flex justify-end border-t border-white/5 bg-[#020617]/60 px-10 py-6"
+                >
+                    <StButtonGlass variant="ghost" @click="showTimeline = false"
+                        >Close</StButtonGlass
+                    >
+                </div>
+            </StCardGlass>
         </v-dialog>
     </div>
 </template>
@@ -230,5 +343,19 @@ defineExpose({ openTimeline });
 <style scoped>
 .status-timeline {
     display: inline-block;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
 }
 </style>

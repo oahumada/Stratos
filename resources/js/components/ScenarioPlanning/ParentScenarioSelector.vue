@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import { useApi } from '@/composables/useApi';
 import { computed, onMounted, ref } from 'vue';
 
@@ -27,11 +28,12 @@ const props = withDefaults(defineProps<Props>(), {
     scopeType: 'organization',
     scopeId: null,
     disabled: false,
-    label: 'Escenario Padre (Opcional)',
-    hint: 'Selecciona un escenario padre para heredar skills obligatorias',
+    label: 'Parent Scenario (Optional)',
+    hint: 'Select a parent scenario to inherit mandatory skills',
 });
 
-const emit = defineEmits<(e: 'update:modelValue', value: number | null) => void>();
+const emit =
+    defineEmits<(e: 'update:modelValue', value: number | null) => void>();
 
 const api = useApi();
 const loading = ref(false);
@@ -45,10 +47,9 @@ onMounted(() => {
 const loadParentCandidates = async () => {
     loading.value = true;
     try {
-        // Obtener escenarios de nivel superior (organization scope) o del mismo nivel
         const params = new URLSearchParams({
             organization_id: props.organizationId.toString(),
-            decision_status: 'approved', // Solo aprobados pueden ser padres
+            decision_status: 'approved',
         });
 
         if (props.scopeType === 'department') {
@@ -100,128 +101,177 @@ const getScopeColor = (scopeType: string): string => {
         department: 'info',
         role_family: 'success',
     };
-    return map[scopeType] || 'grey';
+    return map[scopeType] || 'white';
 };
 
 const getStatusBadge = (status: string) => {
-    const map: Record<string, { color: string; text: string }> = {
-        draft: { color: 'grey', text: 'Borrador' },
-        pending_approval: { color: 'warning', text: 'Pendiente' },
-        approved: { color: 'success', text: 'Aprobado' },
-        rejected: { color: 'error', text: 'Rechazado' },
+    const map: Record<
+        string,
+        { color: 'glass' | 'primary' | 'secondary' | 'success'; text: string }
+    > = {
+        draft: { color: 'glass', text: 'Draft' },
+        pending_approval: { color: 'secondary', text: 'Pending' },
+        approved: { color: 'primary', text: 'Approved' },
+        rejected: { color: 'secondary', text: 'Rejected' },
     };
-    return map[status] || { color: 'grey', text: status };
+    return map[status] || { color: 'glass', text: status };
 };
-
-// `clearSelection` removed — not referenced in template
 </script>
 
 <template>
-    <div class="parent-scenario-selector">
+    <div class="parent-scenario-selector space-y-2">
+        <label
+            v-if="label"
+            class="ml-1 text-[10px] font-black tracking-widest text-indigo-400 uppercase"
+        >
+            {{ label }}
+        </label>
+
         <v-autocomplete
             v-model="selectedScenario"
             v-model:search="search"
             :items="filteredScenarios"
             :loading="loading"
             :disabled="disabled"
-            :label="label"
+            :label="''"
             :hint="hint"
             persistent-hint
             item-title="name"
             item-value="id"
             variant="outlined"
+            density="comfortable"
+            bg-color="rgba(255, 255, 255, 0.05)"
+            color="indigo-400"
+            base-color="white"
             clearable
             prepend-inner-icon="mdi-family-tree"
+            class="custom-glass-autocomplete"
             @update:model-value="$emit('update:modelValue', $event)"
         >
             <template #item="{ props: itemProps, item }">
-                <v-list-item v-bind="itemProps">
+                <v-list-item
+                    v-bind="itemProps"
+                    class="transition-colors hover:bg-indigo-500/10"
+                >
                     <template #prepend>
                         <v-icon
                             :icon="getScopeIcon(item.raw.scope_type)"
                             :color="getScopeColor(item.raw.scope_type)"
+                            size="small"
                         />
                     </template>
 
-                    <v-list-item-title>
+                    <v-list-item-title class="text-sm font-bold text-white">
                         {{ item.raw.name }}
                     </v-list-item-title>
 
                     <v-list-item-subtitle
                         v-if="item.raw.description"
-                        class="text-wrap"
+                        class="mt-1 text-xs text-wrap text-white/50"
                     >
                         {{ item.raw.description }}
                     </v-list-item-subtitle>
 
                     <template #append>
-                        <div class="d-flex flex-column align-end">
-                            <v-chip
-                                :color="
+                        <div class="flex flex-col items-end gap-1">
+                            <StBadgeGlass
+                                :variant="
                                     getStatusBadge(item.raw.decision_status)
                                         .color
                                 "
-                                size="x-small"
-                                variant="flat"
-                                class="mb-1"
+                                size="xs"
                             >
                                 {{
                                     getStatusBadge(item.raw.decision_status)
                                         .text
                                 }}
-                            </v-chip>
-                            <v-chip
+                            </StBadgeGlass>
+
+                            <StBadgeGlass
                                 v-if="
                                     item.raw.children_count &&
                                     item.raw.children_count > 0
                                 "
-                                size="x-small"
-                                variant="outlined"
-                                prepend-icon="mdi-file-tree"
+                                variant="glass"
+                                size="xs"
                             >
-                                {{ item.raw.children_count }} hijos
-                            </v-chip>
+                                <v-icon
+                                    icon="mdi-file-tree"
+                                    size="10"
+                                    class="mr-1"
+                                />
+                                {{ item.raw.children_count }} children
+                            </StBadgeGlass>
                         </div>
                     </template>
                 </v-list-item>
             </template>
 
             <template #selection="{ item }">
-                <div class="d-flex align-center">
+                <div class="flex items-center">
                     <v-icon
                         :icon="getScopeIcon(item.raw.scope_type)"
                         :color="getScopeColor(item.raw.scope_type)"
-                        size="small"
+                        size="16"
                         class="mr-2"
                     />
-                    <span>{{ item.raw.name }}</span>
+                    <span class="text-sm font-bold text-white">{{
+                        item.raw.name
+                    }}</span>
                 </div>
             </template>
 
             <template #no-data>
-                <v-list-item>
-                    <v-list-item-title class="text-medium-emphasis">
-                        No hay escenarios aprobados disponibles como padre
-                    </v-list-item-title>
-                </v-list-item>
+                <div class="p-4 text-center">
+                    <div
+                        class="text-xs font-black tracking-widest text-white/40 uppercase"
+                    >
+                        No approved candidate scenarios available
+                    </div>
+                </div>
+            </template>
+
+            <template #details="{ message }">
+                <span class="text-[10px] font-medium text-white/40">{{
+                    message
+                }}</span>
             </template>
         </v-autocomplete>
 
-        <v-alert
+        <!-- Information Alert -->
+        <div
             v-if="modelValue"
-            type="info"
-            variant="tonal"
-            density="compact"
-            class="mt-2"
-            prepend-icon="mdi-information"
+            class="mt-2 flex items-center gap-3 rounded-xl border border-indigo-500/20 bg-indigo-500/10 px-4 py-3"
         >
-            Las skills obligatorias del padre se sincronizarán automáticamente
-        </v-alert>
+            <v-icon icon="mdi-information" color="indigo-400" size="18" />
+            <span class="text-xs font-medium text-indigo-100/70">
+                Mandatory skills from the parent architecture will be seamlessly
+                synchronized.
+            </span>
+        </div>
     </div>
 </template>
 
 <style scoped>
 .parent-scenario-selector {
     width: 100%;
+}
+
+/* Base custom styles to ensure glass feel for vuetify autocomplete */
+:deep(.v-field) {
+    border-radius: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+:deep(.v-field__input) {
+    color: white !important;
+}
+:deep(.v-field__overlay) {
+    background-color: transparent !important;
+}
+:deep(.v-list) {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
 }
 </style>

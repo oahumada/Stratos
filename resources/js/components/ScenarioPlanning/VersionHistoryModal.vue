@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import { computed, ref } from 'vue';
@@ -51,7 +54,7 @@ const loadVersions = async () => {
         versions.value = res.data?.versions || [];
     } catch (e) {
         void e;
-        showError('Error al cargar versiones');
+        showError('Failed to load versions');
     } finally {
         loading.value = false;
     }
@@ -65,26 +68,26 @@ const sortedVersions = computed(() => {
 
 const getVersionBadgeColor = (status: string): string => {
     const map: Record<string, string> = {
-        draft: 'grey',
-        pending_approval: 'warning',
-        approved: 'success',
-        rejected: 'error',
+        draft: 'glass',
+        pending_approval: 'secondary',
+        approved: 'primary',
+        rejected: 'secondary',
     };
-    return map[status] || 'grey';
+    return map[status] || 'glass';
 };
 
 const getExecutionBadgeColor = (status: string): string => {
     const map: Record<string, string> = {
-        planned: 'grey-lighten-1',
+        planned: 'glass',
         in_progress: 'primary',
-        paused: 'warning',
+        paused: 'secondary',
         completed: 'success',
     };
-    return map[status] || 'grey';
+    return map[status] || 'glass';
 };
 
 const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -112,8 +115,7 @@ const toggleCompare = (versionId: number) => {
 const compareVersions = () => {
     if (selectedVersions.value.length === 2) {
         showComparison.value = true;
-        // Aquí se puede implementar lógica de comparación detallada
-        showSuccess('Comparando versiones...');
+        showSuccess('Initializing Neural Benchmark...');
     }
 };
 
@@ -124,219 +126,306 @@ defineExpose({ openDialog });
 
 <template>
     <v-dialog v-model="showDialog" max-width="900" scrollable>
-        <v-card>
-            <v-card-title class="d-flex align-center">
-                <v-icon icon="mdi-history" class="mr-2" />
-                Historial de Versiones
-                <v-spacer />
-                <v-chip
-                    color="primary"
-                    variant="flat"
-                    size="small"
-                    prepend-icon="mdi-information"
-                >
-                    Total: {{ versions.length }} versiones
-                </v-chip>
-            </v-card-title>
-
-            <v-divider />
-
-            <v-card-text style="max-height: 600px">
-                <v-alert
-                    v-if="versions.length === 0 && !loading"
-                    type="info"
-                    variant="tonal"
-                    class="mb-4"
-                >
-                    No hay versiones anteriores. Esta es la primera versión del
-                    escenario.
-                </v-alert>
-
-                <v-alert
-                    v-if="selectedVersions.length > 0"
-                    type="warning"
-                    variant="outlined"
-                    dismissible
-                    class="mb-4"
-                >
-                    <div class="d-flex align-center">
-                        <span
-                            >{{ selectedVersions.length }} versiones
-                            seleccionadas para comparar</span
+        <StCardGlass
+            variant="glass"
+            class="overflow-hidden border-white/10 bg-[#0d1425]/98 !p-0 backdrop-blur-3xl"
+            :no-hover="true"
+        >
+            <!-- Modal Header -->
+            <div
+                class="relative overflow-hidden border-b border-white/5 px-10 py-8"
+            >
+                <div
+                    class="pointer-events-none absolute inset-x-0 -top-20 h-40 bg-indigo-500/10 blur-[60px]"
+                ></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex items-center gap-5">
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-500/10 shadow-[0_0_20px_rgba(99,102,241,0.2)]"
                         >
-                        <v-spacer />
-                        <v-btn
+                            <v-icon color="indigo-400" size="24"
+                                >mdi-history</v-icon
+                            >
+                        </div>
+                        <div>
+                            <h2
+                                class="mb-1 text-xl font-black tracking-tight text-white"
+                            >
+                                Architecture
+                                <span class="text-indigo-400">History</span>
+                            </h2>
+                            <p
+                                class="text-[10px] font-black tracking-widest text-white/40 uppercase"
+                            >
+                                {{ versions.length }} Neural Versions Available
+                            </p>
+                        </div>
+                    </div>
+                    <StButtonGlass
+                        variant="ghost"
+                        circle
+                        size="sm"
+                        icon="mdi-close"
+                        @click="showDialog = false"
+                    />
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div
+                class="custom-scrollbar relative max-h-[70vh] overflow-y-auto px-10 py-10"
+            >
+                <div
+                    v-if="loading"
+                    class="flex flex-col items-center justify-center py-20"
+                >
+                    <v-progress-circular
+                        indeterminate
+                        color="indigo-400"
+                        size="48"
+                        width="3"
+                    />
+                    <span
+                        class="mt-4 text-[10px] font-black tracking-[0.3em] text-white/30 uppercase"
+                        >Synchronizing Repository...</span
+                    >
+                </div>
+
+                <div
+                    v-else-if="versions.length === 0"
+                    class="flex flex-col items-center justify-center py-20 text-center"
+                >
+                    <v-icon size="48" color="white/10" class="mb-4"
+                        >mdi-source-branch</v-icon
+                    >
+                    <h3 class="mb-1 text-lg font-black text-white/40">
+                        No Alternative Versions
+                    </h3>
+                    <p class="text-xs text-white/20">
+                        This is the genesis architecture of this scenario.
+                    </p>
+                </div>
+
+                <div v-else class="space-y-6">
+                    <!-- Comparison Notification -->
+                    <div
+                        v-if="selectedVersions.length > 0"
+                        class="flex items-center justify-between rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-6 py-4 backdrop-blur-md"
+                    >
+                        <div class="flex items-center gap-3">
+                            <v-icon color="indigo-400" size="20"
+                                >mdi-compare-horizontal</v-icon
+                            >
+                            <span class="text-sm font-bold text-white">
+                                {{ selectedVersions.length }} architectures
+                                selected for benchmark
+                            </span>
+                        </div>
+                        <StButtonGlass
                             v-if="canCompare"
-                            color="primary"
-                            size="small"
-                            variant="elevated"
-                            prepend-icon="mdi-compare"
+                            variant="primary"
+                            size="sm"
+                            icon="mdi-brain"
                             @click="compareVersions"
                         >
-                            Comparar
-                        </v-btn>
+                            Execute Benchmark
+                        </StButtonGlass>
                     </div>
-                </v-alert>
 
-                <v-timeline side="end" density="compact" line-inset="8">
-                    <v-timeline-item
-                        v-for="version in sortedVersions"
-                        :key="version.id"
-                        :dot-color="
-                            version.is_current_version ? 'primary' : 'grey'
-                        "
-                        size="small"
-                    >
-                        <template #icon>
-                            <v-icon
-                                :icon="
-                                    version.is_current_version
-                                        ? 'mdi-star'
-                                        : 'mdi-circle'
-                                "
-                                size="small"
-                            />
-                        </template>
+                    <!-- Timeline -->
+                    <div class="relative pl-8">
+                        <div
+                            class="absolute top-4 bottom-4 left-3 w-px bg-gradient-to-b from-indigo-500/50 via-white/10 to-transparent"
+                        ></div>
 
-                        <v-card
-                            :elevation="version.is_current_version ? 4 : 1"
-                            :class="{
-                                'border-primary': version.is_current_version,
-                            }"
-                            class="mb-3"
+                        <div
+                            v-for="version in sortedVersions"
+                            :key="version.id"
+                            class="group relative mb-8 transition-all duration-300 hover:-translate-y-1"
                         >
-                            <v-card-title class="d-flex align-center">
-                                <div class="d-flex flex-column flex-grow-1">
-                                    <div class="d-flex align-center">
-                                        <v-chip
-                                            :color="
-                                                version.is_current_version
-                                                    ? 'primary'
-                                                    : 'grey'
-                                            "
-                                            size="small"
-                                            variant="flat"
-                                            class="mr-2"
-                                        >
-                                            v{{ version.version_number }}
-                                        </v-chip>
-                                        <span class="text-h6">{{
-                                            version.name
-                                        }}</span>
-                                    </div>
+                            <!-- Dot -->
+                            <div
+                                class="absolute -left-[27px] z-10 mt-6 h-3 w-3 rounded-full border-2 transition-colors"
+                                :class="
+                                    version.is_current_version
+                                        ? 'border-primary bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.6)]'
+                                        : 'border-white/20 bg-black/80 group-hover:border-indigo-400 group-hover:shadow-[0_0_15px_rgba(99,102,241,0.6)]'
+                                "
+                            ></div>
+
+                            <!-- Card -->
+                            <div
+                                class="rounded-2xl border p-6 backdrop-blur-xl transition-colors"
+                                :class="
+                                    version.is_current_version
+                                        ? 'border-indigo-500/50 bg-indigo-500/5'
+                                        : 'border-white/5 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.05]'
+                                "
+                            >
+                                <div class="flex flex-col gap-4">
                                     <div
-                                        class="text-caption text-medium-emphasis mt-1"
+                                        class="flex items-start justify-between"
                                     >
-                                        Creado:
-                                        {{ formatDate(version.created_at) }}
-                                        <span v-if="version.owner">
-                                            · {{ version.owner.name }}</span
+                                        <div class="mr-4 w-full">
+                                            <div
+                                                class="mb-1 flex items-center gap-3"
+                                            >
+                                                <StBadgeGlass
+                                                    :variant="
+                                                        version.is_current_version
+                                                            ? 'primary'
+                                                            : 'glass'
+                                                    "
+                                                    size="sm"
+                                                >
+                                                    v{{
+                                                        version.version_number
+                                                    }}
+                                                </StBadgeGlass>
+                                                <h3
+                                                    class="text-lg font-black tracking-tight text-white"
+                                                >
+                                                    {{ version.name }}
+                                                </h3>
+                                                <StBadgeGlass
+                                                    v-if="
+                                                        version.is_current_version
+                                                    "
+                                                    variant="primary"
+                                                    size="xs"
+                                                    class="ml-2 shadow-[0_0_10px_rgba(99,102,241,0.4)]"
+                                                >
+                                                    Active
+                                                </StBadgeGlass>
+                                            </div>
+                                            <p
+                                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                            >
+                                                Committed:
+                                                {{
+                                                    formatDate(
+                                                        version.created_at,
+                                                    )
+                                                }}
+                                                <span v-if="version.owner">
+                                                    | Architect:
+                                                    {{
+                                                        version.owner.name
+                                                    }}</span
+                                                >
+                                            </p>
+                                        </div>
+
+                                        <div class="flex h-full items-center">
+                                            <v-checkbox
+                                                hide-details
+                                                density="compact"
+                                                :model-value="
+                                                    selectedVersions.includes(
+                                                        version.id,
+                                                    )
+                                                "
+                                                :disabled="
+                                                    !canCompare &&
+                                                    !selectedVersions.includes(
+                                                        version.id,
+                                                    )
+                                                "
+                                                @update:model-value="
+                                                    toggleCompare(version.id)
+                                                "
+                                            ></v-checkbox>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        v-if="version.description"
+                                        class="rounded-xl border border-white/5 bg-black/40 p-4"
+                                    >
+                                        <p
+                                            class="text-xs leading-relaxed font-medium text-white/60 italic"
                                         >
+                                            "{{ version.description }}"
+                                        </p>
+                                    </div>
+
+                                    <div
+                                        class="mt-2 flex flex-wrap items-center justify-between gap-4 border-t border-white/5 pt-4"
+                                    >
+                                        <div class="flex gap-2">
+                                            <StBadgeGlass
+                                                :variant="
+                                                    getVersionBadgeColor(
+                                                        version.decision_status,
+                                                    )
+                                                "
+                                                size="xs"
+                                            >
+                                                {{
+                                                    (
+                                                        version.decision_status ||
+                                                        'draft'
+                                                    ).toUpperCase()
+                                                }}
+                                            </StBadgeGlass>
+                                            <StBadgeGlass
+                                                :variant="
+                                                    getExecutionBadgeColor(
+                                                        version.execution_status,
+                                                    )
+                                                "
+                                                size="xs"
+                                            >
+                                                {{
+                                                    (
+                                                        version.execution_status ||
+                                                        'planned'
+                                                    ).toUpperCase()
+                                                }}
+                                            </StBadgeGlass>
+                                        </div>
+
+                                        <StButtonGlass
+                                            v-if="version.id !== scenarioId"
+                                            variant="ghost"
+                                            size="sm"
+                                            icon="mdi-arrow-right"
+                                            @click="selectVersion(version.id)"
+                                        >
+                                            Switch to Version
+                                        </StButtonGlass>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                                <v-checkbox
-                                    :model-value="
-                                        selectedVersions.includes(version.id)
-                                    "
-                                    :disabled="
-                                        !canCompare &&
-                                        !selectedVersions.includes(version.id)
-                                    "
-                                    density="compact"
-                                    hide-details
-                                    @update:model-value="
-                                        toggleCompare(version.id)
-                                    "
-                                />
-                            </v-card-title>
-
-                            <v-card-text v-if="version.description">
-                                <p class="text-body-2 mb-2">
-                                    {{ version.description }}
-                                </p>
-                            </v-card-text>
-
-                            <v-card-text>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <v-chip
-                                        :color="
-                                            getVersionBadgeColor(
-                                                version.decision_status,
-                                            )
-                                        "
-                                        size="small"
-                                        variant="tonal"
-                                    >
-                                        {{ version.decision_status }}
-                                    </v-chip>
-                                    <v-chip
-                                        :color="
-                                            getExecutionBadgeColor(
-                                                version.execution_status,
-                                            )
-                                        "
-                                        size="small"
-                                        variant="outlined"
-                                    >
-                                        {{ version.execution_status }}
-                                    </v-chip>
-                                    <v-chip
-                                        v-if="version.is_current_version"
-                                        color="primary"
-                                        size="small"
-                                        prepend-icon="mdi-star"
-                                    >
-                                        Actual
-                                    </v-chip>
-                                </div>
-                            </v-card-text>
-
-                            <v-card-actions>
-                                <v-btn
-                                    v-if="version.id !== scenarioId"
-                                    color="primary"
-                                    variant="text"
-                                    size="small"
-                                    prepend-icon="mdi-open-in-new"
-                                    @click="selectVersion(version.id)"
-                                >
-                                    Ver esta versión
-                                </v-btn>
-                                <v-btn
-                                    v-else
-                                    color="grey"
-                                    variant="text"
-                                    size="small"
-                                    disabled
-                                >
-                                    Versión actual
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-timeline-item>
-                </v-timeline>
-
-                <v-progress-linear
-                    v-if="loading"
-                    indeterminate
-                    color="primary"
-                    class="mt-4"
-                />
-            </v-card-text>
-
-            <v-divider />
-
-            <v-card-actions>
-                <v-spacer />
-                <v-btn variant="text" @click="showDialog = false">Cerrar</v-btn>
-            </v-card-actions>
-        </v-card>
+                <!-- Footer -->
+                <div
+                    class="flex justify-end border-t border-white/5 bg-[#020617]/60 px-10 py-6"
+                >
+                    <StButtonGlass variant="ghost" @click="showDialog = false"
+                        >Close</StButtonGlass
+                    >
+                </div>
+            </div>
+        </StCardGlass>
     </v-dialog>
 </template>
 
 <style scoped>
-.border-primary {
-    border: 2px solid rgb(var(--v-theme-primary));
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
 }
 </style>

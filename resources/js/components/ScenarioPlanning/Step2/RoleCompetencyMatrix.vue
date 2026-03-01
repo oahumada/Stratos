@@ -650,6 +650,7 @@
 </template>
 
 <script setup lang="ts">
+import RoleCubeWizard from '@/components/Roles/RoleCubeWizard.vue';
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
@@ -659,7 +660,6 @@ import AddRoleDialog from './AddRoleDialog.vue';
 import AgentProposalsModal from './AgentProposalsModal.vue';
 import CellContent from './CellContent.vue';
 import RoleCompetencyStateModal from './RoleCompetencyStateModal.vue';
-import RoleCubeWizard from './RoleCubeWizard.vue';
 
 interface Props {
     scenarioId: number;

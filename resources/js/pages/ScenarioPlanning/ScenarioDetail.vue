@@ -11,7 +11,6 @@ import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 
 // Step Components
-import PrototypeMap from '@/components/ScenarioPlanning/PrototypeMap.vue';
 import IncubatedCubeReview from '@/components/ScenarioPlanning/Step2/IncubatedCubeReview.vue';
 import RoleCompetencyMatrix from '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue';
 import OrganizationalContrast from '@/components/ScenarioPlanning/Step3/OrganizationalContrast.vue';

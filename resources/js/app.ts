@@ -13,6 +13,16 @@ import vuetify from './plugins/vuetify';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const pinia = createPinia();
 
+import { createI18n } from 'vue-i18n';
+import { messages } from './i18n';
+
+const i18n = createI18n({
+    legacy: false, // use Composition API
+    locale: localStorage.getItem('locale') || 'en',
+    fallbackLocale: 'en',
+    messages,
+});
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: async (name) => {
@@ -29,6 +39,7 @@ createInertiaApp({
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(pinia)
+            .use(i18n)
             .use(VueApexCharts)
             .use(vuetify)
             .mount(el);
