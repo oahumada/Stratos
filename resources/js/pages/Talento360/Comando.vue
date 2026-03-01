@@ -1,13 +1,35 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
+import {
+    PhCalendar,
+    PhCalendarBlank,
+    PhCalendarCheck,
+    PhCaretLeft,
+    PhCaretRight,
+    PhChartBar,
+    PhChartDonut,
+    PhCheckCircle,
+    PhClockClockwise,
+    PhDotsThreeVertical,
+    PhFlask,
+    PhHeartbeat,
+    PhInfinity,
+    PhMagnifyingGlass,
+    PhPulse,
+    PhRobot,
+    PhRocketLaunch,
+    PhUserGroup,
+} from '@phosphor-icons/vue';
 import axios from 'axios';
-import moment from 'moment';
-import 'moment/locale/es';
-import { computed, onMounted, ref } from 'vue';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import StButtonGlass from '../../components/StButtonGlass.vue';
 import { usePermissions } from '../../composables/usePermissions';
 import AppLayout from '../../layouts/AppLayout.vue';
 
-moment.locale('es');
+const { t } = useI18n();
 
 const { can } = usePermissions();
 
@@ -70,51 +92,55 @@ const newCycle = ref<
     ends_at: null,
 });
 
-const modeOptions = [
+const modeOptions = computed(() => [
     {
-        title: 'Fecha Específica',
+        title: t('assessment_command.modes.specific_date.title'),
         value: 'specific_date',
-        icon: 'mdi-calendar-star',
-        desc: 'Lanzamiento único en una fecha puntual.',
+        icon: PhCalendarCheck,
+        desc: t('assessment_command.modes.specific_date.desc'),
     },
     {
-        title: 'Trimestral',
+        title: t('assessment_command.modes.quarterly.title'),
         value: 'quarterly',
-        icon: 'mdi-calendar-range',
-        desc: 'Ciclos de medición cada 3 meses.',
+        icon: PhCalendarBlank,
+        desc: t('assessment_command.modes.quarterly.desc'),
     },
     {
-        title: 'Anual (Aniversario)',
+        title: t('assessment_command.modes.annual.title'),
         value: 'annual',
-        icon: 'mdi-cake-variant',
-        desc: 'Se dispara en la fecha de ingreso de cada colaborador.',
+        icon: PhCalendar, // Simplified or could be PhCake
+        desc: t('assessment_command.modes.annual.desc'),
     },
     {
-        title: 'Continuo Aleatorio',
+        title: t('assessment_command.modes.continuous.title'),
         value: 'continuous',
-        icon: 'mdi-infinity',
-        desc: 'La IA decide cuándo medir para no saturar.',
+        icon: PhInfinity,
+        desc: t('assessment_command.modes.continuous.desc'),
     },
-];
+]);
 
-const instrumentOptions = [
+const instrumentOptions = computed(() => [
     {
-        title: 'Evaluación BARS (Competencias)',
+        title: t('assessment_command.instruments.bars'),
         value: 'bars',
-        icon: 'mdi-chart-bar',
+        icon: PhChartBar,
     },
     {
-        title: 'Encuesta Pulse (Clima)',
+        title: t('assessment_command.instruments.pulse'),
         value: 'pulse',
-        icon: 'mdi-heart-pulse',
+        icon: PhPulse,
     },
-    { title: 'Perfil Psicométrico (DISC)', value: 'disc', icon: 'mdi-brain' },
     {
-        title: 'Entrevista de IA (Cerbero)',
-        value: 'interview',
-        icon: 'mdi-robot',
+        title: t('assessment_command.instruments.disc'),
+        value: 'disc',
+        icon: PhFlask,
     },
-];
+    {
+        title: t('assessment_command.instruments.interview'),
+        value: 'interview',
+        icon: PhRobot,
+    },
+]);
 
 const loadCycles = async () => {
     loading.value = true;
@@ -201,8 +227,8 @@ watch(step, (newStep) => {
 });
 
 const formatDate = (date: string | null) => {
-    if (!date) return 'Sin definir';
-    return moment(date).format('DD MMM YYYY');
+    if (!date) return t('assessment_command.date_none');
+    return format(new Date(date), 'dd MMM yyyy', { locale: es });
 };
 
 const getStatusColor = (status: string) => {
@@ -230,28 +256,27 @@ onMounted(() => {
             >
                 <div>
                     <h1
-                        class="text-h3 font-weight-black mb-2 tracking-tight text-white"
+                        class="text-h3 font-weight-black font-premium mb-2 tracking-tight text-white"
                     >
-                        Unidad de Comando
+                        {{ $t('assessment_command.title') }}
                         <span class="text-primary">Cerbero</span>
                     </h1>
                     <p class="text-h6 font-weight-regular text-grey-lighten-1">
-                        Orquestación inteligente de ciclos de assessment y
-                        talento 360.
+                        {{ $t('assessment_command.subtitle') }}
                     </p>
                 </div>
 
-                <v-btn
+                <StButtonGlass
                     v-if="can('assessments.manage')"
-                    prepend-icon="mdi-rocket-launch"
+                    :icon="PhRocketLaunch"
                     variant="flat"
                     color="primary"
                     height="56"
-                    class="elevation-xl mt-md-0 mt-4 rounded-xl px-8"
+                    class="mt-md-0 mt-4 px-8"
                     @click="wizardDialog = true"
                 >
-                    Configurar Ciclo
-                </v-btn>
+                    {{ $t('assessment_command.config_cycle') }}
+                </StButtonGlass>
             </div>
 
             <!-- Stats Dashboard Row -->
@@ -267,11 +292,10 @@ onMounted(() => {
                                 size="56"
                                 class="mr-4 rounded-xl"
                             >
-                                <v-icon
-                                    icon="mdi-sync"
-                                    color="primary"
-                                    size="32"
-                                ></v-icon>
+                                <PhClockClockwise
+                                    color="rgb(var(--v-theme-primary))"
+                                    :size="32"
+                                />
                             </v-avatar>
                             <div>
                                 <div
@@ -282,7 +306,11 @@ onMounted(() => {
                                 <div
                                     class="text-caption text-grey-lighten-1 text-uppercase font-weight-bold"
                                 >
-                                    Ciclos Activos
+                                    {{
+                                        $t(
+                                            'assessment_command.stats.active_cycles',
+                                        )
+                                    }}
                                 </div>
                             </div>
                         </v-card-text>
@@ -299,11 +327,10 @@ onMounted(() => {
                                 size="56"
                                 class="mr-4 rounded-xl"
                             >
-                                <v-icon
-                                    icon="mdi-account-group"
-                                    color="success"
-                                    size="32"
-                                ></v-icon>
+                                <PhUserGroup
+                                    color="rgb(var(--v-theme-success))"
+                                    :size="32"
+                                />
                             </v-avatar>
                             <div>
                                 <div
@@ -314,7 +341,11 @@ onMounted(() => {
                                 <div
                                     class="text-caption text-grey-lighten-1 text-uppercase font-weight-bold"
                                 >
-                                    Colaboradores
+                                    {{
+                                        $t(
+                                            'assessment_command.stats.collaborators',
+                                        )
+                                    }}
                                 </div>
                             </div>
                         </v-card-text>
@@ -331,11 +362,10 @@ onMounted(() => {
                                 size="56"
                                 class="mr-4 rounded-xl"
                             >
-                                <v-icon
-                                    icon="mdi-chart-donut"
-                                    color="info"
-                                    size="32"
-                                ></v-icon>
+                                <PhChartDonut
+                                    color="rgb(var(--v-theme-info))"
+                                    :size="32"
+                                />
                             </v-avatar>
                             <div class="flex-grow-1">
                                 <div
@@ -350,7 +380,11 @@ onMounted(() => {
                                 <div
                                     class="text-caption text-grey-lighten-1 text-uppercase font-weight-bold"
                                 >
-                                    Completitud Avg.
+                                    {{
+                                        $t(
+                                            'assessment_command.stats.avg_completion',
+                                        )
+                                    }}
                                 </div>
                                 <v-progress-linear
                                     :model-value="stats.avg_completion"
@@ -374,11 +408,10 @@ onMounted(() => {
                                 size="56"
                                 class="mr-4 rounded-xl"
                             >
-                                <v-icon
-                                    icon="mdi-clock-alert-outline"
-                                    color="warning"
-                                    size="32"
-                                ></v-icon>
+                                <PhHeartbeat
+                                    color="rgb(var(--v-theme-warning))"
+                                    :size="32"
+                                />
                             </v-avatar>
                             <div>
                                 <div
@@ -389,7 +422,11 @@ onMounted(() => {
                                 <div
                                     class="text-caption text-grey-lighten-1 text-uppercase font-weight-bold"
                                 >
-                                    Evals. Pendientes
+                                    {{
+                                        $t(
+                                            'assessment_command.stats.pending_evals',
+                                        )
+                                    }}
                                 </div>
                             </div>
                         </v-card-text>
@@ -409,27 +446,34 @@ onMounted(() => {
                                 class="text-h6 font-weight-bold text-white"
                             >
                                 <v-icon
-                                    icon="mdi-history"
+                                    :icon="PhClockClockwise"
                                     color="primary"
                                     class="mr-2"
                                 ></v-icon>
-                                Historial de Orquestaciones
+                                {{ $t('assessment_command.history_title') }}
                             </v-toolbar-title>
                             <v-spacer></v-spacer>
                             <v-text-field
-                                placeholder="Buscar ciclo..."
-                                prepend-inner-icon="mdi-magnify"
+                                v-model="search"
+                                :placeholder="
+                                    $t('assessment_command.search_placeholder')
+                                "
                                 variant="solo"
                                 hide-details
                                 density="compact"
                                 class="max-width-300 mr-4"
                                 rounded="lg"
-                            ></v-text-field>
-                            <v-btn
-                                icon="mdi-filter-variant"
-                                variant="text"
-                                color="grey"
-                            ></v-btn>
+                            >
+                                <template #prepend-inner>
+                                    <PhMagnifyingGlass
+                                        :size="18"
+                                        class="text-grey"
+                                    />
+                                </template>
+                            </v-text-field>
+                            <v-btn variant="text" color="grey">
+                                <PhDotsThreeVertical :size="20" />
+                            </v-btn>
                         </v-toolbar>
 
                         <v-divider color="white" class="opacity-10"></v-divider>
@@ -437,17 +481,34 @@ onMounted(() => {
                         <v-data-table
                             :headers="[
                                 {
-                                    title: 'Identificación del Ciclo',
+                                    title: $t('assessment_command.headers.id'),
                                     key: 'name',
                                 },
-                                { title: 'Modalidad', key: 'mode' },
                                 {
-                                    title: 'Progreso',
+                                    title: $t(
+                                        'assessment_command.headers.mode',
+                                    ),
+                                    key: 'mode',
+                                },
+                                {
+                                    title: $t(
+                                        'assessment_command.headers.progress',
+                                    ),
                                     key: 'progress',
                                     sortable: false,
                                 },
-                                { title: 'Estado', key: 'status' },
-                                { title: 'Lanzamiento', key: 'starts_at' },
+                                {
+                                    title: $t(
+                                        'assessment_command.headers.status',
+                                    ),
+                                    key: 'status',
+                                },
+                                {
+                                    title: $t(
+                                        'assessment_command.headers.launch',
+                                    ),
+                                    key: 'starts_at',
+                                },
                                 {
                                     title: '',
                                     key: 'actions',
@@ -490,7 +551,7 @@ onMounted(() => {
                                         :icon="
                                             modeOptions.find(
                                                 (o) => o.value === item.mode,
-                                            )?.icon || 'mdi-calendar'
+                                            )?.icon || PhCalendar
                                         "
                                         size="14"
                                     ></v-icon>
@@ -550,7 +611,6 @@ onMounted(() => {
                                         item.status === 'draft' ||
                                         item.status === 'scheduled'
                                     "
-                                    icon="mdi-rocket"
                                     variant="tonal"
                                     size="small"
                                     color="success"
@@ -560,26 +620,38 @@ onMounted(() => {
                                             (item as AssessmentCycle).id,
                                         )
                                     "
-                                    title="Activar Ciclo Oficialmente"
-                                ></v-btn>
+                                    :title="
+                                        $t(
+                                            'assessment_command.actions_tooltips.activate',
+                                        )
+                                    "
+                                >
+                                    <PhRocketLaunch :size="18" />
+                                </v-btn>
                                 <v-btn
                                     v-if="item.status === 'active'"
-                                    icon="mdi-chart-box-outline"
                                     variant="tonal"
                                     size="small"
                                     color="primary"
                                     class="mr-2"
-                                    title="Ver Seguimiento Dashboard"
+                                    :title="
+                                        $t(
+                                            'assessment_command.actions_tooltips.dashboard',
+                                        )
+                                    "
                                     @click="
                                         router.visit('/talento360/dashboard')
                                     "
-                                ></v-btn>
+                                >
+                                    <PhChartBar :size="18" />
+                                </v-btn>
                                 <v-btn
-                                    icon="mdi-dots-vertical"
                                     variant="text"
                                     size="small"
                                     color="grey-lighten-1"
-                                ></v-btn>
+                                >
+                                    <PhDotsThreeVertical :size="18" />
+                                </v-btn>
                             </template>
 
                             <template #no-data>
@@ -615,7 +687,7 @@ onMounted(() => {
                     >
                         <div class="mb-8">
                             <v-icon
-                                icon="mdi-rocket-launch"
+                                :icon="PhRocketLaunch"
                                 color="primary"
                                 size="32"
                                 class="mb-2"
@@ -623,10 +695,10 @@ onMounted(() => {
                             <h3
                                 class="text-h5 font-weight-bold mb-1 text-white"
                             >
-                                Configuración
+                                {{ $t('assessment_command.wizard.title') }}
                             </h3>
                             <p class="text-caption text-grey-lighten-1">
-                                Define el ADN de tu ciclo de evaluación.
+                                {{ $t('assessment_command.wizard.subtitle') }}
                             </p>
                         </div>
 
@@ -639,47 +711,95 @@ onMounted(() => {
                             >
                                 <v-list-item
                                     :active="step === 1"
-                                    prepend-icon="mdi-numeric-1-circle"
                                     title="Identidad & Tipo"
                                     class="mb-2 rounded-lg"
                                     @click="step = 1"
-                                ></v-list-item>
+                                >
+                                    <template #prepend>
+                                        <div
+                                            class="text-h6 font-weight-bold mr-4"
+                                            :class="
+                                                step === 1
+                                                    ? 'text-primary'
+                                                    : 'text-grey'
+                                            "
+                                        >
+                                            1
+                                        </div>
+                                    </template>
+                                </v-list-item>
                                 <v-list-item
                                     :active="step === 2"
                                     :disabled="step < 2"
-                                    prepend-icon="mdi-numeric-2-circle"
                                     title="Población & Alcance"
                                     class="mb-2 rounded-lg"
                                     @click="step = 2"
-                                ></v-list-item>
+                                >
+                                    <template #prepend>
+                                        <div
+                                            class="text-h6 font-weight-bold mr-4"
+                                            :class="
+                                                step === 2
+                                                    ? 'text-primary'
+                                                    : 'text-grey'
+                                            "
+                                        >
+                                            2
+                                        </div>
+                                    </template>
+                                </v-list-item>
                                 <v-list-item
                                     :active="step === 3"
                                     :disabled="step < 3"
-                                    prepend-icon="mdi-numeric-3-circle"
                                     title="Instrumentos & Red"
                                     class="mb-2 rounded-lg"
                                     @click="step = 3"
-                                ></v-list-item>
+                                >
+                                    <template #prepend>
+                                        <div
+                                            class="text-h6 font-weight-bold mr-4"
+                                            :class="
+                                                step === 3
+                                                    ? 'text-primary'
+                                                    : 'text-grey'
+                                            "
+                                        >
+                                            3
+                                        </div>
+                                    </template>
+                                </v-list-item>
                                 <v-list-item
                                     :active="step === 4"
                                     :disabled="step < 4"
-                                    prepend-icon="mdi-numeric-4-circle"
                                     title="Confirmación"
                                     class="mb-2 rounded-lg"
                                     @click="step = 4"
-                                ></v-list-item>
+                                >
+                                    <template #prepend>
+                                        <div
+                                            class="text-h6 font-weight-bold mr-4"
+                                            :class="
+                                                step === 4
+                                                    ? 'text-primary'
+                                                    : 'text-grey'
+                                            "
+                                        >
+                                            4
+                                        </div>
+                                    </template>
+                                </v-list-item>
                             </v-list>
                         </div>
 
-                        <v-btn
+                        <StButtonGlass
                             block
                             variant="tonal"
                             color="white"
                             class="rounded-lg"
                             @click="wizardDialog = false"
                         >
-                            Cancelar
-                        </v-btn>
+                            {{ $t('assessment_command.wizard.actions.cancel') }}
+                        </StButtonGlass>
                     </v-col>
 
                     <!-- Content Area -->
@@ -697,26 +817,44 @@ onMounted(() => {
                                         <div
                                             class="text-overline font-weight-black mb-1 text-primary"
                                         >
-                                            PASO 1
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step1.label',
+                                                )
+                                            }}
                                         </div>
                                         <h2
-                                            class="text-h4 font-weight-bold mb-2 text-white"
+                                            class="text-h4 font-weight-bold font-premium mb-2 text-white"
                                         >
-                                            Identidad del Ciclo
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step1.title',
+                                                )
+                                            }}
                                         </h2>
                                         <p
                                             class="text-body-1 text-grey-lighten-1"
                                         >
-                                            Nombra este ciclo y selecciona cómo
-                                            la IA debe disparar las
-                                            evaluaciones.
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step1.desc',
+                                                )
+                                            }}
                                         </p>
                                     </div>
 
                                     <v-text-field
                                         v-model="newCycle.name"
-                                        label="Nombre del Ciclo"
-                                        placeholder="Ej. Evaluación de Potencial Q1 2026"
+                                        :label="
+                                            $t(
+                                                'assessment_command.wizard.step1.name_label',
+                                            )
+                                        "
+                                        :placeholder="
+                                            $t(
+                                                'assessment_command.wizard.step1.name_placeholder',
+                                            )
+                                        "
                                         variant="filled"
                                         color="primary"
                                         bg-color="rgba(255,255,255,0.05)"
@@ -725,8 +863,16 @@ onMounted(() => {
 
                                     <v-textarea
                                         v-model="newCycle.description"
-                                        label="Descripción / Objetivo"
-                                        placeholder="Breve explicación del propósito de esta medición..."
+                                        :label="
+                                            $t(
+                                                'assessment_command.wizard.step1.description_label',
+                                            )
+                                        "
+                                        :placeholder="
+                                            $t(
+                                                'assessment_command.wizard.step1.description_placeholder',
+                                            )
+                                        "
                                         variant="filled"
                                         color="primary"
                                         bg-color="rgba(255,255,255,0.05)"
@@ -737,7 +883,11 @@ onMounted(() => {
                                     <h3
                                         class="text-subtitle-1 font-weight-bold mb-4 text-white"
                                     >
-                                        Modalidad de Disparo
+                                        {{
+                                            $t(
+                                                'assessment_command.wizard.step1.mode_title',
+                                            )
+                                        }}
                                     </h3>
                                     <v-row>
                                         <v-col
@@ -769,15 +919,21 @@ onMounted(() => {
                                                                 : 'grey-darken-3'
                                                         "
                                                         size="40"
-                                                        class="mr-3"
+                                                        class="mr-3 rounded-lg"
                                                     >
-                                                        <v-icon
-                                                            :icon="mode.icon"
-                                                            size="20"
-                                                        ></v-icon>
+                                                        <component
+                                                            :is="mode.icon"
+                                                            :size="24"
+                                                            :color="
+                                                                newCycle.mode ===
+                                                                mode.value
+                                                                    ? 'white'
+                                                                    : 'grey'
+                                                            "
+                                                        />
                                                     </v-avatar>
                                                     <div
-                                                        class="text-subtitle-1 font-weight-bold text-white"
+                                                        class="text-subtitle-1 font-weight-bold font-premium text-white"
                                                     >
                                                         {{ mode.title }}
                                                     </div>
@@ -798,39 +954,62 @@ onMounted(() => {
                                         <div
                                             class="text-overline font-weight-black mb-1 text-primary"
                                         >
-                                            PASO 2
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step2.label',
+                                                )
+                                            }}
                                         </div>
                                         <h2
-                                            class="text-h4 font-weight-bold mb-2 text-white"
+                                            class="text-h4 font-weight-bold font-premium mb-2 text-white"
                                         >
-                                            Población & Alcance
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step2.title',
+                                                )
+                                            }}
                                         </h2>
                                         <p
                                             class="text-body-1 text-grey-lighten-1"
                                         >
-                                            ¿A quiénes queremos evaluar en esta
-                                            ocasión?
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step2.desc',
+                                                )
+                                            }}
                                         </p>
                                     </div>
 
                                     <v-select
                                         v-model="newCycle.scope!.type"
-                                        label="Segmentación de Población"
+                                        :label="
+                                            $t(
+                                                'assessment_command.wizard.step2.segmentation_label',
+                                            )
+                                        "
                                         :items="[
                                             {
-                                                title: 'Toda la Organización',
+                                                title: $t(
+                                                    'assessment_command.wizard.step2.segmentation_options.all',
+                                                ),
                                                 value: 'all',
                                             },
                                             {
-                                                title: 'Por Departamento',
+                                                title: $t(
+                                                    'assessment_command.wizard.step2.segmentation_options.department',
+                                                ),
                                                 value: 'department',
                                             },
                                             {
-                                                title: 'Por Escenario Estratégico',
+                                                title: $t(
+                                                    'assessment_command.wizard.step2.segmentation_options.scenario',
+                                                ),
                                                 value: 'scenario',
                                             },
                                             {
-                                                title: 'Solo High Potentials (HiPo)',
+                                                title: $t(
+                                                    'assessment_command.wizard.step2.segmentation_options.hipo',
+                                                ),
                                                 value: 'hipo',
                                             },
                                         ]"
@@ -846,24 +1025,45 @@ onMounted(() => {
                                         type="info"
                                         variant="tonal"
                                         border="start"
-                                        icon="mdi-brain"
                                         class="mb-6 rounded-lg"
                                     >
-                                        Esta opción sincroniza el ciclo con los
-                                        escenarios de Scenario IQ, evaluando
-                                        solo a los roles impactados.
+                                        <template #prepend>
+                                            <v-avatar
+                                                color="info"
+                                                size="32"
+                                                class="mr-3"
+                                            >
+                                                <PhRocketLaunch
+                                                    color="white"
+                                                    :size="18"
+                                                />
+                                            </v-avatar>
+                                        </template>
+                                        {{
+                                            $t(
+                                                'assessment_command.wizard.step2.scenario_alert',
+                                            )
+                                        }}
                                     </v-alert>
 
                                     <h3
                                         class="text-subtitle-1 font-weight-bold mb-4 text-white"
                                     >
-                                        Cronograma Proyectado
+                                        {{
+                                            $t(
+                                                'assessment_command.wizard.step2.schedule_title',
+                                            )
+                                        }}
                                     </h3>
                                     <v-row>
                                         <v-col cols="6">
                                             <v-text-field
                                                 v-model="newCycle.starts_at"
-                                                label="Fecha de Inicio"
+                                                :label="
+                                                    $t(
+                                                        'assessment_command.wizard.step2.start_date',
+                                                    )
+                                                "
                                                 type="date"
                                                 variant="filled"
                                                 bg-color="rgba(255,255,255,0.05)"
@@ -873,7 +1073,11 @@ onMounted(() => {
                                         <v-col cols="6">
                                             <v-text-field
                                                 v-model="newCycle.ends_at"
-                                                label="Fecha de Cierre"
+                                                :label="
+                                                    $t(
+                                                        'assessment_command.wizard.step2.end_date',
+                                                    )
+                                                "
                                                 type="date"
                                                 variant="filled"
                                                 bg-color="rgba(255,255,255,0.05)"
@@ -889,26 +1093,40 @@ onMounted(() => {
                                         <div
                                             class="text-overline font-weight-black mb-1 text-primary"
                                         >
-                                            PASO 3
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step3.label',
+                                                )
+                                            }}
                                         </div>
                                         <h2
-                                            class="text-h4 font-weight-bold mb-2 text-white"
+                                            class="text-h4 font-weight-bold font-premium mb-2 text-white"
                                         >
-                                            Instrumentos & Red 360
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step3.title',
+                                                )
+                                            }}
                                         </h2>
                                         <p
                                             class="text-body-1 text-grey-lighten-1"
                                         >
-                                            Configura las herramientas de
-                                            medición y quiénes participarán como
-                                            evaluadores.
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step3.desc',
+                                                )
+                                            }}
                                         </p>
                                     </div>
 
                                     <h3
                                         class="text-subtitle-1 font-weight-bold mb-3 text-white"
                                     >
-                                        Modelos de Medición
+                                        {{
+                                            $t(
+                                                'assessment_command.wizard.step3.instruments_title',
+                                            )
+                                        }}
                                     </h3>
                                     <v-row class="mb-6">
                                         <v-col
@@ -928,12 +1146,11 @@ onMounted(() => {
                                                     <div
                                                         class="d-flex align-center"
                                                     >
-                                                        <v-icon
-                                                            :icon="inst.icon"
-                                                            color="primary"
-                                                            class="mr-2"
-                                                            size="18"
-                                                        ></v-icon>
+                                                        <component
+                                                            :is="inst.icon"
+                                                            :size="18"
+                                                            class="mr-2 text-primary"
+                                                        />
                                                         <span
                                                             class="text-white"
                                                             >{{
@@ -949,7 +1166,11 @@ onMounted(() => {
                                     <h3
                                         class="text-subtitle-1 font-weight-bold mb-3 text-white"
                                     >
-                                        Red de Feedback (Vistas)
+                                        {{
+                                            $t(
+                                                'assessment_command.wizard.step3.network_title',
+                                            )
+                                        }}
                                     </h3>
                                     <v-card
                                         class="bg-white-opacity-5 border-auth pa-4 rounded-xl"
@@ -961,7 +1182,11 @@ onMounted(() => {
                                                         newCycle.evaluators!
                                                             .self
                                                     "
-                                                    label="Autoevaluación"
+                                                    :label="
+                                                        $t(
+                                                            'assessment_command.wizard.step3.network_options.self',
+                                                        )
+                                                    "
                                                     color="primary"
                                                     density="compact"
                                                     hide-details
@@ -973,7 +1198,11 @@ onMounted(() => {
                                                         newCycle.evaluators!
                                                             .manager
                                                     "
-                                                    label="Jefe Directo"
+                                                    :label="
+                                                        $t(
+                                                            'assessment_command.wizard.step3.network_options.manager',
+                                                        )
+                                                    "
                                                     color="primary"
                                                     density="compact"
                                                     hide-details
@@ -985,7 +1214,11 @@ onMounted(() => {
                                                         newCycle.evaluators!
                                                             .reports
                                                     "
-                                                    label="Reportes Directos"
+                                                    :label="
+                                                        $t(
+                                                            'assessment_command.wizard.step3.network_options.reports',
+                                                        )
+                                                    "
                                                     color="primary"
                                                     density="compact"
                                                     hide-details
@@ -996,7 +1229,11 @@ onMounted(() => {
                                                     v-model="
                                                         newCycle.evaluators!.ai
                                                     "
-                                                    label="IA Cerbero"
+                                                    :label="
+                                                        $t(
+                                                            'assessment_command.wizard.step3.network_options.ai',
+                                                        )
+                                                    "
                                                     color="primary"
                                                     density="compact"
                                                     hide-details
@@ -1010,8 +1247,11 @@ onMounted(() => {
                                             class="d-flex align-center justify-space-between"
                                         >
                                             <div class="text-body-2 text-white">
-                                                Nº de Pares aleatorios por
-                                                persona
+                                                {{
+                                                    $t(
+                                                        'assessment_command.wizard.step3.peers_count_label',
+                                                    )
+                                                }}
                                             </div>
                                             <div style="width: 200px">
                                                 <v-slider
@@ -1040,21 +1280,28 @@ onMounted(() => {
                                             class="elevation-xl mb-4"
                                         >
                                             <v-icon
-                                                icon="mdi-check-all"
+                                                :icon="PhCheckCircle"
                                                 size="48"
                                                 color="white"
                                             ></v-icon>
                                         </v-avatar>
                                         <h2
-                                            class="text-h4 font-weight-bold mb-2 text-white"
+                                            class="text-h4 font-weight-bold font-premium mb-2 text-white"
                                         >
-                                            Resumen de Lanzamiento
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step4.title',
+                                                )
+                                            }}
                                         </h2>
                                         <p
                                             class="text-body-1 text-grey-lighten-1"
                                         >
-                                            Revisa la configuración final antes
-                                            de registrar el ciclo en el sistema.
+                                            {{
+                                                $t(
+                                                    'assessment_command.wizard.step4.desc',
+                                                )
+                                            }}
                                         </p>
                                     </div>
 
@@ -1068,7 +1315,7 @@ onMounted(() => {
                                             <v-list-item class="px-6 py-3">
                                                 <template #prepend
                                                     ><v-icon
-                                                        icon="mdi-tag-outline"
+                                                        :icon="PhTag"
                                                         color="primary"
                                                     ></v-icon
                                                 ></template>
@@ -1080,8 +1327,11 @@ onMounted(() => {
                                                 >
                                                 <v-list-item-subtitle
                                                     class="text-grey"
-                                                    >Nombre del
-                                                    Ciclo</v-list-item-subtitle
+                                                    >{{
+                                                        $t(
+                                                            'assessment_command.wizard.step4.items.name',
+                                                        )
+                                                    }}</v-list-item-subtitle
                                                 >
                                             </v-list-item>
                                             <v-divider
@@ -1096,7 +1346,7 @@ onMounted(() => {
                                                         class="px-6 py-3"
                                                     >
                                                         <v-list-item-title
-                                                            class="font-weight-bold text-white"
+                                                            class="font-weight-bold font-premium text-white"
                                                             >{{
                                                                 modeOptions.find(
                                                                     (o) =>
@@ -1107,7 +1357,11 @@ onMounted(() => {
                                                         >
                                                         <v-list-item-subtitle
                                                             class="text-grey"
-                                                            >Modalidad</v-list-item-subtitle
+                                                            >{{
+                                                                $t(
+                                                                    'assessment_command.wizard.step4.items.mode',
+                                                                )
+                                                            }}</v-list-item-subtitle
                                                         >
                                                     </v-list-item>
                                                 </v-col>
@@ -1116,17 +1370,25 @@ onMounted(() => {
                                                         class="px-6 py-3"
                                                     >
                                                         <v-list-item-title
-                                                            class="font-weight-bold text-white"
+                                                            class="font-weight-bold font-premium text-white"
                                                             >{{
                                                                 newCycle
                                                                     .instruments
                                                                     ?.length
                                                             }}
-                                                            Seleccionados</v-list-item-title
+                                                            {{
+                                                                $t(
+                                                                    'assessment_command.wizard.step4.items.selected_suffix',
+                                                                )
+                                                            }}</v-list-item-title
                                                         >
                                                         <v-list-item-subtitle
                                                             class="text-grey"
-                                                            >Instrumentos</v-list-item-subtitle
+                                                            >{{
+                                                                $t(
+                                                                    'assessment_command.wizard.step4.items.instruments',
+                                                                )
+                                                            }}</v-list-item-subtitle
                                                         >
                                                     </v-list-item>
                                                 </v-col>
@@ -1135,17 +1397,23 @@ onMounted(() => {
                                                 class="opacity-10"
                                             ></v-divider>
                                             <v-list-item class="px-6 py-3">
-                                                <template #prepend
-                                                    ><v-icon
-                                                        icon="mdi-robot-outline"
-                                                        :color="
-                                                            newCycle.evaluators
-                                                                ?.ai
-                                                                ? 'success'
-                                                                : 'grey'
-                                                        "
-                                                    ></v-icon
-                                                ></template>
+                                                <template #prepend>
+                                                    <v-avatar
+                                                        size="24"
+                                                        class="mr-2"
+                                                    >
+                                                        <PhRobot
+                                                            :color="
+                                                                newCycle
+                                                                    .evaluators
+                                                                    ?.ai
+                                                                    ? '#10b981'
+                                                                    : '#6b7280'
+                                                            "
+                                                            :size="18"
+                                                        />
+                                                    </v-avatar>
+                                                </template>
                                                 <v-list-item-title
                                                     :class="
                                                         newCycle.evaluators?.ai
@@ -1155,15 +1423,23 @@ onMounted(() => {
                                                 >
                                                     {{
                                                         newCycle.evaluators?.ai
-                                                            ? 'Inteligencia Artificial Activada'
-                                                            : 'IA Desactivada'
+                                                            ? $t(
+                                                                  'assessment_command.wizard.step4.items.ai_active',
+                                                              )
+                                                            : $t(
+                                                                  'assessment_command.wizard.step4.items.ai_inactive',
+                                                              )
                                                     }}
                                                 </v-list-item-title>
                                                 <v-list-item-subtitle
                                                     class="text-grey"
-                                                    >Motor
-                                                    Cerbero</v-list-item-subtitle
                                                 >
+                                                    {{
+                                                        $t(
+                                                            'assessment_command.wizard.step4.items.ai_engine',
+                                                        )
+                                                    }}
+                                                </v-list-item-subtitle>
                                             </v-list-item>
                                         </v-list>
                                     </v-card>
@@ -1172,7 +1448,11 @@ onMounted(() => {
                                     <h3
                                         class="text-subtitle-1 font-weight-bold mb-4 text-white"
                                     >
-                                        Preview de Alcance Estimado
+                                        {{
+                                            $t(
+                                                'assessment_command.wizard.step4.preview_title',
+                                            )
+                                        }}
                                     </h3>
 
                                     <v-card
@@ -1188,8 +1468,11 @@ onMounted(() => {
                                             <div
                                                 class="text-caption text-grey-lighten-1"
                                             >
-                                                Cerbero está calculando el
-                                                universo de participantes...
+                                                {{
+                                                    $t(
+                                                        'assessment_command.wizard.step4.calculating',
+                                                    )
+                                                }}
                                             </div>
                                         </div>
                                         <v-row v-else>
@@ -1198,7 +1481,7 @@ onMounted(() => {
                                                 class="border-right-auth"
                                             >
                                                 <div
-                                                    class="text-h3 font-weight-black mb-1 text-white"
+                                                    class="text-h3 font-weight-black font-premium mb-1 text-white"
                                                 >
                                                     {{
                                                         previewData.participants
@@ -1207,12 +1490,16 @@ onMounted(() => {
                                                 <div
                                                     class="text-caption text-indigo-lighten-2 text-uppercase font-weight-bold"
                                                 >
-                                                    Participantes Target
+                                                    {{
+                                                        $t(
+                                                            'assessment_command.wizard.step4.preview_stats.participants',
+                                                        )
+                                                    }}
                                                 </div>
                                             </v-col>
                                             <v-col cols="6">
                                                 <div
-                                                    class="text-h3 font-weight-black mb-1 text-white"
+                                                    class="text-h3 font-weight-black font-premium mb-1 text-white"
                                                 >
                                                     {{
                                                         previewData.impacted_areas
@@ -1221,7 +1508,11 @@ onMounted(() => {
                                                 <div
                                                     class="text-caption text-indigo-lighten-2 text-uppercase font-weight-bold"
                                                 >
-                                                    Áreas / Redes 360
+                                                    {{
+                                                        $t(
+                                                            'assessment_command.wizard.step4.preview_stats.areas',
+                                                        )
+                                                    }}
                                                 </div>
                                             </v-col>
                                         </v-row>
@@ -1234,10 +1525,14 @@ onMounted(() => {
                                         border="start"
                                         class="mb-6 rounded-xl"
                                     >
-                                        El ciclo se guardará como
-                                        <strong>Borrador</strong>. Podrás editar
-                                        el alcance detallado de personas antes
-                                        de lanzarlo oficialmente.
+                                        <template #prepend>
+                                            <PhPulse :size="20" class="mr-2" />
+                                        </template>
+                                        {{
+                                            $t(
+                                                'assessment_command.wizard.step4.draft_alert',
+                                            )
+                                        }}
                                     </v-alert>
                                 </v-window-item>
                             </v-window>
@@ -1251,33 +1546,50 @@ onMounted(() => {
                             <v-btn
                                 v-if="step > 1"
                                 variant="text"
-                                prepend-icon="mdi-chevron-left"
                                 color="grey-lighten-1"
                                 @click="step--"
-                                >Regresar</v-btn
                             >
+                                <template #prepend>
+                                    <PhCaretLeft :size="18" class="mr-1" />
+                                </template>
+                                {{
+                                    $t('assessment_command.wizard.actions.back')
+                                }}
+                            </v-btn>
                             <div v-else></div>
 
-                            <v-btn
+                            <StButtonGlass
                                 v-if="step < 4"
                                 color="primary"
                                 height="48"
                                 class="rounded-lg px-8"
-                                append-icon="mdi-chevron-right"
                                 @click="step++"
-                                >Continuar</v-btn
                             >
+                                {{
+                                    $t('assessment_command.wizard.actions.next')
+                                }}
+                                <template #append>
+                                    <PhCaretRight :size="18" class="ml-1" />
+                                </template>
+                            </StButtonGlass>
 
-                            <v-btn
+                            <StButtonGlass
                                 v-else
                                 color="success"
                                 height="48"
-                                class="rounded-lg px-8"
+                                class="font-weight-bold rounded-lg px-8"
                                 :loading="saving"
-                                prepend-icon="mdi-check-circle"
                                 @click="saveCycle"
-                                >Lanzar Configuración</v-btn
                             >
+                                <template #prepend>
+                                    <PhCheckCircle :size="18" class="mr-1" />
+                                </template>
+                                {{
+                                    $t(
+                                        'assessment_command.wizard.actions.launch',
+                                    )
+                                }}
+                            </StButtonGlass>
                         </div>
                     </v-col>
                 </v-row>
