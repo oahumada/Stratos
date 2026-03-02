@@ -34,35 +34,27 @@ const props = withDefaults(defineProps<Props>(), {
 const loading = ref(false);
 
 const chartSeries = computed(() => {
-    // Siempre retornar datos, incluso si son 0
     return [props.internalCoverage, props.externalGap];
 });
 
 const chartOptions = computed(() => ({
     chart: {
         type: 'donut',
-        toolbar: {
-            show: true,
-            tools: {
-                download: true,
-                selection: true,
-                zoom: true,
-                zoomin: true,
-                zoomout: true,
-                pan: true,
-                reset: true,
-            },
-        },
+        toolbar: { show: false },
+        background: 'transparent',
     },
     labels: ['Internal Coverage', 'External Gap'],
     legend: {
         position: 'bottom',
+        labels: { colors: 'rgba(255, 255, 255, 0.7)' },
     },
     dataLabels: {
         enabled: true,
         formatter: (val: number) => val.toFixed(1) + '%',
+        style: { fontSize: '14px', fontWeight: 'bold' },
     },
-    colors: ['#66BB6A', '#FFA726'],
+    stroke: { width: 0 },
+    colors: ['#6366f1', '#f43f5e'], // indigo, rose
     plotOptions: {
         pie: {
             donut: {
@@ -70,17 +62,30 @@ const chartOptions = computed(() => ({
                 labels: {
                     show: true,
                     name: {
-                        fontSize: '16px',
+                        show: true,
+                        fontSize: '14px',
+                        color: 'rgba(255, 255, 255, 0.5)',
                     },
                     value: {
-                        fontSize: '16px',
-                        formatter: (val: number) => val.toFixed(1) + '%',
+                        show: true,
+                        fontSize: '20px',
+                        fontWeight: 'bold',
+                        color: '#fff',
+                        formatter: (val: string) => val + '%',
+                    },
+                    total: {
+                        show: true,
+                        label: 'Total',
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        formatter: () => '100%',
                     },
                 },
             },
         },
     },
+    theme: { mode: 'dark' },
     tooltip: {
+        theme: 'dark',
         y: {
             formatter: (val: number) => val.toFixed(1) + '%',
         },

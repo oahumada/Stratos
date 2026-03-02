@@ -13,7 +13,7 @@
             height="350"
         />
         <div v-else class="pa-4 text-center">
-            <p class="text-subtitle-2">No data available</p>
+            <p class="text-subtitle-2 text-white/50">No data available</p>
         </div>
     </div>
 </template>
@@ -39,36 +39,26 @@ const hasData = computed(
 
 const chartSeries = computed(() => [
     {
-        name: 'Current',
-        data: [props.currentHeadcount],
-    },
-    {
-        name: 'Projected',
-        data: [props.projectedHeadcount],
+        name: 'Headcount Evolution',
+        data: [
+            { x: 'Current', y: props.currentHeadcount },
+            { x: 'Projected', y: props.projectedHeadcount },
+        ],
     },
 ]);
 
 const chartOptions = computed(() => ({
     chart: {
         type: 'bar',
-        toolbar: {
-            show: true,
-            tools: {
-                download: true,
-                selection: true,
-                zoom: true,
-                zoomin: true,
-                zoomout: true,
-                pan: true,
-                reset: true,
-            },
-        },
+        toolbar: { show: false },
+        background: 'transparent',
     },
     plotOptions: {
         bar: {
             horizontal: false,
             columnWidth: '55%',
-            borderRadius: 4,
+            borderRadius: 8,
+            distributed: true, // Importante para colores individuales
             dataLabels: {
                 position: 'top',
             },
@@ -78,41 +68,52 @@ const chartOptions = computed(() => ({
         enabled: true,
         offsetY: -20,
         style: {
-            fontSize: '12px',
-            colors: ['#304758'],
+            fontSize: '14px',
+            colors: ['#fff'],
+            fontWeight: 'bold',
         },
     },
-    stroke: {
-        show: true,
-        width: 2,
-        colors: ['transparent'],
-    },
+    stroke: { show: false },
+    theme: { mode: 'dark' },
     tooltip: {
+        theme: 'dark',
         y: {
             formatter: (val: number) => val + ' people',
         },
     },
     fill: {
-        opacity: 1,
+        type: 'gradient',
+        gradient: {
+            shade: 'dark',
+            type: 'vertical',
+            opacityFrom: 0.8,
+            opacityTo: 0.9,
+            stops: [0, 100],
+        },
     },
     legend: {
-        position: 'top',
-        horizontalAlign: 'right',
+        show: false,
     },
     xaxis: {
-        categories: [props.title],
-        axisBorder: {
-            show: true,
+        labels: {
+            style: { colors: 'rgba(255, 255, 255, 0.5)', fontWeight: 600 },
         },
-        axisTicks: {
-            show: true,
-        },
+        axisBorder: { show: false },
+        axisTicks: { show: false },
     },
     yaxis: {
         title: {
             text: 'Headcount',
+            style: { color: 'rgba(255, 255, 255, 0.4)', fontWeight: 600 },
+        },
+        labels: {
+            style: { colors: 'rgba(255, 255, 255, 0.5)' },
         },
     },
-    colors: ['#42A5F5', '#EF5350'],
+    grid: {
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        strokeDashArray: 4,
+    },
+    colors: ['#6366f1', '#10b981'], // Current (indigo), Projected (emerald)
 }));
 </script>

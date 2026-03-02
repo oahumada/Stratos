@@ -13,7 +13,7 @@
             height="350"
         />
         <div v-else class="pa-4 text-center">
-            <p class="text-subtitle-2">No data available</p>
+            <p class="text-subtitle-2 text-white/50">No data available</p>
         </div>
     </div>
 </template>
@@ -46,12 +46,12 @@ const hasData = computed(
 
 const chartSeries = computed(() => [
     {
-        name: 'Number of Gaps',
+        name: 'Gaps',
         data: [
-            props.criticalGaps,
-            props.highGaps,
-            props.mediumGaps,
-            props.lowGaps,
+            { x: 'Critical', y: props.criticalGaps },
+            { x: 'High', y: props.highGaps },
+            { x: 'Medium', y: props.mediumGaps },
+            { x: 'Low', y: props.lowGaps },
         ],
     },
 ]);
@@ -59,24 +59,15 @@ const chartSeries = computed(() => [
 const chartOptions = computed(() => ({
     chart: {
         type: 'bar',
-        toolbar: {
-            show: true,
-            tools: {
-                download: true,
-                selection: true,
-                zoom: true,
-                zoomin: true,
-                zoomout: true,
-                pan: true,
-                reset: true,
-            },
-        },
+        toolbar: { show: false },
+        background: 'transparent',
     },
     plotOptions: {
         bar: {
             horizontal: false,
             columnWidth: '60%',
-            borderRadius: 4,
+            borderRadius: 8,
+            distributed: true,
             dataLabels: {
                 position: 'top',
             },
@@ -86,34 +77,48 @@ const chartOptions = computed(() => ({
         enabled: true,
         offsetY: -20,
         style: {
-            fontSize: '12px',
-            colors: ['#304758'],
+            fontSize: '14px',
+            colors: ['#fff'],
+            fontWeight: 'bold',
         },
     },
-    stroke: {
-        show: true,
-        width: 2,
-        colors: ['transparent'],
-    },
-    xaxis: {
-        categories: ['Critical', 'High', 'Medium', 'Low'],
-        axisBorder: {
-            show: true,
-        },
-    },
-    yaxis: {
-        title: {
-            text: 'Number of Gaps',
-        },
-    },
-    fill: {
-        opacity: 1,
-    },
-    colors: ['#EF5350'],
+    stroke: { show: false },
+    theme: { mode: 'dark' },
     tooltip: {
+        theme: 'dark',
         y: {
             formatter: (val: number) => val + ' gaps',
         },
     },
+    fill: {
+        type: 'gradient',
+        gradient: {
+            shade: 'dark',
+            type: 'vertical',
+            opacityFrom: 0.8,
+            opacityTo: 0.9,
+            stops: [0, 100],
+        },
+    },
+    xaxis: {
+        labels: {
+            style: { colors: 'rgba(255, 255, 255, 0.5)', fontWeight: 600 },
+        },
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+    },
+    yaxis: {
+        labels: {
+            style: { colors: 'rgba(255, 255, 255, 0.5)' },
+        },
+    },
+    grid: {
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        strokeDashArray: 4,
+    },
+    legend: {
+        show: false,
+    },
+    colors: ['#f43f5e', '#fb923c', '#6366f1', '#10b981'], // Rose (Critical), Orange (High), Indigo (Medium), Emerald (Low)
 }));
 </script>

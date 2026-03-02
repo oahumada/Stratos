@@ -13,7 +13,7 @@
             height="350"
         />
         <div v-else class="pa-4 text-center">
-            <p class="text-subtitle-2">No data available</p>
+            <p class="text-subtitle-2 text-white/50">No data available</p>
         </div>
     </div>
 </template>
@@ -33,54 +33,36 @@ const props = withDefaults(defineProps<Props>(), {
 const loading = ref(false);
 
 const chartSeries = computed(() => {
-    // Siempre retornar datos, incluso si es 0
     return [props.riskPercentage];
 });
 
 const chartOptions = computed(() => ({
     chart: {
         type: 'radialBar',
-        toolbar: {
-            show: true,
-            tools: {
-                download: true,
-                selection: true,
-                zoom: true,
-                zoomin: true,
-                zoomout: true,
-                pan: true,
-                reset: true,
-            },
-        },
+        toolbar: { show: false },
+        background: 'transparent',
     },
     plotOptions: {
         radialBar: {
             startAngle: -90,
             endAngle: 90,
             track: {
-                background: '#f2f2f2',
+                background: 'rgba(255, 255, 255, 0.05)',
                 strokeWidth: '97%',
                 margin: 5,
-                dropShadow: {
-                    enabled: true,
-                    top: 2,
-                    left: 0,
-                    color: '#999',
-                    opacity: 1,
-                    blur: 2,
-                },
             },
             dataLabels: {
                 name: {
                     show: true,
                     offsetY: -10,
-                    color: '#888',
+                    color: 'rgba(255, 255, 255, 0.5)',
                     fontSize: '13px',
                 },
                 value: {
                     offsetY: 0,
-                    color: '#111',
-                    fontSize: '16px',
+                    color: '#fff',
+                    fontSize: '24px',
+                    fontWeight: 'bold',
                     show: true,
                     formatter: (val: number) => val.toFixed(0) + '%',
                 },
@@ -90,18 +72,17 @@ const chartOptions = computed(() => ({
     fill: {
         type: 'gradient',
         gradient: {
-            shade: 'light',
-            shadeIntensity: 0.1,
-            inverseColors: false,
-            opacityFrom: 1,
-            opacityTo: 1,
-            stops: [0, 50, 100],
+            shade: 'dark',
+            type: 'horizontal',
+            gradientToColors: ['#f43f5e'], // rose
+            stops: [0, 100],
         },
     },
     stroke: {
         dashArray: 4,
     },
     labels: [props.title],
-    colors: props.riskPercentage > 25 ? ['#EF5350'] : '#66BB6A',
+    theme: { mode: 'dark' },
+    colors: ['#6366f1'], // indigo
 }));
 </script>

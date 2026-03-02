@@ -13,7 +13,7 @@
             height="300"
         />
         <div v-else class="pa-4 text-center">
-            <p class="text-subtitle-2">No data available</p>
+            <p class="text-subtitle-2 text-white/50">No data available</p>
         </div>
     </div>
 </template>
@@ -50,57 +50,67 @@ const chartSeries = computed(() => [
 const chartOptions = computed(() => ({
     chart: {
         type: 'bar',
-        toolbar: {
-            show: true,
-            tools: {
-                download: true,
-                selection: true,
-                zoom: true,
-                zoomin: true,
-                zoomout: true,
-                pan: true,
-                reset: true,
-            },
-        },
+        toolbar: { show: false },
+        background: 'transparent',
     },
     plotOptions: {
         bar: {
             horizontal: true,
+            borderRadius: 6,
             dataLabels: {
-                position: 'top',
+                position: 'right',
             },
         },
     },
     dataLabels: {
         enabled: true,
         formatter: (val: number) => val.toString(),
-        offsetX: -6,
+        offsetX: 10,
         style: {
             fontSize: '12px',
             colors: ['#fff'],
+            fontWeight: 'bold',
         },
     },
-    stroke: {
-        show: true,
-        width: 1,
-        colors: ['#fff'],
-    },
+    stroke: { show: false },
     xaxis: {
         categories: props.departments,
-        title: {
-            text: 'Department',
+        labels: {
+            style: { colors: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 },
         },
+        axisBorder: { show: false },
+        axisTicks: { show: false },
     },
     yaxis: {
-        title: {
-            text: 'Number of Gaps',
+        labels: {
+            style: { colors: 'rgba(255, 255, 255, 0.5)' },
         },
     },
-    fill: {
-        colors: ['#FF6B6B'],
+    grid: {
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        strokeDashArray: 4,
+        xaxis: { lines: { show: true } },
+        yaxis: { lines: { show: false } },
     },
+    fill: {
+        type: 'gradient',
+        gradient: {
+            shade: 'dark',
+            type: 'horizontal',
+            gradientToColors: ['#10b981'], // emerald
+            stops: [0, 100],
+        },
+    },
+    colors: ['#6366f1'], // indigo base
     legend: {
-        position: 'bottom',
+        show: false,
+    },
+    theme: { mode: 'dark' },
+    tooltip: {
+        theme: 'dark',
+        y: {
+            formatter: (val: number) => val.toString() + ' gaps',
+        },
     },
 }));
 </script>

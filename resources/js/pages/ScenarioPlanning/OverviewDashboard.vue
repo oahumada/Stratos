@@ -35,6 +35,14 @@ interface Analytics {
     estimated_external_hiring_months: number;
     high_risk_positions: number;
     medium_risk_positions: number;
+    critical_gaps: number;
+    high_gaps: number;
+    medium_gaps: number;
+    low_gaps: number;
+    immediately_ready: number;
+    ready_within_six: number;
+    ready_within_twelve: number;
+    beyond_twelve: number;
 }
 
 interface Props {
@@ -72,6 +80,14 @@ const analytics = ref<Analytics>({
     estimated_external_hiring_months: 0,
     high_risk_positions: 0,
     medium_risk_positions: 0,
+    critical_gaps: 0,
+    high_gaps: 0,
+    medium_gaps: 0,
+    low_gaps: 0,
+    immediately_ready: 0,
+    ready_within_six: 0,
+    ready_within_twelve: 0,
+    beyond_twelve: 0,
 });
 
 const formatNumber = (num: number): string => {
