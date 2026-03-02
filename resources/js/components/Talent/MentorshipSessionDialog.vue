@@ -1,176 +1,304 @@
 <template>
-    <v-dialog v-model="dialog" max-width="700">
-        <v-card>
-            <v-card-title class="pa-4 d-flex align-center">
-                <v-icon color="primary" class="mr-2">mdi-account-group</v-icon>
-                Sesiones de Mentoría
-                <v-spacer></v-spacer>
-                <v-btn
-                    icon="mdi-close"
-                    variant="text"
-                    @click="dialog = false"
-                ></v-btn>
-            </v-card-title>
-
-            <v-card-text class="pa-0">
-                <v-tabs v-model="activeTab" grow border-b>
-                    <v-tab value="list">Historial</v-tab>
-                    <v-tab value="add">Nueva Sesión</v-tab>
-                </v-tabs>
-
-                <v-window v-model="activeTab" class="pa-4">
-                    <!-- Session List -->
-                    <v-window-item value="list">
-                        <div v-if="loading" class="d-flex pa-4 justify-center">
-                            <v-progress-circular
-                                indeterminate
-                                color="primary"
-                            ></v-progress-circular>
+    <v-dialog v-model="dialog" max-width="700" persistent class="glass-dialog">
+        <div
+            class="overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900/80 p-1 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+        >
+            <div
+                class="relative overflow-hidden rounded-[1.8rem] bg-gradient-to-br from-white/5 to-transparent p-6"
+            >
+                <!-- Header -->
+                <div class="mb-8 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-400"
+                        >
+                            <PhUsers :size="24" />
                         </div>
+                        <div>
+                            <h2
+                                class="text-xl font-black tracking-tight text-white"
+                            >
+                                {{
+                                    t(
+                                        'talent_development.mentorship_sessions.title',
+                                    )
+                                }}
+                            </h2>
+                            <p
+                                class="text-[10px] font-bold tracking-widest text-white/30 uppercase"
+                            >
+                                {{ actionTitle }}
+                            </p>
+                        </div>
+                    </div>
+                    <StButtonGlass
+                        variant="ghost"
+                        :icon="PhX"
+                        circle
+                        size="sm"
+                        @click="dialog = false"
+                    />
+                </div>
+
+                <!-- Tabs -->
+                <div class="mb-6 flex gap-2">
+                    <button
+                        v-for="tab in [
+                            {
+                                id: 'list',
+                                label: t(
+                                    'talent_development.mentorship_sessions.tabs.history',
+                                ),
+                                icon: PhChatTeardropText,
+                            },
+                            {
+                                id: 'add',
+                                label: t(
+                                    'talent_development.mentorship_sessions.tabs.new',
+                                ),
+                                icon: PhPlus,
+                            },
+                        ]"
+                        :key="tab.id"
+                        @click="activeTab = tab.id"
+                        :class="[
+                            'flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold transition-all duration-300',
+                            activeTab === tab.id
+                                ? 'border border-indigo-500/30 bg-indigo-500/10 text-indigo-300'
+                                : 'text-white/40 hover:bg-white/5 hover:text-white',
+                        ]"
+                    >
+                        <component :is="tab.icon" :size="14" />
+                        {{ tab.label }}
+                    </button>
+                </div>
+
+                <!-- Content Area -->
+                <div class="min-h-[300px]">
+                    <!-- List View -->
+                    <div
+                        v-if="activeTab === 'list'"
+                        class="animate-in space-y-4 duration-300 fade-in slide-in-from-bottom-2"
+                    >
+                        <div v-if="loading" class="flex justify-center py-12">
+                            <div
+                                class="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500/20 border-t-indigo-500"
+                            />
+                        </div>
+
                         <div
                             v-else-if="sessions.length === 0"
-                            class="pa-8 text-center"
+                            class="flex flex-col items-center justify-center py-12 text-center"
                         >
-                            <v-icon
-                                size="48"
-                                color="grey-lighten-2"
-                                class="mb-2"
-                                >mdi-comment-outline</v-icon
-                            >
-                            <div class="text-subtitle-1 text-grey">
-                                No hay sesiones registradas
+                            <div class="mb-4 text-white/10">
+                                <PhChatTeardropText :size="48" weight="thin" />
                             </div>
-                            <v-btn
-                                color="primary"
-                                variant="text"
-                                size="small"
+                            <p class="text-sm font-medium text-white/30">
+                                {{
+                                    t(
+                                        'talent_development.mentorship_sessions.empty',
+                                    )
+                                }}
+                            </p>
+                            <StButtonGlass
+                                variant="ghost"
+                                size="sm"
+                                class="mt-4"
                                 @click="activeTab = 'add'"
-                                class="mt-2"
                             >
-                                Registrar la primera
-                            </v-btn>
+                                {{
+                                    t(
+                                        'talent_development.mentorship_sessions.tabs.new',
+                                    )
+                                }}
+                            </StButtonGlass>
                         </div>
-                        <v-timeline v-else density="compact" align="start">
-                            <v-timeline-item
+
+                        <div
+                            v-else
+                            class="custom-scrollbar max-h-[400px] space-y-4 overflow-y-auto pr-2"
+                        >
+                            <div
                                 v-for="session in sessions"
                                 :key="session.id"
-                                dot-color="primary"
-                                size="x-small"
+                                class="rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:border-white/10"
                             >
                                 <div
-                                    class="pa-3 bg-grey-lighten-5 mb-4 rounded border"
+                                    class="mb-3 flex items-center justify-between"
                                 >
                                     <div
-                                        class="d-flex justify-space-between mb-1 align-baseline"
+                                        class="flex items-center gap-2 text-xs font-bold text-white/50"
                                     >
-                                        <div class="font-weight-bold">
-                                            {{
-                                                formatDate(session.session_date)
-                                            }}
-                                        </div>
-                                        <v-chip
-                                            size="x-small"
-                                            :color="
-                                                getStatusColor(session.status)
-                                            "
-                                            class="text-capitalize"
-                                        >
-                                            {{ session.status }}
-                                        </v-chip>
+                                        <PhCalendar :size="14" />
+                                        {{ formatDate(session.session_date) }}
                                     </div>
-                                    <div class="text-body-2 mb-2 italic">
-                                        "{{ session.summary }}"
-                                    </div>
-                                    <div
-                                        v-if="session.next_steps"
-                                        class="text-caption"
+                                    <StBadgeGlass
+                                        :variant="
+                                            getStatusVariant(session.status)
+                                        "
                                     >
-                                        <span class="font-weight-bold"
-                                            >Siguientes pasos:</span
-                                        >
-                                        {{ session.next_steps }}
-                                    </div>
-                                    <div class="text-caption text-grey mt-1">
-                                        Duración:
-                                        {{ session.duration_minutes }} min
-                                    </div>
+                                        {{ session.status }}
+                                    </StBadgeGlass>
                                 </div>
-                            </v-timeline-item>
-                        </v-timeline>
-                    </v-window-item>
 
-                    <!-- Add Session Form -->
-                    <v-window-item value="add">
-                        <v-form ref="form" v-model="valid">
-                            <v-row>
-                                <v-col cols="12" sm="6">
-                                    <v-text-field
-                                        v-model="newSession.session_date"
-                                        label="Fecha de la Sesión"
-                                        type="date"
-                                        variant="outlined"
-                                        density="compact"
-                                        :rules="[
-                                            (v) =>
-                                                !!v || 'La fecha es requerida',
-                                        ]"
-                                    ></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="6">
-                                    <v-text-field
-                                        v-model="newSession.duration_minutes"
-                                        label="Duración (minutos)"
-                                        type="number"
-                                        variant="outlined"
-                                        density="compact"
-                                    ></v-text-field>
-                                </v-col>
-                                <v-col cols="12">
-                                    <v-textarea
-                                        v-model="newSession.summary"
-                                        label="Resumen de la Sesión"
-                                        placeholder="¿De qué hablaron? ¿Qué se cubrió?"
-                                        variant="outlined"
-                                        counter
-                                        rows="3"
-                                        :rules="[
-                                            (v) =>
-                                                !!v ||
-                                                'El resumen es requerido',
-                                        ]"
-                                    ></v-textarea>
-                                </v-col>
-                                <v-col cols="12">
-                                    <v-textarea
-                                        v-model="newSession.next_steps"
-                                        label="Compromisos / Siguientes Pasos"
-                                        placeholder="Acciones para la próxima reunión"
-                                        variant="outlined"
-                                        rows="2"
-                                    ></v-textarea>
-                                </v-col>
-                            </v-row>
-                            <div class="d-flex mt-2 justify-end">
-                                <v-btn
-                                    color="primary"
-                                    :loading="saving"
-                                    :disabled="!valid"
-                                    @click="saveSession"
+                                <blockquote
+                                    class="mb-4 text-sm leading-relaxed text-white/70 italic before:content-['“'] after:content-['”']"
                                 >
-                                    Guardar Sesión
-                                </v-btn>
+                                    {{ session.summary }}
+                                </blockquote>
+
+                                <div
+                                    v-if="session.next_steps"
+                                    class="rounded-xl border border-white/5 bg-white/5 p-3"
+                                >
+                                    <div
+                                        class="mb-1 text-[10px] font-black tracking-widest text-indigo-400 uppercase"
+                                    >
+                                        {{
+                                            t(
+                                                'talent_development.mentorship_sessions.next_steps',
+                                            )
+                                        }}
+                                    </div>
+                                    <p class="text-xs text-white/50">
+                                        {{ session.next_steps }}
+                                    </p>
+                                </div>
+
+                                <div
+                                    class="mt-3 flex items-center gap-2 text-[10px] font-bold tracking-widest text-white/20 uppercase"
+                                >
+                                    <PhClock :size="12" />
+                                    {{ session.duration_minutes }} min
+                                </div>
                             </div>
-                        </v-form>
-                    </v-window-item>
-                </v-window>
-            </v-card-text>
-        </v-card>
+                        </div>
+                    </div>
+
+                    <!-- Add View -->
+                    <div
+                        v-else
+                        class="animate-in duration-300 fade-in slide-in-from-bottom-2"
+                    >
+                        <form @submit.prevent="saveSession" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1.5">
+                                    <label
+                                        class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                    >
+                                        {{
+                                            t(
+                                                'talent_development.mentorship_sessions.form.date',
+                                            )
+                                        }}
+                                    </label>
+                                    <input
+                                        v-model="newSession.session_date"
+                                        type="date"
+                                        required
+                                        class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition-all focus:border-indigo-500/50 focus:outline-none"
+                                    />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label
+                                        class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                    >
+                                        {{
+                                            t(
+                                                'talent_development.mentorship_sessions.form.duration',
+                                            )
+                                        }}
+                                    </label>
+                                    <input
+                                        v-model="newSession.duration_minutes"
+                                        type="number"
+                                        class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition-all focus:border-indigo-500/50 focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label
+                                    class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.mentorship_sessions.form.summary',
+                                        )
+                                    }}
+                                </label>
+                                <textarea
+                                    v-model="newSession.summary"
+                                    required
+                                    rows="4"
+                                    class="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-all focus:border-indigo-500/50 focus:outline-none"
+                                    :placeholder="
+                                        t(
+                                            'talent_development.mentorship_sessions.form.summary_placeholder',
+                                        )
+                                    "
+                                ></textarea>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label
+                                    class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.mentorship_sessions.form.next_steps',
+                                        )
+                                    }}
+                                </label>
+                                <textarea
+                                    v-model="newSession.next_steps"
+                                    rows="2"
+                                    class="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-all focus:border-indigo-500/50 focus:outline-none"
+                                    :placeholder="
+                                        t(
+                                            'talent_development.mentorship_sessions.form.next_steps_placeholder',
+                                        )
+                                    "
+                                ></textarea>
+                            </div>
+
+                            <div class="flex justify-end pt-4">
+                                <StButtonGlass
+                                    variant="primary"
+                                    :loading="saving"
+                                    type="submit"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.mentorship_sessions.form.save',
+                                        )
+                                    }}
+                                </StButtonGlass>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </v-dialog>
 </template>
 
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import {
+    PhCalendar,
+    PhChatTeardropText,
+    PhClock,
+    PhPlus,
+    PhUsers,
+    PhX,
+} from '@phosphor-icons/vue';
 import axios from 'axios';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     actionId: {
@@ -179,16 +307,24 @@ const props = defineProps({
     },
     actionTitle: {
         type: String,
-        default: 'Sesión de Mentoría',
+        default: 'Sesion de Mentoría',
     },
 });
 
 const dialog = ref(false);
 const activeTab = ref('list');
-const sessions = ref([]);
+interface MentorshipSession {
+    id: number;
+    session_date: string;
+    summary: string;
+    next_steps: string;
+    duration_minutes: number;
+    status: string;
+}
+
+const sessions = ref<MentorshipSession[]>([]);
 const loading = ref(false);
 const saving = ref(false);
-const valid = ref(false);
 
 const newSession = ref({
     session_date: new Date().toISOString().substr(0, 10),
@@ -249,18 +385,34 @@ const formatDate = (dateStr: string) => {
     return date.toLocaleDateString();
 };
 
-const getStatusColor = (status: string) => {
+const getStatusVariant = (status: string) => {
     switch (status) {
         case 'completed':
             return 'success';
         case 'scheduled':
-            return 'info';
+            return 'glass';
         case 'cancelled':
-            return 'error';
+            return 'warning';
         default:
-            return 'grey';
+            return 'glass';
     }
 };
 
 defineExpose({ open });
 </script>
+
+<style scoped>
+.glass-dialog {
+    backdrop-filter: blur(10px);
+}
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+</style>

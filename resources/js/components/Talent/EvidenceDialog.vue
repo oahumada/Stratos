@@ -1,186 +1,386 @@
 <template>
-    <v-dialog v-model="dialog" max-width="600">
-        <v-card>
-            <v-card-title class="pa-4 d-flex align-center">
-                <v-icon color="primary" class="mr-2">mdi-attachment</v-icon>
-                Evidencias de Progreso
-                <v-spacer></v-spacer>
-                <v-btn
-                    icon="mdi-close"
-                    variant="text"
-                    @click="dialog = false"
-                ></v-btn>
-            </v-card-title>
-
-            <v-card-text class="pa-0">
-                <v-tabs v-model="activeTab" grow border-b>
-                    <v-tab value="list">Historial</v-tab>
-                    <v-tab value="upload">Subir Evidencia</v-tab>
-                </v-tabs>
-
-                <v-window v-model="activeTab" class="pa-4">
-                    <!-- Evidence List -->
-                    <v-window-item value="list">
-                        <div v-if="loading" class="d-flex pa-4 justify-center">
-                            <v-progress-circular
-                                indeterminate
-                                color="primary"
-                            ></v-progress-circular>
+    <v-dialog v-model="dialog" max-width="600" persistent class="glass-dialog">
+        <div
+            class="overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900/80 p-1 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+        >
+            <div
+                class="relative overflow-hidden rounded-[1.8rem] bg-gradient-to-br from-white/5 to-transparent p-6"
+            >
+                <!-- Header -->
+                <div class="mb-8 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-500/30 bg-blue-500/10 text-blue-400"
+                        >
+                            <PhPaperclip :size="24" />
                         </div>
+                        <div>
+                            <h2
+                                class="text-xl font-black tracking-tight text-white"
+                            >
+                                {{ t('talent_development.evidence.title') }}
+                            </h2>
+                            <p
+                                class="text-[10px] font-bold tracking-widest text-white/30 uppercase"
+                            >
+                                {{ t('talent_development.evidence.subtitle') }}
+                            </p>
+                        </div>
+                    </div>
+                    <StButtonGlass
+                        variant="ghost"
+                        :icon="PhX"
+                        circle
+                        size="sm"
+                        @click="dialog = false"
+                    />
+                </div>
+
+                <!-- Tabs -->
+                <div class="mb-6 flex gap-2">
+                    <button
+                        v-for="tab in [
+                            {
+                                id: 'list',
+                                label: t(
+                                    'talent_development.evidence.tabs.history',
+                                ),
+                                icon: PhArchive,
+                            },
+                            {
+                                id: 'upload',
+                                label: t(
+                                    'talent_development.evidence.tabs.new',
+                                ),
+                                icon: PhPlus,
+                            },
+                        ]"
+                        :key="tab.id"
+                        @click="activeTab = tab.id"
+                        :class="[
+                            'flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold transition-all duration-300',
+                            activeTab === tab.id
+                                ? 'border border-blue-500/30 bg-blue-500/10 text-blue-300'
+                                : 'text-white/40 hover:bg-white/5 hover:text-white',
+                        ]"
+                    >
+                        <component :is="tab.icon" :size="14" />
+                        {{ tab.label }}
+                    </button>
+                </div>
+
+                <!-- Content Area -->
+                <div class="min-h-[350px]">
+                    <!-- List View -->
+                    <div
+                        v-if="activeTab === 'list'"
+                        class="animate-in space-y-4 duration-300 fade-in slide-in-from-bottom-2"
+                    >
+                        <div v-if="loading" class="flex justify-center py-12">
+                            <div
+                                class="h-8 w-8 animate-spin rounded-full border-2 border-blue-500/20 border-t-blue-500"
+                            />
+                        </div>
+
                         <div
                             v-else-if="evidences.length === 0"
-                            class="pa-8 text-center"
+                            class="flex flex-col items-center justify-center py-12 text-center"
                         >
-                            <v-icon
-                                size="48"
-                                color="grey-lighten-2"
-                                class="mb-2"
-                                >mdi-file-question-outline</v-icon
-                            >
-                            <div class="text-subtitle-1 text-grey">
-                                Aún no hay evidencias
+                            <div class="mb-4 text-white/10">
+                                <PhArchive :size="48" weight="thin" />
                             </div>
-                            <v-btn
-                                color="primary"
-                                variant="text"
-                                size="small"
+                            <p class="text-sm font-medium text-white/30">
+                                {{ t('talent_development.evidence.empty') }}
+                            </p>
+                            <StButtonGlass
+                                variant="ghost"
+                                size="sm"
+                                class="mt-4"
                                 @click="activeTab = 'upload'"
-                                class="mt-2"
                             >
-                                Subir primera evidencia
-                            </v-btn>
+                                {{ t('talent_development.evidence.tabs.new') }}
+                            </StButtonGlass>
                         </div>
-                        <div v-else>
-                            <v-list lines="two">
-                                <v-list-item
-                                    v-for="evidence in evidences"
-                                    :key="evidence.id"
-                                    :title="evidence.title"
-                                    :subtitle="evidence.description"
+
+                        <div
+                            v-else
+                            class="custom-scrollbar max-h-[450px] space-y-4 overflow-y-auto pr-2"
+                        >
+                            <div
+                                v-for="evidence in evidences"
+                                :key="evidence.id"
+                                class="group flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-4 transition-all hover:border-white/10 hover:bg-white/10"
+                            >
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400"
                                 >
-                                    <template v-slot:prepend>
-                                        <v-avatar color="blue-lighten-5">
-                                            <v-icon
-                                                color="blue"
-                                                :icon="getIcon(evidence.type)"
-                                            ></v-icon>
-                                        </v-avatar>
-                                    </template>
-                                    <template v-slot:append>
-                                        <v-btn
-                                            v-if="evidence.file_path"
-                                            icon="mdi-download"
-                                            variant="text"
-                                            size="small"
-                                            :href="
-                                                '/storage/' + evidence.file_path
-                                            "
-                                            target="_blank"
-                                        ></v-btn>
-                                        <v-btn
-                                            v-if="evidence.external_url"
-                                            icon="mdi-open-in-new"
-                                            variant="text"
-                                            size="small"
-                                            :href="evidence.external_url"
-                                            target="_blank"
-                                        ></v-btn>
-                                        <v-btn
-                                            icon="mdi-delete-outline"
-                                            variant="text"
-                                            size="small"
-                                            color="error"
-                                            @click="deleteEvidence(evidence.id)"
-                                        ></v-btn>
-                                    </template>
-                                </v-list-item>
-                            </v-list>
-                        </div>
-                    </v-window-item>
+                                    <component
+                                        :is="getIcon(evidence.type)"
+                                        :size="20"
+                                    />
+                                </div>
 
-                    <!-- Upload Form -->
-                    <v-window-item value="upload">
-                        <v-form ref="form" v-model="valid">
-                            <v-text-field
-                                v-model="newEvidence.title"
-                                label="Título de la evidencia"
-                                variant="outlined"
-                                density="compact"
-                                :rules="[
-                                    (v) => !!v || 'El título es requerido',
-                                ]"
-                                class="mb-2"
-                            ></v-text-field>
+                                <div class="min-w-0 flex-1">
+                                    <div
+                                        class="truncate text-sm font-bold text-white"
+                                    >
+                                        {{ evidence.title }}
+                                    </div>
+                                    <div class="truncate text-xs text-white/40">
+                                        {{ evidence.description }}
+                                    </div>
+                                </div>
 
-                            <v-textarea
-                                v-model="newEvidence.description"
-                                label="Descripción resumida"
-                                variant="outlined"
-                                density="compact"
-                                rows="2"
-                                class="mb-2"
-                            ></v-textarea>
-
-                            <v-select
-                                v-model="newEvidence.type"
-                                :items="[
-                                    {
-                                        title: 'Archivo/Documento',
-                                        value: 'file',
-                                    },
-                                    { title: 'Enlace Externo', value: 'link' },
-                                    { title: 'Nota de texto', value: 'text' },
-                                ]"
-                                label="Tipo de Evidencia"
-                                variant="outlined"
-                                density="compact"
-                                class="mb-2"
-                            ></v-select>
-
-                            <v-file-input
-                                v-if="newEvidence.type === 'file'"
-                                v-model="newEvidence.file"
-                                label="Seleccionar archivo"
-                                variant="outlined"
-                                density="compact"
-                                prepend-icon="mdi-paperclip"
-                                show-size
-                                :rules="[
-                                    (v) => !!v || 'El archivo es requerido',
-                                ]"
-                            ></v-file-input>
-
-                            <v-text-field
-                                v-if="newEvidence.type === 'link'"
-                                v-model="newEvidence.external_url"
-                                label="URL externa"
-                                variant="outlined"
-                                density="compact"
-                                placeholder="https://..."
-                                :rules="[(v) => !!v || 'La URL es requerida']"
-                            ></v-text-field>
-
-                            <div class="d-flex mt-4 justify-end">
-                                <v-btn
-                                    color="primary"
-                                    :loading="saving"
-                                    :disabled="!valid"
-                                    @click="saveEvidence"
+                                <div
+                                    class="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
                                 >
-                                    Guardar Evidencia
-                                </v-btn>
+                                    <StButtonGlass
+                                        v-if="evidence.file_path"
+                                        variant="ghost"
+                                        :icon="PhDownload"
+                                        circle
+                                        size="sm"
+                                        @click="
+                                            downloadFile(evidence.file_path)
+                                        "
+                                    />
+                                    <StButtonGlass
+                                        v-if="evidence.external_url"
+                                        variant="ghost"
+                                        :icon="PhArrowSquareOut"
+                                        circle
+                                        size="sm"
+                                        @click="openUrl(evidence.external_url)"
+                                    />
+                                    <StButtonGlass
+                                        variant="ghost"
+                                        :icon="PhTrash"
+                                        circle
+                                        size="sm"
+                                        class="hover:text-rose-400"
+                                        @click="deleteEvidence(evidence.id)"
+                                    />
+                                </div>
                             </div>
-                        </v-form>
-                    </v-window-item>
-                </v-window>
-            </v-card-text>
-        </v-card>
+                        </div>
+                    </div>
+
+                    <!-- Upload View -->
+                    <div
+                        v-else
+                        class="animate-in duration-300 fade-in slide-in-from-bottom-2"
+                    >
+                        <form @submit.prevent="saveEvidence" class="space-y-5">
+                            <div class="space-y-1.5">
+                                <label
+                                    class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.evidence.form.title',
+                                        )
+                                    }}
+                                </label>
+                                <input
+                                    v-model="newEvidence.title"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition-all focus:border-blue-500/50 focus:outline-none"
+                                    :placeholder="
+                                        t(
+                                            'talent_development.evidence.form.title_placeholder',
+                                        )
+                                    "
+                                />
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label
+                                    class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.evidence.form.description',
+                                        )
+                                    }}
+                                </label>
+                                <textarea
+                                    v-model="newEvidence.description"
+                                    rows="2"
+                                    class="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-all focus:border-blue-500/50 focus:outline-none"
+                                    :placeholder="
+                                        t(
+                                            'talent_development.evidence.form.description_placeholder',
+                                        )
+                                    "
+                                ></textarea>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label
+                                    class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.evidence.form.type',
+                                        )
+                                    }}
+                                </label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button
+                                        v-for="type in [
+                                            {
+                                                id: 'file',
+                                                label: t(
+                                                    'talent_development.evidence.types.file',
+                                                ),
+                                                icon: PhFileDoc,
+                                            },
+                                            {
+                                                id: 'link',
+                                                label: t(
+                                                    'talent_development.evidence.types.link',
+                                                ),
+                                                icon: PhLink,
+                                            },
+                                            {
+                                                id: 'text',
+                                                label: t(
+                                                    'talent_development.evidence.types.text',
+                                                ),
+                                                icon: PhTextT,
+                                            },
+                                        ]"
+                                        :key="type.id"
+                                        type="button"
+                                        @click="newEvidence.type = type.id"
+                                        :class="[
+                                            'flex flex-col items-center gap-2 rounded-xl border p-3 transition-all',
+                                            newEvidence.type === type.id
+                                                ? 'border-blue-500/50 bg-blue-500/10 text-blue-300'
+                                                : 'border-white/5 bg-white/5 text-white/40 hover:bg-white/10',
+                                        ]"
+                                    >
+                                        <component :is="type.icon" :size="20" />
+                                        <span
+                                            class="text-[10px] font-bold uppercase"
+                                            >{{ type.label }}</span
+                                        >
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div
+                                v-if="newEvidence.type === 'file'"
+                                class="animate-in space-y-1.5 duration-300 fade-in"
+                            >
+                                <label
+                                    class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.evidence.form.file',
+                                        )
+                                    }}
+                                </label>
+                                <div
+                                    class="relative flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/10 bg-white/5 p-8 transition-all hover:border-blue-500/30 hover:bg-white/10"
+                                    @click="$refs.fileInput.click()"
+                                >
+                                    <input
+                                        ref="fileInput"
+                                        type="file"
+                                        class="hidden"
+                                        @change="onFileChange"
+                                    />
+                                    <div class="mb-2 text-white/20">
+                                        <PhPlus
+                                            v-if="!newEvidence.file"
+                                            :size="32"
+                                            weight="thin"
+                                        />
+                                        <PhFileDoc
+                                            v-else
+                                            :size="32"
+                                            class="text-blue-400"
+                                        />
+                                    </div>
+                                    <p
+                                        class="text-[10px] font-bold tracking-widest text-white/40 uppercase"
+                                    >
+                                        {{
+                                            newEvidence.file
+                                                ? newEvidence.file.name
+                                                : t(
+                                                      'talent_development.evidence.form.file_click',
+                                                  )
+                                        }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div
+                                v-if="newEvidence.type === 'link'"
+                                class="animate-in space-y-1.5 duration-300 fade-in"
+                            >
+                                <label
+                                    class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.evidence.form.url',
+                                        )
+                                    }}
+                                </label>
+                                <input
+                                    v-model="newEvidence.external_url"
+                                    type="url"
+                                    required
+                                    class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition-all focus:border-blue-500/50 focus:outline-none"
+                                    placeholder="https://..."
+                                />
+                            </div>
+
+                            <div class="flex justify-end pt-4">
+                                <StButtonGlass
+                                    variant="primary"
+                                    :loading="saving"
+                                    type="submit"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.evidence.form.save',
+                                        )
+                                    }}
+                                </StButtonGlass>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </v-dialog>
 </template>
 
 <script setup lang="ts">
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import {
+    PhArchive,
+    PhArrowSquareOut,
+    PhDownload,
+    PhFileDoc,
+    PhLink,
+    PhPaperclip,
+    PhPlus,
+    PhTextT,
+    PhTrash,
+    PhX,
+} from '@phosphor-icons/vue';
 import axios from 'axios';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     actionId: {
@@ -194,13 +394,13 @@ const activeTab = ref('list');
 const evidences = ref([]);
 const loading = ref(false);
 const saving = ref(false);
-const valid = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const newEvidence = ref({
     title: '',
     description: '',
     type: 'file',
-    file: null,
+    file: null as File | null,
     external_url: '',
 });
 
@@ -221,6 +421,13 @@ const fetchEvidences = async () => {
         console.error('Error fetching evidences', e);
     } finally {
         loading.value = false;
+    }
+};
+
+const onFileChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+        newEvidence.value.file = target.files[0];
     }
 };
 
@@ -265,7 +472,7 @@ const saveEvidence = async () => {
 };
 
 const deleteEvidence = async (id: number) => {
-    if (!confirm('¿Seguro que deseas eliminar esta evidencia?')) return;
+    if (!confirm(t('talent_development.evidence.confirm_delete'))) return;
     try {
         await axios.delete(`/api/evidences/${id}`);
         await fetchEvidences();
@@ -274,18 +481,42 @@ const deleteEvidence = async (id: number) => {
     }
 };
 
+const downloadFile = (path: string) => {
+    window.open('/storage/' + path, '_blank');
+};
+
+const openUrl = (url: string) => {
+    window.open(url, '_blank');
+};
+
 const getIcon = (type: string) => {
     switch (type) {
         case 'file':
-            return 'mdi-file-document-outline';
+            return PhFileDoc;
         case 'link':
-            return 'mdi-link-variant';
+            return PhLink;
         case 'text':
-            return 'mdi-text-box-outline';
+            return PhTextT;
         default:
-            return 'mdi-paperclip';
+            return PhPaperclip;
     }
 };
 
 defineExpose({ open });
 </script>
+
+<style scoped>
+.glass-dialog {
+    backdrop-filter: blur(10px);
+}
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+</style>

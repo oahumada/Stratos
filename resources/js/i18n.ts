@@ -479,6 +479,7 @@ export const messages = {
             empty_state:
                 'This person does not have an active growth or gap closure plan assigned.',
             generate_btn: 'Generate Plan',
+            request_mentorship: 'Request Mentorship',
             months: 'months',
             actions_title: 'Development Actions',
             session_log: 'Session Log',
@@ -493,6 +494,73 @@ export const messages = {
                 in_progress: 'In Progress',
                 completed: 'Completed',
                 cancelled: 'Cancelled',
+            },
+            mentorship_sessions: {
+                title: 'Mentorship Sessions',
+                tabs: {
+                    history: 'History',
+                    new: 'New Session',
+                },
+                empty: 'No sessions registered yet.',
+                next_steps: 'Next Steps',
+                form: {
+                    date: 'Session Date',
+                    duration: 'Duration (min)',
+                    summary: 'Session Summary',
+                    summary_placeholder:
+                        'What did you talk about? What was covered?',
+                    next_steps: 'Commitments / Next Steps',
+                    next_steps_placeholder: 'Actions for the next meeting',
+                    save: 'Save Session',
+                },
+            },
+            evidence: {
+                title: 'Progress Evidence',
+                subtitle: 'Upload documents, links or notes',
+                tabs: {
+                    history: 'History',
+                    new: 'New Evidence',
+                },
+                empty: 'No evidence has been uploaded yet.',
+                confirm_delete:
+                    'Are you sure you want to delete this evidence?',
+                types: {
+                    file: 'File',
+                    link: 'Link',
+                    text: 'Note',
+                },
+                form: {
+                    title: 'Evidence Title',
+                    title_placeholder: 'E.g. Project completion certificate',
+                    description: 'Brief Description',
+                    description_placeholder:
+                        'What does this evidence represent?',
+                    type: 'Evidence Type',
+                    file: 'Select File',
+                    file_click: 'Click to select or drag file',
+                    url: 'External URL',
+                    save: 'Save Evidence',
+                },
+            },
+            create_plan: {
+                trigger: 'New Plan',
+                title: 'Generate Development Plan',
+                subtitle: 'AI-driven gap analysis and roadmap',
+                form: {
+                    select_skill: 'Select Skill to Improve',
+                    level_evolution: 'Level {current} ➔ {target}',
+                },
+                analysis: {
+                    title: 'Gap Analysis',
+                    current: 'Current Level',
+                    target: 'Required Level',
+                    description:
+                        'Generating a {months}-month plan with training, mentoring and projects (70-20-10) to close this gap.',
+                },
+                actions: {
+                    cancel: 'Cancel',
+                    generate: 'Generate Plan',
+                },
             },
         },
     },
@@ -980,6 +1048,7 @@ export const messages = {
             empty_state:
                 'Esta persona no tiene asignado ningún plan de crecimiento o cierre de brechas.',
             generate_btn: 'Generar Plan',
+            request_mentorship: 'Solicitar Mentoría',
             months: 'meses',
             actions_title: 'Acciones de Desarrollo',
             session_log: 'Bitácora de Sesiones',
@@ -994,6 +1063,73 @@ export const messages = {
                 in_progress: 'En curso',
                 completed: 'Completado',
                 cancelled: 'Cancelado',
+            },
+            mentorship_sessions: {
+                title: 'Sesiones de Mentoría',
+                tabs: {
+                    history: 'Historial',
+                    new: 'Nueva Sesión',
+                },
+                empty: 'No hay sesiones registradas actualmente.',
+                next_steps: 'Siguientes Pasos',
+                form: {
+                    date: 'Fecha de la Sesión',
+                    duration: 'Duración (min)',
+                    summary: 'Resumen de la Sesión',
+                    summary_placeholder: '¿De qué hablaron? ¿Qué se cubrió?',
+                    next_steps: 'Compromisos / Siguientes Pasos',
+                    next_steps_placeholder: 'Acciones para la próxima reunión',
+                    save: 'Guardar Sesión',
+                },
+            },
+            evidence: {
+                title: 'Evidencias de Progreso',
+                subtitle: 'Sube documentos, enlaces o notas',
+                tabs: {
+                    history: 'Historial',
+                    new: 'Nueva Evidencia',
+                },
+                empty: 'Aún no se han subido evidencias.',
+                confirm_delete:
+                    '¿Estás seguro de que deseas eliminar esta evidencia?',
+                types: {
+                    file: 'Archivo',
+                    link: 'Enlace',
+                    text: 'Nota',
+                },
+                form: {
+                    title: 'Título de la evidencia',
+                    title_placeholder:
+                        'Ej. Certificado de finalización de curso',
+                    description: 'Descripción resumida',
+                    description_placeholder: '¿Qué representa esta evidencia?',
+                    type: 'Tipo de Evidencia',
+                    file: 'Seleccionar archivo',
+                    file_click:
+                        'Haz clic para seleccionar o arrastra un archivo',
+                    url: 'URL externa',
+                    save: 'Guardar Evidencia',
+                },
+            },
+            create_plan: {
+                trigger: 'Nuevo Plan',
+                title: 'Generar Plan de Desarrollo',
+                subtitle: 'Análisis de brechas y hoja de ruta con IA',
+                form: {
+                    select_skill: 'Seleccionar Skill a Mejorar',
+                    level_evolution: 'Nivel {current} ➔ {target}',
+                },
+                analysis: {
+                    title: 'Análisis de Brecha',
+                    current: 'Nivel Actual',
+                    target: 'Nivel Requerido',
+                    description:
+                        'Se generará un plan de {months} meses con formación, mentoría y proyectos (70-20-10) para cerrar esta brecha.',
+                },
+                actions: {
+                    cancel: 'Cancelar',
+                    generate: 'Generar Plan',
+                },
             },
         },
     },

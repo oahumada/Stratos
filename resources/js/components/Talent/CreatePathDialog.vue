@@ -1,16 +1,15 @@
 <template>
-    <v-dialog v-model="dialog" max-width="600">
+    <v-dialog v-model="dialog" max-width="600" persistent class="glass-dialog">
         <template #activator="{ props: activatorProps }">
-            <v-btn
+            <StButtonGlass
                 v-if="!hasActivator"
                 v-bind="activatorProps"
-                color="primary"
-                prepend-icon="mdi-plus"
-                variant="flat"
+                variant="primary"
+                :icon="PhPlus"
+                size="sm"
             >
-                Nuevo Plan
-            </v-btn>
-            <!-- Hidden button to trigger from parent if needed -->
+                {{ t('talent_development.create_plan.trigger') }}
+            </StButtonGlass>
             <button
                 v-show="false"
                 id="open-create-path-dialog"
@@ -18,85 +17,232 @@
             ></button>
         </template>
 
-        <v-card>
-            <v-card-title class="pa-4 text-h6">
-                Generar Plan de Desarrollo
-            </v-card-title>
-            <v-card-text>
-                <div class="text-body-2 text-grey-darken-1 mb-4">
-                    Seleccione una skill con brecha para generar automáticamente
-                    recomendaciones de formación, mentoría y proyectos (Modelo
-                    70-20-10).
+        <div
+            class="overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-900/90 p-1 shadow-2xl shadow-indigo-500/20 backdrop-blur-3xl"
+        >
+            <div
+                class="relative overflow-hidden rounded-[2.3rem] bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent p-8"
+            >
+                <!-- AI Sparkle Effect -->
+                <div
+                    class="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-indigo-500/20 blur-3xl"
+                />
+
+                <!-- Header -->
+                <div class="relative mb-8 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-500/20 text-indigo-400 shadow-lg shadow-indigo-500/20"
+                        >
+                            <PhSparkle
+                                :size="28"
+                                weight="fill"
+                                class="animate-pulse"
+                            />
+                        </div>
+                        <div>
+                            <h2
+                                class="text-2xl font-black tracking-tight text-white"
+                            >
+                                {{ t('talent_development.create_plan.title') }}
+                            </h2>
+                            <p class="text-xs font-medium text-white/40">
+                                {{
+                                    t('talent_development.create_plan.subtitle')
+                                }}
+                            </p>
+                        </div>
+                    </div>
+                    <StButtonGlass
+                        variant="ghost"
+                        :icon="PhX"
+                        circle
+                        size="sm"
+                        @click="dialog = false"
+                    />
                 </div>
 
-                <v-form ref="form">
-                    <v-select
-                        v-model="selectedSkillId"
-                        :items="skillOptions"
-                        item-title="title"
-                        item-value="id"
-                        label="Seleccionar Skill"
-                        placeholder="Elija una skill para mejorar"
-                        variant="outlined"
-                        :rules="[(v) => !!v || 'Debe seleccionar una skill']"
-                    >
-                        <template #item="{ props, item }">
-                            <v-list-item
-                                v-bind="props"
-                                :subtitle="item.raw.subtitle"
-                            >
-                                <template #append>
-                                    <v-chip
-                                        size="x-small"
-                                        :color="item.raw.color"
-                                        variant="flat"
-                                    >
-                                        Gap: {{ item.raw.gap }}
-                                    </v-chip>
-                                </template>
-                            </v-list-item>
-                        </template>
-                    </v-select>
-                </v-form>
+                <!-- Content -->
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label
+                            class="px-1 text-[10px] font-black tracking-widest text-indigo-400 uppercase"
+                        >
+                            {{
+                                t(
+                                    'talent_development.create_plan.form.select_skill',
+                                )
+                            }}
+                        </label>
 
-                <v-alert
-                    v-if="selectedSkill"
-                    type="info"
-                    variant="tonal"
-                    density="compact"
-                    class="mt-2"
-                >
-                    <div class="font-weight-bold">Análisis de Brecha</div>
-                    <div>Nivel Actual: {{ selectedSkill.current_level }}</div>
-                    <div>
-                        Nivel Requerido: {{ selectedSkill.required_level }}
+                        <div class="space-y-2">
+                            <div
+                                v-for="option in skillOptions"
+                                :key="option.id"
+                                @click="selectedSkillId = option.id"
+                                :class="[
+                                    'group relative flex cursor-pointer items-center justify-between gap-4 overflow-hidden rounded-2xl border p-4 transition-all duration-300',
+                                    selectedSkillId === option.id
+                                        ? 'border-indigo-500/50 bg-indigo-500/10'
+                                        : 'border-white/5 bg-white/5 hover:border-white/20 hover:bg-white/10',
+                                ]"
+                            >
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        :class="[
+                                            'flex h-10 w-10 items-center justify-center rounded-xl border transition-all',
+                                            selectedSkillId === option.id
+                                                ? 'border-indigo-500/30 bg-indigo-500/20 text-indigo-400'
+                                                : 'border-white/10 bg-white/5 text-white/20',
+                                        ]"
+                                    >
+                                        <PhBrain :size="20" />
+                                    </div>
+                                    <div>
+                                        <div
+                                            class="text-sm font-bold text-white uppercase"
+                                        >
+                                            {{ option.title }}
+                                        </div>
+                                        <div
+                                            class="text-[10px] font-medium tracking-tighter text-white/30 uppercase"
+                                        >
+                                            {{
+                                                t(
+                                                    'talent_development.create_plan.form.level_evolution',
+                                                    {
+                                                        current:
+                                                            option.current_level,
+                                                        target: option.required_level,
+                                                    },
+                                                )
+                                            }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <StBadgeGlass
+                                        :variant="
+                                            option.gap > 1 ? 'error' : 'warning'
+                                        "
+                                        size="sm"
+                                    >
+                                        Gap: {{ option.gap }}
+                                    </StBadgeGlass>
+                                    <div
+                                        v-if="selectedSkillId === option.id"
+                                        class="animate-in text-indigo-400 duration-300 zoom-in"
+                                    >
+                                        <PhCheckCircle
+                                            :size="20"
+                                            weight="fill"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mt-1">
-                        Se generará un plan de
-                        {{ selectedSkill.gap > 1 ? '6 meses' : '3 meses' }} de
-                        duración estimada.
+
+                    <!-- Analysis Alert -->
+                    <div
+                        v-if="selectedSkill"
+                        class="animate-in rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-5 duration-500 fade-in slide-in-from-top-2"
+                    >
+                        <div
+                            class="mb-3 flex items-center gap-2 text-indigo-400"
+                        >
+                            <PhTarget :size="18" />
+                            <h4
+                                class="text-xs font-black tracking-widest uppercase"
+                            >
+                                {{
+                                    t(
+                                        'talent_development.create_plan.analysis.title',
+                                    )
+                                }}
+                            </h4>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <div
+                                    class="text-[10px] font-bold text-white/40 uppercase"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.create_plan.analysis.current',
+                                        )
+                                    }}
+                                </div>
+                                <div class="text-lg font-black text-white">
+                                    {{ selectedSkill.current_level }}
+                                </div>
+                            </div>
+                            <div class="space-y-1 text-right">
+                                <div
+                                    class="text-[10px] font-bold text-white/40 uppercase"
+                                >
+                                    {{
+                                        t(
+                                            'talent_development.create_plan.analysis.target',
+                                        )
+                                    }}
+                                </div>
+                                <div class="text-lg font-black text-white">
+                                    {{ selectedSkill.required_level }}
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="mt-4 border-t border-white/5 pt-3 text-[11px] leading-relaxed text-indigo-100/60"
+                        >
+                            {{
+                                t(
+                                    'talent_development.create_plan.analysis.description',
+                                    { months: selectedSkill.gap > 1 ? 6 : 3 },
+                                )
+                            }}
+                        </div>
                     </div>
-                </v-alert>
-            </v-card-text>
-            <v-card-actions class="pa-4">
-                <v-spacer></v-spacer>
-                <v-btn variant="text" @click="dialog = false">Cancelar</v-btn>
-                <v-btn
-                    color="primary"
-                    variant="flat"
-                    :loading="generating"
-                    @click="generate"
-                >
-                    Generar Plan
-                </v-btn>
-            </v-card-actions>
-        </v-card>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-8 flex justify-end gap-3">
+                    <StButtonGlass variant="ghost" @click="dialog = false">
+                        {{ t('talent_development.create_plan.actions.cancel') }}
+                    </StButtonGlass>
+                    <StButtonGlass
+                        variant="primary"
+                        :loading="generating"
+                        :disabled="!selectedSkillId"
+                        :icon="PhSparkle"
+                        @click="generate"
+                    >
+                        {{
+                            t('talent_development.create_plan.actions.generate')
+                        }}
+                    </StButtonGlass>
+                </div>
+            </div>
+        </div>
     </v-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import {
+    PhBrain,
+    PhCheckCircle,
+    PhPlus,
+    PhSparkle,
+    PhTarget,
+    PhX,
+} from '@phosphor-icons/vue';
 import axios from 'axios';
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     personId: {
@@ -104,12 +250,12 @@ const props = defineProps({
         required: true,
     },
     skills: {
-        type: Array,
+        type: Array as () => any[],
         default: () => [],
     },
     hasActivator: {
         type: Boolean,
-        default: false, // If true, caller provides activator logic or calls open()
+        default: false,
     },
 });
 
@@ -117,13 +263,12 @@ const emit = defineEmits(['generated']);
 
 const dialog = ref(false);
 const generating = ref(false);
-const selectedSkillId = ref(null);
+const selectedSkillId = ref<number | null>(null);
 
 const skillOptions = computed(() => {
     return props.skills
         .filter((s) => {
             const pivot = s.pivot || {};
-            // Filter only where there is a gap (required > current)
             return (pivot.required_level || 0) > (pivot.current_level || 0);
         })
         .map((s) => {
@@ -133,11 +278,9 @@ const skillOptions = computed(() => {
             return {
                 id: s.id,
                 title: s.name,
-                subtitle: `Nivel ${current} ➔ ${required}`,
                 current_level: current,
                 required_level: required,
                 gap: gap,
-                color: gap > 1 ? 'error' : 'warning',
             };
         });
 });
@@ -151,7 +294,7 @@ const open = () => {
 };
 
 const generate = async () => {
-    if (!selectedSkillId.value) return;
+    if (!selectedSkillId.value || !selectedSkill.value) return;
 
     generating.value = true;
     try {
@@ -169,7 +312,6 @@ const generate = async () => {
         selectedSkillId.value = null;
     } catch (e) {
         console.error('Error creating path', e);
-        // Could emit error or show toast
     } finally {
         generating.value = false;
     }
@@ -177,3 +319,9 @@ const generate = async () => {
 
 defineExpose({ open });
 </script>
+
+<style scoped>
+.glass-dialog {
+    backdrop-filter: blur(20px);
+}
+</style>
