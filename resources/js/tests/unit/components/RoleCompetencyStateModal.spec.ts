@@ -29,10 +29,10 @@ describe('RoleCompetencyStateModal', () => {
             },
         );
 
-        const btn = getByLabelText('Leyenda tipo de asociación');
+        const btn = getByText('Technical Guide');
         await fireEvent.click(btn);
 
         // verificar que el título de la leyenda aparece
-        getByText('Metodología: Tipos de Asociación Estratégica');
+        getByText('Strategic Association Methodology');
     });
 });

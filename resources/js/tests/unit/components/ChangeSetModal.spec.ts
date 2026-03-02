@@ -33,24 +33,26 @@ describe('ChangeSetModal.vue', () => {
         await nextTick();
         await new Promise((r) => setTimeout(r, 0));
 
-        expect(wrapper.text()).toContain('Operaciones');
-        expect(wrapper.text()).toContain('create_role');
+        expect(wrapper.text()).toContain('Operations');
+        expect(wrapper.text()).toContain('CREATE_ROLE');
 
         // find revert button and click
-        const revertBtn = wrapper.find('button:contains("Revertir")');
-        // fallback: search by text manually if CSS selector not supported
+        const revertBtn = wrapper.find('button[title="Revert Operation"]');
         let button = revertBtn;
         if (!button.exists()) {
             const buttons = wrapper.findAll('button');
             button =
-                buttons.find((b) => b.text().includes('Revertir')) ||
-                buttons[0];
+                buttons.find(
+                    (b) =>
+                        b.attributes('title') === 'Revert Operation' ||
+                        b.text().includes('mdi-undo'),
+                ) || buttons[0];
         }
 
         await button.trigger('click');
         await nextTick();
 
         // After revert, the op should be removed from view (preview.ops becomes empty)
-        expect(wrapper.text()).not.toContain('create_role');
+        expect(wrapper.text()).not.toContain('CREATE_ROLE');
     });
 });

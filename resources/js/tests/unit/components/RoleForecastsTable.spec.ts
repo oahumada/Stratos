@@ -135,7 +135,7 @@ describe('RoleForecastsTable.vue', () => {
 
         expect(wrapper.vm.forecasts).toHaveLength(0);
         // Checking for text instead of class since class name might vary
-        expect(wrapper.text()).toContain('No hay pronósticos definidos');
+        expect(wrapper.text()).toContain('No spectral projections defined');
     });
 
     it('updates data when scenarioId prop changes', async () => {

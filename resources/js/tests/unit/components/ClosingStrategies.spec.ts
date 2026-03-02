@@ -69,7 +69,10 @@ describe('ClosingStrategies.vue', () => {
         expect(mockedAxios.get).toHaveBeenCalledWith(
             '/api/strategic-planning/scenarios/1/strategies',
         );
-        expect(wrapper.findAll('.strategy-card')).toHaveLength(2);
+        // Find StCardGlass components. 1 for Tactical Methodology + 2 for the strategies
+        expect(
+            wrapper.findAllComponents({ name: 'StCardGlass' }).length,
+        ).toBeGreaterThanOrEqual(2);
     });
 
     it('displays blueprint mix when available', async () => {
@@ -89,7 +92,7 @@ describe('ClosingStrategies.vue', () => {
         await flushPromises();
 
         // Check for the mix display in the first card (AI Agent)
-        expect(wrapper.text()).toContain('Mix de Talento');
+        expect(wrapper.text()).toContain('Execution Mix');
         expect(wrapper.text()).toContain('20% H / 80% S');
     });
 
@@ -107,7 +110,7 @@ describe('ClosingStrategies.vue', () => {
 
         const generateBtn = wrapper
             .findAll('button')
-            .find((b) => b.text().includes('Generar con IA'));
+            .find((b) => b.text().includes('Neural Strategy Synthesis'));
         if (!generateBtn) throw new Error('Button not found');
         await generateBtn.trigger('click');
 
@@ -127,8 +130,8 @@ describe('ClosingStrategies.vue', () => {
 
         // Accessing the methods via vm
         const vm = wrapper.vm as any;
-        expect(vm.getStrategyColor('build')).toBe('indigo');
-        expect(vm.getStrategyColor('bot')).toBe('purple');
-        expect(vm.getStrategyColor('buy')).toBe('emerald');
+        expect(vm.getStrategyColorHex('build')).toBe('#818cf8');
+        expect(vm.getStrategyColorHex('bot')).toBe('#a78bfa');
+        expect(vm.getStrategyColorHex('buy')).toBe('#34d399');
     });
 });

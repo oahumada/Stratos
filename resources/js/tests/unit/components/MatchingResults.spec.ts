@@ -92,7 +92,7 @@ describe('MatchingResults.vue', () => {
 
         await flushPromises();
 
-        const cards = wrapper.findAll('.border.rounded-lg.p-4');
+        const cards = wrapper.findAll('.group.transition-all');
         expect(cards).toHaveLength(2);
     });
 
@@ -103,8 +103,8 @@ describe('MatchingResults.vue', () => {
             },
         });
 
-        expect(wrapper.vm.getMatchColor(90)).toContain('#4caf50');
-        expect(wrapper.vm.getMatchColor(50)).toContain('#ff5252');
+        expect(wrapper.vm.getMatchColor(90)).toContain('#10b981');
+        expect(wrapper.vm.getMatchColor(50)).toContain('#f59e0b');
     });
 
     it('displays risk factors when present', async () => {
