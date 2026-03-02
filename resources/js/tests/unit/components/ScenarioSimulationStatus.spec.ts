@@ -29,16 +29,26 @@ describe('ScenarioSimulationStatus.vue', () => {
     it('renders when visible is true', () => {
         const wrapper = mount(ScenarioSimulationStatus, {
             props: defaultProps,
+            global: {
+                mocks: {
+                    $t: (msg: string) => msg,
+                },
+            },
         });
 
         expect(wrapper.exists()).toBe(true);
-        expect(wrapper.text()).toContain('Scenario IQ');
-        expect(wrapper.text()).toContain('Simulación Activa');
+        expect(wrapper.text()).toContain('scenario_iq');
+        expect(wrapper.text()).toContain('active_simulation');
     });
 
     it('does not render when visible is false', () => {
         const wrapper = mount(ScenarioSimulationStatus, {
             props: { ...defaultProps, visible: false },
+            global: {
+                mocks: {
+                    $t: (msg: string) => msg,
+                },
+            },
         });
 
         expect(wrapper.find('.simulation-status-panel').exists()).toBe(false);
@@ -47,6 +57,11 @@ describe('ScenarioSimulationStatus.vue', () => {
     it('displays all KPI metrics', () => {
         const wrapper = mount(ScenarioSimulationStatus, {
             props: defaultProps,
+            global: {
+                mocks: {
+                    $t: (msg: string) => msg,
+                },
+            },
         });
 
         expect(wrapper.text()).toContain('78'); // success_probability
@@ -56,12 +71,17 @@ describe('ScenarioSimulationStatus.vue', () => {
     it('shows mitigation button', () => {
         const wrapper = mount(ScenarioSimulationStatus, {
             props: defaultProps,
+            global: {
+                mocks: {
+                    $t: (msg: string) => msg,
+                },
+            },
         });
 
-        const mitigateBtn = wrapper.find('[data-testid="mitigation-btn"]');
+        const _mitigateBtn = wrapper.find('[data-testid="mitigation-btn"]');
         // If no testid, search by text
         const allText = wrapper.text();
-        expect(allText).toContain('Remediación');
+        expect(allText).toContain('generate_remediation');
     });
 
     it('calls mitigation API when button is clicked', async () => {
@@ -78,12 +98,17 @@ describe('ScenarioSimulationStatus.vue', () => {
 
         const wrapper = mount(ScenarioSimulationStatus, {
             props: defaultProps,
+            global: {
+                mocks: {
+                    $t: (msg: string) => msg,
+                },
+            },
         });
 
         // Find and click the mitigation button
         const buttons = wrapper.findAll('button');
         const mitigateButton = buttons.find((b) =>
-            b.text().includes('Remediación'),
+            b.text().includes('generate_remediation'),
         );
 
         if (mitigateButton) {
@@ -115,19 +140,24 @@ describe('ScenarioSimulationStatus.vue', () => {
 
         const wrapper = mount(ScenarioSimulationStatus, {
             props: defaultProps,
+            global: {
+                mocks: {
+                    $t: (msg: string) => msg,
+                },
+            },
         });
 
         // Trigger mitigation
         const buttons = wrapper.findAll('button');
         const mitigateButton = buttons.find((b) =>
-            b.text().includes('Remediación'),
+            b.text().includes('generate_remediation'),
         );
 
         if (mitigateButton) {
             await mitigateButton.trigger('click');
             await flushPromises();
 
-            expect(wrapper.vm.mitigationResult).not.toBeNull();
+            expect((wrapper.vm as any).mitigationResult).not.toBeNull();
         }
     });
 
@@ -136,11 +166,16 @@ describe('ScenarioSimulationStatus.vue', () => {
 
         const wrapper = mount(ScenarioSimulationStatus, {
             props: defaultProps,
+            global: {
+                mocks: {
+                    $t: (msg: string) => msg,
+                },
+            },
         });
 
         const buttons = wrapper.findAll('button');
         const mitigateButton = buttons.find((b) =>
-            b.text().includes('Remediación'),
+            b.text().includes('generate_remediation'),
         );
 
         if (mitigateButton) {

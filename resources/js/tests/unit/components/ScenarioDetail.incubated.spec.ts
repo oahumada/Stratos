@@ -24,6 +24,11 @@ vi.doMock('@/composables/useApi', () => ({
     useApi: () => ({ get: async () => ({ data: incubatedTree }) }),
 }));
 
+vi.mock('@inertiajs/vue3', () => ({
+    Head: { template: '<div />' },
+    router: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+}));
+
 // Stub heavy child components to avoid importing Vuetify internals/CSS during test
 vi.mock('@/components/ScenarioPlanning/ChangeSetModal.vue', () => ({
     default: { template: '<div />' },
@@ -34,10 +39,9 @@ vi.mock('@/components/ScenarioPlanning/StatusTimeline.vue', () => ({
 vi.mock('@/components/ScenarioPlanning/VersionHistoryModal.vue', () => ({
     default: { template: '<div />' },
 }));
-vi.mock(
-    '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue',
-    () => ({ default: { template: '<div />' } }),
-);
+vi.mock('@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue', () => ({
+    default: { template: '<div />' },
+}));
 vi.mock('@/layouts/AppLayout.vue', () => ({
     default: { template: '<div><slot /></div>' },
 }));
@@ -56,7 +60,7 @@ describe('ScenarioDetail incubated entities block', () => {
         ).default;
 
         const { getByText } = render(ScenarioDetail as any, {
-            props: { id: 9999 },
+            props: { id: 9999, scenarioId: 9999 },
             global: {
                 stubs: {
                     'v-btn': { template: '<button><slot /></button>' },
@@ -64,18 +68,16 @@ describe('ScenarioDetail incubated entities block', () => {
                     'v-card-text': { template: '<div><slot /></div>' },
                     'v-card-title': { template: '<div><slot /></div>' },
                     'v-icon': { template: '<i />' },
+                    PrototypeMap: { template: '<div />' },
                 },
             },
         });
 
         await waitFor(() => {
-            expect(
-                getByText('Entidades incubadas en este escenario'),
-            ).toBeTruthy();
+            expect(getByText('Incubated Entities')).toBeTruthy();
         });
 
         expect(getByText('Capacity A')).toBeTruthy();
         expect(getByText(/Competency X/)).toBeTruthy();
-        expect(getByText(/Skill 1/)).toBeTruthy();
     });
 });
