@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
 import {
+    PhBuildings,
     PhCalendar,
     PhCalendarBlank,
     PhCalendarCheck,
@@ -14,11 +15,13 @@ import {
     PhFlask,
     PhHeartbeat,
     PhInfinity,
+    PhLightning,
     PhMagnifyingGlass,
+    PhPlus,
     PhPulse,
     PhRobot,
     PhRocketLaunch,
-    PhTag,
+    PhTreeStructure,
     PhUsers,
 } from '@phosphor-icons/vue';
 import axios from 'axios';
@@ -252,20 +255,30 @@ onMounted(() => {
 
 <template>
     <AppLayout>
-        <v-container fluid class="pa-0 pa-md-6 min-vh-100">
+        <div class="pa-0 pa-md-6 min-vh-100">
             <!-- Header Section -->
             <div
-                class="d-flex flex-column flex-md-row align-start align-md-center justify-space-between px-md-0 mb-8 px-4"
+                class="mb-10 flex flex-col items-start justify-between gap-6 px-4 md:flex-row md:items-center md:px-0"
             >
                 <div>
-                    <h1
-                        class="text-h3 font-weight-black font-premium mb-2 tracking-tight text-white"
-                    >
-                        {{ $t('assessment_command.title') }}
-                        <span class="text-primary">Cerbero</span>
-                    </h1>
-                    <p class="text-h6 font-weight-regular text-grey-lighten-1">
-                        {{ $t('assessment_command.subtitle') }}
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-400"
+                        >
+                            <PhPulse :size="24" weight="bold" />
+                        </div>
+                        <h1
+                            class="text-4xl font-black tracking-tighter text-white"
+                        >
+                            {{ t('assessment_command.title') }}
+                            <span
+                                class="bg-linear-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent"
+                                >Cerbero</span
+                            >
+                        </h1>
+                    </div>
+                    <p class="mt-2 text-lg font-medium text-white/40">
+                        {{ t('assessment_command.subtitle') }}
                     </p>
                 </div>
 
@@ -274,405 +287,381 @@ onMounted(() => {
                     :icon="PhRocketLaunch"
                     variant="primary"
                     size="lg"
-                    class="mt-md-0 mt-4 px-8"
+                    class="shadow-xl shadow-indigo-500/20"
                     @click="wizardDialog = true"
                 >
-                    {{ $t('assessment_command.config_cycle') }}
+                    {{ t('assessment_command.config_cycle') }}
                 </StButtonGlass>
             </div>
 
             <!-- Stats Dashboard Row -->
-            <v-row class="mb-8">
-                <v-col cols="12" sm="6" md="3">
-                    <v-card
-                        class="glass-card shadow-premium border-auth"
-                        height="120"
-                    >
-                        <v-card-text class="d-flex align-center h-100">
-                            <v-avatar
-                                color="primary-lighten-4"
-                                size="56"
-                                class="mr-4 rounded-xl"
+            <div
+                class="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            >
+                <!-- Active Cycles -->
+                <div
+                    class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-indigo-500/30 hover:bg-white/10"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 transition-transform duration-500 group-hover:scale-110"
+                        >
+                            <PhClockClockwise :size="30" weight="duotone" />
+                        </div>
+                        <div>
+                            <div
+                                class="text-3xl font-black tracking-tight text-white"
                             >
-                                <PhClockClockwise
-                                    color="rgb(var(--v-theme-primary))"
-                                    :size="32"
-                                />
-                            </v-avatar>
-                            <div>
+                                {{ stats.active }}
+                            </div>
+                            <div
+                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >
+                                {{
+                                    t('assessment_command.stats.active_cycles')
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Decorative background element -->
+                    <div
+                        class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-indigo-500/5 blur-2xl transition-all duration-500 group-hover:bg-indigo-500/10"
+                    />
+                </div>
+
+                <!-- Collaborators -->
+                <div
+                    class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-emerald-500/30 hover:bg-white/10"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 transition-transform duration-500 group-hover:scale-110"
+                        >
+                            <PhUsers :size="30" weight="duotone" />
+                        </div>
+                        <div>
+                            <div
+                                class="text-3xl font-black tracking-tight text-white"
+                            >
+                                {{ stats.total_participants }}
+                            </div>
+                            <div
+                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >
+                                {{
+                                    t('assessment_command.stats.collaborators')
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Decorative background element -->
+                    <div
+                        class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-emerald-500/5 blur-2xl transition-all duration-500 group-hover:bg-emerald-500/10"
+                    />
+                </div>
+
+                <!-- Avg. Completion -->
+                <div
+                    class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-cyan-500/30 hover:bg-white/10"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 transition-transform duration-500 group-hover:scale-110"
+                        >
+                            <PhChartDonut :size="30" weight="duotone" />
+                        </div>
+                        <div class="min-w-0 grow">
+                            <div class="mb-1 flex items-end justify-between">
                                 <div
-                                    class="text-h4 font-weight-black text-white"
+                                    class="text-3xl font-black tracking-tight text-white"
                                 >
-                                    {{ stats.active }}
-                                </div>
-                                <div
-                                    class="text-caption text-grey-lighten-1 text-uppercase font-weight-bold"
-                                >
-                                    {{
-                                        $t(
-                                            'assessment_command.stats.active_cycles',
-                                        )
-                                    }}
+                                    {{ stats.avg_completion }}%
                                 </div>
                             </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" sm="6" md="3">
-                    <v-card
-                        class="glass-card shadow-premium border-auth"
-                        height="120"
-                    >
-                        <v-card-text class="d-flex align-center h-100">
-                            <v-avatar
-                                color="success-lighten-4"
-                                size="56"
-                                class="mr-4 rounded-xl"
+                            <div
+                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
                             >
-                                <PhUsers
-                                    color="rgb(var(--v-theme-success))"
-                                    :size="32"
-                                />
-                            </v-avatar>
-                            <div>
-                                <div
-                                    class="text-h4 font-weight-black text-white"
-                                >
-                                    {{ stats.total_participants }}
-                                </div>
-                                <div
-                                    class="text-caption text-grey-lighten-1 text-uppercase font-weight-bold"
-                                >
-                                    {{
-                                        $t(
-                                            'assessment_command.stats.collaborators',
-                                        )
-                                    }}
-                                </div>
+                                {{
+                                    t('assessment_command.stats.avg_completion')
+                                }}
                             </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" sm="6" md="3">
-                    <v-card
-                        class="glass-card shadow-premium border-auth"
-                        height="120"
-                    >
-                        <v-card-text class="d-flex align-center h-100">
-                            <v-avatar
-                                color="info-lighten-4"
-                                size="56"
-                                class="mr-4 rounded-xl"
+                            <div
+                                class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/5"
                             >
-                                <PhChartDonut
-                                    color="rgb(var(--v-theme-info))"
-                                    :size="32"
+                                <div
+                                    class="h-full rounded-full bg-linear-to-r from-cyan-500 to-indigo-500 transition-all duration-1000"
+                                    :style="{
+                                        width: `${stats.avg_completion}%`,
+                                    }"
                                 />
-                            </v-avatar>
-                            <div class="flex-grow-1">
-                                <div
-                                    class="d-flex align-end justify-space-between"
-                                >
-                                    <div
-                                        class="text-h4 font-weight-black text-white"
-                                    >
-                                        {{ stats.avg_completion }}%
-                                    </div>
-                                </div>
-                                <div
-                                    class="text-caption text-grey-lighten-1 text-uppercase font-weight-bold"
-                                >
-                                    {{
-                                        $t(
-                                            'assessment_command.stats.avg_completion',
-                                        )
-                                    }}
-                                </div>
-                                <v-progress-linear
-                                    :model-value="stats.avg_completion"
-                                    color="info"
-                                    height="4"
-                                    rounded
-                                    class="mt-1"
-                                ></v-progress-linear>
                             </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" sm="6" md="3">
-                    <v-card
-                        class="glass-card shadow-premium border-auth"
-                        height="120"
-                    >
-                        <v-card-text class="d-flex align-center h-100">
-                            <v-avatar
-                                color="warning-lighten-4"
-                                size="56"
-                                class="mr-4 rounded-xl"
+                        </div>
+                    </div>
+                    <!-- Decorative background element -->
+                    <div
+                        class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-cyan-500/5 blur-2xl transition-all duration-500 group-hover:bg-cyan-500/10"
+                    />
+                </div>
+
+                <!-- Pending -->
+                <div
+                    class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-amber-500/30 hover:bg-white/10"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-500/20 bg-amber-500/10 text-amber-400 transition-transform duration-500 group-hover:scale-110"
+                        >
+                            <PhHeartbeat :size="30" weight="duotone" />
+                        </div>
+                        <div>
+                            <div
+                                class="text-3xl font-black tracking-tight text-white"
                             >
-                                <PhHeartbeat
-                                    color="rgb(var(--v-theme-warning))"
-                                    :size="32"
-                                />
-                            </v-avatar>
-                            <div>
-                                <div
-                                    class="text-h4 font-weight-black text-white"
-                                >
-                                    {{ stats.pending_evals }}
-                                </div>
-                                <div
-                                    class="text-caption text-grey-lighten-1 text-uppercase font-weight-bold"
-                                >
-                                    {{
-                                        $t(
-                                            'assessment_command.stats.pending_evals',
-                                        )
-                                    }}
-                                </div>
+                                {{ stats.pending_evals }}
                             </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
+                            <div
+                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >
+                                {{
+                                    t('assessment_command.stats.pending_evals')
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Decorative background element -->
+                    <div
+                        class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-amber-500/5 blur-2xl transition-all duration-500 group-hover:bg-amber-500/10"
+                    />
+                </div>
+            </div>
 
             <!-- Main Listing Row -->
-            <v-row>
-                <v-col cols="12">
-                    <v-card
-                        class="glass-card shadow-premium border-auth overflow-hidden"
-                        elevation="0"
-                    >
-                        <v-toolbar color="transparent" class="px-4 py-2">
-                            <v-toolbar-title
-                                class="text-h6 font-weight-bold text-white"
-                            >
-                                <v-icon
-                                    :icon="PhClockClockwise"
-                                    color="primary"
-                                    class="mr-2"
-                                ></v-icon>
-                                {{ $t('assessment_command.history_title') }}
-                            </v-toolbar-title>
-                            <v-spacer></v-spacer>
-                            <v-text-field
-                                v-model="search"
-                                :placeholder="
-                                    $t('assessment_command.search_placeholder')
-                                "
-                                variant="solo"
-                                hide-details
-                                density="compact"
-                                class="max-width-300 mr-4"
-                                rounded="lg"
-                            >
-                                <template #prepend-inner>
-                                    <PhMagnifyingGlass
-                                        :size="18"
-                                        class="text-grey"
-                                    />
-                                </template>
-                            </v-text-field>
-                            <v-btn variant="text" color="grey">
-                                <PhDotsThreeVertical :size="20" />
-                            </v-btn>
-                        </v-toolbar>
-
-                        <v-divider color="white" class="opacity-10"></v-divider>
-
-                        <v-data-table
-                            :headers="[
-                                {
-                                    title: $t('assessment_command.headers.id'),
-                                    key: 'name',
-                                },
-                                {
-                                    title: $t(
-                                        'assessment_command.headers.mode',
-                                    ),
-                                    key: 'mode',
-                                },
-                                {
-                                    title: $t(
-                                        'assessment_command.headers.progress',
-                                    ),
-                                    key: 'progress',
-                                    sortable: false,
-                                },
-                                {
-                                    title: $t(
-                                        'assessment_command.headers.status',
-                                    ),
-                                    key: 'status',
-                                },
-                                {
-                                    title: $t(
-                                        'assessment_command.headers.launch',
-                                    ),
-                                    key: 'starts_at',
-                                },
-                                {
-                                    title: '',
-                                    key: 'actions',
-                                    sortable: false,
-                                    align: 'end',
-                                },
-                            ]"
-                            :items="cycles"
-                            :loading="loading"
-                            :search="search"
-                            class="bg-transparent"
-                            theme="dark"
+            <div
+                class="overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-900/40 shadow-2xl backdrop-blur-3xl"
+            >
+                <!-- Toolbar -->
+                <div
+                    class="flex flex-col items-center justify-between gap-4 border-b border-white/5 px-8 py-6 md:flex-row"
+                >
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400"
                         >
-                            <template #[`item.name`]="{ item }">
-                                <div class="py-4">
-                                    <div
-                                        class="text-body-1 font-weight-bold text-white"
-                                    >
-                                        {{ item.name }}
-                                    </div>
-                                    <div
-                                        class="text-caption text-grey-lighten-1"
-                                    >
-                                        {{
-                                            item.description ||
-                                            'Sin descripción'
-                                        }}
-                                    </div>
-                                </div>
-                            </template>
+                            <PhClockClockwise :size="22" weight="bold" />
+                        </div>
+                        <h2 class="text-xl font-bold tracking-tight text-white">
+                            {{ t('assessment_command.history_title') }}
+                        </h2>
+                    </div>
 
-                            <template #[`item.mode`]="{ item }">
-                                <v-chip
-                                    size="small"
-                                    variant="outlined"
-                                    color="primary-lighten-1"
-                                    class="text-caption"
-                                >
-                                    <v-icon
-                                        start
-                                        :icon="
-                                            modeOptions.find(
-                                                (o) => o.value === item.mode,
-                                            )?.icon || PhCalendar
-                                        "
-                                        size="14"
-                                    ></v-icon>
+                    <div class="flex w-full items-center gap-4 md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <PhMagnifyingGlass
+                                :size="18"
+                                class="absolute top-1/2 left-4 -translate-y-1/2 text-white/20"
+                            />
+                            <input
+                                v-model="search"
+                                type="text"
+                                :placeholder="
+                                    t('assessment_command.search_placeholder')
+                                "
+                                class="w-full rounded-2xl border border-white/10 bg-white/5 py-2.5 pr-4 pl-11 text-sm text-white transition-all focus:border-indigo-500/50 focus:outline-none"
+                            />
+                        </div>
+                        <StButtonGlass
+                            variant="ghost"
+                            :icon="PhDotsThreeVertical"
+                            circle
+                            size="sm"
+                        />
+                    </div>
+                </div>
+
+                <!-- Custom Table / List -->
+                <div class="custom-scrollbar overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="border-b border-white/5 bg-white/5 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                            >
+                                <th class="px-8 py-4">
+                                    {{ t('assessment_command.headers.id') }}
+                                </th>
+                                <th class="px-8 py-4">
+                                    {{ t('assessment_command.headers.mode') }}
+                                </th>
+                                <th class="px-8 py-4">
                                     {{
-                                        modeOptions.find(
-                                            (o) => o.value === item.mode,
-                                        )?.title || item.mode
+                                        t('assessment_command.headers.progress')
                                     }}
-                                </v-chip>
-                            </template>
-
-                            <template #[`item.progress`]="{ item }">
-                                <div
-                                    class="d-flex align-center"
-                                    style="min-width: 150px"
-                                >
-                                    <v-progress-linear
-                                        :model-value="item.completion_rate || 0"
-                                        color="success"
-                                        height="6"
-                                        rounded
-                                        class="mr-3"
-                                    ></v-progress-linear>
-                                    <span
-                                        class="text-caption font-weight-bold text-white"
+                                </th>
+                                <th class="px-8 py-4">
+                                    {{ t('assessment_command.headers.status') }}
+                                </th>
+                                <th class="px-8 py-4">
+                                    {{ t('assessment_command.headers.launch') }}
+                                </th>
+                                <th class="px-8 py-4 text-right"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <tr
+                                v-for="item in cycles"
+                                :key="item.id"
+                                class="group transition-colors hover:bg-white/5"
+                            >
+                                <td class="px-8 py-5">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="text-sm font-bold text-white transition-colors group-hover:text-indigo-400"
+                                        >
+                                            {{ item.name }}
+                                        </span>
+                                        <span
+                                            class="max-w-[200px] truncate text-[10px] text-white/30"
+                                        >
+                                            {{
+                                                item.description ||
+                                                'Sin descripción'
+                                            }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-2">
+                                        <div
+                                            class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/5 text-white/40"
+                                        >
+                                            <component
+                                                :is="
+                                                    modeOptions.find(
+                                                        (o) =>
+                                                            o.value ===
+                                                            item.mode,
+                                                    )?.icon || PhCalendar
+                                                "
+                                                :size="14"
+                                            />
+                                        </div>
+                                        <span
+                                            class="text-xs font-semibold text-white/60"
+                                        >
+                                            {{
+                                                modeOptions.find(
+                                                    (o) =>
+                                                        o.value === item.mode,
+                                                )?.title || item.mode
+                                            }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div
+                                        class="flex min-w-[150px] items-center gap-3"
                                     >
-                                        {{ item.completion_rate || 0 }}%
-                                    </span>
-                                </div>
-                            </template>
-
-                            <template #[`item.status`]="{ item }">
-                                <v-chip
-                                    :color="getStatusColor(item.status)"
-                                    size="small"
-                                    variant="flat"
-                                    class="text-uppercase font-weight-black text-black"
-                                >
-                                    {{ item.status }}
-                                </v-chip>
-                            </template>
-
-                            <template #[`item.starts_at`]="{ item }">
-                                <div class="text-caption">
-                                    <v-icon
-                                        icon="mdi-calendar"
-                                        size="14"
-                                        class="mr-1"
-                                    ></v-icon>
-                                    {{ formatDate(item.starts_at) }}
-                                </div>
-                            </template>
-
-                            <template #[`item.actions`]="{ item }">
-                                <v-btn
-                                    v-if="
-                                        item.status === 'draft' ||
-                                        item.status === 'scheduled'
-                                    "
-                                    variant="tonal"
-                                    size="small"
-                                    color="success"
-                                    class="mr-2"
-                                    @click="
-                                        activateCycle(
-                                            (item as AssessmentCycle).id,
-                                        )
-                                    "
-                                    :title="
-                                        $t(
-                                            'assessment_command.actions_tooltips.activate',
-                                        )
-                                    "
-                                >
-                                    <PhRocketLaunch :size="18" />
-                                </v-btn>
-                                <v-btn
-                                    v-if="item.status === 'active'"
-                                    variant="tonal"
-                                    size="small"
-                                    color="primary"
-                                    class="mr-2"
-                                    :title="
-                                        $t(
-                                            'assessment_command.actions_tooltips.dashboard',
-                                        )
-                                    "
-                                    @click="
-                                        router.visit('/talento360/dashboard')
-                                    "
-                                >
-                                    <PhChartBar :size="18" />
-                                </v-btn>
-                                <v-btn
-                                    variant="text"
-                                    size="small"
-                                    color="grey-lighten-1"
-                                >
-                                    <PhDotsThreeVertical :size="18" />
-                                </v-btn>
-                            </template>
-
-                            <template #no-data>
-                                <div class="pa-12 text-center">
-                                    <v-btn
-                                        variant="text"
-                                        color="primary"
-                                        prepend-icon="mdi-plus"
-                                        @click="wizardDialog = true"
-                                        >Lanzar primer ciclo</v-btn
+                                        <div
+                                            class="h-1.5 flex-1 overflow-hidden rounded-full bg-white/5"
+                                        >
+                                            <div
+                                                class="h-full rounded-full bg-emerald-500 transition-all duration-1000"
+                                                :style="{
+                                                    width: `${item.completion_rate || 0}%`,
+                                                }"
+                                            />
+                                        </div>
+                                        <span
+                                            class="text-xs font-black text-white/40"
+                                        >
+                                            {{ item.completion_rate || 0 }}%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <StBadgeGlass
+                                        :variant="getStatusColor(item.status)"
+                                        size="sm"
                                     >
-                                </div>
-                            </template>
-                        </v-data-table>
-                    </v-card>
-                </v-col>
-            </v-row>
-        </v-container>
+                                        {{ item.status }}
+                                    </StBadgeGlass>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div
+                                        class="flex items-center gap-2 text-xs font-medium text-white/40"
+                                    >
+                                        <PhCalendar :size="14" />
+                                        {{ formatDate(item.starts_at) }}
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5 text-right">
+                                    <div
+                                        class="flex justify-end gap-1 opacity-100 transition-opacity group-hover:opacity-100 md:opacity-0"
+                                    >
+                                        <StButtonGlass
+                                            v-if="
+                                                item.status === 'draft' ||
+                                                item.status === 'scheduled'
+                                            "
+                                            variant="ghost"
+                                            :icon="PhRocketLaunch"
+                                            circle
+                                            size="sm"
+                                            class="hover:text-emerald-400"
+                                            @click="activateCycle(item.id)"
+                                        />
+                                        <StButtonGlass
+                                            v-if="item.status === 'active'"
+                                            variant="ghost"
+                                            :icon="PhChartBar"
+                                            circle
+                                            size="sm"
+                                            class="hover:text-indigo-400"
+                                            @click="
+                                                router.visit(
+                                                    '/talento360/dashboard',
+                                                )
+                                            "
+                                        />
+                                        <StButtonGlass
+                                            variant="ghost"
+                                            :icon="PhDotsThreeVertical"
+                                            circle
+                                            size="sm"
+                                        />
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div v-if="loading" class="flex justify-center py-20">
+                        <div
+                            class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-500/20 border-t-indigo-500"
+                        />
+                    </div>
+
+                    <div
+                        v-else-if="cycles.length === 0"
+                        class="flex flex-col items-center justify-center py-20 text-center"
+                    >
+                        <div class="mb-4 text-white/10">
+                            <PhRocketLaunch :size="64" weight="thin" />
+                        </div>
+                        <p class="text-lg font-bold text-white/20">
+                            {{ t('assessment_command.no_data') }}
+                        </p>
+                        <StButtonGlass
+                            variant="primary"
+                            :icon="PhPlus"
+                            class="mt-6"
+                            @click="wizardDialog = true"
+                        >
+                            {{ t('assessment_command.launch_first') }}
+                        </StButtonGlass>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Premium Wizard -->
         <v-dialog
@@ -681,916 +670,1027 @@ onMounted(() => {
             persistent
             transition="dialog-bottom-transition"
         >
-            <v-card class="glass-card border-auth overflow-hidden" height="700">
-                <v-row class="ma-0 h-100">
+            <v-card
+                class="glass-card border-auth overflow-hidden rounded-[32px]! shadow-2xl"
+                height="700"
+            >
+                <div class="flex h-full flex-col overflow-hidden md:flex-row">
                     <!-- Sidebar Navigation -->
-                    <v-col
-                        cols="3"
-                        class="bg-primary-darken-4 pa-6 d-flex flex-column border-right-auth"
+                    <div
+                        class="flex w-full flex-col border-b border-white/5 bg-black/20 p-8 md:w-80 md:border-r md:border-b-0"
                     >
-                        <div class="mb-8">
-                            <v-icon
-                                :icon="PhRocketLaunch"
-                                color="primary"
-                                size="32"
-                                class="mb-2"
-                            ></v-icon>
-                            <h3
-                                class="text-h5 font-weight-bold mb-1 text-white"
+                        <div class="mb-10">
+                            <div
+                                class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-400"
                             >
-                                {{ $t('assessment_command.wizard.title') }}
+                                <PhRocketLaunch :size="32" weight="duotone" />
+                            </div>
+                            <h3
+                                class="mb-1 text-2xl font-black tracking-tight text-white"
+                            >
+                                {{ t('assessment_command.wizard.title') }}
                             </h3>
-                            <p class="text-caption text-grey-lighten-1">
-                                {{ $t('assessment_command.wizard.subtitle') }}
+                            <p
+                                class="text-xs font-medium tracking-widest text-white/30 uppercase"
+                            >
+                                {{ t('assessment_command.wizard.subtitle') }}
                             </p>
                         </div>
 
-                        <div class="flex-grow-1">
-                            <v-list
-                                bg-color="transparent"
-                                density="compact"
-                                nav
-                                class="pa-0 v-list-wizard"
+                        <nav class="grow space-y-2">
+                            <button
+                                v-for="n in 4"
+                                :key="n"
+                                @click="step = n"
+                                :disabled="step < n"
+                                class="group flex w-full items-center gap-4 rounded-2xl p-4 transition-all duration-300"
+                                :class="[
+                                    step === n
+                                        ? 'bg-indigo-500/10 text-indigo-400 shadow-lg'
+                                        : step < n
+                                          ? 'cursor-not-allowed opacity-30 grayscale'
+                                          : 'text-white/40 hover:bg-white/5',
+                                ]"
                             >
-                                <v-list-item
-                                    :active="step === 1"
-                                    title="Identidad & Tipo"
-                                    class="mb-2 rounded-lg"
-                                    @click="step = 1"
+                                <div
+                                    class="flex h-10 w-10 items-center justify-center rounded-xl border text-lg font-black transition-colors"
+                                    :class="[
+                                        step === n
+                                            ? 'border-indigo-500/50 bg-indigo-500 text-white'
+                                            : 'border-white/10 bg-white/5 group-hover:border-white/20',
+                                    ]"
                                 >
-                                    <template #prepend>
-                                        <div
-                                            class="text-h6 font-weight-bold mr-4"
-                                            :class="
-                                                step === 1
-                                                    ? 'text-primary'
-                                                    : 'text-grey'
-                                            "
-                                        >
-                                            1
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-list-item
-                                    :active="step === 2"
-                                    :disabled="step < 2"
-                                    title="Población & Alcance"
-                                    class="mb-2 rounded-lg"
-                                    @click="step = 2"
-                                >
-                                    <template #prepend>
-                                        <div
-                                            class="text-h6 font-weight-bold mr-4"
-                                            :class="
-                                                step === 2
-                                                    ? 'text-primary'
-                                                    : 'text-grey'
-                                            "
-                                        >
-                                            2
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-list-item
-                                    :active="step === 3"
-                                    :disabled="step < 3"
-                                    title="Instrumentos & Red"
-                                    class="mb-2 rounded-lg"
-                                    @click="step = 3"
-                                >
-                                    <template #prepend>
-                                        <div
-                                            class="text-h6 font-weight-bold mr-4"
-                                            :class="
-                                                step === 3
-                                                    ? 'text-primary'
-                                                    : 'text-grey'
-                                            "
-                                        >
-                                            3
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                                <v-list-item
-                                    :active="step === 4"
-                                    :disabled="step < 4"
-                                    title="Confirmación"
-                                    class="mb-2 rounded-lg"
-                                    @click="step = 4"
-                                >
-                                    <template #prepend>
-                                        <div
-                                            class="text-h6 font-weight-bold mr-4"
-                                            :class="
-                                                step === 4
-                                                    ? 'text-primary'
-                                                    : 'text-grey'
-                                            "
-                                        >
-                                            4
-                                        </div>
-                                    </template>
-                                </v-list-item>
-                            </v-list>
-                        </div>
+                                    {{ n }}
+                                </div>
+                                <div class="text-left">
+                                    <div
+                                        class="text-sm font-bold tracking-tight"
+                                    >
+                                        {{
+                                            t(
+                                                `assessment_command.wizard.step${n}.label`,
+                                            )
+                                        }}
+                                    </div>
+                                    <div
+                                        class="text-[10px] font-medium tracking-widest uppercase opacity-50"
+                                    >
+                                        Fase {{ n }}
+                                    </div>
+                                </div>
+                            </button>
+                        </nav>
 
-                        <StButtonGlass
-                            block
-                            variant="ghost"
-                            class="rounded-lg"
-                            @click="wizardDialog = false"
-                        >
-                            {{ $t('assessment_command.wizard.actions.cancel') }}
-                        </StButtonGlass>
-                    </v-col>
+                        <div class="mt-auto pt-8">
+                            <StButtonGlass
+                                variant="ghost"
+                                block
+                                :icon="PhCaretLeft"
+                                @click="wizardDialog = false"
+                            >
+                                {{
+                                    t(
+                                        'assessment_command.wizard.actions.cancel',
+                                    )
+                                }}
+                            </StButtonGlass>
+                        </div>
+                    </div>
 
                     <!-- Content Area -->
-                    <v-col
-                        cols="9"
-                        class="pa-0 d-flex flex-column bg-surface-dark h-100"
+                    <div
+                        class="relative flex h-full flex-col overflow-hidden bg-slate-950/50 md:flex-1"
                     >
-                        <v-card-text
-                            class="pa-8 flex-grow-1 overflow-y-auto pb-0"
+                        <!-- Decorative Background -->
+                        <div
+                            class="pointer-events-none absolute inset-0 overflow-hidden"
                         >
-                            <!-- Step 1: Identity -->
-                            <v-window v-model="step" class="h-100">
-                                <v-window-item :value="1">
-                                    <div class="mb-6">
+                            <div
+                                class="absolute -top-24 -right-24 h-96 w-96 animate-pulse rounded-full bg-indigo-500/20 blur-[130px]"
+                            ></div>
+                            <div
+                                class="absolute -bottom-24 -left-24 h-96 w-96 animate-pulse rounded-full bg-blue-500/20 blur-[130px]"
+                                style="animation-delay: 1s"
+                            ></div>
+                        </div>
+
+                        <div class="relative grow overflow-y-auto p-8 lg:p-12">
+                            <v-window
+                                v-model="step"
+                                class="h-full bg-transparent"
+                            >
+                                <!-- Step 1: Identity -->
+                                <v-window-item
+                                    :value="1"
+                                    class="h-full transition-all duration-500"
+                                >
+                                    <div class="mb-10">
                                         <div
-                                            class="text-overline font-weight-black mb-1 text-primary"
+                                            class="mb-2 text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step1.label',
                                                 )
                                             }}
                                         </div>
                                         <h2
-                                            class="text-h4 font-weight-bold font-premium mb-2 text-white"
+                                            class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step1.title',
                                                 )
                                             }}
                                         </h2>
                                         <p
-                                            class="text-body-1 text-grey-lighten-1"
+                                            class="max-w-xl text-lg leading-relaxed font-medium text-white/40"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step1.desc',
                                                 )
                                             }}
                                         </p>
                                     </div>
 
-                                    <v-text-field
-                                        v-model="newCycle.name"
-                                        :label="
-                                            $t(
-                                                'assessment_command.wizard.step1.name_label',
-                                            )
-                                        "
-                                        :placeholder="
-                                            $t(
-                                                'assessment_command.wizard.step1.name_placeholder',
-                                            )
-                                        "
-                                        variant="filled"
-                                        color="primary"
-                                        bg-color="rgba(255,255,255,0.05)"
-                                        class="mb-4 rounded-lg"
-                                    ></v-text-field>
-
-                                    <v-textarea
-                                        v-model="newCycle.description"
-                                        :label="
-                                            $t(
-                                                'assessment_command.wizard.step1.description_label',
-                                            )
-                                        "
-                                        :placeholder="
-                                            $t(
-                                                'assessment_command.wizard.step1.description_placeholder',
-                                            )
-                                        "
-                                        variant="filled"
-                                        color="primary"
-                                        bg-color="rgba(255,255,255,0.05)"
-                                        rows="3"
-                                        class="mb-6 rounded-lg"
-                                    ></v-textarea>
-
-                                    <h3
-                                        class="text-subtitle-1 font-weight-bold mb-4 text-white"
-                                    >
-                                        {{
-                                            $t(
-                                                'assessment_command.wizard.step1.mode_title',
-                                            )
-                                        }}
-                                    </h3>
-                                    <v-row>
-                                        <v-col
-                                            cols="6"
-                                            v-for="mode in modeOptions"
-                                            :key="mode.value"
-                                        >
-                                            <v-card
-                                                @click="
-                                                    newCycle.mode =
-                                                        mode.value as any
-                                                "
-                                                :class="[
-                                                    'pa-4 border-auth cursor-pointer rounded-xl transition-all',
-                                                    newCycle.mode === mode.value
-                                                        ? 'bg-primary-darken-3 elevation-xl border-primary'
-                                                        : 'bg-white-opacity-5',
-                                                ]"
-                                                flat
-                                            >
+                                    <div class="grid gap-8 lg:grid-cols-1">
+                                        <div class="space-y-6">
+                                            <div>
                                                 <div
-                                                    class="d-flex align-center mb-2"
+                                                    class="mb-2 block text-xs font-bold tracking-widest text-white/30 uppercase"
                                                 >
-                                                    <v-avatar
-                                                        :color="
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step1.name_label',
+                                                        )
+                                                    }}
+                                                </div>
+                                                <input
+                                                    v-model="newCycle.name"
+                                                    type="text"
+                                                    class="block w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all placeholder:text-white/10 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
+                                                    :placeholder="
+                                                        t(
+                                                            'assessment_command.wizard.step1.name_placeholder',
+                                                        )
+                                                    "
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <div
+                                                    class="mb-2 block text-xs font-bold tracking-widest text-white/30 uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step1.description_label',
+                                                        )
+                                                    }}
+                                                </div>
+                                                <textarea
+                                                    v-model="
+                                                        newCycle.description
+                                                    "
+                                                    rows="3"
+                                                    class="block w-full resize-none rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all placeholder:text-white/10 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
+                                                    :placeholder="
+                                                        t(
+                                                            'assessment_command.wizard.step1.description_placeholder',
+                                                        )
+                                                    "
+                                                ></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="pt-4">
+                                            <h3
+                                                class="mb-6 text-sm font-bold tracking-widest text-white/30 uppercase"
+                                            >
+                                                {{
+                                                    t(
+                                                        'assessment_command.wizard.step1.mode_title',
+                                                    )
+                                                }}
+                                            </h3>
+                                            <div
+                                                class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                                            >
+                                                <button
+                                                    v-for="mode in modeOptions"
+                                                    :key="mode.value"
+                                                    @click="
+                                                        newCycle.mode =
+                                                            mode.value as any
+                                                    "
+                                                    class="group relative flex items-center gap-5 rounded-2xl border p-5 text-left transition-all duration-300"
+                                                    :class="[
+                                                        newCycle.mode ===
+                                                        mode.value
+                                                            ? 'border-indigo-500/50 bg-indigo-500/10 ring-4 ring-indigo-500/10'
+                                                            : 'bg-white-opacity-5 hover:bg-white-opacity-10 border-white/5 hover:border-white/20',
+                                                    ]"
+                                                >
+                                                    <div
+                                                        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300"
+                                                        :class="[
                                                             newCycle.mode ===
                                                             mode.value
-                                                                ? 'primary'
-                                                                : 'grey-darken-3'
-                                                        "
-                                                        size="40"
-                                                        class="mr-3 rounded-lg"
+                                                                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
+                                                                : 'bg-white/5 text-white/40 group-hover:bg-white/10 group-hover:text-white/60',
+                                                        ]"
                                                     >
                                                         <component
                                                             :is="mode.icon"
                                                             :size="24"
-                                                            :color="
-                                                                newCycle.mode ===
-                                                                mode.value
-                                                                    ? 'white'
-                                                                    : 'grey'
-                                                            "
+                                                            weight="duotone"
                                                         />
-                                                    </v-avatar>
-                                                    <div
-                                                        class="text-subtitle-1 font-weight-bold font-premium text-white"
-                                                    >
-                                                        {{ mode.title }}
                                                     </div>
-                                                </div>
-                                                <div
-                                                    class="text-caption text-grey-lighten-1"
-                                                >
-                                                    {{ mode.desc }}
-                                                </div>
-                                            </v-card>
-                                        </v-col>
-                                    </v-row>
+                                                    <div>
+                                                        <div
+                                                            class="mb-1 text-base font-black tracking-tight text-white"
+                                                        >
+                                                            {{ mode.title }}
+                                                        </div>
+                                                        <div
+                                                            class="text-xs leading-snug font-medium text-white/30"
+                                                        >
+                                                            {{ mode.desc }}
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </v-window-item>
 
                                 <!-- Step 2: Scope -->
-                                <v-window-item :value="2">
-                                    <div class="mb-6">
+                                <v-window-item :value="2" class="h-full">
+                                    <div class="mb-10">
                                         <div
-                                            class="text-overline font-weight-black mb-1 text-primary"
+                                            class="mb-2 text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step2.label',
                                                 )
                                             }}
                                         </div>
                                         <h2
-                                            class="text-h4 font-weight-bold font-premium mb-2 text-white"
+                                            class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step2.title',
                                                 )
                                             }}
                                         </h2>
                                         <p
-                                            class="text-body-1 text-grey-lighten-1"
+                                            class="max-w-xl text-lg leading-relaxed font-medium text-white/40"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step2.desc',
                                                 )
                                             }}
                                         </p>
                                     </div>
 
-                                    <v-select
-                                        v-model="newCycle.scope!.type"
-                                        :label="
-                                            $t(
-                                                'assessment_command.wizard.step2.segmentation_label',
-                                            )
-                                        "
-                                        :items="[
-                                            {
-                                                title: $t(
-                                                    'assessment_command.wizard.step2.segmentation_options.all',
-                                                ),
-                                                value: 'all',
-                                            },
-                                            {
-                                                title: $t(
-                                                    'assessment_command.wizard.step2.segmentation_options.department',
-                                                ),
-                                                value: 'department',
-                                            },
-                                            {
-                                                title: $t(
-                                                    'assessment_command.wizard.step2.segmentation_options.scenario',
-                                                ),
-                                                value: 'scenario',
-                                            },
-                                            {
-                                                title: $t(
-                                                    'assessment_command.wizard.step2.segmentation_options.hipo',
-                                                ),
-                                                value: 'hipo',
-                                            },
-                                        ]"
-                                        variant="filled"
-                                        bg-color="rgba(255,255,255,0.05)"
-                                        class="mb-6 rounded-lg"
-                                    ></v-select>
-
-                                    <v-alert
-                                        v-if="
-                                            newCycle.scope!.type === 'scenario'
-                                        "
-                                        type="info"
-                                        variant="tonal"
-                                        border="start"
-                                        class="mb-6 rounded-lg"
-                                    >
-                                        <template #prepend>
-                                            <v-avatar
-                                                color="info"
-                                                size="32"
-                                                class="mr-3"
+                                    <div class="space-y-10">
+                                        <div>
+                                            <div
+                                                class="mb-4 block text-xs font-bold tracking-widest text-white/30 uppercase"
                                             >
-                                                <PhRocketLaunch
-                                                    color="white"
-                                                    :size="18"
-                                                />
-                                            </v-avatar>
-                                        </template>
-                                        {{
-                                            $t(
-                                                'assessment_command.wizard.step2.scenario_alert',
-                                            )
-                                        }}
-                                    </v-alert>
+                                                {{
+                                                    t(
+                                                        'assessment_command.wizard.step2.segmentation_label',
+                                                    )
+                                                }}
+                                            </div>
+                                            <div
+                                                class="grid grid-cols-2 gap-4 sm:grid-cols-4"
+                                            >
+                                                <button
+                                                    v-for="opt in [
+                                                        {
+                                                            value: 'all',
+                                                            icon: PhUsers,
+                                                        },
+                                                        {
+                                                            value: 'department',
+                                                            icon: PhBuildings,
+                                                        },
+                                                        {
+                                                            value: 'scenario',
+                                                            icon: PhTreeStructure,
+                                                        },
+                                                        {
+                                                            value: 'hipo',
+                                                            icon: PhLightning,
+                                                        },
+                                                    ]"
+                                                    :key="opt.value"
+                                                    @click="
+                                                        newCycle.scope!.type =
+                                                            opt.value as any
+                                                    "
+                                                    class="flex flex-col items-center gap-3 rounded-2xl border p-4 transition-all duration-300"
+                                                    :class="[
+                                                        newCycle.scope!.type ===
+                                                        opt.value
+                                                            ? 'border-indigo-500/50 bg-indigo-500/10 text-indigo-400 ring-4 ring-indigo-500/10'
+                                                            : 'border-white/5 bg-white/5 text-white/40 hover:border-white/20 hover:bg-white/10',
+                                                    ]"
+                                                >
+                                                    <component
+                                                        :is="opt.icon"
+                                                        :size="24"
+                                                        weight="duotone"
+                                                    />
+                                                    <span
+                                                        class="text-[11px] font-black tracking-wider uppercase"
+                                                    >
+                                                        {{
+                                                            t(
+                                                                `assessment_command.wizard.step2.segmentation_options.${opt.value}`,
+                                                            )
+                                                        }}
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </div>
 
-                                    <h3
-                                        class="text-subtitle-1 font-weight-bold mb-4 text-white"
-                                    >
-                                        {{
-                                            $t(
-                                                'assessment_command.wizard.step2.schedule_title',
-                                            )
-                                        }}
-                                    </h3>
-                                    <v-row>
-                                        <v-col cols="6">
-                                            <v-text-field
-                                                v-model="newCycle.starts_at"
-                                                :label="
-                                                    $t(
-                                                        'assessment_command.wizard.step2.start_date',
-                                                    )
+                                        <transition name="fade-slide">
+                                            <div
+                                                v-if="
+                                                    newCycle.scope!.type ===
+                                                    'scenario'
                                                 "
-                                                type="date"
-                                                variant="filled"
-                                                bg-color="rgba(255,255,255,0.05)"
-                                                class="rounded-lg"
-                                            ></v-text-field>
-                                        </v-col>
-                                        <v-col cols="6">
-                                            <v-text-field
-                                                v-model="newCycle.ends_at"
-                                                :label="
-                                                    $t(
-                                                        'assessment_command.wizard.step2.end_date',
+                                                class="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-6 backdrop-blur-xl"
+                                            >
+                                                <div
+                                                    class="flex items-center gap-4"
+                                                >
+                                                    <div
+                                                        class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-400"
+                                                    >
+                                                        <PhRocketLaunch
+                                                            :size="20"
+                                                            weight="duotone"
+                                                        />
+                                                    </div>
+                                                    <div
+                                                        class="text-sm font-medium text-white/60"
+                                                    >
+                                                        {{
+                                                            t(
+                                                                'assessment_command.wizard.step2.scenario_alert',
+                                                            )
+                                                        }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </transition>
+
+                                        <div>
+                                            <div
+                                                class="mb-4 block text-xs font-bold tracking-widest text-white/30 uppercase"
+                                            >
+                                                {{
+                                                    t(
+                                                        'assessment_command.wizard.step2.schedule_title',
                                                     )
-                                                "
-                                                type="date"
-                                                variant="filled"
-                                                bg-color="rgba(255,255,255,0.05)"
-                                                class="rounded-lg"
-                                            ></v-text-field>
-                                        </v-col>
-                                    </v-row>
+                                                }}
+                                            </div>
+                                            <div
+                                                class="grid grid-cols-1 gap-6 sm:grid-cols-2"
+                                            >
+                                                <div class="space-y-2">
+                                                    <div
+                                                        class="ml-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                                    >
+                                                        {{
+                                                            t(
+                                                                'assessment_command.wizard.step2.start_date',
+                                                            )
+                                                        }}
+                                                    </div>
+                                                    <input
+                                                        v-model="
+                                                            newCycle.starts_at
+                                                        "
+                                                        type="date"
+                                                        class="block w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <div
+                                                        class="ml-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                                    >
+                                                        {{
+                                                            t(
+                                                                'assessment_command.wizard.step2.end_date',
+                                                            )
+                                                        }}
+                                                    </div>
+                                                    <input
+                                                        v-model="
+                                                            newCycle.ends_at
+                                                        "
+                                                        type="date"
+                                                        class="block w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </v-window-item>
 
                                 <!-- Step 3: Instruments & Red -->
-                                <v-window-item :value="3">
-                                    <div class="mb-6">
+                                <v-window-item
+                                    :value="3"
+                                    class="h-full transition-all duration-500"
+                                >
+                                    <div class="mb-10">
                                         <div
-                                            class="text-overline font-weight-black mb-1 text-primary"
+                                            class="mb-2 text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step3.label',
                                                 )
                                             }}
                                         </div>
                                         <h2
-                                            class="text-h4 font-weight-bold font-premium mb-2 text-white"
+                                            class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step3.title',
                                                 )
                                             }}
                                         </h2>
                                         <p
-                                            class="text-body-1 text-grey-lighten-1"
+                                            class="max-w-xl text-lg leading-relaxed font-medium text-white/40"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step3.desc',
                                                 )
                                             }}
                                         </p>
                                     </div>
 
-                                    <h3
-                                        class="text-subtitle-1 font-weight-bold mb-3 text-white"
-                                    >
-                                        {{
-                                            $t(
-                                                'assessment_command.wizard.step3.instruments_title',
-                                            )
-                                        }}
-                                    </h3>
-                                    <v-row class="mb-6">
-                                        <v-col
-                                            cols="6"
-                                            v-for="inst in instrumentOptions"
-                                            :key="inst.value"
-                                        >
-                                            <v-checkbox
-                                                v-model="newCycle.instruments"
-                                                :value="inst.value"
-                                                :label="inst.title"
-                                                color="primary"
-                                                hide-details
-                                                class="pa-2 bg-white-opacity-5 border-auth rounded-lg"
+                                    <div class="space-y-10">
+                                        <div>
+                                            <h3
+                                                class="mb-6 text-sm font-bold tracking-widest text-white/30 uppercase"
                                             >
-                                                <template #label>
+                                                {{
+                                                    t(
+                                                        'assessment_command.wizard.step3.instruments_title',
+                                                    )
+                                                }}
+                                            </h3>
+                                            <div
+                                                class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                                            >
+                                                <div
+                                                    v-for="inst in instrumentOptions"
+                                                    :key="inst.value"
+                                                    class="flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-4 transition-all hover:border-white/20 hover:bg-white/10"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        v-model="
+                                                            newCycle.instruments
+                                                        "
+                                                        :value="inst.value"
+                                                        class="h-5 w-5 rounded border-white/20 bg-white/10 text-indigo-500 transition-all focus:ring-indigo-500/50"
+                                                    />
                                                     <div
-                                                        class="d-flex align-center"
+                                                        class="flex items-center gap-2"
                                                     >
                                                         <component
                                                             :is="inst.icon"
-                                                            :size="18"
-                                                            class="mr-2 text-primary"
+                                                            :size="20"
+                                                            class="text-indigo-400"
+                                                            weight="duotone"
                                                         />
                                                         <span
-                                                            class="text-white"
+                                                            class="text-sm font-bold text-white"
                                                             >{{
                                                                 inst.title
                                                             }}</span
                                                         >
                                                     </div>
-                                                </template>
-                                            </v-checkbox>
-                                        </v-col>
-                                    </v-row>
-
-                                    <h3
-                                        class="text-subtitle-1 font-weight-bold mb-3 text-white"
-                                    >
-                                        {{
-                                            $t(
-                                                'assessment_command.wizard.step3.network_title',
-                                            )
-                                        }}
-                                    </h3>
-                                    <v-card
-                                        class="bg-white-opacity-5 border-auth pa-4 rounded-xl"
-                                    >
-                                        <v-row>
-                                            <v-col cols="6" md="4">
-                                                <v-switch
-                                                    v-model="
-                                                        newCycle.evaluators!
-                                                            .self
-                                                    "
-                                                    :label="
-                                                        $t(
-                                                            'assessment_command.wizard.step3.network_options.self',
-                                                        )
-                                                    "
-                                                    color="primary"
-                                                    density="compact"
-                                                    hide-details
-                                                ></v-switch>
-                                            </v-col>
-                                            <v-col cols="6" md="4">
-                                                <v-switch
-                                                    v-model="
-                                                        newCycle.evaluators!
-                                                            .manager
-                                                    "
-                                                    :label="
-                                                        $t(
-                                                            'assessment_command.wizard.step3.network_options.manager',
-                                                        )
-                                                    "
-                                                    color="primary"
-                                                    density="compact"
-                                                    hide-details
-                                                ></v-switch>
-                                            </v-col>
-                                            <v-col cols="6" md="4">
-                                                <v-switch
-                                                    v-model="
-                                                        newCycle.evaluators!
-                                                            .reports
-                                                    "
-                                                    :label="
-                                                        $t(
-                                                            'assessment_command.wizard.step3.network_options.reports',
-                                                        )
-                                                    "
-                                                    color="primary"
-                                                    density="compact"
-                                                    hide-details
-                                                ></v-switch>
-                                            </v-col>
-                                            <v-col cols="6" md="4">
-                                                <v-switch
-                                                    v-model="
-                                                        newCycle.evaluators!.ai
-                                                    "
-                                                    :label="
-                                                        $t(
-                                                            'assessment_command.wizard.step3.network_options.ai',
-                                                        )
-                                                    "
-                                                    color="primary"
-                                                    density="compact"
-                                                    hide-details
-                                                ></v-switch>
-                                            </v-col>
-                                        </v-row>
-                                        <v-divider
-                                            class="my-4 opacity-10"
-                                        ></v-divider>
-                                        <div
-                                            class="d-flex align-center justify-space-between"
-                                        >
-                                            <div class="text-body-2 text-white">
-                                                {{
-                                                    $t(
-                                                        'assessment_command.wizard.step3.peers_count_label',
-                                                    )
-                                                }}
-                                            </div>
-                                            <div style="width: 200px">
-                                                <v-slider
-                                                    v-model="
-                                                        newCycle.evaluators!
-                                                            .peers
-                                                    "
-                                                    min="0"
-                                                    max="8"
-                                                    step="1"
-                                                    thumb-label
-                                                    hide-details
-                                                    color="primary"
-                                                ></v-slider>
+                                                </div>
                                             </div>
                                         </div>
-                                    </v-card>
+
+                                        <div>
+                                            <h3
+                                                class="mb-6 text-sm font-bold tracking-widest text-white/30 uppercase"
+                                            >
+                                                {{
+                                                    t(
+                                                        'assessment_command.wizard.step3.network_title',
+                                                    )
+                                                }}
+                                            </h3>
+                                            <div
+                                                class="rounded-3xl border border-white/5 bg-white/5 p-8"
+                                            >
+                                                <div
+                                                    class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
+                                                >
+                                                    <div
+                                                        class="flex items-center justify-between"
+                                                    >
+                                                        <div
+                                                            class="flex items-center gap-3"
+                                                        >
+                                                            <div
+                                                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
+                                                            >
+                                                                <PhUser
+                                                                    :size="18"
+                                                                    weight="duotone"
+                                                                />
+                                                            </div>
+                                                            <span
+                                                                class="text-xs font-bold tracking-wider text-white uppercase"
+                                                                >{{
+                                                                    t(
+                                                                        'assessment_command.wizard.step3.network_options.self',
+                                                                    )
+                                                                }}</span
+                                                            >
+                                                        </div>
+                                                        <input
+                                                            type="checkbox"
+                                                            v-model="
+                                                                newCycle
+                                                                    .evaluators!
+                                                                    .self
+                                                            "
+                                                            class="toggle-premium"
+                                                        />
+                                                    </div>
+
+                                                    <div
+                                                        class="flex items-center justify-between"
+                                                    >
+                                                        <div
+                                                            class="flex items-center gap-3"
+                                                        >
+                                                            <div
+                                                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
+                                                            >
+                                                                <PhUser
+                                                                    :size="18"
+                                                                    weight="duotone"
+                                                                />
+                                                            </div>
+                                                            <span
+                                                                class="text-xs font-bold tracking-wider text-white uppercase"
+                                                                >{{
+                                                                    t(
+                                                                        'assessment_command.wizard.step3.network_options.manager',
+                                                                    )
+                                                                }}</span
+                                                            >
+                                                        </div>
+                                                        <input
+                                                            type="checkbox"
+                                                            v-model="
+                                                                newCycle
+                                                                    .evaluators!
+                                                                    .manager
+                                                            "
+                                                            class="toggle-premium"
+                                                        />
+                                                    </div>
+
+                                                    <div
+                                                        class="flex items-center justify-between"
+                                                    >
+                                                        <div
+                                                            class="flex items-center gap-3"
+                                                        >
+                                                            <div
+                                                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
+                                                            >
+                                                                <PhUser
+                                                                    :size="18"
+                                                                    weight="duotone"
+                                                                />
+                                                            </div>
+                                                            <span
+                                                                class="text-xs font-bold tracking-wider text-white uppercase"
+                                                                >{{
+                                                                    t(
+                                                                        'assessment_command.wizard.step3.network_options.reports',
+                                                                    )
+                                                                }}</span
+                                                            >
+                                                        </div>
+                                                        <input
+                                                            type="checkbox"
+                                                            v-model="
+                                                                newCycle
+                                                                    .evaluators!
+                                                                    .reports
+                                                            "
+                                                            class="toggle-premium"
+                                                        />
+                                                    </div>
+
+                                                    <div
+                                                        class="flex items-center justify-between"
+                                                    >
+                                                        <div
+                                                            class="flex items-center gap-3"
+                                                        >
+                                                            <div
+                                                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
+                                                            >
+                                                                <PhRobot
+                                                                    :size="18"
+                                                                    weight="duotone"
+                                                                />
+                                                            </div>
+                                                            <span
+                                                                class="text-xs font-bold tracking-wider text-white uppercase"
+                                                                >{{
+                                                                    t(
+                                                                        'assessment_command.wizard.step3.network_options.ai',
+                                                                    )
+                                                                }}</span
+                                                            >
+                                                        </div>
+                                                        <input
+                                                            type="checkbox"
+                                                            v-model="
+                                                                newCycle
+                                                                    .evaluators!
+                                                                    .ai
+                                                            "
+                                                            class="toggle-premium"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="mt-10 border-t border-white/5 pt-10"
+                                                >
+                                                    <div
+                                                        class="mb-6 flex items-center justify-between"
+                                                    >
+                                                        <div
+                                                            class="text-sm font-bold text-white"
+                                                        >
+                                                            {{
+                                                                t(
+                                                                    'assessment_command.wizard.step3.peers_count_label',
+                                                                )
+                                                            }}
+                                                        </div>
+                                                        <div
+                                                            class="text-2xl font-black text-indigo-400"
+                                                        >
+                                                            {{
+                                                                newCycle
+                                                                    .evaluators!
+                                                                    .peers
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                    <input
+                                                        v-model.number="
+                                                            newCycle.evaluators!
+                                                                .peers
+                                                        "
+                                                        type="range"
+                                                        min="0"
+                                                        max="8"
+                                                        step="1"
+                                                        class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-white/10 accent-indigo-500"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </v-window-item>
 
                                 <!-- Step 4: Confirmation -->
-                                <v-window-item :value="4">
-                                    <div class="mb-8 text-center">
-                                        <v-avatar
-                                            color="primary"
-                                            size="80"
-                                            class="elevation-xl mb-4"
+                                <v-window-item
+                                    :value="4"
+                                    class="h-full transition-all duration-500"
+                                >
+                                    <div class="mb-12 text-center">
+                                        <div
+                                            class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-emerald-500/10 text-emerald-400 shadow-[0_0_50px_-12px_rgba(16,185,129,0.3)]"
                                         >
-                                            <v-icon
-                                                :icon="PhCheckCircle"
-                                                size="48"
-                                                color="white"
-                                            ></v-icon>
-                                        </v-avatar>
+                                            <PhCheckCircle
+                                                :size="64"
+                                                weight="duotone"
+                                            />
+                                        </div>
                                         <h2
-                                            class="text-h4 font-weight-bold font-premium mb-2 text-white"
+                                            class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step4.title',
                                                 )
                                             }}
                                         </h2>
                                         <p
-                                            class="text-body-1 text-grey-lighten-1"
+                                            class="mx-auto max-w-lg text-lg leading-relaxed font-medium text-white/40"
                                         >
                                             {{
-                                                $t(
+                                                t(
                                                     'assessment_command.wizard.step4.desc',
                                                 )
                                             }}
                                         </p>
                                     </div>
 
-                                    <v-card
-                                        class="bg-white-opacity-5 border-auth mb-6 overflow-hidden rounded-xl"
+                                    <div
+                                        class="grid grid-cols-1 gap-6 lg:grid-cols-2"
                                     >
-                                        <v-list
-                                            bg-color="transparent"
-                                            class="pa-0"
+                                        <div
+                                            class="rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl lg:col-span-2"
                                         >
-                                            <v-list-item class="px-6 py-3">
-                                                <template #prepend
-                                                    ><v-icon
-                                                        :icon="PhTag"
-                                                        color="primary"
-                                                    ></v-icon
-                                                ></template>
-                                                <v-list-item-title
-                                                    class="font-weight-bold text-white"
-                                                    >{{
-                                                        newCycle.name
-                                                    }}</v-list-item-title
-                                                >
-                                                <v-list-item-subtitle
-                                                    class="text-grey"
-                                                    >{{
-                                                        $t(
-                                                            'assessment_command.wizard.step4.items.name',
-                                                        )
-                                                    }}</v-list-item-subtitle
-                                                >
-                                            </v-list-item>
-                                            <v-divider
-                                                class="opacity-10"
-                                            ></v-divider>
-                                            <v-row class="ma-0">
-                                                <v-col
-                                                    cols="6"
-                                                    class="pa-0 border-right-auth"
-                                                >
-                                                    <v-list-item
-                                                        class="px-6 py-3"
-                                                    >
-                                                        <v-list-item-title
-                                                            class="font-weight-bold font-premium text-white"
-                                                            >{{
-                                                                modeOptions.find(
-                                                                    (o) =>
-                                                                        o.value ===
-                                                                        newCycle.mode,
-                                                                )?.title
-                                                            }}</v-list-item-title
-                                                        >
-                                                        <v-list-item-subtitle
-                                                            class="text-grey"
-                                                            >{{
-                                                                $t(
-                                                                    'assessment_command.wizard.step4.items.mode',
-                                                                )
-                                                            }}</v-list-item-subtitle
-                                                        >
-                                                    </v-list-item>
-                                                </v-col>
-                                                <v-col cols="6" class="pa-0">
-                                                    <v-list-item
-                                                        class="px-6 py-3"
-                                                    >
-                                                        <v-list-item-title
-                                                            class="font-weight-bold font-premium text-white"
-                                                            >{{
-                                                                newCycle
-                                                                    .instruments
-                                                                    ?.length
-                                                            }}
-                                                            {{
-                                                                $t(
-                                                                    'assessment_command.wizard.step4.items.selected_suffix',
-                                                                )
-                                                            }}</v-list-item-title
-                                                        >
-                                                        <v-list-item-subtitle
-                                                            class="text-grey"
-                                                            >{{
-                                                                $t(
-                                                                    'assessment_command.wizard.step4.items.instruments',
-                                                                )
-                                                            }}</v-list-item-subtitle
-                                                        >
-                                                    </v-list-item>
-                                                </v-col>
-                                            </v-row>
-                                            <v-divider
-                                                class="opacity-10"
-                                            ></v-divider>
-                                            <v-list-item class="px-6 py-3">
-                                                <template #prepend>
-                                                    <v-avatar
-                                                        size="24"
-                                                        class="mr-2"
-                                                    >
-                                                        <PhRobot
-                                                            :color="
-                                                                newCycle
-                                                                    .evaluators
-                                                                    ?.ai
-                                                                    ? '#10b981'
-                                                                    : '#6b7280'
-                                                            "
-                                                            :size="18"
-                                                        />
-                                                    </v-avatar>
-                                                </template>
-                                                <v-list-item-title
-                                                    :class="
-                                                        newCycle.evaluators?.ai
-                                                            ? 'text-success font-weight-bold'
-                                                            : 'text-grey'
-                                                    "
-                                                >
-                                                    {{
-                                                        newCycle.evaluators?.ai
-                                                            ? $t(
-                                                                  'assessment_command.wizard.step4.items.ai_active',
-                                                              )
-                                                            : $t(
-                                                                  'assessment_command.wizard.step4.items.ai_inactive',
-                                                              )
-                                                    }}
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle
-                                                    class="text-grey"
-                                                >
-                                                    {{
-                                                        $t(
-                                                            'assessment_command.wizard.step4.items.ai_engine',
-                                                        )
-                                                    }}
-                                                </v-list-item-subtitle>
-                                            </v-list-item>
-                                        </v-list>
-                                    </v-card>
-
-                                    <!-- Preview Section Start -->
-                                    <h3
-                                        class="text-subtitle-1 font-weight-bold mb-4 text-white"
-                                    >
-                                        {{
-                                            $t(
-                                                'assessment_command.wizard.step4.preview_title',
-                                            )
-                                        }}
-                                    </h3>
-
-                                    <v-card
-                                        class="bg-primary-darken-3 border-auth pa-6 mb-8 rounded-xl text-center"
-                                        flat
-                                    >
-                                        <div v-if="previewLoading" class="py-4">
-                                            <v-progress-circular
-                                                indeterminate
-                                                color="primary"
-                                                class="mb-3"
-                                            ></v-progress-circular>
                                             <div
-                                                class="text-caption text-grey-lighten-1"
+                                                class="flex flex-wrap items-center gap-6"
+                                            >
+                                                <div class="grow">
+                                                    <div
+                                                        class="mb-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                                    >
+                                                        {{
+                                                            t(
+                                                                'assessment_command.wizard.step4.items.name',
+                                                            )
+                                                        }}
+                                                    </div>
+                                                    <div
+                                                        class="text-xl font-black text-white italic"
+                                                    >
+                                                        "{{ newCycle.name }}"
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="h-10 w-px bg-white/5"
+                                                ></div>
+                                                <div>
+                                                    <div
+                                                        class="mb-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                                    >
+                                                        {{
+                                                            t(
+                                                                'assessment_command.wizard.step4.items.mode',
+                                                            )
+                                                        }}
+                                                    </div>
+                                                    <StBadgeGlass
+                                                        variant="primary"
+                                                        size="sm"
+                                                    >
+                                                        {{
+                                                            modeOptions.find(
+                                                                (o) =>
+                                                                    o.value ===
+                                                                    newCycle.mode,
+                                                            )?.title
+                                                        }}
+                                                    </StBadgeGlass>
+                                                </div>
+                                                <div
+                                                    class="h-10 w-px bg-white/5"
+                                                ></div>
+                                                <div>
+                                                    <div
+                                                        class="mb-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                                    >
+                                                        {{
+                                                            t(
+                                                                'assessment_command.wizard.step4.items.instruments',
+                                                            )
+                                                        }}
+                                                    </div>
+                                                    <div
+                                                        class="text-lg font-black text-white"
+                                                    >
+                                                        {{
+                                                            newCycle.instruments
+                                                                ?.length
+                                                        }}
+                                                        {{
+                                                            t(
+                                                                'assessment_command.wizard.step4.items.selected_suffix',
+                                                            )
+                                                        }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            class="rounded-3xl border border-white/5 bg-white/5 p-6"
+                                        >
+                                            <div
+                                                class="mb-4 text-[10px] font-black tracking-widest text-white/20 uppercase"
                                             >
                                                 {{
-                                                    $t(
-                                                        'assessment_command.wizard.step4.calculating',
+                                                    t(
+                                                        'assessment_command.wizard.step4.preview_title',
                                                     )
                                                 }}
                                             </div>
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <div
+                                                    class="rounded-2xl bg-black/20 p-4 text-center"
+                                                >
+                                                    <div
+                                                        class="text-3xl font-black text-white"
+                                                    >
+                                                        {{
+                                                            previewData.participants
+                                                        }}
+                                                    </div>
+                                                    <div
+                                                        class="text-[9px] font-bold tracking-wider text-white/30 uppercase"
+                                                    >
+                                                        {{
+                                                            t(
+                                                                'assessment_command.wizard.step4.preview_stats.participants',
+                                                            )
+                                                        }}
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="rounded-2xl bg-black/20 p-4 text-center"
+                                                >
+                                                    <div
+                                                        class="text-3xl font-black text-white"
+                                                    >
+                                                        {{
+                                                            previewData.impacted_areas
+                                                        }}
+                                                    </div>
+                                                    <div
+                                                        class="text-[9px] font-bold tracking-wider text-white/30 uppercase"
+                                                    >
+                                                        {{
+                                                            t(
+                                                                'assessment_command.wizard.step4.preview_stats.areas',
+                                                            )
+                                                        }}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <v-row v-else>
-                                            <v-col
-                                                cols="6"
-                                                class="border-right-auth"
+
+                                        <div
+                                            class="flex items-center justify-between rounded-3xl border border-white/5 bg-white/5 p-6"
+                                        >
+                                            <div
+                                                class="flex items-center gap-4"
                                             >
                                                 <div
-                                                    class="text-h3 font-weight-black font-premium mb-1 text-white"
+                                                    class="flex h-12 w-12 items-center justify-center rounded-2xl"
+                                                    :class="
+                                                        newCycle.evaluators?.ai
+                                                            ? 'bg-emerald-500/10 text-emerald-400'
+                                                            : 'bg-white/5 text-white/20'
+                                                    "
                                                 >
-                                                    {{
-                                                        previewData.participants
-                                                    }}
+                                                    <PhRobot
+                                                        :size="24"
+                                                        weight="duotone"
+                                                    />
                                                 </div>
-                                                <div
-                                                    class="text-caption text-indigo-lighten-2 text-uppercase font-weight-bold"
-                                                >
-                                                    {{
-                                                        $t(
-                                                            'assessment_command.wizard.step4.preview_stats.participants',
-                                                        )
-                                                    }}
+                                                <div>
+                                                    <div
+                                                        class="text-sm font-black text-white"
+                                                    >
+                                                        {{
+                                                            newCycle.evaluators
+                                                                ?.ai
+                                                                ? t(
+                                                                      'assessment_command.wizard.step4.items.ai_active',
+                                                                  )
+                                                                : t(
+                                                                      'assessment_command.wizard.step4.items.ai_inactive',
+                                                                  )
+                                                        }}
+                                                    </div>
+                                                    <div
+                                                        class="text-[10px] font-bold tracking-wider text-white/30 uppercase"
+                                                    >
+                                                        {{
+                                                            t(
+                                                                'assessment_command.wizard.step4.items.ai_engine',
+                                                            )
+                                                        }}
+                                                    </div>
                                                 </div>
-                                            </v-col>
-                                            <v-col cols="6">
-                                                <div
-                                                    class="text-h3 font-weight-black font-premium mb-1 text-white"
-                                                >
-                                                    {{
-                                                        previewData.impacted_areas
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="text-caption text-indigo-lighten-2 text-uppercase font-weight-bold"
-                                                >
-                                                    {{
-                                                        $t(
-                                                            'assessment_command.wizard.step4.preview_stats.areas',
-                                                        )
-                                                    }}
-                                                </div>
-                                            </v-col>
-                                        </v-row>
-                                    </v-card>
-                                    <!-- Preview Section End -->
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                    <v-alert
-                                        type="warning"
-                                        variant="tonal"
-                                        border="start"
-                                        class="mb-6 rounded-xl"
+                                    <div
+                                        class="mt-8 flex items-center gap-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5"
                                     >
-                                        <template #prepend>
-                                            <PhPulse :size="20" class="mr-2" />
-                                        </template>
-                                        {{
-                                            $t(
-                                                'assessment_command.wizard.step4.draft_alert',
-                                            )
-                                        }}
-                                    </v-alert>
+                                        <div
+                                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400"
+                                        >
+                                            <PhPulse
+                                                :size="20"
+                                                weight="duotone"
+                                            />
+                                        </div>
+                                        <div
+                                            class="text-sm leading-snug font-medium text-amber-200/60"
+                                        >
+                                            {{
+                                                t(
+                                                    'assessment_command.wizard.step4.draft_alert',
+                                                )
+                                            }}
+                                        </div>
+                                    </div>
                                 </v-window-item>
                             </v-window>
-                        </v-card-text>
+                        </div>
 
                         <!-- Footer Actions -->
-                        <v-divider color="white" class="opacity-10"></v-divider>
                         <div
-                            class="pa-8 d-flex justify-space-between align-center"
+                            class="mt-auto flex items-center justify-between border-t border-white/5 bg-black/20 p-8 lg:px-12"
                         >
-                            <v-btn
-                                v-if="step > 1"
-                                variant="text"
-                                color="grey-lighten-1"
-                                @click="step--"
-                            >
-                                <template #prepend>
-                                    <PhCaretLeft :size="18" class="mr-1" />
-                                </template>
-                                {{
-                                    $t('assessment_command.wizard.actions.back')
-                                }}
-                            </v-btn>
-                            <div v-else></div>
+                            <div>
+                                <StButtonGlass
+                                    v-if="step > 1"
+                                    variant="ghost"
+                                    :icon="PhCaretLeft"
+                                    @click="step--"
+                                >
+                                    {{
+                                        t(
+                                            'assessment_command.wizard.actions.back',
+                                        )
+                                    }}
+                                </StButtonGlass>
+                            </div>
 
-                            <StButtonGlass
-                                v-if="step < 4"
-                                variant="primary"
-                                size="lg"
-                                class="rounded-lg px-8"
-                                @click="step++"
-                            >
-                                {{
-                                    $t('assessment_command.wizard.actions.next')
-                                }}
-                                <PhCaretRight :size="18" class="ml-1" />
-                            </StButtonGlass>
+                            <div class="flex items-center gap-4">
+                                <StButtonGlass
+                                    v-if="step < 4"
+                                    variant="primary"
+                                    size="lg"
+                                    class="min-w-[160px]"
+                                    @click="step++"
+                                >
+                                    {{
+                                        t(
+                                            'assessment_command.wizard.actions.next',
+                                        )
+                                    }}
+                                    <template #append>
+                                        <PhCaretRight
+                                            :size="18"
+                                            weight="bold"
+                                        />
+                                    </template>
+                                </StButtonGlass>
 
-                            <StButtonGlass
-                                v-else
-                                variant="secondary"
-                                size="lg"
-                                :icon="PhCheckCircle"
-                                class="font-weight-bold rounded-lg px-8"
-                                :loading="saving"
-                                @click="saveCycle"
-                            >
-                                {{
-                                    $t(
-                                        'assessment_command.wizard.actions.launch',
-                                    )
-                                }}
-                            </StButtonGlass>
+                                <StButtonGlass
+                                    v-else
+                                    variant="secondary"
+                                    size="lg"
+                                    class="min-w-[200px]"
+                                    :loading="saving"
+                                    @click="saveCycle"
+                                >
+                                    <template #prepend>
+                                        <PhRocketLaunch
+                                            :size="20"
+                                            weight="bold"
+                                        />
+                                    </template>
+                                    {{
+                                        t(
+                                            'assessment_command.wizard.actions.launch',
+                                        )
+                                    }}
+                                </StButtonGlass>
+                            </div>
                         </div>
-                    </v-col>
-                </v-row>
+                    </div>
+                </div>
             </v-card>
         </v-dialog>
     </AppLayout>
@@ -1642,5 +1742,37 @@ onMounted(() => {
 
 .bg-surface-dark {
     background-color: #161b22 !important;
+}
+
+/* Premium Wizard Styles */
+.toggle-premium {
+    @apply h-6 w-11 cursor-pointer appearance-none rounded-full bg-white/10 transition-all;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.toggle-premium::before {
+    content: '';
+    @apply absolute top-1 left-1 h-4 w-4 rounded-full bg-white/40 transition-all;
+}
+
+.toggle-premium:checked {
+    @apply border-indigo-500/50 bg-indigo-500/40;
+}
+
+.toggle-premium:checked::before {
+    @apply left-6 bg-white;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
 }
 </style>

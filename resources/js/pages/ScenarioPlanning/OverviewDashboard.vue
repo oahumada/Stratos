@@ -79,7 +79,7 @@ const formatNumber = (num: number): string => {
 };
 
 // Helper functions for chart data aggregation
-const countGapsByPriority = (priority: string): number => {
+const _countGapsByPriority = (priority: string): number => {
     const gapPriorities: { [key: string]: number } = {
         critical: 3,
         high: 4,
@@ -89,7 +89,7 @@ const countGapsByPriority = (priority: string): number => {
     return gapPriorities[priority] || 0;
 };
 
-const countByReadiness = (level: string): number => {
+const _countByReadiness = (level: string): number => {
     const readinessCounts: { [key: string]: number } = {
         immediately: 3,
         within_six: 4,
@@ -99,7 +99,7 @@ const countByReadiness = (level: string): number => {
     return readinessCounts[level] || 0;
 };
 
-const getAllMatchScores = (): number[] => {
+const _getAllMatchScores = (): number[] => {
     return [95, 87, 92, 78, 84, 91, 56, 71, 88, 82];
 };
 
@@ -268,7 +268,7 @@ onMounted(() => {
             <div
                 class="d-flex align-center justify-space-between flex-wrap gap-6"
             >
-                <div class="flex-grow-1">
+                <div class="grow">
                     <div class="d-flex align-center mb-2 gap-3">
                         <v-btn
                             icon
@@ -1090,17 +1090,17 @@ onMounted(() => {
 
 .glass-tabs :deep(.v-tab) {
     height: 64px !important;
-    color: rgba(255, 255, 255, 0.4) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
     border-bottom: 2px solid transparent !important;
     text-transform: none !important;
     letter-spacing: 0.5px !important;
 }
 
 .glass-tabs :deep(.v-tab--selected) {
-    color: #818cf8 !important;
+    color: #ffffff !important;
     background: linear-gradient(
         to top,
-        rgba(99, 102, 241, 0.1),
+        rgba(99, 102, 241, 0.2),
         transparent
     ) !important;
 }
