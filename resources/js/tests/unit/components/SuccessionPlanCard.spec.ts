@@ -164,11 +164,9 @@ describe('SuccessionPlanCard.vue', () => {
             },
         });
 
-        expect(wrapper.vm.getReadinessColor('ready_now')).toContain('success');
-        expect(wrapper.vm.getReadinessColor('ready_12_months')).toContain(
-            'warning',
-        );
-        expect(wrapper.vm.getReadinessColor('not_ready')).toContain('error');
+        expect(wrapper.vm.getReadinessColor('ready_now')).toBe('#10b981');
+        expect(wrapper.vm.getReadinessColor('ready_12_months')).toBe('#6366f1');
+        expect(wrapper.vm.getReadinessColor('not_ready')).toBe('#f43f5e');
     });
 
     it('handles empty succession plans', async () => {
