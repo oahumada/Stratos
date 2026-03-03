@@ -107,7 +107,7 @@ const stateVariant = computed(() => {
             <StBadgeGlass
                 :variant="stateVariant"
                 size="sm"
-                class="flex transform items-center gap-1.5 !px-3 !py-1 shadow-sm transition-transform group-hover/cell:scale-110"
+                class="flex transform items-center gap-1.5 px-3! py-1! shadow-sm transition-transform group-hover/cell:scale-110"
             >
                 <v-icon size="10" :icon="stateIcon" />
                 {{ stateText }}
@@ -172,7 +172,7 @@ const stateVariant = computed(() => {
                 circle
                 size="sm"
                 icon="mdi-delete-outline"
-                class="!text-rose-400"
+                class="text-rose-400!"
                 @click.stop="$emit('remove')"
             />
         </div>

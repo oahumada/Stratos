@@ -116,7 +116,7 @@
                                     <StBadgeGlass
                                         variant="glass"
                                         size="sm"
-                                        class="!px-2"
+                                        class="px-2!"
                                     >
                                         {{ result.current_role }}
                                     </StBadgeGlass>
@@ -126,7 +126,7 @@
                                     <StBadgeGlass
                                         variant="primary"
                                         size="sm"
-                                        class="!px-2 font-black"
+                                        class="px-2! font-black"
                                     >
                                         {{ result.target_position }}
                                     </StBadgeGlass>

@@ -68,7 +68,7 @@
                                 {
                                     'at-risk':
                                         plan.criticality_level === 'critical' &&
-                                        !plan.primary_successor,
+                                        plan.primary_successor,!
                                 },
                             ]"
                             variant="outlined"

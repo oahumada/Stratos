@@ -434,7 +434,7 @@ const executionStatusBadge = computed(() => {
                             icon="mdi-content-copy"
                             :loading="loading"
                             @click="openVersionDialog"
-                            class="!border-purple-500/30 hover:!bg-purple-500/10"
+                            class="border-purple-500/30! hover:bg-purple-500/10!"
                         >
                             Create New Version
                         </StButtonGlass>
@@ -468,7 +468,7 @@ const executionStatusBadge = computed(() => {
             <StCardGlass
                 variant="glass"
                 border-accent="indigo"
-                class="!bg-[#0f172a]/95 backdrop-blur-xl"
+                class="bg-[#0f172a]/95! backdrop-blur-xl"
             >
                 <div
                     class="mb-4 flex items-center gap-3 border-b border-white/10 pb-4"
@@ -519,7 +519,7 @@ const executionStatusBadge = computed(() => {
             <StCardGlass
                 variant="glass"
                 border-accent="indigo"
-                class="!bg-[#0f172a]/95 backdrop-blur-xl"
+                class="bg-[#0f172a]/95! backdrop-blur-xl"
             >
                 <div
                     class="mb-4 flex items-center gap-3 border-b border-white/10 pb-4"
@@ -569,7 +569,7 @@ const executionStatusBadge = computed(() => {
             <StCardGlass
                 variant="glass"
                 border-accent="purple"
-                class="!bg-[#0f172a]/95 backdrop-blur-xl"
+                class="bg-[#0f172a]/95! backdrop-blur-xl"
             >
                 <div
                     class="mb-4 flex items-center gap-3 border-b border-white/10 pb-4"
@@ -643,7 +643,7 @@ const executionStatusBadge = computed(() => {
                     >
                     <StButtonGlass
                         variant="primary"
-                        class="!border-purple-500/50 !bg-purple-500/20 hover:!bg-purple-500/30"
+                        class="border-purple-500/50! bg-purple-500/20! hover:bg-purple-500/30!"
                         :loading="loading"
                         :disabled="!versionName"
                         @click="

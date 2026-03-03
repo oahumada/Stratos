@@ -26,7 +26,7 @@
                                 <StBadgeGlass
                                     variant="primary"
                                     size="sm"
-                                    class="!px-3"
+                                    class="px-3!"
                                 >
                                     Engineering Phase
                                 </StBadgeGlass>
@@ -56,7 +56,7 @@
                         icon="mdi-robot-vacuum-variant"
                         :loading="isDesigning"
                         @click="handleDesignTalent"
-                        class="!text-indigo-300"
+                        class="text-indigo-300!"
                     >
                         Agent Consultation
                     </StButtonGlass>
@@ -85,7 +85,7 @@
                 <StCardGlass
                     variant="glass"
                     border-accent="red"
-                    class="!bg-red-500/5"
+                    class="bg-red-500/5!"
                 >
                     <div class="flex items-center gap-4 text-red-200">
                         <div
@@ -118,7 +118,7 @@
             <StCardGlass
                 variant="glass"
                 border-accent="emerald"
-                class="min-w-[300px] !bg-emerald-500/10 shadow-[0_20px_50px_rgba(16,185,129,0.2)] backdrop-blur-3xl"
+                class="min-w-[300px] bg-emerald-500/10! shadow-[0_20px_50px_rgba(16,185,129,0.2)] backdrop-blur-3xl"
             >
                 <div class="flex items-center gap-4">
                     <div
@@ -181,7 +181,7 @@
             <!-- Design Logic Guide -->
             <StCardGlass
                 variant="glass"
-                class="mb-10 overflow-hidden !p-2"
+                class="mb-10 overflow-hidden p-2!"
                 :no-hover="true"
             >
                 <div
@@ -242,7 +242,7 @@
             <!-- Main Engineering Matrix Container -->
             <StCardGlass
                 variant="glass"
-                class="overflow-hidden border-white/5 !p-0 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
+                class="overflow-hidden border-white/5 p-0! shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
                 :no-hover="true"
             >
                 <!-- Category Navigation (Z-Axis) -->
@@ -271,7 +271,7 @@
                         <StBadgeGlass
                             :variant="activeTab === idx ? 'primary' : 'glass'"
                             size="sm"
-                            class="!rounded-lg transition-all duration-500"
+                            class="rounded-lg! transition-all duration-500"
                             :class="
                                 activeTab === idx
                                     ? 'scale-110 shadow-[0_0_10px_rgba(99,102,241,0.3)]'
@@ -541,7 +541,7 @@
             <StCardGlass
                 variant="glass"
                 border-accent="indigo"
-                class="overflow-hidden bg-[#0a0f1d]/95 !p-0 backdrop-blur-3xl"
+                class="overflow-hidden bg-[#0a0f1d]/95 p-0! backdrop-blur-3xl"
                 :no-hover="true"
             >
                 <div

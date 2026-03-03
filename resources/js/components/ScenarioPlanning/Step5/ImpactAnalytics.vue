@@ -4,7 +4,7 @@
         <StCardGlass
             variant="glass"
             border-accent="indigo"
-            class="overflow-hidden !p-0"
+            class="overflow-hidden p-0!"
             :no-hover="true"
         >
             <div
@@ -215,7 +215,7 @@
                                     </template>
                                     <StCardGlass
                                         variant="glass"
-                                        class="min-w-[140px] border-white/20 !p-3 backdrop-blur-xl"
+                                        class="min-w-[140px] border-white/20 p-3! backdrop-blur-xl"
                                     >
                                         <div
                                             class="mb-1 text-[8px] font-black tracking-widest uppercase"

@@ -318,7 +318,7 @@ watch(
 
                                 <StCardGlass
                                     variant="glass"
-                                    class="overflow-hidden border-white/10 bg-white/5 !p-0"
+                                    class="overflow-hidden border-white/10 bg-white/5 p-0!"
                                 >
                                     <div
                                         class="flex items-center justify-between border-b border-white/5 bg-white/5 px-8 py-5"
@@ -511,7 +511,7 @@ watch(
                         variant="secondary"
                         icon="mdi-check-all"
                         @click="goBack"
-                        class="!px-12"
+                        class="px-12!"
                         >Finalize Design</StButtonGlass
                     >
                 </div>

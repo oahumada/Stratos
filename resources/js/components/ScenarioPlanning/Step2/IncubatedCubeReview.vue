@@ -4,7 +4,7 @@
     >
         <!-- Dashboard Header -->
         <div class="cube-review-header">
-            <StCardGlass variant="glass" class="overflow-hidden !p-0">
+            <StCardGlass variant="glass" class="overflow-hidden p-0!">
                 <div
                     class="flex flex-col border-b border-white/5 bg-white/5 p-6 md:flex-row md:items-center md:gap-6"
                 >
@@ -192,7 +192,7 @@
 
         <!-- Confirmation Dialog -->
         <v-dialog v-model="confirmApproval" max-width="550" persistent>
-            <StCardGlass variant="glass" border-accent="indigo" class="!p-0">
+            <StCardGlass variant="glass" border-accent="indigo" class="p-0!">
                 <div
                     class="flex items-center gap-4 border-b border-white/10 bg-indigo-500/10 px-8 py-6"
                 >
@@ -340,7 +340,7 @@
                     :key="cap.id"
                     class="group relative"
                 >
-                    <StCardGlass variant="glass" class="overflow-visible !p-0">
+                    <StCardGlass variant="glass" class="overflow-visible p-0!">
                         <!-- Capability Header -->
                         <div
                             class="flex items-center justify-between border-b border-white/5 bg-white/5 px-8 py-5"
@@ -369,7 +369,7 @@
                             <StBadgeGlass
                                 variant="glass"
                                 size="md"
-                                class="border !border-white/10"
+                                class="border border-white/10!"
                             >
                                 {{ cap.category || 'Core Business' }}
                             </StBadgeGlass>
@@ -445,7 +445,7 @@
                                         </template>
                                         <StCardGlass
                                             variant="glass"
-                                            class="max-w-[280px] border-white/20 !p-4 backdrop-blur-xl"
+                                            class="max-w-[280px] border-white/20 p-4! backdrop-blur-xl"
                                         >
                                             <div
                                                 class="mb-2 border-b border-white/10 pb-2 text-[10px] font-black tracking-widest text-white uppercase"

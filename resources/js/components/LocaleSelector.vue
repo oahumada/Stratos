@@ -16,7 +16,7 @@ const toggleLocale = () => {
         size="sm"
         icon="mdi-translate"
         @click="toggleLocale"
-        class="ml-2 !px-2"
+        class="ml-2 px-2!"
         :title="locale === 'en' ? 'Switch to Spanish' : 'Switch to English'"
     >
         <span class="text-xs font-bold uppercase">{{ locale }}</span>

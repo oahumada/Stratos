@@ -245,7 +245,7 @@ onMounted(loadRequests);
                         variant="ghost"
                         circle
                         :icon="PhX"
-                        class="!text-white/40 hover:!text-white"
+                        class="text-white/40! hover:text-white!"
                         @click="dialog = false"
                     />
                 </div>
@@ -304,7 +304,7 @@ onMounted(loadRequests);
                     </StButtonGlass>
                     <StButtonGlass
                         variant="primary"
-                        class="!px-8"
+                        class="px-8!"
                         :loading="submitting"
                         @click="submitFeedback"
                     >

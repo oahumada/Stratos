@@ -65,7 +65,7 @@ const classes = computed(() => {
         <v-icon
             v-if="icon && typeof icon === 'string' && !loading"
             :size="size === 'sm' ? 16 : 20"
-            :class="['shrink-0', $slots.default && !circle ? 'mr-2' : '']"
+            :class="['shrink-0', $slots.default && circle! ? 'mr-2' : '']"
             >{{ icon }}</v-icon
         >
         <!-- Soporte para nuevos iconos componetizados (Phosphor, etc.) -->
@@ -74,7 +74,7 @@ const classes = computed(() => {
             v-else-if="icon && typeof icon !== 'string' && !loading"
             :size="size === 'sm' ? 16 : 20"
             :weight="iconWeight"
-            :class="['shrink-0', $slots.default && !circle ? 'mr-2' : '']"
+            :class="['shrink-0', $slots.default && circle! ? 'mr-2' : '']"
         />
         <slot v-if="!circle" />
     </button>

@@ -8,7 +8,7 @@
     >
         <StCardGlass
             variant="media"
-            class="relative flex h-full !max-h-[90vh] flex-col overflow-hidden"
+            class="relative flex h-full max-h-[90vh]! flex-col overflow-hidden"
         >
             <!-- Header Glow -->
             <div

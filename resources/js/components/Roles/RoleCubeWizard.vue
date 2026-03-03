@@ -177,7 +177,7 @@ const saveRole = async () => {
                         <StBadgeGlass
                             variant="glass"
                             size="sm"
-                            class="border !border-white/10 !px-2 text-[9px] tracking-widest text-white/40 uppercase"
+                            class="border border-white/10! px-2! text-[9px] tracking-widest text-white/40 uppercase"
                             >{{ $t('role_wizard.ai_powered') }}</StBadgeGlass
                         >
                     </h1>
@@ -249,7 +249,7 @@ const saveRole = async () => {
 
                     <StCardGlass
                         variant="glass"
-                        class="border-white/5 !bg-white/2 !p-5"
+                        class="border-white/5 bg-white/2! p-5!"
                     >
                         <div
                             class="mb-2 text-[9px] font-black tracking-[0.2em] text-indigo-400 uppercase"
@@ -338,7 +338,7 @@ const saveRole = async () => {
                                     :loading="analyzing"
                                     @click="analyzeRole"
                                     :icon="PhMagicWand"
-                                    class="!px-12"
+                                    class="px-12!"
                                 >
                                     {{ $t('role_wizard.initiate_synthesis') }}
                                 </StButtonGlass>
@@ -540,7 +540,7 @@ const saveRole = async () => {
                                 <div class="space-y-6 lg:col-span-5">
                                     <StCardGlass
                                         variant="glass"
-                                        class="border-indigo-400/20 !bg-indigo-500/5 !p-8"
+                                        class="border-indigo-400/20 bg-indigo-500/5! p-8!"
                                     >
                                         <div
                                             class="mb-6 flex items-center gap-3"
@@ -610,7 +610,7 @@ const saveRole = async () => {
                                     variant="primary"
                                     :icon="PhCheck"
                                     @click="currentStep++"
-                                    class="!px-12"
+                                    class="px-12!"
                                     >{{
                                         $t('role_wizard.confirm_arch')
                                     }}</StButtonGlass
@@ -637,13 +637,13 @@ const saveRole = async () => {
 
                             <StCardGlass
                                 variant="glass"
-                                class="overflow-hidden border-white/10 !p-0"
+                                class="overflow-hidden border-white/10 p-0!"
                             >
                                 <v-table class="st-glass-table w-full">
                                     <thead>
                                         <tr class="bg-white/5">
                                             <th
-                                                class="px-8 py-6 !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
+                                                class="px-8 py-6 text-[10px]! font-black! tracking-widest! text-white/30! uppercase"
                                             >
                                                 {{
                                                     $t(
@@ -652,7 +652,7 @@ const saveRole = async () => {
                                                 }}
                                             </th>
                                             <th
-                                                class="px-4 py-6 text-center !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
+                                                class="px-4 py-6 text-center text-[10px]! font-black! tracking-widest! text-white/30! uppercase"
                                             >
                                                 {{
                                                     $t(
@@ -661,7 +661,7 @@ const saveRole = async () => {
                                                 }}
                                             </th>
                                             <th
-                                                class="px-4 py-6 !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
+                                                class="px-4 py-6 text-[10px]! font-black! tracking-widest! text-white/30! uppercase"
                                             >
                                                 {{
                                                     $t(
@@ -670,7 +670,7 @@ const saveRole = async () => {
                                                 }}
                                             </th>
                                             <th
-                                                class="px-8 py-6 text-right !text-[10px] !font-black !tracking-widest !text-white/30 uppercase"
+                                                class="px-8 py-6 text-right text-[10px]! font-black! tracking-widest! text-white/30! uppercase"
                                             >
                                                 {{ $t('role_wizard.ops') }}
                                             </th>
@@ -714,7 +714,7 @@ const saveRole = async () => {
                                                     circle
                                                     size="sm"
                                                     :icon="PhTrash"
-                                                    class="!text-rose-500/40 hover:!text-rose-500"
+                                                    class="text-rose-500/40! hover:text-rose-500!"
                                                     @click="removeSkill(idx)"
                                                 />
                                             </td>
@@ -750,7 +750,7 @@ const saveRole = async () => {
                                     :loading="saving"
                                     :icon="PhSealCheck"
                                     @click="saveRole"
-                                    class="!px-12"
+                                    class="px-12!"
                                     >{{
                                         $t('role_wizard.deploy_arch')
                                     }}</StButtonGlass

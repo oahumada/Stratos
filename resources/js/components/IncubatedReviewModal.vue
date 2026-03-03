@@ -83,7 +83,7 @@ const promote = async () => {
                             <StBadgeGlass
                                 variant="primary"
                                 size="sm"
-                                class="!px-3 text-[9px] tracking-widest uppercase"
+                                class="px-3! text-[9px] tracking-widest uppercase"
                                 >Incubating Node</StBadgeGlass
                             >
                         </div>
@@ -209,7 +209,7 @@ const promote = async () => {
                     icon="mdi-rocket-launch-outline"
                     @click="promote"
                     :loading="promoting"
-                    class="!px-8"
+                    class="px-8!"
                 >
                     Sync to Production
                 </StButtonGlass>

@@ -118,7 +118,7 @@
 
                 <StButtonGlass
                     variant="primary"
-                    class="w-full justify-center !border-pink-500/50 !bg-pink-600/20 text-pink-100 shadow-[0_0_15px_rgba(236,72,153,0.2)] hover:!bg-pink-600/30"
+                    class="w-full justify-center border-pink-500/50! bg-pink-600/20! text-pink-100 shadow-[0_0_15px_rgba(236,72,153,0.2)] hover:bg-pink-600/30!"
                     icon="mdi-shield-check"
                     :loading="mitigating"
                     @click="getMitigationPlan"

@@ -128,7 +128,7 @@ defineExpose({ openDialog });
     <v-dialog v-model="showDialog" max-width="900" scrollable>
         <StCardGlass
             variant="glass"
-            class="overflow-hidden border-white/10 bg-[#0d1425]/98 !p-0 backdrop-blur-3xl"
+            class="overflow-hidden border-white/10 bg-[#0d1425]/98 p-0! backdrop-blur-3xl"
             :no-hover="true"
         >
             <!-- Modal Header -->

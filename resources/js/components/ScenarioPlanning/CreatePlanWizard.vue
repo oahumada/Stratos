@@ -354,7 +354,7 @@ const saveStep1 = async () => {
                         variant="primary"
                         :loading="loading"
                         @click="submit"
-                        class="!px-12"
+                        class="px-12!"
                     >
                         Initialize Plan
                     </StButtonGlass>
@@ -367,7 +367,7 @@ const saveStep1 = async () => {
             <StCardGlass
                 variant="glass"
                 border-accent="indigo"
-                class="overflow-hidden !p-0"
+                class="overflow-hidden p-0!"
             >
                 <div
                     class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4"

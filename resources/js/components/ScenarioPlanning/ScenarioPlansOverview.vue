@@ -67,7 +67,7 @@ onMounted(load);
 
         <StCardGlass
             variant="glass"
-            class="overflow-hidden border-white/10 !p-0"
+            class="overflow-hidden border-white/10 p-0!"
             :no-hover="true"
         >
             <div

@@ -33,7 +33,7 @@
                 <StCardGlass
                     variant="glass"
                     border-accent="indigo"
-                    class="overflow-hidden !p-0"
+                    class="overflow-hidden p-0!"
                     :no-hover="true"
                 >
                     <div
@@ -56,7 +56,7 @@
             <div class="lg:col-span-12 xl:col-span-7">
                 <StCardGlass
                     variant="glass"
-                    class="h-full overflow-hidden !p-0"
+                    class="h-full overflow-hidden p-0!"
                     :no-hover="true"
                 >
                     <div
@@ -81,7 +81,7 @@
             <div class="lg:col-span-12 xl:col-span-5">
                 <StCardGlass
                     variant="glass"
-                    class="h-full overflow-hidden !p-0"
+                    class="h-full overflow-hidden p-0!"
                     :no-hover="true"
                 >
                     <div

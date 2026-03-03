@@ -8,7 +8,7 @@
         <StCardGlass
             variant="glass"
             border-accent="indigo"
-            class="flex max-h-[85vh] flex-col overflow-hidden !bg-[#0f172a]/95 !p-0 backdrop-blur-xl"
+            class="flex max-h-[85vh] flex-col overflow-hidden bg-[#0f172a]/95! p-0! backdrop-blur-xl"
         >
             <!-- Header -->
             <div
@@ -283,7 +283,7 @@
                         v-if="canApply"
                         variant="primary"
                         icon="mdi-check-circle"
-                        class="!border-emerald-500/50 !bg-emerald-500/20 hover:!bg-emerald-500/30"
+                        class="border-emerald-500/50! bg-emerald-500/20! hover:bg-emerald-500/30!"
                         :disabled="loading"
                         @click="approve"
                         >Approve</StButtonGlass

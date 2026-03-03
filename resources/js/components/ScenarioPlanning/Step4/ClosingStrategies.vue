@@ -47,7 +47,7 @@
         <!-- Strategy Logic Guide -->
         <StCardGlass
             variant="glass"
-            class="!bg-indigo-500/[0.02]"
+            class="bg-indigo-500/[0.02]!"
             :no-hover="true"
         >
             <div class="flex flex-col items-center gap-8 md:flex-row">
@@ -322,7 +322,7 @@
                     v-for="plan in successionPlans"
                     :key="plan.role_name"
                     variant="glass"
-                    class="overflow-hidden border-amber-500/20 !p-0 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
+                    class="overflow-hidden border-amber-500/20 p-0! shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
                 >
                     <div
                         class="flex items-center justify-between border-b border-white/5 bg-amber-500/5 px-8 py-5"
@@ -389,7 +389,7 @@
                                                     : 'secondary'
                                             "
                                             size="xs"
-                                            class="!px-3 text-[9px] font-black"
+                                            class="px-3! text-[9px] font-black"
                                         >
                                             {{
                                                 suc === plan.primary_successor

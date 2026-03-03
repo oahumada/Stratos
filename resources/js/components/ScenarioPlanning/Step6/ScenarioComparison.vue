@@ -42,7 +42,7 @@
                 <StCardGlass
                     variant="glass"
                     border-accent="indigo"
-                    class="sticky top-8 overflow-hidden !p-0"
+                    class="sticky top-8 overflow-hidden p-0!"
                 >
                     <div
                         class="flex items-center gap-3 border-b border-white/10 bg-indigo-500/10 px-6 py-4"
@@ -146,7 +146,7 @@
                         v-if="comparisonData.length > 0"
                         key="data"
                         variant="glass"
-                        class="overflow-hidden border-white/10 !p-0"
+                        class="overflow-hidden border-white/10 p-0!"
                         :no-hover="true"
                     >
                         <div
@@ -410,7 +410,7 @@
                                                         : 'success'
                                                 "
                                                 size="xs"
-                                                class="!px-4 !py-1"
+                                                class="px-4! py-1!"
                                             >
                                                 {{ item.gap_fte > 0 ? '+' : ''
                                                 }}{{ item.gap_fte }} FTEs

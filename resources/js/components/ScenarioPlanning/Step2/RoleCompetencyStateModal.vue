@@ -721,7 +721,7 @@ watch(
                         variant="primary"
                         @click="handleSave"
                         :loading="saving"
-                        class="!px-10"
+                        class="px-10!"
                     >
                         Commit Blueprint
                     </StButtonGlass>

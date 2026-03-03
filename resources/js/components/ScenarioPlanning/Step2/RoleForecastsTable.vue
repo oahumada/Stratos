@@ -183,7 +183,7 @@
                                         )
                                     "
                                     size="sm"
-                                    class="!px-3 text-[9px] font-black"
+                                    class="px-3! text-[9px] font-black"
                                 >
                                     {{
                                         formatEvolutionType(
@@ -198,7 +198,7 @@
                                         getImpactBadge(forecast.impact_level)
                                     "
                                     size="sm"
-                                    class="!px-3 text-[9px] font-black"
+                                    class="px-3! text-[9px] font-black"
                                 >
                                     {{
                                         formatImpact(
@@ -223,7 +223,7 @@
                                         size="sm"
                                         circle
                                         icon="mdi-delete-outline"
-                                        class="hover:!text-rose-400"
+                                        class="hover:text-rose-400!"
                                         @click="deleteForecast(forecast.id)"
                                     />
                                 </div>

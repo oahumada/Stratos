@@ -8,7 +8,7 @@
         <StCardGlass
             variant="glass"
             border-accent="indigo"
-            class="overflow-hidden bg-[#0d1425]/95 !p-0 backdrop-blur-3xl"
+            class="overflow-hidden bg-[#0d1425]/95 p-0! backdrop-blur-3xl"
             :no-hover="true"
         >
             <!-- Header -->
@@ -55,7 +55,7 @@
                                 <v-radio
                                     value="existing"
                                     color="indigo-400"
-                                    class="!text-white/70"
+                                    class="text-white/70!"
                                 >
                                     <template #label
                                         ><span
@@ -67,7 +67,7 @@
                                 <v-radio
                                     value="new"
                                     color="indigo-400"
-                                    class="!text-white/70"
+                                    class="text-white/70!"
                                 >
                                     <template #label
                                         ><span

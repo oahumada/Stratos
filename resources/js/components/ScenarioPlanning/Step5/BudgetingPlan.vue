@@ -40,7 +40,7 @@
                         <StCardGlass
                             variant="glass"
                             border-accent="indigo"
-                            class="sticky top-8 overflow-hidden !p-0"
+                            class="sticky top-8 overflow-hidden p-0!"
                         >
                             <div
                                 class="flex items-center gap-3 border-b border-white/10 bg-indigo-500/10 px-6 py-4"
@@ -253,7 +253,7 @@
                         <!-- Top Summary Stats -->
                         <StCardGlass
                             variant="glass"
-                            class="border-white/10 !bg-indigo-500/[0.02]"
+                            class="border-white/10 bg-indigo-500/[0.02]!"
                             :no-hover="true"
                         >
                             <div
@@ -339,7 +339,7 @@
                         <!-- Cost Breakdown Table -->
                         <StCardGlass
                             variant="glass"
-                            class="overflow-hidden border-white/10 !p-0"
+                            class="overflow-hidden border-white/10 p-0!"
                             :no-hover="true"
                         >
                             <div
@@ -397,7 +397,7 @@
                                                         )
                                                     "
                                                     size="xs"
-                                                    class="!px-3"
+                                                    class="px-3!"
                                                 >
                                                     {{
                                                         item.strategy.toUpperCase()
