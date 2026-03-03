@@ -143,6 +143,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Mi Stratos — Portal Personal
     Route::get('/mi-stratos/dashboard', [\App\Http\Controllers\Api\MiStratosController::class, 'dashboard']);
 
+    // Smart Alerts (Phase 6)
+    Route::get('/smart-alerts', [\App\Http\Controllers\Api\SmartAlertController::class, 'index']);
+    Route::post('/smart-alerts/{id}/read', [\App\Http\Controllers\Api\SmartAlertController::class, 'markAsRead']);
+
     // Investor/Executive Dashboard
     Route::get('/investor/dashboard', [\App\Http\Controllers\Api\InvestorDashboardController::class, 'index'])
         ->middleware('role:admin,hr_leader,observer');

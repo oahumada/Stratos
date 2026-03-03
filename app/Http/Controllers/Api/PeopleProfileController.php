@@ -27,8 +27,11 @@ class PeopleProfileController extends Controller
             'skills',
             'psychometricProfiles',
             'developmentPaths.actions',
-            'relations.relatedPerson'
-        ])->findOrFail($id);
+            'relations.relatedPerson',
+            'badges'
+        ])
+        ->withSum('points as current_points', 'points')
+        ->findOrFail($id);
 
         $gapAnalysis = $person->role ? $this->gapService->calculate($person, $person->role) : null;
         $scenarios = $this->getStrategicScenarios($person);

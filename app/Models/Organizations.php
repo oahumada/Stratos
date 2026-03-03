@@ -45,4 +45,12 @@ class Organizations extends Model
     {
         return $this->hasMany(JobOpening::class);
     }
+
+    /**
+     * Alerts and Notifications (Phase 6)
+     */
+    public function smartAlerts(): HasMany
+    {
+        return $this->hasMany(SmartAlert::class, 'organization_id');
+    }
 }

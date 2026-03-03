@@ -12,6 +12,7 @@ import MarketplaceController from './MarketplaceController'
 import MentorController from './MentorController'
 import AuthController from './AuthController'
 import MiStratosController from './MiStratosController'
+import SmartAlertController from './SmartAlertController'
 import InvestorDashboardController from './InvestorDashboardController'
 import AssessmentCycleController from './AssessmentCycleController'
 import PeopleProfileController from './PeopleProfileController'
@@ -56,6 +57,7 @@ const Api = {
     MentorController: Object.assign(MentorController, MentorController),
     AuthController: Object.assign(AuthController, AuthController),
     MiStratosController: Object.assign(MiStratosController, MiStratosController),
+    SmartAlertController: Object.assign(SmartAlertController, SmartAlertController),
     InvestorDashboardController: Object.assign(InvestorDashboardController, InvestorDashboardController),
     AssessmentCycleController: Object.assign(AssessmentCycleController, AssessmentCycleController),
     PeopleProfileController: Object.assign(PeopleProfileController, PeopleProfileController),

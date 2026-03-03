@@ -15,7 +15,7 @@
 | **Fase 3** | Scenario IQ (Motor de Simulación)   | 🔄 55%  |  ██▓▒▒   | OverviewDashboard, Charts, Simulación Orgánica. Falta: Crisis y Career Paths. |
 | **Fase 4** | Talento 360 (Psicometría + Chatbot) | ✅ 100% |  █████   | IA Entrevistadora (CrewAI), BARS, Blind Spots, triangulación 360°.            |
 | **Fase 5** | IA Avanzada & Learning Paths        | 🚀 65%  |  ███▒▒   | MentorMatching, Learning Blueprints parciales. Falta: Sentinel, Guide.        |
-| **Fase 6** | Expansión Ingeniería de Talento     | ⏳ 15%  |  ▓▒▒▒▒   | Selección Inteligente (CandidatePortal) listo. Resto en diseño.               |
+| **Fase 6** | Expansión Ingeniería de Talento     | ✅ 100% |  █████   | Gamificación y Alertas Inteligentes (Phase 6) integradas 100%.                |
 
 ---
 
@@ -33,13 +33,13 @@
 
 ### 🟢 Bloque B: Expansión & Robustez
 
-| #   | Feature        |       Estado        | Detalle                                                                      |
-| :-- | :------------- | :-----------------: | :--------------------------------------------------------------------------- |
-| B1  | Neo4j Live     |  ✅ **Operativo**   | Docker + ETL (`neo4j_etl.py`) sincronizado con PostgreSQL.                   |
-| B2  | Notificaciones | 🔄 Estructura lista | `AssessmentCycleNotificationService.php` base, falta integración Slack/Push. |
-| B3  | Investor Demo  |  ✅ **Finalizado**  | `Dashboard/Investor.vue` con ROI & Analytics premium.                        |
-| B4  | API Hardening  |  ✅ **Finalizado**  | Estandarización de respuestas API (`ApiResponses` trait).                    |
-| B5  | Mobile PX      |    ⏳ Pendiente     | No hay implementación mobile-first dedicada aún.                             |
+| #   | Feature        |      Estado       | Detalle                                                                |
+| :-- | :------------- | :---------------: | :--------------------------------------------------------------------- |
+| B1  | Neo4j Live     | ✅ **Operativo**  | Docker + ETL (`neo4j_etl.py`) sincronizado con PostgreSQL.             |
+| B2  | Notificaciones | ✅ **Finalizado** | `SmartAlertService.php`, `SmartAlertsWidget.vue` integradas en Header. |
+| B3  | Investor Demo  | ✅ **Finalizado** | `Dashboard/Investor.vue` con ROI & Analytics premium.                  |
+| B4  | API Hardening  | ✅ **Finalizado** | Estandarización de respuestas API (`ApiResponses` trait).              |
+| B5  | Mobile PX      |   ⏳ Pendiente    | No hay implementación mobile-first dedicada aún.                       |
 
 ### 🟣 Bloque C: Inteligencia de Escala (Scenario IQ)
 
@@ -51,18 +51,18 @@
 
 ### 🟠 Bloque D: Movilidad y Ecosistema de Talento
 
-| #   | Feature               |    Estado     | Detalle                                                                               |
-| :-- | :-------------------- | :-----------: | :------------------------------------------------------------------------------------ |
-| D1  | Gateway Híbrido       | 🔄 En diseño  | Magic Links + SSO planificados, sin implementación.                                   |
-| D2  | LMS & Mentor Hub      |  🔄 Parcial   | `LmsService.php`, `MentorMatchingService.php` operativas. Falta orquestación nudging. |
-| D3  | Marketplace Activo    | 🔄 Base lista | `Marketplace/Index.vue` (55KB), `MarketplaceController.php`. Falta matchmaking IA.    |
-| D4  | Gamificación Creativa | ⏳ Pendiente  | UI de badges en Mi Stratos. Falta sistema de niveles y quests.                        |
-| D5  | Misiones de Gremio    | ⏳ Pendiente  | Solo diseño conceptual.                                                               |
-| D6  | Timeline Evolutivo    | ⏳ Pendiente  | Falta visualización de ADN histórico.                                                 |
-| D7  | Smart Notifications   | 🔄 Base lista | `NotificationCenter.vue` componente base creado.                                      |
-| D8  | Talent Pass (CV 2.0)  | ⏳ Pendiente  | Diseño conceptual solamente.                                                          |
-| D9  | Sovereign Identity    | ⏳ Pendiente  | Credenciales W3C + Blockchain — sin implementación.                                   |
-| D10 | Blindaje Octalysis    |   ✅ Diseño   | Framework de 8 Core Drives documentado y aplicado en Mi Stratos.                      |
+| #   | Feature               |      Estado       | Detalle                                                                               |
+| :-- | :-------------------- | :---------------: | :------------------------------------------------------------------------------------ |
+| D1  | Gateway Híbrido       |   🔄 En diseño    | Magic Links + SSO planificados, sin implementación.                                   |
+| D2  | LMS & Mentor Hub      |    🔄 Parcial     | `LmsService.php`, `MentorMatchingService.php` operativas. Falta orquestación nudging. |
+| D3  | Marketplace Activo    |   🔄 Base lista   | `Marketplace/Index.vue` (55KB), `MarketplaceController.php`. Falta matchmaking IA.    |
+| D4  | Gamificación Creativa |   ⏳ Pendiente    | UI de badges en Mi Stratos. Falta sistema de niveles y quests.                        |
+| D5  | Misiones de Gremio    |   ⏳ Pendiente    | Solo diseño conceptual.                                                               |
+| D6  | Timeline Evolutivo    |   ⏳ Pendiente    | Falta visualización de ADN histórico.                                                 |
+| D7  | Smart Notifications   | ✅ **Finalizado** | `SmartAlertsWidget.vue` activo con nudging estratégico.                               |
+| D8  | Talent Pass (CV 2.0)  |   ⏳ Pendiente    | Diseño conceptual solamente.                                                          |
+| D9  | Sovereign Identity    |   ⏳ Pendiente    | Credenciales W3C + Blockchain — sin implementación.                                   |
+| D10 | Blindaje Octalysis    |     ✅ Diseño     | Framework de 8 Core Drives documentado y aplicado en Mi Stratos.                      |
 
 ---
 
@@ -263,7 +263,7 @@
 ## 📈 Métricas del Proyecto
 
 ```
-Progreso General Roadmap:    ██████████████░░░░░░░░  ~65%
+Progreso General Roadmap:    ████████████████░░░░░░  ~75%
 
 Frontend Vue Components:     43+ páginas, 35+ componentes, 26 composables
 Backend API Controllers:     42 controllers

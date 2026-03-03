@@ -159,4 +159,22 @@ class People extends Model
         return $this->belongsToMany(People::class, 'people_relationships', 'person_id', 'related_person_id')
             ->wherePivot('relationship_type', 'subordinate');
     }
+
+    /**
+     * Gamification - Points history
+     */
+    public function points(): HasMany
+    {
+        return $this->hasMany(PeoplePoint::class, 'people_id');
+    }
+
+    /**
+     * Gamification - Awarded badges
+     */
+    public function badges(): BelongsToMany
+    {
+        return $this->belongsToMany(Badge::class, 'people_badges', 'people_id', 'badge_id')
+            ->withPivot('awarded_at')
+            ->withTimestamps();
+    }
 }

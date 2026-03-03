@@ -17,6 +17,7 @@ import StButtonGlass from '@/components/StButtonGlass.vue';
 import AssessmentChat from '@/components/Talent/AssessmentChat.vue';
 import DevelopmentTab from '@/components/Talent/DevelopmentTab.vue';
 import FeedbackRequestDialog from '@/components/Talent/FeedbackRequestDialog.vue';
+import GamificationWidget from '@/components/Talent/GamificationWidget.vue';
 import LearningBlueprintPanel from '@/components/Talent/LearningBlueprintPanel.vue';
 import {
     PhArrowsClockwise,
@@ -449,10 +450,18 @@ const handleRefresh = () => {
 
                     <div
                         v-if="tab === 'career'"
-                        class="grid grid-cols-1 gap-6 lg:grid-cols-2"
+                        class="grid grid-cols-1 gap-6 lg:grid-cols-3"
                     >
-                        <CareerPathExplorer :people-id="item.id" />
-                        <LearningBlueprintPanel :people-id="item.id" />
+                        <div class="flex flex-col gap-6 lg:col-span-2">
+                            <CareerPathExplorer :people-id="item.id" />
+                            <LearningBlueprintPanel :people-id="item.id" />
+                        </div>
+                        <div class="lg:col-span-1">
+                            <GamificationWidget
+                                :points="item.current_points || 0"
+                                :badges="item.badges || []"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

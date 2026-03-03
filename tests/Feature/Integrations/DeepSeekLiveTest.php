@@ -12,11 +12,18 @@ class DeepSeekLiveTest extends TestCase
      */
     public function test_it_gets_real_recommendation_from_deepseek()
     {
+        if (!env('STRATOS_LIVE_TESTS')) {
+            $this->markTestSkipped('Live integration tests are disabled. Set STRATOS_LIVE_TESTS=true to enable.');
+        }
+
         $service = new StratosIntelService();
         
-        // Skip if service is not reachable
+        // Check if service is reachable before proceeding
         try {
-            \Illuminate\Support\Facades\Http::get(config('services.python_intel.base_url') . '/');
+            $response = \Illuminate\Support\Facades\Http::get(config('services.python_intel.base_url'));
+            if ($response->failed()) {
+                 $this->markTestSkipped('Python Intelligence Service is reachable but returned an error.');
+            }
         } catch (\Exception $e) {
             $this->markTestSkipped('Python Intelligence Service is not reachable at ' . config('services.python_intel.base_url'));
         }

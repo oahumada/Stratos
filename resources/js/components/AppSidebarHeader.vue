@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import SmartAlertsWidget from '@/components/Intelligence/SmartAlertsWidget.vue';
 import LocaleSelector from '@/components/LocaleSelector.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -26,6 +27,7 @@ withDefaults(
             </template>
         </div>
         <div class="flex items-center gap-2">
+            <SmartAlertsWidget />
             <ThemeSelector />
             <LocaleSelector />
         </div>
