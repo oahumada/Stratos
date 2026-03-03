@@ -1009,6 +1009,47 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/roles/{id}', [\App\Http\Controllers\Api\RoleController::class, 'show']);
 });
 
+// ── Phase 2: Automated Impact & ROI Reports ─────────────────────
+Route::middleware('auth:sanctum')->prefix('reports')->group(function () {
+    Route::get('/scenario/{scenarioId}/impact', [\App\Http\Controllers\Api\ImpactReportController::class, 'scenarioImpact']);
+    Route::get('/roi', [\App\Http\Controllers\Api\ImpactReportController::class, 'organizationalRoi']);
+    Route::get('/consolidated', [\App\Http\Controllers\Api\ImpactReportController::class, 'consolidated']);
+});
+
+// ── Phase 3: Crisis Simulator (C2) & Career Paths (C3) ──────────
+Route::middleware('auth:sanctum')->group(function () {
+    // Crisis Simulator
+    Route::post('/strategic-planning/scenarios/{scenarioId}/crisis/attrition', [\App\Http\Controllers\Api\ScenarioIQController::class, 'simulateAttrition']);
+    Route::post('/strategic-planning/scenarios/{scenarioId}/crisis/obsolescence', [\App\Http\Controllers\Api\ScenarioIQController::class, 'simulateObsolescence']);
+    Route::post('/strategic-planning/scenarios/{scenarioId}/crisis/restructuring', [\App\Http\Controllers\Api\ScenarioIQController::class, 'simulateRestructuring']);
+
+    // Career Paths
+    Route::get('/career-paths/{peopleId}', [\App\Http\Controllers\Api\ScenarioIQController::class, 'getCareerPaths']);
+    Route::get('/career-paths/route/{fromRoleId}/{toRoleId}', [\App\Http\Controllers\Api\ScenarioIQController::class, 'getOptimalRoute']);
+    Route::get('/career-paths/mobility-map/{organizationId}', [\App\Http\Controllers\Api\ScenarioIQController::class, 'getMobilityMap']);
+    Route::get('/career-paths/predict/{peopleId}/{targetRoleId}', [\App\Http\Controllers\Api\ScenarioIQController::class, 'predictTransition']);
+
+    // Agentic Scenarios (Phase 6)
+    Route::post('/strategic-planning/scenarios/{scenarioId}/agentic-simulation', [\App\Http\Controllers\Api\ScenarioIQController::class, 'runAgenticSimulation']);
+    Route::post('/strategic-planning/scenarios/{scenarioId}/what-if', [\App\Http\Controllers\Api\ScenarioIQController::class, 'quickWhatIf']);
+});
+
+// ── Phase 5: Learning Blueprints, Sentinel & Guide ───────────────
+Route::middleware('auth:sanctum')->group(function () {
+    // Learning Blueprints
+    Route::post('/learning-blueprints/{peopleId}', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'generateBlueprint']);
+    Route::post('/learning-blueprints/{peopleId}/materialize', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'materializeBlueprint']);
+
+    // Stratos Sentinel
+    Route::get('/sentinel/scan', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'runSentinelScan']);
+    Route::get('/sentinel/health', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'getSentinelHealth']);
+
+    // Stratos Guide
+    Route::get('/guide/suggestions', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'getGuideSuggestions']);
+    Route::post('/guide/ask', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'askGuide']);
+    Route::post('/guide/onboarding/complete', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'completeOnboardingStep']);
+});
+
 // Catálogos dinámicos para selectores
 require __DIR__ . '/form-schema-complete.php';
 
