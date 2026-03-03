@@ -50,7 +50,7 @@
                 <!-- Investment Breakdown -->
                 <StCardGlass
                     variant="glass"
-                    class="border-white/10 !p-0"
+                    class="border-white/10 p-0!"
                     :no-hover="true"
                 >
                     <div
@@ -220,7 +220,7 @@
                             class="group relative flex h-4 w-full overflow-hidden rounded-full bg-indigo-500/20 p-1"
                         >
                             <div
-                                class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-all duration-1000"
+                                class="h-full rounded-full bg-linear-to-r from-indigo-500 to-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-all duration-1000"
                                 :style="{
                                     width: summary.synthetization_index + '%',
                                 }"
@@ -256,7 +256,7 @@
                 <!-- Critical Gaps -->
                 <StCardGlass
                     variant="glass"
-                    class="border-white/10 !p-0"
+                    class="border-white/10 p-0!"
                     :no-hover="true"
                 >
                     <div
@@ -312,7 +312,7 @@
                                                 getPriorityVariant(gap.priority)
                                             "
                                             size="xs"
-                                            class="!px-3 uppercase"
+                                            class="px-3! uppercase"
                                         >
                                             {{ gap.priority }}
                                         </StBadgeGlass>
@@ -341,7 +341,7 @@
                 <StCardGlass
                     variant="glass"
                     :border-accent="getRiskColor(summary.risk_level)"
-                    class="!bg-black/40"
+                    class="bg-black/40!"
                     :no-hover="true"
                 >
                     <div class="flex items-center gap-5">
@@ -355,7 +355,7 @@
                                 size="28"
                             />
                         </div>
-                        <div class="flex-grow">
+                        <div class="grow">
                             <div class="mb-1 flex items-center justify-between">
                                 <span
                                     class="text-[10px] font-black tracking-[0.2em] text-white/40 uppercase"
@@ -390,7 +390,7 @@
                         variant="primary"
                         size="lg"
                         icon="mdi-check-decagram"
-                        class="w-full !py-6"
+                        class="w-full py-6!"
                         @click="approveScenario"
                     >
                         Incorporate & Finalize Scenario Architecture
@@ -474,6 +474,39 @@
                 </div>
             </StCardGlass>
         </v-dialog>
+        <!-- Advanced Decision Support Row -->
+        <div class="space-y-6 pt-12">
+            <div class="flex items-center gap-3">
+                <v-icon icon="mdi-orbit-variant" color="indigo-400" size="24" />
+                <h3
+                    class="text-xl font-black tracking-tight text-white uppercase"
+                >
+                    Advanced Decision Support Systems
+                </h3>
+            </div>
+
+            <v-tabs
+                v-model="advancedTab"
+                class="border-b border-white/5"
+                bg-color="transparent"
+                density="comfortable"
+                color="indigo-400"
+            >
+                <v-tab value="crisis">Stress Simulation</v-tab>
+                <v-tab value="agentic">Agentic Analysis</v-tab>
+            </v-tabs>
+
+            <div class="mt-6">
+                <v-window v-model="advancedTab">
+                    <v-window-item value="crisis">
+                        <CrisisSimulator :scenario-id="scenarioId" />
+                    </v-window-item>
+                    <v-window-item value="agentic">
+                        <AgenticScenarioPlanner :scenario-id="scenarioId" />
+                    </v-window-item>
+                </v-window>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -482,8 +515,12 @@ import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import { useNotification } from '@/composables/useNotification';
+import AgenticScenarioPlanner from '@/pages/ScenarioPlanning/AgenticScenarioPlanner.vue';
+import CrisisSimulator from '@/pages/ScenarioPlanning/CrisisSimulator.vue';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
+
+const advancedTab = ref('crisis');
 
 const props = defineProps({
     scenarioId: {

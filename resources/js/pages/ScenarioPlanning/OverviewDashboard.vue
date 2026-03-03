@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SentinelHealthWidget from '@/components/SentinelHealthWidget.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import { useApi } from '@/composables/useApi';
@@ -6,9 +7,11 @@ import { useNotification } from '@/composables/useNotification';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
+import AgenticScenarioPlanner from './AgenticScenarioPlanner.vue';
 import CoverageChart from './Charts/CoverageChart.vue';
 import DepartmentGapsChart from './Charts/DepartmentGapsChart.vue';
 import HeadcountChart from './Charts/HeadcountChart.vue';
+import CrisisSimulator from './CrisisSimulator.vue';
 import MatchingResults from './MatchingResults.vue';
 import RoleForecastsTable from './RoleForecastsTable.vue';
 import ScenarioRoiCalculator from './ScenarioRoiCalculator.vue';
@@ -408,6 +411,18 @@ onMounted(() => {
                 >
                     <v-icon start>mdi-target</v-icon>Strategies
                 </v-tab>
+                <v-tab
+                    value="crisis"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-shield-alert</v-icon>Crisis Sim
+                </v-tab>
+                <v-tab
+                    value="agentic"
+                    class="text-none font-weight-bold tracking-wide"
+                >
+                    <v-icon start>mdi-robot-outline</v-icon>Agentic
+                </v-tab>
             </v-tabs>
         </div>
 
@@ -604,67 +619,7 @@ onMounted(() => {
                         </v-col>
 
                         <v-col cols="12" md="4">
-                            <StCardGlass
-                                class="pa-8 h-full border-indigo-400/20 bg-indigo-900/10"
-                                :no-hover="true"
-                            >
-                                <h3
-                                    class="text-h5 font-weight-black mb-8 tracking-tight text-indigo-300 uppercase"
-                                >
-                                    Strategic Forecast
-                                </h3>
-                                <div class="space-y-8">
-                                    <div class="insight-item">
-                                        <div
-                                            class="text-caption font-weight-black mb-1 tracking-widest text-white/40 uppercase"
-                                        >
-                                            Estimated ROI Gain
-                                        </div>
-                                        <div
-                                            class="text-h3 font-weight-black text-emerald-400"
-                                        >
-                                            ${{
-                                                formatNumber(
-                                                    analytics.estimated_training_cost,
-                                                )
-                                            }}
-                                        </div>
-                                        <div
-                                            class="text-body-2 mt-1 leading-relaxed text-white/50"
-                                        >
-                                            Yield from optimized strategic
-                                            upskilling deployment.
-                                        </div>
-                                    </div>
-                                    <v-divider class="border-white/5" />
-                                    <div class="insight-item">
-                                        <div
-                                            class="text-caption font-weight-black mb-1 tracking-widest text-white/40 uppercase"
-                                        >
-                                            Human Risk Points
-                                        </div>
-                                        <div
-                                            class="text-h3 font-weight-black text-white"
-                                        >
-                                            {{ analytics.high_risk_positions }}
-                                        </div>
-                                        <div
-                                            class="text-body-2 mt-1 leading-relaxed text-white/50"
-                                        >
-                                            Specific roles lacking viable direct
-                                            successors within 12 months.
-                                        </div>
-                                    </div>
-                                    <StButtonGlass
-                                        block
-                                        variant="primary"
-                                        class="mt-8"
-                                        icon="mdi-shield-check"
-                                    >
-                                        Security Audit
-                                    </StButtonGlass>
-                                </div>
-                            </StCardGlass>
+                            <SentinelHealthWidget />
                         </v-col>
                     </v-row>
 
@@ -1069,6 +1024,22 @@ onMounted(() => {
                     class="tab-content-anim"
                 >
                     <ScenarioStrategyAssigner :scenarioId="scenarioId" />
+                </div>
+
+                <div
+                    v-else-if="activeTab === 'crisis'"
+                    :key="'crisis'"
+                    class="tab-content-anim"
+                >
+                    <CrisisSimulator :scenario-id="scenarioId" />
+                </div>
+
+                <div
+                    v-else-if="activeTab === 'agentic'"
+                    :key="'agentic'"
+                    class="tab-content-anim"
+                >
+                    <AgenticScenarioPlanner :scenario-id="scenarioId" />
                 </div>
             </transition>
         </div>

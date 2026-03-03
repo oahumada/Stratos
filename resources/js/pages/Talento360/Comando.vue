@@ -1746,22 +1746,41 @@ onMounted(() => {
 
 /* Premium Wizard Styles */
 .toggle-premium {
-    @apply h-6 w-11 cursor-pointer appearance-none rounded-full bg-white/10 transition-all;
+    height: 1.5rem;
+    width: 2.75rem;
+    cursor: pointer;
+    appearance: none;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
     position: relative;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .toggle-premium::before {
     content: '';
-    @apply absolute top-1 left-1 h-4 w-4 rounded-full bg-white/40 transition-all;
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    height: 1rem;
+    width: 1rem;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.4);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
 }
 
 .toggle-premium:checked {
-    @apply border-indigo-500/50 bg-indigo-500/40;
+    border-color: rgba(99, 102, 241, 0.5);
+    background-color: rgba(99, 102, 241, 0.4);
 }
 
 .toggle-premium:checked::before {
-    @apply left-6 bg-white;
+    left: 1.5rem;
+    background-color: rgb(255, 255, 255);
     box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 

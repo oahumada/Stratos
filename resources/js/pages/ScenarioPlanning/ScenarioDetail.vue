@@ -6,6 +6,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 
 // Components
 import ScenarioStepperComponent from '@/components/ScenarioPlanning/ScenarioStepperComponent.vue';
+import SentinelHealthWidget from '@/components/SentinelHealthWidget.vue';
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
@@ -183,7 +184,7 @@ watch(
                             <StBadgeGlass
                                 :variant="statusConfig.color"
                                 size="sm"
-                                class="flex items-center gap-1.5 !px-3 text-[10px] tracking-widest uppercase"
+                                class="flex items-center gap-1.5 px-3! text-[10px] tracking-widest uppercase"
                             >
                                 <v-icon :icon="statusConfig.icon" size="12" />
                                 {{ scenarioStatus }}
@@ -242,10 +243,15 @@ watch(
             <aside class="sticky top-28 w-80 shrink-0">
                 <ScenarioStepperComponent v-model="currentStep" />
 
+                <!-- System Health Monitor -->
+                <div class="mt-8">
+                    <SentinelHealthWidget />
+                </div>
+
                 <!-- Tactical Stats Card -->
                 <StCardGlass
                     variant="glass"
-                    class="mt-8 border-white/5 bg-white/2 !p-6"
+                    class="mt-8 border-white/5 bg-white/2 p-6!"
                 >
                     <h4
                         class="mb-4 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
@@ -497,7 +503,7 @@ watch(
                         variant="primary"
                         icon="mdi-chevron-right"
                         @click="nextStep"
-                        class="!px-12"
+                        class="px-12!"
                         >Next Protocol</StButtonGlass
                     >
                     <StButtonGlass

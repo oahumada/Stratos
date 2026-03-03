@@ -17,11 +17,13 @@ import StButtonGlass from '@/components/StButtonGlass.vue';
 import AssessmentChat from '@/components/Talent/AssessmentChat.vue';
 import DevelopmentTab from '@/components/Talent/DevelopmentTab.vue';
 import FeedbackRequestDialog from '@/components/Talent/FeedbackRequestDialog.vue';
+import LearningBlueprintPanel from '@/components/Talent/LearningBlueprintPanel.vue';
 import {
     PhArrowsClockwise,
     PhBuildings,
     PhCalendar,
     PhChartPolar,
+    PhCompass,
     PhCornersOut,
     PhEnvelope,
     PhEyeSlash,
@@ -32,6 +34,7 @@ import {
     PhX,
 } from '@phosphor-icons/vue';
 import { useI18n } from 'vue-i18n';
+import CareerPathExplorer from '../ScenarioPlanning/CareerPathExplorer.vue';
 import tableConfigJson from './people-form/tableConfig.json';
 
 defineOptions({ layout: AppLayout });
@@ -170,6 +173,14 @@ const handleRefresh = () => {
                                     val: 'history',
                                     icon: PhTimer,
                                     label: t('people_module.tabs.history'),
+                                },
+                                {
+                                    val: 'career',
+                                    icon: PhCompass,
+                                    label: t(
+                                        'people_module.tabs.career',
+                                        'Career & Hub',
+                                    ),
                                 },
                             ]"
                             :key="tValue.val"
@@ -363,7 +374,7 @@ const handleRefresh = () => {
                                         class="h-2 w-full overflow-hidden rounded-full border border-white/5 bg-white/5"
                                     >
                                         <div
-                                            class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400"
+                                            class="h-full rounded-full bg-linear-to-r from-indigo-500 to-indigo-400"
                                             :style="{
                                                 width: `${trait.score * 100}%`,
                                             }"
@@ -434,6 +445,14 @@ const handleRefresh = () => {
                                 }}
                             </div>
                         </div>
+                    </div>
+
+                    <div
+                        v-if="tab === 'career'"
+                        class="grid grid-cols-1 gap-6 lg:grid-cols-2"
+                    >
+                        <CareerPathExplorer :people-id="item.id" />
+                        <LearningBlueprintPanel :people-id="item.id" />
                     </div>
                 </div>
             </div>
