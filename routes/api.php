@@ -1052,6 +1052,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/guide/suggestions', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'getGuideSuggestions']);
     Route::post('/guide/ask', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'askGuide']);
     Route::post('/guide/onboarding/complete', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'completeOnboardingStep']);
+
+    // Phase 6: Workforce Planning
+    Route::post('/workforce-planning/scenarios', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'createScenario']);
+    Route::get('/workforce-planning/scenarios', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'getScenarios']);
+    Route::get('/workforce-planning/scenarios/{id}/recommendations', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'getRecommendations']);
 });
 
 // Catálogos dinámicos para selectores

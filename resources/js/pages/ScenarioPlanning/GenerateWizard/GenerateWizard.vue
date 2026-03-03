@@ -177,7 +177,7 @@
                     dense
                     placeholder="Escribe las instrucciones aquí (Markdown)..."
                     :class="{
-                        'instruction-error': instructionValidation.valid,!
+                        'instruction-error': !instructionValidation.valid,
                     }"
                 />
 

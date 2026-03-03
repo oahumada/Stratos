@@ -5,6 +5,7 @@
 
 - Core MVP (Backend/Frontend) ✅ COMPLETADO
 - Scenario Planning (Fases 1-7) ✅ COMPLETADO
+- Workforce Planning (Prioridad 3) ✅ COMPLETADO (2026-03-03)
 - **Estandarización IA: Ingeniero de Talento** ✅ UNIFICADO (2026-02-25)
 - **Paso 2 — Diseño de Roles y Competencias v2.0** ✅ REDISEÑADO (2026-02-24)
 - Metodología de 7 Pasos Estratégicos ✅ IMPLEMENTADA

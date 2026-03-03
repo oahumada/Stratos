@@ -68,7 +68,7 @@
                                 {
                                     'at-risk':
                                         plan.criticality_level === 'critical' &&
-                                        plan.primary_successor,!
+                                        !plan.primary_successor,
                                 },
                             ]"
                             variant="outlined"
@@ -76,7 +76,7 @@
                             <!-- Role Header -->
                             <v-card-title class="pb-2">
                                 <div class="d-flex align-center">
-                                    <div class="flex-grow-1">
+                                    <div class="grow">
                                         <div class="font-weight-bold">
                                             {{ plan.role_name }}
                                         </div>
@@ -128,7 +128,7 @@
                                                         )
                                                     }}
                                                 </v-avatar>
-                                                <div class="flex-grow-1">
+                                                <div class="grow">
                                                     <div
                                                         class="font-weight-bold"
                                                     >
@@ -209,7 +209,7 @@
                                                 >
                                                     {{ getInitials(succ.name) }}
                                                 </v-avatar>
-                                                <div class="flex-grow-1">
+                                                <div class="grow">
                                                     <div
                                                         class="text-body2 font-weight-bold"
                                                     >

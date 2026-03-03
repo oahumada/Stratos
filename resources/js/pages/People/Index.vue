@@ -12,11 +12,11 @@ import configJson from './people-form/config.json';
 import filtersJson from './people-form/filters.json';
 import itemFormJson from './people-form/itemForm.json';
 
+import AssessmentChat from '@/components/Assessments/AssessmentChat.vue';
+import FeedbackRequestDialog from '@/components/Assessments/FeedbackRequestDialog.vue';
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
-import AssessmentChat from '@/components/Talent/AssessmentChat.vue';
 import DevelopmentTab from '@/components/Talent/DevelopmentTab.vue';
-import FeedbackRequestDialog from '@/components/Talent/FeedbackRequestDialog.vue';
 import GamificationWidget from '@/components/Talent/GamificationWidget.vue';
 import LearningBlueprintPanel from '@/components/Talent/LearningBlueprintPanel.vue';
 import {

@@ -41,6 +41,7 @@ import Step2RoleCompetencyController from './Step2RoleCompetencyController'
 import ImpactReportController from './ImpactReportController'
 import ScenarioIQController from './ScenarioIQController'
 import StratosIntelligenceController from './StratosIntelligenceController'
+import WorkforcePlanningController from './WorkforcePlanningController'
 
 const Api = {
     CatalogsController: Object.assign(CatalogsController, CatalogsController),
@@ -86,6 +87,7 @@ const Api = {
     ImpactReportController: Object.assign(ImpactReportController, ImpactReportController),
     ScenarioIQController: Object.assign(ScenarioIQController, ScenarioIQController),
     StratosIntelligenceController: Object.assign(StratosIntelligenceController, StratosIntelligenceController),
+    WorkforcePlanningController: Object.assign(WorkforcePlanningController, WorkforcePlanningController),
 }
 
 export default Api
