@@ -160,6 +160,25 @@ class MatchingResponse(BaseModel):
     success_probability: float = Field(..., description="Predicted probability of success in this specific role (0.0 to 1.0)")
     synergy_prognosis: str = Field(..., description="Prognosis of how this candidate fits into the existing team dynamics")
 
+class LearningPlanRequest(BaseModel):
+    talent_profile: dict
+    target_role: dict
+    focus_areas: list[str]
+    language: str = "es"
+
+class LearningStage(BaseModel):
+    topic: str
+    duration: str
+    resources: list[str]
+    learning_outcome: str
+
+class AdvancedLearningPlan(BaseModel):
+    summary: str
+    stages: list[LearningStage]
+    mentor_recommendation: str
+    confidence_score: float
+    validation_status: str = "Self-Validated"
+
 class PathfindingRequest(BaseModel):
     from_role_id: int
     to_role_id: int
@@ -684,6 +703,64 @@ def match_talent(request: MatchingRequest):
             verbose=True,
             memory=False,
             process=Process.sequential
+        )
+
+        result = crew.kickoff()
+        
+        if hasattr(result, 'json_dict') and result.json_dict:
+            return result.json_dict
+        return json.loads(str(result))
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/learning/advanced-plan", response_model=AdvancedLearningPlan)
+def generate_advanced_learning_plan(request: LearningPlanRequest):
+    if os.getenv("STRATOS_MOCK_IA", "false").lower() == "true":
+        return AdvancedLearningPlan(
+            summary="[MOCK] Plan avanzado de aprendizaje multi-step generado.",
+            stages=[LearningStage(topic="Intro a IA", duration="2 weeks", resources=["Coursera"], learning_outcome="Base de IA")],
+            mentor_recommendation="Senior Architect",
+            confidence_score=0.98
+        )
+
+    try:
+        # A 2-Agent flow: Author and Reviewer (Sequential for now, mimics simple multi-step)
+        author = Agent(
+            role='Expert Curriculum Designer',
+            goal='Design the most effective learning journey to bridge technical and cultural gaps.',
+            backstory='You are a pedagogical expert from Stanford. You know exactly what order of learning works best.',
+            llm=get_llm(temperature=0.7),
+            verbose=True
+        )
+
+        reviewer = Agent(
+            role='Senior Technical Strategist',
+            goal='Critique, refine and validate the learning plan. Ensure it is realistic and high-ROI.',
+            backstory='You are a CTO with no patience for generic content. You want actionable, deep learning.',
+            llm=get_llm(temperature=0.3),
+            verbose=True
+        )
+
+        draft_task = Task(
+            description=f"Draft a learning plan for {json.dumps(request.talent_profile)} targeting {json.dumps(request.target_role)}. Focus: {request.focus_areas}",
+            agent=author,
+            expected_output="An initial draft of the learning stages."
+        )
+
+        review_task = Task(
+            description="Review the drafted plan. Refine it to be more practical and ensure it meets Fortune 500 standards.",
+            agent=reviewer,
+            expected_output="A final, validated JSON object that follows the AdvancedLearningPlan schema.",
+            context=[draft_task], # This makes it multi-step
+            output_json=AdvancedLearningPlan
+        )
+
+        crew = Crew(
+            agents=[author, reviewer],
+            tasks=[draft_task, review_task],
+            process=Process.sequential,
+            verbose=True
         )
 
         result = crew.kickoff()

@@ -21,6 +21,5 @@
 .DS_Store
 .idea
 .vscode
-.env
 hot
 public/build/assets/*
