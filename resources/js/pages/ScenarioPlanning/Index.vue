@@ -6943,12 +6943,12 @@ if (!edges.value) edges.value = [];
                             class="node-group"
                             :data-node-id="node.id"
                             :class="{
-                                critical: node.is_critical,!
+                                critical: node.is_critical,
                                 focused:
                                     focusedNode && focusedNode.id === node.id,
                                 dragging: dragging && dragging.id === node.id,
                                 small:
-                                    focusedNode && focusedNode.id ==! node.id,
+                                    focusedNode && focusedNode.id !== node.id,
                             }"
                             @pointerdown.prevent="startDrag(node, $event)"
                             @click.stop="(e) => handleNodeClick(node, e)"
