@@ -190,11 +190,11 @@ class ImpactReportService
             ->where('scenario_role_skills.scenario_id', $scenarioId)
             ->select(
                 'skills.name as skill_name',
-                DB::raw('(target_level - COALESCE(current_level, 0)) as gap_size'),
+                DB::raw('(required_level - COALESCE(current_level, 0)) as gap_size'),
                 DB::raw("CASE
-                    WHEN (target_level - COALESCE(current_level, 0)) >= 3 THEN 'critical'
-                    WHEN (target_level - COALESCE(current_level, 0)) = 2 THEN 'high'
-                    WHEN (target_level - COALESCE(current_level, 0)) = 1 THEN 'medium'
+                    WHEN (required_level - COALESCE(current_level, 0)) >= 3 THEN 'critical'
+                    WHEN (required_level - COALESCE(current_level, 0)) = 2 THEN 'high'
+                    WHEN (required_level - COALESCE(current_level, 0)) = 1 THEN 'medium'
                     ELSE 'low'
                 END as priority")
             )

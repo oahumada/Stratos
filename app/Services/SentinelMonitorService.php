@@ -172,7 +172,7 @@ class SentinelMonitorService
 
         // Verificar si hay logs de audit trail recientes (indica IA activa)
         $recentAiActivity = DB::table('jobs')
-            ->where('created_at', '>=', now()->subDays(7))
+            ->where('created_at', '>=', now()->subDays(7)->timestamp)
             ->count();
 
         $hasAiLogs = true; // Asumimos operativo si el servicio ejecuta

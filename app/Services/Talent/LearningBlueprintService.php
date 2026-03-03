@@ -165,7 +165,8 @@ class LearningBlueprintService
                     ->whereColumn('people_role_skills.skill_id', 'skills.id')
                     ->where('people_role_skills.people_id', $peopleId);
             })
-            ->where('is_emerging', true)
+            ->where('lifecycle_status', 'active')
+            ->where('is_critical', true)
             ->select('id', 'name')
             ->limit(5)
             ->get();

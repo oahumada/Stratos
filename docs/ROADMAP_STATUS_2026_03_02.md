@@ -8,14 +8,14 @@
 
 ## 🧭 Roadmap Estratégico 2026 — Estado de Fases
 
-| Fase       | Título                              | Estado  | Progreso | Detalle                                                                       |
-| :--------- | :---------------------------------- | :-----: | :------: | :---------------------------------------------------------------------------- |
-| **Fase 1** | Consolidación Core                  | ✅ 100% |  █████   | FormSchema, unificación de tipos TS, multi-LLM (DeepSeek/OpenAI).             |
-| **Fase 2** | Ciclo Metodológico (5 Fases)        | 🔄 90%  |  ████▒   | Cubo AI integrado. Falta: automatización total de reportes de impacto y ROI.  |
-| **Fase 3** | Scenario IQ (Motor de Simulación)   | 🔄 55%  |  ██▓▒▒   | OverviewDashboard, Charts, Simulación Orgánica. Falta: Crisis y Career Paths. |
-| **Fase 4** | Talento 360 (Psicometría + Chatbot) | ✅ 100% |  █████   | IA Entrevistadora (CrewAI), BARS, Blind Spots, triangulación 360°.            |
-| **Fase 5** | IA Avanzada & Learning Paths        | 🚀 65%  |  ███▒▒   | MentorMatching, Learning Blueprints parciales. Falta: Sentinel, Guide.        |
-| **Fase 6** | Expansión Ingeniería de Talento     | ✅ 100% |  █████   | Gamificación y Alertas Inteligentes (Phase 6) integradas 100%.                |
+| Fase       | Título                              | Estado  | Progreso | Detalle                                                                |
+| :--------- | :---------------------------------- | :-----: | :------: | :--------------------------------------------------------------------- |
+| **Fase 1** | Consolidación Core                  | ✅ 100% |  █████   | FormSchema, unificación de tipos TS, multi-LLM (DeepSeek/OpenAI).      |
+| **Fase 2** | Ciclo Metodológico (5 Fases)        | ✅ 100% |  █████   | Cubo AI + Reportes de Impacto y ROI automatizados/testeados.           |
+| **Fase 3** | Scenario IQ (Motor de Simulación)   | ✅ 100% |  █████   | OverviewDashboard, Crisis Simulator y Career Paths (Neo4j).            |
+| **Fase 4** | Talento 360 (Psicometría + Chatbot) | ✅ 100% |  █████   | IA Entrevistadora (CrewAI), BARS, Blind Spots, triangulación 360°.     |
+| **Fase 5** | IA Avanzada & Learning Paths        | ✅ 100% |  █████   | Learning Blueprints, Sentinel Monitor, Stratos Guide — 100% operativo. |
+| **Fase 6** | Expansión Ingeniería de Talento     | ✅ 100% |  █████   | Gamificación y Alertas Inteligentes (Phase 6) integradas 100%.         |
 
 ---
 
@@ -43,11 +43,11 @@
 
 ### 🟣 Bloque C: Inteligencia de Escala (Scenario IQ)
 
-| #   | Feature             |     Estado      | Detalle                                                                  |
-| :-- | :------------------ | :-------------: | :----------------------------------------------------------------------- |
-| C1  | Motor de Simulación | ✅ Implementado | `ScenarioSimulationController.php`, `DigitalTwinService.php` operativos. |
-| C2  | Simulador de Crisis |  ⏳ Pendiente   | Engine de war-gaming no iniciado.                                        |
-| C3  | Career Paths        |  ⏳ Pendiente   | Algoritmos de trayectoria sobre grafo Neo4j no implementados.            |
+| #   | Feature             |      Estado       | Detalle                                                                  |
+| :-- | :------------------ | :---------------: | :----------------------------------------------------------------------- |
+| C1  | Motor de Simulación | ✅ **Finalizado** | `ScenarioSimulationController.php`, `DigitalTwinService.php` operativos. |
+| C2  | Simulador de Crisis | ✅ **Finalizado** | War-gaming engine operativo en `CrisisSimulatorService.php`.             |
+| C3  | Career Paths        | ✅ **Finalizado** | Trayectorias sobre grafo Neo4j en `CareerPathService.php`.               |
 
 ### 🟠 Bloque D: Movilidad y Ecosistema de Talento
 

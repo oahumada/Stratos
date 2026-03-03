@@ -23,6 +23,14 @@ trait ApiResponses
     }
 
     /**
+     * Success Response Alias
+     */
+    protected function success($data, ?string $message = null, int $code = 200): JsonResponse
+    {
+        return $this->successResponse($data, $message, $code);
+    }
+
+    /**
      * Error Response
      */
     protected function errorResponse(string $message, int $code = 400, $errors = null): JsonResponse
@@ -32,6 +40,14 @@ trait ApiResponses
             'message' => $message,
             'errors'  => $errors,
         ], $code);
+    }
+
+    /**
+     * Error Response Alias
+     */
+    protected function error(string $message, int $code = 400, $errors = null): JsonResponse
+    {
+        return $this->errorResponse($message, $code, $errors);
     }
 
     /**

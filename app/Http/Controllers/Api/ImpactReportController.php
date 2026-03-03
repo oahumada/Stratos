@@ -21,9 +21,9 @@ class ImpactReportController extends Controller
     {
         try {
             $report = $this->reportService->generateScenarioImpactReport($scenarioId);
-            return $this->success($report, 'Reporte de impacto generado.');
+            return $this->successResponse($report, 'Reporte de impacto generado.');
         } catch (\Exception $e) {
-            return $this->error('Error al generar reporte: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Error al generar reporte: ' . $e->getMessage(), 500);
         }
     }
 
@@ -34,9 +34,9 @@ class ImpactReportController extends Controller
     {
         try {
             $report = $this->reportService->generateOrganizationalRoiReport();
-            return $this->success($report, 'Reporte de ROI organizacional generado.');
+            return $this->successResponse($report, 'Reporte de ROI organizacional generado.');
         } catch (\Exception $e) {
-            return $this->error('Error al generar reporte ROI: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Error al generar reporte ROI: ' . $e->getMessage(), 500);
         }
     }
 
@@ -47,9 +47,9 @@ class ImpactReportController extends Controller
     {
         try {
             $report = $this->reportService->generateConsolidatedReport();
-            return $this->success($report, 'Reporte consolidado generado.');
+            return $this->successResponse($report, 'Reporte consolidado generado.');
         } catch (\Exception $e) {
-            return $this->error('Error al generar reporte consolidado: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Error al generar reporte consolidado: ' . $e->getMessage(), 500);
         }
     }
 }

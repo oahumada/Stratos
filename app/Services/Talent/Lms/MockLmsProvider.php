@@ -24,4 +24,24 @@ class MockLmsProvider implements LmsProviderInterface
     {
         return rand(0, 10) > 8; // 20% chance of being completed in mock
     }
+
+    public function searchCourses(string $query): array
+    {
+        // Mock a set of courses based on the query or random if empty
+        $count = empty($query) ? 5 : rand(2, 8);
+        $courses = [];
+
+        for ($i = 1; $i <= $count; $i++) {
+            $courses[] = [
+                'id' => "CRS-{$i}-" . strtoupper(substr(md5($query . $i), 0, 8)),
+                'title' => (empty($query) ? 'General Training ' : "Especialización en " . ucfirst($query)) . " {$i}",
+                'provider' => 'mock_lms',
+                'duration_hours' => rand(5, 40),
+                'level' => ['beginner', 'intermediate', 'advanced'][rand(0, 2)],
+                'rating' => 4.0 + (rand(0, 10) / 10),
+            ];
+        }
+
+        return $courses;
+    }
 }

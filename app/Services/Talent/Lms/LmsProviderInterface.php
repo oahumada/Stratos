@@ -23,4 +23,9 @@ interface LmsProviderInterface
      * Verifica si el curso se ha completado.
      */
     public function isCompleted(string $enrollmentId): bool;
+
+    /**
+     * Busca cursos en el catálogo.
+     */
+    public function searchCourses(string $query): array;
 }

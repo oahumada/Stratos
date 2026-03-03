@@ -71,4 +71,13 @@ class LmsService
 
         return false;
     }
+
+    /**
+     * Busca cursos en el proveedor por defecto.
+     */
+    public function searchCourses(string $query): array
+    {
+        $provider = $this->getProvider('mock');
+        return $provider->searchCourses($query);
+    }
 }
