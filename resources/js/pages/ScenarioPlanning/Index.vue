@@ -8427,8 +8427,8 @@ if (!edges.value) edges.value = [];
                 </div>
                 <!-- debug controls removed -->
                 <ScenarioSimulationStatus
-                    v-if="!focusedNode && !selectedChild"
-                    :scenario-id="scenario?.id"
+                    v-if="!focusedNode && !selectedChild && scenario?.id"
+                    :scenario-id="scenario.id ?? 0"
                     :metrics="{
                         success_probability: 82,
                         synergy_score: 8.9,
@@ -8437,7 +8437,7 @@ if (!edges.value) edges.value = [];
                         key_node: 'Inferencia de IA',
                         recommendation: 'Refuerzo de Pipeline RAG',
                     }"
-                    @re-run="loadTreeFromApiWrapper(scenario?.id)"
+                    @re-run="loadTreeFromApiWrapper(scenario.id)"
                 />
             </div>
         </div>
