@@ -83,4 +83,30 @@ class StratosIntelService
             return null;
         }
     }
+
+    /**
+     * Perform graph-based pathfinding in Neo4j via Python service.
+     */
+    public function performPathfinding(int $fromId, int $toId, int $orgId): ?array
+    {
+        try {
+            Log::info('Requesting Neo4j pathfinding from Python service', ['from' => $fromId, 'to' => $toId]);
+
+            $response = Http::timeout($this->timeout)
+                ->post("{$this->baseUrl}/career-path/pathfinding", [
+                    'from_role_id' => $fromId,
+                    'to_role_id' => $toId,
+                    'organization_id' => $orgId
+                ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            return null; // Silent failure to allow SQL fallback
+        } catch (\Exception $e) {
+            Log::warning('Graph pathfinding unavailable, falling back to SQL', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
 }

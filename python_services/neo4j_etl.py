@@ -62,6 +62,36 @@ def fetch_updated_competencies(conn, since):
             yield dict(zip(cols, row))
 
 
+def fetch_updated_roles(conn, since):
+    q = """
+    SELECT id, name, description, organization_id, level, updated_at
+    FROM roles
+    WHERE updated_at > %s
+    ORDER BY updated_at ASC
+    LIMIT 1000
+    """
+    with conn.cursor() as cur:
+        cur.execute(q, (since,))
+        cols = [c.name for c in cur.description]
+        for row in cur.fetchall():
+            yield dict(zip(cols, row))
+
+
+def fetch_role_skills(conn, since):
+    q = """
+    SELECT rs.role_id, rs.skill_id, rs.required_level, rs.updated_at
+    FROM role_skills rs
+    WHERE rs.updated_at > %s
+    ORDER BY rs.updated_at ASC
+    LIMIT 5000
+    """
+    with conn.cursor() as cur:
+        cur.execute(q, (since,))
+        cols = [c.name for c in cur.description]
+        for row in cur.fetchall():
+            yield dict(zip(cols, row))
+
+
 def fetch_person_skills(conn, since):
     q = """
     SELECT ps.people_id as person_id, ps.skill_id, ps.current_level as level, ps.updated_at, s.name as skill_name
@@ -155,6 +185,22 @@ def upsert_person(tx, person):
     )
 
 
+def upsert_role(tx, role):
+    tx.run(
+        """
+        MERGE (r:Role {id:$id})
+        SET r.name = $name,
+            r.description = $description,
+            r.level = $level,
+            r.organization_id = $organization_id,
+            r.updated_at = $updated_at
+        RETURN r
+        """,
+        id=role['id'], name=role.get('name'), description=role.get('description'), 
+        level=role.get('level'), organization_id=role.get('organization_id'), updated_at=role.get('updated_at')
+    )
+
+
 def upsert_person_skill(tx, ps):
     tx.run(
         """
@@ -166,6 +212,19 @@ def upsert_person_skill(tx, ps):
         RETURN p, s, r
         """,
         person_id=ps['person_id'], skill_id=ps['skill_id'], skill_name=ps.get('skill_name'), level=ps.get('level'), updated_at=ps.get('updated_at')
+    )
+
+
+def upsert_role_skill(tx, rs):
+    tx.run(
+        """
+        MATCH (r:Role {id:$role_id})
+        MATCH (s:Skill {id:$skill_id})
+        MERGE (r)-[rel:REQUIRES]->(s)
+        SET rel.level = $required_level, rel.updated_at = $updated_at
+        RETURN r, s, rel
+        """,
+        role_id=rs['role_id'], skill_id=rs['skill_id'], required_level=rs.get('required_level'), updated_at=rs.get('updated_at')
     )
 
 
@@ -211,6 +270,30 @@ def main():
                     max_ps_ts = ps['updated_at'] if not max_ps_ts else max(max_ps_ts, ps['updated_at'])
         if max_ps_ts:
             set_last_sync(pg, 'people_role_skills', max_ps_ts)
+
+        # Roles
+        role_since = get_last_sync(pg, 'roles') or '1970-01-01T00:00:00Z'
+        print(f"Sync roles since={role_since}")
+        max_role_ts = None
+        with driver.session() as session:
+            for role in fetch_updated_roles(pg, role_since):
+                session.execute_write(upsert_role, role)
+                if role.get('updated_at'):
+                    max_role_ts = role['updated_at'] if not max_role_ts else max(max_role_ts, role['updated_at'])
+        if max_role_ts:
+            set_last_sync(pg, 'roles', max_role_ts)
+
+        # Role skills
+        rs_since = get_last_sync(pg, 'role_skills') or '1970-01-01T00:00:00Z'
+        print(f"Sync role_skills since={rs_since}")
+        max_rs_ts = None
+        with driver.session() as session:
+            for rs in fetch_role_skills(pg, rs_since):
+                session.execute_write(upsert_role_skill, rs)
+                if rs.get('updated_at'):
+                    max_rs_ts = rs['updated_at'] if not max_rs_ts else max(max_rs_ts, rs['updated_at'])
+        if max_rs_ts:
+            set_last_sync(pg, 'role_skills', max_rs_ts)
 
         print("ETL batch complete")
 

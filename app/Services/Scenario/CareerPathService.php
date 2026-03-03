@@ -5,6 +5,7 @@ namespace App\Services\Scenario;
 use App\Models\People;
 use App\Models\PeopleRoleSkills;
 use App\Models\Roles;
+use App\Services\Intelligence\StratosIntelService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -20,6 +21,13 @@ use Illuminate\Support\Facades\Log;
  */
 class CareerPathService
 {
+    protected StratosIntelService $intel;
+
+    public function __construct(StratosIntelService $intel)
+    {
+        $this->intel = $intel;
+    }
+
     /**
      * Calcula las rutas de carrera viables para una persona.
      */
@@ -71,7 +79,28 @@ class CareerPathService
         $commonSkills = array_intersect($fromSkills, $toSkills);
         $newSkillsNeeded = array_diff($toSkills, $fromSkills);
 
-        // Buscar roles intermedios (stepping stones)
+        // --- PHASE 3: NEO4J GRAPH TRAVERSAL INTEGRATION ---
+        $graphRoute = $this->intel->performPathfinding($fromRoleId, $toRoleId, $fromRole->organization_id);
+        
+        if ($graphRoute && !empty($graphRoute['path'])) {
+            Log::info("Using Neo4j Knowledge Graph for route calculation", ['from' => $fromRoleId, 'to' => $toRoleId]);
+            return [
+                'from_role' => $fromRole->name,
+                'to_role' => $toRole->name,
+                'transferability_score' => $graphRoute['total_similarity'] * 100,
+                'skills_transferable' => count($commonSkills),
+                'new_skills_needed' => count($newSkillsNeeded),
+                'estimated_transition_months' => $this->estimateTransitionTime(count($newSkillsNeeded)),
+                'difficulty' => $graphRoute['difficulty'],
+                'stepping_stones' => array_slice($graphRoute['path'], 1, -1),
+                'direct_path_feasible' => $graphRoute['total_similarity'] >= 0.6,
+                'route' => $graphRoute['path'],
+                'engine' => 'Neo4j (Knowledge Graph)'
+            ];
+        }
+
+        // --- SQL FALLBACK ---
+        // Buscar roles intermedios (stepping stones) via SQL
         $steppingStones = $this->findSteppingStones($fromSkills, $toSkills, $fromRole->organization_id);
 
         $totalGap = count($newSkillsNeeded);
@@ -89,6 +118,7 @@ class CareerPathService
             'stepping_stones' => $steppingStones,
             'direct_path_feasible' => $transferability >= 60,
             'route' => $this->buildRouteSteps($fromRole, $toRole, $steppingStones, $newSkillsNeeded),
+            'engine' => 'SQL Fallback (Relational)'
         ];
     }
 

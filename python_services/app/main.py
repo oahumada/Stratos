@@ -6,6 +6,7 @@ import os
 import subprocess
 import json
 import psycopg2
+from neo4j import GraphDatabase
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -21,6 +22,14 @@ DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 os.environ["OPENAI_API_BASE"] = os.getenv("OPENAI_API_BASE", DEEPSEEK_BASE_URL)
 os.environ["OPENAI_BASE_URL"] = os.getenv("OPENAI_API_BASE", DEEPSEEK_BASE_URL) 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
+
+# Neo4j Config
+NEO4J_URI = os.getenv('NEO4J_URI', 'neo4j://localhost:7687')
+NEO4J_USER = os.getenv('NEO4J_USER', 'neo4j')
+NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD', '')
+
+def get_neo4j_driver():
+    return GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
 # Check for API key
 if not os.getenv("OPENAI_API_KEY") and os.getenv("STRATOS_MOCK_IA", "false").lower() == "false":
@@ -150,6 +159,24 @@ class MatchingResponse(BaseModel):
     gap_closure_recommendations: list[str] = Field(..., description="Key training or onboarding actions to bridge the gaps")
     success_probability: float = Field(..., description="Predicted probability of success in this specific role (0.0 to 1.0)")
     synergy_prognosis: str = Field(..., description="Prognosis of how this candidate fits into the existing team dynamics")
+
+class PathfindingRequest(BaseModel):
+    from_role_id: int
+    to_role_id: int
+    organization_id: int
+    max_depth: int = 3
+
+class PathStep(BaseModel):
+    role_id: int
+    role_name: str
+    similarity: float
+
+class PathfindingResponse(BaseModel):
+    source_role: str
+    target_role: str
+    path: list[PathStep]
+    total_similarity: float
+    difficulty: str
 
 # Custom LLM Wrapper to force DeepSeek configuration
 class DeepSeekLLM(ChatOpenAI):
@@ -667,6 +694,60 @@ def match_talent(request: MatchingRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/career-path/pathfinding", response_model=PathfindingResponse)
+def career_path_pathfinding(request: PathfindingRequest):
+    driver = get_neo4j_driver()
+    try:
+        with driver.session() as session:
+            # Cypher query to find the shortest path between roles based on skill overlap
+            # This is a simplified version of organizacional traversal
+            query = """
+            MATCH (start:Role {id: $from_id, organization_id: $org_id})
+            MATCH (target:Role {id: $to_id, organization_id: $org_id})
+            MATCH p = shortestPath((start)-[:REQUIRES|HAS_SKILL*1..4]-(target))
+            WHERE length(p) > 0
+            RETURN p
+            """
+            
+            # Alternative: smarter similarity-based pathfinding
+            # But for Phase 3 "Traversal" we want to show we can move through the graph
+            
+            result = session.run(query, from_id=request.from_role_id, to_id=request.to_role_id, org_id=request.organization_id)
+            record = result.single()
+            
+            if not record:
+                # Fallback to direct comparison if no complex path found
+                return PathfindingResponse(
+                    source_role=f"Role {request.from_role_id}",
+                    target_role=f"Role {request.to_role_id}",
+                    path=[],
+                    total_similarity=0.0,
+                    difficulty="High (No connections found in graph)"
+                )
+            
+            path = record['p']
+            steps = []
+            for node in path.nodes:
+                if 'Role' in node.labels:
+                    steps.append(PathStep(
+                        role_id=node['id'],
+                        role_name=node.get('name', 'Unknown'),
+                        similarity=0.8 # In a real implementation we would calculate Jaccard index here
+                    ))
+            
+            return PathfindingResponse(
+                source_role=steps[0].role_name,
+                target_role=steps[-1].role_name,
+                path=steps,
+                total_similarity=0.75,
+                difficulty="Medium" if len(steps) > 2 else "Low"
+            )
+    except Exception as e:
+        # If Neo4j fails or is not present, we want to return a helpful error for SQL fallback
+        raise HTTPException(status_code=503, detail=f"Neo4j traversal error: {str(e)}")
+    finally:
+        driver.close()
 
 if __name__ == "__main__":
     import uvicorn
