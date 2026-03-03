@@ -126,6 +126,24 @@ class MiStratosController extends Controller
                 'learning_paths' => $learningPaths,
                 'conversations' => $conversations,
                 'psychometric' => $psychometricSnapshot,
+                'evaluations' => [
+                    [
+                        'id' => 1,
+                        'title' => 'Evaluación 360° Q4 2025',
+                        'date' => '2025-12-15',
+                        'score' => 84,
+                        'strengths' => ['Liderazgo Estratégico', 'Resolución de Problemas'],
+                        'opportunities' => ['Comunicación Asertiva']
+                    ],
+                    [
+                        'id' => 2,
+                        'title' => 'Evaluación de Desempeño Q2 2025',
+                        'date' => '2025-06-10',
+                        'score' => 78,
+                        'strengths' => ['Trabajo en Equipo', 'Orientación a Resultados'],
+                        'opportunities' => ['Gestión del Tiempo', 'Liderazgo']
+                    ]
+                ],
             ],
         ]);
     }

@@ -60,6 +60,14 @@ interface PersonData {
         completed_at: string | null;
     }>;
     psychometric: any;
+    evaluations: Array<{
+        id: number;
+        title: string;
+        date: string;
+        score: number;
+        strengths: string[];
+        opportunities: string[];
+    }>;
     message?: string;
 }
 
@@ -98,6 +106,7 @@ const kpis = computed(() => data.value?.kpis);
 const competencies = computed(() => data.value?.competencies ?? []);
 const learningPaths = computed(() => data.value?.learning_paths ?? []);
 const conversations = computed(() => data.value?.conversations ?? []);
+const evaluations = computed(() => data.value?.evaluations ?? []);
 
 const archetypeLabel = computed(() => {
     const arch = person.value?.role?.archetype;
@@ -172,6 +181,7 @@ const sidebarSections = [
     { key: 'gaps', icon: 'mdi-target', label: 'Mi Brecha' },
     { key: 'learning', icon: 'mdi-school', label: 'Mi Ruta' },
     { key: 'conversations', icon: 'mdi-forum', label: 'Conversaciones' },
+    { key: 'evaluations', icon: 'mdi-chart-radar', label: 'Mis Evaluaciones' },
     { key: 'dna', icon: 'mdi-dna', label: 'Mi ADN' },
     { key: 'achievements', icon: 'mdi-trophy', label: 'Mis Logros' },
 ];
@@ -1082,6 +1092,90 @@ defineOptions({ layout: AppLayout });
                                     </v-card>
                                 </v-col>
                             </v-row>
+                        </div>
+                    </transition>
+
+                    <!-- SECTION: Mis Evaluaciones -->
+                    <transition name="fade" mode="out-in">
+                        <div
+                            v-if="activeSection === 'evaluations'"
+                            key="evaluations"
+                        >
+                            <h2 class="section-title">
+                                <v-icon class="mr-2" color="primary"
+                                    >mdi-chart-radar</v-icon
+                                >
+                                Mis Evaluaciones Históricas
+                            </h2>
+                            <v-row v-if="evaluations.length > 0">
+                                <v-col
+                                    v-for="ev in evaluations"
+                                    :key="ev.id"
+                                    cols="12"
+                                    md="6"
+                                >
+                                    <v-card class="glass-card mb-4" flat>
+                                        <v-card-title
+                                            class="d-flex justify-space-between align-center"
+                                        >
+                                            <span class="text-h6">{{
+                                                ev.title
+                                            }}</span>
+                                            <v-chip
+                                                color="primary"
+                                                variant="flat"
+                                                size="large"
+                                                >{{ ev.score }}%</v-chip
+                                            >
+                                        </v-card-title>
+                                        <v-card-subtitle>{{
+                                            ev.date
+                                        }}</v-card-subtitle>
+                                        <v-card-text>
+                                            <div
+                                                class="text-subtitle-2 font-weight-bold text-success mt-4 mb-2"
+                                            >
+                                                Fortalezas:
+                                            </div>
+                                            <div
+                                                class="d-flex mb-4 flex-wrap gap-2"
+                                            >
+                                                <v-chip
+                                                    v-for="s in ev.strengths"
+                                                    :key="'s-' + s"
+                                                    color="success"
+                                                    size="small"
+                                                    variant="tonal"
+                                                    >{{ s }}</v-chip
+                                                >
+                                            </div>
+                                            <div
+                                                class="text-subtitle-2 font-weight-bold text-warning mb-2"
+                                            >
+                                                Oportunidades de mejora:
+                                            </div>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <v-chip
+                                                    v-for="o in ev.opportunities"
+                                                    :key="'o-' + o"
+                                                    color="warning"
+                                                    size="small"
+                                                    variant="tonal"
+                                                    >{{ o }}</v-chip
+                                                >
+                                            </div>
+                                        </v-card-text>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+                            <div v-else class="empty-panel py-8 text-center">
+                                <v-icon size="48" color="grey-lighten-1"
+                                    >mdi-chart-radar</v-icon
+                                >
+                                <p class="text-grey mt-2">
+                                    No hay evaluaciones registradas
+                                </p>
+                            </div>
                         </div>
                     </transition>
 

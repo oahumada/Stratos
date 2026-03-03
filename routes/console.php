@@ -114,3 +114,5 @@ Artisan::command('candidates:rank {job_opening_id}', function () {
 
     return 0;
 })->purpose('Lista candidatos internos rankeados para una vacante');
+
+\Illuminate\Support\Facades\Schedule::command('stratos:generate-impact-reports')->daily();
