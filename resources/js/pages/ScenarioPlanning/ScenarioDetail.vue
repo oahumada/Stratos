@@ -122,7 +122,6 @@ const loadIncubatedTree = async () => {
 };
 
 const handleEditNode = (node: any) => {
-    console.debug('[ScenarioDetail] handleEditNode triggered for:', node);
     if (node.type === 'scenario') return; // Cannot edit scenario node here
     selectedNodeForEdit.value = node;
     showNodeEditModal.value = true;

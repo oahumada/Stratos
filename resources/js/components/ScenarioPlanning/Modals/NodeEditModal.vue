@@ -18,22 +18,9 @@ const { showSuccess, showError } = useNotification();
 const api = useApi();
 
 const internalValue = computed({
-    get: () => {
-        console.debug('[NodeEditModal] internalValue GET:', props.modelValue);
-        return props.modelValue;
-    },
-    set: (val) => {
-        console.debug('[NodeEditModal] internalValue SET:', val);
-        emit('update:modelValue', val);
-    },
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
 });
-
-watch(
-    () => props.modelValue,
-    (newVal) => {
-        console.debug('[NodeEditModal] modelValue watched change:', newVal);
-    },
-);
 
 const saving = ref(false);
 

@@ -138,12 +138,6 @@ const updateVisibleData = () => {
     }
 
     nodes.value = allNodes.value.filter((n) => visibleNodeIds.has(n.id));
-    console.debug(
-        '[PrototypeMap] Visible nodes count:',
-        nodes.value.length,
-        'IDs:',
-        Array.from(visibleNodeIds),
-    );
     links.value = allLinks.value.filter((l) => {
         const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
         const targetId = typeof l.target === 'object' ? l.target.id : l.target;
@@ -162,19 +156,11 @@ const updateVisibleData = () => {
 const toggleNode = (event: any, d: any) => {
     if (!d) return;
     event.stopPropagation();
-    console.debug('[PrototypeMap] toggleNode:', d.name, d.id);
 
     // Toggle state directly on the object held by D3 and find it in allNodes
     d.expanded = !d.expanded;
     const nodeToToggle = allNodes.value.find((n) => n.id === d.id);
     if (nodeToToggle) nodeToToggle.expanded = d.expanded;
-
-    console.debug(
-        '[PrototypeMap] Node',
-        d.id,
-        'expanded set to:',
-        nodeToToggle?.expanded,
-    );
 
     // Si cerramos un nodo, colapsamos recursivamente todos sus descendientes
     if (nodeToToggle && !nodeToToggle.expanded) {
@@ -314,13 +300,11 @@ const render = () => {
 
     // Reinforce listeners on the merged selection
     node.on('click', (event, d) => {
-        console.debug('[PrototypeMap] Click on node:', d.name);
         toggleNode(event, d);
     })
         .on('contextmenu', (event, d) => {
             event.preventDefault();
             event.stopPropagation();
-            console.debug('[PrototypeMap] Right-click on node:', d.name);
             emit('edit-node', d);
         })
         .call(
