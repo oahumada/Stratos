@@ -212,13 +212,11 @@ const formData = ref({
     reduced_level_rationale: 'efficiency' as any,
 });
 
-
 const showReferentOption = computed(() => {
     const arch = props.archetype || 'T';
     const level = formData.value.required_level;
     return (arch === 'O' && level > 3) || (arch === 'T' && level > 4);
 });
-
 
 const handleSave = async () => {
     if (
@@ -237,12 +235,15 @@ const handleSave = async () => {
 };
 
 const handleTransformed = async (data: any) => {
-    formData.value.competency_version_id = data.version_id;
+    // The server returns the CompetencyVersion record.
+    // Its primary key field is `id`, not `version_id`.
+    const versionId =
+        data?.id ?? data?.version_id ?? data?.competency_version_id ?? null;
+    formData.value.competency_version_id = versionId;
     showTransform.value = false;
-    // Auto-save after transformation target is selected
+    // Auto-save now that we have the transformation target version
     await handleSave();
 };
-
 
 watch(
     () => props.mapping,

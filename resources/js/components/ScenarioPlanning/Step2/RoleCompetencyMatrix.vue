@@ -799,6 +799,7 @@ const saveMapping = async (mappingData: any) => {
         competency_name: selectedMapping.value.competencyName,
         required_level: mappingData.required_level,
         is_core: mappingData.is_core,
+        is_referent: mappingData.is_referent ?? false,
         change_type: mappingData.change_type,
         rationale: mappingData.rationale,
         competency_version_id:

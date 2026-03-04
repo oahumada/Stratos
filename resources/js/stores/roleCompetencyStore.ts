@@ -138,6 +138,19 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
             if (!response.ok) throw new Error('Error saving mapping');
             const res = await response.json();
 
+            // Build the saved mapping: merge server response with local data
+            // to guarantee scenario_id, role_id and competency_id are always present
+            // (server may omit them in the response, or use different key names).
+            const serverData = res.mapping ?? res.data ?? {};
+            const savedMapping: RoleCompetencyMapping = {
+                ...mapping,
+                ...serverData,
+                // Always enforce these critical fields from local context
+                scenario_id: scenarioId.value!,
+                role_id: mapping.role_id,
+                competency_id: mapping.competency_id,
+            };
+
             // Update local state
             const idx = mappings.value.findIndex(
                 (m) =>
@@ -146,9 +159,9 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
             );
 
             if (idx >= 0) {
-                mappings.value[idx] = res.mapping;
+                mappings.value[idx] = savedMapping;
             } else {
-                mappings.value.push(res.mapping);
+                mappings.value.push(savedMapping);
             }
 
             success.value = res.message || 'Mapping saved successfully';
