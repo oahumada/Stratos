@@ -24,6 +24,9 @@ class Kernel extends ConsoleKernel
         // Run compacting of generation chunks daily using configured TTL
         $days = config('services.abacus.chunks_ttl_days', 30);
         $schedule->command("generate:compact-chunks --days={$days}")->daily();
+
+        // Generar reportes de impacto y ROI de forma automática
+        $schedule->command('stratos:generate-impact-reports')->weeklyOn(1, '08:00');
     }
 
     /**

@@ -6,6 +6,9 @@
 - Core MVP (Backend/Frontend) ✅ COMPLETADO
 - Scenario Planning (Fases 1-7) ✅ COMPLETADO
 - Workforce Planning (Prioridad 3) ✅ COMPLETADO (2026-03-03)
+- Mis Evaluaciones Históricas (Dashboard) ✅ COMPLETADO (2026-03-03)
+- Reportes de Impacto y ROI Automáticos ✅ COMPLETADO (2026-03-03) (Cierra Fase 2)
+- Simulador de Crisis (C2) y Career Paths (C3) ✅ COMPLETADO (2026-03-03) (Cierra Fase 3 Core Scenario IQ)
 - **Estandarización IA: Ingeniero de Talento** ✅ UNIFICADO (2026-02-25)
 - **Paso 2 — Diseño de Roles y Competencias v2.0** ✅ REDISEÑADO (2026-02-24)
 - Metodología de 7 Pasos Estratégicos ✅ IMPLEMENTADA
@@ -129,6 +132,15 @@ El sistema cuantifica el impacto financiero basado en supuestos configurables:
 ---
 
 # VOL V: BITÁCORA HISTÓRICA RECIENTE
+
+### [2026-03-03] Implementación Core Scenario IQ: Crisis Simulator (C2) y Career Paths (C3) ✅
+
+- **Hito**: Completitud de la Fase 3 de Scenario IQ: Motores de War-gaming (simulación de estrés organizacional) y Pathfinding.
+- **Backend**:
+    - Creación e integración de `CrisisSimulatorService.php` para simular atrición masiva, obsolescencia técnica y reestructuraciones. Cuantifica impactos financieros y emite estrategias predictivas.
+    - Creación e integración de `CareerPathService.php` para cálculos predictivos de transición de rol (match score, stepping stones). Integrado con `StratosIntelService` para GraphDB (Neo4j).
+- **Frontend**:
+    - Nuevos componentes glassmorphism integrados: `CrisisSimulator.vue` como herramienta de control y `CareerPathExplorer.vue` añadido al portal de usuario.
 
 ### [2026-02-25] Estandarización de Identidad IA y Persistencia de BARS ✅
 

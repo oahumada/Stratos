@@ -1101,79 +1101,109 @@ defineOptions({ layout: AppLayout });
                             v-if="activeSection === 'evaluations'"
                             key="evaluations"
                         >
-                            <h2 class="section-title">
-                                <v-icon class="mr-2" color="primary"
-                                    >mdi-chart-radar</v-icon
-                                >
-                                Mis Evaluaciones Históricas
-                            </h2>
-                            <v-row v-if="evaluations.length > 0">
-                                <v-col
+                            <div class="mb-6 flex items-center justify-between">
+                                <div>
+                                    <h2
+                                        class="text-2xl font-black text-white drop-shadow-md"
+                                    >
+                                        <span class="mr-2 text-indigo-400"
+                                            >📋</span
+                                        >
+                                        Mis Evaluaciones Históricas
+                                    </h2>
+                                    <p class="mt-1 text-sm text-white/50">
+                                        Historial de desempeño, evaluaciones 360
+                                        y feedback de talento.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div
+                                v-if="evaluations.length > 0"
+                                class="grid grid-cols-1 gap-6 md:grid-cols-2"
+                            >
+                                <div
                                     v-for="ev in evaluations"
                                     :key="ev.id"
-                                    cols="12"
-                                    md="6"
+                                    class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all duration-300 hover:border-indigo-500/40 hover:bg-white/10"
                                 >
-                                    <v-card class="glass-card mb-4" flat>
-                                        <v-card-title
-                                            class="d-flex justify-space-between align-center"
+                                    <div
+                                        class="mb-4 flex items-start justify-between"
+                                    >
+                                        <div>
+                                            <h3
+                                                class="mb-1 text-lg font-bold text-white"
+                                            >
+                                                {{ ev.title }}
+                                            </h3>
+                                            <span
+                                                class="text-xs font-semibold tracking-wider text-white/40 uppercase"
+                                                >{{ ev.date }}</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="flex flex-col items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 px-4 py-2"
                                         >
-                                            <span class="text-h6">{{
-                                                ev.title
-                                            }}</span>
-                                            <v-chip
-                                                color="primary"
-                                                variant="flat"
-                                                size="large"
-                                                >{{ ev.score }}%</v-chip
+                                            <span
+                                                class="text-xl font-black text-indigo-300"
+                                                >{{ ev.score }}%</span
                                             >
-                                        </v-card-title>
-                                        <v-card-subtitle>{{
-                                            ev.date
-                                        }}</v-card-subtitle>
-                                        <v-card-text>
-                                            <div
-                                                class="text-subtitle-2 font-weight-bold text-success mt-4 mb-2"
+                                            <span
+                                                class="text-[0.6rem] font-bold tracking-widest text-indigo-400/70 uppercase"
+                                                >Score</span
                                             >
-                                                Fortalezas:
-                                            </div>
-                                            <div
-                                                class="d-flex mb-4 flex-wrap gap-2"
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <div>
+                                            <h4
+                                                class="mb-2 text-xs font-bold tracking-widest text-emerald-400 uppercase"
                                             >
-                                                <v-chip
+                                                Fortalezas Destacadas
+                                            </h4>
+                                            <div class="flex flex-wrap gap-2">
+                                                <span
                                                     v-for="s in ev.strengths"
                                                     :key="'s-' + s"
-                                                    color="success"
-                                                    size="small"
-                                                    variant="tonal"
-                                                    >{{ s }}</v-chip
+                                                    class="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-300"
                                                 >
+                                                    {{ s }}
+                                                </span>
                                             </div>
-                                            <div
-                                                class="text-subtitle-2 font-weight-bold text-warning mb-2"
+                                        </div>
+
+                                        <div>
+                                            <h4
+                                                class="mb-2 text-xs font-bold tracking-widest text-amber-400 uppercase"
                                             >
-                                                Oportunidades de mejora:
-                                            </div>
-                                            <div class="d-flex flex-wrap gap-2">
-                                                <v-chip
+                                                Oportunidades de Mejora
+                                            </h4>
+                                            <div class="flex flex-wrap gap-2">
+                                                <span
                                                     v-for="o in ev.opportunities"
                                                     :key="'o-' + o"
-                                                    color="warning"
-                                                    size="small"
-                                                    variant="tonal"
-                                                    >{{ o }}</v-chip
+                                                    class="rounded-lg border border-amber-500/20 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300"
                                                 >
+                                                    {{ o }}
+                                                </span>
                                             </div>
-                                        </v-card-text>
-                                    </v-card>
-                                </v-col>
-                            </v-row>
-                            <div v-else class="empty-panel py-8 text-center">
-                                <v-icon size="48" color="grey-lighten-1"
-                                    >mdi-chart-radar</v-icon
-                                >
-                                <p class="text-grey mt-2">
-                                    No hay evaluaciones registradas
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                v-else
+                                class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 p-12 text-center"
+                            >
+                                <span class="mb-4 text-5xl">📊</span>
+                                <h3 class="mb-1 text-lg font-bold text-white">
+                                    Sin Registros
+                                </h3>
+                                <p class="text-sm text-white/50">
+                                    No hay evaluaciones 360° o de desempeño
+                                    registradas en esta cuenta.
                                 </p>
                             </div>
                         </div>
@@ -1182,147 +1212,156 @@ defineOptions({ layout: AppLayout });
                     <!-- SECTION: Mi ADN (Psychometric Profile) -->
                     <transition name="fade" mode="out-in">
                         <div v-if="activeSection === 'dna'" key="dna">
-                            <h2 class="section-title">
-                                <v-icon class="mr-2" color="primary"
-                                    >mdi-dna</v-icon
-                                >
-                                Mi ADN Profesional
-                            </h2>
-
-                            <v-card
-                                v-if="data?.psychometric"
-                                class="glass-card mb-6"
-                                flat
-                            >
-                                <v-card-text>
-                                    <div class="d-flex align-center mb-6">
-                                        <v-icon
-                                            size="36"
-                                            color="purple-lighten-2"
-                                            class="mr-4"
-                                            >mdi-brain</v-icon
+                            <div class="mb-6 flex items-center justify-between">
+                                <div>
+                                    <h2
+                                        class="text-2xl font-black text-white drop-shadow-md"
+                                    >
+                                        <span class="mr-2 text-indigo-400"
+                                            >🧬</span
                                         >
+                                        Mi ADN Profesional
+                                    </h2>
+                                    <p class="mt-1 text-sm text-white/50">
+                                        Análisis psicométrico de tu desempeño
+                                        derivado por Cerbero AI.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div v-if="data?.psychometric" class="space-y-6">
+                                <!-- Perfil Psicométrico General -->
+                                <div
+                                    class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
+                                >
+                                    <div class="mb-6 flex items-center gap-4">
+                                        <div
+                                            class="flex h-12 w-12 items-center justify-center rounded-xl border border-purple-500/30 bg-purple-500/10 text-2xl"
+                                        >
+                                            🧠
+                                        </div>
                                         <div>
                                             <h3
-                                                class="text-h6 font-weight-bold"
+                                                class="text-lg font-bold text-white"
                                             >
                                                 Perfil Psicométrico
                                             </h3>
-                                            <p class="text-grey text-body-2">
-                                                Basado en evaluaciones 360 y
-                                                análisis de Cerbero AI.
+                                            <p class="text-sm text-white/60">
+                                                Rasgos de personalidad
+                                                predominantes
                                             </p>
                                         </div>
                                     </div>
 
-                                    <v-row v-if="data.psychometric.traits">
-                                        <v-col
+                                    <div
+                                        v-if="data.psychometric.traits"
+                                        class="grid grid-cols-1 gap-6 md:grid-cols-2"
+                                    >
+                                        <div
                                             v-for="trait in data.psychometric
                                                 .traits"
                                             :key="trait.name"
-                                            cols="12"
-                                            md="6"
+                                            class="rounded-xl border border-white/5 bg-white/2 p-4 transition-all hover:bg-white/4"
                                         >
-                                            <div class="trait-row mb-4">
-                                                <div
-                                                    class="d-flex justify-space-between align-center mb-1"
+                                            <div
+                                                class="mb-2 flex items-center justify-between"
+                                            >
+                                                <span
+                                                    class="font-bold text-white"
+                                                    >{{ trait.name }}</span
                                                 >
-                                                    <span
-                                                        class="font-weight-medium text-body-1"
-                                                        >{{ trait.name }}</span
-                                                    >
-                                                    <span
-                                                        class="text-caption font-weight-bold"
-                                                        :style="{
-                                                            color: kpiColor(
+                                                <span
+                                                    class="text-sm font-black"
+                                                    :style="{
+                                                        color: kpiColor(
+                                                            trait.score * 100,
+                                                        ),
+                                                    }"
+                                                >
+                                                    {{
+                                                        Math.round(
+                                                            trait.score * 100,
+                                                        )
+                                                    }}%
+                                                </span>
+                                            </div>
+                                            <div
+                                                class="mb-2 h-2 w-full overflow-hidden rounded-full bg-white/10"
+                                            >
+                                                <div
+                                                    class="h-full rounded-full transition-all duration-1000"
+                                                    :style="{
+                                                        width: `${trait.score * 100}%`,
+                                                        backgroundColor:
+                                                            kpiColor(
                                                                 trait.score *
                                                                     100,
                                                             ),
-                                                        }"
-                                                        >{{
-                                                            Math.round(
-                                                                trait.score *
-                                                                    100,
-                                                            )
-                                                        }}%</span
-                                                    >
-                                                </div>
-                                                <v-progress-linear
-                                                    :model-value="
-                                                        trait.score * 100
-                                                    "
-                                                    :color="
-                                                        kpiColor(
-                                                            trait.score * 100,
-                                                        )
-                                                    "
-                                                    height="8"
-                                                    rounded
-                                                    striped
-                                                />
-                                                <p
-                                                    class="text-caption text-grey mt-2"
-                                                >
-                                                    {{ trait.rationale }}
-                                                </p>
+                                                    }"
+                                                ></div>
                                             </div>
-                                        </v-col>
-                                    </v-row>
-                                </v-card-text>
-                            </v-card>
+                                            <p
+                                                class="text-xs leading-relaxed text-white/50"
+                                            >
+                                                {{ trait.rationale }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <!-- Blind Spots -->
-                            <v-card
-                                v-if="
-                                    data?.psychometric?.blind_spots?.length > 0
-                                "
-                                class="glass-card"
-                                flat
-                            >
-                                <v-card-text>
-                                    <h4
-                                        class="text-h6 font-weight-bold d-flex align-center mb-4"
-                                    >
-                                        <v-icon color="warning" class="mr-2"
-                                            >mdi-eye-off</v-icon
+                                <!-- Blind Spots (Puntos Ciegos) -->
+                                <div
+                                    v-if="
+                                        data?.psychometric?.blind_spots
+                                            ?.length > 0
+                                    "
+                                    class="rounded-2xl border border-rose-500/20 bg-linear-to-br from-rose-500/5 to-transparent p-6 backdrop-blur-md"
+                                >
+                                    <div class="mb-4 flex items-center gap-3">
+                                        <div
+                                            class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/10 text-xl"
                                         >
-                                        Blind Spots (Puntos Ciegos)
-                                    </h4>
-                                    <v-list bg-color="transparent" class="px-0">
-                                        <v-list-item
+                                            👁️‍🗨️
+                                        </div>
+                                        <h4
+                                            class="text-lg font-bold text-rose-100"
+                                        >
+                                            Blind Spots (Puntos Ciegos)
+                                        </h4>
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <div
                                             v-for="(spot, i) in data
-                                                .psychometric.blind_spots"
+                                                ?.psychometric?.blind_spots"
                                             :key="i"
-                                            class="px-0"
+                                            class="flex items-start gap-3 rounded-xl border border-rose-500/10 bg-white/5 p-3"
                                         >
-                                            <template #prepend>
-                                                <v-icon
-                                                    color="error"
-                                                    size="small"
-                                                    >mdi-alert-circle-outline</v-icon
-                                                >
-                                            </template>
-                                            <v-list-item-title
-                                                class="text-body-2 text-grey-lighten-1 text-wrap"
-                                                style="line-height: 1.4"
+                                            <span
+                                                class="mt-0.5 text-sm text-rose-500"
+                                                >✦</span
+                                            >
+                                            <p
+                                                class="text-sm leading-relaxed text-white/70"
                                             >
                                                 {{ spot }}
-                                            </v-list-item-title>
-                                        </v-list-item>
-                                    </v-list>
-                                </v-card-text>
-                            </v-card>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div
-                                v-else-if="!data?.psychometric"
-                                class="empty-panel py-8 text-center"
+                                v-else
+                                class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 p-12 text-center"
                             >
-                                <v-icon size="48" color="grey-lighten-1"
-                                    >mdi-head-question</v-icon
-                                >
-                                <p class="text-grey mt-2">
+                                <span class="mb-4 text-5xl">❔</span>
+                                <h3 class="mb-1 text-lg font-bold text-white">
+                                    Perfil Pendiente
+                                </h3>
+                                <p class="text-sm text-white/50">
                                     No hay un perfil psicométrico generado aún.
-                                    Participa en tu primera evaluación.
+                                    Participa en tu primera evaluación 360°.
                                 </p>
                             </div>
                         </div>
