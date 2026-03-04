@@ -31,7 +31,6 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import StButtonGlass from '../../components/StButtonGlass.vue';
 import { usePermissions } from '../../composables/usePermissions';
-import AppLayout from '../../layouts/AppLayout.vue';
 
 const { t } = useI18n();
 
@@ -254,7 +253,6 @@ onMounted(() => {
 </script>
 
 <template>
-    <AppLayout>
         <div class="pa-0 pa-md-6 min-vh-100">
             <!-- Header Section -->
             <div
@@ -1693,7 +1691,6 @@ onMounted(() => {
                 </div>
             </v-card>
         </v-dialog>
-    </AppLayout>
 </template>
 
 <style scoped>
