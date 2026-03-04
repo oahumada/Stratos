@@ -18,6 +18,10 @@ Route::get('/__e2e_login', function () {
     return response()->json(['success' => true, 'user_id' => $userId]);
 });
 
+// Magic Links Authentication
+Route::post('/magic-link', [\App\Http\Controllers\Auth\MagicLinkController::class, 'requestLink'])->name('magic.request');
+Route::get('/magic-login/{user}', [\App\Http\Controllers\Auth\MagicLinkController::class, 'authenticate'])->name('magic.login')->middleware('signed');
+
 Route::get('/scenario-demo', function () {
     return Inertia::render('ScenarioDemo');
 });

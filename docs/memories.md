@@ -11,6 +11,7 @@
 - Simulador de Crisis (C2) y Career Paths (C3) ✅ COMPLETADO (2026-03-03) (Cierra Fase 3 Core Scenario IQ)
 - Learning Blueprints, Sentinel & Guide ✅ COMPLETADO (2026-03-03) (Cierra Fase 5)
 - Gamificación Creativa (Niveles, Badges, Quests) ✅ COMPLETADO (2026-03-03) (Bloque D)
+- Marketplace Activo (AI Matchmaking) ✅ COMPLETADO (2026-03-03) (Bloque D)
 - **Estandarización IA: Ingeniero de Talento** ✅ UNIFICADO (2026-02-25)
 - **Paso 2 — Diseño de Roles y Competencias v2.0** ✅ REDISEÑADO (2026-02-24)
 - Metodología de 7 Pasos Estratégicos ✅ IMPLEMENTADA
@@ -134,6 +135,26 @@ El sistema cuantifica el impacto financiero basado en supuestos configurables:
 ---
 
 # VOL V: BITÁCORA HISTÓRICA RECIENTE
+
+### [2026-03-03] Implementación Gateway Híbrido: Magic Links (Bloque D1) 🔄
+
+- **Hito**: Incorporada autenticación alternativa sin contraseña (passwordless) para agilizar acceso al portal Mi Stratos.
+- **Backend**:
+    - Creación del `MagicLinkController` para despachar URLs firmadas temporalmente.
+    - Nuevo `MagicLinkEmail` Mailable y template Blade asociado.
+    - Inyección de variables de sesión (`status` y `error`) globales vía `HandleInertiaRequests` middleware para notificaciones reactivas.
+- **Frontend**:
+    - Alteración iterativa en `Login.vue` con estados reactivos (`isMagicLink`) y uso de `usePage().props` sin errores de Typescript.
+
+### [2026-03-03] Implementación Marketplace Activo (AI Matchmaking) ✅
+
+- **Hito**: Completitud de la feature de IA Matchmaking en el Marketplace de Oportunidades.
+- **Backend / IA**:
+    - Creación del endpoint `/api/marketplace/positions/{positionId}/candidates/{candidateId}/ai-insights`.
+    - Integración de `GapAnalysisService` y `AiOrchestratorService` utilizando el agente "Matchmaker de Resonancia" para generar un ratio estratégico: Hidden Potential Score, fortalezas, riesgos y justificación.
+- **Frontend**:
+    - Implementación de un Modal interactivo (`aiInsightsDialog`) en `Marketplace/Index.vue` utilizando `v-dialog` y estilos Stratos Glass Design.
+    - Llamadas asíncronas para proveer feedback a los reclutadores desde el análisis del agente de inteligencia artificial.
 
 ### [2026-03-03] Implementación Gamificación Creativa (Bloque D) ✅
 

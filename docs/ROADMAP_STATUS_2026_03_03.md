@@ -50,18 +50,18 @@
 
 ### 🟠 Bloque D: Movilidad y Ecosistema de Talento
 
-| #   | Feature               |      Estado       | Detalle                                                                                        |
-| :-- | :-------------------- | :---------------: | :--------------------------------------------------------------------------------------------- |
-| D1  | Gateway Híbrido       |   🔄 En diseño    | Magic Links + SSO planificados, sin implementación.                                            |
-| D2  | LMS & Mentor Hub      |    🔄 Parcial     | `LmsService.php`, `MentorMatchingService.php` operativas. Falta orquestación nudging.          |
-| D3  | Marketplace Activo    |   🔄 Base lista   | `Marketplace/Index.vue` (55KB), `MarketplaceController.php`. Falta matchmaking IA.             |
-| D4  | Gamificación Creativa | ✅ **Operativo**  | Badges, Puntos de Experiencia (XP), Niveles y Quests funcionales en backend y UI "Mi Stratos". |
-| D5  | Misiones de Gremio    |   ⏳ Pendiente    | Solo diseño conceptual.                                                                        |
-| D6  | Timeline Evolutivo    |   ⏳ Pendiente    | Falta visualización de ADN histórico.                                                          |
-| D7  | Smart Notifications   | ✅ **Finalizado** | `SmartAlertsWidget.vue` activo con nudging estratégico.                                        |
-| D8  | Talent Pass (CV 2.0)  |   ⏳ Pendiente    | Diseño conceptual solamente.                                                                   |
-| D9  | Sovereign Identity    |   ⏳ Pendiente    | Credenciales W3C + Blockchain — sin implementación.                                            |
-| D10 | Blindaje Octalysis    |     ✅ Diseño     | Framework de 8 Core Drives documentado y aplicado en Mi Stratos.                               |
+| #   | Feature               |      Estado       | Detalle                                                                                          |
+| :-- | :-------------------- | :---------------: | :----------------------------------------------------------------------------------------------- |
+| D1  | Gateway Híbrido       |    🔄 Parcial     | Magic Links integrados sin contraseña vía Correo y rutas firmadas. Falta SSO.                    |
+| D2  | LMS & Mentor Hub      |    🔄 Parcial     | `LmsService.php`, `MentorMatchingService.php` operativas. Falta orquestación nudging.            |
+| D3  | Marketplace Activo    | ✅ **Operativo**  | AI Matchmaking integrado con Hidden Potential Score, Racionalización Estratégica en modal Glass. |
+| D4  | Gamificación Creativa | ✅ **Operativo**  | Badges, Puntos de Experiencia (XP), Niveles y Quests funcionales en backend y UI "Mi Stratos".   |
+| D5  | Misiones de Gremio    |   ⏳ Pendiente    | Solo diseño conceptual.                                                                          |
+| D6  | Timeline Evolutivo    |   ⏳ Pendiente    | Falta visualización de ADN histórico.                                                            |
+| D7  | Smart Notifications   | ✅ **Finalizado** | `SmartAlertsWidget.vue` activo con nudging estratégico.                                          |
+| D8  | Talent Pass (CV 2.0)  |   ⏳ Pendiente    | Diseño conceptual solamente.                                                                     |
+| D9  | Sovereign Identity    |   ⏳ Pendiente    | Credenciales W3C + Blockchain — sin implementación.                                              |
+| D10 | Blindaje Octalysis    |     ✅ Diseño     | Framework de 8 Core Drives documentado y aplicado en Mi Stratos.                                 |
 
 ---
 
@@ -112,9 +112,9 @@ Con las Fases 1 a 5 totalmente completadas, **los siguientes focos tácticos (Bl
 
 |  #  | Pendiente                                       | Bloque   | Impacto | Esfuerzo Est. |
 | :-: | :---------------------------------------------- | :------- | :------ | :------------ |
-|  1  | **Marketplace Activo** (AI Matchmaking)         | Bloque D | Alto    | 4-5 días      |
-|  2  | **Notificaciones / Nudging Proactivo Avanzado** | Bloque D | Medio   | 3-5 días      |
-|  3  | **Gateway Híbrido** (SSO + Magic Links)         | Bloque D | Medio   | 2-3 días      |
+|  1  | **Notificaciones / Nudging Proactivo Avanzado** | Bloque D | Medio   | 3-5 días      |
+|  2  | **Gateway Híbrido** (SSO OAuth Integración)     | Bloque D | Medio   | 2-3 días      |
+|  3  | **Misiones de Gremio (Conceptual)**             | Bloque D | Medio   | 4-5 días      |
 
 ---
 
