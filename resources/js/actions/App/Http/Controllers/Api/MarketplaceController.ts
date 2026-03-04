@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::opportunities
-* @see app/Http/Controllers/Api/MarketplaceController.php:24
+* @see app/Http/Controllers/Api/MarketplaceController.php:25
 * @route '/api/people/{people_id}/marketplace'
 */
 export const opportunities = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ opportunities.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::opportunities
-* @see app/Http/Controllers/Api/MarketplaceController.php:24
+* @see app/Http/Controllers/Api/MarketplaceController.php:25
 * @route '/api/people/{people_id}/marketplace'
 */
 opportunities.url = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -43,7 +43,7 @@ opportunities.url = (args: { people_id: string | number } | [people_id: string |
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::opportunities
-* @see app/Http/Controllers/Api/MarketplaceController.php:24
+* @see app/Http/Controllers/Api/MarketplaceController.php:25
 * @route '/api/people/{people_id}/marketplace'
 */
 opportunities.get = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,7 +53,7 @@ opportunities.get = (args: { people_id: string | number } | [people_id: string |
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::opportunities
-* @see app/Http/Controllers/Api/MarketplaceController.php:24
+* @see app/Http/Controllers/Api/MarketplaceController.php:25
 * @route '/api/people/{people_id}/marketplace'
 */
 opportunities.head = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -63,7 +63,7 @@ opportunities.head = (args: { people_id: string | number } | [people_id: string 
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::opportunities
-* @see app/Http/Controllers/Api/MarketplaceController.php:24
+* @see app/Http/Controllers/Api/MarketplaceController.php:25
 * @route '/api/people/{people_id}/marketplace'
 */
 const opportunitiesForm = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -73,7 +73,7 @@ const opportunitiesForm = (args: { people_id: string | number } | [people_id: st
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::opportunities
-* @see app/Http/Controllers/Api/MarketplaceController.php:24
+* @see app/Http/Controllers/Api/MarketplaceController.php:25
 * @route '/api/people/{people_id}/marketplace'
 */
 opportunitiesForm.get = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -83,7 +83,7 @@ opportunitiesForm.get = (args: { people_id: string | number } | [people_id: stri
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::opportunities
-* @see app/Http/Controllers/Api/MarketplaceController.php:24
+* @see app/Http/Controllers/Api/MarketplaceController.php:25
 * @route '/api/people/{people_id}/marketplace'
 */
 opportunitiesForm.head = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -100,7 +100,7 @@ opportunities.form = opportunitiesForm
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::recruiterView
-* @see app/Http/Controllers/Api/MarketplaceController.php:90
+* @see app/Http/Controllers/Api/MarketplaceController.php:91
 * @route '/api/marketplace/recruiter'
 */
 export const recruiterView = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -115,7 +115,7 @@ recruiterView.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::recruiterView
-* @see app/Http/Controllers/Api/MarketplaceController.php:90
+* @see app/Http/Controllers/Api/MarketplaceController.php:91
 * @route '/api/marketplace/recruiter'
 */
 recruiterView.url = (options?: RouteQueryOptions) => {
@@ -124,7 +124,7 @@ recruiterView.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::recruiterView
-* @see app/Http/Controllers/Api/MarketplaceController.php:90
+* @see app/Http/Controllers/Api/MarketplaceController.php:91
 * @route '/api/marketplace/recruiter'
 */
 recruiterView.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -134,7 +134,7 @@ recruiterView.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::recruiterView
-* @see app/Http/Controllers/Api/MarketplaceController.php:90
+* @see app/Http/Controllers/Api/MarketplaceController.php:91
 * @route '/api/marketplace/recruiter'
 */
 recruiterView.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -144,7 +144,7 @@ recruiterView.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::recruiterView
-* @see app/Http/Controllers/Api/MarketplaceController.php:90
+* @see app/Http/Controllers/Api/MarketplaceController.php:91
 * @route '/api/marketplace/recruiter'
 */
 const recruiterViewForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -154,7 +154,7 @@ const recruiterViewForm = (options?: RouteQueryOptions): RouteFormDefinition<'ge
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::recruiterView
-* @see app/Http/Controllers/Api/MarketplaceController.php:90
+* @see app/Http/Controllers/Api/MarketplaceController.php:91
 * @route '/api/marketplace/recruiter'
 */
 recruiterViewForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -164,7 +164,7 @@ recruiterViewForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 
 /**
 * @see \App\Http\Controllers\Api\MarketplaceController::recruiterView
-* @see app/Http/Controllers/Api/MarketplaceController.php:90
+* @see app/Http/Controllers/Api/MarketplaceController.php:91
 * @route '/api/marketplace/recruiter'
 */
 recruiterViewForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -179,6 +179,79 @@ recruiterViewForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get
 
 recruiterView.form = recruiterViewForm
 
-const MarketplaceController = { opportunities, recruiterView }
+/**
+* @see \App\Http\Controllers\Api\MarketplaceController::aiMatchInsights
+* @see app/Http/Controllers/Api/MarketplaceController.php:202
+* @route '/api/marketplace/positions/{positionId}/candidates/{candidateId}/ai-insights'
+*/
+export const aiMatchInsights = (args: { positionId: string | number, candidateId: string | number } | [positionId: string | number, candidateId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: aiMatchInsights.url(args, options),
+    method: 'post',
+})
+
+aiMatchInsights.definition = {
+    methods: ["post"],
+    url: '/api/marketplace/positions/{positionId}/candidates/{candidateId}/ai-insights',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Api\MarketplaceController::aiMatchInsights
+* @see app/Http/Controllers/Api/MarketplaceController.php:202
+* @route '/api/marketplace/positions/{positionId}/candidates/{candidateId}/ai-insights'
+*/
+aiMatchInsights.url = (args: { positionId: string | number, candidateId: string | number } | [positionId: string | number, candidateId: string | number ], options?: RouteQueryOptions) => {
+    if (Array.isArray(args)) {
+        args = {
+            positionId: args[0],
+            candidateId: args[1],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        positionId: args.positionId,
+        candidateId: args.candidateId,
+    }
+
+    return aiMatchInsights.definition.url
+            .replace('{positionId}', parsedArgs.positionId.toString())
+            .replace('{candidateId}', parsedArgs.candidateId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\MarketplaceController::aiMatchInsights
+* @see app/Http/Controllers/Api/MarketplaceController.php:202
+* @route '/api/marketplace/positions/{positionId}/candidates/{candidateId}/ai-insights'
+*/
+aiMatchInsights.post = (args: { positionId: string | number, candidateId: string | number } | [positionId: string | number, candidateId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: aiMatchInsights.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\MarketplaceController::aiMatchInsights
+* @see app/Http/Controllers/Api/MarketplaceController.php:202
+* @route '/api/marketplace/positions/{positionId}/candidates/{candidateId}/ai-insights'
+*/
+const aiMatchInsightsForm = (args: { positionId: string | number, candidateId: string | number } | [positionId: string | number, candidateId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: aiMatchInsights.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\MarketplaceController::aiMatchInsights
+* @see app/Http/Controllers/Api/MarketplaceController.php:202
+* @route '/api/marketplace/positions/{positionId}/candidates/{candidateId}/ai-insights'
+*/
+aiMatchInsightsForm.post = (args: { positionId: string | number, candidateId: string | number } | [positionId: string | number, candidateId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: aiMatchInsights.url(args, options),
+    method: 'post',
+})
+
+aiMatchInsights.form = aiMatchInsightsForm
+
+const MarketplaceController = { opportunities, recruiterView, aiMatchInsights }
 
 export default MarketplaceController
