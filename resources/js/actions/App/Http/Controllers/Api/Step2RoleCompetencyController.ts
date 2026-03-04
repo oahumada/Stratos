@@ -826,7 +826,7 @@ getCubeData.form = getCubeDataForm
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:757
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:775
 * @route '/api/scenarios/{scenarioId}/step2/engine/generate-bars'
 */
 export const generateBars = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -841,7 +841,7 @@ generateBars.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:757
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:775
 * @route '/api/scenarios/{scenarioId}/step2/engine/generate-bars'
 */
 generateBars.url = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -868,7 +868,7 @@ generateBars.url = (args: { scenarioId: string | number } | [scenarioId: string 
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:757
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:775
 * @route '/api/scenarios/{scenarioId}/step2/engine/generate-bars'
 */
 generateBars.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -878,7 +878,7 @@ generateBars.post = (args: { scenarioId: string | number } | [scenarioId: string
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:757
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:775
 * @route '/api/scenarios/{scenarioId}/step2/engine/generate-bars'
 */
 const generateBarsForm = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -888,7 +888,7 @@ const generateBarsForm = (args: { scenarioId: string | number } | [scenarioId: s
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:757
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:775
 * @route '/api/scenarios/{scenarioId}/step2/engine/generate-bars'
 */
 generateBarsForm.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

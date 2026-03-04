@@ -41,7 +41,9 @@
                             circle
                             icon="mdi-help-circle-outline"
                             @click="showMatchHelp = !showMatchHelp"
-                            :class="{ 'bg-white/10 text-white': showMatchHelp }"
+                            :class="
+                                showMatchHelp ? 'bg-white/10 text-white' : ''
+                            "
                         />
                         <StButtonGlass
                             variant="primary"
@@ -499,10 +501,74 @@
                                     {{ role.role_name }}
                                 </h5>
                                 <p
-                                    class="mb-6 line-clamp-2 h-10 text-[13px] leading-relaxed font-medium text-white/40"
+                                    class="mb-4 line-clamp-2 h-10 text-[13px] leading-relaxed font-medium text-white/40"
                                 >
                                     {{ role.role_description }}
                                 </p>
+
+                                <!-- Cube Coordinates from Agent Proposal -->
+                                <div
+                                    v-if="role.cube_coordinates"
+                                    class="mb-4 space-y-1.5 rounded-xl border border-indigo-500/10 bg-indigo-500/5 p-3"
+                                >
+                                    <div
+                                        class="mb-2 text-[9px] font-black tracking-[0.2em] text-indigo-400/60 uppercase"
+                                    >
+                                        Cube · Agent Proposal
+                                    </div>
+                                    <div
+                                        v-if="
+                                            role.cube_coordinates
+                                                .z_business_process
+                                        "
+                                        class="flex items-center gap-2 text-[11px]"
+                                    >
+                                        <v-icon size="10" color="indigo-300"
+                                            >mdi-briefcase-outline</v-icon
+                                        >
+                                        <span class="text-white/50"
+                                            >Process:</span
+                                        >
+                                        <span
+                                            class="truncate font-bold text-white/80"
+                                            >{{
+                                                role.cube_coordinates
+                                                    .z_business_process
+                                            }}</span
+                                        >
+                                    </div>
+                                    <div
+                                        v-if="
+                                            role.cube_coordinates
+                                                .y_mastery_level
+                                        "
+                                        class="flex items-center gap-2 text-[11px]"
+                                    >
+                                        <v-icon size="10" color="indigo-300"
+                                            >mdi-star-outline</v-icon
+                                        >
+                                        <span class="text-white/50"
+                                            >Mastery:</span
+                                        >
+                                        <span class="font-bold text-indigo-300"
+                                            >Tier
+                                            {{
+                                                role.cube_coordinates
+                                                    .y_mastery_level
+                                            }}</span
+                                        >
+                                    </div>
+                                    <p
+                                        v-if="
+                                            role.cube_coordinates.justification
+                                        "
+                                        class="mt-1 line-clamp-2 text-[10px] text-white/30 italic"
+                                    >
+                                        "{{
+                                            role.cube_coordinates.justification
+                                        }}"
+                                    </p>
+                                </div>
 
                                 <div class="mt-auto space-y-4">
                                     <div
@@ -526,16 +592,35 @@
                                             class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-white/5 p-3 transition-all hover:bg-white/10"
                                         >
                                             <div
-                                                class="flex items-center justify-between"
+                                                class="flex items-center justify-between gap-2"
                                             >
                                                 <span
-                                                    class="truncate pr-2 text-[11px] font-bold text-white/80"
+                                                    class="min-w-0 truncate text-[11px] font-bold text-white/80"
                                                     >{{ comp.name }}</span
                                                 >
-                                                <span
-                                                    class="text-[10px] font-black text-indigo-400"
-                                                    >L{{ comp.level }}</span
+                                                <div
+                                                    class="flex shrink-0 items-center gap-1.5"
                                                 >
+                                                    <!-- Source indicator -->
+                                                    <span
+                                                        v-if="
+                                                            comp.source ===
+                                                            'agent'
+                                                        "
+                                                        class="text-[8px] font-black tracking-wider text-violet-400/60 uppercase"
+                                                        >AI</span
+                                                    >
+                                                    <span
+                                                        class="text-[10px] font-black"
+                                                        :class="
+                                                            comp.source ===
+                                                            'agent'
+                                                                ? 'text-violet-400'
+                                                                : 'text-indigo-400'
+                                                        "
+                                                        >L{{ comp.level }}</span
+                                                    >
+                                                </div>
                                             </div>
                                             <div class="flex gap-1">
                                                 <div
@@ -544,7 +629,10 @@
                                                     class="h-1 flex-1 rounded-full transition-all duration-500"
                                                     :class="
                                                         n <= comp.level
-                                                            ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]'
+                                                            ? comp.source ===
+                                                              'agent'
+                                                                ? 'bg-violet-500/60 shadow-[0_0_6px_rgba(139,92,246,0.3)]'
+                                                                : 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]'
                                                             : 'bg-white/5'
                                                     "
                                                 ></div>
@@ -587,8 +675,17 @@ interface Role {
     role_name: string;
     role_description: string;
     human_leverage: number;
+    archetype: string;
+    rationale: string;
     key_competencies: any;
     similarity_warnings?: Array<{ id: number; name: string; score: number }>;
+    cube_coordinates?: {
+        x_archetype?: string;
+        y_mastery_level?: number;
+        z_business_process?: string;
+        justification?: string;
+    };
+    ai_suggestions?: any;
 }
 
 interface Competency {
@@ -634,7 +731,7 @@ const fetchData = async () => {
         capabilities.value = remoteData.capabilities || [];
         roles.value = remoteData.roles || [];
         competencies.value = remoteData.competencies || [];
-    } catch (e: any) {
+    } catch (_e) {
         showError('Could not load Cube data.');
     } finally {
         loading.value = false;
@@ -658,7 +755,7 @@ const executeApproval = async () => {
         confirmApproval.value = false;
         selectedIds.value = [];
         await fetchData();
-    } catch (e: any) {
+    } catch (_e) {
         showError('Failed to promote elements');
     } finally {
         approving.value = false;
@@ -666,14 +763,21 @@ const executeApproval = async () => {
 };
 
 const getArchetypeLabel = (role: Role) => {
+    // Prioritize agent's proposed archetype from cube_coordinates
+    const agentArchetype = role.cube_coordinates?.x_archetype;
+    if (agentArchetype) return agentArchetype;
+    // Fallback: infer from human_leverage
     if (role.human_leverage > 70) return 'Strategic (E)';
     if (role.human_leverage > 40) return 'Tactical (T)';
     return 'Operational (O)';
 };
 
 const getArchetypeVariant = (role: Role) => {
-    if (role.human_leverage > 70) return 'primary';
-    if (role.human_leverage > 40) return 'secondary';
+    const archetype = role.cube_coordinates?.x_archetype || '';
+    if (archetype.toLowerCase().includes('strat') || role.human_leverage > 70)
+        return 'primary';
+    if (archetype.toLowerCase().includes('tact') || role.human_leverage > 40)
+        return 'secondary';
     return 'success';
 };
 
@@ -695,24 +799,35 @@ const getSimilarityTip = (score: number) => {
 
 const getRolesForCapability = (cap: Capability) => {
     const filtered = roles.value.filter((role) => {
-        const comps = role.key_competencies;
-        return (
-            Array.isArray(comps) &&
-            comps.some((c: any) => c.capability_id === cap.id)
-        );
+        // Check matrix mappings first
+        const matrixComps = role.key_competencies;
+        if (Array.isArray(matrixComps) && matrixComps.length > 0) {
+            return matrixComps.some((c: any) => c.capability_id === cap.id);
+        }
+        // Fallback: a role with no matrix mappings is unclassified — it falls
+        // under the first capability as a catch-all (handled below)
+        return false;
     });
 
-    if (filtered.length === 0 && cap.id === capabilities.value[0]?.id) {
-        return roles.value.filter(
+    // Roles without any matrix mappings appear under the first capability tab
+    if (cap.id === capabilities.value[0]?.id) {
+        const unclassified = roles.value.filter(
             (r) =>
                 !Array.isArray(r.key_competencies) ||
                 r.key_competencies.length === 0,
         );
+        // Merge (avoid duplicates by id)
+        const ids = new Set(filtered.map((r) => r.id));
+        unclassified.forEach((r) => {
+            if (!ids.has(r.id)) filtered.push(r);
+        });
     }
+
     return filtered;
 };
 
 const getCompetenciesForRole = (role: Role) => {
+    // Primary source: manual mappings from the matrix (key_competencies)
     let raw = role.key_competencies;
     if (typeof raw === 'string') {
         try {
@@ -721,10 +836,24 @@ const getCompetenciesForRole = (role: Role) => {
             raw = [];
         }
     }
-    if (!Array.isArray(raw)) return [];
-    return raw.map((c) => ({
+
+    // Fallback: if no matrix mappings, use agent's proposed core_competencies
+    if (!Array.isArray(raw) || raw.length === 0) {
+        const agentComps = role.ai_suggestions?.core_competencies;
+        if (Array.isArray(agentComps) && agentComps.length > 0) {
+            return agentComps.map((c: any) => ({
+                name: c.name || 'Competency',
+                level: c.level ?? 3,
+                source: 'agent' as const,
+            }));
+        }
+        return [];
+    }
+
+    return raw.map((c: any) => ({
         name: c.name || c.key || 'Competency',
-        level: c.level || c.score || 3,
+        level: c.level || c.score || c.required_level || 3,
+        source: 'matrix' as const,
     }));
 };
 

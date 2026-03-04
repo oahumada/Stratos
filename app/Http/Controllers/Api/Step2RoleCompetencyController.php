@@ -677,6 +677,8 @@ class Step2RoleCompetencyController extends Controller
             ->get();
 
         // 2. Roles del escenario con datos del Cubo
+        // Incluye ai_suggestions para exponer la propuesta del agente
+        // (coordenadas del cubo: archetype, mastery_level, business_process)
         $scenarioRoles = DB::table('scenario_roles')
             ->join('roles', 'scenario_roles.role_id', '=', 'roles.id')
             ->where('scenario_roles.scenario_id', $scenarioId)
@@ -689,22 +691,23 @@ class Step2RoleCompetencyController extends Controller
                 'scenario_roles.fte',
                 'scenario_roles.human_leverage',
                 'scenario_roles.role_change',
+                'scenario_roles.rationale',
+                'scenario_roles.ai_suggestions',   // propuesta del agente (cubo + justificación)
             )
             ->orderBy('roles.name')
             ->get();
 
-        // 3. Competencias por rol (con capability)
+        // 3. Competencias por rol (con capability del escenario)
+        // IMPORTANTE: leftJoin con scenario_capabilities directamente para
+        // garantizar que capability_id sea de las capabilities del escenario.
+        // Sin este filtro, una competencia que pertenece a múltiples capabilities
+        // en el catálogo puede aparecer asociada a una capability incorrecta.
         $mappings = DB::table('scenario_role_competencies')
             ->join('competencies', 'scenario_role_competencies.competency_id', '=', 'competencies.id')
             ->leftJoin('capability_competencies', 'competencies.id', '=', 'capability_competencies.competency_id')
-            ->leftJoin('capabilities', function ($join) use ($scenarioId) {
-                $join->on('capability_competencies.capability_id', '=', 'capabilities.id')
-                    ->whereExists(function ($q) use ($scenarioId) {
-                        $q->select(DB::raw(1))
-                          ->from('scenario_capabilities')
-                          ->whereColumn('scenario_capabilities.capability_id', 'capabilities.id')
-                          ->where('scenario_capabilities.scenario_id', $scenarioId);
-                    });
+            ->leftJoin('scenario_capabilities', function ($join) use ($scenarioId) {
+                $join->on('capability_competencies.capability_id', '=', 'scenario_capabilities.capability_id')
+                     ->where('scenario_capabilities.scenario_id', '=', $scenarioId);
             })
             ->where('scenario_role_competencies.scenario_id', $scenarioId)
             ->select(
@@ -713,8 +716,10 @@ class Step2RoleCompetencyController extends Controller
                 'competencies.name as competency_name',
                 'scenario_role_competencies.required_level',
                 'scenario_role_competencies.change_type',
-                'capability_competencies.capability_id',
+                // Usar el capability_id filtrado por el escenario (NULL si no pertenece al escenario)
+                DB::raw('CASE WHEN scenario_capabilities.capability_id IS NOT NULL THEN scenario_capabilities.capability_id ELSE NULL END as capability_id'),
             )
+            ->distinct()
             ->get()
             ->groupBy('role_id');
 
@@ -728,6 +733,15 @@ class Step2RoleCompetencyController extends Controller
                 'capability_id' => $m->capability_id,
             ])->values()->toArray();
 
+            // Decodificar ai_suggestions (propuesta del agente) si viene como JSON string
+            $aiSuggestions = $sr->ai_suggestions;
+            if (is_string($aiSuggestions)) {
+                $aiSuggestions = json_decode($aiSuggestions, true) ?? [];
+            }
+
+            // Extraer coordenadas del cubo de la propuesta del agente
+            $cubeCoordinates = $aiSuggestions['cube_coordinates'] ?? null;
+
             return [
                 'id'                 => $sr->sr_id,
                 'role_id'            => $sr->role_id,
@@ -737,6 +751,10 @@ class Step2RoleCompetencyController extends Controller
                 'fte'                => (float) ($sr->fte ?? 1.0),
                 'human_leverage'     => (int) ($sr->human_leverage ?? 50),
                 'role_change'        => $sr->role_change ?? 'modify',
+                'rationale'          => $sr->rationale ?? '',
+                // Propuesta del agente: coordenadas del cubo y justificación
+                'cube_coordinates'   => $cubeCoordinates,
+                'ai_suggestions'     => $aiSuggestions,
                 'key_competencies'   => $keyCompetencies,
                 'similarity_warnings'=> [],
             ];
