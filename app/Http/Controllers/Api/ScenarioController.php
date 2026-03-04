@@ -103,6 +103,68 @@ class ScenarioController extends Controller
     }
 
     /**
+     * Obtiene el árbol de entidades incubadas (pendientes de aprobación).
+     */
+    public function getIncubatedTree($id): JsonResponse
+    {
+        $user = auth()->user();
+        if (!$user) return $this->unauthorizedResponse();
+        
+        $scenario = Scenario::findOrFail($id);
+        if ($scenario->organization_id !== $user->organization_id) {
+            return $this->forbiddenResponse();
+        }
+
+        // Solo retornamos capacidades creadas en este escenario que aún están en incubación
+        $capabilities = Capability::where('discovered_in_scenario_id', $id)
+            ->where('status', 'in_incubation')
+            ->with(['competencies' => function($q) {
+                $q->where('status', 'in_incubation');
+            }])
+            ->get();
+
+        return $this->successResponse($capabilities);
+    }
+
+    /**
+     * Promueve todas las entidades incubadas a la arquitectura activa.
+     */
+    public function promoteAll($id): JsonResponse
+    {
+        $user = auth()->user();
+        if (!$user) return $this->unauthorizedResponse();
+
+        $scenario = Scenario::findOrFail($id);
+        if ($scenario->organization_id !== $user->organization_id) {
+            return $this->forbiddenResponse();
+        }
+
+        return DB::transaction(function () use ($id) {
+            // Promover Capabilities
+            Capability::where('discovered_in_scenario_id', $id)
+                ->where('status', 'in_incubation')
+                ->update(['status' => 'active']);
+
+            // Promover Competencies
+            \App\Models\Competency::where('discovered_in_scenario_id', $id)
+                ->where('status', 'in_incubation')
+                ->update(['status' => 'active']);
+
+            // Promover Skills
+            \App\Models\Skill::where('discovered_in_scenario_id', $id)
+                ->where('status', 'in_incubation')
+                ->update(['status' => 'active']);
+
+            // Promover Roles (Talent Blueprint) - Si aplica
+            \App\Models\TalentBlueprint::where('scenario_id', $id)
+                ->where('status', 'in_incubation')
+                ->update(['status' => 'active']);
+
+            return $this->successResponse(null, 'Todas las entidades han sido promovidas exitosamente.');
+        });
+    }
+
+    /**
      * Aprueba el escenario y "gradúa" las capacidades/skills incubadas.
      */
     public function approve($id): JsonResponse
@@ -212,12 +274,16 @@ class ScenarioController extends Controller
             'description' => 'nullable|string',
             'scenario_type' => 'nullable|string',
             'horizon_months' => 'nullable|integer|min:1',
-            'planning_horizon_months' => 'nullable|integer|min:1', // Alias para compatibilidad frontend
+            'planning_horizon_months' => 'nullable|integer|min:1',
             'fiscal_year' => 'nullable|integer',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
             'code' => 'nullable|string|max:50',
             'owner_user_id' => 'nullable|integer',
+            'decision_status' => 'nullable|string|in:draft,pending_approval,approved,rejected',
+            'execution_status' => 'nullable|string|in:not_started,in_progress,paused,completed',
+            'version_number' => 'nullable|integer',
+            'time_horizon_weeks' => 'nullable|integer',
         ]);
 
         $user = auth()->user();
@@ -226,19 +292,28 @@ class ScenarioController extends Controller
         }
 
         // Preparar datos para crear scenario
+        $horizonWeeks = $validated['time_horizon_weeks'] ?? 12;
+        $horizonMonths = $validated['horizon_months'] ?? $validated['planning_horizon_months'] ?? (int) ceil($horizonWeeks / 4.33);
+
         $data = [
             'organization_id' => $user->organization_id,
             'created_by' => $user->id,
             'name' => $validated['name'],
-            'description' => $validated['description'] ?? '',  // Proporcionar string vacío si viene null
+            'description' => $validated['description'] ?? '',
             'scenario_type' => $validated['scenario_type'] ?? 'transformation',
-            // Usar horizon_months si viene, sino planning_horizon_months, sino 12 como default
-            'horizon_months' => $validated['horizon_months'] ?? $validated['planning_horizon_months'] ?? 12,
-            'fiscal_year' => $validated['fiscal_year'] ?? (int) date('Y'),  // Default al año actual si no se proporciona
+            'horizon_months' => $horizonMonths,
+            'time_horizon_weeks' => $horizonWeeks,
+            'fiscal_year' => $validated['fiscal_year'] ?? (int) date('Y'),
             'start_date' => ($validated['start_date'] ?? null) ? \Carbon\Carbon::parse($validated['start_date'])->toDateString() : now()->toDateString(),
-            'end_date' => ($validated['end_date'] ?? null) ? \Carbon\Carbon::parse($validated['end_date'])->toDateString() : now()->addMonths(12)->toDateString(),
+            'end_date' => ($validated['end_date'] ?? null) 
+                ? \Carbon\Carbon::parse($validated['end_date'])->toDateString() 
+                : now()->addWeeks($horizonWeeks)->toDateString(),
             'code' => $validated['code'] ?? ('SCN-' . strtoupper(substr(md5(uniqid()), 0, 8))),
             'owner_user_id' => $validated['owner_user_id'] ?? $user->id,
+            'decision_status' => $validated['decision_status'] ?? 'draft',
+            'execution_status' => $validated['execution_status'] ?? 'not_started',
+            'version_number' => $validated['version_number'] ?? 1,
+            'current_step' => 1,
         ];
 
         // Use Eloquent to create scenario (triggers model events for code generation)

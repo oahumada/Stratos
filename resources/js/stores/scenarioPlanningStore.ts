@@ -314,6 +314,13 @@ export const useScenarioPlanningStore = defineStore('scenarioPlanning', {
         },
 
         async fetchScenario(id: number) {
+            if (!id || isNaN(id)) {
+                console.warn(
+                    '[fetchScenario] Attempted to fetch scenario with invalid ID:',
+                    id,
+                );
+                return null;
+            }
             try {
                 const response = await axios.get(
                     `/api/strategic-planning/scenarios/${id}`,

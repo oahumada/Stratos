@@ -997,6 +997,12 @@ Route::prefix('strategic-planning')->group(function () {
 Route::post('/strategic-planning/scenarios/{id}/orchestrate', [\App\Http\Controllers\Api\ScenarioController::class, 'orchestrate'])
     ->middleware('auth:sanctum');
 
+// PASO 1: Neural Architecture & Incubation (Tree)
+Route::middleware('auth:sanctum')->prefix('scenarios/{id}/step1')->group(function () {
+    Route::get('incubated-tree', [\App\Http\Controllers\Api\ScenarioController::class, 'getIncubatedTree']);
+    Route::post('promote-all', [\App\Http\Controllers\Api\ScenarioController::class, 'promoteAll']);
+});
+
 // PASO 2: Roles ↔ Competencies Mapping
 Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group(function () {
     Route::get('data', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getMatrixData']);

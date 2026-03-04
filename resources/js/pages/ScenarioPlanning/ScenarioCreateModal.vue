@@ -12,9 +12,9 @@ const description = ref('');
 const decisionStatus = ref<
     'draft' | 'pending_approval' | 'approved' | 'rejected'
 >('draft');
-const executionStatus = ref<'planned' | 'in_progress' | 'paused' | 'completed'>(
-    'planned',
-);
+const executionStatus = ref<
+    'not_started' | 'in_progress' | 'paused' | 'completed'
+>('not_started');
 const versionNumber = ref<number | null>(1);
 const timeHorizonWeeks = ref<number | null>(12);
 const saving = ref(false);
@@ -29,7 +29,7 @@ const decisionOptions = [
 ];
 
 const executionOptions = [
-    { value: 'planned', title: 'Planificado' },
+    { value: 'not_started', title: 'No iniciado' },
     { value: 'in_progress', title: 'En ejecución' },
     { value: 'paused', title: 'Pausado' },
     { value: 'completed', title: 'Completado' },

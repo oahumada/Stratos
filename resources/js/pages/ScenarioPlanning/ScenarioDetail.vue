@@ -12,6 +12,7 @@ import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 
 // Step Components
+import PrototypeMap from '@/components/ScenarioPlanning/Step1/PrototypeMap.vue';
 import IncubatedCubeReview from '@/components/ScenarioPlanning/Step2/IncubatedCubeReview.vue';
 import RoleCompetencyMatrix from '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue';
 import OrganizationalContrast from '@/components/ScenarioPlanning/Step3/OrganizationalContrast.vue';
@@ -45,31 +46,44 @@ const incubatedTree = ref<any[]>([]);
 const versionHistoryRef = ref<any>(null);
 const statusTimelineRef = ref<any>(null);
 
+const showNodeEditModal = ref(false);
+const selectedNodeForEdit = ref<any>(null);
+
 // Computed
 const scenarioStatus = computed(() => scenario.value?.status || 'draft');
 
-const statusConfig = computed(() => {
+const statusConfig = computed<{
+    color: 'primary' | 'secondary' | 'error' | 'warning' | 'success' | 'glass';
+    icon: string;
+}>(() => {
     switch (scenarioStatus.value) {
         case 'active':
-            return { color: 'emerald', icon: 'mdi-check-circle' };
+            return { color: 'success', icon: 'mdi-check-circle' };
         case 'review':
-            return { color: 'amber', icon: 'mdi-eye-outline' };
+            return { color: 'warning', icon: 'mdi-eye-outline' };
         case 'completed':
-            return { color: 'indigo', icon: 'mdi-star' };
+            return { color: 'primary', icon: 'mdi-star' };
         default:
-            return { color: 'white/40', icon: 'mdi-circle-edit-outline' };
+            return { color: 'glass', icon: 'mdi-circle-edit-outline' };
     }
 });
 
 // Methods
 const loadScenario = async () => {
+    if (!props.scenarioId) {
+        console.warn('[loadScenario] scenarioId is missing', props.scenarioId);
+        loading.value = false;
+        return;
+    }
     loading.value = true;
     try {
         const res: any = await api.get(
             `/api/strategic-planning/scenarios/${props.scenarioId}`,
         );
         scenario.value = res?.data ?? res;
-        if (currentStep.value === 1) await loadIncubatedTree();
+        if (currentStep.value === 1) {
+            await Promise.all([loadIncubatedTree(), loadCapabilityTree()]);
+        }
     } catch {
         showError('Neural sync failed');
     } finally {
@@ -77,7 +91,22 @@ const loadScenario = async () => {
     }
 };
 
+const loadCapabilityTree = async () => {
+    if (!props.scenarioId) return;
+    try {
+        const res: any = await api.get(
+            `/api/strategic-planning/scenarios/${props.scenarioId}/capability-tree`,
+        );
+        if (scenario.value) {
+            scenario.value.capabilities = res?.data ?? res ?? [];
+        }
+    } catch (e) {
+        console.error('[loadCapabilityTree] Error:', e);
+    }
+};
+
 const loadIncubatedTree = async () => {
+    if (!props.scenarioId) return;
     loadingTree.value = true;
     try {
         const res: any = await api.get(
@@ -89,6 +118,13 @@ const loadIncubatedTree = async () => {
     } finally {
         loadingTree.value = false;
     }
+};
+
+const handleEditNode = (node: any) => {
+    console.debug('[ScenarioDetail] handleEditNode triggered for:', node);
+    if (node.type === 'scenario') return; // Cannot edit scenario node here
+    selectedNodeForEdit.value = node;
+    showNodeEditModal.value = true;
 };
 
 const nextStep = () => {
@@ -131,7 +167,10 @@ onMounted(loadScenario);
 watch(
     () => currentStep.value,
     (val) => {
-        if (val === 1) loadIncubatedTree();
+        if (val === 1) {
+            loadIncubatedTree();
+            loadCapabilityTree();
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     },
 );
@@ -241,7 +280,7 @@ watch(
         <div class="mx-auto flex max-w-[1600px] items-start gap-8 p-8">
             <!-- Fixed Left Sidebar: Stepper -->
             <aside class="sticky top-28 w-80 shrink-0">
-                <ScenarioStepperComponent v-model="currentStep" />
+                <ScenarioStepperComponent v-model:current-step="currentStep" />
 
                 <!-- System Health Monitor -->
                 <div class="mt-8">
@@ -314,7 +353,10 @@ watch(
                         <template v-if="scenario">
                             <!-- Step 1 -->
                             <div v-if="currentStep === 1" class="space-y-8">
-                                <PrototypeMap :scenario="scenario" />
+                                <PrototypeMap
+                                    :scenario="scenario"
+                                    @edit-node="handleEditNode"
+                                />
 
                                 <StCardGlass
                                     variant="glass"
@@ -537,6 +579,14 @@ watch(
             :scenario-id="scenarioId"
             @close="showIncubatedReview = false"
             @promoted="onPromoted"
+        />
+
+        <NodeEditModal
+            v-if="showNodeEditModal"
+            v-model="showNodeEditModal"
+            :node="selectedNodeForEdit"
+            :scenario-id="scenarioId"
+            @saved="loadScenario"
         />
     </div>
 </template>

@@ -85,7 +85,7 @@ Route::get('/scenario-planning', function () {
 })->middleware(['auth', 'verified'])->name('scenario-planning.index');
 
 Route::get('/scenario-planning/{id}', function ($id) {
-    return Inertia::render('ScenarioPlanning/ScenarioDetail', ['id' => $id]);
+    return Inertia::render('ScenarioPlanning/ScenarioDetail', ['scenarioId' => $id]);
 })->middleware(['auth', 'verified'])->name('scenario-planning.show');
 
 // Backwards-compatibility aliases: /strategic-planning -> /scenario-planning
@@ -94,7 +94,7 @@ Route::get('/strategic-planning', function () {
 })->middleware(['auth', 'verified'])->name('strategic-planning.index');
 
 Route::get('/strategic-planning/{id}', function ($id) {
-    return Inertia::render('ScenarioPlanning/ScenarioDetail', ['id' => $id]);
+    return Inertia::render('ScenarioPlanning/ScenarioDetail', ['scenarioId' => $id]);
 })->middleware(['auth', 'verified'])->name('strategic-planning.show');
 
 Route::get('/talento360', function () {

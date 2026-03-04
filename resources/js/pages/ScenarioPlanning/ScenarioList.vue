@@ -141,9 +141,13 @@ const loadScenarios = async () => {
         });
         const data = Array.isArray(res)
             ? res
-            : Array.isArray(res?.data)
-              ? res.data
-              : [];
+            : Array.isArray(res?.data?.items)
+              ? res.data.items
+              : Array.isArray(res?.items)
+                ? res.items
+                : Array.isArray(res?.data)
+                  ? res.data
+                  : [];
         scenarios.value = data;
         store.scenarios = data;
     } catch (e) {

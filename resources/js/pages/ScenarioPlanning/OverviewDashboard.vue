@@ -131,13 +131,25 @@ const getGapCountsByDepartment = (): number[] => {
 };
 
 const loadScenario = async () => {
+    if (
+        !scenarioId.value ||
+        isNaN(
+            typeof scenarioId.value === 'number'
+                ? scenarioId.value
+                : parseInt(scenarioId.value),
+        ) ||
+        scenarioId.value <= 0
+    ) {
+        console.warn('[loadScenario] Invalid scenarioId:', scenarioId.value);
+        return;
+    }
     try {
         const response = await api.get(
             `/api/strategic-planning/scenarios/${scenarioId.value}`,
         );
-        const scenario = (response as any).data;
-        scenarioName.value = scenario.name;
-        scenarioDescription.value = scenario.description;
+        const scenarioData = (response as any).data;
+        scenarioName.value = scenarioData.name;
+        scenarioDescription.value = scenarioData.description;
     } catch (e) {
         void e;
         showError('Failed to load scenario');
