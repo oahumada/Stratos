@@ -276,14 +276,19 @@ watch(
             </div>
         </header>
 
-        <!-- Main Layout with Stepper -->
-        <div class="mx-auto flex max-w-[1600px] items-start gap-8 p-8">
-            <!-- Fixed Left Sidebar: Stepper -->
-            <aside class="sticky top-28 w-80 shrink-0">
-                <ScenarioStepperComponent v-model:current-step="currentStep" />
+        <!-- Stepper Section (full width, always on top) -->
+        <div class="mx-auto max-w-[1600px] px-8 pt-8">
+            <ScenarioStepperComponent v-model:current-step="currentStep" />
+        </div>
 
+        <!-- Main Layout: Sidebar Widgets + Content -->
+        <div
+            class="mx-auto flex max-w-[1600px] items-start gap-8 px-8 pt-6 pb-8"
+        >
+            <!-- Left Sidebar: Health Monitor & Metrics -->
+            <aside class="sticky top-28 z-10 w-80 shrink-0">
                 <!-- System Health Monitor -->
-                <div class="mt-8">
+                <div>
                     <SentinelHealthWidget />
                 </div>
 
