@@ -142,11 +142,11 @@ const searchQuery = ref('');
 const filterValues = reactive<Record<string, any>>({});
 const detailOpen = ref(false);
 const detailItem = ref<TableItem | null>(null);
-const detailTab = ref<'active' | 'history'>('active');
+const detailTab = ref<string>('active');
 const detailEnabled = computed(
     () => props.enableRowDetail || mergedConfig.value.detail === true,
 );
-const setDetailTab = (value: 'active' | 'history') => {
+const setDetailTab = (value: string) => {
     detailTab.value = value;
 };
 

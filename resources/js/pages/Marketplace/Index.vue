@@ -74,6 +74,13 @@ const showAllCandidates = ref(false); // Mostrar todos los candidatos o solo Top
 const externalSearchThreshold = ref(70); // Umbral para recomendar búsqueda externa
 const candidateMatchFilter = ref<'all' | 'high' | 'medium' | 'low'>('all'); // Filtro por nivel de match
 
+// AI Insights State
+const aiInsightsDialog = ref(false);
+const evaluatingCandidateId = ref<string | null>(null);
+const aiInsightData = ref<any>(null);
+const selectedCandidateName = ref('');
+const selectedPositionTitle = ref('');
+
 // Current user (get from inertia props)
 const currentUserId = computed(() => {
     return (page.props as any).auth?.user?.id;
@@ -277,6 +284,11 @@ const recruiterSummary = computed(() => {
 
     return {
         totalPositions: positions.value.length,
+        positionsWithExcellentMatch: excellentCount, // Mapping for usage below
+        positionsWithGoodMatch: goodCount, // Mapping for usage below
+        positionsWithModerateMatch: moderateCount, // Mapping for usage below
+        positionsNeedingExternalSearch: positionsWithoutCandidates, // Mapping for usage below
+        positionsRequiringImmediateExternal: positionsWithoutCandidates, // Mapping for usage below
         candidatesExcellentMatch: excellentCount,
         candidatesGoodMatch: goodCount,
         candidatesModerateMatch: moderateCount,
@@ -287,6 +299,30 @@ const recruiterSummary = computed(() => {
         positionsWithoutViableCandidates: positionsWithoutCandidates,
     };
 });
+
+// Load AI Insights
+const openAiInsightDialog = async (position: any, candidate: any) => {
+    selectedCandidateName.value = candidate.name;
+    selectedPositionTitle.value = position.title;
+    evaluatingCandidateId.value = `${position.id}-${candidate.id}`;
+    aiInsightData.value = null;
+
+    try {
+        const response = await axios.post(
+            `/api/marketplace/positions/${position.id}/candidates/${candidate.id}/ai-insights`,
+        );
+        aiInsightData.value = response.data.data;
+        aiInsightsDialog.value = true;
+    } catch (error) {
+        console.error('Error fetching AI insights:', error);
+        notify({
+            type: 'error',
+            text: 'Error obteniendo insights de IA',
+        });
+    } finally {
+        evaluatingCandidateId.value = null;
+    }
+};
 
 onMounted(() => {
     loadRecruiterView(); // Vista por defecto para admin
@@ -1013,6 +1049,28 @@ void loadOpportunities;
                                                         gaps
                                                     </div>
                                                 </div>
+                                                <v-divider
+                                                    vertical
+                                                    class="mx-2"
+                                                />
+                                                <v-btn
+                                                    color="primary"
+                                                    variant="tonal"
+                                                    size="small"
+                                                    prepend-icon="mdi-brain"
+                                                    :loading="
+                                                        evaluatingCandidateId ===
+                                                        `${position.id}-${candidate.id}`
+                                                    "
+                                                    @click="
+                                                        openAiInsightDialog(
+                                                            position,
+                                                            candidate,
+                                                        )
+                                                    "
+                                                >
+                                                    Match AI
+                                                </v-btn>
                                             </div>
                                         </template>
                                     </v-list-item>
@@ -1164,9 +1222,7 @@ void loadOpportunities;
                                         <v-icon size="16" class="mr-1"
                                             >mdi-clock-outline</v-icon
                                         >
-                                        ~{{
-                                            opportunity.time_to_productivity
-                                        }}
+                                        ~{{ opportunity.time_to_productivity }}
                                         days to full productivity
                                     </p>
                                 </div>
@@ -1239,6 +1295,158 @@ void loadOpportunities;
             </div>
         </div>
         <!-- Cierre de activeTab === 'employee' -->
+
+        <!-- AI Insights Dialog -->
+        <v-dialog v-model="aiInsightsDialog" max-width="700">
+            <v-card class="overflow-hidden rounded-xl" elevation="24">
+                <div
+                    class="d-flex align-center justify-space-between px-6 py-4"
+                    style="
+                        background: linear-gradient(
+                            135deg,
+                            #4f46e5 0%,
+                            #7c3aed 100%
+                        );
+                        color: white;
+                    "
+                >
+                    <div class="d-flex align-center gap-3">
+                        <v-icon size="32" color="white">mdi-brain</v-icon>
+                        <div>
+                            <h3 class="text-h6 font-weight-bold mb-0">
+                                AI Match Insights
+                            </h3>
+                            <div class="text-caption" style="opacity: 0.9">
+                                {{ selectedCandidateName }} →
+                                {{ selectedPositionTitle }}
+                            </div>
+                        </div>
+                    </div>
+                    <v-btn
+                        icon="mdi-close"
+                        variant="text"
+                        color="white"
+                        @click="aiInsightsDialog = false"
+                    ></v-btn>
+                </div>
+
+                <v-card-text
+                    class="pa-6"
+                    style="background: rgb(var(--v-theme-surface))"
+                >
+                    <div v-if="aiInsightData">
+                        <!-- Score -->
+                        <div class="d-flex align-center mb-8 justify-center">
+                            <div class="text-center">
+                                <v-progress-circular
+                                    :model-value="
+                                        aiInsightData.hidden_potential_score
+                                    "
+                                    :color="
+                                        getMatchColor(
+                                            aiInsightData.hidden_potential_score,
+                                        )
+                                    "
+                                    size="120"
+                                    width="12"
+                                >
+                                    <div class="text-h4 font-weight-bold">
+                                        {{
+                                            aiInsightData.hidden_potential_score
+                                        }}%
+                                    </div>
+                                </v-progress-circular>
+                                <div
+                                    class="text-subtitle-1 font-weight-bold mt-3"
+                                >
+                                    Hidden Potential Score
+                                </div>
+                                <div class="text-caption text-medium-emphasis">
+                                    Evaluado por Inteligencia Artificial
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Strengths & Risks -->
+                        <v-row class="mb-4">
+                            <v-col cols="12" md="6">
+                                <div class="d-flex align-center mb-3">
+                                    <v-icon color="success" class="mr-2"
+                                        >mdi-trending-up</v-icon
+                                    >
+                                    <span class="font-weight-bold text-success"
+                                        >Fortalezas Clave</span
+                                    >
+                                </div>
+                                <ul class="text-body-2 pl-5">
+                                    <li
+                                        v-for="strength in aiInsightData.strengths"
+                                        :key="strength"
+                                        class="mb-2"
+                                    >
+                                        {{ strength }}
+                                    </li>
+                                </ul>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <div class="d-flex align-center mb-3">
+                                    <v-icon color="error" class="mr-2"
+                                        >mdi-alert-circle-outline</v-icon
+                                    >
+                                    <span class="font-weight-bold text-error"
+                                        >Riesgos / Brechas</span
+                                    >
+                                </div>
+                                <ul class="text-body-2 pl-5">
+                                    <li
+                                        v-for="risk in aiInsightData.risks"
+                                        :key="risk"
+                                        class="mb-2"
+                                    >
+                                        {{ risk }}
+                                    </li>
+                                </ul>
+                            </v-col>
+                        </v-row>
+
+                        <!-- Strategic Rationale -->
+                        <v-card
+                            variant="tonal"
+                            color="primary"
+                            class="mt-6 rounded-lg"
+                        >
+                            <v-card-text class="pa-5">
+                                <div class="d-flex align-center mb-2">
+                                    <v-icon size="small" class="mr-2"
+                                        >mdi-lightbulb-on</v-icon
+                                    >
+                                    <span class="font-weight-bold"
+                                        >Recomendación Estratégica</span
+                                    >
+                                </div>
+                                <div
+                                    class="text-body-1"
+                                    style="line-height: 1.6"
+                                >
+                                    {{ aiInsightData.strategic_rationale }}
+                                </div>
+                            </v-card-text>
+                        </v-card>
+                    </div>
+                    <div v-else class="py-8 text-center">
+                        <v-progress-circular
+                            indeterminate
+                            color="primary"
+                            size="48"
+                            class="mb-4"
+                        ></v-progress-circular>
+                        <div class="text-body-1 text-medium-emphasis">
+                            Generando análisis profundo del candidato...
+                        </div>
+                    </div>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
     </div>
     <!-- Cierre de pa-4 -->
 </template>

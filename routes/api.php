@@ -97,7 +97,7 @@ Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController:
 // Marketplace (Día 5 - Internal opportunities)
 Route::get('/people/{people_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']); // Vista candidato
 Route::get('/marketplace/recruiter', [\App\Http\Controllers\Api\MarketplaceController::class, 'recruiterView']); // Vista reclutador
-
+Route::post('/marketplace/positions/{positionId}/candidates/{candidateId}/ai-insights', [\App\Http\Controllers\Api\MarketplaceController::class, 'aiMatchInsights']);
 // Talent & Mentorship (Fase 5)
 Route::get('/talent/mentors/suggest', [\App\Http\Controllers\Api\MentorController::class, 'suggest']);
 

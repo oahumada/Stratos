@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\JobOpening;
 use App\Models\People;
 use App\Services\GapAnalysisService;
+use App\Services\AiOrchestratorService;
 use Illuminate\Http\JsonResponse;
 
 class MarketplaceController extends Controller
@@ -193,5 +194,42 @@ class MarketplaceController extends Controller
                 'positions' => $positionsWithCandidates,
             ],
         ]);
+    }
+
+    /**
+     * Obtains an AI-generated match insight summary for a single candidate against a job opening.
+     */
+    public function aiMatchInsights(int $positionId, int $candidateId, AiOrchestratorService $aiOrchestrator): JsonResponse
+    {
+        $opening = JobOpening::with('role.skills')->findOrFail($positionId);
+        $candidate = People::with(['role.skills', 'skills'])->findOrFail($candidateId);
+
+        $gapService = new GapAnalysisService;
+        $analysis = $gapService->calculate($candidate, $opening->role);
+
+        $prompt = "Evalúa la viabilidad de {$candidate->first_name} {$candidate->last_name} " .
+                  "(actualmente '{$candidate->role->name}') para la posición de '{$opening->title}' " .
+                  "({$opening->role->name}).\n\n" .
+                  "Análisis técnico base:\n" . json_encode($analysis, JSON_PRETTY_PRINT) . "\n\n" .
+                  "Por favor, responde ESTRICTAMENTE en un formato JSON válido con la siguiente estructura:\n" .
+                  "{\n" .
+                  "  \"hidden_potential_score\": <numero del 1 al 100>,\n" .
+                  "  \"strengths\": [\"fortaleza 1\", \"fortaleza 2\"],\n" .
+                  "  \"risks\": [\"riesgo 1\", \"riesgo 2\"],\n" .
+                  "  \"strategic_rationale\": \"Párrafo explicativo de por qué esta persona hace sentido o no para la vacante y cómo mitigar sus brechas.\"\n" .
+                  "}";
+
+        try {
+            // Using a generic Matchmaker or Talento agent
+            $result = $aiOrchestrator->agentThink('Matchmaker de Resonancia', $prompt);
+            
+            // Si el result['data'] contiene la estructura, la devolvemos
+            return response()->json([
+                'data' => $result['data'] ?? $result
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('AI Match Insights Error: ' . $e->getMessage());
+            return response()->json(['error' => 'No se pudo generar el análisis IA', 'details' => $e->getMessage()], 500);
+        }
     }
 }
