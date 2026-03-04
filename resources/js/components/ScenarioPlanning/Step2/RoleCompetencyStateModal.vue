@@ -455,7 +455,7 @@ watch(
                                                 <StButtonGlass
                                                     variant="ghost"
                                                     circle
-                                                    size="xs"
+                                                    size="sm"
                                                     icon="mdi-minus"
                                                     @click="
                                                         formData.current_level =
@@ -475,7 +475,7 @@ watch(
                                                 <StButtonGlass
                                                     variant="ghost"
                                                     circle
-                                                    size="xs"
+                                                    size="sm"
                                                     icon="mdi-plus"
                                                     @click="
                                                         formData.current_level =
@@ -503,7 +503,7 @@ watch(
                                                 <StButtonGlass
                                                     variant="ghost"
                                                     circle
-                                                    size="xs"
+                                                    size="sm"
                                                     icon="mdi-minus"
                                                     @click="
                                                         formData.required_level =
@@ -523,7 +523,7 @@ watch(
                                                 <StButtonGlass
                                                     variant="ghost"
                                                     circle
-                                                    size="xs"
+                                                    size="sm"
                                                     icon="mdi-plus"
                                                     @click="
                                                         formData.required_level =

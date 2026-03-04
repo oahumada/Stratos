@@ -147,6 +147,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/smart-alerts', [\App\Http\Controllers\Api\SmartAlertController::class, 'index']);
     Route::post('/smart-alerts/{id}/read', [\App\Http\Controllers\Api\SmartAlertController::class, 'markAsRead']);
 
+    // Gamification (Fase 6 / D4)
+    Route::get('/gamification/quests', [\App\Http\Controllers\Api\GamificationController::class, 'getAvailableQuests']);
+    Route::get('/gamification/people/{peopleId}/quests', [\App\Http\Controllers\Api\GamificationController::class, 'getPersonQuests']);
+    Route::post('/gamification/people/{peopleId}/quests/{questId}/start', [\App\Http\Controllers\Api\GamificationController::class, 'startQuest']);
+    Route::post('/gamification/people/{peopleId}/quests/{questId}/progress', [\App\Http\Controllers\Api\GamificationController::class, 'progressQuest']);
+
+
     // Investor/Executive Dashboard
     Route::get('/investor/dashboard', [\App\Http\Controllers\Api\InvestorDashboardController::class, 'index'])
         ->middleware('role:admin,hr_leader,observer');

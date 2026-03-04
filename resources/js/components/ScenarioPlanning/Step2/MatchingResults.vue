@@ -423,7 +423,7 @@
                             >
                                 Skill Gap Analysis
                             </h4>
-                            <StBadgeGlass variant="glass" size="xs"
+                            <StBadgeGlass variant="glass" size="sm"
                                 >{{
                                     selectedResult.skill_gaps.length
                                 }}

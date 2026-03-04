@@ -460,6 +460,7 @@ const handleRefresh = () => {
                             <GamificationWidget
                                 :points="item.current_points || 0"
                                 :badges="item.badges || []"
+                                :quests="item.quests || []"
                             />
                         </div>
                     </div>

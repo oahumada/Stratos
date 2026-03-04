@@ -38,6 +38,7 @@ class MiStratosController extends Controller
             'psychometricProfiles',
             'developmentPaths.actions',
             'relations.relatedPerson',
+            'badges',
         ])->where('user_id', $user->id)->first();
 
         if (!$person) {
@@ -97,6 +98,9 @@ class MiStratosController extends Controller
             ? $person->psychometricProfiles->last()
             : null;
 
+        // Gamification Quests
+        $quests = app(\App\Services\Talent\GamificationService::class)->getPersonQuests($person->id);
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -109,6 +113,15 @@ class MiStratosController extends Controller
                     'photo_url' => $person->photo_url,
                     'hire_date' => $person->hire_date,
                     'is_high_potential' => $person->is_high_potential,
+                    'current_points' => $person->current_points,
+                    'badges' => $person->badges->map(fn($b) => [
+                        'id' => $b->id,
+                        'name' => $b->name,
+                        'description' => $b->description,
+                        'icon' => $b->icon,
+                        'color' => $b->color,
+                        'awarded_at' => $b->pivot->awarded_at,
+                    ]),
                     'department' => $person->department ? [
                         'id' => $person->department->id,
                         'name' => $person->department->name,
@@ -126,6 +139,7 @@ class MiStratosController extends Controller
                 'learning_paths' => $learningPaths,
                 'conversations' => $conversations,
                 'psychometric' => $psychometricSnapshot,
+                'quests' => $quests,
                 'evaluations' => [
                     [
                         'id' => 1,

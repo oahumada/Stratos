@@ -101,7 +101,7 @@
                                 >
                                     {{ role.name }}
                                 </div>
-                                <StBadgeGlass variant="glass" size="xs"
+                                <StBadgeGlass variant="glass" size="sm"
                                     >{{ role.fte }} FTE</StBadgeGlass
                                 >
                             </th>
@@ -270,7 +270,7 @@
                         </h3>
                         <StBadgeGlass
                             variant="glass"
-                            size="xs"
+                            size="sm"
                             class="mt-2 tracking-widest text-indigo-400 uppercase"
                             >{{ selectedGap.competency_name }}</StBadgeGlass
                         >

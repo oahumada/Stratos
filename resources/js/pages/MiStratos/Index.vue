@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AssessmentChat from '@/components/Assessments/AssessmentChat.vue';
+import GamificationWidget from '@/components/Talent/GamificationWidget.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
@@ -22,7 +23,16 @@ interface PersonData {
             archetype: string | null;
             mastery_level: number | null;
         } | null;
+        current_points: number;
+        badges: Array<{
+            id: number;
+            name: string;
+            description: string;
+            icon: string;
+            color: string;
+        }>;
     } | null;
+    quests: Array<any>;
     kpis: {
         potential: number;
         readiness: number;
@@ -107,6 +117,7 @@ const competencies = computed(() => data.value?.competencies ?? []);
 const learningPaths = computed(() => data.value?.learning_paths ?? []);
 const conversations = computed(() => data.value?.conversations ?? []);
 const evaluations = computed(() => data.value?.evaluations ?? []);
+const quests = computed(() => data.value?.quests ?? []);
 
 const archetypeLabel = computed(() => {
     const arch = person.value?.role?.archetype;
@@ -1380,89 +1391,13 @@ defineOptions({ layout: AppLayout });
                                 Mis Logros
                             </h2>
 
-                            <v-row>
-                                <v-col cols="12" sm="6" md="4">
-                                    <div class="achievement-card earned">
-                                        <div class="achievement-icon">
-                                            <v-icon size="40" color="amber"
-                                                >mdi-star-shooting</v-icon
-                                            >
-                                        </div>
-                                        <h4 class="achievement-title">
-                                            High Potential
-                                        </h4>
-                                        <p class="achievement-desc">
-                                            Identificado en el top 10% de
-                                            desempeño anual
-                                        </p>
-                                    </div>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="4">
-                                    <div class="achievement-card earned">
-                                        <div class="achievement-icon">
-                                            <v-icon size="40" color="cyan"
-                                                >mdi-rocket-launch</v-icon
-                                            >
-                                        </div>
-                                        <h4 class="achievement-title">
-                                            Fast Learner
-                                        </h4>
-                                        <p class="achievement-desc">
-                                            Completaste tu primer Learning Path
-                                            en tiempo récord
-                                        </p>
-                                    </div>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="4">
-                                    <div class="achievement-card locked">
-                                        <div class="achievement-icon">
-                                            <v-icon size="40" color="grey"
-                                                >mdi-lock</v-icon
-                                            >
-                                        </div>
-                                        <h4 class="achievement-title">
-                                            Líder Adaptativo
-                                        </h4>
-                                        <p class="achievement-desc">
-                                            Requiere 80% en Competencia de
-                                            Liderazgo
-                                        </p>
-                                    </div>
-                                </v-col>
-                            </v-row>
-
-                            <!-- Gamification Level -->
-                            <v-card class="glass-card mt-6" flat>
-                                <v-card-text
-                                    class="d-flex flex-column align-center py-6 text-center"
-                                >
-                                    <v-avatar
-                                        size="80"
-                                        color="rgba(103, 58, 183, 0.2)"
-                                        class="mb-4"
-                                        style="border: 2px solid #7c4dff"
-                                    >
-                                        <span
-                                            class="text-h4 font-weight-black text-purple-lighten-2"
-                                            >L4</span
-                                        >
-                                    </v-avatar>
-                                    <h3 class="text-h5 font-weight-bold mb-1">
-                                        Nivel 4: Especialista
-                                    </h3>
-                                    <p class="text-body-2 text-grey mb-4">
-                                        Te faltan 450 XP para el Nivel 5
-                                    </p>
-                                    <v-progress-linear
-                                        model-value="65"
-                                        color="purple-accent-2"
-                                        height="12"
-                                        rounded
-                                        striped
-                                        style="width: 100%; max-width: 400px"
-                                    />
-                                </v-card-text>
-                            </v-card>
+                            <div class="mx-auto mt-6" style="max-width: 800px">
+                                <GamificationWidget
+                                    :points="person?.current_points || 0"
+                                    :badges="person?.badges || []"
+                                    :quests="quests"
+                                />
+                            </div>
                         </div>
                     </transition>
                 </div>

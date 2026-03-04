@@ -15,9 +15,24 @@ interface Badge {
     };
 }
 
+interface Quest {
+    id: number;
+    quest_id: number;
+    status: string;
+    progress: any;
+    quest: {
+        id: number;
+        title: string;
+        description: string;
+        points_reward: number;
+        type: string;
+    };
+}
+
 interface Props {
     points: number;
     badges: Badge[];
+    quests?: Quest[];
 }
 
 const props = defineProps<Props>();
@@ -150,6 +165,64 @@ function getBadgeColor(color: string) {
                     class="text-[0.65rem] font-bold tracking-widest text-white/30 uppercase"
                 >
                     No hay insignias aún
+                </p>
+            </div>
+        </StCardGlass>
+
+        <!-- Quests Card -->
+        <StCardGlass v-if="quests !== undefined" variant="glass">
+            <div class="mb-4 flex items-center gap-3">
+                <div
+                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 text-emerald-500"
+                >
+                    <PhTrophy :size="18" weight="bold" />
+                </div>
+                <div>
+                    <h4
+                        class="text-xs font-black tracking-widest text-white/80 uppercase"
+                    >
+                        Misiones Activas
+                    </h4>
+                    <p class="text-[0.6rem] text-white/40 uppercase">
+                        Current Quests
+                    </p>
+                </div>
+            </div>
+
+            <div
+                v-if="quests.filter((q) => q.status === 'active').length"
+                class="space-y-3"
+            >
+                <div
+                    v-for="personQuest in quests.filter(
+                        (q) => q.status === 'active',
+                    )"
+                    :key="personQuest.id"
+                    class="rounded-2xl border border-white/5 bg-white/5 p-4"
+                >
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-white">{{
+                                personQuest.quest.title
+                            }}</span>
+                            <p class="text-[0.6rem] text-white/50">
+                                {{ personQuest.quest.description }}
+                            </p>
+                        </div>
+                        <span class="text-[0.65rem] font-black text-indigo-400">
+                            +{{ personQuest.quest.points_reward }} XP
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div
+                v-else
+                class="rounded-2xl border border-dashed border-white/10 bg-white/2 py-6 text-center"
+            >
+                <p
+                    class="text-[0.65rem] font-bold tracking-widest text-white/30 uppercase"
+                >
+                    No hay misiones activas
                 </p>
             </div>
         </StCardGlass>
