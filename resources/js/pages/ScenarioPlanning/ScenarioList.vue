@@ -5,6 +5,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { useStrategicPlanningScenariosStore } from '@/stores/scenarioPlanningScenariosStore';
 import { router } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
+import GenerateWizard from './GenerateWizard/GenerateWizard.vue';
 import ScenarioCreateModal from './ScenarioCreateModal.vue';
 
 defineOptions({ layout: AppLayout });
@@ -34,6 +35,7 @@ const store = useStrategicPlanningScenariosStore();
 const scenarios = ref<ScenarioListItem[]>([]);
 const loading = ref(false);
 const showCreateFromTemplate = ref(false);
+const showGenerateWizard = ref(false);
 const selectedScenarioIds = ref<number[]>([]);
 
 const filters = ref<{ status: ScenarioStatus | null; type: string | null }>({
@@ -235,7 +237,19 @@ onMounted(() => {
                                 Refrescar
                             </v-btn>
                         </v-col>
-                        <v-col cols="12" md="4" class="text-right">
+                        <v-col
+                            cols="12"
+                            md="4"
+                            class="d-flex justify-end gap-2"
+                        >
+                            <v-btn
+                                variant="tonal"
+                                color="deep-purple"
+                                prepend-icon="mdi-robot-excited-outline"
+                                @click="showGenerateWizard = true"
+                            >
+                                Generar con IA
+                            </v-btn>
                             <v-btn
                                 color="primary"
                                 prepend-icon="mdi-plus"
@@ -423,6 +437,45 @@ onMounted(() => {
                 @created="loadScenarios"
                 @close="showCreateFromTemplate = false"
             />
+        </v-dialog>
+
+        <!-- Generate Wizard Dialog (AI-assisted scenario generation) -->
+        <v-dialog
+            v-model="showGenerateWizard"
+            max-width="1100px"
+            persistent
+            scrollable
+        >
+            <v-card>
+                <v-card-title
+                    class="d-flex align-center justify-space-between pa-4"
+                >
+                    <div class="d-flex align-center gap-2">
+                        <v-icon color="deep-purple" class="mr-2"
+                            >mdi-robot-excited-outline</v-icon
+                        >
+                        <span>Asistente de Generación de Escenarios (IA)</span>
+                    </div>
+                    <v-btn
+                        icon
+                        variant="text"
+                        @click="showGenerateWizard = false"
+                    >
+                        <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                </v-card-title>
+                <v-divider />
+                <v-card-text class="pa-0">
+                    <GenerateWizard
+                        @scenario-created="
+                            () => {
+                                showGenerateWizard = false;
+                                loadScenarios();
+                            }
+                        "
+                    />
+                </v-card-text>
+            </v-card>
         </v-dialog>
     </div>
 </template>

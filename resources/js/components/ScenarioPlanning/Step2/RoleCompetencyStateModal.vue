@@ -3,7 +3,6 @@ import EngineeringBlueprintSheet from '@/components/ScenarioPlanning/Step3/Engin
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import InfoLegend from '@/components/Ui/InfoLegend.vue';
-import { useRoleCompetencyStore } from '@/stores/roleCompetencyStore';
 import { useTransformStore } from '@/stores/transformStore';
 import { computed, onMounted, ref, watch } from 'vue';
 
@@ -28,7 +27,6 @@ const showTransform = ref(false);
 const showLegend = ref(false);
 
 const transformStore = useTransformStore();
-const roleCompetencyStore = useRoleCompetencyStore();
 const versions = ref<any[]>([]);
 
 const archetypeLabel = computed(() => {
@@ -214,10 +212,6 @@ const formData = ref({
     reduced_level_rationale: 'efficiency' as any,
 });
 
-const showLevelDecreaseRationale = computed(() => {
-    if (!props.mapping) return false;
-    return formData.value.required_level < props.mapping.required_level;
-});
 
 const showReferentOption = computed(() => {
     const arch = props.archetype || 'T';
@@ -225,15 +219,6 @@ const showReferentOption = computed(() => {
     return (arch === 'O' && level > 3) || (arch === 'T' && level > 4);
 });
 
-const changeTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-        maintenance: 'Maintain',
-        transformation: 'Transform',
-        enrichment: 'Enrich',
-        extinction: 'Legacy',
-    };
-    return labels[type] || type;
-};
 
 const handleSave = async () => {
     if (
@@ -251,14 +236,13 @@ const handleSave = async () => {
     }
 };
 
-const handleTransformed = (data: any) => {
+const handleTransformed = async (data: any) => {
     formData.value.competency_version_id = data.version_id;
     showTransform.value = false;
+    // Auto-save after transformation target is selected
+    await handleSave();
 };
 
-const handleOpenTransform = () => {
-    showTransform.value = true;
-};
 
 watch(
     () => props.mapping,
@@ -286,6 +270,8 @@ watch(
         :model-value="props.visible"
         max-width="850px"
         persistent
+        :attach="false"
+        :z-index="2500"
         @update:model-value="$emit('close')"
     >
         <StCardGlass
@@ -374,7 +360,7 @@ watch(
                                     :class="
                                         formData.change_type === option.value
                                             ? `border-white/20 bg-white/5 ${option.glow}`
-                                            : 'border-white/5 bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]'
+                                            : 'border-white/5 bg-white/2 hover:border-white/10 hover:bg-white/4'
                                     "
                                 >
                                     <div
@@ -413,7 +399,7 @@ watch(
                                             formData.change_type ===
                                             option.value
                                         "
-                                        class="pointer-events-none absolute inset-0 bg-white/[0.02]"
+                                        class="pointer-events-none absolute inset-0 bg-white/2"
                                     ></div>
                                 </div>
                             </div>

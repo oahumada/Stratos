@@ -387,7 +387,7 @@ const saveBlueprint = async () => {
     max-width: 1200px;
     height: 85vh;
     border-radius: 24px;
-    z-index: 2000;
+    z-index: 3000;
     padding: 2.5rem;
     display: flex;
     flex-direction: column;
