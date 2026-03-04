@@ -23,6 +23,7 @@ import FinalDashboard from '@/components/ScenarioPlanning/Step7/FinalDashboard.v
 
 // Modals
 import IncubatedReviewModal from '@/components/IncubatedReviewModal.vue';
+import NodeEditModal from '@/components/ScenarioPlanning/Modals/NodeEditModal.vue';
 import StatusTimeline from '@/components/ScenarioPlanning/StatusTimeline.vue';
 import VersionHistoryModal from '@/components/ScenarioPlanning/VersionHistoryModal.vue';
 
