@@ -193,9 +193,9 @@ watch(
             <div
                 class="absolute -bottom-[10%] left-[20%] h-[30%] w-[30%] rounded-full bg-blue-500/10 blur-[120px]"
             ></div>
-            <div
+            <!-- <div
                 class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay brightness-100 contrast-150"
-            ></div>
+            ></div> -->
         </div>
 
         <!-- App Bar / Header -->
