@@ -9,6 +9,7 @@
         "build": "vite build",
         "build:ssr": "vite build && vite build --ssr",
         "dev": "vite",
+        "ia": "bash start_intelligence.sh",
         "test:e2e": "playwright test",
         "test:e2e:headed": "xvfb-run -s \"-screen 0 1280x720x24\" playwright test --headed",
         "test:unit": "vitest run resources/js",

@@ -34,7 +34,7 @@ const startSession = async () => {
                 type: props.type || 'psychometric',
             },
         );
-        session.value = response;
+        session.value = response.data;
         // Enviar un mensaje vacío o inicial para que la IA salude
         await sendSystemInitial();
     } catch (e) {
@@ -54,7 +54,7 @@ const sendSystemInitial = async () => {
                 content: 'Hola, por favor inicia la entrevista.',
             },
         );
-        messages.value.push(response);
+        messages.value.push(response.data);
         scrollToBottom();
     } catch (e) {
         console.error('Error in initial greeting', e);
@@ -79,7 +79,7 @@ const sendMessage = async () => {
                 content: userMsg,
             },
         );
-        messages.value.push(response);
+        messages.value.push(response.data);
         scrollToBottom();
     } catch (e) {
         console.error('Error sending message', e);
@@ -96,7 +96,7 @@ const finishAndAnalyze = async () => {
         const response = await post(
             `/api/strategic-planning/assessments/sessions/${session.value.id}/analyze`,
         );
-        session.value = response.session;
+        session.value = response.data;
         emit('completed', session.value);
     } catch (e) {
         console.error('Error analyzing session', e);
