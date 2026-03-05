@@ -4,15 +4,14 @@ namespace App\Services;
 
 use App\Jobs\GenerateScenarioFromLLMJob;
 use App\Models\Organizations;
+use App\Models\PromptInstruction;
 use App\Models\ScenarioGeneration;
 use App\Models\User;
-use App\Models\PromptInstruction;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
-use App\Services\EmbeddingService;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\ValidationException;
 
 class ScenarioGenerationService
 {
@@ -23,11 +22,11 @@ class ScenarioGenerationService
         // Safely attempt to load template when app basePath is available
         if (function_exists('app') && is_callable([app(), 'basePath'])) {
             // Prefer compact prompt templates used by the wizard (language-specific)
-            $filename = ($type === 'planner') ? 'scenario_planner_' . $lang . '.md' : 'default_' . $lang . '.md';
-            
+            $filename = ($type === 'planner') ? 'scenario_planner_'.$lang.'.md' : 'default_'.$lang.'.md';
+
             $templateCandidates = [
-                app()->basePath('resources/prompt_instructions/' . $filename),
-                app()->basePath('resources/prompt_instructions/default_' . $lang . '.md'),
+                app()->basePath('resources/prompt_instructions/'.$filename),
+                app()->basePath('resources/prompt_instructions/default_'.$lang.'.md'),
             ];
             foreach ($templateCandidates as $templatePath) {
                 if ($templatePath && file_exists($templatePath)) {
@@ -45,26 +44,25 @@ class ScenarioGenerationService
         // Replace simple tokens {{key}} in the template
         $prompt = $template;
         foreach ($replacements as $k => $v) {
-            $prompt = str_replace('{{' . $k . '}}', is_array($v) ? json_encode($v) : (string)$v, $prompt);
+            $prompt = str_replace('{{'.$k.'}}', is_array($v) ? json_encode($v) : (string) $v, $prompt);
         }
 
         // If template was empty, prepend minimal header with company name
         if (empty(trim($template))) {
-            $prompt = 'Company: ' . ($replacements['company_name'] ?? '') . "\n\n" . $prompt;
+            $prompt = 'Company: '.($replacements['company_name'] ?? '')."\n\n".$prompt;
         }
 
         // Append operator answers (use replacements so org overrides are visible)
         $operatorInputLabel = strtolower($lang) === 'es' ? 'ENTRADAS_OPERADOR' : 'OPERATOR_INPUT';
         $operatorInstructionLabel = strtolower($lang) === 'es' ? 'INSTRUCCION_OPERADOR' : 'OPERATOR_INSTRUCTION';
-        $prompt .= "\n\n" . $operatorInputLabel . ":\n" . json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $prompt .= "\n\n".$operatorInputLabel.":\n".json_encode($replacements, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         // Enforce JSON-only output from the LLM: add an explicit instruction (language-specific)
         if (strtolower($lang) === 'es') {
-            $prompt .= "\n\nINSTRUCCIONES:\nDevuelve SOLO un único objeto JSON válido que cumpla el esquema con claves de nivel superior: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
+            $prompt .= "\n\nINSTRUCCIONES:\nDevuelve SOLO un único objeto JSON válido que cumpla el esquema con claves de nivel superior: scenario_metadata, capabilities, competencies, skills, impact_analysis, confidence_score, assumptions.\n";
             $prompt .= "El JSON DEBE usar la siguiente estructura anidada: cada elemento en 'capabilities' es un objeto con 'name' y opcional 'description' y un arreglo 'competencies'; cada competency es un objeto con 'name', opcional 'description' y un arreglo 'skills'; cada skill puede ser una cadena (nombre de habilidad) o un objeto con 'name'.\n";
-        }
-        else {
-            $prompt .= "\n\nINSTRUCTIONS:\nReturn ONLY a single valid JSON object matching the schema with top-level keys: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions.\n";
+        } else {
+            $prompt .= "\n\nINSTRUCTIONS:\nReturn ONLY a single valid JSON object matching the schema with top-level keys: scenario_metadata, capabilities, competencies, skills, impact_analysis, confidence_score, assumptions.\n";
             $prompt .= "The JSON MUST use the following nested structure: each element in 'capabilities' is an object with a 'name' and optional 'description' and a 'competencies' array; each competency is an object with 'name', optional 'description' and a 'skills' array; each skill may be a string (skill name) or object with 'name'.\n";
         }
 
@@ -73,10 +71,9 @@ class ScenarioGenerationService
             $prompt .= "\nPROPÓSITO: Este escenario simula la gestión estratégica de talento para lograr el objetivo principal.\n";
             $prompt .= "DEFINICIÓN (ES):\n- Capacidades: medios/funciones organizacionales que permiten cumplir el objetivo del escenario.\n- Competencias: conocimientos y habilidades necesarias para ejecutar una capability.\n- Habilidades: unidad mínima (habilidades/conocimientos) que compone una competencia; puede ser texto o {\"name\":string}.\n- Roles: puestos propuestos con las competencias asignadas (el analista debe homologar estos roles con la estructura interna).\n\n";
             $prompt .= "NO incluyas ningún texto explicativo o comentario fuera del objeto JSON. Si no puedes producir la estructura anidada completa, devuelve un objeto con las claves y arreglos vacíos.\n\nEjemplo de salida mínima válida:\n";
-        }
-        else {
+        } else {
             $prompt .= "\nPURPOSE: This scenario simulates strategic talent management to achieve the main objective.\n";
-            $prompt .= "DEFINITIONS (EN):\n- Capabilities: organizational means/functions that enable achieving the scenario objective.\n- Competencies: knowledge and abilities required to perform a capability.\n- Skills: the minimal unit (specific skills/knowledge) that composes a competency; may be a string or an object with {\"name\"}.\n- Roles: proposed positions with assigned competencies (analyst must later map/harmonize to internal roles).\n\n";
+            $prompt .= "DEFINITIONS (EN):\n- Capabilities: organizational means/functions that enable achieving the scenario objective.\n- Competencies: knowledge and abilities required to perform a capability.\n- Skills: the minimal unit (specific skills/knowledge) that composes a competency; may be a string or an object with {\"name\"}.\n\n";
             $prompt .= "Do NOT include any prose, explanation or commentary outside the JSON object. If you cannot produce the full nested structure, return an object with the keys and empty arrays.\n\nExample minimal valid output:\n";
         }
         $prompt .= json_encode([
@@ -93,17 +90,16 @@ class ScenarioGenerationService
                         [
                             'name' => 'Competency X',
                             'description' => 'Desc',
-                            'skills' => ['Skill 1', 'Skill 2']
-                        ]
-                    ]
-                ]
+                            'skills' => ['Skill 1', 'Skill 2'],
+                        ],
+                    ],
+                ],
             ],
             'competencies' => [],
             'skills' => [],
-            'suggested_roles' => [],
             'impact_analysis' => [],
             'confidence_score' => 0.9,
-            'assumptions' => []
+            'assumptions' => [],
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $prompt .= "\n";
         // Append a formal JSON Schema to the instructions to help the LLM comply.
@@ -122,8 +118,8 @@ class ScenarioGenerationService
                     'properties' => [
                         'name' => ['type' => 'string'],
                         'generated_at' => ['type' => 'string', 'format' => 'date-time'],
-                        'confidence_score' => ['type' => 'number']
-                    ]
+                        'confidence_score' => ['type' => 'number'],
+                    ],
                 ],
                 'capabilities' => [
                     'type' => 'array',
@@ -146,19 +142,18 @@ class ScenarioGenerationService
                                             'items' => [
                                                 'oneOf' => [
                                                     ['type' => 'string'],
-                                                    ['type' => 'object', 'required' => ['name'], 'properties' => ['name' => ['type' => 'string']]]
-                                                ]
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                                    ['type' => 'object', 'required' => ['name'], 'properties' => ['name' => ['type' => 'string']]],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
                 'competencies' => ['type' => 'array'],
                 'skills' => ['type' => 'array'],
-                'suggested_roles' => ['type' => 'array'],
                 'impact_analysis' => ['type' => 'array'],
                 'confidence_score' => ['type' => 'number'],
                 'assumptions' => ['type' => 'array'],
@@ -175,18 +170,17 @@ class ScenarioGenerationService
                                 'items' => [
                                     'oneOf' => [
                                         ['type' => 'string'],
-                                        ['type' => 'object', 'required' => ['name'], 'properties' => ['name' => ['type' => 'string']]]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                        ['type' => 'object', 'required' => ['name'], 'properties' => ['name' => ['type' => 'string']]],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
-            ]
+            ],
         ];
 
-        $prompt .= "\nJSON_SCHEMA:\n" . json_encode($schemaArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
-
+        $prompt .= "\nJSON_SCHEMA:\n".json_encode($schemaArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n";
 
         // Additional instruction: Talent Engineering focus (enforced guidance)
         $prompt .= <<<'EOT'
@@ -203,8 +197,7 @@ class ScenarioGenerationService
                 "scenario_metadata": { "type": "object", "required": ["name"] },
                 "capabilities": { "type": "array" },
                 "competencies": { "type": "array" },
-                "skills": { "type": "array" ,},
-                "suggested_roles": { "type": "array" }
+                "skills": { "type": "array" }
             }
         }
 
@@ -237,24 +230,6 @@ class ScenarioGenerationService
                 ]
             }
         ],
-        "suggested_roles": [
-            {
-                "name": "Ingeniero de Talento",
-                "description": "Diseña y optimiza sistemas de capacidades híbridas",
-                "estimated_fte": 1.0,
-                "key_competencies": [
-                    "Modelado de Datos",
-                    "Visualización de Insights"
-                ],
-                "talent_composition": {
-                    "human_percentage": 40,
-                    "synthetic_percentage": 60,
-                    "strategy_suggestion": "Hybrid",
-                    "logic_justification": "La IA procesa modelos y genera dashboards; el humano diseña la estrategia y valida hipótesis."
-                },
-                "suggested_agent_type": "Orquestador de Datos y Analytics"
-            }
-        ],
         "impact_analysis": [
             {
                 "area": "Productividad",
@@ -267,52 +242,18 @@ class ScenarioGenerationService
     }
 
 
-    INSTRUCCIÓN PARA EL MODELO (ENFOQUE INGENIERÍA DE TALENTO):
-    - Actúa como un Ingeniero de Talento Estratégico. Tu objetivo es diseñar un plano (blueprint) de capacidades híbridas.
-    - Por cada rol en `suggested_roles`, DEBES incluir obligatoriamente el objeto `talent_composition`:
-        - `human_percentage`: % de carga de trabajo que requiere juicio humano, empatía o liderazgo (0-100).
-        - `synthetic_percentage`: % de carga de trabajo delegable a agentes IA o automatización (0-100).
-        - `strategy_suggestion`: Elige la mejor estrategia de cobertura: ["Buy", "Build", "Borrow", "Synthetic", "Hybrid"].
-        - `logic_justification`: Breve explicación de por qué ese mix (ej: "Alta carga de procesamiento de datos permite 70% IA").
+    - En `impact_analysis`, evalúa cómo la introducción del escenario mejora o impacta el negocio global.
 
-    - En `impact_analysis`, evalúa cómo la introducción de "Talento Sintético" (IA) mejora la eficiencia de la capacidad analizada.
+    Mantén el resto de los requisitos de formato JSON y las claves: `scenario_metadata`, `capabilities`, `competencies`, `skills`, `impact_analysis`, `confidence_score`, `assumptions`.
 
-    Mantén el resto de los requisitos de formato JSON y las claves: `scenario_metadata`, `capabilities`, `competencies`, `skills`, `suggested_roles`, `impact_analysis`, `confidence_score`, `assumptions`.
+    REQUISITOS OBLIGATORIOS:
 
-    REQUISITOS OBLIGATORIOS POR ROL:
-
-    1. `name`: Nombre del rol estratégico.
-    2. `description`: Descripción breve del rol.
-    3. `key_competencies`: Array de nombres o IDs de competencias asociadas (strings).
-    4. `estimated_fte`: Cantidad de personas equivalentes necesarias (número).
-    5. `talent_composition`: Objeto JSON que DEBE contener:
-        - `human_percentage`: (0-100) % de carga de trabajo humana.
-        - `synthetic_percentage`: (0-100) % de carga delegable a IA.
-        - `strategy_suggestion`: ["Buy", "Build", "Borrow", "Synthetic", "Hybrid"].
-        - `logic_justification`: Explicación técnica del mix.
-    6. `suggested_agent_type`: Tipo de IA necesaria si aplica.
-
-    REGLAS DE NEGOCIO PARA EL MODELO:
-
-    - Si el rol es altamente transaccional o de procesamiento de datos, el
-    `synthetic_percentage` debe ser alto (>60%).
-    - Si el rol es de alta gestión o cuidado de personas, el `human_percentage`
-    debe ser dominante (>80%).
-    - Usa "Synthetic" solo si el rol es 100% IA. Usa "Hybrid" para colaboración
-    humano-máquina.
-    - La suma de `human_percentage` y `synthetic_percentage` debe ser siempre 100.
-    - La `strategy_suggestion` debe corresponder a la factibilidad técnica y de
-    negocio indicada en `logic_justification`.
     - `Catálogos completos`: Los arrays `competencies` y `skills` de primer nivel
     deben contener TODAS las competencias y skills mencionadas en `capabilities`,
     sin duplicados.
 
     ADICIONALES / GUÍAS PRÁCTICAS:
 
-    - Prioriza roles prácticos y mapeables a estructuras organizacionales típicas
-    (ej. Analista, Líder de Producto, Ingeniero de Datos).
-    - Cuando propongas `suggested_roles`, incluye `name`, `estimated_fte` y
-    `key_competencies` (lista de nombres o IDs).
     - En `impact_analysis` incluye 2-3 ítems con `area`, `impact` (alto/medio/bajo)
     y `notes` que conecten con las iniciativas recomendadas.
 
@@ -352,28 +293,25 @@ EOT;
         $language = $lang;
 
         // 1) client-provided instruction
-        if (!empty($data['instruction'])) {
-            $instructionContent = (string)$data['instruction'];
+        if (! empty($data['instruction'])) {
+            $instructionContent = (string) $data['instruction'];
             $instructionSource = 'client';
-        }
-        else {
+        } else {
             // 2) DB lookup if table exists
             try {
-                if (Schema::hasTable((new PromptInstruction())->getTable())) {
+                if (Schema::hasTable((new PromptInstruction)->getTable())) {
                     // If a specific instruction id was provided, prefer it (if exists and language matches)
-                    if (!empty($instructionId)) {
+                    if (! empty($instructionId)) {
                         $byId = PromptInstruction::find($instructionId);
                         if ($byId) {
                             // only accept if language matches requested language, otherwise ignore id
                             if (empty($byId->language) || $byId->language === $language) {
                                 $instructionContent = $byId->content;
                                 $instructionSource = 'db_id';
-                            }
-                            else {
+                            } else {
                                 Log::warning("Requested PromptInstruction id {$instructionId} language mismatch: expected {$language}, got {$byId->language}");
                             }
-                        }
-                        else {
+                        } else {
                             Log::warning("Requested PromptInstruction id {$instructionId} not found");
                         }
                     }
@@ -387,29 +325,28 @@ EOT;
                         }
                     }
                 }
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 // If DB is not available or has issues, fall back to file
-                Log::warning('PromptInstruction DB access failed: ' . $e->getMessage());
+                Log::warning('PromptInstruction DB access failed: '.$e->getMessage());
             }
         }
 
         // 3) file fallback
         if (empty($instructionContent)) {
-            $filePath = base_path('resources/prompt_instructions/default_' . $language . '.md');
-            if (!file_exists($filePath)) {
+            $filePath = base_path('resources/prompt_instructions/default_'.$language.'.md');
+            if (! file_exists($filePath)) {
                 // try without language suffix
                 $filePath = base_path('resources/prompt_instructions/default.md');
             }
             if (file_exists($filePath)) {
                 $instructionContent = @file_get_contents($filePath) ?: null;
                 $instructionSource = $instructionSource === 'none' ? 'file' : $instructionSource;
-                Log::info('Using file fallback for prompt instruction: ' . $filePath);
+                Log::info('Using file fallback for prompt instruction: '.$filePath);
             }
         }
 
         // Validate compatibility between base prompt instructions and operator instruction
-        if (!empty($instructionContent)) {
+        if (! empty($instructionContent)) {
             $conflict = $this->validateInstructionCompatibility($basePrompt, $instructionContent);
             if ($conflict !== null) {
                 throw ValidationException::withMessages(['instruction' => [$conflict]]);
@@ -439,14 +376,13 @@ EOT;
 
         // language-specific label for operator instruction when appending
         $operatorInstructionLabel = strtolower($language) === 'es' ? 'INSTRUCCION_OPERADOR' : 'OPERATOR_INSTRUCTION';
-        if (!empty($instructionContent)) {
+        if (! empty($instructionContent)) {
             if ($alreadyHasInstruction) {
                 // mark source as embedded so callers can see we skipped appending
-                $instructionSource = $instructionSource . '_embedded';
+                $instructionSource = $instructionSource.'_embedded';
                 Log::info("Skipping append of operator instruction because base prompt already contains instructions for lang {$language} (source: {$instructionSource})");
-            }
-            else {
-                $prompt .= "\n\n" . $operatorInstructionLabel . " (source: {$instructionSource}, lang: {$language}):\n" . $instructionContent . "\n";
+            } else {
+                $prompt .= "\n\n".$operatorInstructionLabel." (source: {$instructionSource}, lang: {$language}):\n".$instructionContent."\n";
             }
         }
 
@@ -480,9 +416,8 @@ EOT;
         $encryptedRaw = null;
         try {
             $encryptedRaw = Crypt::encryptString($prompt);
-        }
-        catch (\Throwable $e) {
-            Log::warning('Failed to encrypt raw prompt before persisting: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::warning('Failed to encrypt raw prompt before persisting: '.$e->getMessage());
         }
 
         $generation = ScenarioGeneration::create([
@@ -504,10 +439,8 @@ EOT;
      * Persist the final LLM response for a ScenarioGeneration and mark it complete.
      * Centralized method so other callers (scripts, jobs, tests) can reuse the logic.
      *
-     * @param ScenarioGeneration $generation
-     * @param array|string $response
-     * @param array $options optional keys: status, metadata
-     * @return ScenarioGeneration
+     * @param  array|string  $response
+     * @param  array  $options  optional keys: status, metadata
      */
     public function persistLLMResponse(ScenarioGeneration $generation, $response, array $options = []): ScenarioGeneration
     {
@@ -515,15 +448,14 @@ EOT;
             $generation->llm_response = $response;
             $generation->status = $options['status'] ?? 'complete';
 
-            if (!empty($options['metadata']) && is_array($options['metadata'])) {
-                $existing = is_array($generation->metadata) ? $generation->metadata : (array)($generation->metadata ?? []);
+            if (! empty($options['metadata']) && is_array($options['metadata'])) {
+                $existing = is_array($generation->metadata) ? $generation->metadata : (array) ($generation->metadata ?? []);
                 $generation->metadata = array_merge($existing, $options['metadata']);
             }
 
             $generation->save();
-        }
-        catch (\Throwable $e) {
-            Log::error('Failed to persist LLM response for generation ' . ($generation->id ?? 'unknown') . ': ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('Failed to persist LLM response for generation '.($generation->id ?? 'unknown').': '.$e->getMessage());
             throw $e;
         }
 
@@ -534,7 +466,6 @@ EOT;
      * Finalize the scenario by importing the LLM response into the relational database.
      * This creates/updates Capabilities, Competencies, and Skills, and links them to the Scenario.
      *
-     * @param ScenarioGeneration $generation
      * @return array Summary of imported entities
      */
     public function finalizeScenarioImport(ScenarioGeneration $generation): array
@@ -544,27 +475,27 @@ EOT;
             $data = json_decode($data, true);
         }
 
-        if (!$data || !is_array($data)) {
-            throw new \Exception("Invalid LLM response data for import.");
+        if (! $data || ! is_array($data)) {
+            throw new \Exception('Invalid LLM response data for import.');
         }
 
         return \DB::transaction(function () use ($generation, $data) {
             $orgId = $generation->organization_id;
             $caps = $data['capabilities'] ?? [];
             $roles = $data['suggested_roles'] ?? [];
-            \Log::info("DEBUG IMPORT: caps=".count($caps)." roles=".count($roles)." org=$orgId gen={$generation->id}");
+            \Log::info('DEBUG IMPORT: caps='.count($caps).' roles='.count($roles)." org=$orgId gen={$generation->id}");
 
             // 1. Resolve or Create Scenario
             $scenario = $generation->scenario;
-            if (!$scenario) {
+            if (! $scenario) {
                 $meta = $data['escenario'] ?? $data['scenario_metadata'] ?? [];
                 $scenario = \App\Models\Scenario::create([
                     'organization_id' => $orgId,
-                    'name' => $meta['nombre'] ?? $meta['name'] ?? 'Generated Scenario ' . now()->toDateTimeString(),
+                    'name' => $meta['nombre'] ?? $meta['name'] ?? 'Generated Scenario '.now()->toDateTimeString(),
                     'description' => $meta['descripcion'] ?? $meta['description'] ?? 'Imported from LLM analysis',
                     'status' => 'draft',
                     'horizon_months' => $meta['horizon_months'] ?? ($meta['planning_horizon_months'] ?? 12),
-                    'fiscal_year' => $meta['fiscal_year'] ?? (int)date('Y'),
+                    'fiscal_year' => $meta['fiscal_year'] ?? (int) date('Y'),
                     'source_generation_id' => $generation->id,
                     'created_by' => $generation->created_by,
                     'owner_user_id' => $generation->created_by,
@@ -580,12 +511,12 @@ EOT;
                         if ($embedding) {
                             $vectorStr = $embeddingService->toVectorString($embedding);
                             DB::update(
-                                "UPDATE scenarios SET embedding = ?::vector WHERE id = ?",
+                                'UPDATE scenarios SET embedding = ?::vector WHERE id = ?',
                                 [$vectorStr, $scenario->id]
                             );
                         }
                     } catch (\Exception $e) {
-                         Log::warning("Embedding generation failed for scenario {$scenario->id}: " . $e->getMessage());
+                        Log::warning("Embedding generation failed for scenario {$scenario->id}: ".$e->getMessage());
                     }
                 }
             }
@@ -624,17 +555,17 @@ EOT;
                     try {
                         $embeddingService = app(EmbeddingService::class);
                         $embedding = $embeddingService->forCapability($capability);
-                        
+
                         if ($embedding) {
                             $vectorStr = $embeddingService->toVectorString($embedding);
                             DB::update(
-                                "UPDATE capabilities SET embedding = ?::vector WHERE id = ?",
+                                'UPDATE capabilities SET embedding = ?::vector WHERE id = ?',
                                 [$vectorStr, $capability->id]
                             );
-                            
+
                             // Find similar capabilities
                             $similar = $embeddingService->findSimilar('capabilities', $embedding, 3, $orgId);
-                            if (!empty($similar) && $similar[0]->similarity > 0.90) {
+                            if (! empty($similar) && $similar[0]->similarity > 0.90) {
                                 Log::info("Similar capability found for '{$capability->name}'", [
                                     'similar_to' => $similar[0]->name,
                                     'similarity' => round($similar[0]->similarity, 3),
@@ -642,7 +573,7 @@ EOT;
                             }
                         }
                     } catch (\Exception $e) {
-                        Log::warning("Embedding generation failed for capability {$capability->id}: " . $e->getMessage());
+                        Log::warning("Embedding generation failed for capability {$capability->id}: ".$e->getMessage());
                     }
                 }
 
@@ -677,11 +608,11 @@ EOT;
                         try {
                             $embeddingService = app(EmbeddingService::class);
                             $embedding = $embeddingService->forCompetency($competency);
-                            
+
                             if ($embedding) {
                                 $vectorStr = $embeddingService->toVectorString($embedding);
                                 DB::update(
-                                    "UPDATE competencies SET embedding = ?::vector WHERE id = ?",
+                                    'UPDATE competencies SET embedding = ?::vector WHERE id = ?',
                                     [$vectorStr, $competency->id]
                                 );
                             }
@@ -725,11 +656,11 @@ EOT;
                             try {
                                 $embeddingService = app(EmbeddingService::class);
                                 $embedding = $embeddingService->forSkill($skill);
-                                
+
                                 if ($embedding) {
                                     $vectorStr = $embeddingService->toVectorString($embedding);
                                     DB::update(
-                                        "UPDATE skills SET embedding = ?::vector WHERE id = ?",
+                                        'UPDATE skills SET embedding = ?::vector WHERE id = ?',
                                         [$vectorStr, $skill->id]
                                     );
                                 }
@@ -743,7 +674,7 @@ EOT;
 
             // 3. Process Strategic Roles (Roles & Talent Blueprints) if present
             $suggestedRoles = $data['suggested_roles'] ?? [];
-            if (!empty($suggestedRoles)) {
+            if (! empty($suggestedRoles)) {
                 $stats['roles'] = 0;
                 foreach ($suggestedRoles as $roleData) {
                     \Log::info("DEBUG: Processing role '{$roleData['name']}'");
@@ -759,9 +690,9 @@ EOT;
                                 'discovered_in_scenario_id' => $scenario->id,
                             ]
                         );
-                        \Log::info("DEBUG: Created/Updated role ID: " . ($role ? $role->id : 'null'));
+                        \Log::info('DEBUG: Created/Updated role ID: '.($role ? $role->id : 'null'));
                     } catch (\Exception $e) {
-                         \Log::error("DEBUG: Role creation failed: " . $e->getMessage());
+                        \Log::error('DEBUG: Role creation failed: '.$e->getMessage());
                     }
                     $stats['roles']++;
 
@@ -770,17 +701,17 @@ EOT;
                         try {
                             $embeddingService = app(EmbeddingService::class);
                             $embedding = $embeddingService->forRole($role);
-                            
+
                             if ($embedding) {
                                 $vectorStr = $embeddingService->toVectorString($embedding);
                                 DB::update(
-                                    "UPDATE roles SET embedding = ?::vector WHERE id = ?",
+                                    'UPDATE roles SET embedding = ?::vector WHERE id = ?',
                                     [$vectorStr, $role->id]
                                 );
-                                
+
                                 // Find similar roles
                                 $similar = $embeddingService->findSimilar('roles', $embedding, 3, $orgId);
-                                if (!empty($similar) && $similar[0]->similarity > 0.85) {
+                                if (! empty($similar) && $similar[0]->similarity > 0.85) {
                                     Log::info("Similar role found for '{$role->name}'", [
                                         'similar_to' => $similar[0]->name,
                                         'similarity' => round($similar[0]->similarity, 3),
@@ -788,13 +719,13 @@ EOT;
                                 }
                             }
                         } catch (\Exception $e) {
-                            Log::warning("Embedding generation failed for role {$role->id}: " . $e->getMessage());
+                            Log::warning("Embedding generation failed for role {$role->id}: ".$e->getMessage());
                         }
                     }
 
                     // Link Role to Scenario (Pivot)
                     $rationale = $roleData['talent_composition']['logic_justification'] ?? ($roleData['strategic_justification'] ?? null);
-                    
+
                     try {
                         $scenarioRole = \App\Models\ScenarioRole::updateOrCreate(
                             ['scenario_id' => $scenario->id, 'role_id' => $role->id],
@@ -805,10 +736,11 @@ EOT;
                                 'updated_at' => now(),
                             ]
                         );
-                        \Log::info("DEBUG: Linked ScenarioRole ID: " . ($scenarioRole ? $scenarioRole->id : 'null'));
+                        \Log::info('DEBUG: Linked ScenarioRole ID: '.($scenarioRole ? $scenarioRole->id : 'null'));
                     } catch (\Exception $e) {
-                         \Log::error("DEBUG: ScenarioRole link failed: " . $e->getMessage());
-                         continue; // Skip competencies if link failed
+                        \Log::error('DEBUG: ScenarioRole link failed: '.$e->getMessage());
+
+                        continue; // Skip competencies if link failed
                     }
 
                     // 3.1 Link Roles to their specified Competencies
@@ -817,16 +749,16 @@ EOT;
                         $competency = \App\Models\Competency::where('organization_id', $orgId)
                             ->where('name', $compName)
                             ->first();
-                        
+
                         if ($competency) {
                             DB::table('scenario_role_competencies')->updateOrInsert(
                                 [
                                     'scenario_id' => $scenario->id,
                                     'role_id' => $scenarioRole->id, // CORRECT: ID of the scenario_role record
-                                    'competency_id' => $competency->id
+                                    'competency_id' => $competency->id,
                                 ],
                                 [
-                                    'required_level' => 4, 
+                                    'required_level' => 4,
                                     'is_core' => true,
                                     'created_at' => now(),
                                     'updated_at' => now(),
@@ -842,7 +774,7 @@ EOT;
                         $blueprintSvc->createFromLlmResponse($scenario, $suggestedRoles);
                         $stats['blueprints'] = count($suggestedRoles);
                     } catch (\Throwable $e) {
-                        \Log::warning('Failed incrementally creating TalentBlueprints: ' . $e->getMessage());
+                        \Log::warning('Failed incrementally creating TalentBlueprints: '.$e->getMessage());
                     }
                 }
             }
@@ -852,7 +784,7 @@ EOT;
             return [
                 'success' => true,
                 'scenario_id' => $scenario->id,
-                'stats' => $stats
+                'stats' => $stats,
             ];
         });
     }

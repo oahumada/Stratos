@@ -9,7 +9,7 @@ theme:
   language: es
   palette:
     # Light mode
-    - media: "(prefers-color-scheme: light)"
+    - media: '(prefers-color-scheme: light)'
       scheme: default
       primary: indigo
       accent: indigo
@@ -17,7 +17,7 @@ theme:
         icon: material/brightness-7
         name: Cambiar a modo oscuro
     # Dark mode
-    - media: "(prefers-color-scheme: dark)"
+    - media: '(prefers-color-scheme: dark)'
       scheme: slate
       primary: indigo
       accent: indigo
@@ -66,44 +66,45 @@ markdown_extensions:
 
 nav:
   - Inicio:
-    - Bienvenida: index.md
-    - Quick Start (5 min): getting-started/quick-start.md
-    - Instalación Completa: getting-started/installation.md
-    
+      - Bienvenida: index.md
+      - Quick Start (5 min): getting-started/quick-start.md
+      - Instalación Completa: getting-started/installation.md
+
   - Desarrollo:
-    - CRUD Pattern (JSON-Driven): development/crud-pattern.md
-    - Crear Nuevo CRUD: development/new-crud-guide.md
-    - FormSchema System: development/formschema-system.md
-    - Testing Strategy: development/testing.md
-    - Commits Semánticos: development/commits.md
-    
+      - CRUD Pattern (JSON-Driven): development/crud-pattern.md
+      - Crear Nuevo CRUD: development/new-crud-guide.md
+      - FormSchema System: development/formschema-system.md
+      - Testing Strategy: development/testing.md
+      - Commits Semánticos: development/commits.md
+
   - Arquitectura:
-    - Overview: architecture/overview.md
-    - Frontend: architecture/frontend.md
-    - Backend: architecture/backend.md
-    - Base de Datos: architecture/database.md
-    - Flujo de Peticiones: architecture/request-flow.md
-    
+      - Overview: architecture/overview.md
+      - Frontend: architecture/frontend.md
+      - Backend: architecture/backend.md
+      - Base de Datos: architecture/database.md
+      - Flujo de Peticiones: architecture/request-flow.md
+      - Competency Orchestrator: architecture/competency-orchestrator.md
+
   - API Reference:
-    - Endpoints MVP: api/endpoints.md
-    - Autenticación (Sanctum): api/authentication.md
-    - Error Handling: api/errors.md
-    
+      - Endpoints MVP: api/endpoints.md
+      - Autenticación (Sanctum): api/authentication.md
+      - Error Handling: api/errors.md
+
   - Módulos:
-    - Workforce Planning: modules/workforce-planning.md
-    - Gap Analysis: modules/gap-analysis.md
-    - Learning Paths: modules/learning-paths.md
-    - Marketplace: modules/marketplace.md
-    
+      - Workforce Planning: modules/workforce-planning.md
+      - Gap Analysis: modules/gap-analysis.md
+      - Learning Paths: modules/learning-paths.md
+      - Marketplace: modules/marketplace.md
+
   - Setup & Config:
-    - Variables de Entorno: setup/environment.md
-    - Scripts Útiles: setup/scripts.md
-    - Troubleshooting: setup/troubleshooting.md
+      - Variables de Entorno: setup/environment.md
+      - Scripts Útiles: setup/scripts.md
+      - Troubleshooting: setup/troubleshooting.md
 
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/yourusername/Strato
-  
+
 extra_css:
   - stylesheets/extra.css

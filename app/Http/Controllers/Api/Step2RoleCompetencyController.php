@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Competency;
 use App\Models\People;
+use App\Models\Roles;
 use App\Models\Scenario;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleCompetency;
@@ -101,16 +103,14 @@ class Step2RoleCompetencyController extends Controller
                 'competencies.id',
                 'competencies.name',
                 \DB::raw('MIN(capability_competencies.capability_id) as capability_id'),
-                \DB::raw("COALESCE(MIN(CASE WHEN capability_competencies.capability_id IN ("
-                    . implode(',', $scenarioCapabilityIds->toArray() ?: [0])
-                    . ") THEN capabilities.name END), MIN(capabilities.name), 'General') as capability_name")
+                \DB::raw('COALESCE(MIN(CASE WHEN capability_competencies.capability_id IN ('
+                    .implode(',', $scenarioCapabilityIds->toArray() ?: [0])
+                    .") THEN capabilities.name END), MIN(capabilities.name), 'General') as capability_name")
             )
             ->groupBy('competencies.id', 'competencies.name')
             ->orderBy('capability_name')
             ->orderBy('competencies.name')
             ->get();
-
-
 
         // Mappings: Qué competencias están asignadas a cada rol.
         // Incluye 'source' para que el frontend muestre 🤖/👤/⚙️ correctamente.
@@ -167,7 +167,7 @@ class Step2RoleCompetencyController extends Controller
             $mapping->is_referent = $validated['is_referent'] ?? $mapping->is_referent ?? false;
             $mapping->change_type = $validated['change_type'];
             $mapping->rationale = $validated['rationale'] ?? $mapping->rationale;
-            
+
             if ($request->has('competency_version_id')) {
                 $mapping->competency_version_id = $validated['competency_version_id'];
             }
@@ -235,7 +235,7 @@ class Step2RoleCompetencyController extends Controller
             'rationale' => 'nullable|string',
             'cube_dimensions' => 'nullable|array',
             'competencies' => 'nullable|array',
-            'ai_archetype_config' => 'nullable|array'
+            'ai_archetype_config' => 'nullable|array',
         ]);
 
         // Si no existe role_id, crear uno nuevo en el catálogo (como in_incubation)
@@ -272,35 +272,79 @@ class Step2RoleCompetencyController extends Controller
 
         // Si se pasaron competencias, grabarlas en scenario_role_competencies
         if ($request->has('competencies') && is_array($request->competencies)) {
-            foreach ($request->competencies as $compData) {
-                // Buscar o crear competencia en catálogo
-                $competency = \App\Models\Competency::firstOrCreate(
-                    [
-                        'name' => $compData['name'],
-                        'organization_id' => auth()->user()->organization_id
-                    ],
-                    [
-                        'description' => $compData['rationale'] ?? null,
-                        'status' => 'in_incubation'
-                    ]
-                );
+            $orgId = auth()->user()->organization_id;
+            $embeddingService = config('features.generate_embeddings', false)
+                ? app(\App\Services\EmbeddingService::class)
+                : null;
 
-                // Como esto suele ser para roles nuevos en el escenario, el cambio es 'enrichment' por defecto
+            foreach ($request->competencies as $compData) {
+                $competency = null;
+                $isNew = false;
+                $embeddingVector = null;
+
+                // 1. Similitud Vectorial / Búsqueda Semántica
+                if ($embeddingService) {
+                    // Vectorizamos la propuesta del agente
+                    $textToEmbed = $compData['name'].' | '.($compData['rationale'] ?? '');
+                    $embedding = $embeddingService->generate($textToEmbed);
+
+                    if ($embedding) {
+                        $embeddingVector = $embeddingService->toVectorString($embedding);
+
+                        // Buscamos similitud matemática en el catálogo de la organización
+                        $similar = $embeddingService->findSimilar('competencies', $embedding, 1, $orgId);
+
+                        // Umbral del 90%: Si la similitud matemática es alta, reutilizamos la competencia existente
+                        if (! empty($similar) && $similar[0]->similarity >= 0.90) {
+                            $competency = \App\Models\Competency::find($similar[0]->id);
+                        }
+                    }
+                }
+
+                // 2. Si no hubo match semántico (o si el modelo vector está apagado), fallback a nombre exacto o catalogar como nueva
+                if (! $competency) {
+                    $competency = \App\Models\Competency::firstOrCreate(
+                        [
+                            'name' => $compData['name'],
+                            'organization_id' => $orgId,
+                        ],
+                        [
+                            'description' => $compData['rationale'] ?? null,
+                            'status' => 'in_incubation',
+                        ]
+                    );
+
+                    if ($competency->wasRecentlyCreated) {
+                        $isNew = true;
+                        // Persistir el vector en la base de datos si logramos generarlo
+                        if ($embeddingVector) {
+                            \Illuminate\Support\Facades\DB::statement(
+                                'UPDATE competencies SET embedding = ?::vector WHERE id = ?',
+                                [$embeddingVector, $competency->id]
+                            );
+                        }
+                    }
+                }
+
+                // 3. Impacto Orgánico Inteligente
+                // Si la IA ideó algo matemáticamente nuevo para la organización -> 'creation'
+                // Si ya existía y solo lo estamos adoptando para el rol -> 'enrichment' por defecto
+                $changeType = $isNew ? 'creation' : 'enrichment';
+
                 ScenarioRoleCompetency::updateOrCreate(
                     [
                         'scenario_id' => $scenarioId,
                         'role_id' => $scenarioRole->id,
-                        'competency_id' => $competency->id, // Usamos el ID de la competencia
+                        'competency_id' => $competency->id,
                     ],
                     [
                         'required_level' => $compData['level'] ?? 3,
-                        'change_type' => 'enrichment',
+                        'change_type' => $changeType,
                         'rationale' => $compData['rationale'] ?? null,
-                        'source' => 'agent'
+                        'source' => 'agent',
                     ]
                 );
             }
-
             // Disparar derivación de skills
             $this->derivationService->deriveSkillsFromCompetencies($scenarioId, $scenarioRole->id);
         }
@@ -317,6 +361,102 @@ class Step2RoleCompetencyController extends Controller
         ], $scenarioRole->wasRecentlyCreated ? 201 : 200);
     }
 
+    /**
+     * POST /api/v1/scenarios/{scenarioId}/step2/orchestrate-capabilities
+     * Analiza las competencias generadas en el Paso 1 y orquesta su empaquetado organizacional.
+     * Esta es la vista Capability-First de Stratos.
+     */
+    public function orchestrateCapabilities(Request $request, int $scenarioId): JsonResponse
+    {
+        $orgId = auth()->user()->organization_id;
+
+        // 1. Obtener las competencias "descubiertas" en este escenario (Paso 1)
+        // Ya que el Paso 1 las vinculó tempranamente en scenario_role_competencies
+        $competencyIds = \App\Models\ScenarioRoleCompetency::where('scenario_id', $scenarioId)
+            ->pluck('competency_id')
+            ->unique();
+
+        $scenarioCompetencies = \App\Models\Competency::whereIn('id', $competencyIds)
+            ->where('organization_id', $orgId)
+            ->get();
+
+        $embeddingService = config('features.generate_embeddings', false)
+            ? app(\App\Services\EmbeddingService::class)
+            : null;
+
+        $impactedRoles = [];
+        $newOrphanCompetencies = [];
+        $candidateRoleNames = [];
+
+        // 2. Filtro Vectorial contra el Catálogo Activo (Organigrama Oficial)
+        foreach ($scenarioCompetencies as $comp) {
+            $matched = false;
+
+            if ($embeddingService && $comp->embedding) {
+                // Postgres vector column values look like "[0.1, 0.2]". json_decode parses it correctly into PHP array
+                $embeddingArray = json_decode($comp->embedding, true);
+
+                if (is_array($embeddingArray)) {
+                    $similarities = $embeddingService->findSimilar('competencies', $embeddingArray, 5, $orgId);
+
+                    foreach ($similarities as $sim) {
+                        if ($sim->id != $comp->id && $sim->similarity >= 0.90) {
+                            $matchedComp = \App\Models\Competency::find($sim->id);
+
+                            // Nos interesan las competencias que ya estén activas en el catálogo real de la empresa
+                            if ($matchedComp && $matchedComp->status !== 'in_incubation') {
+                                $matched = true;
+
+                                // Esto indica que el escenario exige una competencia oficial.
+                                // Quien la tenga actualmente asignada, estará impactado orgánicamente.
+                                $impactedRoles[] = [
+                                    'official_competency' => $matchedComp->name,
+                                    'scenario_capability_name' => $comp->name,
+                                    'vector_similarity_score' => round($sim->similarity * 100, 2).'%',
+                                    'action_required' => 'upskilling',
+                                ];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (! $matched) {
+                $newOrphanCompetencies[] = [
+                    'id' => $comp->id,
+                    'name' => $comp->name,
+                    'rationale' => $comp->description,
+                ];
+            }
+        }
+
+        // 3. Orquestación IA para las competencias Genuninas (Las Huérfanas de Transformación)
+        // Agrupamos este paquete (batch) para no fragmentar a la organización con micro-roles.
+        $orchestrationPlan = [];
+        if (! empty($newOrphanCompetencies)) {
+            // Obtenemos una muestra de roles actuales de la organización para darle contexto al Agente
+            $candidateRoles = \App\Models\Roles::where('organization_id', $orgId)
+                ->where('status', '!=', 'in_incubation')
+                ->limit(20)
+                ->pluck('name')
+                ->toArray();
+
+            $roleDesigner = app(\App\Services\Talent\RoleDesignerService::class);
+            $orchestrationPlan = $roleDesigner->bundleNewCapabilities($newOrphanCompetencies, $candidateRoles);
+        }
+
+        return response()->json([
+            'success' => true,
+            'summary' => [
+                'total_capabilities_from_step1' => count($scenarioCompetencies),
+                'existing_capabilities_matched' => count($impactedRoles),
+                'new_alien_capabilities' => count($newOrphanCompetencies),
+            ],
+            'organic_impact' => $impactedRoles, // El Balde Verde
+            'ai_orchestration' => $orchestrationPlan, // El Balde Amarillo (Role Bundling propuesto)
+        ]);
+    }
 
     /**
      * GET /api/v1/scenarios/{scenarioId}/step2/role-forecasts
@@ -707,7 +847,7 @@ class Step2RoleCompetencyController extends Controller
             ->leftJoin('capability_competencies', 'competencies.id', '=', 'capability_competencies.competency_id')
             ->leftJoin('scenario_capabilities', function ($join) use ($scenarioId) {
                 $join->on('capability_competencies.capability_id', '=', 'scenario_capabilities.capability_id')
-                     ->where('scenario_capabilities.scenario_id', '=', $scenarioId);
+                    ->where('scenario_capabilities.scenario_id', '=', $scenarioId);
             })
             ->where('scenario_role_competencies.scenario_id', $scenarioId)
             ->select(
@@ -726,10 +866,10 @@ class Step2RoleCompetencyController extends Controller
         // 4. Construir respuesta
         $rolesData = $scenarioRoles->map(function ($sr) use ($mappings) {
             $roleMappings = $mappings->get($sr->role_id, collect());
-            $keyCompetencies = $roleMappings->map(fn($m) => [
-                'name'          => $m->competency_name,
-                'level'         => $m->required_level ?? 3,
-                'change_type'   => $m->change_type,
+            $keyCompetencies = $roleMappings->map(fn ($m) => [
+                'name' => $m->competency_name,
+                'level' => $m->required_level ?? 3,
+                'change_type' => $m->change_type,
                 'capability_id' => $m->capability_id,
             ])->values()->toArray();
 
@@ -743,30 +883,97 @@ class Step2RoleCompetencyController extends Controller
             $cubeCoordinates = $aiSuggestions['cube_coordinates'] ?? null;
 
             return [
-                'id'                 => $sr->sr_id,
-                'role_id'            => $sr->role_id,
-                'role_name'          => $sr->role_name,
-                'role_description'   => $sr->role_description ?? '',
-                'archetype'          => $sr->archetype ?? 'O',
-                'fte'                => (float) ($sr->fte ?? 1.0),
-                'human_leverage'     => (int) ($sr->human_leverage ?? 50),
-                'role_change'        => $sr->role_change ?? 'modify',
-                'rationale'          => $sr->rationale ?? '',
+                'id' => $sr->sr_id,
+                'role_id' => $sr->role_id,
+                'role_name' => $sr->role_name,
+                'role_description' => $sr->role_description ?? '',
+                'archetype' => $sr->archetype ?? 'O',
+                'fte' => (float) ($sr->fte ?? 1.0),
+                'human_leverage' => (int) ($sr->human_leverage ?? 50),
+                'role_change' => $sr->role_change ?? 'modify',
+                'rationale' => $sr->rationale ?? '',
                 // Propuesta del agente: coordenadas del cubo y justificación
-                'cube_coordinates'   => $cubeCoordinates,
-                'ai_suggestions'     => $aiSuggestions,
-                'key_competencies'   => $keyCompetencies,
-                'similarity_warnings'=> [],
+                'cube_coordinates' => $cubeCoordinates,
+                'ai_suggestions' => $aiSuggestions,
+                'key_competencies' => $keyCompetencies,
+                'similarity_warnings' => [],
             ];
         });
 
         return response()->json([
             'data' => [
                 'capabilities' => $capabilities->values(),
-                'roles'        => $rolesData->values(),
+                'roles' => $rolesData->values(),
                 'competencies' => [],
             ],
         ]);
+    }
+
+    /**
+     * POST /api/scenarios/{scenarioId}/step2/approve-cube
+     * Promote roles and items from incubation to engineering/active phase.
+     */
+    public function approveCube(Request $request, int $scenarioId): JsonResponse
+    {
+        $selection = $request->input('selection', []);
+
+        $scenario = Scenario::where('id', $scenarioId)
+            ->where('organization_id', auth()->user()->organization_id)
+            ->firstOrFail();
+
+        $promotedCount = 0;
+        $roleIdsInScenarioRole = [];
+
+        foreach ($selection as $itemKey) {
+            if (str_contains($itemKey, 'role:')) {
+                $roleIdsInScenarioRole[] = (int) str_replace('role:', '', $itemKey);
+            }
+        }
+
+        if (empty($roleIdsInScenarioRole)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No hay roles seleccionados para promover.',
+            ], 400);
+        }
+
+        try {
+            DB::transaction(function () use ($scenarioId, $roleIdsInScenarioRole, &$promotedCount) {
+                // Obtener los roles reales (de la tabla 'roles') vinculados a estos ScenarioRoles
+                $scenarioRoles = ScenarioRole::where('scenario_id', $scenarioId)
+                    ->whereIn('id', $roleIdsInScenarioRole)
+                    ->get();
+
+                $realRoleIds = $scenarioRoles->pluck('role_id')->unique();
+
+                // 1. Promover roles a 'active'
+                Roles::whereIn('id', $realRoleIds)
+                    ->update(['status' => 'active']);
+
+                // 2. Promover competencias vinculadas a esos roles si son nuevas ('in_incubation')
+                // Nota: scenario_role_competencies.role_id apunta a scenario_roles.id
+                $newCompetencyIds = ScenarioRoleCompetency::where('scenario_id', $scenarioId)
+                    ->whereIn('role_id', $roleIdsInScenarioRole)
+                    ->pluck('competency_id')
+                    ->unique();
+
+                Competency::whereIn('id', $newCompetencyIds)
+                    ->where('status', 'in_incubation')
+                    ->update(['status' => 'active']);
+
+                $promotedCount = $scenarioRoles->count();
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$promotedCount} roles promovidos exitosamente a la fase de ingeniería.",
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al promover los elementos: '.$e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

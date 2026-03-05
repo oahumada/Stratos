@@ -976,7 +976,7 @@ Route::post('/strategic-planning/scenarios/{id}/capability-tree/save-positions',
 });
 
 // Canonical Strategic Planning API - Normalized naming (replaced workforce-planning)
-Route::prefix('strategic-planning')->group(function () {
+Route::middleware('auth:sanctum')->prefix('strategic-planning')->group(function () {
     Route::get('scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'listScenarios']);
     Route::post('scenarios', [\App\Http\Controllers\Api\ScenarioController::class, 'store']);
     Route::get('scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
@@ -1017,6 +1017,8 @@ Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group
     Route::post('agent-proposals/apply', [\App\Http\Controllers\Api\ScenarioController::class, 'applyAgentProposals']);
     Route::post('finalize', [\App\Http\Controllers\Api\ScenarioController::class, 'finalizeStep2']);
     Route::get('cube', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getCubeData']);
+    Route::post('orchestrate-capabilities', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'orchestrateCapabilities']);
+    Route::post('approve-cube', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'approveCube']);
     Route::post('engine/generate-bars', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'generateBars']);
 });
 

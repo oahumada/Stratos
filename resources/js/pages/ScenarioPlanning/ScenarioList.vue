@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { useApi } from '@/composables/useApi';
 import { useNotification } from '@/composables/useNotification';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -80,36 +83,46 @@ const filteredScenarios = computed(() => {
 });
 
 const statusColor = (status: ScenarioStatus) => {
-    const map: Record<ScenarioStatus, string> = {
+    const map: Record<ScenarioStatus, 'warning' | 'success' | 'glass'> = {
         draft: 'warning',
         active: 'success',
-        completed: 'info',
-        archived: 'grey',
+        completed: 'glass',
+        archived: 'glass',
     };
-    return map[status] || 'default';
+    return map[status] || 'glass';
 };
 
 // mark as referenced to avoid unused-var during refactor
 void statusColor;
 
-const decisionStatusColor = (status?: string) => {
-    const map: Record<string, string> = {
-        draft: 'grey',
+const decisionStatusColor = (
+    status?: string,
+): 'primary' | 'secondary' | 'error' | 'warning' | 'success' | 'glass' => {
+    const map: Record<
+        string,
+        'primary' | 'secondary' | 'error' | 'warning' | 'success' | 'glass'
+    > = {
+        draft: 'glass',
         pending_approval: 'warning',
         approved: 'success',
         rejected: 'error',
     };
-    return map[status || 'draft'] || 'grey';
+    return map[status || 'draft'] || 'glass';
 };
 
-const executionStatusColor = (status?: string) => {
-    const map: Record<string, string> = {
-        planned: 'grey-lighten-1',
+const executionStatusColor = (
+    status?: string,
+): 'primary' | 'secondary' | 'error' | 'warning' | 'success' | 'glass' => {
+    const map: Record<
+        string,
+        'primary' | 'secondary' | 'error' | 'warning' | 'success' | 'glass'
+    > = {
+        planned: 'glass',
         in_progress: 'primary',
         paused: 'warning',
         completed: 'success',
     };
-    return map[status || 'planned'] || 'grey';
+    return map[status || 'planned'] || 'glass';
 };
 
 const decisionStatusText = (status?: string) => {
@@ -196,18 +209,18 @@ onMounted(() => {
         <v-container fluid>
             <v-row class="align-center mb-4">
                 <v-col cols="12" md="6">
-                    <h2 class="mb-0">
+                    <h2 class="text-h4 font-weight-bold mb-2 text-white">
                         Planificación Estratégica de Escenarios
                     </h2>
-                    <p class="text-medium-emphasis mb-0">
+                    <p class="mb-0 text-white/70">
                         Administra, filtra y navega escenarios con metodología 7
                         pasos
                     </p>
                 </v-col>
             </v-row>
 
-            <v-card class="mb-4">
-                <v-card-text>
+            <StCardGlass class="mb-6">
+                <div class="pa-2">
                     <v-row>
                         <v-col cols="12" md="3">
                             <v-select
@@ -228,35 +241,33 @@ onMounted(() => {
                             />
                         </v-col>
                         <v-col cols="12" md="2" class="text-right">
-                            <v-btn
-                                variant="outlined"
-                                color="primary"
+                            <StButtonGlass
+                                variant="ghost"
                                 @click="loadScenarios"
-                                prepend-icon="mdi-refresh"
+                                icon="mdi-refresh"
                             >
                                 Refrescar
-                            </v-btn>
+                            </StButtonGlass>
                         </v-col>
                         <v-col
                             cols="12"
                             md="4"
                             class="d-flex justify-end gap-2"
                         >
-                            <v-btn
-                                variant="tonal"
-                                color="deep-purple"
-                                prepend-icon="mdi-robot-excited-outline"
+                            <StButtonGlass
+                                variant="glass"
+                                icon="mdi-robot-excited-outline"
                                 @click="showGenerateWizard = true"
                             >
                                 Generar con IA
-                            </v-btn>
-                            <v-btn
-                                color="primary"
-                                prepend-icon="mdi-plus"
+                            </StButtonGlass>
+                            <StButtonGlass
+                                variant="primary"
+                                icon="mdi-plus"
                                 @click="openCreateFromTemplate"
                             >
                                 Nuevo escenario
-                            </v-btn>
+                            </StButtonGlass>
                         </v-col>
                     </v-row>
                     <v-alert
@@ -270,7 +281,7 @@ onMounted(() => {
                         (borrador/pendiente/aprobado/rechazado) y estado de
                         ejecución (planificado/en progreso/pausado/completado).
                     </v-alert>
-                </v-card-text>
+                </div>
 
                 <v-data-table
                     :headers="tableHeaders"
@@ -279,38 +290,28 @@ onMounted(() => {
                     item-key="id"
                     show-select
                     v-model:selected="selectedScenarioIds"
-                    class="elevation-0"
+                    class="elevation-0 bg-transparent text-white"
                 >
                     <template #[`item.decision_status`]="{ item }">
-                        <v-chip
-                            :color="decisionStatusColor(item.decision_status)"
-                            size="small"
-                            variant="flat"
-                            class="text-uppercase"
+                        <StBadgeGlass
+                            :variant="decisionStatusColor(item.decision_status)"
                         >
                             {{ decisionStatusText(item.decision_status) }}
-                        </v-chip>
+                        </StBadgeGlass>
                     </template>
 
                     <template #[`item.execution_status`]="{ item }">
-                        <v-chip
+                        <StBadgeGlass
                             v-if="item.decision_status === 'approved'"
-                            :color="executionStatusColor(item.execution_status)"
-                            size="small"
-                            variant="outlined"
-                            class="text-uppercase"
+                            :variant="
+                                executionStatusColor(item.execution_status)
+                            "
                         >
                             {{ executionStatusText(item.execution_status) }}
-                        </v-chip>
-                        <v-chip
-                            v-else
-                            size="small"
-                            color="grey-lighten-2"
-                            variant="flat"
-                            disabled
-                        >
+                        </StBadgeGlass>
+                        <StBadgeGlass v-else variant="glass">
                             N/A
-                        </v-chip>
+                        </StBadgeGlass>
                     </template>
 
                     <template #[`item.version_number`]="{ item }">
@@ -321,29 +322,26 @@ onMounted(() => {
                                 class="mr-1"
                             />
                             v{{ item.version_number }}
-                            <v-chip
+                            <StBadgeGlass
                                 v-if="item.is_current_version"
-                                size="x-small"
-                                color="primary"
-                                variant="flat"
+                                variant="primary"
                                 class="ml-1"
                             >
                                 Actual
-                            </v-chip>
+                            </StBadgeGlass>
                         </div>
-                        <span v-else class="text-medium-emphasis">—</span>
+                        <span v-else class="text-white/50">—</span>
                     </template>
 
                     <template #[`item.actions`]="{ item }">
                         <div class="d-flex gap-1">
                             <v-tooltip text="Ver detalle">
                                 <template #activator="{ props }">
-                                    <v-btn
+                                    <StButtonGlass
                                         v-bind="props"
-                                        size="small"
-                                        variant="text"
+                                        size="sm"
+                                        variant="ghost"
                                         icon="mdi-eye"
-                                        color="primary"
                                         @click="goToDetail(item)"
                                     />
                                 </template>
@@ -351,12 +349,12 @@ onMounted(() => {
 
                             <v-tooltip text="Borrar">
                                 <template #activator="{ props }">
-                                    <v-btn
+                                    <StButtonGlass
                                         v-bind="props"
-                                        size="small"
-                                        variant="text"
+                                        size="sm"
+                                        variant="ghost"
                                         icon="mdi-delete"
-                                        color="error"
+                                        class="text-error border-none!"
                                         @click="deleteScenario(item)"
                                     />
                                 </template>
@@ -378,12 +376,11 @@ onMounted(() => {
 
                             <v-menu>
                                 <template #activator="{ props }">
-                                    <v-btn
+                                    <StButtonGlass
                                         v-bind="props"
-                                        size="small"
-                                        variant="text"
+                                        size="sm"
+                                        variant="ghost"
                                         icon="mdi-dots-vertical"
-                                        color="grey-darken-1"
                                     />
                                 </template>
 
@@ -424,12 +421,12 @@ onMounted(() => {
                     </template>
 
                     <template #no-data>
-                        <div class="pa-6 text-medium-emphasis text-center">
+                        <div class="pa-6 text-center text-white/50">
                             No hay escenarios todavía. Crea uno desde plantilla.
                         </div>
                     </template>
                 </v-data-table>
-            </v-card>
+            </StCardGlass>
         </v-container>
 
         <v-dialog v-model="showCreateFromTemplate" max-width="900px">

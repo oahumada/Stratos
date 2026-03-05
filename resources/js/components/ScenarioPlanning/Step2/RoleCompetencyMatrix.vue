@@ -93,7 +93,7 @@
                         >
                             <v-icon size="20">mdi-alert-circle</v-icon>
                         </div>
-                        <p class="flex-grow text-sm font-medium">
+                        <p class="grow text-sm font-medium">
                             {{ store.error }}
                         </p>
                         <StButtonGlass
@@ -196,7 +196,7 @@
                             size="32"
                         />
                     </div>
-                    <div class="flex-grow">
+                    <div class="grow">
                         <h3
                             class="mb-2 text-sm font-black tracking-[0.2em] text-white/40 uppercase"
                         >
@@ -221,7 +221,7 @@
                         </p>
                     </div>
                     <div
-                        class="flex hidden shrink-0 items-center gap-4 border-l border-white/5 pl-8 lg:flex"
+                        class="hidden shrink-0 items-center gap-4 border-l border-white/5 pl-8 lg:flex"
                     >
                         <div class="text-center">
                             <div
@@ -341,7 +341,7 @@
                                 class="group transition-all duration-300"
                             >
                                 <td
-                                    class="sticky left-0 z-20 border-r border-b border-white/5 bg-black/40 p-8 backdrop-blur-2xl transition-colors group-hover:bg-white/[0.03]"
+                                    class="sticky left-0 z-20 border-r border-b border-white/5 bg-black/40 p-8 backdrop-blur-2xl transition-colors group-hover:bg-white/3"
                                 >
                                     <div class="space-y-4">
                                         <div

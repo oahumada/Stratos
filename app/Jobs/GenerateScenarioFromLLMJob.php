@@ -125,38 +125,28 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
                     $generation->metadata = array_merge($generation->metadata ?? [], ['sent_at' => now()->toDateTimeString()]);
                     $generation->save();
 
-            // Si existe un Scenario asociado (p.ej. importado/aceptado automáticamente),
-            // crear TalentBlueprints a partir de suggested_roles y persistir el
-            // índice de sintetización.
-            try {
-                $compactedData = $generation->llm_response ?? [];
-                $scenario = $generation->scenario ?? null;
-
-                if ($scenario && isset($compactedData['suggested_roles'])) {
-                    app(\App\Services\TalentBlueprintService::class)->createFromLlmResponse(
-                        $scenario,
-                        $compactedData['suggested_roles']
-                    );
-                }
-
-                if ($scenario) {
+                    // Persistir el índice de sintetización
                     try {
-                        $generation->update([
-                            'synthetization_index' => $scenario->synthetization_index,
-                        ]);
-                    } catch (\Throwable $_) {
+                        $scenario = $generation->scenario ?? null;
+
+                        if ($scenario) {
+                            try {
+                                $generation->update([
+                                    'synthetization_index' => $scenario->synthetization_index,
+                                ]);
+                            } catch (\Throwable $_) {
+                                try {
+                                    Log::warning('Failed to persist synthetization_index on generation (job)', ['generation_id' => $generation->id]);
+                                } catch (\Throwable $__) {
+                                }
+                            }
+                        }
+                    } catch (\Throwable $e) {
                         try {
-                            Log::warning('Failed to persist synthetization_index on generation (job)', ['generation_id' => $generation->id]);
+                            Log::warning('Error during scenario sync in job', ['generation_id' => $generation->id, 'err' => $e->getMessage()]);
                         } catch (\Throwable $__) {
                         }
                     }
-                }
-            } catch (\Throwable $e) {
-                try {
-                    Log::warning('Error creating TalentBlueprints from generation in job', ['generation_id' => $generation->id, 'err' => $e->getMessage()]);
-                } catch (\Throwable $__) {
-                }
-            }
                 } catch (\Throwable $_) {
                     try {
                         Log::warning('Failed to persist generation metadata.sent_at', ['generation_id' => $generation->id]);
@@ -233,7 +223,7 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             } elseif ($provider === 'intel') {
                 // Use the new Python Intelligence Service
                 Log::info('Using Intel Provider for scenario generation', ['generation_id' => $generation->id]);
-                
+
                 // Get company name from metadata if possible, else use default
                 $companyName = $generation->metadata['company_name'] ?? ($generation->organization->name ?? 'Stratos Org');
                 $lang = $generation->metadata['language'] ?? 'es';
@@ -249,7 +239,7 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
                 $res = $intel->generateScenario($companyName, $generation->prompt ?? '', $lang, $marketContext);
 
                 if (! $res) {
-                    throw new Exception("Intel service failed to return a response.");
+                    throw new Exception('Intel service failed to return a response.');
                 }
 
                 // Intel service returns the full JSON. Treat as a single block for logic compatibility.

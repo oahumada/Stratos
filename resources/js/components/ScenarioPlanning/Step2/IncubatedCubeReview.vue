@@ -192,6 +192,187 @@
             </StCardGlass>
         </div>
 
+        <!-- AI Capabilities Orchestration (Balde Verde y Amarillo) -->
+        <v-expand-transition>
+            <div
+                v-if="roleStore.isOrchestrating"
+                class="animate-pulse p-8 text-center"
+            >
+                <div
+                    class="mb-4 inline-flex items-center justify-center rounded-full bg-indigo-500/20 p-4"
+                >
+                    <v-icon color="indigo-400" size="32" class="animate-spin"
+                        >mdi-loading</v-icon
+                    >
+                </div>
+                <h3 class="text-xl font-black text-indigo-300">
+                    Calculando el Empaquetado Organizacional
+                </h3>
+                <p class="mt-2 text-sm text-white/50">
+                    Cruzando el escenario de futuro con tu catálogo actual
+                    usando similitud vectorial...
+                </p>
+            </div>
+
+            <div
+                v-else-if="roleStore.orchestrationPlan"
+                class="grid grid-cols-1 gap-6 lg:grid-cols-2"
+            >
+                <!-- Impacto Orgánico (Balde Verde) -->
+                <StCardGlass
+                    variant="glass"
+                    border-accent="emerald"
+                    class="overflow-hidden p-0!"
+                >
+                    <div
+                        class="border-b border-white/10 bg-emerald-500/10 px-6 py-4"
+                    >
+                        <h4
+                            class="flex items-center gap-2 font-bold text-emerald-400"
+                        >
+                            <v-icon size="18">mdi-molecule</v-icon>
+                            Organically Matched Competencies
+                            <span
+                                class="rounded bg-emerald-500/20 px-2 py-0.5 text-xs"
+                            >
+                                {{
+                                    roleStore.orchestrationPlan.summary
+                                        .existing_capabilities_matched
+                                }}
+                            </span>
+                        </h4>
+                        <p class="mt-1 text-xs text-emerald-400/70">
+                            Se identificaron estas competencias del escenario
+                            que coinciden (>90% vectorial) con activos
+                            existentes.
+                        </p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-4">
+                            <li
+                                v-for="(impact, i) in roleStore
+                                    .orchestrationPlan.organic_impact"
+                                :key="i"
+                                class="rounded-xl border border-white/5 bg-white/5 p-4"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-white">{{
+                                        impact.official_competency
+                                    }}</span>
+                                    <StBadgeGlass variant="success"
+                                        >{{
+                                            impact.vector_similarity_score
+                                        }}
+                                        match</StBadgeGlass
+                                    >
+                                </div>
+                                <p class="mt-2 text-sm text-white/60">
+                                    Proviene de "{{
+                                        impact.scenario_capability_name
+                                    }}". Acción recomendada:
+                                    <strong
+                                        class="text-emerald-400 uppercase"
+                                        >{{ impact.action_required }}</strong
+                                    >
+                                    a empleados vigentes.
+                                </p>
+                            </li>
+                            <li
+                                v-if="
+                                    roleStore.orchestrationPlan.organic_impact
+                                        .length === 0
+                                "
+                                class="text-sm text-white/40"
+                            >
+                                No se encontraron hubs orgánicos para
+                                re-utilizar.
+                            </li>
+                        </ul>
+                    </div>
+                </StCardGlass>
+
+                <!-- Empaquetado IA (Balde Amarillo) -->
+                <StCardGlass
+                    variant="glass"
+                    border-accent="warning"
+                    class="overflow-hidden p-0!"
+                >
+                    <div
+                        class="border-b border-white/10 bg-amber-500/10 px-6 py-4"
+                    >
+                        <h4
+                            class="flex items-center gap-2 font-bold text-amber-400"
+                        >
+                            <v-icon size="18">mdi-alien-outline</v-icon>
+                            Alien Competencies Orchestration
+                            <span
+                                class="rounded bg-amber-500/20 px-2 py-0.5 text-xs"
+                            >
+                                {{
+                                    roleStore.orchestrationPlan.summary
+                                        .new_alien_capabilities
+                                }}
+                            </span>
+                        </h4>
+                        <p class="mt-1 text-xs text-amber-400/70">
+                            Competencias radicalmente nuevas. Evita crear
+                            micro-cargos aplicando el siguiente "Role Bundling":
+                        </p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-4">
+                            <li
+                                v-for="(orch, i) in roleStore.orchestrationPlan
+                                    .ai_orchestration"
+                                :key="i"
+                                class="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4"
+                            >
+                                <div
+                                    class="mb-2 flex items-center justify-between"
+                                >
+                                    <span class="font-bold text-amber-300">{{
+                                        orch.target_role_name
+                                    }}</span>
+                                    <StBadgeGlass
+                                        :variant="
+                                            orch.type === 'creation'
+                                                ? 'primary'
+                                                : 'warning'
+                                        "
+                                    >
+                                        {{ orch.type }}
+                                    </StBadgeGlass>
+                                </div>
+                                <div class="mb-3 flex flex-wrap gap-2">
+                                    <span
+                                        v-for="comp in orch.assigned_competencies"
+                                        :key="comp"
+                                        class="rounded-full bg-white/10 px-2 py-1 text-xs text-white"
+                                    >
+                                        {{ comp }}
+                                    </span>
+                                </div>
+                                <p
+                                    class="border-t border-amber-500/20 pt-2 text-xs text-amber-300/80 italic"
+                                >
+                                    "{{ orch.rationale }}"
+                                </p>
+                            </li>
+                            <li
+                                v-if="
+                                    roleStore.orchestrationPlan.ai_orchestration
+                                        .length === 0
+                                "
+                                class="text-sm text-white/40"
+                            >
+                                Ningún empaquetado requerido.
+                            </li>
+                        </ul>
+                    </div>
+                </StCardGlass>
+            </div>
+        </v-expand-transition>
+
         <!-- Confirmation Dialog -->
         <v-dialog v-model="confirmApproval" max-width="550" persistent>
             <StCardGlass variant="glass" border-accent="indigo" class="p-0!">
@@ -336,313 +517,345 @@
                 </p>
             </div>
 
-            <div v-else key="content" class="space-y-12">
+            <div v-else key="content" class="space-y-10">
+                <!-- ─── CUBE LEGEND ─── -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div
+                        v-for="arch in archetypes"
+                        :key="arch.key"
+                        class="rounded-2xl border p-4 text-center"
+                        :class="arch.borderClass"
+                    >
+                        <div class="mb-1 text-2xl">{{ arch.icon }}</div>
+                        <div
+                            class="mb-0.5 text-[10px] font-black tracking-[0.25em] uppercase"
+                            :class="arch.labelClass"
+                        >
+                            {{ arch.label }}
+                        </div>
+                        <div
+                            class="text-[11px] leading-snug font-medium text-white/40"
+                        >
+                            {{ arch.description }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── CUBE GRID: rows = Business Process (Z), cols = Archetype (X) ─── -->
                 <div
-                    v-for="cap in capabilities"
-                    :key="cap.id"
+                    v-for="process in businessProcesses"
+                    :key="process"
                     class="group relative"
                 >
-                    <StCardGlass variant="glass" class="overflow-visible p-0!">
-                        <!-- Capability Header -->
-                        <div
-                            class="flex items-center justify-between border-b border-white/5 bg-white/5 px-8 py-5"
+                    <!-- Process Row Header -->
+                    <div class="mb-4 flex items-center gap-4">
+                        <v-icon size="14" color="white/20"
+                            >mdi-arrow-right-circle-outline</v-icon
                         >
-                            <div class="flex items-center gap-5">
-                                <v-checkbox
-                                    v-model="groupSelections[cap.id]"
-                                    @change="toggleGroup(cap.id)"
-                                    hide-details
-                                    density="compact"
-                                    color="indigo-accent-2"
-                                    class="mt-0"
-                                ></v-checkbox>
-                                <div>
-                                    <span
-                                        class="text-[10px] font-black tracking-[0.3em] text-indigo-400 uppercase"
-                                        >Capability Node</span
-                                    >
-                                    <h4
-                                        class="text-2xl font-black tracking-tight text-white"
-                                    >
-                                        {{ cap.name }}
-                                    </h4>
-                                </div>
-                            </div>
-                            <StBadgeGlass
-                                variant="glass"
-                                size="md"
-                                class="border border-white/10!"
-                            >
-                                {{ cap.category || 'Core Business' }}
-                            </StBadgeGlass>
-                        </div>
+                        <span
+                            class="text-[10px] font-black tracking-[0.3em] text-white/25 uppercase"
+                            >Proceso de negocio</span
+                        >
+                        <span
+                            class="text-sm font-black tracking-tight text-white/60"
+                            >{{ process }}</span
+                        >
+                        <div class="h-px flex-1 bg-white/5"></div>
+                        <span class="text-[10px] font-medium text-white/20">
+                            {{ getRolesByProcess(process).length }} rol{{
+                                getRolesByProcess(process).length !== 1
+                                    ? 'es'
+                                    : ''
+                            }}
+                        </span>
+                    </div>
 
-                        <!-- Role Grid -->
+                    <!-- 3-Column Archetype Grid -->
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div
-                            class="grid grid-cols-1 gap-6 p-8 md:grid-cols-2 lg:grid-cols-3"
+                            v-for="arch in archetypes"
+                            :key="arch.key"
+                            class="relative"
                         >
+                            <!-- Column label (only in first process row) -->
                             <div
-                                v-for="role in getRolesForCapability(cap)"
-                                :key="role.id"
-                                class="role-card-glass group/card relative flex flex-col rounded-2xl border border-white/10 bg-black/40 p-6 transition-all duration-500 hover:-translate-y-2 hover:border-indigo-500/40 hover:bg-white/5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4),0_0_20px_rgba(99,102,241,0.1)]"
+                                v-if="businessProcesses.indexOf(process) === 0"
+                                class="mb-3 text-center text-[9px] font-black tracking-widest uppercase"
+                                :class="arch.labelClass"
                             >
+                                Eje X · {{ arch.label }}
+                            </div>
+
+                            <!-- Role cards in this archetype+process cell -->
+                            <div class="space-y-3">
                                 <div
-                                    class="absolute top-4 right-4 z-10 opacity-40 transition-opacity group-hover/card:opacity-100"
+                                    v-for="role in getRolesForCell(
+                                        process,
+                                        arch.key,
+                                    )"
+                                    :key="role.id"
+                                    class="role-card-glass group/card relative flex flex-col rounded-2xl border border-white/10 bg-black/40 p-5 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(0,0,0,0.4)]"
+                                    :class="arch.cardHoverClass"
                                 >
-                                    <v-checkbox
-                                        :model-value="
-                                            isSelected(role.id, 'role')
-                                        "
-                                        @update:model-value="
-                                            toggleItem(role.id, 'role')
-                                        "
-                                        hide-details
-                                        density="compact"
-                                        color="indigo-accent-2"
-                                    ></v-checkbox>
-                                </div>
-
-                                <div class="mb-5 flex flex-wrap gap-2">
-                                    <StBadgeGlass
-                                        :variant="getArchetypeVariant(role)"
-                                        size="sm"
-                                    >
-                                        {{ getArchetypeLabel(role) }}
-                                    </StBadgeGlass>
-
-                                    <v-tooltip
-                                        v-if="role.similarity_warnings?.length"
-                                        location="top"
-                                        offset="10"
-                                    >
-                                        <template v-slot:activator="{ props }">
-                                            <div v-bind="props">
-                                                <StBadgeGlass
-                                                    :variant="
-                                                        getSimilarityVariant(
-                                                            role
-                                                                .similarity_warnings[0]
-                                                                .score,
-                                                        )
-                                                    "
-                                                    size="sm"
-                                                    class="cursor-help"
-                                                >
-                                                    {{
-                                                        getSimilarityLabel(
-                                                            role
-                                                                .similarity_warnings[0]
-                                                                .score,
-                                                        )
-                                                    }}
-                                                    ({{
-                                                        Math.round(
-                                                            role
-                                                                .similarity_warnings[0]
-                                                                .score * 100,
-                                                        )
-                                                    }}%)
-                                                </StBadgeGlass>
-                                            </div>
-                                        </template>
-                                        <StCardGlass
-                                            variant="glass"
-                                            class="max-w-[280px] border-white/20 p-4! backdrop-blur-xl"
-                                        >
-                                            <div
-                                                class="mb-2 border-b border-white/10 pb-2 text-[10px] font-black tracking-widest text-white uppercase"
-                                            >
-                                                Similarity Detection
-                                            </div>
-                                            <div class="space-y-2">
-                                                <div
-                                                    v-for="w in role.similarity_warnings"
-                                                    :key="w.id"
-                                                    class="flex items-center justify-between gap-4 text-xs"
-                                                >
-                                                    <span
-                                                        class="truncate text-white/70"
-                                                        >{{ w.name }}</span
-                                                    >
-                                                    <span
-                                                        class="font-black text-indigo-400"
-                                                        >{{
-                                                            Math.round(
-                                                                w.score * 100,
-                                                            )
-                                                        }}%</span
-                                                    >
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="mt-3 text-[10px] leading-relaxed font-medium text-white/40 italic"
-                                            >
-                                                {{
-                                                    getSimilarityTip(
-                                                        role
-                                                            .similarity_warnings[0]
-                                                            .score,
-                                                    )
-                                                }}
-                                            </div>
-                                        </StCardGlass>
-                                    </v-tooltip>
-                                    <StBadgeGlass
-                                        v-else
-                                        variant="secondary"
-                                        size="sm"
-                                        >New Design</StBadgeGlass
-                                    >
-                                </div>
-
-                                <h5
-                                    class="mb-2 text-lg font-black text-white transition-colors group-hover/card:text-indigo-300"
-                                >
-                                    {{ role.role_name }}
-                                </h5>
-                                <p
-                                    class="mb-4 line-clamp-2 h-10 text-[13px] leading-relaxed font-medium text-white/40"
-                                >
-                                    {{ role.role_description }}
-                                </p>
-
-                                <!-- Cube Coordinates from Agent Proposal -->
-                                <div
-                                    v-if="role.cube_coordinates"
-                                    class="mb-4 space-y-1.5 rounded-xl border border-indigo-500/10 bg-indigo-500/5 p-3"
-                                >
+                                    <!-- Select checkbox -->
                                     <div
-                                        class="mb-2 text-[9px] font-black tracking-[0.2em] text-indigo-400/60 uppercase"
+                                        class="absolute top-3 right-3 z-10 opacity-30 transition-opacity group-hover/card:opacity-100"
                                     >
-                                        Cube · Agent Proposal
+                                        <v-checkbox
+                                            :model-value="
+                                                isSelected(role.id, 'role')
+                                            "
+                                            @update:model-value="
+                                                toggleItem(role.id, 'role')
+                                            "
+                                            hide-details
+                                            density="compact"
+                                            color="indigo-accent-2"
+                                        />
                                     </div>
+
+                                    <!-- Mastery Level (Y axis) + change type badges -->
                                     <div
-                                        v-if="
-                                            role.cube_coordinates
-                                                .z_business_process
-                                        "
-                                        class="flex items-center gap-2 text-[11px]"
+                                        class="mb-3 flex flex-wrap items-center gap-2"
                                     >
-                                        <v-icon size="10" color="indigo-300"
-                                            >mdi-briefcase-outline</v-icon
-                                        >
-                                        <span class="text-white/50"
-                                            >Process:</span
-                                        >
-                                        <span
-                                            class="truncate font-bold text-white/80"
-                                            >{{
+                                        <div
+                                            v-if="
                                                 role.cube_coordinates
-                                                    .z_business_process
-                                            }}</span
+                                                    ?.y_mastery_level
+                                            "
+                                            class="flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-black"
+                                            :class="arch.masteryClass"
                                         >
-                                    </div>
-                                    <div
-                                        v-if="
-                                            role.cube_coordinates
-                                                .y_mastery_level
-                                        "
-                                        class="flex items-center gap-2 text-[11px]"
-                                    >
-                                        <v-icon size="10" color="indigo-300"
-                                            >mdi-star-outline</v-icon
-                                        >
-                                        <span class="text-white/50"
-                                            >Mastery:</span
-                                        >
-                                        <span class="font-bold text-indigo-300"
-                                            >Tier
+                                            <v-icon size="10"
+                                                >mdi-layers-triple</v-icon
+                                            >
+                                            Tier
                                             {{
                                                 role.cube_coordinates
                                                     .y_mastery_level
-                                            }}</span
+                                            }}
+                                        </div>
+                                        <StBadgeGlass
+                                            :variant="
+                                                getRoleChangeVariant(
+                                                    role.role_change,
+                                                )
+                                            "
+                                            size="sm"
                                         >
+                                            {{
+                                                getRoleChangeLabel(
+                                                    role.role_change,
+                                                )
+                                            }}
+                                        </StBadgeGlass>
                                     </div>
+
+                                    <!-- Role name + description -->
+                                    <h5
+                                        class="mb-1.5 pr-6 text-base leading-tight font-black text-white transition-colors group-hover/card:text-indigo-300"
+                                    >
+                                        {{ role.role_name }}
+                                    </h5>
                                     <p
-                                        v-if="
-                                            role.cube_coordinates.justification
-                                        "
-                                        class="mt-1 line-clamp-2 text-[10px] text-white/30 italic"
+                                        class="mb-4 line-clamp-2 text-[12px] leading-relaxed font-medium text-white/35"
                                     >
-                                        "{{
-                                            role.cube_coordinates.justification
-                                        }}"
+                                        {{
+                                            role.role_description ||
+                                            role.cube_coordinates
+                                                ?.justification ||
+                                            '—'
+                                        }}
                                     </p>
-                                </div>
 
-                                <div class="mt-auto space-y-4">
+                                    <!-- Context row: FTE + process confirmation -->
                                     <div
-                                        class="flex items-center justify-between px-1"
+                                        class="mb-4 flex flex-wrap gap-x-3 gap-y-1 text-[10px]"
                                     >
-                                        <span
-                                            class="text-[9px] font-black tracking-[0.2em] text-white/20 uppercase"
-                                            >Required Competencies</span
+                                        <div
+                                            class="flex items-center gap-1 text-white/30"
                                         >
-                                        <v-icon size="12" color="white/10"
-                                            >mdi-dots-horizontal</v-icon
+                                            <v-icon size="9" color="white/25"
+                                                >mdi-account-supervisor</v-icon
+                                            >
+                                            <span>{{ role.fte }} FTE</span>
+                                        </div>
+                                        <div
+                                            v-if="
+                                                role.cube_coordinates
+                                                    ?.z_business_process
+                                            "
+                                            class="flex max-w-full items-center gap-1 truncate text-indigo-400/50"
                                         >
+                                            <v-icon
+                                                size="9"
+                                                color="indigo-400/35"
+                                                >mdi-swap-horizontal</v-icon
+                                            >
+                                            <span class="truncate">{{
+                                                role.cube_coordinates
+                                                    .z_business_process
+                                            }}</span>
+                                        </div>
                                     </div>
 
-                                    <div class="space-y-2">
+                                    <!-- Required Competencies -->
+                                    <div class="mt-auto">
                                         <div
-                                            v-for="(
-                                                comp, cIdx
-                                            ) in getCompetenciesForRole(role)"
-                                            :key="cIdx"
-                                            class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-white/5 p-3 transition-all hover:bg-white/10"
+                                            class="mb-2 flex items-center justify-between px-0.5"
                                         >
-                                            <div
-                                                class="flex items-center justify-between gap-2"
+                                            <span
+                                                class="text-[9px] font-black tracking-widest text-white/20 uppercase"
+                                                >Competencias</span
                                             >
-                                                <span
-                                                    class="min-w-0 truncate text-[11px] font-bold text-white/80"
-                                                    >{{ comp.name }}</span
-                                                >
+                                            <span
+                                                class="text-[9px] font-medium text-white/15"
+                                                >{{
+                                                    getCompetenciesForRole(role)
+                                                        .length
+                                                }}</span
+                                            >
+                                        </div>
+                                        <div class="space-y-1.5">
+                                            <div
+                                                v-for="(
+                                                    comp, cIdx
+                                                ) in getCompetenciesForRole(
+                                                    role,
+                                                ).slice(0, 3)"
+                                                :key="cIdx"
+                                                class="flex flex-col gap-1 rounded-lg border border-white/5 bg-white/5 px-3 py-2"
+                                            >
                                                 <div
-                                                    class="flex shrink-0 items-center gap-1.5"
+                                                    class="flex items-center justify-between gap-2"
                                                 >
-                                                    <!-- Source indicator -->
                                                     <span
-                                                        v-if="
-                                                            comp.source ===
-                                                            'agent'
-                                                        "
-                                                        class="text-[8px] font-black tracking-wider text-violet-400/60 uppercase"
-                                                        >AI</span
+                                                        class="min-w-0 truncate text-[11px] font-bold text-white/75"
+                                                        >{{ comp.name }}</span
                                                     >
-                                                    <span
-                                                        class="text-[10px] font-black"
+                                                    <div
+                                                        class="flex shrink-0 items-center gap-1"
+                                                    >
+                                                        <span
+                                                            v-if="
+                                                                comp.source ===
+                                                                'agent'
+                                                            "
+                                                            class="text-[8px] font-black text-violet-400/50 uppercase"
+                                                            >AI</span
+                                                        >
+                                                        <span
+                                                            class="text-[10px] font-black"
+                                                            :class="
+                                                                comp.source ===
+                                                                'agent'
+                                                                    ? 'text-violet-400'
+                                                                    : 'text-indigo-400'
+                                                            "
+                                                            >L{{
+                                                                comp.level
+                                                            }}</span
+                                                        >
+                                                    </div>
+                                                </div>
+                                                <div class="flex gap-0.5">
+                                                    <div
+                                                        v-for="n in 5"
+                                                        :key="n"
+                                                        class="h-0.5 flex-1 rounded-full"
                                                         :class="
-                                                            comp.source ===
-                                                            'agent'
-                                                                ? 'text-violet-400'
-                                                                : 'text-indigo-400'
+                                                            n <= comp.level
+                                                                ? comp.source ===
+                                                                  'agent'
+                                                                    ? 'bg-violet-500/50'
+                                                                    : 'bg-indigo-500'
+                                                                : 'bg-white/5'
                                                         "
-                                                        >L{{ comp.level }}</span
-                                                    >
+                                                    />
                                                 </div>
                                             </div>
-                                            <div class="flex gap-1">
-                                                <div
-                                                    v-for="n in 5"
-                                                    :key="n"
-                                                    class="h-1 flex-1 rounded-full transition-all duration-500"
-                                                    :class="
-                                                        n <= comp.level
-                                                            ? comp.source ===
-                                                              'agent'
-                                                                ? 'bg-violet-500/60 shadow-[0_0_6px_rgba(139,92,246,0.3)]'
-                                                                : 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]'
-                                                            : 'bg-white/5'
-                                                    "
-                                                ></div>
+                                            <div
+                                                v-if="
+                                                    getCompetenciesForRole(role)
+                                                        .length > 3
+                                                "
+                                                class="py-1 text-center text-[10px] text-white/20"
+                                            >
+                                                +{{
+                                                    getCompetenciesForRole(role)
+                                                        .length - 3
+                                                }}
+                                                más
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Empty cell placeholder -->
+                                <div
+                                    v-if="
+                                        getRolesForCell(process, arch.key)
+                                            .length === 0
+                                    "
+                                    class="flex h-16 items-center justify-center rounded-2xl border border-dashed border-white/5 text-[11px] text-white/10"
+                                >
+                                    —
+                                </div>
                             </div>
                         </div>
-                    </StCardGlass>
+                    </div>
+                </div>
+
+                <!-- Unclassified roles (no cube_coordinates yet) -->
+                <div v-if="unclassifiedRoles.length > 0" class="relative">
+                    <div class="mb-4 flex items-center gap-4">
+                        <v-icon size="14" color="amber-500/40"
+                            >mdi-alert-circle-outline</v-icon
+                        >
+                        <span
+                            class="text-[10px] font-black tracking-[0.3em] text-amber-500/40 uppercase"
+                            >Roles sin clasificar (sin coordenadas del
+                            cubo)</span
+                        >
+                        <div class="h-px flex-1 bg-white/5"></div>
+                    </div>
+                    <div
+                        class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+                    >
+                        <div
+                            v-for="role in unclassifiedRoles"
+                            :key="role.id"
+                            class="relative flex flex-col rounded-2xl border border-dashed border-amber-500/15 bg-amber-500/5 p-5"
+                        >
+                            <div
+                                class="absolute top-3 right-3 z-10 opacity-30 transition-opacity hover:opacity-100"
+                            >
+                                <v-checkbox
+                                    :model-value="isSelected(role.id, 'role')"
+                                    @update:model-value="
+                                        toggleItem(role.id, 'role')
+                                    "
+                                    hide-details
+                                    density="compact"
+                                    color="indigo-accent-2"
+                                />
+                            </div>
+                            <StBadgeGlass
+                                variant="warning"
+                                size="sm"
+                                class="mb-3 self-start"
+                                >Sin coordenadas</StBadgeGlass
+                            >
+                            <h5
+                                class="mb-1 pr-6 text-base font-black text-white/80"
+                            >
+                                {{ role.role_name }}
+                            </h5>
+                            <p class="line-clamp-2 text-[12px] text-white/30">
+                                {{ role.role_description || 'Sin descripción' }}
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </transition>
@@ -654,12 +867,17 @@ import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import { useNotification } from '@/composables/useNotification';
+import { useRoleCompetencyStore } from '@/stores/roleCompetencyStore';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
+
+const roleStore = useRoleCompetencyStore();
 
 const props = defineProps<{
     scenarioId: number;
 }>();
+
+const emit = defineEmits<(e: 'approved') => void>();
 
 const { showSuccess, showError } = useNotification();
 
@@ -677,6 +895,8 @@ interface Role {
     human_leverage: number;
     archetype: string;
     rationale: string;
+    fte?: number;
+    role_change?: string;
     key_competencies: any;
     similarity_warnings?: Array<{ id: number; name: string; score: number }>;
     cube_coordinates?: {
@@ -694,138 +914,135 @@ interface Competency {
     capability_id?: number;
 }
 
+// ─── Cube Axis X: Archetype definitions ────────────────────────────────────
+const archetypes = [
+    {
+        key: 'strategic',
+        label: 'Estratégico',
+        icon: '🧭',
+        description: 'Dirección, visión y toma de decisiones de alto impacto',
+        borderClass: 'border-primary/20 bg-primary/5',
+        labelClass: 'text-primary',
+        masteryClass: 'bg-primary/10 text-primary border border-primary/20',
+        cardHoverClass: 'hover:border-primary/30',
+    },
+    {
+        key: 'tactical',
+        label: 'Táctico',
+        icon: '⚙️',
+        description: 'Coordinación, gestión y ejecución de planes operativos',
+        borderClass: 'border-secondary/20 bg-secondary/5',
+        labelClass: 'text-secondary',
+        masteryClass:
+            'bg-secondary/10 text-secondary border border-secondary/20',
+        cardHoverClass: 'hover:border-secondary/30',
+    },
+    {
+        key: 'operational',
+        label: 'Operacional',
+        icon: '🔧',
+        description: 'Ejecución directa, producción y entrega de resultados',
+        borderClass: 'border-success/20 bg-success/5',
+        labelClass: 'text-success',
+        masteryClass: 'bg-success/10 text-success border border-success/20',
+        cardHoverClass: 'hover:border-success/30',
+    },
+] as const;
+
+type ArchetypeKey = (typeof archetypes)[number]['key'];
+
+// ─── State ─────────────────────────────────────────────────────────────────
 const loading = ref(false);
 const approving = ref(false);
 const confirmApproval = ref(false);
 const showMatchHelp = ref(false);
+// capabilities kept for context only (not as primary axis)
 const capabilities = ref<Capability[]>([]);
 const roles = ref<Role[]>([]);
 const competencies = ref<Competency[]>([]);
 const selectedIds = ref<string[]>([]);
-const groupSelections = ref<Record<number, boolean>>({});
 
 const hasData = computed(
     () => capabilities.value.length > 0 || roles.value.length > 0,
 );
 
-const getItemLabel = (key: string) => {
-    const [type, id] = key.split(':');
-    const numericId = Number(id);
-    if (type === 'role')
-        return roles.value.find((r) => r.id === numericId)?.role_name || 'Role';
-    if (type === 'capability')
-        return (
-            capabilities.value.find((c) => c.id === numericId)?.name ||
-            'Capability'
-        );
-    return `ID: ${id}`;
+// ─── Cube Axis X: normalize archetype key ──────────────────────────────────
+const normalizeArchetypeKey = (role: Role): ArchetypeKey => {
+    const raw = (
+        role.cube_coordinates?.x_archetype ||
+        role.archetype ||
+        ''
+    ).toLowerCase();
+    if (raw.includes('strat') || raw.includes('estratég')) return 'strategic';
+    if (raw.includes('tact') || raw.includes('tácti')) return 'tactical';
+    if (raw.includes('oper')) return 'operational';
+    // Fallback from human_leverage
+    if ((role.human_leverage ?? 0) > 70) return 'strategic';
+    if ((role.human_leverage ?? 0) > 40) return 'tactical';
+    return 'operational';
 };
 
-const fetchData = async () => {
-    loading.value = true;
-    try {
-        const res = await axios.get(
-            `/api/scenarios/${props.scenarioId}/step2/cube`,
-        );
-        const remoteData = res.data.data || res.data;
-        capabilities.value = remoteData.capabilities || [];
-        roles.value = remoteData.roles || [];
-        competencies.value = remoteData.competencies || [];
-    } catch (_e) {
-        showError('Could not load Cube data.');
-    } finally {
-        loading.value = false;
-    }
-};
-
-const approveSelection = () => {
-    confirmApproval.value = true;
-};
-
-const executeApproval = async () => {
-    approving.value = true;
-    try {
-        await axios.post(
-            `/api/scenarios/${props.scenarioId}/step2/approve-cube`,
-            {
-                selection: selectedIds.value,
-            },
-        );
-        showSuccess('Elements promoted to engineering phase');
-        confirmApproval.value = false;
-        selectedIds.value = [];
-        await fetchData();
-    } catch (_e) {
-        showError('Failed to promote elements');
-    } finally {
-        approving.value = false;
-    }
-};
-
-const getArchetypeLabel = (role: Role) => {
-    // Prioritize agent's proposed archetype from cube_coordinates
-    const agentArchetype = role.cube_coordinates?.x_archetype;
-    if (agentArchetype) return agentArchetype;
-    // Fallback: infer from human_leverage
-    if (role.human_leverage > 70) return 'Strategic (E)';
-    if (role.human_leverage > 40) return 'Tactical (T)';
-    return 'Operational (O)';
-};
-
-const getArchetypeVariant = (role: Role) => {
-    const archetype = role.cube_coordinates?.x_archetype || '';
-    if (archetype.toLowerCase().includes('strat') || role.human_leverage > 70)
-        return 'primary';
-    if (archetype.toLowerCase().includes('tact') || role.human_leverage > 40)
-        return 'secondary';
-    return 'success';
-};
-
-const getSimilarityLabel = (score: number) => {
-    if (score > 0.85) return 'Exists';
-    return 'Partial Match';
-};
-
-const getSimilarityVariant = (score: number) => {
-    if (score > 0.85) return 'glass';
-    return 'warning';
-};
-
-const getSimilarityTip = (score: number) => {
-    if (score > 0.85)
-        return 'Suggestion: Maintenance. This role is already covered in the catalog.';
-    return 'Suggestion: Transformation / Upskilling. Role evolves relative to catalog.';
-};
-
-const getRolesForCapability = (cap: Capability) => {
-    const filtered = roles.value.filter((role) => {
-        // Check matrix mappings first
-        const matrixComps = role.key_competencies;
-        if (Array.isArray(matrixComps) && matrixComps.length > 0) {
-            return matrixComps.some((c: any) => c.capability_id === cap.id);
-        }
-        // Fallback: a role with no matrix mappings is unclassified — it falls
-        // under the first capability as a catch-all (handled below)
-        return false;
+// ─── Cube Axis Z: derive unique business processes from roles ───────────────
+const businessProcesses = computed<string[]>(() => {
+    const processes = new Set<string>();
+    roles.value.forEach((r) => {
+        const proc = r.cube_coordinates?.z_business_process;
+        if (proc) processes.add(proc);
     });
+    // Process not defined → group them as "General"
+    const hasUnclassified = roles.value.some(
+        (r) => !r.cube_coordinates?.z_business_process && r.cube_coordinates,
+    );
+    if (hasUnclassified) processes.add('General');
+    return Array.from(processes);
+});
 
-    // Roles without any matrix mappings appear under the first capability tab
-    if (cap.id === capabilities.value[0]?.id) {
-        const unclassified = roles.value.filter(
-            (r) =>
-                !Array.isArray(r.key_competencies) ||
-                r.key_competencies.length === 0,
-        );
-        // Merge (avoid duplicates by id)
-        const ids = new Set(filtered.map((r) => r.id));
-        unclassified.forEach((r) => {
-            if (!ids.has(r.id)) filtered.push(r);
-        });
-    }
+// ─── Roles without any cube coordinates ────────────────────────────────────
+const unclassifiedRoles = computed(() =>
+    roles.value.filter((r) => !r.cube_coordinates),
+);
 
-    return filtered;
+// ─── Cell lookup: process (Z) + archetype (X) ─────────────────────────────
+const getRolesForCell = (
+    process: string,
+    archetypeKey: ArchetypeKey,
+): Role[] => {
+    return roles.value.filter((role) => {
+        if (!role.cube_coordinates) return false;
+        const roleProcess =
+            role.cube_coordinates.z_business_process || 'General';
+        if (roleProcess !== process) return false;
+        return normalizeArchetypeKey(role) === archetypeKey;
+    });
 };
 
+// ─── All roles in a process row (for count display) ───────────────────────
+const getRolesByProcess = (process: string): Role[] =>
+    roles.value.filter(
+        (r) =>
+            (r.cube_coordinates?.z_business_process || 'General') === process,
+    );
+
+// ─── Role change type helpers ──────────────────────────────────────────────
+const getRoleChangeLabel = (change?: string) => {
+    const map: Record<string, string> = {
+        new: 'Rol Nuevo',
+        evolve: 'Evolución',
+        sunset: 'Extinción',
+    };
+    return map[change ?? ''] ?? 'Nuevo Diseño';
+};
+
+const getRoleChangeVariant = (change?: string) => {
+    const map: Record<string, 'primary' | 'secondary' | 'error' | 'glass'> = {
+        new: 'primary',
+        evolve: 'secondary',
+        sunset: 'error',
+    };
+    return map[change ?? ''] ?? 'glass';
+};
+
+// ─── Competencies ──────────────────────────────────────────────────────────
 const getCompetenciesForRole = (role: Role) => {
     // Primary source: manual mappings from the matrix (key_competencies)
     let raw = role.key_competencies;
@@ -836,25 +1053,32 @@ const getCompetenciesForRole = (role: Role) => {
             raw = [];
         }
     }
-
-    // Fallback: if no matrix mappings, use agent's proposed core_competencies
+    // Fallback: use agent's proposed core_competencies
     if (!Array.isArray(raw) || raw.length === 0) {
         const agentComps = role.ai_suggestions?.core_competencies;
         if (Array.isArray(agentComps) && agentComps.length > 0) {
             return agentComps.map((c: any) => ({
-                name: c.name || 'Competency',
+                name: c.name || 'Competencia',
                 level: c.level ?? 3,
                 source: 'agent' as const,
             }));
         }
         return [];
     }
-
     return raw.map((c: any) => ({
-        name: c.name || c.key || 'Competency',
+        name: c.name || c.key || 'Competencia',
         level: c.level || c.score || c.required_level || 3,
         source: 'matrix' as const,
     }));
+};
+
+// ─── Selection helpers ─────────────────────────────────────────────────────
+const getItemLabel = (key: string) => {
+    const [type, id] = key.split(':');
+    const numericId = Number(id);
+    if (type === 'role')
+        return roles.value.find((r) => r.id === numericId)?.role_name || 'Role';
+    return `ID: ${id}`;
 };
 
 const isSelected = (id: number, type: string) =>
@@ -867,18 +1091,49 @@ const toggleItem = (id: number, type: string) => {
     else selectedIds.value.push(key);
 };
 
-const toggleGroup = (capId: number) => {
-    const isChecked = groupSelections.value[capId];
-    const rolesInGroup = getRolesForCapability(
-        capabilities.value.find((c) => c.id === capId)!,
-    );
-    rolesInGroup.forEach((r) => {
-        const key = `role:${r.id}`;
-        const hasKey = selectedIds.value.includes(key);
-        if (isChecked && !hasKey) selectedIds.value.push(key);
-        if (!isChecked && hasKey)
-            selectedIds.value.splice(selectedIds.value.indexOf(key), 1);
-    });
+// ─── Data fetching ─────────────────────────────────────────────────────────
+const fetchData = async () => {
+    loading.value = true;
+    try {
+        const res = await axios.get(
+            `/api/scenarios/${props.scenarioId}/step2/cube`,
+        );
+        const remoteData = res.data.data || res.data;
+        capabilities.value = remoteData.capabilities || [];
+        roles.value = remoteData.roles || [];
+        competencies.value = remoteData.competencies || [];
+
+        // Ejecutar orquestación de competencias Capability-First!
+        await roleStore.orchestrateCompetencies(props.scenarioId);
+    } catch (error_) {
+        showError('Could not load Cube data: ' + error_);
+    } finally {
+        loading.value = false;
+    }
+};
+
+// ─── Approval ─────────────────────────────────────────────────────────────
+const approveSelection = () => {
+    confirmApproval.value = true;
+};
+
+const executeApproval = async () => {
+    approving.value = true;
+    try {
+        await axios.post(
+            `/api/scenarios/${props.scenarioId}/step2/approve-cube`,
+            { selection: selectedIds.value },
+        );
+        showSuccess('Roles promovidos a la fase de ingeniería');
+        confirmApproval.value = false;
+        selectedIds.value = [];
+        await fetchData();
+        emit('approved');
+    } catch (_e) {
+        showError('No se pudo promover los elementos');
+    } finally {
+        approving.value = false;
+    }
 };
 
 onMounted(fetchData);

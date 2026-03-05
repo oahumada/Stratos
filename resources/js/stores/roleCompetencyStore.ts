@@ -40,6 +40,33 @@ export interface RowData {
     mappings: Map<number, RoleCompetencyMapping>;
 }
 
+export interface OrchestrationSummary {
+    total_capabilities_from_step1: number;
+    existing_capabilities_matched: number;
+    new_alien_capabilities: number;
+}
+
+export interface OrganicImpact {
+    official_competency: string;
+    scenario_capability_name: string;
+    vector_similarity_score: string;
+    action_required: string;
+}
+
+export interface AiOrchestratedRole {
+    type: 'enrichment' | 'creation';
+    target_role_name: string;
+    target_role_id: number | null;
+    assigned_competencies: string[];
+    rationale: string;
+}
+
+export interface OrchestrationPlanData {
+    summary: OrchestrationSummary;
+    organic_impact: OrganicImpact[];
+    ai_orchestration: AiOrchestratedRole[];
+}
+
 export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
     // State
     const scenarioId = ref<number | null>(null);
@@ -53,6 +80,10 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
     const loading = ref(false);
     const error = ref<string | null>(null);
     const success = ref<string | null>(null);
+
+    // Orquestación
+    const orchestrationPlan = ref<OrchestrationPlanData | null>(null);
+    const isOrchestrating = ref(false);
 
     // Computed
     const matrixRows = computed(() => {
@@ -368,6 +399,46 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
         }
     };
 
+    const orchestrateCompetencies = async (id: number) => {
+        isOrchestrating.value = true;
+        error.value = null;
+        try {
+            const response = await fetch(
+                `/api/scenarios/${id}/step2/orchestrate-capabilities`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    'Falló la orquestación de competencias alienígenas.',
+                );
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                orchestrationPlan.value = {
+                    summary: data.summary,
+                    organic_impact: data.organic_impact,
+                    ai_orchestration: data.ai_orchestration,
+                };
+            }
+        } catch (err: unknown) {
+            error.value =
+                err instanceof Error
+                    ? err.message
+                    : 'Error de red al orquestar competencias';
+            console.error('Error orchestrating:', err);
+        } finally {
+            isOrchestrating.value = false;
+        }
+    };
+
     const getMapping = (
         roleId: number,
         competencyId: number,
@@ -396,6 +467,8 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
         loading,
         error,
         success,
+        orchestrationPlan,
+        isOrchestrating,
 
         // Computed
         matrixRows,
@@ -409,6 +482,7 @@ export const useRoleCompetencyStore = defineStore('roleCompetency', () => {
         designTalent,
         applyAgentProposals,
         finalizeStep2,
+        orchestrateCompetencies,
         getMapping,
         clearMessages,
     };
