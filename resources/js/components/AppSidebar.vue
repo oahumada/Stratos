@@ -168,6 +168,15 @@ const allNavItems: NavItem[] = [
         requiredPermission: 'assessments.view',
         requiredModule: 'st-360',
     },
+    // Stratos Map Heatmap
+    {
+        title: 'Stratos Map (Heatmap)',
+        href: '/talento360/map',
+        icon: defineComponent(
+            () => () => h(VIcon, { icon: 'mdi-map', size: 20 }),
+        ),
+        requiredModule: 'core',
+    },
     // Comando 360 — admin/hr_leader only
     {
         title: 'Comando 360',

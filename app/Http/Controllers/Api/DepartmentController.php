@@ -64,6 +64,32 @@ class DepartmentController extends Controller
     }
 
     /**
+     * Heatmap Data para Echarts (Stratos Map)
+     * Retorna [ [x, y, value], ... ] x=Departamento, y=Competencia/Skill
+     */
+    public function heatmapData(Request $request)
+    {
+        // Esto en producción se genera dinámicamente conectando Departments -> People -> PeopleRoleSkills -> Skills
+        $departments = ['Ventas', 'Ingeniería', 'Producto', 'Marketing', 'Data', 'Recursos Humanos', 'Operaciones'];
+        $skills = ['Python', 'SQL', 'Liderazgo', 'Negociación', 'AI/ML', 'Comunicación', 'UX/UI', 'Finanzas'];
+        
+        $data = [];
+        // [X, Y, Value] - X is horizontal (departments), Y is vertical (skills)
+        foreach ($departments as $x => $dep) {
+            foreach ($skills as $y => $skill) {
+                // Random heat value between 0 (Bad) and 100 (Excellent)
+                $data[] = [$x, $y, rand(20, 100)];
+            }
+        }
+
+        return response()->json([
+            'x_axis' => $departments,
+            'y_axis' => $skills,
+            'data'   => $data
+        ]);
+    }
+
+    /**
      * Función recursiva helper para construir el árbol.
      */
     private function buildTree($elements, $parentId = null)

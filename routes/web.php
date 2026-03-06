@@ -109,6 +109,10 @@ Route::get('/talento360/results/{id}', function ($id) {
     return Inertia::render('Talento360/AssessmentResults', ['sessionId' => $id]);
 })->middleware(['auth', 'verified'])->name('talento360.results');
 
+Route::get('/talento360/map', function () {
+    return Inertia::render('Talento360/StratosMap');
+})->middleware(['auth', 'verified', 'module:core'])->name('talento360.map');
+
 Route::get('/talento360/relationships', function () {
     return Inertia::render('Talento360/RelationshipMap');
 })->middleware(['auth', 'verified', 'module:st-map'])->name('talento360.relationships');
