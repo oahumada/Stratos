@@ -81,6 +81,18 @@ class Roles extends Model
         return $this->hasMany(RoleSkill::class, 'role_id');
     }
 
+    public function competencies(): BelongsToMany
+    {
+        return $this->belongsToMany(Competency::class, 'role_competencies', 'role_id', 'competency_id')
+            ->withPivot('required_level', 'is_core', 'rationale')
+            ->withTimestamps();
+    }
+
+    public function roleCompetencies(): HasMany
+    {
+        return $this->hasMany(RoleCompetency::class, 'role_id');
+    }
+
     public function jobOpenings(): HasMany
     {
         return $this->hasMany(JobOpening::class);

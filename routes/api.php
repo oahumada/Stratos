@@ -164,6 +164,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/people/profile/{id}', [\App\Http\Controllers\Api\PeopleProfileController::class, 'show']);
 
+    // Organigrama (Departamentos)
+    Route::get('/departments/tree', [\App\Http\Controllers\Api\DepartmentController::class, 'tree']);
+    Route::post('/departments/hierarchy', [\App\Http\Controllers\Api\DepartmentController::class, 'updateHierarchy']);
+    Route::post('/departments/{id}/manager', [\App\Http\Controllers\Api\DepartmentController::class, 'setManager']);
+
     Route::get('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'index'])->middleware('role:admin');
     Route::post('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'update'])->middleware('role:admin');
         

@@ -55,6 +55,10 @@ Route::get('/people/{id}', function ($id) {
     return Inertia::render('People/Show', ['id' => $id]);
 })->middleware(['auth', 'verified'])->name('people.show');
 
+Route::get('/departments/org-chart', function () {
+    return Inertia::render('Departments/OrganizationChart');
+})->middleware(['auth', 'verified', 'module:core'])->name('departments.org-chart');
+
 Route::get('/roles', function () {
     return Inertia::render('Roles/Index');
 })->middleware(['auth', 'verified'])->name('roles.index');

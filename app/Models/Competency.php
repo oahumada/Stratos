@@ -60,8 +60,19 @@ class Competency extends Model
         $cols = ['weight', 'priority', 'required_level', 'rationale', 'is_required'];
 
         return array_values(array_filter($cols, function ($c) {
-            return Schema::hasColumn('competency_skills', $c);
+            return \Illuminate\Support\Facades\Schema::hasColumn('competency_skills', $c);
         }));
+    }
+    public function roles()
+    {
+        return $this->belongsToMany(Roles::class, 'role_competencies', 'competency_id', 'role_id')
+            ->withPivot('required_level', 'is_core', 'rationale')
+            ->withTimestamps();
+    }
+
+    public function roleCompetencies()
+    {
+        return $this->hasMany(RoleCompetency::class, 'competency_id');
     }
 
     public function competencySkills()

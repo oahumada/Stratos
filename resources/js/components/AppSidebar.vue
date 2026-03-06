@@ -94,6 +94,16 @@ const allNavItems: NavItem[] = [
         icon: BookOpen,
         requiredPermission: 'roles.view',
     },
+    // Organigrama — requires people.view
+    {
+        title: 'Organigrama',
+        href: '/departments/org-chart',
+        icon: defineComponent(
+            () => () => h(VIcon, { icon: 'mdi-file-tree', size: 20 }),
+        ),
+        requiredPermission: 'people.view',
+        requiredModule: 'core',
+    },
     // Competencies — requires competencies.view
     {
         title: 'Competencies',
