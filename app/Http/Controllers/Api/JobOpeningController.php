@@ -13,7 +13,7 @@ class JobOpeningController extends Controller
     {
         $openings = JobOpening::with('role', 'createdBy')
             ->get()
-            ->map(fn ($o) => [
+            ->map(fn (JobOpening $o) => [
                 'id' => $o->id,
                 'title' => $o->title,
                 'role' => $o->role?->name,
@@ -42,6 +42,11 @@ class JobOpeningController extends Controller
             ],
             'department' => $opening->department,
             'status' => $opening->status,
+            'is_external' => $opening->is_external,
+            'slug' => $opening->slug,
+            'description' => $opening->description,
+            'requirements' => $opening->requirements,
+            'benefits' => $opening->benefits,
             'deadline' => $opening->deadline,
             'created_by' => $opening->createdBy?->name,
             'applications_count' => $opening->applications()->count(),

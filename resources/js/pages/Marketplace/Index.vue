@@ -808,7 +808,7 @@ void loadOpportunities;
                         <div
                             class="d-flex align-center justify-space-between w-100"
                         >
-                            <div class="flex-grow-1">
+                            <div class="grow">
                                 <div class="text-h6 font-weight-bold">
                                     {{ position.title }}
                                 </div>
@@ -1154,7 +1154,7 @@ void loadOpportunities;
                                 <div
                                     class="d-flex justify-space-between align-center w-100"
                                 >
-                                    <div class="flex-grow-1">
+                                    <div class="grow">
                                         <h3
                                             class="text-h6 font-weight-bold mb-0"
                                         >
@@ -1335,113 +1335,182 @@ void loadOpportunities;
                     style="background: rgb(var(--v-theme-surface))"
                 >
                     <div v-if="aiInsightData">
-                        <!-- Score -->
-                        <div class="d-flex align-center mb-8 justify-center">
+                        <div class="d-flex mb-8 justify-center">
                             <div class="text-center">
                                 <v-progress-circular
                                     :model-value="
+                                        aiInsightData.fitness_score ||
                                         aiInsightData.hidden_potential_score
                                     "
                                     :color="
                                         getMatchColor(
-                                            aiInsightData.hidden_potential_score,
+                                            aiInsightData.fitness_score ||
+                                                aiInsightData.hidden_potential_score,
                                         )
                                     "
-                                    size="120"
-                                    width="12"
+                                    size="140"
+                                    width="14"
                                 >
-                                    <div class="text-h4 font-weight-bold">
-                                        {{
-                                            aiInsightData.hidden_potential_score
-                                        }}%
+                                    <div class="text-center">
+                                        <div class="text-h4 font-weight-black">
+                                            {{
+                                                aiInsightData.fitness_score ||
+                                                aiInsightData.hidden_potential_score
+                                            }}%
+                                        </div>
+                                        <div
+                                            class="text-[10px] font-black tracking-widest uppercase opacity-50"
+                                        >
+                                            Match DNA
+                                        </div>
                                     </div>
                                 </v-progress-circular>
-                                <div
-                                    class="text-subtitle-1 font-weight-bold mt-3"
-                                >
-                                    Hidden Potential Score
-                                </div>
-                                <div class="text-caption text-medium-emphasis">
-                                    Evaluado por Inteligencia Artificial
+                                <div class="mt-4">
+                                    <v-chip
+                                        size="small"
+                                        :color="
+                                            getMatchColor(
+                                                aiInsightData.fitness_score ||
+                                                    aiInsightData.hidden_potential_score,
+                                            )
+                                        "
+                                        variant="flat"
+                                        class="font-black"
+                                    >
+                                        POTENCIAL:
+                                        {{
+                                            aiInsightData.hidden_potential_label ||
+                                            'Calculando...'
+                                        }}
+                                    </v-chip>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Strengths & Risks -->
-                        <v-row class="mb-4">
+                        <v-row class="mb-6">
                             <v-col cols="12" md="6">
                                 <div class="d-flex align-center mb-3">
                                     <v-icon color="success" class="mr-2"
-                                        >mdi-trending-up</v-icon
+                                        >mdi-check-decagram</v-icon
                                     >
-                                    <span class="font-weight-bold text-success"
-                                        >Fortalezas Clave</span
+                                    <span
+                                        class="text-success text-caption font-bold tracking-widest uppercase"
+                                        >Fortalezas de Resonancia</span
                                     >
                                 </div>
-                                <ul class="text-body-2 pl-5">
-                                    <li
-                                        v-for="strength in aiInsightData.strengths"
-                                        :key="strength"
-                                        class="mb-2"
-                                    >
-                                        {{ strength }}
-                                    </li>
-                                </ul>
+                                <div
+                                    class="bg-success-lighten-5 pa-3 border-success-lighten-4 h-100 rounded-lg border"
+                                >
+                                    <ul class="text-body-2 pl-4">
+                                        <li
+                                            v-for="strength in aiInsightData.strengths"
+                                            :key="strength"
+                                            class="mb-2"
+                                        >
+                                            {{ strength }}
+                                        </li>
+                                    </ul>
+                                </div>
                             </v-col>
                             <v-col cols="12" md="6">
                                 <div class="d-flex align-center mb-3">
-                                    <v-icon color="error" class="mr-2"
-                                        >mdi-alert-circle-outline</v-icon
+                                    <v-icon color="warning" class="mr-2"
+                                        >mdi-shield-alert</v-icon
                                     >
-                                    <span class="font-weight-bold text-error"
-                                        >Riesgos / Brechas</span
+                                    <span
+                                        class="text-warning text-caption font-bold tracking-widest uppercase"
+                                        >Brechas Críticas</span
                                     >
                                 </div>
-                                <ul class="text-body-2 pl-5">
-                                    <li
-                                        v-for="risk in aiInsightData.risks"
-                                        :key="risk"
-                                        class="mb-2"
-                                    >
-                                        {{ risk }}
-                                    </li>
-                                </ul>
+                                <div
+                                    class="bg-warning-lighten-5 pa-3 border-warning-lighten-4 h-100 rounded-lg border"
+                                >
+                                    <ul class="text-body-2 pl-4">
+                                        <li
+                                            v-for="risk in aiInsightData.risks"
+                                            :key="risk"
+                                            class="mb-2"
+                                        >
+                                            {{ risk }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </v-col>
+                        </v-row>
+
+                        <!-- Retention & Mitigation -->
+                        <v-row class="mb-6">
+                            <v-col cols="12" md="6">
+                                <div
+                                    class="text-caption mb-1 font-black tracking-widest uppercase opacity-60"
+                                >
+                                    Pronóstico de Retención
+                                </div>
+                                <div class="text-body-2 font-bold">
+                                    {{
+                                        aiInsightData.retention_forecast ||
+                                        'No disponible'
+                                    }}
+                                </div>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <div
+                                    class="text-caption mb-1 font-black tracking-widest uppercase opacity-60"
+                                >
+                                    Plan de Mitigación (90 días)
+                                </div>
+                                <div class="text-body-2">
+                                    {{
+                                        aiInsightData.mitigation_plan ||
+                                        'No disponible'
+                                    }}
+                                </div>
                             </v-col>
                         </v-row>
 
                         <!-- Strategic Rationale -->
                         <v-card
-                            variant="tonal"
-                            color="primary"
-                            class="mt-6 rounded-lg"
+                            variant="flat"
+                            color="blue-grey-lighten-5"
+                            class="pa-2 rounded-xl border-s-4 border-primary"
                         >
-                            <v-card-text class="pa-5">
+                            <v-card-text>
                                 <div class="d-flex align-center mb-2">
-                                    <v-icon size="small" class="mr-2"
-                                        >mdi-lightbulb-on</v-icon
+                                    <v-icon
+                                        color="primary"
+                                        size="small"
+                                        class="mr-2"
+                                        >mdi-brain</v-icon
                                     >
-                                    <span class="font-weight-bold"
-                                        >Recomendación Estratégica</span
+                                    <span
+                                        class="text-caption font-black tracking-widest text-primary uppercase"
+                                        >Veredicto del Matchmaker</span
                                     >
                                 </div>
                                 <div
-                                    class="text-body-1"
+                                    class="text-body-2 text-blue-grey-darken-3 italic"
                                     style="line-height: 1.6"
                                 >
-                                    {{ aiInsightData.strategic_rationale }}
+                                    "{{ aiInsightData.strategic_rationale }}"
                                 </div>
                             </v-card-text>
                         </v-card>
                     </div>
-                    <div v-else class="py-8 text-center">
+                    <div v-else class="py-12 text-center">
                         <v-progress-circular
                             indeterminate
                             color="primary"
-                            size="48"
-                            class="mb-4"
+                            size="64"
+                            width="6"
+                            class="mb-6"
                         ></v-progress-circular>
-                        <div class="text-body-1 text-medium-emphasis">
-                            Generando análisis profundo del candidato...
+                        <div class="text-h6 font-weight-bold">
+                            Decodificando Talent DNA
+                        </div>
+                        <div class="text-body-2 text-medium-emphasis">
+                            El motor de Resonancia está evaluando el fit
+                            cultural y técnico...
                         </div>
                     </div>
                 </v-card-text>

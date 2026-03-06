@@ -47,6 +47,11 @@ Route::get('/catalogs', [\App\Http\Controllers\Api\CatalogsController::class, 'i
 Route::get('/assessments/feedback/{token}', [\App\Http\Controllers\Api\AssessmentController::class, 'showByToken']);
 Route::post('/assessments/feedback/submit-guest', [\App\Http\Controllers\Api\AssessmentController::class, 'submitFeedbackGuest']);
 
+// Career Portal (Stratos Magnet - Public)
+Route::get('/career/{tenantSlug}', [\App\Http\Controllers\Api\PublicJobController::class, 'index']);
+Route::get('/career/{tenantSlug}/jobs/{jobSlug}', [\App\Http\Controllers\Api\PublicJobController::class, 'show']);
+Route::post('/career/{tenantSlug}/jobs/{jobSlug}/apply', [\App\Http\Controllers\Api\PublicJobController::class, 'apply']);
+
 // Core services
 Route::patch('/development-actions/{id}/status', [\App\Http\Controllers\Api\DevelopmentActionController::class, 'updateStatus']);
 Route::get('/mentorship-sessions', [\App\Http\Controllers\Api\MentorshipSessionController::class, 'index']);

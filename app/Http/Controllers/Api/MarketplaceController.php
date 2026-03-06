@@ -111,50 +111,10 @@ class MarketplaceController extends Controller
                 ->get();
 
             // Calcular match para cada persona
-            $candidates = $people->map(function ($person) use ($opening, $gapService) {
-                $analysis = $gapService->calculate($person, $opening->role);
-
-                // Excluir candidatos con match muy bajo (no viables)
-                if ($analysis['match_percentage'] < self::MINIMUM_MATCH_THRESHOLD) {
-                    return null; // Se filtrará después
-                }
-
-                $totalGapDays = collect($analysis['gaps'])
-                    ->where('gap', '>', 0)
-                    ->sum(fn ($gap) => $gap['gap'] * 30);
-
-                $matchPct = $analysis['match_percentage'];
-
-                // Determinar nivel de match para categorización
-                $matchLevel = 'very_low'; // <30%
-                if ($matchPct >= 80) {
-                    $matchLevel = 'excellent';
-                } elseif ($matchPct >= 70) {
-                    $matchLevel = 'high';
-                } elseif ($matchPct >= 50) {
-                    $matchLevel = 'medium';
-                } elseif ($matchPct >= 30) {
-                    $matchLevel = 'low';
-                }
-
-                return [
-                    'id' => $person->id,
-                    'name' => $person->full_name ?? ($person->first_name.' '.$person->last_name),
-                    'current_role' => $person->role->name ?? 'Sin rol',
-                    'match_percentage' => $matchPct,
-                    'match_level' => $matchLevel,
-                    'time_to_productivity' => $totalGapDays > 0 ? $totalGapDays : 15,
-                    'category' => $analysis['summary']['category'],
-                    'missing_skills_count' => collect($analysis['gaps'])->where('gap', '>', 0)->count(),
-                    'critical_skills_missing' => collect($analysis['gaps'])
-                        ->where('is_critical', true)
-                        ->where('gap', '>', 0)
-                        ->count(),
-                ];
-            })
-                ->filter() // Eliminar nulls (candidatos bajo umbral)
+            $candidates = $people->map(fn (People $person) => $this->mapPersonToCandidate($person, $opening, $gapService))
+                ->filter()
                 ->sortByDesc('match_percentage')
-                ->values(); // Solo candidatos viables (≥40% match)
+                ->values();
 
             // Agrupar candidatos por nivel de match para insights
             $candidatesByLevel = [
@@ -196,40 +156,66 @@ class MarketplaceController extends Controller
         ]);
     }
 
+    protected function mapPersonToCandidate(People $person, JobOpening $opening, GapAnalysisService $gapService): ?array
+    {
+        $analysis = $gapService->calculate($person, $opening->role);
+
+        // Excluir candidatos con match muy bajo (no viables)
+        if ($analysis['match_percentage'] < self::MINIMUM_MATCH_THRESHOLD) {
+            return null;
+        }
+
+        $totalGapDays = collect($analysis['gaps'])
+            ->where('gap', '>', 0)
+            ->sum(fn ($gap) => $gap['gap'] * 30);
+
+        $matchPct = $analysis['match_percentage'];
+
+        // Determinar nivel de match para categorización
+        $matchLevel = 'very_low'; // <30%
+        if ($matchPct >= 80) {
+            $matchLevel = 'excellent';
+        } elseif ($matchPct >= 70) {
+            $matchLevel = 'high';
+        } elseif ($matchPct >= 50) {
+            $matchLevel = 'medium';
+        } elseif ($matchPct >= 30) {
+            $matchLevel = 'low';
+        }
+
+        return [
+            'id' => $person->id,
+            'name' => $person->full_name ?? ($person->first_name.' '.$person->last_name),
+            'current_role' => $person->role->name ?? 'Sin rol',
+            'match_percentage' => $matchPct,
+            'match_level' => $matchLevel,
+            'time_to_productivity' => $totalGapDays > 0 ? $totalGapDays : 15,
+            'category' => $analysis['summary']['category'],
+            'missing_skills_count' => collect($analysis['gaps'])->where('gap', '>', 0)->count(),
+            'critical_skills_missing' => collect($analysis['gaps'])
+                ->where('is_critical', true)
+                ->where('gap', '>', 0)
+                ->count(),
+        ];
+    }
+
     /**
      * Obtains an AI-generated match insight summary for a single candidate against a job opening.
      */
-    public function aiMatchInsights(int $positionId, int $candidateId, AiOrchestratorService $aiOrchestrator): JsonResponse
-    {
-        $opening = JobOpening::with('role.skills')->findOrFail($positionId);
-        $candidate = People::with(['role.skills', 'skills'])->findOrFail($candidateId);
+    public function aiMatchInsights(
+        int $positionId,
+        int $candidateId,
+        \App\Services\Talent\AiInternalMatchmakerService $matchmaker
+    ): JsonResponse {
+        $result = $matchmaker->assessCandidateFitness($positionId, $candidateId);
 
-        $gapService = new GapAnalysisService;
-        $analysis = $gapService->calculate($candidate, $opening->role);
-
-        $prompt = "Evalúa la viabilidad de {$candidate->first_name} {$candidate->last_name} " .
-                  "(actualmente '{$candidate->role->name}') para la posición de '{$opening->title}' " .
-                  "({$opening->role->name}).\n\n" .
-                  "Análisis técnico base:\n" . json_encode($analysis, JSON_PRETTY_PRINT) . "\n\n" .
-                  "Por favor, responde ESTRICTAMENTE en un formato JSON válido con la siguiente estructura:\n" .
-                  "{\n" .
-                  "  \"hidden_potential_score\": <numero del 1 al 100>,\n" .
-                  "  \"strengths\": [\"fortaleza 1\", \"fortaleza 2\"],\n" .
-                  "  \"risks\": [\"riesgo 1\", \"riesgo 2\"],\n" .
-                  "  \"strategic_rationale\": \"Párrafo explicativo de por qué esta persona hace sentido o no para la vacante y cómo mitigar sus brechas.\"\n" .
-                  "}";
-
-        try {
-            // Using a generic Matchmaker or Talento agent
-            $result = $aiOrchestrator->agentThink('Matchmaker de Resonancia', $prompt);
-            
-            // Si el result['data'] contiene la estructura, la devolvemos
-            return response()->json([
-                'data' => $result['data'] ?? $result
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('AI Match Insights Error: ' . $e->getMessage());
-            return response()->json(['error' => 'No se pudo generar el análisis IA', 'details' => $e->getMessage()], 500);
+        if ($result['status'] === 'error') {
+            return response()->json($result, 500);
         }
+
+        return response()->json([
+            'data' => $result['fitness_data'],
+            'metadata' => $result['metadata']
+        ]);
     }
 }

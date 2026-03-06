@@ -29,6 +29,13 @@ Route::get('/scenario-demo', function () {
 // External Assessment Feedback Form (Public)
 Route::get('/assessments/feedback/{token}', [\App\Http\Controllers\Api\AssessmentController::class, 'showExternalForm']);
 
+// Stratos Magnet - Public Career Portal
+Route::get('/career/{tenant}', function ($tenant) {
+    return Inertia::render('Careers/PublicPortal', [
+        'tenant' => $tenant
+    ]);
+})->name('public.careers');
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
