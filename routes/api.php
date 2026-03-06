@@ -176,6 +176,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // People Experience Command Center
     Route::apiResource('px-campaigns', \App\Http\Controllers\Api\PxCampaignController::class)
         ->middleware('permission:assessments.manage');
+        
+    Route::post('/people-experience/employee-pulses', [\App\Http\Controllers\Api\PulseController::class, 'storeEmployeePulse']);
+    Route::get('/people-experience/employee-pulses', [\App\Http\Controllers\Api\PulseController::class, 'listEmployeePulses']);
 
     Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::class, 'analyze']);
     Route::get('/development-paths', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'index']);
@@ -260,6 +263,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('/sessions/{id}/messages', [\App\Http\Controllers\Api\AssessmentController::class, 'sendMessage']);
                 Route::post('/sessions/{id}/analyze', [\App\Http\Controllers\Api\AssessmentController::class, 'analyze']);
                 Route::get('/metrics', [\App\Http\Controllers\Api\Talento360Controller::class, 'metrics']);
+                Route::post('/{peopleId}/triangulate', [\App\Http\Controllers\Api\AssessmentController::class, 'triangulate360']);
                 
                 Route::prefix('feedback')->group(function () {
                     Route::post('/request', [\App\Http\Controllers\Api\AssessmentController::class, 'requestFeedback']);

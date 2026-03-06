@@ -12,14 +12,14 @@ use Illuminate\Http\Request;
 
 class DevelopmentPathController extends Controller
 {
-    protected $smartGenerator;
+    protected $navigator;
     protected $pathService;
 
     public function __construct(
-        \App\Services\Talent\SmartPathGeneratorService $smartGenerator,
+        \App\Services\Talent\AiDevelopmentNavigatorService $navigator,
         DevelopmentPathService $pathService
     ) {
-        $this->smartGenerator = $smartGenerator;
+        $this->navigator = $navigator;
         $this->pathService = $pathService;
     }
 
@@ -97,17 +97,15 @@ class DevelopmentPathController extends Controller
 
     protected function handleSmartPath(array $data, People $people): JsonResponse
     {
-        $currentLevel = $data['current_level'] ?? 1;
-        $targetLevel = $data['target_level'] ?? 3;
+        $targetLevel = $data['target_level'] ?? 4;
         
-        $path = $this->smartGenerator->generatePath(
+        $path = $this->navigator->generateAiPath(
             $people->id,
             $data['skill_id'],
-            $currentLevel,
             $targetLevel
         );
 
-        return response()->json(['data' => $path->load('actions')], 201);
+        return response()->json(['data' => $path], 201);
     }
 
     protected function handleLegacyCareerPath(array $data, People $people): JsonResponse

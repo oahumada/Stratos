@@ -60,6 +60,32 @@ class PulseController extends Controller
     }
 
     /**
+     * Guarda el pulso recurrente de 10 segundos (EmployeePulse) y pide IA Análisis.
+     */
+    public function storeEmployeePulse(Request $request, \App\Services\Intelligence\TurnoverPredictorService $predictor): JsonResponse
+    {
+        $data = $request->validate([
+            'people_id' => ['required', 'exists:people,id'],
+            'e_nps' => ['nullable', 'integer', 'min:0', 'max:10'],
+            'stress_level' => ['nullable', 'integer', 'min:1', 'max:5'],
+            'engagement_level' => ['nullable', 'integer', 'min:1', 'max:5'],
+            'comments' => ['nullable', 'string'],
+        ]);
+
+        $pulse = \App\Models\EmployeePulse::create($data);
+
+        // Desencadenar la IA predictiva de forma síncrona/asíncrona
+        // Lo dejamos síncrono para demostración ràpida en Frontend
+        $predictor->analyzeRiskForPulse($pulse);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pulso registrado. El Córtex de Talento ha ajustado su análisis predictivo.',
+            'data' => $pulse->refresh()
+        ], 201);
+    }
+
+    /**
      * Calcula un score de sentimiento básico basado en ratings.
      */
     protected function calculateSentiment(array $answers): float
@@ -99,5 +125,21 @@ class PulseController extends Controller
                 'message' => 'Error en escaneo de salud: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Lista los últimos pulsos con su análisis de riesgo de la IA.
+     */
+    public function listEmployeePulses(Request $request): JsonResponse
+    {
+        $pulses = \App\Models\EmployeePulse::with('person')
+            ->latest()
+            ->limit(50)
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $pulses
+        ]);
     }
 }

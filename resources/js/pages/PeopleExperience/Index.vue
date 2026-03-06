@@ -1,385 +1,289 @@
-<template>
-        <v-container
-            fluid
-            class="pa-6 bg-grey-lighten-4 fill-height align-start"
-        >
-            <v-row>
-                <v-col cols="12">
-                    <div class="d-flex align-center mb-6">
-                        <div>
-                            <h1 class="text-h4 font-weight-bold mb-1">
-                                People Experience
-                            </h1>
-                            <p class="text-subtitle-1 text-grey-darken-1">
-                                Monitoreo dinámico del bienestar y compromiso
-                                organizacional.
-                            </p>
-                        </div>
-                        <v-spacer></v-spacer>
-                        <v-btn
-                            color="primary"
-                            prepend-icon="mdi-plus"
-                            class="text-none"
-                        >
-                            Nueva Encuesta Pulse
-                        </v-btn>
-                    </div>
-                </v-col>
-
-                <!-- KPI Cards -->
-                <v-col cols="12" md="3">
-                    <v-card class="pa-4 rounded-xl" elevation="1">
-                        <div class="d-flex align-center mb-2">
-                            <v-avatar color="blue-lighten-5" class="mr-3">
-                                <v-icon
-                                    color="blue"
-                                    icon="mdi-heart-pulse"
-                                ></v-icon>
-                            </v-avatar>
-                            <span
-                                class="text-subtitle-2 text-grey-darken-1 font-weight-medium"
-                                >Score de Bienestar</span
-                            >
-                        </div>
-                        <div class="text-h4 font-weight-bold">78%</div>
-                        <div
-                            class="text-caption text-success d-flex align-center mt-1"
-                        >
-                            <v-icon
-                                icon="mdi-arrow-up"
-                                size="x-small"
-                                class="mr-1"
-                            ></v-icon>
-                            +4% vs mes anterior
-                        </div>
-                    </v-card>
-                </v-col>
-
-                <v-col cols="12" md="3">
-                    <v-card class="pa-4 rounded-xl" elevation="1">
-                        <div class="d-flex align-center mb-2">
-                            <v-avatar color="green-lighten-5" class="mr-3">
-                                <v-icon
-                                    color="green"
-                                    icon="mdi-account-star"
-                                ></v-icon>
-                            </v-avatar>
-                            <span
-                                class="text-subtitle-2 text-grey-darken-1 font-weight-medium"
-                                >Engagement (eNPS)</span
-                            >
-                        </div>
-                        <div class="text-h4 font-weight-bold">42</div>
-                        <div
-                            class="text-caption text-success d-flex align-center mt-1"
-                        >
-                            <v-icon
-                                icon="mdi-arrow-up"
-                                size="x-small"
-                                class="mr-1"
-                            ></v-icon>
-                            Top 10% industria
-                        </div>
-                    </v-card>
-                </v-col>
-
-                <v-col cols="12" md="3">
-                    <v-card class="pa-4 rounded-xl" elevation="1">
-                        <div class="d-flex align-center mb-2">
-                            <v-avatar color="orange-lighten-5" class="mr-3">
-                                <v-icon
-                                    color="orange"
-                                    icon="mdi-comment-check"
-                                ></v-icon>
-                            </v-avatar>
-                            <span
-                                class="text-subtitle-2 text-grey-darken-1 font-weight-medium"
-                                >Tasa de Respuesta</span
-                            >
-                        </div>
-                        <div class="text-h4 font-weight-bold">85%</div>
-                        <div class="text-caption text-grey mt-1">
-                            Promedio histórico (Pulse)
-                        </div>
-                    </v-card>
-                </v-col>
-
-                <v-col cols="12" md="3">
-                    <v-card class="pa-4 rounded-xl" elevation="1">
-                        <div class="d-flex align-center mb-2">
-                            <v-avatar color="purple-lighten-5" class="mr-3">
-                                <v-icon
-                                    color="purple"
-                                    icon="mdi-lightning-bolt"
-                                ></v-icon>
-                            </v-avatar>
-                            <span
-                                class="text-subtitle-2 text-grey-darken-1 font-weight-medium"
-                                >Acciones Abiertas</span
-                            >
-                        </div>
-                        <div class="text-h4 font-weight-bold">12</div>
-                        <div class="text-caption text-warning mt-1">
-                            4 críticas por resolver
-                        </div>
-                    </v-card>
-                </v-col>
-
-                <!-- Sentiment Chart -->
-                <v-col cols="12" md="8">
-                    <v-card class="pa-6 fill-height rounded-xl" elevation="1">
-                        <div class="d-flex align-center mb-6">
-                            <h3 class="text-h6 font-weight-bold">
-                                Tendencia de Sentimiento
-                            </h3>
-                            <v-spacer></v-spacer>
-                            <v-select
-                                :items="['Últimos 3 meses', '6 meses', 'Año']"
-                                density="compact"
-                                variant="outlined"
-                                hide-details
-                                style="max-width: 180px"
-                                class="text-caption"
-                            ></v-select>
-                        </div>
-                        <div
-                            style="height: 300px"
-                            class="d-flex align-end justify-space-between px-4 pb-4"
-                        >
-                            <!-- Simple custom bars for sentiment trending -->
-                            <div
-                                v-for="(val, i) in [65, 68, 72, 70, 75, 78]"
-                                :key="i"
-                                class="d-flex flex-column align-center"
-                                style="width: 12%"
-                            >
-                                <div
-                                    class="bg-blue-lighten-1 rounded-t-lg transition-all"
-                                    :style="{
-                                        height: val * 2.5 + 'px',
-                                        width: '32px',
-                                    }"
-                                ></div>
-                                <span class="text-caption text-grey mt-2"
-                                    >Mes {{ i + 1 }}</span
-                                >
-                            </div>
-                        </div>
-                    </v-card>
-                </v-col>
-
-                <!-- Top Insights -->
-                <v-col cols="12" md="4">
-                    <v-card class="pa-6 fill-height rounded-xl" elevation="1">
-                        <h3 class="text-h6 font-weight-bold mb-4">
-                            Insights de IA
-                        </h3>
-                        <v-list density="compact" class="bg-transparent">
-                            <v-list-item class="align-start mb-4 px-0">
-                                <template v-slot:prepend>
-                                    <v-icon
-                                        color="success"
-                                        icon="mdi-auto-fix"
-                                        size="small"
-                                        class="mt-1 mr-2"
-                                    ></v-icon>
-                                </template>
-                                <div>
-                                    <div class="text-body-2 font-weight-bold">
-                                        Equilibrio Vida-Trabajo alto
-                                    </div>
-                                    <div class="text-caption text-grey">
-                                        El departamento de Tecnología reporta un
-                                        aumento en satisfacción tras la nueva
-                                        política de 'No-Meetings Wednesday'.
-                                    </div>
-                                </div>
-                            </v-list-item>
-
-                            <v-list-item class="align-start mb-4 px-0">
-                                <template v-slot:prepend>
-                                    <v-icon
-                                        color="warning"
-                                        icon="mdi-alert-circle-outline"
-                                        size="small"
-                                        class="mt-1 mr-2"
-                                    ></v-icon>
-                                </template>
-                                <div>
-                                    <div class="text-body-2 font-weight-bold">
-                                        Riesgo de Burnout
-                                    </div>
-                                    <div class="text-caption text-grey">
-                                        El área de Operaciones muestra fatiga
-                                        acumulada por cierres de proyecto.
-                                        Sugerencia: Revisar distribución de
-                                        cargas.
-                                    </div>
-                                </div>
-                            </v-list-item>
-
-                            <v-list-item class="align-start px-0">
-                                <template v-slot:prepend>
-                                    <v-icon
-                                        color="primary"
-                                        icon="mdi-star-outline"
-                                        size="small"
-                                        class="mt-1 mr-2"
-                                    ></v-icon>
-                                </template>
-                                <div>
-                                    <div class="text-body-2 font-weight-bold">
-                                        Oportunidad de Desarrollo
-                                    </div>
-                                    <div class="text-caption text-grey">
-                                        Un 60% de los colaboradores pide
-                                        mentorías técnicas. Vincular con el
-                                        módulo de Learning Paths.
-                                    </div>
-                                </div>
-                            </v-list-item>
-                        </v-list>
-                        <v-btn
-                            variant="tonal"
-                            block
-                            color="primary"
-                            class="text-none mt-4"
-                            >Expandir Análisis</v-btn
-                        >
-                    </v-card>
-                </v-col>
-
-                <!-- Pulse Surveys List -->
-                <v-col cols="12">
-                    <v-card
-                        class="pa-0 rounded-xl"
-                        elevation="1 overflow-hidden"
-                    >
-                        <v-card-title class="pa-6 border-b">
-                            <span class="text-h6 font-weight-bold"
-                                >Encuestas Pulse Recientes</span
-                            >
-                        </v-card-title>
-                        <v-data-table
-                            :headers="headers"
-                            :items="surveys"
-                            class="bg-transparent"
-                            hide-default-footer
-                        >
-                            <template #[`item.type`]="{ item }">
-                                <v-chip
-                                    size="x-small"
-                                    :color="getTypeColor(item.type)"
-                                    variant="tonal"
-                                >
-                                    {{ item.type.toUpperCase() }}
-                                </v-chip>
-                            </template>
-                            <template #[`item.sentiment_score`]="{ item }">
-                                <div class="d-flex align-center">
-                                    <v-progress-linear
-                                        :model-value="item.sentiment_score"
-                                        color="blue"
-                                        height="6"
-                                        rounded
-                                        class="mr-3"
-                                        style="width: 100px"
-                                    ></v-progress-linear>
-                                    <span class="text-caption font-weight-bold"
-                                        >{{ item.sentiment_score }}%</span
-                                    >
-                                </div>
-                            </template>
-                            <template #[`item.actions`]="{ item }">
-                                <v-btn
-                                    icon="mdi-eye-outline"
-                                    variant="text"
-                                    size="small"
-                                    color="grey"
-                                    @click="viewResults(item)"
-                                ></v-btn>
-                                <v-btn
-                                    icon="mdi-share-variant"
-                                    variant="text"
-                                    size="small"
-                                    color="grey"
-                                ></v-btn>
-                            </template>
-                        </v-data-table>
-                    </v-card>
-                </v-col>
-            </v-row>
-        </v-container>
-</template>
-
 <script setup lang="ts">
-import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import {
+    PhHeart,
+    PhRocketLaunch,
+    PhSmiley,
+    PhSmileyAngry,
+    PhWaves,
+} from '@phosphor-icons/vue';
+import { ref } from 'vue';
+import StButtonGlass from '../../components/StButtonGlass.vue';
 
-interface Survey {
-    id: number;
-    title: string;
-    type: string;
-    responses_count: number;
-    sentiment_score: number;
-    created_at: string;
-}
+const props = defineProps<{
+    user_id: number;
+}>();
 
-const surveys = ref<Survey[]>([]);
-const loading = ref(false);
+const submitted = ref(false);
+const currentStep = ref(1);
 
-const headers = [
-    { title: 'Encuesta', key: 'title', align: 'start' as const },
-    { title: 'Tipo', key: 'type', align: 'center' as const },
-    { title: 'Respuestas', key: 'responses_count', align: 'center' as const },
-    { title: 'Sentimiento', key: 'sentiment_score', align: 'start' as const },
-    { title: 'Fecha', key: 'created_at', align: 'end' as const },
-    { title: '', key: 'actions', sortable: false, align: 'end' as const },
-];
+const form = useForm({
+    people_id: props.user_id || 1, // Mock para pruebas si no viene el ID
+    e_nps: null as number | null,
+    stress_level: 3,
+    engagement_level: 3,
+    comments: '',
+});
 
-const fetchSurveys = async () => {
-    loading.value = true;
-    try {
-        const response = await axios.get('/api/pulse-surveys');
-        // Mocking some scores for the UI display
-        surveys.value = response.data.data.map((s: any) => ({
-            ...s,
-            sentiment_score: Math.floor(Math.random() * (90 - 40 + 1)) + 40,
-            created_at: new Date(s.created_at).toLocaleDateString(),
-        }));
-    } catch (e) {
-        console.error('Error fetching pulse surveys', e);
-    } finally {
-        loading.value = false;
-    }
+const setNps = (val: number) => {
+    form.e_nps = val;
 };
 
-const getTypeColor = (type: string) => {
-    switch (type) {
-        case 'engagement':
-            return 'primary';
-        case 'climate':
-            return 'success';
-        case 'enps':
-            return 'purple';
-        default:
-            return 'grey';
-    }
+const submitPulse = () => {
+    form.post('/api/people-experience/employee-pulses', {
+        onSuccess: () => {
+            submitted.value = true;
+        },
+    });
 };
 
-const viewResults = (survey: Survey) => {
-    console.log('Viewing results for', survey.id);
+const next = () => {
+    if (currentStep.value < 4) currentStep.value++;
 };
-
-onMounted(fetchSurveys);
 </script>
 
+<template>
+    <div
+        class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-slate-950 px-4 py-12"
+    >
+        <Head title="Stratos Px - Tu Pulso Hoy" />
+
+        <!-- Background Orbs -->
+        <div
+            class="pointer-events-none absolute -top-24 -right-24 h-96 w-96 animate-pulse rounded-full bg-indigo-500/10 blur-[120px]"
+        ></div>
+        <div
+            class="pointer-events-none absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-emerald-500/10 blur-[120px]"
+            style="animation-delay: 2s"
+        ></div>
+
+        <div
+            v-if="!submitted"
+            class="relative z-10 w-full max-w-md transition-all duration-500"
+        >
+            <div class="mb-10 text-center">
+                <div
+                    class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 shadow-lg shadow-indigo-500/10"
+                >
+                    <PhWaves :size="32" weight="duotone" />
+                </div>
+                <h1 class="mb-2 text-3xl font-black tracking-tight text-white">
+                    ¡Hola!
+                </h1>
+                <p class="font-medium text-white/40">
+                    Solo nos toma 10 segundos saber cómo estás.
+                </p>
+            </div>
+
+            <!-- Wizard Content -->
+            <div
+                class="relative rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-3xl"
+            >
+                <!-- Step 1: eNPS -->
+                <div v-if="currentStep === 1" class="animate-fade-in">
+                    <h2 class="mb-8 text-center text-xl font-bold text-white">
+                        ¿Qué tan probable es que recomiendes trabajar aquí hoy?
+                    </h2>
+
+                    <div class="mb-10 grid grid-cols-5 gap-3">
+                        <button
+                            v-for="n in 10"
+                            :key="n - 1"
+                            @click="setNps(n - 1)"
+                            class="flex aspect-square items-center justify-center rounded-xl border font-bold transition-all duration-300"
+                            :class="[
+                                form.e_nps === n - 1
+                                    ? 'scale-110 border-indigo-400 bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
+                                    : 'border-white/5 bg-white/5 text-white/40 hover:bg-white/10',
+                            ]"
+                        >
+                            {{ n - 1 }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Stress -->
+                <div v-if="currentStep === 2" class="animate-fade-in">
+                    <h2 class="mb-8 text-center text-xl font-bold text-white">
+                        ¿Cuál es tu nivel de estrés esta semana?
+                    </h2>
+                    <div
+                        class="mb-8 flex items-center justify-between rounded-2xl bg-white/5 p-6"
+                    >
+                        <div class="flex flex-col items-center gap-2">
+                            <PhSmiley
+                                :size="40"
+                                :weight="
+                                    form.stress_level === 1 ? 'fill' : 'light'
+                                "
+                                class="text-emerald-400"
+                                @click="form.stress_level = 1"
+                            />
+                            <span
+                                class="text-[10px] font-black text-white/30 uppercase"
+                                >Relax</span
+                            >
+                        </div>
+                        <div class="mx-2 h-px flex-1 bg-white/10"></div>
+                        <div class="flex flex-col items-center gap-2">
+                            <PhSmileyAngry
+                                :size="40"
+                                :weight="
+                                    form.stress_level === 5 ? 'fill' : 'light'
+                                "
+                                class="text-rose-400"
+                                @click="form.stress_level = 5"
+                            />
+                            <span
+                                class="text-[10px] font-black text-white/30 uppercase"
+                                >Burnout</span
+                            >
+                        </div>
+                    </div>
+                    <v-slider
+                        v-model="form.stress_level"
+                        min="1"
+                        max="5"
+                        step="1"
+                        color="indigo"
+                        thumb-label
+                        hide-details
+                    ></v-slider>
+                </div>
+
+                <!-- Step 3: Engagement -->
+                <div v-if="currentStep === 3" class="animate-fade-in">
+                    <h2 class="mb-8 text-center text-xl font-bold text-white">
+                        ¿Cómo sientes tu conexión con el propósito?
+                    </h2>
+                    <div class="mb-8 flex flex-col gap-4">
+                        <button
+                            v-for="i in 5"
+                            :key="i"
+                            @click="form.engagement_level = i"
+                            class="flex items-center gap-4 rounded-2xl border p-4 transition-all duration-300"
+                            :class="[
+                                form.engagement_level === i
+                                    ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
+                                    : 'border-white/5 bg-white/5 text-white/40',
+                            ]"
+                        >
+                            <PhHeart
+                                :size="24"
+                                :weight="
+                                    form.engagement_level >= i
+                                        ? 'fill'
+                                        : 'light'
+                                "
+                            />
+                            <span class="font-bold">Nivel {{ i }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Comments -->
+                <div v-if="currentStep === 4" class="animate-fade-in">
+                    <h2 class="mb-4 text-center text-xl font-bold text-white">
+                        ¿Algo más que nos quieras decir?
+                    </h2>
+                    <p class="mb-6 text-center text-sm text-white/40">
+                        (Opcional y confidencial)
+                    </p>
+                    <textarea
+                        v-model="form.comments"
+                        class="mb-6 h-32 w-full resize-none rounded-2xl border border-white/10 bg-white/5 p-4 text-white placeholder-white/20 transition-all focus:border-indigo-500/50 focus:outline-none"
+                        placeholder="Cualquier idea, queja o sugerencia..."
+                    ></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-4">
+                    <StButtonGlass
+                        v-if="currentStep > 1"
+                        variant="ghost"
+                        block
+                        @click="currentStep--"
+                    >
+                        Atrás
+                    </StButtonGlass>
+
+                    <StButtonGlass
+                        v-if="currentStep < 4"
+                        variant="primary"
+                        block
+                        :disabled="currentStep === 1 && form.e_nps === null"
+                        @click="next"
+                    >
+                        Siguiente
+                    </StButtonGlass>
+
+                    <StButtonGlass
+                        v-else
+                        variant="primary"
+                        block
+                        @click="submitPulse"
+                        :loading="form.processing"
+                        :icon="PhRocketLaunch"
+                    >
+                        Enviar Pulso
+                    </StButtonGlass>
+                </div>
+
+                <!-- Progress dots -->
+                <div class="mt-8 flex justify-center gap-2">
+                    <div
+                        v-for="i in 4"
+                        :key="i"
+                        class="h-1 rounded-full transition-all duration-300"
+                        :class="[
+                            i === currentStep
+                                ? 'w-8 bg-indigo-500'
+                                : 'w-2 bg-white/10',
+                        ]"
+                    ></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div v-else class="animate-fade-in max-w-md text-center">
+            <div
+                class="mb-8 inline-flex h-24 w-24 items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/20 text-emerald-400 shadow-[0_0_50px_rgba(16,185,129,0.2)]"
+            >
+                <PhCheckCircle :size="56" weight="fill" />
+            </div>
+            <h1 class="mb-4 text-4xl font-black text-white">¡Gracias!</h1>
+            <p class="mb-10 text-xl leading-relaxed text-white/50">
+                Tu aporte ya está siendo analizado por el Córtex de Talento para
+                mejorar tu experiencia.
+            </p>
+            <StButtonGlass
+                variant="ghost"
+                @click="
+                    submitted = false;
+                    currentStep = 1;
+                    form.reset();
+                "
+            >
+                Enviar otro pulso
+            </StButtonGlass>
+        </div>
+    </div>
+</template>
+
 <style scoped>
-.transition-all {
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
 }
-.transition-all:hover {
-    filter: brightness(1.1);
-    transform: scaleX(1.1);
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>

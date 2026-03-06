@@ -46,21 +46,21 @@ _El corazón del sistema. Tiene que funcionar impecable para poder vender el pro
 
 ---
 
-## 🎯 FASE 2: Desarrollo de Módulos Fundacionales (Semanas 6-9)
+## ✅ FASE 2: Desarrollo de Módulos Fundacionales (COMPLETADA)
 
 _Los módulos que traen el flujo de datos real hacia el sistema._
 
-### 1. Stratos 360 (El "Santo Grial" del Desempeño)
+### 1. Stratos 360 (El "Santo Grial" del Desempeño) - [x] ✅
 
 - **UI:** Interfaces de evaluación cruzada limpias, neutrales y rápidas.
-- **Algoritmo de Triangulación de IA:** Desarrollar el servicio en Python/Laravel que neutralice las evaluaciones. Tomará como input: Puntuaciones del Manager, Puntuaciones de Pares, Evidencias/Logros anexados y KPIs del sistema para generar el "Verdadero Nivel de Skill".
-- **Degradación Elegante:** Si la evaluación está incompleta, el sistema usa "fallbacks" lógicos para no detener los procesos del _Map_.
+- **Algoritmo de Triangulación de IA:** Desarrollado un motor LLM robusto que traduce _Skill Atoms_ (rúbricas) en _Competency Molecules_ (agrupaciones), neutralizando sesgos de severidad y complacencia.
+- **Degradación Elegante:** Sistema con fallbacks lógicos para reportes incompletos.
 
-### 2. Stratos Px (People Experience y Temperatura)
+### 2. Stratos Px (People Experience y Temperatura) - [x] ✅
 
-- **Micro-Motor de Encuestas:** Sistema de lanzamiento recurrente minimalista.
-- **Mobile First Px (Pendiente Wave 2):** Desarrollo prioritario de una interfaz UX/UI fluida y 100% móvil, bajando la fricción para que los empleados reporten su estado y clima en menos de 5 segundos desde sus teléfonos.
-- **Alerta Temprana:** Dashboards predictivos de Riesgo de Rotación y Satisfacción, alimentando el mapa oculto de talento de la empresa.
+- **Micro-Motor de Encuestas (Pulse Engine):** Sistema de lanzamiento recurrente minimalista (eNPS, Stress, Engagement).
+- **Mobile First Px:** Interfaz UX fluida y 100% móvil integrada (`/people-experience`).
+- **Alerta Temprana (Predictive Turnover):** Dashboard para el CHRO (`/people-experience/comando`) con predicción de riesgo de renuncia mediante IA, cruzando sentimientos cualitativos y métricas cuantitativas.
 
 ---
 
@@ -79,6 +79,12 @@ _La etapa donde la plataforma deja de ser pasiva y comienza a actuar automática
 - **Algoritmo de Match:** Heurística de IA para ranquear y proponer el mejor talento interno de la nómina contra nuevas vacantes.
 - **Talent Pass y Timeline Evolutivo (Pendientes Wave 2):** Consolidación del "CV 2.0" y diseño del _Timeline_, permitiendo visualizar gráficamente cómo ha mutado el ADN y el acervo de habilidades del empleado mes a mes.
 - **Misiones de Gremio y Gamificación (Pendientes Wave 2):** Operativización técnica del marco de _Blindaje Octalysis_ (ya diseñado conceptualmente). Implementación de dinámicas grupales ("Guilds" o "Gremios") y Quests para impulsar la adopción del sistema social.
+
+### 3. Stratos Magnet (Reclutamiento y Adquisición Abierta)
+
+- **Reclutamiento Espejo:** Reutilización algorítmica. El mismo motor de "Match" o "Fitness Score" utilizado en el Marketplace interno, conectado a un portal de captación de postulantes (Careers Page).
+- **IA Entrevistadora (Stratos AI):** Despliegue del motor de Agentes IA (CrewAI) para automatizar la entrevista primaria conductual y calificar a los externos contra los "Blueprints" de los perfiles óptimos internos.
+- **Candidate Experience "Stratos Glass":** Portal externo premium con UI inmersiva para que la marca empleadora sea percibida como de élite mundial.
 
 ---
 

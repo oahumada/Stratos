@@ -523,4 +523,22 @@ class AssessmentController extends Controller
 
         return $req;
     }
+
+    /**
+     * Triangula las evaluaciones cruzadas de un colaborador (Stratos 360 AI).
+     */
+    public function triangulate360(Request $request, $peopleId, \App\Services\Assessment\Stratos360TriangulationService $triangulationService)
+    {
+        $validated = $request->validate([
+            'cycle_id' => 'nullable|exists:assessment_cycles,id'
+        ]);
+
+        $result = $triangulationService->triangulate((int) $peopleId, $validated['cycle_id'] ?? null);
+
+        if ($result['status'] === 'error') {
+            return $this->errorResponse($result['message'], 400);
+        }
+
+        return $this->successResponse($result, 'Triangulación completada y sesgos neutralizados.');
+    }
 }

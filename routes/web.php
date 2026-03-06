@@ -76,7 +76,7 @@ Route::get('/gap-analysis', function () {
 })->middleware(['auth', 'verified', 'module:core'])->name('gap-analysis.index');
 
 Route::get('/learning-paths', function () {
-    return Inertia::render('LearningPaths/Index');
+    return Inertia::render('LearningPaths/StratosNavigator');
 })->middleware(['auth', 'verified', 'module:st-grow'])->name('learning-paths.index');
 
 Route::get('/marketplace', function () {
@@ -113,6 +113,10 @@ Route::get('/talento360/map', function () {
     return Inertia::render('Talento360/StratosMap');
 })->middleware(['auth', 'verified', 'module:core'])->name('talento360.map');
 
+Route::get('/talento360/triangulation/{id}', function ($id) {
+    return Inertia::render('Talento360/TriangulationDashboard', ['peopleId' => $id]);
+})->middleware(['auth', 'verified'])->name('talento360.triangulation');
+
 Route::get('/talento360/relationships', function () {
     return Inertia::render('Talento360/RelationshipMap');
 })->middleware(['auth', 'verified', 'module:st-map'])->name('talento360.relationships');
@@ -131,11 +135,11 @@ Route::get('/talento360/comando', function () {
 
 Route::get('/people-experience', function () {
     return Inertia::render('PeopleExperience/Index');
-})->middleware(['auth', 'verified', 'module:st-px'])->name('people-experience.index');
+})->name('people-experience.index');
 
 Route::get('/people-experience/comando', function () {
     return Inertia::render('PeopleExperience/ComandoPx');
-})->middleware(['auth', 'verified', 'role:admin,hr_leader', 'module:st-px'])->name('people-experience.comando');
+})->middleware(['auth', 'verified', 'role:admin,hr_leader'])->name('people-experience.comando');
 
 Route::get('/talent-agents', function () {
     return Inertia::render('TalentAgents/Index');
