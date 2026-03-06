@@ -10,10 +10,11 @@ class Organizations extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'subdomain', 'industry', 'size'];
+    protected $fillable = ['name', 'subdomain', 'industry', 'size', 'active_modules'];
 
     protected $casts = [
         'size' => 'string',
+        'active_modules' => 'array',
     ];
 
     public function users(): HasMany
@@ -52,5 +53,19 @@ class Organizations extends Model
     public function smartAlerts(): HasMany
     {
         return $this->hasMany(SmartAlert::class, 'organization_id');
+    }
+
+    /**
+     * Check if the organization has access to a specific module.
+     * Always returns true for 'core'.
+     */
+    public function hasModule(string $module): bool
+    {
+        if ($module === 'core') {
+            return true;
+        }
+        
+        $active_modules = is_array($this->active_modules) ? $this->active_modules : [];
+        return in_array($module, $active_modules);
     }
 }

@@ -15,6 +15,7 @@ class Skill extends Model
     use HasFactory;
     protected $fillable = [
         'organization_id',
+        'parent_id',
         'llm_id',
         'name',
         'category',
@@ -161,5 +162,15 @@ class Skill extends Model
     public function isSpecific(): bool
     {
         return $this->scope_type === 'specific';
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Skill::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Skill::class, 'parent_id');
     }
 }

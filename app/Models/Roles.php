@@ -18,6 +18,7 @@ class Roles extends Model
 
     protected $fillable = [
         'organization_id',
+        'parent_id',
         'llm_id',
         'name',
         'level',
@@ -98,5 +99,15 @@ class Roles extends Model
     public function versions(): HasMany
     {
         return $this->hasMany(\App\Models\RoleVersion::class, 'role_id');
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Roles::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Roles::class, 'parent_id');
     }
 }

@@ -6,6 +6,7 @@ export interface Auth {
     user: User;
     role: string;
     permissions: string[];
+    active_modules: string[];
 }
 
 export interface BreadcrumbItem {
@@ -20,6 +21,7 @@ export interface NavItem {
     isActive?: boolean;
     requiredPermission?: string;
     requiredRole?: string[];
+    requiredModule?: string;
 }
 
 export type AppPageProps<

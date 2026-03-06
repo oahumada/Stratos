@@ -12,6 +12,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { usePermissions } from '@/composables/usePermissions';
+import { useTenantStore } from '@/stores/tenantStore';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import {
@@ -58,6 +59,8 @@ const InvestorRadarIcon = defineComponent(
 );
 
 const { can, hasRole } = usePermissions();
+const tenantStore = useTenantStore();
+tenantStore.initFromProps();
 
 const allNavItems: NavItem[] = [
     // Visible for everyone
@@ -99,6 +102,7 @@ const allNavItems: NavItem[] = [
             () => () => h(VIcon, { icon: 'mdi-puzzle', size: 20 }),
         ),
         requiredPermission: 'competencies.view',
+        requiredModule: 'core',
     },
     // Skills — requires competencies.view
     {
@@ -113,6 +117,7 @@ const allNavItems: NavItem[] = [
         href: '/talento360/relationships',
         icon: CerberoMapIcon,
         requiredPermission: 'assessments.view',
+        requiredModule: 'st-map',
     },
     // Gap Analysis — requires people.view
     {
@@ -127,6 +132,7 @@ const allNavItems: NavItem[] = [
         href: '/learning-paths',
         icon: Star,
         requiredPermission: 'people.view',
+        requiredModule: 'st-grow',
     },
     // Marketplace — requires people.view
     {
@@ -134,6 +140,7 @@ const allNavItems: NavItem[] = [
         href: '/marketplace',
         icon: MarketplaceIcon,
         requiredPermission: 'people.view',
+        requiredModule: 'st-match',
     },
     // Strategic Scenarios — requires scenarios.view
     {
@@ -141,6 +148,7 @@ const allNavItems: NavItem[] = [
         href: '/scenario-planning',
         icon: ScenarioPlanningIcon,
         requiredPermission: 'scenarios.view',
+        requiredModule: 'st-radar',
     },
     // Talento 360 — requires assessments.view
     {
@@ -148,6 +156,7 @@ const allNavItems: NavItem[] = [
         href: '/talento360',
         icon: Talento360Icon,
         requiredPermission: 'assessments.view',
+        requiredModule: 'st-360',
     },
     // Comando 360 — admin/hr_leader only
     {
@@ -164,6 +173,7 @@ const allNavItems: NavItem[] = [
         href: '/people-experience',
         icon: PeopleExperienceIcon,
         requiredPermission: 'people.view',
+        requiredModule: 'st-px',
     },
     // Comando PX — admin/hr_leader only
     {
@@ -203,6 +213,10 @@ const mainNavItems = computed<NavItem[]>(() => {
 
         // Check role
         if (item.requiredRole && !hasRole(...item.requiredRole)) return false;
+
+        // Check module
+        if (item.requiredModule && !tenantStore.hasModule(item.requiredModule))
+            return false;
 
         return true;
     });

@@ -69,24 +69,24 @@ Route::get('/skills', function () {
 
 Route::get('/gap-analysis', function () {
     return Inertia::render('GapAnalysis/Index');
-})->middleware(['auth', 'verified'])->name('gap-analysis.index');
+})->middleware(['auth', 'verified', 'module:core'])->name('gap-analysis.index');
 
 Route::get('/learning-paths', function () {
     return Inertia::render('LearningPaths/Index');
-})->middleware(['auth', 'verified'])->name('learning-paths.index');
+})->middleware(['auth', 'verified', 'module:st-grow'])->name('learning-paths.index');
 
 Route::get('/marketplace', function () {
     return Inertia::render('Marketplace/Index');
-})->middleware(['auth', 'verified'])->name('marketplace.index');
+})->middleware(['auth', 'verified', 'module:st-match'])->name('marketplace.index');
 
 // Alias routes for new frontend naming: /scenario-planning
 Route::get('/scenario-planning', function () {
     return Inertia::render('ScenarioPlanning/ScenarioList');
-})->middleware(['auth', 'verified'])->name('scenario-planning.index');
+})->middleware(['auth', 'verified', 'module:st-radar'])->name('scenario-planning.index');
 
 Route::get('/scenario-planning/{id}', function ($id) {
     return Inertia::render('ScenarioPlanning/ScenarioDetail', ['scenarioId' => $id]);
-})->middleware(['auth', 'verified'])->name('scenario-planning.show');
+})->middleware(['auth', 'verified', 'module:st-radar'])->name('scenario-planning.show');
 
 // Backwards-compatibility aliases: /strategic-planning -> /scenario-planning
 Route::get('/strategic-planning', function () {
@@ -99,7 +99,7 @@ Route::get('/strategic-planning/{id}', function ($id) {
 
 Route::get('/talento360', function () {
     return Inertia::render('Talento360/Dashboard');
-})->middleware(['auth', 'verified'])->name('talento360.index');
+})->middleware(['auth', 'verified', 'module:st-360'])->name('talento360.index');
 
 Route::get('/talento360/results/{id}', function ($id) {
     return Inertia::render('Talento360/AssessmentResults', ['sessionId' => $id]);
@@ -107,7 +107,7 @@ Route::get('/talento360/results/{id}', function ($id) {
 
 Route::get('/talento360/relationships', function () {
     return Inertia::render('Talento360/RelationshipMap');
-})->middleware(['auth', 'verified'])->name('talento360.relationships');
+})->middleware(['auth', 'verified', 'module:st-map'])->name('talento360.relationships');
 
 Route::get('/talento360/bars', function () {
     return Inertia::render('Talento360/BARS/Index');
@@ -123,11 +123,11 @@ Route::get('/talento360/comando', function () {
 
 Route::get('/people-experience', function () {
     return Inertia::render('PeopleExperience/Index');
-})->middleware(['auth', 'verified'])->name('people-experience.index');
+})->middleware(['auth', 'verified', 'module:st-px'])->name('people-experience.index');
 
 Route::get('/people-experience/comando', function () {
     return Inertia::render('PeopleExperience/ComandoPx');
-})->middleware(['auth', 'verified', 'role:admin,hr_leader'])->name('people-experience.comando');
+})->middleware(['auth', 'verified', 'role:admin,hr_leader', 'module:st-px'])->name('people-experience.comando');
 
 Route::get('/talent-agents', function () {
     return Inertia::render('TalentAgents/Index');
