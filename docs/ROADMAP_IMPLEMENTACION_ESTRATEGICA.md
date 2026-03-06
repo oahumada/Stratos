@@ -1,6 +1,6 @@
-# 🗺️ Roadmap de Implementación Estratégica: Visión "Core + Órbitas"
+# 🌊 Wave 3: Roadmap de Implementación Estratégica ("Core + Órbitas")
 
-> Plan Maestro de Ingeniería para transformar la base actual de Stratos en una Plataforma de Orquestación de Talento Organizacional de Clase Mundial.
+> Plan Maestro de Ingeniería para transformar la base MVP y los bloques de las Waves previas en una Plataforma de Orquestación de Talento Organizacional de Clase Mundial.
 
 ## 🎯 Objetivo General
 
@@ -8,21 +8,25 @@ Transformar el MVP actual (monolito) en una arquitectura **Modular por Feature T
 
 ---
 
-## 🏗️ FASE 0: Refactorización Estructural (Semanas 1-2)
+## 🏗️ FASE 0: Refactorización Estructural y Seguridad (Semanas 1-2)
 
-_Preparando los cimientos para que la arquitectura "Core + Órbitas" funcione sin deuda técnica._
+_Preparando los cimientos para que la arquitectura "Core + Órbitas" funcione sin deuda técnica_ **(Incluye integraciones rezagadas de Wave 2)**.
 
 ### 1. Sistema de "Feature Toggles" (Tenant Modules)
 
-- **Base de Datos:** Modificar la tabla principal de `tenants` (o `companies`) para incluir una columna `active_modules` (jsonb).
-- **Backend (Laravel):** Crear Middleware y un Provider (`TenantModuleProvider`) para interceptar las peticiones y verificar si el tenant tiene activo el módulo respectivo.
-- **Frontend (Vue 3):** Implementar en Pinia un `store/tenantStore.ts` que guarde los módulos activos. Renderizar Sidebar, Rutas (Vue Router) y Dashboards condicionalmente. Si el módulo no está activo, mostrar "Pantalla Candado" (Upselling).
+- **Base de Datos:** Modificar la tabla principal de `tenants` para incluir una columna `active_modules` (jsonb).
+- **Backend (Laravel):** Crear Middleware y un Provider (`TenantModuleProvider`) para interceptar las peticiones y verificar restricciones.
+- **Frontend (Vue 3):** Store en Pinia `tenantStore.ts` y renderizado de módulos condicional (UI Candado/Upselling).
 
-### 2. Arquitectura de Eventos Interna (Low-Coupled Event Driven)
+### 2. Arquitectura de Eventos Interna
 
-- Definir un bus de eventos estricto en Laravel.
-  _Ejemplo:_ Cuando se actualiza un rol, emitir `App\Events\RoleRequirementsUpdated`, y no actualizar el perfil del usuario directamente. Los módulos que escuchen (como _Grow_ o _Radar_) reaccionarán en _Background Jobs_.
-- Configurar colas de Laravel (`Redis` o `Database`) para procesamiento asíncrono.
+- Definir bus de eventos estricto en Laravel (`App\Events\RoleRequirementsUpdated`).
+- Configurar colas (`Redis`/`Database`) para procesamiento asíncrono.
+
+### 3. Gateway Híbrido de Acceso (Pendiente Wave 2)
+
+- Finalizar la capa de seguridad integrando SSO (OAuth2 / SAML) para despliegues _Enterprise_, unificando con los Magic Links existentes.
+- Sentar las bases conceptuales y modelos de control para **Sovereign Identity** (Credenciales verificables W3C / Blockchain).
 
 ---
 
@@ -54,8 +58,9 @@ _Los módulos que traen el flujo de datos real hacia el sistema._
 
 ### 2. Stratos Px (People Experience y Temperatura)
 
-- **Micro-Motor de Encuestas:** Sistema de lanzamiento de encuestas recurrentes y minimalistas vía Email/Plataforma.
-- **Alerta Temprana:** Dashboards con mapas de calor de Clima, Riesgo de Rotación y Satisfacción, alimentando silenciosamente el perfil oculto del empleado.
+- **Micro-Motor de Encuestas:** Sistema de lanzamiento recurrente minimalista.
+- **Mobile First Px (Pendiente Wave 2):** Desarrollo prioritario de una interfaz UX/UI fluida y 100% móvil, bajando la fricción para que los empleados reporten su estado y clima en menos de 5 segundos desde sus teléfonos.
+- **Alerta Temprana:** Dashboards predictivos de Riesgo de Rotación y Satisfacción, alimentando el mapa oculto de talento de la empresa.
 
 ---
 
@@ -69,10 +74,11 @@ _La etapa donde la plataforma deja de ser pasiva y comienza a actuar automática
 - **Generación de Rutas con IA:** Integración con LLMs (OpenAI/Anthropic) para que, basado en la brecha, sugiera un pensum automático (cursos, mentoría de Pares con skills altos, proyectos).
 - **Fallback (Modo sin Stratos 360):** Permitir "Módulos de Autoevaluación" rápida para poder generar rutas incluso si la empresa no pagó el módulo 360.
 
-### 2. Stratos Match (Liquid Talent Marketplace)
+### 2. Stratos Match y Ecosistema de Adopción (Liquid Talent Marketplace)
 
-- **Lógica de Vacantes:** Interfaz para creación de Oportunidades / Proyectos internos.
-- **Algoritmo de Fitness Match:** Servicio de Machine Learning/Heurística (Cosine Similarity entre Skills Requeridos y Skills del Perfil) para ranquear y proponer el talento interno ideal libre de sesgos.
+- **Algoritmo de Match:** Heurística de IA para ranquear y proponer el mejor talento interno de la nómina contra nuevas vacantes.
+- **Talent Pass y Timeline Evolutivo (Pendientes Wave 2):** Consolidación del "CV 2.0" y diseño del _Timeline_, permitiendo visualizar gráficamente cómo ha mutado el ADN y el acervo de habilidades del empleado mes a mes.
+- **Misiones de Gremio y Gamificación (Pendientes Wave 2):** Operativización técnica del marco de _Blindaje Octalysis_ (ya diseñado conceptualmente). Implementación de dinámicas grupales ("Guilds" o "Gremios") y Quests para impulsar la adopción del sistema social.
 
 ---
 
