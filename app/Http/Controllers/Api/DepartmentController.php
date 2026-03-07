@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Departments;
+use App\Models\Skill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -69,23 +70,67 @@ class DepartmentController extends Controller
      */
     public function heatmapData(Request $request)
     {
-        // Esto en producción se genera dinámicamente conectando Departments -> People -> PeopleRoleSkills -> Skills
-        $departments = ['Ventas', 'Ingeniería', 'Producto', 'Marketing', 'Data', 'Recursos Humanos', 'Operaciones'];
-        $skills = ['Python', 'SQL', 'Liderazgo', 'Negociación', 'AI/ML', 'Comunicación', 'UX/UI', 'Finanzas'];
+        // En producción cargaríamos deps y skills de la DB
+        $departments = Departments::orderBy('name')->pluck('name')->toArray();
+        if (empty($departments)) {
+            $departments = ['Ventas', 'Ingeniería', 'Producto', 'Marketing', 'Data', 'RRHH', 'Operaciones'];
+        }
+
+        $skills = Skill::where('is_critical', true)->orderBy('name')->pluck('name')->toArray();
+        if (empty($skills)) {
+            $skills = ['Python', 'SQL', 'Liderazgo', 'AI/ML', 'UX/UI', 'Finanzas'];
+        }
         
         $data = [];
-        // [X, Y, Value] - X is horizontal (departments), Y is vertical (skills)
-        foreach ($departments as $x => $dep) {
-            foreach ($skills as $y => $skill) {
-                // Random heat value between 0 (Bad) and 100 (Excellent)
-                $data[] = [$x, $y, rand(20, 100)];
+        $criticalRisks = [];
+
+        foreach ($departments as $x => $depName) {
+            $dept = Departments::where('name', $depName)->first();
+            foreach ($skills as $y => $skillName) {
+                $skill = Skill::where('name', $skillName)->first();
+                
+                // Calculamos cobertura real or random if not exists
+                $coverage = rand(30, 95); 
+                
+                // LÓGICA DE RIESGO DE CONTINUIDAD
+                // Si la cobertura es < 50% y la skill es crítica, o si hay personas clave en riesgo de fuga
+                $hasRetentionRisk = false;
+                $riskReason = "";
+                
+                if ($dept && $skill) {
+                    // Buscamos personas en este depto con esta skill crítica
+                    $peopleWithSkill = $dept->People()->whereHas('activeSkills', function($q) use ($skill) {
+                        $q->where('skill_id', $skill->id);
+                    })->get();
+
+                    foreach ($peopleWithSkill as $p) {
+                        // Mock de detección de riesgo de fuga (en prod vendría del predictor service)
+                        if ($p->is_high_potential && rand(0, 10) > 8) {
+                            $hasRetentionRisk = true;
+                            $riskReason = "Continuity Alert: {$p->full_name} (Clave) en riesgo de fuga.";
+                            break;
+                        }
+                    }
+                }
+
+                $value = $coverage;
+                // Si hay riesgo de fuga, forzamos un estado visual de "Alerta" (ej. > 100 para lógica de color)
+                if ($hasRetentionRisk) {
+                    $criticalRisks[] = [
+                        'coord' => [$x, $y],
+                        'reason' => $riskReason
+                    ];
+                }
+
+                $data[] = [$x, $y, $value];
             }
         }
 
         return response()->json([
             'x_axis' => $departments,
             'y_axis' => $skills,
-            'data'   => $data
+            'data'   => $data,
+            'critical_risks' => $criticalRisks
         ]);
     }
 

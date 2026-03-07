@@ -535,20 +535,105 @@ const openRetentionPlan = async (person: any) => {
                                 </div>
                             </div>
 
-                            <!-- Driver Analysis -->
+                            <!-- Advanced Strategic Metrics -->
+                            <div class="grid grid-cols-3 gap-3">
+                                <div
+                                    class="rounded-xl border border-white/5 bg-white/5 p-3"
+                                >
+                                    <div
+                                        class="mb-1 text-[8px] font-black tracking-widest text-white/20 uppercase"
+                                    >
+                                        Market Value
+                                    </div>
+                                    <div
+                                        class="text-xs font-bold"
+                                        :class="
+                                            detailedPlan.strategic_metrics
+                                                .market_position === 'Underpaid'
+                                                ? 'text-rose-400'
+                                                : 'text-emerald-400'
+                                        "
+                                    >
+                                        {{
+                                            detailedPlan.strategic_metrics
+                                                .market_position
+                                        }}
+                                    </div>
+                                </div>
+                                <div
+                                    class="rounded-xl border border-white/5 bg-white/5 p-3"
+                                >
+                                    <div
+                                        class="mb-1 text-[8px] font-black tracking-widest text-white/20 uppercase"
+                                    >
+                                        Continuity Risk
+                                    </div>
+                                    <div
+                                        class="text-xs font-bold"
+                                        :class="
+                                            detailedPlan.strategic_metrics
+                                                .business_continuity_risk ===
+                                            'Critical'
+                                                ? 'animate-pulse text-rose-500'
+                                                : 'text-blue-400'
+                                        "
+                                    >
+                                        {{
+                                            detailedPlan.strategic_metrics
+                                                .business_continuity_risk
+                                        }}
+                                    </div>
+                                </div>
+                                <div
+                                    class="rounded-xl border border-white/5 bg-white/5 p-3"
+                                >
+                                    <div
+                                        class="mb-1 text-[8px] font-black tracking-widest text-white/20 uppercase"
+                                    >
+                                        Leadership Friction
+                                    </div>
+                                    <div
+                                        class="text-xs font-bold"
+                                        :class="
+                                            detailedPlan.strategic_metrics
+                                                .leadership_friction === 'High'
+                                                ? 'text-rose-400'
+                                                : 'text-emerald-400'
+                                        "
+                                    >
+                                        {{
+                                            detailedPlan.strategic_metrics
+                                                .leadership_friction
+                                        }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Driver Analysis & Simulation -->
                             <div
-                                class="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-6"
+                                class="relative overflow-hidden rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-6"
                             >
+                                <div
+                                    class="absolute -top-4 -right-4 opacity-10"
+                                >
+                                    <PhBrain :size="80" />
+                                </div>
                                 <h4
                                     class="mb-4 text-sm font-black tracking-widest text-indigo-300 uppercase"
                                 >
-                                    Análisis de Causas Raíz
+                                    Análisis Cortex & Simulación
                                 </h4>
                                 <p
-                                    class="text-lg leading-relaxed font-medium text-white italic"
+                                    class="mb-4 text-lg leading-relaxed font-medium text-white italic"
                                 >
                                     "{{ detailedPlan.primary_driver }}"
                                 </p>
+                                <div
+                                    class="flex items-center gap-2 rounded-lg bg-emerald-500/20 px-3 py-2 text-[10px] font-bold text-emerald-400"
+                                >
+                                    <PhTrendUp :size="14" />
+                                    {{ detailedPlan.predicted_impact }}
+                                </div>
                             </div>
 
                             <!-- Retention Plan Actions -->

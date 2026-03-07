@@ -51,7 +51,19 @@ const fetchHeatmapData = async () => {
                     const depto = response.x_axis[params.data[0]];
                     const skill = response.y_axis[params.data[1]];
                     const temp = params.data[2];
-                    return `<strong>${depto}</strong><br/>${skill}: <span class="text-emerald-400 font-bold">${temp}%</span> Cobertura`;
+
+                    // @ts-expect-error - critical_risks is added dynamically
+                    const risk = response.critical_risks?.find(
+                        (r: any) =>
+                            r.coord[0] === params.data[0] &&
+                            r.coord[1] === params.data[1],
+                    );
+
+                    let html = `<strong>${depto}</strong><br/>${skill}: <span class="text-emerald-400 font-bold">${temp}%</span> Cobertura`;
+                    if (risk) {
+                        html += `<br/><div class="mt-2 p-2 bg-rose-500/20 border border-rose-500/30 rounded text-rose-300 text-[10px]">⚠️ ${risk.reason}</div>`;
+                    }
+                    return html;
                 },
                 backgroundColor: 'rgba(23, 23, 23, 0.9)',
                 borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -119,6 +131,19 @@ const fetchHeatmapData = async () => {
                             shadowColor: 'rgba(0, 0, 0, 0.5)',
                         },
                     },
+                    markPoint: {
+                        symbol: 'pin',
+                        symbolSize: 20,
+                        itemStyle: {
+                            color: '#f43f5e',
+                        },
+                        // @ts-expect-error - critical_risks is added dynamically
+                        data:
+                            response.critical_risks?.map((r: any) => ({
+                                coord: [r.coord[0], r.coord[1]],
+                                value: '!',
+                            })) || [],
+                    },
                 },
             ],
         };
@@ -136,6 +161,7 @@ onMounted(() => {
 
 <template>
     <AppLayout>
+        <title>Stratos Map - Radiografía de Competencias</title>
         <Head title="Stratos Map - Radiografía de Competencias" />
 
         <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
