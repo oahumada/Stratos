@@ -1294,26 +1294,26 @@ destroyScenarioForm.delete = (args: { id: string | number } | [id: string | numb
 destroyScenario.form = destroyScenarioForm
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioController::orchestrate
-* @see app/Http/Controllers/Api/ScenarioController.php:0
+* @see \App\Http\Controllers\Api\ScenarioController::designTalent
+* @see app/Http/Controllers/Api/ScenarioController.php:610
 * @route '/api/strategic-planning/scenarios/{id}/orchestrate'
 */
-export const orchestrate = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: orchestrate.url(args, options),
+const designTalent14e3fa9c27a9681e666c0a5b14d6ff59 = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: designTalent14e3fa9c27a9681e666c0a5b14d6ff59.url(args, options),
     method: 'post',
 })
 
-orchestrate.definition = {
+designTalent14e3fa9c27a9681e666c0a5b14d6ff59.definition = {
     methods: ["post"],
     url: '/api/strategic-planning/scenarios/{id}/orchestrate',
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioController::orchestrate
-* @see app/Http/Controllers/Api/ScenarioController.php:0
+* @see \App\Http\Controllers\Api\ScenarioController::designTalent
+* @see app/Http/Controllers/Api/ScenarioController.php:610
 * @route '/api/strategic-planning/scenarios/{id}/orchestrate'
 */
-orchestrate.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+designTalent14e3fa9c27a9681e666c0a5b14d6ff59.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { id: args }
     }
@@ -1330,42 +1330,120 @@ orchestrate.url = (args: { id: string | number } | [id: string | number ] | stri
         id: args.id,
     }
 
-    return orchestrate.definition.url
+    return designTalent14e3fa9c27a9681e666c0a5b14d6ff59.definition.url
             .replace('{id}', parsedArgs.id.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioController::orchestrate
-* @see app/Http/Controllers/Api/ScenarioController.php:0
+* @see \App\Http\Controllers\Api\ScenarioController::designTalent
+* @see app/Http/Controllers/Api/ScenarioController.php:610
 * @route '/api/strategic-planning/scenarios/{id}/orchestrate'
 */
-orchestrate.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: orchestrate.url(args, options),
+designTalent14e3fa9c27a9681e666c0a5b14d6ff59.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: designTalent14e3fa9c27a9681e666c0a5b14d6ff59.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioController::orchestrate
-* @see app/Http/Controllers/Api/ScenarioController.php:0
+* @see \App\Http\Controllers\Api\ScenarioController::designTalent
+* @see app/Http/Controllers/Api/ScenarioController.php:610
 * @route '/api/strategic-planning/scenarios/{id}/orchestrate'
 */
-const orchestrateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: orchestrate.url(args, options),
+const designTalent14e3fa9c27a9681e666c0a5b14d6ff59Form = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: designTalent14e3fa9c27a9681e666c0a5b14d6ff59.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioController::orchestrate
-* @see app/Http/Controllers/Api/ScenarioController.php:0
+* @see \App\Http\Controllers\Api\ScenarioController::designTalent
+* @see app/Http/Controllers/Api/ScenarioController.php:610
 * @route '/api/strategic-planning/scenarios/{id}/orchestrate'
 */
-orchestrateForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: orchestrate.url(args, options),
+designTalent14e3fa9c27a9681e666c0a5b14d6ff59Form.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: designTalent14e3fa9c27a9681e666c0a5b14d6ff59.url(args, options),
     method: 'post',
 })
 
-orchestrate.form = orchestrateForm
+designTalent14e3fa9c27a9681e666c0a5b14d6ff59.form = designTalent14e3fa9c27a9681e666c0a5b14d6ff59Form
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::designTalent
+* @see app/Http/Controllers/Api/ScenarioController.php:610
+* @route '/api/scenarios/{scenarioId}/step2/design-talent'
+*/
+const designTalent5b91851da882d80f085755d6afc34213 = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: designTalent5b91851da882d80f085755d6afc34213.url(args, options),
+    method: 'post',
+})
+
+designTalent5b91851da882d80f085755d6afc34213.definition = {
+    methods: ["post"],
+    url: '/api/scenarios/{scenarioId}/step2/design-talent',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::designTalent
+* @see app/Http/Controllers/Api/ScenarioController.php:610
+* @route '/api/scenarios/{scenarioId}/step2/design-talent'
+*/
+designTalent5b91851da882d80f085755d6afc34213.url = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { scenarioId: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            scenarioId: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        scenarioId: args.scenarioId,
+    }
+
+    return designTalent5b91851da882d80f085755d6afc34213.definition.url
+            .replace('{scenarioId}', parsedArgs.scenarioId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::designTalent
+* @see app/Http/Controllers/Api/ScenarioController.php:610
+* @route '/api/scenarios/{scenarioId}/step2/design-talent'
+*/
+designTalent5b91851da882d80f085755d6afc34213.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: designTalent5b91851da882d80f085755d6afc34213.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::designTalent
+* @see app/Http/Controllers/Api/ScenarioController.php:610
+* @route '/api/scenarios/{scenarioId}/step2/design-talent'
+*/
+const designTalent5b91851da882d80f085755d6afc34213Form = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: designTalent5b91851da882d80f085755d6afc34213.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioController::designTalent
+* @see app/Http/Controllers/Api/ScenarioController.php:610
+* @route '/api/scenarios/{scenarioId}/step2/design-talent'
+*/
+designTalent5b91851da882d80f085755d6afc34213Form.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: designTalent5b91851da882d80f085755d6afc34213.url(args, options),
+    method: 'post',
+})
+
+designTalent5b91851da882d80f085755d6afc34213.form = designTalent5b91851da882d80f085755d6afc34213Form
+
+export const designTalent = {
+    '/api/strategic-planning/scenarios/{id}/orchestrate': designTalent14e3fa9c27a9681e666c0a5b14d6ff59,
+    '/api/scenarios/{scenarioId}/step2/design-talent': designTalent5b91851da882d80f085755d6afc34213,
+}
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::getIncubatedTree
@@ -1539,80 +1617,6 @@ promoteAllForm.post = (args: { id: string | number } | [id: string | number ] | 
 })
 
 promoteAll.form = promoteAllForm
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioController::designTalent
-* @see app/Http/Controllers/Api/ScenarioController.php:610
-* @route '/api/scenarios/{scenarioId}/step2/design-talent'
-*/
-export const designTalent = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: designTalent.url(args, options),
-    method: 'post',
-})
-
-designTalent.definition = {
-    methods: ["post"],
-    url: '/api/scenarios/{scenarioId}/step2/design-talent',
-} satisfies RouteDefinition<["post"]>
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioController::designTalent
-* @see app/Http/Controllers/Api/ScenarioController.php:610
-* @route '/api/scenarios/{scenarioId}/step2/design-talent'
-*/
-designTalent.url = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions) => {
-    if (typeof args === 'string' || typeof args === 'number') {
-        args = { scenarioId: args }
-    }
-
-    if (Array.isArray(args)) {
-        args = {
-            scenarioId: args[0],
-        }
-    }
-
-    args = applyUrlDefaults(args)
-
-    const parsedArgs = {
-        scenarioId: args.scenarioId,
-    }
-
-    return designTalent.definition.url
-            .replace('{scenarioId}', parsedArgs.scenarioId.toString())
-            .replace(/\/+$/, '') + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioController::designTalent
-* @see app/Http/Controllers/Api/ScenarioController.php:610
-* @route '/api/scenarios/{scenarioId}/step2/design-talent'
-*/
-designTalent.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: designTalent.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioController::designTalent
-* @see app/Http/Controllers/Api/ScenarioController.php:610
-* @route '/api/scenarios/{scenarioId}/step2/design-talent'
-*/
-const designTalentForm = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: designTalent.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioController::designTalent
-* @see app/Http/Controllers/Api/ScenarioController.php:610
-* @route '/api/scenarios/{scenarioId}/step2/design-talent'
-*/
-designTalentForm.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: designTalent.url(args, options),
-    method: 'post',
-})
-
-designTalent.form = designTalentForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::applyAgentProposals
@@ -2106,6 +2110,6 @@ deriveAllSkillsForm.post = (args: { id: string | number } | [id: string | number
 
 deriveAllSkills.form = deriveAllSkillsForm
 
-const ScenarioController = { listScenarios, showScenario, getCapabilityTree, getVersions, getImpact, exportFinancial, store, updateScenario, instantiateFromTemplate, calculateGaps, refreshSuggestedStrategies, finalizeScenario, compareVersions, summarize, destroyScenario, orchestrate, getIncubatedTree, promoteAll, designTalent, applyAgentProposals, finalizeStep2, getIQ, getCompetencyGaps, deriveSkills, deriveAllSkills }
+const ScenarioController = { listScenarios, showScenario, getCapabilityTree, getVersions, getImpact, exportFinancial, store, updateScenario, instantiateFromTemplate, calculateGaps, refreshSuggestedStrategies, finalizeScenario, compareVersions, summarize, destroyScenario, designTalent, getIncubatedTree, promoteAll, applyAgentProposals, finalizeStep2, getIQ, getCompetencyGaps, deriveSkills, deriveAllSkills }
 
 export default ScenarioController

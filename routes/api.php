@@ -1062,7 +1062,7 @@ Route::middleware('auth:sanctum')->prefix('strategic-planning')->group(function 
 
 // Talent Engineering
 // Orquestación (nueva)
-Route::post('/strategic-planning/scenarios/{id}/orchestrate', [\App\Http\Controllers\Api\ScenarioController::class, 'orchestrate'])
+Route::post('/strategic-planning/scenarios/{id}/orchestrate', [\App\Http\Controllers\Api\ScenarioController::class, 'designTalent'])
     ->middleware('auth:sanctum');
 
 // PASO 1: Neural Architecture & Incubation (Tree)
