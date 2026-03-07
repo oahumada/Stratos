@@ -47,18 +47,35 @@ class RetentionDeepPredictorService
             ->where('updated_at', '>=', now()->subMonths(3))
             ->count() > 0 ? 'Active' : 'Stale';
 
-        // 5. Orquestación con IA para el "Reasoning"
-        $prompt = $this->buildAnalysisPrompt($person, $avgEnps, $avgStress, $sentimentTrend, $stagnationScore, $overqualificationRisk, $growthEngagement);
+        // 5. Contexto Colectivo (Departamento)
+        $deptAvgPulse = EmployeePulse::whereHas('person', function($q) use ($person) {
+            $q->where('department_id', $person->department_id);
+        })->latest()->limit(20)->avg('e_nps') ?? 7;
+
+        // 6. Orquestación con IA para el "Reasoning"
+        $prompt = $this->buildAnalysisPrompt($person, $avgEnps, $avgStress, $sentimentTrend, $stagnationScore, $overqualificationRisk, $growthEngagement, $deptAvgPulse);
         
         try {
             $response = $this->orchestrator->agentThink('Stratos Retention Cortex', $prompt);
             $analysis = json_decode($this->cleanJson($response['response']), true);
 
+            // 6. Impacto financiero (ROI)
+            $salary = 45000; // Mock: En producción vendría de la ficha del empleado
+            $replacementCost = $salary * 0.5;
+
             return [
                 'flight_risk_score' => $analysis['risk_score'] ?? 50,
                 'risk_level' => $analysis['risk_level'] ?? 'medium',
                 'primary_driver' => $analysis['primary_driver'] ?? 'unknown',
-                'retention_plan' => $analysis['retention_plan'] ?? [],
+                'retention_plan' => [
+                    'individual' => $analysis['retention_plan'] ?? ($analysis['individual_actions'] ?? []),
+                    'team' => $analysis['team_interventions'] ?? [],
+                    'organizational' => $analysis['organizational_policies'] ?? [],
+                ],
+                'financial_impact' => [
+                    'replacement_cost_usd' => $replacementCost,
+                    'potential_loss_index' => ($analysis['risk_score'] ?? 50) / 100 * $replacementCost
+                ],
                 'indicators' => [
                     'sentiment' => $avgEnps,
                     'stress' => $avgStress,
@@ -102,24 +119,27 @@ class RetentionDeepPredictorService
         return 80;
     }
 
-    protected function buildAnalysisPrompt($person, $enps, $stress, $trend, $stagnation, $overqual, $growth): string
+    protected function buildAnalysisPrompt($person, $enps, $stress, $trend, $stagnation, $overqual, $growth, $deptAvgPulse): string
     {
         return "Actúa como el 'Stratos Retention Cortex'. Analiza el riesgo de fuga para {$person->first_name} ({$person->role->name}).\n\n" .
-               "DATOS DETECTADOS:\n" .
+               "DATOS INDIVIDUALES:\n" .
                "- Engagement (eNPS): {$enps}/10 (Tendencia: {$trend})\n" .
                "- Nivel de Estrés: {$stress}/5\n" .
                "- Score de Estancamiento (Tenure): {$stagnation}/100\n" .
                "- Riesgo de Sobrecalificación: {$overqual}\n" .
                "- Actividad de Aprendizaje: {$growth}\n\n" .
-               "REGLAS:\n" .
-               "1. Si Risk Score > 70, clasificar como 'High'.\n" .
-               "2. Overqualification + Stale Growth es una señal crítica de rotación externa inmediata.\n" .
-               "3. Stress Alto + Declining Sentiment indica riesgo de Burnout.\n\n" .
-               "Devuelve un JSON con:\n" .
+               "DATOS COLECTIVOS (CONTEXTO):\n" .
+               "- eNPS Promedio del Equipo: {$deptAvgPulse}/10\n\n" .
+               "REGLAS DE ANÁLISIS:\n" .
+               "1. Si el eNPS individual es mucho menor al del equipo, el problema es personal/rol.\n" .
+               "2. Si ambos son bajos, es un problema de clima o liderazgo en el departamento.\n\n" .
+               "Devuelve un JSON estrictamente con:\n" .
                "- risk_score (0-100)\n" .
                "- risk_level (low/medium/high)\n" .
                "- primary_driver (la causa principal)\n" .
-               "- retention_plan (array de 3 acciones concretas para retenerlo)\n";
+               "- individual_actions (array de 3 acciones para el colaborador)\n" .
+               "- team_interventions (array de 2 acciones grupales como talleres o dinámicas)\n" .
+               "- organizational_policies (array de 2 recomendaciones de cambio de política o beneficios a nivel empresa)\n";
     }
 
     protected function cleanJson($string): string

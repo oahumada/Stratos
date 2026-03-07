@@ -184,6 +184,7 @@ Route::middleware('auth:sanctum')->group(function () {
         
     Route::post('/people-experience/employee-pulses', [\App\Http\Controllers\Api\PulseController::class, 'storeEmployeePulse']);
     Route::get('/people-experience/employee-pulses', [\App\Http\Controllers\Api\PulseController::class, 'listEmployeePulses']);
+    Route::get('/people-experience/turnover-heatmap', [\App\Http\Controllers\Api\PulseController::class, 'listTurnoverHeatmap']);
 
     Route::post('/gap-analysis', [\App\Http\Controllers\Api\GapAnalysisController::class, 'analyze']);
     Route::get('/development-paths', [\App\Http\Controllers\Api\DevelopmentPathController::class, 'index']);
@@ -1082,6 +1083,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/guide/suggestions', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'getGuideSuggestions']);
     Route::post('/guide/ask', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'askGuide']);
     Route::post('/guide/onboarding/complete', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'completeOnboardingStep']);
+    Route::get('/retention-forecast/{peopleId}', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'getRetentionForecast']);
 
     // Phase 6: Workforce Planning
     Route::post('/workforce-planning/scenarios', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'createScenario']);

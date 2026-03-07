@@ -17,8 +17,22 @@ class StratosIntelligenceController extends Controller
     public function __construct(
         protected LearningBlueprintService $blueprintService,
         protected SentinelMonitorService $sentinel,
-        protected StratosGuideService $guide
+        protected StratosGuideService $guide,
+        protected \App\Services\Intelligence\RetentionDeepPredictorService $retentionService
     ) {}
+
+    /**
+     * GET /api/intelligence/retention-forecast/{peopleId}
+     */
+    public function getRetentionForecast(int $peopleId): JsonResponse
+    {
+        try {
+            $forecast = $this->retentionService->predict($peopleId);
+            return $this->success($forecast, 'Pronóstico de retención generado.');
+        } catch (\Exception $e) {
+            return $this->error('Error: ' . $e->getMessage(), 500);
+        }
+    }
 
     // ── Learning Blueprints ──────────────────────────────────
 

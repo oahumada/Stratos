@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\PulseSurvey;
 use App\Models\PulseResponse;
+use App\Models\People;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -140,6 +141,36 @@ class PulseController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $pulses
+        ]);
+    }
+
+    /**
+     * Genera la data para el Heatmap de Rotación Profundo.
+     */
+    public function listTurnoverHeatmap(Request $request, \App\Services\Intelligence\RetentionDeepPredictorService $predictor): JsonResponse
+    {
+        $orgId = auth()->user()->organization_id;
+        $people = People::where('organization_id', $orgId)
+            ->whereNull('termination_date')
+            ->get();
+
+        $heatmap = $people->map(function ($person) use ($predictor) {
+            $prediction = $predictor->predict($person->id);
+            return [
+                'id' => $person->id,
+                'name' => $person->full_name ?? ($person->first_name . ' ' . $person->last_name),
+                'role' => $person->role->name ?? 'N/A',
+                'department' => $person->department->name ?? 'N/A',
+                'risk_score' => $prediction['flight_risk_score'] ?? 0,
+                'risk_level' => $prediction['risk_level'] ?? 'low',
+                'primary_driver' => $prediction['primary_driver'] ?? 'None',
+                'financial_impact' => $prediction['financial_impact']['replacement_cost_usd'] ?? 0,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $heatmap
         ]);
     }
 }

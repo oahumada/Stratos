@@ -76,8 +76,9 @@ _La etapa donde la plataforma deja de ser pasiva y comienza a actuar automática
 
 ### 2. Stratos Match (Liquid Talent Marketplace) - [x] ✅
 
-- **Algoritmo de Match DNA:** Heurística de IA (`AiInternalMatchmakerService`) que cruza Gap Analysis, Triangulación 360 y Growth Velocity para ranquear candidatos internos.
-- **Insights de Resonancia:** Reportes automatizados de Fit, Riesgos y Planes de Mitigación para el reclutador.
+- **Algoritmo de Match DNA:** Heurística de IA (`AiInternalMatchmakerService`) que cruza Gap Analysis, Triangulación 360 y Growth Velocity.
+- **Deep Retention Engine:** Motor multidimensional que predice riesgo de fuga cruzando Pulso, Estancamiento y ROI de Reemplazo.
+- **Insights de Resonancia:** Reportes automatizados de Fit, Riesgos y Planes de Mitigación preventivos.
 
 ---
 

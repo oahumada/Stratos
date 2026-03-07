@@ -34,6 +34,9 @@ class AiInternalMatchmakerService
         // Intentamos obtener datos de triangulación previa o calculamos un resumen rápido
         $performanceData = $this->getPerformanceSummary($candidate);
 
+        // 3. Análisis de Crecimiento (Growth Navigator)
+        $growthData = $this->getGrowthSummary($candidate);
+
         // 4. Análisis de Retención Profundo (Flight Risk)
         $retentionAnalysis = $this->retentionService->predict($candidateId);
 
