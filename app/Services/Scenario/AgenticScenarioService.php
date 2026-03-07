@@ -262,42 +262,87 @@ class AgenticScenarioService
     {
         $actions = [];
 
+        // Capa Humana (Individual & Grupal)
         if ($kpiImpact['risk_index'] > 60) {
             $actions[] = [
                 'phase' => 'Immediate',
-                'action' => 'Activar protocolo de comunicación interna para gestionar incertidumbre.',
+                'category' => 'human',
+                'action' => 'Activar protocolo de comunicación interna para gestionar incertidumbre estratégica.',
                 'responsible' => 'CHRO',
                 'deadline_days' => 7,
+            ];
+
+            $actions[] = [
+                'phase' => 'Short-term',
+                'category' => 'policy',
+                'action' => 'Lanzamiento de Plan de Retención Individualizado para talentos en nodos críticos.',
+                'responsible' => 'Talent Management',
+                'deadline_days' => 15,
             ];
         }
 
         if ($kpiImpact['headcount_delta'] < 0) {
             $actions[] = [
                 'phase' => 'Short-term',
+                'category' => 'human',
                 'action' => 'Evaluar reasignación interna antes de proceder con desvinculaciones.',
                 'responsible' => 'HR Team',
                 'deadline_days' => 30,
             ];
+        }
+
+        // Intervenciones Organizacionales (Cultura y Clima)
+        if ($simulation['type'] === 'team_merge' || $simulation['type'] === 'downsizing') {
             $actions[] = [
                 'phase' => 'Short-term',
-                'action' => 'Activar programa de outplacement para personas afectadas.',
-                'responsible' => 'HR Team',
+                'category' => 'policy',
+                'action' => 'Proyecto de mejora de clima organizacional: Talleres de motivación y resiliencia post-cambio.',
+                'responsible' => 'Culture Lead',
+                'deadline_days' => 20,
+            ];
+
+            $actions[] = [
+                'phase' => 'Medium-term',
+                'category' => 'policy',
+                'action' => 'Programa de Mentoring Inter-equipos para acelerar la simbiosis cultural.',
+                'responsible' => 'L&D Manager',
                 'deadline_days' => 45,
             ];
         }
 
-        if ($kpiImpact['headcount_delta'] > 0) {
+        // Capa Sintética (Stratos Radar Exclusive)
+        if ($kpiImpact['productivity_impact_pct'] < -10 || $kpiImpact['risk_index'] > 50) {
+            $actions[] = [
+                'phase' => 'Immediate',
+                'category' => 'synthetic',
+                'action' => 'Desplegar Agente IA de Acompañamiento (Companion) para absorber picos de carga operativa.',
+                'responsible' => 'AI Orchestrator',
+                'deadline_days' => 3,
+            ];
+            
             $actions[] = [
                 'phase' => 'Short-term',
-                'action' => 'Activar pipeline de reclutamiento con énfasis en skills emergentes.',
-                'responsible' => 'Talent Acquisition',
+                'category' => 'synthetic',
+                'action' => 'Instanciar Agentes de Extracción Semántica (DNA Extract) para documentar skills críticas en riesgo.',
+                'responsible' => 'Stratos Radar',
+                'deadline_days' => 10,
+            ];
+        }
+
+        if ($simulation['type'] === 'expansion') {
+            $actions[] = [
+                'phase' => 'Short-term',
+                'category' => 'synthetic',
+                'action' => 'Activar Agente de Reclutamiento Agéntico para filtrar candidatos por "Cultural DNA Fit".',
+                'responsible' => 'Talent Acquisition Bot',
                 'deadline_days' => 14,
             ];
         }
 
         $actions[] = [
             'phase' => 'Medium-term',
-            'action' => 'Ejecutar re-evaluación de escenario a los 90 días para medir impacto real.',
+            'category' => 'hybrid',
+            'action' => 'Auditoría de simbiosis Humano-Sintético: Evaluar efectividad de los agentes desplegados.',
             'responsible' => 'Strategic Planning',
             'deadline_days' => 90,
         ];

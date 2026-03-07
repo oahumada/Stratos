@@ -26,11 +26,11 @@ La adopción de software B2B corporativo sufre de fricción cuando se obliga al 
 
 ### 2.1 El Núcleo: Stratos Core (El Sistema Operativo)
 
-_Módulo base incluido en todas las implementaciones (Free/Base tier)._
+_Módulo base incluido en todas las implementaciones._
 Es la base fundacional que centraliza la identidad de la organización.
 
 - **Gestor de Estructura:** Organigrama interactivo, árbol de jerarquías y centros de costo.
-- **Gestor de Usuarios y RBAC:** Perfiles, roles y permisos de acceso transversal al negocio (Líderes de Unidad, Mánagers, Colaboradores, etc.).
+- **Gestor de Usuarios y RBAC:** Perfiles, roles y permisos de acceso transversal al negocio (Mánagers, Colaboradores, CHRO, etc.).
 - **Catálogo Base:** Diccionario de Roles (Job descriptions) y Diccionario de Skills universal de la empresa.
 
 ---
@@ -48,8 +48,8 @@ Los módulos de Stratos se construyen divididos en tres grandes agrupaciones ló
 
 #### 🔄 Stratos 360 (El Santo Grial de la Evaluación de Brechas)
 
-- **Propuesta de Valor:** Resuelve el dolor histórico de las encuestas tradicionales: el sesgo de la subjetividad. Stratos 360 es el "Santo Grial" del desempeño porque la Inteligencia Artificial neutraliza el proceso al **triangular matemáticamente datos objetivos (uso del sistema/KPIs), evidencia concreta de logros y la percepción social multiactor**. La IA realiza la evaluación final mediante definiciones estándar y transparentes, eliminando de raíz la politiquería, garantizando igualdad de condiciones.
-- **Viabilidad de Venta Aislada:** **Muy Alta.** Reemplaza herramientas departamentales _legacy_, cerrando la brecha de desconfianza de los empleados hacia las evaluaciones y entregando datos hiperprecisos al Stratos Map.
+- **Propuesta de Valor:** Resuelve el dolor histórico de las encuestas tradicionales: el sesgo de la subjetividad. La Inteligencia Artificial neutraliza el proceso al **triangular matemáticamente datos objetivos (uso del sistema/KPIs), evidencia concreta de logros y la percepción social multiactor**. La IA realiza la evaluación final mediante definiciones estándar y transparentes.
+- **Viabilidad de Venta Aislada:** **Muy Alta.** Reemplaza herramientas departamentales _legacy_, cerrando la brecha de desconfianza y entregando datos hiperprecisos al Stratos Map.
 
 #### 🧠 Stratos Insights (Psicometría y Fit)
 
@@ -70,56 +70,53 @@ Los módulos de Stratos se construyen divididos en tres grandes agrupaciones ló
 - **Propuesta de Valor:** Traza rutas de desarrollo personalizadas y automatizadas (Upskilling / Reskilling). Apunta a los _"gaps"_ (brechas de skills) detectados por el Map/360 y sugiere acciones concretas: cursos, mentorías, o "proyectos sombra".
 - **Graceful Degradation (Diseño Resiliente):** Si el cliente no adquirió _Stratos 360_, el módulo _Grow_ desbloquea autoevaluaciones conversacionales para generar las rutas formativas sin bloquear la experiencia del usuario.
 
+#### � Stratos Magnet (Reclutamiento y Adquisición Abierta)
+
+- **Propuesta de Valor:** Adquisición de talento estratégico "Buy". Utiliza el mismo algoritmo del Marketplace interno pero para reclutamiento externo, clonando el ADN de los Top Performers y automatizando las entrevistas cualitativas con Agentes IA.
+- **Diferencial:** Reemplaza al ATS tradicional, ofreciendo a los candidatos un portal con diseño Glass de élite, filtrándolos automáticamente contra los perfiles óptimos calculados.
+
 ---
 
 ### Fase 3: Estrategia y Prevención Predictiva (El Futuro)
 
 #### 💬 Stratos Px (People Experience)
 
-- **Propuesta de Valor:** Mide la temperatura de la organización en tiempo real, cuantificando dinámicamente el clima laboral, nivel de satisfacción y el ajuste cultural constante. Su foco analítico es anticipar medidas preventivas de forma proactiva para abatir o mitigar indicadores perjudiciales críticos como la rotación no deseada, el ausentismo y caídas abruptas en la productividad.
-- **El Cambio de Paradigma:** Stratos Px deja de ser una "encuesta de felicidad" aislada para convertirse en un **sistema de alerta temprana en tiempo real**. Los inversionistas y ejecutivos no pagan por software para saber simplemente si su gente "está bien o triste"; pagan para **prevenir de forma proactiva el gasto millonario** y silencioso que causa la rotación (costos de headhunters, meses de improductividad en curvas de aprendizaje, fuga de conocimiento clave) y el ausentismo recurrente, accionando palancas de mitigación antes de que el daño financiero y operativo se materialice.
-- **Viabilidad de Venta Aislada:** **Alta.** Punto de entrada ideal para empresas modernas enfocadas en la retención preventiva y la mitigación de ineficiencias organizacionales.
+- **Propuesta de Valor:** Mide en tiempo real el pulso de la organización, eNPS, clima laboral y riesgo de burnout mediante micro-encuestas contextuales. Deja de ser una "encuesta de felicidad" para convertirse en un **sistema de alerta temprana en tiempo real**.
+- **Valor Negocio:** Los ejecutivos pagan para **prevenir de forma proactiva el gasto millonario** que causa la rotación (costos de headhunters, meses de improductividad, fuga de conocimiento) y el ausentismo recurrente.
+
+#### 🧬 Stratos Link (Social Learning & Knowledge Transfer)
+
+- **Propuesta de Valor:** Mitiga el riesgo de pérdida de capital intelectual ("Knowledge Silos"). Identifica dinámicamente a los expertos críticos que poseen habilidades únicas y orquesta automáticamente la transferencia de su conocimiento a sucesores potenciales mediante IA.
+- **El Diferencial:** No es un LMS pasivo; es un sistema activo de resiliencia intelectual que "fuerza" la polinización cruzada (cross-pollination) entre departamentos.
 
 #### 📡 Stratos Radar / Evolve (Planificación de Escenarios)
 
-- **Propuesta de Valor:** Control total de la evolución del talento de la organización mediante Inteligencia Artificial. Permite mutar, transformar o derechamente extinguir talento que resulte obsoleto.
-- **Alertas Clave y Casos de Uso:**
-    - **� Contraste de Escenarios Futuros:** Permite contrastar el ecosistema de talento actual en contraposición al requerido para escenarios futuros. El usuario puede establecer específicamente el horizonte temporal y el alcance (_scope_) del escenario.
-    - **🌉 Puente con la Acción y ROI:** Establece el puente directo con la acción y analiza el ROI (Retorno sobre la Inversión) del escenario propuesto, permitiendo a la alta gerencia compararlo financieramente con escenarios alternativos.
-    - **🤖 Integración de Talento Sintético:** Al proyectar un nuevo escenario (ej. _"Abrir nueva línea de negocio"_), la plataforma propone suplir las brechas con talento **Sintético** (Agentes IA), talento **Humano**, o **Mixto**. Entrega un KPI crítico de **Apalancamiento**, indicando matemáticamente la eficiencia ganada al combinar talento humano con talento sintético.
-    - **🛡️ Prevención Base:** Adicionalmente, mantiene las alertas clásicas de riesgo de obsolescencia de habilidades y fuga inminente (_flight risk_) de talento crítico.
-    - **🧠 Índice Stratos IQ:** Entendiendo que la última frontera competitiva no es lo que el negocio sabe hoy, sino su velocidad de **Aprendizaje Organizacional**, el sistema calcula históricamente el **Stratos IQ**. Un macro-indicador de adaptabilidad y plasticidad corporativa frente al cambio.
-- **Ubicación Estratégica:** Es el módulo "Premium Enterprise" definitivo. Transforma la gestión tradicional en una arquitectura de negocios integral al proyectar escenarios con retornos cuantificables, requiriendo de los datos de todos los módulos anteriores para su motor predictivo.
+- **Propuesta de Valor:** Control total de la evolución del talento mediante IA ("War-Gaming").
+- **Capacidades Enterprise:**
+    - **Contraste de Escenarios:** Simula el impacto de expansiones, fusiones o shocks tecnológicos.
+    - **Talento Sintético:** Propone suplir brechas con talento **Sintético** (Agentes IA), **Humano**, o **Híbrido**.
+    - **Índice Stratos IQ:** Macro-indicador de adaptabilidad y plasticidad corporativa frente al cambio.
 
 ---
 
 ## 4. La Magia Insuperable: "Insights Híbridos" (El Fosso Defensivo)
 
-El valor comercial masivo de Stratos (_Moat_ competitivo) no radica en que los módulos individuales existan, sino en las **correlaciones cruzadas e insights de segundo orden** que el sistema infiere automáticamente cuando un cliente activa múltiples módulos simultáneos:
+El valor comercial masivo de Stratos no radica en los módulos individuales, sino en las **correlaciones cruzadas** que el sistema infiere automáticamente:
 
-| Combinación                | El Insight Generado                                                                                                                                                                 | Resultado / ROI                                                       |
-| :------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| **Map + Match + Insights** | _"El candidato interno A tiene los skills técnicos (Map), busca nuevos retos proactivamente (Match), y su perfil muestra alta templanza bajo gran presión (Insights)."_             | Contratación de liderazgo libre de sesgos y con adaptación inmediata. |
-| **360 + Px**               | _"Existe una severa correlación del 70% entre las bajas calificaciones de liderazgo empático de este Director (360) y las métricas de burnout/renuncia de su equipo directo (Px)."_ | Intervención quirúrgica sobre líderes tóxicos antes de fugas masivas. |
-| **Grow + Radar**           | _"Gracias a la asimilación agresiva de rutas de reskilling recomendadas (Grow), tu riesgo de obsolescencia del equipo Tech (Radar) se aplacó un 45% interanual."_                   | Métrica tangible de retorno de inversión de capacitación para el CFO. |
+| Combinación                | El Insight Generado                                                                                                                                                                |
+| :------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Map + Match + Insights** | _"El candidato interno perfecto para liderar la crisis. Tiene los skills técnicos (Map), busca nuevos retos (Match), y su perfil muestra alta templanza bajo presión (Insights)."_ |
+| **360 + Px**               | _"Existe una correlación directa del 70% entre la baja calificación de liderazgo de este Líder (360) y las alertas de burnout de su equipo (Px)."_                                 |
+| **Grow + Radar**           | _"Gracias a las rutas de reskilling (Grow), el riesgo de obsolescencia del equipo Tech (Radar) se redujo un 45% interanual."_                                                      |
 
 ---
 
 ## 5. Diseño de Arquitectura Técnica (El Respaldo)
 
-Para soportar el modelo de negocio "por piezas" de forma ágil mediante Vue 3 + Laravel 11, la arquitectura técnica se cimenta irreductiblemente en los siguientes pilares de ingeniería:
-
-1. **Feature Toggles Multi-Tenant (Banderas de Módulo)**
-   La capa de Base de Datos gestiona estrictamente una configuración de tipo json `active_modules` por _Tenant_ (Cliente/Empresa). Absolutamente toda la interfaz de usuario (menús Vue) y la API (rutas y middlewares Laravel) renderizan / autorizan dinámicamente según esta configuración. Esto habilita estrategias de _Up-Selling_ nativo directamente en la UI (ej. _"Actualiza tu plan para desbloquear Radar"_).
-
-2. **Degradación Elegante (Graceful Degradation)**
-   Un requerimiento inquebrantable de diseño: un módulo jamás fallará estrepitosamente si depende de datos de un origen que el cliente no pagó. Debe suplantarse (mock, fallbacks temporales o encuestas manuales limitadas) y operar al 80% de capacidad hasta que se adquiera su módulo hermano.
-
-3. **Arquitectura Orientada a Eventos Asíncronos (Low-Coupled Event Driven)**
-   Los diferentes módulos tienen un bajo acoplamiento en base de datos. Si un cargo cambia en el _Core_, no se dispara una actualización monolítica, se despacha un evento `RoleRequirementsUpdated` al bus de eventos de Laravel. Los listeners en _Radar_ o _Grow_ procesan la actualización en _background jobs_ sin impactar tiempos de respuesta.
-
-4. **Data Lake de Histórico Inmutable para ML**
-   Para que _Stratos Radar_ logre predecir el futuro, no podemos destruir el pasado mutando celdas. La base de datos obedece un diseño temporal (_Snapshots bi-mensuales_ o _Event Sourcing ligero_). Esto preserva matemáticamente la inercia transcurrida para calcular el crucial **TTR (Time-to-Readiness)** de personal o el **Skill Growth Rate** corporativo.
+1. **Feature Toggles Multi-Tenant:** Configuración `active_modules` que renderiza la UI y autoriza la API dinámicamente.
+2. **Degradación Elegante:** Los módulos operan con fallbacks si faltan orígenes de datos de módulos no adquiridos.
+3. **Arquitectura Orientada a Eventos:** Bajo acoplamiento mediante bus de eventos asíncronos para recalcular riesgos en segundo plano.
+4. **Data Lake de Histórico Inmutable:** Almacenamiento bi-mensual de snapshots para calcular el **TTR (Time-to-Readiness)** y el ROI estratégico.
 
 ---
 

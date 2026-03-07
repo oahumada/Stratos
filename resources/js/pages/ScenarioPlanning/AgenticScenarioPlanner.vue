@@ -32,33 +32,33 @@ const horizonMonths = ref(18);
 const changeTypes = [
     {
         key: 'expansion',
-        label: 'Expansión',
-        icon: '📈',
-        desc: 'Crecimiento del headcount',
+        label: 'Expansión Absoluta',
+        icon: 'mdi-trending-up',
+        desc: 'Escalamiento de estructura',
     },
     {
         key: 'team_merge',
-        label: 'Fusión de Equipos',
-        icon: '🔗',
-        desc: 'Merge de departamentos',
+        label: 'Simbiosis de Equipos',
+        icon: 'mdi-set-center',
+        desc: 'Fusión y redundancia semántica',
     },
     {
         key: 'tech_disruption',
-        label: 'Disrupción Tech',
-        icon: '⚡',
-        desc: 'Cambio tecnológico radical',
+        label: 'Shock Tecnológico',
+        icon: 'mdi-lightning-bolt',
+        desc: 'Obsolescencia por IA/Tech',
     },
     {
         key: 'downsizing',
-        label: 'Downsizing',
-        icon: '📉',
-        desc: 'Reducción de estructura',
+        label: 'Optimización Estructural',
+        icon: 'mdi-minus-circle',
+        desc: 'Reducción y eficiencia bruta',
     },
     {
         key: 'generic',
-        label: 'Escenario Libre',
-        icon: '🔮',
-        desc: 'Análisis agéntico libre',
+        label: 'Hipótesis Libre',
+        icon: 'mdi-head-cog',
+        desc: 'Simulación agéntica ad-hoc',
     },
 ];
 
@@ -102,9 +102,9 @@ async function runWhatIf() {
     } catch {
         whatIfResult.value = {
             analysis: {
-                impact: 'No se pudo evaluar.',
+                impact: 'No se pudo evaluar automáticamente.',
                 main_risk: 'Análisis manual requerido.',
-                immediate_action: 'Consultar con el equipo.',
+                immediate_action: 'Consultar con el equipo estratégico.',
                 success_probability: 50,
             },
         };
@@ -125,7 +125,15 @@ function getViabilityBadge(level: string): 'success' | 'warning' | 'error' {
     return 'error';
 }
 
-function getSemaphoreColor(s: string): string {
+function getSemaphoreBg(s: string): string {
+    if (s === 'green')
+        return 'bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.3)]';
+    if (s === 'yellow')
+        return 'bg-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.3)]';
+    return 'bg-rose-500/20 shadow-[0_0_15px_rgba(239,68,68,0.3)]';
+}
+
+function getSemaphoreBullet(s: string): string {
     if (s === 'green') return 'bg-emerald-500';
     if (s === 'yellow') return 'bg-amber-500';
     return 'bg-rose-500';
@@ -136,23 +144,93 @@ function formatUsd(n: number): string {
     const fmt = '$' + Math.round(abs).toLocaleString('en-US');
     return n < 0 ? `-${fmt}` : fmt;
 }
+
+const getCategoryBadge = (cat?: string) => {
+    if (cat === 'synthetic') return 'error';
+    if (cat === 'hybrid') return 'primary';
+    if (cat === 'policy') return 'success';
+    return 'warning';
+};
 </script>
 
 <template>
-    <div class="space-y-6">
-        <!-- Header -->
-        <div>
-            <h2 class="text-2xl font-bold text-white">
-                <span class="mr-2">🤖</span> Agentic Scenario Planner
-            </h2>
-            <p class="mt-1 text-sm text-white/50">
-                Simulaciones autónomas con IA — El agente analiza, simula
-                impacto y genera planes de acción
-            </p>
+    <div class="space-y-8 pb-12">
+        <!-- Dashboard Header / Radar Scanner Animation Backdrop (Subtle) -->
+        <div
+            class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-500/10 to-purple-500/5 p-8 shadow-2xl"
+        >
+            <div
+                class="absolute -top-24 -right-24 h-64 w-64 animate-pulse rounded-full bg-indigo-500/10 blur-3xl"
+            ></div>
+            <div
+                class="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center"
+            >
+                <div>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/20 text-indigo-400 shadow-inner"
+                        >
+                            <v-icon
+                                icon="mdi-radar"
+                                size="32"
+                                class="animate-spin-slow"
+                            ></v-icon>
+                        </div>
+                        <div>
+                            <h2
+                                class="bg-gradient-to-r from-white to-white/60 bg-clip-text text-3xl font-black tracking-tighter text-transparent text-white uppercase"
+                            >
+                                Stratos Radar
+                                <span class="text-indigo-400">Evolve</span>
+                            </h2>
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="h-1.5 w-1.5 animate-ping rounded-full bg-emerald-500"
+                                ></span>
+                                <p
+                                    class="text-[0.65rem] font-bold tracking-[0.2em] text-white/40 uppercase"
+                                >
+                                    Motor de Simulación Orgánica V4.0
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <div
+                        class="rounded-2xl border border-white/5 bg-black/20 px-4 py-2 backdrop-blur-md"
+                    >
+                        <p
+                            class="text-[0.5rem] tracking-widest text-white/30 uppercase"
+                        >
+                            ID Escenario
+                        </p>
+                        <p class="font-mono text-xs font-bold text-white">
+                            #SCN-{{ scenarioId }}-EVO
+                        </p>
+                    </div>
+                    <div
+                        class="hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 backdrop-blur-md md:block"
+                    >
+                        <p
+                            class="text-[0.5rem] tracking-widest text-emerald-400/50 uppercase"
+                        >
+                            Estado del Twin
+                        </p>
+                        <p
+                            class="flex items-center gap-1 text-xs font-bold text-emerald-400"
+                        >
+                            <v-icon icon="mdi-check-circle" size="14"></v-icon>
+                            Sincronizado
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Change Type Selector -->
-        <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
+        <!-- Mode Selector: Premium Grids -->
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-5">
             <button
                 v-for="ct in changeTypes"
                 :key="ct.key"
@@ -160,448 +238,741 @@ function formatUsd(n: number): string {
                     activeType = ct.key as ChangeType;
                     result = null;
                 "
-                class="rounded-xl border p-3 text-center transition-all duration-300"
+                class="group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border p-4 transition-all duration-500"
                 :class="
                     activeType === ct.key
-                        ? 'border-indigo-500/40 bg-indigo-500/10 ring-1 ring-indigo-500/20'
-                        : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/8'
+                        ? 'border-indigo-500/50 bg-indigo-500/10 shadow-[0_0_20px_rgba(99,102,241,0.15)] ring-1 ring-indigo-400/20'
+                        : 'border-white/5 bg-white/[0.02] grayscale hover:border-white/20 hover:bg-white/[0.05] hover:grayscale-0'
                 "
             >
-                <span class="text-2xl">{{ ct.icon }}</span>
-                <p class="mt-1 text-xs font-bold text-white">{{ ct.label }}</p>
-                <p class="text-[0.55rem] text-white/30">{{ ct.desc }}</p>
+                <div
+                    class="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 transition-transform duration-500 group-hover:scale-110 group-hover:bg-indigo-500/20"
+                >
+                    <v-icon
+                        :icon="ct.icon"
+                        :class="
+                            activeType === ct.key
+                                ? 'text-indigo-400'
+                                : 'text-white/40'
+                        "
+                    ></v-icon>
+                </div>
+                <p
+                    class="text-[0.7rem] font-black tracking-tight text-white uppercase"
+                >
+                    {{ ct.label }}
+                </p>
+                <p
+                    class="mt-0.5 text-[0.55rem] leading-tight text-white/30 group-hover:text-white/50"
+                >
+                    {{ ct.desc }}
+                </p>
+
+                <!-- Active Indicator -->
+                <div
+                    v-if="activeType === ct.key"
+                    class="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-indigo-400 shadow-[0_0_8px_#818cf8]"
+                ></div>
             </button>
         </div>
 
-        <!-- Configuration -->
-        <StCardGlass>
-            <h3
-                class="mb-4 text-sm font-bold tracking-widest text-white/60 uppercase"
-            >
-                Parámetros
-            </h3>
-
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <!-- Expansion Growth -->
-                <div v-if="activeType === 'expansion'">
-                    <label class="mb-1 block text-xs text-white/50"
-                        >Crecimiento (%)</label
-                    >
-                    <input
-                        v-model.number="growthPct"
-                        type="range"
-                        min="5"
-                        max="100"
-                        step="5"
-                        class="w-full accent-indigo-500"
-                    />
-                    <div
-                        class="mt-1 flex justify-between text-xs text-white/30"
-                    >
-                        <span>5%</span>
-                        <span class="font-bold text-indigo-300"
-                            >{{ growthPct }}%</span
+        <!-- Input Control Panel -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <div class="lg:col-span-8">
+                <StCardGlass class="h-full border-white/5 p-6 backdrop-blur-xl">
+                    <div class="mb-6 flex items-center justify-between">
+                        <h3
+                            class="flex items-center gap-2 text-xs font-black tracking-[0.2em] text-white uppercase"
                         >
-                        <span>100%</span>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-xs text-white/50"
-                        >Horizonte (meses)</label
-                    >
-                    <select
-                        v-model.number="horizonMonths"
-                        class="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                    >
-                        <option :value="6">6 meses</option>
-                        <option :value="12">12 meses</option>
-                        <option :value="18">18 meses</option>
-                        <option :value="24">24 meses</option>
-                        <option :value="36">36 meses</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-xs text-white/50"
-                        >Descripción del cambio</label
-                    >
-                    <input
-                        v-model="description"
-                        type="text"
-                        placeholder="Describe el escenario..."
-                        class="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/20"
-                    />
-                </div>
-            </div>
-
-            <div class="mt-4 flex justify-end">
-                <StButtonGlass
-                    variant="primary"
-                    @click="runSimulation"
-                    :loading="loading"
-                >
-                    🤖 Ejecutar Simulación Agéntica
-                </StButtonGlass>
-            </div>
-        </StCardGlass>
-
-        <!-- Error -->
-        <StCardGlass v-if="error" class="border-rose-500/30 bg-rose-500/5">
-            <p class="text-sm text-rose-300">{{ error }}</p>
-        </StCardGlass>
-
-        <!-- Simulation Results -->
-        <Transition name="fade-slide">
-            <div v-if="result" class="space-y-4">
-                <!-- Viability Banner -->
-                <StCardGlass
-                    v-if="result.viability"
-                    class="overflow-hidden"
-                    :class="{
-                        'border-emerald-500/20':
-                            result.viability.semaphore === 'green',
-                        'border-amber-500/20':
-                            result.viability.semaphore === 'yellow',
-                        'border-rose-500/20':
-                            result.viability.semaphore === 'red',
-                    }"
-                >
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div
-                                :class="[
-                                    'h-4 w-4 animate-pulse rounded-full',
-                                    getSemaphoreColor(
-                                        result.viability.semaphore,
-                                    ),
-                                ]"
-                            ></div>
-                            <div>
-                                <p class="text-lg font-bold text-white">
-                                    Viabilidad Estratégica
-                                </p>
-                                <p class="text-xs text-white/50">
-                                    {{ result.viability.recommendation }}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p
-                                :class="[
-                                    'text-4xl font-black',
-                                    getViabilityColor(result.viability.level),
-                                ]"
-                            >
-                                {{ result.viability.score }}
-                            </p>
-                            <StBadgeGlass
-                                :variant="
-                                    getViabilityBadge(result.viability.level)
-                                "
-                                size="sm"
-                            >
-                                {{ result.viability.level?.toUpperCase() }}
-                            </StBadgeGlass>
-                        </div>
-                    </div>
-                </StCardGlass>
-
-                <!-- KPI Impact -->
-                <StCardGlass v-if="result.kpi_impact">
-                    <h3
-                        class="mb-3 text-sm font-bold tracking-widest text-white/60 uppercase"
-                    >
-                        <span class="mr-1">📊</span> Impacto en KPIs
-                    </h3>
-                    <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+                            <v-icon
+                                icon="mdi-cog"
+                                size="16"
+                                class="text-indigo-400"
+                            ></v-icon>
+                            Variables de Escenario
+                        </h3>
                         <div
-                            class="rounded-xl border border-white/10 bg-white/5 p-3 text-center"
-                        >
-                            <p
-                                class="text-2xl font-black"
-                                :class="
-                                    result.kpi_impact.headcount_delta >= 0
-                                        ? 'text-emerald-400'
-                                        : 'text-rose-400'
-                                "
-                            >
-                                {{
-                                    result.kpi_impact.headcount_delta > 0
-                                        ? '+'
-                                        : ''
-                                }}{{ result.kpi_impact.headcount_delta }}
-                            </p>
-                            <p
-                                class="text-[0.6rem] tracking-widest text-white/40 uppercase"
-                            >
-                                Headcount Delta
-                            </p>
-                        </div>
-                        <div
-                            class="rounded-xl border border-white/10 bg-white/5 p-3 text-center"
-                        >
-                            <p class="text-2xl font-black text-white">
-                                {{
-                                    formatUsd(result.kpi_impact.cost_impact_usd)
-                                }}
-                            </p>
-                            <p
-                                class="text-[0.6rem] tracking-widest text-white/40 uppercase"
-                            >
-                                Impacto Costo
-                            </p>
-                        </div>
-                        <div
-                            class="rounded-xl border border-white/10 bg-white/5 p-3 text-center"
-                        >
-                            <p
-                                class="text-2xl font-black"
-                                :class="
-                                    result.kpi_impact.productivity_impact_pct >=
-                                    0
-                                        ? 'text-emerald-400'
-                                        : 'text-rose-400'
-                                "
-                            >
-                                {{
-                                    result.kpi_impact.productivity_impact_pct >
-                                    0
-                                        ? '+'
-                                        : ''
-                                }}{{
-                                    result.kpi_impact.productivity_impact_pct
-                                }}%
-                            </p>
-                            <p
-                                class="text-[0.6rem] tracking-widest text-white/40 uppercase"
-                            >
-                                Productividad
-                            </p>
-                        </div>
-                        <div
-                            class="rounded-xl border border-white/10 bg-white/5 p-3 text-center"
-                        >
-                            <p class="text-2xl font-black text-indigo-400">
-                                {{
-                                    result.kpi_impact.time_to_stabilize_months
-                                }}m
-                            </p>
-                            <p
-                                class="text-[0.6rem] tracking-widest text-white/40 uppercase"
-                            >
-                                Estabilización
-                            </p>
-                        </div>
-                    </div>
-                </StCardGlass>
-
-                <!-- Simulation Detail -->
-                <StCardGlass v-if="result.simulation_result">
-                    <h3
-                        class="mb-3 text-sm font-bold tracking-widest text-white/60 uppercase"
-                    >
-                        <span class="mr-1">🔍</span> Detalle de Simulación
-                    </h3>
-                    <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
-                        <div
-                            v-for="(value, key) in result.simulation_result"
-                            :key="String(key)"
-                            class="rounded-lg border border-white/5 bg-white/3 p-2"
-                        >
-                            <p
-                                class="text-[0.6rem] tracking-widest text-white/30 uppercase"
-                            >
-                                {{ String(key).replace(/_/g, ' ') }}
-                            </p>
-                            <p class="mt-0.5 text-sm font-bold text-white">
-                                {{
-                                    typeof value === 'number'
-                                        ? String(key).includes('cost') ||
-                                          String(key).includes('usd')
-                                            ? formatUsd(value)
-                                            : value
-                                        : value
-                                }}
-                            </p>
-                        </div>
-                    </div>
-                </StCardGlass>
-
-                <!-- Action Plan -->
-                <StCardGlass v-if="result.action_plan?.length">
-                    <h3
-                        class="mb-3 text-sm font-bold tracking-widest text-white/60 uppercase"
-                    >
-                        <span class="mr-1">📋</span> Plan de Acción Agéntico
-                    </h3>
-                    <div class="relative">
-                        <!-- Timeline line -->
-                        <div
-                            class="absolute top-0 bottom-0 left-4 w-px bg-white/10"
+                            class="ml-4 h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"
                         ></div>
+                    </div>
 
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <!-- Dynamic Input based on type -->
                         <div class="space-y-4">
-                            <div
-                                v-for="(action, i) in result.action_plan"
-                                :key="i"
-                                class="relative pl-10"
-                            >
-                                <!-- Timeline dot -->
+                            <div v-if="activeType === 'expansion'">
                                 <div
-                                    class="absolute top-2 left-2.5 h-3 w-3 rounded-full border-2"
-                                    :class="{
-                                        'border-rose-400 bg-rose-500':
-                                            action.phase === 'Immediate',
-                                        'border-amber-400 bg-amber-500':
-                                            action.phase === 'Short-term',
-                                        'border-indigo-400 bg-indigo-500':
-                                            action.phase === 'Medium-term',
-                                    }"
-                                ></div>
-
-                                <div
-                                    class="rounded-xl border border-white/8 bg-white/3 p-3"
+                                    class="mb-2 flex items-center justify-between"
                                 >
-                                    <div class="mb-1 flex items-center gap-2">
-                                        <StBadgeGlass
-                                            :variant="
-                                                action.phase === 'Immediate'
-                                                    ? 'error'
-                                                    : action.phase ===
-                                                        'Short-term'
-                                                      ? 'warning'
-                                                      : 'primary'
-                                            "
-                                            size="sm"
-                                        >
-                                            {{ action.phase }}
-                                        </StBadgeGlass>
-                                        <span
-                                            class="text-[0.6rem] text-white/30"
-                                            >{{ action.deadline_days }}d</span
-                                        >
+                                    <label
+                                        class="text-[0.65rem] font-bold text-white/50 uppercase"
+                                        >Tasa de Expansión</label
+                                    >
+                                    <span
+                                        class="text-xs font-black text-indigo-400"
+                                        >{{ growthPct }}%</span
+                                    >
+                                </div>
+                                <div
+                                    class="group relative rounded-xl bg-black/20 p-4 pt-8"
+                                >
+                                    <input
+                                        v-model.number="growthPct"
+                                        type="range"
+                                        min="5"
+                                        max="100"
+                                        step="5"
+                                        class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-white/10 accent-indigo-500"
+                                    />
+                                    <div
+                                        class="mt-4 flex justify-between px-1 text-[0.5rem] font-bold text-white/20 uppercase"
+                                    >
+                                        <span>Cero Impacto</span>
+                                        <span>Shock Estructural</span>
                                     </div>
-                                    <p class="text-sm text-white/80">
-                                        {{ action.action }}
-                                    </p>
-                                    <p class="mt-1 text-[0.6rem] text-white/40">
-                                        → {{ action.responsible }}
-                                    </p>
                                 </div>
                             </div>
+
+                            <div v-else>
+                                <label
+                                    class="mb-2 block text-[0.65rem] font-bold text-white/50 uppercase"
+                                    >Descripción del Evento</label
+                                >
+                                <textarea
+                                    v-model="description"
+                                    rows="3"
+                                    placeholder="Ej: Fusión Depto Ventas + Marketing para eficiencia semántica..."
+                                    class="w-full rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white placeholder-white/20 focus:border-indigo-500/40 focus:ring-0"
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div>
+                                <label
+                                    class="mb-2 block text-[0.65rem] font-bold text-white/50 uppercase"
+                                    >Horizonte Temporal</label
+                                >
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button
+                                        v-for="m in [6, 12, 18, 24, 36]"
+                                        :key="m"
+                                        @click="horizonMonths = m"
+                                        class="rounded-lg border py-2 text-[0.7rem] font-bold transition-all"
+                                        :class="
+                                            horizonMonths === m
+                                                ? 'border-indigo-500/50 bg-indigo-500/10 text-white'
+                                                : 'border-white/5 bg-white/5 text-white/30 hover:bg-white/10'
+                                        "
+                                    >
+                                        {{ m }}m
+                                    </button>
+                                </div>
+                            </div>
+
+                            <StButtonGlass
+                                variant="primary"
+                                class="w-full !rounded-xl !py-4 shadow-lg shadow-indigo-500/20"
+                                @click="runSimulation"
+                                :loading="loading"
+                            >
+                                <v-icon
+                                    icon="mdi-play-circle"
+                                    class="mr-2"
+                                ></v-icon>
+                                Iniciar War-Gaming Agéntico
+                            </StButtonGlass>
                         </div>
                     </div>
                 </StCardGlass>
+            </div>
+
+            <div class="lg:col-span-4">
+                <StCardGlass
+                    class="flex h-full flex-col border-white/5 p-6 backdrop-blur-xl"
+                >
+                    <h3
+                        class="mb-4 flex items-center gap-2 text-xs font-black tracking-[0.2em] text-white uppercase"
+                    >
+                        <v-icon
+                            icon="mdi-comment-question"
+                            size="16"
+                            class="text-purple-400"
+                        ></v-icon>
+                        Flash What-If
+                    </h3>
+                    <p
+                        class="mb-4 text-[0.65rem] leading-relaxed text-white/40"
+                    >
+                        Ask a hypothetical question. Our Agentic Brain will
+                        cross-reference the Digital Twin state and provide a
+                        real-time risk assessment.
+                    </p>
+                    <div class="relative mt-auto">
+                        <input
+                            v-model="whatIfQuestion"
+                            @keyup.enter="runWhatIf"
+                            placeholder="¿Qué pasa si migramos a Cloud?"
+                            class="w-full rounded-2xl border border-white/5 bg-black/30 p-4 pr-12 text-sm text-white placeholder-white/20 focus:border-purple-500/50 focus:outline-none"
+                        />
+                        <button
+                            @click="runWhatIf"
+                            class="transition-hover absolute top-2 right-2 flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 hover:scale-105 active:scale-95 disabled:opacity-50"
+                            :disabled="loadingWhatIf"
+                        >
+                            <v-icon
+                                v-if="!loadingWhatIf"
+                                icon="mdi-rocket-launch"
+                                size="18"
+                                class="text-white"
+                            ></v-icon>
+                            <v-icon
+                                v-else
+                                icon="mdi-loading"
+                                size="18"
+                                class="animate-spin text-white"
+                            ></v-icon>
+                        </button>
+                    </div>
+                </StCardGlass>
+            </div>
+        </div>
+
+        <!-- Simulation Results: The War Room View -->
+        <Transition name="radar-reveal">
+            <div v-if="result" class="space-y-8">
+                <!-- Viability Meter & Primary Metrics -->
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                    <div class="lg:col-span-12">
+                        <StCardGlass class="overflow-hidden !p-0">
+                            <div class="flex flex-col md:flex-row">
+                                <!-- Viability Score Side -->
+                                <div
+                                    class="flex w-full flex-col items-center justify-center border-b border-white/10 p-8 md:w-1/3 md:border-r md:border-b-0"
+                                    :class="
+                                        getSemaphoreBg(
+                                            result.viability.semaphore,
+                                        )
+                                    "
+                                >
+                                    <div
+                                        class="relative flex items-center justify-center"
+                                    >
+                                        <!-- Orbital Animation -->
+                                        <div
+                                            class="animate-spin-slow absolute h-32 w-32 rounded-full border-2 border-dashed border-white/10"
+                                        ></div>
+                                        <div
+                                            class="animate-reverse-spin absolute h-40 w-40 rounded-full border border-white/5"
+                                        ></div>
+
+                                        <div class="text-center">
+                                            <p
+                                                class="text-[0.6rem] font-black tracking-widest text-white/30 uppercase"
+                                            >
+                                                Score de Viabilidad
+                                            </p>
+                                            <p
+                                                :class="[
+                                                    'text-6xl font-black tracking-tighter italic',
+                                                    getViabilityColor(
+                                                        result.viability.level,
+                                                    ),
+                                                ]"
+                                            >
+                                                {{ result.viability.score }}
+                                            </p>
+                                            <div
+                                                class="mt-2 flex items-center justify-center gap-2"
+                                            >
+                                                <div
+                                                    :class="[
+                                                        'h-2 w-2 rounded-full',
+                                                        getSemaphoreBullet(
+                                                            result.viability
+                                                                .semaphore,
+                                                        ),
+                                                    ]"
+                                                    class="shadow-[0_0_8px_currentColor]"
+                                                ></div>
+                                                <span
+                                                    class="text-[0.65rem] font-black text-white uppercase"
+                                                    >{{
+                                                        result.viability.level
+                                                    }}</span
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p
+                                        class="mt-8 text-center text-sm leading-tight font-bold text-white/80"
+                                    >
+                                        {{ result.viability.recommendation }}
+                                    </p>
+                                </div>
+
+                                <!-- Impact Highlights Side -->
+                                <div class="flex-1 p-8">
+                                    <div
+                                        class="mb-6 flex items-center justify-between"
+                                    >
+                                        <h4
+                                            class="text-xs font-black tracking-[0.2em] text-white text-white/60 uppercase"
+                                        >
+                                            Impacto Residual Estimado
+                                        </h4>
+                                        <StBadgeGlass
+                                            variant="primary"
+                                            size="sm"
+                                            >Cálculo en Tiempo
+                                            Real</StBadgeGlass
+                                        >
+                                    </div>
+
+                                    <div
+                                        class="grid grid-cols-2 gap-4 md:grid-cols-4"
+                                    >
+                                        <div
+                                            class="rounded-2xl border border-white/5 bg-white/[0.03] p-4"
+                                        >
+                                            <p
+                                                class="text-[0.55rem] font-bold text-white/30 uppercase"
+                                            >
+                                                Delta Humano
+                                            </p>
+                                            <p
+                                                class="mt-1 text-2xl font-black"
+                                                :class="
+                                                    result.kpi_impact
+                                                        .headcount_delta >= 0
+                                                        ? 'text-emerald-400'
+                                                        : 'text-rose-400'
+                                                "
+                                            >
+                                                {{
+                                                    result.kpi_impact
+                                                        .headcount_delta > 0
+                                                        ? '+'
+                                                        : ''
+                                                }}{{
+                                                    result.kpi_impact
+                                                        .headcount_delta
+                                                }}
+                                            </p>
+                                        </div>
+                                        <div
+                                            class="rounded-2xl border border-white/5 bg-white/[0.03] p-4"
+                                        >
+                                            <p
+                                                class="text-[0.55rem] font-bold text-white/30 uppercase"
+                                            >
+                                                Burn Rate Est.
+                                            </p>
+                                            <p
+                                                class="mt-1 text-2xl font-black text-white"
+                                            >
+                                                {{
+                                                    formatUsd(
+                                                        result.kpi_impact
+                                                            .cost_impact_usd,
+                                                    )
+                                                }}
+                                            </p>
+                                        </div>
+                                        <div
+                                            class="rounded-2xl border border-white/5 bg-white/[0.03] p-4"
+                                        >
+                                            <p
+                                                class="text-[0.55rem] font-bold text-white/30 uppercase"
+                                            >
+                                                Efectividad Prod.
+                                            </p>
+                                            <p
+                                                class="mt-1 text-2xl font-black"
+                                                :class="
+                                                    result.kpi_impact
+                                                        .productivity_impact_pct >=
+                                                    0
+                                                        ? 'text-emerald-400'
+                                                        : 'text-rose-400'
+                                                "
+                                            >
+                                                {{
+                                                    result.kpi_impact
+                                                        .productivity_impact_pct >
+                                                    0
+                                                        ? '+'
+                                                        : ''
+                                                }}{{
+                                                    result.kpi_impact
+                                                        .productivity_impact_pct
+                                                }}%
+                                            </p>
+                                        </div>
+                                        <div
+                                            class="rounded-2xl border border-white/5 bg-white/[0.03] p-4"
+                                        >
+                                            <p
+                                                class="text-[0.55rem] font-bold text-white/30 uppercase"
+                                            >
+                                                Estabilización
+                                            </p>
+                                            <p
+                                                class="mt-1 text-2xl font-black text-indigo-400"
+                                            >
+                                                {{
+                                                    result.kpi_impact
+                                                        .time_to_stabilize_months
+                                                }}m
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-8 flex gap-8">
+                                        <div>
+                                            <p
+                                                class="text-[0.55rem] font-bold text-white/30 uppercase"
+                                            >
+                                                Riesgo Agéntico
+                                            </p>
+                                            <div
+                                                class="mt-2 flex h-1.5 w-48 overflow-hidden rounded-full bg-white/5"
+                                            >
+                                                <div
+                                                    class="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 transition-all duration-1000"
+                                                    :style="{
+                                                        width:
+                                                            result.kpi_impact
+                                                                .risk_index +
+                                                            '%',
+                                                    }"
+                                                ></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p
+                                                class="text-[0.55rem] font-bold text-white text-white/30 uppercase"
+                                            >
+                                                Confianza Modular
+                                            </p>
+                                            <p
+                                                class="text-xs font-bold text-white/60"
+                                            >
+                                                88.4% (Neural Path Accuracy)
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </StCardGlass>
+                    </div>
+                </div>
+
+                <!-- Action Plan: Hybrid Perspective -->
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                    <div class="lg:col-span-12">
+                        <StCardGlass class="p-8">
+                            <div class="mb-8 flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">
+                                        Plan de Acción
+                                        <span class="text-indigo-400"
+                                            >Híbrido</span
+                                        >
+                                    </h3>
+                                    <p class="text-xs text-white/40">
+                                        Estrategias combinadas Human-to-Agent
+                                        para mitigación de riesgos.
+                                    </p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <div
+                                        class="flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/5 px-3 py-1 text-[0.6rem] font-bold text-orange-400 uppercase"
+                                    >
+                                        <v-icon
+                                            icon="mdi-account"
+                                            size="12"
+                                        ></v-icon>
+                                        Humano
+                                    </div>
+                                    <div
+                                        class="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3 py-1 text-[0.6rem] font-bold text-emerald-400 uppercase"
+                                    >
+                                        <v-icon
+                                            icon="mdi-file-eye"
+                                            size="12"
+                                        ></v-icon>
+                                        Política/Org
+                                    </div>
+                                    <div
+                                        class="flex items-center gap-1.5 rounded-full border border-rose-500/20 bg-rose-500/5 px-3 py-1 text-[0.6rem] font-bold text-rose-400 uppercase"
+                                    >
+                                        <v-icon
+                                            icon="mdi-robot"
+                                            size="12"
+                                        ></v-icon>
+                                        Sintético
+                                    </div>
+                                    <div
+                                        class="flex items-center gap-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/5 px-3 py-1 text-[0.6rem] font-bold text-indigo-400 uppercase"
+                                    >
+                                        <v-icon
+                                            icon="mdi-orbit"
+                                            size="12"
+                                        ></v-icon>
+                                        Híbrido
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div
+                                    v-for="(action, i) in result.action_plan"
+                                    :key="i"
+                                    class="group relative overflow-hidden rounded-2xl border transition-all duration-300 hover:border-white/20 hover:bg-white/4"
+                                    :class="[
+                                        action.category === 'synthetic'
+                                            ? 'border-rose-500/20 bg-rose-500/[0.02]'
+                                            : action.category === 'hybrid'
+                                              ? 'border-indigo-500/20 bg-indigo-500/[0.02]'
+                                              : action.category === 'policy'
+                                                ? 'border-emerald-500/20 bg-emerald-500/[0.02]'
+                                                : 'border-white/5 bg-white/[0.01]',
+                                    ]"
+                                >
+                                    <div class="flex items-center gap-6 p-5">
+                                        <div
+                                            class="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-black/40"
+                                        >
+                                            <p
+                                                class="text-[0.5rem] font-bold text-white/30 uppercase"
+                                            >
+                                                Día
+                                            </p>
+                                            <p
+                                                class="text-lg font-black text-white"
+                                            >
+                                                {{ action.deadline_days }}
+                                            </p>
+                                        </div>
+
+                                        <div class="flex-1">
+                                            <div
+                                                class="mb-1 flex items-center gap-3"
+                                            >
+                                                <StBadgeGlass
+                                                    :variant="
+                                                        getCategoryBadge(
+                                                            action.category,
+                                                        )
+                                                    "
+                                                    size="sm"
+                                                >
+                                                    {{
+                                                        (
+                                                            action.category ??
+                                                            'HUMANO'
+                                                        ).toUpperCase()
+                                                    }}
+                                                </StBadgeGlass>
+                                                <span
+                                                    class="text-[0.65rem] font-bold tracking-widest text-white/30 uppercase"
+                                                    >FASE:
+                                                    {{ action.phase }}</span
+                                                >
+                                            </div>
+                                            <p
+                                                class="text-sm font-medium text-white/90"
+                                            >
+                                                {{ action.action }}
+                                            </p>
+                                        </div>
+
+                                        <div class="hidden text-right md:block">
+                                            <p
+                                                class="text-[0.55rem] font-bold text-white/30 uppercase"
+                                            >
+                                                Responsable
+                                            </p>
+                                            <p
+                                                class="text-xs font-black text-indigo-300"
+                                            >
+                                                {{ action.responsible }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Hover Decorative Line -->
+                                    <div
+                                        class="absolute bottom-0 left-0 h-0.5 w-0 bg-indigo-500 transition-all duration-500 group-hover:w-full"
+                                    ></div>
+                                </div>
+                            </div>
+                        </StCardGlass>
+                    </div>
+                </div>
             </div>
         </Transition>
 
-        <!-- Divider -->
-        <div class="my-2 border-t border-white/5"></div>
-
-        <!-- Quick What-If -->
-        <StCardGlass>
-            <div class="mb-3 flex items-center gap-2">
-                <span class="text-lg">💭</span>
-                <h3
-                    class="text-sm font-bold tracking-widest text-white/60 uppercase"
-                >
-                    Quick What-If
-                </h3>
-            </div>
-            <p class="mb-3 text-xs text-white/40">
-                Haz una pregunta hipotética y la IA analizará el impacto
-                rápidamente
-            </p>
-            <div class="flex gap-2">
-                <input
-                    v-model="whatIfQuestion"
-                    @keyup.enter="runWhatIf"
-                    placeholder="¿Qué pasaría si migramos a cloud native en 6 meses?"
-                    class="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/20 focus:border-indigo-500/40 focus:outline-none"
-                />
-                <StButtonGlass
-                    variant="primary"
-                    size="sm"
-                    @click="runWhatIf"
-                    :loading="loadingWhatIf"
-                >
-                    Analizar
-                </StButtonGlass>
-            </div>
-
-            <Transition name="fade-slide">
-                <div
-                    v-if="whatIfResult?.analysis"
-                    class="mt-4 space-y-3 rounded-xl border border-white/8 bg-white/3 p-4"
-                >
-                    <div class="flex items-center justify-between">
-                        <p class="text-xs text-white/40">
-                            Probabilidad de éxito
+        <!-- What-If Results Reveal -->
+        <Transition name="radar-reveal">
+            <div
+                v-if="whatIfResult?.analysis"
+                class="radar-scan-effect overflow-hidden rounded-3xl border border-purple-500/30 bg-purple-500/5 p-8 backdrop-blur-md"
+            >
+                <div class="mb-6 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/20 text-purple-400"
+                        >
+                            <v-icon icon="mdi-auto-fix"></v-icon>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-white italic">
+                                Análisis Hipotético de IA
+                            </h4>
+                            <p class="text-xs text-white/40">
+                                Respuesta instantánea del motor neuronal
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p
+                            class="text-[0.55rem] font-bold text-white/30 uppercase"
+                        >
+                            Probabilidad Éxito
                         </p>
-                        <span
-                            class="text-lg font-black"
+                        <p
+                            class="text-3xl font-black italic"
                             :class="
                                 whatIfResult.analysis.success_probability >= 70
                                     ? 'text-emerald-400'
-                                    : whatIfResult.analysis
-                                            .success_probability >= 50
-                                      ? 'text-amber-400'
-                                      : 'text-rose-400'
+                                    : 'text-amber-400'
                             "
-                            >{{
-                                whatIfResult.analysis.success_probability
-                            }}%</span
                         >
-                    </div>
-                    <div>
-                        <p
-                            class="text-[0.6rem] tracking-widest text-white/30 uppercase"
-                        >
-                            Impacto
-                        </p>
-                        <p class="text-sm text-white/70">
-                            {{ whatIfResult.analysis.impact }}
+                            {{ whatIfResult.analysis.success_probability }}%
                         </p>
                     </div>
-                    <div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    <div class="space-y-2">
                         <p
-                            class="text-[0.6rem] tracking-widest text-white/30 uppercase"
+                            class="flex items-center gap-2 text-[0.6rem] font-black tracking-tighter text-white/30 uppercase"
                         >
-                            Riesgo Principal
+                            <v-icon icon="mdi-pulse" size="12"></v-icon> Impacto
+                            Primario
                         </p>
-                        <p class="text-sm text-rose-300">
+                        <p class="text-sm leading-relaxed text-white/80 italic">
+                            "{{ whatIfResult.analysis.impact }}"
+                        </p>
+                    </div>
+                    <div class="space-y-2 border-white/5 md:border-l md:pl-6">
+                        <p
+                            class="flex items-center gap-2 text-[0.6rem] font-black tracking-tighter text-rose-400/50 uppercase"
+                        >
+                            <v-icon icon="mdi-alert-octagon" size="12"></v-icon>
+                            Punto de Fricción
+                        </p>
+                        <p
+                            class="text-sm leading-tight font-bold text-rose-300"
+                        >
                             {{ whatIfResult.analysis.main_risk }}
                         </p>
                     </div>
-                    <div>
+                    <div class="space-y-2 border-white/5 md:border-l md:pl-6">
                         <p
-                            class="text-[0.6rem] tracking-widest text-white/30 uppercase"
+                            class="flex items-center gap-2 text-[0.6rem] font-black tracking-tighter text-emerald-400/50 uppercase"
                         >
-                            Acción Inmediata
+                            <v-icon icon="mdi-check-all" size="12"></v-icon>
+                            Mitigación Inmediata
                         </p>
-                        <p class="text-sm text-emerald-300">
+                        <p
+                            class="text-sm leading-tight font-bold text-emerald-300"
+                        >
                             {{ whatIfResult.analysis.immediate_action }}
                         </p>
                     </div>
                 </div>
-            </Transition>
-        </StCardGlass>
+            </div>
+        </Transition>
     </div>
 </template>
 
 <style scoped>
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-    transition: all 0.4s ease;
+.radar-reveal-enter-active,
+.radar-reveal-leave-active {
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.fade-slide-enter-from,
-.fade-slide-leave-to {
+.radar-reveal-enter-from,
+.radar-reveal-leave-to {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(30px) scale(0.98);
 }
-select option {
-    background: #1e1b4b;
-    color: #fff;
+
+.animate-spin-slow {
+    animation: spin 8s linear infinite;
+}
+
+.animate-reverse-spin {
+    animation: reverse-spin 12s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes reverse-spin {
+    from {
+        transform: rotate(360deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #6366f1;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.radar-scan-effect {
+    position: relative;
+}
+.radar-scan-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        0deg,
+        transparent 45%,
+        rgba(168, 85, 247, 0.05) 50%,
+        transparent 55%
+    );
+    transform: rotate(0deg);
+    animation: scan 4s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes scan {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>

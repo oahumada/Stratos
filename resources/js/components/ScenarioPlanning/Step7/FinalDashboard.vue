@@ -493,7 +493,7 @@
                 color="indigo-400"
             >
                 <v-tab value="crisis">Stress Simulation</v-tab>
-                <v-tab value="agentic">Agentic Analysis</v-tab>
+                <v-tab value="agentic">Stratos Radar</v-tab>
             </v-tabs>
 
             <div class="mt-6">
