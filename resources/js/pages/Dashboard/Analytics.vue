@@ -182,7 +182,7 @@ const riskIndicators = computed(() => [
         subtitle: 'Requieren intervención',
     },
     {
-        title: 'Skills Depreciadas',
+        title: 'Habilidades Depreciadas',
         value: dashboardData.value.riskMetrics.skillsDeprecating,
         icon: 'mdi-progress-clock',
         color: 'warning',
@@ -217,7 +217,7 @@ void _getStatusColor;
 <template>
     <div class="pa-8">
         <PendingFeedback />
-        <!-- Executive Header -->
+        <!-- Encabezado Ejecutivo -->
         <header class="mb-10">
             <div
                 class="d-flex align-center justify-space-between flex-wrap gap-4"
@@ -229,22 +229,22 @@ void _getStatusColor;
                         >
                         <span
                             class="text-overline font-weight-bold text-slate-400"
-                            >Intelligence Hub</span
+                            >Hub de Inteligencia</span
                         >
                     </div>
                     <h1 class="text-h3 font-weight-black mb-2 text-white">
-                        Talent
-                        <span class="text-indigo-accent-2">Analytics</span>
+                        Analítica de
+                        <span class="text-indigo-accent-2">Talento</span>
                     </h1>
                     <p class="text-subtitle-1 text-slate-400">
-                        Strategic oversight of organizational health and
-                        workforce potential
+                        Visión estratégica de la salud organizacional y del
+                        potencial de la fuerza laboral
                     </p>
                 </div>
             </div>
         </header>
 
-        <!-- Period Selector Glass -->
+        <!-- Selector de Período -->
         <StCardGlass class="mb-8" :no-hover="true">
             <div
                 class="d-flex align-center justify-space-between flex-wrap gap-4"
@@ -252,7 +252,7 @@ void _getStatusColor;
                 <div class="d-flex align-center gap-4">
                     <span
                         class="text-subtitle-2 font-weight-bold text-slate-300"
-                        >Analysis Period:</span
+                        >Período de análisis:</span
                     >
                     <v-chip-group
                         v-model="selectedPeriod"
@@ -260,16 +260,16 @@ void _getStatusColor;
                         mandatory
                     >
                         <v-chip value="week" variant="text" class="text-none"
-                            >Week</v-chip
+                            >Semana</v-chip
                         >
                         <v-chip value="month" variant="text" class="text-none"
-                            >Month</v-chip
+                            >Mes</v-chip
                         >
                         <v-chip value="quarter" variant="text" class="text-none"
-                            >Quarter</v-chip
+                            >Trimestre</v-chip
                         >
                         <v-chip value="year" variant="text" class="text-none"
-                            >Year</v-chip
+                            >Año</v-chip
                         >
                     </v-chip-group>
                 </div>
@@ -277,16 +277,16 @@ void _getStatusColor;
                     class="d-flex align-center text-caption rounded-pill gap-2 bg-black/20 px-3 py-1 text-slate-500"
                 >
                     <v-icon size="12">mdi-refresh</v-icon>
-                    Last update: Today, 14:32
+                    Última actualización: Hoy, 14:32
                 </div>
             </div>
         </StCardGlass>
 
-        <!-- Key Metrics Row -->
+        <!-- Fila de KPIs -->
         <div class="mb-10">
             <div class="d-flex align-center justify-space-between mb-6">
                 <h2 class="text-h6 font-weight-bold text-slate-200">
-                    Executive Outlook (KPIs)
+                    Panorama Ejecutivo (KPIs)
                 </h2>
                 <v-btn
                     variant="text"
@@ -317,7 +317,7 @@ void _getStatusColor;
                                     metric.icon
                                 }}</v-icon>
                             </v-avatar>
-                            <div class="st-badge-live">Real-time</div>
+                            <div class="st-badge-live">Tiempo real</div>
                         </div>
                         <div class="text-h4 font-weight-black mb-1 text-white">
                             {{ metric.value }}
@@ -335,12 +335,12 @@ void _getStatusColor;
             </v-row>
         </div>
 
-        <!-- Talent Readiness + Candidate Distribution Row -->
+        <!-- Disponibilidad de Talento + Distribución de Candidatos -->
         <v-row class="mb-10">
-            <!-- Talent Readiness -->
+            <!-- Disponibilidad de Talento -->
             <v-col cols="12" md="6">
                 <h2 class="text-h6 font-weight-bold mb-4 text-slate-200">
-                    Workforce Ready Index
+                    Índice de Preparación de la Fuerza Laboral
                 </h2>
                 <StCardGlass class="pa-6" :no-hover="true">
                     <v-list class="pa-0 bg-transparent" dark>
@@ -383,10 +383,10 @@ void _getStatusColor;
                 </StCardGlass>
             </v-col>
 
-            <!-- Candidate Distribution -->
+            <!-- Distribución de Candidatos -->
             <v-col cols="12" md="6">
                 <h2 class="text-h6 font-weight-bold mb-4 text-slate-200">
-                    Skill Quality Spectrum
+                    Espectro de Calidad de Habilidades
                 </h2>
                 <StCardGlass class="pa-6" :no-hover="true">
                     <v-list class="pa-0 bg-transparent">
@@ -408,7 +408,7 @@ void _getStatusColor;
                                         <div
                                             class="text-tiny font-weight-bold text-slate-500 uppercase"
                                         >
-                                            Match
+                                            Ajuste
                                         </div>
                                     </div>
                                 </template>
@@ -439,13 +439,13 @@ void _getStatusColor;
             </v-col>
         </v-row>
 
-        <!-- Risk Indicators -->
+        <!-- Indicadores de Riesgo -->
         <div class="mb-10">
             <h2
                 class="text-h6 font-weight-bold flex-center mb-6 gap-2 text-slate-200"
             >
                 <v-icon color="rose-accent-4">mdi-shield-alert-outline</v-icon>
-                Risk Analysis & Vulnerabilities
+                Análisis de Riesgos y Vulnerabilidades
             </h2>
             <v-row class="gap-0">
                 <v-col
@@ -497,11 +497,11 @@ void _getStatusColor;
             </v-row>
         </div>
 
-        <!-- Development & Skills Section -->
+        <!-- Sección de Desarrollo y Habilidades -->
         <v-row class="mb-10">
             <v-col cols="12" md="6">
                 <h2 class="text-h6 font-weight-bold mb-4 text-slate-200">
-                    Growth & Capabilities
+                    Crecimiento y Capacidades
                 </h2>
                 <StCardGlass class="pa-8" :no-hover="true">
                     <div class="mb-8">
@@ -510,7 +510,7 @@ void _getStatusColor;
                         >
                             <span
                                 class="text-subtitle-1 font-weight-bold text-slate-300"
-                                >Active Learning Nodes</span
+                                >Nodos Activos de Aprendizaje</span
                             >
                             <span
                                 class="text-h5 font-weight-black text-emerald-accent-2"
@@ -536,7 +536,7 @@ void _getStatusColor;
                         >
                             <span
                                 class="text-subtitle-1 font-weight-bold text-slate-300"
-                                >Mastery Certifications</span
+                                >Certificaciones de Maestría</span
                             >
                             <span
                                 class="text-h5 font-weight-black text-cyan-accent-2"
@@ -562,7 +562,7 @@ void _getStatusColor;
                         >
                             <span
                                 class="text-subtitle-1 font-weight-bold text-slate-300"
-                                >Skill Map Density</span
+                                >Densidad del Mapa de Habilidades</span
                             >
                             <span
                                 class="text-h5 font-weight-black text-indigo-accent-2"
@@ -571,7 +571,7 @@ void _getStatusColor;
                                     dashboardData.developmentMetrics
                                         .skillsCovered
                                 }}
-                                Units
+                                Unidades
                             </span>
                         </div>
                         <v-progress-linear
@@ -587,14 +587,14 @@ void _getStatusColor;
 
             <v-col cols="12" md="6">
                 <h2 class="text-h6 font-weight-bold mb-4 text-slate-200">
-                    Acquisition Pipeline
+                    Pipeline de Adquisición
                 </h2>
                 <StCardGlass class="pa-4" :no-hover="true">
                     <v-list class="pa-0 bg-transparent">
                         <v-list-item class="border-b border-white/5 px-3 py-4">
                             <v-list-item-title
                                 class="font-weight-bold text-slate-300"
-                                >Average Time to Fill</v-list-item-title
+                                >Tiempo Promedio de Cobertura</v-list-item-title
                             >
                             <template #append>
                                 <div
@@ -604,14 +604,14 @@ void _getStatusColor;
                                         dashboardData.recruitmentMetrics
                                             .averageTimeToHire
                                     }}
-                                    Days
+                                    días
                                 </div>
                             </template>
                         </v-list-item>
                         <v-list-item class="border-b border-white/5 px-3 py-4">
                             <v-list-item-title
                                 class="font-weight-bold text-slate-300"
-                                >Immersive Placements</v-list-item-title
+                                >Colocaciones Inmersivas</v-list-item-title
                             >
                             <template #append>
                                 <span
@@ -626,7 +626,7 @@ void _getStatusColor;
                         <v-list-item class="border-b border-white/5 px-3 py-4">
                             <v-list-item-title
                                 class="font-weight-bold text-slate-300"
-                                >External Acquisitions</v-list-item-title
+                                >Contrataciones Externas</v-list-item-title
                             >
                             <template #append>
                                 <span
@@ -641,7 +641,7 @@ void _getStatusColor;
                         <v-list-item class="px-3 py-4">
                             <v-list-item-title
                                 class="font-weight-bold text-slate-300"
-                                >Velocity (Last 30d)</v-list-item-title
+                                >Velocidad (últimos 30 días)</v-list-item-title
                             >
                             <template #append>
                                 <div class="d-flex align-center gap-2">
@@ -665,13 +665,13 @@ void _getStatusColor;
             </v-col>
         </v-row>
 
-        <!-- Alerts & Recommendations -->
+        <!-- Alertas y Recomendaciones -->
         <div class="mb-10">
             <h2
                 class="text-h6 font-weight-bold flex-center mb-6 gap-2 text-slate-200"
             >
                 <v-icon color="indigo-accent-2">mdi-lighthouse</v-icon>
-                AI Insights & Directives
+                Insights y Directrices de IA
             </h2>
             <StCardGlass
                 class="pa-0 mb-4 overflow-hidden"
@@ -693,18 +693,18 @@ void _getStatusColor;
                         <div
                             class="text-h6 font-weight-black text-rose-accent-2 mb-1"
                         >
-                            Critical Talent Attrition Risk
+                            Riesgo Crítico de Fuga de Talento
                         </div>
                         <div class="text-body-1 text-slate-300">
                             <strong
                                 >{{
                                     dashboardData.riskMetrics.talentAtRisk
                                 }}
-                                key employees</strong
+                                empleados clave</strong
                             >
-                            are showing high attrition probability. Immediate
-                            retention strategy engagement is advised for these
-                            critical nodes.
+                            muestran alta probabilidad de salida. Se recomienda
+                            activar una estrategia inmediata de retención para
+                            estos nodos críticos.
                         </div>
                     </div>
                 </div>
@@ -730,7 +730,7 @@ void _getStatusColor;
                         <div
                             class="text-h6 font-weight-black text-amber-accent-2 mb-1"
                         >
-                            Marketplace Supply Deficiency
+                            Déficit de Oferta en Marketplace
                         </div>
                         <div class="text-body-1 text-slate-300">
                             <strong
@@ -738,11 +738,11 @@ void _getStatusColor;
                                     dashboardData.marketplaceMetrics
                                         .positionsWithoutCandidates
                                 }}
-                                technical positions</strong
+                                posiciones técnicas</strong
                             >
-                            lack viable internal candidates. Initiation of
-                            external sourcing for Senior Backend & Data clusters
-                            is recommended.
+                            no cuentan con candidatos internos viables. Se
+                            recomienda iniciar búsqueda externa para clusters
+                            Senior Backend y Data.
                         </div>
                     </div>
                 </div>
@@ -768,7 +768,7 @@ void _getStatusColor;
                         <div
                             class="text-h6 font-weight-black text-emerald-accent-2 mb-1"
                         >
-                            Promotion Opportunity Window
+                            Ventana de Oportunidad de Promoción
                         </div>
                         <div class="text-body-1 text-slate-300">
                             <strong
@@ -776,27 +776,28 @@ void _getStatusColor;
                                     dashboardData.talentMetrics
                                         .employeesReadyForPromotion
                                 }}
-                                high-potential assets</strong
+                                talentos de alto potencial</strong
                             >
-                            have achieved ≥80% skill match for advanced roles.
-                            Career path acceleration suggested.
+                            alcanzaron ≥80% de ajuste de habilidades para roles
+                            avanzados. Se sugiere acelerar su ruta de carrera.
                         </div>
                     </div>
                 </div>
             </StCardGlass>
         </div>
 
-        <!-- Footer Glass Note -->
+        <!-- Nota de Sistema -->
         <StCardGlass class="pa-4 bg-black/40" :no-hover="true">
             <div class="d-flex align-center gap-3">
                 <v-icon size="20" color="slate-500"
                     >mdi-information-outline</v-icon
                 >
                 <div class="text-body-2 text-slate-400">
-                    <strong class="text-slate-300">System Note:</strong> This
-                    intelligence report is currently utilizing simulated
-                    high-fidelity datasets. Integration with live organizational
-                    ERP nodes is pending Phase 2 deployment.
+                    <strong class="text-slate-300">Nota del sistema:</strong>
+                    Este reporte de inteligencia usa actualmente datasets
+                    simulados de alta fidelidad. La integración con nodos ERP
+                    organizacionales en vivo está pendiente para el despliegue
+                    de Fase 2.
                 </div>
             </div>
         </StCardGlass>

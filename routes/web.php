@@ -8,6 +8,31 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
+// Landings de agrupamientos principales
+Route::get('/core', function () {
+    return Inertia::render('Core/Landing');
+})->middleware(['auth', 'verified'])->name('core.landing');
+
+Route::get('/radar', function () {
+    return Inertia::render('Radar/Landing');
+})->middleware(['auth', 'verified'])->name('radar.landing');
+
+Route::get('/px', function () {
+    return Inertia::render('PX/Landing');
+})->middleware(['auth', 'verified'])->name('px.landing');
+
+Route::get('/growth', function () {
+    return Inertia::render('Growth/Landing');
+})->middleware(['auth', 'verified'])->name('growth.landing');
+
+Route::get('/magnet', function () {
+    return Inertia::render('Magnet/Landing');
+})->middleware(['auth', 'verified'])->name('magnet.landing');
+
+Route::get('/controlcenter', function () {
+    return Inertia::render('ControlCenter/Landing');
+})->middleware(['auth', 'verified', 'role:admin'])->name('controlcenter.landing');
+
 // Dev-only endpoint for E2E: logs in as admin (id from env or 2)
 Route::get('/__e2e_login', function () {
     if (! (AppFacade::environment('local') || config('stratos.qa.e2e_bypass', false))) {

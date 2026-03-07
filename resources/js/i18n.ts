@@ -584,6 +584,144 @@ export const messages = {
                 system: 'System Alert',
             },
         },
+        landings: {
+            core: {
+                title: 'Stratos Core',
+                slogan: 'Inventory, roles, competencies, and skills — The foundation of your talent.',
+                modules: {
+                    people_inventory: {
+                        title: 'People Inventory',
+                        description: 'People management and lifecycle.',
+                    },
+                    role_catalog: {
+                        title: 'Role Catalog',
+                        description: 'Strategic role definition.',
+                    },
+                    competency_dictionary: {
+                        title: 'Competency Dictionary',
+                        description: 'Competency taxonomy.',
+                    },
+                    skills_matrix: {
+                        title: 'Skills Matrix',
+                        description: 'Detailed technical inventory.',
+                    },
+                    organization_flow: {
+                        title: 'Organization Flow',
+                        description: 'Hierarchical visualization.',
+                    },
+                    stratos_map: {
+                        title: 'Stratos Map',
+                        description: 'Real-time skills radiography.',
+                    },
+                },
+            },
+            px: {
+                title: 'Stratos PX',
+                slogan: 'Experience and growth — Employee retention and development.',
+                modules: {
+                    mi_stratos: {
+                        title: 'My Stratos',
+                        description: 'Personal dashboard, KPIs, and gamification.',
+                    },
+                    comando_px: {
+                        title: 'PX Command',
+                        description: 'Burnout and climate dashboard.',
+                    },
+                    stratos_match: {
+                        title: 'Stratos Match',
+                        description: 'Internal mobility and fitness match.',
+                    },
+                },
+            },
+            growth: {
+                title: 'Stratos Growth',
+                slogan: 'Boost development — Paths, mentoring, and opportunities.',
+                modules: {
+                    stratos_navigator: {
+                        title: 'Stratos Navigator',
+                        description: 'AI for learning paths.',
+                    },
+                    stratos_360: {
+                        title: 'Stratos 360',
+                        description: 'Holistic assessment and feedback.',
+                    },
+                    commander_360: {
+                        title: 'Commander 360',
+                        description: 'Psychometric triangulation.',
+                    },
+                    social_learning_hub: {
+                        title: 'Social Learning Hub',
+                        description: 'Peer-to-peer platform.',
+                    },
+                    mentoring: {
+                        title: 'Mentoring',
+                        description: 'AI and human mentoring.',
+                    },
+                    opportunity_marketplace: {
+                        title: 'Opportunity Marketplace',
+                        description: 'Internal opportunities.',
+                    },
+                },
+            },
+            magnet: {
+                title: 'Stratos Magnet',
+                slogan: 'Talent attraction — Recruiting and external matching.',
+                modules: {
+                    magnet_home: {
+                        title: 'Magnet Home',
+                        description: 'External recruiting portal.',
+                    },
+                    candidate_portal: {
+                        title: 'Candidate Portal',
+                        description: 'Application tracking.',
+                    },
+                },
+            },
+            control_center: {
+                title: 'Control Center',
+                slogan: 'Governance, security, and quality — Monitor and manage the platform.',
+                modules: {
+                    rbac_manager: {
+                        title: 'RBAC Manager',
+                        description: 'Roles and permissions management.',
+                    },
+                    ai_agent_supervisor: {
+                        title: 'AI Agent Supervisor',
+                        description: 'Supervision of LLM agents.',
+                    },
+                    quality_sentinel: {
+                        title: 'Quality Sentinel',
+                        description: 'Reliability and RAGAS monitoring.',
+                    },
+                    ragas_neural_dash: {
+                        title: 'RAGAS Neural Dash',
+                        description: 'LLM output analytics.',
+                    },
+                },
+            },
+            radar: {
+                title: 'Stratos Radar',
+                slogan: 'Predictive prevention — Anticipate risks and talent churn.',
+                modules: {
+                    strategic_scenario_list: {
+                        title: 'Strategic Scenario List',
+                        description: 'Strategic simulations.',
+                    },
+                    executive_dashboard: {
+                        title: 'Executive Dashboard',
+                        description: 'CEO-focused strategic oversight and KPI direction.',
+                    },
+                    gap_analysis_engine: {
+                        title: 'Gap Analysis Engine',
+                        description: 'Contrast between inventory and target state.',
+                    },
+                    investor_dashboard: {
+                        title: 'Investor Dashboard',
+                        description: 'Financial-oriented ROI and value visibility.',
+                    },
+                },
+            },
+        },
     },
     es: {
         scenario_iq: 'Scenario IQ',
@@ -639,7 +777,7 @@ export const messages = {
             commit_changes: 'Confirmar Cambios',
         },
         pending_feedback: {
-            title: 'Feedback 360 Pendiente',
+            title: 'Retroalimentación 360 pendiente',
             subtitle:
                 'Sintetiza la visión profesional de {count} colaboradores.',
             analysis_for: 'Análisis para {name}',
@@ -662,7 +800,7 @@ export const messages = {
             step1_desc: 'Propósito y Misión',
             step2_title: 'Mapeo del Cubo',
             step2_desc: 'Coord. Estructurales',
-            step3_title: 'Plano (Blueprint)',
+            step3_title: 'Plano',
             step3_desc: 'Arquitectura de Habil.',
             define_node: 'Definir el Nodo de Ejecución',
             define_node_desc:
@@ -713,7 +851,7 @@ export const messages = {
             launch_campaign: 'Lanzar Campaña',
             metrics: {
                 active: 'Activas',
-                avg_engagement: 'Engagement Prom.',
+                avg_engagement: 'Compromiso prom.',
                 sentiment_index: 'Índice de Sentimiento',
                 burnout_risk: 'Riesgo de Burnout',
             },
@@ -727,14 +865,14 @@ export const messages = {
                 status: 'Estado',
             },
             no_campaigns:
-                'No hay campañas configuradas para People Experience.',
+                'No hay campañas configuradas para Experiencia de Personas.',
             launch_first: 'Lanzar Primera Campaña',
             wizard: {
                 title: 'Diseño PX',
                 subtitle: 'Configura la escucha activa de la organización.',
                 step1_title: 'Tópicos & Objetivo',
                 step2_title: 'Frecuencia & Modo',
-                step3_title: 'Alcance (Scope)',
+                step3_title: 'Alcance',
                 step4_title: 'Validación',
                 close: 'Cerrar',
                 step1: {
@@ -803,12 +941,12 @@ export const messages = {
         assessment_command: {
             title: 'Unidad de Comando Cerbero',
             subtitle:
-                'Orquestación inteligente de ciclos de assessment y talento 360.',
+                'Orquestación inteligente de ciclos de evaluación y talento 360.',
             config_cycle: 'Configurar Ciclo',
             stats: {
                 active_cycles: 'Ciclos Activos',
                 collaborators: 'Colaboradores',
-                avg_completion: 'Completitud Avg.',
+                avg_completion: 'Completitud prom.',
                 pending_evals: 'Evals. Pendientes',
             },
             history_title: 'Historial de Orquestaciones',
@@ -850,7 +988,7 @@ export const messages = {
                         all: 'Toda la Organización',
                         department: 'Por Departamento',
                         scenario: 'Por Escenario Estratégico',
-                        hipo: 'Solo High Potentials (HiPo)',
+                        hipo: 'Solo alto potencial (HiPo)',
                     },
                     scenario_alert:
                         'Esta opción sincroniza el ciclo con los escenarios de Scenario IQ, evaluando solo a los roles impactados.',
@@ -863,7 +1001,7 @@ export const messages = {
                     title: 'Instrumentos & Red 360',
                     desc: 'Configura las herramientas de medición y quiénes participarán como evaluadores.',
                     instruments_title: 'Modelos de Medición',
-                    network_title: 'Red de Feedback (Vistas)',
+                    network_title: 'Red de Retroalimentación (Vistas)',
                     network_options: {
                         self: 'Autoevaluación',
                         manager: 'Jefe Directo',
@@ -884,10 +1022,10 @@ export const messages = {
                         ai_inactive: 'IA Desactivada',
                         ai_label: 'Motor Cerbero',
                     },
-                    preview_title: 'Preview de Alcance Estimado',
+                    preview_title: 'Vista previa del alcance estimado',
                     preview_loading:
                         'Cerbero está calculando el universo de participantes...',
-                    preview_participants: 'Participantes Target',
+                    preview_participants: 'Participantes objetivo',
                     preview_areas: 'Áreas / Redes 360',
                     warning:
                         'El ciclo se guardará como <strong>Borrador</strong>. Podrás editar el alcance detallado de personas antes de lanzarlo oficialmente.',
@@ -919,7 +1057,7 @@ export const messages = {
             },
             instruments: {
                 bars: 'Evaluación BARS (Competencias)',
-                pulse: 'Encuesta Pulse (Clima)',
+                pulse: 'Encuesta de pulso (clima)',
                 disc: 'Perfil Psicométrico (DISC)',
                 interview: 'Entrevista de IA (Cerbero)',
             },
@@ -932,31 +1070,31 @@ export const messages = {
             },
             actions_tooltips: {
                 activate: 'Activar Ciclo Oficialmente',
-                dashboard: 'Ver Seguimiento Dashboard',
+                dashboard: 'Ver tablero de seguimiento',
             },
             date_none: 'Sin definir',
         },
         roles_module: {
             title: 'Repositorio de Roles',
-            ai_cube_design: 'Diseñar con Cubo AI',
+            ai_cube_design: 'Diseñar con Cubo IA',
             tabs: {
                 info: 'Información',
-                skills: 'Skills ({count})',
+                skills: 'Habilidades ({count})',
                 people: 'Personas ({count})',
-                ai_design: 'Diseño de Rol (AI)',
+                ai_design: 'Diseño de Rol (IA)',
                 historical: 'Historial de Simulación',
             },
             info_section: {
                 title: 'Información del Rol',
                 name: 'Nombre',
                 description: 'Descripción',
-                ai_agent: 'AI Agent',
+                ai_agent: 'Agente IA',
                 blueprint: 'Plantilla Estratégica',
-                design_btn: 'Diseñar con AI (Modelo Cubo)',
+                design_btn: 'Diseñar con IA (Modelo Cubo)',
             },
             skills_section: {
-                title: 'Skills requeridas',
-                empty: 'No hay skills asignadas',
+                title: 'Habilidades requeridas',
+                empty: 'No hay habilidades asignadas',
                 level: 'Nivel Requerido',
                 critical: 'Crítica',
             },
@@ -966,7 +1104,7 @@ export const messages = {
                 no_email: '(Sin correo)',
             },
             ai_section: {
-                title: 'Análisis de Diseño (Metodología Role Cube)',
+                title: 'Análisis de Diseño (Metodología Cubo de Roles)',
                 reanalyze: 'Volver a analizar',
                 not_analyzed_title: 'Diseño no analizado',
                 not_analyzed_desc:
@@ -978,7 +1116,7 @@ export const messages = {
                 axis_z: 'Eje Z: Ancla de Proceso de Negocio',
                 mastery_suffix: '/5',
                 justification: 'JUSTIFICACIÓN DEL DISEÑO',
-                core_competencies: 'Competencias Core Sugeridas',
+                core_competencies: 'Competencias clave sugeridas',
                 org_clarity: 'Nitidez Organizacional & Recomendaciones',
             },
         },
@@ -986,13 +1124,13 @@ export const messages = {
             title: 'Marco de Competencias',
             tabs: {
                 info: 'Información Base',
-                ai_design: 'Diseño AI',
+                ai_design: 'Diseño IA',
             },
             info_section: {
                 no_description: 'Sin descripción',
                 status_active: 'Activo',
                 status_draft: 'Borrador',
-                skills_count: '{count} Skills asociados',
+                skills_count: '{count} habilidades asociadas',
                 ai_agent: 'Agente de Diseño',
             },
             ai_section: {
@@ -1002,7 +1140,7 @@ export const messages = {
                 curate_btn: 'Curar Competencia',
                 alert_title: 'Atención',
                 alert_desc:
-                    'Esta competencia aún no tiene skills asociadas. La IA intentará derivar las sub-habilidades primero.',
+                    'Esta competencia aún no tiene habilidades asociadas. La IA intentará derivar las sub-habilidades primero.',
                 ready_desc:
                     'Esta competencia está lista para la curación por IA. Haz clic en el botón de arriba para comenzar.',
             },
@@ -1037,7 +1175,7 @@ export const messages = {
             description:
                 'Gestionar personas, sus habilidades y desarrollo profesional.',
             tabs: {
-                active_skills: 'Skills Activas',
+                active_skills: 'Habilidades Activas',
                 potential: 'Potencial IA',
                 development: 'Desarrollo',
                 history: 'Historial',
@@ -1050,8 +1188,8 @@ export const messages = {
                 view_profile: 'Ver Perfil Completo',
             },
             skills: {
-                title: 'Skills activas',
-                empty: 'Sin skills activas en el pivote `people_role_skills`.',
+                title: 'Habilidades activas',
+                empty: 'Sin habilidades activas en el pivote `people_role_skills`.',
                 level_label: 'Nivel Requerido',
             },
             potential: {
@@ -1137,7 +1275,7 @@ export const messages = {
                 title: 'Generar Plan de Desarrollo',
                 subtitle: 'Análisis de brechas y hoja de ruta con IA',
                 form: {
-                    select_skill: 'Seleccionar Skill a Mejorar',
+                    select_skill: 'Seleccionar habilidad a mejorar',
                     level_evolution: 'Nivel {current} ➔ {target}',
                 },
                 analysis: {
@@ -1172,6 +1310,146 @@ export const messages = {
                 learning: 'Aprendizaje',
                 infrastructure: 'Infraestructura',
                 system: 'Sistema',
+            },
+        },
+        landings: {
+            core: {
+                title: 'Stratos Core',
+                slogan: 'Inventario, roles, competencias y habilidades — La base de tu talento.',
+                modules: {
+                    people_inventory: {
+                        title: 'Inventario de Personas',
+                        description: 'Gestión de personas y ciclo de vida.',
+                    },
+                    role_catalog: {
+                        title: 'Catálogo de Roles',
+                        description: 'Definición estratégica de roles.',
+                    },
+                    competency_dictionary: {
+                        title: 'Diccionario de Competencias',
+                        description: 'Taxonomía de competencias.',
+                    },
+                    skills_matrix: {
+                        title: 'Matriz de Habilidades',
+                        description: 'Inventario técnico detallado.',
+                    },
+                    organization_flow: {
+                        title: 'Flujo Organizacional',
+                        description: 'Visualización jerárquica.',
+                    },
+                    stratos_map: {
+                        title: 'Stratos Map',
+                        description: 'Radiografía de habilidades en tiempo real.',
+                    },
+                },
+            },
+            px: {
+                title: 'Stratos PX',
+                slogan: 'Experiencia y crecimiento — Retención y desarrollo del colaborador.',
+                modules: {
+                    mi_stratos: {
+                        title: 'Mi Stratos',
+                        description: 'Tablero personal, KPIs, gamificación.',
+                    },
+                    comando_px: {
+                        title: 'Comando PX',
+                        description: 'Tablero de burnout y clima.',
+                    },
+                    stratos_match: {
+                        title: 'Stratos Match',
+                        description: 'Movilidad interna y ajuste de afinidad.',
+                    },
+                },
+            },
+            growth: {
+                title: 'Stratos Growth',
+                slogan: 'Impulsa el desarrollo — Rutas, mentoría y oportunidades.',
+                modules: {
+                    stratos_navigator: {
+                        title: 'Stratos Navigator',
+                        description: 'IA para rutas de aprendizaje.',
+                    },
+                    stratos_360: {
+                        title: 'Stratos 360',
+                        description: 'Evaluación holística y retroalimentación.',
+                    },
+                    commander_360: {
+                        title: 'Commander 360',
+                        description: 'Triangulación psicométrica.',
+                    },
+                    social_learning_hub: {
+                        title: 'Social Learning Hub',
+                        description: 'Plataforma de aprendizaje entre pares.',
+                    },
+                    mentoring: {
+                        title: 'Mentoría',
+                        description: 'Mentoría IA y humana.',
+                    },
+                    opportunity_marketplace: {
+                        title: 'Mercado de Oportunidades',
+                        description: 'Oportunidades internas.',
+                    },
+                },
+            },
+            magnet: {
+                title: 'Stratos Magnet',
+                slogan: 'Atracción de talento — Reclutamiento y encaje externo.',
+                modules: {
+                    magnet_home: {
+                        title: 'Inicio Magnet',
+                        description: 'Portal de reclutamiento externo.',
+                    },
+                    candidate_portal: {
+                        title: 'Portal de Candidatos',
+                        description: 'Seguimiento de postulaciones.',
+                    },
+                },
+            },
+            control_center: {
+                title: 'Centro de Control',
+                slogan: 'Gobierno, seguridad y calidad — Supervisa y administra la plataforma.',
+                modules: {
+                    rbac_manager: {
+                        title: 'Gestor RBAC',
+                        description: 'Gestión de roles y permisos.',
+                    },
+                    ai_agent_supervisor: {
+                        title: 'Supervisor de Agentes IA',
+                        description: 'Supervisión de agentes LLM.',
+                    },
+                    quality_sentinel: {
+                        title: 'Centinela de Calidad',
+                        description: 'Monitoreo de fiabilidad y RAGAS.',
+                    },
+                    ragas_neural_dash: {
+                        title: 'Panel Neural RAGAS',
+                        description: 'Analítica de salidas LLM.',
+                    },
+                },
+            },
+            radar: {
+                title: 'Stratos Radar',
+                slogan: 'Prevención predictiva — Anticipa riesgos y fuga de talento.',
+                modules: {
+                    strategic_scenario_list: {
+                        title: 'Lista de Escenarios Estratégicos',
+                        description: 'Simulaciones estratégicas.',
+                    },
+                    executive_dashboard: {
+                        title: 'Dashboard Ejecutivo',
+                        description:
+                            'Vista estratégica para CEOs con foco en KPIs clave.',
+                    },
+                    gap_analysis_engine: {
+                        title: 'Motor de Análisis de Brechas',
+                        description: 'Contraste entre inventario y objetivo.',
+                    },
+                    investor_dashboard: {
+                        title: 'Dashboard Inversor',
+                        description:
+                            'Vista financiera orientada a ROI y creación de valor.',
+                    },
+                },
             },
         },
     },

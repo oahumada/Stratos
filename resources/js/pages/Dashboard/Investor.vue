@@ -39,7 +39,7 @@ const fetchDashboardData = async () => {
         const response = await axios.get('/api/investor/dashboard');
         dashboardData.value = response.data.data;
     } catch (error) {
-        console.error('Error fetching investor dashboard:', error);
+        console.error('Error al obtener dashboard inversor:', error);
     } finally {
         loading.value = false;
     }
@@ -80,7 +80,7 @@ const departmentChartOptions = computed(() => ({
 
 const departmentSeries = computed(() => [
     {
-        name: 'Readiness',
+        name: 'Preparación',
         data:
             dashboardData.value?.charts.department_readiness.map((d) =>
                 Math.round(Number(d.readiness)),
@@ -114,7 +114,11 @@ const skillDistributionOptions = computed(() => ({
                         fontSize: '24px',
                         fontWeight: 700,
                     },
-                    total: { show: true, label: 'Skills', color: '#94a3b8' },
+                    total: {
+                        show: true,
+                        label: 'Habilidades',
+                        color: '#94a3b8',
+                    },
                 },
             },
         },
@@ -145,22 +149,22 @@ defineOptions({ layout: AppLayout });
 
 <template>
     <Head>
-        <title>Investor Radar | Stratos Talent ROI</title>
+        <title>Radar Inversor | ROI de Talento Stratos</title>
     </Head>
 
     <div class="investor-container">
-        <!-- Dashboard Header -->
+        <!-- Encabezado del Dashboard -->
         <header class="dashboard-header mb-8">
             <div
                 class="d-flex align-center justify-space-between flex-wrap gap-4"
             >
                 <div>
                     <h1 class="text-h4 font-weight-black mb-1 text-white">
-                        Investor Radar <span class="badge">Live</span>
+                        Radar Inversor <span class="badge">En vivo</span>
                     </h1>
                     <p class="text-subtitle-1 text-slate-200">
-                        Executive Analysis of Organizational Capital & ROI
-                        Projections
+                        Análisis ejecutivo de capital organizacional y
+                        proyecciones de ROI
                     </p>
                 </div>
                 <div class="header-actions">
@@ -169,7 +173,7 @@ defineOptions({ layout: AppLayout });
                         variant="tonal"
                         color="white"
                         rounded="lg"
-                        >Export Report</v-btn
+                        >Exportar reporte</v-btn
                     >
                     <v-btn
                         icon="mdi-refresh"
@@ -191,7 +195,7 @@ defineOptions({ layout: AppLayout });
                         <v-icon color="emerald-accent-3">mdi-cash-check</v-icon>
                     </div>
                     <div class="card-body">
-                        <span class="label">Talent ROI (YTD)</span>
+                        <span class="label">ROI de Talento (YTD)</span>
                         <h2 class="value text-emerald-accent-3">
                             {{
                                 formatCurrency(
@@ -200,20 +204,22 @@ defineOptions({ layout: AppLayout });
                             }}
                         </h2>
                         <span class="subtext"
-                            >Estimated Savings in Hiring/Upskilling</span
+                            >Ahorro estimado en contratación/upskilling</span
                         >
                     </div>
                 </StCardGlass>
             </v-col>
 
-            <!-- Readiness Card -->
+            <!-- Tarjeta de Preparación -->
             <v-col cols="12" sm="6" md="3">
                 <StCardGlass class="pa-6">
                     <div class="card-icon">
                         <v-icon color="indigo-accent-2">mdi-shield-star</v-icon>
                     </div>
                     <div class="card-body">
-                        <span class="label">Org Readiness IQ</span>
+                        <span class="label"
+                            >IQ de Preparación Organizacional</span
+                        >
                         <h2 class="value">
                             {{ dashboardData.summary.org_readiness }}%
                         </h2>
@@ -231,7 +237,7 @@ defineOptions({ layout: AppLayout });
                 </StCardGlass>
             </v-col>
 
-            <!-- Critical Risk Card -->
+            <!-- Tarjeta de Riesgo Crítico -->
             <v-col cols="12" sm="6" md="3">
                 <StCardGlass class="pa-6">
                     <div class="card-icon">
@@ -240,18 +246,18 @@ defineOptions({ layout: AppLayout });
                         >
                     </div>
                     <div class="card-body">
-                        <span class="label">Talent Risk Index</span>
+                        <span class="label">Índice de Riesgo de Talento</span>
                         <h2 class="value">
                             {{ dashboardData.summary.critical_gap_rate }}%
                         </h2>
                         <span class="subtext"
-                            >Critical Skill Gaps in Core Roles</span
+                            >Brechas críticas de habilidades en roles clave</span
                         >
                     </div>
                 </StCardGlass>
             </v-col>
 
-            <!-- AI Augmentation Card -->
+            <!-- Tarjeta de Aumentación IA -->
             <v-col cols="12" sm="6" md="3">
                 <StCardGlass class="pa-6">
                     <div class="card-icon">
@@ -260,12 +266,12 @@ defineOptions({ layout: AppLayout });
                         >
                     </div>
                     <div class="card-body">
-                        <span class="label">AI Augmentation</span>
+                        <span class="label">Aumentación IA</span>
                         <h2 class="value">
                             {{ dashboardData.summary.ai_augmentation_index }}%
                         </h2>
                         <span class="subtext"
-                            >Efficiency gain via Synthetic Tasks</span
+                            >Ganancia de eficiencia vía tareas sintéticas</span
                         >
                     </div>
                 </StCardGlass>
@@ -284,15 +290,15 @@ defineOptions({ layout: AppLayout });
 
         <!-- Main Charts Section -->
         <v-row v-if="!loading && dashboardData">
-            <!-- Left Chart: Dept Readiness -->
+            <!-- Gráfico Izquierdo: Preparación por Área -->
             <v-col cols="12" md="8">
                 <StCardGlass class="pa-6" :no-hover="true">
                     <div class="d-flex justify-space-between align-center mb-6">
                         <h3 class="text-h6 font-weight-bold text-white">
-                            Organizational Readiness by Unit
+                            Preparación Organizacional por Unidad
                         </h3>
                         <div class="st-badge-live bg-indigo-500 text-white">
-                            Live Data
+                            Datos en vivo
                         </div>
                     </div>
                     <VueApexCharts
@@ -303,11 +309,11 @@ defineOptions({ layout: AppLayout });
                 </StCardGlass>
             </v-col>
 
-            <!-- Right Chart: Skill Distribution -->
+            <!-- Gráfico Derecho: Distribución de Habilidades -->
             <v-col cols="12" md="4">
                 <StCardGlass class="pa-6" :no-hover="true">
                     <h3 class="text-h6 font-weight-bold mb-6 text-white">
-                        Skill Inventory Health
+                        Salud del Inventario de Habilidades
                     </h3>
                     <VueApexCharts
                         height="350"
@@ -318,7 +324,7 @@ defineOptions({ layout: AppLayout });
             </v-col>
         </v-row>
 
-        <!-- Footer / Forecast Section -->
+        <!-- Footer / Sección de Proyección -->
         <v-row v-if="!loading && dashboardData" class="mt-8">
             <v-col cols="12">
                 <StCardGlass
@@ -330,25 +336,27 @@ defineOptions({ layout: AppLayout });
                             <h2
                                 class="text-h5 font-weight-bold mb-2 text-white"
                             >
-                                Q2 Strategic Forecast
+                                Proyección Estratégica T2
                             </h2>
                             <p class="text-body-1 text-slate-200">
-                                Based on current upskilling trajectories and AI
-                                integration plans, Stratos projects a
+                                Basado en las trayectorias actuales de
+                                upskilling y planes de integración de IA,
+                                Stratos proyecta un
                                 <strong class="text-emerald-accent-3"
                                     >{{
                                         dashboardData.forecast
                                             .next_quarter_readiness
-                                    }}% readiness index</strong
+                                    }}% de índice de preparación</strong
                                 >
-                                for the next quarter, yielding an additional
+                                para el próximo trimestre, generando un
+                                adicional de
                                 <strong class="text-emerald-accent-3">{{
                                     formatCurrency(
                                         dashboardData.forecast
                                             .projected_savings_usd,
                                     )
                                 }}</strong>
-                                in operational efficiency.
+                                en eficiencia operativa.
                             </p>
                         </v-col>
                         <v-col cols="12" md="5" class="text-right">
@@ -357,7 +365,7 @@ defineOptions({ layout: AppLayout });
                                 color="indigo-accent-2"
                                 rounded="xl"
                                 elevation="10"
-                                >Review Strategic Plan</v-btn
+                                >Revisar Plan Estratégico</v-btn
                             >
                         </v-col>
                     </v-row>

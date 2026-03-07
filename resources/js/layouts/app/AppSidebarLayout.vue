@@ -37,12 +37,30 @@ const currentModule = computed(() => {
 </script>
 
 <template>
-    <AppShell variant="sidebar" class="st-glass-container">
+    <AppShell
+        variant="sidebar"
+        class="st-glass-container relative min-h-screen overflow-x-hidden bg-[#020617] selection:bg-indigo-500/30"
+    >
+        <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+            <div
+                class="absolute -top-[10%] -left-[10%] h-[40%] w-[40%] rounded-full bg-indigo-500/10 blur-[120px]"
+            ></div>
+            <div
+                class="absolute top-[20%] -right-[10%] h-[35%] w-[35%] rounded-full bg-purple-500/10 blur-[120px]"
+            ></div>
+            <div
+                class="absolute -bottom-[10%] left-[20%] h-[30%] w-[30%] rounded-full bg-blue-500/10 blur-[120px]"
+            ></div>
+        </div>
+
         <template v-if="hasUser">
-            <AppSidebar />
+            <AppSidebar class="relative z-10" />
         </template>
 
-        <AppContent variant="sidebar" class="overflow-x-hidden bg-transparent!">
+        <AppContent
+            variant="sidebar"
+            class="relative z-10 overflow-x-hidden bg-transparent!"
+        >
             <template v-if="hasUser">
                 <AppSidebarHeader :breadcrumbs="breadcrumbs" />
             </template>

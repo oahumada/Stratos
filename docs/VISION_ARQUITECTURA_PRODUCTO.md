@@ -111,7 +111,29 @@ El valor comercial masivo de Stratos no radica en los módulos individuales, sin
 
 ---
 
-## 5. Diseño de Arquitectura Técnica (El Respaldo)
+## 6. La Experiencia del Colaborador: "Mi Stratos" (El Centro de Gravedad)
+
+Para que la orquestación de talento sea efectiva, el colaborador debe ser el protagonista. **Mi Stratos** es el portal personal donde toda la inteligencia del sistema se tangibiliza para el individuo.
+
+### 🏠 El Home del Talento
+
+Un dashboard unificado que presenta la realidad profesional del usuario de forma transparente:
+
+- **Match en Vivo con el Rol:** Visualización del ajuste actual contra las expectativas del cargo, eliminando la incertidumbre de desempeño.
+- **Nivel de Maestría y Gamificación:** Un sistema de niveles (XP) y medallas que premia la curiosidad y el progreso educativo, convirtiendo el desarrollo en un juego de crecimiento.
+- **Explorador de ADN (Cerbero):** Acceso a su perfil psicométrico y la detección de "puntos ciegos" para fomentar el autoconocimiento.
+
+### 🧙‍♂️ Mentoría Agéntica (Mentor AI)
+
+Asistencia en tiempo real mediante un agente experto que guía al colaborador en su jornada:
+
+- Consultas de carrera basadas en el contexto real de la empresa.
+- Sugerencias proactivas de misiones (Quests) para ganar XP y cerrar brechas.
+- Preparación asistida para ciclos de evaluación 360°.
+
+---
+
+## 7. Diseño de Arquitectura Técnica (El Respaldo)
 
 1. **Feature Toggles Multi-Tenant:** Configuración `active_modules` que renderiza la UI y autoriza la API dinámicamente.
 2. **Degradación Elegante:** Los módulos operan con fallbacks si faltan orígenes de datos de módulos no adquiridos.
