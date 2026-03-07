@@ -143,7 +143,7 @@ const getVariationColor = (stratosScore: number, rawScore: number) => {
                     >
                         Triangulación
                         <span
-                            class="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent"
+                            class="bg-linear-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent"
                             >Cognitiva 360</span
                         >
                     </h1>
@@ -222,7 +222,7 @@ const getVariationColor = (stratosScore: number, rawScore: number) => {
                 <div
                     v-for="comp in report.triangulated_competencies"
                     :key="comp.competency_id"
-                    class="overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-white/10 hover:bg-white/[0.04]"
+                    class="overflow-hidden rounded-3xl border border-white/5 bg-white/2 shadow-xl backdrop-blur-xl transition-all duration-300 hover:border-white/10 hover:bg-white/4"
                 >
                     <!-- Competency Header Row -->
                     <div

@@ -4,18 +4,11 @@ import { usePage } from '@inertiajs/vue3';
 import { useNotification } from '@kyvg/vue3-notification';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
-import { useTheme as useVuetifyTheme } from 'vuetify';
 
 defineOptions({ layout: AppLayout });
 
 const { notify } = useNotification();
 const page = usePage();
-const vuetifyTheme = useVuetifyTheme();
-
-const headerGradient = computed(() => {
-    const theme = vuetifyTheme.global.current.value;
-    return `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`;
-});
 
 interface JobOpening {
     id: number;
@@ -339,61 +332,75 @@ void loadOpportunities;
     <div class="pa-4">
         <!-- Header -->
         <div
-            class="d-flex justify-space-between align-center mb-4"
-            :style="{ background: headerGradient }"
-            style="padding: 1.5rem; border-radius: 8px"
+            class="relative mb-6 overflow-hidden rounded-3xl border border-white/10 bg-black/40 p-8 backdrop-blur-xl"
         >
-            <div>
-                <h1 class="text-h4 font-weight-bold mb-2" style="color: white">
-                    Marketplace de Oportunidades
-                </h1>
-                <p
-                    class="text-subtitle-2"
-                    style="color: rgba(255, 255, 255, 0.85)"
+            <div
+                class="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/20 mix-blend-screen blur-3xl"
+            ></div>
+            <div class="relative z-10">
+                <div
+                    class="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-medium text-primary"
                 >
-                    Explora oportunidades internas y postula a roles que se
-                    ajusten a tu perfil
+                    <v-icon icon="mdi-target-account" size="16" />
+                    <span>Fase 3: Acción Estratégica</span>
+                </div>
+                <h1 class="mb-2 text-4xl font-black tracking-tight text-white">
+                    Stratos Match <span class="text-white/40">|</span>
+                    <span class="font-light text-white/70"
+                        >Liquid Talent Marketplace</span
+                    >
+                </h1>
+                <p class="text-lg text-white/60">
+                    Motor predictivo de movilidad interna. Encuentra al
+                    candidato ideal cruzando ADN organizacional, brechas de
+                    skills y pre-evaluaciones 360.
                 </p>
             </div>
         </div>
 
         <!-- Description Section -->
-        <v-card class="mb-6" elevation="0" variant="outlined">
+        <v-card
+            class="mb-8 overflow-hidden rounded-2xl border border-white/5 bg-white/5 backdrop-blur-md"
+            elevation="0"
+        >
             <v-card-text class="pa-6">
                 <div class="d-flex align-start gap-4">
-                    <v-icon size="48" color="primary" class="mt-1"
-                        >mdi-briefcase-search</v-icon
-                    >
-                    <div class="flex-grow-1">
-                        <h2 class="text-h6 font-weight-bold mb-3">
-                            ¿Qué es el Marketplace Interno?
+                    <div class="rounded-xl bg-primary/10 p-3">
+                        <v-icon size="32" color="primary">mdi-dna</v-icon>
+                    </div>
+                    <div class="grow">
+                        <h2 class="text-h6 font-weight-bold mb-3 text-white">
+                            Inteligencia de Resonancia Organizacional
                         </h2>
-                        <p class="text-body-2 mb-3">
-                            El
-                            <strong>Marketplace de Oportunidades</strong>
-                            facilita la movilidad interna conectando posiciones
-                            abiertas con el talento disponible en tu
-                            organización.
+                        <p class="text-body-1 mb-4 text-white/70">
+                            Stratos Match no es una simple bolsa de trabajo. Es
+                            un motor heurístico que evalúa el
+                            <strong class="text-primary"
+                                >Fitness Match Score</strong
+                            >, priorizando talento interno factible para roles
+                            críticos y minimizando el Time-to-Productivity.
                         </p>
-                        <v-alert
-                            type="info"
-                            variant="tonal"
-                            class="mt-4"
-                            density="compact"
+                        <div
+                            class="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4"
                         >
-                            <template #prepend>
-                                <v-icon>mdi-information</v-icon>
-                            </template>
-                            <div>
-                                <strong>Vista actual:</strong> Como
-                                administrador, puedes ver qué candidatos tienen
-                                mejor match para cada posición abierta.<br />
-                                <strong>Umbral de viabilidad:</strong> Solo se
-                                muestran candidatos con ≥40% de match.
-                                Candidatos con match muy bajo (&lt;40%) no son
-                                considerados viables.
+                            <div class="d-flex align-center mb-2 gap-2">
+                                <v-icon color="indigo-300" size="20"
+                                    >mdi-brain</v-icon
+                                >
+                                <strong class="text-indigo-300"
+                                    >Córtex de IA: Vista de Mánager /
+                                    Reclutador</strong
+                                >
                             </div>
-                        </v-alert>
+                            <div class="text-sm text-white/70">
+                                Se visualizan automáticamente los candidatos
+                                internos más compatibles para cada posición
+                                abierta. El umbral algorítmico discrimina
+                                automáticamente prospectos por debajo del 40% de
+                                factibilidad base para evitar falsos positivos y
+                                ruido en el reclutamiento.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </v-card-text>
@@ -429,166 +436,161 @@ void loadOpportunities;
 
                 <!-- Total Positions -->
                 <v-col cols="12" md="3">
-                    <v-card elevation="0" variant="outlined">
-                        <v-card-text>
-                            <div
-                                class="d-flex align-center justify-space-between"
-                            >
-                                <div>
-                                    <div
-                                        class="text-caption text-medium-emphasis"
-                                    >
-                                        Posiciones Abiertas
-                                    </div>
-                                    <div class="text-h4 font-weight-bold mt-1">
-                                        {{ recruiterSummary.totalPositions }}
-                                    </div>
+                    <div
+                        class="relative overflow-hidden rounded-2xl border border-white/5 bg-white/5 p-5 backdrop-blur-md transition-all hover:bg-white/10"
+                    >
+                        <div class="d-flex align-center justify-space-between">
+                            <div>
+                                <div
+                                    class="mb-1 text-xs font-medium tracking-wider text-white/50 uppercase"
+                                >
+                                    Posiciones Abiertas
                                 </div>
-                                <v-avatar color="primary" size="48">
-                                    <v-icon size="24"
-                                        >mdi-briefcase-outline</v-icon
-                                    >
-                                </v-avatar>
+                                <div class="text-3xl font-black text-white">
+                                    {{ recruiterSummary.totalPositions }}
+                                </div>
                             </div>
-                        </v-card-text>
-                    </v-card>
+                            <div
+                                class="rounded-xl border border-primary/20 bg-primary/10 p-3 text-primary"
+                            >
+                                <v-icon size="24">mdi-briefcase-outline</v-icon>
+                            </div>
+                        </div>
+                    </div>
                 </v-col>
 
                 <!-- Excellent Match (≥80%) -->
                 <v-col cols="12" md="3">
-                    <v-card elevation="0" variant="outlined">
-                        <v-card-text>
-                            <div
-                                class="d-flex align-center justify-space-between"
-                            >
-                                <div>
-                                    <div
-                                        class="text-caption text-medium-emphasis"
-                                    >
-                                        Match Excelente
-                                    </div>
-                                    <div
-                                        class="text-h4 font-weight-bold text-success mt-1"
-                                    >
-                                        {{
-                                            recruiterSummary.positionsWithExcellentMatch
-                                        }}
-                                    </div>
-                                    <div class="text-caption text-success">
-                                        ≥80% · Listos
-                                    </div>
+                    <div
+                        class="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 backdrop-blur-md transition-all hover:bg-emerald-500/10"
+                    >
+                        <div class="d-flex align-center justify-space-between">
+                            <div>
+                                <div
+                                    class="mb-1 text-xs font-medium tracking-wider text-emerald-400/70 uppercase"
+                                >
+                                    Match Excelente
                                 </div>
-                                <v-avatar color="success" size="48">
-                                    <v-icon size="24">mdi-star-circle</v-icon>
-                                </v-avatar>
+                                <div
+                                    class="text-3xl font-black text-emerald-400"
+                                >
+                                    {{
+                                        recruiterSummary.positionsWithExcellentMatch
+                                    }}
+                                </div>
+                                <div
+                                    class="mt-1 text-xs font-medium text-emerald-500/80"
+                                >
+                                    ≥80% · Listos para Movilidad
+                                </div>
                             </div>
-                        </v-card-text>
-                    </v-card>
+                            <div
+                                class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-emerald-400"
+                            >
+                                <v-icon size="24">mdi-star-circle</v-icon>
+                            </div>
+                        </div>
+                    </div>
                 </v-col>
 
                 <!-- Good Match (70-79%) -->
                 <v-col cols="12" md="3">
-                    <v-card elevation="0" variant="outlined">
-                        <v-card-text>
-                            <div
-                                class="d-flex align-center justify-space-between"
-                            >
-                                <div>
-                                    <div
-                                        class="text-caption text-medium-emphasis"
-                                    >
-                                        Buen Match
-                                    </div>
-                                    <div
-                                        class="text-h4 font-weight-bold text-success mt-1"
-                                        style="opacity: 0.8"
-                                    >
-                                        {{
-                                            recruiterSummary.positionsWithGoodMatch
-                                        }}
-                                    </div>
-                                    <div class="text-caption text-success">
-                                        70-79% · Viables
-                                    </div>
-                                </div>
-                                <v-avatar
-                                    color="success"
-                                    size="48"
-                                    style="opacity: 0.8"
+                    <div
+                        class="relative overflow-hidden rounded-2xl border border-teal-500/20 bg-teal-500/5 p-5 backdrop-blur-md transition-all hover:bg-teal-500/10"
+                    >
+                        <div class="d-flex align-center justify-space-between">
+                            <div>
+                                <div
+                                    class="mb-1 text-xs font-medium tracking-wider text-teal-400/70 uppercase"
                                 >
-                                    <v-icon size="24">mdi-account-check</v-icon>
-                                </v-avatar>
+                                    Buen Match
+                                </div>
+                                <div class="text-3xl font-black text-teal-400">
+                                    {{
+                                        recruiterSummary.positionsWithGoodMatch
+                                    }}
+                                </div>
+                                <div
+                                    class="mt-1 text-xs font-medium text-teal-500/80"
+                                >
+                                    70-79% · Factibles
+                                </div>
                             </div>
-                        </v-card-text>
-                    </v-card>
+                            <div
+                                class="rounded-xl border border-teal-500/20 bg-teal-500/10 p-3 text-teal-400"
+                            >
+                                <v-icon size="24">mdi-account-check</v-icon>
+                            </div>
+                        </div>
+                    </div>
                 </v-col>
 
                 <!-- Moderate Match (50-69%) -->
                 <v-col cols="12" md="3">
-                    <v-card elevation="0" variant="outlined">
-                        <v-card-text>
-                            <div
-                                class="d-flex align-center justify-space-between"
-                            >
-                                <div>
-                                    <div
-                                        class="text-caption text-medium-emphasis"
-                                    >
-                                        Match Moderado
-                                    </div>
-                                    <div
-                                        class="text-h4 font-weight-bold text-warning mt-1"
-                                    >
-                                        {{
-                                            recruiterSummary.positionsWithModerateMatch
-                                        }}
-                                    </div>
-                                    <div class="text-caption text-warning">
-                                        50-69% · Capacitación
-                                    </div>
+                    <div
+                        class="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 backdrop-blur-md transition-all hover:bg-amber-500/10"
+                    >
+                        <div class="d-flex align-center justify-space-between">
+                            <div>
+                                <div
+                                    class="mb-1 text-xs font-medium tracking-wider text-amber-400/70 uppercase"
+                                >
+                                    Match Moderado
                                 </div>
-                                <v-avatar color="warning" size="48">
-                                    <v-icon size="24"
-                                        >mdi-clock-alert-outline</v-icon
-                                    >
-                                </v-avatar>
+                                <div class="text-3xl font-black text-amber-400">
+                                    {{
+                                        recruiterSummary.positionsWithModerateMatch
+                                    }}
+                                </div>
+                                <div
+                                    class="mt-1 text-xs font-medium text-amber-500/80"
+                                >
+                                    50-69% · Requieren Grow
+                                </div>
                             </div>
-                        </v-card-text>
-                    </v-card>
+                            <div
+                                class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-amber-400"
+                            >
+                                <v-icon size="24"
+                                    >mdi-clock-alert-outline</v-icon
+                                >
+                            </div>
+                        </div>
+                    </div>
                 </v-col>
 
                 <!-- Need External Search -->
                 <v-col cols="12" md="3">
-                    <v-card elevation="0" variant="outlined">
-                        <v-card-text>
-                            <div
-                                class="d-flex align-center justify-space-between"
-                            >
-                                <div>
-                                    <div
-                                        class="text-caption text-medium-emphasis"
-                                    >
-                                        Búsqueda Externa
-                                    </div>
-                                    <div
-                                        class="text-h4 font-weight-bold text-error mt-1"
-                                    >
-                                        {{
-                                            recruiterSummary.positionsNeedingExternalSearch
-                                        }}
-                                    </div>
-                                    <div class="text-caption text-error">
-                                        &lt;50% · Buscar Mercado
-                                    </div>
+                    <div
+                        class="relative overflow-hidden rounded-2xl border border-rose-500/20 bg-rose-500/5 p-5 backdrop-blur-md transition-all hover:bg-rose-500/10"
+                    >
+                        <div class="d-flex align-center justify-space-between">
+                            <div>
+                                <div
+                                    class="mb-1 text-xs font-medium tracking-wider text-rose-400/70 uppercase"
+                                >
+                                    Búsqueda Externa
                                 </div>
-                                <v-avatar color="error" size="48">
-                                    <v-icon size="24"
-                                        >mdi-account-search-outline</v-icon
-                                    >
-                                </v-avatar>
+                                <div class="text-3xl font-black text-rose-400">
+                                    {{
+                                        recruiterSummary.positionsNeedingExternalSearch
+                                    }}
+                                </div>
+                                <div
+                                    class="mt-1 text-xs font-medium text-rose-500/80"
+                                >
+                                    &lt;50% · Activar Stratos Magnet
+                                </div>
                             </div>
-                        </v-card-text>
-                    </v-card>
+                            <div
+                                class="rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-rose-400"
+                            >
+                                <v-icon size="24"
+                                    >mdi-account-search-outline</v-icon
+                                >
+                            </div>
+                        </div>
+                    </div>
                 </v-col>
 
                 <!-- Strategic Recommendations -->

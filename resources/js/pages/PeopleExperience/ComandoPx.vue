@@ -105,7 +105,7 @@ const openRetentionPlan = async (person: any) => {
                         />
                         Comando
                         <span
-                            class="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent"
+                            class="bg-linear-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent"
                             >People Experience</span
                         >
                     </h1>
@@ -227,7 +227,7 @@ const openRetentionPlan = async (person: any) => {
                                 <tr
                                     v-for="pulse in pulses"
                                     :key="pulse.id"
-                                    class="group border-b border-white/5 transition-all hover:bg-white/[0.02]"
+                                    class="group border-b border-white/5 transition-all hover:bg-white/2"
                                 >
                                     <td class="px-2 py-4">
                                         <div class="flex items-center gap-3">
@@ -448,7 +448,7 @@ const openRetentionPlan = async (person: any) => {
             <!-- Retention Plan Modal Overlay -->
             <div
                 v-if="showPlanModal"
-                class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md"
+                class="fixed inset-0 z-100 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md"
             >
                 <StCardGlass
                     class="max-h-[90vh] w-full max-w-2xl overflow-y-auto border-white/20 p-0"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import * as apiHelper from '@/apiHelper';
 import StButtonGlass from '@/components/StButtonGlass.vue';
-import AppLayout from '@/layouts/app/AppLayout.vue';
-import { apiHelper } from '@/utils/apiHelper';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { Download, Maximize2, RefreshCcw } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
@@ -41,6 +41,7 @@ const fetchHeatmapData = async () => {
             x_axis: string[];
             y_axis: string[];
             data: any[];
+            critical_risks?: any[];
         }>('/departments/heatmap');
 
         // Setup ECharts Options
@@ -52,7 +53,6 @@ const fetchHeatmapData = async () => {
                     const skill = response.y_axis[params.data[1]];
                     const temp = params.data[2];
 
-                    // @ts-expect-error - critical_risks is added dynamically
                     const risk = response.critical_risks?.find(
                         (r: any) =>
                             r.coord[0] === params.data[0] &&
@@ -137,7 +137,6 @@ const fetchHeatmapData = async () => {
                         itemStyle: {
                             color: '#f43f5e',
                         },
-                        // @ts-expect-error - critical_risks is added dynamically
                         data:
                             response.critical_risks?.map((r: any) => ({
                                 coord: [r.coord[0], r.coord[1]],

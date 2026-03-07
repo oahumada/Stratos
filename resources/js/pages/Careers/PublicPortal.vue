@@ -72,11 +72,19 @@
                         <span class="text-indigo-500">hacia el futuro.</span>
                     </h1>
                     <p
-                        class="mx-auto mb-12 max-w-2xl text-xl leading-relaxed text-slate-400"
+                        class="mx-auto mb-12 max-w-2xl text-xl leading-relaxed font-light text-slate-400"
                     >
-                        En {{ orgName }}, no buscamos empleados. Buscamos el ADN
-                        que resonará con nuestra visión estratégica impulsada
-                        por Inteligencia Artificial.
+                        En {{ orgName }}, no buscamos empleados tradicionales.
+                        Buscamos el
+                        <span class="font-bold text-indigo-400"
+                            >ADN perfecto</span
+                        >
+                        que resonará con nuestra visión estratégica. Nuestras
+                        audiciones están diseñadas y analizadas impulsadas por
+                        el
+                        <strong class="text-indigo-300"
+                            >Córtex de IA de Stratos Magnet</strong
+                        >.
                     </p>
                     <div
                         class="flex flex-col items-center justify-center gap-4 sm:flex-row"
@@ -248,7 +256,7 @@
                             <h3
                                 class="mb-4 text-sm font-black tracking-widest text-indigo-400 uppercase"
                             >
-                                Requisitos del DNA
+                                ADN Requerido
                             </h3>
                             <ul class="mb-8 space-y-3">
                                 <li
@@ -267,45 +275,66 @@
 
                         <div class="space-y-6">
                             <div
-                                class="pa-6 rounded-2xl border border-white/5 bg-white/5"
+                                class="pa-6 relative overflow-hidden rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-md"
                             >
-                                <h4
-                                    class="mb-4 text-xs font-black tracking-widest text-white uppercase"
-                                >
-                                    Postulación Flash
-                                </h4>
-                                <v-form @submit.prevent="submitApplication">
-                                    <v-text-field
-                                        v-model="form.first_name"
-                                        label="Nombre"
-                                        variant="solo-filled"
-                                        density="compact"
-                                        class="mb-3"
-                                    ></v-text-field>
-                                    <v-text-field
-                                        v-model="form.last_name"
-                                        label="Apellido"
-                                        variant="solo-filled"
-                                        density="compact"
-                                        class="mb-3"
-                                    ></v-text-field>
-                                    <v-text-field
-                                        v-model="form.email"
-                                        label="Email"
-                                        variant="solo-filled"
-                                        density="compact"
-                                        class="mb-3"
-                                    ></v-text-field>
-                                    <v-btn
-                                        block
-                                        color="indigo-600"
-                                        class="mt-4 font-bold"
-                                        height="48"
-                                        :loading="submitting"
-                                        type="submit"
-                                        >Enviar al Matchmaker</v-btn
+                                <div
+                                    class="pointer-events-none absolute inset-0 bg-linear-to-b from-indigo-500/10 to-transparent"
+                                ></div>
+                                <div class="relative z-10">
+                                    <h4
+                                        class="mb-2 flex items-center gap-2 text-xs font-black tracking-widest text-indigo-300 uppercase"
                                     >
-                                </v-form>
+                                        <v-icon size="16"
+                                            >mdi-lightning-bolt</v-icon
+                                        >
+                                        Activar Audición
+                                    </h4>
+                                    <p
+                                        class="mb-4 text-[11px] leading-tight text-slate-400"
+                                    >
+                                        Nuestra IA generará un
+                                        <strong class="text-indigo-300"
+                                            >Fitness Match Base</strong
+                                        >
+                                        a partir de tu perfil en tiempo real.
+                                    </p>
+                                    <v-form @submit.prevent="submitApplication">
+                                        <v-text-field
+                                            v-model="form.first_name"
+                                            label="Nombre"
+                                            variant="solo-filled"
+                                            density="compact"
+                                            class="mb-2"
+                                            bg-color="#ffffff05"
+                                        ></v-text-field>
+                                        <v-text-field
+                                            v-model="form.last_name"
+                                            label="Apellido"
+                                            variant="solo-filled"
+                                            density="compact"
+                                            class="mb-2"
+                                            bg-color="#ffffff05"
+                                        ></v-text-field>
+                                        <v-text-field
+                                            v-model="form.email"
+                                            label="Email Profesional"
+                                            variant="solo-filled"
+                                            density="compact"
+                                            class="mb-4"
+                                            bg-color="#ffffff05"
+                                        ></v-text-field>
+                                        <v-btn
+                                            block
+                                            color="indigo-500"
+                                            class="mt-2 font-bold tracking-wide"
+                                            height="48"
+                                            elevation="0"
+                                            :loading="submitting"
+                                            type="submit"
+                                            >Conectar a Matchmaker</v-btn
+                                        >
+                                    </v-form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -320,7 +349,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 
@@ -381,6 +410,7 @@ const submitApplication = async () => {
             resume_url: '',
         };
     } catch (error) {
+        console.error('Application submission error:', error);
         snackbarText.value = 'Error al enviar la postulación';
         snackbarColor.value = 'error';
         snackbar.value = true;

@@ -179,7 +179,7 @@ export const forceSanctumRefresh = async () => {
 };
 
 // Métodos CRUD genéricos
-export const get = async (url: string, params = {}) => {
+export const get = async <T = any>(url: string, params = {}): Promise<T> => {
     console.log('params =>', params);
     try {
         const result = await axios.get(url, { params });
@@ -189,7 +189,7 @@ export const get = async (url: string, params = {}) => {
     }
 };
 
-export const post = async (url: string, data = {}) => {
+export const post = async <T = any>(url: string, data = {}): Promise<T> => {
     try {
         // Inicializar Sanctum para obtener CSRF cookie
         await initSanctum();
@@ -201,7 +201,7 @@ export const post = async (url: string, data = {}) => {
     }
 };
 
-export const put = async (url: string, data = {}) => {
+export const put = async <T = any>(url: string, data = {}): Promise<T> => {
     try {
         // Inicializar Sanctum para obtener CSRF cookie
         await initSanctum();
@@ -213,7 +213,7 @@ export const put = async (url: string, data = {}) => {
     }
 };
 
-export const remove = async (url: string, params = {}) => {
+export const remove = async <T = any>(url: string, params = {}): Promise<T> => {
     try {
         // Inicializar Sanctum para obtener CSRF cookie
         await initSanctum();
