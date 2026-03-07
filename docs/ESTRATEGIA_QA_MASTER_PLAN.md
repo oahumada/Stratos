@@ -40,7 +40,7 @@ Como expertos en Q&A y mejora continua, establecemos un marco de trabajo de **cl
 ### Fase 2: Resiliencia y Accesibilidad (Mid-term)
 
 - [x] **Stress Testing (k6):** ✅ Completado (2026-03-07) — Suite completo: `smoke.js` (1 VU sanity), `load.js` (3 escenarios concurrentes, 20-30 VUs), `stress.js` (spike 60 VUs con handleSummary). SLOs definidos: p95 < 2s lectura, < 5s preview, < 1.5s RAGAS. CI/CD en `.github/workflows/k6-stress.yml` con PostgreSQL service + artifact upload.
-- [ ] **Accessibility Clean-up:** Optimización de todos los componentes Stratos Glass para lectores de pantalla. _(En progreso: mejoras base en `StButtonGlass`, `StCardGlass`, `StBadgeGlass` con soporte ARIA/semántica y robustecimiento de `tests/accessibility.spec.ts`.)_
+- [x] **Accessibility Clean-up:** ✅ Completado (2026-03-07) — Optimización base aplicada en componentes Stratos Glass (`StButtonGlass`, `StCardGlass`, `StBadgeGlass`) con semántica/atributos ARIA y fortalecimiento de `tests/accessibility.spec.ts` para validación WCAG más robusta.
 - [x] **Chaos Engineering:** ✅ Completado (2026-03-07) — Cobertura validada en `ScenarioGenerationIntelTest`: resiliencia ante fallo RAGAS (fail-safe), caída de provider Intel, fallback Redis->DB para chunking, rate-limit agotado y server exception (7 tests / 28 assertions).
 
 ---
