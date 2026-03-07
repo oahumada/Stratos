@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\PulseController::index
 * @see app/Http/Controllers/Api/PulseController.php:17
@@ -42,6 +42,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::index
+* @see app/Http/Controllers/Api/PulseController.php:17
+* @route '/api/pulse-surveys'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::index
+* @see app/Http/Controllers/Api/PulseController.php:17
+* @route '/api/pulse-surveys'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::index
+* @see app/Http/Controllers/Api/PulseController.php:17
+* @route '/api/pulse-surveys'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::show
@@ -106,6 +143,43 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 })
 
 /**
+* @see \App\Http\Controllers\Api\PulseController::show
+* @see app/Http/Controllers/Api/PulseController.php:30
+* @route '/api/pulse-surveys/{id}'
+*/
+const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::show
+* @see app/Http/Controllers/Api/PulseController.php:30
+* @route '/api/pulse-surveys/{id}'
+*/
+showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::show
+* @see app/Http/Controllers/Api/PulseController.php:30
+* @route '/api/pulse-surveys/{id}'
+*/
+showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+show.form = showForm
+
+/**
 * @see \App\Http\Controllers\Api\PulseController::storeResponse
 * @see app/Http/Controllers/Api/PulseController.php:40
 * @route '/api/pulse-responses'
@@ -138,6 +212,28 @@ storeResponse.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
     url: storeResponse.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::storeResponse
+* @see app/Http/Controllers/Api/PulseController.php:40
+* @route '/api/pulse-responses'
+*/
+const storeResponseForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: storeResponse.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::storeResponse
+* @see app/Http/Controllers/Api/PulseController.php:40
+* @route '/api/pulse-responses'
+*/
+storeResponseForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: storeResponse.url(options),
+    method: 'post',
+})
+
+storeResponse.form = storeResponseForm
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::healthScan
@@ -184,6 +280,43 @@ healthScan.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Api\PulseController::healthScan
+* @see app/Http/Controllers/Api/PulseController.php:117
+* @route '/api/pulse/health-scan'
+*/
+const healthScanForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: healthScan.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::healthScan
+* @see app/Http/Controllers/Api/PulseController.php:117
+* @route '/api/pulse/health-scan'
+*/
+healthScanForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: healthScan.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::healthScan
+* @see app/Http/Controllers/Api/PulseController.php:117
+* @route '/api/pulse/health-scan'
+*/
+healthScanForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: healthScan.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+healthScan.form = healthScanForm
+
+/**
 * @see \App\Http\Controllers\Api\PulseController::storeEmployeePulse
 * @see app/Http/Controllers/Api/PulseController.php:67
 * @route '/api/people-experience/employee-pulses'
@@ -216,6 +349,28 @@ storeEmployeePulse.post = (options?: RouteQueryOptions): RouteDefinition<'post'>
     url: storeEmployeePulse.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::storeEmployeePulse
+* @see app/Http/Controllers/Api/PulseController.php:67
+* @route '/api/people-experience/employee-pulses'
+*/
+const storeEmployeePulseForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: storeEmployeePulse.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::storeEmployeePulse
+* @see app/Http/Controllers/Api/PulseController.php:67
+* @route '/api/people-experience/employee-pulses'
+*/
+storeEmployeePulseForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: storeEmployeePulse.url(options),
+    method: 'post',
+})
+
+storeEmployeePulse.form = storeEmployeePulseForm
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
@@ -262,6 +417,43 @@ listEmployeePulses.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
 })
 
 /**
+* @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
+* @see app/Http/Controllers/Api/PulseController.php:136
+* @route '/api/people-experience/employee-pulses'
+*/
+const listEmployeePulsesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: listEmployeePulses.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
+* @see app/Http/Controllers/Api/PulseController.php:136
+* @route '/api/people-experience/employee-pulses'
+*/
+listEmployeePulsesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: listEmployeePulses.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
+* @see app/Http/Controllers/Api/PulseController.php:136
+* @route '/api/people-experience/employee-pulses'
+*/
+listEmployeePulsesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: listEmployeePulses.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+listEmployeePulses.form = listEmployeePulsesForm
+
+/**
 * @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
 * @see app/Http/Controllers/Api/PulseController.php:152
 * @route '/api/people-experience/turnover-heatmap'
@@ -304,6 +496,43 @@ listTurnoverHeatmap.head = (options?: RouteQueryOptions): RouteDefinition<'head'
     url: listTurnoverHeatmap.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
+* @see app/Http/Controllers/Api/PulseController.php:152
+* @route '/api/people-experience/turnover-heatmap'
+*/
+const listTurnoverHeatmapForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: listTurnoverHeatmap.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
+* @see app/Http/Controllers/Api/PulseController.php:152
+* @route '/api/people-experience/turnover-heatmap'
+*/
+listTurnoverHeatmapForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: listTurnoverHeatmap.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
+* @see app/Http/Controllers/Api/PulseController.php:152
+* @route '/api/people-experience/turnover-heatmap'
+*/
+listTurnoverHeatmapForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: listTurnoverHeatmap.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+listTurnoverHeatmap.form = listTurnoverHeatmapForm
 
 const PulseController = { index, show, storeResponse, healthScan, storeEmployeePulse, listEmployeePulses, listTurnoverHeatmap }
 

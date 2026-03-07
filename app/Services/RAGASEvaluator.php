@@ -102,18 +102,25 @@ class RAGASEvaluator
             // Extract metrics from result
             $metrics = $this->extractMetrics($result);
 
-            // Calculate composite score
+            // Assign individual scores to the model BEFORE calculating composite
+            $evaluation->faithfulness_score = $metrics['faithfulness'] ?? null;
+            $evaluation->relevance_score = $metrics['relevance'] ?? null;
+            $evaluation->context_alignment_score = $metrics['context_alignment'] ?? null;
+            $evaluation->coherence_score = $metrics['coherence'] ?? null;
+            $evaluation->hallucination_rate = $metrics['hallucination'] ?? null;
+
+            // Calculate composite score and normalize
             $compositeScore = $evaluation->calculateCompositeScore();
             $normalizedScore = $evaluation->normalizeScore();
             $qualityLevel = $evaluation->determineQualityLevel((float) $compositeScore);
 
             // Update evaluation with results
             $evaluation->update([
-                'faithfulness_score' => $metrics['faithfulness'] ?? null,
-                'relevance_score' => $metrics['relevance'] ?? null,
-                'context_alignment_score' => $metrics['context_alignment'] ?? null,
-                'coherence_score' => $metrics['coherence'] ?? null,
-                'hallucination_rate' => $metrics['hallucination'] ?? null,
+                'faithfulness_score' => $evaluation->faithfulness_score,
+                'relevance_score' => $evaluation->relevance_score,
+                'context_alignment_score' => $evaluation->context_alignment_score,
+                'coherence_score' => $evaluation->coherence_score,
+                'hallucination_rate' => $evaluation->hallucination_rate,
                 'composite_score' => $compositeScore,
                 'normalized_score' => $normalizedScore,
                 'quality_level' => $qualityLevel,

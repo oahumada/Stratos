@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Auth\MagicLinkController::requestLink
 * @see app/Http/Controllers/Auth/MagicLinkController.php:18
@@ -32,6 +32,28 @@ requestLink.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: requestLink.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Auth\MagicLinkController::requestLink
+* @see app/Http/Controllers/Auth/MagicLinkController.php:18
+* @route '/magic-link'
+*/
+const requestLinkForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: requestLink.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Auth\MagicLinkController::requestLink
+* @see app/Http/Controllers/Auth/MagicLinkController.php:18
+* @route '/magic-link'
+*/
+requestLinkForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: requestLink.url(options),
+    method: 'post',
+})
+
+requestLink.form = requestLinkForm
 
 /**
 * @see \App\Http\Controllers\Auth\MagicLinkController::authenticate
@@ -100,6 +122,43 @@ authenticate.head = (args: { user: number | { id: number } } | [user: number | {
     url: authenticate.url(args, options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Auth\MagicLinkController::authenticate
+* @see app/Http/Controllers/Auth/MagicLinkController.php:50
+* @route '/magic-login/{user}'
+*/
+const authenticateForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: authenticate.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Auth\MagicLinkController::authenticate
+* @see app/Http/Controllers/Auth/MagicLinkController.php:50
+* @route '/magic-login/{user}'
+*/
+authenticateForm.get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: authenticate.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Auth\MagicLinkController::authenticate
+* @see app/Http/Controllers/Auth/MagicLinkController.php:50
+* @route '/magic-login/{user}'
+*/
+authenticateForm.head = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: authenticate.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+authenticate.form = authenticateForm
 
 const MagicLinkController = { requestLink, authenticate }
 

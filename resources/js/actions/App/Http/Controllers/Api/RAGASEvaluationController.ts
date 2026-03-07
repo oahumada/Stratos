@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\RAGASEvaluationController::store
 * @see app/Http/Controllers/Api/RAGASEvaluationController.php:26
@@ -32,6 +32,28 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::store
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:26
+* @route '/api/qa/llm-evaluations'
+*/
+const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::store
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:26
+* @route '/api/qa/llm-evaluations'
+*/
+storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\RAGASEvaluationController::show
@@ -96,6 +118,43 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 })
 
 /**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::show
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:63
+* @route '/api/qa/llm-evaluations/{id}'
+*/
+const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::show
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:63
+* @route '/api/qa/llm-evaluations/{id}'
+*/
+showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::show
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:63
+* @route '/api/qa/llm-evaluations/{id}'
+*/
+showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+show.form = showForm
+
+/**
 * @see \App\Http\Controllers\Api\RAGASEvaluationController::index
 * @see app/Http/Controllers/Api/RAGASEvaluationController.php:80
 * @route '/api/qa/llm-evaluations'
@@ -140,6 +199,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::index
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:80
+* @route '/api/qa/llm-evaluations'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::index
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:80
+* @route '/api/qa/llm-evaluations'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::index
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:80
+* @route '/api/qa/llm-evaluations'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
 * @see \App\Http\Controllers\Api\RAGASEvaluationController::summary
 * @see app/Http/Controllers/Api/RAGASEvaluationController.php:124
 * @route '/api/qa/llm-evaluations/metrics/summary'
@@ -182,6 +278,43 @@ summary.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: summary.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::summary
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:124
+* @route '/api/qa/llm-evaluations/metrics/summary'
+*/
+const summaryForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: summary.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::summary
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:124
+* @route '/api/qa/llm-evaluations/metrics/summary'
+*/
+summaryForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: summary.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RAGASEvaluationController::summary
+* @see app/Http/Controllers/Api/RAGASEvaluationController.php:124
+* @route '/api/qa/llm-evaluations/metrics/summary'
+*/
+summaryForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: summary.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+summary.form = summaryForm
 
 const RAGASEvaluationController = { store, show, index, summary }
 

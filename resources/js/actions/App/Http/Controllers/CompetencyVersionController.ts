@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\CompetencyVersionController::index
 * @see app/Http/Controllers/CompetencyVersionController.php:12
@@ -62,6 +62,43 @@ index.head = (args: { competencyId: string | number } | [competencyId: string | 
 })
 
 /**
+* @see \App\Http\Controllers\CompetencyVersionController::index
+* @see app/Http/Controllers/CompetencyVersionController.php:12
+* @route '/api/competencies/{competencyId}/versions'
+*/
+const indexForm = (args: { competencyId: string | number } | [competencyId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\CompetencyVersionController::index
+* @see app/Http/Controllers/CompetencyVersionController.php:12
+* @route '/api/competencies/{competencyId}/versions'
+*/
+indexForm.get = (args: { competencyId: string | number } | [competencyId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\CompetencyVersionController::index
+* @see app/Http/Controllers/CompetencyVersionController.php:12
+* @route '/api/competencies/{competencyId}/versions'
+*/
+indexForm.head = (args: { competencyId: string | number } | [competencyId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
 * @see \App\Http\Controllers\CompetencyVersionController::store
 * @see app/Http/Controllers/CompetencyVersionController.php:28
 * @route '/api/competencies/{competencyId}/versions'
@@ -112,6 +149,28 @@ store.post = (args: { competencyId: string | number } | [competencyId: string | 
     url: store.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\CompetencyVersionController::store
+* @see app/Http/Controllers/CompetencyVersionController.php:28
+* @route '/api/competencies/{competencyId}/versions'
+*/
+const storeForm = (args: { competencyId: string | number } | [competencyId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\CompetencyVersionController::store
+* @see app/Http/Controllers/CompetencyVersionController.php:28
+* @route '/api/competencies/{competencyId}/versions'
+*/
+storeForm.post = (args: { competencyId: string | number } | [competencyId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(args, options),
+    method: 'post',
+})
+
+store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\CompetencyVersionController::show
@@ -175,6 +234,43 @@ show.head = (args: { competencyId: string | number, id: string | number } | [com
 })
 
 /**
+* @see \App\Http\Controllers\CompetencyVersionController::show
+* @see app/Http/Controllers/CompetencyVersionController.php:62
+* @route '/api/competencies/{competencyId}/versions/{id}'
+*/
+const showForm = (args: { competencyId: string | number, id: string | number } | [competencyId: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\CompetencyVersionController::show
+* @see app/Http/Controllers/CompetencyVersionController.php:62
+* @route '/api/competencies/{competencyId}/versions/{id}'
+*/
+showForm.get = (args: { competencyId: string | number, id: string | number } | [competencyId: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\CompetencyVersionController::show
+* @see app/Http/Controllers/CompetencyVersionController.php:62
+* @route '/api/competencies/{competencyId}/versions/{id}'
+*/
+showForm.head = (args: { competencyId: string | number, id: string | number } | [competencyId: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+show.form = showForm
+
+/**
 * @see \App\Http\Controllers\CompetencyVersionController::destroy
 * @see app/Http/Controllers/CompetencyVersionController.php:76
 * @route '/api/competencies/{competencyId}/versions/{id}'
@@ -224,6 +320,38 @@ destroy.delete = (args: { competencyId: string | number, id: string | number } |
     url: destroy.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\CompetencyVersionController::destroy
+* @see app/Http/Controllers/CompetencyVersionController.php:76
+* @route '/api/competencies/{competencyId}/versions/{id}'
+*/
+const destroyForm = (args: { competencyId: string | number, id: string | number } | [competencyId: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\CompetencyVersionController::destroy
+* @see app/Http/Controllers/CompetencyVersionController.php:76
+* @route '/api/competencies/{competencyId}/versions/{id}'
+*/
+destroyForm.delete = (args: { competencyId: string | number, id: string | number } | [competencyId: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
 
 const CompetencyVersionController = { index, store, show, destroy }
 

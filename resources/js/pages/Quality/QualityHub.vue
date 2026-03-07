@@ -2,7 +2,7 @@
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
-import AppLayout from '@/layouts/app/AppLayout.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
 import axios from 'axios';
 import {
     BarChart3,

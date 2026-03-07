@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AssessmentController::showByToken
 * @see app/Http/Controllers/Api/AssessmentController.php:369
@@ -62,6 +62,43 @@ showByToken.head = (args: { token: string | number } | [token: string | number ]
 })
 
 /**
+* @see \App\Http\Controllers\Api\AssessmentController::showByToken
+* @see app/Http/Controllers/Api/AssessmentController.php:369
+* @route '/api/assessments/feedback/{token}'
+*/
+const showByTokenForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showByToken.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::showByToken
+* @see app/Http/Controllers/Api/AssessmentController.php:369
+* @route '/api/assessments/feedback/{token}'
+*/
+showByTokenForm.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showByToken.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::showByToken
+* @see app/Http/Controllers/Api/AssessmentController.php:369
+* @route '/api/assessments/feedback/{token}'
+*/
+showByTokenForm.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showByToken.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+showByToken.form = showByTokenForm
+
+/**
 * @see \App\Http\Controllers\Api\AssessmentController::submitFeedbackGuest
 * @see app/Http/Controllers/Api/AssessmentController.php:406
 * @route '/api/assessments/feedback/submit-guest'
@@ -96,6 +133,28 @@ submitFeedbackGuest.post = (options?: RouteQueryOptions): RouteDefinition<'post'
 })
 
 /**
+* @see \App\Http\Controllers\Api\AssessmentController::submitFeedbackGuest
+* @see app/Http/Controllers/Api/AssessmentController.php:406
+* @route '/api/assessments/feedback/submit-guest'
+*/
+const submitFeedbackGuestForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: submitFeedbackGuest.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::submitFeedbackGuest
+* @see app/Http/Controllers/Api/AssessmentController.php:406
+* @route '/api/assessments/feedback/submit-guest'
+*/
+submitFeedbackGuestForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: submitFeedbackGuest.url(options),
+    method: 'post',
+})
+
+submitFeedbackGuest.form = submitFeedbackGuestForm
+
+/**
 * @see \App\Http\Controllers\Api\AssessmentController::startSession
 * @see app/Http/Controllers/Api/AssessmentController.php:27
 * @route '/api/strategic-planning/assessments/sessions'
@@ -128,6 +187,28 @@ startSession.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: startSession.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::startSession
+* @see app/Http/Controllers/Api/AssessmentController.php:27
+* @route '/api/strategic-planning/assessments/sessions'
+*/
+const startSessionForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: startSession.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::startSession
+* @see app/Http/Controllers/Api/AssessmentController.php:27
+* @route '/api/strategic-planning/assessments/sessions'
+*/
+startSessionForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: startSession.url(options),
+    method: 'post',
+})
+
+startSession.form = startSessionForm
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentController::getSession
@@ -192,6 +273,43 @@ getSession.head = (args: { id: string | number } | [id: string | number ] | stri
 })
 
 /**
+* @see \App\Http\Controllers\Api\AssessmentController::getSession
+* @see app/Http/Controllers/Api/AssessmentController.php:53
+* @route '/api/strategic-planning/assessments/sessions/{id}'
+*/
+const getSessionForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getSession.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::getSession
+* @see app/Http/Controllers/Api/AssessmentController.php:53
+* @route '/api/strategic-planning/assessments/sessions/{id}'
+*/
+getSessionForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getSession.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::getSession
+* @see app/Http/Controllers/Api/AssessmentController.php:53
+* @route '/api/strategic-planning/assessments/sessions/{id}'
+*/
+getSessionForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getSession.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+getSession.form = getSessionForm
+
+/**
 * @see \App\Http\Controllers\Api\AssessmentController::sendMessage
 * @see app/Http/Controllers/Api/AssessmentController.php:65
 * @route '/api/strategic-planning/assessments/sessions/{id}/messages'
@@ -242,6 +360,28 @@ sendMessage.post = (args: { id: string | number } | [id: string | number ] | str
     url: sendMessage.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::sendMessage
+* @see app/Http/Controllers/Api/AssessmentController.php:65
+* @route '/api/strategic-planning/assessments/sessions/{id}/messages'
+*/
+const sendMessageForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: sendMessage.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::sendMessage
+* @see app/Http/Controllers/Api/AssessmentController.php:65
+* @route '/api/strategic-planning/assessments/sessions/{id}/messages'
+*/
+sendMessageForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: sendMessage.url(args, options),
+    method: 'post',
+})
+
+sendMessage.form = sendMessageForm
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentController::analyze
@@ -296,6 +436,28 @@ analyze.post = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
+* @see \App\Http\Controllers\Api\AssessmentController::analyze
+* @see app/Http/Controllers/Api/AssessmentController.php:101
+* @route '/api/strategic-planning/assessments/sessions/{id}/analyze'
+*/
+const analyzeForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: analyze.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::analyze
+* @see app/Http/Controllers/Api/AssessmentController.php:101
+* @route '/api/strategic-planning/assessments/sessions/{id}/analyze'
+*/
+analyzeForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: analyze.url(args, options),
+    method: 'post',
+})
+
+analyze.form = analyzeForm
+
+/**
 * @see \App\Http\Controllers\Api\AssessmentController::triangulate360
 * @see app/Http/Controllers/Api/AssessmentController.php:531
 * @route '/api/strategic-planning/assessments/{peopleId}/triangulate'
@@ -348,6 +510,28 @@ triangulate360.post = (args: { peopleId: string | number } | [peopleId: string |
 })
 
 /**
+* @see \App\Http\Controllers\Api\AssessmentController::triangulate360
+* @see app/Http/Controllers/Api/AssessmentController.php:531
+* @route '/api/strategic-planning/assessments/{peopleId}/triangulate'
+*/
+const triangulate360Form = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: triangulate360.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::triangulate360
+* @see app/Http/Controllers/Api/AssessmentController.php:531
+* @route '/api/strategic-planning/assessments/{peopleId}/triangulate'
+*/
+triangulate360Form.post = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: triangulate360.url(args, options),
+    method: 'post',
+})
+
+triangulate360.form = triangulate360Form
+
+/**
 * @see \App\Http\Controllers\Api\AssessmentController::requestFeedback
 * @see app/Http/Controllers/Api/AssessmentController.php:223
 * @route '/api/strategic-planning/assessments/feedback/request'
@@ -382,6 +566,28 @@ requestFeedback.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =>
 })
 
 /**
+* @see \App\Http\Controllers\Api\AssessmentController::requestFeedback
+* @see app/Http/Controllers/Api/AssessmentController.php:223
+* @route '/api/strategic-planning/assessments/feedback/request'
+*/
+const requestFeedbackForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: requestFeedback.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::requestFeedback
+* @see app/Http/Controllers/Api/AssessmentController.php:223
+* @route '/api/strategic-planning/assessments/feedback/request'
+*/
+requestFeedbackForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: requestFeedback.url(options),
+    method: 'post',
+})
+
+requestFeedback.form = requestFeedbackForm
+
+/**
 * @see \App\Http\Controllers\Api\AssessmentController::submitFeedback
 * @see app/Http/Controllers/Api/AssessmentController.php:290
 * @route '/api/strategic-planning/assessments/feedback/submit'
@@ -414,6 +620,28 @@ submitFeedback.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => 
     url: submitFeedback.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::submitFeedback
+* @see app/Http/Controllers/Api/AssessmentController.php:290
+* @route '/api/strategic-planning/assessments/feedback/submit'
+*/
+const submitFeedbackForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: submitFeedback.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::submitFeedback
+* @see app/Http/Controllers/Api/AssessmentController.php:290
+* @route '/api/strategic-planning/assessments/feedback/submit'
+*/
+submitFeedbackForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: submitFeedback.url(options),
+    method: 'post',
+})
+
+submitFeedback.form = submitFeedbackForm
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentController::getPendingRequests
@@ -458,6 +686,43 @@ getPendingRequests.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
     url: getPendingRequests.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::getPendingRequests
+* @see app/Http/Controllers/Api/AssessmentController.php:351
+* @route '/api/strategic-planning/assessments/feedback/pending'
+*/
+const getPendingRequestsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getPendingRequests.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::getPendingRequests
+* @see app/Http/Controllers/Api/AssessmentController.php:351
+* @route '/api/strategic-planning/assessments/feedback/pending'
+*/
+getPendingRequestsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getPendingRequests.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::getPendingRequests
+* @see app/Http/Controllers/Api/AssessmentController.php:351
+* @route '/api/strategic-planning/assessments/feedback/pending'
+*/
+getPendingRequestsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getPendingRequests.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+getPendingRequests.form = getPendingRequestsForm
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentController::showExternalForm
@@ -520,6 +785,43 @@ showExternalForm.head = (args: { token: string | number } | [token: string | num
     url: showExternalForm.url(args, options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::showExternalForm
+* @see app/Http/Controllers/Api/AssessmentController.php:385
+* @route '/assessments/feedback/{token}'
+*/
+const showExternalFormForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showExternalForm.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::showExternalForm
+* @see app/Http/Controllers/Api/AssessmentController.php:385
+* @route '/assessments/feedback/{token}'
+*/
+showExternalFormForm.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showExternalForm.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AssessmentController::showExternalForm
+* @see app/Http/Controllers/Api/AssessmentController.php:385
+* @route '/assessments/feedback/{token}'
+*/
+showExternalFormForm.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showExternalForm.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+showExternalForm.form = showExternalFormForm
 
 const AssessmentController = { showByToken, submitFeedbackGuest, startSession, getSession, sendMessage, analyze, triangulate360, requestFeedback, submitFeedback, getPendingRequests, showExternalForm }
 

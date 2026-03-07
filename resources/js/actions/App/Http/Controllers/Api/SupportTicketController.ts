@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\SupportTicketController::metrics
 * @see app/Http/Controllers/Api/SupportTicketController.php:120
@@ -42,6 +42,43 @@ metrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: metrics.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::metrics
+* @see app/Http/Controllers/Api/SupportTicketController.php:120
+* @route '/api/support-tickets/metrics'
+*/
+const metricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::metrics
+* @see app/Http/Controllers/Api/SupportTicketController.php:120
+* @route '/api/support-tickets/metrics'
+*/
+metricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::metrics
+* @see app/Http/Controllers/Api/SupportTicketController.php:120
+* @route '/api/support-tickets/metrics'
+*/
+metricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metrics.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+metrics.form = metricsForm
 
 /**
 * @see \App\Http\Controllers\Api\SupportTicketController::index
@@ -88,6 +125,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Api\SupportTicketController::index
+* @see app/Http/Controllers/Api/SupportTicketController.php:18
+* @route '/api/support-tickets'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::index
+* @see app/Http/Controllers/Api/SupportTicketController.php:18
+* @route '/api/support-tickets'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::index
+* @see app/Http/Controllers/Api/SupportTicketController.php:18
+* @route '/api/support-tickets'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
 * @see \App\Http\Controllers\Api\SupportTicketController::store
 * @see app/Http/Controllers/Api/SupportTicketController.php:43
 * @route '/api/support-tickets'
@@ -120,6 +194,28 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::store
+* @see app/Http/Controllers/Api/SupportTicketController.php:43
+* @route '/api/support-tickets'
+*/
+const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::store
+* @see app/Http/Controllers/Api/SupportTicketController.php:43
+* @route '/api/support-tickets'
+*/
+storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\SupportTicketController::show
@@ -184,6 +280,43 @@ show.head = (args: { support_ticket: string | number } | [support_ticket: string
 })
 
 /**
+* @see \App\Http\Controllers\Api\SupportTicketController::show
+* @see app/Http/Controllers/Api/SupportTicketController.php:79
+* @route '/api/support-tickets/{support_ticket}'
+*/
+const showForm = (args: { support_ticket: string | number } | [support_ticket: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::show
+* @see app/Http/Controllers/Api/SupportTicketController.php:79
+* @route '/api/support-tickets/{support_ticket}'
+*/
+showForm.get = (args: { support_ticket: string | number } | [support_ticket: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::show
+* @see app/Http/Controllers/Api/SupportTicketController.php:79
+* @route '/api/support-tickets/{support_ticket}'
+*/
+showForm.head = (args: { support_ticket: string | number } | [support_ticket: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: show.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+show.form = showForm
+
+/**
 * @see \App\Http\Controllers\Api\SupportTicketController::update
 * @see app/Http/Controllers/Api/SupportTicketController.php:89
 * @route '/api/support-tickets/{support_ticket}'
@@ -246,6 +379,53 @@ update.patch = (args: { support_ticket: string | number } | [support_ticket: str
 })
 
 /**
+* @see \App\Http\Controllers\Api\SupportTicketController::update
+* @see app/Http/Controllers/Api/SupportTicketController.php:89
+* @route '/api/support-tickets/{support_ticket}'
+*/
+const updateForm = (args: { support_ticket: string | number } | [support_ticket: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::update
+* @see app/Http/Controllers/Api/SupportTicketController.php:89
+* @route '/api/support-tickets/{support_ticket}'
+*/
+updateForm.put = (args: { support_ticket: string | number } | [support_ticket: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::update
+* @see app/Http/Controllers/Api/SupportTicketController.php:89
+* @route '/api/support-tickets/{support_ticket}'
+*/
+updateForm.patch = (args: { support_ticket: string | number } | [support_ticket: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+update.form = updateForm
+
+/**
 * @see \App\Http\Controllers\Api\SupportTicketController::destroy
 * @see app/Http/Controllers/Api/SupportTicketController.php:110
 * @route '/api/support-tickets/{support_ticket}'
@@ -296,6 +476,38 @@ destroy.delete = (args: { support_ticket: string | number } | [support_ticket: s
     url: destroy.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::destroy
+* @see app/Http/Controllers/Api/SupportTicketController.php:110
+* @route '/api/support-tickets/{support_ticket}'
+*/
+const destroyForm = (args: { support_ticket: string | number } | [support_ticket: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\SupportTicketController::destroy
+* @see app/Http/Controllers/Api/SupportTicketController.php:110
+* @route '/api/support-tickets/{support_ticket}'
+*/
+destroyForm.delete = (args: { support_ticket: string | number } | [support_ticket: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
 
 const SupportTicketController = { metrics, index, store, show, update, destroy }
 

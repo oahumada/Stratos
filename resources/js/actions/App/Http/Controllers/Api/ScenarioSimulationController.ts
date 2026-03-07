@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ScenarioSimulationController::simulateGrowth
 * @see app/Http/Controllers/Api/ScenarioSimulationController.php:16
@@ -54,6 +54,27 @@ simulateGrowth027f1a2913bcc4b1306096fc8848654f.post = (args: { id: string | numb
 /**
 * @see \App\Http\Controllers\Api\ScenarioSimulationController::simulateGrowth
 * @see app/Http/Controllers/Api/ScenarioSimulationController.php:16
+* @route '/api/strategic-planning/scenarios/{id}/simulate-growth'
+*/
+const simulateGrowth027f1a2913bcc4b1306096fc8848654fForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: simulateGrowth027f1a2913bcc4b1306096fc8848654f.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::simulateGrowth
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:16
+* @route '/api/strategic-planning/scenarios/{id}/simulate-growth'
+*/
+simulateGrowth027f1a2913bcc4b1306096fc8848654fForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: simulateGrowth027f1a2913bcc4b1306096fc8848654f.url(args, options),
+    method: 'post',
+})
+
+simulateGrowth027f1a2913bcc4b1306096fc8848654f.form = simulateGrowth027f1a2913bcc4b1306096fc8848654fForm
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::simulateGrowth
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:16
 * @route '/scenarios/{id}/simulate-growth'
 */
 const simulateGrowth1faaf4ba472ddd4b41ea310e43be4ae4 = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -102,6 +123,28 @@ simulateGrowth1faaf4ba472ddd4b41ea310e43be4ae4.post = (args: { id: string | numb
     url: simulateGrowth1faaf4ba472ddd4b41ea310e43be4ae4.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::simulateGrowth
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:16
+* @route '/scenarios/{id}/simulate-growth'
+*/
+const simulateGrowth1faaf4ba472ddd4b41ea310e43be4ae4Form = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: simulateGrowth1faaf4ba472ddd4b41ea310e43be4ae4.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::simulateGrowth
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:16
+* @route '/scenarios/{id}/simulate-growth'
+*/
+simulateGrowth1faaf4ba472ddd4b41ea310e43be4ae4Form.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: simulateGrowth1faaf4ba472ddd4b41ea310e43be4ae4.url(args, options),
+    method: 'post',
+})
+
+simulateGrowth1faaf4ba472ddd4b41ea310e43be4ae4.form = simulateGrowth1faaf4ba472ddd4b41ea310e43be4ae4Form
 
 export const simulateGrowth = {
     '/api/strategic-planning/scenarios/{id}/simulate-growth': simulateGrowth027f1a2913bcc4b1306096fc8848654f,
@@ -163,6 +206,27 @@ getMitigationPlanf4f90e7852745dde0a49f6713a1be25a.post = (args: { id: string | n
 /**
 * @see \App\Http\Controllers\Api\ScenarioSimulationController::getMitigationPlan
 * @see app/Http/Controllers/Api/ScenarioSimulationController.php:131
+* @route '/api/strategic-planning/scenarios/{id}/mitigate'
+*/
+const getMitigationPlanf4f90e7852745dde0a49f6713a1be25aForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: getMitigationPlanf4f90e7852745dde0a49f6713a1be25a.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::getMitigationPlan
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:131
+* @route '/api/strategic-planning/scenarios/{id}/mitigate'
+*/
+getMitigationPlanf4f90e7852745dde0a49f6713a1be25aForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: getMitigationPlanf4f90e7852745dde0a49f6713a1be25a.url(args, options),
+    method: 'post',
+})
+
+getMitigationPlanf4f90e7852745dde0a49f6713a1be25a.form = getMitigationPlanf4f90e7852745dde0a49f6713a1be25aForm
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::getMitigationPlan
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:131
 * @route '/scenarios/{id}/mitigate'
 */
 const getMitigationPlanca0ea349e00ad41e75a55353fe780fcf = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -212,6 +276,28 @@ getMitigationPlanca0ea349e00ad41e75a55353fe780fcf.post = (args: { id: string | n
     method: 'post',
 })
 
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::getMitigationPlan
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:131
+* @route '/scenarios/{id}/mitigate'
+*/
+const getMitigationPlanca0ea349e00ad41e75a55353fe780fcfForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: getMitigationPlanca0ea349e00ad41e75a55353fe780fcf.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::getMitigationPlan
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:131
+* @route '/scenarios/{id}/mitigate'
+*/
+getMitigationPlanca0ea349e00ad41e75a55353fe780fcfForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: getMitigationPlanca0ea349e00ad41e75a55353fe780fcf.url(args, options),
+    method: 'post',
+})
+
+getMitigationPlanca0ea349e00ad41e75a55353fe780fcf.form = getMitigationPlanca0ea349e00ad41e75a55353fe780fcfForm
+
 export const getMitigationPlan = {
     '/api/strategic-planning/scenarios/{id}/mitigate': getMitigationPlanf4f90e7852745dde0a49f6713a1be25a,
     '/scenarios/{id}/mitigate': getMitigationPlanca0ea349e00ad41e75a55353fe780fcf,
@@ -260,6 +346,43 @@ getCriticalTalents.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
     url: getCriticalTalents.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::getCriticalTalents
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:84
+* @route '/api/strategic-planning/critical-talents'
+*/
+const getCriticalTalentsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getCriticalTalents.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::getCriticalTalents
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:84
+* @route '/api/strategic-planning/critical-talents'
+*/
+getCriticalTalentsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getCriticalTalents.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioSimulationController::getCriticalTalents
+* @see app/Http/Controllers/Api/ScenarioSimulationController.php:84
+* @route '/api/strategic-planning/critical-talents'
+*/
+getCriticalTalentsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getCriticalTalents.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+getCriticalTalents.form = getCriticalTalentsForm
 
 const ScenarioSimulationController = { simulateGrowth, getMitigationPlan, getCriticalTalents }
 

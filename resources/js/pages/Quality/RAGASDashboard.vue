@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import StCardGlass from '@/components/StCardGlass.vue';
-import AppLayout from '@/layouts/app/AppLayout.vue';
 import axios from 'axios';
 import { computed, onMounted, ref, watch } from 'vue';
 
@@ -250,7 +249,6 @@ const headers = [
 </script>
 
 <template>
-    <AppLayout title="RAGAS — LLM Quality Metrics">
         <v-container fluid class="pa-6">
             <!-- Header -->
             <div
@@ -687,5 +685,4 @@ const headers = [
                 </v-row>
             </template>
         </v-container>
-    </AppLayout>
 </template>

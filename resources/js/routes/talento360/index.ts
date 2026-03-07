@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import bars from './bars'
 import qb from './qb'
 /**
@@ -40,6 +40,40 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
+
+/**
+* @see routes/web.php:112
+* @route '/talento360'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:112
+* @route '/talento360'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:112
+* @route '/talento360'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
 
 /**
 * @see routes/web.php:116
@@ -100,6 +134,40 @@ results.head = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
+* @see routes/web.php:116
+* @route '/talento360/results/{id}'
+*/
+const resultsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: results.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:116
+* @route '/talento360/results/{id}'
+*/
+resultsForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: results.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:116
+* @route '/talento360/results/{id}'
+*/
+resultsForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: results.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+results.form = resultsForm
+
+/**
 * @see routes/web.php:120
 * @route '/talento360/map'
 */
@@ -138,6 +206,40 @@ map.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: map.url(options),
     method: 'head',
 })
+
+/**
+* @see routes/web.php:120
+* @route '/talento360/map'
+*/
+const mapForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: map.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:120
+* @route '/talento360/map'
+*/
+mapForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: map.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:120
+* @route '/talento360/map'
+*/
+mapForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: map.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+map.form = mapForm
 
 /**
 * @see routes/web.php:124
@@ -198,6 +300,40 @@ triangulation.head = (args: { id: string | number } | [id: string | number ] | s
 })
 
 /**
+* @see routes/web.php:124
+* @route '/talento360/triangulation/{id}'
+*/
+const triangulationForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: triangulation.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:124
+* @route '/talento360/triangulation/{id}'
+*/
+triangulationForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: triangulation.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:124
+* @route '/talento360/triangulation/{id}'
+*/
+triangulationForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: triangulation.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+triangulation.form = triangulationForm
+
+/**
 * @see routes/web.php:128
 * @route '/talento360/relationships'
 */
@@ -238,6 +374,40 @@ relationships.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 })
 
 /**
+* @see routes/web.php:128
+* @route '/talento360/relationships'
+*/
+const relationshipsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: relationships.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:128
+* @route '/talento360/relationships'
+*/
+relationshipsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: relationships.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:128
+* @route '/talento360/relationships'
+*/
+relationshipsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: relationships.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+relationships.form = relationshipsForm
+
+/**
 * @see routes/web.php:140
 * @route '/talento360/comando'
 */
@@ -276,6 +446,40 @@ comando.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: comando.url(options),
     method: 'head',
 })
+
+/**
+* @see routes/web.php:140
+* @route '/talento360/comando'
+*/
+const comandoForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: comando.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:140
+* @route '/talento360/comando'
+*/
+comandoForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: comando.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:140
+* @route '/talento360/comando'
+*/
+comandoForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: comando.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+comando.form = comandoForm
 
 const talento360 = {
     index: Object.assign(index, index),

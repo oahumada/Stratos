@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::tree
 * @see app/Http/Controllers/Api/DepartmentController.php:16
@@ -44,6 +44,43 @@ tree.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Api\DepartmentController::tree
+* @see app/Http/Controllers/Api/DepartmentController.php:16
+* @route '/api/departments/tree'
+*/
+const treeForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: tree.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::tree
+* @see app/Http/Controllers/Api/DepartmentController.php:16
+* @route '/api/departments/tree'
+*/
+treeForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: tree.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::tree
+* @see app/Http/Controllers/Api/DepartmentController.php:16
+* @route '/api/departments/tree'
+*/
+treeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: tree.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+tree.form = treeForm
+
+/**
 * @see \App\Http\Controllers\Api\DepartmentController::updateHierarchy
 * @see app/Http/Controllers/Api/DepartmentController.php:32
 * @route '/api/departments/hierarchy'
@@ -76,6 +113,28 @@ updateHierarchy.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =>
     url: updateHierarchy.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::updateHierarchy
+* @see app/Http/Controllers/Api/DepartmentController.php:32
+* @route '/api/departments/hierarchy'
+*/
+const updateHierarchyForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateHierarchy.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::updateHierarchy
+* @see app/Http/Controllers/Api/DepartmentController.php:32
+* @route '/api/departments/hierarchy'
+*/
+updateHierarchyForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateHierarchy.url(options),
+    method: 'post',
+})
+
+updateHierarchy.form = updateHierarchyForm
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::setManager
@@ -130,6 +189,28 @@ setManager.post = (args: { id: string | number } | [id: string | number ] | stri
 })
 
 /**
+* @see \App\Http\Controllers\Api\DepartmentController::setManager
+* @see app/Http/Controllers/Api/DepartmentController.php:54
+* @route '/api/departments/{id}/manager'
+*/
+const setManagerForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: setManager.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::setManager
+* @see app/Http/Controllers/Api/DepartmentController.php:54
+* @route '/api/departments/{id}/manager'
+*/
+setManagerForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: setManager.url(args, options),
+    method: 'post',
+})
+
+setManager.form = setManagerForm
+
+/**
 * @see \App\Http\Controllers\Api\DepartmentController::heatmapData
 * @see app/Http/Controllers/Api/DepartmentController.php:71
 * @route '/api/departments/heatmap'
@@ -172,6 +253,43 @@ heatmapData.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: heatmapData.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::heatmapData
+* @see app/Http/Controllers/Api/DepartmentController.php:71
+* @route '/api/departments/heatmap'
+*/
+const heatmapDataForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: heatmapData.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::heatmapData
+* @see app/Http/Controllers/Api/DepartmentController.php:71
+* @route '/api/departments/heatmap'
+*/
+heatmapDataForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: heatmapData.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::heatmapData
+* @see app/Http/Controllers/Api/DepartmentController.php:71
+* @route '/api/departments/heatmap'
+*/
+heatmapDataForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: heatmapData.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+heatmapData.form = heatmapDataForm
 
 const DepartmentController = { tree, updateHierarchy, setManager, heatmapData }
 

@@ -174,7 +174,7 @@ const loadScenarios = async () => {
 };
 
 const goToDetail = (scenario: ScenarioListItem) => {
-    router.visit(`/scenario-planning/${scenario.id}?view=map`);
+    router.visit(`/strategic-planning/${scenario.id}?view=map`);
 };
 
 const deleteScenario = async (scenario: ScenarioListItem) => {

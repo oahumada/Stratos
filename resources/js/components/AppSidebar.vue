@@ -152,13 +152,11 @@ const allNavItems: NavItem[] = [
         requiredPermission: 'people.view',
         requiredModule: 'st-match',
     },
-    // Stratos Radar — requires scenarios.view
+    // Scenario Planning
     {
-        title: 'Stratos Radar',
-        href: '/scenario-planning',
+        title: 'Scenario Planning',
+        href: '/strategic-planning',
         icon: ScenarioPlanningIcon,
-        requiredPermission: 'scenarios.view',
-        requiredModule: 'st-radar',
     },
     // Talento 360 — requires assessments.view
     {

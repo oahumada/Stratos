@@ -134,10 +134,10 @@ const prevStep = () => {
     if (currentStep.value > 1) currentStep.value--;
 };
 
-const goBack = () => router.visit('/strategic-planning/scenarios');
+const goBack = () => router.visit('/strategic-planning');
 
 const handleVersionSelected = (vId: number) => {
-    router.visit(`/strategic-planning/scenario-planning/${vId}`);
+    router.visit(`/strategic-planning/${vId}`);
 };
 
 const handleStatusChanged = () => loadScenario();

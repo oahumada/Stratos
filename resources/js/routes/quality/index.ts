@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see routes/web.php:172
 * @route '/quality-hub'
@@ -40,6 +40,40 @@ hub.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see routes/web.php:172
+* @route '/quality-hub'
+*/
+const hubForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: hub.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:172
+* @route '/quality-hub'
+*/
+hubForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: hub.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:172
+* @route '/quality-hub'
+*/
+hubForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: hub.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+hub.form = hubForm
+
+/**
 * @see routes/web.php:176
 * @route '/quality/ragas-metrics'
 */
@@ -78,6 +112,40 @@ ragasMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: ragasMetrics.url(options),
     method: 'head',
 })
+
+/**
+* @see routes/web.php:176
+* @route '/quality/ragas-metrics'
+*/
+const ragasMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: ragasMetrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:176
+* @route '/quality/ragas-metrics'
+*/
+ragasMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: ragasMetrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:176
+* @route '/quality/ragas-metrics'
+*/
+ragasMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: ragasMetrics.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+ragasMetrics.form = ragasMetricsForm
 
 const quality = {
     hub: Object.assign(hub, hub),

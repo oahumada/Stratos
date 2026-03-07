@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import * as apiHelper from '@/apiHelper';
 import StButtonGlass from '@/components/StButtonGlass.vue';
-import AppLayout from '@/layouts/app/AppLayout.vue';
-import { apiHelper } from '@/utils/apiHelper';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { Layers, Users } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';

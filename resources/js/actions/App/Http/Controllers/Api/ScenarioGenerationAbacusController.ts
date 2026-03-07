@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationAbacusController::generate
 * @see app/Http/Controllers/Api/ScenarioGenerationAbacusController.php:15
@@ -32,6 +32,28 @@ generate.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: generate.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioGenerationAbacusController::generate
+* @see app/Http/Controllers/Api/ScenarioGenerationAbacusController.php:15
+* @route '/api/strategic-planning/scenarios/generate/abacus'
+*/
+const generateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: generate.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioGenerationAbacusController::generate
+* @see app/Http/Controllers/Api/ScenarioGenerationAbacusController.php:15
+* @route '/api/strategic-planning/scenarios/generate/abacus'
+*/
+generateForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: generate.url(options),
+    method: 'post',
+})
+
+generate.form = generateForm
 
 const ScenarioGenerationAbacusController = { generate }
 
