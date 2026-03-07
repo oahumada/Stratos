@@ -7,6 +7,7 @@ use App\Models\Organizations;
 use App\Models\ScenarioGeneration;
 use App\Models\User;
 use App\Services\Intelligence\StratosIntelService;
+use App\Services\RAGASEvaluator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -95,5 +96,55 @@ class ScenarioGenerationIntelTest extends TestCase
         expect($generation->status)->toBe('complete');
         expect($generation->llm_response['scenario_metadata']['name'])->toBe('Digital Transformation');
         expect($generation->llm_response['suggested_roles'][0]['talent_composition']['synthetic_percentage'])->toBe(60);
+    }
+
+    public function test_it_keeps_generation_complete_when_ragas_evaluation_fails()
+    {
+        $generation = ScenarioGeneration::create([
+            'organization_id' => $this->org->id,
+            'created_by' => $this->user->id,
+            'prompt' => 'Digital transformation under chaos conditions',
+            'status' => 'queued',
+            'metadata' => [
+                'provider' => 'intel',
+                'company_name' => $this->org->name,
+                'language' => 'es',
+            ],
+        ]);
+
+        $mockResponse = [
+            'scenario_metadata' => ['name' => 'Chaos Resilient Scenario'],
+            'capabilities' => [
+                [
+                    'name' => 'Resilience Engineering',
+                    'competencies' => [
+                        ['name' => 'Failure Management', 'skills' => ['Incident Response', 'Observability']],
+                    ],
+                ],
+            ],
+            'suggested_roles' => [
+                [
+                    'name' => 'Reliability Engineer',
+                    'talent_composition' => ['human_percentage' => 55, 'synthetic_percentage' => 45],
+                ],
+            ],
+        ];
+
+        Http::fake([
+            config('services.python_intel.base_url').'/generate-scenario' => Http::response($mockResponse, 200),
+        ]);
+
+        $ragas = \Mockery::mock(RAGASEvaluator::class);
+        $ragas->shouldReceive('evaluate')
+            ->once()
+            ->andThrow(new \RuntimeException('RAGAS service unavailable'));
+
+        $job = new GenerateScenarioFromLLMJob($generation->id);
+        $job->handle(app(\App\Services\LLMClient::class), null, new StratosIntelService, $ragas);
+
+        $generation->refresh();
+
+        expect($generation->status)->toBe('complete');
+        expect($generation->llm_response['scenario_metadata']['name'])->toBe('Chaos Resilient Scenario');
     }
 }
