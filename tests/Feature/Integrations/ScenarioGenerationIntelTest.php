@@ -9,6 +9,8 @@ use App\Models\ScenarioGeneration;
 use App\Models\User;
 use App\Services\AbacusClient;
 use App\Services\Intelligence\StratosIntelService;
+use App\Services\LLMClient;
+use App\Services\LLMProviders\Exceptions\LLMRateLimitException;
 use App\Services\RAGASEvaluator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -232,5 +234,42 @@ class ScenarioGenerationIntelTest extends TestCase
         expect(GenerationChunk::query()->where('scenario_generation_id', $generation->id)->count())->toBeGreaterThan(0);
 
         putenv('GENERATION_CHUNK_STORAGE');
+    }
+
+    public function test_it_marks_generation_failed_when_rate_limit_reaches_max_attempts(): void
+    {
+        $generation = ScenarioGeneration::create([
+            'organization_id' => $this->org->id,
+            'created_by' => $this->user->id,
+            'prompt' => 'Generate scenario under heavy provider throttling',
+            'status' => 'queued',
+            'metadata' => [
+                'provider' => 'mock',
+                'company_name' => $this->org->name,
+                'language' => 'es',
+            ],
+        ]);
+
+        $llm = \Mockery::mock(LLMClient::class);
+        $llm->shouldReceive('generate')
+            ->once()
+            ->andThrow(new LLMRateLimitException('Provider rate limit exceeded', 2));
+
+        $job = new class($generation->id) extends GenerateScenarioFromLLMJob
+        {
+            public function attempts(): int
+            {
+                return 5;
+            }
+        };
+
+        $job->handle($llm, null, null, \Mockery::mock(RAGASEvaluator::class));
+
+        $generation->refresh();
+
+        expect($generation->status)->toBe('failed');
+        expect($generation->metadata['error'])->toBe('rate_limit_exceeded');
+        expect($generation->metadata['message'])->toContain('Provider rate limit exceeded');
+        expect($generation->metadata['errors'][0]['type'])->toBe('rate_limit');
     }
 }
