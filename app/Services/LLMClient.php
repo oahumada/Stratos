@@ -10,7 +10,7 @@ class LLMClient
 
     public function __construct()
     {
-        $providerKey = config('llm.provider', env('LLM_PROVIDER', 'mock'));
+        $providerKey = config('stratos.llm.default_provider', 'mock');
 
         switch ($providerKey) {
             case 'openai':

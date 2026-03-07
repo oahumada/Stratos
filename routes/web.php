@@ -10,10 +10,10 @@ use Laravel\Fortify\Features;
 
 // Dev-only endpoint for E2E: logs in as admin (id from env or 2)
 Route::get('/__e2e_login', function () {
-    if (! (AppFacade::environment('local') || env('E2E_BYPASS', false))) {
+    if (! (AppFacade::environment('local') || config('stratos.qa.e2e_bypass', false))) {
         return response()->json(['error' => 'not allowed'], 403);
     }
-    $userId = env('E2E_ADMIN_ID', 2);
+    $userId = config('stratos.qa.e2e_admin_id', 2);
     Auth::loginUsingId($userId);
 
     return response()->json(['success' => true, 'user_id' => $userId]);

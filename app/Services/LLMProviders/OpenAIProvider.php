@@ -15,8 +15,8 @@ class OpenAIProvider implements LLMProviderInterface
 
     public function generate(string $prompt, array $options = []): array
     {
-        $apiKey = $this->config['api_key'] ?? env('LLM_API_KEY');
-        $model = $this->config['model'] ?? env('LLM_OPENAI_MODEL', 'gpt-4o');
+        $apiKey = $this->config['api_key'] ?? config('stratos.llm.api_key');
+        $model = $this->config['model'] ?? config('stratos.llm.openai_model', 'gpt-4o');
         $endpoint = $this->config['endpoint'] ?? 'https://api.openai.com/v1/chat/completions';
 
         if (empty($apiKey)) {

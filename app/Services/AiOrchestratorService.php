@@ -41,14 +41,14 @@ class AiOrchestratorService
         // Por ahora, si es deepseek, usamos nuestro nuevo DeepSeekProvider
         if ($agent->provider === 'deepseek') {
             return new DeepSeekProvider([
-                'api_key' => env('DEEPSEEK_API_KEY'),
+                'api_key' => config('stratos.llm.deepseek_api_key'),
                 'model' => $agent->model,
             ]);
         }
 
         // Fallback a OpenAI si es necesario
         return new OpenAIProvider([
-            'api_key' => env('LLM_API_KEY'),
+            'api_key' => config('stratos.llm.api_key'),
             'model' => $agent->model,
         ]);
     }

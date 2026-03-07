@@ -15,7 +15,7 @@ class DeepSeekProvider implements LLMProviderInterface
 
     public function generate(string $prompt, array $options = []): array
     {
-        $apiKey = $this->config['api_key'] ?? env('DEEPSEEK_API_KEY');
+        $apiKey = $this->config['api_key'] ?? config('stratos.llm.deepseek_api_key');
         $model = $this->config['model'] ?? 'deepseek-chat';
         $endpoint = $this->config['endpoint'] ?? 'https://api.deepseek.com/chat/completions';
 

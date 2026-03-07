@@ -3,34 +3,44 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\SupportTicket;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SupportTicketController extends Controller
 {
     use \App\Traits\ApiResponses;
 
-    public function index(Request $request)
+    /**
+     * Display a listing of support tickets with multi-tenancy logic.
+     */
+    public function index(Request $request): JsonResponse
     {
+        /** @var User $user */
         $user = auth()->user();
-        $query = \App\Models\SupportTicket::with(['reporter', 'assignee']);
+        $query = SupportTicket::with(['reporter', 'assignee']);
 
-        // Si no es admin, solo ve los de su organización
+        // Multi-tenancy: restrict to organization unless admin
         if (! $user->hasRole('admin')) {
             $query->where('organization_id', $user->organization_id);
         }
 
         if ($request->has('status')) {
-            $query->where('status', $request->status);
+            $query->where('status', $request->query('status'));
         }
 
         if ($request->has('type')) {
-            $query->where('type', $request->type);
+            $query->where('type', $request->query('type'));
         }
 
         return $this->success($query->latest()->get(), 'Tickets fetched successfully.');
     }
 
-    public function store(Request $request)
+    /**
+     * Store a newly created support ticket.
+     */
+    public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -41,9 +51,10 @@ class SupportTicketController extends Controller
             'file_path' => 'nullable|string',
         ]);
 
+        /** @var User $user */
         $user = auth()->user();
 
-        $ticket = \App\Models\SupportTicket::create([
+        $ticket = SupportTicket::create([
             'organization_id' => $user->organization_id,
             'reporter_id' => $user->id,
             'title' => $validated['title'],
@@ -51,8 +62,9 @@ class SupportTicketController extends Controller
             'type' => $validated['type'],
             'priority' => $validated['priority'],
             'context' => $validated['context'] ?? [
-                'url' => $request->header('Referer'),
-                'user_agent' => $request->userAgent(),
+                'url' => (string) $request->header('Referer'),
+                'user_agent' => (string) $request->userAgent(),
+                'screen_size' => 'unknown',
             ],
             'file_path' => $validated['file_path'] ?? null,
             'status' => 'open',
@@ -61,17 +73,21 @@ class SupportTicketController extends Controller
         return $this->success($ticket, 'Ticket created successfully.', 201);
     }
 
-    public function show($id)
+    /**
+     * Display the specified support ticket.
+     */
+    public function show(SupportTicket $supportTicket): JsonResponse
     {
-        $ticket = \App\Models\SupportTicket::with(['reporter', 'assignee', 'organization'])->findOrFail($id);
+        $supportTicket->load(['reporter', 'assignee', 'organization']);
 
-        return $this->success($ticket, 'Ticket details fetched.');
+        return $this->success($supportTicket, 'Ticket details fetched.');
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Update the specified support ticket.
+     */
+    public function update(Request $request, SupportTicket $supportTicket): JsonResponse
     {
-        $ticket = \App\Models\SupportTicket::findOrFail($id);
-
         $validated = $request->validate([
             'status' => 'sometimes|in:open,in_analysis,in_progress,resolved,closed',
             'priority' => 'sometimes|in:low,medium,high,critical',
@@ -79,30 +95,35 @@ class SupportTicketController extends Controller
             'description' => 'sometimes|string',
         ]);
 
-        if (isset($validated['status']) && $validated['status'] === 'resolved' && $ticket->status !== 'resolved') {
-            $ticket->resolved_at = now();
+        if (isset($validated['status']) && $validated['status'] === 'resolved' && $supportTicket->status !== 'resolved') {
+            $supportTicket->resolved_at = \Illuminate\Support\Carbon::now();
         }
 
-        $ticket->update($validated);
+        $supportTicket->update($validated);
 
-        return $this->success($ticket, 'Ticket updated successfully.');
+        return $this->success($supportTicket, 'Ticket updated successfully.');
     }
 
-    public function destroy($id)
+    /**
+     * Remove the specified support ticket.
+     */
+    public function destroy(SupportTicket $supportTicket): JsonResponse
     {
-        $ticket = \App\Models\SupportTicket::findOrFail($id);
-        $ticket->delete();
+        $supportTicket->delete();
 
         return $this->success(null, 'Ticket deleted successfully.');
     }
 
-    public function metrics()
+    /**
+     * Get aggregate metrics for the quality hub.
+     */
+    public function metrics(): JsonResponse
     {
         $metrics = [
-            'total' => \App\Models\SupportTicket::count(),
-            'by_status' => \App\Models\SupportTicket::selectRaw('status, count(*) as count')->groupBy('status')->pluck('count', 'status'),
-            'by_type' => \App\Models\SupportTicket::selectRaw('type, count(*) as count')->groupBy('type')->pluck('count', 'type'),
-            'critical_bugs' => \App\Models\SupportTicket::where('type', 'bug')->where('priority', 'critical')->count(),
+            'total' => SupportTicket::count(),
+            'by_status' => SupportTicket::selectRaw('status, count(*) as count')->groupBy('status')->pluck('count', 'status'),
+            'by_type' => SupportTicket::selectRaw('type, count(*) as count')->groupBy('type')->pluck('count', 'type'),
+            'critical_bugs' => SupportTicket::where('type', 'bug')->where('priority', 'critical')->count(),
         ];
 
         return $this->success($metrics, 'Ticket metrics fetched.');

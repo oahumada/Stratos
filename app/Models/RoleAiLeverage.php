@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\Pivot;
+
 class RoleAiLeverage extends Pivot
 {
     // Atributos de ingeniería de talento

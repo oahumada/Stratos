@@ -26,7 +26,7 @@ Artisan::command('gap:analyze {people_id} {role_name}', function () {
         return 1;
     }
 
-    $service = new \App\Services\GapAnalysisService;
+    $service = app(\App\Services\GapAnalysisService::class);
     $analysis = $service->calculate($people, $role);
 
     // Mostrar salida formateada
@@ -67,7 +67,7 @@ Artisan::command('devpath:generate {people_id} {role_name}', function () {
         return 1;
     }
 
-    $service = new \App\Services\DevelopmentPathService;
+    $service = app(\App\Services\DevelopmentPathService::class);
     $path = $service->generate($people, $role);
 
     $this->info('DevelopmentPath generado: #'.$path->id.' (status='.$path->status.')');
@@ -96,7 +96,7 @@ Artisan::command('candidates:rank {job_opening_id}', function () {
         return 1;
     }
 
-    $service = new \App\Services\MatchingService;
+    $service = app(\App\Services\MatchingService::class);
     $candidates = $service->rankCandidatesForOpening($jobOpening);
 
     $this->info('Candidatos para: '.$jobOpening->title.' (rol: '.$jobOpening->role->name.')');
