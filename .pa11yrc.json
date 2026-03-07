@@ -1,0 +1,20 @@
+{
+  "standard": "WCAG2AA",
+  "runners": ["axe", "htmlcs"],
+  "timeout": 10000,
+  "wait": 1000,
+  "chromeLaunchConfig": {
+    "args": ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
+  },
+  "threshold": 85,
+  "headers": {
+    "Authorization": "Bearer dummy_token"
+  },
+  "ignore": [
+    "WCAG2AA.Principle3.Guideline3_2.3_2_2.H32.2",
+    "WCAG2AA.Principle2.Guideline2_4.2_4_3.H25.1.NoHeadingContent"
+  ],
+  "log": {
+    "level": "error"
+  }
+}

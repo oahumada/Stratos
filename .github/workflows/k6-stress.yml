@@ -1,0 +1,192 @@
+name: k6 Stress Tests
+
+on:
+  # Ejecución manual (elige escenario y entorno)
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Test scenario to run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options: [smoke, load, stress]
+      base_url:
+        description: 'Target base URL'
+        required: false
+        default: 'http://localhost:8000'
+
+  # Smoke test automático en PRs a main/develop
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'app/Http/Controllers/Api/**'
+      - 'app/Services/**'
+      - 'routes/api.php'
+      - 'tests/k6/**'
+
+  # Load test semanal (lunes 3 AM)
+  schedule:
+    - cron: '0 3 * * 1'
+
+env:
+  K6_BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:8000' }}
+  K6_USER_EMAIL: ${{ secrets.K6_USER_EMAIL || 'admin@stratos.test' }}
+  K6_USER_PASS: ${{ secrets.K6_USER_PASS || 'password' }}
+
+jobs:
+  k6-stress:
+    name: k6 — ${{ github.event.inputs.scenario || 'smoke' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: stratos_testing
+          POSTGRES_USER: stratos
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── PHP + Laravel server ────────────────────────────────────────────
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, curl, libxml, pgsql, pdo_pgsql, redis, zip
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --no-scripts --prefer-dist
+
+      - name: Prepare .env for k6
+        run: |
+          cp .env.example .env
+          sed -i 's|DB_CONNECTION=.*|DB_CONNECTION=pgsql|' .env
+          sed -i 's|DB_HOST=.*|DB_HOST=127.0.0.1|' .env
+          sed -i 's|DB_PORT=.*|DB_PORT=5432|' .env
+          sed -i 's|DB_DATABASE=.*|DB_DATABASE=stratos_testing|' .env
+          sed -i 's|DB_USERNAME=.*|DB_USERNAME=stratos|' .env
+          sed -i 's|DB_PASSWORD=.*|DB_PASSWORD=secret|' .env
+          sed -i 's|QUEUE_CONNECTION=.*|QUEUE_CONNECTION=sync|' .env
+          sed -i 's|CACHE_DRIVER=.*|CACHE_DRIVER=redis|' .env
+          sed -i 's|LLM_PROVIDER=.*|LLM_PROVIDER=mock|' .env
+          php artisan key:generate
+
+      - name: Run migrations + seeders
+        run: |
+          php artisan migrate --force
+          php artisan db:seed --class=DatabaseSeeder --force
+
+      - name: Start Laravel dev server
+        run: php artisan serve --host=0.0.0.0 --port=8000 &
+        env:
+          APP_ENV: local
+          APP_DEBUG: true
+
+      - name: Wait for Laravel to be ready
+        run: |
+          for i in $(seq 1 15); do
+            if curl -sf http://localhost:8000/up; then
+              echo "Laravel ready after ${i}s"
+              break
+            fi
+            echo "Waiting for Laravel... (${i}/15)"
+            sleep 1
+          done
+
+      # ── k6 ──────────────────────────────────────────────────────────────
+      - name: Install k6
+        run: |
+          curl -fsSL https://pkg.grafana.com/gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/grafana.gpg
+          echo "deb [signed-by=/usr/share/keyrings/grafana.gpg] https://pkg.grafana.com/oss/deb stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
+          sudo apt-get update -q
+          sudo apt-get install -y k6
+
+      - name: Create results directory
+        run: mkdir -p tests/k6/results
+
+      - name: Run k6 smoke test
+        if: ${{ github.event_name == 'pull_request' || github.event.inputs.scenario == 'smoke' || github.event.inputs.scenario == '' }}
+        run: |
+          k6 run \
+            -e K6_BASE_URL=${{ env.K6_BASE_URL }} \
+            -e K6_USER_EMAIL=${{ env.K6_USER_EMAIL }} \
+            -e K6_USER_PASS=${{ env.K6_USER_PASS }} \
+            --out json=tests/k6/results/smoke.json \
+            tests/k6/scenarios/smoke.js
+
+      - name: Run k6 load test
+        if: ${{ github.event.inputs.scenario == 'load' || github.event_name == 'schedule' }}
+        run: |
+          k6 run \
+            -e K6_BASE_URL=${{ env.K6_BASE_URL }} \
+            -e K6_USER_EMAIL=${{ env.K6_USER_EMAIL }} \
+            -e K6_USER_PASS=${{ env.K6_USER_PASS }} \
+            --out json=tests/k6/results/load.json \
+            tests/k6/scenarios/load.js
+
+      - name: Run k6 stress test
+        if: ${{ github.event.inputs.scenario == 'stress' }}
+        run: |
+          k6 run \
+            -e K6_BASE_URL=${{ env.K6_BASE_URL }} \
+            -e K6_USER_EMAIL=${{ env.K6_USER_EMAIL }} \
+            -e K6_USER_PASS=${{ env.K6_USER_PASS }} \
+            --out json=tests/k6/results/stress.json \
+            tests/k6/scenarios/stress.js
+
+      # ── Resultados ───────────────────────────────────────────────────────
+      - name: Upload k6 results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-results-${{ github.run_id }}
+          path: tests/k6/results/
+          retention-days: 30
+
+      - name: Comment PR with smoke results
+        if: ${{ github.event_name == 'pull_request' && always() }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'tests/k6/results/stress_summary.json';
+            if (!fs.existsSync(path)) {
+              return github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '## 📊 k6 Smoke Test completado\nRevisa los artefactos del workflow para ver los resultados detallados.',
+              });
+            }
+            const summary = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const s = summary.stress_test_summary;
+            const body = `## 📊 k6 Stress Test Results\n\n| Métrica | Valor |\n|---|---|\n| Total Requests | ${s.total_requests} |\n| Req/s | ${s.requests_per_second} |\n| p(95) | ${s.p95_ms}ms |\n| p(99) | ${s.p99_ms}ms |\n| Error Rate | ${s.error_rate_pct}% |\n| Resultado | ${s.passed ? '✅ PASSED' : '❌ FAILED'} |`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });

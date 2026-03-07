@@ -22,4 +22,6 @@
 .idea
 .vscode
 hot
-public/build/assets/*
+public/build/assets/*# k6 stress test results
+tests/k6/results/*.json
+tests/k6/results/*.html

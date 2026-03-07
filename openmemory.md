@@ -6,6 +6,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 ### Protocolos y Acuerdos Vivos
 
 - **Cierre de Sesión:** Si el usuario olvida cerrar la sesión explícitamente ("terminamos por ahora"), el asistente DEBE recordarlo para asegurar el registro en la memoria del proyecto.
+- **LLM Agnostic Architecture:** Stratos soporta múltiples proveedores LLM (DeepSeek, ABACUS, OpenAI, Intel, Mock) a través de `LLMClient`. Todas las evaluaciones (RAGAS, fidelidad, etc.) deben ser agnósticas de proveedor.
 
 ---
 
@@ -2779,3 +2780,304 @@ El modelo `PsychometricProfile` tenía la relación `person()` pero `CultureSent
 | `resources/js/tests/unit/components/CultureSentinelWidget.spec.ts`    |   8   | Render, empty state, health score, anomalies, colors, trend, error, AI diagnosis |
 | `resources/js/tests/unit/components/ScenarioSimulationStatus.spec.ts` |   7   | Visibility, KPIs, mitigation button, API call, results, error                    |
 | `resources/js/pages/__tests__/Talento360Dashboard.dna.spec.ts`        |   8   | Metrics load, DNA button, dialog, HiPo filter, extraction, error, result reset   |
+
+---
+
+## Memory: Decisión Arquitectónica - Plan QA Opción C Agnóstica (2026-03-07)
+
+## Memory: Opción C IMPLEMENTADA - RAGAS Evaluator Agnóstico (2026-03-07)
+
+- **Tipo:** project_fact (arquitectura + implementación)
+- **Ámbito:** QA Strategy - Fidelidad de LLM
+- **Status:** ✅ COMPLETADO (1,878 líneas de código)
+
+### Implementación Completada
+
+**Files Created:**
+
+1. `config/ragas.php` (68 líneas) - Config agnóstica con baselines por proveedor
+2. `database/migrations/2026_03_07_000001_create_llm_evaluations_table.php` (124 líneas) - Tabla con 32 columnas
+3. `app/Models/LLMEvaluation.php` (280 líneas) - Modelo con scopes y métodos
+4. `app/Services/RAGASEvaluator.php` (350 líneas) - Lógica agnóstica
+5. `app/Jobs/EvaluateLLMGeneration.php` (80 líneas) - Job async con reintentos
+6. `app/Http/Controllers/Api/RAGASEvaluationController.php` (200 líneas) - API endpoints
+7. `app/Policies/LLMEvaluationPolicy.php` (40 líneas) - Autorización multi-tenant
+8. `database/factories/LLMEvaluationFactory.php` (180 líneas) - Testing factory
+9. `tests/Feature/Api/RAGASEvaluationTest.php` (350 líneas) - 13 feature tests
+10. `tests/Unit/Services/RAGASEvaluatorTest.php` (380 líneas) - 13 unit tests
+11. `docs/IMPLEMENTACION_QA_OPCION_C.md` (~400 líneas) - Documentación
+
+### Arquitectura Agnóstica (Key Design)
+
+**Providers Soportados:**
+
+- DeepSeek: baseline 0.82
+- ABACUS: baseline 0.88
+- OpenAI: baseline 0.90
+- Intel: baseline 0.75
+- Mock: baseline 0.95
+
+**Métricas RAGAS (5 idénticas para todos):**
+
+- Faithfulness (weight 30%)
+- Relevance (weight 25%)
+- Context Alignment (weight 20%)
+- Coherence (weight 15%)
+- Hallucination Rate (weight 10%)
+
+**Lógica Agnóstica:**
+
+```
+composite_score = Σ(metric_i × weight_i)  # Mismo para todos
+quality_level = map(composite_score)       # Mismo para todos
+normalized_score = composite_score / baseline_provider  # Solo baseline difiere
+```
+
+### API Endpoints
+
+```
+POST   /api/qa/llm-evaluations              # Crear evaluación
+GET    /api/qa/llm-evaluations/{id}        # Obtener resultados
+GET    /api/qa/llm-evaluations             # Listar con filtros
+GET    /api/qa/llm-evaluations/metrics/summary  # Agregados org
+```
+
+### Características
+
+✅ Provider auto-detection (heuristics)
+✅ Async evaluation (Queue + Job)
+✅ Multi-tenant isolation
+✅ Comprehensive metrics aggregation
+✅ Quality level determination (excellent|good|acceptable|poor|critical)
+✅ Historical tracking + superseding
+✅ Error handling con reintentos exponenciales
+
+### Tests
+
+- **Feature Tests (13):** Create, retrieve, list, filter (provider/status/quality), metrics, auth, validation
+- **Unit Tests (13):** Provider agnósticism, composite score, normalization, quality determination, detection, metrics aggregation, isolation
+- **Total Coverage:** 26 tests across all scenarios
+
+### Próximos Pasos
+
+1. Registrar Policy en AuthServiceProvider
+2. Configurar variables de entorno (RAGAS\_\*)
+3. Iniciar queue worker para evaluaciones async
+4. ~~Integrar con ScenarioGenerationJob para evaluación automática~~ ✅ COMPLETADO
+5. Crear dashboard frontend para visualizar resultados
+
+---
+
+- **Decisión Rationale:** Agnóstico permite futura transición entre providers sin cambios arquitectónicos
+- **Referencia:** [IMPLEMENTACION_QA_OPCION_C.md](./docs/IMPLEMENTACION_QA_OPCION_C.md)
+- **Key Decision:** Baselines por provider permiten comparación justa entre LLMs
+
+---
+
+## Memory: Integración RAGAS ↔ GenerateScenarioFromLLMJob COMPLETA (2026-03-07)
+
+- **Tipo:** implementation (project fact)
+- **Branch:** wave-3
+
+### Estado Final (26/26 tests pasando)
+
+**Feature tests:** 13/13 ✅ (`tests/Feature/Api/RAGASEvaluationTest.php`)
+**Unit tests:** 11/11 ✅ (`tests/Unit/Services/RAGASEvaluatorTest.php`)
+**Integration tests:** 2/2 ✅ (`tests/Feature/Integrations/ScenarioGenerationIntelTest.php`)
+
+### Archivos Modificados
+
+1. `app/Jobs/GenerateScenarioFromLLMJob.php` — Integración RAGAS automática
+    - Import `RAGASEvaluator` y `DB` facade
+    - Parámetro `?RAGASEvaluator $ragas = null` en `handle()` con fallback `app(RAGASEvaluator::class)`
+    - Bloque `DB::transaction()` anidado post-save (savepoints PostgreSQL)
+    - Try/catch: fallo RAGAS → solo `Log::warning`, no rompe el flujo de generación
+
+2. `app/Jobs/EvaluateLLMGeneration.php` — Fix PHP 8.4 trait collision
+    - Reemplazó `public string $queue = 'default'` por `$this->onQueue()` en constructor
+    - Soluciona `$queue` property incompatibility con `Queueable` en PHP 8.4
+
+3. `app/Models/LLMEvaluation.php` — Fixes adicionales
+    - Cast `organization_id => integer` añadido a `$casts`
+
+4. `app/Http/Controllers/Api/RAGASEvaluationController.php` — Fix endpoints
+    - Añadido método `summary()` como alias de `metrics()` (ruta usa `summary`)
+    - `quality_level` añadido al nivel base de `formatEvaluation()` (no solo en `metrics`)
+
+5. `database/migrations/2026_03_07_*_make_evaluable_id_nullable_in_llm_evaluations.php`
+    - `evaluable_id` ahora nullable (no todas las evaluaciones tienen un modelo parent)
+
+6. `tests/Unit/Services/RAGASEvaluatorTest.php` — Fixes de tests
+    - `uses(Tests\TestCase::class, RefreshDatabase::class)` → habilita Faker + DB en Unit
+    - `Queue::fake()` en test "creates evaluation record with pending status"
+
+### Patrón Clave: PostgreSQL Savepoints para Aislamiento
+
+```php
+// En GenerateScenarioFromLLMJob::handle()
+try {
+    DB::transaction(function () use ($generation, $assembled, $provider, $ragas): void {
+        $ragas->evaluate(
+            inputPrompt: $generation->prompt ?? '',
+            outputContent: $assembled,
+            organizationId: (string) $generation->organization_id,
+            context: json_encode($generation->metadata['company_name'] ?? ''),
+            provider: $provider,
+            modelVersion: $generation->model_version,
+        );
+    });
+} catch (\Throwable $e) {
+    Log::warning('RAGAS evaluation failed for generation '.$generation->id.': '.$e->getMessage());
+}
+```
+
+**Por qué funciona:** `DB::transaction()` anidado en PostgreSQL = savepoints automáticos.
+Si RAGAS lanza excepción (HTTP timeout, conexión fallida), solo hace rollback del savepoint,
+NO de la transacción padre del job. La generación siempre se guarda correctamente.
+
+---
+
+## Memory: Implementación - Plan QA Opción B Accesibilidad (2026-03-07)
+
+- **Tipo:** implementation (project fact)
+- **Propósito:** Auditoría automática de accesibilidad WCAG 2.1 AA en CI/CD
+- **Estándar:** WCAG 2.1 Level AA (balance entre practicidad e inclusión)
+- **Herramientas:** pa11y + axe-core + Playwright E2E
+
+### Cambios Realizados
+
+1. **Package.json** - Dependencias de accesibilidad:
+
+    ```json
+    "@axe-core/playwright": "^4.8.0",
+    "axe-core": "^4.8.0",
+    "pa11y": "^7.1.0",
+    "pa11y-reporter-json": "^3.0.0"
+    ```
+
+    Scripts: `a11y:pa11y`, `a11y:axe`, `a11y:playwright`, `a11y:audit`
+
+2. **Configuración:**
+    - `.pa11yrc.json` - Config pa11y (WCAG2AA, runners: axe + htmlcs, threshold 85%)
+    - `.github/workflows/accessibility.yml` - CI/CD workflow completo
+
+3. **Tests E2E:**
+    - `tests/accessibility.spec.ts` - 10 tests Playwright + axe-core:
+      ✅ Dashboard accessibility
+      ✅ ARIA labels  
+      ✅ Keyboard navigation
+      ✅ Color contrast ratios
+      ✅ Image alt text
+      ✅ Accessible button labels
+      ✅ Form label associations
+      ✅ Heading hierarchy
+      ✅ Focus visibility
+      ✅ Screen reader navigation
+
+### Workflow CI/CD
+
+**Trigger:** Cada PR/push a `main`/`develop` + semanal (domingo 2 AM)
+
+**Pasos automatizados:**
+
+1. Configura PHP 8.4 + Node 18
+2. Instala dependencias
+3. Construye frontend
+4. Inicia servidor Laravel
+5. Ejecuta tests E2E Playwright + axe-core
+6. Ejecuta auditoría pa11y completa
+7. Genera reportes JSON + HTML
+8. Comenta resultados en PR automáticamente
+
+### Criterios WCAG 2.1 AA Cubiertos
+
+**Percepción (P1):**
+
+- 1.1 Text Alternatives (alt text)
+- 1.3 Adaptable (HTML semántico)
+- 1.4 Distinguishable (contraste 4.5:1)
+
+**Operabilidad (P2):**
+
+- 2.1 Keyboard Accessible (Tab, Enter, etc.)
+- 2.4 Navigable (heading hierarchy, focus order)
+
+**Comprensibilidad (P3):**
+
+- 3.1 Readable (lenguaje claro)
+- 3.2 Predictable (consistencia)
+- 3.3 Input Assistance (mensajes de error)
+
+**Robustez (P4):**
+
+- 4.1 Compatible (ARIA labels, valid HTML, estructura DOM)
+
+### Ventajas
+
+✅ Auditoría automática en cada PR
+✅ Detecta regresiones de accesibilidad
+✅ Reportes detallados (JSON, HTML, visual)
+✅ Cumplimiento legal (AA = estándar global)
+✅ Inclusión real (personas con discapacidad)
+✅ Mejora SEO y UX general
+
+### Limitaciones Conocidas
+
+⚠️ ~60% de issues se auto-detectan, ~40% requieren validación manual (screen readers)
+⚠️ Colorblindness requiere validación adicional
+⚠️ PDFs/Documentos pueden requerir auditoría separada
+
+### Documentación
+
+- `docs/IMPLEMENTACION_QA_OPCION_B.md` - Guía completa (4 secciones)
+- Incluye: arquitectura, herramientas, casos de prueba, roadmap
+
+### Próximos Pasos
+
+1. **Local:** `npm run a11y:audit` para identificar violations
+2. **Fix:** Resolver criticals (WCAG A) → majors (WCAG AA) → warnings
+3. **CI:** Mergear a main cuando workflow ✅
+4. **Continuous:** Auditoría semanal para detectar regressions
+
+## Memory: k6 Stress Testing Suite - Fase 2 COMPLETADA (2026-03-07)
+
+### Resumen
+Suite completo de pruebas de rendimiento k6 implementado como Fase 2 del QA Master Plan.
+Cobertura: smoke, load, stress tests con CI/CD automático en GitHub Actions.
+
+### Estructura de Archivos
+- `tests/k6/utils/auth.js` — Helper de autenticación Fortify/Sanctum (CSRF cookie → login → CookieJar)
+- `tests/k6/scenarios/smoke.js` — Sanity check: 1 VU, 1 iteración, 4 grupos de endpoints
+- `tests/k6/scenarios/load.js` — Carga realista: 3 escenarios concurrentes (readHeavy 20VUs, previewLoad 5VUs, ragasPolling 10VUs)
+- `tests/k6/scenarios/stress.js` — Prueba de quiebre: spike 0→60 VUs, `handleSummary()` escribe JSON
+- `tests/k6/results/.gitkeep` — Directorio para artefactos (excluido del repo vía .gitignore)
+- `.github/workflows/k6-stress.yml` — CI con PostgreSQL 16 + Redis 7, install k6, artifact upload, PR comment
+- `tests/k6/README.md` — Documentación completa
+
+### SLOs Definidos
+| Tipo | p(95) objetivo | Error máximo |
+|------|----------------|--------------|
+| Read endpoints | < 2s | < 1% |
+| Scenario preview | < 5s | < 1% |
+| RAGAS metrics | < 1.5s | < 1% |
+| Stress global | < 4s | < 5% |
+
+### Auth Flow k6
+```
+GET /sanctum/csrf-cookie → extract XSRF-TOKEN cookie
+POST /login { email, password } + X-XSRF-TOKEN header → session cookie
+CookieJar serializado → compartido entre VUs via setup()
+```
+
+### Variables de Entorno CI
+- `K6_BASE_URL` — URL de la app (default: http://localhost:8000)
+- `K6_USER_EMAIL` — Secret GitHub para el usuario de prueba
+- `K6_USER_PASS` — Secret GitHub para la contraseña
+
+### Triggers del workflow
+- `workflow_dispatch` — manual con choice de escenario (smoke/load/stress)
+- `pull_request` a main/develop — cuando toca controllers/api, services, routes/api.php, tests/k6
+- `schedule: cron '0 3 * * 1'` — load test automático lunes 3AM UTC
+
+### Estado
+✅ Suite completo listo para CI. k6 no está instalado localmente — tests corren en GitHub Actions.

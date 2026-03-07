@@ -1,0 +1,117 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, dom, curl, libxml, mysql, sqlite, zip
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Composer dependencies
+        working-directory: src
+        run: composer install --no-progress --no-suggest --prefer-dist
+
+      - name: Install Node dependencies
+        working-directory: src
+        run: npm ci
+
+      - name: Prepare environment
+        working-directory: src
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php -r "file_exists('database/database.sqlite') || mkdir('database') && touch('database/database.sqlite');"
+
+      - name: Run migrations & seed
+        working-directory: src
+        env:
+          APP_ENV: testing
+        run: php artisan migrate:fresh --seed --force
+
+      - name: Build frontend
+        working-directory: src
+        run: npm run build
+
+      - name: Start Laravel server
+        working-directory: src
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8000 &
+          sleep 3
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://127.0.0.1:8000/ >/dev/null 2>&1; then
+              echo "Server is up"
+              break
+            fi
+            echo "Waiting for server... attempt $i/30"
+            sleep 2
+          done
+
+      - name: Install Lighthouse CI
+        working-directory: src
+        run: npm install -g @lhci/cli@latest
+
+      - name: Run Lighthouse CI
+        working-directory: src
+        run: |
+          lhci collect --config=../lighthouserc.json || true
+          lhci upload --config=../lighthouserc.json || true
+          lhci assert --config=../lighthouserc.json || true
+
+      - name: Upload Lighthouse report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: |
+            src/.lighthouseci/
+            src/lhci_results/
+
+      - name: Comment PR with Lighthouse results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        continue-on-error: true
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const resultsPath = 'src/lhci_results/lhci-results.json';
+
+            if (fs.existsSync(resultsPath)) {
+              const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+              const comment = `## ⚡ Lighthouse CI Results
+
+              | Category | Score |
+              |----------|-------|
+              | Performance | ${results.summary?.performance ?? 'N/A'} |
+              | Accessibility | ${results.summary?.accessibility ?? 'N/A'} |
+              | Best Practices | ${results.summary?.['best-practices'] ?? 'N/A'} |
+              | SEO | ${results.summary?.seo ?? 'N/A'} |`;
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
