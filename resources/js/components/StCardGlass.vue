@@ -5,16 +5,25 @@ import type { HTMLAttributes } from 'vue';
 interface Props {
     class?: HTMLAttributes['class'];
     noHover?: boolean;
+    as?: 'div' | 'section' | 'article' | 'aside';
+    role?: string;
+    ariaLabel?: string;
+    ariaLabelledby?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     noHover: false,
+    as: 'section',
 });
 </script>
 
 <template>
-    <div
+    <component
+        :is="props.as"
         data-slot="st-card-glass"
+        :role="props.role"
+        :aria-label="props.ariaLabel"
+        :aria-labelledby="props.ariaLabelledby"
         :class="
             cn(
                 'st-card-glass flex flex-col gap-4 p-6',
@@ -25,5 +34,5 @@ const props = withDefaults(defineProps<Props>(), {
         "
     >
         <slot />
-    </div>
+    </component>
 </template>

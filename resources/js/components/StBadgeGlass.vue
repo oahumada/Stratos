@@ -11,12 +11,16 @@ interface Props {
         | 'success'
         | 'glass';
     size?: 'sm' | 'md';
+    as?: 'span' | 'div';
+    role?: string;
+    ariaLabel?: string;
     class?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     variant: 'glass',
     size: 'sm',
+    as: 'span',
 });
 
 const variantClasses = {
@@ -44,7 +48,12 @@ const classes = computed(() => {
 </script>
 
 <template>
-    <div :class="classes">
+    <component
+        :is="props.as"
+        :class="classes"
+        :role="props.role"
+        :aria-label="props.ariaLabel"
+    >
         <slot />
-    </div>
+    </component>
 </template>

@@ -12,6 +12,11 @@ interface Props {
     circle?: boolean;
     icon?: string | Component;
     iconWeight?: 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone';
+    type?: 'button' | 'submit' | 'reset';
+    ariaLabel?: string;
+    ariaControls?: string;
+    ariaExpanded?: boolean;
+    ariaPressed?: boolean;
     class?: string;
 }
 
@@ -23,6 +28,7 @@ const props = withDefaults(defineProps<Props>(), {
     block: false,
     circle: false,
     iconWeight: 'regular',
+    type: 'button',
 });
 
 const variantClasses = {
@@ -53,19 +59,31 @@ const classes = computed(() => {
 </script>
 
 <template>
-    <button :class="classes" :disabled="disabled || loading">
+    <button
+        :class="classes"
+        :type="type"
+        :disabled="disabled || loading"
+        :aria-label="ariaLabel"
+        :aria-controls="ariaControls"
+        :aria-expanded="ariaExpanded"
+        :aria-pressed="ariaPressed"
+        :aria-disabled="disabled || loading"
+        :aria-busy="loading || undefined"
+    >
         <v-progress-circular
             v-if="loading"
             indeterminate
             size="18"
             width="2"
             class="mr-2"
+            aria-hidden="true"
         />
         <!-- Soporte para antiguos iconos MDI como string -->
         <v-icon
             v-if="icon && typeof icon === 'string' && !loading"
             :size="size === 'sm' ? 16 : 20"
             :class="['shrink-0', $slots.default && circle! ? 'mr-2' : '']"
+            aria-hidden="true"
             >{{ icon }}</v-icon
         >
         <!-- Soporte para nuevos iconos componetizados (Phosphor, etc.) -->
@@ -75,6 +93,7 @@ const classes = computed(() => {
             :size="size === 'sm' ? 16 : 20"
             :weight="iconWeight"
             :class="['shrink-0', $slots.default && circle! ? 'mr-2' : '']"
+            aria-hidden="true"
         />
         <slot v-if="!circle" />
     </button>

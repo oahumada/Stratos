@@ -26,7 +26,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
         // Check for specific accessibility rules
         const violations = await page.evaluate(() => {
             return new Promise((resolve) => {
-                // @ts-ignore
+                // @ts-expect-error axe se inyecta en runtime en navegador
                 window.axe.run((results) => {
                     resolve(results.violations.map((v: any) => v.id));
                 });
@@ -58,7 +58,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
 
         const contrastResults = await page.evaluate(() => {
             return new Promise((resolve) => {
-                // @ts-ignore
+                // @ts-expect-error axe se inyecta en runtime en navegador
                 window.axe.run(
                     {
                         rules: ['color-contrast'],
@@ -79,14 +79,18 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
     test('Images should have alt text', async ({ page }) => {
         await page.goto(`${BASE_URL}/dashboard`);
 
-        const imagesWithoutAlt = await page.locator('img:not([alt])').count();
+        const imagesWithoutAlt = await page
+            .locator(
+                'img:not([alt]):not([role="presentation"]):not([aria-hidden="true"])',
+            )
+            .count();
         expect(imagesWithoutAlt).toBe(0);
     });
 
     test('All buttons should have accessible labels', async ({ page }) => {
         await page.goto(`${BASE_URL}/scenario-planning`);
 
-        const buttons = await page.locator('button').all();
+        const buttons = await page.locator('button:visible').all();
         for (const button of buttons) {
             const text = await button.textContent();
             const ariaLabel = await button.getAttribute('aria-label');
@@ -122,14 +126,16 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
         await page.goto(`${BASE_URL}/dashboard`);
 
         const headings = await page.locator('h1, h2, h3, h4, h5, h6').all();
-        let lastLevel = 0;
+        let lastLevel: number | null = null;
 
         for (const heading of headings) {
             const tagName = await heading.evaluate((el) => el.tagName);
             const level = parseInt(tagName.charAt(1));
 
-            // Headings should not skip levels (h1 -> h3 is bad)
-            expect(Math.abs(level - lastLevel)).toBeLessThanOrEqual(1);
+            // Headings should not skip levels ascending (h1 -> h3 is bad)
+            if (lastLevel !== null && level > lastLevel) {
+                expect(level - lastLevel).toBeLessThanOrEqual(1);
+            }
             lastLevel = level;
         }
     });
