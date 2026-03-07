@@ -41,7 +41,7 @@ Como expertos en Q&A y mejora continua, establecemos un marco de trabajo de **cl
 
 - [x] **Stress Testing (k6):** ✅ Completado (2026-03-07) — Suite completo: `smoke.js` (1 VU sanity), `load.js` (3 escenarios concurrentes, 20-30 VUs), `stress.js` (spike 60 VUs con handleSummary). SLOs definidos: p95 < 2s lectura, < 5s preview, < 1.5s RAGAS. CI/CD en `.github/workflows/k6-stress.yml` con PostgreSQL service + artifact upload.
 - [ ] **Accessibility Clean-up:** Optimización de todos los componentes Stratos Glass para lectores de pantalla.
-- [ ] **Chaos Engineering:** Pruebas de tolerancia a fallos en microservicios y APIs externas. _(En progreso: tests de resiliencia RAGAS fail-safe + caída de provider Intel + fallback Redis->DB chunking + rate-limit agotado + server exception en `ScenarioGenerationIntelTest`.)_
+- [x] **Chaos Engineering:** ✅ Completado (2026-03-07) — Cobertura validada en `ScenarioGenerationIntelTest`: resiliencia ante fallo RAGAS (fail-safe), caída de provider Intel, fallback Redis->DB para chunking, rate-limit agotado y server exception (7 tests / 28 assertions).
 
 ---
 
