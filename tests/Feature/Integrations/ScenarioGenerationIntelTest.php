@@ -147,4 +147,32 @@ class ScenarioGenerationIntelTest extends TestCase
         expect($generation->status)->toBe('complete');
         expect($generation->llm_response['scenario_metadata']['name'])->toBe('Chaos Resilient Scenario');
     }
+
+    public function test_it_marks_generation_as_failed_when_intel_provider_is_unavailable()
+    {
+        $generation = ScenarioGeneration::create([
+            'organization_id' => $this->org->id,
+            'created_by' => $this->user->id,
+            'prompt' => 'Digital transformation with external service failure',
+            'status' => 'queued',
+            'metadata' => [
+                'provider' => 'intel',
+                'company_name' => $this->org->name,
+                'language' => 'es',
+            ],
+        ]);
+
+        Http::fake([
+            config('services.python_intel.base_url').'/generate-scenario' => Http::response(['error' => 'timeout'], 504),
+        ]);
+
+        $job = new GenerateScenarioFromLLMJob($generation->id);
+        $job->handle(app(\App\Services\LLMClient::class), null, new StratosIntelService);
+
+        $generation->refresh();
+
+        expect($generation->status)->toBe('failed');
+        expect($generation->metadata['error'])->toBe('exception');
+        expect($generation->metadata['message'])->toContain('Intel service failed');
+    }
 }
