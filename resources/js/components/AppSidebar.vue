@@ -232,6 +232,14 @@ const allNavItems: NavItem[] = [
         ),
         requiredRole: ['admin', 'hr_leader'],
     },
+    {
+        title: 'LLM Quality (RAGAS)',
+        href: '/quality/ragas-metrics',
+        icon: defineComponent(
+            () => () => h(VIcon, { icon: 'mdi-chart-bar', size: 20 }),
+        ),
+        requiredRole: ['admin', 'hr_leader'],
+    },
 ];
 
 /**

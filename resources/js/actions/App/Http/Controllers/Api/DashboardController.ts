@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\DashboardController::metrics
 * @see app/Http/Controllers/Api/DashboardController.php:14
@@ -42,43 +42,6 @@ metrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: metrics.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\DashboardController::metrics
-* @see app/Http/Controllers/Api/DashboardController.php:14
-* @route '/api/dashboard/metrics'
-*/
-const metricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: metrics.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\DashboardController::metrics
-* @see app/Http/Controllers/Api/DashboardController.php:14
-* @route '/api/dashboard/metrics'
-*/
-metricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: metrics.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\DashboardController::metrics
-* @see app/Http/Controllers/Api/DashboardController.php:14
-* @route '/api/dashboard/metrics'
-*/
-metricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: metrics.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-metrics.form = metricsForm
 
 const DashboardController = { metrics }
 

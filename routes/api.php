@@ -1143,6 +1143,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/workforce-planning/scenarios/{id}/recommendations', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'getRecommendations']);
 });
 
+// ── QA & Evaluation: RAGAS LLM Fidelity Assessment ──────────────
+Route::middleware('auth:sanctum')->prefix('qa')->group(function () {
+    Route::post('/llm-evaluations', [\App\Http\Controllers\Api\RAGASEvaluationController::class, 'store']);
+    Route::get('/llm-evaluations/{id}', [\App\Http\Controllers\Api\RAGASEvaluationController::class, 'show']);
+    Route::get('/llm-evaluations', [\App\Http\Controllers\Api\RAGASEvaluationController::class, 'index']);
+    Route::get('/llm-evaluations/metrics/summary', [\App\Http\Controllers\Api\RAGASEvaluationController::class, 'summary']);
+});
+
 // Catálogos dinámicos para selectores
 require __DIR__.'/form-schema-complete.php';
 

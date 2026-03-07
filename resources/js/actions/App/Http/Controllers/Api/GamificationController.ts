@@ -1,7 +1,7 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\GamificationController::getAvailableQuests
-* @see app/Http/Controllers/Api/GamificationController.php:36
+* @see app/Http/Controllers/Api/GamificationController.php:37
 * @route '/api/gamification/quests'
 */
 export const getAvailableQuests = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ getAvailableQuests.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\GamificationController::getAvailableQuests
-* @see app/Http/Controllers/Api/GamificationController.php:36
+* @see app/Http/Controllers/Api/GamificationController.php:37
 * @route '/api/gamification/quests'
 */
 getAvailableQuests.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ getAvailableQuests.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\GamificationController::getAvailableQuests
-* @see app/Http/Controllers/Api/GamificationController.php:36
+* @see app/Http/Controllers/Api/GamificationController.php:37
 * @route '/api/gamification/quests'
 */
 getAvailableQuests.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,50 +35,13 @@ getAvailableQuests.get = (options?: RouteQueryOptions): RouteDefinition<'get'> =
 
 /**
 * @see \App\Http\Controllers\Api\GamificationController::getAvailableQuests
-* @see app/Http/Controllers/Api/GamificationController.php:36
+* @see app/Http/Controllers/Api/GamificationController.php:37
 * @route '/api/gamification/quests'
 */
 getAvailableQuests.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: getAvailableQuests.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\GamificationController::getAvailableQuests
-* @see app/Http/Controllers/Api/GamificationController.php:36
-* @route '/api/gamification/quests'
-*/
-const getAvailableQuestsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getAvailableQuests.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\GamificationController::getAvailableQuests
-* @see app/Http/Controllers/Api/GamificationController.php:36
-* @route '/api/gamification/quests'
-*/
-getAvailableQuestsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getAvailableQuests.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\GamificationController::getAvailableQuests
-* @see app/Http/Controllers/Api/GamificationController.php:36
-* @route '/api/gamification/quests'
-*/
-getAvailableQuestsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getAvailableQuests.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getAvailableQuests.form = getAvailableQuestsForm
 
 /**
 * @see \App\Http\Controllers\Api\GamificationController::getPersonQuests
@@ -143,45 +106,8 @@ getPersonQuests.head = (args: { peopleId: string | number } | [peopleId: string 
 })
 
 /**
-* @see \App\Http\Controllers\Api\GamificationController::getPersonQuests
-* @see app/Http/Controllers/Api/GamificationController.php:23
-* @route '/api/gamification/people/{peopleId}/quests'
-*/
-const getPersonQuestsForm = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getPersonQuests.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\GamificationController::getPersonQuests
-* @see app/Http/Controllers/Api/GamificationController.php:23
-* @route '/api/gamification/people/{peopleId}/quests'
-*/
-getPersonQuestsForm.get = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getPersonQuests.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\GamificationController::getPersonQuests
-* @see app/Http/Controllers/Api/GamificationController.php:23
-* @route '/api/gamification/people/{peopleId}/quests'
-*/
-getPersonQuestsForm.head = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getPersonQuests.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getPersonQuests.form = getPersonQuestsForm
-
-/**
 * @see \App\Http\Controllers\Api\GamificationController::startQuest
-* @see app/Http/Controllers/Api/GamificationController.php:49
+* @see app/Http/Controllers/Api/GamificationController.php:51
 * @route '/api/gamification/people/{peopleId}/quests/{questId}/start'
 */
 export const startQuest = (args: { peopleId: string | number, questId: string | number } | [peopleId: string | number, questId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -196,7 +122,7 @@ startQuest.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\GamificationController::startQuest
-* @see app/Http/Controllers/Api/GamificationController.php:49
+* @see app/Http/Controllers/Api/GamificationController.php:51
 * @route '/api/gamification/people/{peopleId}/quests/{questId}/start'
 */
 startQuest.url = (args: { peopleId: string | number, questId: string | number } | [peopleId: string | number, questId: string | number ], options?: RouteQueryOptions) => {
@@ -222,7 +148,7 @@ startQuest.url = (args: { peopleId: string | number, questId: string | number } 
 
 /**
 * @see \App\Http\Controllers\Api\GamificationController::startQuest
-* @see app/Http/Controllers/Api/GamificationController.php:49
+* @see app/Http/Controllers/Api/GamificationController.php:51
 * @route '/api/gamification/people/{peopleId}/quests/{questId}/start'
 */
 startQuest.post = (args: { peopleId: string | number, questId: string | number } | [peopleId: string | number, questId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -231,30 +157,8 @@ startQuest.post = (args: { peopleId: string | number, questId: string | number }
 })
 
 /**
-* @see \App\Http\Controllers\Api\GamificationController::startQuest
-* @see app/Http/Controllers/Api/GamificationController.php:49
-* @route '/api/gamification/people/{peopleId}/quests/{questId}/start'
-*/
-const startQuestForm = (args: { peopleId: string | number, questId: string | number } | [peopleId: string | number, questId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: startQuest.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\GamificationController::startQuest
-* @see app/Http/Controllers/Api/GamificationController.php:49
-* @route '/api/gamification/people/{peopleId}/quests/{questId}/start'
-*/
-startQuestForm.post = (args: { peopleId: string | number, questId: string | number } | [peopleId: string | number, questId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: startQuest.url(args, options),
-    method: 'post',
-})
-
-startQuest.form = startQuestForm
-
-/**
 * @see \App\Http\Controllers\Api\GamificationController::progressQuest
-* @see app/Http/Controllers/Api/GamificationController.php:67
+* @see app/Http/Controllers/Api/GamificationController.php:69
 * @route '/api/gamification/people/{peopleId}/quests/{questId}/progress'
 */
 export const progressQuest = (args: { peopleId: string | number, questId: string | number } | [peopleId: string | number, questId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -269,7 +173,7 @@ progressQuest.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\GamificationController::progressQuest
-* @see app/Http/Controllers/Api/GamificationController.php:67
+* @see app/Http/Controllers/Api/GamificationController.php:69
 * @route '/api/gamification/people/{peopleId}/quests/{questId}/progress'
 */
 progressQuest.url = (args: { peopleId: string | number, questId: string | number } | [peopleId: string | number, questId: string | number ], options?: RouteQueryOptions) => {
@@ -295,35 +199,13 @@ progressQuest.url = (args: { peopleId: string | number, questId: string | number
 
 /**
 * @see \App\Http\Controllers\Api\GamificationController::progressQuest
-* @see app/Http/Controllers/Api/GamificationController.php:67
+* @see app/Http/Controllers/Api/GamificationController.php:69
 * @route '/api/gamification/people/{peopleId}/quests/{questId}/progress'
 */
 progressQuest.post = (args: { peopleId: string | number, questId: string | number } | [peopleId: string | number, questId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: progressQuest.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\GamificationController::progressQuest
-* @see app/Http/Controllers/Api/GamificationController.php:67
-* @route '/api/gamification/people/{peopleId}/quests/{questId}/progress'
-*/
-const progressQuestForm = (args: { peopleId: string | number, questId: string | number } | [peopleId: string | number, questId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: progressQuest.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\GamificationController::progressQuest
-* @see app/Http/Controllers/Api/GamificationController.php:67
-* @route '/api/gamification/people/{peopleId}/quests/{questId}/progress'
-*/
-progressQuestForm.post = (args: { peopleId: string | number, questId: string | number } | [peopleId: string | number, questId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: progressQuest.url(args, options),
-    method: 'post',
-})
-
-progressQuest.form = progressQuestForm
 
 const GamificationController = { getAvailableQuests, getPersonQuests, startQuest, progressQuest }
 

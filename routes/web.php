@@ -173,6 +173,10 @@ Route::get('/quality-hub', function () {
     return Inertia::render('Quality/QualityHub');
 })->middleware(['auth', 'verified'])->name('quality.hub');
 
+Route::get('/quality/ragas-metrics', function () {
+    return Inertia::render('Quality/RAGASDashboard');
+})->middleware(['auth', 'verified'])->name('quality.ragas-metrics');
+
 Route::prefix('scenarios')->group(function () {
     Route::get('{id}/iq', [ScenarioController::class, 'getIQ']);
     Route::get('{id}/roles/{roleId}/competency-gaps', [ScenarioController::class, 'getCompetencyGaps']);

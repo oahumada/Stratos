@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::simulateAttrition
 * @see app/Http/Controllers/Api/ScenarioIQController.php:28
@@ -52,30 +52,8 @@ simulateAttrition.post = (args: { scenarioId: string | number } | [scenarioId: s
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioIQController::simulateAttrition
-* @see app/Http/Controllers/Api/ScenarioIQController.php:28
-* @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/attrition'
-*/
-const simulateAttritionForm = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: simulateAttrition.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::simulateAttrition
-* @see app/Http/Controllers/Api/ScenarioIQController.php:28
-* @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/attrition'
-*/
-simulateAttritionForm.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: simulateAttrition.url(args, options),
-    method: 'post',
-})
-
-simulateAttrition.form = simulateAttritionForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioIQController::simulateObsolescence
-* @see app/Http/Controllers/Api/ScenarioIQController.php:47
+* @see app/Http/Controllers/Api/ScenarioIQController.php:48
 * @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/obsolescence'
 */
 export const simulateObsolescence = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -90,7 +68,7 @@ simulateObsolescence.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::simulateObsolescence
-* @see app/Http/Controllers/Api/ScenarioIQController.php:47
+* @see app/Http/Controllers/Api/ScenarioIQController.php:48
 * @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/obsolescence'
 */
 simulateObsolescence.url = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -117,7 +95,7 @@ simulateObsolescence.url = (args: { scenarioId: string | number } | [scenarioId:
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::simulateObsolescence
-* @see app/Http/Controllers/Api/ScenarioIQController.php:47
+* @see app/Http/Controllers/Api/ScenarioIQController.php:48
 * @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/obsolescence'
 */
 simulateObsolescence.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -126,30 +104,8 @@ simulateObsolescence.post = (args: { scenarioId: string | number } | [scenarioId
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioIQController::simulateObsolescence
-* @see app/Http/Controllers/Api/ScenarioIQController.php:47
-* @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/obsolescence'
-*/
-const simulateObsolescenceForm = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: simulateObsolescence.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::simulateObsolescence
-* @see app/Http/Controllers/Api/ScenarioIQController.php:47
-* @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/obsolescence'
-*/
-simulateObsolescenceForm.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: simulateObsolescence.url(args, options),
-    method: 'post',
-})
-
-simulateObsolescence.form = simulateObsolescenceForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioIQController::simulateRestructuring
-* @see app/Http/Controllers/Api/ScenarioIQController.php:66
+* @see app/Http/Controllers/Api/ScenarioIQController.php:68
 * @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/restructuring'
 */
 export const simulateRestructuring = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -164,7 +120,7 @@ simulateRestructuring.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::simulateRestructuring
-* @see app/Http/Controllers/Api/ScenarioIQController.php:66
+* @see app/Http/Controllers/Api/ScenarioIQController.php:68
 * @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/restructuring'
 */
 simulateRestructuring.url = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -191,7 +147,7 @@ simulateRestructuring.url = (args: { scenarioId: string | number } | [scenarioId
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::simulateRestructuring
-* @see app/Http/Controllers/Api/ScenarioIQController.php:66
+* @see app/Http/Controllers/Api/ScenarioIQController.php:68
 * @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/restructuring'
 */
 simulateRestructuring.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -200,30 +156,8 @@ simulateRestructuring.post = (args: { scenarioId: string | number } | [scenarioI
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioIQController::simulateRestructuring
-* @see app/Http/Controllers/Api/ScenarioIQController.php:66
-* @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/restructuring'
-*/
-const simulateRestructuringForm = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: simulateRestructuring.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::simulateRestructuring
-* @see app/Http/Controllers/Api/ScenarioIQController.php:66
-* @route '/api/strategic-planning/scenarios/{scenarioId}/crisis/restructuring'
-*/
-simulateRestructuringForm.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: simulateRestructuring.url(args, options),
-    method: 'post',
-})
-
-simulateRestructuring.form = simulateRestructuringForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getCareerPaths
-* @see app/Http/Controllers/Api/ScenarioIQController.php:87
+* @see app/Http/Controllers/Api/ScenarioIQController.php:90
 * @route '/api/career-paths/{peopleId}'
 */
 export const getCareerPaths = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -238,7 +172,7 @@ getCareerPaths.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getCareerPaths
-* @see app/Http/Controllers/Api/ScenarioIQController.php:87
+* @see app/Http/Controllers/Api/ScenarioIQController.php:90
 * @route '/api/career-paths/{peopleId}'
 */
 getCareerPaths.url = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -265,7 +199,7 @@ getCareerPaths.url = (args: { peopleId: string | number } | [peopleId: string | 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getCareerPaths
-* @see app/Http/Controllers/Api/ScenarioIQController.php:87
+* @see app/Http/Controllers/Api/ScenarioIQController.php:90
 * @route '/api/career-paths/{peopleId}'
 */
 getCareerPaths.get = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -275,7 +209,7 @@ getCareerPaths.get = (args: { peopleId: string | number } | [peopleId: string | 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getCareerPaths
-* @see app/Http/Controllers/Api/ScenarioIQController.php:87
+* @see app/Http/Controllers/Api/ScenarioIQController.php:90
 * @route '/api/career-paths/{peopleId}'
 */
 getCareerPaths.head = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -284,45 +218,8 @@ getCareerPaths.head = (args: { peopleId: string | number } | [peopleId: string |
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioIQController::getCareerPaths
-* @see app/Http/Controllers/Api/ScenarioIQController.php:87
-* @route '/api/career-paths/{peopleId}'
-*/
-const getCareerPathsForm = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCareerPaths.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::getCareerPaths
-* @see app/Http/Controllers/Api/ScenarioIQController.php:87
-* @route '/api/career-paths/{peopleId}'
-*/
-getCareerPathsForm.get = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCareerPaths.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::getCareerPaths
-* @see app/Http/Controllers/Api/ScenarioIQController.php:87
-* @route '/api/career-paths/{peopleId}'
-*/
-getCareerPathsForm.head = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCareerPaths.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getCareerPaths.form = getCareerPathsForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getOptimalRoute
-* @see app/Http/Controllers/Api/ScenarioIQController.php:100
+* @see app/Http/Controllers/Api/ScenarioIQController.php:104
 * @route '/api/career-paths/route/{fromRoleId}/{toRoleId}'
 */
 export const getOptimalRoute = (args: { fromRoleId: string | number, toRoleId: string | number } | [fromRoleId: string | number, toRoleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -337,7 +234,7 @@ getOptimalRoute.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getOptimalRoute
-* @see app/Http/Controllers/Api/ScenarioIQController.php:100
+* @see app/Http/Controllers/Api/ScenarioIQController.php:104
 * @route '/api/career-paths/route/{fromRoleId}/{toRoleId}'
 */
 getOptimalRoute.url = (args: { fromRoleId: string | number, toRoleId: string | number } | [fromRoleId: string | number, toRoleId: string | number ], options?: RouteQueryOptions) => {
@@ -363,7 +260,7 @@ getOptimalRoute.url = (args: { fromRoleId: string | number, toRoleId: string | n
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getOptimalRoute
-* @see app/Http/Controllers/Api/ScenarioIQController.php:100
+* @see app/Http/Controllers/Api/ScenarioIQController.php:104
 * @route '/api/career-paths/route/{fromRoleId}/{toRoleId}'
 */
 getOptimalRoute.get = (args: { fromRoleId: string | number, toRoleId: string | number } | [fromRoleId: string | number, toRoleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -373,7 +270,7 @@ getOptimalRoute.get = (args: { fromRoleId: string | number, toRoleId: string | n
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getOptimalRoute
-* @see app/Http/Controllers/Api/ScenarioIQController.php:100
+* @see app/Http/Controllers/Api/ScenarioIQController.php:104
 * @route '/api/career-paths/route/{fromRoleId}/{toRoleId}'
 */
 getOptimalRoute.head = (args: { fromRoleId: string | number, toRoleId: string | number } | [fromRoleId: string | number, toRoleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -382,45 +279,8 @@ getOptimalRoute.head = (args: { fromRoleId: string | number, toRoleId: string | 
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioIQController::getOptimalRoute
-* @see app/Http/Controllers/Api/ScenarioIQController.php:100
-* @route '/api/career-paths/route/{fromRoleId}/{toRoleId}'
-*/
-const getOptimalRouteForm = (args: { fromRoleId: string | number, toRoleId: string | number } | [fromRoleId: string | number, toRoleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getOptimalRoute.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::getOptimalRoute
-* @see app/Http/Controllers/Api/ScenarioIQController.php:100
-* @route '/api/career-paths/route/{fromRoleId}/{toRoleId}'
-*/
-getOptimalRouteForm.get = (args: { fromRoleId: string | number, toRoleId: string | number } | [fromRoleId: string | number, toRoleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getOptimalRoute.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::getOptimalRoute
-* @see app/Http/Controllers/Api/ScenarioIQController.php:100
-* @route '/api/career-paths/route/{fromRoleId}/{toRoleId}'
-*/
-getOptimalRouteForm.head = (args: { fromRoleId: string | number, toRoleId: string | number } | [fromRoleId: string | number, toRoleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getOptimalRoute.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getOptimalRoute.form = getOptimalRouteForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getMobilityMap
-* @see app/Http/Controllers/Api/ScenarioIQController.php:113
+* @see app/Http/Controllers/Api/ScenarioIQController.php:118
 * @route '/api/career-paths/mobility-map/{organizationId}'
 */
 export const getMobilityMap = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -435,7 +295,7 @@ getMobilityMap.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getMobilityMap
-* @see app/Http/Controllers/Api/ScenarioIQController.php:113
+* @see app/Http/Controllers/Api/ScenarioIQController.php:118
 * @route '/api/career-paths/mobility-map/{organizationId}'
 */
 getMobilityMap.url = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -462,7 +322,7 @@ getMobilityMap.url = (args: { organizationId: string | number } | [organizationI
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getMobilityMap
-* @see app/Http/Controllers/Api/ScenarioIQController.php:113
+* @see app/Http/Controllers/Api/ScenarioIQController.php:118
 * @route '/api/career-paths/mobility-map/{organizationId}'
 */
 getMobilityMap.get = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -472,7 +332,7 @@ getMobilityMap.get = (args: { organizationId: string | number } | [organizationI
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::getMobilityMap
-* @see app/Http/Controllers/Api/ScenarioIQController.php:113
+* @see app/Http/Controllers/Api/ScenarioIQController.php:118
 * @route '/api/career-paths/mobility-map/{organizationId}'
 */
 getMobilityMap.head = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -481,45 +341,8 @@ getMobilityMap.head = (args: { organizationId: string | number } | [organization
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioIQController::getMobilityMap
-* @see app/Http/Controllers/Api/ScenarioIQController.php:113
-* @route '/api/career-paths/mobility-map/{organizationId}'
-*/
-const getMobilityMapForm = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMobilityMap.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::getMobilityMap
-* @see app/Http/Controllers/Api/ScenarioIQController.php:113
-* @route '/api/career-paths/mobility-map/{organizationId}'
-*/
-getMobilityMapForm.get = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMobilityMap.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::getMobilityMap
-* @see app/Http/Controllers/Api/ScenarioIQController.php:113
-* @route '/api/career-paths/mobility-map/{organizationId}'
-*/
-getMobilityMapForm.head = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMobilityMap.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getMobilityMap.form = getMobilityMapForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioIQController::predictTransition
-* @see app/Http/Controllers/Api/ScenarioIQController.php:126
+* @see app/Http/Controllers/Api/ScenarioIQController.php:132
 * @route '/api/career-paths/predict/{peopleId}/{targetRoleId}'
 */
 export const predictTransition = (args: { peopleId: string | number, targetRoleId: string | number } | [peopleId: string | number, targetRoleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -534,7 +357,7 @@ predictTransition.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::predictTransition
-* @see app/Http/Controllers/Api/ScenarioIQController.php:126
+* @see app/Http/Controllers/Api/ScenarioIQController.php:132
 * @route '/api/career-paths/predict/{peopleId}/{targetRoleId}'
 */
 predictTransition.url = (args: { peopleId: string | number, targetRoleId: string | number } | [peopleId: string | number, targetRoleId: string | number ], options?: RouteQueryOptions) => {
@@ -560,7 +383,7 @@ predictTransition.url = (args: { peopleId: string | number, targetRoleId: string
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::predictTransition
-* @see app/Http/Controllers/Api/ScenarioIQController.php:126
+* @see app/Http/Controllers/Api/ScenarioIQController.php:132
 * @route '/api/career-paths/predict/{peopleId}/{targetRoleId}'
 */
 predictTransition.get = (args: { peopleId: string | number, targetRoleId: string | number } | [peopleId: string | number, targetRoleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -570,7 +393,7 @@ predictTransition.get = (args: { peopleId: string | number, targetRoleId: string
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::predictTransition
-* @see app/Http/Controllers/Api/ScenarioIQController.php:126
+* @see app/Http/Controllers/Api/ScenarioIQController.php:132
 * @route '/api/career-paths/predict/{peopleId}/{targetRoleId}'
 */
 predictTransition.head = (args: { peopleId: string | number, targetRoleId: string | number } | [peopleId: string | number, targetRoleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -579,45 +402,8 @@ predictTransition.head = (args: { peopleId: string | number, targetRoleId: strin
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioIQController::predictTransition
-* @see app/Http/Controllers/Api/ScenarioIQController.php:126
-* @route '/api/career-paths/predict/{peopleId}/{targetRoleId}'
-*/
-const predictTransitionForm = (args: { peopleId: string | number, targetRoleId: string | number } | [peopleId: string | number, targetRoleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: predictTransition.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::predictTransition
-* @see app/Http/Controllers/Api/ScenarioIQController.php:126
-* @route '/api/career-paths/predict/{peopleId}/{targetRoleId}'
-*/
-predictTransitionForm.get = (args: { peopleId: string | number, targetRoleId: string | number } | [peopleId: string | number, targetRoleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: predictTransition.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::predictTransition
-* @see app/Http/Controllers/Api/ScenarioIQController.php:126
-* @route '/api/career-paths/predict/{peopleId}/{targetRoleId}'
-*/
-predictTransitionForm.head = (args: { peopleId: string | number, targetRoleId: string | number } | [peopleId: string | number, targetRoleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: predictTransition.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-predictTransition.form = predictTransitionForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioIQController::runAgenticSimulation
-* @see app/Http/Controllers/Api/ScenarioIQController.php:141
+* @see app/Http/Controllers/Api/ScenarioIQController.php:148
 * @route '/api/strategic-planning/scenarios/{scenarioId}/agentic-simulation'
 */
 export const runAgenticSimulation = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -632,7 +418,7 @@ runAgenticSimulation.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::runAgenticSimulation
-* @see app/Http/Controllers/Api/ScenarioIQController.php:141
+* @see app/Http/Controllers/Api/ScenarioIQController.php:148
 * @route '/api/strategic-planning/scenarios/{scenarioId}/agentic-simulation'
 */
 runAgenticSimulation.url = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -659,7 +445,7 @@ runAgenticSimulation.url = (args: { scenarioId: string | number } | [scenarioId:
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::runAgenticSimulation
-* @see app/Http/Controllers/Api/ScenarioIQController.php:141
+* @see app/Http/Controllers/Api/ScenarioIQController.php:148
 * @route '/api/strategic-planning/scenarios/{scenarioId}/agentic-simulation'
 */
 runAgenticSimulation.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -668,30 +454,8 @@ runAgenticSimulation.post = (args: { scenarioId: string | number } | [scenarioId
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioIQController::runAgenticSimulation
-* @see app/Http/Controllers/Api/ScenarioIQController.php:141
-* @route '/api/strategic-planning/scenarios/{scenarioId}/agentic-simulation'
-*/
-const runAgenticSimulationForm = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: runAgenticSimulation.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::runAgenticSimulation
-* @see app/Http/Controllers/Api/ScenarioIQController.php:141
-* @route '/api/strategic-planning/scenarios/{scenarioId}/agentic-simulation'
-*/
-runAgenticSimulationForm.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: runAgenticSimulation.url(args, options),
-    method: 'post',
-})
-
-runAgenticSimulation.form = runAgenticSimulationForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioIQController::quickWhatIf
-* @see app/Http/Controllers/Api/ScenarioIQController.php:168
+* @see app/Http/Controllers/Api/ScenarioIQController.php:176
 * @route '/api/strategic-planning/scenarios/{scenarioId}/what-if'
 */
 export const quickWhatIf = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -706,7 +470,7 @@ quickWhatIf.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::quickWhatIf
-* @see app/Http/Controllers/Api/ScenarioIQController.php:168
+* @see app/Http/Controllers/Api/ScenarioIQController.php:176
 * @route '/api/strategic-planning/scenarios/{scenarioId}/what-if'
 */
 quickWhatIf.url = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -733,35 +497,13 @@ quickWhatIf.url = (args: { scenarioId: string | number } | [scenarioId: string |
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioIQController::quickWhatIf
-* @see app/Http/Controllers/Api/ScenarioIQController.php:168
+* @see app/Http/Controllers/Api/ScenarioIQController.php:176
 * @route '/api/strategic-planning/scenarios/{scenarioId}/what-if'
 */
 quickWhatIf.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: quickWhatIf.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::quickWhatIf
-* @see app/Http/Controllers/Api/ScenarioIQController.php:168
-* @route '/api/strategic-planning/scenarios/{scenarioId}/what-if'
-*/
-const quickWhatIfForm = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: quickWhatIf.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioIQController::quickWhatIf
-* @see app/Http/Controllers/Api/ScenarioIQController.php:168
-* @route '/api/strategic-planning/scenarios/{scenarioId}/what-if'
-*/
-quickWhatIfForm.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: quickWhatIf.url(args, options),
-    method: 'post',
-})
-
-quickWhatIf.form = quickWhatIfForm
 
 const ScenarioIQController = { simulateAttrition, simulateObsolescence, simulateRestructuring, getCareerPaths, getOptimalRoute, getMobilityMap, predictTransition, runAgenticSimulation, quickWhatIf }
 

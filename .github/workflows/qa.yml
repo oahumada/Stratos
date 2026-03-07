@@ -25,7 +25,7 @@ jobs:
       - name: Check Code Style (Pint)
         run: ./vendor/bin/pint --test
 
-      - name: Static Analysis (PHPStan)
+      - name: Static Analysis (PHPStan) - Level 9
         run: ./vendor/bin/phpstan analyse --memory-limit=2G
 
       - name: Run Tests (Pest)

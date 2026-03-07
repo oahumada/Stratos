@@ -18,7 +18,8 @@
         "laravel/tinker": "^2.10.1",
         "laravel/wayfinder": "^0.1.9",
         "opcodesio/log-viewer": "^3.21",
-        "predis/predis": "^3.3"
+        "predis/predis": "^3.3",
+        "sentry/sentry-laravel": "^4.21"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.6",

@@ -62,6 +62,7 @@ class LLMEvaluation extends Model
     ];
 
     protected $casts = [
+        'organization_id' => 'integer',
         'metric_details' => 'array',
         'issues_detected' => 'array',
         'recommendations' => 'array',

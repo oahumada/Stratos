@@ -1,7 +1,7 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getGapsForAssignment
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:20
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:18
 * @route '/api/strategic-planning/scenarios/{id}/gaps-for-assignment'
 */
 export const getGapsForAssignment = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ getGapsForAssignment.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getGapsForAssignment
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:20
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:18
 * @route '/api/strategic-planning/scenarios/{id}/gaps-for-assignment'
 */
 getGapsForAssignment.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -43,7 +43,7 @@ getGapsForAssignment.url = (args: { id: string | number } | [id: string | number
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getGapsForAssignment
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:20
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:18
 * @route '/api/strategic-planning/scenarios/{id}/gaps-for-assignment'
 */
 getGapsForAssignment.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,7 +53,7 @@ getGapsForAssignment.get = (args: { id: string | number } | [id: string | number
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getGapsForAssignment
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:20
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:18
 * @route '/api/strategic-planning/scenarios/{id}/gaps-for-assignment'
 */
 getGapsForAssignment.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -62,45 +62,8 @@ getGapsForAssignment.head = (args: { id: string | number } | [id: string | numbe
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::getGapsForAssignment
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:20
-* @route '/api/strategic-planning/scenarios/{id}/gaps-for-assignment'
-*/
-const getGapsForAssignmentForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getGapsForAssignment.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::getGapsForAssignment
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:20
-* @route '/api/strategic-planning/scenarios/{id}/gaps-for-assignment'
-*/
-getGapsForAssignmentForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getGapsForAssignment.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::getGapsForAssignment
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:20
-* @route '/api/strategic-planning/scenarios/{id}/gaps-for-assignment'
-*/
-getGapsForAssignmentForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getGapsForAssignment.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getGapsForAssignment.form = getGapsForAssignmentForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::assignStrategy
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:69
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:66
 * @route '/api/strategic-planning/strategies/assign'
 */
 export const assignStrategy = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -115,7 +78,7 @@ assignStrategy.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::assignStrategy
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:69
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:66
 * @route '/api/strategic-planning/strategies/assign'
 */
 assignStrategy.url = (options?: RouteQueryOptions) => {
@@ -124,7 +87,7 @@ assignStrategy.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::assignStrategy
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:69
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:66
 * @route '/api/strategic-planning/strategies/assign'
 */
 assignStrategy.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -133,30 +96,8 @@ assignStrategy.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => 
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::assignStrategy
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:69
-* @route '/api/strategic-planning/strategies/assign'
-*/
-const assignStrategyForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: assignStrategy.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::assignStrategy
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:69
-* @route '/api/strategic-planning/strategies/assign'
-*/
-assignStrategyForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: assignStrategy.url(options),
-    method: 'post',
-})
-
-assignStrategy.form = assignStrategyForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategyPortfolio
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:104
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:100
 * @route '/api/strategic-planning/strategies/portfolio/{scenario_id}'
 */
 export const getStrategyPortfolio = (args: { scenario_id: string | number } | [scenario_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -171,7 +112,7 @@ getStrategyPortfolio.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategyPortfolio
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:104
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:100
 * @route '/api/strategic-planning/strategies/portfolio/{scenario_id}'
 */
 getStrategyPortfolio.url = (args: { scenario_id: string | number } | [scenario_id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -198,7 +139,7 @@ getStrategyPortfolio.url = (args: { scenario_id: string | number } | [scenario_i
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategyPortfolio
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:104
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:100
 * @route '/api/strategic-planning/strategies/portfolio/{scenario_id}'
 */
 getStrategyPortfolio.get = (args: { scenario_id: string | number } | [scenario_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -208,7 +149,7 @@ getStrategyPortfolio.get = (args: { scenario_id: string | number } | [scenario_i
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategyPortfolio
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:104
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:100
 * @route '/api/strategic-planning/strategies/portfolio/{scenario_id}'
 */
 getStrategyPortfolio.head = (args: { scenario_id: string | number } | [scenario_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -217,45 +158,8 @@ getStrategyPortfolio.head = (args: { scenario_id: string | number } | [scenario_
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategyPortfolio
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:104
-* @route '/api/strategic-planning/strategies/portfolio/{scenario_id}'
-*/
-const getStrategyPortfolioForm = (args: { scenario_id: string | number } | [scenario_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getStrategyPortfolio.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategyPortfolio
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:104
-* @route '/api/strategic-planning/strategies/portfolio/{scenario_id}'
-*/
-getStrategyPortfolioForm.get = (args: { scenario_id: string | number } | [scenario_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getStrategyPortfolio.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategyPortfolio
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:104
-* @route '/api/strategic-planning/strategies/portfolio/{scenario_id}'
-*/
-getStrategyPortfolioForm.head = (args: { scenario_id: string | number } | [scenario_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getStrategyPortfolio.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getStrategyPortfolio.form = getStrategyPortfolioForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategiesByScenario
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:160
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:156
 * @route '/api/strategic-planning/scenarios/{id}/strategies'
 */
 export const getStrategiesByScenario = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -270,7 +174,7 @@ getStrategiesByScenario.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategiesByScenario
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:160
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:156
 * @route '/api/strategic-planning/scenarios/{id}/strategies'
 */
 getStrategiesByScenario.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -297,7 +201,7 @@ getStrategiesByScenario.url = (args: { id: string | number } | [id: string | num
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategiesByScenario
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:160
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:156
 * @route '/api/strategic-planning/scenarios/{id}/strategies'
 */
 getStrategiesByScenario.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -307,50 +211,13 @@ getStrategiesByScenario.get = (args: { id: string | number } | [id: string | num
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategiesByScenario
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:160
+* @see app/Http/Controllers/Api/ScenarioStrategyController.php:156
 * @route '/api/strategic-planning/scenarios/{id}/strategies'
 */
 getStrategiesByScenario.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: getStrategiesByScenario.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategiesByScenario
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:160
-* @route '/api/strategic-planning/scenarios/{id}/strategies'
-*/
-const getStrategiesByScenarioForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getStrategiesByScenario.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategiesByScenario
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:160
-* @route '/api/strategic-planning/scenarios/{id}/strategies'
-*/
-getStrategiesByScenarioForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getStrategiesByScenario.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioStrategyController::getStrategiesByScenario
-* @see app/Http/Controllers/Api/ScenarioStrategyController.php:160
-* @route '/api/strategic-planning/scenarios/{id}/strategies'
-*/
-getStrategiesByScenarioForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getStrategiesByScenario.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getStrategiesByScenario.form = getStrategiesByScenarioForm
 
 const ScenarioStrategyController = { getGapsForAssignment, assignStrategy, getStrategyPortfolio, getStrategiesByScenario }
 

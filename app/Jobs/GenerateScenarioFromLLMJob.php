@@ -10,6 +10,7 @@ use App\Services\Intelligence\StratosIntelService;
 use App\Services\LLMClient;
 use App\Services\LLMProviders\Exceptions\LLMRateLimitException;
 use App\Services\LLMProviders\Exceptions\LLMServerException;
+use App\Services\RAGASEvaluator;
 use App\Services\RedactionService;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -17,6 +18,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
@@ -31,8 +33,11 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
         $this->generationId = $generationId;
     }
 
-    public function handle(LLMClient $llm, ?AbacusClient $abacus = null, ?StratosIntelService $intel = null)
+    public function handle(LLMClient $llm, ?AbacusClient $abacus = null, ?StratosIntelService $intel = null, ?RAGASEvaluator $ragas = null)
     {
+        if ($ragas === null) {
+            $ragas = app(RAGASEvaluator::class);
+        }
         $generation = ScenarioGeneration::find($this->generationId);
         if (! $generation) {
             return;
@@ -415,6 +420,26 @@ class GenerateScenarioFromLLMJob implements ShouldQueue
             }
 
             $generation->save();
+
+            // 🎯 RAGAS: Evaluar fidelidad de la generación LLM (agnóstico de proveedor)
+            // DB::transaction() anidado → usa savepoints en PostgreSQL para aislar
+            // cualquier fallo de RAGAS de la transacción principal del job.
+            try {
+                DB::transaction(function () use ($generation, $assembled, $provider, $ragas): void {
+                    $ragas->evaluate(
+                        inputPrompt: $generation->prompt ?? '',
+                        outputContent: $assembled,
+                        organizationId: (string) $generation->organization_id,
+                        context: json_encode($generation->metadata['company_name'] ?? ''),
+                        provider: $provider,
+                        modelVersion: $generation->model_version,
+                    );
+                });
+            } catch (\Throwable $e) {
+                // RAGAS failure must never break the generation flow
+                Log::warning('RAGAS evaluation failed for generation '.$generation->id.': '.$e->getMessage());
+            }
+
         } catch (LLMRateLimitException $e) {
             // transient rate limit: requeue with exponential backoff if attempts remain
             $attempts = $this->attempts();

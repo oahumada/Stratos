@@ -1,7 +1,7 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::index
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:16
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:15
 * @route '/api/mentorship-sessions'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::index
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:16
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:15
 * @route '/api/mentorship-sessions'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::index
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:16
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:15
 * @route '/api/mentorship-sessions'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::index
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:16
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:15
 * @route '/api/mentorship-sessions'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,45 +44,8 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\MentorshipSessionController::index
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:16
-* @route '/api/mentorship-sessions'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MentorshipSessionController::index
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:16
-* @route '/api/mentorship-sessions'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MentorshipSessionController::index
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:16
-* @route '/api/mentorship-sessions'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::store
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:32
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:31
 * @route '/api/mentorship-sessions'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +60,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::store
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:32
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:31
 * @route '/api/mentorship-sessions'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +69,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::store
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:32
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:31
 * @route '/api/mentorship-sessions'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -115,30 +78,8 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\MentorshipSessionController::store
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:32
-* @route '/api/mentorship-sessions'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MentorshipSessionController::store
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:32
-* @route '/api/mentorship-sessions'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
-
-/**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::update
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:54
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:53
 * @route '/api/mentorship-sessions/{id}'
 */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -153,7 +94,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::update
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:54
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:53
 * @route '/api/mentorship-sessions/{id}'
 */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -180,7 +121,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::update
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:54
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:53
 * @route '/api/mentorship-sessions/{id}'
 */
 update.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -189,40 +130,8 @@ update.patch = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
-* @see \App\Http\Controllers\Api\MentorshipSessionController::update
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:54
-* @route '/api/mentorship-sessions/{id}'
-*/
-const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MentorshipSessionController::update
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:54
-* @route '/api/mentorship-sessions/{id}'
-*/
-updateForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::destroy
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:77
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:76
 * @route '/api/mentorship-sessions/{id}'
 */
 export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -237,7 +146,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::destroy
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:77
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:76
 * @route '/api/mentorship-sessions/{id}'
 */
 destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -264,45 +173,13 @@ destroy.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\Api\MentorshipSessionController::destroy
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:77
+* @see app/Http/Controllers/Api/MentorshipSessionController.php:76
 * @route '/api/mentorship-sessions/{id}'
 */
 destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
-
-/**
-* @see \App\Http\Controllers\Api\MentorshipSessionController::destroy
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:77
-* @route '/api/mentorship-sessions/{id}'
-*/
-const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MentorshipSessionController::destroy
-* @see app/Http/Controllers/Api/MentorshipSessionController.php:77
-* @route '/api/mentorship-sessions/{id}'
-*/
-destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
 
 const MentorshipSessionController = { index, store, update, destroy }
 

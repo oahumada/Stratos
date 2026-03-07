@@ -1,7 +1,7 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:22
+* @see app/Http/Controllers/Api/PeopleProfileController.php:20
 * @route '/api/people/profile/{id}'
 */
 export const show = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:22
+* @see app/Http/Controllers/Api/PeopleProfileController.php:20
 * @route '/api/people/profile/{id}'
 */
 show.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -43,7 +43,7 @@ show.url = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:22
+* @see app/Http/Controllers/Api/PeopleProfileController.php:20
 * @route '/api/people/profile/{id}'
 */
 show.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,50 +53,13 @@ show.get = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:22
+* @see app/Http/Controllers/Api/PeopleProfileController.php:20
 * @route '/api/people/profile/{id}'
 */
 show.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:22
-* @route '/api/people/profile/{id}'
-*/
-const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:22
-* @route '/api/people/profile/{id}'
-*/
-showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:22
-* @route '/api/people/profile/{id}'
-*/
-showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
 
 const PeopleProfileController = { show }
 

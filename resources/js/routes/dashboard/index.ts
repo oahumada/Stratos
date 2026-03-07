@@ -1,6 +1,6 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
 /**
-* @see routes/web.php:42
+* @see routes/web.php:50
 * @route '/dashboard/analytics'
 */
 export const analytics = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ analytics.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:42
+* @see routes/web.php:50
 * @route '/dashboard/analytics'
 */
 analytics.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ analytics.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:42
+* @see routes/web.php:50
 * @route '/dashboard/analytics'
 */
 analytics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ analytics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:42
+* @see routes/web.php:50
 * @route '/dashboard/analytics'
 */
 analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -40,41 +40,7 @@ analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:42
-* @route '/dashboard/analytics'
-*/
-const analyticsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: analytics.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:42
-* @route '/dashboard/analytics'
-*/
-analyticsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: analytics.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:42
-* @route '/dashboard/analytics'
-*/
-analyticsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: analytics.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-analytics.form = analyticsForm
-
-/**
-* @see routes/web.php:46
+* @see routes/web.php:54
 * @route '/dashboard/investor'
 */
 export const investor = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -88,7 +54,7 @@ investor.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:46
+* @see routes/web.php:54
 * @route '/dashboard/investor'
 */
 investor.url = (options?: RouteQueryOptions) => {
@@ -96,7 +62,7 @@ investor.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:46
+* @see routes/web.php:54
 * @route '/dashboard/investor'
 */
 investor.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -105,47 +71,13 @@ investor.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:46
+* @see routes/web.php:54
 * @route '/dashboard/investor'
 */
 investor.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: investor.url(options),
     method: 'head',
 })
-
-/**
-* @see routes/web.php:46
-* @route '/dashboard/investor'
-*/
-const investorForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: investor.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:46
-* @route '/dashboard/investor'
-*/
-investorForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: investor.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:46
-* @route '/dashboard/investor'
-*/
-investorForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: investor.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-investor.form = investorForm
 
 const dashboard = {
     analytics: Object.assign(analytics, analytics),

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Neo4jSyncController::sync
 * @see app/Http/Controllers/Neo4jSyncController.php:11
@@ -32,28 +32,6 @@ sync.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: sync.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Neo4jSyncController::sync
-* @see app/Http/Controllers/Neo4jSyncController.php:11
-* @route '/api/neo4j/sync'
-*/
-const syncForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: sync.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Neo4jSyncController::sync
-* @see app/Http/Controllers/Neo4jSyncController.php:11
-* @route '/api/neo4j/sync'
-*/
-syncForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: sync.url(options),
-    method: 'post',
-})
-
-sync.form = syncForm
 
 const Neo4jSyncController = { sync }
 

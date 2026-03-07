@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults, validateParameters } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults, validateParameters } from './../../../../../wayfinder'
 /**
 * @see \Opcodes\LogViewer\Http\Controllers\IndexController::__invoke
 * @see vendor/opcodesio/log-viewer/src/Http/Controllers/IndexController.php:12
@@ -64,42 +64,5 @@ IndexController.head = (args?: { view?: string | number } | [view: string | numb
     url: IndexController.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\IndexController::__invoke
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/IndexController.php:12
-* @route '/log-viewer/{view?}'
-*/
-const IndexControllerForm = (args?: { view?: string | number } | [view: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: IndexController.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\IndexController::__invoke
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/IndexController.php:12
-* @route '/log-viewer/{view?}'
-*/
-IndexControllerForm.get = (args?: { view?: string | number } | [view: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: IndexController.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\IndexController::__invoke
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/IndexController.php:12
-* @route '/log-viewer/{view?}'
-*/
-IndexControllerForm.head = (args?: { view?: string | number } | [view: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: IndexController.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-IndexController.form = IndexControllerForm
 
 export default IndexController

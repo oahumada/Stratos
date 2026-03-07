@@ -31,17 +31,12 @@ class EvaluateLLMGeneration implements ShouldQueue
     public array $backoff = [10, 60, 300];
 
     /**
-     * Queue name
-     */
-    public string $queue = 'default';
-
-    /**
      * Create a new job instance.
      */
     public function __construct(int $evaluationId)
     {
         $this->evaluationId = $evaluationId;
-        $this->queue = config('ragas.evaluation_queue', 'default');
+        $this->onQueue(config('ragas.evaluation_queue', 'default'));
     }
 
     /**

@@ -6,8 +6,9 @@ use App\Models\User;
 use App\Services\RAGASEvaluator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 
-uses(RefreshDatabase::class);
+uses(Tests\TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     $this->organization = Organization::factory()->create();
@@ -32,6 +33,7 @@ beforeEach(function () {
 
 describe('RAGASEvaluator Service', function () {
     it('creates evaluation record with pending status', function () {
+        Queue::fake();
         $this->actingAs($this->user);
 
         $evaluation = $this->evaluator->evaluate(

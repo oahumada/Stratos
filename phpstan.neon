@@ -5,4 +5,11 @@ parameters:
         - routes/
 
     # Level 9 is the highest level
-    level: 5
+    level: 9
+
+    ignoreErrors:
+        # Allow dynamic property access (Laravel magic properties)
+        - '#Access to an undefined property|Undefined property#'
+
+    excludePaths:
+        - %currentWorkingDirectory%/tests/

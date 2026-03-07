@@ -1,7 +1,7 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\SmartAlertController::index
-* @see app/Http/Controllers/Api/SmartAlertController.php:22
+* @see app/Http/Controllers/Api/SmartAlertController.php:21
 * @route '/api/smart-alerts'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\SmartAlertController::index
-* @see app/Http/Controllers/Api/SmartAlertController.php:22
+* @see app/Http/Controllers/Api/SmartAlertController.php:21
 * @route '/api/smart-alerts'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\SmartAlertController::index
-* @see app/Http/Controllers/Api/SmartAlertController.php:22
+* @see app/Http/Controllers/Api/SmartAlertController.php:21
 * @route '/api/smart-alerts'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\SmartAlertController::index
-* @see app/Http/Controllers/Api/SmartAlertController.php:22
+* @see app/Http/Controllers/Api/SmartAlertController.php:21
 * @route '/api/smart-alerts'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,45 +44,8 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\SmartAlertController::index
-* @see app/Http/Controllers/Api/SmartAlertController.php:22
-* @route '/api/smart-alerts'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\SmartAlertController::index
-* @see app/Http/Controllers/Api/SmartAlertController.php:22
-* @route '/api/smart-alerts'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\SmartAlertController::index
-* @see app/Http/Controllers/Api/SmartAlertController.php:22
-* @route '/api/smart-alerts'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\Api\SmartAlertController::markAsRead
-* @see app/Http/Controllers/Api/SmartAlertController.php:36
+* @see app/Http/Controllers/Api/SmartAlertController.php:35
 * @route '/api/smart-alerts/{id}/read'
 */
 export const markAsRead = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +60,7 @@ markAsRead.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\SmartAlertController::markAsRead
-* @see app/Http/Controllers/Api/SmartAlertController.php:36
+* @see app/Http/Controllers/Api/SmartAlertController.php:35
 * @route '/api/smart-alerts/{id}/read'
 */
 markAsRead.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -124,35 +87,13 @@ markAsRead.url = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\Api\SmartAlertController::markAsRead
-* @see app/Http/Controllers/Api/SmartAlertController.php:36
+* @see app/Http/Controllers/Api/SmartAlertController.php:35
 * @route '/api/smart-alerts/{id}/read'
 */
 markAsRead.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: markAsRead.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\SmartAlertController::markAsRead
-* @see app/Http/Controllers/Api/SmartAlertController.php:36
-* @route '/api/smart-alerts/{id}/read'
-*/
-const markAsReadForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: markAsRead.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\SmartAlertController::markAsRead
-* @see app/Http/Controllers/Api/SmartAlertController.php:36
-* @route '/api/smart-alerts/{id}/read'
-*/
-markAsReadForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: markAsRead.url(args, options),
-    method: 'post',
-})
-
-markAsRead.form = markAsReadForm
 
 const SmartAlertController = { index, markAsRead }
 

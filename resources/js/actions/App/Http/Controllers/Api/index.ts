@@ -1,5 +1,6 @@
 import CatalogsController from './CatalogsController'
 import AssessmentController from './AssessmentController'
+import PublicJobController from './PublicJobController'
 import DevelopmentActionController from './DevelopmentActionController'
 import MentorshipSessionController from './MentorshipSessionController'
 import EvidenceController from './EvidenceController'
@@ -14,15 +15,18 @@ import AuthController from './AuthController'
 import MiStratosController from './MiStratosController'
 import SmartAlertController from './SmartAlertController'
 import GamificationController from './GamificationController'
+import SupportTicketController from './SupportTicketController'
 import InvestorDashboardController from './InvestorDashboardController'
 import AssessmentCycleController from './AssessmentCycleController'
 import PeopleProfileController from './PeopleProfileController'
+import DepartmentController from './DepartmentController'
 import RBACController from './RBACController'
 import PxCampaignController from './PxCampaignController'
 import GapAnalysisController from './GapAnalysisController'
 import DevelopmentPathController from './DevelopmentPathController'
 import ScenarioController from './ScenarioController'
 import PromptInstructionController from './PromptInstructionController'
+import SocialLearningController from './SocialLearningController'
 import ChangeSetController from './ChangeSetController'
 import ScenarioGenerationController from './ScenarioGenerationController'
 import ScenarioGenerationAbacusController from './ScenarioGenerationAbacusController'
@@ -43,10 +47,12 @@ import ImpactReportController from './ImpactReportController'
 import ScenarioIQController from './ScenarioIQController'
 import StratosIntelligenceController from './StratosIntelligenceController'
 import WorkforcePlanningController from './WorkforcePlanningController'
+import RAGASEvaluationController from './RAGASEvaluationController'
 
 const Api = {
     CatalogsController: Object.assign(CatalogsController, CatalogsController),
     AssessmentController: Object.assign(AssessmentController, AssessmentController),
+    PublicJobController: Object.assign(PublicJobController, PublicJobController),
     DevelopmentActionController: Object.assign(DevelopmentActionController, DevelopmentActionController),
     MentorshipSessionController: Object.assign(MentorshipSessionController, MentorshipSessionController),
     EvidenceController: Object.assign(EvidenceController, EvidenceController),
@@ -61,15 +67,18 @@ const Api = {
     MiStratosController: Object.assign(MiStratosController, MiStratosController),
     SmartAlertController: Object.assign(SmartAlertController, SmartAlertController),
     GamificationController: Object.assign(GamificationController, GamificationController),
+    SupportTicketController: Object.assign(SupportTicketController, SupportTicketController),
     InvestorDashboardController: Object.assign(InvestorDashboardController, InvestorDashboardController),
     AssessmentCycleController: Object.assign(AssessmentCycleController, AssessmentCycleController),
     PeopleProfileController: Object.assign(PeopleProfileController, PeopleProfileController),
+    DepartmentController: Object.assign(DepartmentController, DepartmentController),
     RBACController: Object.assign(RBACController, RBACController),
     PxCampaignController: Object.assign(PxCampaignController, PxCampaignController),
     GapAnalysisController: Object.assign(GapAnalysisController, GapAnalysisController),
     DevelopmentPathController: Object.assign(DevelopmentPathController, DevelopmentPathController),
     ScenarioController: Object.assign(ScenarioController, ScenarioController),
     PromptInstructionController: Object.assign(PromptInstructionController, PromptInstructionController),
+    SocialLearningController: Object.assign(SocialLearningController, SocialLearningController),
     ChangeSetController: Object.assign(ChangeSetController, ChangeSetController),
     ScenarioGenerationController: Object.assign(ScenarioGenerationController, ScenarioGenerationController),
     ScenarioGenerationAbacusController: Object.assign(ScenarioGenerationAbacusController, ScenarioGenerationAbacusController),
@@ -90,6 +99,7 @@ const Api = {
     ScenarioIQController: Object.assign(ScenarioIQController, ScenarioIQController),
     StratosIntelligenceController: Object.assign(StratosIntelligenceController, StratosIntelligenceController),
     WorkforcePlanningController: Object.assign(WorkforcePlanningController, WorkforcePlanningController),
+    RAGASEvaluationController: Object.assign(RAGASEvaluationController, RAGASEvaluationController),
 }
 
 export default Api

@@ -121,6 +121,16 @@ class RAGASEvaluationController extends Controller
      *
      * GET /api/qa/llm-evaluations/metrics/summary
      */
+    public function summary(Request $request): JsonResponse
+    {
+        return $this->metrics($request);
+    }
+
+    /**
+     * Get organization-wide RAGAS metrics
+     *
+     * GET /api/qa/llm-evaluations/metrics/summary
+     */
     public function metrics(Request $request): JsonResponse
     {
         $this->authorize('viewAny', LLMEvaluation::class);
@@ -148,6 +158,7 @@ class RAGASEvaluationController extends Controller
             'status' => $evaluation->status,
             'llm_provider' => $evaluation->llm_provider,
             'llm_model' => $evaluation->llm_model,
+            'quality_level' => $evaluation->quality_level,
             'created_at' => $evaluation->created_at->toIso8601String(),
         ];
 
