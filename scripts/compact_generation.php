@@ -1,10 +1,11 @@
 <?php
+
 // Locate composer autoload and Laravel bootstrap in common locations and include them.
 $autoloadCandidates = [
-    __DIR__ . '/../../vendor/autoload.php',
-    __DIR__ . '/../vendor/autoload.php',
-    __DIR__ . '/../../../vendor/autoload.php',
-    __DIR__ . '/vendor/autoload.php',
+    __DIR__.'/../../vendor/autoload.php',
+    __DIR__.'/../vendor/autoload.php',
+    __DIR__.'/../../../vendor/autoload.php',
+    __DIR__.'/vendor/autoload.php',
 ];
 
 $autoloadFound = false;
@@ -22,9 +23,9 @@ if (! $autoloadFound) {
 }
 
 $bootstrapCandidates = [
-    __DIR__ . '/../../bootstrap/app.php',
-    __DIR__ . '/../bootstrap/app.php',
-    __DIR__ . '/../../../bootstrap/app.php',
+    __DIR__.'/../../bootstrap/app.php',
+    __DIR__.'/../bootstrap/app.php',
+    __DIR__.'/../../../bootstrap/app.php',
 ];
 
 $appFound = false;
@@ -69,7 +70,7 @@ $gen->save();
 
 echo "Saved compacted for gen $genId\n";
 echo "chunk_count: $count\n";
-echo "compacted base64 len: " . strlen($encoded) . "\n";
-echo "decoded len: " . strlen($assembled) . "\n";
+echo 'compacted base64 len: '.strlen($encoded)."\n";
+echo 'decoded len: '.strlen($assembled)."\n";
 
 return 0;

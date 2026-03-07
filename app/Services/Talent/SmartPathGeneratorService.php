@@ -2,8 +2,8 @@
 
 namespace App\Services\Talent;
 
-use App\Models\DevelopmentPath;
 use App\Models\DevelopmentAction;
+use App\Models\DevelopmentPath;
 use App\Models\People;
 use App\Models\Skill;
 use Illuminate\Support\Facades\DB;
@@ -19,22 +19,15 @@ class SmartPathGeneratorService
 
     /**
      * Genera un plan de desarrollo automático basado en la brecha detectada.
-     *
-     * @param int $peopleId
-     * @param int $skillId
-     * @param int $currentLevel
-     * @param int $targetLevel
-     * @param int|null $targetRoleId
-     * @return DevelopmentPath
      */
     public function generatePath(int $peopleId, int $skillId, int $currentLevel, int $targetLevel, ?int $targetRoleId = null): DevelopmentPath
     {
         $gap = $targetLevel - $currentLevel;
         $person = People::findOrFail($peopleId);
         $skill = Skill::findOrFail($skillId);
-        
+
         return DB::transaction(function () use ($person, $skill, $gap, $targetRoleId) {
-            
+
             // 1. Crear el contenedor del Path
             $path = DevelopmentPath::create([
                 'organization_id' => $person->organization_id,
@@ -45,11 +38,11 @@ class SmartPathGeneratorService
                 'status' => 'draft',
                 'estimated_duration_months' => $this->estimateDuration($gap),
                 'started_at' => now(),
-                'steps' => [] // JSON field fallback
+                'steps' => [], // JSON field fallback
             ]);
 
             // 2. Generar Acciones Específicas (70-20-10 Model)
-            
+
             // A. Education (10%) - Cursos / Recursos
             $this->createEducationAction($path, $skill, $gap);
 
@@ -71,7 +64,7 @@ class SmartPathGeneratorService
     private function createEducationAction(DevelopmentPath $path, Skill $skill, int $gap)
     {
         $intensity = $gap > 1 ? 'Intensivo' : 'Fundamentos';
-        
+
         DevelopmentAction::create([
             'development_path_id' => $path->id,
             'title' => "Curso: {$skill->name} - Nivel {$intensity}",
@@ -81,7 +74,7 @@ class SmartPathGeneratorService
             'order' => 1,
             'status' => 'pending',
             'estimated_hours' => $gap > 1 ? 40 : 10,
-            'impact_weight' => 0.10
+            'impact_weight' => 0.10,
         ]);
     }
 
@@ -103,7 +96,7 @@ class SmartPathGeneratorService
             'order' => 2,
             'status' => 'pending',
             'estimated_hours' => 12, // 1 hora x 12 sesiones (6 meses)
-            'impact_weight' => 0.20
+            'impact_weight' => 0.20,
         ]);
     }
 
@@ -124,7 +117,7 @@ class SmartPathGeneratorService
             'order' => 3,
             'status' => 'pending',
             'estimated_hours' => $gap > 1 ? 120 : 40,
-            'impact_weight' => 0.70
+            'impact_weight' => 0.70,
         ]);
     }
 }

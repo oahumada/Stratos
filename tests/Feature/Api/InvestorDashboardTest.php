@@ -37,7 +37,7 @@ it('fetches the investor dashboard metrics', function () {
                 'projected_savings_usd',
             ],
             'timestamp',
-        ]
+        ],
     ]);
 
     expect($response->json('success'))->toBeTrue();

@@ -24,7 +24,7 @@ class ScenarioRole extends Model
         'embedding',
         'human_leverage',
         'archetype',
-        'ai_suggestions'
+        'ai_suggestions',
     ];
 
     protected $casts = [

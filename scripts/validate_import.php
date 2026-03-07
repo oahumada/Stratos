@@ -1,29 +1,30 @@
 <?php
 
-use App\Models\Organizations;
-use App\Models\User;
-use App\Models\ScenarioGeneration;
 use App\Models\Capability;
 use App\Models\Competency;
-use App\Models\Skill;
+use App\Models\Organizations;
 use App\Models\Roles;
+use App\Models\ScenarioGeneration;
+use App\Models\Skill;
+use App\Models\User;
 use App\Services\ScenarioGenerationService;
-use Illuminate\Support\Facades\DB;
 
 require __DIR__.'/../vendor/autoload.php';
 $app = require_once __DIR__.'/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-function validate_import() {
+function validate_import()
+{
     echo "--- Iniciando Validación de Importación ---\n";
 
     // 1. Obtener organización y usuario de prueba
     $org = Organizations::withoutGlobalScopes()->where('id', 1)->first() ?? Organizations::withoutGlobalScopes()->first();
     $user = User::withoutGlobalScopes()->where('organization_id', $org->id)->first();
 
-    if (!$org || !$user) {
+    if (! $org || ! $user) {
         echo "Error: Base de datos vacía (falta Org o User)\n";
+
         return;
     }
 
@@ -38,8 +39,9 @@ function validate_import() {
         $json = json_decode($content, true);
     }
 
-    if (!$json) {
+    if (! $json) {
         echo "Error: No se pudo parsear el JSON de $filePath\n";
+
         return;
     }
 
@@ -61,7 +63,7 @@ function validate_import() {
         $report = $svc->finalizeScenarioImport($generation);
         echo "\nRESULTADO DE IMPORTACIÓN:\n";
         print_r($report['stats']);
-        
+
         $scenarioId = $report['scenario_id'];
         echo "\nValidando registros en Scenario ID: $scenarioId\n";
 
@@ -83,7 +85,7 @@ function validate_import() {
         }
 
     } catch (\Throwable $e) {
-        echo "❌ ERROR DURANTE LA IMPORTACIÓN: " . $e->getMessage() . "\n";
+        echo '❌ ERROR DURANTE LA IMPORTACIÓN: '.$e->getMessage()."\n";
         echo $e->getTraceAsString();
     }
 }

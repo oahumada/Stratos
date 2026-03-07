@@ -1,11 +1,12 @@
 <?php
-$dbFile = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'database.sqlite';
+
+$dbFile = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'database'.DIRECTORY_SEPARATOR.'database.sqlite';
 if (! file_exists($dbFile)) {
     fwrite(STDERR, "Database file not found: $dbFile\n");
     exit(1);
 }
 try {
-    $pdo = new PDO('sqlite:' . $dbFile);
+    $pdo = new PDO('sqlite:'.$dbFile);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $email = 'admin@example.com';
     $password = 'password';
@@ -15,6 +16,6 @@ try {
     echo "Updated password for $email\n";
     exit(0);
 } catch (Throwable $e) {
-    fwrite(STDERR, "Error: " . $e->getMessage() . "\n");
+    fwrite(STDERR, 'Error: '.$e->getMessage()."\n");
     exit(1);
 }

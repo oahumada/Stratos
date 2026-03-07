@@ -24,11 +24,15 @@ class ScenarioGenerationPolicy
         }
 
         if (property_exists($user, 'is_admin')) {
-            if ((bool) $user->is_admin) return true;
+            if ((bool) $user->is_admin) {
+                return true;
+            }
         }
 
         if (method_exists($user, 'hasRole')) {
-            if ($user->hasRole('approver') || $user->hasRole('admin')) return true;
+            if ($user->hasRole('approver') || $user->hasRole('admin')) {
+                return true;
+            }
         }
 
         // Allow the creator of the generation to accept (conservative)

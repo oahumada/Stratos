@@ -6,7 +6,6 @@ use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleSkill;
 use App\Models\Skill;
 use App\Models\User;
-use function Pest\Laravel\actingAs;
 
 beforeEach(function () {
     $org = Organization::factory()->create();

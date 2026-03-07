@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Scenario;
 use App\Services\ImpactReportService;
 use App\Services\Intelligence\SmartAlertService;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -34,8 +34,8 @@ class GenerateImpactReports extends Command
 
         // 1. Organizacional ROI Report
         $roiReport = $reportService->generateOrganizationalRoiReport();
-        $fileName = 'roi_report_' . date('Y_m_d_H_i_s') . '.json';
-        Storage::disk('local')->put('reports/' . $fileName, json_encode($roiReport, JSON_PRETTY_PRINT));
+        $fileName = 'roi_report_'.date('Y_m_d_H_i_s').'.json';
+        Storage::disk('local')->put('reports/'.$fileName, json_encode($roiReport, JSON_PRETTY_PRINT));
         $this->info("Reporte ROI generado y guardado en $fileName.");
 
         // Notificar reporte ROI (usamos organization_id = 1 por defecto si no tenemos contexto de multi-tenant completo)
@@ -51,7 +51,7 @@ class GenerateImpactReports extends Command
         // 2. Reportes por cada Escenario Activo
         $scenarioId = $this->option('scenario');
         $query = Scenario::whereIn('status', ['active', 'published']);
-        
+
         if ($scenarioId) {
             $query->where('id', $scenarioId);
         }
@@ -63,12 +63,12 @@ class GenerateImpactReports extends Command
                 $report = $reportService->generateScenarioImpactReport($scenario->id);
                 $hash = Str::random(8); // Generar un hash único
                 $scenarioFileName = "scenario_{$scenario->id}_impact_{$hash}.json";
-                Storage::disk('local')->put('reports/' . $scenarioFileName, json_encode($report, JSON_PRETTY_PRINT));
-                
+                Storage::disk('local')->put('reports/'.$scenarioFileName, json_encode($report, JSON_PRETTY_PRINT));
+
                 $alertService->notify(
                     $scenario->organization_id ?? 1,
                     "Reporte de Impacto: {$scenario->name}",
-                    "El análisis de impacto y estrategias 4B para el escenario ha sido actualizado.",
+                    'El análisis de impacto y estrategias 4B para el escenario ha sido actualizado.',
                     'info',
                     'automation',
                     ['url' => "/scenario/{$scenario->id}", 'label' => 'Ver Escenario']
@@ -76,11 +76,12 @@ class GenerateImpactReports extends Command
 
                 $this->info("Reporte de Escenario #{$scenario->id} guardado.");
             } catch (\Exception $e) {
-                $this->error("Error al generar reporte para el escenario #{$scenario->id}: " . $e->getMessage());
+                $this->error("Error al generar reporte para el escenario #{$scenario->id}: ".$e->getMessage());
             }
         }
 
         $this->info('Todos los reportes han sido generados automáticamente.');
+
         return 0;
     }
 }

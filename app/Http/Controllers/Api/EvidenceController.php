@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Evidence;
-use App\Models\DevelopmentAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -50,7 +49,7 @@ class EvidenceController extends Controller
 
         return response()->json([
             'message' => 'Evidencia guardada correctamente',
-            'data' => $evidence
+            'data' => $evidence,
         ], 201);
     }
 

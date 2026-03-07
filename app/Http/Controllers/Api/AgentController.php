@@ -16,6 +16,7 @@ class AgentController extends Controller
     public function index(): JsonResponse
     {
         $agents = Agent::where('is_active', true)->get();
+
         return response()->json(['data' => $agents]);
     }
 
@@ -51,6 +52,7 @@ class AgentController extends Controller
 
         try {
             $result = $orchestrator->agentThink($data['agent_name'], $data['prompt']);
+
             return response()->json($result);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

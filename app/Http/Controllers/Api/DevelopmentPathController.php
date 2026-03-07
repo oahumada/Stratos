@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 class DevelopmentPathController extends Controller
 {
     protected $navigator;
+
     protected $pathService;
 
     public function __construct(
@@ -77,7 +78,7 @@ class DevelopmentPathController extends Controller
                 return response()->json(['error' => 'Persona no encontrada'], 404);
             }
 
-            if (!empty($data['skill_id'])) {
+            if (! empty($data['skill_id'])) {
                 return $this->handleSmartPath($data, $people);
             }
 
@@ -98,7 +99,7 @@ class DevelopmentPathController extends Controller
     protected function handleSmartPath(array $data, People $people): JsonResponse
     {
         $targetLevel = $data['target_level'] ?? 4;
-        
+
         $path = $this->navigator->generateAiPath(
             $people->id,
             $data['skill_id'],
@@ -110,7 +111,7 @@ class DevelopmentPathController extends Controller
 
     protected function handleLegacyCareerPath(array $data, People $people): JsonResponse
     {
-        $role = !empty($data['role_id']) ? Roles::find($data['role_id']) : null;
+        $role = ! empty($data['role_id']) ? Roles::find($data['role_id']) : null;
 
         if (! $role) {
             return response()->json(['error' => 'Debe especificar un Rol o una Skill'], 422);

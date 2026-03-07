@@ -29,7 +29,7 @@ return new class extends Migration
         });
 
         // Ensure 'role' column exists on users (should already exist as default 'employee')
-        if (!Schema::hasColumn('users', 'role')) {
+        if (! Schema::hasColumn('users', 'role')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->string('role')->default('collaborator')->after('email');
             });

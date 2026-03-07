@@ -63,6 +63,7 @@ class Competency extends Model
             return \Illuminate\Support\Facades\Schema::hasColumn('competency_skills', $c);
         }));
     }
+
     public function roles()
     {
         return $this->belongsToMany(Roles::class, 'role_competencies', 'competency_id', 'role_id')

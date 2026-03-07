@@ -3,7 +3,6 @@
 namespace App\Services\Intelligence;
 
 use App\Models\EmployeePulse;
-use App\Models\People;
 use App\Services\AiOrchestratorService;
 use Illuminate\Support\Facades\Log;
 
@@ -20,14 +19,14 @@ class TurnoverPredictorService
     {
         try {
             $person = $pulse->person;
-            
+
             // Recopilar contexto: pulsos anteriores.
             $previousPulses = EmployeePulse::where('people_id', $person->id)
                 ->where('id', '!=', $pulse->id)
                 ->orderBy('created_at', 'desc')
                 ->limit(3)
                 ->get();
-            
+
             $history = $previousPulses->map(function ($p) {
                 return [
                     'date' => $p->created_at->format('Y-m-d'),
@@ -54,8 +53,8 @@ class TurnoverPredictorService
             $prompt .= "OBJETIVO: Analizar el pulso más reciente de un empleado, compararlo con su historial y predecir el riesgo de rotación (fuga de talento).\n\n";
             $prompt .= "CONTEXTO DEL COLABORADOR:\n";
             $prompt .= "Rol: {$profile['role']}\n";
-            $prompt .= "Historial de Pulsos Anteriores (Más reciente primero): " . json_encode($history) . "\n";
-            $prompt .= "Pulso Actual (Recién respondido): " . json_encode($currentData) . "\n\n";
+            $prompt .= 'Historial de Pulsos Anteriores (Más reciente primero): '.json_encode($history)."\n";
+            $prompt .= 'Pulso Actual (Recién respondido): '.json_encode($currentData)."\n\n";
 
             $prompt .= "REGLAS DE ANÁLISIS:\n";
             $prompt .= "1. Una caída drástica en 'e_nps' o 'engagement_level' es una bandera roja.\n";
@@ -72,7 +71,7 @@ class TurnoverPredictorService
 }';
 
             $agentResponse = $this->orchestrator->agentThink('Orquestador de Rotación', $prompt);
-            
+
             $analysisString = $agentResponse['response'] ?? '{}';
             $analysisString = str_replace('```json', '', $analysisString);
             $analysisString = str_replace('```', '', $analysisString);
@@ -82,13 +81,13 @@ class TurnoverPredictorService
                 $pulse->ai_turnover_risk = $analysis['ai_turnover_risk'];
                 $pulse->ai_turnover_reason = $analysis['ai_turnover_reason'] ?? 'Detectado por IA';
                 $pulse->save();
-                
+
                 Log::info("Turnover Prediction for {$person->first_name}: Risk - {$pulse->ai_turnover_risk}");
             } else {
                 Log::warning("No se pudo parsear el análisis de rotación para Pulse ID: {$pulse->id}. Response: $analysisString");
             }
         } catch (\Exception $e) {
-            Log::error('TurnoverPredictorService Error: ' . $e->getMessage());
+            Log::error('TurnoverPredictorService Error: '.$e->getMessage());
         }
     }
 }

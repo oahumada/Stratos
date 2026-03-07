@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Scenario;
-use App\Repository\ScenarioRepository;
 
 class ScenarioService
 {

@@ -4,19 +4,19 @@ namespace App\Providers;
 
 use App\Models\ChangeSet;
 use App\Models\CompetencyVersion;
+use App\Models\PromptInstruction;
+use App\Models\Scenario;
+use App\Models\ScenarioGeneration;
+use App\Models\User;
 use App\Models\WorkforcePlan;
 use App\Policies\ChangeSetPolicy;
 use App\Policies\CompetencyVersionPolicy;
-use App\Policies\WorkforcePlanPolicy;
-use App\Models\ScenarioGeneration;
-use App\Policies\ScenarioGenerationPolicy;
-use App\Models\Scenario;
-use App\Policies\ScenarioPolicy;
-use App\Models\PromptInstruction;
 use App\Policies\PromptInstructionPolicy;
+use App\Policies\ScenarioGenerationPolicy;
+use App\Policies\ScenarioPolicy;
+use App\Policies\WorkforcePlanPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use App\Models\User;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -41,7 +41,8 @@ class AuthServiceProvider extends ServiceProvider
                     if ($user->can('sync_neo4j')) {
                         return true;
                     }
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                }
             }
 
             // Fallback: admin role o is_admin
@@ -50,11 +51,13 @@ class AuthServiceProvider extends ServiceProvider
                     if ($user->hasRole('admin')) {
                         return true;
                     }
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                }
             }
-            if (!empty($user->is_admin)) {
+            if (! empty($user->is_admin)) {
                 return true;
             }
+
             return false;
         });
     }

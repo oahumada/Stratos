@@ -1,18 +1,17 @@
 <?php
 
+use App\Jobs\AnalyzeTalentGap;
+use App\Models\Competency;
+use App\Models\Organization;
+use App\Models\Roles;
 use App\Models\Scenario;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleCompetency;
 use App\Models\ScenarioRoleSkill;
-use App\Models\Roles;
-use App\Models\Competency;
 use App\Models\Skill;
-use App\Models\Organization;
 use App\Models\User;
-use App\Services\Intelligence\StratosIntelService;
-use App\Jobs\AnalyzeTalentGap;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
@@ -67,7 +66,7 @@ it('orchestrates end-to-end ai strategy generation', function () {
             'strategy' => 'Borrow',
             'confidence_score' => 0.92,
             'reasoning_summary' => 'Need external experts for rapid growth.',
-            'action_plan' => ['Hire 2 freelancers']
+            'action_plan' => ['Hire 2 freelancers'],
         ], 200),
     ]);
 

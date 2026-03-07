@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\PromptInstruction;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class PromptInstructionController extends Controller
 {
@@ -24,20 +24,24 @@ class PromptInstructionController extends Controller
             $immutable = PromptInstruction::where('language', $language)->where('editable', false)->orderBy('created_at', 'desc')->first();
 
             $items = collect();
-            if ($editable) $items->push($editable);
-            if ($immutable) $items->push($immutable);
+            if ($editable) {
+                $items->push($editable);
+            }
+            if ($immutable) {
+                $items->push($immutable);
+            }
         }
 
         // If no items in DB, provide a code-backed default from resources/prompt_instructions
         if ($items->isEmpty()) {
             try {
                 // Primary expected location
-                $path = resource_path('prompt_instructions/default_' . $language . '.md');
+                $path = resource_path('prompt_instructions/default_'.$language.'.md');
 
                 // Legacy/alternate templates used by some wizards live under prompt_templates
-                $alt1 = resource_path('prompt_templates/abacus_modal_prompt_' . $language . '.md');
-                $alt2 = resource_path('prompt_templates/abacus_modal_prompt_' . substr($language, 0, 2) . '.md');
-                $alt3 = resource_path('prompt_templates/abacus_modal_prompt_' . $language . '.MD');
+                $alt1 = resource_path('prompt_templates/abacus_modal_prompt_'.$language.'.md');
+                $alt2 = resource_path('prompt_templates/abacus_modal_prompt_'.substr($language, 0, 2).'.md');
+                $alt3 = resource_path('prompt_templates/abacus_modal_prompt_'.$language.'.MD');
 
                 // Prefer prompt_templates alternatives when present
                 if (file_exists($alt1)) {
@@ -50,8 +54,11 @@ class PromptInstructionController extends Controller
                     // fallback to english then spanish under prompt_instructions
                     $pathEn = resource_path('prompt_instructions/default_en.md');
                     $pathEs = resource_path('prompt_instructions/default_es.md');
-                    if (file_exists($pathEn)) $path = $pathEn;
-                    elseif (file_exists($pathEs)) $path = $pathEs;
+                    if (file_exists($pathEn)) {
+                        $path = $pathEn;
+                    } elseif (file_exists($pathEs)) {
+                        $path = $pathEs;
+                    }
                 }
 
                 if (file_exists($path)) {
@@ -127,6 +134,7 @@ class PromptInstructionController extends Controller
         if (! $item) {
             return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
+
         return response()->json(['success' => true, 'data' => $item]);
     }
 
@@ -147,8 +155,12 @@ class PromptInstructionController extends Controller
             'editable' => 'sometimes|boolean',
         ]);
 
-        if ($request->has('content')) $item->content = $request->input('content');
-        if ($request->has('editable')) $item->editable = (bool) $request->input('editable');
+        if ($request->has('content')) {
+            $item->content = $request->input('content');
+        }
+        if ($request->has('editable')) {
+            $item->editable = (bool) $request->input('editable');
+        }
         $item->save();
 
         return response()->json(['success' => true, 'data' => $item]);

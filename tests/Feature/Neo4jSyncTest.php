@@ -1,11 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Gate;
-use Spatie\Permission\Traits\HasRoles;
 use App\Jobs\RunNeo4jSyncJob;
 use App\Models\User;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Http;
 
 it('artisan command triggers fastapi endpoint', function () {
     Http::fake(['*' => Http::response([], 200)]);

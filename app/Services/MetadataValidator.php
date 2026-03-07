@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\MetadataValidationIssue;
@@ -47,7 +48,7 @@ class MetadataValidator
      * Append validation event to JSONL log for audit.
      * Each line is a JSON object with: timestamp, generation_id (optional), metadata, errors
      */
-    public function log(int $generationId = null, array $meta = [], array $errors = []): ?int
+    public function log(?int $generationId = null, array $meta = [], array $errors = []): ?int
     {
         try {
             $path = storage_path('logs/metadata-validation.log');
@@ -57,7 +58,7 @@ class MetadataValidator
                 'metadata' => $meta,
                 'errors' => $errors,
             ];
-            $line = json_encode($entry, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+            $line = json_encode($entry, JSON_UNESCAPED_UNICODE).PHP_EOL;
             // ensure directory
             $dir = dirname($path);
             if (! is_dir($dir)) {
@@ -71,6 +72,7 @@ class MetadataValidator
                     'metadata' => $meta ?: null,
                     'errors' => $errors ?: null,
                 ]);
+
                 return $rec->id;
             } catch (\Throwable $e) {
                 // if DB write fails, still avoid throwing from logger
@@ -84,9 +86,12 @@ class MetadataValidator
 
     private function isValidDateTimeString($v): bool
     {
-        if (! is_string($v)) return false;
+        if (! is_string($v)) {
+            return false;
+        }
         try {
             new \DateTime($v);
+
             return true;
         } catch (\Throwable $e) {
             return false;

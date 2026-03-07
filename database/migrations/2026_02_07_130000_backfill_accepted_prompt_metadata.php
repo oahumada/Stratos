@@ -21,9 +21,9 @@ return new class extends Migration
             // Update scenario that references this generation
             DB::table('scenarios')
                 ->where('source_generation_id', $g->id)
-                ->where(function ($q) use ($g) {
+                ->where(function ($q) {
                     $q->whereNull('accepted_prompt_metadata')
-                      ->orWhereNull('accepted_prompt');
+                        ->orWhereNull('accepted_prompt');
                 })
                 ->update([
                     'accepted_prompt_metadata' => $g->metadata,

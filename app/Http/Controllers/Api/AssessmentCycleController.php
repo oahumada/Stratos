@@ -18,15 +18,15 @@ class AssessmentCycleController extends Controller
 
         $cycles = AssessmentCycle::where('organization_id', $orgId)
             ->withCount(['requests as total_requests'])
-            ->withCount(['requests as completed_requests' => function($query) {
+            ->withCount(['requests as completed_requests' => function ($query) {
                 $query->where('status', 'completed');
             }])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $cycles->each(function($cycle) {
-            $cycle->completion_rate = $cycle->total_requests > 0 
-                ? round(($cycle->completed_requests / $cycle->total_requests) * 100) 
+        $cycles->each(function ($cycle) {
+            $cycle->completion_rate = $cycle->total_requests > 0
+                ? round(($cycle->completed_requests / $cycle->total_requests) * 100)
                 : 0;
         });
 
@@ -62,9 +62,9 @@ class AssessmentCycleController extends Controller
         $data = $validator->validated();
         $data['organization_id'] = $orgId;
         $data['created_by'] = $request->user()->id;
-        
+
         // Asignar default 'draft' si no viene status
-        if (!isset($data['status'])) {
+        if (! isset($data['status'])) {
             $data['status'] = 'draft';
         }
 
@@ -94,7 +94,7 @@ class AssessmentCycleController extends Controller
         $cycle = AssessmentCycle::where('organization_id', $orgId)->findOrFail($id);
 
         // Si ya está completado o cancelado, no debe modificarse su core config.
-        if (in_array($cycle->status, ['completed', 'cancelled']) && !$request->has('status')) {
+        if (in_array($cycle->status, ['completed', 'cancelled']) && ! $request->has('status')) {
             return response()->json(['message' => 'No se puede editar un ciclo finalizado o cancelado.'], 403);
         }
 

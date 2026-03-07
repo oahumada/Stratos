@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Integrations;
 
-use App\Models\Organizations;
-use App\Models\User;
-use App\Models\ScenarioGeneration;
 use App\Jobs\GenerateScenarioFromLLMJob;
+use App\Models\Organizations;
+use App\Models\ScenarioGeneration;
+use App\Models\User;
 use App\Services\Intelligence\StratosIntelService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -17,6 +17,7 @@ class ScenarioGenerationIntelTest extends TestCase
     use RefreshDatabase;
 
     protected $org;
+
     protected $user;
 
     protected function setUp(): void
@@ -35,16 +36,16 @@ class ScenarioGenerationIntelTest extends TestCase
         $response = $this->postJson('/api/strategic-planning/scenarios/generate/intel', [
             'company_name' => 'Test Corp',
             'instruction' => 'Create a digital transformation scenario',
-            'instruction_language' => 'es'
+            'instruction_language' => 'es',
         ]);
 
         $response->assertStatus(202);
-        
+
         $generationId = $response->json('data.id');
         $generation = ScenarioGeneration::find($generationId);
-        
+
         expect($generation->metadata['provider'])->toBe('intel');
-        
+
         Queue::assertPushed(GenerateScenarioFromLLMJob::class, function ($job) use ($generationId) {
             return $job->generationId === $generationId;
         });
@@ -60,8 +61,8 @@ class ScenarioGenerationIntelTest extends TestCase
             'metadata' => [
                 'provider' => 'intel',
                 'company_name' => $this->org->name,
-                'language' => 'es'
-            ]
+                'language' => 'es',
+            ],
         ]);
 
         $mockResponse = [
@@ -70,24 +71,24 @@ class ScenarioGenerationIntelTest extends TestCase
                 [
                     'name' => 'Data Analytics',
                     'competencies' => [
-                        ['name' => 'Machine Learning', 'skills' => ['Python', 'SciKit-Learn']]
-                    ]
-                ]
+                        ['name' => 'Machine Learning', 'skills' => ['Python', 'SciKit-Learn']],
+                    ],
+                ],
             ],
             'suggested_roles' => [
                 [
                     'name' => 'Data Scientist',
-                    'talent_composition' => ['human_percentage' => 40, 'synthetic_percentage' => 60]
-                ]
-            ]
+                    'talent_composition' => ['human_percentage' => 40, 'synthetic_percentage' => 60],
+                ],
+            ],
         ];
 
         Http::fake([
-            config('services.python_intel.base_url') . '/generate-scenario' => Http::response($mockResponse, 200),
+            config('services.python_intel.base_url').'/generate-scenario' => Http::response($mockResponse, 200),
         ]);
 
         $job = new GenerateScenarioFromLLMJob($generation->id);
-        $job->handle(app(\App\Services\LLMClient::class), null, new StratosIntelService());
+        $job->handle(app(\App\Services\LLMClient::class), null, new StratosIntelService);
 
         $generation->refresh();
 

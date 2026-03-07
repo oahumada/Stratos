@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\Talent\MentorMatchingService;
 use App\Models\Skill;
+use App\Services\Talent\MentorMatchingService;
 use Illuminate\Http\Request;
 
 class MentorController extends Controller
@@ -27,7 +27,7 @@ class MentorController extends Controller
     {
         $request->validate([
             'skill_id' => 'required|exists:skills,id',
-            'level' => 'sometimes|integer|min:3|max:5'
+            'level' => 'sometimes|integer|min:3|max:5',
         ]);
 
         $skillId = $request->query('skill_id');
@@ -40,15 +40,15 @@ class MentorController extends Controller
         return response()->json([
             'success' => true,
             'skill' => $skill->name,
-            'mentors' => $mentors->map(fn($m) => [
+            'mentors' => $mentors->map(fn ($m) => [
                 'id' => $m->id,
                 'full_name' => $m->full_name,
                 'role' => $m->role_name,
                 'expertise_level' => $m->expertise_level,
                 'verified' => true,
                 'avatar' => $m->avatar_url ?? null,
-                'match_score' => rand(85, 99) . '%' // Simulado por ahora
-            ])
+                'match_score' => rand(85, 99).'%', // Simulado por ahora
+            ]),
         ]);
     }
 }

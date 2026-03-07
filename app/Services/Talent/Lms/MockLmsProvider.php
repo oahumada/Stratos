@@ -11,7 +11,7 @@ class MockLmsProvider implements LmsProviderInterface
 
     public function enrollUser(string $courseId, string $userId): string
     {
-        return "enroll_" . uniqid() . "_{$courseId}";
+        return 'enroll_'.uniqid()."_{$courseId}";
     }
 
     public function getProgress(string $enrollmentId): float
@@ -33,8 +33,8 @@ class MockLmsProvider implements LmsProviderInterface
 
         for ($i = 1; $i <= $count; $i++) {
             $courses[] = [
-                'id' => "CRS-{$i}-" . strtoupper(substr(md5($query . $i), 0, 8)),
-                'title' => (empty($query) ? 'General Training ' : "Especialización en " . ucfirst($query)) . " {$i}",
+                'id' => "CRS-{$i}-".strtoupper(substr(md5($query.$i), 0, 8)),
+                'title' => (empty($query) ? 'General Training ' : 'Especialización en '.ucfirst($query))." {$i}",
                 'provider' => 'mock_lms',
                 'duration_hours' => rand(5, 40),
                 'level' => ['beginner', 'intermediate', 'advanced'][rand(0, 2)],

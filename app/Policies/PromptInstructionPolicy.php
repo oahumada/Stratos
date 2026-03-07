@@ -29,10 +29,15 @@ class PromptInstructionPolicy
         if (in_array($role, ['admin', 'operator', 'approver', 'superadmin'], true)) {
             return true;
         }
-        if (property_exists($user, 'is_admin') && (bool) $user->is_admin) return true;
-        if (method_exists($user, 'hasRole')) {
-            if ($user->hasRole('admin') || $user->hasRole('operator') || $user->hasRole('approver')) return true;
+        if (property_exists($user, 'is_admin') && (bool) $user->is_admin) {
+            return true;
         }
+        if (method_exists($user, 'hasRole')) {
+            if ($user->hasRole('admin') || $user->hasRole('operator') || $user->hasRole('approver')) {
+                return true;
+            }
+        }
+
         return false;
     }
 

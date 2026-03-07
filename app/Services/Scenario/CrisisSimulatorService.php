@@ -7,8 +7,6 @@ use App\Models\PeopleRoleSkills;
 use App\Models\Scenario;
 use App\Services\AiOrchestratorService;
 use App\Services\AuditTrailService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 /**
  * CrisisSimulatorService — Cierra C2 de Fase 3 del Roadmap.
@@ -40,7 +38,7 @@ class CrisisSimulatorService
 
         // Obtener personas en riesgo
         $query = People::with(['role', 'skills']);
-        if (!empty($targetDepartments)) {
+        if (! empty($targetDepartments)) {
             $query->whereIn('department_id', $targetDepartments);
         }
         $workforce = $query->get();
@@ -53,6 +51,7 @@ class CrisisSimulatorService
                 ? now()->diffInMonths($person->hired_at)
                 : 24;
             $hasDevelopment = $person->developmentPaths()->where('status', 'active')->exists();
+
             return $tenureMonths + ($hasDevelopment ? 100 : 0); // Priorizar sin desarrollo
         })->take($totalAtRisk);
 
@@ -159,7 +158,7 @@ class CrisisSimulatorService
         $this->audit->logDecision(
             'Crisis Simulator',
             "scenario_{$scenarioId}",
-            "Simulación de obsolescencia tecnológica",
+            'Simulación de obsolescencia tecnológica',
             $simulation,
             'Crisis Simulator'
         );
@@ -223,7 +222,7 @@ class CrisisSimulatorService
 
             foreach ($personSkills as $ps) {
                 $skillName = $ps->skill->name ?? 'Unknown';
-                if (!isset($skillsLost[$skillName])) {
+                if (! isset($skillsLost[$skillName])) {
                     $skillsLost[$skillName] = ['count' => 0, 'avg_level' => 0, 'levels' => []];
                 }
                 $skillsLost[$skillName]['count']++;
@@ -249,7 +248,9 @@ class CrisisSimulatorService
         $criticalNodes = [];
 
         foreach ($attritionCandidates as $person) {
-            if (!$person->role) continue;
+            if (! $person->role) {
+                continue;
+            }
 
             // Verificar si hay alguien más que pueda cubrir el mismo rol
             $alternativesCount = People::where('role_id', $person->role_id)
@@ -279,9 +280,16 @@ class CrisisSimulatorService
             ? collect($skillsImpact)->avg('count')
             : 0;
 
-        if ($attritionCount > 20 || $avgImpact > 5) return 18;
-        if ($attritionCount > 10 || $avgImpact > 3) return 12;
-        if ($attritionCount > 5) return 6;
+        if ($attritionCount > 20 || $avgImpact > 5) {
+            return 18;
+        }
+        if ($attritionCount > 10 || $avgImpact > 3) {
+            return 12;
+        }
+        if ($attritionCount > 5) {
+            return 6;
+        }
+
         return 3;
     }
 
@@ -336,7 +344,10 @@ class CrisisSimulatorService
 
     protected function calculateRestructuringFeasibility(int $reasignable, int $affected): int
     {
-        if ($affected === 0) return 100;
+        if ($affected === 0) {
+            return 100;
+        }
+
         return min(100, (int) round(($reasignable / $affected) * 100));
     }
 }

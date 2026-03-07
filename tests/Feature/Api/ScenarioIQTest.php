@@ -32,8 +32,8 @@ it('simulates attrition crisis', function () {
             'impact' => [
                 'people_at_risk',
                 'replacement_cost_usd',
-            ]
-        ]
+            ],
+        ],
     ]);
 });
 
@@ -50,14 +50,14 @@ it('simulates skill obsolescence crisis', function () {
             'impact' => [
                 'obsolete_skills_count',
                 'people_affected',
-            ]
-        ]
+            ],
+        ],
     ]);
 });
 
 it('calculates career paths for a person', function () {
     $person = People::factory()->create(['organization_id' => $this->org->id]);
-    
+
     $response = $this->getJson("/api/career-paths/{$person->id}");
 
     $response->assertStatus(200);
@@ -66,7 +66,7 @@ it('calculates career paths for a person', function () {
         'data' => [
             'person',
             'career_paths',
-        ]
+        ],
     ]);
 });
 
@@ -84,6 +84,6 @@ it('calculates optimal route between roles', function () {
             'to_role',
             'transferability_score',
             'route',
-        ]
+        ],
     ]);
 });

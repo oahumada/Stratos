@@ -4,9 +4,8 @@ namespace Tests\Feature\Jobs;
 
 use App\Jobs\AnalyzeTalentGap;
 use App\Models\ScenarioRoleCompetency;
-use App\Services\Intelligence\StratosIntelService;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
 
@@ -14,7 +13,7 @@ it('analyzes a talent gap and updates the database with IA strategy', function (
     // 1. Setup Data - Satisfying foreign key constraints
     $scenario = \App\Models\Scenario::factory()->create();
     $role = \App\Models\Roles::factory()->create();
-    
+
     // Create the mapping in scenario_roles
     $sRole = \App\Models\ScenarioRole::factory()->create([
         'scenario_id' => $scenario->id,
@@ -35,7 +34,7 @@ it('analyzes a talent gap and updates the database with IA strategy', function (
             'strategy' => 'Build',
             'confidence_score' => 0.85,
             'reasoning_summary' => 'The gap is small enough for internal training.',
-            'action_plan' => ['Step 1: Training', 'Step 2: Assessment']
+            'action_plan' => ['Step 1: Training', 'Step 2: Assessment'],
         ], 200),
     ]);
 

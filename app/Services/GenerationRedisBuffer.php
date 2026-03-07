@@ -1,11 +1,11 @@
 <?php
+
 namespace App\Services;
 
-use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 use App\Models\ScenarioGeneration;
-use App\Services\MetadataValidator;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 class GenerationRedisBuffer
 {
@@ -16,10 +16,11 @@ class GenerationRedisBuffer
         if ($scenarioId) {
             return "{$prefix}:org:{$organizationId}:scenario:{$scenarioId}:generation:{$generationId}:chunks";
         }
+
         return "{$prefix}:org:{$organizationId}:generation:{$generationId}:chunks";
     }
 
-    public function pushChunk(int $organizationId, int $generationId, string $chunk, ?array $providerMeta = null, ?int $scenarioId = null, int $ttlSeconds = null): void
+    public function pushChunk(int $organizationId, int $generationId, string $chunk, ?array $providerMeta = null, ?int $scenarioId = null, ?int $ttlSeconds = null): void
     {
         // Default TTL: 24 hours (can be overridden via env GENERATION_CHUNK_TTL)
         if ($ttlSeconds === null) {
@@ -28,7 +29,7 @@ class GenerationRedisBuffer
         }
 
         $key = self::key($organizationId, $generationId, $scenarioId);
-        $metaKey = $key . ':meta';
+        $metaKey = $key.':meta';
         $isNew = ! Redis::exists($key);
 
         // push chunk
@@ -57,6 +58,7 @@ class GenerationRedisBuffer
     public function getChunkCount(int $organizationId, int $generationId, ?int $scenarioId = null): int
     {
         $key = self::key($organizationId, $generationId, $scenarioId);
+
         return (int) Redis::llen($key);
     }
 
@@ -69,7 +71,7 @@ class GenerationRedisBuffer
         $key = self::key($organizationId, $generationId, $scenarioId);
         $chunks = Redis::lrange($key, 0, -1);
         $chunkCount = is_array($chunks) ? count($chunks) : 0;
-        $metaKey = $key . ':meta';
+        $metaKey = $key.':meta';
         $metaHash = Redis::hgetall($metaKey) ?: [];
         $assembled = implode('', $chunks ?: []);
         $encoded = base64_encode($assembled);
@@ -141,7 +143,7 @@ class GenerationRedisBuffer
 
         // validate metadata lightly before persisting (log errors but do not block)
         try {
-            $validator = new MetadataValidator();
+            $validator = new MetadataValidator;
             $errors = $validator->validate($meta);
             if (! empty($errors)) {
                 Log::warning('Metadata validation failed for generation', ['generation_id' => $generationId, 'errors' => $errors]);

@@ -29,7 +29,7 @@ class PublicJobController extends Controller
                 'name' => $organization->name,
                 'logo' => $organization->logo_url, // Assuming it has one
             ],
-            'openings' => $openings
+            'openings' => $openings,
         ]);
     }
 
@@ -48,7 +48,7 @@ class PublicJobController extends Controller
             ->firstOrFail();
 
         return response()->json([
-            'opening' => $opening
+            'opening' => $opening,
         ]);
     }
 
@@ -66,10 +66,10 @@ class PublicJobController extends Controller
 
         // Logic to store external candidate and link to application...
         // For Phase 3, we just return success acknowledging the receipt.
-        
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Tu postulación ha sido recibida por el motor de Stratos Magnet. Analizaremos tu perfil con nuestra IA y te contactaremos.'
+            'message' => 'Tu postulación ha sido recibida por el motor de Stratos Magnet. Analizaremos tu perfil con nuestra IA y te contactaremos.',
         ]);
     }
 }

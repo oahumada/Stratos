@@ -17,12 +17,12 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->org = Organizations::factory()->create();
     $this->user = User::factory()->create(['organization_id' => $this->org->id]);
-    
+
     // Ensure a role exists for the person to avoid Not Null violations in DevelopmentPath
     $role = \App\Models\Roles::factory()->create(['organization_id' => $this->org->id]);
     $this->person = People::factory()->create([
         'organization_id' => $this->org->id,
-        'role_id' => $role->id
+        'role_id' => $role->id,
     ]);
 });
 
@@ -30,13 +30,13 @@ it('can start an assessment session', function () {
     $response = $this->actingAs($this->user)
         ->postJson('/api/strategic-planning/assessments/sessions', [
             'people_id' => $this->person->id,
-            'type' => 'psychometric'
+            'type' => 'psychometric',
         ]);
 
     $response->assertStatus(200);
     $this->assertDatabaseHas('assessment_sessions', [
         'people_id' => $this->person->id,
-        'status' => 'started'
+        'status' => 'started',
     ]);
 });
 
@@ -45,33 +45,33 @@ it('can send a message and get ai response', function () {
         'organization_id' => $this->user->organization_id,
         'people_id' => $this->person->id,
         'type' => 'psychometric',
-        'status' => 'started'
+        'status' => 'started',
     ]);
 
     $mockResponse = [
         'role' => 'assistant',
-        'content' => 'Hello, I am your psychometric interviewer.'
+        'content' => 'Hello, I am your psychometric interviewer.',
     ];
 
     Http::fake([
-        '*/interview/chat' => Http::response($mockResponse, 200)
+        '*/interview/chat' => Http::response($mockResponse, 200),
     ]);
 
     $response = $this->actingAs($this->user)
         ->postJson("/api/strategic-planning/assessments/sessions/{$session->id}/messages", [
-            'content' => 'Hello AI'
+            'content' => 'Hello AI',
         ]);
 
     $response->assertStatus(200);
     $response->assertJson([
         'success' => true,
-        'data' => $mockResponse
+        'data' => $mockResponse,
     ]);
 
     $this->assertDatabaseHas('assessment_messages', [
         'assessment_session_id' => $session->id,
         'role' => 'user',
-        'content' => 'Hello AI'
+        'content' => 'Hello AI',
     ]);
 });
 
@@ -80,7 +80,7 @@ it('can analyze a session', function () {
         'organization_id' => $this->user->organization_id,
         'people_id' => $this->person->id,
         'type' => 'psychometric',
-        'status' => 'in_progress'
+        'status' => 'in_progress',
     ]);
 
     // Add some messages
@@ -91,14 +91,14 @@ it('can analyze a session', function () {
     $mockAnalysis = [
         'traits' => [
             ['name' => 'Resilience', 'score' => 0.8, 'rationale' => 'Good'],
-            ['name' => 'Adaptability', 'score' => 0.9, 'rationale' => 'Vey good']
+            ['name' => 'Adaptability', 'score' => 0.9, 'rationale' => 'Vey good'],
         ],
         'overall_potential' => 0.85,
-        'summary_report' => 'Candidate report'
+        'summary_report' => 'Candidate report',
     ];
 
     Http::fake([
-        '*/interview/analyze' => Http::response($mockAnalysis, 200)
+        '*/interview/analyze' => Http::response($mockAnalysis, 200),
     ]);
 
     $response = $this->actingAs($this->user)
@@ -107,13 +107,13 @@ it('can analyze a session', function () {
     $response->assertStatus(200);
     $this->assertDatabaseHas('assessment_sessions', [
         'id' => $session->id,
-        'status' => 'analyzed'
+        'status' => 'analyzed',
     ]);
 
     $this->assertDatabaseHas('psychometric_profiles', [
         'people_id' => $this->person->id,
         'trait_name' => 'Resilience',
-        'score' => 0.8
+        'score' => 0.8,
     ]);
 });
 
@@ -122,7 +122,7 @@ it('can analyze a session with external feedback (360)', function () {
         'organization_id' => $this->user->organization_id,
         'people_id' => $this->person->id,
         'type' => 'psychometric',
-        'status' => 'in_progress'
+        'status' => 'in_progress',
     ]);
 
     // Add some messages
@@ -133,33 +133,33 @@ it('can analyze a session with external feedback (360)', function () {
     // Create external feedback with BARS
     $evaluator = People::factory()->create(['organization_id' => $this->org->id]);
     $skill = \App\Models\Skill::factory()->create(['organization_id' => $this->org->id]);
-    
+
     $request = \App\Models\AssessmentRequest::create([
         'organization_id' => $this->org->id,
         'subject_id' => $this->person->id,
         'evaluator_id' => $evaluator->id,
         'relationship' => 'peer',
-        'status' => 'completed'
+        'status' => 'completed',
     ]);
     $request->feedback()->create([
         'question' => 'How is it?',
         'answer' => 'Very professional',
         'skill_id' => $skill->id,
         'score' => 4,
-        'confidence_level' => 90
+        'confidence_level' => 90,
     ]);
 
     $mockAnalysis = [
         'traits' => [
-            ['name' => 'Leadership', 'score' => 0.9, 'rationale' => 'Team values him']
+            ['name' => 'Leadership', 'score' => 0.9, 'rationale' => 'Team values him'],
         ],
         'overall_potential' => 0.9,
         'summary_report' => '360 report',
-        'blind_spots' => ['Team sees leadership subject does not']
+        'blind_spots' => ['Team sees leadership subject does not'],
     ];
 
     Http::fake([
-        '*/interview/analyze-360' => Http::response($mockAnalysis, 200)
+        '*/interview/analyze-360' => Http::response($mockAnalysis, 200),
     ]);
 
     $response = $this->actingAs($this->user)
@@ -167,12 +167,12 @@ it('can analyze a session with external feedback (360)', function () {
 
     $response->assertStatus(200);
     $response->assertJsonPath('data.metadata.blind_spots.0', 'Team sees leadership subject does not');
-    
+
     // Assert BARS calculation updated the skill level
     $this->assertDatabaseHas('people_role_skills', [
         'people_id' => $this->person->id,
         'skill_id' => $skill->id,
         'current_level' => 4,
-        'evidence_source' => 'Talent360'
+        'evidence_source' => 'Talent360',
     ]);
 });

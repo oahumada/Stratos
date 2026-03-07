@@ -18,7 +18,7 @@ class CompetencyCuratorController extends Controller
     public function curateCompetency(Request $request, $id)
     {
         $result = $this->curatorService->curateCompetency($id);
-        
+
         if ($result['status'] === 'success') {
             return response()->json($result);
         }
@@ -32,7 +32,7 @@ class CompetencyCuratorController extends Controller
     public function curate(Request $request, $id)
     {
         $result = $this->curatorService->curateSkill($id);
-        
+
         if ($result['status'] === 'success') {
             return response()->json($result);
         }
@@ -46,7 +46,7 @@ class CompetencyCuratorController extends Controller
     public function generateQuestions(Request $request, $id)
     {
         $result = $this->curatorService->generateQuestions($id);
-        
+
         if ($result['status'] === 'success') {
             return response()->json($result);
         }

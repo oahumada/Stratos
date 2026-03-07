@@ -52,8 +52,8 @@ class PxCampaignController extends Controller
         $data = $validator->validated();
         $data['organization_id'] = $orgId;
         $data['created_by'] = $request->user()->id;
-        
-        if (!isset($data['status'])) {
+
+        if (! isset($data['status'])) {
             $data['status'] = 'draft';
         }
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration 
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-    // Reverting to enums is tricky because existing data might not match.
-    // We leave them as strings but restore the previous defaults if needed.
+        // Reverting to enums is tricky because existing data might not match.
+        // We leave them as strings but restore the previous defaults if needed.
     }
 };

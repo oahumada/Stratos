@@ -14,7 +14,7 @@ class ScenarioGenerationController extends Controller
     public function store(Request $request, ScenarioGenerationService $svc)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -48,8 +48,7 @@ class ScenarioGenerationController extends Controller
 
         if (Schema::hasTable('prompt_instructions')) {
             $rules['instruction_id'] = 'sometimes|integer|exists:prompt_instructions,id';
-        }
-        else {
+        } else {
             $rules['instruction_id'] = 'sometimes|integer';
         }
 
@@ -58,23 +57,22 @@ class ScenarioGenerationController extends Controller
         $requestedOrgId = $payload['organization_id'] ?? null;
         $orgId = $user->organization_id ?? null;
 
-        if (!$orgId) {
+        if (! $orgId) {
             return response()->json(['success' => false, 'message' => 'organization_id is required'], 422);
         }
 
-        if ($requestedOrgId !== null && (int)$requestedOrgId !== (int)$orgId) {
+        if ($requestedOrgId !== null && (int) $requestedOrgId !== (int) $orgId) {
             return response()->json(['success' => false, 'message' => 'Forbidden: organization mismatch'], 403);
         }
         $org = Organizations::find($orgId);
-        if (!$org) {
+        if (! $org) {
             return response()->json(['success' => false, 'message' => 'Organization not found'], 404);
         }
 
         // Compose prompt and include the operator instruction (DB/file/client)
         try {
             $composed = $svc->composePromptWithInstruction($payload, $user, $org, $payload['instruction_language'] ?? 'es', $payload['instruction_id'] ?? null);
-        }
-        catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => 'Invalid instruction', 'errors' => $e->errors()], 422);
         }
         $prompt = $composed['prompt'] ?? '';
@@ -82,7 +80,7 @@ class ScenarioGenerationController extends Controller
 
         // Determine provider (default to abacus for backward compatibility unless configured)
         $provider = config('services.python_intel.default_provider', 'abacus');
-        
+
         $metadata = [
             'initiator' => $user->id,
             'provider' => $provider,
@@ -108,7 +106,7 @@ class ScenarioGenerationController extends Controller
     public function preview(Request $request, ScenarioGenerationService $svc)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -142,27 +140,25 @@ class ScenarioGenerationController extends Controller
 
         if (Schema::hasTable('prompt_instructions')) {
             $rules['instruction_id'] = 'sometimes|integer|exists:prompt_instructions,id';
-        }
-        else {
+        } else {
             $rules['instruction_id'] = 'sometimes|integer';
         }
 
         $payload = $request->validate($rules);
 
         $orgId = $payload['organization_id'] ?? ($user->organization_id ?? null);
-        if (!$orgId) {
+        if (! $orgId) {
             return response()->json(['success' => false, 'message' => 'organization_id is required'], 422);
         }
 
         $org = Organizations::find($orgId);
-        if (!$org) {
+        if (! $org) {
             return response()->json(['success' => false, 'message' => 'Organization not found'], 404);
         }
 
         try {
             $composed = $svc->composePromptWithInstruction($payload, $user, $org, $payload['instruction_language'] ?? 'es', $payload['instruction_id'] ?? null);
-        }
-        catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => 'Invalid instruction', 'errors' => $e->errors()], 422);
         }
         $prompt = $composed['prompt'] ?? '';
@@ -174,12 +170,12 @@ class ScenarioGenerationController extends Controller
     public function show(Request $request, $id)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
         $generation = ScenarioGeneration::find($id);
-        if (!$generation) {
+        if (! $generation) {
             return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
 
@@ -208,15 +204,14 @@ class ScenarioGenerationController extends Controller
     public function accept(Request $request, $id)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
         }
 
         $generation = ScenarioGeneration::find($id);
-        if (!$generation) {
+        if (! $generation) {
             return response()->json(['success' => false, 'message' => 'Not found'], 404);
         }
-
 
         // authorize accept action via policy
         $this->authorize('accept', $generation);
@@ -227,7 +222,7 @@ class ScenarioGenerationController extends Controller
 
         // llm_response is stored redacted array
         $llm = $generation->llm_response ?? null;
-        if (!is_array($llm)) {
+        if (! is_array($llm)) {
             return response()->json(['success' => false, 'message' => 'Invalid LLM response stored'], 422);
         }
 
@@ -236,18 +231,18 @@ class ScenarioGenerationController extends Controller
         $data = [
             'organization_id' => $generation->organization_id,
             'created_by' => $user->id,
-            'name' => $meta['name'] ?? ('Generated Scenario ' . $generation->id),
+            'name' => $meta['name'] ?? ('Generated Scenario '.$generation->id),
             'description' => $meta['description'] ?? null,
             'scenario_type' => $meta['scenario_type'] ?? 'transformation',
             'horizon_months' => $meta['horizon_months'] ?? ($meta['planning_horizon_months'] ?? 12),
-            'fiscal_year' => $meta['fiscal_year'] ?? (int)date('Y'),
+            'fiscal_year' => $meta['fiscal_year'] ?? (int) date('Y'),
             'start_date' => $meta['start_date'] ?? now()->toDateString(),
             'end_date' => $meta['end_date'] ?? now()->addMonths($meta['horizon_months'] ?? 12)->toDateString(),
             'owner_user_id' => $meta['owner_user_id'] ?? $user->id,
             // preserve provenance
             'source_generation_id' => $generation->id,
             'accepted_prompt' => $generation->prompt,
-            'accepted_prompt_redacted' => (bool)($generation->redacted ?? true),
+            'accepted_prompt_redacted' => (bool) ($generation->redacted ?? true),
             'accepted_prompt_metadata' => $generation->metadata ?? null,
         ];
 
@@ -264,15 +259,16 @@ class ScenarioGenerationController extends Controller
         // Trigger when request includes `import=true` (UI/OPERATOR decision)
         if ($request->boolean('import', false)) {
             // feature-flag guard
-            if (!config('features.import_generation')) {
+            if (! config('features.import_generation')) {
                 // record audit attempt
                 $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
-                            'attempted_by' => $user->id,
-                            'attempted_at' => now()->toDateTimeString(),
-                            'import' => true,
-                            'result' => 'skipped_feature_flag',
-                        ]])]);
+                    'attempted_by' => $user->id,
+                    'attempted_at' => now()->toDateTimeString(),
+                    'import' => true,
+                    'result' => 'skipped_feature_flag',
+                ]])]);
                 $generation->save();
+
                 return response()->json(['success' => false, 'message' => 'Import feature disabled'], 403);
             }
 
@@ -281,39 +277,40 @@ class ScenarioGenerationController extends Controller
                 try {
                     $validator = app(\App\Services\LlmResponseValidator::class);
                     $result = $validator->validate($llm);
-                    if (!$result['valid']) {
+                    if (! $result['valid']) {
                         // record validation failure in audit
                         $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
-                                    'attempted_by' => $user->id,
-                                    'attempted_at' => now()->toDateTimeString(),
-                                    'import' => true,
-                                    'result' => 'validation_failed',
-                                    'errors' => $result['errors'] ?? null,
-                                ]])]);
+                            'attempted_by' => $user->id,
+                            'attempted_at' => now()->toDateTimeString(),
+                            'import' => true,
+                            'result' => 'validation_failed',
+                            'errors' => $result['errors'] ?? null,
+                        ]])]);
                         $generation->save();
+
                         return response()->json(['success' => false, 'message' => 'Invalid LLM response', 'errors' => $result['errors']], 422);
                     }
-                }
-                catch (\Throwable $e) {
+                } catch (\Throwable $e) {
                     $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
-                                'attempted_by' => $user->id,
-                                'attempted_at' => now()->toDateTimeString(),
-                                'import' => true,
-                                'result' => 'validation_error',
-                                'error' => $e->getMessage(),
-                            ]])]);
+                        'attempted_by' => $user->id,
+                        'attempted_at' => now()->toDateTimeString(),
+                        'import' => true,
+                        'result' => 'validation_error',
+                        'error' => $e->getMessage(),
+                    ]])]);
                     $generation->save();
+
                     return response()->json(['success' => false, 'message' => 'LLM validation error', 'error' => $e->getMessage()], 500);
                 }
             }
 
             // record start of import attempt
             $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
-                        'attempted_by' => $user->id,
-                        'attempted_at' => now()->toDateTimeString(),
-                        'import' => true,
-                        'result' => 'started',
-                    ]])]);
+                'attempted_by' => $user->id,
+                'attempted_at' => now()->toDateTimeString(),
+                'import' => true,
+                'result' => 'started',
+            ]])]);
             $generation->save();
 
             try {
@@ -321,24 +318,24 @@ class ScenarioGenerationController extends Controller
                 $report = $svc->finalizeScenarioImport($generation);
                 // record success
                 $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
-                            'attempted_by' => $user->id,
-                            'attempted_at' => now()->toDateTimeString(),
-                            'import' => true,
-                            'result' => 'success',
-                            'report' => $report,
-                        ]])]);
+                    'attempted_by' => $user->id,
+                    'attempted_at' => now()->toDateTimeString(),
+                    'import' => true,
+                    'result' => 'success',
+                    'report' => $report,
+                ]])]);
                 $generation->save();
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 // record failure
                 $generation->metadata = array_merge($generation->metadata ?? [], ['import_audit' => array_merge($generation->metadata['import_audit'] ?? [], [[
-                            'attempted_by' => $user->id,
-                            'attempted_at' => now()->toDateTimeString(),
-                            'import' => true,
-                            'result' => 'failed',
-                            'error' => $e->getMessage(),
-                        ]])]);
+                    'attempted_by' => $user->id,
+                    'attempted_at' => now()->toDateTimeString(),
+                    'import' => true,
+                    'result' => 'failed',
+                    'error' => $e->getMessage(),
+                ]])]);
                 $generation->save();
+
                 // don't fail the overall accept flow; return report with error
                 return response()->json(['success' => true, 'message' => 'Scenario created; import failed', 'data' => $scenario, 'import_errors' => [$e->getMessage()]], 201);
             }
@@ -354,7 +351,7 @@ class ScenarioGenerationController extends Controller
      */
     public function demo(Request $request, ScenarioGenerationService $svc)
     {
-    // ... (existing demo code)
+        // ... (existing demo code)
     }
 
     /**
@@ -365,34 +362,33 @@ class ScenarioGenerationController extends Controller
         $user = $request->user();
         $orgId = $user->organization_id;
 
-        if (!$orgId) {
+        if (! $orgId) {
             return response()->json(['success' => false, 'message' => 'User must belong to an organization'], 422);
         }
 
         $scenario = \App\Models\Scenario::withoutGlobalScopes()->find($scenarioId);
-        if ($scenario && !in_array($scenario->status, ['draft', 'incubating', 'incubated'])) {
+        if ($scenario && ! in_array($scenario->status, ['draft', 'incubating', 'incubated'])) {
             return response()->json([
-                'success' => false, 
-                'message' => 'El escenario ya está en fase de ingeniería activa. No se puede re-simular el diseño inicial.'
+                'success' => false,
+                'message' => 'El escenario ya está en fase de ingeniería activa. No se puede re-simular el diseño inicial.',
             ], 422);
         }
 
         // 1. Load simulated JSON from the prompt_instructions directory
         $filePath = base_path('resources/prompt_instructions/llm_sim_response.md');
-        if (!file_exists($filePath)) {
-            return response()->json(['success' => false, 'message' => 'Simulated response file not found at ' . $filePath], 404);
+        if (! file_exists($filePath)) {
+            return response()->json(['success' => false, 'message' => 'Simulated response file not found at '.$filePath], 404);
         }
 
         $content = file_get_contents($filePath);
         // Extract JSON from markdown code block if present
         if (preg_match('/```json\s*(.*?)\s*```/s', $content, $matches)) {
             $json = json_decode($matches[1], true);
-        }
-        else {
+        } else {
             $json = json_decode($content, true);
         }
 
-        if (!$json) {
+        if (! $json) {
             return response()->json(['success' => false, 'message' => 'Failed to parse JSON from file'], 500);
         }
 
@@ -412,7 +408,7 @@ class ScenarioGenerationController extends Controller
         // 3. Execute the import logic
         try {
             $report = $svc->finalizeScenarioImport($generation);
-            
+
             // Touch scenario to trigger reactivity and set status
             $scenario = \App\Models\Scenario::withoutGlobalScopes()->find($scenarioId);
             if ($scenario) {
@@ -422,19 +418,19 @@ class ScenarioGenerationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Simulated import successful into scenario ' . $scenarioId,
-                'data' => $report
+                'message' => 'Simulated import successful into scenario '.$scenarioId,
+                'data' => $report,
             ]);
-        }
-        catch (\Throwable $e) {
-            \Log::error("Simulation 500 error: " . $e->getMessage(), [
+        } catch (\Throwable $e) {
+            \Log::error('Simulation 500 error: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
-                'scenario_id' => $scenarioId
+                'scenario_id' => $scenarioId,
             ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Import failed: ' . $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'message' => 'Import failed: '.$e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ], 500);
         }
     }

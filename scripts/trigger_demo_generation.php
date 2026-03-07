@@ -1,14 +1,15 @@
 <?php
-// One-off script to create and enqueue the demo generation using existing DB user
-require __DIR__ . '/../vendor/autoload.php';
 
-$app = require __DIR__ . '/../bootstrap/app.php';
+// One-off script to create and enqueue the demo generation using existing DB user
+require __DIR__.'/../vendor/autoload.php';
+
+$app = require __DIR__.'/../bootstrap/app.php';
 // Boot minimal kernel to have app services available
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-use App\Models\User;
 use App\Models\Organizations;
+use App\Models\User;
 use App\Services\ScenarioGenerationService;
 
 $user = User::first();
@@ -50,13 +51,13 @@ $payload = [
     'time_horizon' => '12 meses',
     'urgency_level' => 'Alta',
     'milestones' => '1) Piloto interno (3 meses); 2) Integración con soporte (6 meses); 3) Escalado productivo (12 meses)',
-    'instruction' => "Por favor, genera UN SOLO objeto JSON que describa el escenario generado con las siguientes claves: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions. Devuelve únicamente JSON válido sin texto adicional.",
+    'instruction' => 'Por favor, genera UN SOLO objeto JSON que describa el escenario generado con las siguientes claves: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions. Devuelve únicamente JSON válido sin texto adicional.',
 ];
 
 try {
     $composed = $svc->composePromptWithInstruction($payload, $user, $org, 'es', null);
 } catch (\Illuminate\Validation\ValidationException $e) {
-    echo "Instruction validation failed: ";
+    echo 'Instruction validation failed: ';
     print_r($e->errors());
     exit(1);
 }
@@ -78,9 +79,9 @@ while (true) {
         echo "LLM response (trimmed):\n";
         $resp = $g->llm_response;
         if (is_array($resp)) {
-            echo json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+            echo json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n";
         } else {
-            echo substr((string)$g->llm_response, 0, 2000) . "\n";
+            echo substr((string) $g->llm_response, 0, 2000)."\n";
         }
         break;
     }

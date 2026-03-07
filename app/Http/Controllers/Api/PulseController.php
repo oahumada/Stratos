@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\PulseSurvey;
-use App\Models\PulseResponse;
 use App\Models\People;
+use App\Models\PulseResponse;
+use App\Models\PulseSurvey;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -30,6 +30,7 @@ class PulseController extends Controller
     public function show($id): JsonResponse
     {
         $survey = PulseSurvey::with(['responses.people'])->findOrFail($id);
+
         return response()->json(['data' => $survey]);
     }
 
@@ -51,12 +52,12 @@ class PulseController extends Controller
             'pulse_survey_id' => $data['pulse_survey_id'],
             'people_id' => $data['people_id'],
             'answers' => $data['answers'],
-            'sentiment_score' => $score
+            'sentiment_score' => $score,
         ]);
 
         return response()->json([
             'message' => 'Respuesta guardada correctamente',
-            'data' => $response
+            'data' => $response,
         ], 201);
     }
 
@@ -82,7 +83,7 @@ class PulseController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Pulso registrado. El Córtex de Talento ha ajustado su análisis predictivo.',
-            'data' => $pulse->refresh()
+            'data' => $pulse->refresh(),
         ], 201);
     }
 
@@ -119,11 +120,12 @@ class PulseController extends Controller
 
         try {
             $result = $sentinel->runHealthScan($orgId);
+
             return response()->json(['success' => true, 'data' => $result]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error en escaneo de salud: ' . $e->getMessage()
+                'message' => 'Error en escaneo de salud: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -140,7 +142,7 @@ class PulseController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $pulses
+            'data' => $pulses,
         ]);
     }
 
@@ -156,9 +158,10 @@ class PulseController extends Controller
 
         $heatmap = $people->map(function ($person) use ($predictor) {
             $prediction = $predictor->predict($person->id);
+
             return [
                 'id' => $person->id,
-                'name' => $person->full_name ?? ($person->first_name . ' ' . $person->last_name),
+                'name' => $person->full_name ?? ($person->first_name.' '.$person->last_name),
                 'role' => $person->role->name ?? 'N/A',
                 'department' => $person->department->name ?? 'N/A',
                 'risk_score' => $prediction['flight_risk_score'] ?? 0,
@@ -170,7 +173,7 @@ class PulseController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $heatmap
+            'data' => $heatmap,
         ]);
     }
 }

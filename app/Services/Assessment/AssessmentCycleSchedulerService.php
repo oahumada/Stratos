@@ -3,8 +3,8 @@
 namespace App\Services\Assessment;
 
 use App\Models\AssessmentCycle;
-use App\Models\People;
 use App\Models\AssessmentRequest;
+use App\Models\People;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -37,7 +37,7 @@ class AssessmentCycleSchedulerService
         Log::info("Activating Assessment Cycle: {$cycle->name}");
 
         $subjects = $this->getTargetPopulation($cycle);
-        
+
         /** @var \App\Models\People $subject */
         foreach ($subjects as $subject) {
             $this->launchRequestsForSubject($cycle, $subject);
@@ -124,7 +124,7 @@ class AssessmentCycleSchedulerService
             'status' => 'pending',
             'token' => Str::random(32),
         ]);
-        
+
         // Dispatch notification
         app(\App\Services\Assessment\AssessmentCycleNotificationService::class)->notifyEvaluator($evaluator, $subject, $cycle);
     }

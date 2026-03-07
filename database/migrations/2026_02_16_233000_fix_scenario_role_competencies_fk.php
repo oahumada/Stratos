@@ -22,7 +22,7 @@ return new class extends Migration
         // Data Fix: Update role_id from base roles to scenario_roles IDs
         // This is necessary to avoid FK violation when adding the new constraint
         if (DB::getDriverName() === 'pgsql' || DB::getDriverName() === 'mysql') {
-            DB::statement("
+            DB::statement('
                 UPDATE scenario_role_competencies
                 SET role_id = sub.new_role_id
                 FROM (
@@ -31,7 +31,7 @@ return new class extends Migration
                     JOIN scenario_roles sr ON src.role_id = sr.role_id AND src.scenario_id = sr.scenario_id
                 ) AS sub
                 WHERE scenario_role_competencies.id = sub.mapping_id
-            ");
+            ');
         }
 
         Schema::table('scenario_role_competencies', function (Blueprint $table) {

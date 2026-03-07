@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Scenario;
 use App\Models\ScenarioClosureStrategy;
 use App\Models\TalentBlueprint;
-use App\Models\Roles;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Exception;
 
 class ScenarioStrategyController extends Controller
 {
@@ -49,15 +47,14 @@ class ScenarioStrategyController extends Controller
                     'estimated_market_cost' => 95000,
                     'internal_pipeline_capacity' => 0,
                     'recommended_strategy' => 'BUY (External recruitment)',
-                ]
+                ],
             ];
 
             return response()->json([
                 'success' => true,
                 'data' => $gaps,
             ]);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
@@ -88,11 +85,10 @@ class ScenarioStrategyController extends Controller
                 'data' => [
                     'assignment_id' => $assignmentId,
                     'status' => 'active',
-                    'next_step' => 'Initiate talent search / Learning path creation'
-                ]
+                    'next_step' => 'Initiate talent search / Learning path creation',
+                ],
             ], 201);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
@@ -110,28 +106,28 @@ class ScenarioStrategyController extends Controller
                     'investment' => 45000,
                     'talent_nodes_affected' => 24,
                     'avg_readiness_improvement' => '45%',
-                    'status' => 'In Implementation'
+                    'status' => 'In Implementation',
                 ],
                 'buy' => [
                     'count' => 3,
                     'investment' => 180000,
                     'talent_nodes_affected' => 3,
                     'avg_readiness_improvement' => '90% (Instant)',
-                    'status' => 'Search Active'
+                    'status' => 'Search Active',
                 ],
                 'borrow' => [
                     'count' => 1,
                     'investment' => 15000,
                     'talent_nodes_affected' => 5,
                     'avg_readiness_improvement' => 'N/A (Temporal)',
-                    'status' => 'Onboarding'
+                    'status' => 'Onboarding',
                 ],
                 'bot' => [
                     'count' => 2,
                     'investment' => 60000,
                     'talent_nodes_affected' => 50,
                     'avg_readiness_improvement' => '100% (Scale)',
-                    'status' => 'Development'
+                    'status' => 'Development',
                 ],
             ];
 
@@ -148,11 +144,11 @@ class ScenarioStrategyController extends Controller
                     ],
                 ],
             ]);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
     /**
      * Obtiene el listado de estrategias individuales para un escenario.
      * GET /api/strategic-planning/scenarios/{id}/strategies
@@ -163,18 +159,18 @@ class ScenarioStrategyController extends Controller
             $strategies = ScenarioClosureStrategy::with(['skill', 'role'])
                 ->where('scenario_id', $scenarioId)
                 ->get();
-                
+
             $blueprints = TalentBlueprint::where('scenario_id', $scenarioId)->get()->keyBy('role_name');
 
             $data = $strategies->map(function (ScenarioClosureStrategy $s) use ($blueprints) {
                 $roleName = $s->role ? $s->role->name : null;
                 $blueprint = $roleName ? ($blueprints[$roleName] ?? null) : null;
-                
+
                 $strategyArray = $s->toArray();
                 $strategyArray['skill_name'] = $s->skill ? $s->skill->name : 'General';
                 $strategyArray['role_name'] = $roleName;
                 $strategyArray['blueprint'] = $blueprint;
-                
+
                 return $strategyArray;
             });
 
@@ -182,8 +178,7 @@ class ScenarioStrategyController extends Controller
                 'success' => true,
                 'data' => $data,
             ]);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }

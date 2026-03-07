@@ -1,6 +1,7 @@
 <?php
 
 // app/Services/TalentBlueprintService.php
+
 namespace App\Services;
 
 use App\Models\Scenario;
@@ -39,18 +40,18 @@ class TalentBlueprintService
             if (config('features.generate_embeddings', false)) {
                 try {
                     // Create a text representation for the role
-                    $text = ($role['name'] ?? $role['role_name']) . " | " . ($role['description'] ?? ($role['role_description'] ?? ''));
+                    $text = ($role['name'] ?? $role['role_name']).' | '.($role['description'] ?? ($role['role_description'] ?? ''));
                     $embedding = $this->embeddingService->generate($text);
-                    
+
                     if ($embedding) {
                         $vectorStr = $this->embeddingService->toVectorString($embedding);
                         \DB::update(
-                            "UPDATE talent_blueprints SET embedding = ?::vector WHERE id = ?",
+                            'UPDATE talent_blueprints SET embedding = ?::vector WHERE id = ?',
                             [$vectorStr, $blueprint->id]
                         );
                     }
                 } catch (\Exception $e) {
-                    \Log::warning("Embedding generation failed for blueprint {$blueprint->id}: " . $e->getMessage());
+                    \Log::warning("Embedding generation failed for blueprint {$blueprint->id}: ".$e->getMessage());
                 }
             }
         }

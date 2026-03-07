@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Competency;
+use App\Models\PeopleRoleSkills;
 use App\Models\Scenario;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleCompetency;
 use App\Models\ScenarioRoleSkill;
-use App\Models\PeopleRoleSkills;
-use App\Models\Competency;
 use App\Services\RoleSkillDerivationService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -21,12 +21,13 @@ class PopulateSkillGapsSeeder extends Seeder
 
         foreach ($scenarios as $scenario) {
             $this->command->info("Poblando datos para escenario: {$scenario->id} - {$scenario->name}");
-            
+
             $sRoles = ScenarioRole::where('scenario_id', $scenario->id)->get();
             $organizationCompetencies = Competency::where('organization_id', $scenario->organization_id)->limit(5)->get();
 
             if ($organizationCompetencies->isEmpty()) {
                 $this->command->warn("  No hay competencias globales para la organización {$scenario->organization_id}. Saltando.");
+
                 continue;
             }
 
@@ -59,7 +60,7 @@ class PopulateSkillGapsSeeder extends Seeder
             $gaps = ScenarioRoleSkill::where('scenario_id', $scenario->id)->get();
             foreach ($gaps as $gap) {
                 $baseRoleId = DB::table('scenario_roles')->where('id', $gap->role_id)->value('role_id');
-                
+
                 // Calcular promedio real si hay datos, si no usar random
                 $avg = null;
                 if ($baseRoleId) {
@@ -77,15 +78,15 @@ class PopulateSkillGapsSeeder extends Seeder
                 if ($gap->required_level <= 0) {
                     $gap->required_level = rand(3, 5);
                 }
-                
+
                 if ($gap->required_level <= $gap->current_level) {
                     $gap->required_level = min($gap->current_level + rand(1, 2), 5);
                 }
-                
+
                 $gap->save();
             }
         }
 
-        $this->command->info("Se han actualizado un total de " . ScenarioRoleSkill::count() . " entradas en la matriz de brechas.");
+        $this->command->info('Se han actualizado un total de '.ScenarioRoleSkill::count().' entradas en la matriz de brechas.');
     }
 }

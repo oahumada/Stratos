@@ -80,7 +80,7 @@ class DepartmentController extends Controller
         if (empty($skills)) {
             $skills = ['Python', 'SQL', 'Liderazgo', 'AI/ML', 'UX/UI', 'Finanzas'];
         }
-        
+
         $data = [];
         $criticalRisks = [];
 
@@ -88,18 +88,18 @@ class DepartmentController extends Controller
             $dept = Departments::where('name', $depName)->first();
             foreach ($skills as $y => $skillName) {
                 $skill = Skill::where('name', $skillName)->first();
-                
+
                 // Calculamos cobertura real or random if not exists
-                $coverage = rand(30, 95); 
-                
+                $coverage = rand(30, 95);
+
                 // LÓGICA DE RIESGO DE CONTINUIDAD
                 // Si la cobertura es < 50% y la skill es crítica, o si hay personas clave en riesgo de fuga
                 $hasRetentionRisk = false;
-                $riskReason = "";
-                
+                $riskReason = '';
+
                 if ($dept && $skill) {
                     // Buscamos personas en este depto con esta skill crítica
-                    $peopleWithSkill = $dept->People()->whereHas('activeSkills', function($q) use ($skill) {
+                    $peopleWithSkill = $dept->People()->whereHas('activeSkills', function ($q) use ($skill) {
                         $q->where('skill_id', $skill->id);
                     })->get();
 
@@ -118,7 +118,7 @@ class DepartmentController extends Controller
                 if ($hasRetentionRisk) {
                     $criticalRisks[] = [
                         'coord' => [$x, $y],
-                        'reason' => $riskReason
+                        'reason' => $riskReason,
                     ];
                 }
 
@@ -129,8 +129,8 @@ class DepartmentController extends Controller
         return response()->json([
             'x_axis' => $departments,
             'y_axis' => $skills,
-            'data'   => $data,
-            'critical_risks' => $criticalRisks
+            'data' => $data,
+            'critical_risks' => $criticalRisks,
         ]);
     }
 
@@ -139,7 +139,7 @@ class DepartmentController extends Controller
      */
     private function buildTree($elements, $parentId = null)
     {
-        $branch = array();
+        $branch = [];
 
         foreach ($elements as $element) {
             if ($element->parent_id == $parentId) {

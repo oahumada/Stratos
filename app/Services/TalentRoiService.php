@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\People;
-use App\Models\Scenario;
 use App\Models\PeopleRoleSkills;
+use App\Models\Scenario;
 use Illuminate\Support\Facades\DB;
 
 class TalentRoiService
@@ -13,7 +13,9 @@ class TalentRoiService
      * ROI Estimations (Industry Averages - can be customized per org)
      */
     const AVG_HIRING_COST = 4500; // USD per hire
+
     const AVG_REPLACEMENT_COST_MULTIPLIER = 0.5; // 50% of annual salary
+
     const AVG_ANNUAL_SALARY = 45000; // USD
 
     protected ScenarioAnalyticsService $scenarioAnalytics;
@@ -30,10 +32,10 @@ class TalentRoiService
     {
         $totalHeadcount = People::count();
         $totalScenarios = Scenario::count();
-        
+
         $avgReadiness = $this->calculateGlobalReadiness();
         $talentRoi = $this->calculateTotalTalentRoi();
-        
+
         // High-level risks
         $criticalGapRate = $this->calculateCriticalGapRate();
 
@@ -73,7 +75,7 @@ class TalentRoiService
             ->where('required_level', '>', 0)
             ->distinct('people_id')
             ->count();
-            
+
         $upskillingSavings = $upskilledCount * self::AVG_HIRING_COST;
 
         // 2. Value from AI-Assisted productivity (mock/aggregated from bot strategies)

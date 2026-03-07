@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\Talent\LearningBlueprintService;
 use App\Services\SentinelMonitorService;
 use App\Services\StratosGuideService;
+use App\Services\Talent\LearningBlueprintService;
 use App\Traits\ApiResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,9 +28,10 @@ class StratosIntelligenceController extends Controller
     {
         try {
             $forecast = $this->retentionService->predict($peopleId);
+
             return $this->success($forecast, 'Pronóstico de retención generado.');
         } catch (\Exception $e) {
-            return $this->error('Error: ' . $e->getMessage(), 500);
+            return $this->error('Error: '.$e->getMessage(), 500);
         }
     }
 
@@ -45,9 +46,10 @@ class StratosIntelligenceController extends Controller
 
         try {
             $blueprint = $this->blueprintService->generateBlueprint($peopleId, $targetRoleId);
+
             return $this->success($blueprint, 'Learning Blueprint generado.');
         } catch (\Exception $e) {
-            return $this->error('Error al generar blueprint: ' . $e->getMessage(), 500);
+            return $this->error('Error al generar blueprint: '.$e->getMessage(), 500);
         }
     }
 
@@ -60,9 +62,10 @@ class StratosIntelligenceController extends Controller
 
         try {
             $path = $this->blueprintService->materializeBlueprint($peopleId, $blueprint);
+
             return $this->success($path->toArray(), 'Blueprint materializado como DevelopmentPath.');
         } catch (\Exception $e) {
-            return $this->error('Error al materializar blueprint: ' . $e->getMessage(), 500);
+            return $this->error('Error al materializar blueprint: '.$e->getMessage(), 500);
         }
     }
 
@@ -75,9 +78,10 @@ class StratosIntelligenceController extends Controller
     {
         try {
             $results = $this->sentinel->runFullScan();
+
             return $this->success($results, 'Sentinel scan completado.');
         } catch (\Exception $e) {
-            return $this->error('Error en Sentinel scan: ' . $e->getMessage(), 500);
+            return $this->error('Error en Sentinel scan: '.$e->getMessage(), 500);
         }
     }
 
@@ -95,7 +99,7 @@ class StratosIntelligenceController extends Controller
                 'last_scan' => $lastScan,
             ], 'Health score obtenido.');
         } catch (\Exception $e) {
-            return $this->error('Error: ' . $e->getMessage(), 500);
+            return $this->error('Error: '.$e->getMessage(), 500);
         }
     }
 
@@ -111,9 +115,10 @@ class StratosIntelligenceController extends Controller
 
         try {
             $suggestions = $this->guide->getContextualSuggestions($module, $userId);
+
             return $this->success($suggestions, 'Sugerencias contextuales obtenidas.');
         } catch (\Exception $e) {
-            return $this->error('Error: ' . $e->getMessage(), 500);
+            return $this->error('Error: '.$e->getMessage(), 500);
         }
     }
 
@@ -131,9 +136,10 @@ class StratosIntelligenceController extends Controller
 
         try {
             $answer = $this->guide->askGuide($validated['question'], $validated['module'], $userId);
+
             return $this->success($answer, 'Respuesta del Guide obtenida.');
         } catch (\Exception $e) {
-            return $this->error('Error: ' . $e->getMessage(), 500);
+            return $this->error('Error: '.$e->getMessage(), 500);
         }
     }
 
@@ -151,9 +157,10 @@ class StratosIntelligenceController extends Controller
 
         try {
             $this->guide->completeOnboardingStep($userId, $validated['module'], $validated['step']);
+
             return $this->success(null, 'Step de onboarding completado.');
         } catch (\Exception $e) {
-            return $this->error('Error: ' . $e->getMessage(), 500);
+            return $this->error('Error: '.$e->getMessage(), 500);
         }
     }
 }

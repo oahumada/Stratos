@@ -2,9 +2,9 @@
 
 namespace App\Services\Competency;
 
-use App\Models\Skill;
-use App\Models\Competency;
 use App\Models\BarsLevel;
+use App\Models\Competency;
+use App\Models\Skill;
 use App\Services\AiOrchestratorService;
 use Illuminate\Support\Facades\Log;
 
@@ -47,7 +47,7 @@ class CompetencyCuratorService
             $result = $this->orchestrator->agentThink($agentName, $prompt);
             $data = $result['response'];
 
-            if (!isset($data['skills'])) {
+            if (! isset($data['skills'])) {
                 throw new \InvalidArgumentException("Formato de respuesta inválido de {$agentName}.");
             }
 
@@ -65,14 +65,14 @@ class CompetencyCuratorService
                     [
                         'organization_id' => $competency->organization_id,
                         'description' => $sData['description'],
-                        'category' => $sData['category']
+                        'category' => $sData['category'],
                     ]
                 );
-                
+
                 $skillIdsCreatedOrFound[] = $skill->id;
 
                 // Relacionamos la Skill a la Competencia
-                if (!$competency->skills()->where('skill_id', $skill->id)->exists()) {
+                if (! $competency->skills()->where('skill_id', $skill->id)->exists()) {
                     $competency->skills()->attach($skill->id, [
                         'weight' => 100,
                         'priority' => 'high',
@@ -96,11 +96,12 @@ class CompetencyCuratorService
                 'status' => 'success',
                 'competency' => $competency->name,
                 'skills_analyzed' => count($skillIdsCreatedOrFound),
-                'skills_curated' => $barsCuratedCount
+                'skills_curated' => $barsCuratedCount,
             ];
 
         } catch (\Exception $e) {
-            Log::error("Error curando competencia #{$competencyId}: " . $e->getMessage());
+            Log::error("Error curando competencia #{$competencyId}: ".$e->getMessage());
+
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }
@@ -151,9 +152,9 @@ class CompetencyCuratorService
             $result = $this->orchestrator->agentThink(self::DEFAULT_AGENT, $prompt);
             $data = $result['response'];
 
-            if (!isset($data['levels']) || !is_array($data['levels'])) {
+            if (! isset($data['levels']) || ! is_array($data['levels'])) {
                 // Fallback si no devolvió el formato esperado pero el texto raw contiene algo útil
-                throw new \InvalidArgumentException("Formato de respuesta inválido del agente.");
+                throw new \InvalidArgumentException('Formato de respuesta inválido del agente.');
             }
 
             $curatedLevels = [];
@@ -173,11 +174,12 @@ class CompetencyCuratorService
             return [
                 'status' => 'success',
                 'skill' => $skill->name,
-                'levels_count' => count($curatedLevels)
+                'levels_count' => count($curatedLevels),
             ];
 
         } catch (\Exception $e) {
-            Log::error("Error curando skill #{$skillId}: " . $e->getMessage());
+            Log::error("Error curando skill #{$skillId}: ".$e->getMessage());
+
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }
@@ -224,12 +226,12 @@ class CompetencyCuratorService
                     [
                         'skill_id' => $skill->id,
                         'level' => $q['level'],
-                        'question' => $q['question'] // Evitar duplicados exactos
+                        'question' => $q['question'], // Evitar duplicados exactos
                     ],
                     [
                         'question_type' => $q['type'] ?? 'situational',
                         'is_global' => true,
-                        'archetype' => 'general'
+                        'archetype' => 'general',
                     ]
                 );
                 $questionsCreated[] = $q;
@@ -238,11 +240,12 @@ class CompetencyCuratorService
             return [
                 'status' => 'success',
                 'skill' => $skill->name,
-                'questions_generated' => count($questionsCreated)
+                'questions_generated' => count($questionsCreated),
             ];
 
         } catch (\Exception $e) {
-            Log::error("Error generando preguntas para skill #{$skillId}: " . $e->getMessage());
+            Log::error("Error generando preguntas para skill #{$skillId}: ".$e->getMessage());
+
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }

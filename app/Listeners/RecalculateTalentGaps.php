@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 class RecalculateTalentGaps implements ShouldQueue
 {
     use InteractsWithQueue;
+
     /**
      * Create the event listener.
      */
@@ -24,7 +25,7 @@ class RecalculateTalentGaps implements ShouldQueue
     {
         // Esto se procesará en las colas (Redis/Database) de Laravel.
         // Aquí conectamos con Stratos Grow o Stratos Map en Background.
-        \Illuminate\Support\Facades\Log::info("Calculando gaps en background", [
+        \Illuminate\Support\Facades\Log::info('Calculando gaps en background', [
             'modulo' => 'Core + Grow',
             'role_id' => $event->roleId,
             'organization_id' => $event->organizationId,

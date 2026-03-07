@@ -24,7 +24,7 @@ class AssessmentCycleNotificationService
         if ($notifications['slack'] ?? false) {
             $this->sendSlack($evaluator, $subject, $cycle);
         }
-        
+
         if ($notifications['whatsapp'] ?? false) {
             $this->sendWhatsApp($evaluator, $subject, $cycle);
         }

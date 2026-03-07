@@ -2,14 +2,15 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\ScenarioGeneration;
 use App\Services\LLMClient;
 use App\Services\RedactionService;
+use Illuminate\Console\Command;
 
 class RetryLatestGeneration extends Command
 {
     protected $signature = 'debug:retry-generation {id?}';
+
     protected $description = 'Retry the latest failed scenario generation (or provide id) by invoking the LLM flow synchronously for debugging.';
 
     public function handle()
@@ -23,7 +24,8 @@ class RetryLatestGeneration extends Command
         }
 
         if (! $generation) {
-            $this->error('No failed generation found' . ($id ? " for id {$id}" : ''));
+            $this->error('No failed generation found'.($id ? " for id {$id}" : ''));
+
             return 1;
         }
 
@@ -32,7 +34,7 @@ class RetryLatestGeneration extends Command
         $generation->status = 'processing';
         $generation->save();
 
-        $llm = new LLMClient();
+        $llm = new LLMClient;
 
         try {
             $result = $llm->generate($generation->prompt ?? '');
@@ -49,7 +51,10 @@ class RetryLatestGeneration extends Command
             $isValid = is_array($parsed);
             if ($isValid) {
                 foreach ($requiredKeys as $key) {
-                    if (! array_key_exists($key, $parsed)) { $isValid = false; break; }
+                    if (! array_key_exists($key, $parsed)) {
+                        $isValid = false;
+                        break;
+                    }
                 }
             }
 
@@ -59,6 +64,7 @@ class RetryLatestGeneration extends Command
                 $generation->save();
                 $this->error('LLM returned invalid/non-JSON response');
                 $this->line(var_export($rawResponse, true));
+
                 return 2;
             }
 
@@ -70,12 +76,14 @@ class RetryLatestGeneration extends Command
             $generation->save();
 
             $this->info('Generation completed successfully.');
+
             return 0;
         } catch (\Exception $e) {
             $generation->status = 'failed';
             $generation->metadata = array_merge($generation->metadata ?? [], ['error' => 'exception', 'message' => $e->getMessage()]);
             $generation->save();
             $this->error('Exception during retry: '.$e->getMessage());
+
             return 3;
         }
     }

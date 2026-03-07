@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\Talent\SocialLearningService;
 use App\Models\Skill;
+use App\Services\Talent\SocialLearningService;
 use Illuminate\Http\Request;
 
 class SocialLearningController extends Controller
@@ -19,25 +19,26 @@ class SocialLearningController extends Controller
     public function dashboard()
     {
         $risks = $this->socialLearning->identifyContinuityRisks();
-        
+
         // Sugerencias para mitigar cada riesgo
         $mitigations = $risks->map(function ($risk) {
             $suggestions = $this->socialLearning->suggestMatches($risk['skill']->id);
+
             return [
                 'person_at_risk' => $risk['person'],
                 'skill_critical' => $risk['skill'],
                 'risk_score' => $risk['risk_score'],
-                'potential_mentees' => $suggestions->map(fn($s) => [
+                'potential_mentees' => $suggestions->map(fn ($s) => [
                     'mentee' => $s['mentee'],
                     'match_score' => $s['match_score'],
-                    'type' => $s['type']
-                ])
+                    'type' => $s['type'],
+                ]),
             ];
         });
 
         return response()->json([
             'ContinuityRisks' => $mitigations,
-            'GlobalMarketCrossPollination' => rand(60, 95) // Mock
+            'GlobalMarketCrossPollination' => rand(60, 95), // Mock
         ]);
     }
 
@@ -47,6 +48,7 @@ class SocialLearningController extends Controller
     public function matches(int $skillId)
     {
         $matches = $this->socialLearning->suggestMatches($skillId);
+
         return response()->json($matches);
     }
 

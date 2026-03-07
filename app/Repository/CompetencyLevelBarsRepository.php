@@ -8,6 +8,6 @@ class CompetencyLevelBarsRepository extends Repository
 {
     public function __construct()
     {
-        $this->model = new CompetencyLevelBars();
+        $this->model = new CompetencyLevelBars;
     }
 }

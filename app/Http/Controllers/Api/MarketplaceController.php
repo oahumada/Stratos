@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\JobOpening;
 use App\Models\People;
 use App\Services\GapAnalysisService;
-use App\Services\AiOrchestratorService;
 use Illuminate\Http\JsonResponse;
 
 class MarketplaceController extends Controller
@@ -215,7 +214,7 @@ class MarketplaceController extends Controller
 
         return response()->json([
             'data' => $result['fitness_data'],
-            'metadata' => $result['metadata']
+            'metadata' => $result['metadata'],
         ]);
     }
 }

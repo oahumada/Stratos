@@ -16,12 +16,12 @@ class PsychometricProfile extends Model
         'trait_name',
         'score',
         'rationale',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
         'score' => 'float',
-        'metadata' => 'array'
+        'metadata' => 'array',
     ];
 
     public function person(): BelongsTo

@@ -26,7 +26,7 @@ class SmartAlertService
 
             Log::debug("Smart Alert created for $orgId: $title");
         } catch (\Exception $e) {
-            Log::error("Failed to create smart alert", ['error' => $e->getMessage()]);
+            Log::error('Failed to create smart alert', ['error' => $e->getMessage()]);
         }
     }
 

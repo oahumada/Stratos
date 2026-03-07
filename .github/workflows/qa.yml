@@ -1,0 +1,32 @@
+name: Stratos Quality Assurance
+
+on:
+  push:
+    branches: ['main', 'develop']
+  pull_request:
+    branches: ['main', 'develop']
+
+jobs:
+  laravel-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, dom, curl, libxml, mysql, sqlite, zip
+          coverage: none
+
+      - name: Install Dependencies
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Check Code Style (Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Static Analysis (PHPStan)
+        run: ./vendor/bin/phpstan analyse --memory-limit=2G
+
+      - name: Run Tests (Pest)
+        run: php artisan test --parallel

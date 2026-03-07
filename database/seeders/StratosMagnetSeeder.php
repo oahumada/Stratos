@@ -12,7 +12,9 @@ class StratosMagnetSeeder extends Seeder
     public function run(): void
     {
         $org = Organization::where('subdomain', 'techcorp')->first();
-        if (!$org) return;
+        if (! $org) {
+            return;
+        }
 
         $roleIA = Roles::where('name', 'like', '%AI%')->first() ?? Roles::first();
         $roleLead = Roles::where('name', 'like', '%Lead%')->first() ?? Roles::first();
@@ -28,7 +30,7 @@ class StratosMagnetSeeder extends Seeder
             'is_external' => true,
             'status' => 'open',
             'deadline' => now()->addMonths(2),
-            'created_by' => 1
+            'created_by' => 1,
         ]);
 
         JobOpening::create([
@@ -42,7 +44,7 @@ class StratosMagnetSeeder extends Seeder
             'is_external' => true,
             'status' => 'open',
             'deadline' => now()->addMonths(1),
-            'created_by' => 1
+            'created_by' => 1,
         ]);
     }
 }

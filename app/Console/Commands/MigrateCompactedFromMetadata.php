@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\ScenarioGeneration;
+use Illuminate\Console\Command;
 
 class MigrateCompactedFromMetadata extends Command
 {

@@ -14,11 +14,11 @@ class AssessmentMessage extends Model
         'assessment_session_id',
         'role',
         'content',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
-        'metadata' => 'array'
+        'metadata' => 'array',
     ];
 
     public function session(): BelongsTo

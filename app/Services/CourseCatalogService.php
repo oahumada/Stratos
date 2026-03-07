@@ -21,11 +21,11 @@ class CourseCatalogService
             ],
             'Adaptabilidad' => [
                 ['title' => 'Mindset de Crecimiento en Entornos Ágiles', 'provider' => 'LinkedIn Learning', 'duration' => '5h'],
-            ]
+            ],
         ];
 
         return $catalog[$skillName] ?? [
-            ['title' => "Especialización en {$skillName}", 'provider' => 'Google Learning', 'duration' => '15h']
+            ['title' => "Especialización en {$skillName}", 'provider' => 'Google Learning', 'duration' => '15h'],
         ];
     }
 }

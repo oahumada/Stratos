@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class PromptInstructionsSeeder extends Seeder
 {
@@ -21,7 +20,7 @@ class PromptInstructionsSeeder extends Seeder
 
         // Attempt to load from resource files if present
         foreach ($defaults as $lang => $_) {
-            $path = resource_path('prompt_instructions/default_' . $lang . '.md');
+            $path = resource_path('prompt_instructions/default_'.$lang.'.md');
             if (file_exists($path)) {
                 $defaults[$lang] = file_get_contents($path);
             }

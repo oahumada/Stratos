@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\WorkforceScenario;
-use App\Models\TalentStrategy;
 use Illuminate\Support\Collection;
 
 class WorkforcePlanningService
@@ -32,7 +31,7 @@ class WorkforcePlanningService
                 'internal_supply' => 3,
                 'strategy_type' => 'BUY',
                 'action' => 'Reclutamiento directo (2 FTE)',
-            ]
+            ],
         ]);
     }
 }

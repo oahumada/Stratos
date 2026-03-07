@@ -32,7 +32,7 @@ class IncubationController extends Controller
         $user = auth()->user();
         $scenario = Scenario::withoutGlobalScopes()->find($scenarioId);
 
-        if (!$scenario || $scenario->organization_id !== ($user->organization_id ?? null)) {
+        if (! $scenario || $scenario->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['message' => 'Scenario not found or forbidden'], 404);
         }
 
@@ -45,7 +45,7 @@ class IncubationController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $response
+            'data' => $response,
         ]);
     }
 
@@ -53,7 +53,7 @@ class IncubationController extends Controller
     {
         $items = collect();
         if ($modelClass === \App\Models\TalentBlueprint::class) {
-             $items = $modelClass::where('scenario_id', $scenarioId)
+            $items = $modelClass::where('scenario_id', $scenarioId)
                 ->where('status', 'in_incubation')
                 ->get();
         } else {
@@ -66,13 +66,13 @@ class IncubationController extends Controller
         if (config('features.generate_embeddings', false)) {
             $items->transform(function ($item) use ($modelClass) {
                 // If the item has an embedding, check for similar items in active status
-                if (!empty($item->embedding)) {
+                if (! empty($item->embedding)) {
                     // Critical: if we are checking a Blueprint, we compare against 'roles' table
                     $targetTable = ($modelClass === \App\Models\TalentBlueprint::class) ? 'roles' : (new $modelClass)->getTable();
-                    
+
                     try {
                         $vector = $this->vectorToArray($item->embedding);
-                        
+
                         // Search for similar items (limit 5)
                         $similar = $this->embeddingService->findSimilar(
                             $targetTable,
@@ -80,35 +80,38 @@ class IncubationController extends Controller
                             5,
                             $item->organization_id
                         );
-                        
+
                         $warnings = [];
                         foreach ($similar as $match) {
                             // Filter out exact same ID ONLY if we are in the same table
-                            if ($targetTable === $item->getTable() && $match->id == $item->id) continue;
-                            
+                            if ($targetTable === $item->getTable() && $match->id == $item->id) {
+                                continue;
+                            }
+
                             // For roles, we are often comparing blueprint vs catalog, so similarities are very useful
                             if ($match->similarity > 0.75) { // Lower threshold for roles to show "Partial" matches
                                 $warnings[] = [
                                     'id' => $match->id,
                                     'name' => $match->name,
-                                    'score' => round($match->similarity, 3)
+                                    'score' => round($match->similarity, 3),
                                 ];
                             }
                         }
 
-                        if (!empty($warnings)) {
+                        if (! empty($warnings)) {
                             $item->similarity_warnings = $warnings;
                         }
 
                     } catch (\Exception $e) {
-                         Log::error("Similarity check failed: " . $e->getMessage());
+                        Log::error('Similarity check failed: '.$e->getMessage());
                     }
                 }
-                
+
                 // Hide embedding from JSON response
                 if (method_exists($item, 'makeHidden')) {
                     $item->makeHidden('embedding');
                 }
+
                 return $item;
             });
         }
@@ -116,11 +119,13 @@ class IncubationController extends Controller
         return $items;
     }
 
-    private function vectorToArray($vector) {
+    private function vectorToArray($vector)
+    {
         if (is_string($vector)) {
             // Postgres vector output might be string "[0.1,0.2...]"
             return json_decode($vector);
         }
+
         return $vector;
     }
 
@@ -132,13 +137,13 @@ class IncubationController extends Controller
         $request->validate([
             'items' => 'required|array',
             'items.*.type' => 'required|in:capability,competency,skill,role',
-            'items.*.id' => 'required|integer'
+            'items.*.id' => 'required|integer',
         ]);
 
         $user = auth()->user();
         $scenario = Scenario::withoutGlobalScopes()->find($scenarioId);
-        
-        if (!$scenario || $scenario->organization_id !== ($user->organization_id ?? null)) {
+
+        if (! $scenario || $scenario->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['message' => 'Scenario not found or forbidden'], 404);
         }
 
@@ -147,10 +152,10 @@ class IncubationController extends Controller
         DB::transaction(function () use ($request, $scenario, &$approvedCount) {
             foreach ($request->items as $item) {
                 $modelClass = $this->getModelClass($item['type']);
-                
+
                 if ($modelClass) {
                     $entity = null;
-                    
+
                     if ($modelClass === \App\Models\TalentBlueprint::class) {
                         $entity = $modelClass::where('id', $item['id'])
                             ->where('scenario_id', $scenario->id)
@@ -160,7 +165,7 @@ class IncubationController extends Controller
                         if ($entity) {
                             $entity->status = 'active';
                             $entity->save();
-                            
+
                             // Create actual Role
                             $realRole = \App\Models\Roles::firstOrCreate([
                                 'organization_id' => $scenario->organization_id,
@@ -169,13 +174,16 @@ class IncubationController extends Controller
                                 'description' => $entity->role_description,
                                 'status' => 'active',
                                 'discovered_in_scenario_id' => $scenario->id,
-                                'llm_id' => 'gen_' . $entity->id
+                                'llm_id' => 'gen_'.$entity->id,
                             ]);
-                            
+
                             // Determine Archetype
                             $arch = 'O';
-                            if ($entity->human_leverage > 70) $arch = 'E';
-                            elseif ($entity->human_leverage > 40) $arch = 'T';
+                            if ($entity->human_leverage > 70) {
+                                $arch = 'E';
+                            } elseif ($entity->human_leverage > 40) {
+                                $arch = 'T';
+                            }
 
                             // Link Role to Scenario via scenario_roles table
                             \App\Models\ScenarioRole::updateOrCreate([
@@ -189,7 +197,7 @@ class IncubationController extends Controller
                                 'human_leverage' => $entity->human_leverage,
                                 'archetype' => $arch,
                             ]);
-                            
+
                             $approvedCount++;
                         }
                     } else {
@@ -197,7 +205,7 @@ class IncubationController extends Controller
                             ->where('discovered_in_scenario_id', $scenario->id)
                             ->where('status', 'in_incubation')
                             ->first();
-                            
+
                         if ($entity) {
                             $entity->status = 'active';
                             $entity->save();
@@ -217,21 +225,21 @@ class IncubationController extends Controller
         // Even if zero, we don't move scenario to 'active' yet, as per user requirement.
         // It stays in 'incubating' or moves to a 'design_consolidated' state.
         if ($remaining === 0 && $scenario->status === 'incubating') {
-             $scenario->status = 'incubated'; // A technical state meaning "Design Ready but not global"
-             $scenario->save();
+            $scenario->status = 'incubated'; // A technical state meaning "Design Ready but not global"
+            $scenario->save();
         }
 
         return response()->json([
-            'success' => true, 
+            'success' => true,
             'approved_count' => $approvedCount,
             'scenario_status' => $scenario->status,
-            'remaining_incubated' => $remaining
+            'remaining_incubated' => $remaining,
         ]);
     }
 
     /**
      * Reject incubated items (bulk).
-     * Rejection means DELETION or setting to inactive. 
+     * Rejection means DELETION or setting to inactive.
      * Since these are new items that we don't want, deletion is preferred to avoid clutter.
      */
     public function reject(Request $request, $scenarioId)
@@ -239,13 +247,13 @@ class IncubationController extends Controller
         $request->validate([
             'items' => 'required|array',
             'items.*.type' => 'required|in:capability,competency,skill,role',
-            'items.*.id' => 'required|integer'
+            'items.*.id' => 'required|integer',
         ]);
 
         $user = auth()->user();
         $scenario = Scenario::withoutGlobalScopes()->find($scenarioId);
 
-        if (!$scenario || $scenario->organization_id !== ($user->organization_id ?? null)) {
+        if (! $scenario || $scenario->organization_id !== ($user->organization_id ?? null)) {
             return response()->json(['message' => 'Scenario not found or forbidden'], 404);
         }
 
@@ -255,8 +263,8 @@ class IncubationController extends Controller
             foreach ($request->items as $item) {
                 $modelClass = $this->getModelClass($item['type']);
                 if ($modelClass) {
-                   $entity = null;
-                   
+                    $entity = null;
+
                     if ($modelClass === \App\Models\TalentBlueprint::class) {
                         $entity = $modelClass::where('id', $item['id'])
                             ->where('scenario_id', $scenario->id)
@@ -268,18 +276,18 @@ class IncubationController extends Controller
                             ->where('status', 'in_incubation')
                             ->first();
                     }
-                    
+
                     if ($entity) {
                         // Hard delete attempt
                         try {
                             $entity->delete();
                             $rejectedCount++;
                         } catch (\Exception $e) {
-                             // Fallback to inactive if constraints prevent deletion
-                             Log::warning("Could not delete incubated item {$item['type']} {$item['id']}: " . $e->getMessage());
-                             $entity->status = 'inactive';
-                             $entity->save();
-                             $rejectedCount++;
+                            // Fallback to inactive if constraints prevent deletion
+                            Log::warning("Could not delete incubated item {$item['type']} {$item['id']}: ".$e->getMessage());
+                            $entity->status = 'inactive';
+                            $entity->save();
+                            $rejectedCount++;
                         }
                     }
                 }

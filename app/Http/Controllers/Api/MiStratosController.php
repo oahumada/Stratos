@@ -27,7 +27,7 @@ class MiStratosController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
@@ -41,7 +41,7 @@ class MiStratosController extends Controller
             'badges',
         ])->where('user_id', $user->id)->first();
 
-        if (!$person) {
+        if (! $person) {
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -114,7 +114,7 @@ class MiStratosController extends Controller
                     'hire_date' => $person->hire_date,
                     'is_high_potential' => $person->is_high_potential,
                     'current_points' => $person->current_points,
-                    'badges' => $person->badges->map(fn($b) => [
+                    'badges' => $person->badges->map(fn ($b) => [
                         'id' => $b->id,
                         'name' => $b->name,
                         'description' => $b->description,
@@ -147,7 +147,7 @@ class MiStratosController extends Controller
                         'date' => '2025-12-15',
                         'score' => 84,
                         'strengths' => ['Liderazgo Estratégico', 'Resolución de Problemas'],
-                        'opportunities' => ['Comunicación Asertiva']
+                        'opportunities' => ['Comunicación Asertiva'],
                     ],
                     [
                         'id' => 2,
@@ -155,8 +155,8 @@ class MiStratosController extends Controller
                         'date' => '2025-06-10',
                         'score' => 78,
                         'strengths' => ['Trabajo en Equipo', 'Orientación a Resultados'],
-                        'opportunities' => ['Gestión del Tiempo', 'Liderazgo']
-                    ]
+                        'opportunities' => ['Gestión del Tiempo', 'Liderazgo'],
+                    ],
                 ],
             ],
         ]);
@@ -211,14 +211,14 @@ class MiStratosController extends Controller
      */
     private function groupSkillsByCompetency(People $person): array
     {
-        if (!$person->role) {
+        if (! $person->role) {
             return [];
         }
 
         $competencies = [];
         foreach ($person->role->skills as $skill) {
             foreach ($skill->competencies as $comp) {
-                if (!isset($competencies[$comp->id])) {
+                if (! isset($competencies[$comp->id])) {
                     $competencies[$comp->id] = [
                         'id' => $comp->id,
                         'name' => $comp->name,

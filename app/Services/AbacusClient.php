@@ -13,6 +13,7 @@ class AbacusClient
     {
         if ($http !== null) {
             $this->http = $http;
+
             return;
         }
         // When running unit tests outside a full Laravel bootstrap, `config()` may
@@ -46,7 +47,7 @@ class AbacusClient
             'Content-Type' => 'application/json',
         ];
         if (! empty($key)) {
-            $headers['Authorization'] = 'Bearer ' . $key;
+            $headers['Authorization'] = 'Bearer '.$key;
             $headers['apiKey'] = $key;
         }
 
@@ -61,9 +62,6 @@ class AbacusClient
      * Call Abacus generate endpoint with prompt and options.
      * Returns decoded JSON response or throws on HTTP error.
      *
-     * @param string $prompt
-     * @param array $options
-     * @return array|null
      * @throws GuzzleException
      */
     public function generate(string $prompt, array $options = []): ?array
@@ -111,19 +109,32 @@ class AbacusClient
                 $lastEx = $e;
                 $attempt++;
                 $status = null;
-                try { $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : null; } catch (\Throwable $_) { $status = null; }
-                try { \Log::warning('AbacusClient::generate HTTP attempt failed', ['attempt' => $attempt, 'status' => $status, 'message' => $e->getMessage()]); } catch (\Throwable $_) {}
+                try {
+                    $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : null;
+                } catch (\Throwable $_) {
+                    $status = null;
+                }
+                try {
+                    \Log::warning('AbacusClient::generate HTTP attempt failed', ['attempt' => $attempt, 'status' => $status, 'message' => $e->getMessage()]);
+                } catch (\Throwable $_) {
+                }
                 // retry on 5xx or connection issues, otherwise break
                 if ($attempt > $maxAttempts || ($status !== null && $status < 500 && $status !== 429)) {
                     // include response body if present
                     try {
                         $respBody = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : null;
-                    } catch (\Throwable $__) { $respBody = null; }
-                    try { \Log::error('AbacusClient::generate final failure', ['message' => $e->getMessage(), 'response_body' => $respBody]); } catch (\Throwable $_) {}
+                    } catch (\Throwable $__) {
+                        $respBody = null;
+                    }
+                    try {
+                        \Log::error('AbacusClient::generate final failure', ['message' => $e->getMessage(), 'response_body' => $respBody]);
+                    } catch (\Throwable $_) {
+                    }
                     throw $e;
                 }
                 // exponential backoff
                 sleep(min(5, (int) pow(2, $attempt)));
+
                 continue;
             }
         }
@@ -139,10 +150,8 @@ class AbacusClient
      * Stream a generation from Abacus and invoke $onChunk for each text delta.
      * Returns the assembled text and raw payload when possible.
      *
-     * @param string $prompt
-     * @param array $options
-     * @param callable|null $onChunk function(string $delta): void
-     * @return array|null
+     * @param  callable|null  $onChunk  function(string $delta): void
+     *
      * @throws GuzzleException
      */
     public function generateStream(string $prompt, array $options = [], ?callable $onChunk = null): ?array
@@ -162,7 +171,7 @@ class AbacusClient
         }
 
         $payloadBase = [
-            'messages' => [[ 'role' => 'user', 'content' => $prompt ]],
+            'messages' => [['role' => 'user', 'content' => $prompt]],
             'stream' => true,
             'max_tokens' => $options['max_tokens'] ?? 1000,
             'temperature' => $options['temperature'] ?? 0.2,
@@ -177,18 +186,28 @@ class AbacusClient
         // Determine streaming endpoint: prefer explicit config, otherwise derive from base_url.
         try {
             $streamUrl = function_exists('config') ? config('services.abacus.stream_url') : null;
-        } catch (\Throwable $_) { $streamUrl = null; }
+        } catch (\Throwable $_) {
+            $streamUrl = null;
+        }
         if (empty($streamUrl)) {
-            try { $base = function_exists('config') ? rtrim(config('services.abacus.base_url') ?? '', '/') : ''; } catch (\Throwable $_) { $base = rtrim(env('ABACUS_BASE_URL', ''), '/'); }
+            try {
+                $base = function_exists('config') ? rtrim(config('services.abacus.base_url') ?? '', '/') : '';
+            } catch (\Throwable $_) {
+                $base = rtrim(env('ABACUS_BASE_URL', ''), '/');
+            }
             if (strpos($base, 'api.abacus.ai') !== false) {
                 $streamUrl = 'https://routellm.abacus.ai/v1/chat/completions';
             } else {
-                $streamUrl = $base . '/v1/chat/completions';
+                $streamUrl = $base.'/v1/chat/completions';
             }
         }
 
         // Allow caller to increase request timeout when expecting long responses
-        try { $requestTimeout = $options['timeout'] ?? (function_exists('config') ? config('services.abacus.timeout', 60) : 60); } catch (\Throwable $_) { $requestTimeout = $options['timeout'] ?? (int) (env('ABACUS_TIMEOUT') ?: 60); }
+        try {
+            $requestTimeout = $options['timeout'] ?? (function_exists('config') ? config('services.abacus.timeout', 60) : 60);
+        } catch (\Throwable $_) {
+            $requestTimeout = $options['timeout'] ?? (int) (env('ABACUS_TIMEOUT') ?: 60);
+        }
         // How long to tolerate no data on the stream before considering it stalled
         $streamIdleTimeout = $options['stream_idle_timeout'] ?? 120; // seconds
 
@@ -205,19 +224,35 @@ class AbacusClient
                 ]);
 
                 $body = $resp->getBody();
+
                 return $this->parseStream($body, $options, $onChunk, $streamIdleTimeout);
             } catch (\GuzzleHttp\Exception\GuzzleException $e) {
                 $lastEx = $e;
                 $attempt++;
                 $status = null;
-                try { $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : null; } catch (\Throwable $_) { $status = null; }
-                try { \Log::warning('AbacusClient::generateStream HTTP attempt failed', ['attempt' => $attempt, 'status' => $status, 'message' => $e->getMessage()]); } catch (\Throwable $_) {}
+                try {
+                    $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : null;
+                } catch (\Throwable $_) {
+                    $status = null;
+                }
+                try {
+                    \Log::warning('AbacusClient::generateStream HTTP attempt failed', ['attempt' => $attempt, 'status' => $status, 'message' => $e->getMessage()]);
+                } catch (\Throwable $_) {
+                }
                 if ($attempt > $maxAttempts || ($status !== null && $status < 500 && $status !== 429)) {
-                    try { $respBody = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : null; } catch (\Throwable $__) { $respBody = null; }
-                    try { \Log::error('AbacusClient::generateStream final failure', ['message' => $e->getMessage(), 'response_body' => $respBody, 'stream_url' => $streamUrl]); } catch (\Throwable $_) {}
+                    try {
+                        $respBody = method_exists($e, 'getResponse') && $e->getResponse() ? (string) $e->getResponse()->getBody() : null;
+                    } catch (\Throwable $__) {
+                        $respBody = null;
+                    }
+                    try {
+                        \Log::error('AbacusClient::generateStream final failure', ['message' => $e->getMessage(), 'response_body' => $respBody, 'stream_url' => $streamUrl]);
+                    } catch (\Throwable $_) {
+                    }
                     throw $e;
                 }
                 sleep(min(5, (int) pow(2, $attempt)));
+
                 continue;
             }
         }
@@ -234,11 +269,7 @@ class AbacusClient
      * Parse a streaming body and invoke $onChunk for each delta.
      * Separated for testability.
      *
-     * @param mixed $body
-     * @param array $options
-     * @param callable|null $onChunk
-     * @param int $streamIdleTimeout
-     * @return array|null
+     * @param  mixed  $body
      */
     protected function parseStream($body, array $options = [], ?callable $onChunk = null, int $streamIdleTimeout = 120): ?array
     {
@@ -256,9 +287,13 @@ class AbacusClient
             if ($chunk === '') {
                 usleep(50000);
                 if ((microtime(true) - $lastChunkAt) > $streamIdleTimeout) {
-                    try { \Log::warning('AbacusClient::parseStream idle timeout reached'); } catch (\Throwable $_) {}
+                    try {
+                        \Log::warning('AbacusClient::parseStream idle timeout reached');
+                    } catch (\Throwable $_) {
+                    }
                     break;
                 }
+
                 continue;
             }
             $lastChunkAt = microtime(true);
@@ -267,8 +302,12 @@ class AbacusClient
             $buffer = array_pop($lines);
             foreach ($lines as $line) {
                 $line = trim($line);
-                if ($line === '') continue;
-                if (strpos($line, 'data: ') !== 0) continue;
+                if ($line === '') {
+                    continue;
+                }
+                if (strpos($line, 'data: ') !== 0) {
+                    continue;
+                }
                 $payloadLine = substr($line, 6);
                 if ($payloadLine === '[DONE]') {
                     break 2;
@@ -303,7 +342,10 @@ class AbacusClient
                     ];
 
                     if ($onChunk) {
-                        try { call_user_func($onChunk, $delta, $meta); } catch (\Throwable $e) { /* swallow */ }
+                        try {
+                            call_user_func($onChunk, $delta, $meta);
+                        } catch (\Throwable $e) { /* swallow */
+                        }
                     }
                 }
             }

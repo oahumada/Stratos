@@ -15,17 +15,17 @@ class Scenario extends Model
     protected $table = 'scenarios';
 
     protected $fillable = [
-        'organization_id', 'name', 'code', 'description', 'kpis', 
-        'start_date', 'end_date', 'horizon_months', 'fiscal_year', 
-        'scope_type', 'scope_notes', 'status', 'approved_at', 
-        'approved_by', 'assumptions', 'owner_user_id', 
-        'sponsor_user_id', 'created_by', 'updated_by', 
-        'template_id', 'source_generation_id', 'accepted_prompt', 
+        'organization_id', 'name', 'code', 'description', 'kpis',
+        'start_date', 'end_date', 'horizon_months', 'fiscal_year',
+        'scope_type', 'scope_notes', 'status', 'approved_at',
+        'approved_by', 'assumptions', 'owner_user_id',
+        'sponsor_user_id', 'created_by', 'updated_by',
+        'template_id', 'source_generation_id', 'accepted_prompt',
         'accepted_prompt_redacted', 'accepted_prompt_metadata', 'embedding',
-        'decision_status', 'execution_status', 'version_number', 
-        'version_group_id', 'is_current_version', 'parent_id', 
-        'current_step', 'time_horizon_weeks', 'custom_config', 
-        'estimated_budget'
+        'decision_status', 'execution_status', 'version_number',
+        'version_group_id', 'is_current_version', 'parent_id',
+        'current_step', 'time_horizon_weeks', 'custom_config',
+        'estimated_budget',
     ];
 
     protected $casts = [
@@ -128,7 +128,7 @@ class Scenario extends Model
     {
         static::creating(function ($model) {
             if (empty($model->code)) {
-                $model->code = 'SCN-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 6)) . '-' . time();
+                $model->code = 'SCN-'.strtoupper(substr(bin2hex(random_bytes(3)), 0, 6)).'-'.time();
             }
             // Ensure start/end dates exist to satisfy NOT NULL DB constraints
             if (empty($model->start_date)) {

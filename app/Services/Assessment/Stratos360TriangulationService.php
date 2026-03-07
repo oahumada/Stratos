@@ -21,7 +21,7 @@ class Stratos360TriangulationService
     public function triangulate(int $subjectId, ?int $cycleId = null): array
     {
         $person = People::findOrFail($subjectId);
-        
+
         // 1. Recopilar feedbacks completados (con comentario o score).
         $query = AssessmentFeedback::join('assessment_requests', 'assessment_feedback.assessment_request_id', '=', 'assessment_requests.id')
             ->join('skills', 'assessment_feedback.skill_id', '=', 'skills.id')
@@ -39,7 +39,7 @@ class Stratos360TriangulationService
                 'assessment_feedback.score',
                 'assessment_feedback.answer as qualitative_feedback'
             );
-            
+
         if ($cycleId) {
             $query->where('assessment_requests.assessment_cycle_id', $cycleId);
         }
@@ -49,22 +49,22 @@ class Stratos360TriangulationService
         if ($feedbacks->isEmpty()) {
             return [
                 'status' => 'error',
-                'message' => 'No hay feedbacks cruzados suficientes para triangular.'
+                'message' => 'No hay feedbacks cruzados suficientes para triangular.',
             ];
         }
 
         // 2. Agrupar por Competencia -> Skill
-        $groupedByCompetency = $feedbacks->groupBy(function($item) {
+        $groupedByCompetency = $feedbacks->groupBy(function ($item) {
             return $item->competency_id ?? 'ungrouped';
         });
 
         $contextPayload = [];
         foreach ($groupedByCompetency as $compId => $compItems) {
             $competencyName = $compId === 'ungrouped' ? 'Skills Independientes' : $compItems->first()->competency_name;
-            
+
             $skillsPayload = [];
             $groupedBySkill = $compItems->groupBy('skill_id');
-            
+
             foreach ($groupedBySkill as $skillId => $skillItems) {
                 $evaluations = $skillItems->map(function ($f) {
                     return [
@@ -73,7 +73,7 @@ class Stratos360TriangulationService
                         'qualitative_comment' => $f->qualitative_feedback,
                     ];
                 })->toArray();
-                
+
                 $rawAverage = collect($evaluations)->avg('raw_score');
                 $skillsPayload[] = [
                     'skill_id' => $skillId,
@@ -86,7 +86,7 @@ class Stratos360TriangulationService
             $contextPayload[] = [
                 'competency_id' => $compId === 'ungrouped' ? null : $compId,
                 'competency_name' => $competencyName,
-                'skills' => $skillsPayload
+                'skills' => $skillsPayload,
             ];
         }
 
@@ -100,8 +100,8 @@ class Stratos360TriangulationService
         $prompt .= "2. Los puntajes de Skill ('stratos_score') deben ser enteros 1-5.\n";
         $prompt .= "3. El 'competency_score' será un ponderado de sus Skills (puede tener decimales, max 5.0).\n\n";
 
-        $prompt .= "📦 DATOS RAW:\n" . json_encode($contextPayload, JSON_UNESCAPED_UNICODE) . "\n\n";
-        
+        $prompt .= "📦 DATOS RAW:\n".json_encode($contextPayload, JSON_UNESCAPED_UNICODE)."\n\n";
+
         $prompt .= "🛑 REQUERIMIENTO TÉCNICO:\nDEBES DEVOLVER EXCLUSIVAMENTE UN JSON con la siguiente estructura y NADA MÁS:\n";
         $prompt .= '{
   "overall_bias_detected": "Resumen macro (1 párrafo) de los sesgos generales detectados.",
@@ -127,14 +127,15 @@ class Stratos360TriangulationService
         // 4. Invocación al Cerebro de Stratos (LLM)
         try {
             $agentResponse = $this->orchestrator->agentThink('Orquestador 360', $prompt);
-            
+
             $analysisString = $agentResponse['response'] ?? '{}';
             $analysisString = str_replace('```json', '', $analysisString);
             $analysisString = str_replace('```', '', $analysisString);
             $analysis = json_decode(trim($analysisString), true);
 
-            if (!$analysis || !isset($analysis['triangulated_competencies'])) {
-                Log::error("Stratos Triangulation Parse Error", ['string' => $analysisString]);
+            if (! $analysis || ! isset($analysis['triangulated_competencies'])) {
+                Log::error('Stratos Triangulation Parse Error', ['string' => $analysisString]);
+
                 return [
                     'status' => 'error',
                     'message' => 'Fallo al parsear la respuesta JSON de Triangulación.',
@@ -149,14 +150,14 @@ class Stratos360TriangulationService
                             [
                                 'people_id' => $person->id,
                                 'skill_id' => $calibratedSkill['skill_id'],
-                                'is_active' => true
+                                'is_active' => true,
                             ],
                             [
                                 'current_level' => collect([1, 2, 3, 4, 5])->contains($calibratedSkill['stratos_score']) ? $calibratedSkill['stratos_score'] : round($calibratedSkill['raw_score']),
-                                'notes' => "[Stratos AI]: " . ($calibratedSkill['ai_justification'] ?? 'Corregido') . " | Bias: " . ($calibratedSkill['bias_flag'] ?? 'None'),
+                                'notes' => '[Stratos AI]: '.($calibratedSkill['ai_justification'] ?? 'Corregido').' | Bias: '.($calibratedSkill['bias_flag'] ?? 'None'),
                                 'verified' => true,
                                 'evaluated_at' => now(),
-                                'evidence_source' => 'Stratos360_IA_Triangulated'
+                                'evidence_source' => 'Stratos360_IA_Triangulated',
                             ]
                         );
                     }
@@ -167,15 +168,16 @@ class Stratos360TriangulationService
             return [
                 'status' => 'success',
                 'report' => $analysis,
-                'context' => $contextPayload
+                'context' => $contextPayload,
             ];
 
         } catch (\Exception $e) {
-            Log::error('Triangulation Error: ' . $e->getMessage());
+            Log::error('Triangulation Error: '.$e->getMessage());
+
             return [
                 'status' => 'error',
                 'message' => 'Excepción durante la triangulación.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ];
         }
     }

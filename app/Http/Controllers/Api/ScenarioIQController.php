@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\Scenario\CrisisSimulatorService;
-use App\Services\Scenario\CareerPathService;
 use App\Services\Scenario\AgenticScenarioService;
+use App\Services\Scenario\CareerPathService;
+use App\Services\Scenario\CrisisSimulatorService;
 use App\Traits\ApiResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -35,9 +35,10 @@ class ScenarioIQController extends Controller
 
         try {
             $result = $this->crisisSimulator->simulateMassAttrition($scenarioId, $validated);
+
             return $this->success($result, 'Simulación de attrition ejecutada.');
         } catch (\Exception $e) {
-            return $this->error('Error en simulación: ' . $e->getMessage(), 500);
+            return $this->error('Error en simulación: '.$e->getMessage(), 500);
         }
     }
 
@@ -54,9 +55,10 @@ class ScenarioIQController extends Controller
 
         try {
             $result = $this->crisisSimulator->simulateSkillObsolescence($scenarioId, $validated);
+
             return $this->success($result, 'Simulación de obsolescencia ejecutada.');
         } catch (\Exception $e) {
-            return $this->error('Error en simulación: ' . $e->getMessage(), 500);
+            return $this->error('Error en simulación: '.$e->getMessage(), 500);
         }
     }
 
@@ -73,9 +75,10 @@ class ScenarioIQController extends Controller
 
         try {
             $result = $this->crisisSimulator->simulateRestructuring($scenarioId, $validated);
+
             return $this->success($result, 'Simulación de restructuración ejecutada.');
         } catch (\Exception $e) {
-            return $this->error('Error en simulación: ' . $e->getMessage(), 500);
+            return $this->error('Error en simulación: '.$e->getMessage(), 500);
         }
     }
 
@@ -88,9 +91,10 @@ class ScenarioIQController extends Controller
     {
         try {
             $paths = $this->careerPaths->calculateCareerPaths($peopleId);
+
             return $this->success($paths, 'Rutas de carrera calculadas.');
         } catch (\Exception $e) {
-            return $this->error('Error al calcular rutas: ' . $e->getMessage(), 500);
+            return $this->error('Error al calcular rutas: '.$e->getMessage(), 500);
         }
     }
 
@@ -101,9 +105,10 @@ class ScenarioIQController extends Controller
     {
         try {
             $route = $this->careerPaths->calculateOptimalRoute($fromRoleId, $toRoleId);
+
             return $this->success($route, 'Ruta óptima calculada.');
         } catch (\Exception $e) {
-            return $this->error('Error al calcular ruta: ' . $e->getMessage(), 500);
+            return $this->error('Error al calcular ruta: '.$e->getMessage(), 500);
         }
     }
 
@@ -114,9 +119,10 @@ class ScenarioIQController extends Controller
     {
         try {
             $map = $this->careerPaths->generateMobilityMap($organizationId);
+
             return $this->success($map, 'Mapa de movilidad generado.');
         } catch (\Exception $e) {
-            return $this->error('Error al generar mapa: ' . $e->getMessage(), 500);
+            return $this->error('Error al generar mapa: '.$e->getMessage(), 500);
         }
     }
 
@@ -127,9 +133,10 @@ class ScenarioIQController extends Controller
     {
         try {
             $prediction = $this->careerPaths->predictTransitionSuccess($peopleId, $targetRoleId);
+
             return $this->success($prediction, 'Predicción calculada.');
         } catch (\Exception $e) {
-            return $this->error('Error en predicción: ' . $e->getMessage(), 500);
+            return $this->error('Error en predicción: '.$e->getMessage(), 500);
         }
     }
 
@@ -156,9 +163,10 @@ class ScenarioIQController extends Controller
 
         try {
             $result = $this->agenticScenario->runAgenticSimulation($scenarioId, $validated);
+
             return $this->success($result, 'Simulación agéntica ejecutada.');
         } catch (\Exception $e) {
-            return $this->error('Error en simulación agéntica: ' . $e->getMessage(), 500);
+            return $this->error('Error en simulación agéntica: '.$e->getMessage(), 500);
         }
     }
 
@@ -173,9 +181,10 @@ class ScenarioIQController extends Controller
 
         try {
             $result = $this->agenticScenario->quickWhatIf($validated['question'], $scenarioId);
+
             return $this->success($result, 'Análisis What-If completado.');
         } catch (\Exception $e) {
-            return $this->error('Error en What-If: ' . $e->getMessage(), 500);
+            return $this->error('Error en What-If: '.$e->getMessage(), 500);
         }
     }
 }

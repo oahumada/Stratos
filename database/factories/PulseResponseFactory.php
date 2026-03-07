@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\People;
-use App\Models\PulseSurvey;
 use App\Models\PulseResponse;
+use App\Models\PulseSurvey;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PulseResponseFactory extends Factory

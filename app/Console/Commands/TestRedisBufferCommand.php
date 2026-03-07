@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\ScenarioGeneration;
 use App\Models\GenerationChunk;
+use App\Models\ScenarioGeneration;
 use App\Services\GenerationRedisBuffer;
+use Illuminate\Console\Command;
 
 class TestRedisBufferCommand extends Command
 {
@@ -20,6 +21,7 @@ class TestRedisBufferCommand extends Command
         $generation = ScenarioGeneration::find($genId);
         if (! $generation) {
             $this->error("Generation {$genId} not found.");
+
             return 1;
         }
 
@@ -29,27 +31,29 @@ class TestRedisBufferCommand extends Command
         $chunks = GenerationChunk::where('scenario_generation_id', $genId)->orderBy('sequence')->get();
         if ($chunks->isEmpty()) {
             $this->warn('No chunks found in DB for this generation.');
+
             return 1;
         }
 
-        $svc = new GenerationRedisBuffer();
+        $svc = new GenerationRedisBuffer;
         foreach ($chunks as $c) {
             $svc->pushChunk($org, $genId, $c->chunk);
         }
 
-        $this->info('Pushed ' . $svc->getChunkCount($org, $genId) . ' chunks to Redis.');
+        $this->info('Pushed '.$svc->getChunkCount($org, $genId).' chunks to Redis.');
 
         $this->info('Assembling and persisting compacted payload...');
         $res = $svc->assembleAndPersist($org, $genId, null, $delete);
         if (! $res['ok']) {
-            $this->error('Assemble failed: ' . ($res['reason'] ?? 'unknown'));
+            $this->error('Assemble failed: '.($res['reason'] ?? 'unknown'));
+
             return 1;
         }
 
-        $this->info('Saved compacted for gen ' . $res['generation_id']);
-        $this->line('chunk_count: ' . $res['chunk_count']);
-        $this->line('compacted base64 len: ' . $res['compacted_base64_len']);
-        $this->line('decoded len: ' . $res['decoded_len']);
+        $this->info('Saved compacted for gen '.$res['generation_id']);
+        $this->line('chunk_count: '.$res['chunk_count']);
+        $this->line('compacted base64 len: '.$res['compacted_base64_len']);
+        $this->line('decoded len: '.$res['decoded_len']);
 
         return 0;
     }

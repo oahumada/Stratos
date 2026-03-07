@@ -1,20 +1,21 @@
 <?php
+
 // Manual compacted endpoint tester
 // Usage: php src/scripts/manual_compacted_test.php
 
-$vendor = __DIR__ . '/../vendor/autoload.php';
+$vendor = __DIR__.'/../vendor/autoload.php';
 if (! file_exists($vendor)) {
     echo "Cannot find vendor/autoload.php at $vendor\n";
     exit(1);
 }
 require $vendor;
-$app = require __DIR__ . '/../bootstrap/app.php';
+$app = require __DIR__.'/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
 use App\Models\Organization;
-use App\Models\User;
 use App\Models\ScenarioGeneration;
+use App\Models\User;
 
 // ensure organization
 $org = Organization::firstOrCreate(['id' => 1], ['name' => 'local', 'subdomain' => 'local']);

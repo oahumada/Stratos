@@ -330,7 +330,7 @@ return new class extends Migration
             DB::statement('DROP FUNCTION IF EXISTS trg_func_scenarios_update_to_wp');
             DB::statement('DROP FUNCTION IF EXISTS trg_func_scenarios_delete_to_wp');
         }
-        
+
         Schema::dropIfExists('workforce_plans');
     }
 };

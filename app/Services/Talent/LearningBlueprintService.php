@@ -2,13 +2,12 @@
 
 namespace App\Services\Talent;
 
+use App\Models\DevelopmentAction;
+use App\Models\DevelopmentPath;
 use App\Models\People;
 use App\Models\PeopleRoleSkills;
-use App\Models\DevelopmentPath;
-use App\Models\DevelopmentAction;
 use App\Services\AiOrchestratorService;
 use App\Services\AuditTrailService;
-use App\Services\Talent\MentorMatchingService;
 use App\Services\Talent\Lms\LmsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -104,7 +103,7 @@ class LearningBlueprintService
                 'organization_id' => $person->organization_id,
                 'people_id' => $person->id,
                 'target_role_id' => $person->role_id,
-                'action_title' => "Learning Blueprint: " . ($blueprint['person']['name'] ?? 'Auto-generado'),
+                'action_title' => 'Learning Blueprint: '.($blueprint['person']['name'] ?? 'Auto-generado'),
                 'status' => 'draft',
                 'estimated_duration_months' => $blueprint['estimated_completion_months'] ?? 6,
                 'started_at' => now(),
@@ -215,7 +214,7 @@ class LearningBlueprintService
         $mediumGaps = array_filter($gaps, fn ($g) => $g['priority'] === 'medium');
 
         // Fase 1: Intervención urgente para gaps críticos
-        if (!empty($criticalGaps)) {
+        if (! empty($criticalGaps)) {
             $learningPaths[] = [
                 'phase' => 1,
                 'name' => 'Intervención Urgente',
@@ -226,7 +225,7 @@ class LearningBlueprintService
         }
 
         // Fase 2: Desarrollo enfocado para gaps altos
-        if (!empty($highGaps)) {
+        if (! empty($highGaps)) {
             $learningPaths[] = [
                 'phase' => 2,
                 'name' => 'Desarrollo Focalizado',
@@ -249,7 +248,7 @@ class LearningBlueprintService
             ];
         }
 
-        if (!empty($phase3Actions)) {
+        if (! empty($phase3Actions)) {
             $learningPaths[] = [
                 'phase' => 3,
                 'name' => 'Refinamiento & Future-Proofing',
@@ -286,8 +285,8 @@ class LearningBlueprintService
             $mentors = $this->mentorService->findMentors($gap['skill_id'], 4, 1);
             $mentor = $mentors->first();
             $actions[] = [
-                'title' => "Mentoría en {$skillName}" . ($mentor ? " con {$mentor->full_name}" : ''),
-                'description' => "Sesiones de acompañamiento práctico.",
+                'title' => "Mentoría en {$skillName}".($mentor ? " con {$mentor->full_name}" : ''),
+                'description' => 'Sesiones de acompañamiento práctico.',
                 'type' => 'mentoring',
                 'strategy' => 'borrow',
                 'hours' => $gapSize * 4,
@@ -379,15 +378,23 @@ class LearningBlueprintService
 
     protected function classifyGapPriority(int $gap): string
     {
-        if ($gap >= 3) return 'critical';
-        if ($gap === 2) return 'high';
-        if ($gap === 1) return 'medium';
+        if ($gap >= 3) {
+            return 'critical';
+        }
+        if ($gap === 2) {
+            return 'high';
+        }
+        if ($gap === 1) {
+            return 'medium';
+        }
+
         return 'low';
     }
 
     protected function mapActionType(string $type): string
     {
         $validTypes = ['training', 'practice', 'project', 'mentoring'];
+
         return in_array($type, $validTypes) ? $type : 'training';
     }
 }

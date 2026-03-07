@@ -2,13 +2,14 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 class EmbeddingService
 {
     protected string $provider;
+
     protected string $model;
 
     public function __construct()
@@ -36,10 +37,12 @@ class EmbeddingService
                     return $this->generateMock($text);
                 default:
                     Log::warning("Unknown embedding provider: {$this->provider}");
+
                     return null;
             }
         } catch (\Exception $e) {
-            Log::error("Embedding generation failed: " . $e->getMessage());
+            Log::error('Embedding generation failed: '.$e->getMessage());
+
             return null;
         }
     }
@@ -50,14 +53,15 @@ class EmbeddingService
     protected function generateOpenAI(string $text): ?array
     {
         $apiKey = config('services.openai.key');
-        
+
         if (empty($apiKey)) {
             Log::warning('OpenAI API key not configured');
+
             return null;
         }
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $apiKey,
+            'Authorization' => 'Bearer '.$apiKey,
             'Content-Type' => 'application/json',
         ])->timeout(30)->post('https://api.openai.com/v1/embeddings', [
             'model' => $this->model,
@@ -82,6 +86,7 @@ class EmbeddingService
     protected function generateAbacus(string $text): ?array
     {
         Log::info('Abacus embeddings not yet implemented, falling back to mock');
+
         return $this->generateMock($text);
     }
 
@@ -93,13 +98,13 @@ class EmbeddingService
         // Generate deterministic embedding based on text hash
         $hash = md5($text);
         $embedding = [];
-        
+
         // Generate 1536 dimensions (OpenAI text-embedding-3-small size)
         for ($i = 0; $i < 1536; $i++) {
             $seed = hexdec(substr($hash, $i % 32, 2)) + $i;
             $embedding[] = (sin($seed) + cos($seed * 2)) / 2;
         }
-        
+
         return $embedding;
     }
 
@@ -179,8 +184,8 @@ class EmbeddingService
             return [];
         }
 
-        $embeddingStr = '[' . implode(',', $embedding) . ']';
-        
+        $embeddingStr = '['.implode(',', $embedding).']';
+
         $query = "
             SELECT 
                 id, 
@@ -193,14 +198,14 @@ class EmbeddingService
         $params = [$embeddingStr];
 
         if ($organizationId !== null) {
-            $query .= " AND organization_id = ?";
+            $query .= ' AND organization_id = ?';
             $params[] = $organizationId;
         }
 
-        $query .= "
+        $query .= '
             ORDER BY embedding <=> ?
             LIMIT ?
-        ";
+        ';
 
         $params[] = $embeddingStr;
         $params[] = $limit;
@@ -208,7 +213,8 @@ class EmbeddingService
         try {
             return DB::select($query, $params);
         } catch (\Exception $e) {
-            Log::error("Similarity search failed: " . $e->getMessage());
+            Log::error('Similarity search failed: '.$e->getMessage());
+
             return [];
         }
     }
@@ -218,7 +224,7 @@ class EmbeddingService
      */
     public function toVectorString(array $embedding): string
     {
-        return '[' . implode(',', $embedding) . ']';
+        return '['.implode(',', $embedding).']';
     }
 
     /**
@@ -227,11 +233,11 @@ class EmbeddingService
     public function batchGenerate(array $texts): array
     {
         $embeddings = [];
-        
+
         foreach ($texts as $key => $text) {
             $embeddings[$key] = $this->generate($text);
         }
-        
+
         return $embeddings;
     }
 }

@@ -64,6 +64,7 @@ class StratosGuideService
 
         try {
             $result = $this->orchestrator->agentThink('Stratos Guide', $prompt);
+
             return [
                 'status' => 'success',
                 'answer' => $result['response']['answer'] ?? $result['response'] ?? 'Consulta procesada.',
@@ -71,7 +72,8 @@ class StratosGuideService
                 'related_module' => $result['response']['related_module'] ?? null,
             ];
         } catch (\Exception $e) {
-            Log::error("Stratos Guide error: " . $e->getMessage());
+            Log::error('Stratos Guide error: '.$e->getMessage());
+
             return [
                 'status' => 'fallback',
                 'answer' => $this->getFallbackAnswer($question, $module),
@@ -159,7 +161,7 @@ class StratosGuideService
                 ->where('status', 'active')
                 ->exists();
 
-            if (!$hasActivePath) {
+            if (! $hasActivePath) {
                 $tips[] = [
                     'type' => 'suggestion',
                     'message' => 'Aún no tienes un plan de desarrollo activo. ¿Quieres que generemos uno?',
@@ -211,7 +213,7 @@ class StratosGuideService
 
         foreach ($moduleSteps as $step) {
             $key = "{$module}_{$step['step']}";
-            if (!isset($completed[$key])) {
+            if (! isset($completed[$key])) {
                 return $step;
             }
         }
@@ -222,8 +224,8 @@ class StratosGuideService
     protected function buildContext(string $module, int $userId): string
     {
         $context = "Módulo: {$module}. ";
-        $context .= "Escenarios activos: " . Scenario::whereIn('status', ['active', 'published'])->count() . ". ";
-        $context .= "Total personas: " . People::count() . ". ";
+        $context .= 'Escenarios activos: '.Scenario::whereIn('status', ['active', 'published'])->count().'. ';
+        $context .= 'Total personas: '.People::count().'. ';
 
         return $context;
     }

@@ -24,7 +24,7 @@ class MockProvider implements LLMProviderInterface
         }
 
         // Loosen detection and add logging
-        \Log::info('MockProvider generating for prompt: ' . substr($prompt, 0, 100));
+        \Log::info('MockProvider generating for prompt: '.substr($prompt, 0, 100));
 
         // Smart Mock for "Crecimiento Agresivo" / "Aggressive Growth"
         if (stripos($prompt, 'Crecimiento') !== false || stripos($prompt, 'Aggressive') !== false || stripos($prompt, 'expansi') !== false) {
@@ -36,76 +36,76 @@ class MockProvider implements LLMProviderInterface
                     'assumptions' => [
                         'Disponibilidad de talento senior en arquitectura de nube',
                         'Estabilidad de marcos regulatorios de banca abierta',
-                        'Adopción cultural de metodologías ágiles escaladas'
+                        'Adopción cultural de metodologías ágiles escaladas',
                     ],
                 ],
                 'capabilities' => [
                     [
-                        'name' => 'Arquitectura de Banca Abierta', 
+                        'name' => 'Arquitectura de Banca Abierta',
                         'description' => 'Capacidad de orquestar APIs financieras seguras y escalables.',
                         'competencies' => [
                             [
-                                'name' => 'Diseño de Microservicios', 
+                                'name' => 'Diseño de Microservicios',
                                 'description' => 'Diseño de servicios desacoplados en la nube.',
-                                'skills' => ['AWS Lambda', 'Kafka Streaming', 'Kubernetes Security']
-                            ]
-                        ]
+                                'skills' => ['AWS Lambda', 'Kafka Streaming', 'Kubernetes Security'],
+                            ],
+                        ],
                     ],
                     [
-                        'name' => 'Inteligencia de Datos en Tiempo Real', 
+                        'name' => 'Inteligencia de Datos en Tiempo Real',
                         'description' => 'Procesamiento de eventos para decisiones de crédito instantáneas.',
                         'competencies' => [
                             [
-                                'name' => 'Machine Learning Engineering', 
+                                'name' => 'Machine Learning Engineering',
                                 'description' => 'Entrenamiento y despliegue de modelos predictivos.',
-                                'skills' => ['Python for DS', 'TensorFlow', 'Feature Engineering']
-                            ]
-                        ]
+                                'skills' => ['Python for DS', 'TensorFlow', 'Feature Engineering'],
+                            ],
+                        ],
                     ],
                     [
-                        'name' => 'Agilidad Organizacional Escalada', 
+                        'name' => 'Agilidad Organizacional Escalada',
                         'description' => 'Estructura de squads y tribus para despliegue continuo.',
                         'competencies' => [
                             [
-                                'name' => 'DevSecOps', 
+                                'name' => 'DevSecOps',
                                 'description' => 'Integración de seguridad en el ciclo de vida de desarrollo.',
-                                'skills' => ['CI/CD Pipelines', 'SAST/DAST Tooling', 'Infrastructure as Code']
+                                'skills' => ['CI/CD Pipelines', 'SAST/DAST Tooling', 'Infrastructure as Code'],
                             ],
                             [
-                                'name' => 'Liderazgo de Equipos Distribuidos', 
+                                'name' => 'Liderazgo de Equipos Distribuidos',
                                 'description' => 'Gestión efectiva de equipos remotos en diferentes zonas horarias.',
-                                'skills' => ['Kanban / Scrum', 'Remote Communication', 'Conflict Resolution']
-                            ]
-                        ]
+                                'skills' => ['Kanban / Scrum', 'Remote Communication', 'Conflict Resolution'],
+                            ],
+                        ],
                     ],
                 ],
                 'suggested_roles' => [
                     [
-                        'name' => 'Arquitecto Cloud Senior', 
-                        'role_type' => 'strategic', 
+                        'name' => 'Arquitecto Cloud Senior',
+                        'role_type' => 'strategic',
                         'complexity_level' => 'high',
                         'human_percentage' => 100,
                         'synthetic_percentage' => 0,
                         'strategic_justification' => 'Liderazgo técnico para la migración core.',
-                        'key_competencies' => ['Diseño de Microservicios', 'Liderazgo de Equipos Distribuidos']
+                        'key_competencies' => ['Diseño de Microservicios', 'Liderazgo de Equipos Distribuidos'],
                     ],
                     [
-                        'name' => 'Ingeniero de Plataforma AI', 
-                        'role_type' => 'tactical', 
+                        'name' => 'Ingeniero de Plataforma AI',
+                        'role_type' => 'tactical',
                         'complexity_level' => 'high',
                         'human_percentage' => 70,
                         'synthetic_percentage' => 30,
                         'strategic_justification' => 'Desarrollo de modelos de scoring predictivo.',
-                        'key_competencies' => ['Machine Learning Engineering', 'Diseño de Microservicios']
+                        'key_competencies' => ['Machine Learning Engineering', 'Diseño de Microservicios'],
                     ],
                     [
-                        'name' => 'SRE Specialist', 
-                        'role_type' => 'tactical', 
+                        'name' => 'SRE Specialist',
+                        'role_type' => 'tactical',
                         'complexity_level' => 'medium',
                         'human_percentage' => 50,
                         'synthetic_percentage' => 50,
                         'strategic_justification' => 'Automatización de observabilidad y resiliencia.',
-                        'key_competencies' => ['DevSecOps', 'Diseño de Microservicios']
+                        'key_competencies' => ['DevSecOps', 'Diseño de Microservicios'],
                     ],
                 ],
                 'impact_analysis' => [
@@ -140,10 +140,6 @@ class MockProvider implements LLMProviderInterface
      * Simulate streamed generation by invoking $onDelta with small chunks.
      * Returns the same shape as generate().
      * This helps local/demo jobs persist chunks.
-     *
-     * @param string $prompt
-     * @param callable $onDelta
-     * @return array
      */
     public function generateStream(string $prompt, callable $onDelta): array
     {

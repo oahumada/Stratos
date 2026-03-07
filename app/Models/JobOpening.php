@@ -33,8 +33,8 @@ class JobOpening extends Model
     protected static function booted()
     {
         static::creating(function ($opening) {
-            if (!$opening->slug) {
-                $opening->slug = \Illuminate\Support\Str::slug($opening->title . '-' . \Illuminate\Support\Str::random(5));
+            if (! $opening->slug) {
+                $opening->slug = \Illuminate\Support\Str::slug($opening->title.'-'.\Illuminate\Support\Str::random(5));
             }
         });
 

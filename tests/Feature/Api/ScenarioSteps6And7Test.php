@@ -1,20 +1,19 @@
 <?php
 
-use App\Models\Scenario;
-use App\Models\User;
 use App\Models\Organization;
+use App\Models\Scenario;
 use App\Models\ScenarioClosureStrategy;
 use App\Models\ScenarioSkillDemand;
 use App\Models\Skill;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    \DB::listen(function($query) {
+    \DB::listen(function ($query) {
         \Log::info($query->sql, $query->bindings);
-        echo $query->sql . "\n";
+        echo $query->sql."\n";
     });
     $this->organization = Organization::factory()->create();
     $this->user = User::factory()->create(['organization_id' => $this->organization->id]);
@@ -29,7 +28,7 @@ test('test6', function () {
         'owner_user_id' => $this->user->id,
         'created_by' => $this->user->id,
     ]);
-    
+
     $scenario2 = Scenario::factory()->create([
         'organization_id' => $this->organization->id,
         'name' => 'Scenario B',
@@ -46,7 +45,7 @@ test('test6', function () {
         'estimated_cost' => 5000,
         'status' => 'approved',
         'skill_id' => Skill::factory()->create(['organization_id' => $this->organization->id])->id,
-        'role_id' => \App\Models\Roles::factory()->create(['organization_id' => $this->organization->id])->id
+        'role_id' => \App\Models\Roles::factory()->create(['organization_id' => $this->organization->id])->id,
     ]);
 
     ScenarioSkillDemand::create([
@@ -54,7 +53,7 @@ test('test6', function () {
         'skill_id' => Skill::factory()->create(['organization_id' => $this->organization->id])->id,
         'required_headcount' => 10,
         'current_headcount' => 5,
-        'priority' => 'high'
+        'priority' => 'high',
     ]);
 
     $response = $this->getJson("/api/strategic-planning/scenarios/{$scenario1->id}/compare-versions?ids[]={$scenario1->id}&ids[]={$scenario2->id}");
@@ -64,14 +63,14 @@ test('test6', function () {
             'success',
             'data' => [
                 '*' => [
-                    'id', 'name', 'version', 'iq', 'total_cost', 'total_req_fte', 'total_curr_fte', 'gap_fte', 'status', 'created_at'
-                ]
-            ]
+                    'id', 'name', 'version', 'iq', 'total_cost', 'total_req_fte', 'total_curr_fte', 'gap_fte', 'status', 'created_at',
+                ],
+            ],
         ]);
-        
+
     $data = $response->json('data');
     expect($data)->toHaveCount(2);
-    expect((float)$data[0]['total_cost'])->toBe(5000.0);
+    expect((float) $data[0]['total_cost'])->toBe(5000.0);
     expect($data[0]['gap_fte'])->toBe(5);
 });
 
@@ -90,9 +89,9 @@ test('test7', function () {
         'estimated_cost' => 2000,
         'status' => 'approved',
         'skill_id' => Skill::factory()->create(['organization_id' => $this->organization->id])->id,
-        'role_id' => \App\Models\Roles::factory()->create(['organization_id' => $this->organization->id])->id
+        'role_id' => \App\Models\Roles::factory()->create(['organization_id' => $this->organization->id])->id,
     ]);
-    
+
     ScenarioClosureStrategy::create([
         'scenario_id' => $scenario->id,
         'strategy' => 'buy',
@@ -100,7 +99,7 @@ test('test7', function () {
         'estimated_cost' => 3000,
         'status' => 'approved',
         'skill_id' => Skill::factory()->create(['organization_id' => $this->organization->id])->id,
-        'role_id' => \App\Models\Roles::factory()->create(['organization_id' => $this->organization->id])->id
+        'role_id' => \App\Models\Roles::factory()->create(['organization_id' => $this->organization->id])->id,
     ]);
 
     // Mock demand
@@ -110,7 +109,7 @@ test('test7', function () {
         'skill_id' => $skill->id,
         'required_headcount' => 20,
         'current_headcount' => 10,
-        'priority' => 'high'
+        'priority' => 'high',
     ]);
 
     // Mock Talent Blueprint for Synthetization Index
@@ -133,14 +132,14 @@ test('test7', function () {
                 'fte' => ['required', 'current', 'gap'],
                 'critical_gaps',
                 'synthetization_index',
-                'risk_level'
-            ]
+                'risk_level',
+            ],
         ]);
 
     $data = $response->json('data');
-    expect((float)$data['total_investment'])->toBe(5000.0);
+    expect((float) $data['total_investment'])->toBe(5000.0);
     expect($data['fte']['gap'])->toBe(10);
-    expect((float)$data['synthetization_index'])->toBe(40.0);
+    expect((float) $data['synthetization_index'])->toBe(40.0);
     expect($data['risk_level'])->toBe('High');
     expect($data['critical_gaps'])->toHaveCount(1);
     expect($data['critical_gaps'][0]['skill'])->toBe('Critical Skill');

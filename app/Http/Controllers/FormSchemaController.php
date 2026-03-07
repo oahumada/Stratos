@@ -9,7 +9,9 @@ use Inertia\Inertia;
 class FormSchemaController extends Controller
 {
     protected $repository;
+
     protected $modelClass;
+
     protected $repositoryClass;
 
     /**
@@ -18,7 +20,7 @@ class FormSchemaController extends Controller
     protected function authorizeAction(string $modelName, string $action)
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Unauthenticated');
         }
 
@@ -28,7 +30,7 @@ class FormSchemaController extends Controller
         }
 
         $module = strtolower($modelName);
-        
+
         // Map common actions to permission suffixes
         $permSuffix = match ($action) {
             'index', 'show', 'search', 'searchWithPeople' => 'view',
@@ -38,10 +40,10 @@ class FormSchemaController extends Controller
 
         $permission = "{$module}.{$permSuffix}";
 
-        if (!$user->hasPermission($permission)) {
+        if (! $user->hasPermission($permission)) {
             // Check for more specific permissions if general manage fails
             $specificPerm = "{$module}.{$action}";
-            if (!$user->hasPermission($specificPerm)) {
+            if (! $user->hasPermission($specificPerm)) {
                 abort(403, "No tienes permiso para '{$permission}' en el módulo {$module}.");
             }
         }
@@ -53,7 +55,7 @@ class FormSchemaController extends Controller
     public function initializeForModel(string $modelName, string $action = 'view')
     {
         $this->authorizeAction($modelName, $action);
-        
+
         $this->resolveModelAndRepository($modelName);
 
         $model = new $this->modelClass;
@@ -67,15 +69,15 @@ class FormSchemaController extends Controller
         $this->modelClass = "App\\Models\\{$modelName}";
         $this->repositoryClass = "App\\Repository\\{$modelName}Repository";
 
-        if (!class_exists($this->modelClass)) {
+        if (! class_exists($this->modelClass)) {
             $this->tryAlternativeClasses($modelName);
         }
 
-        if (!class_exists($this->modelClass)) {
+        if (! class_exists($this->modelClass)) {
             throw new \Exception("Model class {$this->modelClass} not found");
         }
 
-        if (!class_exists($this->repositoryClass)) {
+        if (! class_exists($this->repositoryClass)) {
             throw new \Exception("Repository class {$this->repositoryClass} not found");
         }
     }
@@ -85,18 +87,19 @@ class FormSchemaController extends Controller
         // Try singular
         $singular = rtrim($modelName, 's');
         $singularClass = "App\\Models\\{$singular}";
-        
+
         if (class_exists($singularClass)) {
             $this->modelClass = $singularClass;
             $repoClass = "App\\Repository\\{$singular}Repository";
             if (class_exists($repoClass)) {
                 $this->repositoryClass = $repoClass;
             }
+
             return;
         }
 
         // Try plural
-        $plural = $modelName . 's';
+        $plural = $modelName.'s';
         $pluralClass = "App\\Models\\{$plural}";
         if (class_exists($pluralClass)) {
             $this->modelClass = $pluralClass;
@@ -262,7 +265,6 @@ class FormSchemaController extends Controller
             ], 500);
         }
     }
-
 
     /**
      * Mapeo de modelos a sus vistas principales

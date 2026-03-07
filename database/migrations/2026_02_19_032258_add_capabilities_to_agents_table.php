@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('agents', function (Blueprint $table) {
-            if (!Schema::hasColumn('agents', 'capabilities_config')) {
+            if (! Schema::hasColumn('agents', 'capabilities_config')) {
                 $table->json('capabilities_config')->nullable();
             }
             $table->unsignedBigInteger('organization_id')->nullable()->change();

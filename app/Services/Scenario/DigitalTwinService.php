@@ -3,9 +3,7 @@
 namespace App\Services\Scenario;
 
 use App\Models\Organization;
-use App\Models\People;
 use App\Models\Roles;
-use App\Models\Skill;
 use Illuminate\Support\Facades\Log;
 
 class DigitalTwinService
@@ -31,7 +29,7 @@ class DigitalTwinService
             'edges' => [
                 'hierarchies' => $this->captureHierarchies($org),
                 'skill_mesh' => $this->captureSkillMesh($org),
-            ]
+            ],
         ];
     }
 

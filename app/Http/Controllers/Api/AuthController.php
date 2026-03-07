@@ -15,7 +15,7 @@ class AuthController extends Controller
         $user = $request->user();
 
         // Si no hay usuario, retornar vacío (manejado por auth:sanctum de todos modos)
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 

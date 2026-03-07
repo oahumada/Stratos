@@ -22,10 +22,10 @@ class TalentSelectionService
     public function analyzeApplication(int $applicationId): array
     {
         $application = Application::with(['people', 'jobOpening.role'])->findOrFail($applicationId);
-        
+
         $candidateName = $application->people->name;
         $roleName = $application->jobOpening->role->name ?? 'Posición Especialista';
-        
+
         $prompt = "Necesito que analices la aplicación de {$candidateName} para el cargo de {$roleName}.
         
         Datos del candidato:
@@ -52,22 +52,23 @@ class TalentSelectionService
             if (is_string($matchScore)) {
                 $matchScore = (int) filter_var($matchScore, FILTER_SANITIZE_NUMBER_INT);
             }
-            
+
             // Guardar el análisis en la aplicación
             $application->update([
                 'ai_analysis' => $analysis,
-                'match_score' => $matchScore
+                'match_score' => $matchScore,
             ]);
 
             Log::info("Análisis de Selector de Talento persistido para APP #{$applicationId}");
-            
+
             return [
                 'status' => 'analyzed',
                 'candidate' => $candidateName,
-                'analysis' => $analysis
+                'analysis' => $analysis,
             ];
         } catch (\Exception $e) {
-            Log::error("Error en análisis de talento: " . $e->getMessage());
+            Log::error('Error en análisis de talento: '.$e->getMessage());
+
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }
@@ -85,7 +86,7 @@ class TalentSelectionService
         }
 
         $prompt = "Actúa como Selector de Talento de Stratos. Tengo los siguientes candidatos para la vacante '{$opening->title}':\n\n";
-        
+
         foreach ($applications as $app) {
             $prompt .= "- {$app->people->name}: {$app->people->bio}\n";
         }
@@ -94,6 +95,7 @@ class TalentSelectionService
 
         try {
             $result = $this->orchestrator->agentThink('Selector de Talento', $prompt);
+
             return ['status' => 'shortlist_proposed', 'result' => $result['response']];
         } catch (\Exception $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
@@ -106,10 +108,10 @@ class TalentSelectionService
     public function extractHighPerformerDNA(int $personId): array
     {
         $person = \App\Models\People::with(['activeSkills.skill', 'psychometricProfiles'])->findOrFail($personId);
-        
-        $skills = $person->activeSkills->map(fn($s) => $s->skill->name)->implode(', ');
-        $traits = $person->psychometricProfiles->map(fn($p) => "{$p->trait_name}: {$p->score}")->implode(', ');
-        
+
+        $skills = $person->activeSkills->map(fn ($s) => $s->skill->name)->implode(', ');
+        $traits = $person->psychometricProfiles->map(fn ($p) => "{$p->trait_name}: {$p->score}")->implode(', ');
+
         $prompt = "Actúa como el Matchmaker de Resonancia. Estoy analizando a un 'High Performer' de la organización para decodificar su DNA de éxito.
         
         Datos del Perfil Exitoso:
@@ -126,6 +128,7 @@ class TalentSelectionService
 
         try {
             $result = $this->orchestrator->agentThink('Matchmaker de Resonancia', $prompt);
+
             return $result['response'];
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];

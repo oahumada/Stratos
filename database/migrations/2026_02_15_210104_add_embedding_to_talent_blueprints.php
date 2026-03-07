@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -25,10 +25,10 @@ return new class extends Migration
         }
 
         if ($hasPgVector) {
-            DB::statement("ALTER TABLE talent_blueprints ADD COLUMN IF NOT EXISTS embedding vector(1536)");
+            DB::statement('ALTER TABLE talent_blueprints ADD COLUMN IF NOT EXISTS embedding vector(1536)');
         } else {
             Schema::table('talent_blueprints', function (Blueprint $table) {
-                if (!Schema::hasColumn('talent_blueprints', 'embedding')) {
+                if (! Schema::hasColumn('talent_blueprints', 'embedding')) {
                     $table->json('embedding')->nullable();
                 }
             });

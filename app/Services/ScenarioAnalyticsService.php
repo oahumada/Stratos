@@ -6,7 +6,6 @@ use App\Models\Competency;
 use App\Models\CompetencySkill;
 use App\Models\PeopleRoleSkills;
 use App\Models\Scenario;
-use App\Models\ScenarioRoleCompetency;
 use App\Models\ScenarioRoleSkill;
 
 class ScenarioAnalyticsService
@@ -131,7 +130,7 @@ class ScenarioAnalyticsService
 
     private function getAverageLevelForRoleAndSkill(?int $roleId, int $skillId): float
     {
-        if (!$roleId) {
+        if (! $roleId) {
             return 0;
         }
 
@@ -189,11 +188,11 @@ class ScenarioAnalyticsService
     public function calculateImpact(int $scenarioId): array
     {
         $scenario = Scenario::with(['capabilities.competencies'])->findOrFail($scenarioId);
-        
+
         $labels = [];
         $actualLevels = [];
         $projectedLevels = [];
-        
+
         // 1. Obtener todas las competencias vinculadas al escenario
         $competencies = \DB::table('capability_competencies')
             ->join('competencies', 'capability_competencies.competency_id', '=', 'competencies.id')
@@ -204,7 +203,7 @@ class ScenarioAnalyticsService
 
         foreach ($competencies as $comp) {
             $actual = $this->calculateCompetencyReadiness($scenarioId, $comp->id) * 100;
-            
+
             // Proyectado: Buscamos si hay estrategias aprobadas/propuestas para skills de esta competencia
             // Simplificación: si hay estrategias, el gap se reduce un 80% (marginal impact)
             $strategiesCount = \DB::table('scenario_closure_strategies')
@@ -236,7 +235,7 @@ class ScenarioAnalyticsService
             'buy' => 12,    // Semanas promedio para contratar + onboarding
             'build' => 24,  // Semanas promedio para upskilling real
             'borrow' => 6,  // Semanas promedio para freelance/outsourcing
-            'bot' => 16     // Semanas promedio para implementación AI
+            'bot' => 16,     // Semanas promedio para implementación AI
         ];
 
         $weightedTFC = 0;
@@ -249,26 +248,26 @@ class ScenarioAnalyticsService
 
         $gapClosure = $totalStrategies > 0 ? 85 : 0;
         $riskData = $this->calculateRiskScore($scenarioId, $strategyStats, $actualLevels);
-        
+
         return [
             'gap_closure' => $gapClosure,
             'productivity_index' => 15 + ($gapClosure * 0.8),
             'time_to_fill' => $weightedTFC ?: 12,
-            'tfc_breakdown' => $strategyStats->map(fn($s) => [
+            'tfc_breakdown' => $strategyStats->map(fn ($s) => [
                 'type' => $s->strategy,
                 'weeks' => $tfcBreakdown[$s->strategy] ?? 12,
-                'count' => $s->count
+                'count' => $s->count,
             ]),
             'estimated_roi' => $totalCost > 0 ? round((($gapClosure * 5000) / $totalCost), 2) : 0,
             'risk_score' => $riskData['score'],
             'risk_level' => $riskData['level'],
             'risk_factors' => $riskData['factors'],
-            'summary' => "Basado en " . $totalStrategies . " acciones estratégicas, la organización proyecta un cierre de brechas del " . $gapClosure . "%. " . $riskData['summary'],
+            'summary' => 'Basado en '.$totalStrategies.' acciones estratégicas, la organización proyecta un cierre de brechas del '.$gapClosure.'%. '.$riskData['summary'],
             'chart' => [
                 'labels' => $labels,
                 'actual' => $actualLevels,
-                'projected' => $projectedLevels
-            ]
+                'projected' => $projectedLevels,
+            ],
         ];
     }
 
@@ -280,7 +279,7 @@ class ScenarioAnalyticsService
         $score = 0;
         $factors = [];
         $totalStrategies = $strategyStats->sum('count') ?: 1;
-        
+
         $stats = $strategyStats->pluck('count', 'strategy')->toArray();
         $buyPct = (($stats['buy'] ?? 0) / $totalStrategies) * 100;
         $buildPct = (($stats['build'] ?? 0) / $totalStrategies) * 100;
@@ -293,22 +292,22 @@ class ScenarioAnalyticsService
         // 1. Riesgo por dependencia de mercado (BUY)
         if ($buyPct > 40) {
             $score += 25;
-            $factors[] = "Alta dependencia de contratación externa (" . round($buyPct) . "%). Riesgo de volatilidad salarial y escasez de talento.";
-            $mitigations[] = "Diversificar fuentes de reclutamiento e implementar programas de referidos para reducir costo por contratación.";
+            $factors[] = 'Alta dependencia de contratación externa ('.round($buyPct).'%). Riesgo de volatilidad salarial y escasez de talento.';
+            $mitigations[] = 'Diversificar fuentes de reclutamiento e implementar programas de referidos para reducir costo por contratación.';
         }
 
         // 2. Riesgo por tiempos de maduración (BUILD)
         if ($buildPct > 50) {
             $score += 20;
-            $factors[] = "Carga excesiva en desarrollo interno. Riesgo de fatiga organizacional y retrasos en upskilling.";
-            $mitigations[] = "Asociarse con plataformas ed-tech externas o bootcamps para acelerar la curva de aprendizaje (Upskilling rápido).";
+            $factors[] = 'Carga excesiva en desarrollo interno. Riesgo de fatiga organizacional y retrasos en upskilling.';
+            $mitigations[] = 'Asociarse con plataformas ed-tech externas o bootcamps para acelerar la curva de aprendizaje (Upskilling rápido).';
         }
 
         // 3. Riesgo de implementación tecnológica (BOT)
         if ($botPct > 30) {
             $score += 30;
-            $factors[] = "Alta transformación hacia IA (" . round($botPct) . "%). Riesgo de fricción cultural y desafíos de integración técnica.";
-            $mitigations[] = "Implementar un programa robusto de Gestión del Cambio y adopción tecnológica temprana (Change Management).";
+            $factors[] = 'Alta transformación hacia IA ('.round($botPct).'%). Riesgo de fricción cultural y desafíos de integración técnica.';
+            $mitigations[] = 'Implementar un programa robusto de Gestión del Cambio y adopción tecnológica temprana (Change Management).';
         }
 
         // 4. Riesgo por calidad de datos (Confidence Score)
@@ -316,29 +315,33 @@ class ScenarioAnalyticsService
         if ($confidence < 0.6) {
             $penalty = (0.6 - $confidence) * 50;
             $score += $penalty;
-            $factors[] = "Baja calidad de evidencia en datos de origen (Confidence: " . number_format($confidence * 100, 1) . "%). El plan podría basarse en supuestos imprecisos.";
-            $mitigations[] = "Lanzar una campaña de evaluación 360° o validación técnica express para confirmar el inventario de habilidades actual.";
+            $factors[] = 'Baja calidad de evidencia en datos de origen (Confidence: '.number_format($confidence * 100, 1).'%). El plan podría basarse en supuestos imprecisos.';
+            $mitigations[] = 'Lanzar una campaña de evaluación 360° o validación técnica express para confirmar el inventario de habilidades actual.';
         }
 
         // 5. Riesgo por profundidad de brecha
         $avgActual = count($actualLevels) > 0 ? array_sum($actualLevels) / count($actualLevels) : 100;
         if ($avgActual < 40) {
             $score += 20;
-            $factors[] = "Brechas de competencia críticas identificadas. La magnitud del cambio requerido es estructuralmente alta.";
-            $mitigations[] = "Contratar expertos interinos (Estrategia Borrow) para cubrir roles clave mientras se desarrolla la capacidad interna a largo plazo.";
+            $factors[] = 'Brechas de competencia críticas identificadas. La magnitud del cambio requerido es estructuralmente alta.';
+            $mitigations[] = 'Contratar expertos interinos (Estrategia Borrow) para cubrir roles clave mientras se desarrolla la capacidad interna a largo plazo.';
         }
 
         $score = min(100, round($score));
         $level = 'Bajo';
-        if ($score >= 75) $level = 'Crítico';
-        elseif ($score >= 50) $level = 'Alto';
-        elseif ($score >= 25) $level = 'Medio';
+        if ($score >= 75) {
+            $level = 'Crítico';
+        } elseif ($score >= 50) {
+            $level = 'Alto';
+        } elseif ($score >= 25) {
+            $level = 'Medio';
+        }
 
-        $summary = "El riesgo de ejecución se califica como **" . $level . "** (" . $score . "/100).";
+        $summary = 'El riesgo de ejecución se califica como **'.$level.'** ('.$score.'/100).';
         if ($score > 40) {
-            $summary .= " Se han identificado " . count($mitigations) . " acciones de mitigación recomendadas.";
+            $summary .= ' Se han identificado '.count($mitigations).' acciones de mitigación recomendadas.';
         } else {
-            $summary .= " El plan es balanceado y ejecutable dentro de los márgenes estándar.";
+            $summary .= ' El plan es balanceado y ejecutable dentro de los márgenes estándar.';
         }
 
         return [
@@ -346,7 +349,7 @@ class ScenarioAnalyticsService
             'level' => $level,
             'factors' => $factors,
             'mitigations' => $mitigations,
-            'summary' => $summary
+            'summary' => $summary,
         ];
     }
 }

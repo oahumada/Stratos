@@ -14,14 +14,15 @@ class ThreeSixtyTestCaseSeeder extends Seeder
     public function run(): void
     {
         $org = Organizations::first();
-        if (!$org) {
+        if (! $org) {
             $this->command->error('No organization found. Please run DemoSeeder first.');
+
             return;
         }
 
         // 1. Seleccionar Sujeto (El evaluado)
         $subject = People::where('email', 'like', 'carlos%')->first() ?? People::first();
-        
+
         // 2. Seleccionar Evaluadores
         $boss = People::where('id', '!=', $subject->id)->first();
         $peer = People::where('id', '!=', $subject->id)
@@ -34,7 +35,7 @@ class ThreeSixtyTestCaseSeeder extends Seeder
         $this->command->info("Par: {$peer->full_name}");
 
         // 3. Asegurar que existan preguntas para las skills del sujeto
-        $this->command->info("Verificando Banco de Preguntas...");
+        $this->command->info('Verificando Banco de Preguntas...');
         foreach ($subject->skills as $skill) {
             // Pregunta para el Jefe (manager)
             SkillQuestionBank::firstOrCreate([
@@ -43,7 +44,7 @@ class ThreeSixtyTestCaseSeeder extends Seeder
             ], [
                 'question' => "¿Cómo evalúa la capacidad de {$subject->first_name} para aplicar {$skill->name} en proyectos críticos?",
                 'question_type' => 'bars',
-                'is_global' => false
+                'is_global' => false,
             ]);
 
             // Pregunta para el Par (peer)
@@ -53,12 +54,12 @@ class ThreeSixtyTestCaseSeeder extends Seeder
             ], [
                 'question' => "¿Qué tan dispuesto está {$subject->first_name} a colaborar usando su conocimiento en {$skill->name}?",
                 'question_type' => 'bars',
-                'is_global' => false
+                'is_global' => false,
             ]);
         }
 
         // 4. Crear Solicitudes de Assessment (AssessmentRequests)
-        $this->command->info("Creando solicitudes de feedback...");
+        $this->command->info('Creando solicitudes de feedback...');
 
         // Solicitud para el Jefe
         $bossReq = AssessmentRequest::create([
@@ -67,7 +68,7 @@ class ThreeSixtyTestCaseSeeder extends Seeder
             'evaluator_id' => $boss->id,
             'relationship' => 'manager',
             'status' => 'pending',
-            'token' => 'TEST-TOKEN-BOSS-' . Str::random(10)
+            'token' => 'TEST-TOKEN-BOSS-'.Str::random(10),
         ]);
 
         // Poblar feedback para el Jefe
@@ -75,12 +76,12 @@ class ThreeSixtyTestCaseSeeder extends Seeder
             $q = SkillQuestionBank::where('skill_id', $skill->id)
                 ->where('target_relationship', 'manager')
                 ->first();
-            
+
             if ($q) {
                 $bossReq->feedback()->create([
                     'skill_id' => $skill->id,
                     'question' => $q->question,
-                    'answer' => ''
+                    'answer' => '',
                 ]);
             }
         }
@@ -92,7 +93,7 @@ class ThreeSixtyTestCaseSeeder extends Seeder
             'evaluator_id' => $peer->id,
             'relationship' => 'peer',
             'status' => 'pending',
-            'token' => 'TEST-TOKEN-PEER-' . Str::random(10)
+            'token' => 'TEST-TOKEN-PEER-'.Str::random(10),
         ]);
 
         // Poblar feedback para el Par
@@ -100,12 +101,12 @@ class ThreeSixtyTestCaseSeeder extends Seeder
             $q = SkillQuestionBank::where('skill_id', $skill->id)
                 ->where('target_relationship', 'peer')
                 ->first();
-            
+
             if ($q) {
                 $peerReq->feedback()->create([
                     'skill_id' => $skill->id,
                     'question' => $q->question,
-                    'answer' => ''
+                    'answer' => '',
                 ]);
             }
         }
@@ -114,18 +115,18 @@ class ThreeSixtyTestCaseSeeder extends Seeder
         \App\Models\PeopleRelationship::updateOrCreate([
             'person_id' => $subject->id,
             'related_person_id' => $boss->id,
-            'relationship_type' => 'manager'
+            'relationship_type' => 'manager',
         ]);
 
         \App\Models\PeopleRelationship::updateOrCreate([
             'person_id' => $subject->id,
             'related_person_id' => $peer->id,
-            'relationship_type' => 'peer'
+            'relationship_type' => 'peer',
         ]);
 
         echo "--- CASO DE PRUEBA LISTO ---\n";
         echo "ID Sujeto: {$subject->id}\n";
-        echo "Token Jefe: " . $bossReq->token . "\n";
-        echo "Token Par: " . $peerReq->token . "\n";
+        echo 'Token Jefe: '.$bossReq->token."\n";
+        echo 'Token Par: '.$peerReq->token."\n";
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Agent;
+use Illuminate\Database\Seeder;
 
 class SystemAgentsSeeder extends Seeder
 {
@@ -22,7 +22,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-chat',
                 'is_active' => true,
                 'expertise_areas' => ['gap_analysis', 'learning_path_generation', 'skill_mapping'],
-                'capabilities_config' => ['reasoning_level' => 'high', 'creativity' => 'medium']
+                'capabilities_config' => ['reasoning_level' => 'high', 'creativity' => 'medium'],
             ]
         );
 
@@ -36,7 +36,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-chat',
                 'is_active' => true,
                 'expertise_areas' => ['sentiment_analysis', 'climate_surveys', 'employee_experience'],
-                'capabilities_config' => ['empathy_level' => 'high', 'summarization' => 'vhigh']
+                'capabilities_config' => ['empathy_level' => 'high', 'summarization' => 'vhigh'],
             ]
         );
 
@@ -50,7 +50,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-chat',
                 'is_active' => true,
                 'expertise_areas' => ['learning_followup', 'mentorship_matching', 'evidence_validation'],
-                'capabilities_config' => ['proactivity' => 'high', 'coaching_style' => 'supportive']
+                'capabilities_config' => ['proactivity' => 'high', 'coaching_style' => 'supportive'],
             ]
         );
 
@@ -64,7 +64,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-reasoner',
                 'is_active' => true,
                 'expertise_areas' => ['360_assessment', 'bias_detection', 'critical_incident_interview', 'performance_calibration'],
-                'capabilities_config' => ['objectivity_level' => 'vhigh', 'methodology_rigor' => 'high']
+                'capabilities_config' => ['objectivity_level' => 'vhigh', 'methodology_rigor' => 'high'],
             ]
         );
 
@@ -78,7 +78,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-chat',
                 'is_active' => true,
                 'expertise_areas' => ['candidate_screening', 'job_matching', 'interview_synthesis', 'shortlisting'],
-                'capabilities_config' => ['evaluation_precision' => 'high', 'synthesis_power' => 'vhigh']
+                'capabilities_config' => ['evaluation_precision' => 'high', 'synthesis_power' => 'vhigh'],
             ]
         );
 
@@ -92,7 +92,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-chat',
                 'is_active' => true,
                 'expertise_areas' => ['instructional_design', 'content_curation', 'elearning_structure', 'pedagogical_authoring'],
-                'capabilities_config' => ['didactic_clarity' => 'vhigh', 'creative_structuring' => 'high']
+                'capabilities_config' => ['didactic_clarity' => 'vhigh', 'creative_structuring' => 'high'],
             ]
         );
 
@@ -106,7 +106,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-chat',
                 'is_active' => true,
                 'expertise_areas' => ['competency_frameworks', 'skills_taxonomy', 'bars_scaling', 'performance_indicators'],
-                'capabilities_config' => ['taxonomic_precision' => 'vhigh', 'objective_criteria' => 'high']
+                'capabilities_config' => ['taxonomic_precision' => 'vhigh', 'objective_criteria' => 'high'],
             ]
         );
 
@@ -120,7 +120,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-chat',
                 'is_active' => true,
                 'expertise_areas' => ['role_architecture', 'role_cube_methodology', 'competency_profiling', 'role_archetypes', 'catalog_alignment'],
-                'capabilities_config' => ['structural_coherence' => 'vhigh', 'strategic_alignment' => 'high', 'cube_precision' => 'vhigh']
+                'capabilities_config' => ['structural_coherence' => 'vhigh', 'strategic_alignment' => 'high', 'cube_precision' => 'vhigh'],
             ]
         );
 
@@ -134,7 +134,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-reasoner',
                 'is_active' => true,
                 'expertise_areas' => ['ai_ethics', 'audit_trail', 'bias_mitigation', 'transparency'],
-                'capabilities_config' => ['ethical_rigor' => 'extreme', 'analytical_depth' => 'vhigh']
+                'capabilities_config' => ['ethical_rigor' => 'extreme', 'analytical_depth' => 'vhigh'],
             ]
         );
 
@@ -148,7 +148,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-chat',
                 'is_active' => true,
                 'expertise_areas' => ['resonance_analysis', 'cultural_fit', 'success_prediction', 'talent_matching'],
-                'capabilities_config' => ['matching_precision' => 'vhigh', 'predictive_power' => 'high']
+                'capabilities_config' => ['matching_precision' => 'vhigh', 'predictive_power' => 'high'],
             ]
         );
 
@@ -162,7 +162,7 @@ class SystemAgentsSeeder extends Seeder
                 'model' => 'deepseek-reasoner',
                 'is_active' => true,
                 'expertise_areas' => ['organizational_simulation', 'scenario_planning', 'knowledge_graph', 'roi_forecasting'],
-                'capabilities_config' => ['simulation_fidelity' => 'vhigh', 'complexity_management' => 'high']
+                'capabilities_config' => ['simulation_fidelity' => 'vhigh', 'complexity_management' => 'high'],
             ]
         );
     }

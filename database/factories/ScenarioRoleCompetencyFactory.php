@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\ScenarioRoleCompetency;
-use App\Models\Scenario;
-use App\Models\Roles;
 use App\Models\Competency;
+use App\Models\Roles;
+use App\Models\Scenario;
+use App\Models\ScenarioRoleCompetency;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ScenarioRoleCompetencyFactory extends Factory

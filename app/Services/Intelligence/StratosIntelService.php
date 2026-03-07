@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 class StratosIntelService
 {
     protected string $baseUrl;
+
     protected int $timeout;
 
     public function __construct()
@@ -19,7 +20,7 @@ class StratosIntelService
     /**
      * Send gap data to the Python Intelligence Service for strategy recommendation.
      *
-     * @param array $gapData The structured data as per DataContract_GapAnalysis.md
+     * @param  array  $gapData  The structured data as per DataContract_GapAnalysis.md
      * @return array|null The strategy recommendation or null on failure
      */
     public function analyzeGap(array $gapData): ?array
@@ -29,23 +30,25 @@ class StratosIntelService
 
             $response = Http::timeout($this->timeout)
                 ->post("{$this->baseUrl}/analyze-gap", [
-                    'gap_data' => $gapData
+                    'gap_data' => $gapData,
                 ]);
 
             if ($response->successful()) {
                 Log::info('Received strategy recommendation from Python service');
+
                 return $response->json();
             }
 
             Log::error('Failed to get strategy from Python service', [
                 'status' => $response->status(),
-                'body' => $response->body()
+                'body' => $response->body(),
             ]);
 
             return null;
 
         } catch (\Exception $e) {
             Log::error('Exception calling Python service (analyzeGap)', ['message' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -63,23 +66,25 @@ class StratosIntelService
                     'company_name' => $companyName,
                     'instruction' => $instruction,
                     'language' => $language,
-                    'market_context' => $marketContext
+                    'market_context' => $marketContext,
                 ]);
 
             if ($response->successful()) {
                 Log::info('Received scenario generation from Python service');
+
                 return $response->json();
             }
 
             Log::error('Failed to generate scenario from Python service', [
                 'status' => $response->status(),
-                'body' => $response->body()
+                'body' => $response->body(),
             ]);
 
             return null;
 
         } catch (\Exception $e) {
             Log::error('Exception calling Python service (generateScenario)', ['message' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -96,7 +101,7 @@ class StratosIntelService
                 ->post("{$this->baseUrl}/career-path/pathfinding", [
                     'from_role_id' => $fromId,
                     'to_role_id' => $toId,
-                    'organization_id' => $orgId
+                    'organization_id' => $orgId,
                 ]);
 
             if ($response->successful()) {
@@ -106,6 +111,7 @@ class StratosIntelService
             return null; // Silent failure to allow SQL fallback
         } catch (\Exception $e) {
             Log::warning('Graph pathfinding unavailable, falling back to SQL', ['error' => $e->getMessage()]);
+
             return null;
         }
     }

@@ -3,7 +3,6 @@
 use App\Models\Scenario;
 use App\Models\User;
 use Database\Seeders\Phase3TestDataSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 beforeEach(function () {
     $this->seed(Phase3TestDataSeeder::class);
@@ -25,14 +24,14 @@ test('it returns real headcount in role forecasts', function () {
                 'fte_current',
                 'fte_future',
                 'fte_delta',
-            ]
-        ]
+            ],
+        ],
     ]);
 
     // Alice and Bob have roleDev (id calculated in seeder)
     // Charlie has roleAI
     $data = $response->json('data');
-    
+
     $aiLead = collect($data)->firstWhere('role_name', Phase3TestDataSeeder::ROLE_AI_LEAD);
     $cloudDev = collect($data)->firstWhere('role_name', Phase3TestDataSeeder::ROLE_CLOUD_DEV);
 
@@ -84,7 +83,7 @@ test('it returns skill gaps matrix', function () {
                 'id',
                 'name',
                 'fte',
-            ]
+            ],
         ],
         'skills' => [
             '*' => [
@@ -92,7 +91,7 @@ test('it returns skill gaps matrix', function () {
                 'name',
                 'competency_id',
                 'competency_name',
-            ]
+            ],
         ],
         'gaps' => [
             '*' => [
@@ -102,7 +101,7 @@ test('it returns skill gaps matrix', function () {
                 'required_level',
                 'current_level',
                 'gap',
-            ]
+            ],
         ],
     ]);
 });

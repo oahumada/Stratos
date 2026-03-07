@@ -56,7 +56,7 @@ class ScenarioGenerationIntelController extends Controller
             'provider' => 'intel',
             'company_name' => $org->name,
             'language' => $lang,
-            'used_instruction' => $instructionMeta
+            'used_instruction' => $instructionMeta,
         ]);
 
         return response()->json(['success' => true, 'data' => ['id' => $generation->id, 'status' => $generation->status]], 202);

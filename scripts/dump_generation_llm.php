@@ -2,9 +2,9 @@
 
 // Usage: php src/scripts/dump_generation_llm.php 69
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-$app = require_once __DIR__ . '/../bootstrap/app.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
@@ -29,4 +29,4 @@ if (! is_array($llm) && ! is_object($llm)) {
     exit(3);
 }
 
-echo json_encode($llm, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+echo json_encode($llm, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n";

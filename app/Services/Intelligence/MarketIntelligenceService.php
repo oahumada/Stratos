@@ -3,15 +3,14 @@
 namespace App\Services\Intelligence;
 
 use App\Models\Roles;
-use Illuminate\Support\Collection;
 
 class MarketIntelligenceService
 {
     /**
      * Get market context for a specific role.
      * In a production system, this would fetch from a database or an external API.
-     * @param Roles|int $role
-     * @return array
+     *
+     * @param  Roles|int  $role
      */
     public function getRoleMarketContext($role): array
     {
@@ -20,7 +19,7 @@ class MarketIntelligenceService
         }
 
         $roleName = $role ? $role->name : 'Unknown Role';
-        
+
         // Defaults for simulation
         $baseContext = [
             'recruitment_cost_avg' => 5000,
@@ -29,7 +28,7 @@ class MarketIntelligenceService
             'market_scarcity' => 0.5, // 0.0 (abundant) to 1.0 (scarce)
             'competitiveness' => 'Medium',
             'estimated_annual_salary' => 60000,
-            'currency' => 'USD'
+            'currency' => 'USD',
         ];
 
         // Specific overrides based on role name/keywords for more realism

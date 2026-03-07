@@ -2,14 +2,14 @@
 
 namespace App\Services;
 
-use App\Models\Scenario;
-use App\Models\ScenarioGeneration;
 use App\Models\Capability;
 use App\Models\Competency;
+use App\Models\Scenario;
+use App\Models\ScenarioGeneration;
 use App\Models\Skill;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class ScenarioGenerationImporter
 {
@@ -111,154 +111,154 @@ class ScenarioGenerationImporter
                     ]);
                 }
 
-                    $comps = $capData['competencies'] ?? [];
-                    foreach ($comps as $compData) {
-                        $compName = trim($compData['name'] ?? ($compData[0] ?? ''));
-                        if (empty($compName)) {
+                $comps = $capData['competencies'] ?? [];
+                foreach ($comps as $compData) {
+                    $compName = trim($compData['name'] ?? ($compData[0] ?? ''));
+                    if (empty($compName)) {
+                        continue;
+                    }
+
+                    $compExtId = $compData['id'] ?? $compData['llm_id'] ?? $compData['uuid'] ?? null;
+
+                    if (! empty($compExtId)) {
+                        $comp = Competency::where('organization_id', $scenario->organization_id)
+                            ->where('llm_id', (string) $compExtId)
+                            ->first();
+                    } else {
+                        $comp = Competency::where('organization_id', $scenario->organization_id)
+                            ->whereRaw('LOWER(name) = ?', [mb_strtolower($compName)])
+                            ->first();
+                    }
+
+                    if (! $comp) {
+                        $comp = Competency::create([
+                            'organization_id' => $scenario->organization_id,
+                            'llm_id' => empty($compExtId) ? null : (string) $compExtId,
+                            'name' => $compName,
+                            'description' => $compData['description'] ?? null,
+                        ]);
+                    } else {
+                        $updated = false;
+                        if (empty($comp->llm_id) && ! empty($compExtId)) {
+                            $comp->llm_id = (string) $compExtId;
+                            $updated = true;
+                        }
+                        if (! empty($compData['description']) && $comp->description !== $compData['description']) {
+                            $comp->description = $compData['description'];
+                            $updated = true;
+                        }
+                        if ($updated) {
+                            $comp->save();
+                        }
+                    }
+
+                    // Mark competency as discovered/incubating in this scenario when column exists
+                    if (Schema::hasColumn('competencies', 'discovered_in_scenario_id') && empty($comp->discovered_in_scenario_id)) {
+                        $comp->discovered_in_scenario_id = $scenario->id;
+                        $comp->save();
+                    }
+
+                    $report['competencies'][] = ['id' => $comp->id, 'name' => $comp->name, 'created' => $comp->wasRecentlyCreated, 'llm_id' => $comp->llm_id ?? null];
+                    if (! empty($compExtId)) {
+                        $mappings['competencies'][(string) $compExtId] = $comp->id;
+                    }
+
+                    // attach capability_competencies pivot (scenario scoped)
+                    $requiredLevel = (int) ($compData['required_level'] ?? 3);
+                    $pivotExists = DB::table('capability_competencies')
+                        ->where('scenario_id', $scenario->id)
+                        ->where('capability_id', $cap->id)
+                        ->where('competency_id', $comp->id)
+                        ->exists();
+
+                    if (! $pivotExists) {
+                        DB::table('capability_competencies')->insert([
+                            'scenario_id' => $scenario->id,
+                            'capability_id' => $cap->id,
+                            'competency_id' => $comp->id,
+                            'required_level' => $requiredLevel,
+                            'priority' => $compData['priority'] ?? null,
+                            'weight' => $compData['weight'] ?? null,
+                            'rationale' => $compData['rationale'] ?? null,
+                            'is_required' => $compData['is_required'] ?? false,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+
+                    // skills within competency
+                    $skills = $compData['skills'] ?? [];
+                    foreach ($skills as $skillItem) {
+                        // skill can be string or object
+                        if (is_array($skillItem)) {
+                            $sname = trim($skillItem['name'] ?? ($skillItem[0] ?? ''));
+                            $skillExtId = $skillItem['id'] ?? $skillItem['llm_id'] ?? null;
+                        } else {
+                            $sname = trim((string) $skillItem);
+                            $skillExtId = null;
+                        }
+                        if ($sname === '') {
                             continue;
                         }
 
-                        $compExtId = $compData['id'] ?? $compData['llm_id'] ?? $compData['uuid'] ?? null;
-
-                        if (! empty($compExtId)) {
-                            $comp = Competency::where('organization_id', $scenario->organization_id)
-                                ->where('llm_id', (string) $compExtId)
+                        if (! empty($skillExtId)) {
+                            $skill = Skill::where('organization_id', $scenario->organization_id)
+                                ->where('llm_id', (string) $skillExtId)
                                 ->first();
                         } else {
-                            $comp = Competency::where('organization_id', $scenario->organization_id)
-                                ->whereRaw('LOWER(name) = ?', [mb_strtolower($compName)])
+                            $skill = Skill::where('organization_id', $scenario->organization_id)
+                                ->whereRaw('LOWER(name) = ?', [mb_strtolower($sname)])
                                 ->first();
                         }
 
-                        if (! $comp) {
-                            $comp = Competency::create([
+                        if (! $skill) {
+                            $skill = Skill::create([
                                 'organization_id' => $scenario->organization_id,
-                                'llm_id' => empty($compExtId) ? null : (string) $compExtId,
-                                'name' => $compName,
-                                'description' => $compData['description'] ?? null,
+                                'llm_id' => empty($skillExtId) ? null : (string) $skillExtId,
+                                'name' => $sname,
+                                'description' => null,
                             ]);
+                            Log::info('Created skill from importer', ['name' => $sname, 'llm_id' => $skillExtId, 'skill_id' => $skill->id]);
                         } else {
                             $updated = false;
-                            if (empty($comp->llm_id) && ! empty($compExtId)) {
-                                $comp->llm_id = (string) $compExtId;
-                                $updated = true;
-                            }
-                            if (! empty($compData['description']) && $comp->description !== $compData['description']) {
-                                $comp->description = $compData['description'];
+                            if (empty($skill->llm_id) && ! empty($skillExtId)) {
+                                $skill->llm_id = (string) $skillExtId;
                                 $updated = true;
                             }
                             if ($updated) {
-                                $comp->save();
+                                $skill->save();
+                                Log::info('Updated skill llm_id from importer', ['name' => $skill->name, 'llm_id' => $skill->llm_id, 'skill_id' => $skill->id]);
                             }
                         }
 
-                        // Mark competency as discovered/incubating in this scenario when column exists
-                        if (Schema::hasColumn('competencies', 'discovered_in_scenario_id') && empty($comp->discovered_in_scenario_id)) {
-                            $comp->discovered_in_scenario_id = $scenario->id;
-                            $comp->save();
+                        // Mark skill as discovered/incubating in this scenario when column exists
+                        if (Schema::hasColumn('skills', 'discovered_in_scenario_id') && empty($skill->discovered_in_scenario_id)) {
+                            $skill->discovered_in_scenario_id = $scenario->id;
+                            $skill->save();
                         }
 
-                        $report['competencies'][] = ['id' => $comp->id, 'name' => $comp->name, 'created' => $comp->wasRecentlyCreated, 'llm_id' => $comp->llm_id ?? null];
-                        if (! empty($compExtId)) {
-                            $mappings['competencies'][(string) $compExtId] = $comp->id;
+                        $report['skills'][] = ['id' => $skill->id, 'name' => $skill->name, 'created' => $skill->wasRecentlyCreated, 'llm_id' => $skill->llm_id ?? null];
+                        if (! empty($skillExtId)) {
+                            $mappings['skills'][(string) $skillExtId] = $skill->id;
                         }
 
-                        // attach capability_competencies pivot (scenario scoped)
-                        $requiredLevel = (int) ($compData['required_level'] ?? 3);
-                        $pivotExists = DB::table('capability_competencies')
-                            ->where('scenario_id', $scenario->id)
-                            ->where('capability_id', $cap->id)
+                        // attach competency_skills pivot
+                        $csExists = DB::table('competency_skills')
                             ->where('competency_id', $comp->id)
+                            ->where('skill_id', $skill->id)
                             ->exists();
 
-                        if (! $pivotExists) {
-                            DB::table('capability_competencies')->insert([
-                                'scenario_id' => $scenario->id,
-                                'capability_id' => $cap->id,
+                        if (! $csExists) {
+                            DB::table('competency_skills')->insert([
                                 'competency_id' => $comp->id,
-                                'required_level' => $requiredLevel,
-                                'priority' => $compData['priority'] ?? null,
-                                'weight' => $compData['weight'] ?? null,
-                                'rationale' => $compData['rationale'] ?? null,
-                                'is_required' => $compData['is_required'] ?? false,
+                                'skill_id' => $skill->id,
+                                'weight' => $compData['skill_weight'] ?? 10,
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
                         }
-
-                        // skills within competency
-                        $skills = $compData['skills'] ?? [];
-                        foreach ($skills as $skillItem) {
-                            // skill can be string or object
-                            if (is_array($skillItem)) {
-                                $sname = trim($skillItem['name'] ?? ($skillItem[0] ?? ''));
-                                $skillExtId = $skillItem['id'] ?? $skillItem['llm_id'] ?? null;
-                            } else {
-                                $sname = trim((string) $skillItem);
-                                $skillExtId = null;
-                            }
-                            if ($sname === '') {
-                                continue;
-                            }
-
-                            if (! empty($skillExtId)) {
-                                $skill = Skill::where('organization_id', $scenario->organization_id)
-                                    ->where('llm_id', (string) $skillExtId)
-                                    ->first();
-                            } else {
-                                $skill = Skill::where('organization_id', $scenario->organization_id)
-                                    ->whereRaw('LOWER(name) = ?', [mb_strtolower($sname)])
-                                    ->first();
-                            }
-
-                            if (! $skill) {
-                                $skill = Skill::create([
-                                    'organization_id' => $scenario->organization_id,
-                                    'llm_id' => empty($skillExtId) ? null : (string) $skillExtId,
-                                    'name' => $sname,
-                                    'description' => null,
-                                ]);
-                                Log::info('Created skill from importer', ['name' => $sname, 'llm_id' => $skillExtId, 'skill_id' => $skill->id]);
-                            } else {
-                                $updated = false;
-                                if (empty($skill->llm_id) && ! empty($skillExtId)) {
-                                    $skill->llm_id = (string) $skillExtId;
-                                    $updated = true;
-                                }
-                                if ($updated) {
-                                    $skill->save();
-                                    Log::info('Updated skill llm_id from importer', ['name' => $skill->name, 'llm_id' => $skill->llm_id, 'skill_id' => $skill->id]);
-                                }
-                            }
-
-                            // Mark skill as discovered/incubating in this scenario when column exists
-                            if (Schema::hasColumn('skills', 'discovered_in_scenario_id') && empty($skill->discovered_in_scenario_id)) {
-                                $skill->discovered_in_scenario_id = $scenario->id;
-                                $skill->save();
-                            }
-
-                            $report['skills'][] = ['id' => $skill->id, 'name' => $skill->name, 'created' => $skill->wasRecentlyCreated, 'llm_id' => $skill->llm_id ?? null];
-                            if (! empty($skillExtId)) {
-                                $mappings['skills'][(string) $skillExtId] = $skill->id;
-                            }
-
-                            // attach competency_skills pivot
-                            $csExists = DB::table('competency_skills')
-                                ->where('competency_id', $comp->id)
-                                ->where('skill_id', $skill->id)
-                                ->exists();
-
-                            if (! $csExists) {
-                                DB::table('competency_skills')->insert([
-                                    'competency_id' => $comp->id,
-                                    'skill_id' => $skill->id,
-                                    'weight' => $compData['skill_weight'] ?? 10,
-                                    'created_at' => now(),
-                                    'updated_at' => now(),
-                                ]);
-                            }
-                        }
                     }
+                }
             }
 
             // persist mappings into generation metadata for traceability and incremental imports

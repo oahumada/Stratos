@@ -1,4 +1,5 @@
 <?php
+
 // scripts/run_abacus_override.php
 // Helper wrapper to run the existing harness `scripts/generate_via_abacus.php` using
 // the modal prompt template or a provided prompt file. Supports timeouts and
@@ -22,22 +23,22 @@ if (isset($opts['help'])) {
 
 // Determine prompt source
 $prompt = null;
-if (!empty($opts['prompt'])) {
+if (! empty($opts['prompt'])) {
     $prompt = $opts['prompt'];
-} elseif (!empty($opts['prompt-file'])) {
+} elseif (! empty($opts['prompt-file'])) {
     $pf = $opts['prompt-file'];
-    if (!file_exists($pf)) {
+    if (! file_exists($pf)) {
         fwrite(STDERR, "Prompt file not found: $pf\n");
         exit(2);
     }
     $prompt = file_get_contents($pf);
 } else {
     // default template shipped in repo
-    $templatePath = __DIR__ . '/../resources/prompt_templates/abacus_modal_prompt_es.md';
+    $templatePath = __DIR__.'/../resources/prompt_templates/abacus_modal_prompt_es.md';
     if (file_exists($templatePath)) {
         $prompt = file_get_contents($templatePath);
     } else {
-        $prompt = "Genera un escenario de prueba en JSON con keys scenario_metadata y capabilities";
+        $prompt = 'Genera un escenario de prueba en JSON con keys scenario_metadata y capabilities';
     }
 }
 
@@ -51,19 +52,19 @@ $streamIdle = (int) ($opts['stream_idle_timeout'] ?? 240);
 $background = isset($opts['background']);
 
 // Build command to invoke existing harness
-$script = __DIR__ . '/generate_via_abacus.php';
-if (!file_exists($script)) {
+$script = __DIR__.'/generate_via_abacus.php';
+if (! file_exists($script)) {
     fwrite(STDERR, "Harness script not found: $script\n");
     exit(3);
 }
 
 $escapedPrompt = escapeshellarg($prompt);
-$cmd = "php " . escapeshellarg($script) . " --prompt=$escapedPrompt --model=" . escapeshellarg($model) . " --timeout=" . escapeshellarg((string)$timeout) . " --stream_idle_timeout=" . escapeshellarg((string)$streamIdle);
+$cmd = 'php '.escapeshellarg($script)." --prompt=$escapedPrompt --model=".escapeshellarg($model).' --timeout='.escapeshellarg((string) $timeout).' --stream_idle_timeout='.escapeshellarg((string) $streamIdle);
 
 if ($background) {
     // send to background and capture PID
     $log = '/tmp/abacus_run.log';
-    $bgCmd = $cmd . " > " . escapeshellarg($log) . " 2>&1 & echo $!";
+    $bgCmd = $cmd.' > '.escapeshellarg($log).' 2>&1 & echo $!';
     $pid = trim(shell_exec($bgCmd));
     echo "Started background run. PID={$pid}, log={$log}\n";
     exit(0);

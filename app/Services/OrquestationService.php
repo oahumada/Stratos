@@ -1,6 +1,7 @@
 <?php
 
 // app/Services/OrchestrationService.php
+
 namespace App\Services;
 
 use App\Models\TalentBlueprint;
@@ -11,7 +12,7 @@ class OrchestrationService
     public function executeStrategy(TalentBlueprint $blueprint)
     {
         $webhookUrl = config('services.n8n.webhook_url');
-        
+
         $payload = [
             'action' => $this->mapStrategyToAction($blueprint->strategy_suggestion),
             'role_name' => $blueprint->role_name,
@@ -25,7 +26,7 @@ class OrchestrationService
 
     private function mapStrategyToAction(string $strategy): string
     {
-        return match($strategy) {
+        return match ($strategy) {
             'Buy' => 'post_job_opening',
             'Build' => 'assign_training',
             'Borrow' => 'contact_staffing_agency',

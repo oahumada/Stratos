@@ -26,7 +26,7 @@ class TelemetryController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Telemetry event recorded'
+            'message' => 'Telemetry event recorded',
         ]);
     }
 }

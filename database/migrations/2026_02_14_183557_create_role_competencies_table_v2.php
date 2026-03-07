@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -36,13 +36,13 @@ return new class extends Migration
 
             // role_id: foreign key a tabla roles, no nulo
             $table->foreignId('role_id')
-                  ->constrained('roles')
-                  ->onDelete('cascade');
+                ->constrained('roles')
+                ->onDelete('cascade');
 
             // competency_id: foreign key a tabla competencies, no nulo
             $table->foreignId('competency_id')
-                  ->constrained('competencies')
-                  ->onDelete('cascade');
+                ->constrained('competencies')
+                ->onDelete('cascade');
 
             // required_level: integer, nivel requerido de la competencia (1-5), no nulo
             $table->integer('required_level');
@@ -68,7 +68,7 @@ return new class extends Migration
             // Índices para optimizar consultas por role_id y competency_id
             $table->index('role_id');
             $table->index('competency_id');
-            
+
             // Evitar duplicados de la misma competencia para el mismo rol
             $table->unique(['role_id', 'competency_id'], 'role_comp_unique');
         });
@@ -76,15 +76,15 @@ return new class extends Migration
         if (DB::getDriverName() === 'pgsql') {
             // Documentación mediante comentarios SQL para cada campo
             DB::statement("COMMENT ON TABLE role_competencies IS 'Asociación de competencias a roles con niveles requeridos y criterios de impacto.'");
-            
+
             DB::statement("COMMENT ON COLUMN role_competencies.required_level IS 'Nivel mínimo esperado (1-5). Base fundamental para el cálculo de brechas (talent gaps).' ");
-            
+
             DB::statement("COMMENT ON COLUMN role_competencies.criticity IS 'Prioridad de cierre de brecha (1-5). Las competencias críticas se priorizan en planes de desarrollo y sugerencias de IA.'");
-            
+
             DB::statement("COMMENT ON COLUMN role_competencies.change_type IS 'Indica la evolución del requerimiento (new, increased, stable). Crucial para proyecciones en Scenario IQ.'");
-            
+
             DB::statement("COMMENT ON COLUMN role_competencies.strategy IS 'Estrategia sugerida para cerrar brechas: Buy (externo), Build (interno), Borrow (movilidad) o Bot (automatización).'");
-            
+
             DB::statement("COMMENT ON COLUMN role_competencies.notes IS 'Contexto adicional para decisiones manuales o retroalimentación a agentes IA.'");
         }
     }

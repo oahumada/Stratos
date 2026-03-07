@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 class StratosAssessmentService
 {
     protected string $baseUrl;
+
     protected int $timeout;
 
     public function __construct()
@@ -25,27 +26,29 @@ class StratosAssessmentService
         $history = $session->messages()
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(fn($m) => [
+            ->map(fn ($m) => [
                 'role' => $m->role,
-                'content' => $m->content
+                'content' => $m->content,
             ]);
 
         try {
             $response = Http::timeout($this->timeout)->post("{$this->baseUrl}/interview/chat", [
                 'person_name' => $session->person->full_name,
-                'context' => $session->type . ' interview for ' . ($session->scenario?->name ?? 'general assessment'),
+                'context' => $session->type.' interview for '.($session->scenario?->name ?? 'general assessment'),
                 'history' => $history,
-                'language' => $language
+                'language' => $language,
             ]);
 
             if ($response->successful()) {
                 return $response->json();
             }
 
-            Log::error('StratosAssessmentService Error: ' . $response->body());
+            Log::error('StratosAssessmentService Error: '.$response->body());
+
             return null;
         } catch (\Exception $e) {
-            Log::error('StratosAssessmentService Exception: ' . $e->getMessage());
+            Log::error('StratosAssessmentService Exception: '.$e->getMessage());
+
             return null;
         }
     }
@@ -58,26 +61,28 @@ class StratosAssessmentService
         $history = $session->messages()
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(fn($m) => [
+            ->map(fn ($m) => [
                 'role' => $m->role,
-                'content' => $m->content
+                'content' => $m->content,
             ]);
 
         try {
             $response = Http::timeout(120)->post("{$this->baseUrl}/interview/analyze", [
                 'person_name' => $session->person->full_name,
-                'context' => $session->type . ' interview for ' . ($session->scenario?->name ?? 'general assessment'),
-                'history' => $history
+                'context' => $session->type.' interview for '.($session->scenario?->name ?? 'general assessment'),
+                'history' => $history,
             ]);
 
             if ($response->successful()) {
                 return $response->json();
             }
 
-            Log::error('StratosAssessmentService Analysis Error: ' . $response->body());
+            Log::error('StratosAssessmentService Analysis Error: '.$response->body());
+
             return null;
         } catch (\Exception $e) {
-            Log::error('StratosAssessmentService Analysis Exception: ' . $e->getMessage());
+            Log::error('StratosAssessmentService Analysis Exception: '.$e->getMessage());
+
             return null;
         }
     }
@@ -87,9 +92,9 @@ class StratosAssessmentService
         $history = $session->messages()
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(fn($m) => [
+            ->map(fn ($m) => [
                 'role' => $m->role,
-                'content' => $m->content
+                'content' => $m->content,
             ]);
 
         try {
@@ -101,17 +106,19 @@ class StratosAssessmentService
                 'interview_history' => $history,
                 'external_feedback' => $externalFeedback,
                 'performance_data' => $performanceData, // KPI data added
-                'language' => 'es'
+                'language' => 'es',
             ]);
 
             if ($response->successful()) {
                 return $response->json();
             }
 
-            Log::error('StratosAssessmentService 360 Analysis Error: ' . $response->body());
+            Log::error('StratosAssessmentService 360 Analysis Error: '.$response->body());
+
             return null;
         } catch (\Exception $e) {
-            Log::error('StratosAssessmentService 360 Analysis Exception: ' . $e->getMessage());
+            Log::error('StratosAssessmentService 360 Analysis Exception: '.$e->getMessage());
+
             return null;
         }
     }
@@ -125,17 +132,19 @@ class StratosAssessmentService
             $response = Http::timeout(120)->post($url, [
                 'candidate_profile' => $candidateProfile,
                 'blueprint' => $blueprint,
-                'language' => $language
+                'language' => $language,
             ]);
 
             if ($response->successful()) {
                 return $response->json();
             }
 
-            Log::error('StratosAssessmentService Matching Error: ' . $response->body());
+            Log::error('StratosAssessmentService Matching Error: '.$response->body());
+
             return null;
         } catch (\Exception $e) {
-            Log::error('StratosAssessmentService Matching Exception: ' . $e->getMessage());
+            Log::error('StratosAssessmentService Matching Exception: '.$e->getMessage());
+
             return null;
         }
     }

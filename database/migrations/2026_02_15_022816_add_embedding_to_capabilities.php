@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -22,7 +22,7 @@ return new class extends Migration
         if ($hasPgVector) {
             // Add embedding column to capabilities table
             DB::statement('ALTER TABLE capabilities ADD COLUMN embedding vector(1536) NULL');
-            
+
             // Add comment to document the column
             DB::statement("COMMENT ON COLUMN capabilities.embedding IS 'Representación vectorial de la capability (nombre + descripción) para búsqueda semántica y detección de duplicados.'");
         } else {

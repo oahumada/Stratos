@@ -112,6 +112,7 @@ class AgenticScenarioService
 
         try {
             $result = $this->orchestrator->agentThink('Simulador Orgánico', $prompt);
+
             return [
                 'status' => 'success',
                 'question' => $question,
@@ -319,7 +320,7 @@ class AgenticScenarioService
                 'responsible' => 'AI Orchestrator',
                 'deadline_days' => 3,
             ];
-            
+
             $actions[] = [
                 'phase' => 'Short-term',
                 'category' => 'synthetic',
@@ -356,8 +357,12 @@ class AgenticScenarioService
         $costImpact = $kpiImpact['cost_impact_usd'] ?? 0;
 
         $viabilityScore = 100 - $riskIndex;
-        if ($costImpact < -100000) $viabilityScore -= 15;
-        if ($costImpact > 0) $viabilityScore += 10;
+        if ($costImpact < -100000) {
+            $viabilityScore -= 15;
+        }
+        if ($costImpact > 0) {
+            $viabilityScore += 10;
+        }
 
         $viabilityScore = max(0, min(100, $viabilityScore));
 
@@ -377,7 +382,9 @@ class AgenticScenarioService
 
     protected function calculateDepartmentSkillOverlap(?int $deptA, ?int $deptB): float
     {
-        if (!$deptA || !$deptB) return 0;
+        if (! $deptA || ! $deptB) {
+            return 0;
+        }
 
         $skillsA = \DB::table('people_role_skills')
             ->join('people', 'people.id', '=', 'people_role_skills.people_id')

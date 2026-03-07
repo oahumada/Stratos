@@ -35,9 +35,9 @@ class RunNeo4jSyncJob implements ShouldQueue
                 throw new \RuntimeException('NEO4J_ETL_SERVICE_URL not configured');
             }
 
-            $res = Http::post(rtrim($url, '/') . '/sync');
+            $res = Http::post(rtrim($url, '/').'/sync');
             if (! $res->successful()) {
-                throw new \RuntimeException('Remote ETL trigger failed: ' . $res->status());
+                throw new \RuntimeException('Remote ETL trigger failed: '.$res->status());
             }
 
             return;
@@ -50,7 +50,7 @@ class RunNeo4jSyncJob implements ShouldQueue
         $process->run();
 
         if (! $process->isSuccessful()) {
-            throw new \RuntimeException('Local ETL failed: ' . $process->getErrorOutput());
+            throw new \RuntimeException('Local ETL failed: '.$process->getErrorOutput());
         }
     }
 }

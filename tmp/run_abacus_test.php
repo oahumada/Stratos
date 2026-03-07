@@ -1,11 +1,13 @@
 <?php
-require __DIR__ . '/../src/vendor/autoload.php';
+
+require __DIR__.'/../src/vendor/autoload.php';
 
 use App\Services\AbacusClient;
 
 class FakeStream
 {
     protected array $pieces;
+
     protected int $index = 0;
 
     public function __construct(array $pieces)
@@ -15,7 +17,10 @@ class FakeStream
 
     public function read($len)
     {
-        if ($this->index >= count($this->pieces)) return '';
+        if ($this->index >= count($this->pieces)) {
+            return '';
+        }
+
         return $this->pieces[$this->index++];
     }
 
@@ -41,16 +46,26 @@ class FakeResponse
 }
 
 $part1 = 'data: {"choices":[{"delta":{"content":"he"}';
-$part2 = 'llo"}}]}' . "\n\n" . 'data: [DONE]'."\n";
+$part2 = 'llo"}}]}'."\n\n".'data: [DONE]'."\n";
 $stream = new FakeStream([$part1, $part2]);
 $resp = new FakeResponse($stream);
-$http = new class($resp) extends \GuzzleHttp\Client {
+$http = new class($resp) extends \GuzzleHttp\Client
+{
     protected $resp;
-    public function __construct($resp) { $this->resp = $resp; }
-    public function post($url, $opts = []) { return $this->resp; }
+
+    public function __construct($resp)
+    {
+        $this->resp = $resp;
+    }
+
+    public function post($url, $opts = [])
+    {
+        return $this->resp;
+    }
 }($resp);
 
-$client = new class($http) extends AbacusClient {
+$client = new class($http) extends AbacusClient
+{
     public function __construct($http)
     {
         $this->http = $http;

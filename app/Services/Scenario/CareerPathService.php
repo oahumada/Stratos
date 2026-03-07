@@ -46,10 +46,10 @@ class CareerPathService
         $pathCandidates = $allRoles->map(function ($targetRole) use ($currentSkills, $person) {
             return $this->evaluateRoleFit($person, $targetRole, $currentSkills);
         })
-        ->filter(fn ($candidate) => $candidate['match_score'] > 20) // Filtrar matches muy bajos
-        ->sortByDesc('match_score')
-        ->take($maxPaths)
-        ->values();
+            ->filter(fn ($candidate) => $candidate['match_score'] > 20) // Filtrar matches muy bajos
+            ->sortByDesc('match_score')
+            ->take($maxPaths)
+            ->values();
 
         return [
             'person' => [
@@ -81,9 +81,10 @@ class CareerPathService
 
         // --- PHASE 3: NEO4J GRAPH TRAVERSAL INTEGRATION ---
         $graphRoute = $this->intel->performPathfinding($fromRoleId, $toRoleId, $fromRole->organization_id);
-        
-        if ($graphRoute && !empty($graphRoute['path'])) {
-            Log::info("Using Neo4j Knowledge Graph for route calculation", ['from' => $fromRoleId, 'to' => $toRoleId]);
+
+        if ($graphRoute && ! empty($graphRoute['path'])) {
+            Log::info('Using Neo4j Knowledge Graph for route calculation', ['from' => $fromRoleId, 'to' => $toRoleId]);
+
             return [
                 'from_role' => $fromRole->name,
                 'to_role' => $toRole->name,
@@ -95,7 +96,7 @@ class CareerPathService
                 'stepping_stones' => array_slice($graphRoute['path'], 1, -1),
                 'direct_path_feasible' => $graphRoute['total_similarity'] >= 0.6,
                 'route' => $graphRoute['path'],
-                'engine' => 'Neo4j (Knowledge Graph)'
+                'engine' => 'Neo4j (Knowledge Graph)',
             ];
         }
 
@@ -118,7 +119,7 @@ class CareerPathService
             'stepping_stones' => $steppingStones,
             'direct_path_feasible' => $transferability >= 60,
             'route' => $this->buildRouteSteps($fromRole, $toRole, $steppingStones, $newSkillsNeeded),
-            'engine' => 'SQL Fallback (Relational)'
+            'engine' => 'SQL Fallback (Relational)',
         ];
     }
 
@@ -135,7 +136,9 @@ class CareerPathService
 
         foreach ($roles as $fromRole) {
             foreach ($roles as $toRole) {
-                if ($fromRole->id === $toRole->id) continue;
+                if ($fromRole->id === $toRole->id) {
+                    continue;
+                }
 
                 $fromSkills = $fromRole->skills->pluck('id')->toArray();
                 $toSkills = $toRole->skills->pluck('id')->toArray();
@@ -276,7 +279,9 @@ class CareerPathService
     {
         $newSkillsNeeded = array_diff($toSkills, $fromSkills);
 
-        if (empty($newSkillsNeeded)) return [];
+        if (empty($newSkillsNeeded)) {
+            return [];
+        }
 
         // Buscar roles que compartan skills con ambos (From y To)
         $query = Roles::with('skills');
@@ -309,9 +314,16 @@ class CareerPathService
 
     protected function estimateTransitionTime(int $totalGap): int
     {
-        if ($totalGap <= 2) return 3;
-        if ($totalGap <= 5) return 6;
-        if ($totalGap <= 10) return 12;
+        if ($totalGap <= 2) {
+            return 3;
+        }
+        if ($totalGap <= 5) {
+            return 6;
+        }
+        if ($totalGap <= 10) {
+            return 12;
+        }
+
         return 18;
     }
 
@@ -364,7 +376,9 @@ class CareerPathService
 
     protected function calculateMobilityIndex(array $matrix, int $totalRoles): float
     {
-        if ($totalRoles <= 1) return 0;
+        if ($totalRoles <= 1) {
+            return 0;
+        }
 
         $maxPossibleConnections = $totalRoles * ($totalRoles - 1);
         $actualConnections = count($matrix);

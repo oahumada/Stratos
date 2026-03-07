@@ -14,9 +14,9 @@ return new class extends Migration
             // 'manual' → asignado directamente por el operador en la matriz
             // 'auto'   → derivado automáticamente desde el blueprint del Paso 1
             $table->enum('source', ['agent', 'manual', 'auto'])
-                  ->default('manual')
-                  ->after('rationale')
-                  ->comment('Origen del mapping: agent | manual | auto');
+                ->default('manual')
+                ->after('rationale')
+                ->comment('Origen del mapping: agent | manual | auto');
         });
     }
 

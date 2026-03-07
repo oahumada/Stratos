@@ -2,14 +2,15 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Services\ScenarioGenerationService;
-use App\Models\User;
 use App\Models\Organizations;
+use App\Models\User;
+use App\Services\ScenarioGenerationService;
+use Illuminate\Console\Command;
 
 class DebugComposePrompt extends Command
 {
     protected $signature = 'debug:compose-prompt {--payload=} {--file=} {--lang=es} {--instruction_id=}';
+
     protected $description = 'Compose prompt using ScenarioGenerationService for a given payload (JSON) and print it to stdout.';
 
     public function handle()
@@ -21,12 +22,14 @@ class DebugComposePrompt extends Command
 
         if (empty($payloadOption) && empty($fileOption)) {
             $this->error('Provide --payload or --file with JSON payload.');
+
             return 1;
         }
 
-        if (!empty($fileOption)) {
-            if (!file_exists($fileOption)) {
+        if (! empty($fileOption)) {
+            if (! file_exists($fileOption)) {
                 $this->error('File not found: '.$fileOption);
+
                 return 2;
             }
             $payloadJson = @file_get_contents($fileOption);
@@ -37,6 +40,7 @@ class DebugComposePrompt extends Command
         $data = @json_decode($payloadJson, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->error('Invalid JSON payload: '.json_last_error_msg());
+
             return 3;
         }
 
@@ -46,8 +50,8 @@ class DebugComposePrompt extends Command
             $this->warn('No User or Organizations found in DB. Using null placeholders.');
         }
 
-        $svc = new ScenarioGenerationService();
-        $result = $svc->composePromptWithInstruction($data, $user, $org, $lang, $instructionId ? (int)$instructionId : null);
+        $svc = new ScenarioGenerationService;
+        $result = $svc->composePromptWithInstruction($data, $user, $org, $lang, $instructionId ? (int) $instructionId : null);
 
         $this->line("---- COMPOSED PROMPT ----\n");
         $this->line($result['prompt']);

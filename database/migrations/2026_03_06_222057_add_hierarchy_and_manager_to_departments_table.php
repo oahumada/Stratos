@@ -28,7 +28,7 @@ return new class extends Migration
         Schema::table('departments', function (Blueprint $table) {
             $table->dropForeign(['parent_id']);
             $table->dropForeign(['manager_id']);
-            
+
             $table->dropColumn(['parent_id', 'manager_id']);
         });
     }

@@ -22,7 +22,7 @@ class RoleDesignerController extends Controller
     {
         $isScenario = $request->boolean('is_scenario', false);
         $result = $this->designerService->designRole($id, $isScenario);
-        
+
         if ($result['status'] === 'success') {
             return response()->json($result);
         }
@@ -37,7 +37,7 @@ class RoleDesignerController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'description' => 'required|string'
+            'description' => 'required|string',
         ]);
 
         $result = $this->designerService->analyzePreview(

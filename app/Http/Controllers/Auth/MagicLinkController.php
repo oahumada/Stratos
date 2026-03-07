@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MagicLinkEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
-use App\Mail\MagicLinkEmail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class MagicLinkController extends Controller
 {
@@ -21,7 +21,7 @@ class MagicLinkController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             // We return success even if user not found to prevent email enumeration,
             // but in an internal tool, we might want to tell them.
             // For now, let's return an error so the user knows.
@@ -49,7 +49,7 @@ class MagicLinkController extends Controller
      */
     public function authenticate(Request $request, User $user)
     {
-        if (!$request->hasValidSignature()) {
+        if (! $request->hasValidSignature()) {
             abort(401, 'El enlace ha expirado o es inválido.');
         }
 

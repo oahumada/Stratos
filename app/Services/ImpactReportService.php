@@ -2,13 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\Scenario;
+use App\Models\DevelopmentPath;
 use App\Models\People;
 use App\Models\PeopleRoleSkills;
-use App\Models\DevelopmentPath;
-use App\Services\ScenarioAnalyticsService;
-use App\Services\TalentRoiService;
-use App\Services\CultureSentinelService;
+use App\Models\Scenario;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -82,7 +79,7 @@ class ImpactReportService
         $this->audit->logDecision(
             'Impact Report',
             "scenario_{$scenarioId}",
-            "Reporte de impacto generado automáticamente",
+            'Reporte de impacto generado automáticamente',
             ['report_hash' => md5(json_encode($report))],
             'ImpactReportService'
         );
@@ -120,6 +117,7 @@ class ImpactReportService
             ->map(function ($path) {
                 $totalActions = $path->actions->count();
                 $completedActions = $path->actions->where('status', 'completed')->count();
+
                 return [
                     'path_id' => $path->id,
                     'title' => $path->action_title,
@@ -281,7 +279,7 @@ class ImpactReportService
         if (($gaps['critical'] ?? 0) > 3) {
             $recommendations[] = [
                 'priority' => 'critical',
-                'action' => 'Iniciar programa de reskilling urgente para las ' . $gaps['critical'] . ' brechas críticas.',
+                'action' => 'Iniciar programa de reskilling urgente para las '.$gaps['critical'].' brechas críticas.',
                 'impact' => 'Reducción de riesgo operacional en 30-40%',
             ];
         }

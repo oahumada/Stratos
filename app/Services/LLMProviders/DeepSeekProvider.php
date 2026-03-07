@@ -13,11 +13,6 @@ class DeepSeekProvider implements LLMProviderInterface
         $this->config = $config;
     }
 
-    /**
-     * @param string $prompt
-     * @param array $options
-     * @return array
-     */
     public function generate(string $prompt, array $options = []): array
     {
         $apiKey = $this->config['api_key'] ?? env('DEEPSEEK_API_KEY');
@@ -28,12 +23,12 @@ class DeepSeekProvider implements LLMProviderInterface
         if (empty($apiKey)) {
             return [
                 'response' => [
-                    'raw_text' => "DeepSeek Simulation: Analizando con expertise '" . 
-                                 implode(', ', $options['expertise'] ?? ['general']) . 
-                                 "' para la tarea: " . substr($prompt, 0, 50) . "..."
+                    'raw_text' => "DeepSeek Simulation: Analizando con expertise '".
+                                 implode(', ', $options['expertise'] ?? ['general']).
+                                 "' para la tarea: ".substr($prompt, 0, 50).'...',
                 ],
                 'confidence' => 0.95,
-                'model_version' => $model . '-mock',
+                'model_version' => $model.'-mock',
             ];
         }
 
@@ -43,7 +38,7 @@ class DeepSeekProvider implements LLMProviderInterface
     private function executeCall($prompt, $options, $apiKey, $model, $endpoint): array
     {
         $messages = [];
-        $systemPrompt = $options['system_prompt'] ?? "Eres un asistente experto.";
+        $systemPrompt = $options['system_prompt'] ?? 'Eres un asistente experto.';
         $messages[] = ['role' => 'system', 'content' => $systemPrompt];
         $messages[] = ['role' => 'user', 'content' => $prompt];
 
@@ -69,7 +64,7 @@ class DeepSeekProvider implements LLMProviderInterface
         $error = curl_error($ch);
         curl_close($ch);
 
-        Log::debug("DeepSeek Raw Response", ['code' => $httpCode, 'body' => $result, 'error' => $error]);
+        Log::debug('DeepSeek Raw Response', ['code' => $httpCode, 'body' => $result, 'error' => $error]);
 
         if ($httpCode >= 400) {
             throw new \RuntimeException('DeepSeek API Error '.$httpCode.': '.$result);
@@ -82,12 +77,12 @@ class DeepSeekProvider implements LLMProviderInterface
         // Detectar truncamiento — el JSON estará incompleto
         if ($finishReason === 'length') {
             Log::warning('DeepSeek response truncated (finish_reason=length)', [
-                'prompt_tokens'     => $data['usage']['prompt_tokens'] ?? 0,
+                'prompt_tokens' => $data['usage']['prompt_tokens'] ?? 0,
                 'completion_tokens' => $data['usage']['completion_tokens'] ?? 0,
             ]);
             throw new \RuntimeException(
                 'La respuesta del agente fue truncada por límite de tokens. '
-                . 'Reduce la cantidad de roles o simplifica el escenario.'
+                .'Reduce la cantidad de roles o simplifica el escenario.'
             );
         }
 
@@ -98,8 +93,8 @@ class DeepSeekProvider implements LLMProviderInterface
         $json = json_decode($cleanContent, true);
 
         return [
-            'response'      => is_array($json) ? $json : ['raw_text' => $content],
-            'confidence'    => 0.9,
+            'response' => is_array($json) ? $json : ['raw_text' => $content],
+            'confidence' => 0.9,
             'model_version' => $model,
         ];
     }

@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\Api\ScenarioController;
 use App\Http\Controllers\Api\ScenarioSimulationController;
+use Illuminate\Support\Facades\App as AppFacade;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\App as AppFacade;
 
 // Dev-only endpoint for E2E: logs in as admin (id from env or 2)
 Route::get('/__e2e_login', function () {
@@ -15,6 +15,7 @@ Route::get('/__e2e_login', function () {
     }
     $userId = env('E2E_ADMIN_ID', 2);
     Auth::loginUsingId($userId);
+
     return response()->json(['success' => true, 'user_id' => $userId]);
 });
 
@@ -32,7 +33,7 @@ Route::get('/assessments/feedback/{token}', [\App\Http\Controllers\Api\Assessmen
 // Stratos Magnet - Public Career Portal
 Route::get('/career/{tenant}', function ($tenant) {
     return Inertia::render('Careers/PublicPortal', [
-        'tenant' => $tenant
+        'tenant' => $tenant,
     ]);
 })->name('public.careers');
 
@@ -167,6 +168,10 @@ Route::get('/candidate-portal/{id}', function ($id) {
 Route::get('/workforce-planning', function () {
     return Inertia::render('WorkforcePlanning/Index');
 })->middleware(['auth', 'verified'])->name('workforce-planning.index');
+
+Route::get('/quality-hub', function () {
+    return Inertia::render('Quality/QualityHub');
+})->middleware(['auth', 'verified'])->name('quality.hub');
 
 Route::prefix('scenarios')->group(function () {
     Route::get('{id}/iq', [ScenarioController::class, 'getIQ']);

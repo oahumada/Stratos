@@ -35,7 +35,7 @@ class GamificationService
 
             Log::info("Awarded $points XP to person $personId. Reason: $reason");
         } catch (\Exception $e) {
-            Log::error("Failed to award points", ['error' => $e->getMessage()]);
+            Log::error('Failed to award points', ['error' => $e->getMessage()]);
         }
     }
 
@@ -46,8 +46,9 @@ class GamificationService
     {
         try {
             $badge = Badge::where('slug', $badgeSlug)->first();
-            if (!$badge) {
+            if (! $badge) {
                 Log::warning("Badge slug not found: $badgeSlug");
+
                 return;
             }
 
@@ -56,7 +57,7 @@ class GamificationService
                 ->where('badge_id', $badge->id)
                 ->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 DB::table('people_badges')->insert([
                     'people_id' => $personId,
                     'badge_id' => $badge->id,
@@ -67,7 +68,7 @@ class GamificationService
                 Log::info("Badge {$badgeSlug} awarded to person $personId");
             }
         } catch (\Exception $e) {
-            Log::error("Failed to award badge", ['error' => $e->getMessage()]);
+            Log::error('Failed to award badge', ['error' => $e->getMessage()]);
         }
     }
 
@@ -93,7 +94,7 @@ class GamificationService
         }
 
         $quest = Quest::find($questId);
-        if (!$quest) {
+        if (! $quest) {
             return null;
         }
 
@@ -111,13 +112,13 @@ class GamificationService
     public function progressQuest(int $personId, int $questId, array $progressUpdates): ?PersonQuest
     {
         $personQuest = PersonQuest::where('people_id', $personId)->where('quest_id', $questId)->first();
-        if (!$personQuest || $personQuest->status !== 'active') {
+        if (! $personQuest || $personQuest->status !== 'active') {
             return $personQuest;
         }
 
         $currentProgress = $personQuest->progress ?? [];
         $newProgress = array_merge($currentProgress, $progressUpdates);
-        
+
         $personQuest->progress = $newProgress;
         $personQuest->save();
 
@@ -130,7 +131,7 @@ class GamificationService
     public function completeQuest(int $personId, int $questId): ?PersonQuest
     {
         $personQuest = PersonQuest::with('quest')->where('people_id', $personId)->where('quest_id', $questId)->first();
-        if (!$personQuest || $personQuest->status === 'completed') {
+        if (! $personQuest || $personQuest->status === 'completed') {
             return $personQuest;
         }
 

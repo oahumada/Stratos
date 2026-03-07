@@ -16,7 +16,7 @@ class AssessmentPolicy extends Model
         'evaluators_config',
         'owner_id',
         'is_active',
-        'last_run_at'
+        'last_run_at',
     ];
 
     protected $casts = [

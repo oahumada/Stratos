@@ -15,11 +15,17 @@ use Illuminate\Support\Facades\Schema;
 class CapabilityCompetencyController extends Controller
 {
     public const MSG_SCENARIO_NOT_FOUND = 'Scenario not found';
+
     public const MSG_CAPABILITY_NOT_FOUND = 'Capability not found';
+
     public const MSG_COMPETENCY_NOT_FOUND = 'Competency not found';
+
     public const MSG_COMPETENCY_NAME_REQUIRED = 'Competency name is required';
+
     public const MSG_RELATION_NOT_FOUND = 'Relation not found';
+
     public const MSG_FORBIDDEN = 'Forbidden';
+
     public const MSG_UNAUTHENTICATED = 'Unauthenticated';
 
     /**
@@ -28,12 +34,12 @@ class CapabilityCompetencyController extends Controller
     public function store(Request $request, $scenarioId, $capabilityId): JsonResponse
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => self::MSG_UNAUTHENTICATED], 401);
         }
 
         $scenario = Scenario::find($scenarioId);
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => self::MSG_SCENARIO_NOT_FOUND], 404);
         }
         if ($scenario->organization_id !== ($user->organization_id ?? null)) {
@@ -41,7 +47,7 @@ class CapabilityCompetencyController extends Controller
         }
 
         $cap = Capability::find($capabilityId);
-        if (!$cap) {
+        if (! $cap) {
             return response()->json(['success' => false, 'message' => self::MSG_CAPABILITY_NOT_FOUND], 404);
         }
 
@@ -51,7 +57,7 @@ class CapabilityCompetencyController extends Controller
             $result = DB::transaction(function () use ($request, $scenarioId, $capabilityId, $competencyId, $user) {
                 if ($competencyId) {
                     $comp = Competency::find($competencyId);
-                    if (!$comp) {
+                    if (! $comp) {
                         throw new \Exception(self::MSG_COMPETENCY_NOT_FOUND);
                     }
                     if ($comp->organization_id !== ($user->organization_id ?? null)) {
@@ -104,6 +110,7 @@ class CapabilityCompetencyController extends Controller
                 }
 
                 DB::table('capability_competencies')->insert($insert);
+
                 return ['status' => 'created', 'data' => $insert];
             });
 
@@ -113,7 +120,8 @@ class CapabilityCompetencyController extends Controller
 
             return response()->json(['success' => true, 'data' => $result['row'], 'note' => 'already_exists'], 200);
         } catch (\Exception $e) {
-            Log::error('Error creating capability_competency: ' . $e->getMessage(), ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId]);
+            Log::error('Error creating capability_competency: '.$e->getMessage(), ['scenario_id' => $scenarioId, 'capability_id' => $capabilityId]);
+
             return $this->handleException($e);
         }
     }
@@ -124,11 +132,11 @@ class CapabilityCompetencyController extends Controller
     public function update(Request $request, $scenarioId, $capabilityId, $competencyId): JsonResponse
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => self::MSG_UNAUTHENTICATED], 401);
         }
         $scenario = Scenario::find($scenarioId);
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => self::MSG_SCENARIO_NOT_FOUND], 404);
         }
         if ($scenario->organization_id !== ($user->organization_id ?? null)) {
@@ -140,29 +148,35 @@ class CapabilityCompetencyController extends Controller
             ->where('capability_id', $capabilityId)
             ->where('competency_id', $competencyId);
 
-        if (!$query->exists()) {
+        if (! $query->exists()) {
             return response()->json(['success' => false, 'message' => self::MSG_RELATION_NOT_FOUND], 404);
         }
 
         $update = [];
-        if ($request->has('required_level')) $update['required_level'] = (int) $request->input('required_level');
-        if ($request->has('rationale')) $update['rationale'] = $request->input('rationale');
-        if ($request->has('is_required')) $update['is_required'] = (bool) $request->input('is_required');
-        
+        if ($request->has('required_level')) {
+            $update['required_level'] = (int) $request->input('required_level');
+        }
+        if ($request->has('rationale')) {
+            $update['rationale'] = $request->input('rationale');
+        }
+        if ($request->has('is_required')) {
+            $update['is_required'] = (bool) $request->input('is_required');
+        }
+
         $resolvedWeight = $this->resolveWeight($request);
         if ($resolvedWeight !== null) {
-             if (Schema::hasColumn('capability_competencies', 'strategic_weight')) {
-                 $update['strategic_weight'] = $resolvedWeight;
-             } elseif (Schema::hasColumn('capability_competencies', 'weight')) {
-                 $update['weight'] = $resolvedWeight;
-             }
+            if (Schema::hasColumn('capability_competencies', 'strategic_weight')) {
+                $update['strategic_weight'] = $resolvedWeight;
+            } elseif (Schema::hasColumn('capability_competencies', 'weight')) {
+                $update['weight'] = $resolvedWeight;
+            }
         }
 
         if ($request->has('priority') && Schema::hasColumn('capability_competencies', 'priority')) {
             $update['priority'] = (int) $request->input('priority');
         }
 
-        if (!empty($update)) {
+        if (! empty($update)) {
             $update['updated_at'] = now();
             $query->update($update);
         }
@@ -176,11 +190,11 @@ class CapabilityCompetencyController extends Controller
     public function destroy($scenarioId, $capabilityId, $competencyId): JsonResponse
     {
         $user = auth()->user();
-        if (!$user) {
-             return response()->json(['success' => false, 'message' => self::MSG_UNAUTHENTICATED], 401);
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => self::MSG_UNAUTHENTICATED], 401);
         }
         $scenario = Scenario::find($scenarioId);
-        if (!$scenario) {
+        if (! $scenario) {
             return response()->json(['success' => false, 'message' => self::MSG_SCENARIO_NOT_FOUND], 404);
         }
         if ($scenario->organization_id !== ($user->organization_id ?? null)) {
@@ -208,6 +222,7 @@ class CapabilityCompetencyController extends Controller
         if ($request->has('strategic_weight')) {
             return (int) $request->input('strategic_weight');
         }
+
         return null;
     }
 
@@ -226,9 +241,15 @@ class CapabilityCompetencyController extends Controller
     private function handleException(\Exception $e): JsonResponse
     {
         $msg = $e->getMessage();
-        if ($msg === self::MSG_FORBIDDEN) return response()->json(['success' => false, 'message' => $msg], 403);
-        if ($msg === self::MSG_COMPETENCY_NOT_FOUND) return response()->json(['success' => false, 'message' => $msg], 404);
-        if ($msg === self::MSG_COMPETENCY_NAME_REQUIRED) return response()->json(['success' => false, 'message' => $msg], 422);
+        if ($msg === self::MSG_FORBIDDEN) {
+            return response()->json(['success' => false, 'message' => $msg], 403);
+        }
+        if ($msg === self::MSG_COMPETENCY_NOT_FOUND) {
+            return response()->json(['success' => false, 'message' => $msg], 404);
+        }
+        if ($msg === self::MSG_COMPETENCY_NAME_REQUIRED) {
+            return response()->json(['success' => false, 'message' => $msg], 422);
+        }
 
         return response()->json(['success' => false, 'message' => 'Server error'], 500);
     }

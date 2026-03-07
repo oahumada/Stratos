@@ -18,11 +18,11 @@ return new class extends Migration
             $table->integer('stress_level')->nullable()->comment('1-5 representing stress');
             $table->integer('engagement_level')->nullable()->comment('1-5 representing engagement');
             $table->text('comments')->nullable();
-            
+
             // IA Predictive Turnover
             $table->string('ai_turnover_risk')->nullable()->comment('low, medium, high');
             $table->text('ai_turnover_reason')->nullable();
-            
+
             $table->timestamps();
         });
     }

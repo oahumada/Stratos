@@ -16,6 +16,7 @@ class DevelopmentActionController extends Controller
     {
         $this->lmsService = $lmsService;
     }
+
     /**
      * Actualiza el estado de una acción de desarrollo.
      */
@@ -29,7 +30,7 @@ class DevelopmentActionController extends Controller
 
         $action->status = $data['status'];
 
-        if ($data['status'] === 'in_progress' && !$action->started_at) {
+        if ($data['status'] === 'in_progress' && ! $action->started_at) {
             $action->started_at = now();
         }
 
@@ -44,10 +45,10 @@ class DevelopmentActionController extends Controller
 
         return response()->json([
             'message' => 'Estado de la acción actualizado',
-            'data' => $action
+            'data' => $action,
         ]);
     }
-    
+
     /**
      * Lanza el curso asociado en el LMS.
      */
@@ -59,7 +60,7 @@ class DevelopmentActionController extends Controller
 
             return response()->json([
                 'url' => $url,
-                'data' => $action->fresh()
+                'data' => $action->fresh(),
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
@@ -76,7 +77,7 @@ class DevelopmentActionController extends Controller
 
         return response()->json([
             'updated' => $updated,
-            'data' => $action->fresh()
+            'data' => $action->fresh(),
         ]);
     }
 }

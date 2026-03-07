@@ -32,7 +32,7 @@ class ScenarioRoleSkill extends Model
 
     public function role()
     {
-        // This remains for backward compatibility if needed, 
+        // This remains for backward compatibility if needed,
         // but it actually points to scenario_roles table in Step 2 logic.
         return $this->belongsTo(ScenarioRole::class, 'role_id');
     }

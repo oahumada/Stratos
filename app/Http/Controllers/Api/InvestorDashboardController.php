@@ -22,7 +22,7 @@ class InvestorDashboardController extends Controller
     public function index(Request $request): JsonResponse
     {
         // Add middleware authorization check here if needed (e.g. role:admin,hr_leader)
-        
+
         $summary = $this->roiService->getExecutiveSummary();
         $distributions = $this->roiService->getDistributionData();
 
@@ -36,7 +36,7 @@ class InvestorDashboardController extends Controller
                     'projected_savings_usd' => round($summary['talent_roi_usd'] * 1.2, 2),
                 ],
                 'timestamp' => now()->toIso8601String(),
-            ]
+            ],
         ]);
     }
 }

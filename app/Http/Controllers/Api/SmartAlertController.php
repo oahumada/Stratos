@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\Intelligence\SmartAlertService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class SmartAlertController extends Controller
 {
@@ -26,7 +25,7 @@ class SmartAlertController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $alerts
+            'data' => $alerts,
         ]);
     }
 

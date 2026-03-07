@@ -21,7 +21,7 @@ class RoleController extends Controller
             'description' => 'required|string',
             'cube_dimensions' => 'nullable|array',
             'competencies' => 'nullable|array',
-            'ai_archetype_config' => 'nullable|array'
+            'ai_archetype_config' => 'nullable|array',
         ]);
 
         try {
@@ -32,7 +32,7 @@ class RoleController extends Controller
                     'description' => $request->description,
                     'cube_dimensions' => $request->cube_dimensions,
                     'ai_archetype_config' => $request->ai_archetype_config,
-                    'status' => 'active'
+                    'status' => 'active',
                 ]);
 
                 // Attach competencies/skills
@@ -42,18 +42,18 @@ class RoleController extends Controller
                         $skill = Skill::firstOrCreate(
                             [
                                 'name' => $compData['name'],
-                                'organization_id' => auth()->user()->organization_id
+                                'organization_id' => auth()->user()->organization_id,
                             ],
                             [
                                 'category' => 'Competency',
-                                'description' => $compData['rationale'] ?? null
+                                'description' => $compData['rationale'] ?? null,
                             ]
                         );
 
                         // Attach to role with level
                         $role->skills()->attach($skill->id, [
                             'required_level' => $compData['level'] ?? 3,
-                            'is_critical' => true
+                            'is_critical' => true,
                         ]);
                     }
                 }
@@ -61,14 +61,15 @@ class RoleController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Rol creado exitosamente con el Modelo de Cubo.',
-                    'role' => $role
+                    'role' => $role,
                 ], 201);
             });
         } catch (\Exception $e) {
-            Log::error('Error creating role with Cube: ' . $e->getMessage());
+            Log::error('Error creating role with Cube: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error al crear el rol: ' . $e->getMessage()
+                'message' => 'Error al crear el rol: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -79,6 +80,7 @@ class RoleController extends Controller
     public function show($id)
     {
         $role = Roles::with(['skills', 'agent', 'blueprint'])->findOrFail($id);
+
         return response()->json($role);
     }
 }

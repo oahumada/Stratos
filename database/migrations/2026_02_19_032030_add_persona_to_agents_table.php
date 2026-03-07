@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('agents', function (Blueprint $table) {
-            if (!Schema::hasColumn('agents', 'role_description')) {
+            if (! Schema::hasColumn('agents', 'role_description')) {
                 $table->text('role_description')->nullable()->after('name');
             }
-            if (!Schema::hasColumn('agents', 'persona')) {
+            if (! Schema::hasColumn('agents', 'persona')) {
                 $table->text('persona')->nullable()->after('role_description');
             }
-            if (!Schema::hasColumn('agents', 'type')) {
+            if (! Schema::hasColumn('agents', 'type')) {
                 $table->string('type')->default('analyst')->after('persona');
             }
-            if (!Schema::hasColumn('agents', 'capabilities_config')) {
+            if (! Schema::hasColumn('agents', 'capabilities_config')) {
                 $table->json('capabilities_config')->nullable()->after('type');
             }
             $table->unsignedBigInteger('organization_id')->nullable()->change();
@@ -35,12 +35,20 @@ return new class extends Migration
     {
         Schema::table('agents', function (Blueprint $table) {
             $cols = [];
-            if (Schema::hasColumn('agents', 'role_description')) $cols[] = 'role_description';
-            if (Schema::hasColumn('agents', 'persona')) $cols[] = 'persona';
-            if (Schema::hasColumn('agents', 'type')) $cols[] = 'type';
-            if (Schema::hasColumn('agents', 'capabilities_config')) $cols[] = 'capabilities_config';
-            
-            if (!empty($cols)) {
+            if (Schema::hasColumn('agents', 'role_description')) {
+                $cols[] = 'role_description';
+            }
+            if (Schema::hasColumn('agents', 'persona')) {
+                $cols[] = 'persona';
+            }
+            if (Schema::hasColumn('agents', 'type')) {
+                $cols[] = 'type';
+            }
+            if (Schema::hasColumn('agents', 'capabilities_config')) {
+                $cols[] = 'capabilities_config';
+            }
+
+            if (! empty($cols)) {
                 $table->dropColumn($cols);
             }
         });

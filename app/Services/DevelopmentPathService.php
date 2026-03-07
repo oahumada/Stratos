@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\DevelopmentPath;
 use App\Models\People;
 use App\Models\Roles;
-use App\Services\AiOrchestratorService;
 use Illuminate\Support\Facades\Log;
 
 class DevelopmentPathService
@@ -16,6 +15,7 @@ class DevelopmentPathService
     {
         $this->ai = $ai;
     }
+
     public function generate(People $people, Roles $targetRole): DevelopmentPath
     {
         $gapService = new GapAnalysisService;
@@ -32,17 +32,17 @@ class DevelopmentPathService
             ]);
 
         $steps = [];
-        
+
         // Intentar generación con Agente Inteligente
         try {
             Log::info("Iniciando generación de ruta con Agente para {$people->id}");
             $agentSteps = $this->generateStepsWithAgent($people, $targetRole, $gaps);
-            if (!empty($agentSteps)) {
+            if (! empty($agentSteps)) {
                 $steps = $agentSteps;
-                Log::info("Ruta generada exitosamente por el Agente (" . count($steps) . " pasos)");
+                Log::info('Ruta generada exitosamente por el Agente ('.count($steps).' pasos)');
             }
         } catch (\Exception $e) {
-            Log::warning("Agentic learning path failed, falling back to legacy rules: " . $e->getMessage());
+            Log::warning('Agentic learning path failed, falling back to legacy rules: '.$e->getMessage());
         }
 
         // Fallback a lógica legacy si el agente falla o no devuelve pasos
@@ -91,18 +91,18 @@ class DevelopmentPathService
      */
     protected function generateStepsWithAgent(People $people, Roles $targetRole, $gaps): array
     {
-        $peopleName = $people->full_name ?? ($people->first_name . ' ' . $people->last_name);
-        
+        $peopleName = $people->full_name ?? ($people->first_name.' '.$people->last_name);
+
         $taskPrompt = "Persona: {$peopleName}\n";
         $taskPrompt .= "Rol Objetivo: {$targetRole->name}\n";
-        $taskPrompt .= "Descripción del Rol: " . ($targetRole->description ?? 'N/A') . "\n";
+        $taskPrompt .= 'Descripción del Rol: '.($targetRole->description ?? 'N/A')."\n";
         $taskPrompt .= "Brechas detectadas (Gaps a cerrar):\n";
-        
+
         foreach ($gaps as $gap) {
             $critical = $gap['is_critical'] ? '[CRÍTICA]' : '';
             $taskPrompt .= "- Skill: {$gap['skill_name']}, Brecha: {$gap['gap']} niveles {$critical}\n";
         }
-        
+
         $taskPrompt .= "\nINSTRUCCIÓN: Genera una secuencia lógica de pasos de aprendizaje (Learning Path). ";
         $taskPrompt .= "Para cada paso utiliza este formato JSON exacto: { \"order\": int, \"action_type\": \"course|mentorship|project|certification|workshop|reading|practice\", \"skill_name\": \"string\", \"description\": \"descripción pedagógica personalizada y motivadora\", \"estimated_duration_days\": int }.\n";
         $taskPrompt .= "LINEAMIENTOS TÉCNICOS:\n";
@@ -111,27 +111,27 @@ class DevelopmentPathService
         $taskPrompt .= "- Gap 3: ~80 días (course + mentorship + project)\n";
         $taskPrompt .= "- Gap 4+: ~110 días (course + mentorship + workshop + project)\n";
         $taskPrompt .= "Skills críticas: añade siempre un paso final de 'certification' (15 días).\n";
-        
+
         $catalogService = new CourseCatalogService;
         $resources = [];
         foreach ($gaps as $gap) {
             $resources[$gap['skill_name']] = $catalogService->findCoursesBySkill($gap['skill_name']);
         }
-        $taskPrompt .= "RECURSOS DISPONIBLES EN CATÁLOGO: " . json_encode($resources) . "\n";
-        
+        $taskPrompt .= 'RECURSOS DISPONIBLES EN CATÁLOGO: '.json_encode($resources)."\n";
+
         $taskPrompt .= "IMPORTANTE: Resume o agrupa si hay demasiadas skills para no crear una ruta infinita. Devuelve SOLO un JSON con la clave 'steps' conteniendo el array de objetos.";
 
         $result = $this->ai->agentThink('Arquitecto de Aprendizaje', $taskPrompt);
-        
+
         // Extraer respuesta (soporta si viene como 'response' o directo)
         $response = $result['response'] ?? $result;
-        
+
         // Si es string (markdown code block), limpiar
         if (is_string($response)) {
             $response = preg_replace('/(^```json\s*)|(```$)/m', '', $response);
             $response = json_decode(trim($response), true);
         }
-        
+
         return $response['steps'] ?? [];
     }
 
@@ -161,7 +161,7 @@ class DevelopmentPathService
                     'action_type' => 'course',
                     'skill_id' => $skillId,
                     'skill_name' => $skillName,
-                    'description' => "Curso intensivo de {$skillName} con enfoque práctico. RECOMENDADO: " . $this->getRecommendedCourse($skillName),
+                    'description' => "Curso intensivo de {$skillName} con enfoque práctico. RECOMENDADO: ".$this->getRecommendedCourse($skillName),
                     'estimated_duration_days' => rand(25, 30),
                     'status' => 'draft',
                 ];
@@ -260,6 +260,7 @@ class DevelopmentPathService
         $catalog = new CourseCatalogService;
         $courses = $catalog->findCoursesBySkill($skillName);
         $best = $courses[0] ?? null;
+
         return $best ? "{$best['title']} ({$best['provider']})" : "Curso General de {$skillName}";
     }
 }

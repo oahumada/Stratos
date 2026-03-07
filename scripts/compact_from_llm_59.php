@@ -1,34 +1,43 @@
 <?php
-// Compact using existing llm_response without requiring Composer/vendor.
-$root = realpath(__DIR__ . '/../../');
 
-function parseEnvFile($path) {
+// Compact using existing llm_response without requiring Composer/vendor.
+$root = realpath(__DIR__.'/../../');
+
+function parseEnvFile($path)
+{
     $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    if (! $lines) return [];
+    if (! $lines) {
+        return [];
+    }
     $data = [];
     foreach ($lines as $line) {
         $line = trim($line);
-        if ($line === '' || $line[0] === '#' ) continue;
-        if (strpos($line, '=') === false) continue;
-        list($k,$v) = explode('=', $line, 2);
+        if ($line === '' || $line[0] === '#') {
+            continue;
+        }
+        if (strpos($line, '=') === false) {
+            continue;
+        }
+        [$k, $v] = explode('=', $line, 2);
         $k = trim($k);
         $v = trim($v);
         $v = preg_replace('/^\"|\"$/', '', $v);
         $v = preg_replace("/^'|'$/", '', $v);
         $data[$k] = $v;
     }
+
     return $data;
 }
 
 $env = [];
-if (file_exists($root . '/.env')) {
-    $env = parseEnvFile($root . '/.env');
-} elseif (file_exists($root . '/.env.example')) {
-    $env = parseEnvFile($root . '/.env.example');
-} elseif (file_exists($root . '/src/.env')) {
-    $env = parseEnvFile($root . '/src/.env');
-} elseif (file_exists($root . '/src/.env.example')) {
-    $env = parseEnvFile($root . '/src/.env.example');
+if (file_exists($root.'/.env')) {
+    $env = parseEnvFile($root.'/.env');
+} elseif (file_exists($root.'/.env.example')) {
+    $env = parseEnvFile($root.'/.env.example');
+} elseif (file_exists($root.'/src/.env')) {
+    $env = parseEnvFile($root.'/src/.env');
+} elseif (file_exists($root.'/src/.env.example')) {
+    $env = parseEnvFile($root.'/src/.env.example');
 }
 
 $dbConn = getenv('DB_CONNECTION') ?: ($env['DB_CONNECTION'] ?? 'mysql');
@@ -47,9 +56,9 @@ try {
     if ($dbConn === 'sqlite') {
         $path = $dbName;
         if (! preg_match('#^/#', $path)) {
-            $path = $root . '/' . $path;
+            $path = $root.'/'.$path;
         }
-        $dsn = "sqlite:" . $path;
+        $dsn = 'sqlite:'.$path;
         $pdo = new PDO($dsn);
     } elseif ($dbConn === 'pgsql') {
         $dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbName}";
@@ -62,7 +71,7 @@ try {
         ]);
     }
 } catch (Exception $e) {
-    fwrite(STDERR, "DB connection failed: " . $e->getMessage() . "\n");
+    fwrite(STDERR, 'DB connection failed: '.$e->getMessage()."\n");
     exit(1);
 }
 
@@ -113,15 +122,14 @@ $meta['compacted'] = $encoded;
 $meta['chunk_count'] = $chunkCount;
 $meta['compacted_at'] = date('Y-m-d H:i:s');
 
+// Move compacted blob to dedicated column and keep metadata for other fields
+$meta['chunk_count'] = $chunkCount;
+$meta['compacted_at'] = date('Y-m-d H:i:s');
+$metaJson = json_encode($meta, JSON_UNESCAPED_UNICODE);
 
-    // Move compacted blob to dedicated column and keep metadata for other fields
-    $meta['chunk_count'] = $chunkCount;
-    $meta['compacted_at'] = date('Y-m-d H:i:s');
-    $metaJson = json_encode($meta, JSON_UNESCAPED_UNICODE);
-
-    $up = $pdo->prepare('UPDATE scenario_generations SET metadata = ?, compacted = ?, chunk_count = ?, compacted_at = ? WHERE id = ?');
-    $up->execute([$metaJson, $encoded, $chunkCount, $meta['compacted_at'], $genId]);
-echo "compacted base64 len: " . strlen($encoded) . "\n";
-echo "decoded len: " . strlen($jsonText) . "\n";
+$up = $pdo->prepare('UPDATE scenario_generations SET metadata = ?, compacted = ?, chunk_count = ?, compacted_at = ? WHERE id = ?');
+$up->execute([$metaJson, $encoded, $chunkCount, $meta['compacted_at'], $genId]);
+echo 'compacted base64 len: '.strlen($encoded)."\n";
+echo 'decoded len: '.strlen($jsonText)."\n";
 
 exit(0);

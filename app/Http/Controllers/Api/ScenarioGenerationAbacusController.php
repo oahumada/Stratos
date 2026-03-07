@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\GenerationChunk;
 use App\Models\Organizations;
 use App\Models\ScenarioGeneration;
 use App\Services\AbacusClient;
@@ -70,7 +69,9 @@ class ScenarioGenerationAbacusController extends Controller
         if (empty($model) || $model === 'abacus-default') {
             $model = 'gpt-5';
         }
-        $providerOptions = array_merge(['overrides' => ['model' => $model]], array_filter($providerOptions, function ($v) { return $v !== null; }));
+        $providerOptions = array_merge(['overrides' => ['model' => $model]], array_filter($providerOptions, function ($v) {
+            return $v !== null;
+        }));
 
         $generation->metadata = array_merge($generation->metadata ?? [], ['provider' => 'abacus', 'provider_options' => $providerOptions, 'used_instruction' => $instructionMeta]);
         $generation->status = 'queued';

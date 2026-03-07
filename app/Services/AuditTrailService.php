@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 class AuditTrailService
 {
@@ -22,7 +21,7 @@ class AuditTrailService
             'decision' => $decision,
             'rationale' => $rationale,
             'agent' => $agentName,
-            'fingerprint' => md5(json_encode($rationale))
+            'fingerprint' => md5(json_encode($rationale)),
         ]));
     }
 }

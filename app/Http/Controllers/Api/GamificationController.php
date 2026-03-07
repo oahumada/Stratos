@@ -24,9 +24,10 @@ class GamificationController extends Controller
     {
         try {
             $quests = $this->gamificationService->getPersonQuests($peopleId);
+
             return $this->success($quests, 'Quests fetched successfully.');
         } catch (\Exception $e) {
-            return $this->error('Failed to fetch quests: ' . $e->getMessage(), 500);
+            return $this->error('Failed to fetch quests: '.$e->getMessage(), 500);
         }
     }
 
@@ -37,9 +38,10 @@ class GamificationController extends Controller
     {
         try {
             $quests = Quest::with('badge')->where('status', 'active')->get();
+
             return $this->success($quests, 'Available quests fetched.');
         } catch (\Exception $e) {
-            return $this->error('Failed to fetch available quests: ' . $e->getMessage(), 500);
+            return $this->error('Failed to fetch available quests: '.$e->getMessage(), 500);
         }
     }
 
@@ -50,14 +52,14 @@ class GamificationController extends Controller
     {
         try {
             $personQuest = $this->gamificationService->startQuest($peopleId, $questId);
-            
-            if (!$personQuest) {
+
+            if (! $personQuest) {
                 return $this->error('Quest not found or could not be started.', 404);
             }
 
             return $this->success($personQuest, 'Quest started successfully.');
         } catch (\Exception $e) {
-            return $this->error('Failed to start quest: ' . $e->getMessage(), 500);
+            return $this->error('Failed to start quest: '.$e->getMessage(), 500);
         }
     }
 
@@ -73,8 +75,8 @@ class GamificationController extends Controller
 
         try {
             $personQuest = $this->gamificationService->progressQuest($peopleId, $questId, $validated['progress']);
-            
-            if (!$personQuest) {
+
+            if (! $personQuest) {
                 return $this->error('Quest not found or not active.', 404);
             }
 
@@ -84,7 +86,7 @@ class GamificationController extends Controller
 
             return $this->success($personQuest->load('quest.badge'), 'Quest progressed successfully.');
         } catch (\Exception $e) {
-            return $this->error('Failed to progress quest: ' . $e->getMessage(), 500);
+            return $this->error('Failed to progress quest: '.$e->getMessage(), 500);
         }
     }
 }

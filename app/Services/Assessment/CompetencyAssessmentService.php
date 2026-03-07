@@ -5,8 +5,6 @@ namespace App\Services\Assessment;
 use App\Models\AssessmentFeedback;
 use App\Models\PeopleRoleSkills;
 use App\Services\AiOrchestratorService;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CompetencyAssessmentService
@@ -17,6 +15,7 @@ class CompetencyAssessmentService
     {
         $this->orchestrator = $orchestrator;
     }
+
     /**
      * Weights for different relationship types in 360 feedback.
      */
@@ -31,8 +30,8 @@ class CompetencyAssessmentService
     /**
      * Calculate and update the competency level for a person and skill based on 360 feedback.
      *
-     * @param int $peopleId The person being evaluated.
-     * @param int $skillId The skill to update.
+     * @param  int  $peopleId  The person being evaluated.
+     * @param  int  $skillId  The skill to update.
      * @return array Result metadata including new level and confidence.
      */
     public function calculateAndUpdateLevel(int $peopleId, int $skillId): array
@@ -59,10 +58,10 @@ class CompetencyAssessmentService
         $totalWeight = 0;
         $weightedSum = 0;
         $confidenceSum = 0;
-        
+
         foreach ($feedbacks as $feedback) {
             $weight = $this->weights[$feedback->relationship] ?? $this->weights['other'];
-            
+
             // Adjust weight by evaluator's confidence if provided (0-100)
             // If confidence is low, reduce impact.
             $confidenceMultiplier = ($feedback->confidence_level ?? 80) / 100.0;
@@ -70,7 +69,7 @@ class CompetencyAssessmentService
 
             $weightedSum += $feedback->score * $effectiveWeight;
             $totalWeight += $effectiveWeight;
-            
+
             $confidenceSum += ($feedback->confidence_level ?? 0);
         }
 
@@ -80,7 +79,7 @@ class CompetencyAssessmentService
 
         $finalScore = $weightedSum / $totalWeight;
         $roundedLevel = round($finalScore); // BARS levels are integers 1-5
-        
+
         // Ensure within bounds
         $roundedLevel = max(1, min(5, $roundedLevel));
 
@@ -89,16 +88,16 @@ class CompetencyAssessmentService
         $variance = 0;
         $count = $feedbacks->count();
         $rawAvg = $feedbacks->avg('score');
-        
+
         foreach ($feedbacks as $f) {
             $variance += pow($f->score - $rawAvg, 2);
         }
         $stdDev = $count > 1 ? sqrt($variance / ($count - 1)) : 0;
-        
+
         $calibrationNeeded = $stdDev > 1.5;
-        $notes = "Score: " . number_format($finalScore, 2) . ". Sources: {$count}. SD: " . number_format($stdDev, 2);
+        $notes = 'Score: '.number_format($finalScore, 2).". Sources: {$count}. SD: ".number_format($stdDev, 2);
         if ($calibrationNeeded) {
-            $notes .= " [REQUIRES CALIBRATION - High Dispersion]";
+            $notes .= ' [REQUIRES CALIBRATION - High Dispersion]';
         }
 
         // 4. Update PeopleRoleSkills
@@ -107,14 +106,14 @@ class CompetencyAssessmentService
             [
                 'people_id' => $peopleId,
                 'skill_id' => $skillId,
-                'is_active' => true
+                'is_active' => true,
             ],
             [
                 'current_level' => $roundedLevel,
                 'evidence_source' => 'Talent360',
                 'evaluated_at' => now(),
                 'notes' => $notes,
-                'verified' => !$calibrationNeeded // Auto-verify only if consistent
+                'verified' => ! $calibrationNeeded, // Auto-verify only if consistent
             ]
         );
 
@@ -127,7 +126,7 @@ class CompetencyAssessmentService
             'std_dev' => $stdDev,
             'calibration_needed' => $calibrationNeeded,
             'sources_count' => $count,
-            'avg_confidence' => $feedbacks->count() > 0 ? ($confidenceSum / $feedbacks->count()) : 0
+            'avg_confidence' => $feedbacks->count() > 0 ? ($confidenceSum / $feedbacks->count()) : 0,
         ];
     }
 
@@ -169,38 +168,39 @@ class CompetencyAssessmentService
             return ['status' => 'error', 'message' => 'Insuficiente data para calibración.'];
         }
 
-        $skillName = $feedbacks->first()->skill->name ?? 'Skill #' . $skillId;
-        
+        $skillName = $feedbacks->first()->skill->name ?? 'Skill #'.$skillId;
+
         $prompt = "Necesito que calibres la evaluación de la competencia '{$skillName}' para un colaborador. 
         Tengo los siguientes feedbacks contrastantes:\n";
-        
+
         foreach ($feedbacks as $f) {
-            $prompt .= "- Rol: {$f->relationship}, Puntaje: {$f->score}, Comentario: " . ($f->answer ?? 'Sin comentario') . "\n";
+            $prompt .= "- Rol: {$f->relationship}, Puntaje: {$f->score}, Comentario: ".($f->answer ?? 'Sin comentario')."\n";
         }
 
         $prompt .= "\nPor favor, analiza si hay sesgos, identifica qué perspectiva parece más objetiva y propón un Puntaje Calibrado (1-5) y una Justificación Técnica breve.";
 
         try {
             $result = $this->orchestrator->agentThink('Orquestador 360', $prompt);
-            
+
             // Si el agente devolvió un JSON con 'calibrated_score' y 'justification'
             $calibration = $result['response'];
-            
+
             // Actualizar el registro con la calibración del agente
             PeopleRoleSkills::updateOrCreate(
                 ['people_id' => $peopleId, 'skill_id' => $skillId, 'is_active' => true],
                 [
                     'current_level' => $calibration['calibrated_score'] ?? round($feedbacks->avg('score')),
-                    'notes' => "[CALIBRADO POR IA]: " . ($calibration['justification'] ?? $calibration['raw_text'] ?? 'Calibración completada.'),
+                    'notes' => '[CALIBRADO POR IA]: '.($calibration['justification'] ?? $calibration['raw_text'] ?? 'Calibración completada.'),
                     'verified' => true,
                     'evaluated_at' => now(),
-                    'evidence_source' => 'Talent360_AgentCalibration'
+                    'evidence_source' => 'Talent360_AgentCalibration',
                 ]
             );
 
             return ['status' => 'calibrated', 'result' => $calibration];
         } catch (\Exception $e) {
-            Log::error("Error en calibración con agente: " . $e->getMessage());
+            Log::error('Error en calibración con agente: '.$e->getMessage());
+
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }

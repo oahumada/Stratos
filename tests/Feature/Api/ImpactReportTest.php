@@ -21,7 +21,7 @@ beforeEach(function () {
     $capability = \App\Models\Capability::create([
         'organization_id' => $this->org->id,
         'name' => 'Strategic AI Capability',
-        'code' => 'CAP-' . uniqid(),
+        'code' => 'CAP-'.uniqid(),
     ]);
 
     \DB::table('scenario_capabilities')->insert([
@@ -46,12 +46,12 @@ it('generates a scenario impact report', function () {
         'data' => [
             'meta',
             'executive_summary',
-        ]
+        ],
     ]);
 });
 
 it('generates an organizational ROI report', function () {
-    $response = $this->getJson("/api/reports/roi");
+    $response = $this->getJson('/api/reports/roi');
 
     $response->assertStatus(200);
     $response->assertJsonStructure([
@@ -65,12 +65,12 @@ it('generates an organizational ROI report', function () {
             'learning_progress',
             'distributions',
             'talent_pipeline',
-        ]
+        ],
     ]);
 });
 
 it('generates a consolidated impact report', function () {
-    $response = $this->getJson("/api/reports/consolidated");
+    $response = $this->getJson('/api/reports/consolidated');
 
     $response->assertStatus(200);
     $response->assertJsonStructure([
@@ -81,6 +81,6 @@ it('generates a consolidated impact report', function () {
             'scenario_impact',
             'organizational_roi',
             'strategic_recommendations',
-        ]
+        ],
     ]);
 });

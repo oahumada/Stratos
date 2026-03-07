@@ -2,13 +2,14 @@
 
 namespace App\Services;
 
-use App\Models\PulseResponse;
 use App\Models\PsychometricProfile;
+use App\Models\PulseResponse;
 use Illuminate\Support\Facades\Log;
 
 class CultureSentinelService
 {
     protected AiOrchestratorService $orchestrator;
+
     protected AuditTrailService $audit;
 
     public function __construct(AiOrchestratorService $orchestrator, AuditTrailService $audit)
@@ -31,7 +32,7 @@ class CultureSentinelService
         $this->audit->logDecision(
             'Culture Sentinel',
             "org_{$organizationId}",
-            "Health Scan: " . count($anomalies) . " anomalías detectadas",
+            'Health Scan: '.count($anomalies).' anomalías detectadas',
             $aiAnalysis,
             'Stratos Sentinel'
         );
@@ -69,7 +70,7 @@ class CultureSentinelService
             ->get();
 
         $traitDistribution = $profiles->groupBy('trait_name')
-            ->map(fn($group) => round($group->avg('score'), 2))
+            ->map(fn ($group) => round($group->avg('score'), 2))
             ->toArray();
 
         return [
@@ -147,13 +148,15 @@ class CultureSentinelService
 
         try {
             $result = $this->orchestrator->agentThink('Stratos Sentinel', $prompt);
+
             return $result['response'];
         } catch (\Exception $e) {
-            Log::error("Culture Sentinel analysis failed: " . $e->getMessage());
+            Log::error('Culture Sentinel analysis failed: '.$e->getMessage());
+
             return [
                 'diagnosis' => 'Análisis no disponible temporalmente.',
                 'ceo_actions' => ['Revisar manualmente las señales de pulso.'],
-                'critical_node' => 'Desconocido'
+                'critical_node' => 'Desconocido',
             ];
         }
     }
@@ -163,11 +166,11 @@ class CultureSentinelService
      */
     protected function calculateTrend(int $organizationId): string
     {
-        $recent = PulseResponse::whereHas('people', fn($q) => $q->where('organization_id', $organizationId))
+        $recent = PulseResponse::whereHas('people', fn ($q) => $q->where('organization_id', $organizationId))
             ->where('created_at', '>=', now()->subDays(15))
             ->avg('sentiment_score') ?? 0;
 
-        $previous = PulseResponse::whereHas('people', fn($q) => $q->where('organization_id', $organizationId))
+        $previous = PulseResponse::whereHas('people', fn ($q) => $q->where('organization_id', $organizationId))
             ->whereBetween('created_at', [now()->subDays(30), now()->subDays(15)])
             ->avg('sentiment_score') ?? 0;
 
@@ -177,6 +180,7 @@ class CultureSentinelService
         if ($recent < $previous - 5) {
             return 'declining';
         }
+
         return 'stable';
     }
 

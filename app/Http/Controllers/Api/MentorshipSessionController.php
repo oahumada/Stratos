@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\MentorshipSession;
-use App\Models\DevelopmentAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -44,7 +43,7 @@ class MentorshipSessionController extends Controller
 
         return response()->json([
             'message' => 'Sesión de mentoría registrada',
-            'data' => $session
+            'data' => $session,
         ], 201);
     }
 
@@ -67,7 +66,7 @@ class MentorshipSessionController extends Controller
 
         return response()->json([
             'message' => 'Sesión actualizada',
-            'data' => $session
+            'data' => $session,
         ]);
     }
 

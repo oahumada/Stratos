@@ -19,11 +19,11 @@ class CheckRole
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        if (!$user->hasAnyRole($roles)) {
+        if (! $user->hasAnyRole($roles)) {
             return response()->json([
                 'message' => 'No tienes permiso para acceder a este recurso.',
                 'required_roles' => $roles,

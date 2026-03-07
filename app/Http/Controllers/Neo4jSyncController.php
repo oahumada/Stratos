@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RunNeo4jSyncJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use App\Jobs\RunNeo4jSyncJob;
 
 class Neo4jSyncController extends Controller
 {

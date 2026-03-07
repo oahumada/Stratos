@@ -3,10 +3,13 @@ import AppContent from '@/components/AppContent.vue';
 import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
+import TicketReportModal from '@/components/Quality/TicketReportModal.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
 import StratosGuideWidget from '@/components/StratosGuideWidget.vue';
 import type { BreadcrumbItemType } from '@/types';
 import { usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { ShieldAlert } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface Props {
     breadcrumbs?: BreadcrumbItemType[];
@@ -18,6 +21,7 @@ withDefaults(defineProps<Props>(), {
 
 const page = usePage();
 const hasUser = computed(() => !!page.props?.auth?.user);
+const showTicketModal = ref(false);
 
 const currentModule = computed(() => {
     const url = page.url || '';
@@ -45,7 +49,26 @@ const currentModule = computed(() => {
             <slot />
         </AppContent>
 
+        <!-- Global QA Reporting Action -->
+        <div v-if="hasUser" class="fixed right-6 bottom-24 z-50">
+            <StButtonGlass
+                variant="glass"
+                size="sm"
+                class="rounded-full border-white/20 p-3! shadow-xl backdrop-blur-md transition-transform hover:scale-110"
+                @click="showTicketModal = true"
+                title="Reportar Error / Sugerencia"
+            >
+                <ShieldAlert class="h-5 w-5 text-amber-400" />
+            </StButtonGlass>
+        </div>
+
         <!-- Stratos Guide Floating Widget -->
         <StratosGuideWidget v-if="hasUser" :current-module="currentModule" />
+
+        <!-- QA Modal -->
+        <TicketReportModal
+            :show="showTicketModal"
+            @close="showTicketModal = false"
+        />
     </AppShell>
 </template>

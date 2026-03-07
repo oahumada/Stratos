@@ -3,7 +3,6 @@
 namespace App\Services\Intelligence;
 
 use App\Models\PulseSurvey;
-use App\Models\PulseResponse;
 use App\Services\AiOrchestratorService;
 use Illuminate\Support\Facades\Log;
 
@@ -29,7 +28,7 @@ class CultureAnalyticsService
         }
 
         $avgSentiment = $responses->avg('sentiment_score');
-        
+
         $prompt = "Como Navegador de Cultura, analiza los resultados de la encuesta Pulse: '{$survey->title}'.
         
         Métricas Cuantitativas:
@@ -41,7 +40,7 @@ class CultureAnalyticsService
 
         // Tomar una muestra de comentarios si existen
         foreach ($responses->take(10) as $res) {
-            $prompt .= "- Answer: " . (is_array($res->answers) ? json_encode($res->answers) : $res->answers) . "\n";
+            $prompt .= '- Answer: '.(is_array($res->answers) ? json_encode($res->answers) : $res->answers)."\n";
         }
 
         $prompt .= "\nPor favor, genera un reporte que incluya:
@@ -55,7 +54,7 @@ class CultureAnalyticsService
 
             // Persistir el reporte en la encuesta
             $survey->update([
-                'ai_report' => $analysis
+                'ai_report' => $analysis,
             ]);
 
             return [
@@ -63,12 +62,13 @@ class CultureAnalyticsService
                 'survey_title' => $survey->title,
                 'metrics' => [
                     'total_responses' => $responses->count(),
-                    'avg_sentiment' => $avgSentiment
+                    'avg_sentiment' => $avgSentiment,
                 ],
-                'qualitative_analysis' => $analysis
+                'qualitative_analysis' => $analysis,
             ];
         } catch (\Exception $e) {
-            Log::error("Error en reporte de cultura: " . $e->getMessage());
+            Log::error('Error en reporte de cultura: '.$e->getMessage());
+
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }

@@ -2,9 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Services\Intelligence\StratosIntelService;
-use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleCompetency;
+use App\Services\Intelligence\StratosIntelService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,7 +20,7 @@ class AnalyzeTalentGap implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param int $scenarioRoleCompetencyId The ID of the specific gap (Role <-> Competency linkage)
+     * @param  int  $scenarioRoleCompetencyId  The ID of the specific gap (Role <-> Competency linkage)
      */
     public function __construct(int $scenarioRoleCompetencyId)
     {
@@ -37,18 +36,20 @@ class AnalyzeTalentGap implements ShouldQueue
 
         // 1. Fetch the data
         $gapRecord = ScenarioRoleCompetency::with(['role', 'competency'])->find($this->scenarioRoleCompetencyId);
-        
-        if (!$gapRecord) {
+
+        if (! $gapRecord) {
             Log::warning("Gap record not found: {$this->scenarioRoleCompetencyId}");
+
             return;
         }
 
         // Fetch real current level from employee alignment
         $currentLevel = $this->determineCurrentLevel($gapRecord);
         $gapSize = max(0, $gapRecord->required_level - $currentLevel);
-        
+
         if ($gapSize === 0) {
             Log::info("No gap to analyze for ID: {$this->scenarioRoleCompetencyId}");
+
             return;
         }
 
@@ -57,19 +58,19 @@ class AnalyzeTalentGap implements ShouldQueue
             'role_context' => [
                 'role_id' => $gapRecord->role_id,
                 'role_name' => $gapRecord->role->role->name ?? 'Unknown Role',
-                'design_purpose' => $gapRecord->role->role->description ?? 'No description provided'
+                'design_purpose' => $gapRecord->role->role->description ?? 'No description provided',
             ],
             'competency_context' => [
                 'competency_name' => $gapRecord->competency->name ?? 'Unknown Competency',
                 'required_level' => $gapRecord->required_level,
                 'current_level' => $currentLevel,
-                'gap_size' => $gapSize
+                'gap_size' => $gapSize,
             ],
             'talent_context' => [
                 'current_headcount' => 1,
-                'talent_status' => 'Unknown'
+                'talent_status' => 'Unknown',
             ],
-            'market_context' => $marketService->getRoleMarketContext($gapRecord->role_id)
+            'market_context' => $marketService->getRoleMarketContext($gapRecord->role_id),
         ];
 
         // 3. Call the Intelligence Service
@@ -78,12 +79,12 @@ class AnalyzeTalentGap implements ShouldQueue
         if ($recommendation) {
             // 4. Save the strategy
             Log::info("Saving IA strategy for record: {$this->scenarioRoleCompetencyId}");
-            
+
             $gapRecord->update([
                 'suggested_strategy' => $recommendation['strategy'] ?? 'Unknown',
                 'strategy_rationale' => $recommendation['reasoning_summary'] ?? '',
                 'ia_confidence_score' => $recommendation['confidence_score'] ?? 0,
-                'ia_action_plan' => $recommendation['action_plan'] ?? []
+                'ia_action_plan' => $recommendation['action_plan'] ?? [],
             ]);
 
             // 5. Update Official Strategies (ScenarioClosureStrategy)
@@ -132,7 +133,7 @@ class AnalyzeTalentGap implements ShouldQueue
     private function determineCurrentLevel(ScenarioRoleCompetency $gapRecord): float
     {
         $scenarioRole = \App\Models\ScenarioRole::find($gapRecord->role_id);
-        if (!$scenarioRole || !$scenarioRole->role_id) {
+        if (! $scenarioRole || ! $scenarioRole->role_id) {
             return 0;
         }
 
@@ -155,7 +156,8 @@ class AnalyzeTalentGap implements ShouldQueue
             ->avg('people_role_skills.current_level');
 
         if ($hipoAvg !== null) {
-            Log::info("Using High Potential talent average for gap analysis", ['role_id' => $scenarioRole->role_id, 'avg' => $hipoAvg]);
+            Log::info('Using High Potential talent average for gap analysis', ['role_id' => $scenarioRole->role_id, 'avg' => $hipoAvg]);
+
             return round((float) $hipoAvg, 1);
         }
 

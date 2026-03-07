@@ -1,15 +1,15 @@
 <?php
 
-require __DIR__ . "/../vendor/autoload.php";
+require __DIR__.'/../vendor/autoload.php';
 
-$app = require_once __DIR__ . "/../bootstrap/app.php";
+$app = require_once __DIR__.'/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-use App\Services\AbacusClient;
+use App\Models\GenerationChunk;
 use App\Models\Scenario;
 use App\Models\ScenarioGeneration;
-use App\Models\GenerationChunk;
+use App\Services\AbacusClient;
 use App\Services\RedactionService;
 
 $scenario = Scenario::find(1);
@@ -18,11 +18,11 @@ if (! $scenario) {
     exit(1);
 }
 
-$prompt = <<<PROMPT
+$prompt = <<<'PROMPT'
 Por favor genera un JSON con la estructura de escenario (capabilities -> competencies -> skills) en español. Devuelve sólo JSON válido.
 PROMPT;
 
-$abacus = new AbacusClient();
+$abacus = new AbacusClient;
 try {
     // Create a ScenarioGeneration row to track the streaming progress.
     $gen = ScenarioGeneration::create([
@@ -48,43 +48,43 @@ try {
         $prompt,
         ['max_tokens' => 1200, 'temperature' => 0.1, 'overrides' => ['model' => 'gpt-5']],
         function ($delta, $meta = null) use (&$assembled, &$seq, $gen, &$buffer, $maxBuffer) {
-        
-        // Update progress metadata on the generation row if provided
-        if (is_array($meta) && ! empty($meta)) {
-            try {
-                $md = $gen->metadata ?? [];
-                $md['progress'] = $meta;
-                $gen->metadata = $md;
-                $gen->save();
-            } catch (\Throwable $e) {
-                fwrite(STDERR, "Failed to persist progress metadata: " . $e->getMessage() . "\n");
-            }
-        }
 
-        // print without newlines so stream appears continuous
-        echo $delta;
-        $assembled .= $delta;
-        // append to buffer
-        $buffer .= $delta;
-        // persist when buffer reaches threshold
-        $now = microtime(true);
-        $shouldFlushBySize = strlen($buffer) >= $maxBuffer;
-        $shouldFlushByTime = ($now - ($GLOBALS['__last_flush_time__'] ?? 0)) >= ($GLOBALS['__flush_interval__'] ?? 0);
-        // We don't have access to local $lastFlush in the closure via use(), so use globals set below.
-        if ($shouldFlushBySize || $shouldFlushByTime) {
-            try {
-                GenerationChunk::create([
-                    'scenario_generation_id' => $gen->id,
-                    'sequence' => $seq++,
-                    'chunk' => $buffer,
-                ]);
-            } catch (\Throwable $e) {
-                fwrite(STDERR, "Failed to persist chunk: " . $e->getMessage() . "\n");
+            // Update progress metadata on the generation row if provided
+            if (is_array($meta) && ! empty($meta)) {
+                try {
+                    $md = $gen->metadata ?? [];
+                    $md['progress'] = $meta;
+                    $gen->metadata = $md;
+                    $gen->save();
+                } catch (\Throwable $e) {
+                    fwrite(STDERR, 'Failed to persist progress metadata: '.$e->getMessage()."\n");
+                }
             }
-            $buffer = '';
-            $GLOBALS['__last_flush_time__'] = microtime(true);
+
+            // print without newlines so stream appears continuous
+            echo $delta;
+            $assembled .= $delta;
+            // append to buffer
+            $buffer .= $delta;
+            // persist when buffer reaches threshold
+            $now = microtime(true);
+            $shouldFlushBySize = strlen($buffer) >= $maxBuffer;
+            $shouldFlushByTime = ($now - ($GLOBALS['__last_flush_time__'] ?? 0)) >= ($GLOBALS['__flush_interval__'] ?? 0);
+            // We don't have access to local $lastFlush in the closure via use(), so use globals set below.
+            if ($shouldFlushBySize || $shouldFlushByTime) {
+                try {
+                    GenerationChunk::create([
+                        'scenario_generation_id' => $gen->id,
+                        'sequence' => $seq++,
+                        'chunk' => $buffer,
+                    ]);
+                } catch (\Throwable $e) {
+                    fwrite(STDERR, 'Failed to persist chunk: '.$e->getMessage()."\n");
+                }
+                $buffer = '';
+                $GLOBALS['__last_flush_time__'] = microtime(true);
+            }
         }
-    }
     );
     echo "\n[stream finished]\n";
 
@@ -97,7 +97,7 @@ try {
         $resp = is_array($decoded) ? $decoded : ['content' => $assembled];
     }
 
-    echo "\nAbacus parsed response:\n" . json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+    echo "\nAbacus parsed response:\n".json_encode($resp, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)."\n";
 
     // persist any remaining buffer
     if (! empty($buffer)) {
@@ -108,7 +108,7 @@ try {
                 'chunk' => $buffer,
             ]);
         } catch (\Throwable $e) {
-            fwrite(STDERR, "Failed to persist final chunk: " . $e->getMessage() . "\n");
+            fwrite(STDERR, 'Failed to persist final chunk: '.$e->getMessage()."\n");
         }
     }
 
@@ -117,8 +117,8 @@ try {
     $gen->status = 'complete';
     $gen->save();
 
-    echo "Persisted generation id=" . ($gen->id ?? 'n/a') . "\n";
+    echo 'Persisted generation id='.($gen->id ?? 'n/a')."\n";
 } catch (Exception $e) {
-    echo "Error calling Abacus: " . $e->getMessage() . "\n";
+    echo 'Error calling Abacus: '.$e->getMessage()."\n";
     exit(2);
 }

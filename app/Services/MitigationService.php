@@ -2,10 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\PsychometricProfile;
 use App\Models\DevelopmentAction;
 use App\Models\People;
-use Illuminate\Support\Facades\Log;
 
 class MitigationService
 {
@@ -24,9 +22,9 @@ class MitigationService
             if (($trait['score'] ?? 1.0) < 0.4) {
                 $suggestions[] = [
                     'type' => 'training',
-                    'title' => 'Refuerzo en ' . $trait['name'],
+                    'title' => 'Refuerzo en '.$trait['name'],
                     'description' => "Se detectó un nivel bajo en '{$trait['name']}'. Razón IA: {$trait['rationale']}. Se recomienda capacitación inmediata.",
-                    'priority' => 'high'
+                    'priority' => 'high',
                 ];
             }
         }
@@ -37,7 +35,7 @@ class MitigationService
                 'type' => 'mentorship',
                 'title' => 'Sesión de Feedback: Puntos Ciegos',
                 'description' => "La IA identificó la siguiente discrepancia de percepción: {$spot}. Se requiere una sesión de mentoría para alinear expectativas.",
-                'priority' => 'medium'
+                'priority' => 'medium',
             ];
         }
 
@@ -47,7 +45,7 @@ class MitigationService
                 'type' => 'culture_immersion',
                 'title' => 'Inmersión en Valores Stratos',
                 'description' => "Alineación cultural baja ({$culturalFit}). Se sugiere taller de valores y repaso del Manifiesto Stratos.",
-                'priority' => 'critical'
+                'priority' => 'critical',
             ];
         }
 
@@ -68,7 +66,7 @@ class MitigationService
             [
                 'people_id' => $people->id,
                 'action_title' => 'Plan de Mitigación Automático (AI)',
-                'status' => 'suggested'
+                'status' => 'suggested',
             ],
             [
                 'organization_id' => $people->organization_id,
@@ -79,7 +77,7 @@ class MitigationService
 
         foreach ($suggestions as $index => $s) {
             // Mapeo de tipos para cumplir con el ENUM de la base de datos
-            $validType = match($s['type']) {
+            $validType = match ($s['type']) {
                 'mentorship' => 'mentoring',
                 'culture_immersion' => 'training',
                 'training' => 'training',
@@ -91,9 +89,9 @@ class MitigationService
                 'title' => $s['title'],
                 'description' => $s['description'],
                 'type' => $validType,
-                'strategy' => 'build', 
+                'strategy' => 'build',
                 'status' => 'pending', // 'suggested' no existe en el enum de actions
-                'order' => $index + 1
+                'order' => $index + 1,
             ]);
         }
     }

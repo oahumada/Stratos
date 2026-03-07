@@ -1,12 +1,13 @@
 <?php
+
 // Assemble chunks for generation id=58, store metadata.compacted and chunk_count, print sizes
-require __DIR__ . '/../vendor/autoload.php';
-$app = require __DIR__ . '/../bootstrap/app.php';
+require __DIR__.'/../vendor/autoload.php';
+$app = require __DIR__.'/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-use App\Models\ScenarioGeneration;
 use App\Models\GenerationChunk;
+use App\Models\ScenarioGeneration;
 
 $genId = 58;
 $gen = ScenarioGeneration::find($genId);
@@ -21,7 +22,7 @@ if (! empty($meta['compacted'])) {
     $sizeBase64 = strlen($meta['compacted']);
     $sizeDecoded = strlen($decoded);
     echo "Already compacted for generation {$genId}\n";
-    echo "chunks_count_in_metadata: " . ($meta['chunk_count'] ?? 'null') . "\n";
+    echo 'chunks_count_in_metadata: '.($meta['chunk_count'] ?? 'null')."\n";
     echo "compacted base64 length: {$sizeBase64}\n";
     echo "decoded JSON length: {$sizeDecoded}\n";
     exit(0);
@@ -45,8 +46,8 @@ $gen->save();
 
 echo "Compacted and saved for generation {$genId}\n";
 echo "chunk_count: {$count}\n";
-echo "compacted base64 length: " . strlen($encoded) . "\n";
-echo "decoded JSON length: " . strlen($assembled) . "\n";
+echo 'compacted base64 length: '.strlen($encoded)."\n";
+echo 'decoded JSON length: '.strlen($assembled)."\n";
 
 $sample = substr($assembled, 0, 200);
-echo "sample (first 200 chars):\n" . $sample . "\n";
+echo "sample (first 200 chars):\n".$sample."\n";

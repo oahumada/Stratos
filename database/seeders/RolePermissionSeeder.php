@@ -38,7 +38,7 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'agents.view', 'module' => 'agents', 'action' => 'view', 'description' => 'Ver configuración de agentes AI'],
             ['name' => 'agents.manage', 'module' => 'agents', 'action' => 'manage', 'description' => 'Configurar prompts de agentes'],
 
-            // Settings 
+            // Settings
             ['name' => 'settings.view', 'module' => 'settings', 'action' => 'view', 'description' => 'Ver configuración del sistema'],
             ['name' => 'settings.manage', 'module' => 'settings', 'action' => 'manage', 'description' => 'Editar configuración del sistema'],
         ];
@@ -52,7 +52,7 @@ class RolePermissionSeeder extends Seeder
         $rolePermissions = [
             'admin' => [
                 // Adicionalmente admin tiene acceso por código, pero mapeamos explícitamente si se consulta BD
-                '*' // Helper virtual manejado en el trait (true) pero insertaremos todos
+                '*', // Helper virtual manejado en el trait (true) pero insertaremos todos
             ],
             'hr_leader' => [
                 'scenarios.view', 'scenarios.create', 'scenarios.edit', 'scenarios.delete',

@@ -1,43 +1,42 @@
 <?php
 
-use App\Http\Controllers\Api\CatalogsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Error message constants to reduce duplication and complexity
-if (!defined('MSG_UNAUTHENTICATED')) {
+if (! defined('MSG_UNAUTHENTICATED')) {
     define('MSG_UNAUTHENTICATED', 'Unauthenticated');
 }
-if (!defined('MSG_FORBIDDEN')) {
+if (! defined('MSG_FORBIDDEN')) {
     define('MSG_FORBIDDEN', 'Forbidden');
 }
-if (!defined('MSG_SCENARIO_NOT_FOUND')) {
+if (! defined('MSG_SCENARIO_NOT_FOUND')) {
     define('MSG_SCENARIO_NOT_FOUND', 'Scenario not found');
 }
-if (!defined('MSG_CAPABILITY_NOT_FOUND')) {
+if (! defined('MSG_CAPABILITY_NOT_FOUND')) {
     define('MSG_CAPABILITY_NOT_FOUND', 'Capability not found');
 }
-if (!defined('MSG_COMPETENCY_NOT_FOUND')) {
+if (! defined('MSG_COMPETENCY_NOT_FOUND')) {
     define('MSG_COMPETENCY_NOT_FOUND', 'Competency not found');
 }
-if (!defined('MSG_RELATIONSHIP_DELETED')) {
+if (! defined('MSG_RELATIONSHIP_DELETED')) {
     define('MSG_RELATIONSHIP_DELETED', 'Relationship deleted');
 }
-if (!defined('MSG_RELATION_NOT_FOUND')) {
+if (! defined('MSG_RELATION_NOT_FOUND')) {
     define('MSG_RELATION_NOT_FOUND', 'Relation not found');
 }
-if (!defined('MSG_CAPABILITY_DELETED')) {
+if (! defined('MSG_CAPABILITY_DELETED')) {
     define('MSG_CAPABILITY_DELETED', 'Capability deleted');
 }
-if (!defined('MSG_SERVER_ERROR_DELETING_CAPABILITY')) {
+if (! defined('MSG_SERVER_ERROR_DELETING_CAPABILITY')) {
     define('MSG_SERVER_ERROR_DELETING_CAPABILITY', 'Server error deleting capability');
 }
 
 // Route path constants
-if (!defined('PATH_CAPABILITIES_ID')) {
+if (! defined('PATH_CAPABILITIES_ID')) {
     define('PATH_CAPABILITIES_ID', '/capabilities/{id}');
 }
-if (!defined('PATH_COMPETENCIES_ID')) {
+if (! defined('PATH_COMPETENCIES_ID')) {
     define('PATH_COMPETENCIES_ID', '/competencies/{id}');
 }
 
@@ -72,7 +71,8 @@ Route::get('/pulse/health-scan', [\App\Http\Controllers\Api\PulseController::cla
 Route::post('/talent/dna-extract/{personId}', function ($personId) {
     $service = app(\App\Services\Talent\TalentSelectionService::class);
     try {
-        $result = $service->extractHighPerformerDNA((int)$personId);
+        $result = $service->extractHighPerformerDNA((int) $personId);
+
         return response()->json(['success' => true, 'data' => $result]);
     } catch (\Exception $e) {
         return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
@@ -158,6 +158,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/gamification/people/{peopleId}/quests/{questId}/start', [\App\Http\Controllers\Api\GamificationController::class, 'startQuest']);
     Route::post('/gamification/people/{peopleId}/quests/{questId}/progress', [\App\Http\Controllers\Api\GamificationController::class, 'progressQuest']);
 
+    // Quality & Continuous Improvement (Tickets)
+    Route::get('/support-tickets/metrics', [\App\Http\Controllers\Api\SupportTicketController::class, 'metrics']);
+    Route::apiResource('support-tickets', \App\Http\Controllers\Api\SupportTicketController::class);
 
     // Investor/Executive Dashboard
     Route::get('/investor/dashboard', [\App\Http\Controllers\Api\InvestorDashboardController::class, 'index'])
@@ -177,11 +180,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'index'])->middleware('role:admin');
     Route::post('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'update'])->middleware('role:admin');
-        
+
     // People Experience Command Center
     Route::apiResource('px-campaigns', \App\Http\Controllers\Api\PxCampaignController::class)
         ->middleware('permission:assessments.manage');
-        
+
     Route::post('/people-experience/employee-pulses', [\App\Http\Controllers\Api\PulseController::class, 'storeEmployeePulse']);
     Route::get('/people-experience/employee-pulses', [\App\Http\Controllers\Api\PulseController::class, 'listEmployeePulses']);
     Route::get('/people-experience/turnover-heatmap', [\App\Http\Controllers\Api\PulseController::class, 'listTurnoverHeatmap']);
@@ -275,7 +278,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('/sessions/{id}/analyze', [\App\Http\Controllers\Api\AssessmentController::class, 'analyze']);
                 Route::get('/metrics', [\App\Http\Controllers\Api\Talento360Controller::class, 'metrics']);
                 Route::post('/{peopleId}/triangulate', [\App\Http\Controllers\Api\AssessmentController::class, 'triangulate360']);
-                
+
                 Route::prefix('feedback')->group(function () {
                     Route::post('/request', [\App\Http\Controllers\Api\AssessmentController::class, 'requestFeedback']);
                     Route::post('/submit', [\App\Http\Controllers\Api\AssessmentController::class, 'submitFeedback']);
@@ -310,11 +313,11 @@ Route::middleware('auth:sanctum')->group(function () {
             $user = auth()->user();
             $scenario = App\Models\Scenario::find($id);
 
-            if (!$user || !$scenario || empty($request->input('name'))) {
-                if (!$user) {
+            if (! $user || ! $scenario || empty($request->input('name'))) {
+                if (! $user) {
                     $status = 401;
                     $message = MSG_UNAUTHENTICATED;
-                } elseif (!$scenario) {
+                } elseif (! $scenario) {
                     $status = 404;
                     $message = MSG_SCENARIO_NOT_FOUND;
                 } else {
@@ -353,7 +356,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
                 return response()->json(['success' => true, 'data' => $cap], 201);
             } catch (\Throwable $e) {
-                \Log::error('Error creating capability for scenario ' . $id . ': ' . $e->getMessage(), ['exception' => $e]);
+                \Log::error('Error creating capability for scenario '.$id.': '.$e->getMessage(), ['exception' => $e]);
 
                 return response()->json(['success' => false, 'message' => 'Server error creating capability', 'error' => $e->getMessage()], 500);
             }
@@ -381,11 +384,11 @@ Route::middleware('auth:sanctum')->group(function () {
             $cap = App\Models\Capability::find($id);
             $orgId = $user->organization_id ?? null;
 
-            if (!$user || !$cap || (isset($cap->organization_id) && $cap->organization_id !== $orgId)) {
-                if (!$user) {
+            if (! $user || ! $cap || (isset($cap->organization_id) && $cap->organization_id !== $orgId)) {
+                if (! $user) {
                     $status = 401;
                     $message = MSG_UNAUTHENTICATED;
-                } elseif (!$cap) {
+                } elseif (! $cap) {
                     $status = 404;
                     $message = MSG_CAPABILITY_NOT_FOUND;
                 } else {
@@ -411,11 +414,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
             $validationError = null;
             $validationError = null;
-            if (!$user) { $validationError = ['m' => MSG_UNAUTHENTICATED, 'c' => 401]; }
-            elseif (!$scenario) { $validationError = ['m' => MSG_SCENARIO_NOT_FOUND, 'c' => 404]; }
-            elseif ($scenario->organization_id !== $orgId) { $validationError = ['m' => MSG_FORBIDDEN, 'c' => 403]; }
-            elseif (!$cap) { $validationError = ['m' => MSG_CAPABILITY_NOT_FOUND, 'c' => 404]; }
-            elseif (isset($cap->discovered_in_scenario_id) && (int) $cap->discovered_in_scenario_id !== (int) $scenarioId) {
+            if (! $user) {
+                $validationError = ['m' => MSG_UNAUTHENTICATED, 'c' => 401];
+            } elseif (! $scenario) {
+                $validationError = ['m' => MSG_SCENARIO_NOT_FOUND, 'c' => 404];
+            } elseif ($scenario->organization_id !== $orgId) {
+                $validationError = ['m' => MSG_FORBIDDEN, 'c' => 403];
+            } elseif (! $cap) {
+                $validationError = ['m' => MSG_CAPABILITY_NOT_FOUND, 'c' => 404];
+            } elseif (isset($cap->discovered_in_scenario_id) && (int) $cap->discovered_in_scenario_id !== (int) $scenarioId) {
                 $validationError = ['m' => 'Capability not associated with this scenario', 'c' => 422];
             }
 
@@ -430,7 +437,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
                 return response()->json(['success' => true, 'data' => $cap]);
             } catch (\Throwable $e) {
-                \Log::error('Error promoting capability: ' . $e->getMessage(), ['capability_id' => $capabilityId]);
+                \Log::error('Error promoting capability: '.$e->getMessage(), ['capability_id' => $capabilityId]);
 
                 return response()->json(['success' => false, 'message' => 'Server error promoting capability'], 500);
             }
@@ -445,11 +452,11 @@ Route::middleware('auth:sanctum')->group(function () {
             $gen = App\Models\ScenarioGeneration::find($id);
             $orgId = $user->organization_id ?? null;
 
-            if (!$user || !$gen || $gen->organization_id !== $orgId) {
-                if (!$user) {
+            if (! $user || ! $gen || $gen->organization_id !== $orgId) {
+                if (! $user) {
                     $status = 401;
                     $message = MSG_UNAUTHENTICATED;
-                } elseif (!$gen) {
+                } elseif (! $gen) {
                     $status = 404;
                     $message = 'Not found';
                 } else {
@@ -478,11 +485,11 @@ Route::middleware('auth:sanctum')->group(function () {
             $cap = App\Models\Capability::find($id);
             $orgId = $user->organization_id ?? null;
 
-            if (!$user || !$cap || (isset($cap->organization_id) && $cap->organization_id !== $orgId)) {
-                if (!$user) {
+            if (! $user || ! $cap || (isset($cap->organization_id) && $cap->organization_id !== $orgId)) {
+                if (! $user) {
                     $status = 401;
                     $message = MSG_UNAUTHENTICATED;
-                } elseif (!$cap) {
+                } elseif (! $cap) {
                     $status = 404;
                     $message = MSG_CAPABILITY_NOT_FOUND;
                 } else {
@@ -503,7 +510,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
                 return response()->json(['success' => true, 'data' => $cap]);
             } catch (\Throwable $e) {
-                \Log::error('Error updating capability ' . $id . ': ' . $e->getMessage());
+                \Log::error('Error updating capability '.$id.': '.$e->getMessage());
 
                 return response()->json(['success' => false, 'message' => 'Server error updating capability'], 500);
             }
@@ -518,11 +525,11 @@ Route::middleware('auth:sanctum')->group(function () {
             $comp = App\Models\Competency::find($id);
             $orgId = $user->organization_id ?? null;
 
-            if (!$user || !$comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
-                if (!$user) {
+            if (! $user || ! $comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
+                if (! $user) {
                     $status = 401;
                     $msg = MSG_UNAUTHENTICATED;
-                } elseif (!$comp) {
+                } elseif (! $comp) {
                     $status = 404;
                     $msg = MSG_COMPETENCY_NOT_FOUND;
                 } else {
@@ -560,7 +567,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
                 return response()->json(['success' => true, 'data' => $comp], 201);
             } catch (\Throwable $e) {
-                \Log::error('Error creating competency: ' . $e->getMessage());
+                \Log::error('Error creating competency: '.$e->getMessage());
 
                 return response()->json(['success' => false, 'message' => 'Server error creating competency'], 500);
             }
@@ -575,11 +582,16 @@ Route::middleware('auth:sanctum')->group(function () {
             $comp = App\Models\Competency::find($id);
             $orgId = $user->organization_id ?? null;
 
-            if (!$user || !$comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
+            if (! $user || ! $comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
                 $status = 403;
                 $msg = MSG_FORBIDDEN;
-                if (!$user) { $status = 401; $msg = MSG_UNAUTHENTICATED; }
-                elseif (!$comp) { $status = 404; $msg = MSG_COMPETENCY_NOT_FOUND; }
+                if (! $user) {
+                    $status = 401;
+                    $msg = MSG_UNAUTHENTICATED;
+                } elseif (! $comp) {
+                    $status = 404;
+                    $msg = MSG_COMPETENCY_NOT_FOUND;
+                }
 
                 return response()->json(['success' => false, 'message' => $msg], $status);
             }
@@ -588,7 +600,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
                 return response()->json(['success' => true, 'message' => 'Competency deleted']);
             } catch (\Throwable $e) {
-                \Log::error('Error deleting competency ' . $id . ': ' . $e->getMessage());
+                \Log::error('Error deleting competency '.$id.': '.$e->getMessage());
 
                 return response()->json(['success' => false, 'message' => 'Server error deleting competency'], 500);
             }
@@ -603,31 +615,37 @@ Route::middleware('auth:sanctum')->group(function () {
             $comp = App\Models\Competency::find($id);
             $orgId = $user->organization_id ?? null;
 
-            if (!$user || !$comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
-                if (!$user) {
+            if (! $user || ! $comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
+                if (! $user) {
                     $status = 401;
                     $msg = MSG_UNAUTHENTICATED;
-                } elseif (!$comp) {
+                } elseif (! $comp) {
                     $status = 404;
                     $msg = MSG_COMPETENCY_NOT_FOUND;
                 } else {
                     $status = 403;
                     $msg = MSG_FORBIDDEN;
                 }
+
                 return response()->json(['success' => false, 'message' => $msg], $status);
             }
             try {
                 $data = $request->only(['name', 'description', 'skills']);
                 foreach ($data as $k => $v) {
                     if ($v !== null) {
-                        if ($k === 'skills' && is_array($v)) { $comp->skills()->sync($v); }
-                        else { $comp->{$k} = $v; }
+                        if ($k === 'skills' && is_array($v)) {
+                            $comp->skills()->sync($v);
+                        } else {
+                            $comp->{$k} = $v;
+                        }
                     }
                 }
                 $comp->save();
+
                 return response()->json(['success' => true, 'data' => $comp]);
             } catch (\Throwable $e) {
-                \Log::error('Error updating competency ' . $id . ': ' . $e->getMessage());
+                \Log::error('Error updating competency '.$id.': '.$e->getMessage());
+
                 return response()->json(['success' => false, 'message' => 'Server error updating competency'], 500);
             }
         }
@@ -643,11 +661,17 @@ Route::middleware('auth:sanctum')->group(function () {
             $orgId = $user->organization_id ?? null;
 
             $error = null;
-            if (!$user) { $error = ['m' => MSG_UNAUTHENTICATED, 'c' => 401]; }
-            elseif (!$comp) { $error = ['m' => MSG_COMPETENCY_NOT_FOUND, 'c' => 404]; }
-            elseif (isset($comp->organization_id) && $comp->organization_id !== $orgId) { $error = ['m' => MSG_FORBIDDEN, 'c' => 403]; }
-            elseif (!$skill) { $error = ['m' => 'Skill not found', 'c' => 404]; }
-            elseif (isset($skill->organization_id) && $skill->organization_id !== $orgId) { $error = ['m' => MSG_FORBIDDEN, 'c' => 403]; }
+            if (! $user) {
+                $error = ['m' => MSG_UNAUTHENTICATED, 'c' => 401];
+            } elseif (! $comp) {
+                $error = ['m' => MSG_COMPETENCY_NOT_FOUND, 'c' => 404];
+            } elseif (isset($comp->organization_id) && $comp->organization_id !== $orgId) {
+                $error = ['m' => MSG_FORBIDDEN, 'c' => 403];
+            } elseif (! $skill) {
+                $error = ['m' => 'Skill not found', 'c' => 404];
+            } elseif (isset($skill->organization_id) && $skill->organization_id !== $orgId) {
+                $error = ['m' => MSG_FORBIDDEN, 'c' => 403];
+            }
 
             if ($error) {
                 return response()->json(['success' => false, 'message' => $error['m']], $error['c']);
@@ -661,7 +685,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
                 return response()->json(['success' => true, 'message' => 'Relationship deleted successfully']);
             } catch (\Throwable $e) {
-                \Log::error('Error deleting skill relation: ' . $e->getMessage(), ['competencyId' => $competencyId, 'skillId' => $skillId]);
+                \Log::error('Error deleting skill relation: '.$e->getMessage(), ['competencyId' => $competencyId, 'skillId' => $skillId]);
+
                 return response()->json(['success' => false, 'message' => 'Server error deleting skill relation', 'error' => $e->getMessage()], 500);
             }
         }
@@ -675,11 +700,16 @@ Route::middleware('auth:sanctum')->group(function () {
             $scenario = App\Models\Scenario::find($scenarioId);
             $orgId = $user->organization_id ?? null;
 
-            if (!$user || !$scenario || $scenario->organization_id !== $orgId) {
+            if (! $user || ! $scenario || $scenario->organization_id !== $orgId) {
                 $status = 403;
                 $msg = MSG_FORBIDDEN;
-                if (!$user) { $status = 401; $msg = MSG_UNAUTHENTICATED; }
-                elseif (!$scenario) { $status = 404; $msg = MSG_SCENARIO_NOT_FOUND; }
+                if (! $user) {
+                    $status = 401;
+                    $msg = MSG_UNAUTHENTICATED;
+                } elseif (! $scenario) {
+                    $status = 404;
+                    $msg = MSG_SCENARIO_NOT_FOUND;
+                }
 
                 return response()->json(['success' => false, 'message' => $msg], $status);
             }
@@ -711,7 +741,7 @@ Route::middleware('auth:sanctum')->group(function () {
                         'updated_at' => now(),
                     ]);
                 } catch (\Throwable $e) {
-                    \Log::error('Failed to insert pivot relation: ' . $e->getMessage());
+                    \Log::error('Failed to insert pivot relation: '.$e->getMessage());
 
                     return response()->json(['success' => false, 'message' => 'Failed to create relation'], 500);
                 }
@@ -724,7 +754,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 }
             }
 
-            if (!empty($update)) {
+            if (! empty($update)) {
                 $update['updated_at'] = now();
                 \DB::table('scenario_capabilities')->where('scenario_id', $scenarioId)->where('capability_id', $capabilityId)->update($update);
             }
@@ -741,11 +771,11 @@ Route::middleware('auth:sanctum')->group(function () {
             $comp = App\Models\Competency::with('skills')->find($id);
             $orgId = $user->organization_id ?? null;
 
-            if (!$user || !$comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
-                if (!$user) {
+            if (! $user || ! $comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
+                if (! $user) {
                     $status = 401;
                     $msg = MSG_UNAUTHENTICATED;
-                } elseif (!$comp) {
+                } elseif (! $comp) {
                     $status = 404;
                     $msg = MSG_COMPETENCY_NOT_FOUND;
                 } else {
@@ -768,17 +798,18 @@ Route::middleware('auth:sanctum')->group(function () {
             $comp = App\Models\Competency::with('skills')->find($id);
             $orgId = $user->organization_id ?? null;
 
-            if (!$user || !$comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
-                if (!$user) {
+            if (! $user || ! $comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
+                if (! $user) {
                     $status = 401;
                     $msg = MSG_UNAUTHENTICATED;
-                } elseif (!$comp) {
+                } elseif (! $comp) {
                     $status = 404;
                     $msg = MSG_COMPETENCY_NOT_FOUND;
                 } else {
                     $status = 403;
                     $msg = MSG_FORBIDDEN;
                 }
+
                 return response()->json(['success' => false, 'message' => $msg], $status);
             }
 
@@ -794,17 +825,18 @@ Route::middleware('auth:sanctum')->group(function () {
             $comp = App\Models\Competency::find($id);
             $orgId = $user->organization_id ?? null;
 
-            if (!$user || !$comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
-                if (!$user) {
+            if (! $user || ! $comp || (isset($comp->organization_id) && $comp->organization_id !== $orgId)) {
+                if (! $user) {
                     $status = 401;
                     $msg = MSG_UNAUTHENTICATED;
-                } elseif (!$comp) {
+                } elseif (! $comp) {
                     $status = 404;
                     $msg = MSG_COMPETENCY_NOT_FOUND;
                 } else {
                     $status = 403;
                     $msg = MSG_FORBIDDEN;
                 }
+
                 return response()->json(['success' => false, 'message' => $msg], $status);
             }
 
@@ -813,26 +845,37 @@ Route::middleware('auth:sanctum')->group(function () {
                     $skillId = $request->input('skill_id');
                     if ($skillId) {
                         $skillToAttach = App\Models\Skill::find($skillId);
-                        if (!$skillToAttach) { throw new \Exception('Skill not found', 404); }
-                        if (isset($skillToAttach->organization_id) && $skillToAttach->organization_id !== $orgId) { throw new \Exception(MSG_FORBIDDEN, 403); }
+                        if (! $skillToAttach) {
+                            throw new \Exception('Skill not found', 404);
+                        }
+                        if (isset($skillToAttach->organization_id) && $skillToAttach->organization_id !== $orgId) {
+                            throw new \Exception(MSG_FORBIDDEN, 403);
+                        }
                     } else {
                         $p = $request->input('skill', []);
                         $name = trim($p['name'] ?? '');
-                        if (empty($name)) { throw new \Exception('Skill name is required', 422); }
-                        if (App\Models\Skill::where('organization_id', $orgId)->where('name', $name)->exists()) { throw new \Exception('Skill duplicada', 409); }
+                        if (empty($name)) {
+                            throw new \Exception('Skill name is required', 422);
+                        }
+                        if (App\Models\Skill::where('organization_id', $orgId)->where('name', $name)->exists()) {
+                            throw new \Exception('Skill duplicada', 409);
+                        }
                         $skillToAttach = App\Models\Skill::create(['organization_id' => $orgId, 'name' => $name, 'description' => $p['description'] ?? null, 'category' => $p['category'] ?? null]);
                     }
                     if (! \DB::table('competency_skills')->where('competency_id', $comp->id)->where('skill_id', $skillToAttach->id)->exists()) {
                         \DB::table('competency_skills')->insert(['competency_id' => $comp->id, 'skill_id' => $skillToAttach->id, 'weight' => (int) $request->input('weight', 10), 'created_at' => now(), 'updated_at' => now()]);
                     }
+
                     return $skillToAttach;
                 });
+
                 return response()->json(['success' => true, 'data' => $result], 201);
             } catch (\Exception $e) {
                 $code = $e->getCode();
                 if (! in_array($code, [403, 404, 409, 422])) {
                     $code = 500;
                 }
+
                 return response()->json(['success' => false, 'message' => $e->getMessage()], $code);
             }
         }
@@ -867,6 +910,7 @@ Route::middleware('auth:sanctum')->group(function () {
             if ($deleted) {
                 return response()->json(['success' => true, 'message' => MSG_RELATIONSHIP_DELETED]);
             }
+
             return response()->json(['success' => false, 'message' => MSG_RELATION_NOT_FOUND], 404);
         }
     );
@@ -880,9 +924,9 @@ Route::middleware('auth:sanctum')->group(function () {
             $orgId = $user->organization_id ?? null;
 
             $error = null;
-            if (!$user) {
+            if (! $user) {
                 $error = ['m' => MSG_UNAUTHENTICATED, 'c' => 401];
-            } elseif (!$scenario) {
+            } elseif (! $scenario) {
                 $error = ['m' => MSG_SCENARIO_NOT_FOUND, 'c' => 404];
             } elseif ($scenario->organization_id !== $orgId) {
                 $error = ['m' => MSG_FORBIDDEN, 'c' => 403];
@@ -901,6 +945,7 @@ Route::middleware('auth:sanctum')->group(function () {
             if ($deleted) {
                 return response()->json(['success' => true, 'message' => MSG_RELATIONSHIP_DELETED]);
             }
+
             return response()->json(['success' => false, 'message' => MSG_RELATION_NOT_FOUND], 404);
         }
     );
@@ -928,9 +973,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
             try {
                 $cap->delete();
+
                 return response()->json(['success' => true, 'message' => MSG_CAPABILITY_DELETED]);
             } catch (\Throwable $e) {
-                \Log::error('Error deleting capability ' . $id . ': ' . $e->getMessage());
+                \Log::error('Error deleting capability '.$id.': '.$e->getMessage());
+
                 return response()->json(['success' => false, 'message' => MSG_SERVER_ERROR_DELETING_CAPABILITY], 500);
             }
         }
@@ -988,10 +1035,10 @@ Route::post('/strategic-planning/scenarios/{id}/capability-tree/save-positions',
                 $inserted++;
             }
         } catch (\Throwable $e) {
-            \Log::error('Error saving position for cap ' . $capId . ': ' . $e->getMessage());
+            \Log::error('Error saving position for cap '.$capId.': '.$e->getMessage());
         }
     }
-    \Log::info('Saved positions for scenario ' . $id, ['updated' => $updated, 'inserted' => $inserted]);
+    \Log::info('Saved positions for scenario '.$id, ['updated' => $updated, 'inserted' => $inserted]);
 
     return response()->json(['status' => 'ok', 'updated' => $updated, 'inserted' => $inserted]);
 });
@@ -1097,6 +1144,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Catálogos dinámicos para selectores
-require __DIR__ . '/form-schema-complete.php';
+require __DIR__.'/form-schema-complete.php';
 
 // TODO: recordar que estas rutas están protegidas por el middleware 'auth' en RouteServiceProvider.php y son Multinenant deben filtrar el organization_id del usuario autenticado

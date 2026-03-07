@@ -29,9 +29,9 @@ return [
     ],
 
     // config/services.php
-'n8n' => [
-    'webhook_url' => env('N8N_WEBHOOK_URL', 'https://n8n.example.com/webhook/stratos'),
-],
+    'n8n' => [
+        'webhook_url' => env('N8N_WEBHOOK_URL', 'https://n8n.example.com/webhook/stratos'),
+    ],
 
     'slack' => [
         'notifications' => [

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Antigravity: Standardized API Response Trait
  * Part of B4: API Hardening
@@ -18,7 +19,7 @@ trait ApiResponses
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data'    => $data,
+            'data' => $data,
         ], $code);
     }
 
@@ -38,7 +39,7 @@ trait ApiResponses
         return response()->json([
             'success' => false,
             'message' => $message,
-            'errors'  => $errors,
+            'errors' => $errors,
         ], $code);
     }
 

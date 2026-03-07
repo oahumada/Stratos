@@ -20,13 +20,13 @@ class AssessmentSession extends Model
         'status',
         'metadata',
         'started_at',
-        'completed_at'
+        'completed_at',
     ];
 
     protected $casts = [
         'metadata' => 'array',
         'started_at' => 'datetime',
-        'completed_at' => 'datetime'
+        'completed_at' => 'datetime',
     ];
 
     public function organization(): BelongsTo

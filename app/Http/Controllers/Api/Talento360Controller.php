@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AssessmentSession;
-use App\Models\People;
 use App\Models\PsychometricProfile;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class Talento360Controller extends Controller
@@ -48,13 +46,13 @@ class Talento360Controller extends Controller
             ->orderBy('completed_at', 'desc')
             ->limit(5)
             ->get()
-            ->map(function($session) {
+            ->map(function ($session) {
                 return [
                     'id' => $session->id,
                     'person_name' => $session->person->full_name,
                     'type' => $session->type,
                     'potential' => $session->metadata['overall_potential'] ?? 0,
-                    'completed_at' => $session->completed_at->diffForHumans()
+                    'completed_at' => $session->completed_at->diffForHumans(),
                 ];
             });
 
@@ -63,7 +61,7 @@ class Talento360Controller extends Controller
             'high_potential_count' => $highPotentialCount,
             'trait_distribution' => $traitDistribution,
             'latest_assessments' => $latestAssessments,
-            'total_assessed' => AssessmentSession::where('organization_id', $organizationId)->where('status', 'analyzed')->count()
+            'total_assessed' => AssessmentSession::where('organization_id', $organizationId)->where('status', 'analyzed')->count(),
         ]);
     }
 }

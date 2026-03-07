@@ -11,11 +11,11 @@ use App\Models\ScenarioRoleSkill;
 use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class Phase3TestDataSeeder extends Seeder
 {
     public const ROLE_AI_LEAD = 'AI Lead';
+
     public const ROLE_CLOUD_DEV = 'Cloud Dev';
 
     public function run(): void
@@ -115,7 +115,7 @@ class Phase3TestDataSeeder extends Seeder
                 'skills' => [
                     ['id' => $skills['GenAI implementation'], 'level' => 5],
                     ['id' => $skills['Strategic Vision'], 'level' => 4],
-                ]
+                ],
             ],
             [
                 'first_name' => 'Bob',
@@ -125,7 +125,7 @@ class Phase3TestDataSeeder extends Seeder
                 'skills' => [
                     ['id' => $skills['Cloud Architecture'], 'level' => 4],
                     ['id' => $skills['Advanced Python'], 'level' => 3],
-                ]
+                ],
             ],
             [
                 'first_name' => 'Charlie',
@@ -134,8 +134,8 @@ class Phase3TestDataSeeder extends Seeder
                 'role_id' => $roleAI->id, // Current holder of AI Lead
                 'skills' => [
                     ['id' => $skills['Strategic Vision'], 'level' => 3],
-                ]
-            ]
+                ],
+            ],
         ];
 
         foreach ($peopleData as $p) {
@@ -155,7 +155,7 @@ class Phase3TestDataSeeder extends Seeder
                     'level' => $s['level'],
                     'is_active' => true,
                     'role_id' => $p['role_id'],
-                    'evaluated_by' => $adminUser->id ?? 1
+                    'evaluated_by' => $adminUser->id ?? 1,
                 ]);
             }
         }

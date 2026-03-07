@@ -13,27 +13,27 @@ return new class extends Migration
     {
         // 1. Roles: Add discovery and incubation fields
         Schema::table('roles', function (Blueprint $table) {
-            if (!Schema::hasColumn('roles', 'llm_id')) {
+            if (! Schema::hasColumn('roles', 'llm_id')) {
                 $table->string('llm_id')->nullable()->after('id');
             }
-            if (!Schema::hasColumn('roles', 'status')) {
+            if (! Schema::hasColumn('roles', 'status')) {
                 $table->string('status')->default('active')->after('description');
             }
-            if (!Schema::hasColumn('roles', 'discovered_in_scenario_id')) {
+            if (! Schema::hasColumn('roles', 'discovered_in_scenario_id')) {
                 $table->foreignId('discovered_in_scenario_id')->nullable()->after('status')->constrained('scenarios')->onDelete('set null');
             }
         });
 
         // 2. Competencies: Add status
         Schema::table('competencies', function (Blueprint $table) {
-            if (!Schema::hasColumn('competencies', 'status')) {
+            if (! Schema::hasColumn('competencies', 'status')) {
                 $table->string('status')->default('active')->after('description');
             }
         });
 
         // 3. Skills: Add status (complementing lifecycle_status)
         Schema::table('skills', function (Blueprint $table) {
-            if (!Schema::hasColumn('skills', 'status')) {
+            if (! Schema::hasColumn('skills', 'status')) {
                 $table->string('status')->default('active')->after('description');
             }
         });

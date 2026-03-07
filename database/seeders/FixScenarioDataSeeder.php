@@ -8,7 +8,6 @@ use App\Models\ScenarioRoleCompetency;
 use App\Models\ScenarioRoleSkill;
 use App\Services\RoleSkillDerivationService;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class FixScenarioDataSeeder extends Seeder
 {
@@ -24,8 +23,8 @@ class FixScenarioDataSeeder extends Seeder
             foreach ($mappings as $m) {
                 // Si el role_id NO es un ID de scenario_roles para este escenario
                 $sRole = ScenarioRole::where('scenario_id', $s->id)->where('id', $m->role_id)->first();
-                
-                if (!$sRole) {
+
+                if (! $sRole) {
                     // Probablemente es un base role_id. Buscar el sRole correspondiente.
                     $correctSRole = ScenarioRole::where('scenario_id', $s->id)->where('role_id', $m->role_id)->first();
                     if ($correctSRole) {
@@ -40,7 +39,7 @@ class FixScenarioDataSeeder extends Seeder
             $gaps = ScenarioRoleSkill::where('scenario_id', $s->id)->get();
             foreach ($gaps as $g) {
                 $sRole = ScenarioRole::where('scenario_id', $s->id)->where('id', $g->role_id)->first();
-                if (!$sRole) {
+                if (! $sRole) {
                     $correctSRole = ScenarioRole::where('scenario_id', $s->id)->where('role_id', $g->role_id)->first();
                     if ($correctSRole) {
                         $this->command->warn("  Corrigiendo gap {$g->id}: role_id {$g->role_id} -> {$correctSRole->id}");
@@ -51,13 +50,13 @@ class FixScenarioDataSeeder extends Seeder
             }
 
             // 3. Forzar Rederivación para asegurar que todos los skills están presentes
-            $this->command->info("  Rederivando skills para escenario...");
+            $this->command->info('  Rederivando skills para escenario...');
             $derivationSvc = app(RoleSkillDerivationService::class);
             $derivationSvc->deriveAllSkillsForScenario($s->id);
         }
 
         // 4. Poblar con datos aleatorios (usando el seeder previo)
-        $this->command->info("Poblando con datos de brechas...");
+        $this->command->info('Poblando con datos de brechas...');
         $this->call(PopulateSkillGapsSeeder::class);
     }
 }

@@ -30,6 +30,6 @@ class MagicLinkEmail extends Mailable
     public function build()
     {
         return $this->subject('Ingresa a Stratos con tu Magic Link')
-                    ->view('emails.magic-link');
+            ->view('emails.magic-link');
     }
 }

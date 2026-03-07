@@ -58,10 +58,11 @@ class ScenarioGeneration extends Model
     }
 
     // Accesor para obtener el "Índice de Sintetización" del escenario
-    public function getSynthetizationIndexAttribute() {
+    public function getSynthetizationIndexAttribute()
+    {
         // Calcula qué tan "IA-Ready" es este plan estratégico
         return collect($this->llm_response['suggested_roles'])
-                ->avg('talent_composition.synthetic_percentage');
+            ->avg('talent_composition.synthetic_percentage');
     }
 
     public function getRawPromptDecryptedAttribute()

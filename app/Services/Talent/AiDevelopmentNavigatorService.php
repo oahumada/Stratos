@@ -9,7 +9,6 @@ use App\Models\Skill;
 use App\Services\AiOrchestratorService;
 use App\Services\GapAnalysisService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class AiDevelopmentNavigatorService
 {
@@ -26,10 +25,10 @@ class AiDevelopmentNavigatorService
     {
         $person = People::findOrFail($peopleId);
         $skill = Skill::findOrFail($skillId);
-        
+
         // 1. Obtener contexto de Mentores Internos
         $mentors = $this->mentorService->findMentors($skillId, 4, 3);
-        $mentorsContext = $mentors->map(function($m) {
+        $mentorsContext = $mentors->map(function ($m) {
             return "ID: {$m->id}, Nombre: {$m->full_name}, Rol: {$m->role_name}, Experticia: {$m->expertise_level}/5";
         })->implode("\n");
 
@@ -38,12 +37,12 @@ class AiDevelopmentNavigatorService
         $prompt .= "OBJETIVO: Diseñar una ruta de aprendizaje personalizada y de alto impacto para cerrar una brecha de habilidades.\n\n";
         $prompt .= "DATOS DEL COLABORADOR:\n";
         $prompt .= "Nombre: {$person->full_name}\n";
-        $prompt .= "Rol Actual: " . ($person->role->name ?? 'N/A') . "\n";
+        $prompt .= 'Rol Actual: '.($person->role->name ?? 'N/A')."\n";
         $prompt .= "Habilidad a Desarrollar: {$skill->name}\n";
         $prompt .= "Nivel Objetivo: {$targetLevel}/5\n\n";
 
         $prompt .= "MENTORES INTERNOS DISPONIBLES (Prioriza conectar personas si hay expertos):\n";
-        $prompt .= $mentorsContext ?: "No hay expertos internos certificados aún. Sugiere tutoría externa o IA Bot." . "\n\n";
+        $prompt .= $mentorsContext ?: 'No hay expertos internos certificados aún. Sugiere tutoría externa o IA Bot.'."\n\n";
 
         $prompt .= "REGLAS DEL PLAN (Modelo 70-20-10):\n";
         $prompt .= "1. 'training' (10%): 1 acción de curso o lectura técnica.\n";
@@ -108,6 +107,7 @@ class AiDevelopmentNavigatorService
     {
         $content = str_replace(['```json', '```'], '', $content);
         $decoded = json_decode(trim($content), true);
+
         return is_array($decoded) ? $decoded : [];
     }
 }

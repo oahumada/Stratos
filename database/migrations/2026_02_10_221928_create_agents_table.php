@@ -3,14 +3,14 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-return new class extends Migration 
+return new class extends Migration
 {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        if (!\Schema::hasTable('agents')) {
+        if (! \Schema::hasTable('agents')) {
             \Schema::create('agents', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('organization_id')->index();
@@ -27,12 +27,12 @@ return new class extends Migration
         if (\Schema::hasTable('scenario_generations')) {
             \Schema::table('scenario_generations', function (Blueprint $table) {
                 // Para trazar qué agente (si hubo uno específico) orquestó la generación
-                if (!\Schema::hasColumn('scenario_generations', 'agent_id')) {
+                if (! \Schema::hasColumn('scenario_generations', 'agent_id')) {
                     $table->foreignId('agent_id')->nullable()->constrained('agents');
                 }
 
                 // Para guardar el resumen de la composición sugerida sin procesar todo el JSON
-                if (!\Schema::hasColumn('scenario_generations', 'hybrid_composition_summary')) {
+                if (! \Schema::hasColumn('scenario_generations', 'hybrid_composition_summary')) {
                     $table->json('hybrid_composition_summary')->nullable();
                 }
             });
@@ -54,9 +54,8 @@ return new class extends Migration
                     // Attempt to drop foreign key first if exists, then the column
                     try {
                         $table->dropForeign(['agent_id']);
-                    }
-                    catch (\Throwable $e) {
-                    // ignore if foreign key does not exist
+                    } catch (\Throwable $e) {
+                        // ignore if foreign key does not exist
                     }
 
                     $table->dropColumn('agent_id');
@@ -68,8 +67,6 @@ return new class extends Migration
             \Schema::dropIfExists('agents');
         }
     }
-	/**
-	 */
-	function __construct() {
-	}
+
+    public function __construct() {}
 };

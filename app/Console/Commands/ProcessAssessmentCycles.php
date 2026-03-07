@@ -26,9 +26,9 @@ class ProcessAssessmentCycles extends Command
     public function handle(\App\Services\Assessment\AssessmentCycleSchedulerService $service)
     {
         $this->info('Iniciando procesamiento de ciclos de evaluación...');
-        
+
         $service->processCycles();
-        
+
         $this->info('Procesamiento completado.');
     }
 }

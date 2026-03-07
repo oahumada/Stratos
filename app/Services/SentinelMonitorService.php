@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\Scenario;
 use App\Models\DevelopmentPath;
 use App\Models\People;
+use App\Models\Scenario;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * SentinelMonitorService — Cierra Stratos Sentinel de Fase 5.
@@ -81,7 +81,7 @@ class SentinelMonitorService
             'Stratos Sentinel'
         );
 
-        Log::info("Sentinel Full Scan: Health={$results['overall_health']}%, Alerts=" . count($results['alerts']));
+        Log::info("Sentinel Full Scan: Health={$results['overall_health']}%, Alerts=".count($results['alerts']));
 
         return $results;
     }

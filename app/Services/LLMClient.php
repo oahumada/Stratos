@@ -42,9 +42,7 @@ class LLMClient
      * and invoke $onDelta once with the full text.
      * Returns the provider result array (same shape as generate()).
      *
-     * @param string $prompt
-     * @param callable $onDelta function(string $delta): void
-     * @return array
+     * @param  callable  $onDelta  function(string $delta): void
      */
     public function generateStream(string $prompt, callable $onDelta): array
     {

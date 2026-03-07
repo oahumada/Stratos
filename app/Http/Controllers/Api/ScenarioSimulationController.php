@@ -53,15 +53,15 @@ class ScenarioSimulationController extends Controller
                         'skill_name' => 'Ethical AI Governance',
                         'count_needed' => intval($netGap * 0.15),
                         'internal_availability_pct' => 10,
-                    ]
+                    ],
                 ],
                 'critical_talent_risks' => [
                     [
                         'role' => 'VP of Future Engineering',
                         'critical_level' => 'critical',
                         'successors_ready' => 0,
-                        'recommendation' => 'URGENT TALENT ACQUISITION / RESKILLING'
-                    ]
+                        'recommendation' => 'URGENT TALENT ACQUISITION / RESKILLING',
+                    ],
                 ],
             ];
 
@@ -69,11 +69,10 @@ class ScenarioSimulationController extends Controller
                 'success' => true,
                 'data' => ['simulation' => $simulation],
             ]);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error en simulación: ' . $e->getMessage(),
+                'message' => 'Error en simulación: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -104,7 +103,7 @@ class ScenarioSimulationController extends Controller
                     ],
                     'risk_status' => 'HIGH',
                     'mitigation_strategy' => 'Retention Bonus + Internal Shadowing program',
-                ]
+                ],
             ];
 
             return response()->json([
@@ -117,11 +116,10 @@ class ScenarioSimulationController extends Controller
                     'high_risk_exposure_pct' => 75,
                 ],
             ]);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener talentos críticos: ' . $e->getMessage(),
+                'message' => 'Error al obtener talentos críticos: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -139,15 +137,16 @@ class ScenarioSimulationController extends Controller
         ]);
 
         try {
-            $plan = $service->generateMitigationPlan((int)$id, $metrics);
+            $plan = $service->generateMitigationPlan((int) $id, $metrics);
+
             return response()->json([
                 'success' => true,
-                'plan' => $plan
+                'plan' => $plan,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al generar mitigación: ' . $e->getMessage()
+                'message' => 'Error al generar mitigación: '.$e->getMessage(),
             ], 500);
         }
     }

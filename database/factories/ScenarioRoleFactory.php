@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\ScenarioRole;
-use App\Models\Scenario;
 use App\Models\Roles;
+use App\Models\Scenario;
+use App\Models\ScenarioRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ScenarioRoleFactory extends Factory

@@ -134,7 +134,7 @@ class ScenarioSeeder extends Seeder
 
         // Intenta vincular con el usuario E2E Admin si existe
         $adminUser = \App\Models\User::where('email', $adminEmail)->first();
-        if ($adminUser && !$person->user_id) {
+        if ($adminUser && ! $person->user_id) {
             $person->update(['user_id' => $adminUser->id]);
         }
 

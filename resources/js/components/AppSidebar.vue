@@ -224,6 +224,14 @@ const allNavItems: NavItem[] = [
         icon: Lock,
         requiredRole: ['admin'],
     },
+    {
+        title: 'Quality Hub',
+        href: '/quality-hub',
+        icon: defineComponent(
+            () => () => h(VIcon, { icon: 'mdi-shield-check', size: 20 }),
+        ),
+        requiredRole: ['admin', 'hr_leader'],
+    },
 ];
 
 /**

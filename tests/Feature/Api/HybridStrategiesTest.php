@@ -1,14 +1,13 @@
 <?php
 
 use App\Models\Organization;
+use App\Models\Roles;
 use App\Models\Scenario;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleSkill;
 use App\Models\Skill;
-use App\Models\User;
-use App\Models\Roles;
 use App\Models\TalentBlueprint;
-use function Pest\Laravel\actingAs;
+use App\Models\User;
 
 beforeEach(function () {
     $org = Organization::factory()->create();
@@ -30,7 +29,7 @@ test('it generates bot strategy when blueprint has high synthetic leverage', fun
         'organization_id' => $this->user->organization_id,
         'name' => 'Synthetic Analyst',
     ]);
-    
+
     TalentBlueprint::create([
         'scenario_id' => $this->scenario->id,
         'role_name' => 'Synthetic Analyst',
@@ -74,12 +73,12 @@ test('it generates bot strategy when blueprint has high synthetic leverage', fun
 });
 
 test('it prefers blueprint recommendation for low synthetic leverage', function () {
-     // 1. Create a role and blueprint
-     $role = Roles::create([
+    // 1. Create a role and blueprint
+    $role = Roles::create([
         'organization_id' => $this->user->organization_id,
         'name' => 'Hybrid Designer',
     ]);
-    
+
     TalentBlueprint::create([
         'scenario_id' => $this->scenario->id,
         'role_name' => 'Hybrid Designer',
@@ -134,7 +133,7 @@ test('it returns strategies with blueprint data in list endpoint', function () {
         'recommended_strategy' => 'Build',
         'agent_specs' => [],
     ]);
-    
+
     \DB::table('scenario_closure_strategies')->insert([
         'scenario_id' => $this->scenario->id,
         'role_id' => $role->id,
@@ -152,10 +151,10 @@ test('it returns strategies with blueprint data in list endpoint', function () {
                     'role_name',
                     'blueprint' => [
                         'human_leverage',
-                        'synthetic_leverage'
-                    ]
-                ]
-            ]
+                        'synthetic_leverage',
+                    ],
+                ],
+            ],
         ])
         ->assertJsonPath('data.0.role_name', 'Analyst')
         ->assertJsonPath('data.0.blueprint.human_leverage', 60);

@@ -46,10 +46,10 @@ class TransformCompetencyController
         if ($request->boolean('create_skills_incubated') && isset($validated['metadata']['bars']['skills'])) {
             foreach ($validated['metadata']['bars']['skills'] as $skillData) {
                 $skillName = is_array($skillData) ? ($skillData['name'] ?? null) : $skillData;
-                if (!empty($skillName)) {
+                if (! empty($skillName)) {
                     $skill = \App\Models\Skill::firstOrCreate([
                         'organization_id' => $competency->organization_id,
-                        'name' => $skillName
+                        'name' => $skillName,
                     ], [
                         'status' => 'incubation',
                         'category' => 'Skill',
@@ -57,7 +57,7 @@ class TransformCompetencyController
                     ]);
 
                     $competency->skills()->syncWithoutDetaching([$skill->id]);
-                    
+
                     $createdSkills[] = $skill;
                 }
             }

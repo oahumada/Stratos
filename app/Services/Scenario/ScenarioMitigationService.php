@@ -2,13 +2,14 @@
 
 namespace App\Services\Scenario;
 
-use App\Services\AiOrchestratorService;
 use App\Models\Scenario;
+use App\Services\AiOrchestratorService;
 use App\Services\AuditTrailService;
 
 class ScenarioMitigationService
 {
     protected AiOrchestratorService $orchestrator;
+
     protected AuditTrailService $audit;
 
     public function __construct(AiOrchestratorService $orchestrator, AuditTrailService $audit)
@@ -23,7 +24,7 @@ class ScenarioMitigationService
     public function generateMitigationPlan(int $scenarioId, array $currentMetrics): array
     {
         $scenario = Scenario::findOrFail($scenarioId);
-        
+
         $prompt = "Actúa como el Stratos Sentinel. He detectado los siguientes riesgos en la simulación del escenario '{$scenario->name}':
         
         Métricas Actuales:
@@ -45,7 +46,7 @@ class ScenarioMitigationService
         $this->audit->logDecision(
             'Scenario IQ',
             "scenario_{$scenarioId}",
-            "Generación de Plan de Mitigación",
+            'Generación de Plan de Mitigación',
             $plan,
             'Stratos Sentinel'
         );

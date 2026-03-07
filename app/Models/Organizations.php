@@ -64,8 +64,9 @@ class Organizations extends Model
         if ($module === 'core') {
             return true;
         }
-        
+
         $active_modules = is_array($this->active_modules) ? $this->active_modules : [];
+
         return in_array($module, $active_modules);
     }
 }

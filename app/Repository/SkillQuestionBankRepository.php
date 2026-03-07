@@ -8,6 +8,6 @@ class SkillQuestionBankRepository extends Repository
 {
     public function __construct()
     {
-        $this->model = new SkillQuestionBank();
+        $this->model = new SkillQuestionBank;
     }
 }
