@@ -199,6 +199,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/scenarios/instructions/{id}', [\App\Http\Controllers\Api\PromptInstructionController::class, 'show']);
     Route::patch('/strategic-planning/scenarios/instructions/{id}', [\App\Http\Controllers\Api\PromptInstructionController::class, 'update']);
 
+    // Social Learning & Mentorship Knowledge Transfer
+    Route::get('/social-learning/dashboard', [\App\Http\Controllers\Api\SocialLearningController::class, 'dashboard']);
+    Route::get('/social-learning/matches/{skillId}', [\App\Http\Controllers\Api\SocialLearningController::class, 'matches']);
+    Route::post('/social-learning/generate-blueprint', [\App\Http\Controllers\Api\SocialLearningController::class, 'generateBlueprint']);
+
     Route::get('/strategic-planning/scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'showScenario']);
     Route::get('/strategic-planning/scenarios/{id}/capability-tree', [\App\Http\Controllers\Api\ScenarioController::class, 'getCapabilityTree']);
 

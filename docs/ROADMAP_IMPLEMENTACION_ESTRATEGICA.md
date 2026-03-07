@@ -80,6 +80,12 @@ _La etapa donde la plataforma deja de ser pasiva y comienza a actuar automática
 - **Deep Retention Engine:** Motor multidimensional que predice riesgo de fuga cruzando Pulso, Estancamiento y ROI de Reemplazo.
 - **Insights de Resonancia:** Reportes automatizados de Fit, Riesgos y Planes de Mitigación preventivos.
 
+### 3. Social Learning Engine (Resiliencia Intelectual) - [x] ✅
+
+- **Detección de Silos Críticos:** Integración con Retention Deep Predictor para identificar misiones críticas en riesgo.
+- **Cross-Pollination Matching:** Algoritmo que fuerza la transferencia de conocimiento entre departamentos.
+- **AI Mentorship Blueprints:** Generación automática de planes de transferencia de 4 semanas.
+
 ---
 
 ## ⚡ FASE 4: Predicción y Escalamiento (En progreso)

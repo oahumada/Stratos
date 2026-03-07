@@ -203,6 +203,14 @@ const allNavItems: NavItem[] = [
         ),
         requiredRole: ['admin', 'hr_leader'],
     },
+    {
+        title: 'Social Learning',
+        href: '/people-experience/social-learning',
+        icon: defineComponent(
+            () => () => h(VIcon, { icon: 'mdi-teach', size: 20 }),
+        ),
+        requiredRole: ['admin', 'hr_leader'],
+    },
     // Talent Agents — requires agents.view
     {
         title: 'Talent Agents',
