@@ -3,14 +3,17 @@
 namespace Tests\Feature\Integrations;
 
 use App\Jobs\GenerateScenarioFromLLMJob;
+use App\Models\GenerationChunk;
 use App\Models\Organizations;
 use App\Models\ScenarioGeneration;
 use App\Models\User;
+use App\Services\AbacusClient;
 use App\Services\Intelligence\StratosIntelService;
 use App\Services\RAGASEvaluator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Redis;
 use Tests\TestCase;
 
 class ScenarioGenerationIntelTest extends TestCase
@@ -174,5 +177,60 @@ class ScenarioGenerationIntelTest extends TestCase
         expect($generation->status)->toBe('failed');
         expect($generation->metadata['error'])->toBe('exception');
         expect($generation->metadata['message'])->toContain('Intel service failed');
+    }
+
+    public function test_it_falls_back_to_db_chunks_when_redis_is_unavailable_for_abacus_streams()
+    {
+        putenv('GENERATION_CHUNK_STORAGE=redis');
+
+        $generation = ScenarioGeneration::create([
+            'organization_id' => $this->org->id,
+            'created_by' => $this->user->id,
+            'prompt' => 'Generate strategic scenario via abacus stream',
+            'status' => 'queued',
+            'metadata' => [
+                'provider' => 'abacus',
+                'company_name' => $this->org->name,
+                'language' => 'es',
+            ],
+        ]);
+
+        Redis::shouldReceive('ping')
+            ->once()
+            ->andThrow(new \RuntimeException('Redis is down'));
+
+        $abacus = \Mockery::mock(AbacusClient::class);
+        $abacus->shouldReceive('generateStream')
+            ->once()
+            ->andReturnUsing(function (string $prompt, array $options, callable $onChunk): array {
+                $json = json_encode([
+                    'scenario_metadata' => ['name' => 'Redis Fallback Scenario'],
+                    'capabilities' => [],
+                    'suggested_roles' => [],
+                ], JSON_UNESCAPED_UNICODE);
+
+                $onChunk($json, ['received' => 1, 'total' => 1]);
+
+                return [
+                    'scenario_metadata' => ['name' => 'Redis Fallback Scenario'],
+                    'capabilities' => [],
+                    'suggested_roles' => [],
+                ];
+            });
+
+        $ragas = \Mockery::mock(RAGASEvaluator::class);
+        $ragas->shouldReceive('evaluate')
+            ->once();
+
+        $job = new GenerateScenarioFromLLMJob($generation->id);
+        $job->handle(app(\App\Services\LLMClient::class), $abacus, null, $ragas);
+
+        $generation->refresh();
+
+        expect($generation->status)->toBe('complete');
+        expect($generation->llm_response['scenario_metadata']['name'])->toBe('Redis Fallback Scenario');
+        expect(GenerationChunk::query()->where('scenario_generation_id', $generation->id)->count())->toBeGreaterThan(0);
+
+        putenv('GENERATION_CHUNK_STORAGE');
     }
 }
