@@ -11,6 +11,7 @@ use App\Services\AbacusClient;
 use App\Services\Intelligence\StratosIntelService;
 use App\Services\LLMClient;
 use App\Services\LLMProviders\Exceptions\LLMRateLimitException;
+use App\Services\LLMProviders\Exceptions\LLMServerException;
 use App\Services\RAGASEvaluator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -271,5 +272,35 @@ class ScenarioGenerationIntelTest extends TestCase
         expect($generation->metadata['error'])->toBe('rate_limit_exceeded');
         expect($generation->metadata['message'])->toContain('Provider rate limit exceeded');
         expect($generation->metadata['errors'][0]['type'])->toBe('rate_limit');
+    }
+
+    public function test_it_marks_generation_failed_when_server_exception_occurs(): void
+    {
+        $generation = ScenarioGeneration::create([
+            'organization_id' => $this->org->id,
+            'created_by' => $this->user->id,
+            'prompt' => 'Generate scenario with provider server failure',
+            'status' => 'queued',
+            'metadata' => [
+                'provider' => 'mock',
+                'company_name' => $this->org->name,
+                'language' => 'es',
+            ],
+        ]);
+
+        $llm = \Mockery::mock(LLMClient::class);
+        $llm->shouldReceive('generate')
+            ->once()
+            ->andThrow(new LLMServerException('Provider internal server error'));
+
+        $job = new GenerateScenarioFromLLMJob($generation->id);
+        $job->handle($llm, null, null, \Mockery::mock(RAGASEvaluator::class));
+
+        $generation->refresh();
+
+        expect($generation->status)->toBe('failed');
+        expect($generation->metadata['error'])->toBe('server_error');
+        expect($generation->metadata['message'])->toContain('Provider internal server error');
+        expect($generation->metadata['errors'][0]['type'])->toBe('server_error');
     }
 }
