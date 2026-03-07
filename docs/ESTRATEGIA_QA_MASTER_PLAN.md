@@ -33,9 +33,9 @@ Como expertos en Q&A y mejora continua, establecemos un marco de trabajo de **cl
 
 ### Fase 1: Blindaje del Core & Ética (Short-term)
 
-- [ ] Configuración de **Github Actions** con Linters, PHPStan y Auditoría de Seguridad.
-- [ ] Implementación de **Evaluadores de IA:** Primeros tests de fidelidad para el motor de escenarios.
-- [ ] Inclusión de **Lighthouse CI:** Validación de Core Web Vitals en cada despliegue.
+- [x] Configuración de **Github Actions** con Linters, PHPStan y Auditoría de Seguridad. ✅ Completado (2026-03-07): `qa.yml` (Pint, PHPStan, Pest, ESLint, Prettier) + `security-audit.yml` (Composer Audit, NPM Audit).
+- [x] Implementación de **Evaluadores de IA:** Primeros tests de fidelidad para el motor de escenarios. ✅ Completado: `RAGASEvaluator` + suite `tests/Feature/Api/RAGASEvaluationTest.php`.
+- [x] Inclusión de **Lighthouse CI:** Validación de Core Web Vitals en cada despliegue. ✅ Completado en `.github/workflows/lighthouse-ci.yml`.
 
 ### Fase 2: Resiliencia y Accesibilidad (Mid-term)
 

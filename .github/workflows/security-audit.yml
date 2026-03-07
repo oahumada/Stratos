@@ -1,0 +1,46 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 1 * * 1'
+
+jobs:
+  php-security:
+    name: PHP Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, curl, libxml, sqlite
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-ansi --no-interaction --no-progress --prefer-dist
+
+      - name: Composer Audit
+        run: composer audit --no-interaction
+
+  node-security:
+    name: Node Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: NPM Audit (high+)
+        run: npm audit --audit-level=high

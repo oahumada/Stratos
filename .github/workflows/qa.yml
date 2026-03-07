@@ -30,3 +30,18 @@ jobs:
 
       - name: Run Tests (Pest)
         run: php artisan test --parallel
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Frontend Lint (ESLint)
+        run: npx eslint . --max-warnings=0
+
+      - name: Frontend Format Check (Prettier)
+        run: npm run format:check
+
