@@ -171,6 +171,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('permission:assessments.manage');
 
     Route::get('/people/profile/{id}', [\App\Http\Controllers\Api\PeopleProfileController::class, 'show']);
+    Route::get('/people/profile/{id}/timeline', [\App\Http\Controllers\Api\PeopleProfileController::class, 'getTimeline']);
 
     // Organigrama (Departamentos)
     Route::get('/departments/tree', [\App\Http\Controllers\Api\DepartmentController::class, 'tree']);

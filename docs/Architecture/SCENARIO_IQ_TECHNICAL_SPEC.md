@@ -51,13 +51,19 @@ Utilizamos un crew de agentes especializados en CrewAI:
 
 ### Endpoints Implementados
 
-| Método | Ruta                                       | Controlador                                       | Descripción                                     |
-| :----- | :----------------------------------------- | :------------------------------------------------ | :---------------------------------------------- |
-| `POST` | `/scenarios/{id}/simulate-growth`          | `ScenarioSimulationController@simulateGrowth`     | Simula crecimiento de talento y proyecta gaps   |
-| `GET`  | `/api/strategic-planning/critical-talents` | `ScenarioSimulationController@getCriticalTalents` | Identifica nodos de talento en riesgo crítico   |
-| `POST` | `/scenarios/{id}/mitigate`                 | `ScenarioSimulationController@getMitigationPlan`  | Genera plan de mitigación agéntica vía Sentinel |
+| Método | Ruta                                  | Controlador                                      | Descripción                                     |
+| :----- | :------------------------------------ | :----------------------------------------------- | :---------------------------------------------- |
+| `POST` | `/scenarios/{id}/simulate-growth`     | `ScenarioSimulationController@simulateGrowth`    | Simula crecimiento de talento y proyecta gaps   |
+| `POST` | `/scenarios/{id}/crisis/attrition`    | `ScenarioIQController@simulateAttrition`         | Simulación de retiro masivo (War-gaming)        |
+| `POST` | `/scenarios/{id}/crisis/obsolescence` | `ScenarioIQController@simulateObsolescence`      | Simulación de obsolescencia de habilidades      |
+| `GET`  | `/api/career-paths/{peopleId}`        | `ScenarioIQController@getCareerPaths`            | Cálculo de rutas óptimas sobre Neo4j            |
+| `POST` | `/scenarios/{id}/mitigate`            | `ScenarioSimulationController@getMitigationPlan` | Genera plan de mitigación agéntica vía Sentinel |
 
-### Servicio de Mitigación (`ScenarioMitigationService`)
+### Servicios de Inteligencia
+
+- **`CrisisSimulatorService`**: Engine para C2 (Attrition, Skill Obsolescence, Restructuring).
+- **`CareerPathService`**: Engine para C3 (Pathfinding, Stepping Stones, Mobility Index).
+- **`AgenticScenarioService`**: Orquestador de simulaciones "What-If" complejas.
 
 - Recibe las métricas de la simulación (fricción, sinergia, probabilidad).
 - Invoca al agente **Stratos Sentinel** para generar un plan de remediación en formato JSON.
@@ -91,13 +97,14 @@ Utilizamos un crew de agentes especializados en CrewAI:
 ### Fase 1: Motor de Simulación ✅ (Completada — Feb 2026)
 
 - Simulación de crecimiento de talento y gaps por área de capacidad.
-- Panel de métricas en tiempo real (Success Probability, Sinergia, Fricción).
+- Engine de Crisis (Attrition/Obsolescence) implementado.
+- Career Pathfinding sobre Neo4j funcional.
 - Auto-Remediación vía Stratos Sentinel integrada.
 
-### Fase 2: Integración Neo4j Live (Q2 2026)
+### Fase 2: Integración Neo4j Live ✅ (Completada — Marzo 2026)
 
-- Sincronización bidireccional entre Laravel y Neo4j para reflejar cambios en tiempo real.
-- El Simulador Orgánico consulta el Grafo de Conocimiento para proyecciones dinámicas.
+- El Simulador Orgánico y CareerPathService consultan el Grafo de Conocimiento.
+- Mapeo de movilidad organizacional generado dinámicamente.
 
 ### Fase 3: Laboratorio de ROI (Q3 2026)
 

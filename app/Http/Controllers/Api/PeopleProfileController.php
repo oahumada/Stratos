@@ -10,12 +10,10 @@ use Illuminate\Http\JsonResponse;
 
 class PeopleProfileController extends Controller
 {
-    protected $gapService;
-
-    public function __construct(GapAnalysisService $gapService)
-    {
-        $this->gapService = $gapService;
-    }
+    public function __construct(
+        protected GapAnalysisService $gapService,
+        protected \App\Services\Talent\DnaTimelineService $timelineService
+    ) {}
 
     public function show($id): JsonResponse
     {
@@ -94,5 +92,24 @@ class PeopleProfileController extends Controller
         }
 
         return array_values($competencies);
+    }
+    /**
+     * GET /api/people/{id}/timeline
+     */
+    public function getTimeline($id): JsonResponse
+    {
+        try {
+            $timeline = $this->timelineService->getTimeline($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $timeline,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener el timeline: '.$e->getMessage(),
+            ], 500);
+        }
     }
 }

@@ -131,6 +131,15 @@ Asistencia en tiempo real mediante un agente experto que guía al colaborador en
 - Sugerencias proactivas de misiones (Quests) para ganar XP y cerrar brechas.
 - Preparación asistida para ciclos de evaluación 360°.
 
+### 🔔 Nudging Proactivo (El Codazo de Ejecución)
+
+El sistema no espera a que el usuario actúe. Stratos lanza micro-intervenciones sutiles pero vinculadas a la estrategia:
+
+- Notificaciones de aprendizaje justo a tiempo.
+- Alertas de riesgo de desvinculación hacia los líderes con acciones recomendadas.
+- Recordatorios de mentoría y feedback basados en inactividad detectada.
+- Ver más en: [Nudging Proactivo](file:///home/omar/Stratos/docs/Architecture/NUDGING_PROACTIVO.md)
+
 ---
 
 ## 7. Diseño de Arquitectura Técnica (El Respaldo)
@@ -138,7 +147,8 @@ Asistencia en tiempo real mediante un agente experto que guía al colaborador en
 1. **Feature Toggles Multi-Tenant:** Configuración `active_modules` que renderiza la UI y autoriza la API dinámicamente.
 2. **Degradación Elegante:** Los módulos operan con fallbacks si faltan orígenes de datos de módulos no adquiridos.
 3. **Arquitectura Orientada a Eventos:** Bajo acoplamiento mediante bus de eventos asíncronos para recalcular riesgos en segundo plano.
-4. **Data Lake de Histórico Inmutable:** Almacenamiento bi-mensual de snapshots para calcular el **TTR (Time-to-Readiness)** y el ROI estratégico.
+4. **Sistema de Nudging:** Orquestador de Smart Alerts y canales de comunicación para intervenciones proactivas.
+5. **Data Lake de Histórico Inmutable:** Almacenamiento bi-mensual de snapshots para calcular el **TTR (Time-to-Readiness)** y el ROI estratégico.
 
 ---
 

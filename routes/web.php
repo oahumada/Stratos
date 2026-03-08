@@ -48,6 +48,10 @@ Route::get('/__e2e_login', function () {
 Route::post('/magic-link', [\App\Http\Controllers\Auth\MagicLinkController::class, 'requestLink'])->name('magic.request');
 Route::get('/magic-login/{user}', [\App\Http\Controllers\Auth\MagicLinkController::class, 'authenticate'])->name('magic.login')->middleware('signed');
 
+// SSO Authentication
+Route::get('/auth/{provider}/redirect', [\App\Http\Controllers\Auth\SsoController::class, 'redirect'])->name('sso.redirect');
+Route::get('/auth/{provider}/callback', [\App\Http\Controllers\Auth\SsoController::class, 'callback'])->name('sso.callback');
+
 Route::get('/scenario-demo', function () {
     return Inertia::render('ScenarioDemo');
 });

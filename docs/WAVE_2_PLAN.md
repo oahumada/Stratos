@@ -20,12 +20,29 @@
 ### 🟢 Bloque B: Roadmap Original Wave 2
 
 | #   | Feature                                                            | Prioridad | Dependencias        |
-| :-- | :----------------------------------------------------------------- | :-------: | :------------------ |
-| B1  | **Integración Neo4j Live** — Grafo de Conocimiento real            | 🟡 Media  | Neo4j infra         |
-| B2  | **Notificaciones Proactivas** — Slack/Teams desde Culture Sentinel |  🟢 Baja  | CultureSentinel     |
-| B3  | **Panel Investor Demo** — Dashboard ejecutivo de impacto           | 🟡 Media  | Métricas existentes |
-| B4  | **API Hardening** — Rate limiting, validación, seguridad           | 🟡 Media  | -                   |
-| B5  | **Mobile-First PX** — Responsive + micro-interacciones             | 🟡 Media  | A6 (Mi Stratos)     |
+| :-- | :----------------------------------------------------------------- | :-------: | :------------------ | --------------- |
+| B1  | **Integración Neo4j Live** — Grafo de Conocimiento real            |  🔴 Alta  | Neo4j infra         | ✅ Implementado |
+| B2  | **Notificaciones Proactivas** — Slack/Teams desde Culture Sentinel | 🟡 Media  | CultureSentinel     | ✅ Implementado |
+| B3  | **Panel Investor Demo** — Dashboard ejecutivo de impacto           |  🔴 Alta  | Métricas existentes | ✅ Implementado |
+| B4  | **API Hardening** — Rate limiting, validación, seguridad           |  🔴 Alta  | -                   | ✅ Implementado |
+| B5  | **Mobile-First PX** — Responsive + micro-interacciones             |  🔴 Alta  | A6 (Mi Stratos)     | ✅ Implementado |
+
+### 🟣 Bloque C: Inteligencia de Escala (Scenario IQ)
+
+| #   | Feature                                                             | Prioridad | Dependencias           | Estado          |
+| :-- | :------------------------------------------------------------------ | :-------: | :--------------------- | --------------- |
+| C1  | **Scenario IQ Engine** — Orquestación agéntica de planificación     |  🔴 Alta  | AgenticScenarioService | ✅ Implementado |
+| C2  | **Simulador de Crisis** — Attrition, obsolescencia, restructuración |  🔴 Alta  | CrisisSimulatorService | ✅ Implementado |
+| C3  | **Career Paths** — Grafos de trayectoria y movilidad                |  🔴 Alta  | CareerPathService      | ✅ Implementado |
+
+### 🟠 Bloque D: Movilidad y Ecosistema de Talento
+
+| #   | Feature                                                   | Prioridad | Dependencias          | Estado          |
+| :-- | :-------------------------------------------------------- | :-------: | :-------------------- | --------------- |
+| D1  | **Gateway Híbrido** — Acceso Magic Link + Mobile Security | 🟡 Media  | HybridGatewayService  | ✅ Implementado |
+| D2  | **LMS & Mentor Hub** — Bridge de aprendizaje y mentoría   | 🟡 Media  | Lms / Mentor Services | ✅ Implementado |
+| D4  | **Gamificación** — Quests, Badges y niveles de maestría   | 🟡 Media  | GamificationService   | ✅ Implementado |
+| D5  | **Misiones de Gremio** — Desafíos colectivos              |  🟢 Baja  | Quest System          | ✅ Implementado |
 
 ---
 

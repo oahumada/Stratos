@@ -18,7 +18,8 @@ class StratosIntelligenceController extends Controller
         protected LearningBlueprintService $blueprintService,
         protected SentinelMonitorService $sentinel,
         protected StratosGuideService $guide,
-        protected \App\Services\Intelligence\RetentionDeepPredictorService $retentionService
+        protected \App\Services\Intelligence\RetentionDeepPredictorService $retentionService,
+        protected \App\Services\Intelligence\NudgeOrchestratorService $nudgeOrchestrator
     ) {}
 
     /**
@@ -161,6 +162,25 @@ class StratosIntelligenceController extends Controller
             return $this->success(null, 'Step de onboarding completado.');
         } catch (\Exception $e) {
             return $this->error('Error: '.$e->getMessage(), 500);
+        }
+    }
+    /**
+     * POST /api/intelligence/nudges/run
+     */
+    public function runNudges(Request $request): JsonResponse
+    {
+        $orgId = $request->user()->organization_id ?? $request->input('organization_id');
+
+        if (! $orgId) {
+            return $this->error('Falta ID de organización.', 400);
+        }
+
+        try {
+            $result = $this->nudgeOrchestrator->orchestrate($orgId);
+
+            return $this->success($result, 'Ciclo de Nudging proactivo completado.');
+        } catch (\Exception $e) {
+            return $this->error('Error al ejecutar nudges: '.$e->getMessage(), 500);
         }
     }
 }
