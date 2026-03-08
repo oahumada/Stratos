@@ -220,14 +220,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/strategic-planning/change-sets/{id}/reject', [\App\Http\Controllers\Api\ChangeSetController::class, 'reject']);
 
     // Scenario generation (LLM-driven)
-    Route::post('/strategic-planning/scenarios/generate', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'store']);
-    // Create a demo prefilled generation for demo/testing
-    Route::post('/strategic-planning/scenarios/generate/demo', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'demo']);
-    Route::post('/strategic-planning/scenarios/generate/preview', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'preview']);
-    // ABACUS-backed immediate generation endpoint (uses AbacusClient streaming)
-    Route::post('/strategic-planning/scenarios/generate/abacus', [\App\Http\Controllers\Api\ScenarioGenerationAbacusController::class, 'generate']);
-    // INTEL-backed generation endpoint (uses StratosIntelService / Python microservice)
-    Route::post('/strategic-planning/scenarios/generate/intel', [\App\Http\Controllers\Api\ScenarioGenerationIntelController::class, 'generate']);
+    Route::middleware('throttle:ai_generation')->group(function () {
+        Route::post('/strategic-planning/scenarios/generate', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'store']);
+        Route::post('/strategic-planning/scenarios/generate/demo', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'demo']);
+        Route::post('/strategic-planning/scenarios/generate/preview', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'preview']);
+        Route::post('/strategic-planning/scenarios/generate/abacus', [\App\Http\Controllers\Api\ScenarioGenerationAbacusController::class, 'generate']);
+        Route::post('/strategic-planning/scenarios/generate/intel', [\App\Http\Controllers\Api\ScenarioGenerationIntelController::class, 'generate']);
+    });
     Route::get('/strategic-planning/scenarios/generate/{id}', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'show']);
     Route::post('/strategic-planning/scenarios/generate/{id}/accept', [\App\Http\Controllers\Api\ScenarioGenerationController::class, 'accept']);
     // Read streaming chunks for a generation (for UI progress/debug)
@@ -267,17 +266,21 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/scenarios/{id}/incubated-items/reject', [\App\Http\Controllers\Api\IncubationController::class, 'reject']);
 
             // AI Role Designer
-            Route::post('/roles/analyze-preview', [\App\Http\Controllers\Api\RoleDesignerController::class, 'analyzePreview']);
-            Route::post('/roles/{id}/design', [\App\Http\Controllers\Api\RoleDesignerController::class, 'design']);
+            Route::middleware('throttle:ai_analysis')->group(function () {
+                Route::post('/roles/analyze-preview', [\App\Http\Controllers\Api\RoleDesignerController::class, 'analyzePreview']);
+                Route::post('/roles/{id}/design', [\App\Http\Controllers\Api\RoleDesignerController::class, 'design']);
+            });
 
             // Assessments & Psychometrics (Fase 4: Talento 360)
             Route::prefix('assessments')->group(function () {
                 Route::post('/sessions', [\App\Http\Controllers\Api\AssessmentController::class, 'startSession']);
                 Route::get('/sessions/{id}', [\App\Http\Controllers\Api\AssessmentController::class, 'getSession']);
                 Route::post('/sessions/{id}/messages', [\App\Http\Controllers\Api\AssessmentController::class, 'sendMessage']);
-                Route::post('/sessions/{id}/analyze', [\App\Http\Controllers\Api\AssessmentController::class, 'analyze']);
+                Route::post('/sessions/{id}/analyze', [\App\Http\Controllers\Api\AssessmentController::class, 'analyze'])
+                    ->middleware('throttle:ai_analysis');
                 Route::get('/metrics', [\App\Http\Controllers\Api\Talento360Controller::class, 'metrics']);
-                Route::post('/{peopleId}/triangulate', [\App\Http\Controllers\Api\AssessmentController::class, 'triangulate360']);
+                Route::post('/{peopleId}/triangulate', [\App\Http\Controllers\Api\AssessmentController::class, 'triangulate360'])
+                    ->middleware('throttle:ai_analysis');
 
                 Route::prefix('feedback')->group(function () {
                     Route::post('/request', [\App\Http\Controllers\Api\AssessmentController::class, 'requestFeedback']);
@@ -286,10 +289,12 @@ Route::middleware('auth:sanctum')->group(function () {
                 });
 
                 // AI Curator routes
-                Route::prefix('curator')->group(function () {
-                    Route::post('/skills/{id}/curate', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'curate']);
-                    Route::post('/skills/{id}/generate-questions', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'generateQuestions']);
-                    Route::post('/competencies/{id}/curate', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'curateCompetency']);
+                Route::middleware('throttle:ai_analysis')->group(function () {
+                    Route::prefix('curator')->group(function () {
+                        Route::post('/skills/{id}/curate', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'curate']);
+                        Route::post('/skills/{id}/generate-questions', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'generateQuestions']);
+                        Route::post('/competencies/{id}/curate', [\App\Http\Controllers\Api\CompetencyCuratorController::class, 'curateCompetency']);
+                    });
                 });
             });
         }

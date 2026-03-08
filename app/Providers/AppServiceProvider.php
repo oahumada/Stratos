@@ -42,5 +42,22 @@ class AppServiceProvider extends ServiceProvider
         // \Illuminate\Support\Facades\Gate::policy(\App\Models\StrategicPlanningScenarios::class, \App\Policies\StrategicPlanningScenariosPolicy::class);
         // \Illuminate\Support\Facades\Gate::policy(\App\Models\StrategicPlanningScenarios::class, \App\Policies\WorkforceScenarioPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\ScenarioComparison::class, \App\Policies\ScenarioComparisonPolicy::class);
+
+        // --- Stratos Security: Rate Limiting ---
+        
+        // 1. AI Generation (Heavy tokens)
+        \Illuminate\Support\Facades\RateLimiter::for('ai_generation', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // 2. AI Analysis & Curation (Medium tokens)
+        \Illuminate\Support\Facades\RateLimiter::for('ai_analysis', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // 3. General Strategic Actions
+        \Illuminate\Support\Facades\RateLimiter::for('strategic_api', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

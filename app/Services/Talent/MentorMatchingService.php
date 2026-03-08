@@ -39,10 +39,14 @@ class MentorMatchingService
         });
 
         // 3. Filtrar empleados inactivos y ordenar por expertise + performance
-        return $mentors->filter(function ($p) {
-            return $p->status === 'active';
-        })->sortByDesc('expertise_level')
-            ->sortByDesc('mentor_rating')
+        return $mentors->filter(fn ($p) => $p->status === 'active')
+            ->sort(function ($a, $b) {
+                if ($b->expertise_level !== $a->expertise_level) {
+                    return $b->expertise_level <=> $a->expertise_level;
+                }
+
+                return $b->mentor_rating <=> $a->mentor_rating;
+            })
             ->take($limit);
     }
 }

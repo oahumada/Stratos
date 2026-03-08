@@ -75,9 +75,6 @@ class CompetencyCuratorService
                 if (! $competency->skills()->where('skill_id', $skill->id)->exists()) {
                     $competency->skills()->attach($skill->id, [
                         'weight' => 100,
-                        'priority' => 'high',
-                        'required_level' => 3,
-                        'is_required' => true,
                     ]);
                 }
             }

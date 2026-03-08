@@ -176,6 +176,9 @@ class AssessmentController extends Controller
 
             if ($hasExternalFeedback) {
                 $this->competencyService->updateAllSkillsForPerson($session->people_id);
+            } else {
+                // Si es la primera evaluación (Self), disparar automáticamente el 360 a otros
+                $this->triggerFeedbackRequests($session->person);
             }
 
             return $this->successResponse($session->load('psychometricProfiles'), 'Análisis completado');
@@ -465,20 +468,8 @@ class AssessmentController extends Controller
                 'started_at' => now(),
             ]);
 
-            // 2. Disparar solicitudes a Jefes
-            foreach ($subject->managers as $manager) {
-                $this->dispatchFeedbackRequest($subject, $manager, 'manager');
-            }
-
-            // 3. Disparar solicitudes a Pares
-            foreach ($subject->peers as $peer) {
-                $this->dispatchFeedbackRequest($subject, $peer, 'peer');
-            }
-
-            // 4. Disparar solicitudes a Subordinados
-            foreach ($subject->subordinates as $sub) {
-                $this->dispatchFeedbackRequest($subject, $sub, 'subordinate');
-            }
+            // 2. Disparar solicitudes a otros (Managers, Peers, Subordinates)
+            $this->triggerFeedbackRequests($subject);
 
             return $this->successResponse([
                 'subject' => $subject->full_name,
@@ -490,6 +481,27 @@ class AssessmentController extends Controller
                 ],
             ], 'Ciclo 360 disparado con éxito.');
         });
+    }
+
+    /**
+     * Dispara las solicitudes de feedback basadas en relaciones.
+     */
+    private function triggerFeedbackRequests($subject)
+    {
+        // 1. Disparar solicitudes a Jefes
+        foreach ($subject->managers as $manager) {
+            $this->dispatchFeedbackRequest($subject, $manager, 'manager');
+        }
+
+        // 2. Disparar solicitudes a Pares
+        foreach ($subject->peers as $peer) {
+            $this->dispatchFeedbackRequest($subject, $peer, 'peer');
+        }
+
+        // 3. Disparar solicitudes a Subordinados
+        foreach ($subject->subordinates as $sub) {
+            $this->dispatchFeedbackRequest($subject, $sub, 'subordinate');
+        }
     }
 
     /**
