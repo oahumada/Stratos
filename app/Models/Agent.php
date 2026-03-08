@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToOrganization;
+
 class Agent extends Model
 {
+    use BelongsToOrganization;
     protected $fillable = [
         'name',
         'role_description',

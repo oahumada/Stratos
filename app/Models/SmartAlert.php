@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Traits\BelongsToOrganization;
+
 class SmartAlert extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToOrganization;
 
     protected $table = 'smart_alerts';
 

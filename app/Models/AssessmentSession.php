@@ -9,18 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use Illuminate\Database\Eloquent\Builder;
 
+use App\Traits\BelongsToOrganization;
+
 class AssessmentSession extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToOrganization;
 
-    protected static function booted()
-    {
-        static::addGlobalScope('organization', function (Builder $builder) {
-            if (auth()->check() && auth()->user()->organization_id) {
-                $builder->where('assessment_sessions.organization_id', auth()->user()->organization_id);
-            }
-        });
-    }
 
     protected $fillable = [
         'organization_id',

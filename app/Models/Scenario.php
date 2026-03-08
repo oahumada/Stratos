@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Schema;
 
+use App\Traits\BelongsToOrganization;
+
 class Scenario extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToOrganization;
 
     // Canonical table: `scenarios`. Legacy compatibility view `workforce_planning_scenarios` is deprecated.
     protected $table = 'scenarios';

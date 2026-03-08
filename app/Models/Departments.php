@@ -7,16 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use App\Traits\BelongsToOrganization;
+
 class Departments extends Model
 {
-    protected static function booted()
-    {
-        static::addGlobalScope('organization', function (Builder $builder) {
-            if (auth()->check() && auth()->user()->organization_id) {
-                $builder->where('departments.organization_id', auth()->user()->organization_id);
-            }
-        });
-    }
+    use BelongsToOrganization;
 
     protected $fillable = [
         'organization_id',

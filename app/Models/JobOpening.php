@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use App\Traits\BelongsToOrganization;
+
 class JobOpening extends Model
 {
+    use BelongsToOrganization;
     protected $fillable = [
         'organization_id',
         'title',
@@ -35,13 +38,6 @@ class JobOpening extends Model
         static::creating(function ($opening) {
             if (! $opening->slug) {
                 $opening->slug = \Illuminate\Support\Str::slug($opening->title.'-'.\Illuminate\Support\Str::random(5));
-            }
-        });
-
-        static::addGlobalScope('organization', function (Builder $builder) {
-            // Only apply organization scope if authenticated
-            if (auth()->check() && auth()->user()->organization_id) {
-                $builder->where('job_openings.organization_id', auth()->user()->organization_id);
             }
         });
     }

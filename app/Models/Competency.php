@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
+use App\Traits\BelongsToOrganization;
+
 class Competency extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToOrganization;
 
     protected $table = 'competencies';
 
@@ -67,8 +69,17 @@ class Competency extends Model
     public function roles()
     {
         return $this->belongsToMany(Roles::class, 'role_competencies', 'competency_id', 'role_id')
-            ->withPivot('required_level', 'is_core', 'rationale')
+            ->withPivot($this->roleCompetencyPivotColumns())
             ->withTimestamps();
+    }
+
+    private function roleCompetencyPivotColumns(): array
+    {
+        $cols = ['required_level', 'criticity', 'change_type', 'strategy', 'notes', 'is_core', 'rationale'];
+
+        return array_values(array_filter($cols, function ($c) {
+            return Schema::hasColumn('role_competencies', $c);
+        }));
     }
 
     public function roleCompetencies()

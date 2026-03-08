@@ -10,9 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Traits\BelongsToOrganization;
+
 class People extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, BelongsToOrganization;
 
     protected $table = 'people';
 
@@ -36,14 +38,6 @@ class People extends Model
         'is_high_potential' => 'boolean',
     ];
 
-    protected static function booted()
-    {
-        static::addGlobalScope('organization', function (Builder $builder) {
-            if (auth()->check() && auth()->user()->organization_id) {
-                $builder->where('people.organization_id', auth()->user()->organization_id);
-            }
-        });
-    }
 
     public function organization(): BelongsTo
     {

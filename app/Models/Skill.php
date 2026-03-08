@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use App\Traits\BelongsToOrganization;
+
 class Skill extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToOrganization;
 
     protected $fillable = [
         'organization_id',
@@ -43,14 +45,6 @@ class Skill extends Model
         'llm_id' => 'string',
     ];
 
-    protected static function booted()
-    {
-        static::addGlobalScope('organization', function (Builder $builder) {
-            if (auth()->check() && auth()->user()->organization_id) {
-                $builder->where('skills.organization_id', auth()->user()->organization_id);
-            }
-        });
-    }
 
     public function organization(): BelongsTo
     {

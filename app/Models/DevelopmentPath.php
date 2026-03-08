@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Traits\BelongsToOrganization;
+
 class DevelopmentPath extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, BelongsToOrganization;
 
     protected $fillable = [
         'action_title',
@@ -31,14 +33,6 @@ class DevelopmentPath extends Model
         'steps' => 'array',
     ];
 
-    protected static function booted()
-    {
-        static::addGlobalScope('organization', function (Builder $builder) {
-            if (auth()->check() && auth()->user()->organization_id) {
-                $builder->where('development_paths.organization_id', auth()->user()->organization_id);
-            }
-        });
-    }
 
     public function organization(): BelongsTo
     {

@@ -10,9 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 
+use App\Traits\BelongsToOrganization;
+
 class Roles extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToOrganization;
 
     protected $table = 'roles';
 
@@ -39,15 +41,6 @@ class Roles extends Model
         'cube_dimensions' => 'array',
     ];
 
-    protected static function booted()
-    {
-        static::addGlobalScope('organization', function (Builder $builder) {
-            $user = Auth::user();
-            if ($user && $user->organization_id) {
-                $builder->where('roles.organization_id', $user->organization_id);
-            }
-        });
-    }
 
     public function organization(): BelongsTo
     {
@@ -84,8 +77,17 @@ class Roles extends Model
     public function competencies(): BelongsToMany
     {
         return $this->belongsToMany(Competency::class, 'role_competencies', 'role_id', 'competency_id')
-            ->withPivot('required_level', 'is_core', 'rationale')
+            ->withPivot($this->roleCompetencyPivotColumns())
             ->withTimestamps();
+    }
+
+    private function roleCompetencyPivotColumns(): array
+    {
+        $cols = ['required_level', 'criticity', 'change_type', 'strategy', 'notes', 'is_core', 'rationale'];
+
+        return array_values(array_filter($cols, function ($c) {
+            return \Illuminate\Support\Facades\Schema::hasColumn('role_competencies', $c);
+        }));
     }
 
     public function roleCompetencies(): HasMany
