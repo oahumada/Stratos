@@ -15,15 +15,29 @@ defineProps<Props>();
 <template>
     <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 40 42"
+        viewBox="0 0 64 64"
         :class="className"
         v-bind="$attrs"
     >
-        <path
-            fill="currentColor"
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M17.2 5.633 8.6.855 0 5.633v26.51l16.2 9 16.2-9v-8.442l7.6-4.223V9.856l-8.6-4.777-8.6 4.777V18.3l-5.6 3.111V5.633ZM38 18.301l-5.6 3.11v-6.157l5.6-3.11V18.3Zm-1.06-7.856-5.54 3.078-5.54-3.079 5.54-3.078 5.54 3.079ZM24.8 18.3v-6.157l5.6 3.111v6.158L24.8 18.3Zm-1 1.732 5.54 3.078-13.14 7.302-5.54-3.078 13.14-7.3v-.002Zm-16.2 7.89 7.6 4.222V38.3L2 30.966V7.92l5.6 3.111v16.892ZM8.6 9.3 3.06 6.222 8.6 3.143l5.54 3.08L8.6 9.3Zm21.8 15.51-13.2 7.334V38.3l13.2-7.334v-6.156ZM9.6 11.034l5.6-3.11v14.6l-5.6 3.11v-14.6Z"
-        />
+        <g transform="rotate(180 32 32)">
+            <g transform="translate(0,64) scale(1,-1)">
+                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" opacity="0.86">
+                    <path d="M32 52L32 40" stroke-width="2.8" />
+                    <path d="M32 40L25 31" stroke-width="2.2" />
+                    <path d="M32 40L39 31" stroke-width="2.2" />
+                    <path d="M32 40L22 40" stroke-width="1.8" opacity="0.88" />
+                    <path d="M32 40L42 40" stroke-width="1.8" opacity="0.88" />
+                </g>
+
+                <g fill="currentColor">
+                    <circle cx="32" cy="52" r="4" opacity="0.96" />
+                    <circle cx="32" cy="40" r="3.2" opacity="0.9" />
+                    <circle cx="25" cy="31" r="3.3" opacity="0.94" />
+                    <circle cx="39" cy="31" r="3.3" opacity="0.94" />
+                    <circle cx="22" cy="40" r="2.8" opacity="0.9" />
+                    <circle cx="42" cy="40" r="2.8" opacity="0.9" />
+                </g>
+            </g>
+        </g>
     </svg>
 </template>

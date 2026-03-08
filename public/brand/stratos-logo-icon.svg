@@ -1,0 +1,35 @@
+<svg width="128" height="128" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Stratos Isotipo (Premium Ultra Minimal + Arms)</title>
+
+  <defs>
+    <radialGradient id="coreGrad" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </radialGradient>
+    <radialGradient id="nodeGradA" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </radialGradient>
+    <radialGradient id="nodeGradB" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </radialGradient>
+  </defs>
+
+  <g transform="translate(0,64) scale(1,-1)">
+    <g stroke="#94A3B8" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.86">
+      <path d="M32 52L32 40" stroke-width="2.8"/>
+      <path d="M32 40L25 31" stroke-width="2.2"/>
+      <path d="M32 40L39 31" stroke-width="2.2"/>
+      <path d="M32 40L22 40" stroke-width="1.8" opacity="0.88"/>
+      <path d="M32 40L42 40" stroke-width="1.8" opacity="0.88"/>
+    </g>
+
+    <circle cx="32" cy="52" r="4" fill="url(#coreGrad)" opacity="0.96"/>
+    <circle cx="32" cy="40" r="3.2" fill="url(#nodeGradB)" opacity="0.9"/>
+    <circle cx="25" cy="31" r="3.3" fill="url(#nodeGradA)" opacity="0.94"/>
+    <circle cx="39" cy="31" r="3.3" fill="url(#nodeGradB)" opacity="0.94"/>
+    <circle cx="22" cy="40" r="2.8" fill="url(#nodeGradA)" opacity="0.9"/>
+    <circle cx="42" cy="40" r="2.8" fill="url(#nodeGradB)" opacity="0.9"/>
+  </g>
+</svg>

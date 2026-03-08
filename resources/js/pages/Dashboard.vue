@@ -63,10 +63,10 @@ onMounted(() => {
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <v-container class="pa-4">
+        <v-container class="pa-4 dashboard-dark">
             <!-- Loading State -->
             <v-card v-if="loading" class="mb-4">
-                <v-card-text class="py-8 text-center">
+                <v-card-text class="py-8 text-center text-slate-200">
                     <v-progress-circular indeterminate color="primary" />
                     <p class="mt-4">Loading metrics...</p>
                 </v-card-text>
@@ -82,10 +82,12 @@ onMounted(() => {
                                 class="d-flex justify-space-between align-center"
                             >
                                 <div>
-                                    <p class="text-caption text-grey mb-2">
+                                    <p class="text-caption mb-2 text-slate-400">
                                         Total Peoples
                                     </p>
-                                    <p class="text-h4 font-weight-bold">
+                                    <p
+                                        class="text-h4 font-weight-bold text-white"
+                                    >
                                         {{ metrics.total_peoples }}
                                     </p>
                                 </div>
@@ -105,10 +107,12 @@ onMounted(() => {
                                 class="d-flex justify-space-between align-center"
                             >
                                 <div>
-                                    <p class="text-caption text-grey mb-2">
+                                    <p class="text-caption mb-2 text-slate-400">
                                         Total Roles
                                     </p>
-                                    <p class="text-h4 font-weight-bold">
+                                    <p
+                                        class="text-h4 font-weight-bold text-white"
+                                    >
                                         {{ metrics.total_roles }}
                                     </p>
                                 </div>
@@ -128,10 +132,12 @@ onMounted(() => {
                                 class="d-flex justify-space-between align-center"
                             >
                                 <div>
-                                    <p class="text-caption text-grey mb-2">
+                                    <p class="text-caption mb-2 text-slate-400">
                                         Total Skills
                                     </p>
-                                    <p class="text-h4 font-weight-bold">
+                                    <p
+                                        class="text-h4 font-weight-bold text-white"
+                                    >
                                         {{ metrics.total_skills }}
                                     </p>
                                 </div>
@@ -147,11 +153,11 @@ onMounted(() => {
                 <v-col cols="12" sm="6" md="4">
                     <v-card class="h-100" elevation="0" border>
                         <v-card-text class="pa-4">
-                            <p class="text-caption text-grey mb-2">
+                            <p class="text-caption mb-2 text-slate-400">
                                 Avg Match %
                             </p>
                             <div class="d-flex align-center gap-2">
-                                <p class="text-h4 font-weight-bold">
+                                <p class="text-h4 font-weight-bold text-white">
                                     {{ metrics.avg_match_percentage }}%
                                 </p>
                             </div>
@@ -175,7 +181,7 @@ onMounted(() => {
                                 class="d-flex justify-space-between align-center"
                             >
                                 <div>
-                                    <p class="text-caption text-grey mb-2">
+                                    <p class="text-caption mb-2 text-slate-400">
                                         Roles at Risk
                                     </p>
                                     <p
@@ -200,7 +206,7 @@ onMounted(() => {
                                 class="d-flex justify-space-between align-center"
                             >
                                 <div>
-                                    <p class="text-caption text-grey mb-2">
+                                    <p class="text-caption mb-2 text-slate-400">
                                         High Performers
                                     </p>
                                     <p
@@ -221,11 +227,11 @@ onMounted(() => {
                 <v-col cols="12" sm="6" md="4">
                     <v-card class="h-100" elevation="0" border>
                         <v-card-text class="pa-4">
-                            <p class="text-caption text-grey mb-2">
+                            <p class="text-caption mb-2 text-slate-400">
                                 Skills Coverage
                             </p>
                             <div class="d-flex align-center gap-2">
-                                <p class="text-h4 font-weight-bold">
+                                <p class="text-h4 font-weight-bold text-white">
                                     {{ metrics.skills_coverage }}%
                                 </p>
                             </div>
@@ -247,7 +253,7 @@ onMounted(() => {
                                 class="d-flex justify-space-between align-center"
                             >
                                 <div>
-                                    <p class="text-caption text-grey mb-2">
+                                    <p class="text-caption mb-2 text-slate-400">
                                         Critical Gaps
                                     </p>
                                     <p
@@ -277,11 +283,11 @@ onMounted(() => {
 
             <!-- Empty State -->
             <v-card v-if="!loading && !metrics" class="mb-4">
-                <v-card-text class="py-12 text-center">
-                    <v-icon size="64" class="text-grey mb-4"
+                <v-card-text class="py-12 text-center text-slate-200">
+                    <v-icon size="64" class="mb-4 text-slate-400"
                         >mdi-chart-box-outline</v-icon
                     >
-                    <p class="text-body1 text-grey">No data available</p>
+                    <p class="text-body1 text-slate-300">No data available</p>
                 </v-card-text>
             </v-card>
         </v-container>
@@ -291,6 +297,10 @@ onMounted(() => {
 <style scoped>
 .gap-4 {
     gap: 16px;
+}
+
+.dashboard-dark :deep(.v-card) {
+    background: rgba(15, 23, 42, 0.55) !important;
 }
 
 .h-100 {

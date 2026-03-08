@@ -215,7 +215,7 @@ void _getStatusColor;
 </script>
 
 <template>
-    <div class="pa-8">
+    <div class="pa-8 analytics-container">
         <PendingFeedback />
         <!-- Encabezado Ejecutivo -->
         <header class="mb-10">
@@ -259,16 +259,28 @@ void _getStatusColor;
                         selected-class="text-indigo-accent-2 bg-indigo-500/10"
                         mandatory
                     >
-                        <v-chip value="week" variant="text" class="text-none"
+                        <v-chip
+                            value="week"
+                            variant="text"
+                            class="text-none period-chip"
                             >Semana</v-chip
                         >
-                        <v-chip value="month" variant="text" class="text-none"
+                        <v-chip
+                            value="month"
+                            variant="text"
+                            class="text-none period-chip"
                             >Mes</v-chip
                         >
-                        <v-chip value="quarter" variant="text" class="text-none"
+                        <v-chip
+                            value="quarter"
+                            variant="text"
+                            class="text-none period-chip"
                             >Trimestre</v-chip
                         >
-                        <v-chip value="year" variant="text" class="text-none"
+                        <v-chip
+                            value="year"
+                            variant="text"
+                            class="text-none period-chip"
                             >Año</v-chip
                         >
                     </v-chip-group>
@@ -805,6 +817,10 @@ void _getStatusColor;
 </template>
 
 <style scoped>
+.analytics-container {
+    color: #e2e8f0;
+}
+
 .text-tiny {
     font-size: 0.65rem;
 }
@@ -824,5 +840,18 @@ void _getStatusColor;
 
 .h-100 {
     height: 100%;
+}
+
+:deep(.period-chip .v-chip__content) {
+    color: #cbd5e1 !important;
+    font-weight: 600;
+}
+
+:deep(.v-chip--selected.period-chip .v-chip__content) {
+    color: #818cf8 !important;
+}
+
+:deep(.st-badge-live) {
+    color: #e2e8f0 !important;
 }
 </style>

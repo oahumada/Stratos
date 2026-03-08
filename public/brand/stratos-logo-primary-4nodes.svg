@@ -1,0 +1,39 @@
+<svg width="460" height="128" viewBox="0 0 460 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Stratos Logo Principal (Premium Ultra Minimal + Arms)</title>
+
+  <defs>
+    <radialGradient id="coreGradLarge4" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </radialGradient>
+    <radialGradient id="nodeGradLarge4A" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </radialGradient>
+    <radialGradient id="nodeGradLarge4B" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </radialGradient>
+  </defs>
+
+  <g transform="translate(8,0)">
+    <g stroke="#94A3B8" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.86">
+      <path d="M56 90L56 70" stroke-width="4"/>
+      <path d="M56 70L46 56" stroke-width="3.2"/>
+      <path d="M56 70L66 56" stroke-width="3.2"/>
+      <path d="M56 70L44 70" stroke-width="2.4" opacity="0.88"/>
+      <path d="M56 70L68 70" stroke-width="2.4" opacity="0.88"/>
+    </g>
+
+    <circle cx="56" cy="90" r="4.2" fill="url(#coreGradLarge4)" opacity="0.96"/>
+    <circle cx="56" cy="70" r="3.2" fill="url(#nodeGradLarge4B)" opacity="0.9"/>
+    <circle cx="46" cy="56" r="3.6" fill="url(#nodeGradLarge4A)" opacity="0.94"/>
+    <circle cx="66" cy="56" r="3.6" fill="url(#nodeGradLarge4B)" opacity="0.94"/>
+    <circle cx="44" cy="70" r="3" fill="url(#nodeGradLarge4A)" opacity="0.9"/>
+    <circle cx="68" cy="70" r="3" fill="url(#nodeGradLarge4B)" opacity="0.9"/>
+  </g>
+
+  <g fill="#E2E8F0" font-family="Inter, Segoe UI, system-ui, -apple-system, sans-serif">
+    <text x="132" y="73" font-size="50" font-weight="800" letter-spacing="3">STRATOS</text>
+  </g>
+</svg>

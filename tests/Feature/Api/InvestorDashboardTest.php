@@ -27,6 +27,21 @@ it('fetches the investor dashboard metrics', function () {
                 'talent_roi_usd',
                 'critical_gap_rate',
                 'ai_augmentation_index',
+                'culture_health_score',
+                'avg_turnover_risk',
+                'stratos_iq' => [
+                    'score',
+                    'components',
+                    'weights',
+                ],
+            ],
+            'ceo_view' => [
+                'stratos_iq' => [
+                    'score',
+                    'components',
+                    'weights',
+                ],
+                'top_kpis',
             ],
             'charts' => [
                 'skill_levels',

@@ -8,6 +8,22 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Cierre de Sesión:** Si el usuario olvida cerrar la sesión explícitamente ("terminamos por ahora"), el asistente DEBE recordarlo para asegurar el registro en la memoria del proyecto.
 - **LLM Agnostic Architecture:** Stratos soporta múltiples proveedores LLM (DeepSeek, ABACUS, OpenAI, Intel, Mock) a través de `LLMClient`. Todas las evaluaciones (RAGAS, fidelidad, etc.) deben ser agnósticas de proveedor.
 
+### Branding Update (2026-03-07)
+
+- Se añadieron variantes de logo "premium ultra minimal" de 4 nodos para comparación visual sin reemplazar los assets vigentes.
+- Nuevos archivos en `public/brand/`:
+    - `stratos-logo-icon-4nodes.svg`
+    - `stratos-logo-primary-4nodes.svg`
+    - `stratos-logo-mono-4nodes.svg`
+- Objetivo: evaluar un isotipo con menor densidad de nodos y mayor sensación premium/minimal.
+- Iteración adicional: sobre la variante 4 nodos se agregaron 2 nodos laterales tipo "brazos" para dar lectura humanoide manteniendo estética premium.
+- Archivos ajustados:
+    - `stratos-logo-icon-4nodes.svg`
+    - `stratos-logo-primary-4nodes.svg`
+    - `stratos-logo-mono-4nodes.svg`
+- Ajuste de proporciones posterior: brazos acortados para una silueta más compacta y sobria.
+- Decisión final aplicada: esta variante humanoide de brazos cortos se adopta como isotipo activo en app y assets principales (`stratos-logo-icon.svg`, `stratos-logo-primary.svg`, `stratos-logo-mono.svg`, `AppLogoIcon.vue`).
+
 ---
 
 ## 🎯 Fase 1 Completada: Importación LLM con Incubación (2026-02-15)

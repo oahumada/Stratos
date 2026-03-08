@@ -15,6 +15,29 @@ interface DashboardData {
         talent_roi_usd: number;
         critical_gap_rate: number;
         ai_augmentation_index: number;
+        culture_health_score: number;
+        avg_turnover_risk: number;
+        stratos_iq: {
+            score: number;
+            components: Record<string, number>;
+            weights: Record<string, number>;
+        };
+    };
+    ceo_view: {
+        stratos_iq: {
+            score: number;
+            components: Record<string, number>;
+            weights: Record<string, number>;
+        };
+        top_kpis: Array<{
+            key: string;
+            label: string;
+            value: number;
+            unit: string;
+            status: 'green' | 'yellow' | 'red';
+            driver: string;
+            action: string;
+        }>;
     };
     charts: {
         skill_levels: Array<{ current_level: number; count: number }>;
@@ -144,6 +167,64 @@ const formatCurrency = (val: number) => {
     }).format(val);
 };
 
+const kpiIconMap: Record<string, string> = {
+    stratos_iq: 'mdi-brain',
+    org_readiness: 'mdi-shield-star',
+    critical_gap_rate: 'mdi-alert-decagram',
+    talent_roi_usd: 'mdi-cash-check',
+    avg_turnover_risk: 'mdi-account-arrow-right',
+};
+
+const getKpiIcon = (key: string) => kpiIconMap[key] || 'mdi-chart-box';
+
+const getKpiColor = (status: 'green' | 'yellow' | 'red') => {
+    if (status === 'green') {
+        return 'emerald-accent-3';
+    }
+
+    if (status === 'yellow') {
+        return 'amber-accent-3';
+    }
+
+    return 'rose-accent-2';
+};
+
+const getKpiHexColor = (status: 'green' | 'yellow' | 'red') => {
+    if (status === 'green') {
+        return '#34d399';
+    }
+
+    if (status === 'yellow') {
+        return '#fbbf24';
+    }
+
+    return '#fb7185';
+};
+
+const formatKpiValue = (value: number, unit: string) => {
+    if (unit === 'usd') {
+        return formatCurrency(value);
+    }
+
+    if (unit === '%' || unit === '/100') {
+        return `${Math.round(value)}${unit === '%' ? '%' : ''}`;
+    }
+
+    return `${value}`;
+};
+
+const kpiThresholdMap: Record<string, string> = {
+    stratos_iq: 'Verde ≥ 70 · Amarillo 60-69 · Rojo < 60',
+    org_readiness: 'Verde ≥ 75% · Amarillo 65-74% · Rojo < 65%',
+    critical_gap_rate: 'Verde ≤ 15% · Amarillo 16-25% · Rojo > 25%',
+    talent_roi_usd: 'Verde ≥ $160k · Amarillo $150k-$159k · Rojo < $150k',
+    avg_turnover_risk: 'Verde ≤ 35 · Amarillo 36-45 · Rojo > 45',
+};
+
+const getKpiThreshold = (key: string) => {
+    return kpiThresholdMap[key] || 'Umbral no definido';
+};
+
 defineOptions({ layout: AppLayout });
 </script>
 
@@ -173,6 +254,7 @@ defineOptions({ layout: AppLayout });
                         variant="tonal"
                         color="white"
                         rounded="lg"
+                        class="header-btn"
                         >Exportar reporte</v-btn
                     >
                     <v-btn
@@ -186,93 +268,66 @@ defineOptions({ layout: AppLayout });
             </div>
         </header>
 
-        <!-- KPI Grid -->
+        <v-row v-if="!loading && dashboardData" class="mb-4">
+            <v-col cols="12">
+                <StCardGlass class="pa-4" :no-hover="true">
+                    <div class="d-flex align-center flex-wrap gap-3">
+                        <span class="legend-label">Semáforo:</span>
+                        <v-chip
+                            size="small"
+                            color="emerald-accent-3"
+                            variant="flat"
+                            class="legend-chip"
+                            >Verde: en objetivo</v-chip
+                        >
+                        <v-chip
+                            size="small"
+                            color="amber-accent-3"
+                            variant="flat"
+                            class="legend-chip"
+                            >Amarillo: atención</v-chip
+                        >
+                        <v-chip
+                            size="small"
+                            color="rose-accent-2"
+                            variant="flat"
+                            class="legend-chip"
+                            >Rojo: intervención</v-chip
+                        >
+                    </div>
+                </StCardGlass>
+            </v-col>
+        </v-row>
+
+        <!-- KPI Grid (CEO 10s View) -->
         <v-row v-if="!loading && dashboardData" class="mb-8">
-            <!-- ROI Card -->
-            <v-col cols="12" sm="6" md="3">
+            <v-col
+                v-for="kpi in dashboardData.ceo_view.top_kpis"
+                :key="kpi.key"
+                cols="12"
+                sm="6"
+                md="4"
+                lg="2"
+            >
                 <StCardGlass class="pa-6" :no-hover="false">
                     <div class="card-icon">
-                        <v-icon color="emerald-accent-3">mdi-cash-check</v-icon>
+                        <v-icon :color="getKpiColor(kpi.status)">
+                            {{ getKpiIcon(kpi.key) }}
+                        </v-icon>
                     </div>
                     <div class="card-body">
-                        <span class="label">ROI de Talento (YTD)</span>
-                        <h2 class="value text-emerald-accent-3">
-                            {{
-                                formatCurrency(
-                                    dashboardData.summary.talent_roi_usd,
-                                )
-                            }}
-                        </h2>
-                        <span class="subtext"
-                            >Ahorro estimado en contratación/upskilling</span
+                        <span class="label">{{ kpi.label }}</span>
+                        <h2
+                            class="value"
+                            :style="{ color: getKpiHexColor(kpi.status) }"
                         >
-                    </div>
-                </StCardGlass>
-            </v-col>
-
-            <!-- Tarjeta de Preparación -->
-            <v-col cols="12" sm="6" md="3">
-                <StCardGlass class="pa-6">
-                    <div class="card-icon">
-                        <v-icon color="indigo-accent-2">mdi-shield-star</v-icon>
-                    </div>
-                    <div class="card-body">
-                        <span class="label"
-                            >IQ de Preparación Organizacional</span
-                        >
-                        <h2 class="value">
-                            {{ dashboardData.summary.org_readiness }}%
+                            {{ formatKpiValue(kpi.value, kpi.unit) }}
                         </h2>
-                        <div class="progress-bar-container mt-2">
-                            <v-progress-linear
-                                :model-value="
-                                    dashboardData.summary.org_readiness
-                                "
-                                color="indigo-accent-2"
-                                height="6"
-                                rounded
-                            ></v-progress-linear>
+                        <div class="kpi-threshold mb-1">
+                            {{ getKpiThreshold(kpi.key) }}
                         </div>
-                    </div>
-                </StCardGlass>
-            </v-col>
-
-            <!-- Tarjeta de Riesgo Crítico -->
-            <v-col cols="12" sm="6" md="3">
-                <StCardGlass class="pa-6">
-                    <div class="card-icon">
-                        <v-icon color="rose-accent-2"
-                            >mdi-alert-decagram</v-icon
-                        >
-                    </div>
-                    <div class="card-body">
-                        <span class="label">Índice de Riesgo de Talento</span>
-                        <h2 class="value">
-                            {{ dashboardData.summary.critical_gap_rate }}%
-                        </h2>
-                        <span class="subtext"
-                            >Brechas críticas de habilidades en roles clave</span
-                        >
-                    </div>
-                </StCardGlass>
-            </v-col>
-
-            <!-- Tarjeta de Aumentación IA -->
-            <v-col cols="12" sm="6" md="3">
-                <StCardGlass class="pa-6">
-                    <div class="card-icon">
-                        <v-icon color="cyan-accent-2"
-                            >mdi-robot-industrial</v-icon
-                        >
-                    </div>
-                    <div class="card-body">
-                        <span class="label">Aumentación IA</span>
-                        <h2 class="value">
-                            {{ dashboardData.summary.ai_augmentation_index }}%
-                        </h2>
-                        <span class="subtext"
-                            >Ganancia de eficiencia vía tareas sintéticas</span
-                        >
+                        <span class="subtext">{{ kpi.driver }}</span>
+                        <div class="kpi-action mt-2">{{ kpi.action }}</div>
                     </div>
                 </StCardGlass>
             </v-col>
@@ -280,7 +335,7 @@ defineOptions({ layout: AppLayout });
 
         <!-- Loading State -->
         <v-row v-if="loading">
-            <v-col v-for="i in 4" :key="i" cols="12" sm="6" md="3">
+            <v-col v-for="i in 5" :key="i" cols="12" sm="6" md="4" lg="2">
                 <v-skeleton-loader
                     type="card"
                     class="glass-card-skeleton"
@@ -410,6 +465,31 @@ defineOptions({ layout: AppLayout });
 .card-body .subtext {
     font-size: 0.75rem;
     color: #64748b;
+}
+
+.kpi-threshold {
+    font-size: 0.7rem;
+    color: #94a3b8;
+}
+
+.kpi-action {
+    font-size: 0.75rem;
+    color: #cbd5e1;
+}
+
+.legend-label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.header-btn {
+    color: #e2e8f0 !important;
+}
+
+:deep(.legend-chip .v-chip__content) {
+    color: #ffffff !important;
+    font-weight: 600;
 }
 
 .glass-card-skeleton {

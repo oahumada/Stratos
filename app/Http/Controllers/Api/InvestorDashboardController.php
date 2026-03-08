@@ -22,14 +22,20 @@ class InvestorDashboardController extends Controller
     public function index(Request $request): JsonResponse
     {
         // Add middleware authorization check here if needed (e.g. role:admin,hr_leader)
+        $organizationId = (int) $request->user()->organization_id;
 
-        $summary = $this->roiService->getExecutiveSummary();
-        $distributions = $this->roiService->getDistributionData();
+        $summary = $this->roiService->getExecutiveSummary($organizationId);
+        $distributions = $this->roiService->getDistributionData($organizationId);
+        $topKpis = $this->roiService->getCeoTopKpis($summary);
 
         return response()->json([
             'success' => true,
             'data' => [
                 'summary' => $summary,
+                'ceo_view' => [
+                    'stratos_iq' => $summary['stratos_iq'],
+                    'top_kpis' => $topKpis,
+                ],
                 'charts' => $distributions,
                 'forecast' => [
                     'next_quarter_readiness' => round($summary['org_readiness'] * 1.05, 1), // Simple forecast
