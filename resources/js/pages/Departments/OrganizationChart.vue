@@ -45,7 +45,7 @@ onMounted(() => {
 });
 
 // Componente recursivo embebido artificialmente
-const renderNode = (node: DepartmentNode) => {
+const renderNode = (node: DepartmentNode): string => {
     return `
         <div class="p-4 border border-white/10 rounded-lg bg-surface relative">
             <h3 class="font-semibold text-lg text-white mb-2">${node.name}</h3>
@@ -71,7 +71,6 @@ const renderNode = (node: DepartmentNode) => {
 </script>
 
 <template>
-    <AppLayout>
         <Head title="Stratos Map - Organigrama Activo" />
 
         <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
@@ -142,5 +141,4 @@ const renderNode = (node: DepartmentNode) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>
