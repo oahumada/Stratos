@@ -82,3 +82,10 @@ graph TD
 ---
 
 > _"Stratos no solo te dice que hay un iceberg adelante; te sugiere el ángulo exacto para virar el timón y el momento justo para hacerlo."_
+En Aprendizaje (LMS): En lugar de esperar a que el usuario entre, el sistema detecta que Carlos tiene una brecha crítica en "AI Engineering" necesaria para el próximo Escenario Estratégico y le envía un mensaje: "Carlos, hemos reservado un slot de 15 min en tu calendario para el micro-curso de Prompt Engineering que necesitas para el proyecto de Q3".
+
+En Mentoría: Si el sistema nota que un Mentor y su Mentee no han interactuado en 2 semanas, lanza un nudge: "Hola Lucía, notamos que no has tenido tu sesión de feedback con tu mentor. ¿Quieres que les sugiera un horario para mañana?".
+
+En Retención (Culture Sentinel): Si la IA detecta que un "High Potential" (talento clave) ha bajado su nivel de participación en misiones, alerta al líder con un consejo: "Riesgo de desvinculación detectado en el equipo. Te sugerimos tener una charla de café informal con Roberto para hablar sobre sus metas de carrera".
+
+En Evaluación 360: Envía recordatorios personalizados a los evaluadores que faltan, no como spam, sino como facilitador: "Solo te faltan 2 evaluaciones para cerrar el ciclo de tu equipo. ¡Hazlo ahora en 3 minutos desde Slack!".

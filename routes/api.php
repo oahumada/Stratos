@@ -1143,10 +1143,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/guide/onboarding/complete', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'completeOnboardingStep']);
     Route::get('/retention-forecast/{peopleId}', [\App\Http\Controllers\Api\StratosIntelligenceController::class, 'getRetentionForecast']);
 
-    // Phase 6: Workforce Planning
-    Route::post('/workforce-planning/scenarios', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'createScenario']);
-    Route::get('/workforce-planning/scenarios', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'getScenarios']);
-    Route::get('/workforce-planning/scenarios/{id}/recommendations', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'getRecommendations']);
+    // People Experience (PX) & Engagement
+    Route::get('/px/campaigns', [\App\Http\Controllers\Api\PxController::class, 'index']);
+    Route::post('/px/campaigns/trigger', [\App\Http\Controllers\Api\PxController::class, 'trigger']);
 });
 
 // ── QA & Evaluation: RAGAS LLM Fidelity Assessment ──────────────
@@ -1159,5 +1158,10 @@ Route::middleware('auth:sanctum')->prefix('qa')->group(function () {
 
 // Catálogos dinámicos para selectores
 require __DIR__.'/form-schema-complete.php';
+
+// ── Automation & Hybrid Workflows (n8n) ──────────────────────────
+Route::prefix('automation')->group(function () {
+    Route::post('/webhooks/n8n', [\App\Http\Controllers\Api\Automation\N8nController::class, 'handleWebhook']);
+});
 
 // TODO: recordar que estas rutas están protegidas por el middleware 'auth' en RouteServiceProvider.php y son Multinenant deben filtrar el organization_id del usuario autenticado

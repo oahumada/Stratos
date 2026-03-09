@@ -10,9 +10,7 @@ use App\Services\Scenario\CareerPathService;
 use Illuminate\Support\Facades\Log;
 
 /**
- * NudgeOrchestratorService — El cerebro detrás de las micro-intervenciones.
- * 
- * Orquesta "nudges" (codazos) para:
+ * NudgeOrchestratorService — El cerebro detrás de las micro-intervenciones. * Orquesta "nudges" (codazos) para:
  * - Cerrar brechas de skills críticas.
  * - Prevenir riesgos culturales detectados por el Sentinel.
  * - Impulsar misiones de gamificación.
@@ -24,7 +22,8 @@ class NudgeOrchestratorService
         protected SmartAlertService $alertService,
         protected GapAnalysisService $gapAnalysis,
         protected CultureSentinelService $sentinel,
-        protected CareerPathService $careerPaths
+        protected CareerPathService $careerPaths,
+        protected \App\Services\Intelligence\RetentionDeepPredictorService $retentionPredictor
     ) {}
 
     /**
@@ -45,6 +44,9 @@ class NudgeOrchestratorService
         // 3. Nudges de Carrera (Movilidad)
         $nudges = array_merge($nudges, $this->generateCareerNudges($orgId));
 
+        // 4. Nudges de Retención (Fuga de Talento Crítico)
+        $nudges = array_merge($nudges, $this->generateRetentionNudges($orgId));
+
         return [
             'total_nudges_generated' => count($nudges),
             'nudges' => $nudges,
@@ -63,8 +65,9 @@ class NudgeOrchestratorService
 
         foreach ($people as $person) {
             /** @var \App\Models\People $person */
-            if (!$person->role) continue;
-            
+            if (!$person->role) {
+                continue;
+            }
             $analysis = $this->gapAnalysis->calculate($person, $person->role);
             $criticalGaps = collect($analysis['gaps'])->where('gap', '>=', 2);
 
@@ -132,6 +135,42 @@ class NudgeOrchestratorService
                 ]);
 
                 $generated[] = ['person' => $person->full_name, 'type' => 'career'];
+            }
+        }
+
+        return $generated;
+    }
+
+    /**
+     * Genera nudges de retención para perfiles estratégicos con riesgo alto.
+     */
+    protected function generateRetentionNudges(int $orgId): array
+    {
+        $generated = [];
+        
+        // Identificar personas clave (High Potential o en roles críticos)
+        $strategicPeople = People::where('organization_id', $orgId)
+            ->where(function($q) {
+                $q->where('is_high_potential', true)
+                  ->orWhereHas('roleSkills', fn($sq) => $sq->where('is_critical', true));
+            })
+            ->take(5)
+            ->get();
+
+        foreach ($strategicPeople as $person) {
+            $prediction = $this->retentionPredictor->predict($person->id);
+
+            if (($prediction['flight_risk_score'] ?? 0) > 70) {
+                $title = "🚨 Riesgo Crítico: {$person->full_name}";
+                $message = "La IA detectó un riesgo de fuga del {$prediction['flight_risk_score']}% debido a '{$prediction['primary_driver']}'. El impacto financiero estimado es de \${$prediction['financial_impact']['replacement_cost_usd']}.";
+                
+                // Notificar a administradores (CEO/HR)
+                $this->alertService->notify($orgId, $title, $message, 'critical', 'retention', [
+                    'label' => 'Ver Plan de Retención',
+                    'url' => "/intelligence/retention/{$person->id}",
+                ]);
+
+                $generated[] = ['person' => $person->full_name, 'type' => 'retention', 'score' => $prediction['flight_risk_score']];
             }
         }
 

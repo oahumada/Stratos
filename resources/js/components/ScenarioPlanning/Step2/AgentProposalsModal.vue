@@ -175,6 +175,116 @@
                         </div>
                     </div>
 
+                    <!-- REASONING SECTION (EXPLAINABILITY UI) -->
+                    <section
+                        v-if="proposals?.reasoning"
+                        class="animate-in duration-700 fade-in slide-in-from-bottom-4"
+                    >
+                        <div
+                            class="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 p-8 shadow-2xl transition-all hover:border-indigo-500/30"
+                        >
+                            <!-- Decorative background elements -->
+                            <div
+                                class="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-indigo-500/5 blur-3xl"
+                            ></div>
+                            <div
+                                class="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-purple-500/5 blur-3xl"
+                            ></div>
+
+                            <div
+                                class="relative flex flex-col gap-6 md:flex-row"
+                            >
+                                <div
+                                    class="flex shrink-0 flex-col items-center"
+                                >
+                                    <div class="relative mb-2">
+                                        <div
+                                            class="absolute inset-0 animate-pulse rounded-full bg-indigo-400/20 blur-xl"
+                                        ></div>
+                                        <div
+                                            class="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-indigo-400/30 bg-indigo-950/40 shadow-inner"
+                                        >
+                                            <v-icon color="indigo-300" size="32"
+                                                >mdi-brain</v-icon
+                                            >
+                                        </div>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-black tracking-[0.2em] text-indigo-400/60 uppercase"
+                                        >Neural Path</span
+                                    >
+                                </div>
+
+                                <div class="flex-1">
+                                    <div class="mb-3 flex items-center gap-3">
+                                        <h3
+                                            class="text-xl font-black tracking-tight text-white"
+                                        >
+                                            Razonamiento de la IA
+                                        </h3>
+                                        <div class="h-px grow bg-white/5"></div>
+                                        <StBadgeGlass
+                                            variant="primary"
+                                            size="sm"
+                                            class="font-mono"
+                                        >
+                                            X-UI PROTOCOL
+                                        </StBadgeGlass>
+                                    </div>
+
+                                    <div class="relative">
+                                        <v-icon
+                                            color="white/5"
+                                            size="80"
+                                            class="pointer-events-none absolute -top-4 -left-6"
+                                            >mdi-format-quote-open</v-icon
+                                        >
+                                        <p
+                                            class="relative z-10 text-lg leading-relaxed font-medium text-indigo-50/90 italic"
+                                        >
+                                            {{ proposals.reasoning }}
+                                        </p>
+                                    </div>
+
+                                    <div
+                                        class="mt-8 flex flex-wrap gap-6 border-t border-white/5 pt-6"
+                                    >
+                                        <div class="flex items-center gap-2">
+                                            <v-icon
+                                                color="emerald-400"
+                                                size="16"
+                                                >mdi-auto-fix</v-icon
+                                            >
+                                            <span
+                                                class="text-[11px] font-bold tracking-wider text-emerald-400/80 uppercase"
+                                                >Optimización basada en
+                                                ROI</span
+                                            >
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <v-icon color="indigo-400" size="16"
+                                                >mdi-vector-combine</v-icon
+                                            >
+                                            <span
+                                                class="text-[11px] font-bold tracking-wider text-indigo-400/80 uppercase"
+                                                >Coherencia de Capacidades</span
+                                            >
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <v-icon color="purple-400" size="16"
+                                                >mdi-shield-check</v-icon
+                                            >
+                                            <span
+                                                class="text-[11px] font-bold tracking-wider text-purple-400/80 uppercase"
+                                                >Validación Estratégica</span
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- ROLES SECTION -->
                     <section>
                         <div class="mb-8 flex items-center justify-between">
@@ -356,7 +466,11 @@
                                             <div class="space-y-3">
                                                 <span
                                                     class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                                    >{{ $t('agent_proposals.role_archetype') }}</span
+                                                    >{{
+                                                        $t(
+                                                            'agent_proposals.role_archetype',
+                                                        )
+                                                    }}</span
                                                 >
                                                 <div class="flex gap-2">
                                                     <button
@@ -393,7 +507,11 @@
                                             <div class="space-y-3">
                                                 <span
                                                     class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                                    >{{ $t('agent_proposals.target_fte') }}</span
+                                                    >{{
+                                                        $t(
+                                                            'agent_proposals.target_fte',
+                                                        )
+                                                    }}</span
                                                 >
                                                 <div
                                                     class="flex items-center gap-3"
@@ -409,7 +527,11 @@
                                                     />
                                                     <span
                                                         class="text-xs font-bold text-white/20"
-                                                        >{{ $t('agent_proposals.units') }}</span
+                                                        >{{
+                                                            $t(
+                                                                'agent_proposals.units',
+                                                            )
+                                                        }}</span
                                                     >
                                                 </div>
                                             </div>
@@ -421,7 +543,11 @@
                                             >
                                                 <span
                                                     class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                                    >{{ $t('agent_proposals.talent_composition') }}</span
+                                                    >{{
+                                                        $t(
+                                                            'agent_proposals.talent_composition',
+                                                        )
+                                                    }}</span
                                                 >
                                                 <div
                                                     class="flex items-center gap-4"
@@ -481,7 +607,16 @@
                                         >
                                             <span
                                                 class="block text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                                >{{ $t('agent_proposals.proposed_mapping', { count: role.competency_mappings.length }) }}</span
+                                                >{{
+                                                    $t(
+                                                        'agent_proposals.proposed_mapping',
+                                                        {
+                                                            count: role
+                                                                .competency_mappings
+                                                                .length,
+                                                        },
+                                                    )
+                                                }}</span
                                             >
 
                                             <div
@@ -495,27 +630,52 @@
                                                             <th
                                                                 class="px-4 py-3 text-[10px] font-black tracking-widest text-white/30 uppercase"
                                                             >
-                                                                {{ $t('agent_proposals.col_competency') }}
+                                                                {{
+                                                                    $t(
+                                                                        'agent_proposals.col_competency',
+                                                                    )
+                                                                }}
                                                             </th>
                                                             <th
                                                                 class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
                                                             >
-                                                                {{ $t('agent_proposals.col_change_type') }}
+                                                                {{
+                                                                    $t(
+                                                                        'agent_proposals.col_change_type',
+                                                                    )
+                                                                }}
                                                             </th>
                                                             <th
                                                                 class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
                                                             >
-                                                                {{ $t('agent_proposals.col_req_level') }}
+                                                                {{
+                                                                    $t(
+                                                                        'agent_proposals.col_req_level',
+                                                                    )
+                                                                }}
                                                             </th>
                                                             <th
                                                                 class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
                                                             >
-                                                                {{ $t('agent_proposals.col_core') }}
+                                                                {{
+                                                                    $t(
+                                                                        'agent_proposals.col_core',
+                                                                    )
+                                                                }}
                                                             </th>
                                                             <th
                                                                 class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
                                                             >
-                                                                {{ $t('agent_proposals.col_diagnostic') }}
+                                                                {{
+                                                                    $t(
+                                                                        'agent_proposals.col_diagnostic',
+                                                                    )
+                                                                }}
+                                                            </th>
+                                                            <th
+                                                                class="px-4 py-3 text-center text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                                            >
+                                                                Logic
                                                             </th>
                                                         </tr>
                                                     </thead>
@@ -624,6 +784,55 @@
                                                                     mdi-circle
                                                                 </v-icon>
                                                             </td>
+                                                            <td
+                                                                class="px-4 py-3 text-center"
+                                                            >
+                                                                <v-tooltip
+                                                                    bottom
+                                                                    v-if="
+                                                                        mapping.rationale
+                                                                    "
+                                                                >
+                                                                    <template
+                                                                        v-slot:activator="{
+                                                                            props,
+                                                                        }"
+                                                                    >
+                                                                        <v-icon
+                                                                            v-bind="
+                                                                                props
+                                                                            "
+                                                                            color="white/30"
+                                                                            size="18"
+                                                                            class="cursor-help hover:text-white"
+                                                                        >
+                                                                            mdi-message-text-outline
+                                                                        </v-icon>
+                                                                    </template>
+                                                                    <div
+                                                                        class="pa-2 max-w-xs"
+                                                                    >
+                                                                        <div
+                                                                            class="mb-1 text-[10px] font-black text-indigo-300 uppercase"
+                                                                        >
+                                                                            Reasoning
+                                                                            Path
+                                                                        </div>
+                                                                        <div
+                                                                            class="text-xs"
+                                                                        >
+                                                                            {{
+                                                                                mapping.rationale
+                                                                            }}
+                                                                        </div>
+                                                                    </div>
+                                                                </v-tooltip>
+                                                                <span
+                                                                    v-else
+                                                                    class="text-white/10"
+                                                                    >-</span
+                                                                >
+                                                            </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -666,7 +875,11 @@
                                     <h3
                                         class="text-lg font-black tracking-tight text-white"
                                     >
-                                        {{ $t('agent_proposals.proposed_catalog') }}
+                                        {{
+                                            $t(
+                                                'agent_proposals.proposed_catalog',
+                                            )
+                                        }}
                                     </h3>
                                     <div class="flex items-center gap-2">
                                         <StBadgeGlass
@@ -677,7 +890,12 @@
                                             "
                                             size="sm"
                                         >
-                                            {{ $t('agent_proposals.approved', { count: approvedCatalogCount, total: localCatalogProposals.length }) }}
+                                            {{
+                                                $t('agent_proposals.approved', {
+                                                    count: approvedCatalogCount,
+                                                    total: localCatalogProposals.length,
+                                                })
+                                            }}
                                         </StBadgeGlass>
                                     </div>
                                 </div>
@@ -688,14 +906,18 @@
                                     size="sm"
                                     @click="approveAllCatalog"
                                     icon="mdi-check-all"
-                                    >{{ $t('agent_proposals.approve_all') }}</StButtonGlass
+                                    >{{
+                                        $t('agent_proposals.approve_all')
+                                    }}</StButtonGlass
                                 >
                                 <StButtonGlass
                                     variant="ghost"
                                     size="sm"
                                     @click="rejectAllCatalog"
                                     icon="mdi-close-circle"
-                                    >{{ $t('agent_proposals.reject_all') }}</StButtonGlass
+                                    >{{
+                                        $t('agent_proposals.reject_all')
+                                    }}</StButtonGlass
                                 >
                             </div>
                         </div>
@@ -788,24 +1010,30 @@
                     <div class="flex flex-col">
                         <span
                             class="text-[10px] font-black tracking-widest text-white/30 uppercase"
-                            >{{ $t('agent_proposals.selected_blueprint') }}</span
+                            >{{
+                                $t('agent_proposals.selected_blueprint')
+                            }}</span
                         >
                         <div class="flex items-center gap-2">
-                            <span class="text-sm font-black text-white"
-                                >{{ $t('agent_proposals.roles_count', { count: approvedRoleCount }) }}</span
-                            >
+                            <span class="text-sm font-black text-white">{{
+                                $t('agent_proposals.roles_count', {
+                                    count: approvedRoleCount,
+                                })
+                            }}</span>
                             <div class="h-1 w-1 rounded-full bg-white/20"></div>
-                            <span class="text-sm font-black text-white"
-                                >{{ $t('agent_proposals.competencies_count', { count: approvedCatalogCount }) }}</span
-                            >
+                            <span class="text-sm font-black text-white">{{
+                                $t('agent_proposals.competencies_count', {
+                                    count: approvedCatalogCount,
+                                })
+                            }}</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex gap-3">
-                    <StButtonGlass variant="ghost" @click="$emit('close')"
-                        >{{ $t('agent_proposals.cancel') }}</StButtonGlass
-                    >
+                    <StButtonGlass variant="ghost" @click="$emit('close')">{{
+                        $t('agent_proposals.cancel')
+                    }}</StButtonGlass>
                     <StButtonGlass
                         variant="primary"
                         @click="confirmApply"
@@ -829,9 +1057,6 @@ import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import { computed, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-
-const { t } = useI18n();
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -874,6 +1099,7 @@ interface Proposals {
     role_proposals?: Omit<RoleProposal, '_status'>[];
     catalog_proposals?: Omit<CatalogProposal, '_status'>[];
     alignment_score?: number;
+    reasoning?: string;
 }
 
 // ─── Props & Emits ────────────────────────────────────────────────────────────

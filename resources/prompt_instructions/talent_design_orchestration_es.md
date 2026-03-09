@@ -93,7 +93,8 @@ Propón cómo debe evolucionar la taxonomía oficial de la organización.
             "action_rationale": "Competencia inexistente en el catálogo, necesaria para los nuevos roles de IA."
         }
     ],
-    "alignment_score": 0.95
+    "alignment_score": 0.95,
+    "reasoning": "He propuesto la creación del rol de AI Talent Engineer para centralizar la gestión de capacidades híbridas. Se priorizaron competencias de MLOps por su criticidad en el despliegue de modelos de IA, manteniendo el Liderazgo Técnico como soporte humano esencial."
 }
 ```
 

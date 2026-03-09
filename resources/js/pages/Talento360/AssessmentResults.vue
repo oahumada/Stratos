@@ -13,6 +13,14 @@ interface Profile {
     trait_name: string;
     score: number;
     rationale: string;
+    evidence?: string;
+}
+
+interface IndividualRoi {
+    replacement_cost: number;
+    flight_risk: number;
+    potential_annual_savings: number;
+    risk_driver: string;
 }
 
 interface Session {
@@ -30,6 +38,7 @@ interface Session {
         blind_spots?: string[];
         ai_reasoning_flow?: string[];
     };
+    individual_roi?: IndividualRoi;
     psychometric_profiles: Profile[];
     completed_at: string;
 }
@@ -310,10 +319,37 @@ const getPotentialColor = (score: number) => {
                             </h3>
                         </div>
                         <div
-                            class="rationale-content pa-4 rounded-xl border-l-4 border-primary bg-slate-900"
+                            class="rationale-content pa-4 mb-4 rounded-xl border-l-4 border-primary bg-slate-900"
                         >
-                            <p class="text-body-2 mb-0 text-slate-200 italic">
-                                "{{ activeTrait.rationale }}"
+                            <div class="text-overline mb-1 text-primary">
+                                Análisis IA
+                            </div>
+                            <p class="text-body-2 mb-0 text-slate-200">
+                                {{ activeTrait.rationale }}
+                            </p>
+                        </div>
+
+                        <div
+                            v-if="activeTrait.evidence"
+                            class="evidence-content pa-4 bg-blue-grey-darken-4 border-blue-lighten-2 rounded-xl border border-dashed"
+                        >
+                            <div class="d-flex align-center mb-2">
+                                <v-icon
+                                    size="small"
+                                    color="blue-lighten-3"
+                                    class="mr-2"
+                                    >mdi-comment-quote</v-icon
+                                >
+                                <div
+                                    class="text-caption text-blue-lighten-3 font-weight-bold"
+                                >
+                                    EVIDENCIA CONDUCTUAL (MÉTODO STAR)
+                                </div>
+                            </div>
+                            <p
+                                class="text-body-2 text-blue-lighten-4 mb-0 italic"
+                            >
+                                "{{ activeTrait.evidence }}"
                             </p>
                         </div>
                     </v-card>
@@ -376,6 +412,63 @@ const getPotentialColor = (score: number) => {
                                 :options="radarChartOptions"
                                 :series="radarChartSeries"
                             ></VueApexCharts>
+                        </div>
+                    </v-card>
+
+                    <v-card
+                        v-if="session.individual_roi"
+                        class="glass-card pa-6 border-primary-glow mb-6"
+                    >
+                        <div class="d-flex align-center mb-6">
+                            <v-icon color="success" class="mr-3"
+                                >mdi-currency-usd</v-icon
+                            >
+                            <h3 class="text-h6 font-weight-bold">
+                                Impacto Financiero del Talento
+                            </h3>
+                        </div>
+
+                        <div
+                            class="d-flex justify-space-between align-center mb-4"
+                        >
+                            <div class="text-slate-400">
+                                Costo de Reemplazo (Estimado)
+                            </div>
+                            <div class="text-h6 font-weight-bold">
+                                ${{
+                                    session.individual_roi.replacement_cost.toLocaleString()
+                                }}
+                            </div>
+                        </div>
+
+                        <div
+                            class="d-flex justify-space-between align-center mb-4"
+                        >
+                            <div class="text-slate-400">Riesgo de Fuga</div>
+                            <div class="text-h6 font-weight-bold text-error">
+                                {{ session.individual_roi.flight_risk }}%
+                            </div>
+                        </div>
+
+                        <v-divider class="my-4 opacity-10"></v-divider>
+
+                        <div
+                            class="bg-success-lighten-5 pa-4 border-success-glow mt-2 rounded-lg text-center"
+                        >
+                            <div class="text-overline text-success mb-1">
+                                Ahorro Anual Potencial (Mitigación)
+                            </div>
+                            <div class="text-h4 font-weight-black text-success">
+                                ${{
+                                    session.individual_roi.potential_annual_savings.toLocaleString()
+                                }}
+                            </div>
+                            <div
+                                class="text-caption text-success-darken-1 mt-1"
+                            >
+                                Driving Force:
+                                {{ session.individual_roi.risk_driver }}
+                            </div>
                         </div>
                     </v-card>
 
@@ -464,6 +557,19 @@ const getPotentialColor = (score: number) => {
 .border-warning-glow {
     border: 1px solid rgba(245, 158, 11, 0.3);
     box-shadow: 0 0 20px rgba(245, 158, 11, 0.05);
+}
+
+.border-primary-glow {
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+}
+
+.border-success-glow {
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.bg-success-lighten-5 {
+    background: rgba(16, 185, 129, 0.1);
 }
 
 /* Stepper Styles */

@@ -18,7 +18,8 @@ class AssessmentController extends Controller
     public function __construct(
         private StratosAssessmentService $service,
         private \App\Services\Assessment\CompetencyAssessmentService $competencyService,
-        private \App\Services\Performance\PerformanceDataService $kpiService
+        private \App\Services\Performance\PerformanceDataService $kpiService,
+        private \App\Services\Intelligence\RoiCalculatorService $roiService
     ) {}
 
     /**
@@ -56,7 +57,14 @@ class AssessmentController extends Controller
             $q->orderBy('created_at', 'asc');
         }, 'person', 'psychometricProfiles'])->findOrFail($id);
 
-        return $this->successResponse($session);
+        $sessionArray = $session->toArray();
+        
+        // Incluir impacto individual si ya está completada
+        if ($session->status === 'completed') {
+            $sessionArray['individual_roi'] = $this->roiService->calculateIndividualRoi($session->people_id);
+        }
+
+        return $this->successResponse($sessionArray);
     }
 
     /**
@@ -198,6 +206,7 @@ class AssessmentController extends Controller
                 'trait_name' => $trait['name'] ?? 'Unknown',
                 'score' => $trait['score'] ?? 0,
                 'rationale' => $trait['rationale'] ?? 'No rationale provided',
+                'evidence' => $trait['evidence'] ?? null,
             ]);
         }
     }

@@ -414,12 +414,13 @@ def interview_chat(request: ChatSessionRequest):
 
     try:
         interviewer = Agent(
-            role='Expert Psychometric Interviewer (DISC & Learning Agility Specialist)',
-            goal='Conduct deep, insightful interviews to understand personality, potential, and values through DISC and Learning Agility lenses.',
-            backstory="""You are a senior organizational psychologist specializing in DISC profiling and the 4 pillars of Learning Agility. 
-            You excel at asking situational follow-up questions that reveal if a person is Dominant (D), Influential (I), Steady (S), or Conscientious (C). 
-            You also probe for Mental, People, Change, and Results Agility.
-            You are empathetic but thorough, avoiding generic questions to reveal underlying potential.""",
+            role='Expert Behavioral Event Interviewer (BEI & STAR Specialist)',
+            goal='Conduct deep, behavioral interviews following the STAR method (Situation, Task, Action, Result) to uncover specific evidence of competencies and potential.',
+            backstory="""You are a world-class behavioral interviewer. You don't settle for generic answers. 
+            You use the STAR method to probe for specific past experiences. 
+            Your goal is to get the subject to describe EXACTLY what they did, how they did it, and what the outcome was.
+            You focus on 'Behavioral Event Interviewing' (BEI) techniques to predict future performance based on past behavior.
+            You are polite but persistent in seeking concrete evidence.""",
             verbose=True,
             allow_delegation=False,
             llm=get_llm(temperature=0.7)
@@ -437,11 +438,19 @@ def interview_chat(request: ChatSessionRequest):
         
         YOUR TASK:
         Analyze the history and provide the NEXT response or question to the user.
-        If it's the beginning (empty history), introduce yourself and start the interview politely.
-        If the interview seems to reach a natural conclusion, wrap it up gracefully.
+        If it's the beginning (empty history), introduce yourself and explain that you'll be conducting a Behavioral Event Interview (BEI) to explore their professional journey.
+        Always look for a 'Critical Incident' (a specific past situation).
+        If the user is vague, use follow-up questions to complete the STAR framework:
+        - S: Situation (What happened?)
+        - T: Task (What was your responsibility?)
+        - A: Action (What EXACTLY did you do?)
+        - R: Result (What was the outcome?)
+        
+        Keep the tone professional and observant.
         
         RESPONSE FORMAT:
         Provide only the text for the next message. No JSON, no preamble.
+        
         """
 
         chat_task = Task(
@@ -478,10 +487,11 @@ def interview_analyze(request: ChatSessionRequest):
 
     try:
         analyst = Agent(
-            role='Talent Assessment & DISC Analyst',
-            goal='Synthesize interview data into a psychometric profile using DISC and Learning Agility frameworks.',
-            backstory="""You are an expert in behavioral analysis, DISC profiling, and Learning Agility. 
-            You transform interview transcripts into objective data points about potential, categorizing traits within the DISC quadrants and Agility pillars.""",
+            role='Inferential Psychometry Expert',
+            goal='Synthesize interview data into an evidence-based psychometric profile using DISC, Learning Agility, and Behavioral Evidence.',
+            backstory="""You are an expert in Inferential Psychometry. You don't just assign scores; you find PROOF. 
+            For every trait you identify, you MUST provide a specific text fragment from the interview that justifies that inference.
+            You use DISC profiling and Learning Agility frameworks to categorize these behavioral observations.""",
             verbose=True,
             allow_delegation=False,
             llm=get_llm(temperature=0.2)
@@ -499,13 +509,20 @@ def interview_analyze(request: ChatSessionRequest):
         
         YOUR TASK:
         Generates a psychometric profile based on the conversation. 
-        Identify at least 3 key traits (scores 0.0 to 1.0) with their rationales.
+        Identify at least 3 key traits (scores 0.0 to 1.0).
+        For each trait, you MUST include:
+        - 'name': The name of the trait.
+        - 'score': 0.0 to 1.0.
+        - 'rationale': Your high-level explanation.
+        - 'evidence': A direct or paraphrased quote from the interview that justifies this score (the 'Inferential' part).
+        
         Calculate an overall potential score.
         Write a concise summary report.
         
         OUTPUT FORMAT:
         Must be a JSON object matching AnalysisResponse model.
         Return ONLY the JSON.
+        
         """
 
         analysis_task = Task(
@@ -566,10 +583,11 @@ def interview_analyze_360(request: ThreeSixtyAnalysisRequest):
 
     try:
         analyst = Agent(
-            role='Expert Talent Assessment & DISC Specialist',
-            goal='Analyze professional potential, DISC profiling, and Learning Agility from multiple sources.',
+            role='Senior Inferential Psychometrist',
+            goal='Analyze professional potential, DISC profiling, and Learning Agility from multiple sources, providing explicit behavioral evidence for every claim.',
             backstory="""You are a world-class organizational psychologist. You excel at finding 
-            patterns between what a person says and what others observe, through the lens of DISC (D, I, S, C) and Learning Agility (Mental, People, Change, Results).""",
+            patterns between what a person says and what others observe. 
+            You are the master of 'Inferential Psychometry': for every trait diagnosed, you cite a specific behavioral event or quote as proof.""",
             llm=DeepSeekLLM(),
             verbose=True,
             allow_delegation=False
@@ -621,9 +639,12 @@ def interview_analyze_360(request: ThreeSixtyAnalysisRequest):
         - PERFORMANCE DATA / KPIs: {performance_str}
         
         AGENT DIRECTIVES:
-        1. [ANALYST]: Detailed DISC + Learning Agility profiling. (traits, blind_spots). USE BARS SCORES from 360° FEEDBACK to objectively calibrate Technical/Behavioral proficiency levels.
-        2. [GUARDIAN]: Deep Cultural Analysis vs Manifest. (cultural_fit, cultural_analysis)
-        3. [PREDICTOR]: Calculate success_probability (0-1) and team_synergy_preview. Consider Gaps vs Potential and quantitative KPI Data.
+        1. [ANALYST]: Detailed DISC + Learning Agility profiling. (traits, blind_spots). 
+           - USE BARS SCORES from 360° FEEDBACK for calibration.
+           - For each 'trait', include an 'evidence' field with a quote or specific event found in the data.
+        2. [GUARDIAN]: Deep Cultural Analysis vs Manifest.
+        3. [PREDICTOR]: Calculate success_probability and team_synergy_preview.
+        
         4. [SYNTHESIS]: Generate objective overall_potential and the final summary_report in {request.language}.
         
         This analysis must be worthy of a Fortune 500 strategic planning board.

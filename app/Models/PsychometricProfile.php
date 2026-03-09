@@ -16,6 +16,7 @@ class PsychometricProfile extends Model
         'trait_name',
         'score',
         'rationale',
+        'evidence',
         'metadata',
     ];
 

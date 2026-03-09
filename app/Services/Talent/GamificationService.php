@@ -158,4 +158,56 @@ class GamificationService
 
         return $personQuest;
     }
+    /**
+     * Spend points to redeem a reward.
+     */
+    public function redeemReward(int $personId, int $rewardId): array
+    {
+        $person = People::findOrFail($personId);
+        $reward = DB::table('rewards')->where('id', $rewardId)->where('is_active', true)->first();
+
+        if (!$reward) {
+            return ['success' => false, 'message' => 'Recompensa no encontrada o inactiva.'];
+        }
+
+        if ($person->current_points < $reward->points_cost) {
+            return [
+                'success' => false, 
+                'message' => "Puntos insuficientes. Necesitas {$reward->points_cost} y tienes {$person->current_points}."
+            ];
+        }
+
+        return DB::transaction(function () use ($person, $reward) {
+            // 1. Deduct points
+            $person->current_points -= $reward->points_cost;
+            $person->save();
+
+            // 2. Log the transaction
+            DB::table('people_points')->insert([
+                'people_id' => $person->id,
+                'points' => -$reward->points_cost,
+                'reason' => "Redemption: {$reward->title}",
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // 3. Create redemption record
+            $redemptionId = DB::table('reward_redemptions')->insertGetId([
+                'people_id' => $person->id,
+                'reward_id' => $reward->id,
+                'points_spent' => $reward->points_cost,
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            Log::info("Person {$person->id} redeemed reward {$reward->id} for {$reward->points_cost} points.");
+
+            return [
+                'success' => true,
+                'message' => '¡Canje exitoso! Tu solicitud está siendo procesada.',
+                'redemption_id' => $redemptionId
+            ];
+        });
+    }
 }
