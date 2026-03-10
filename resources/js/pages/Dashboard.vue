@@ -61,234 +61,212 @@ onMounted(() => {
 <template>
     <Head title="Dashboard" />
 
-        <v-container class="pa-4 dashboard-dark">
-            <!-- Loading State -->
-            <v-card v-if="loading" class="mb-4">
-                <v-card-text class="py-8 text-center text-slate-200">
-                    <v-progress-circular indeterminate color="primary" />
-                    <p class="mt-4">Loading metrics...</p>
-                </v-card-text>
-            </v-card>
+    <v-container class="pa-4 dashboard-dark">
+        <!-- Loading State -->
+        <v-card v-if="loading" class="mb-4">
+            <v-card-text class="py-8 text-center text-slate-200">
+                <v-progress-circular indeterminate color="primary" />
+                <p class="mt-4">Loading metrics...</p>
+            </v-card-text>
+        </v-card>
 
-            <!-- Metrics Grid -->
-            <v-row v-if="metrics && !loading" no-gutters class="gap-4">
-                <!-- Total Peoples -->
-                <v-col cols="12" sm="6" md="4">
-                    <v-card class="h-100" elevation="0" border>
-                        <v-card-text class="pa-4">
-                            <div
-                                class="d-flex justify-space-between align-center"
-                            >
-                                <div>
-                                    <p class="text-caption mb-2 text-slate-400">
-                                        Total Peoples
-                                    </p>
-                                    <p
-                                        class="text-h4 font-weight-bold text-white"
-                                    >
-                                        {{ metrics.total_peoples }}
-                                    </p>
-                                </div>
-                                <v-icon size="48" color="info"
-                                    >mdi-account-multiple</v-icon
-                                >
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-                <!-- Total Roles -->
-                <v-col cols="12" sm="6" md="4">
-                    <v-card class="h-100" elevation="0" border>
-                        <v-card-text class="pa-4">
-                            <div
-                                class="d-flex justify-space-between align-center"
-                            >
-                                <div>
-                                    <p class="text-caption mb-2 text-slate-400">
-                                        Total Roles
-                                    </p>
-                                    <p
-                                        class="text-h4 font-weight-bold text-white"
-                                    >
-                                        {{ metrics.total_roles }}
-                                    </p>
-                                </div>
-                                <v-icon size="48" color="primary"
-                                    >mdi-briefcase</v-icon
-                                >
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-                <!-- Total Skills -->
-                <v-col cols="12" sm="6" md="4">
-                    <v-card class="h-100" elevation="0" border>
-                        <v-card-text class="pa-4">
-                            <div
-                                class="d-flex justify-space-between align-center"
-                            >
-                                <div>
-                                    <p class="text-caption mb-2 text-slate-400">
-                                        Total Skills
-                                    </p>
-                                    <p
-                                        class="text-h4 font-weight-bold text-white"
-                                    >
-                                        {{ metrics.total_skills }}
-                                    </p>
-                                </div>
-                                <v-icon size="48" color="secondary"
-                                    >mdi-lightbulb-multiple</v-icon
-                                >
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-                <!-- Average Match -->
-                <v-col cols="12" sm="6" md="4">
-                    <v-card class="h-100" elevation="0" border>
-                        <v-card-text class="pa-4">
-                            <p class="text-caption mb-2 text-slate-400">
-                                Avg Match %
-                            </p>
-                            <div class="d-flex align-center gap-2">
+        <!-- Metrics Grid -->
+        <v-row v-if="metrics && !loading" no-gutters class="gap-4">
+            <!-- Total Peoples -->
+            <v-col cols="12" sm="6" md="4">
+                <v-card class="h-100" elevation="0" border>
+                    <v-card-text class="pa-4">
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <p class="text-caption mb-2 text-slate-400">
+                                    Total Peoples
+                                </p>
                                 <p class="text-h4 font-weight-bold text-white">
-                                    {{ metrics.avg_match_percentage }}%
+                                    {{ metrics.total_peoples }}
                                 </p>
                             </div>
-                            <v-progress-linear
-                                :value="metrics.avg_match_percentage"
-                                :color="
-                                    getMetricColor(metrics.avg_match_percentage)
-                                "
-                                height="4"
-                                class="mt-2"
-                            />
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-                <!-- Roles at Risk -->
-                <v-col cols="12" sm="6" md="4">
-                    <v-card class="h-100" elevation="0" border>
-                        <v-card-text class="pa-4">
-                            <div
-                                class="d-flex justify-space-between align-center"
+                            <v-icon size="48" color="info"
+                                >mdi-account-multiple</v-icon
                             >
-                                <div>
-                                    <p class="text-caption mb-2 text-slate-400">
-                                        Roles at Risk
-                                    </p>
-                                    <p
-                                        class="text-h4 font-weight-bold text-error"
-                                    >
-                                        {{ metrics.roles_at_risk }}
-                                    </p>
-                                </div>
-                                <v-icon size="48" color="error"
-                                    >mdi-alert-circle</v-icon
-                                >
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
 
-                <!-- High Performers -->
-                <v-col cols="12" sm="6" md="4">
-                    <v-card class="h-100" elevation="0" border>
-                        <v-card-text class="pa-4">
-                            <div
-                                class="d-flex justify-space-between align-center"
-                            >
-                                <div>
-                                    <p class="text-caption mb-2 text-slate-400">
-                                        High Performers
-                                    </p>
-                                    <p
-                                        class="text-h4 font-weight-bold text-success"
-                                    >
-                                        {{ metrics.high_performers }}
-                                    </p>
-                                </div>
-                                <v-icon size="48" color="success"
-                                    >mdi-star</v-icon
-                                >
-                            </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-                <!-- Skills Coverage -->
-                <v-col cols="12" sm="6" md="4">
-                    <v-card class="h-100" elevation="0" border>
-                        <v-card-text class="pa-4">
-                            <p class="text-caption mb-2 text-slate-400">
-                                Skills Coverage
-                            </p>
-                            <div class="d-flex align-center gap-2">
+            <!-- Total Roles -->
+            <v-col cols="12" sm="6" md="4">
+                <v-card class="h-100" elevation="0" border>
+                    <v-card-text class="pa-4">
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <p class="text-caption mb-2 text-slate-400">
+                                    Total Roles
+                                </p>
                                 <p class="text-h4 font-weight-bold text-white">
-                                    {{ metrics.skills_coverage }}%
+                                    {{ metrics.total_roles }}
                                 </p>
                             </div>
-                            <v-progress-linear
-                                :value="metrics.skills_coverage"
-                                :color="getMetricColor(metrics.skills_coverage)"
-                                height="4"
-                                class="mt-2"
-                            />
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-
-                <!-- Critical Gaps -->
-                <v-col cols="12" sm="6" md="4">
-                    <v-card class="h-100" elevation="0" border>
-                        <v-card-text class="pa-4">
-                            <div
-                                class="d-flex justify-space-between align-center"
+                            <v-icon size="48" color="primary"
+                                >mdi-briefcase</v-icon
                             >
-                                <div>
-                                    <p class="text-caption mb-2 text-slate-400">
-                                        Critical Gaps
-                                    </p>
-                                    <p
-                                        class="text-h4 font-weight-bold text-warning"
-                                    >
-                                        {{ metrics.critical_gaps }}
-                                    </p>
-                                </div>
-                                <v-icon size="48" color="warning"
-                                    >mdi-exclamation</v-icon
-                                >
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+
+            <!-- Total Skills -->
+            <v-col cols="12" sm="6" md="4">
+                <v-card class="h-100" elevation="0" border>
+                    <v-card-text class="pa-4">
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <p class="text-caption mb-2 text-slate-400">
+                                    Total Skills
+                                </p>
+                                <p class="text-h4 font-weight-bold text-white">
+                                    {{ metrics.total_skills }}
+                                </p>
                             </div>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
+                            <v-icon size="48" color="secondary"
+                                >mdi-lightbulb-multiple</v-icon
+                            >
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
 
-            <!-- System Monitors Row -->
-            <v-row v-if="metrics && !loading" class="mt-6">
-                <v-col cols="12" md="6">
-                    <CultureSentinelWidget />
-                </v-col>
-                <v-col cols="12" md="6">
-                    <SentinelHealthWidget />
-                </v-col>
-            </v-row>
+            <!-- Average Match -->
+            <v-col cols="12" sm="6" md="4">
+                <v-card class="h-100" elevation="0" border>
+                    <v-card-text class="pa-4">
+                        <p class="text-caption mb-2 text-slate-400">
+                            Avg Match %
+                        </p>
+                        <div class="d-flex align-center gap-2">
+                            <p class="text-h4 font-weight-bold text-white">
+                                {{ metrics.avg_match_percentage }}%
+                            </p>
+                        </div>
+                        <v-progress-linear
+                            :value="metrics.avg_match_percentage"
+                            :color="
+                                getMetricColor(metrics.avg_match_percentage)
+                            "
+                            height="4"
+                            class="mt-2"
+                        />
+                    </v-card-text>
+                </v-card>
+            </v-col>
 
-            <!-- Empty State -->
-            <v-card v-if="!loading && !metrics" class="mb-4">
-                <v-card-text class="py-12 text-center text-slate-200">
-                    <v-icon size="64" class="mb-4 text-slate-400"
-                        >mdi-chart-box-outline</v-icon
-                    >
-                    <p class="text-body1 text-slate-300">No data available</p>
-                </v-card-text>
-            </v-card>
-        </v-container>
+            <!-- Roles at Risk -->
+            <v-col cols="12" sm="6" md="4">
+                <v-card class="h-100" elevation="0" border>
+                    <v-card-text class="pa-4">
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <p class="text-caption mb-2 text-slate-400">
+                                    Roles at Risk
+                                </p>
+                                <p class="text-h4 font-weight-bold text-error">
+                                    {{ metrics.roles_at_risk }}
+                                </p>
+                            </div>
+                            <v-icon size="48" color="error"
+                                >mdi-alert-circle</v-icon
+                            >
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+
+            <!-- High Performers -->
+            <v-col cols="12" sm="6" md="4">
+                <v-card class="h-100" elevation="0" border>
+                    <v-card-text class="pa-4">
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <p class="text-caption mb-2 text-slate-400">
+                                    High Performers
+                                </p>
+                                <p
+                                    class="text-h4 font-weight-bold text-success"
+                                >
+                                    {{ metrics.high_performers }}
+                                </p>
+                            </div>
+                            <v-icon size="48" color="success">mdi-star</v-icon>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+
+            <!-- Skills Coverage -->
+            <v-col cols="12" sm="6" md="4">
+                <v-card class="h-100" elevation="0" border>
+                    <v-card-text class="pa-4">
+                        <p class="text-caption mb-2 text-slate-400">
+                            Skills Coverage
+                        </p>
+                        <div class="d-flex align-center gap-2">
+                            <p class="text-h4 font-weight-bold text-white">
+                                {{ metrics.skills_coverage }}%
+                            </p>
+                        </div>
+                        <v-progress-linear
+                            :value="metrics.skills_coverage"
+                            :color="getMetricColor(metrics.skills_coverage)"
+                            height="4"
+                            class="mt-2"
+                        />
+                    </v-card-text>
+                </v-card>
+            </v-col>
+
+            <!-- Critical Gaps -->
+            <v-col cols="12" sm="6" md="4">
+                <v-card class="h-100" elevation="0" border>
+                    <v-card-text class="pa-4">
+                        <div class="d-flex justify-space-between align-center">
+                            <div>
+                                <p class="text-caption mb-2 text-slate-400">
+                                    Critical Gaps
+                                </p>
+                                <p
+                                    class="text-h4 font-weight-bold text-warning"
+                                >
+                                    {{ metrics.critical_gaps }}
+                                </p>
+                            </div>
+                            <v-icon size="48" color="warning"
+                                >mdi-exclamation</v-icon
+                            >
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+        </v-row>
+
+        <!-- System Monitors Row -->
+        <v-row v-if="metrics && !loading" class="mt-6">
+            <v-col cols="12" md="6">
+                <CultureSentinelWidget />
+            </v-col>
+            <v-col cols="12" md="6">
+                <SentinelHealthWidget />
+            </v-col>
+        </v-row>
+
+        <!-- Empty State -->
+        <v-card v-if="!loading && !metrics" class="mb-4">
+            <v-card-text class="py-12 text-center text-slate-200">
+                <v-icon size="64" class="mb-4 text-slate-400"
+                    >mdi-chart-box-outline</v-icon
+                >
+                <p class="text-body1 text-slate-300">No data available</p>
+            </v-card-text>
+        </v-card>
+    </v-container>
 </template>
 
 <style scoped>

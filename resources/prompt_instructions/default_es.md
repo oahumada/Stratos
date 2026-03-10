@@ -31,23 +31,27 @@ Actúa como un Ingeniero de Talento de élite. Tu objetivo es diseñar un "Bluep
 ## REQUISITOS OBLIGATORIOS POR ENTIDAD:
 
 ### 1. Capabilities (Capacidades)
+
 - `id`: String único (ej: "CAP-01").
 - `name`: Nombre funcional de la capacidad.
 - `description`: Explicación de qué valor aporta a la organización.
 - `competencies`: Array de objetos de competencia (ver abajo).
 
 ### 2. Competencies (Competencias)
+
 - `id`: String único (ej: "CAP-01-C1").
 - `name`: Nombre de la competencia.
 - `description`: Conocimientos y comportamientos necesarios.
 - `skills`: Array de objetos de habilidad (ver abajo).
 
 ### 3. Skills (Habilidades)
+
 - `id`: String único (ej: "S-001").
 - `name`: Nombre de la habilidad técnica o blanda.
 - `description`: Descripción detallada del dominio esperado y aplicación práctica.
 
 ### 4. Suggested_Roles (Roles Sugeridos)
+
 - `name`: Nombre del puesto.
 - `description`: Responsabilidades principales.
 - `key_competencies`: Array de IDs de competencias (ej: ["CAP-01-C1"]).
@@ -60,9 +64,10 @@ Actúa como un Ingeniero de Talento de élite. Tu objetivo es diseñar un "Bluep
 - `suggested_agent_type`: Tipo de agente IA (ej: "Analista de Datos", "Agente de Customer Success").
 
 ## REGLAS DE NEGOCIO Y LÓGICA:
+
 - **Consistencia de IDs:** Los IDs usados en `key_competencies` de los roles deben existir en el árbol de `capabilities`.
 - **Balance de Talento:** `human_percentage` + `synthetic_percentage` debe sumar exactamente 100.
-- **Criterio de Automatización:** 
+- **Criterio de Automatización:**
     - Roles de alta empatía, ética o liderazgo: `human_percentage` > 80%.
     - Roles de procesamiento, análisis de datos o tareas repetitivas: `synthetic_percentage` > 60%.
 - **Estrategia:** Usa "Synthetic" solo si el rol es 100% IA. Usa "Hybrid" para cualquier combinación intermedia.
@@ -71,52 +76,55 @@ Actúa como un Ingeniero de Talento de élite. Tu objetivo es diseñar un "Bluep
 
 ```json
 {
-  "scenario_metadata": {
-    "name": "Estrategia de Ciberseguridad Híbrida",
-    "generated_at": "2026-02-11T14:00:00Z",
-    "confidence_score": 0.98
-  },
-  "capabilities": [
-    {
-      "id": "CAP-SEC-01",
-      "name": "Detección de Amenazas en Tiempo Real",
-      "description": "Capacidad de identificar y mitigar ataques antes de que afecten la operación.",
-      "competencies": [
+    "scenario_metadata": {
+        "name": "Estrategia de Ciberseguridad Híbrida",
+        "generated_at": "2026-02-11T14:00:00Z",
+        "confidence_score": 0.98
+    },
+    "capabilities": [
         {
-          "id": "CAP-SEC-01-C1",
-          "name": "Análisis de Patrones de Tráfico",
-          "description": "Habilidad para distinguir tráfico legítimo de intentos de intrusión.",
-          "skills": [
-            {
-              "id": "S-SEC-001",
-              "name": "Monitoreo de Logs",
-              "description": "Capacidad de auditar registros de sistema para detectar anomalías de seguridad."
-            }
-          ]
+            "id": "CAP-SEC-01",
+            "name": "Detección de Amenazas en Tiempo Real",
+            "description": "Capacidad de identificar y mitigar ataques antes de que afecten la operación.",
+            "competencies": [
+                {
+                    "id": "CAP-SEC-01-C1",
+                    "name": "Análisis de Patrones de Tráfico",
+                    "description": "Habilidad para distinguir tráfico legítimo de intentos de intrusión.",
+                    "skills": [
+                        {
+                            "id": "S-SEC-001",
+                            "name": "Monitoreo de Logs",
+                            "description": "Capacidad de auditar registros de sistema para detectar anomalías de seguridad."
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ],
-  "suggested_roles": [
-    {
-      "name": "Analista de Seguridad Nivel 1 (Sintético)",
-      "description": "Monitoreo constante y triaje de alertas de seguridad.",
-      "estimated_fte": 3.0,
-      "key_competencies": ["CAP-SEC-01-C1"],
-      "talent_composition": {
-        "human_percentage": 10,
-        "synthetic_percentage": 90,
-        "strategy_suggestion": "Hybrid",
-        "logic_justification": "La IA puede procesar millones de eventos por segundo (90%), dejando al humano solo la validación de falsos positivos críticos (10%)."
-      },
-      "suggested_agent_type": "Security Monitoring Agent"
-    }
-  ],
-  "impact_analysis": [],
-  "confidence_score": 0.98,
-  "assumptions": ["Infraestructura de red compatible con agentes de monitoreo"]
+    ],
+    "suggested_roles": [
+        {
+            "name": "Analista de Seguridad Nivel 1 (Sintético)",
+            "description": "Monitoreo constante y triaje de alertas de seguridad.",
+            "estimated_fte": 3.0,
+            "key_competencies": ["CAP-SEC-01-C1"],
+            "talent_composition": {
+                "human_percentage": 10,
+                "synthetic_percentage": 90,
+                "strategy_suggestion": "Hybrid",
+                "logic_justification": "La IA puede procesar millones de eventos por segundo (90%), dejando al humano solo la validación de falsos positivos críticos (10%)."
+            },
+            "suggested_agent_type": "Security Monitoring Agent"
+        }
+    ],
+    "impact_analysis": [],
+    "confidence_score": 0.98,
+    "assumptions": [
+        "Infraestructura de red compatible con agentes de monitoreo"
+    ]
 }
 ```
 
 # FORMATO DE SALIDA:
+
 Devuelve exclusivamente el objeto JSON. No añadas introducciones ni cierres. Asegúrate de que la anidación sea: `capabilities` -> `competencies` -> `skills`.

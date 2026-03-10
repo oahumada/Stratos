@@ -18,7 +18,7 @@ Definiciones:
 - **Capabilities (Capacidades):** medios/funciones organizacionales que permiten cumplir el objetivo del escenario.
 - **Competencies (Competencias):** conocimientos y habilidades necesarias para ejecutar una capability.
 - **Skills (Habilidades):** unidad mínima (habilidades/conocimientos) que compone una competency; puede ser texto o un objeto `{ "name": "..." }`.
-- **Suggested_ Roles (Suggested_Roles):** puestos propuestos con las competencias asignadas; el analista debe homologar estos roles con la estructura interna.
+- **Suggested\_ Roles (Suggested_Roles):** puestos propuestos con las competencias asignadas; el analista debe homologar estos roles con la estructura interna.
   Además, incluya una sección `roles` que sea un arreglo de objetos con `name`, `description` opcional y `competencies` (lista de nombres de competencias o objetos `{ "name": "..." }`).
 
 Formato: JSON. Devuelve únicamente un objeto JSON válido que cumpla el esquema con claves de primer nivel: scenario_metadata, capabilities, competencies, skills, suggested_roles, impact_analysis, confidence_score, assumptions. No incluyas ningún texto, explicación o comentario fuera del objeto JSON.
@@ -77,6 +77,7 @@ Incluye el siguiente esquema JSON simplificado para validar la estructura anidad
 Actúa como un Ingeniero de Talento de élite. Tu objetivo es diseñar un "Blueprint" (plano técnico) de capacidades organizacionales híbridas. Para cada rol sugerido en `suggested_roles`, debes realizar un análisis de descomposición de tareas y definir su composición de talento.
 
 ## REQUISITOS OBLIGATORIOS POR ROL:
+
 1. `name`: Nombre del rol estratégico.
 2. `description`: Descripción breve del rol.
 3. `key_competencies`: Array de nombres de competencias asociadas (strings).
@@ -89,6 +90,7 @@ Actúa como un Ingeniero de Talento de élite. Tu objetivo es diseñar un "Bluep
 6. `suggested_agent_type`: Tipo de IA necesaria si aplica.
 
 ## REGLAS DE NEGOCIO PARA EL MODELO:
+
 - Si el rol es altamente transaccional o de procesamiento de datos, el `synthetic_percentage` debe ser alto (>60%).
 - Si el rol es de alta gestión o cuidado de personas, el `human_percentage` debe ser dominante (>80%).
 - `Estrategia`: Usa "Synthetic" solo si es 100% IA. Usa "Hybrid" para colaboración humano-máquina.
@@ -352,5 +354,7 @@ Actúa como un Ingeniero de Talento de élite. Tu objetivo es diseñar un "Bluep
 }
 
 ```
+
 # FORMATO DE SALIDA:
+
 Devuelve exclusivamente el objeto JSON siguiendo el esquema validado, asegurando que la estructura de `suggested_roles` incluya estos nuevos campos de ingeniería.

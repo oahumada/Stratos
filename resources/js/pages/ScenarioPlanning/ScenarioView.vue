@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import InsightsPanel from './InsightsPanel.vue';
-const { scenario: _scenario, capabilities, connections } = defineProps({
+const {
+    scenario: _scenario,
+    capabilities,
+    connections,
+} = defineProps({
     scenario: Object,
     capabilities: Array,
     connections: Array, // Nueva prop para las conexiones

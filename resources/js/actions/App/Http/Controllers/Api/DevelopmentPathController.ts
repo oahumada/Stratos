@@ -1,225 +1,256 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import {
+    applyUrlDefaults,
+    queryParams,
+    type RouteDefinition,
+    type RouteFormDefinition,
+    type RouteQueryOptions,
+} from './../../../../../wayfinder';
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:30
-* @route '/api/development-paths'
-*/
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::index
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:30
+ * @route '/api/development-paths'
+ */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: index.url(options),
     method: 'get',
-})
+});
 
 index.definition = {
-    methods: ["get","head"],
+    methods: ['get', 'head'],
     url: '/api/development-paths',
-} satisfies RouteDefinition<["get","head"]>
+} satisfies RouteDefinition<['get', 'head']>;
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:30
-* @route '/api/development-paths'
-*/
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::index
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:30
+ * @route '/api/development-paths'
+ */
 index.url = (options?: RouteQueryOptions) => {
-    return index.definition.url + queryParams(options)
-}
+    return index.definition.url + queryParams(options);
+};
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:30
-* @route '/api/development-paths'
-*/
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::index
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:30
+ * @route '/api/development-paths'
+ */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: index.url(options),
     method: 'get',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:30
-* @route '/api/development-paths'
-*/
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::index
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:30
+ * @route '/api/development-paths'
+ */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:30
-* @route '/api/development-paths'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::index
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:30
+ * @route '/api/development-paths'
+ */
+const indexForm = (
+    options?: RouteQueryOptions,
+): RouteFormDefinition<'get'> => ({
     action: index.url(options),
     method: 'get',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:30
-* @route '/api/development-paths'
-*/
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::index
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:30
+ * @route '/api/development-paths'
+ */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: index.url(options),
     method: 'get',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::index
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:30
-* @route '/api/development-paths'
-*/
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::index
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:30
+ * @route '/api/development-paths'
+ */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: index.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
+        },
     }),
     method: 'get',
-})
+});
 
-index.form = indexForm
+index.form = indexForm;
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::generate
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:65
-* @route '/api/development-paths/generate'
-*/
-export const generate = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::generate
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:65
+ * @route '/api/development-paths/generate'
+ */
+export const generate = (
+    options?: RouteQueryOptions,
+): RouteDefinition<'post'> => ({
     url: generate.url(options),
     method: 'post',
-})
+});
 
 generate.definition = {
-    methods: ["post"],
+    methods: ['post'],
     url: '/api/development-paths/generate',
-} satisfies RouteDefinition<["post"]>
+} satisfies RouteDefinition<['post']>;
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::generate
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:65
-* @route '/api/development-paths/generate'
-*/
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::generate
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:65
+ * @route '/api/development-paths/generate'
+ */
 generate.url = (options?: RouteQueryOptions) => {
-    return generate.definition.url + queryParams(options)
-}
+    return generate.definition.url + queryParams(options);
+};
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::generate
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:65
-* @route '/api/development-paths/generate'
-*/
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::generate
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:65
+ * @route '/api/development-paths/generate'
+ */
 generate.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: generate.url(options),
     method: 'post',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::generate
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:65
-* @route '/api/development-paths/generate'
-*/
-const generateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::generate
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:65
+ * @route '/api/development-paths/generate'
+ */
+const generateForm = (
+    options?: RouteQueryOptions,
+): RouteFormDefinition<'post'> => ({
     action: generate.url(options),
     method: 'post',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::generate
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:65
-* @route '/api/development-paths/generate'
-*/
-generateForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::generate
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:65
+ * @route '/api/development-paths/generate'
+ */
+generateForm.post = (
+    options?: RouteQueryOptions,
+): RouteFormDefinition<'post'> => ({
     action: generate.url(options),
     method: 'post',
-})
+});
 
-generate.form = generateForm
+generate.form = generateForm;
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:143
-* @route '/api/development-paths/{id}'
-*/
-export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:143
+ * @route '/api/development-paths/{id}'
+ */
+export const destroy = (
+    args: { id: string | number } | [id: string | number] | string | number,
+    options?: RouteQueryOptions,
+): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
-})
+});
 
 destroy.definition = {
-    methods: ["delete"],
+    methods: ['delete'],
     url: '/api/development-paths/{id}',
-} satisfies RouteDefinition<["delete"]>
+} satisfies RouteDefinition<['delete']>;
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:143
-* @route '/api/development-paths/{id}'
-*/
-destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:143
+ * @route '/api/development-paths/{id}'
+ */
+destroy.url = (
+    args: { id: string | number } | [id: string | number] | string | number,
+    options?: RouteQueryOptions,
+) => {
     if (typeof args === 'string' || typeof args === 'number') {
-        args = { id: args }
+        args = { id: args };
     }
 
     if (Array.isArray(args)) {
         args = {
             id: args[0],
-        }
+        };
     }
 
-    args = applyUrlDefaults(args)
+    args = applyUrlDefaults(args);
 
     const parsedArgs = {
         id: args.id,
-    }
+    };
 
-    return destroy.definition.url
+    return (
+        destroy.definition.url
             .replace('{id}', parsedArgs.id.toString())
             .replace(/\/+$/, '') + queryParams(options)
-}
+    );
+};
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:143
-* @route '/api/development-paths/{id}'
-*/
-destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:143
+ * @route '/api/development-paths/{id}'
+ */
+destroy.delete = (
+    args: { id: string | number } | [id: string | number] | string | number,
+    options?: RouteQueryOptions,
+): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:143
-* @route '/api/development-paths/{id}'
-*/
-const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:143
+ * @route '/api/development-paths/{id}'
+ */
+const destroyForm = (
+    args: { id: string | number } | [id: string | number] | string | number,
+    options?: RouteQueryOptions,
+): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'DELETE',
             ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
+        },
     }),
     method: 'post',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
-* @see app/Http/Controllers/Api/DevelopmentPathController.php:143
-* @route '/api/development-paths/{id}'
-*/
-destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+ * @see \App\Http\Controllers\Api\DevelopmentPathController::destroy
+ * @see app/Http/Controllers/Api/DevelopmentPathController.php:143
+ * @route '/api/development-paths/{id}'
+ */
+destroyForm.delete = (
+    args: { id: string | number } | [id: string | number] | string | number,
+    options?: RouteQueryOptions,
+): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'DELETE',
             ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
+        },
     }),
     method: 'post',
-})
+});
 
-destroy.form = destroyForm
+destroy.form = destroyForm;
 
-const DevelopmentPathController = { index, generate, destroy }
+const DevelopmentPathController = { index, generate, destroy };
 
-export default DevelopmentPathController
+export default DevelopmentPathController;

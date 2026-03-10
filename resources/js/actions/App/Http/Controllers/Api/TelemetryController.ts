@@ -1,60 +1,71 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+import {
+    queryParams,
+    type RouteDefinition,
+    type RouteFormDefinition,
+    type RouteQueryOptions,
+} from './../../../../../wayfinder';
 /**
-* @see \App\Http\Controllers\Api\TelemetryController::store
-* @see app/Http/Controllers/Api/TelemetryController.php:14
-* @route '/api/telemetry/event'
-*/
-export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+ * @see \App\Http\Controllers\Api\TelemetryController::store
+ * @see app/Http/Controllers/Api/TelemetryController.php:14
+ * @route '/api/telemetry/event'
+ */
+export const store = (
+    options?: RouteQueryOptions,
+): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
-})
+});
 
 store.definition = {
-    methods: ["post"],
+    methods: ['post'],
     url: '/api/telemetry/event',
-} satisfies RouteDefinition<["post"]>
+} satisfies RouteDefinition<['post']>;
 
 /**
-* @see \App\Http\Controllers\Api\TelemetryController::store
-* @see app/Http/Controllers/Api/TelemetryController.php:14
-* @route '/api/telemetry/event'
-*/
+ * @see \App\Http\Controllers\Api\TelemetryController::store
+ * @see app/Http/Controllers/Api/TelemetryController.php:14
+ * @route '/api/telemetry/event'
+ */
 store.url = (options?: RouteQueryOptions) => {
-    return store.definition.url + queryParams(options)
-}
+    return store.definition.url + queryParams(options);
+};
 
 /**
-* @see \App\Http\Controllers\Api\TelemetryController::store
-* @see app/Http/Controllers/Api/TelemetryController.php:14
-* @route '/api/telemetry/event'
-*/
+ * @see \App\Http\Controllers\Api\TelemetryController::store
+ * @see app/Http/Controllers/Api/TelemetryController.php:14
+ * @route '/api/telemetry/event'
+ */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\TelemetryController::store
-* @see app/Http/Controllers/Api/TelemetryController.php:14
-* @route '/api/telemetry/event'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+ * @see \App\Http\Controllers\Api\TelemetryController::store
+ * @see app/Http/Controllers/Api/TelemetryController.php:14
+ * @route '/api/telemetry/event'
+ */
+const storeForm = (
+    options?: RouteQueryOptions,
+): RouteFormDefinition<'post'> => ({
     action: store.url(options),
     method: 'post',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\TelemetryController::store
-* @see app/Http/Controllers/Api/TelemetryController.php:14
-* @route '/api/telemetry/event'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+ * @see \App\Http\Controllers\Api\TelemetryController::store
+ * @see app/Http/Controllers/Api/TelemetryController.php:14
+ * @route '/api/telemetry/event'
+ */
+storeForm.post = (
+    options?: RouteQueryOptions,
+): RouteFormDefinition<'post'> => ({
     action: store.url(options),
     method: 'post',
-})
+});
 
-store.form = storeForm
+store.form = storeForm;
 
-const TelemetryController = { store }
+const TelemetryController = { store };
 
-export default TelemetryController
+export default TelemetryController;

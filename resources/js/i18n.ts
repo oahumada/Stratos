@@ -621,7 +621,8 @@ export const messages = {
                 modules: {
                     mi_stratos: {
                         title: 'My Stratos',
-                        description: 'Personal dashboard, KPIs, and gamification.',
+                        description:
+                            'Personal dashboard, KPIs, and gamification.',
                     },
                     comando_px: {
                         title: 'PX Command',
@@ -709,15 +710,18 @@ export const messages = {
                     },
                     executive_dashboard: {
                         title: 'Executive Dashboard',
-                        description: 'CEO-focused strategic oversight and KPI direction.',
+                        description:
+                            'CEO-focused strategic oversight and KPI direction.',
                     },
                     gap_analysis_engine: {
                         title: 'Gap Analysis Engine',
-                        description: 'Contrast between inventory and target state.',
+                        description:
+                            'Contrast between inventory and target state.',
                     },
                     investor_dashboard: {
                         title: 'Investor Dashboard',
-                        description: 'Financial-oriented ROI and value visibility.',
+                        description:
+                            'Financial-oriented ROI and value visibility.',
                     },
                 },
             },
@@ -1339,7 +1343,8 @@ export const messages = {
                     },
                     stratos_map: {
                         title: 'Stratos Map',
-                        description: 'Radiografía de habilidades en tiempo real.',
+                        description:
+                            'Radiografía de habilidades en tiempo real.',
                     },
                 },
             },
@@ -1371,7 +1376,8 @@ export const messages = {
                     },
                     stratos_360: {
                         title: 'Stratos 360',
-                        description: 'Evaluación holística y retroalimentación.',
+                        description:
+                            'Evaluación holística y retroalimentación.',
                     },
                     commander_360: {
                         title: 'Commander 360',

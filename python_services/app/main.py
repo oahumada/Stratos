@@ -488,10 +488,10 @@ def interview_analyze(request: ChatSessionRequest):
     try:
         analyst = Agent(
             role='Inferential Psychometry Expert',
-            goal='Synthesize interview data into an evidence-based psychometric profile using DISC, Learning Agility, and Behavioral Evidence.',
+            goal='Synthesize interview data into an evidence-based psychometric profile using DISC, Big 5 (OCEAN), Learning Agility, and Behavioral Evidence.',
             backstory="""You are an expert in Inferential Psychometry. You don't just assign scores; you find PROOF. 
             For every trait you identify, you MUST provide a specific text fragment from the interview that justifies that inference.
-            You use DISC profiling and Learning Agility frameworks to categorize these behavioral observations.""",
+            You use DISC profiling, the Big 5 personality traits (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism), and Learning Agility frameworks to categorize these behavioral observations.""",
             verbose=True,
             allow_delegation=False,
             llm=get_llm(temperature=0.2)
@@ -584,10 +584,10 @@ def interview_analyze_360(request: ThreeSixtyAnalysisRequest):
     try:
         analyst = Agent(
             role='Senior Inferential Psychometrist',
-            goal='Analyze professional potential, DISC profiling, and Learning Agility from multiple sources, providing explicit behavioral evidence for every claim.',
+            goal='Analyze professional potential, DISC & Big 5 (OCEAN) profiling, and Learning Agility from multiple sources, providing explicit behavioral evidence for every claim.',
             backstory="""You are a world-class organizational psychologist. You excel at finding 
             patterns between what a person says and what others observe. 
-            You are the master of 'Inferential Psychometry': for every trait diagnosed, you cite a specific behavioral event or quote as proof.""",
+            You are the master of 'Inferential Psychometry': for every trait diagnosed, you cite a specific behavioral event or quote as proof. You incorporate the Big 5 framework as well as DISC.""",
             llm=DeepSeekLLM(),
             verbose=True,
             allow_delegation=False
@@ -639,9 +639,10 @@ def interview_analyze_360(request: ThreeSixtyAnalysisRequest):
         - PERFORMANCE DATA / KPIs: {performance_str}
         
         AGENT DIRECTIVES:
-        1. [ANALYST]: Detailed DISC + Learning Agility profiling. (traits, blind_spots). 
+        1. [ANALYST]: Detailed DISC + Big 5 (OCEAN) + Learning Agility profiling. (traits, blind_spots). 
            - USE BARS SCORES from 360° FEEDBACK for calibration.
            - For each 'trait', include an 'evidence' field with a quote or specific event found in the data.
+           - Ensure traits cover aspects like Openness to Experience, Conscientiousness, Extraversion, Agreeableness, and Neuroticism (Emotional Stability).
         2. [GUARDIAN]: Deep Cultural Analysis vs Manifest.
         3. [PREDICTOR]: Calculate success_probability and team_synergy_preview.
         
@@ -694,7 +695,7 @@ def match_talent(request: MatchingRequest):
             goal='Execute high-fidelity resonance analysis between candidate profiles and role blueprints.',
             backstory="""You are an expert in organizational fit and talent engineering. 
             You don't just look for matches; you look for SYNERGY. You analyze the candidate's psychometric 
-            traits (DISC/Agility) against the Blueprint requirements (Capabilities/Skills/Composition).
+            traits (DISC/Big 5/Agility) against the Blueprint requirements (Capabilities/Skills/Composition).
             Your conclusions determine if a hire is a high-ROI strategic investment.""",
             llm=DeepSeekLLM(temperature=0.2),
             verbose=True,

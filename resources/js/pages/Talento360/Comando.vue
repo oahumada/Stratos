@@ -253,1444 +253,1389 @@ onMounted(() => {
 </script>
 
 <template>
-        <div class="pa-0 pa-md-6 min-vh-100">
-            <!-- Header Section -->
-            <div
-                class="mb-10 flex flex-col items-start justify-between gap-6 px-4 md:flex-row md:items-center md:px-0"
-            >
-                <div>
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-400"
-                        >
-                            <PhPulse :size="24" weight="bold" />
-                        </div>
-                        <h1
-                            class="text-4xl font-black tracking-tighter text-white"
-                        >
-                            {{ t('assessment_command.title') }}
-                            <span
-                                class="bg-linear-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent"
-                                >Cerbero</span
-                            >
-                        </h1>
-                    </div>
-                    <p class="mt-2 text-lg font-medium text-white/40">
-                        {{ t('assessment_command.subtitle') }}
-                    </p>
-                </div>
-
-                <StButtonGlass
-                    v-if="can('assessments.manage')"
-                    :icon="PhRocketLaunch"
-                    variant="primary"
-                    size="lg"
-                    class="shadow-xl shadow-indigo-500/20"
-                    @click="wizardDialog = true"
-                >
-                    {{ t('assessment_command.config_cycle') }}
-                </StButtonGlass>
-            </div>
-
-            <!-- Stats Dashboard Row -->
-            <div
-                class="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
-            >
-                <!-- Active Cycles -->
-                <div
-                    class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-indigo-500/30 hover:bg-white/10"
-                >
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 transition-transform duration-500 group-hover:scale-110"
-                        >
-                            <PhClockClockwise :size="30" weight="duotone" />
-                        </div>
-                        <div>
-                            <div
-                                class="text-3xl font-black tracking-tight text-white"
-                            >
-                                {{ stats.active }}
-                            </div>
-                            <div
-                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
-                            >
-                                {{
-                                    t('assessment_command.stats.active_cycles')
-                                }}
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Decorative background element -->
+    <div class="pa-0 pa-md-6 min-vh-100">
+        <!-- Header Section -->
+        <div
+            class="mb-10 flex flex-col items-start justify-between gap-6 px-4 md:flex-row md:items-center md:px-0"
+        >
+            <div>
+                <div class="flex items-center gap-3">
                     <div
-                        class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-indigo-500/5 blur-2xl transition-all duration-500 group-hover:bg-indigo-500/10"
-                    />
-                </div>
-
-                <!-- Collaborators -->
-                <div
-                    class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-emerald-500/30 hover:bg-white/10"
-                >
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 transition-transform duration-500 group-hover:scale-110"
-                        >
-                            <PhUsers :size="30" weight="duotone" />
-                        </div>
-                        <div>
-                            <div
-                                class="text-3xl font-black tracking-tight text-white"
-                            >
-                                {{ stats.total_participants }}
-                            </div>
-                            <div
-                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
-                            >
-                                {{
-                                    t('assessment_command.stats.collaborators')
-                                }}
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Decorative background element -->
-                    <div
-                        class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-emerald-500/5 blur-2xl transition-all duration-500 group-hover:bg-emerald-500/10"
-                    />
-                </div>
-
-                <!-- Avg. Completion -->
-                <div
-                    class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-cyan-500/30 hover:bg-white/10"
-                >
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 transition-transform duration-500 group-hover:scale-110"
-                        >
-                            <PhChartDonut :size="30" weight="duotone" />
-                        </div>
-                        <div class="min-w-0 grow">
-                            <div class="mb-1 flex items-end justify-between">
-                                <div
-                                    class="text-3xl font-black tracking-tight text-white"
-                                >
-                                    {{ stats.avg_completion }}%
-                                </div>
-                            </div>
-                            <div
-                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
-                            >
-                                {{
-                                    t('assessment_command.stats.avg_completion')
-                                }}
-                            </div>
-                            <div
-                                class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/5"
-                            >
-                                <div
-                                    class="h-full rounded-full bg-linear-to-r from-cyan-500 to-indigo-500 transition-all duration-1000"
-                                    :style="{
-                                        width: `${stats.avg_completion}%`,
-                                    }"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Decorative background element -->
-                    <div
-                        class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-cyan-500/5 blur-2xl transition-all duration-500 group-hover:bg-cyan-500/10"
-                    />
-                </div>
-
-                <!-- Pending -->
-                <div
-                    class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-amber-500/30 hover:bg-white/10"
-                >
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-500/20 bg-amber-500/10 text-amber-400 transition-transform duration-500 group-hover:scale-110"
-                        >
-                            <PhHeartbeat :size="30" weight="duotone" />
-                        </div>
-                        <div>
-                            <div
-                                class="text-3xl font-black tracking-tight text-white"
-                            >
-                                {{ stats.pending_evals }}
-                            </div>
-                            <div
-                                class="text-[10px] font-black tracking-widest text-white/30 uppercase"
-                            >
-                                {{
-                                    t('assessment_command.stats.pending_evals')
-                                }}
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Decorative background element -->
-                    <div
-                        class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-amber-500/5 blur-2xl transition-all duration-500 group-hover:bg-amber-500/10"
-                    />
-                </div>
-            </div>
-
-            <!-- Main Listing Row -->
-            <div
-                class="overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-900/40 shadow-2xl backdrop-blur-3xl"
-            >
-                <!-- Toolbar -->
-                <div
-                    class="flex flex-col items-center justify-between gap-4 border-b border-white/5 px-8 py-6 md:flex-row"
-                >
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400"
-                        >
-                            <PhClockClockwise :size="22" weight="bold" />
-                        </div>
-                        <h2 class="text-xl font-bold tracking-tight text-white">
-                            {{ t('assessment_command.history_title') }}
-                        </h2>
-                    </div>
-
-                    <div class="flex w-full items-center gap-4 md:w-auto">
-                        <div class="relative flex-1 md:w-64">
-                            <PhMagnifyingGlass
-                                :size="18"
-                                class="absolute top-1/2 left-4 -translate-y-1/2 text-white/20"
-                            />
-                            <input
-                                v-model="search"
-                                type="text"
-                                :placeholder="
-                                    t('assessment_command.search_placeholder')
-                                "
-                                class="w-full rounded-2xl border border-white/10 bg-white/5 py-2.5 pr-4 pl-11 text-sm text-white transition-all focus:border-indigo-500/50 focus:outline-none"
-                            />
-                        </div>
-                        <StButtonGlass
-                            variant="ghost"
-                            :icon="PhDotsThreeVertical"
-                            circle
-                            size="sm"
-                        />
-                    </div>
-                </div>
-
-                <!-- Custom Table / List -->
-                <div class="custom-scrollbar overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr
-                                class="border-b border-white/5 bg-white/5 text-[10px] font-black tracking-widest text-white/30 uppercase"
-                            >
-                                <th class="px-8 py-4">
-                                    {{ t('assessment_command.headers.id') }}
-                                </th>
-                                <th class="px-8 py-4">
-                                    {{ t('assessment_command.headers.mode') }}
-                                </th>
-                                <th class="px-8 py-4">
-                                    {{
-                                        t('assessment_command.headers.progress')
-                                    }}
-                                </th>
-                                <th class="px-8 py-4">
-                                    {{ t('assessment_command.headers.status') }}
-                                </th>
-                                <th class="px-8 py-4">
-                                    {{ t('assessment_command.headers.launch') }}
-                                </th>
-                                <th class="px-8 py-4 text-right"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-white/5">
-                            <tr
-                                v-for="item in cycles"
-                                :key="item.id"
-                                class="group transition-colors hover:bg-white/5"
-                            >
-                                <td class="px-8 py-5">
-                                    <div class="flex flex-col">
-                                        <span
-                                            class="text-sm font-bold text-white transition-colors group-hover:text-indigo-400"
-                                        >
-                                            {{ item.name }}
-                                        </span>
-                                        <span
-                                            class="max-w-[200px] truncate text-[10px] text-white/30"
-                                        >
-                                            {{
-                                                item.description ||
-                                                'Sin descripción'
-                                            }}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-5">
-                                    <div class="flex items-center gap-2">
-                                        <div
-                                            class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/5 text-white/40"
-                                        >
-                                            <component
-                                                :is="
-                                                    modeOptions.find(
-                                                        (o) =>
-                                                            o.value ===
-                                                            item.mode,
-                                                    )?.icon || PhCalendar
-                                                "
-                                                :size="14"
-                                            />
-                                        </div>
-                                        <span
-                                            class="text-xs font-semibold text-white/60"
-                                        >
-                                            {{
-                                                modeOptions.find(
-                                                    (o) =>
-                                                        o.value === item.mode,
-                                                )?.title || item.mode
-                                            }}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-5">
-                                    <div
-                                        class="flex min-w-[150px] items-center gap-3"
-                                    >
-                                        <div
-                                            class="h-1.5 flex-1 overflow-hidden rounded-full bg-white/5"
-                                        >
-                                            <div
-                                                class="h-full rounded-full bg-emerald-500 transition-all duration-1000"
-                                                :style="{
-                                                    width: `${item.completion_rate || 0}%`,
-                                                }"
-                                            />
-                                        </div>
-                                        <span
-                                            class="text-xs font-black text-white/40"
-                                        >
-                                            {{ item.completion_rate || 0 }}%
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-5">
-                                    <StBadgeGlass
-                                        :variant="getStatusColor(item.status)"
-                                        size="sm"
-                                    >
-                                        {{ item.status }}
-                                    </StBadgeGlass>
-                                </td>
-                                <td class="px-8 py-5">
-                                    <div
-                                        class="flex items-center gap-2 text-xs font-medium text-white/40"
-                                    >
-                                        <PhCalendar :size="14" />
-                                        {{ formatDate(item.starts_at) }}
-                                    </div>
-                                </td>
-                                <td class="px-8 py-5 text-right">
-                                    <div
-                                        class="flex justify-end gap-1 opacity-100 transition-opacity group-hover:opacity-100 md:opacity-0"
-                                    >
-                                        <StButtonGlass
-                                            v-if="
-                                                item.status === 'draft' ||
-                                                item.status === 'scheduled'
-                                            "
-                                            variant="ghost"
-                                            :icon="PhRocketLaunch"
-                                            circle
-                                            size="sm"
-                                            class="hover:text-emerald-400"
-                                            @click="activateCycle(item.id)"
-                                        />
-                                        <StButtonGlass
-                                            v-if="item.status === 'active'"
-                                            variant="ghost"
-                                            :icon="PhChartBar"
-                                            circle
-                                            size="sm"
-                                            class="hover:text-indigo-400"
-                                            @click="
-                                                router.visit(
-                                                    '/talento360/dashboard',
-                                                )
-                                            "
-                                        />
-                                        <StButtonGlass
-                                            variant="ghost"
-                                            :icon="PhDotsThreeVertical"
-                                            circle
-                                            size="sm"
-                                        />
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div v-if="loading" class="flex justify-center py-20">
-                        <div
-                            class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-500/20 border-t-indigo-500"
-                        />
-                    </div>
-
-                    <div
-                        v-else-if="cycles.length === 0"
-                        class="flex flex-col items-center justify-center py-20 text-center"
+                        class="flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-500/10 text-indigo-400"
                     >
-                        <div class="mb-4 text-white/10">
-                            <PhRocketLaunch :size="64" weight="thin" />
-                        </div>
-                        <p class="text-lg font-bold text-white/20">
-                            {{ t('assessment_command.no_data') }}
-                        </p>
-                        <StButtonGlass
-                            variant="primary"
-                            :icon="PhPlus"
-                            class="mt-6"
-                            @click="wizardDialog = true"
+                        <PhPulse :size="24" weight="bold" />
+                    </div>
+                    <h1 class="text-4xl font-black tracking-tighter text-white">
+                        {{ t('assessment_command.title') }}
+                        <span
+                            class="bg-linear-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent"
+                            >Cerbero</span
                         >
-                            {{ t('assessment_command.launch_first') }}
-                        </StButtonGlass>
+                    </h1>
+                </div>
+                <p class="mt-2 text-lg font-medium text-white/40">
+                    {{ t('assessment_command.subtitle') }}
+                </p>
+            </div>
+
+            <StButtonGlass
+                v-if="can('assessments.manage')"
+                :icon="PhRocketLaunch"
+                variant="primary"
+                size="lg"
+                class="shadow-xl shadow-indigo-500/20"
+                @click="wizardDialog = true"
+            >
+                {{ t('assessment_command.config_cycle') }}
+            </StButtonGlass>
+        </div>
+
+        <!-- Stats Dashboard Row -->
+        <div class="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Active Cycles -->
+            <div
+                class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-indigo-500/30 hover:bg-white/10"
+            >
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 transition-transform duration-500 group-hover:scale-110"
+                    >
+                        <PhClockClockwise :size="30" weight="duotone" />
+                    </div>
+                    <div>
+                        <div
+                            class="text-3xl font-black tracking-tight text-white"
+                        >
+                            {{ stats.active }}
+                        </div>
+                        <div
+                            class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                        >
+                            {{ t('assessment_command.stats.active_cycles') }}
+                        </div>
                     </div>
                 </div>
+                <!-- Decorative background element -->
+                <div
+                    class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-indigo-500/5 blur-2xl transition-all duration-500 group-hover:bg-indigo-500/10"
+                />
+            </div>
+
+            <!-- Collaborators -->
+            <div
+                class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-emerald-500/30 hover:bg-white/10"
+            >
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 transition-transform duration-500 group-hover:scale-110"
+                    >
+                        <PhUsers :size="30" weight="duotone" />
+                    </div>
+                    <div>
+                        <div
+                            class="text-3xl font-black tracking-tight text-white"
+                        >
+                            {{ stats.total_participants }}
+                        </div>
+                        <div
+                            class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                        >
+                            {{ t('assessment_command.stats.collaborators') }}
+                        </div>
+                    </div>
+                </div>
+                <!-- Decorative background element -->
+                <div
+                    class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-emerald-500/5 blur-2xl transition-all duration-500 group-hover:bg-emerald-500/10"
+                />
+            </div>
+
+            <!-- Avg. Completion -->
+            <div
+                class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-cyan-500/30 hover:bg-white/10"
+            >
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 transition-transform duration-500 group-hover:scale-110"
+                    >
+                        <PhChartDonut :size="30" weight="duotone" />
+                    </div>
+                    <div class="min-w-0 grow">
+                        <div class="mb-1 flex items-end justify-between">
+                            <div
+                                class="text-3xl font-black tracking-tight text-white"
+                            >
+                                {{ stats.avg_completion }}%
+                            </div>
+                        </div>
+                        <div
+                            class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                        >
+                            {{ t('assessment_command.stats.avg_completion') }}
+                        </div>
+                        <div
+                            class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/5"
+                        >
+                            <div
+                                class="h-full rounded-full bg-linear-to-r from-cyan-500 to-indigo-500 transition-all duration-1000"
+                                :style="{
+                                    width: `${stats.avg_completion}%`,
+                                }"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <!-- Decorative background element -->
+                <div
+                    class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-cyan-500/5 blur-2xl transition-all duration-500 group-hover:bg-cyan-500/10"
+                />
+            </div>
+
+            <!-- Pending -->
+            <div
+                class="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-amber-500/30 hover:bg-white/10"
+            >
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-500/20 bg-amber-500/10 text-amber-400 transition-transform duration-500 group-hover:scale-110"
+                    >
+                        <PhHeartbeat :size="30" weight="duotone" />
+                    </div>
+                    <div>
+                        <div
+                            class="text-3xl font-black tracking-tight text-white"
+                        >
+                            {{ stats.pending_evals }}
+                        </div>
+                        <div
+                            class="text-[10px] font-black tracking-widest text-white/30 uppercase"
+                        >
+                            {{ t('assessment_command.stats.pending_evals') }}
+                        </div>
+                    </div>
+                </div>
+                <!-- Decorative background element -->
+                <div
+                    class="absolute -right-4 -bottom-4 h-20 w-20 rounded-full bg-amber-500/5 blur-2xl transition-all duration-500 group-hover:bg-amber-500/10"
+                />
             </div>
         </div>
 
-        <!-- Premium Wizard -->
-        <v-dialog
-            v-model="wizardDialog"
-            max-width="1000"
-            persistent
-            transition="dialog-bottom-transition"
+        <!-- Main Listing Row -->
+        <div
+            class="overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-900/40 shadow-2xl backdrop-blur-3xl"
         >
-            <v-card
-                class="glass-card border-auth overflow-hidden rounded-[32px]! shadow-2xl"
-                height="700"
+            <!-- Toolbar -->
+            <div
+                class="flex flex-col items-center justify-between gap-4 border-b border-white/5 px-8 py-6 md:flex-row"
             >
-                <div class="flex h-full flex-col overflow-hidden md:flex-row">
-                    <!-- Sidebar Navigation -->
+                <div class="flex items-center gap-3">
                     <div
-                        class="flex w-full flex-col border-b border-white/5 bg-black/20 p-8 md:w-80 md:border-r md:border-b-0"
+                        class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400"
                     >
-                        <div class="mb-10">
-                            <div
-                                class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-400"
-                            >
-                                <PhRocketLaunch :size="32" weight="duotone" />
-                            </div>
-                            <h3
-                                class="mb-1 text-2xl font-black tracking-tight text-white"
-                            >
-                                {{ t('assessment_command.wizard.title') }}
-                            </h3>
-                            <p
-                                class="text-xs font-medium tracking-widest text-white/30 uppercase"
-                            >
-                                {{ t('assessment_command.wizard.subtitle') }}
-                            </p>
-                        </div>
+                        <PhClockClockwise :size="22" weight="bold" />
+                    </div>
+                    <h2 class="text-xl font-bold tracking-tight text-white">
+                        {{ t('assessment_command.history_title') }}
+                    </h2>
+                </div>
 
-                        <nav class="grow space-y-2">
-                            <button
-                                v-for="n in 4"
-                                :key="n"
-                                @click="step = n"
-                                :disabled="step < n"
-                                class="group flex w-full items-center gap-4 rounded-2xl p-4 transition-all duration-300"
+                <div class="flex w-full items-center gap-4 md:w-auto">
+                    <div class="relative flex-1 md:w-64">
+                        <PhMagnifyingGlass
+                            :size="18"
+                            class="absolute top-1/2 left-4 -translate-y-1/2 text-white/20"
+                        />
+                        <input
+                            v-model="search"
+                            type="text"
+                            :placeholder="
+                                t('assessment_command.search_placeholder')
+                            "
+                            class="w-full rounded-2xl border border-white/10 bg-white/5 py-2.5 pr-4 pl-11 text-sm text-white transition-all focus:border-indigo-500/50 focus:outline-none"
+                        />
+                    </div>
+                    <StButtonGlass
+                        variant="ghost"
+                        :icon="PhDotsThreeVertical"
+                        circle
+                        size="sm"
+                    />
+                </div>
+            </div>
+
+            <!-- Custom Table / List -->
+            <div class="custom-scrollbar overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="border-b border-white/5 bg-white/5 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                        >
+                            <th class="px-8 py-4">
+                                {{ t('assessment_command.headers.id') }}
+                            </th>
+                            <th class="px-8 py-4">
+                                {{ t('assessment_command.headers.mode') }}
+                            </th>
+                            <th class="px-8 py-4">
+                                {{ t('assessment_command.headers.progress') }}
+                            </th>
+                            <th class="px-8 py-4">
+                                {{ t('assessment_command.headers.status') }}
+                            </th>
+                            <th class="px-8 py-4">
+                                {{ t('assessment_command.headers.launch') }}
+                            </th>
+                            <th class="px-8 py-4 text-right"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <tr
+                            v-for="item in cycles"
+                            :key="item.id"
+                            class="group transition-colors hover:bg-white/5"
+                        >
+                            <td class="px-8 py-5">
+                                <div class="flex flex-col">
+                                    <span
+                                        class="text-sm font-bold text-white transition-colors group-hover:text-indigo-400"
+                                    >
+                                        {{ item.name }}
+                                    </span>
+                                    <span
+                                        class="max-w-[200px] truncate text-[10px] text-white/30"
+                                    >
+                                        {{
+                                            item.description ||
+                                            'Sin descripción'
+                                        }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-5">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/5 text-white/40"
+                                    >
+                                        <component
+                                            :is="
+                                                modeOptions.find(
+                                                    (o) =>
+                                                        o.value === item.mode,
+                                                )?.icon || PhCalendar
+                                            "
+                                            :size="14"
+                                        />
+                                    </div>
+                                    <span
+                                        class="text-xs font-semibold text-white/60"
+                                    >
+                                        {{
+                                            modeOptions.find(
+                                                (o) => o.value === item.mode,
+                                            )?.title || item.mode
+                                        }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-5">
+                                <div
+                                    class="flex min-w-[150px] items-center gap-3"
+                                >
+                                    <div
+                                        class="h-1.5 flex-1 overflow-hidden rounded-full bg-white/5"
+                                    >
+                                        <div
+                                            class="h-full rounded-full bg-emerald-500 transition-all duration-1000"
+                                            :style="{
+                                                width: `${item.completion_rate || 0}%`,
+                                            }"
+                                        />
+                                    </div>
+                                    <span
+                                        class="text-xs font-black text-white/40"
+                                    >
+                                        {{ item.completion_rate || 0 }}%
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-5">
+                                <StBadgeGlass
+                                    :variant="getStatusColor(item.status)"
+                                    size="sm"
+                                >
+                                    {{ item.status }}
+                                </StBadgeGlass>
+                            </td>
+                            <td class="px-8 py-5">
+                                <div
+                                    class="flex items-center gap-2 text-xs font-medium text-white/40"
+                                >
+                                    <PhCalendar :size="14" />
+                                    {{ formatDate(item.starts_at) }}
+                                </div>
+                            </td>
+                            <td class="px-8 py-5 text-right">
+                                <div
+                                    class="flex justify-end gap-1 opacity-100 transition-opacity group-hover:opacity-100 md:opacity-0"
+                                >
+                                    <StButtonGlass
+                                        v-if="
+                                            item.status === 'draft' ||
+                                            item.status === 'scheduled'
+                                        "
+                                        variant="ghost"
+                                        :icon="PhRocketLaunch"
+                                        circle
+                                        size="sm"
+                                        class="hover:text-emerald-400"
+                                        @click="activateCycle(item.id)"
+                                    />
+                                    <StButtonGlass
+                                        v-if="item.status === 'active'"
+                                        variant="ghost"
+                                        :icon="PhChartBar"
+                                        circle
+                                        size="sm"
+                                        class="hover:text-indigo-400"
+                                        @click="
+                                            router.visit(
+                                                '/talento360/dashboard',
+                                            )
+                                        "
+                                    />
+                                    <StButtonGlass
+                                        variant="ghost"
+                                        :icon="PhDotsThreeVertical"
+                                        circle
+                                        size="sm"
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div v-if="loading" class="flex justify-center py-20">
+                    <div
+                        class="h-10 w-10 animate-spin rounded-full border-2 border-indigo-500/20 border-t-indigo-500"
+                    />
+                </div>
+
+                <div
+                    v-else-if="cycles.length === 0"
+                    class="flex flex-col items-center justify-center py-20 text-center"
+                >
+                    <div class="mb-4 text-white/10">
+                        <PhRocketLaunch :size="64" weight="thin" />
+                    </div>
+                    <p class="text-lg font-bold text-white/20">
+                        {{ t('assessment_command.no_data') }}
+                    </p>
+                    <StButtonGlass
+                        variant="primary"
+                        :icon="PhPlus"
+                        class="mt-6"
+                        @click="wizardDialog = true"
+                    >
+                        {{ t('assessment_command.launch_first') }}
+                    </StButtonGlass>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Wizard -->
+    <v-dialog
+        v-model="wizardDialog"
+        max-width="1000"
+        persistent
+        transition="dialog-bottom-transition"
+    >
+        <v-card
+            class="glass-card border-auth overflow-hidden rounded-[32px]! shadow-2xl"
+            height="700"
+        >
+            <div class="flex h-full flex-col overflow-hidden md:flex-row">
+                <!-- Sidebar Navigation -->
+                <div
+                    class="flex w-full flex-col border-b border-white/5 bg-black/20 p-8 md:w-80 md:border-r md:border-b-0"
+                >
+                    <div class="mb-10">
+                        <div
+                            class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-400"
+                        >
+                            <PhRocketLaunch :size="32" weight="duotone" />
+                        </div>
+                        <h3
+                            class="mb-1 text-2xl font-black tracking-tight text-white"
+                        >
+                            {{ t('assessment_command.wizard.title') }}
+                        </h3>
+                        <p
+                            class="text-xs font-medium tracking-widest text-white/30 uppercase"
+                        >
+                            {{ t('assessment_command.wizard.subtitle') }}
+                        </p>
+                    </div>
+
+                    <nav class="grow space-y-2">
+                        <button
+                            v-for="n in 4"
+                            :key="n"
+                            @click="step = n"
+                            :disabled="step < n"
+                            class="group flex w-full items-center gap-4 rounded-2xl p-4 transition-all duration-300"
+                            :class="[
+                                step === n
+                                    ? 'bg-indigo-500/10 text-indigo-400 shadow-lg'
+                                    : step < n
+                                      ? 'cursor-not-allowed opacity-30 grayscale'
+                                      : 'text-white/40 hover:bg-white/5',
+                            ]"
+                        >
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-xl border text-lg font-black transition-colors"
                                 :class="[
                                     step === n
-                                        ? 'bg-indigo-500/10 text-indigo-400 shadow-lg'
-                                        : step < n
-                                          ? 'cursor-not-allowed opacity-30 grayscale'
-                                          : 'text-white/40 hover:bg-white/5',
+                                        ? 'border-indigo-500/50 bg-indigo-500 text-white'
+                                        : 'border-white/10 bg-white/5 group-hover:border-white/20',
                                 ]"
                             >
-                                <div
-                                    class="flex h-10 w-10 items-center justify-center rounded-xl border text-lg font-black transition-colors"
-                                    :class="[
-                                        step === n
-                                            ? 'border-indigo-500/50 bg-indigo-500 text-white'
-                                            : 'border-white/10 bg-white/5 group-hover:border-white/20',
-                                    ]"
-                                >
-                                    {{ n }}
+                                {{ n }}
+                            </div>
+                            <div class="text-left">
+                                <div class="text-sm font-bold tracking-tight">
+                                    {{
+                                        t(
+                                            `assessment_command.wizard.step${n}.label`,
+                                        )
+                                    }}
                                 </div>
-                                <div class="text-left">
+                                <div
+                                    class="text-[10px] font-medium tracking-widest uppercase opacity-50"
+                                >
+                                    Fase {{ n }}
+                                </div>
+                            </div>
+                        </button>
+                    </nav>
+
+                    <div class="mt-auto pt-8">
+                        <StButtonGlass
+                            variant="ghost"
+                            block
+                            :icon="PhCaretLeft"
+                            @click="wizardDialog = false"
+                        >
+                            {{ t('assessment_command.wizard.actions.cancel') }}
+                        </StButtonGlass>
+                    </div>
+                </div>
+
+                <!-- Content Area -->
+                <div
+                    class="relative flex h-full flex-col overflow-hidden bg-slate-950/50 md:flex-1"
+                >
+                    <!-- Decorative Background -->
+                    <div
+                        class="pointer-events-none absolute inset-0 overflow-hidden"
+                    >
+                        <div
+                            class="absolute -top-24 -right-24 h-96 w-96 animate-pulse rounded-full bg-indigo-500/20 blur-[130px]"
+                        ></div>
+                        <div
+                            class="absolute -bottom-24 -left-24 h-96 w-96 animate-pulse rounded-full bg-blue-500/20 blur-[130px]"
+                            style="animation-delay: 1s"
+                        ></div>
+                    </div>
+
+                    <div class="relative grow overflow-y-auto p-8 lg:p-12">
+                        <v-window v-model="step" class="h-full bg-transparent">
+                            <!-- Step 1: Identity -->
+                            <v-window-item
+                                :value="1"
+                                class="h-full transition-all duration-500"
+                            >
+                                <div class="mb-10">
                                     <div
-                                        class="text-sm font-bold tracking-tight"
+                                        class="mb-2 text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
                                     >
                                         {{
                                             t(
-                                                `assessment_command.wizard.step${n}.label`,
+                                                'assessment_command.wizard.step1.label',
                                             )
                                         }}
                                     </div>
-                                    <div
-                                        class="text-[10px] font-medium tracking-widest uppercase opacity-50"
+                                    <h2
+                                        class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
                                     >
-                                        Fase {{ n }}
-                                    </div>
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step1.title',
+                                            )
+                                        }}
+                                    </h2>
+                                    <p
+                                        class="max-w-xl text-lg leading-relaxed font-medium text-white/40"
+                                    >
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step1.desc',
+                                            )
+                                        }}
+                                    </p>
                                 </div>
-                            </button>
-                        </nav>
 
-                        <div class="mt-auto pt-8">
-                            <StButtonGlass
-                                variant="ghost"
-                                block
-                                :icon="PhCaretLeft"
-                                @click="wizardDialog = false"
-                            >
-                                {{
-                                    t(
-                                        'assessment_command.wizard.actions.cancel',
-                                    )
-                                }}
-                            </StButtonGlass>
-                        </div>
-                    </div>
-
-                    <!-- Content Area -->
-                    <div
-                        class="relative flex h-full flex-col overflow-hidden bg-slate-950/50 md:flex-1"
-                    >
-                        <!-- Decorative Background -->
-                        <div
-                            class="pointer-events-none absolute inset-0 overflow-hidden"
-                        >
-                            <div
-                                class="absolute -top-24 -right-24 h-96 w-96 animate-pulse rounded-full bg-indigo-500/20 blur-[130px]"
-                            ></div>
-                            <div
-                                class="absolute -bottom-24 -left-24 h-96 w-96 animate-pulse rounded-full bg-blue-500/20 blur-[130px]"
-                                style="animation-delay: 1s"
-                            ></div>
-                        </div>
-
-                        <div class="relative grow overflow-y-auto p-8 lg:p-12">
-                            <v-window
-                                v-model="step"
-                                class="h-full bg-transparent"
-                            >
-                                <!-- Step 1: Identity -->
-                                <v-window-item
-                                    :value="1"
-                                    class="h-full transition-all duration-500"
-                                >
-                                    <div class="mb-10">
-                                        <div
-                                            class="mb-2 text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step1.label',
-                                                )
-                                            }}
-                                        </div>
-                                        <h2
-                                            class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step1.title',
-                                                )
-                                            }}
-                                        </h2>
-                                        <p
-                                            class="max-w-xl text-lg leading-relaxed font-medium text-white/40"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step1.desc',
-                                                )
-                                            }}
-                                        </p>
-                                    </div>
-
-                                    <div class="grid gap-8 lg:grid-cols-1">
-                                        <div class="space-y-6">
-                                            <div>
-                                                <div
-                                                    class="mb-2 block text-xs font-bold tracking-widest text-white/30 uppercase"
-                                                >
-                                                    {{
-                                                        t(
-                                                            'assessment_command.wizard.step1.name_label',
-                                                        )
-                                                    }}
-                                                </div>
-                                                <input
-                                                    v-model="newCycle.name"
-                                                    type="text"
-                                                    class="block w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all placeholder:text-white/10 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
-                                                    :placeholder="
-                                                        t(
-                                                            'assessment_command.wizard.step1.name_placeholder',
-                                                        )
-                                                    "
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <div
-                                                    class="mb-2 block text-xs font-bold tracking-widest text-white/30 uppercase"
-                                                >
-                                                    {{
-                                                        t(
-                                                            'assessment_command.wizard.step1.description_label',
-                                                        )
-                                                    }}
-                                                </div>
-                                                <textarea
-                                                    v-model="
-                                                        newCycle.description
-                                                    "
-                                                    rows="3"
-                                                    class="block w-full resize-none rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all placeholder:text-white/10 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
-                                                    :placeholder="
-                                                        t(
-                                                            'assessment_command.wizard.step1.description_placeholder',
-                                                        )
-                                                    "
-                                                ></textarea>
-                                            </div>
-                                        </div>
-
-                                        <div class="pt-4">
-                                            <h3
-                                                class="mb-6 text-sm font-bold tracking-widest text-white/30 uppercase"
+                                <div class="grid gap-8 lg:grid-cols-1">
+                                    <div class="space-y-6">
+                                        <div>
+                                            <div
+                                                class="mb-2 block text-xs font-bold tracking-widest text-white/30 uppercase"
                                             >
                                                 {{
                                                     t(
-                                                        'assessment_command.wizard.step1.mode_title',
+                                                        'assessment_command.wizard.step1.name_label',
                                                     )
                                                 }}
-                                            </h3>
+                                            </div>
+                                            <input
+                                                v-model="newCycle.name"
+                                                type="text"
+                                                class="block w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all placeholder:text-white/10 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
+                                                :placeholder="
+                                                    t(
+                                                        'assessment_command.wizard.step1.name_placeholder',
+                                                    )
+                                                "
+                                            />
+                                        </div>
+
+                                        <div>
                                             <div
-                                                class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                                                class="mb-2 block text-xs font-bold tracking-widest text-white/30 uppercase"
                                             >
-                                                <button
-                                                    v-for="mode in modeOptions"
-                                                    :key="mode.value"
-                                                    @click="
-                                                        newCycle.mode =
-                                                            mode.value as any
-                                                    "
-                                                    class="group relative flex items-center gap-5 rounded-2xl border p-5 text-left transition-all duration-300"
+                                                {{
+                                                    t(
+                                                        'assessment_command.wizard.step1.description_label',
+                                                    )
+                                                }}
+                                            </div>
+                                            <textarea
+                                                v-model="newCycle.description"
+                                                rows="3"
+                                                class="block w-full resize-none rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all placeholder:text-white/10 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
+                                                :placeholder="
+                                                    t(
+                                                        'assessment_command.wizard.step1.description_placeholder',
+                                                    )
+                                                "
+                                            ></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-4">
+                                        <h3
+                                            class="mb-6 text-sm font-bold tracking-widest text-white/30 uppercase"
+                                        >
+                                            {{
+                                                t(
+                                                    'assessment_command.wizard.step1.mode_title',
+                                                )
+                                            }}
+                                        </h3>
+                                        <div
+                                            class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                                        >
+                                            <button
+                                                v-for="mode in modeOptions"
+                                                :key="mode.value"
+                                                @click="
+                                                    newCycle.mode =
+                                                        mode.value as any
+                                                "
+                                                class="group relative flex items-center gap-5 rounded-2xl border p-5 text-left transition-all duration-300"
+                                                :class="[
+                                                    newCycle.mode === mode.value
+                                                        ? 'border-indigo-500/50 bg-indigo-500/10 ring-4 ring-indigo-500/10'
+                                                        : 'bg-white-opacity-5 hover:bg-white-opacity-10 border-white/5 hover:border-white/20',
+                                                ]"
+                                            >
+                                                <div
+                                                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300"
                                                     :class="[
                                                         newCycle.mode ===
                                                         mode.value
-                                                            ? 'border-indigo-500/50 bg-indigo-500/10 ring-4 ring-indigo-500/10'
-                                                            : 'bg-white-opacity-5 hover:bg-white-opacity-10 border-white/5 hover:border-white/20',
-                                                    ]"
-                                                >
-                                                    <div
-                                                        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300"
-                                                        :class="[
-                                                            newCycle.mode ===
-                                                            mode.value
-                                                                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
-                                                                : 'bg-white/5 text-white/40 group-hover:bg-white/10 group-hover:text-white/60',
-                                                        ]"
-                                                    >
-                                                        <component
-                                                            :is="mode.icon"
-                                                            :size="24"
-                                                            weight="duotone"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <div
-                                                            class="mb-1 text-base font-black tracking-tight text-white"
-                                                        >
-                                                            {{ mode.title }}
-                                                        </div>
-                                                        <div
-                                                            class="text-xs leading-snug font-medium text-white/30"
-                                                        >
-                                                            {{ mode.desc }}
-                                                        </div>
-                                                    </div>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </v-window-item>
-
-                                <!-- Step 2: Scope -->
-                                <v-window-item :value="2" class="h-full">
-                                    <div class="mb-10">
-                                        <div
-                                            class="mb-2 text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step2.label',
-                                                )
-                                            }}
-                                        </div>
-                                        <h2
-                                            class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step2.title',
-                                                )
-                                            }}
-                                        </h2>
-                                        <p
-                                            class="max-w-xl text-lg leading-relaxed font-medium text-white/40"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step2.desc',
-                                                )
-                                            }}
-                                        </p>
-                                    </div>
-
-                                    <div class="space-y-10">
-                                        <div>
-                                            <div
-                                                class="mb-4 block text-xs font-bold tracking-widest text-white/30 uppercase"
-                                            >
-                                                {{
-                                                    t(
-                                                        'assessment_command.wizard.step2.segmentation_label',
-                                                    )
-                                                }}
-                                            </div>
-                                            <div
-                                                class="grid grid-cols-2 gap-4 sm:grid-cols-4"
-                                            >
-                                                <button
-                                                    v-for="opt in [
-                                                        {
-                                                            value: 'all',
-                                                            icon: PhUsers,
-                                                        },
-                                                        {
-                                                            value: 'department',
-                                                            icon: PhBuildings,
-                                                        },
-                                                        {
-                                                            value: 'scenario',
-                                                            icon: PhTreeStructure,
-                                                        },
-                                                        {
-                                                            value: 'hipo',
-                                                            icon: PhLightning,
-                                                        },
-                                                    ]"
-                                                    :key="opt.value"
-                                                    @click="
-                                                        newCycle.scope!.type =
-                                                            opt.value as any
-                                                    "
-                                                    class="flex flex-col items-center gap-3 rounded-2xl border p-4 transition-all duration-300"
-                                                    :class="[
-                                                        newCycle.scope!.type ===
-                                                        opt.value
-                                                            ? 'border-indigo-500/50 bg-indigo-500/10 text-indigo-400 ring-4 ring-indigo-500/10'
-                                                            : 'border-white/5 bg-white/5 text-white/40 hover:border-white/20 hover:bg-white/10',
+                                                            ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
+                                                            : 'bg-white/5 text-white/40 group-hover:bg-white/10 group-hover:text-white/60',
                                                     ]"
                                                 >
                                                     <component
-                                                        :is="opt.icon"
+                                                        :is="mode.icon"
                                                         :size="24"
                                                         weight="duotone"
                                                     />
-                                                    <span
-                                                        class="text-[11px] font-black tracking-wider uppercase"
-                                                    >
-                                                        {{
-                                                            t(
-                                                                `assessment_command.wizard.step2.segmentation_options.${opt.value}`,
-                                                            )
-                                                        }}
-                                                    </span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <transition name="fade-slide">
-                                            <div
-                                                v-if="
-                                                    newCycle.scope!.type ===
-                                                    'scenario'
-                                                "
-                                                class="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-6 backdrop-blur-xl"
-                                            >
-                                                <div
-                                                    class="flex items-center gap-4"
-                                                >
+                                                </div>
+                                                <div>
                                                     <div
-                                                        class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-400"
+                                                        class="mb-1 text-base font-black tracking-tight text-white"
                                                     >
-                                                        <PhRocketLaunch
-                                                            :size="20"
-                                                            weight="duotone"
-                                                        />
+                                                        {{ mode.title }}
                                                     </div>
                                                     <div
-                                                        class="text-sm font-medium text-white/60"
+                                                        class="text-xs leading-snug font-medium text-white/30"
                                                     >
-                                                        {{
-                                                            t(
-                                                                'assessment_command.wizard.step2.scenario_alert',
-                                                            )
-                                                        }}
+                                                        {{ mode.desc }}
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </transition>
-
-                                        <div>
-                                            <div
-                                                class="mb-4 block text-xs font-bold tracking-widest text-white/30 uppercase"
-                                            >
-                                                {{
-                                                    t(
-                                                        'assessment_command.wizard.step2.schedule_title',
-                                                    )
-                                                }}
-                                            </div>
-                                            <div
-                                                class="grid grid-cols-1 gap-6 sm:grid-cols-2"
-                                            >
-                                                <div class="space-y-2">
-                                                    <div
-                                                        class="ml-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
-                                                    >
-                                                        {{
-                                                            t(
-                                                                'assessment_command.wizard.step2.start_date',
-                                                            )
-                                                        }}
-                                                    </div>
-                                                    <input
-                                                        v-model="
-                                                            newCycle.starts_at
-                                                        "
-                                                        type="date"
-                                                        class="block w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
-                                                    />
-                                                </div>
-                                                <div class="space-y-2">
-                                                    <div
-                                                        class="ml-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
-                                                    >
-                                                        {{
-                                                            t(
-                                                                'assessment_command.wizard.step2.end_date',
-                                                            )
-                                                        }}
-                                                    </div>
-                                                    <input
-                                                        v-model="
-                                                            newCycle.ends_at
-                                                        "
-                                                        type="date"
-                                                        class="block w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
-                                                    />
-                                                </div>
-                                            </div>
+                                            </button>
                                         </div>
                                     </div>
-                                </v-window-item>
+                                </div>
+                            </v-window-item>
 
-                                <!-- Step 3: Instruments & Red -->
-                                <v-window-item
-                                    :value="3"
-                                    class="h-full transition-all duration-500"
-                                >
-                                    <div class="mb-10">
-                                        <div
-                                            class="mb-2 text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step3.label',
-                                                )
-                                            }}
-                                        </div>
-                                        <h2
-                                            class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step3.title',
-                                                )
-                                            }}
-                                        </h2>
-                                        <p
-                                            class="max-w-xl text-lg leading-relaxed font-medium text-white/40"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step3.desc',
-                                                )
-                                            }}
-                                        </p>
-                                    </div>
-
-                                    <div class="space-y-10">
-                                        <div>
-                                            <h3
-                                                class="mb-6 text-sm font-bold tracking-widest text-white/30 uppercase"
-                                            >
-                                                {{
-                                                    t(
-                                                        'assessment_command.wizard.step3.instruments_title',
-                                                    )
-                                                }}
-                                            </h3>
-                                            <div
-                                                class="grid grid-cols-1 gap-4 sm:grid-cols-2"
-                                            >
-                                                <div
-                                                    v-for="inst in instrumentOptions"
-                                                    :key="inst.value"
-                                                    class="flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-4 transition-all hover:border-white/20 hover:bg-white/10"
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        v-model="
-                                                            newCycle.instruments
-                                                        "
-                                                        :value="inst.value"
-                                                        class="h-5 w-5 rounded border-white/20 bg-white/10 text-indigo-500 transition-all focus:ring-indigo-500/50"
-                                                    />
-                                                    <div
-                                                        class="flex items-center gap-2"
-                                                    >
-                                                        <component
-                                                            :is="inst.icon"
-                                                            :size="20"
-                                                            class="text-indigo-400"
-                                                            weight="duotone"
-                                                        />
-                                                        <span
-                                                            class="text-sm font-bold text-white"
-                                                            >{{
-                                                                inst.title
-                                                            }}</span
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <h3
-                                                class="mb-6 text-sm font-bold tracking-widest text-white/30 uppercase"
-                                            >
-                                                {{
-                                                    t(
-                                                        'assessment_command.wizard.step3.network_title',
-                                                    )
-                                                }}
-                                            </h3>
-                                            <div
-                                                class="rounded-3xl border border-white/5 bg-white/5 p-8"
-                                            >
-                                                <div
-                                                    class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
-                                                >
-                                                    <div
-                                                        class="flex items-center justify-between"
-                                                    >
-                                                        <div
-                                                            class="flex items-center gap-3"
-                                                        >
-                                                            <div
-                                                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
-                                                            >
-                                                                <PhUser
-                                                                    :size="18"
-                                                                    weight="duotone"
-                                                                />
-                                                            </div>
-                                                            <span
-                                                                class="text-xs font-bold tracking-wider text-white uppercase"
-                                                                >{{
-                                                                    t(
-                                                                        'assessment_command.wizard.step3.network_options.self',
-                                                                    )
-                                                                }}</span
-                                                            >
-                                                        </div>
-                                                        <input
-                                                            type="checkbox"
-                                                            v-model="
-                                                                newCycle
-                                                                    .evaluators!
-                                                                    .self
-                                                            "
-                                                            class="toggle-premium"
-                                                        />
-                                                    </div>
-
-                                                    <div
-                                                        class="flex items-center justify-between"
-                                                    >
-                                                        <div
-                                                            class="flex items-center gap-3"
-                                                        >
-                                                            <div
-                                                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
-                                                            >
-                                                                <PhUser
-                                                                    :size="18"
-                                                                    weight="duotone"
-                                                                />
-                                                            </div>
-                                                            <span
-                                                                class="text-xs font-bold tracking-wider text-white uppercase"
-                                                                >{{
-                                                                    t(
-                                                                        'assessment_command.wizard.step3.network_options.manager',
-                                                                    )
-                                                                }}</span
-                                                            >
-                                                        </div>
-                                                        <input
-                                                            type="checkbox"
-                                                            v-model="
-                                                                newCycle
-                                                                    .evaluators!
-                                                                    .manager
-                                                            "
-                                                            class="toggle-premium"
-                                                        />
-                                                    </div>
-
-                                                    <div
-                                                        class="flex items-center justify-between"
-                                                    >
-                                                        <div
-                                                            class="flex items-center gap-3"
-                                                        >
-                                                            <div
-                                                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
-                                                            >
-                                                                <PhUser
-                                                                    :size="18"
-                                                                    weight="duotone"
-                                                                />
-                                                            </div>
-                                                            <span
-                                                                class="text-xs font-bold tracking-wider text-white uppercase"
-                                                                >{{
-                                                                    t(
-                                                                        'assessment_command.wizard.step3.network_options.reports',
-                                                                    )
-                                                                }}</span
-                                                            >
-                                                        </div>
-                                                        <input
-                                                            type="checkbox"
-                                                            v-model="
-                                                                newCycle
-                                                                    .evaluators!
-                                                                    .reports
-                                                            "
-                                                            class="toggle-premium"
-                                                        />
-                                                    </div>
-
-                                                    <div
-                                                        class="flex items-center justify-between"
-                                                    >
-                                                        <div
-                                                            class="flex items-center gap-3"
-                                                        >
-                                                            <div
-                                                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
-                                                            >
-                                                                <PhRobot
-                                                                    :size="18"
-                                                                    weight="duotone"
-                                                                />
-                                                            </div>
-                                                            <span
-                                                                class="text-xs font-bold tracking-wider text-white uppercase"
-                                                                >{{
-                                                                    t(
-                                                                        'assessment_command.wizard.step3.network_options.ai',
-                                                                    )
-                                                                }}</span
-                                                            >
-                                                        </div>
-                                                        <input
-                                                            type="checkbox"
-                                                            v-model="
-                                                                newCycle
-                                                                    .evaluators!
-                                                                    .ai
-                                                            "
-                                                            class="toggle-premium"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="mt-10 border-t border-white/5 pt-10"
-                                                >
-                                                    <div
-                                                        class="mb-6 flex items-center justify-between"
-                                                    >
-                                                        <div
-                                                            class="text-sm font-bold text-white"
-                                                        >
-                                                            {{
-                                                                t(
-                                                                    'assessment_command.wizard.step3.peers_count_label',
-                                                                )
-                                                            }}
-                                                        </div>
-                                                        <div
-                                                            class="text-2xl font-black text-indigo-400"
-                                                        >
-                                                            {{
-                                                                newCycle
-                                                                    .evaluators!
-                                                                    .peers
-                                                            }}
-                                                        </div>
-                                                    </div>
-                                                    <input
-                                                        v-model.number="
-                                                            newCycle.evaluators!
-                                                                .peers
-                                                        "
-                                                        type="range"
-                                                        min="0"
-                                                        max="8"
-                                                        step="1"
-                                                        class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-white/10 accent-indigo-500"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </v-window-item>
-
-                                <!-- Step 4: Confirmation -->
-                                <v-window-item
-                                    :value="4"
-                                    class="h-full transition-all duration-500"
-                                >
-                                    <div class="mb-12 text-center">
-                                        <div
-                                            class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-emerald-500/10 text-emerald-400 shadow-[0_0_50px_-12px_rgba(16,185,129,0.3)]"
-                                        >
-                                            <PhCheckCircle
-                                                :size="64"
-                                                weight="duotone"
-                                            />
-                                        </div>
-                                        <h2
-                                            class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step4.title',
-                                                )
-                                            }}
-                                        </h2>
-                                        <p
-                                            class="mx-auto max-w-lg text-lg leading-relaxed font-medium text-white/40"
-                                        >
-                                            {{
-                                                t(
-                                                    'assessment_command.wizard.step4.desc',
-                                                )
-                                            }}
-                                        </p>
-                                    </div>
-
+                            <!-- Step 2: Scope -->
+                            <v-window-item :value="2" class="h-full">
+                                <div class="mb-10">
                                     <div
-                                        class="grid grid-cols-1 gap-6 lg:grid-cols-2"
+                                        class="mb-2 text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
                                     >
-                                        <div
-                                            class="rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl lg:col-span-2"
-                                        >
-                                            <div
-                                                class="flex flex-wrap items-center gap-6"
-                                            >
-                                                <div class="grow">
-                                                    <div
-                                                        class="mb-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
-                                                    >
-                                                        {{
-                                                            t(
-                                                                'assessment_command.wizard.step4.items.name',
-                                                            )
-                                                        }}
-                                                    </div>
-                                                    <div
-                                                        class="text-xl font-black text-white italic"
-                                                    >
-                                                        "{{ newCycle.name }}"
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="h-10 w-px bg-white/5"
-                                                ></div>
-                                                <div>
-                                                    <div
-                                                        class="mb-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
-                                                    >
-                                                        {{
-                                                            t(
-                                                                'assessment_command.wizard.step4.items.mode',
-                                                            )
-                                                        }}
-                                                    </div>
-                                                    <StBadgeGlass
-                                                        variant="primary"
-                                                        size="sm"
-                                                    >
-                                                        {{
-                                                            modeOptions.find(
-                                                                (o) =>
-                                                                    o.value ===
-                                                                    newCycle.mode,
-                                                            )?.title
-                                                        }}
-                                                    </StBadgeGlass>
-                                                </div>
-                                                <div
-                                                    class="h-10 w-px bg-white/5"
-                                                ></div>
-                                                <div>
-                                                    <div
-                                                        class="mb-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
-                                                    >
-                                                        {{
-                                                            t(
-                                                                'assessment_command.wizard.step4.items.instruments',
-                                                            )
-                                                        }}
-                                                    </div>
-                                                    <div
-                                                        class="text-lg font-black text-white"
-                                                    >
-                                                        {{
-                                                            newCycle.instruments
-                                                                ?.length
-                                                        }}
-                                                        {{
-                                                            t(
-                                                                'assessment_command.wizard.step4.items.selected_suffix',
-                                                            )
-                                                        }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step2.label',
+                                            )
+                                        }}
+                                    </div>
+                                    <h2
+                                        class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
+                                    >
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step2.title',
+                                            )
+                                        }}
+                                    </h2>
+                                    <p
+                                        class="max-w-xl text-lg leading-relaxed font-medium text-white/40"
+                                    >
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step2.desc',
+                                            )
+                                        }}
+                                    </p>
+                                </div>
 
+                                <div class="space-y-10">
+                                    <div>
                                         <div
-                                            class="rounded-3xl border border-white/5 bg-white/5 p-6"
+                                            class="mb-4 block text-xs font-bold tracking-widest text-white/30 uppercase"
                                         >
-                                            <div
-                                                class="mb-4 text-[10px] font-black tracking-widest text-white/20 uppercase"
-                                            >
-                                                {{
-                                                    t(
-                                                        'assessment_command.wizard.step4.preview_title',
-                                                    )
-                                                }}
-                                            </div>
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div
-                                                    class="rounded-2xl bg-black/20 p-4 text-center"
-                                                >
-                                                    <div
-                                                        class="text-3xl font-black text-white"
-                                                    >
-                                                        {{
-                                                            previewData.participants
-                                                        }}
-                                                    </div>
-                                                    <div
-                                                        class="text-[9px] font-bold tracking-wider text-white/30 uppercase"
-                                                    >
-                                                        {{
-                                                            t(
-                                                                'assessment_command.wizard.step4.preview_stats.participants',
-                                                            )
-                                                        }}
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="rounded-2xl bg-black/20 p-4 text-center"
-                                                >
-                                                    <div
-                                                        class="text-3xl font-black text-white"
-                                                    >
-                                                        {{
-                                                            previewData.impacted_areas
-                                                        }}
-                                                    </div>
-                                                    <div
-                                                        class="text-[9px] font-bold tracking-wider text-white/30 uppercase"
-                                                    >
-                                                        {{
-                                                            t(
-                                                                'assessment_command.wizard.step4.preview_stats.areas',
-                                                            )
-                                                        }}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            {{
+                                                t(
+                                                    'assessment_command.wizard.step2.segmentation_label',
+                                                )
+                                            }}
                                         </div>
-
                                         <div
-                                            class="flex items-center justify-between rounded-3xl border border-white/5 bg-white/5 p-6"
+                                            class="grid grid-cols-2 gap-4 sm:grid-cols-4"
+                                        >
+                                            <button
+                                                v-for="opt in [
+                                                    {
+                                                        value: 'all',
+                                                        icon: PhUsers,
+                                                    },
+                                                    {
+                                                        value: 'department',
+                                                        icon: PhBuildings,
+                                                    },
+                                                    {
+                                                        value: 'scenario',
+                                                        icon: PhTreeStructure,
+                                                    },
+                                                    {
+                                                        value: 'hipo',
+                                                        icon: PhLightning,
+                                                    },
+                                                ]"
+                                                :key="opt.value"
+                                                @click="
+                                                    newCycle.scope!.type =
+                                                        opt.value as any
+                                                "
+                                                class="flex flex-col items-center gap-3 rounded-2xl border p-4 transition-all duration-300"
+                                                :class="[
+                                                    newCycle.scope!.type ===
+                                                    opt.value
+                                                        ? 'border-indigo-500/50 bg-indigo-500/10 text-indigo-400 ring-4 ring-indigo-500/10'
+                                                        : 'border-white/5 bg-white/5 text-white/40 hover:border-white/20 hover:bg-white/10',
+                                                ]"
+                                            >
+                                                <component
+                                                    :is="opt.icon"
+                                                    :size="24"
+                                                    weight="duotone"
+                                                />
+                                                <span
+                                                    class="text-[11px] font-black tracking-wider uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            `assessment_command.wizard.step2.segmentation_options.${opt.value}`,
+                                                        )
+                                                    }}
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <transition name="fade-slide">
+                                        <div
+                                            v-if="
+                                                newCycle.scope!.type ===
+                                                'scenario'
+                                            "
+                                            class="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-6 backdrop-blur-xl"
                                         >
                                             <div
                                                 class="flex items-center gap-4"
                                             >
                                                 <div
-                                                    class="flex h-12 w-12 items-center justify-center rounded-2xl"
-                                                    :class="
-                                                        newCycle.evaluators?.ai
-                                                            ? 'bg-emerald-500/10 text-emerald-400'
-                                                            : 'bg-white/5 text-white/20'
-                                                    "
+                                                    class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-400"
                                                 >
-                                                    <PhRobot
-                                                        :size="24"
+                                                    <PhRocketLaunch
+                                                        :size="20"
                                                         weight="duotone"
                                                     />
                                                 </div>
-                                                <div>
-                                                    <div
-                                                        class="text-sm font-black text-white"
+                                                <div
+                                                    class="text-sm font-medium text-white/60"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step2.scenario_alert',
+                                                        )
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </transition>
+
+                                    <div>
+                                        <div
+                                            class="mb-4 block text-xs font-bold tracking-widest text-white/30 uppercase"
+                                        >
+                                            {{
+                                                t(
+                                                    'assessment_command.wizard.step2.schedule_title',
+                                                )
+                                            }}
+                                        </div>
+                                        <div
+                                            class="grid grid-cols-1 gap-6 sm:grid-cols-2"
+                                        >
+                                            <div class="space-y-2">
+                                                <div
+                                                    class="ml-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step2.start_date',
+                                                        )
+                                                    }}
+                                                </div>
+                                                <input
+                                                    v-model="newCycle.starts_at"
+                                                    type="date"
+                                                    class="block w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
+                                                />
+                                            </div>
+                                            <div class="space-y-2">
+                                                <div
+                                                    class="ml-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step2.end_date',
+                                                        )
+                                                    }}
+                                                </div>
+                                                <input
+                                                    v-model="newCycle.ends_at"
+                                                    type="date"
+                                                    class="block w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-white transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Step 3: Instruments & Red -->
+                            <v-window-item
+                                :value="3"
+                                class="h-full transition-all duration-500"
+                            >
+                                <div class="mb-10">
+                                    <div
+                                        class="mb-2 text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase"
+                                    >
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step3.label',
+                                            )
+                                        }}
+                                    </div>
+                                    <h2
+                                        class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
+                                    >
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step3.title',
+                                            )
+                                        }}
+                                    </h2>
+                                    <p
+                                        class="max-w-xl text-lg leading-relaxed font-medium text-white/40"
+                                    >
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step3.desc',
+                                            )
+                                        }}
+                                    </p>
+                                </div>
+
+                                <div class="space-y-10">
+                                    <div>
+                                        <h3
+                                            class="mb-6 text-sm font-bold tracking-widest text-white/30 uppercase"
+                                        >
+                                            {{
+                                                t(
+                                                    'assessment_command.wizard.step3.instruments_title',
+                                                )
+                                            }}
+                                        </h3>
+                                        <div
+                                            class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                                        >
+                                            <div
+                                                v-for="inst in instrumentOptions"
+                                                :key="inst.value"
+                                                class="flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-4 transition-all hover:border-white/20 hover:bg-white/10"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    v-model="
+                                                        newCycle.instruments
+                                                    "
+                                                    :value="inst.value"
+                                                    class="h-5 w-5 rounded border-white/20 bg-white/10 text-indigo-500 transition-all focus:ring-indigo-500/50"
+                                                />
+                                                <div
+                                                    class="flex items-center gap-2"
+                                                >
+                                                    <component
+                                                        :is="inst.icon"
+                                                        :size="20"
+                                                        class="text-indigo-400"
+                                                        weight="duotone"
+                                                    />
+                                                    <span
+                                                        class="text-sm font-bold text-white"
+                                                        >{{ inst.title }}</span
                                                     >
-                                                        {{
-                                                            newCycle.evaluators
-                                                                ?.ai
-                                                                ? t(
-                                                                      'assessment_command.wizard.step4.items.ai_active',
-                                                                  )
-                                                                : t(
-                                                                      'assessment_command.wizard.step4.items.ai_inactive',
-                                                                  )
-                                                        }}
-                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3
+                                            class="mb-6 text-sm font-bold tracking-widest text-white/30 uppercase"
+                                        >
+                                            {{
+                                                t(
+                                                    'assessment_command.wizard.step3.network_title',
+                                                )
+                                            }}
+                                        </h3>
+                                        <div
+                                            class="rounded-3xl border border-white/5 bg-white/5 p-8"
+                                        >
+                                            <div
+                                                class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
+                                            >
+                                                <div
+                                                    class="flex items-center justify-between"
+                                                >
                                                     <div
-                                                        class="text-[10px] font-bold tracking-wider text-white/30 uppercase"
+                                                        class="flex items-center gap-3"
+                                                    >
+                                                        <div
+                                                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
+                                                        >
+                                                            <PhUser
+                                                                :size="18"
+                                                                weight="duotone"
+                                                            />
+                                                        </div>
+                                                        <span
+                                                            class="text-xs font-bold tracking-wider text-white uppercase"
+                                                            >{{
+                                                                t(
+                                                                    'assessment_command.wizard.step3.network_options.self',
+                                                                )
+                                                            }}</span
+                                                        >
+                                                    </div>
+                                                    <input
+                                                        type="checkbox"
+                                                        v-model="
+                                                            newCycle.evaluators!
+                                                                .self
+                                                        "
+                                                        class="toggle-premium"
+                                                    />
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center justify-between"
+                                                >
+                                                    <div
+                                                        class="flex items-center gap-3"
+                                                    >
+                                                        <div
+                                                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
+                                                        >
+                                                            <PhUser
+                                                                :size="18"
+                                                                weight="duotone"
+                                                            />
+                                                        </div>
+                                                        <span
+                                                            class="text-xs font-bold tracking-wider text-white uppercase"
+                                                            >{{
+                                                                t(
+                                                                    'assessment_command.wizard.step3.network_options.manager',
+                                                                )
+                                                            }}</span
+                                                        >
+                                                    </div>
+                                                    <input
+                                                        type="checkbox"
+                                                        v-model="
+                                                            newCycle.evaluators!
+                                                                .manager
+                                                        "
+                                                        class="toggle-premium"
+                                                    />
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center justify-between"
+                                                >
+                                                    <div
+                                                        class="flex items-center gap-3"
+                                                    >
+                                                        <div
+                                                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
+                                                        >
+                                                            <PhUser
+                                                                :size="18"
+                                                                weight="duotone"
+                                                            />
+                                                        </div>
+                                                        <span
+                                                            class="text-xs font-bold tracking-wider text-white uppercase"
+                                                            >{{
+                                                                t(
+                                                                    'assessment_command.wizard.step3.network_options.reports',
+                                                                )
+                                                            }}</span
+                                                        >
+                                                    </div>
+                                                    <input
+                                                        type="checkbox"
+                                                        v-model="
+                                                            newCycle.evaluators!
+                                                                .reports
+                                                        "
+                                                        class="toggle-premium"
+                                                    />
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center justify-between"
+                                                >
+                                                    <div
+                                                        class="flex items-center gap-3"
+                                                    >
+                                                        <div
+                                                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/40"
+                                                        >
+                                                            <PhRobot
+                                                                :size="18"
+                                                                weight="duotone"
+                                                            />
+                                                        </div>
+                                                        <span
+                                                            class="text-xs font-bold tracking-wider text-white uppercase"
+                                                            >{{
+                                                                t(
+                                                                    'assessment_command.wizard.step3.network_options.ai',
+                                                                )
+                                                            }}</span
+                                                        >
+                                                    </div>
+                                                    <input
+                                                        type="checkbox"
+                                                        v-model="
+                                                            newCycle.evaluators!
+                                                                .ai
+                                                        "
+                                                        class="toggle-premium"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="mt-10 border-t border-white/5 pt-10"
+                                            >
+                                                <div
+                                                    class="mb-6 flex items-center justify-between"
+                                                >
+                                                    <div
+                                                        class="text-sm font-bold text-white"
                                                     >
                                                         {{
                                                             t(
-                                                                'assessment_command.wizard.step4.items.ai_engine',
+                                                                'assessment_command.wizard.step3.peers_count_label',
                                                             )
                                                         }}
                                                     </div>
+                                                    <div
+                                                        class="text-2xl font-black text-indigo-400"
+                                                    >
+                                                        {{
+                                                            newCycle.evaluators!
+                                                                .peers
+                                                        }}
+                                                    </div>
+                                                </div>
+                                                <input
+                                                    v-model.number="
+                                                        newCycle.evaluators!
+                                                            .peers
+                                                    "
+                                                    type="range"
+                                                    min="0"
+                                                    max="8"
+                                                    step="1"
+                                                    class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-white/10 accent-indigo-500"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </v-window-item>
+
+                            <!-- Step 4: Confirmation -->
+                            <v-window-item
+                                :value="4"
+                                class="h-full transition-all duration-500"
+                            >
+                                <div class="mb-12 text-center">
+                                    <div
+                                        class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-emerald-500/10 text-emerald-400 shadow-[0_0_50px_-12px_rgba(16,185,129,0.3)]"
+                                    >
+                                        <PhCheckCircle
+                                            :size="64"
+                                            weight="duotone"
+                                        />
+                                    </div>
+                                    <h2
+                                        class="mb-4 text-4xl font-black tracking-tight text-white lg:text-5xl"
+                                    >
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step4.title',
+                                            )
+                                        }}
+                                    </h2>
+                                    <p
+                                        class="mx-auto max-w-lg text-lg leading-relaxed font-medium text-white/40"
+                                    >
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step4.desc',
+                                            )
+                                        }}
+                                    </p>
+                                </div>
+
+                                <div
+                                    class="grid grid-cols-1 gap-6 lg:grid-cols-2"
+                                >
+                                    <div
+                                        class="rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl lg:col-span-2"
+                                    >
+                                        <div
+                                            class="flex flex-wrap items-center gap-6"
+                                        >
+                                            <div class="grow">
+                                                <div
+                                                    class="mb-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step4.items.name',
+                                                        )
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="text-xl font-black text-white italic"
+                                                >
+                                                    "{{ newCycle.name }}"
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="h-10 w-px bg-white/5"
+                                            ></div>
+                                            <div>
+                                                <div
+                                                    class="mb-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step4.items.mode',
+                                                        )
+                                                    }}
+                                                </div>
+                                                <StBadgeGlass
+                                                    variant="primary"
+                                                    size="sm"
+                                                >
+                                                    {{
+                                                        modeOptions.find(
+                                                            (o) =>
+                                                                o.value ===
+                                                                newCycle.mode,
+                                                        )?.title
+                                                    }}
+                                                </StBadgeGlass>
+                                            </div>
+                                            <div
+                                                class="h-10 w-px bg-white/5"
+                                            ></div>
+                                            <div>
+                                                <div
+                                                    class="mb-1 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step4.items.instruments',
+                                                        )
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="text-lg font-black text-white"
+                                                >
+                                                    {{
+                                                        newCycle.instruments
+                                                            ?.length
+                                                    }}
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step4.items.selected_suffix',
+                                                        )
+                                                    }}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div
-                                        class="mt-8 flex items-center gap-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5"
+                                        class="rounded-3xl border border-white/5 bg-white/5 p-6"
                                     >
                                         <div
-                                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400"
-                                        >
-                                            <PhPulse
-                                                :size="20"
-                                                weight="duotone"
-                                            />
-                                        </div>
-                                        <div
-                                            class="text-sm leading-snug font-medium text-amber-200/60"
+                                            class="mb-4 text-[10px] font-black tracking-widest text-white/20 uppercase"
                                         >
                                             {{
                                                 t(
-                                                    'assessment_command.wizard.step4.draft_alert',
+                                                    'assessment_command.wizard.step4.preview_title',
                                                 )
                                             }}
                                         </div>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div
+                                                class="rounded-2xl bg-black/20 p-4 text-center"
+                                            >
+                                                <div
+                                                    class="text-3xl font-black text-white"
+                                                >
+                                                    {{
+                                                        previewData.participants
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="text-[9px] font-bold tracking-wider text-white/30 uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step4.preview_stats.participants',
+                                                        )
+                                                    }}
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="rounded-2xl bg-black/20 p-4 text-center"
+                                            >
+                                                <div
+                                                    class="text-3xl font-black text-white"
+                                                >
+                                                    {{
+                                                        previewData.impacted_areas
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="text-[9px] font-bold tracking-wider text-white/30 uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step4.preview_stats.areas',
+                                                        )
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </v-window-item>
-                            </v-window>
+
+                                    <div
+                                        class="flex items-center justify-between rounded-3xl border border-white/5 bg-white/5 p-6"
+                                    >
+                                        <div class="flex items-center gap-4">
+                                            <div
+                                                class="flex h-12 w-12 items-center justify-center rounded-2xl"
+                                                :class="
+                                                    newCycle.evaluators?.ai
+                                                        ? 'bg-emerald-500/10 text-emerald-400'
+                                                        : 'bg-white/5 text-white/20'
+                                                "
+                                            >
+                                                <PhRobot
+                                                    :size="24"
+                                                    weight="duotone"
+                                                />
+                                            </div>
+                                            <div>
+                                                <div
+                                                    class="text-sm font-black text-white"
+                                                >
+                                                    {{
+                                                        newCycle.evaluators?.ai
+                                                            ? t(
+                                                                  'assessment_command.wizard.step4.items.ai_active',
+                                                              )
+                                                            : t(
+                                                                  'assessment_command.wizard.step4.items.ai_inactive',
+                                                              )
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="text-[10px] font-bold tracking-wider text-white/30 uppercase"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'assessment_command.wizard.step4.items.ai_engine',
+                                                        )
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="mt-8 flex items-center gap-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5"
+                                >
+                                    <div
+                                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400"
+                                    >
+                                        <PhPulse :size="20" weight="duotone" />
+                                    </div>
+                                    <div
+                                        class="text-sm leading-snug font-medium text-amber-200/60"
+                                    >
+                                        {{
+                                            t(
+                                                'assessment_command.wizard.step4.draft_alert',
+                                            )
+                                        }}
+                                    </div>
+                                </div>
+                            </v-window-item>
+                        </v-window>
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div
+                        class="mt-auto flex items-center justify-between border-t border-white/5 bg-black/20 p-8 lg:px-12"
+                    >
+                        <div>
+                            <StButtonGlass
+                                v-if="step > 1"
+                                variant="ghost"
+                                :icon="PhCaretLeft"
+                                @click="step--"
+                            >
+                                {{
+                                    t('assessment_command.wizard.actions.back')
+                                }}
+                            </StButtonGlass>
                         </div>
 
-                        <!-- Footer Actions -->
-                        <div
-                            class="mt-auto flex items-center justify-between border-t border-white/5 bg-black/20 p-8 lg:px-12"
-                        >
-                            <div>
-                                <StButtonGlass
-                                    v-if="step > 1"
-                                    variant="ghost"
-                                    :icon="PhCaretLeft"
-                                    @click="step--"
-                                >
-                                    {{
-                                        t(
-                                            'assessment_command.wizard.actions.back',
-                                        )
-                                    }}
-                                </StButtonGlass>
-                            </div>
+                        <div class="flex items-center gap-4">
+                            <StButtonGlass
+                                v-if="step < 4"
+                                variant="primary"
+                                size="lg"
+                                class="min-w-[160px]"
+                                @click="step++"
+                            >
+                                {{
+                                    t('assessment_command.wizard.actions.next')
+                                }}
+                                <template #append>
+                                    <PhCaretRight :size="18" weight="bold" />
+                                </template>
+                            </StButtonGlass>
 
-                            <div class="flex items-center gap-4">
-                                <StButtonGlass
-                                    v-if="step < 4"
-                                    variant="primary"
-                                    size="lg"
-                                    class="min-w-[160px]"
-                                    @click="step++"
-                                >
-                                    {{
-                                        t(
-                                            'assessment_command.wizard.actions.next',
-                                        )
-                                    }}
-                                    <template #append>
-                                        <PhCaretRight
-                                            :size="18"
-                                            weight="bold"
-                                        />
-                                    </template>
-                                </StButtonGlass>
-
-                                <StButtonGlass
-                                    v-else
-                                    variant="secondary"
-                                    size="lg"
-                                    class="min-w-[200px]"
-                                    :loading="saving"
-                                    @click="saveCycle"
-                                >
-                                    <template #prepend>
-                                        <PhRocketLaunch
-                                            :size="20"
-                                            weight="bold"
-                                        />
-                                    </template>
-                                    {{
-                                        t(
-                                            'assessment_command.wizard.actions.launch',
-                                        )
-                                    }}
-                                </StButtonGlass>
-                            </div>
+                            <StButtonGlass
+                                v-else
+                                variant="secondary"
+                                size="lg"
+                                class="min-w-[200px]"
+                                :loading="saving"
+                                @click="saveCycle"
+                            >
+                                <template #prepend>
+                                    <PhRocketLaunch :size="20" weight="bold" />
+                                </template>
+                                {{
+                                    t(
+                                        'assessment_command.wizard.actions.launch',
+                                    )
+                                }}
+                            </StButtonGlass>
                         </div>
                     </div>
                 </div>
-            </v-card>
-        </v-dialog>
+            </div>
+        </v-card>
+    </v-dialog>
 </template>
 
 <style scoped>

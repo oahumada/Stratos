@@ -89,4 +89,51 @@ class GamificationController extends Controller
             return $this->error('Failed to progress quest: '.$e->getMessage(), 500);
         }
     }
+
+    public function getRewards(): JsonResponse
+    {
+        try {
+            $rewards = $this->gamificationService->getAvailableRewards();
+
+            return $this->success($rewards, 'Rewards fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->error('Failed to fetch rewards: '.$e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Redeem a reward for a person.
+     */
+    public function redeem(Request $request, int $peopleId): JsonResponse
+    {
+        $validated = $request->validate([
+            'reward_id' => 'required|integer|exists:rewards,id',
+        ]);
+
+        try {
+            $result = $this->gamificationService->redeemReward($peopleId, $validated['reward_id']);
+
+            if (! $result['success']) {
+                return $this->error($result['message'], 400);
+            }
+
+            return $this->success($result, $result['message']);
+        } catch (\Exception $e) {
+            return $this->error('Redemption failed: '.$e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Get redemption history for a person.
+     */
+    public function getRedemptionHistory(int $peopleId): JsonResponse
+    {
+        try {
+            $history = $this->gamificationService->getRedemptionHistory($peopleId);
+
+            return $this->success($history, 'Redemption history fetched.');
+        } catch (\Exception $e) {
+            return $this->error('Failed to fetch history: '.$e->getMessage(), 500);
+        }
+    }
 }

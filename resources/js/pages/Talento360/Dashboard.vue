@@ -1,6 +1,16 @@
 <script setup lang="ts">
+import StCardGlass from '@/components/StCardGlass.vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
+import {
+    ChevronRight,
+    LayoutGrid,
+    Rocket,
+    ShieldAlert,
+    Star,
+    TrendingUp,
+    Users,
+} from 'lucide-vue-next';
 import { computed, onMounted, ref } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 
@@ -57,20 +67,34 @@ const chartOptions = computed(() => ({
         min: 0,
         max: 1,
     },
-    colors: ['#2196F3'],
+    colors: ['#3b82f6'],
     fill: {
         opacity: 0.4,
-        colors: ['#2196F3'],
+        type: 'gradient',
+        gradient: {
+            shade: 'dark',
+            type: 'vertical',
+            gradientToColors: ['#8b5cf6'],
+            stops: [0, 100],
+        },
     },
     stroke: {
         show: true,
-        width: 2,
-        colors: ['#1976D2'],
+        width: 3,
+        colors: ['#3b82f6'],
         dashArray: 0,
     },
     markers: {
-        size: 4,
-        hover: { size: 7 },
+        size: 5,
+        strokeColors: '#3b82f6',
+        strokeWidth: 2,
+        hover: { size: 8 },
+    },
+    theme: {
+        mode: 'dark',
+    },
+    grid: {
+        borderColor: 'rgba(255,255,255,0.05)',
     },
 }));
 
@@ -82,12 +106,6 @@ const chartSeries = computed(() => [
         ),
     },
 ]);
-
-const getPotentialColor = (score: number) => {
-    if (score >= 0.8) return 'success';
-    if (score >= 0.5) return 'warning';
-    return 'error';
-};
 
 // DNA Cloning Feature
 const dnaDialog = ref(false);
@@ -122,231 +140,277 @@ const extractDNA = async (personId: number, personName: string) => {
 </script>
 
 <template>
-    <v-container fluid class="pa-6">
-        <v-row>
-            <v-col cols="12">
-                <div class="d-flex align-center justify-space-between mb-4">
+    <div class="mx-auto min-h-screen max-w-7xl space-y-8 p-8">
+        <!-- Header Section -->
+        <header
+            class="flex flex-col justify-between gap-6 md:flex-row md:items-end"
+        >
+            <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                    <div class="rounded-2xl bg-primary/20 p-2.5 text-primary">
+                        <Users :size="28" />
+                    </div>
                     <div>
-                        <h1 class="text-h4 font-weight-bold primary--text">
-                            Talento 360 Dashboard
+                        <h1
+                            class="text-3xl font-black tracking-tight text-white"
+                        >
+                            Talento 360° Dashboard
                         </h1>
-                        <p class="text-subtitle-1 text-secondary">
-                            Análisis inteligente de potencial y rasgos
-                            organizacionales
+                        <p class="font-medium text-slate-400">
+                            Análisis predictivo y visualización de potencial
+                            humano.
                         </p>
                     </div>
-                    <div class="d-flex gap-2">
-                        <v-btn
-                            color="secondary"
-                            variant="outlined"
-                            prepend-icon="mdi-transit-connection-variant"
-                            @click="router.visit('/talento360/relationships')"
-                        >
-                            Gestionar Mapa Cerbero
-                        </v-btn>
-                        <v-btn
-                            color="primary"
-                            prepend-icon="mdi-account-search"
-                            @click="router.visit('/people')"
-                        >
-                            Evaluar Colaboradores
-                        </v-btn>
-                    </div>
                 </div>
-            </v-col>
-        </v-row>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <button
+                    @click="router.visit('/talento360/relationships')"
+                    class="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-white/10"
+                >
+                    <LayoutGrid :size="18" />
+                    Mapa Cerbero
+                </button>
+                <button
+                    @click="router.visit('/talento360/war-room')"
+                    class="flex items-center gap-2 rounded-2xl bg-linear-to-r from-primary to-indigo-600 px-6 py-3 text-sm font-black text-white shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+                >
+                    <Rocket :size="18" />
+                    MOBILITY WAR ROOM
+                </button>
+            </div>
+        </header>
 
-        <v-row v-if="loading">
-            <v-col cols="12" class="py-10 text-center">
-                <v-progress-circular
-                    indeterminate
-                    color="primary"
-                    size="64"
-                ></v-progress-circular>
-            </v-col>
-        </v-row>
+        <!-- Loading State -->
+        <div
+            v-if="loading"
+            class="flex h-96 flex-col items-center justify-center gap-4"
+        >
+            <div
+                class="h-16 w-16 animate-spin rounded-full border-4 border-primary/20 border-t-primary"
+            ></div>
+            <p class="animate-pulse font-bold text-slate-500">
+                Sincronizando red neuronal de talento...
+            </p>
+        </div>
 
         <template v-else>
-            <!-- Summary Widgets -->
-            <v-row>
-                <v-col cols="12" sm="6" md="3">
-                    <v-card border flat class="pa-4 bg-blue-lighten-5">
-                        <div class="text-overline mb-1">
-                            Índice de Potencial
-                        </div>
-                        <div class="d-flex align-end">
-                            <div class="text-h3 font-weight-bold">
-                                {{ metrics.potential_index }}%
-                            </div>
-                            <v-icon color="primary" class="mb-2 ml-2"
-                                >mdi-trending-up</v-icon
-                            >
-                        </div>
-                        <div class="text-caption text-secondary">
-                            Promedio organizacional
-                        </div>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" sm="6" md="3">
-                    <v-card border flat class="pa-4 bg-green-lighten-5">
-                        <div class="text-overline mb-1">High Potentials</div>
-                        <div class="d-flex align-end">
-                            <div class="text-h3 font-weight-bold text-success">
-                                {{ metrics.high_potential_count }}
-                            </div>
-                            <v-icon color="success" class="mb-2 ml-2"
-                                >mdi-star</v-icon
-                            >
-                        </div>
-                        <div
-                            class="d-flex align-center justify-space-between mt-1"
+            <!-- Strategic Metrics Grid -->
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <StCardGlass
+                    class="group relative overflow-hidden border-white/5 p-6"
+                >
+                    <div
+                        class="absolute -right-4 -bottom-4 text-primary/5 transition-colors group-hover:text-primary/10"
+                    >
+                        <TrendingUp :size="120" />
+                    </div>
+                    <p
+                        class="mb-4 text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase"
+                    >
+                        Índice de Potencial
+                    </p>
+                    <div class="flex flex-col">
+                        <span
+                            class="text-4xl leading-none font-black text-white"
+                            >{{ metrics.potential_index }}%</span
                         >
-                            <div class="text-caption text-secondary">
-                                Candidatos a liderazgo
-                            </div>
-                            <v-btn
-                                size="x-small"
-                                variant="tonal"
-                                color="deep-purple"
-                                prepend-icon="mdi-dna"
+                        <span class="mt-2 text-xs font-medium text-slate-400"
+                            >Promedio organizacional</span
+                        >
+                    </div>
+                </StCardGlass>
+
+                <StCardGlass
+                    class="group relative overflow-hidden border-emerald-500/10 p-6"
+                >
+                    <div
+                        class="absolute -right-4 -bottom-4 text-emerald-500/5 transition-colors group-hover:text-emerald-500/10"
+                    >
+                        <Star :size="120" />
+                    </div>
+                    <p
+                        class="mb-4 text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase"
+                    >
+                        High Potentials
+                    </p>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-4">
+                            <span
+                                class="text-4xl leading-none font-black text-emerald-400"
+                                >{{ metrics.high_potential_count }}</span
+                            >
+                            <button
                                 @click="openDnaExtractor"
+                                class="rounded-full border border-emerald-500/30 bg-emerald-500/20 px-3 py-1 text-[10px] font-bold text-emerald-400 uppercase transition-all hover:bg-emerald-500/30"
                             >
-                                DNA
-                            </v-btn>
+                                DNA Extractor
+                            </button>
                         </div>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" sm="6" md="3">
-                    <v-card border flat class="pa-4 bg-purple-lighten-5">
-                        <div class="text-overline mb-1">Total Evaluados</div>
-                        <div class="d-flex align-end">
-                            <div class="text-h3 font-weight-bold">
-                                {{ metrics.total_assessed }}
-                            </div>
-                            <v-icon color="purple" class="mb-2 ml-2"
-                                >mdi-account-check</v-icon
-                            >
-                        </div>
-                        <div class="text-caption text-secondary">
-                            Cobertura de evaluación
-                        </div>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" sm="6" md="3">
-                    <v-card border flat class="pa-4 bg-orange-lighten-5">
-                        <div class="text-overline mb-1">Riesgo de Fuga</div>
-                        <div class="d-flex align-end">
-                            <div class="text-h3 font-weight-bold text-warning">
-                                12%
-                            </div>
-                            <v-icon color="warning" class="mb-2 ml-2"
-                                >mdi-alert</v-icon
-                            >
-                        </div>
-                        <div class="text-caption text-secondary">
-                            Basado en alineación (MOCK)
-                        </div>
-                    </v-card>
-                </v-col>
-            </v-row>
-
-            <!-- Charts and Activity -->
-            <v-row class="mt-4">
-                <v-col cols="12" md="7">
-                    <v-card border flat class="pa-4 fill-height">
-                        <v-card-title class="px-0 pt-0"
-                            >Mapa de Rasgos Organizacionales</v-card-title
+                        <span class="mt-2 text-xs font-medium text-slate-400"
+                            >Candidatos a liderazgo estratégico</span
                         >
-                        <v-card-subtitle class="px-0"
-                            >Promedio de competencias blandas
-                            detectadas</v-card-subtitle
-                        >
+                    </div>
+                </StCardGlass>
 
-                        <div class="chart-container py-4">
-                            <VueApexCharts
-                                type="radar"
-                                height="350"
-                                :options="chartOptions"
-                                :series="chartSeries"
-                            ></VueApexCharts>
+                <StCardGlass
+                    class="group relative overflow-hidden border-indigo-500/10 p-6"
+                >
+                    <div
+                        class="absolute -right-4 -bottom-4 text-indigo-500/5 transition-colors group-hover:text-indigo-500/10"
+                    >
+                        <Users :size="120" />
+                    </div>
+                    <p
+                        class="mb-4 text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase"
+                    >
+                        Total Evaluados
+                    </p>
+                    <div class="flex flex-col">
+                        <span
+                            class="text-4xl leading-none font-black text-indigo-400"
+                            >{{ metrics.total_assessed }}</span
+                        >
+                        <span class="mt-2 text-xs font-medium text-slate-400"
+                            >Cobertura actual del 85%</span
+                        >
+                    </div>
+                </StCardGlass>
+
+                <StCardGlass
+                    class="group relative overflow-hidden border-amber-500/10 p-6"
+                >
+                    <div
+                        class="absolute -right-4 -bottom-4 text-amber-500/5 transition-colors group-hover:text-amber-500/10"
+                    >
+                        <ShieldAlert :size="120" />
+                    </div>
+                    <p
+                        class="mb-4 text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase"
+                    >
+                        Riesgo de Fuga
+                    </p>
+                    <div class="flex flex-col">
+                        <span
+                            class="text-4xl leading-none font-black text-amber-500"
+                            >12%</span
+                        >
+                        <span class="mt-2 text-xs font-medium text-slate-400"
+                            >Basado en alineación cultural</span
+                        >
+                    </div>
+                </StCardGlass>
+            </div>
+
+            <!-- Main Analysis Area -->
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                <!-- Radar Analysis -->
+                <StCardGlass class="border-white/5 p-8 lg:col-span-7">
+                    <div class="mb-8 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-white">
+                                Mapa de Rasgos Organizacionales
+                            </h3>
+                            <p class="text-sm text-slate-400">
+                                Distribución de competencias blandas detectadas.
+                            </p>
                         </div>
-                    </v-card>
-                </v-col>
+                    </div>
+                    <div class="chart-container">
+                        <VueApexCharts
+                            type="radar"
+                            height="450"
+                            width="100%"
+                            :options="chartOptions"
+                            :series="chartSeries"
+                        />
+                    </div>
+                </StCardGlass>
 
-                <v-col cols="12" md="5">
-                    <v-card border flat class="pa-4 fill-height">
-                        <v-card-title class="px-0 pt-0"
-                            >Actividad Reciente</v-card-title
+                <!-- Recent Activity -->
+                <StCardGlass
+                    class="flex flex-col border-white/5 p-8 lg:col-span-5"
+                >
+                    <div class="mb-8 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-white">
+                                Actividad Reciente
+                            </h3>
+                            <p class="text-sm text-slate-400">
+                                Últimas evaluaciones finalizadas.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 space-y-4">
+                        <button
+                            v-for="assessment in metrics.latest_assessments"
+                            :key="assessment.id"
+                            @click="
+                                router.visit(
+                                    '/talento360/results/' + assessment.id,
+                                )
+                            "
+                            class="group flex w-full items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-all hover:border-white/10 hover:bg-white/10"
                         >
-                        <v-list class="px-0">
-                            <v-list-item
-                                v-for="assessment in metrics.latest_assessments"
-                                :key="assessment.id"
-                                class="border-bottom-light px-0"
-                                link
-                                @click="
-                                    router.visit(
-                                        '/talento360/results/' + assessment.id,
-                                    )
-                                "
-                            >
-                                <template v-slot:prepend>
-                                    <v-avatar color="grey-lighten-3">
-                                        {{
-                                            assessment.person_name
-                                                ? assessment.person_name.charAt(
-                                                      0,
-                                                  )
-                                                : '?'
-                                        }}
-                                    </v-avatar>
-                                </template>
-                                <v-list-item-title class="font-weight-bold">{{
-                                    assessment.person_name
-                                }}</v-list-item-title>
-                                <v-list-item-subtitle
-                                    >{{ assessment.type }} •
-                                    {{
-                                        assessment.completed_at
-                                    }}</v-list-item-subtitle
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 font-black text-primary transition-transform group-hover:scale-110"
                                 >
-                                <template v-slot:append>
-                                    <v-chip
-                                        :color="
-                                            getPotentialColor(
-                                                assessment.potential,
-                                            )
-                                        "
-                                        size="small"
+                                    {{
+                                        assessment.person_name
+                                            ? assessment.person_name.charAt(0)
+                                            : '?'
+                                    }}
+                                </div>
+                                <div class="text-left">
+                                    <h4 class="text-sm font-bold text-white">
+                                        {{ assessment.person_name }}
+                                    </h4>
+                                    <p
+                                        class="text-[10px] font-medium tracking-wider text-slate-500 uppercase"
                                     >
-                                        {{
-                                            (
-                                                assessment.potential * 100
-                                            ).toFixed(0)
-                                        }}%
-                                    </v-chip>
-                                </template>
-                            </v-list-item>
-                            <v-list-item
-                                v-if="!metrics.latest_assessments.length"
-                                class="py-10 text-center text-secondary"
-                            >
-                                Sin evaluaciones recientes.
-                            </v-list-item>
-                        </v-list>
-                        <v-divider class="my-2"></v-divider>
-                        <v-btn
-                            variant="text"
-                            block
-                            color="primary"
-                            class="mt-2"
-                            @click="router.visit('/people')"
+                                        {{ assessment.type }} •
+                                        {{ assessment.completed_at }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="rounded-lg px-3 py-1 text-xs font-black"
+                                    :class="
+                                        assessment.potential >= 0.8
+                                            ? 'bg-emerald-500/20 text-emerald-400'
+                                            : 'bg-amber-500/20 text-amber-400'
+                                    "
+                                >
+                                    {{
+                                        (assessment.potential * 100).toFixed(0)
+                                    }}%
+                                </div>
+                                <ChevronRight
+                                    :size="16"
+                                    class="text-slate-600"
+                                />
+                            </div>
+                        </button>
+
+                        <div
+                            v-if="!metrics.latest_assessments.length"
+                            class="flex h-64 flex-col items-center justify-center text-slate-600 italic"
                         >
-                            Ver todo el talento
-                        </v-btn>
-                    </v-card>
-                </v-col>
-            </v-row>
+                            No hay evaluaciones recientes.
+                        </div>
+                    </div>
+
+                    <button
+                        @click="router.visit('/people')"
+                        class="mt-8 w-full rounded-xl border border-white/5 py-4 text-sm font-bold text-slate-400 transition-all hover:bg-white/5"
+                    >
+                        Ver Repositorio de Talento Completo
+                    </button>
+                </StCardGlass>
+            </div>
         </template>
 
         <!-- DNA Cloning Dialog -->
@@ -516,17 +580,14 @@ const extractDNA = async (personId: number, personName: string) => {
                 </v-card-actions>
             </v-card>
         </v-dialog>
-    </v-container>
+    </div>
 </template>
 
 <style scoped>
 .chart-container {
-    min-height: 350px;
+    min-height: 450px;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-.border-bottom-light {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 </style>

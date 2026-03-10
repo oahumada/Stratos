@@ -113,9 +113,7 @@
                                     size="sm"
                                     class="mb-2"
                                 >
-                                    {{
-                                        plan.criticality?.toUpperCase() ?? ''
-                                    }}
+                                    {{ plan.criticality?.toUpperCase() ?? '' }}
                                     NODE
                                 </StBadgeGlass>
                                 <h4

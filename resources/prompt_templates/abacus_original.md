@@ -55,5 +55,3 @@ EJEMPLO MÍNIMO DE SALIDA ESPERADA:
 "confidence_score": 0.87,
 "assumptions": ["Los datos fuente están disponibles en formatos CSV/DB"]
 }
-
-

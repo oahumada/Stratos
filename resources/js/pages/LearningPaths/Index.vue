@@ -441,9 +441,7 @@ onMounted(() => {
                                 <v-icon start size="small"
                                     >mdi-clock-outline</v-icon
                                 >
-                                {{
-                                    calculateTotalDuration(path.steps || [])
-                                }}
+                                {{ calculateTotalDuration(path.steps || []) }}
                                 días
                             </v-chip>
                             <div class="text-caption text-medium-emphasis">

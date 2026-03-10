@@ -159,9 +159,7 @@ const getTargetIcon = (type: string) => {
                                 <td>
                                     <span v-if="policy.frequency_months > 0"
                                         >Cada
-                                        {{
-                                            policy.frequency_months
-                                        }}
+                                        {{ policy.frequency_months }}
                                         meses</span
                                     >
                                     <span v-else class="text-italic"

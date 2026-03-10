@@ -86,6 +86,7 @@ const data = ref<PersonData | null>(null);
 const activeSection = ref('dashboard');
 const greeting = ref('');
 const isMentorChatOpen = ref(false);
+const isRetakingDna = ref(false);
 
 const toggleMentorChat = () => {
     isMentorChatOpen.value = !isMentorChatOpen.value;
@@ -1238,9 +1239,34 @@ defineOptions({ layout: AppLayout });
                                         derivado por Cerbero AI.
                                     </p>
                                 </div>
+                                <v-btn
+                                    v-if="data?.psychometric && !isRetakingDna"
+                                    color="white"
+                                    variant="outlined"
+                                    size="small"
+                                    prepend-icon="mdi-refresh"
+                                    class="rounded-xl border-white/20 hover:bg-white/5"
+                                    @click="isRetakingDna = true"
+                                >
+                                    Reevaluar Potencial
+                                </v-btn>
+                                <v-btn
+                                    v-else-if="isRetakingDna"
+                                    color="white"
+                                    variant="text"
+                                    size="small"
+                                    prepend-icon="mdi-arrow-left"
+                                    class="rounded-xl"
+                                    @click="isRetakingDna = false"
+                                >
+                                    Cancelar
+                                </v-btn>
                             </div>
 
-                            <div v-if="data?.psychometric" class="space-y-6">
+                            <div
+                                v-if="data?.psychometric && !isRetakingDna"
+                                class="space-y-6"
+                            >
                                 <!-- Perfil Psicométrico General -->
                                 <div
                                     class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
@@ -1364,16 +1390,19 @@ defineOptions({ layout: AppLayout });
 
                             <div
                                 v-else
-                                class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 p-12 text-center"
+                                class="overflow-hidden rounded-2xl border border-dashed border-white/10 bg-white/5"
                             >
-                                <span class="mb-4 text-5xl">❔</span>
-                                <h3 class="mb-1 text-lg font-bold text-white">
-                                    Perfil Pendiente
-                                </h3>
-                                <p class="text-sm text-white/50">
-                                    No hay un perfil psicométrico generado aún.
-                                    Participa en tu primera evaluación 360°.
-                                </p>
+                                <AssessmentChat
+                                    v-if="person"
+                                    :person-id="person.id"
+                                    type="psychometric"
+                                    @completed="
+                                        () => {
+                                            isRetakingDna = false;
+                                            fetchDashboard();
+                                        }
+                                    "
+                                />
                             </div>
                         </div>
                     </transition>

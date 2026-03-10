@@ -116,6 +116,10 @@ Route::get('/learning-paths', function () {
     return Inertia::render('LearningPaths/StratosNavigator');
 })->middleware(['auth', 'verified', 'module:st-grow'])->name('learning-paths.index');
 
+Route::get('/mentoring', function () {
+    return Inertia::render('Growth/Mentorship');
+})->middleware(['auth', 'verified'])->name('mentoring.index');
+
 Route::get('/marketplace', function () {
     return Inertia::render('Marketplace/Index');
 })->middleware(['auth', 'verified', 'module:st-match'])->name('marketplace.index');

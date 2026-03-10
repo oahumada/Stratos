@@ -1163,6 +1163,17 @@ Route::middleware('auth:sanctum')->group(function () {
     // People Experience (PX) & Engagement
     Route::get('/px/campaigns', [\App\Http\Controllers\Api\PxController::class, 'index']);
     Route::post('/px/campaigns/trigger', [\App\Http\Controllers\Api\PxController::class, 'trigger']);
+
+    // Gamification & Rewards
+    Route::prefix('gamification')->group(function () {
+        Route::get('/rewards', [\App\Http\Controllers\Api\GamificationController::class, 'getRewards']);
+        Route::post('/people/{peopleId}/redeem', [\App\Http\Controllers\Api\GamificationController::class, 'redeem']);
+        Route::get('/people/{peopleId}/history', [\App\Http\Controllers\Api\GamificationController::class, 'getRedemptionHistory']);
+        Route::get('/people/{peopleId}/quests', [\App\Http\Controllers\Api\GamificationController::class, 'getPersonQuests']);
+        Route::get('/quests/available', [\App\Http\Controllers\Api\GamificationController::class, 'getAvailableQuests']);
+        Route::post('/people/{peopleId}/quests/{questId}/start', [\App\Http\Controllers\Api\GamificationController::class, 'startQuest']);
+        Route::post('/people/{peopleId}/quests/{questId}/progress', [\App\Http\Controllers\Api\GamificationController::class, 'progressQuest']);
+    });
 });
 
 // ── QA & Evaluation: RAGAS LLM Fidelity Assessment ──────────────

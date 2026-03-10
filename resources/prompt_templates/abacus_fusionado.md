@@ -1,4 +1,4 @@
-````markdown
+```markdown
 # Instrucción por defecto (Sistema) ABACUS — Fusión
 
 Genera un escenario estratégico a partir de los datos proporcionados y devuelve
@@ -50,11 +50,13 @@ Definiciones:
   `key_competencies` (lista de IDs o nombres) y `estimated_fte`.
 
 ---
-/*
+
+/\*
+
 1. INSTRUCCIONES/SISTEMA (contexto y reglas generales)
 2. ENTRADAS_OPERADOR (datos del formulario — JSON)
 3. INSTRUCCIONES_DE_SALIDA (restricciones, JSON_SCHEMA, ejemplo de salida)
-Por qué:
+   Por qué:
 
 El sistema primero fija el comportamiento del modelo (rol, tono, reglas).
 Las entradas deben ser tratadas como datos que el modelo consume, por eso van después.
@@ -71,4 +73,5 @@ INSTRUCCIONES_DE_SALIDA:
 
 Devuelve SOLO JSON...
 JSON_SCHEMA: { ...schema unificado... }
-Ejemplo de salida: { ... }*/
+Ejemplo de salida: { ... }\*/
+```

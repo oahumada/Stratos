@@ -30,6 +30,7 @@ class People extends Model
         'photo_url',
         'is_high_potential',
         'salary',
+        'current_points',
     ];
 
     protected $appends = ['skills_count', 'full_name'];

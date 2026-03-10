@@ -1,85 +1,92 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+import {
+    queryParams,
+    type RouteDefinition,
+    type RouteFormDefinition,
+    type RouteQueryOptions,
+} from './../../../../../wayfinder';
 /**
-* @see \App\Http\Controllers\Api\ScenarioTemplateController::index
-* @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
-* @route '/api/strategic-planning/scenario-templates'
-*/
+ * @see \App\Http\Controllers\Api\ScenarioTemplateController::index
+ * @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
+ * @route '/api/strategic-planning/scenario-templates'
+ */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: index.url(options),
     method: 'get',
-})
+});
 
 index.definition = {
-    methods: ["get","head"],
+    methods: ['get', 'head'],
     url: '/api/strategic-planning/scenario-templates',
-} satisfies RouteDefinition<["get","head"]>
+} satisfies RouteDefinition<['get', 'head']>;
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioTemplateController::index
-* @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
-* @route '/api/strategic-planning/scenario-templates'
-*/
+ * @see \App\Http\Controllers\Api\ScenarioTemplateController::index
+ * @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
+ * @route '/api/strategic-planning/scenario-templates'
+ */
 index.url = (options?: RouteQueryOptions) => {
-    return index.definition.url + queryParams(options)
-}
+    return index.definition.url + queryParams(options);
+};
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioTemplateController::index
-* @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
-* @route '/api/strategic-planning/scenario-templates'
-*/
+ * @see \App\Http\Controllers\Api\ScenarioTemplateController::index
+ * @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
+ * @route '/api/strategic-planning/scenario-templates'
+ */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: index.url(options),
     method: 'get',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioTemplateController::index
-* @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
-* @route '/api/strategic-planning/scenario-templates'
-*/
+ * @see \App\Http\Controllers\Api\ScenarioTemplateController::index
+ * @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
+ * @route '/api/strategic-planning/scenario-templates'
+ */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioTemplateController::index
-* @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
-* @route '/api/strategic-planning/scenario-templates'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+ * @see \App\Http\Controllers\Api\ScenarioTemplateController::index
+ * @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
+ * @route '/api/strategic-planning/scenario-templates'
+ */
+const indexForm = (
+    options?: RouteQueryOptions,
+): RouteFormDefinition<'get'> => ({
     action: index.url(options),
     method: 'get',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioTemplateController::index
-* @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
-* @route '/api/strategic-planning/scenario-templates'
-*/
+ * @see \App\Http\Controllers\Api\ScenarioTemplateController::index
+ * @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
+ * @route '/api/strategic-planning/scenario-templates'
+ */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: index.url(options),
     method: 'get',
-})
+});
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioTemplateController::index
-* @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
-* @route '/api/strategic-planning/scenario-templates'
-*/
+ * @see \App\Http\Controllers\Api\ScenarioTemplateController::index
+ * @see app/Http/Controllers/Api/ScenarioTemplateController.php:12
+ * @route '/api/strategic-planning/scenario-templates'
+ */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: index.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
+        },
     }),
     method: 'get',
-})
+});
 
-index.form = indexForm
+index.form = indexForm;
 
-const ScenarioTemplateController = { index }
+const ScenarioTemplateController = { index };
 
-export default ScenarioTemplateController
+export default ScenarioTemplateController;

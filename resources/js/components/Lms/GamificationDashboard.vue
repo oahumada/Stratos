@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
+import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { GraduationCap, Star, Trophy } from 'lucide-vue-next';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import RewardsCatalog from './RewardsCatalog.vue';
 
 interface Stats {
     xp: number;
@@ -26,6 +28,10 @@ interface LeaderboardItem {
 const stats = ref<Stats | null>(null);
 const leaderboard = ref<LeaderboardItem[]>([]);
 const loading = ref(true);
+const showRewards = ref(false);
+
+const page = usePage();
+const peopleId = computed(() => (page.props.auth as any).user.person_id || 0);
 
 const fetchDashboardData = async () => {
     loading.value = true;
@@ -42,6 +48,12 @@ const fetchDashboardData = async () => {
         console.error('Error fetching gamification data:', error);
     } finally {
         loading.value = false;
+    }
+};
+
+const handleRedeemed = (cost: number) => {
+    if (stats.value) {
+        stats.value.points -= cost;
     }
 };
 
@@ -129,6 +141,7 @@ onMounted(fetchDashboardData);
                 >Stratos Credits</span
             >
             <button
+                @click="showRewards = true"
                 class="mt-6 rounded-full border border-yellow-500/30 bg-yellow-500/20 px-4 py-2 text-xs font-bold tracking-widest text-yellow-500 uppercase transition-colors hover:bg-yellow-500/30"
             >
                 Canjear Beneficios
@@ -211,6 +224,15 @@ onMounted(fetchDashboardData);
                 hoy!
             </div>
         </StCardGlass>
+
+        <!-- Rewards Catalog Modal -->
+        <RewardsCatalog
+            v-if="showRewards"
+            :people-id="peopleId"
+            :current-points="stats?.points ?? 0"
+            @close="showRewards = false"
+            @redeemed="handleRedeemed"
+        />
     </div>
 </template>
 

@@ -2,11 +2,11 @@ import { useApi } from '@/composables/useApi';
 import type {
     PlanDocument,
     PlanStatistics,
+    ScenarioPlan,
     ScopeRole,
     ScopeUnit,
     TalentRisk,
     TransformationProject,
-    ScenarioPlan,
 } from '@/types/scenarioPlanning';
 
 export function useScenarioPlanning() {

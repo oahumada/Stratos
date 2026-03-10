@@ -172,7 +172,7 @@ class GamificationService
 
         if ($person->current_points < $reward->points_cost) {
             return [
-                'success' => false, 
+                'success' => false,
                 'message' => "Puntos insuficientes. Necesitas {$reward->points_cost} y tienes {$person->current_points}."
             ];
         }
@@ -209,5 +209,31 @@ class GamificationService
                 'redemption_id' => $redemptionId
             ];
         });
+    }
+
+    /**
+     * Get all active rewards from the catalog.
+     */
+    public function getAvailableRewards(): array
+    {
+        return DB::table('rewards')
+            ->where('is_active', true)
+            ->orderBy('points_cost', 'asc')
+            ->get()
+            ->toArray();
+    }
+
+    /**
+     * Get redemption history for a specific person.
+     */
+    public function getRedemptionHistory(int $personId): array
+    {
+        return DB::table('reward_redemptions')
+            ->join('rewards', 'reward_redemptions.reward_id', '=', 'rewards.id')
+            ->where('reward_redemptions.people_id', $personId)
+            ->select('reward_redemptions.*', 'rewards.title as reward_title', 'rewards.category')
+            ->orderBy('reward_redemptions.created_at', 'desc')
+            ->get()
+            ->toArray();
     }
 }

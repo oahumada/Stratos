@@ -3,7 +3,11 @@
         { "text": "ID", "value": "id", "sortable": true },
         { "text": "Habilidad", "value": "skill.name", "sortable": true },
         { "text": "Arquetipo", "value": "archetype", "sortable": true },
-        { "text": "Relación", "value": "target_relationship", "sortable": true },
+        {
+            "text": "Relación",
+            "value": "target_relationship",
+            "sortable": true
+        },
         { "text": "Pregunta", "value": "question", "sortable": false },
         { "text": "Global", "value": "is_global", "type": "boolean" }
     ]

@@ -86,7 +86,8 @@ export function useApi() {
                     const s = d.trim();
                     if (s.startsWith('<')) {
                         // HTML response (likely a 500 error page)
-                        friendly = 'Server error (returned HTML). Check server logs for details.';
+                        friendly =
+                            'Server error (returned HTML). Check server logs for details.';
                     } else {
                         // Non-JSON string response — show a trimmed preview
                         friendly = s.length > 200 ? s.slice(0, 200) + '...' : s;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNotification, type Notification } from '@/composables/useNotification';
+import { useNotification } from '@/composables/useNotification';
 import { computed } from 'vue';
 
 const { notifications } = useNotification();
@@ -8,19 +8,19 @@ const notificationList = computed(() => notifications.value || []);
 </script>
 
 <template>
-    <div class="fixed bottom-4 right-4 z-50 space-y-2 max-w-md">
+    <div class="fixed right-4 bottom-4 z-50 max-w-md space-y-2">
         <transition-group name="slide-fade">
             <div
                 v-for="notification in notificationList"
                 :key="notification.id"
                 :class="[
-                    'p-4 rounded-lg shadow-lg text-white text-sm animate-slide-in',
+                    'animate-slide-in rounded-lg p-4 text-sm text-white shadow-lg',
                     {
                         'bg-green-500': notification.type === 'success',
                         'bg-red-500': notification.type === 'error',
                         'bg-yellow-500': notification.type === 'warning',
                         'bg-blue-500': notification.type === 'info',
-                    }
+                    },
                 ]"
             >
                 {{ notification.message }}

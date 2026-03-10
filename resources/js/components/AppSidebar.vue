@@ -147,6 +147,17 @@ const allNavItems: NavItem[] = [
         requiredPermission: 'people.view',
         requiredModule: 'st-grow',
     },
+    // Mentoring Hub — requires people.view
+    {
+        title: 'Mentoring Hub',
+        href: '/mentoring',
+        icon: defineComponent(
+            () => () =>
+                h(VIcon, { icon: 'mdi-account-star-outline', size: 20 }),
+        ),
+        requiredPermission: 'people.view',
+        requiredModule: 'st-grow',
+    },
     // Marketplace — requires people.view
     {
         title: 'Marketplace',
@@ -187,12 +198,12 @@ const allNavItems: NavItem[] = [
         ),
         requiredRole: ['admin', 'hr_leader'],
     },
-    // Mobility War-Room — admin/hr_leader only
+    // Mobility War-Room — leadership/observers
     {
         title: 'Mobility War-Room',
         href: '/talento360/war-room',
         icon: MobilityWarRoomIcon,
-        requiredRole: ['admin', 'hr_leader'],
+        requiredRole: ['admin', 'hr_leader', 'observer'],
     },
     // People Experience — requires people.view
     {

@@ -4,7 +4,6 @@ import axios from 'axios';
 import { onMounted, ref } from 'vue';
 
 // Components
-import AssessmentChat from '@/components/Assessments/AssessmentChat.vue';
 import DevelopmentTab from '@/components/Talent/DevelopmentTab.vue';
 
 const props = defineProps<{
@@ -262,12 +261,9 @@ defineOptions({ layout: AppLayout });
                                     >
                                     <p class="text-grey mb-4">
                                         No hay perfil psicométrico disponible.
-                                        Comienza una evaluación interactiva.
+                                        El talento debe completarlo desde su
+                                        portal Mi Stratos.
                                     </p>
-                                    <AssessmentChat
-                                        :person-id="personData.person.id"
-                                        @completed="fetchProfile"
-                                    />
                                 </div>
                             </v-card>
                         </v-col>

@@ -1,14 +1,14 @@
 [
-  {
-    "field": "relationship_type",
-    "label": "Tipo de Vínculo",
-    "type": "select",
-    "items": [
-      { "name": "Jefe (Manager)", "id": "manager" },
-      { "name": "Par (Peer)", "id": "peer" },
-      { "name": "Subordinado (Subordinate)", "id": "subordinate" },
-      { "name": "Mentor", "id": "mentor" },
-      { "name": "Otro", "id": "other" }
-    ]
-  }
+    {
+        "field": "relationship_type",
+        "label": "Tipo de Vínculo",
+        "type": "select",
+        "items": [
+            { "name": "Jefe (Manager)", "id": "manager" },
+            { "name": "Par (Peer)", "id": "peer" },
+            { "name": "Subordinado (Subordinate)", "id": "subordinate" },
+            { "name": "Mentor", "id": "mentor" },
+            { "name": "Otro", "id": "other" }
+        ]
+    }
 ]

@@ -1,8 +1,20 @@
 {
-  "headers": [
-    { "title": "Sujeto / Evaluador", "key": "person.full_name", "sortable": true },
-    { "title": "Tipo de Vínculo", "key": "relationship_type", "sortable": true },
-    { "title": "Persona Relacionada", "key": "related_person.full_name", "sortable": true },
-    { "title": "Acciones", "key": "actions", "sortable": false }
-  ]
+    "headers": [
+        {
+            "title": "Sujeto / Evaluador",
+            "key": "person.full_name",
+            "sortable": true
+        },
+        {
+            "title": "Tipo de Vínculo",
+            "key": "relationship_type",
+            "sortable": true
+        },
+        {
+            "title": "Persona Relacionada",
+            "key": "related_person.full_name",
+            "sortable": true
+        },
+        { "title": "Acciones", "key": "actions", "sortable": false }
+    ]
 }

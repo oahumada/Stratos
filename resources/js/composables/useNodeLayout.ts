@@ -25,7 +25,10 @@ export function useNodeLayout() {
     /**
      * Find parent node from edges
      */
-    function findParent(nodeId: string | number, edges: Edge[]): string | number | null {
+    function findParent(
+        nodeId: string | number,
+        edges: Edge[],
+    ): string | number | null {
         const parentEdge = edges.find((e: Edge) => e.target === nodeId);
         return parentEdge ? parentEdge.source : null;
     }
@@ -47,12 +50,12 @@ export function useNodeLayout() {
 
         const sum = points.reduce(
             (acc, p) => ({ x: acc.x + p.x, y: acc.y + p.y }),
-            { x: 0, y: 0 }
+            { x: 0, y: 0 },
         );
 
         return {
             x: sum.x / points.length,
-            y: sum.y / points.length
+            y: sum.y / points.length,
         };
     }
 
@@ -63,7 +66,7 @@ export function useNodeLayout() {
         center: Position,
         count: number,
         radius: number,
-        startAngle: number = 0
+        startAngle: number = 0,
     ): Position[] {
         const positions: Position[] = [];
         const angleStep = (2 * Math.PI) / count;
@@ -72,7 +75,7 @@ export function useNodeLayout() {
             const angle = startAngle + i * angleStep;
             positions.push({
                 x: center.x + radius * Math.cos(angle),
-                y: center.y + radius * Math.sin(angle)
+                y: center.y + radius * Math.sin(angle),
             });
         }
 
@@ -89,12 +92,12 @@ export function useNodeLayout() {
             columns?: number;
             rowSpacing?: number;
             columnSpacing?: number;
-        } = {}
+        } = {},
     ): Position[] {
         const {
             columns = Math.ceil(Math.sqrt(count)),
             rowSpacing = 150,
-            columnSpacing = 200
+            columnSpacing = 200,
         } = options;
 
         const positions: Position[] = [];
@@ -105,7 +108,7 @@ export function useNodeLayout() {
 
             positions.push({
                 x: startPosition.x + col * columnSpacing,
-                y: startPosition.y + row * rowSpacing
+                y: startPosition.y + row * rowSpacing,
             });
         }
 
@@ -118,14 +121,14 @@ export function useNodeLayout() {
     function distributeHorizontally(
         startPosition: Position,
         count: number,
-        spacing: number = 200
+        spacing: number = 200,
     ): Position[] {
         const positions: Position[] = [];
 
         for (let i = 0; i < count; i++) {
             positions.push({
                 x: startPosition.x + i * spacing,
-                y: startPosition.y
+                y: startPosition.y,
             });
         }
 
@@ -138,14 +141,14 @@ export function useNodeLayout() {
     function distributeVertically(
         startPosition: Position,
         count: number,
-        spacing: number = 150
+        spacing: number = 150,
     ): Position[] {
         const positions: Position[] = [];
 
         for (let i = 0; i < count; i++) {
             positions.push({
                 x: startPosition.x,
-                y: startPosition.y + i * spacing
+                y: startPosition.y + i * spacing,
             });
         }
 
@@ -157,7 +160,12 @@ export function useNodeLayout() {
      */
     function isInViewport(
         position: Position,
-        viewport: { width: number; height: number; minX?: number; minY?: number }
+        viewport: {
+            width: number;
+            height: number;
+            minX?: number;
+            minY?: number;
+        },
     ): boolean {
         const minX = viewport.minX ?? 0;
         const minY = viewport.minY ?? 0;
@@ -176,20 +184,20 @@ export function useNodeLayout() {
     function findNearestAvailablePosition(
         desiredPosition: Position,
         existingNodes: NodeItem[],
-        minDistance: number = 100
+        minDistance: number = 100,
     ): Position {
         let position = { ...desiredPosition };
         let attempts = 0;
         const maxAttempts = 50;
 
         while (attempts < maxAttempts) {
-            const hasOverlap = existingNodes.some(node => {
+            const hasOverlap = existingNodes.some((node) => {
                 if (node.x === undefined || node.y === undefined) return false;
-                
+
                 const dx = position.x - node.x;
                 const dy = position.y - node.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                
+
                 return distance < minDistance;
             });
 
@@ -200,10 +208,10 @@ export function useNodeLayout() {
             // Try spiraling outward
             const angle = (attempts / maxAttempts) * 2 * Math.PI;
             const radius = minDistance * (1 + attempts / 10);
-            
+
             position = {
                 x: desiredPosition.x + radius * Math.cos(angle),
-                y: desiredPosition.y + radius * Math.sin(angle)
+                y: desiredPosition.y + radius * Math.sin(angle),
             };
 
             attempts++;
@@ -221,7 +229,7 @@ export function useNodeLayout() {
         distributeHorizontally,
         distributeVertically,
         isInViewport,
-        findNearestAvailablePosition
+        findNearestAvailablePosition,
     };
 }
 
