@@ -172,6 +172,11 @@
 - **[WORKFORCE_PLANNING_GUIA.md](WORKFORCE_PLANNING_GUIA.md)** - Guía rápida de implementación ⭐ COMIENZA AQUÍ
 - **[memories_workforce_planning.md](memories_workforce_planning.md)** - Resumen operativo y pasos Postman (últimas modificaciones)
 
+### 📈 Inteligencia de Talento & Movilidad (Fase 6)
+
+- **[Simulacion_Movilidad_Estrategica.md](Technical/Simulacion_Movilidad_Estrategica.md)** - Motor de Movilidad Estratégica
+- **[Inteligencia_Aprendizaje_LMS.md](Technical/Inteligencia_Aprendizaje_LMS.md)** - Hub de LMS e Inteligencia de Aprendizaje
+
 ---
 
 ## 📝 Resúmenes Ejecutivos

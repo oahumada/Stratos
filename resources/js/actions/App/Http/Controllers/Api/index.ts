@@ -39,6 +39,7 @@ import IncubationController from './IncubationController'
 import RoleDesignerController from './RoleDesignerController'
 import Talento360Controller from './Talento360Controller'
 import CompetencyCuratorController from './CompetencyCuratorController'
+import MobilitySimulationController from './MobilitySimulationController'
 import TelemetryController from './TelemetryController'
 import CapabilityCompetencyController from './CapabilityCompetencyController'
 import ScenarioTemplateController from './ScenarioTemplateController'
@@ -46,8 +47,9 @@ import Step2RoleCompetencyController from './Step2RoleCompetencyController'
 import ImpactReportController from './ImpactReportController'
 import ScenarioIQController from './ScenarioIQController'
 import StratosIntelligenceController from './StratosIntelligenceController'
-import WorkforcePlanningController from './WorkforcePlanningController'
+import PxController from './PxController'
 import RAGASEvaluationController from './RAGASEvaluationController'
+import Automation from './Automation'
 
 const Api = {
     CatalogsController: Object.assign(CatalogsController, CatalogsController),
@@ -91,6 +93,7 @@ const Api = {
     RoleDesignerController: Object.assign(RoleDesignerController, RoleDesignerController),
     Talento360Controller: Object.assign(Talento360Controller, Talento360Controller),
     CompetencyCuratorController: Object.assign(CompetencyCuratorController, CompetencyCuratorController),
+    MobilitySimulationController: Object.assign(MobilitySimulationController, MobilitySimulationController),
     TelemetryController: Object.assign(TelemetryController, TelemetryController),
     CapabilityCompetencyController: Object.assign(CapabilityCompetencyController, CapabilityCompetencyController),
     ScenarioTemplateController: Object.assign(ScenarioTemplateController, ScenarioTemplateController),
@@ -98,8 +101,9 @@ const Api = {
     ImpactReportController: Object.assign(ImpactReportController, ImpactReportController),
     ScenarioIQController: Object.assign(ScenarioIQController, ScenarioIQController),
     StratosIntelligenceController: Object.assign(StratosIntelligenceController, StratosIntelligenceController),
-    WorkforcePlanningController: Object.assign(WorkforcePlanningController, WorkforcePlanningController),
+    PxController: Object.assign(PxController, PxController),
     RAGASEvaluationController: Object.assign(RAGASEvaluationController, RAGASEvaluationController),
+    Automation: Object.assign(Automation, Automation),
 }
 
 export default Api

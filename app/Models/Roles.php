@@ -32,6 +32,7 @@ class Roles extends Model
         'agent_id',
         'blueprint_id',
         'cube_dimensions',
+        'base_salary',
     ];
 
     protected $casts = [

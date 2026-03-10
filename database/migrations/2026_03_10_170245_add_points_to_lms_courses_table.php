@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('psychometric_profiles', function (Blueprint $table) {
-            //
+        Schema::table('lms_courses', function (Blueprint $table) {
+            $table->integer('xp_points')->default(50)->after('currency');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('psychometric_profiles', function (Blueprint $table) {
-            //
+        Schema::table('lms_courses', function (Blueprint $table) {
+            $table->dropColumn('xp_points');
         });
     }
 };

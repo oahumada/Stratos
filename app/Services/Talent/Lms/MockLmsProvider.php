@@ -27,21 +27,20 @@ class MockLmsProvider implements LmsProviderInterface
 
     public function searchCourses(string $query): array
     {
-        // Mock a set of courses based on the query or random if empty
-        $count = empty($query) ? 5 : rand(2, 8);
-        $courses = [];
+        $mockCatalog = [
+            ['id' => 'MOCK-001', 'title' => 'Fundamentos de Lean Manufacturing', 'level' => 'beginner', 'provider' => 'mock'],
+            ['id' => 'MOCK-002', 'title' => 'Gestión de Calidad Automotriz (IATF 16949)', 'level' => 'advanced', 'provider' => 'mock'],
+            ['id' => 'MOCK-003', 'title' => 'Liderazgo en Procesos de Cambio', 'level' => 'intermediate', 'provider' => 'mock'],
+            ['id' => 'MOCK-004', 'title' => 'Análisis de Datos para Producto', 'level' => 'intermediate', 'provider' => 'mock'],
+            ['id' => 'MOCK-005', 'title' => 'Introducción a la Inteligencia de Talento', 'level' => 'beginner', 'provider' => 'mock'],
+        ];
 
-        for ($i = 1; $i <= $count; $i++) {
-            $courses[] = [
-                'id' => "CRS-{$i}-".strtoupper(substr(md5($query.$i), 0, 8)),
-                'title' => (empty($query) ? 'General Training ' : 'Especialización en '.ucfirst($query))." {$i}",
-                'provider' => 'mock_lms',
-                'duration_hours' => rand(5, 40),
-                'level' => ['beginner', 'intermediate', 'advanced'][rand(0, 2)],
-                'rating' => 4.0 + (rand(0, 10) / 10),
-            ];
+        if (empty($query)) {
+            return $mockCatalog;
         }
 
-        return $courses;
+        return array_values(array_filter($mockCatalog, function($c) use ($query) {
+            return stripos($c['title'], $query) !== false;
+        }));
     }
 }

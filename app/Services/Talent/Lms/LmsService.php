@@ -9,10 +9,18 @@ class LmsService
 {
     protected $providers = [];
 
-    public function __construct(MockLmsProvider $mockProvider)
-    {
+    public function __construct(
+        MockLmsProvider $mockProvider,
+        StratosInternalProvider $internalProvider,
+        MoodleProvider $moodleProvider,
+        LinkedInLearningProvider $linkedinProvider,
+        UdemyBusinessProvider $udemyProvider
+    ) {
         $this->providers['mock'] = $mockProvider;
-        // Aquí podríamos inyectar otros proveedores como MoodleProvider o LinkedInLearningProvider
+        $this->providers['internal'] = $internalProvider;
+        $this->providers['moodle'] = $moodleProvider;
+        $this->providers['linkedin'] = $linkedinProvider;
+        $this->providers['udemy'] = $udemyProvider;
     }
 
     /**
@@ -64,6 +72,19 @@ class LmsService
                     'completed_at' => now(),
                 ]);
 
+                // 🏅 GAMIFICATION: Award points to the user
+                $course = \App\Models\LmsCourse::find($action->lms_course_id);
+                if ($course) {
+                    $xp = $course->xp_points > 0 ? $course->xp_points : 50; // default 50
+                    $gamification = \App\Models\UserGamification::firstOrCreate(
+                        ['user_id' => $action->person_id], // En Stratos, DevelopmentAction usa person_id (vínculo People-User)
+                        ['total_xp' => 0, 'level' => 1, 'current_points' => 0]
+                    );
+                    $gamification->addExperience($xp);
+                    
+                    Log::info("User {$action->person_id} awarded {$xp} XP for completing course {$course->title}");
+                }
+
                 return true;
             }
         } catch (\Exception $e) {
@@ -78,8 +99,12 @@ class LmsService
      */
     public function searchCourses(string $query): array
     {
-        $provider = $this->getProvider('mock');
+        $allResults = [];
+        
+        foreach ($this->providers as $provider) {
+            $allResults = array_merge($allResults, $provider->searchCourses($query));
+        }
 
-        return $provider->searchCourses($query);
+        return $allResults;
     }
 }

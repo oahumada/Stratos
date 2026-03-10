@@ -208,6 +208,59 @@ class ChangeSetService
                         }
                         break;
 
+                    case 'move_person':
+                        $personId = $op['person_id'] ?? null;
+                        $targetRoleId = $op['target_role_id'] ?? null;
+                        if ($personId && $targetRoleId && class_exists(\App\Models\People::class)) {
+                            $person = \App\Models\People::find($personId);
+                            if ($person) {
+                                $person->role_id = $targetRoleId;
+                                $person->save();
+                            }
+                        }
+                        break;
+
+                    case 'create_vacancy':
+                        $roleId = $op['role_id'] ?? null;
+                        if ($roleId && class_exists(\App\Models\JobOpening::class)) {
+                            \App\Models\JobOpening::create([
+                                'organization_id' => $changeSet->organization_id,
+                                'title' => $op['title'] ?? 'Nueva Vacante',
+                                'role_id' => $roleId,
+                                'status' => $op['status'] ?? 'open',
+                                'is_external' => $op['is_external'] ?? false,
+                                'created_by' => $actor->id ?? null,
+                            ]);
+                        }
+                        break;
+
+                    case 'create_development_plan':
+                        $personId = $op['person_id'] ?? null;
+                        if ($personId && class_exists(\App\Models\DevelopmentPath::class)) {
+                            $path = \App\Models\DevelopmentPath::create([
+                                'organization_id' => $changeSet->organization_id,
+                                'people_id' => $personId,
+                                'title' => $op['title'] ?? 'Plan de Desarrollo',
+                                'status' => 'active',
+                                'metadata' => $op['metadata'] ?? null
+                            ]);
+
+                            // Create an action for each gap
+                            if (isset($op['gaps']) && is_array($op['gaps']) && class_exists(\App\Models\DevelopmentAction::class)) {
+                                foreach ($op['gaps'] as $idx => $gap) {
+                                    \App\Models\DevelopmentAction::create([
+                                        'development_path_id' => $path->id,
+                                        'title' => 'Cerrar brecha: ' . ($gap['name'] ?? 'Skill'),
+                                        'description' => "Nivel actual: {$gap['current_level']} / Requerido: {$gap['required_level']}",
+                                        'type' => 'skill',
+                                        'order' => $idx + 1,
+                                        'status' => 'pending'
+                                    ]);
+                                }
+                            }
+                        }
+                        break;
+
                     default:
                         // unknown op -> skip
                         break;

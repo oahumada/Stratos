@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import CultureSentinelWidget from '@/components/Dashboard/CultureSentinelWidget.vue';
 import SentinelHealthWidget from '@/components/SentinelHealthWidget.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
@@ -62,7 +61,6 @@ onMounted(() => {
 <template>
     <Head title="Dashboard" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
         <v-container class="pa-4 dashboard-dark">
             <!-- Loading State -->
             <v-card v-if="loading" class="mb-4">
@@ -291,7 +289,6 @@ onMounted(() => {
                 </v-card-text>
             </v-card>
         </v-container>
-    </AppLayout>
 </template>
 
 <style scoped>

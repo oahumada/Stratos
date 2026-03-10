@@ -170,6 +170,10 @@ Route::get('/talento360/comando', function () {
     return Inertia::render('Talento360/Comando');
 })->middleware(['auth', 'verified', 'role:admin,hr_leader'])->name('talento360.comando');
 
+Route::get('/talento360/war-room', function () {
+    return Inertia::render('Talento360/MobilityWarRoom');
+})->middleware(['auth', 'verified', 'role:admin,hr_leader'])->name('talento360.war-room');
+
 Route::get('/people-experience', function () {
     return Inertia::render('PeopleExperience/Index');
 })->name('people-experience.index');

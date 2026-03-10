@@ -298,6 +298,23 @@ Route::middleware('auth:sanctum')->group(function () {
                     });
                 });
             });
+
+            // Mobility Simulation (Gemelo Digital)
+            Route::post('/mobility/simulate', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'simulate']);
+            Route::get('/mobility/organization-impact', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'organizationImpact']);
+            Route::post('/mobility/save-scenario', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'saveScenario']);
+            Route::post('/mobility/scenarios/{id}/materialize', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'materialize']);
+            Route::get('/mobility/execution-status', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'getExecutionTracking']);
+            Route::post('/mobility/ai-suggestions', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'getAiSuggestions']);
+
+            // LMS Integration (Dual Mode)
+            Route::prefix('lms')->group(function () {
+                Route::get('/search', [\App\Http\Controllers\Api\LmsController::class, 'search']);
+                Route::post('/actions/{action}/launch', [\App\Http\Controllers\Api\LmsController::class, 'launch']);
+                Route::post('/actions/{action}/sync', [\App\Http\Controllers\Api\LmsController::class, 'sync']);
+                Route::get('/stats', [\App\Http\Controllers\Api\LmsController::class, 'getGamificationStats']);
+                Route::get('/leaderboard', [\App\Http\Controllers\Api\LmsController::class, 'getLeaderboard']);
+            });
         }
     );
 

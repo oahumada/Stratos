@@ -36,7 +36,13 @@ export default defineConfig({
             host: 'localhost',
         },
         watch: {
-            ignored: ['**/vendor/**', '**/node_modules/**', '**/.git/**'],
+            ignored: [
+                '**/vendor/**',
+                '**/node_modules/**',
+                '**/.git/**',
+                '**/storage/framework/views/**',
+                '**/storage/logs/**',
+            ],
         },
     },
     // Ensure d3 is pre-bundled and not treated as external during SSR

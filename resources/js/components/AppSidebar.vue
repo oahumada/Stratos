@@ -57,6 +57,9 @@ const MiStratosIcon = defineComponent(
 const InvestorRadarIcon = defineComponent(
     () => () => h(VIcon, { icon: 'mdi-radar', size: 20 }),
 );
+const MobilityWarRoomIcon = defineComponent(
+    () => () => h(VIcon, { icon: 'mdi-sword-cross', size: 20 }),
+);
 
 const { can, hasRole } = usePermissions();
 const tenantStore = useTenantStore();
@@ -182,6 +185,13 @@ const allNavItems: NavItem[] = [
         icon: defineComponent(
             () => () => h(VIcon, { icon: 'mdi-rocket-launch', size: 20 }),
         ),
+        requiredRole: ['admin', 'hr_leader'],
+    },
+    // Mobility War-Room — admin/hr_leader only
+    {
+        title: 'Mobility War-Room',
+        href: '/talento360/war-room',
+        icon: MobilityWarRoomIcon,
         requiredRole: ['admin', 'hr_leader'],
     },
     // People Experience — requires people.view

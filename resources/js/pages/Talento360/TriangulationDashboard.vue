@@ -4,10 +4,10 @@ import {
     PhBrain,
     PhCaretDown,
     PhCaretLeft,
+    PhChartBar,
     PhCheckCircle,
     PhClockClockwise,
     PhListBullets,
-    PhScale,
     PhShieldCheck,
     PhWarningCircle,
 } from '@phosphor-icons/vue';
@@ -233,7 +233,7 @@ const getVariationColor = (stratosScore: number, rawScore: number) => {
                             <div
                                 class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 text-white/60"
                             >
-                                <PhScale :size="24" />
+                                <PhChartBar :size="24" />
                             </div>
                             <div>
                                 <h3

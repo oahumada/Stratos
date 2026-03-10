@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:20
+* @see app/Http/Controllers/Api/PeopleProfileController.php:18
 * @route '/api/people/profile/{id}'
 */
 export const show = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:20
+* @see app/Http/Controllers/Api/PeopleProfileController.php:18
 * @route '/api/people/profile/{id}'
 */
 show.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -43,7 +43,7 @@ show.url = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:20
+* @see app/Http/Controllers/Api/PeopleProfileController.php:18
 * @route '/api/people/profile/{id}'
 */
 show.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,7 +53,7 @@ show.get = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:20
+* @see app/Http/Controllers/Api/PeopleProfileController.php:18
 * @route '/api/people/profile/{id}'
 */
 show.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -63,7 +63,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:20
+* @see app/Http/Controllers/Api/PeopleProfileController.php:18
 * @route '/api/people/profile/{id}'
 */
 const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -73,7 +73,7 @@ const showForm = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:20
+* @see app/Http/Controllers/Api/PeopleProfileController.php:18
 * @route '/api/people/profile/{id}'
 */
 showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -83,7 +83,7 @@ showForm.get = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:20
+* @see app/Http/Controllers/Api/PeopleProfileController.php:18
 * @route '/api/people/profile/{id}'
 */
 showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -98,6 +98,105 @@ showForm.head = (args: { id: string | number } | [id: string | number ] | string
 
 show.form = showForm
 
-const PeopleProfileController = { show }
+/**
+* @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
+* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @route '/api/people/profile/{id}/timeline'
+*/
+export const getTimeline = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: getTimeline.url(args, options),
+    method: 'get',
+})
+
+getTimeline.definition = {
+    methods: ["get","head"],
+    url: '/api/people/profile/{id}/timeline',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
+* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @route '/api/people/profile/{id}/timeline'
+*/
+getTimeline.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            id: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        id: args.id,
+    }
+
+    return getTimeline.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
+* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @route '/api/people/profile/{id}/timeline'
+*/
+getTimeline.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: getTimeline.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
+* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @route '/api/people/profile/{id}/timeline'
+*/
+getTimeline.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: getTimeline.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
+* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @route '/api/people/profile/{id}/timeline'
+*/
+const getTimelineForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getTimeline.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
+* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @route '/api/people/profile/{id}/timeline'
+*/
+getTimelineForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getTimeline.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
+* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @route '/api/people/profile/{id}/timeline'
+*/
+getTimelineForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getTimeline.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+getTimeline.form = getTimelineForm
+
+const PeopleProfileController = { show, getTimeline }
 
 export default PeopleProfileController

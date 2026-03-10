@@ -11,12 +11,11 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-use App\Traits\BelongsToOrganization;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, HasSystemRole, Notifiable, TwoFactorAuthenticatable, BelongsToOrganization;
+    use HasApiTokens, HasFactory, HasSystemRole, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.

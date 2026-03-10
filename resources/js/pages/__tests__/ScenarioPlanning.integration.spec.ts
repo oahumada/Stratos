@@ -64,9 +64,6 @@ describe('ScenarioPlanning integration - competency expand and centering', () =>
                     'v-list-item': true,
                     'v-list': true,
                     'v-menu': true,
-                    'v-card-title': true,
-                    'v-text-field': true,
-                    'v-textarea': true,
                     'v-slider': true,
                     'v-checkbox': true,
                     'v-form': true,
@@ -85,7 +82,7 @@ describe('ScenarioPlanning integration - competency expand and centering', () =>
                 },
             },
         });
-        container = utils.container;
+        container = utils.container as HTMLElement;
     });
 
     it('opens competency children and centers selected child when clicked', async () => {
@@ -109,7 +106,7 @@ describe('ScenarioPlanning integration - competency expand and centering', () =>
         // pick a child node and click it to select
         const childNodes = Array.from(
             container.querySelectorAll('.child-node'),
-        ) as HTMLElement[];
+        );
         expect(childNodes.length).toBeGreaterThanOrEqual(6);
         const secondChild = childNodes[2];
         await fireEvent.click(secondChild);
@@ -138,8 +135,8 @@ describe('ScenarioPlanning integration - competency expand and centering', () =>
 
         const childNodes = Array.from(
             container.querySelectorAll('.child-node'),
-        ) as HTMLElement[];
-        const targetChild = childNodes[1];
+        );
+        const targetChild = childNodes[1] as HTMLElement;
         await fireEvent.click(targetChild);
 
         // Instead of interacting with the full dialog (Vuetify stubs), call the composable directly
