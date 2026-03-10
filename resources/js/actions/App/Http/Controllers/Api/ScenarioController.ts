@@ -1369,80 +1369,80 @@ designTalent14e3fa9c27a9681e666c0a5b14d6ff59.form = designTalent14e3fa9c27a9681e
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::designTalent
 * @see app/Http/Controllers/Api/ScenarioController.php:610
-* @route '/api/scenarios/{scenarioId}/step2/design-talent'
+* @route '/api/scenarios/{id}/step2/design-talent'
 */
-const designTalent5b91851da882d80f085755d6afc34213 = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: designTalent5b91851da882d80f085755d6afc34213.url(args, options),
+const designTalent65fe0a91261300d85c30e48fcfd18cb6 = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: designTalent65fe0a91261300d85c30e48fcfd18cb6.url(args, options),
     method: 'post',
 })
 
-designTalent5b91851da882d80f085755d6afc34213.definition = {
+designTalent65fe0a91261300d85c30e48fcfd18cb6.definition = {
     methods: ["post"],
-    url: '/api/scenarios/{scenarioId}/step2/design-talent',
+    url: '/api/scenarios/{id}/step2/design-talent',
 } satisfies RouteDefinition<["post"]>
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::designTalent
 * @see app/Http/Controllers/Api/ScenarioController.php:610
-* @route '/api/scenarios/{scenarioId}/step2/design-talent'
+* @route '/api/scenarios/{id}/step2/design-talent'
 */
-designTalent5b91851da882d80f085755d6afc34213.url = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions) => {
+designTalent65fe0a91261300d85c30e48fcfd18cb6.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
-        args = { scenarioId: args }
+        args = { id: args }
     }
 
     if (Array.isArray(args)) {
         args = {
-            scenarioId: args[0],
+            id: args[0],
         }
     }
 
     args = applyUrlDefaults(args)
 
     const parsedArgs = {
-        scenarioId: args.scenarioId,
+        id: args.id,
     }
 
-    return designTalent5b91851da882d80f085755d6afc34213.definition.url
-            .replace('{scenarioId}', parsedArgs.scenarioId.toString())
+    return designTalent65fe0a91261300d85c30e48fcfd18cb6.definition.url
+            .replace('{id}', parsedArgs.id.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::designTalent
 * @see app/Http/Controllers/Api/ScenarioController.php:610
-* @route '/api/scenarios/{scenarioId}/step2/design-talent'
+* @route '/api/scenarios/{id}/step2/design-talent'
 */
-designTalent5b91851da882d80f085755d6afc34213.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: designTalent5b91851da882d80f085755d6afc34213.url(args, options),
+designTalent65fe0a91261300d85c30e48fcfd18cb6.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: designTalent65fe0a91261300d85c30e48fcfd18cb6.url(args, options),
     method: 'post',
 })
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::designTalent
 * @see app/Http/Controllers/Api/ScenarioController.php:610
-* @route '/api/scenarios/{scenarioId}/step2/design-talent'
+* @route '/api/scenarios/{id}/step2/design-talent'
 */
-const designTalent5b91851da882d80f085755d6afc34213Form = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: designTalent5b91851da882d80f085755d6afc34213.url(args, options),
+const designTalent65fe0a91261300d85c30e48fcfd18cb6Form = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: designTalent65fe0a91261300d85c30e48fcfd18cb6.url(args, options),
     method: 'post',
 })
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::designTalent
 * @see app/Http/Controllers/Api/ScenarioController.php:610
-* @route '/api/scenarios/{scenarioId}/step2/design-talent'
+* @route '/api/scenarios/{id}/step2/design-talent'
 */
-designTalent5b91851da882d80f085755d6afc34213Form.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: designTalent5b91851da882d80f085755d6afc34213.url(args, options),
+designTalent65fe0a91261300d85c30e48fcfd18cb6Form.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: designTalent65fe0a91261300d85c30e48fcfd18cb6.url(args, options),
     method: 'post',
 })
 
-designTalent5b91851da882d80f085755d6afc34213.form = designTalent5b91851da882d80f085755d6afc34213Form
+designTalent65fe0a91261300d85c30e48fcfd18cb6.form = designTalent65fe0a91261300d85c30e48fcfd18cb6Form
 
 export const designTalent = {
     '/api/strategic-planning/scenarios/{id}/orchestrate': designTalent14e3fa9c27a9681e666c0a5b14d6ff59,
-    '/api/scenarios/{scenarioId}/step2/design-talent': designTalent5b91851da882d80f085755d6afc34213,
+    '/api/scenarios/{id}/step2/design-talent': designTalent65fe0a91261300d85c30e48fcfd18cb6,
 }
 
 /**
@@ -1621,51 +1621,51 @@ promoteAll.form = promoteAllForm
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::applyAgentProposals
 * @see app/Http/Controllers/Api/ScenarioController.php:624
-* @route '/api/scenarios/{scenarioId}/step2/agent-proposals/apply'
+* @route '/api/scenarios/{id}/step2/agent-proposals/apply'
 */
-export const applyAgentProposals = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const applyAgentProposals = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: applyAgentProposals.url(args, options),
     method: 'post',
 })
 
 applyAgentProposals.definition = {
     methods: ["post"],
-    url: '/api/scenarios/{scenarioId}/step2/agent-proposals/apply',
+    url: '/api/scenarios/{id}/step2/agent-proposals/apply',
 } satisfies RouteDefinition<["post"]>
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::applyAgentProposals
 * @see app/Http/Controllers/Api/ScenarioController.php:624
-* @route '/api/scenarios/{scenarioId}/step2/agent-proposals/apply'
+* @route '/api/scenarios/{id}/step2/agent-proposals/apply'
 */
-applyAgentProposals.url = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions) => {
+applyAgentProposals.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
-        args = { scenarioId: args }
+        args = { id: args }
     }
 
     if (Array.isArray(args)) {
         args = {
-            scenarioId: args[0],
+            id: args[0],
         }
     }
 
     args = applyUrlDefaults(args)
 
     const parsedArgs = {
-        scenarioId: args.scenarioId,
+        id: args.id,
     }
 
     return applyAgentProposals.definition.url
-            .replace('{scenarioId}', parsedArgs.scenarioId.toString())
+            .replace('{id}', parsedArgs.id.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::applyAgentProposals
 * @see app/Http/Controllers/Api/ScenarioController.php:624
-* @route '/api/scenarios/{scenarioId}/step2/agent-proposals/apply'
+* @route '/api/scenarios/{id}/step2/agent-proposals/apply'
 */
-applyAgentProposals.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+applyAgentProposals.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: applyAgentProposals.url(args, options),
     method: 'post',
 })
@@ -1673,9 +1673,9 @@ applyAgentProposals.post = (args: { scenarioId: string | number } | [scenarioId:
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::applyAgentProposals
 * @see app/Http/Controllers/Api/ScenarioController.php:624
-* @route '/api/scenarios/{scenarioId}/step2/agent-proposals/apply'
+* @route '/api/scenarios/{id}/step2/agent-proposals/apply'
 */
-const applyAgentProposalsForm = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const applyAgentProposalsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: applyAgentProposals.url(args, options),
     method: 'post',
 })
@@ -1683,9 +1683,9 @@ const applyAgentProposalsForm = (args: { scenarioId: string | number } | [scenar
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::applyAgentProposals
 * @see app/Http/Controllers/Api/ScenarioController.php:624
-* @route '/api/scenarios/{scenarioId}/step2/agent-proposals/apply'
+* @route '/api/scenarios/{id}/step2/agent-proposals/apply'
 */
-applyAgentProposalsForm.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+applyAgentProposalsForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: applyAgentProposals.url(args, options),
     method: 'post',
 })
@@ -1695,51 +1695,51 @@ applyAgentProposals.form = applyAgentProposalsForm
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::finalizeStep2
 * @see app/Http/Controllers/Api/ScenarioController.php:679
-* @route '/api/scenarios/{scenarioId}/step2/finalize'
+* @route '/api/scenarios/{id}/step2/finalize'
 */
-export const finalizeStep2 = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const finalizeStep2 = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: finalizeStep2.url(args, options),
     method: 'post',
 })
 
 finalizeStep2.definition = {
     methods: ["post"],
-    url: '/api/scenarios/{scenarioId}/step2/finalize',
+    url: '/api/scenarios/{id}/step2/finalize',
 } satisfies RouteDefinition<["post"]>
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::finalizeStep2
 * @see app/Http/Controllers/Api/ScenarioController.php:679
-* @route '/api/scenarios/{scenarioId}/step2/finalize'
+* @route '/api/scenarios/{id}/step2/finalize'
 */
-finalizeStep2.url = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions) => {
+finalizeStep2.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
-        args = { scenarioId: args }
+        args = { id: args }
     }
 
     if (Array.isArray(args)) {
         args = {
-            scenarioId: args[0],
+            id: args[0],
         }
     }
 
     args = applyUrlDefaults(args)
 
     const parsedArgs = {
-        scenarioId: args.scenarioId,
+        id: args.id,
     }
 
     return finalizeStep2.definition.url
-            .replace('{scenarioId}', parsedArgs.scenarioId.toString())
+            .replace('{id}', parsedArgs.id.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::finalizeStep2
 * @see app/Http/Controllers/Api/ScenarioController.php:679
-* @route '/api/scenarios/{scenarioId}/step2/finalize'
+* @route '/api/scenarios/{id}/step2/finalize'
 */
-finalizeStep2.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+finalizeStep2.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: finalizeStep2.url(args, options),
     method: 'post',
 })
@@ -1747,9 +1747,9 @@ finalizeStep2.post = (args: { scenarioId: string | number } | [scenarioId: strin
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::finalizeStep2
 * @see app/Http/Controllers/Api/ScenarioController.php:679
-* @route '/api/scenarios/{scenarioId}/step2/finalize'
+* @route '/api/scenarios/{id}/step2/finalize'
 */
-const finalizeStep2Form = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const finalizeStep2Form = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: finalizeStep2.url(args, options),
     method: 'post',
 })
@@ -1757,9 +1757,9 @@ const finalizeStep2Form = (args: { scenarioId: string | number } | [scenarioId: 
 /**
 * @see \App\Http\Controllers\Api\ScenarioController::finalizeStep2
 * @see app/Http/Controllers/Api/ScenarioController.php:679
-* @route '/api/scenarios/{scenarioId}/step2/finalize'
+* @route '/api/scenarios/{id}/step2/finalize'
 */
-finalizeStep2Form.post = (args: { scenarioId: string | number } | [scenarioId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+finalizeStep2Form.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: finalizeStep2.url(args, options),
     method: 'post',
 })

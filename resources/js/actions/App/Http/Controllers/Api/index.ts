@@ -40,6 +40,7 @@ import RoleDesignerController from './RoleDesignerController'
 import Talento360Controller from './Talento360Controller'
 import CompetencyCuratorController from './CompetencyCuratorController'
 import MobilitySimulationController from './MobilitySimulationController'
+import LmsController from './LmsController'
 import TelemetryController from './TelemetryController'
 import CapabilityCompetencyController from './CapabilityCompetencyController'
 import ScenarioTemplateController from './ScenarioTemplateController'
@@ -94,6 +95,7 @@ const Api = {
     Talento360Controller: Object.assign(Talento360Controller, Talento360Controller),
     CompetencyCuratorController: Object.assign(CompetencyCuratorController, CompetencyCuratorController),
     MobilitySimulationController: Object.assign(MobilitySimulationController, MobilitySimulationController),
+    LmsController: Object.assign(LmsController, LmsController),
     TelemetryController: Object.assign(TelemetryController, TelemetryController),
     CapabilityCompetencyController: Object.assign(CapabilityCompetencyController, CapabilityCompetencyController),
     ScenarioTemplateController: Object.assign(ScenarioTemplateController, ScenarioTemplateController),
