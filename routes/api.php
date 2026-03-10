@@ -1095,7 +1095,7 @@ Route::middleware('auth:sanctum')->prefix('scenarios/{id}/step1')->group(functio
 });
 
 // PASO 2: Roles ↔ Competencies Mapping
-Route::middleware('auth:sanctum')->prefix('scenarios/{scenarioId}/step2')->group(function () {
+Route::middleware('auth:sanctum')->prefix('scenarios/{id}/step2')->group(function () {
     Route::get('data', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'getMatrixData']);
     Route::post('mappings', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'saveMapping']);
     Route::delete('mappings/{mappingId}', [\App\Http\Controllers\Api\Step2RoleCompetencyController::class, 'deleteMapping']);

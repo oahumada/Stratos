@@ -111,7 +111,7 @@ class ScenarioController extends Controller
             return $this->unauthorizedResponse();
         }
 
-        $scenario = Scenario::findOrFail($id);
+        $scenario = Scenario::withoutGlobalScopes()->findOrFail($id);
         if ($scenario->organization_id !== $user->organization_id) {
             return $this->forbiddenResponse();
         }
@@ -137,7 +137,7 @@ class ScenarioController extends Controller
             return $this->unauthorizedResponse();
         }
 
-        $scenario = Scenario::findOrFail($id);
+        $scenario = Scenario::withoutGlobalScopes()->findOrFail($id);
         if ($scenario->organization_id !== $user->organization_id) {
             return $this->forbiddenResponse();
         }
@@ -173,7 +173,7 @@ class ScenarioController extends Controller
     public function approve($id): JsonResponse
     {
         return DB::transaction(function () use ($id) {
-            $scenario = Scenario::findOrFail($id);
+            $scenario = Scenario::withoutGlobalScopes()->findOrFail($id);
 
             // 1. Graduar Capabilities
             Capability::where('discovered_in_scenario_id', $id)
@@ -623,7 +623,7 @@ class ScenarioController extends Controller
      */
     public function applyAgentProposals(Request $request, $id, \App\Services\Talent\TalentDesignOrchestratorService $svc): JsonResponse
     {
-        $scenario = Scenario::findOrFail($id);
+        $scenario = Scenario::withoutGlobalScopes()->findOrFail($id);
 
         $user = auth()->user();
         if (! $user || $scenario->organization_id !== $user->organization_id) {
@@ -678,7 +678,7 @@ class ScenarioController extends Controller
      */
     public function finalizeStep2(Request $request, $id, \App\Services\Talent\TalentDesignOrchestratorService $svc): JsonResponse
     {
-        $scenario = Scenario::findOrFail($id);
+        $scenario = Scenario::withoutGlobalScopes()->findOrFail($id);
 
         $user = auth()->user();
         if (! $user || $scenario->organization_id !== $user->organization_id) {
@@ -760,7 +760,7 @@ class ScenarioController extends Controller
      */
     public function getVersions($id): JsonResponse
     {
-        $scenario = Scenario::findOrFail($id);
+        $scenario = Scenario::withoutGlobalScopes()->findOrFail($id);
 
         // Return all scenarios in the same version group, or at least itself
         $query = Scenario::query();
@@ -782,7 +782,7 @@ class ScenarioController extends Controller
     public function getImpact($id): JsonResponse
     {
         $user = auth()->user();
-        $scenario = Scenario::findOrFail($id);
+        $scenario = Scenario::withoutGlobalScopes()->findOrFail($id);
 
         if ($scenario->organization_id !== $user->organization_id) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
@@ -811,7 +811,7 @@ class ScenarioController extends Controller
      */
     public function exportFinancial($id)
     {
-        $scenario = Scenario::findOrFail($id);
+        $scenario = Scenario::withoutGlobalScopes()->findOrFail($id);
 
         if ($scenario->organization_id !== auth()->user()->organization_id) {
             abort(403);

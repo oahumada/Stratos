@@ -62,7 +62,7 @@ class RAGASEvaluationController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $evaluation = LLMEvaluation::findOrFail($id);
+        $evaluation = LLMEvaluation::withoutGlobalScopes()->findOrFail($id);
 
         $this->authorize('view', $evaluation);
 
