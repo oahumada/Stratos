@@ -142,6 +142,22 @@
 - **[estado_actual_mvp.md](estado_actual_mvp.md)** - Estado actual del MVP
 - **[CHECKLIST_MVP_COMPLETION.md](CHECKLIST_MVP_COMPLETION.md)** - Checklist de completitud
 
+---
+
+## 🛡️ Calidad, Pruebas y Certificación
+
+- **[PLAN_MAESTRO_VERIFICACION_FUNCIONAL.md](Testing/PLAN_MAESTRO_VERIFICACION_FUNCIONAL.md)** - ⭐⭐⭐ **GUÍA DE CERTIFICACIÓN PARA DEMO**
+- **[PLAN_REVISION_SO_LL_POR_ROL.md](Testing/PLAN_REVISION_SO_LL_POR_ROL.md)** - 🌧️/☀️ **REVISIÓN SOLEADO/LLUVIOSO POR ROL**
+- **[PLAN_REVISION_FLUJOS_AVANZADOS.md](Testing/PLAN_REVISION_FLUJOS_AVANZADOS.md)** - 🤖 **FLUJOS AVANZADOS (IA, MOVILIDAD, GAMIFICACIÓN)**
+    - Cerebro (Orquestador de Agentes)
+    - Marketplace Interno y Movilidad Estratégica
+    - Rutas de Aprendizaje y Gamificación
+- **[Casos_Prueba_Coherencia_Arquitectonica.md](Testing/Casos_Prueba_Coherencia_Arquitectonica.md)** - Pruebas de lógica de negocio (Semáforo)
+- **[ESTRATEGIA_QA_MASTER_PLAN.md](ESTRATEGIA_QA_MASTER_PLAN.md)** - Plan maestro de QA técnico (CI/CD, RAGAS, Stress)
+- **[FormSchemaTestingSystem.md](FormSchemaTestingSystem.md)** - Sistema de pruebas para CRUDs automáticos
+
+---
+
 ### Releases
 
 - **[CHANGELOG_SISTEMA_OPERACION.md](CHANGELOG_SISTEMA_OPERACION.md)** - Cambios del sistema

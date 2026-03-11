@@ -214,6 +214,7 @@ class DeepSeekLLM(ChatOpenAI):
         super().__init__(
             model="deepseek-chat",
             temperature=temperature,
+            max_tokens=8192,
             base_url=DEEPSEEK_BASE_URL,
             api_key=os.getenv("OPENAI_API_KEY"),
             **kwargs
@@ -234,6 +235,7 @@ def get_llm(temperature=0.7):
         return ChatOpenAI(
             model="gpt-4", # Abacus maps this
             temperature=temperature,
+            max_tokens=8192,
             base_url=api_base,
             api_key=os.getenv("OPENAI_API_KEY")
         )
@@ -242,6 +244,7 @@ def get_llm(temperature=0.7):
         return ChatOpenAI(
             model=model_name or "gpt-4-turbo",
             temperature=temperature,
+            max_tokens=8192,
             api_key=os.getenv("OPENAI_API_KEY")
         )
 
@@ -399,7 +402,14 @@ def generate_scenario(request: ScenarioRequest):
         import json
         try:
             # CrewAI 0.28+ result is a CrewOutput object, raw is result.raw
-            raw_output = str(result)
+            raw_output = str(result).strip()
+            if raw_output.startswith("```json"):
+                raw_output = raw_output[7:]
+            if raw_output.startswith("```"):
+                raw_output = raw_output[3:]
+            if raw_output.endswith("```"):
+                raw_output = raw_output[:-3]
+            raw_output = raw_output.strip()
             return json.loads(raw_output)
         except Exception:
             return {"raw_output": str(result), "error": "Could not parse JSON output"}

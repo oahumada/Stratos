@@ -2,7 +2,6 @@
   "ci": {
     "collect": {
       "url": ["http://127.0.0.1:8000/", "http://127.0.0.1:8000/dashboard"],
-      "chromePath": "/opt/hostedtoolcache/chromium/latest/x64/chrome",
       "settings": {
         "chromeFlags": ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--headless"],
         "onlyCategories": ["performance", "accessibility", "best-practices", "seo"],

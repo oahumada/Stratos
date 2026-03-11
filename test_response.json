@@ -1,0 +1,393 @@
+```json
+{
+    "scenario_metadata": {
+        "name": "Transformación de Ingeniería de Datos para Agentes Autónomos",
+        "description": "Blueprint estratégico para establecer un equipo de Data Engineering de clase mundial que permita escalar infraestructura de datos para soportar agentes autónomos en tiempo real, migrando desde pipelines básicos en Python hacia un stack moderno de datos.",
+        "scenario_type": "transformation",
+        "horizon_months": 12,
+        "generated_at": "2024-05-27T10:30:00+00:00",
+        "confidence_score": 0.93
+    },
+    "objectives": [
+        {
+            "id": "OBJ-1",
+            "text": "Escalar la infraestructura de datos para soportar agentes autónomos en tiempo real con disponibilidad del 99.9%"
+        },
+        {
+            "id": "OBJ-2",
+            "text": "Migrar del stack actual (Python básico + bases relacionales) a una arquitectura moderna basada en Snowflake/dbt"
+        },
+        {
+            "id": "OBJ-3",
+            "text": "Construir un equipo de Data Engineering con capacidades senior en arquitectura y operaciones de datos"
+        },
+        {
+            "id": "OBJ-4",
+            "text": "Implementar pipelines de datos robustos que soporten procesamiento en tiempo real y batch para modelos de IA"
+        }
+    ],
+    "capabilities": [
+        {
+            "id": "CAP-01",
+            "name": "Arquitectura de Datos Empresarial",
+            "description": "Capacidad para diseñar, implementar y gobernar una arquitectura de datos escalable que soporte agentes autónomos y procesamiento en tiempo real, asegurando calidad, seguridad y disponibilidad.",
+            "competencies": [
+                {
+                    "id": "CAP-01-C1",
+                    "name": "Diseño de Arquitectura Cloud-Native",
+                    "description": "Competencia para diseñar arquitecturas de datos distribuidas en la nube que optimicen costos, rendimiento y escalabilidad para cargas de trabajo de IA.",
+                    "skills": [
+                        {
+                            "id": "S-001",
+                            "name": "Arquitectura de Datos en Snowflake",
+                            "description": "Diseño de data warehouses, data lakes y data mesh utilizando Snowflake, incluyendo optimización de costos, seguridad y performance."
+                        },
+                        {
+                            "id": "S-002",
+                            "name": "Patrones de Integración en Tiempo Real",
+                            "description": "Implementación de patrones como CDC, streaming y event-driven architectures para datos en tiempo real."
+                        },
+                        {
+                            "id": "S-003",
+                            "name": "Diseño de Plataformas de Datos como Producto",
+                            "description": "Enfoque product-led para plataformas de datos, con APIs, documentación y self-service para consumidores internos."
+                        }
+                    ]
+                },
+                {
+                    "id": "CAP-01-C2",
+                    "name": "Gobernanza y Calidad de Datos",
+                    "description": "Competencia para establecer políticas, estándares y procesos que aseguren la calidad, seguridad y cumplimiento de los datos en toda la organización.",
+                    "skills": [
+                        {
+                            "id": "S-004",
+                            "name": "Data Governance en Entornos Cloud",
+                            "description": "Definición e implementación de políticas de acceso, lineage, catalogación y calidad en plataformas cloud."
+                        },
+                        {
+                            "id": "S-005",
+                            "name": "Data Quality Engineering",
+                            "description": "Diseño e implementación de frameworks de calidad de datos con monitoreo automatizado y alertas."
+                        },
+                        {
+                            "id": "S-006",
+                            "name": "Seguridad y Compliance de Datos",
+                            "description": "Implementación de encryption, masking, row-level security y cumplimiento de regulaciones (GDPR, CCPA, etc.)."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "CAP-02",
+            "name": "Ingeniería de Pipelines Moderna",
+            "description": "Capacidad para construir, operar y mantener pipelines de datos robustos utilizando herramientas modernas como dbt, Airflow y tecnologías de streaming.",
+            "competencies": [
+                {
+                    "id": "CAP-02-C1",
+                    "name": "Transformación de Datos con dbt",
+                    "description": "Competencia para implementar transformaciones de datos escalables, testables y documentadas utilizando dbt Core/Cloud.",
+                    "skills": [
+                        {
+                            "id": "S-007",
+                            "name": "Desarrollo con dbt Core/Cloud",
+                            "description": "Creación de modelos, tests, documentación y deployment pipelines utilizando dbt."
+                        },
+                        {
+                            "id": "S-008",
+                            "name": "Data Modeling Moderno",
+                            "description": "Diseño de modelos dimensionales, one-big-table y otros patrones optimizados para análisis y ML."
+                        },
+                        {
+                            "id": "S-009",
+                            "name": "CI/CD para Pipelines de Datos",
+                            "description": "Implementación de pipelines de integración y deployment continuo para código de datos."
+                        }
+                    ]
+                },
+                {
+                    "id": "CAP-02-C2",
+                    "name": "Orquestación y Automatización",
+                    "description": "Competencia para orquestar workflows complejos de datos, manejar dependencias y asegurar ejecución confiable.",
+                    "skills": [
+                        {
+                            "id": "S-010",
+                            "name": "Orquestación con Apache Airflow",
+                            "description": "Diseño e implementación de DAGs complejos, manejo de errores y monitoreo de pipelines."
+                        },
+                        {
+                            "id": "S-011",
+                            "name": "Automatización de Operaciones de Datos",
+                            "description": "Scripting y automatización de tareas operativas, alertas y recovery automático."
+                        },
+                        {
+                            "id": "S-012",
+                            "name": "Performance Tuning de Pipelines",
+                            "description": "Optimización de queries, particionamiento, clustering y caching para mejorar performance."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "CAP-03",
+            "name": "Ingeniería de Datos para IA",
+            "description": "Capacidad para diseñar y operar infraestructura de datos que soporte entrenamiento, inferencia y operación de modelos de machine learning y agentes autónomos.",
+            "competencies": [
+                {
+                    "id": "CAP-03-C1",
+                    "name": "Feature Engineering a Escala",
+                    "description": "Competencia para diseñar, calcular y servir features para modelos de ML en producción, asegurando consistencia entre training y serving.",
+                    "skills": [
+                        {
+                            "id": "S-013",
+                            "name": "Feature Stores Implementation",
+                            "description": "Implementación de feature stores (Feast, Tecton, etc.) para gestión centralizada de features."
+                        },
+                        {
+                            "id": "S-014",
+                            "name": "Data Pipelines para ML",
+                            "description": "Diseño de pipelines que preparan datos para entrenamiento de modelos y inference en tiempo real."
+                        },
+                        {
+                            "id": "S-015",
+                            "name": "Monitoring de Data Drift",
+                            "description": "Implementación de sistemas para detectar cambios en distribuciones de datos que afecten modelos de ML."
+                        }
+                    ]
+                },
+                {
+                    "id": "CAP-03-C2",
+                    "name": "Soporte a Agentes Autónomos",
+                    "description": "Competencia para diseñar infraestructura que soporte requisitos de latencia, throughput y disponibilidad para agentes autónomos.",
+                    "skills": [
+                        {
+                            "id": "S-016",
+                            "name": "Vector Databases y Embeddings",
+                            "description": "Implementación y optimización de bases de datos vectoriales para RAG y búsqueda semántica."
+                        },
+                        {
+                            "id": "S-017",
+                            "name": "Streaming para Agentes en Tiempo Real",
+                            "description": "Diseño de sistemas de mensajería y streaming (Kafka, Pulsar) para comunicación entre agentes."
+                        },
+                        {
+                            "id": "S-018",
+                            "name": "Caching y Optimización de Latencia",
+                            "description": "Implementación de estrategias de caching (Redis, Memcached) para reducir latencia en inferencia."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "CAP-04",
+            "name": "Operaciones y Observabilidad de Datos",
+            "description": "Capacidad para operar plataformas de datos en producción con altos estándares de disponibilidad, performance y cost-efficiency.",
+            "competencies": [
+                {
+                    "id": "CAP-04-C1",
+                    "name": "DataOps y SRE para Datos",
+                    "description": "Competencia para aplicar principios de Site Reliability Engineering a plataformas de datos, con focus en automation, reliability y scaling.",
+                    "skills": [
+                        {
+                            "id": "S-019",
+                            "name": "Monitoring y Alerting de Plataformas",
+                            "description": "Implementación de dashboards, métricas y alertas para infraestructura de datos."
+                        },
+                        {
+                            "id": "S-020",
+                            "name": "Cost Optimization en Cloud",
+                            "description": "Análisis y optimización de costos en Snowflake y servicios cloud relacionados."
+                        },
+                        {
+                            "id": "S-021",
+                            "name": "Disaster Recovery y Business Continuity",
+                            "description": "Diseño e implementación de estrategias de backup, replication y recovery para datos críticos."
+                        }
+                    ]
+                },
+                {
+                    "id": "CAP-04-C2",
+                    "name": "Performance Engineering",
+                    "description": "Competencia para diagnosticar y resolver problemas de performance en sistemas de datos complejos.",
+                    "skills": [
+                        {
+                            "id": "S-022",
+                            "name": "Query Optimization Avanzada",
+                            "description": "Análisis y optimización de execution plans, índices y estructuras de datos."
+                        },
+                        {
+                            "id": "S-023",
+                            "name": "Capacity Planning y Scaling",
+                            "description": "Predicción de necesidades de capacidad y diseño de estrategias de scaling horizontal/vertical."
+                        },
+                        {
+                            "id": "S-024",
+                            "name": "Troubleshooting de Sistemas Distribuidos",
+                            "description": "Diagnóstico de problemas en sistemas distribuidos de datos con múltiples componentes."
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "competencies": [
+        {
+            "id": "CAP-01-C1",
+            "name": "Diseño de Arquitectura Cloud-Native",
+            "description": "Competencia para diseñar arquitecturas de datos distribuidas en la nube que optimicen costos, rendimiento y escalabilidad para cargas de trabajo de IA."
+        },
+        {
+            "id": "CAP-01-C2",
+            "name": "Gobernanza y Calidad de Datos",
+            "description": "Competencia para establecer políticas, estándares y procesos que aseguren la calidad, seguridad y cumplimiento de los datos en toda la organización."
+        },
+        {
+            "id": "CAP-02-C1",
+            "name": "Transformación de Datos con dbt",
+            "description": "Competencia para implementar transformaciones de datos escalables, testables y documentadas utilizando dbt Core/Cloud."
+        },
+        {
+            "id": "CAP-02-C2",
+            "name": "Orquestación y Automatización",
+            "description": "Competencia para orquestar workflows complejos de datos, manejar dependencias y asegurar ejecución confiable."
+        },
+        {
+            "id": "CAP-03-C1",
+            "name": "Feature Engineering a Escala",
+            "description": "Competencia para diseñar, calcular y servir features para modelos de ML en producción, asegurando consistencia entre training y serving."
+        },
+        {
+            "id": "CAP-03-C2",
+            "name": "Soporte a Agentes Autónomos",
+            "description": "Competencia para diseñar infraestructura que soporte requisitos de latencia, throughput y disponibilidad para agentes autónomos."
+        },
+        {
+            "id": "CAP-04-C1",
+            "name": "DataOps y SRE para Datos",
+            "description": "Competencia para aplicar principios de Site Reliability Engineering a plataformas de datos, con focus en automation, reliability y scaling."
+        },
+        {
+            "id": "CAP-04-C2",
+            "name": "Performance Engineering",
+            "description": "Competencia para diagnosticar y resolver problemas de performance en sistemas de datos complejos."
+        }
+    ],
+    "skills": [
+        {
+            "id": "S-001",
+            "name": "Arquitectura de Datos en Snowflake",
+            "description": "Diseño de data warehouses, data lakes y data mesh utilizando Snowflake, incluyendo optimización de costos, seguridad y performance."
+        },
+        {
+            "id": "S-002",
+            "name": "Patrones de Integración en Tiempo Real",
+            "description": "Implementación de patrones como CDC, streaming y event-driven architectures para datos en tiempo real."
+        },
+        {
+            "id": "S-003",
+            "name": "Diseño de Plataformas de Datos como Producto",
+            "description": "Enfoque product-led para plataformas de datos, con APIs, documentación y self-service para consumidores internos."
+        },
+        {
+            "id": "S-004",
+            "name": "Data Governance en Entornos Cloud",
+            "description": "Definición e implementación de políticas de acceso, lineage, catalogación y calidad en plataformas cloud."
+        },
+        {
+            "id": "S-005",
+            "name": "Data Quality Engineering",
+            "description": "Diseño e implementación de frameworks de calidad de datos con monitoreo automatizado y alertas."
+        },
+        {
+            "id": "S-006",
+            "name": "Seguridad y Compliance de Datos",
+            "description": "Implementación de encryption, masking, row-level security y cumplimiento de regulaciones (GDPR, CCPA, etc.)."
+        },
+        {
+            "id": "S-007",
+            "name": "Desarrollo con dbt Core/Cloud",
+            "description": "Creación de modelos, tests, documentación y deployment pipelines utilizando dbt."
+        },
+        {
+            "id": "S-008",
+            "name": "Data Modeling Moderno",
+            "description": "Diseño de modelos dimensionales, one-big-table y otros patrones optimizados para análisis y ML."
+        },
+        {
+            "id": "S-009",
+            "name": "CI/CD para Pipelines de Datos",
+            "description": "Implementación de pipelines de integración y deployment continuo para código de datos."
+        },
+        {
+            "id": "S-010",
+            "name": "Orquestación con Apache Airflow",
+            "description": "Diseño e implementación de DAGs complejos, manejo de errores y monitoreo de pipelines."
+        },
+        {
+            "id": "S-011",
+            "name": "Automatización de Operaciones de Datos",
+            "description": "Scripting y automatización de tareas operativas, alertas y recovery automático."
+        },
+        {
+            "id": "S-012",
+            "name": "Performance Tuning de Pipelines",
+            "description": "Optimización de queries, particionamiento, clustering y caching para mejorar performance."
+        },
+        {
+            "id": "S-013",
+            "name": "Feature Stores Implementation",
+            "description": "Implementación de feature stores (Feast, Tecton, etc.) para gestión centralizada de features."
+        },
+        {
+            "id": "S-014",
+            "name": "Data Pipelines para ML",
+            "description": "Diseño de pipelines que preparan datos para entrenamiento de modelos y inference en tiempo real."
+        },
+        {
+            "id": "S-015",
+            "name": "Monitoring de Data Drift",
+            "description": "Implementación de sistemas para detectar cambios en distribuciones de datos que afecten modelos de ML."
+        },
+        {
+            "id": "S-016",
+            "name": "Vector Databases y Embeddings",
+            "description": "Implementación y optimización de bases de datos vectoriales para RAG y búsqueda semántica."
+        },
+        {
+            "id": "S-017",
+            "name": "Streaming para Agentes en Tiempo Real",
+            "description": "Diseño de sistemas de mensajería y streaming (Kafka, Pulsar) para comunicación entre agentes."
+        },
+        {
+            "id": "S-018",
+            "name": "Caching y Optimización de Latencia",
+            "description": "Implementación de estrategias de caching (Redis, Memcached) para reducir latencia en inferencia."
+        },
+        {
+            "id": "S-019",
+            "name": "Monitoring y Alerting de Plataformas",
+            "description": "Implementación de dashboards, métricas y alertas para infraestructura de datos."
+        },
+        {
+            "id": "S-020",
+            "name": "Cost Optimization en Cloud",
+            "description": "Análisis y optimización de costos en Snowflake y servicios cloud relacionados."
+        },
+        {
+            "id": "S-021",
+            "name": "Disaster Recovery y Business Continuity",
+            "description": "Diseño e implementación de estrategias de backup, replication y recovery para datos críticos."
+        },
+        {
+            "id": "S-022",
+            "name": "Query Optimization Avanzada",
+            "description": "Análisis y optimización de execution plans, índices y estructuras de datos."
+        },
+        {
+            "id": "S-023",
+            "name": "Capacity Planning y Scaling",
+            "description": "Predicción de necesidades de capacidad y diseño de estrategias de scaling horizontal/vertical."
+        },
+       

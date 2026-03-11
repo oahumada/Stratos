@@ -21,6 +21,15 @@ class ScenarioGenerationIntelController extends Controller
 
         $rules = [
             'company_name' => 'sometimes|string|max:255',
+            'industry' => 'sometimes|string|max:255',
+            'company_size' => 'sometimes|string|max:255', // Wizard sends it
+            'current_challenges' => 'sometimes|string',
+            'current_capabilities' => 'sometimes|string',
+            'current_gaps' => 'sometimes|string',
+            'strategic_goal' => 'sometimes|string',
+            'key_initiatives' => 'sometimes|string',
+            'time_horizon' => 'sometimes|string',
+            'milestones' => 'sometimes|string',
             'organization_id' => 'sometimes|integer',
             'instruction' => 'sometimes|string',
             'instruction_id' => 'sometimes|integer',

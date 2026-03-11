@@ -61,7 +61,7 @@ class StratosIntelService
         try {
             Log::info('Sending scenario generation request to Python service', ['company' => $companyName]);
 
-            $response = Http::timeout(120) // Scenarios take longer
+            $response = Http::timeout(300) // Scenarios take longer
                 ->post("{$this->baseUrl}/generate-scenario", [
                     'company_name' => $companyName,
                     'instruction' => $instruction,
