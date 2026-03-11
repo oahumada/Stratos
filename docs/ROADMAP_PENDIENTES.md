@@ -4,20 +4,20 @@ Esta lista consolida todos los elementos que **no están al 100%** extraídos de
 
 ## 🌊 Wave 2: Bloque B & D (Expansión y Ecosistema)
 
-- [x] **B5 - Mobile PX:** Implementación de Pulse Surveys y PX Campaigns.
-- [ ] **D1 - Gateway Híbrido:** SSO OAuth Integración y rutas firmadas (Magic Link implementado).
-- [x] **D2 - LMS & Mentor Hub:** Orquestación de sesiones de mentoría e integración con LMS.
-- [ ] **D5 - Misiones de Gremio (Conceptual):** Desafíos colectivos para equipos para cerrar brechas comunes.
-- [ ] **D6 - Timeline Evolutivo:** Visualización de la evolución histórica del ADN de cada perfil.
-- [x] **D8 - Talent Pass (CV 2.0):** Stratos Magnet (Portal de Empleo) implementado.
-- [ ] **D9 - Sovereign Identity:** Credenciales Verificables (W3C Standard) + Nodo Blockchain.
-- [x] **Notificaciones / Nudging Proactivo Avanzado:** Smart Alerts y Mi Stratos (Dashboard Personal).
+- [ ] **B1 - Infraestructura:** Neo4j Live (Esperando infraestructura).
+- [ ] **B5 - Mobile PX:** App Nativa pendiente (v1 UI en web implementada).
+- [x] **D1 - Gateway Híbrido:** SSO OAuth (Google/Microsoft) y rutas firmadas implementados.
+- [x] **D2 - LMS & Mentor Hub:** Orquestación de sesiones de mentoría e integración con LMS operativa.
+- [x] **D5 - Misiones de Gremio:** Sistema de Quests soporta misiones colectivas/individuales.
+- [x] **D6 - Timeline Evolutivo:** `DnaTimelineService` implementado.
+- [x] **D8 - Talent Pass (CV 2.0):** Modelo de datos y API implementados.
+- [x] **D9 - Sovereign Identity:** Credenciales Verificables (W3C Standard) estructuradas en la DB con un emulador de firmas criptográficas `VerifiableCredential` activado.
 
 ## 🏗️ FASE 0: Refactorización Estructural y Seguridad
 
 - [x] **Sistema de "Feature Toggles" (Tenant Modules):** `active_modules` en DB, middleware, y UI condicional.
-- [ ] **Arquitectura de Eventos Interna:** Implementación avanzada de Bus de eventos (Redis utilizado en generaciones).
-- [ ] **Gateway Híbrido (SSO/Identity):** Integrar OAuth2/SAML.
+- [x] **Gateway Híbrido (SSO/Identity):** Integrado OAuth2 (`SsoController`).
+- [ ] **Arquitectura de Eventos Interna:** Faltan buses de eventos unificados avanzados o Event Sourcing formal en todo el backend (solo eventos básicos).
 
 ## 🪐 FASE 1: Consolidación "Stratos Core" y "Stratos Map"
 
@@ -29,10 +29,11 @@ Esta lista consolida todos los elementos que **no están al 100%** extraídos de
 ## 🔮 FASE 4: Módulos Predictivos y "Talento Sintético"
 
 - [x] **Stratos Insights (Psicometría y Fit):** Tests conversacionales (Assessment Chat) y triangulación 360.
-- [ ] **Stratos Radar / Evolve:** Event Sourcing (Data Lake mensual), Simulador UI ("T + 2 años"), Triangulación Híbrida (propuesta % IA vs Humano), y Cálculo de Stratos IQ.
+- [x] **Stratos Radar / Evolve (Parcialmente implementado como Scenario IQ):** Simulador de Crisis, Career Paths y Simulación Agéntica implementados.
+- [x] **Métricas Históricas y Data Lake (Event Sourcing):** Captura mensual inmutable ("Foto" de la empresa) y cálculo macro del "Stratos IQ" (Velocidad de Aprendizaje Organizacional) completados y operando mediante cron job diario mensual (`captureSnapshot`).
 
 ## 🦄 FASE 6: Expansión de Ingeniería de Talento
 
-- [x] **Escenarios Agénticos:** Simulación de cambios organizacionales y generación de escenarios vía LLM.
-- [x] **Selección Inteligente:** Stratos Magnet con matching técnico-cultural agéntico.
+- [x] **Escenarios Agénticos:** Simulación de cambios organizacionales y generación de escenarios vía LLM (AgenticScenarioService).
+- [x] **Selección Inteligente:** Stratos Magnet con matching técnico-cultural agéntico activo (MatchmakerService).
 - [x] **People Experience (PX) Avanzado:** Campañas de PX y Pulse Surveys.

@@ -32,15 +32,15 @@
 | D5  | Misiones de Gremio    | ✅ Completado | Sistema de Quests soporta misiones colectivas/individuales. |
 | D6  | Timeline Evolutivo    | ✅ Completado | `DnaTimelineService.php` y endpoint API implementados.      |
 | D7  | Nudging Proactivo     | ✅ Completado | Orquestador de intervenciones basado en data insights.      |
-| D8  | Talent Pass (CV 2.0)  | ⏳ Pendiente  | Diseño conceptual solamente.                                |
-| D9  | Sovereign Identity    | ⏳ Pendiente  | Credenciales W3C + Blockchain — sin implementación.         |
+| D8  | Talent Pass (CV 2.0)  | ✅ Completado | Modelo de datos y Endpoints API implementados.              |
+| D9  | Sovereign Identity    | ✅ Completado | Infraestructura lista (VerifiableCredentials) con emulador. |
 
 ---
 
 ## 🔴 Próximos Pasos (Enfoque en Ecosistema de Talento)
 
-| 1 | **Talent Pass (CV 2.0)** | Bloque D | Alto | 5-7 días |
-| 2 | **Sovereign Identity** (W3C) | Bloque D | Bajo | 10+ días |
+| 1 | **UI del Talent Pass** | Bloque D | Media | 3-5 días |
+| 2 | **Blockchain Node (Polygon) para W3C** | Bloque D | Bajo | 10+ días |
 
 ---
 

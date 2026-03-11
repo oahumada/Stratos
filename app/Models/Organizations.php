@@ -34,7 +34,7 @@ class Organizations extends Model
 
     public function People(): HasMany
     {
-        return $this->hasMany(People::class);
+        return $this->hasMany(People::class, 'organization_id');
     }
 
     public function developmentPaths(): HasMany
@@ -68,5 +68,13 @@ class Organizations extends Model
         $active_modules = is_array($this->active_modules) ? $this->active_modules : [];
 
         return in_array($module, $active_modules);
+    }
+
+    /**
+     * Snapshots for Stratos Radar (Event Sourcing)
+     */
+    public function snapshots(): HasMany
+    {
+        return $this->hasMany(OrganizationSnapshot::class, 'organizations_id');
     }
 }

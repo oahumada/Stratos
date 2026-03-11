@@ -38,8 +38,9 @@ El concepto más disruptivo del ecosistema Stratos. En el futuro, el "CV" no est
 
 ### Impacto en Arquitectura Backend (Futuro Módulo D9)
 
-- Se debe planificar una tabla intermedia `verifiable_credentials` (morphable) atada al modelo `User`.
-- Uso potencial de librerías como `web3/php` o la delegación de firmas a un microservicio en Go/Rust específico para emitir pasaportes a la red Polygon o similar.
+- Se ha implementado la tabla `verifiable_credentials` atada al modelo `People`.
+- Se implementó un emulador de firmas criptográficas `cryptographic_signature` y la colección del Talent Pass en base de datos.
+- Queda pendiente para el futuro la delegación de firmas a un microservicio en Go/Rust específico para emitir pasaportes a la red Polygon o similar.
 
 ---
 

@@ -99,6 +99,15 @@ Route::patch('/applications/{id}', [\App\Http\Controllers\Api\ApplicationControl
 // Dashboard
 Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController::class, 'metrics']);
 
+// Stratos IQ (Event Sourcing & Organizational Learning Velocity)
+Route::get('/stratos-iq/{organizationId}', [\App\Http\Controllers\Api\StratosIqController::class, 'getTrends']);
+Route::post('/stratos-iq/{organizationId}/snapshot', [\App\Http\Controllers\Api\StratosIqController::class, 'captureSnapshot']);
+
+// Talent Pass (Sovereign Identity / CV 2.0)
+Route::get('/people/{people_id}/talent-pass', [\App\Http\Controllers\Api\TalentPassController::class, 'show']);
+Route::post('/people/{people_id}/talent-pass/issue', [\App\Http\Controllers\Api\TalentPassController::class, 'generateCredential']);
+
+
 // Marketplace (Día 5 - Internal opportunities)
 Route::get('/people/{people_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']); // Vista candidato
 Route::get('/marketplace/recruiter', [\App\Http\Controllers\Api\MarketplaceController::class, 'recruiterView']); // Vista reclutador

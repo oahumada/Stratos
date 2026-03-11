@@ -23,10 +23,10 @@ _Preparando los cimientos para que la arquitectura "Core + Órbitas" funcione si
 - Definir bus de eventos estricto en Laravel (`App\Events\RoleRequirementsUpdated`).
 - Configurar colas (`Redis`/`Database`) para procesamiento asíncrono.
 
-### 3. Gateway Híbrido de Acceso
+### 3. Gateway Híbrido de Acceso (✅ Parcialmente Completado)
 
-- Finalizar la capa de seguridad integrando SSO (OAuth2 / SAML) para despliegues _Enterprise_, unificando con los Magic Links existentes.
-- Sentar las bases conceptuales y modelos de control para **Sovereign Identity** (Credenciales verificables W3C / Blockchain).
+- La capa de seguridad integrando SSO (OAuth2 Google/Microsoft) ha sido completada en `SsoController`, unificando con Magic Links.
+- Las bases de datos y la API (`TalentPassController`) para **Sovereign Identity** (Credenciales verificables y Talent Pass emulado localmente) han sido implementadas exitosamente, sentando el terreno para la integración W3C futura.
 
 ---
 
@@ -56,10 +56,10 @@ _Posicionamiento como el principal "Arquitecto del Negocio". El Premium Tier._
 
 ### 2. Stratos Radar / Evolve (La Joya de la Corona)
 
-- **Data Lake e Historial Inmutable:** Configurar Event Sourcing básico; cada 30 días se guarda una "Foto" entera del estado de la empresa.
-- **Simulador de Escenarios UI:** Interfaz donde el CFO/CEO carga variables: "T + 2 años, abrir en mercado B". El servidor calcula brechas.
-- **Triangulación Híbrida (Humano + Sintético):** Definir una estructura en Base de Datos para "Agentes Sintéticos / IAs". Al predecir vacantes, el sistema propone cubrir un 40% de la carga operativa con Agentes IA y un 60% de estrategia con un Reskilling Humano, calculando el "KPI de Apalancamiento".
-- **Cálculo del Stratos IQ:** Macro-KPI derivado de la tasa histórica de velocidad con la que la organización ha sobrepasado los "Gaps" (Velocidad de Aprendizaje Organizacional).
+- **Simulador de Escenarios UI:** Completado bajo el motor de `ScenarioIQ` (Proyecciones de attrition, obsolescencia, y reestructuración).
+- **Triangulación Híbrida (Humano + Sintético):** Cubierto mediante las simulaciones agénticas de la plataforma (`AgenticScenarioService`).
+- **Data Lake e Historial Inmutable:** Configurado con Event Sourcing nativo apoyado en `OrganizationSnapshot` (fotos mensuales automatizadas).
+- **Cálculo del Stratos IQ:** Macro-KPI en tiempo real de Velocidad de Aprendizaje Organizacional disponible y en formato API (Trends).
 
 ---
 

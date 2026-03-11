@@ -173,4 +173,12 @@ class People extends Model
             ->withPivot('awarded_at')
             ->withTimestamps();
     }
+
+    /**
+     * Sovereign Identity - Verifiable Credentials (Talent Pass)
+     */
+    public function verifiableCredentials(): HasMany
+    {
+        return $this->hasMany(VerifiableCredential::class, 'people_id');
+    }
 }
