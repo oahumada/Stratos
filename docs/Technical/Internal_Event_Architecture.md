@@ -1,40 +1,117 @@
-# 🏗️ Arquitectura de Eventos Interna: Event Bus y Event Sourcing Lite
+# 🏗️ Arquitectura de Eventos Estratégicos y Event Store (Stratos)
 
-Este documento define el estándar de ingeniería para la comunicación asíncrona y la inmutabilidad de acciones estratégicas en la plataforma Stratos.
+## 1. Introducción y Filosofía
 
-## 1. Visión General
+La **Arquitectura de Eventos Interna** de Stratos representa una evolución desde un modelo monolítico transaccional hacia un sistema **orientado a eventos (EDA - Event-Driven Architecture)** con una implementación de **Event Sourcing Lite**.
 
-Para evolucionar de un esquema de "llamadas directas" (acoplamiento fuerte) a una arquitectura reactiva, introducimos un **Event Bus de Dominio**. Esto permite:
+### El Problema del Acoplamiento
 
-- **Desacoplamiento**: Un módulo (ej. `Stratos Core`) no necesita conocer las consecuencias de sus acciones en otros módulos (ej. `Neo4j Sync`).
-- **Auditabilidad (Event Store)**: Cada cambio estratégico queda registrado en un log inmutable.
-- **Reactividad**: Facilita la construcción de flujos complejos de IA disparados por cambios en el estado de la organización.
+Tradicionalmente, cuando un usuario crea un "Rol" en Stratos, el controlador debe:
 
-## 2. Componentes de la Arquitectura
+1. Guardar el rol en Postgres.
+2. Sincronizarlo con Neo4j.
+3. Notificar al motor de Gap Analysis.
+4. Generar una alerta para el Manager.
 
-### 2.1 El Bus de Eventos (Event Bus)
+Si cualquiera de estos pasos falla o tarda demasiado, la experiencia del usuario se degrada.
 
-Utilizamos el sistema nativo de Laravel (`dispatchable`) pero extendido con una estructura de metadatos mandatoria.
+### La Solución: Desacoplamiento Reactivo
 
-### 2.2 Eventos de Dominio (Domain Events)
+En el nuevo esquema, el sistema simplemente dice: **"Ha ocurrido un evento: `RoleRequirementsUpdated`"**. Otros módulos de la plataforma, que están "escuchando", reaccionan a este hecho de forma asíncrona y aislada.
 
-Todos los eventos estratégicos deben heredar de `App\Events\DomainEvent` y contener:
+---
 
-- `aggregate_id`: El ID del modelo principal afectado.
-- `tenant_id`: Para aislamiento multitenant.
-- `actor_id`: El usuario que disparó la acción (si aplica).
-- `payload`: Datos específicos de la mutación.
+## 2. Componentes del Ecosistema de Eventos
 
-### 2.3 Store de Eventos (Event Sourcing Lite)
+### 🛠️ 2.1 Clase Base: `DomainEvent`
 
-No implementaremos un Event Sourcing puro (sustituyendo la DB relacional), sino un **Side-Car Event Sourcing**.
+Localización: `app/Events/DomainEvent.php`
 
-- Cada vez que un `DomainEvent` se despacha, un listener global lo guarda en la tabla `event_store`.
-- Esto permite reconstruir la historia de cualquier objeto (ej. "Cómo evolucionó el rol de Data Scientist en 6 meses").
+Cada acción estratégica significativa en Stratos debe ser un `DomainEvent`. Esta clase abstracta garantiza que cada evento contenga metadatos inmutables idénticos para propósitos de auditoría y análisis sistémico:
 
-## 3. Guía de Implementación
+- **`eventId` (UUID)**: Identificador único universal de la ocurrencia.
+- **`occurredAt` (Timestamp ISO8601)**: El momento exacto del hecho.
+- **`aggregateId` (ID)**: El ID de la entidad principal (ej. `role_id=45`).
+- **`aggregateType` (Class)**: La clase de la entidad (ej. `App\Models\Roles`).
+- **`organizationId` (Tenant)**: Obligatorio para garantizar el aislamiento multitenant.
+- **`actor_id`**: El usuario que disparó la acción (capturado automáticamente del contexto de Auth).
+- **`payload` (JSON)**: Los datos específicos de la mutación.
 
-### Implementar en Modelos
+### 🧬 2.2 Trait: `HasDomainEvents`
+
+Localización: `app/Traits/HasDomainEvents.php`
+
+Este Trait permite que cualquier Modelo de Eloquent se convierta en una fuente de eventos de dominio. Provee métodos para:
+
+- `recordDomainEvent()`: Adjunta un evento al modelo antes de ser despachado.
+- `releaseDomainEvents()`: Libera los eventos pendientes.
+- `dispatchDomainEvents()`: Despacha todos los eventos acumulados hacia el Bus.
+
+### 📦 2.3 El Event Store (Side-car Event Sourcing)
+
+Localización: `app/Models/EventStore.php` | Tabla: `event_store`
+
+A diferencia del Sourcing puro (sustituir DB por logs), Stratos utiliza un "Side-car". Cada evento que cruza el bus es capturado por el listener global `StoreDomainEvent` y guardado permanentemente.
+
+| Campo             | Propósito                                    |
+| :---------------- | :------------------------------------------- |
+| `id`              | UUID del Evento                              |
+| `event_name`      | Identificador del hecho (ej: `role.created`) |
+| `aggregate_type`  | Modelo afectado                              |
+| `aggregate_id`    | ID de la entidad                             |
+| `organization_id` | Tenant dueño del dato                        |
+| `actor_id`        | Responsable de la acción                     |
+| `payload`         | Estado de la mutación                        |
+| `occurred_at`     | Tiempo real de ejecución                     |
+
+---
+
+## 3. Ciclo de Vida de un Evento en Stratos
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario/UI
+    participant C as Controller
+    participant M as Model (Eloquent)
+    participant B as Event Bus (Laravel)
+    participant S as StoreDomainEvent (Listener)
+    participant ES as Event Store (PostgreSQL)
+    participant L as Otros Listeners (Neo4j, Growth, etc)
+
+    U->>C: Petición (ej. Crear Rol)
+    C->>M: Action / Mutation
+    M->>B: Dispatch DomainEvent
+    par Paralelo e Independiente
+        B->>S: Captura Global
+        S->>ES: Persistencia Inmutable (Auditoría)
+    and
+        B->>L: Reacción por módulo
+        L->>L: Tarea asíncrona (Gap Analysis)
+    end
+    C-->>U: Respuesta inmediata (Success)
+```
+
+---
+
+## 4. Guía de Implementación para Desarrolladores
+
+### Paso 1: Crear el Evento
+
+Crea una clase en `app/Events` que extienda de `DomainEvent`.
+
+```php
+namespace App\Events;
+
+class RoleCreated extends DomainEvent {
+    public function eventName(): string {
+        return 'role.created';
+    }
+}
+```
+
+### Paso 2: Registrar el Evento en el Modelo
+
+Añade el Trait al modelo correspondiente.
 
 ```php
 use App\Traits\HasDomainEvents;
@@ -44,16 +121,30 @@ class Roles extends Model {
 }
 ```
 
-### Despachar Eventos
+### Paso 3: Disparar desde el Servicio/Controlador
+
+Usa el método `dispatch` o acumula bajo demanda.
 
 ```php
-RoleChanged::dispatch($role, [
-    'action' => 'competency_added',
-    'competency_id' => 45,
-]);
+// En un Controlador o Job
+RoleRequirementsUpdated::dispatch($roleId, $orgId, ['field' => 'competency_list']);
 ```
 
 ---
 
+## 5. El Futuro: Agentes Reactivos
+
+Esta arquitectura es la base para los **Agentes de Inteligencia Artificial Reactivos** de Stratos. En lugar de que la IA sea una herramienta pasiva que espera un botón, los Agentes pueden ahora estar subscritos al `EventStore`.
+
+**Escenario de ejemplo:**
+
+1. Un Gerente actualiza los requerimientos de un rol crítico (`RoleRequirementsUpdated`).
+2. El `EventStore` registra el cambio.
+3. Un **Agente Analítico de Sucesión** detecta el evento automáticamente.
+4. Antes de que el Gerente cierre sesión, el Agente le envía una notificación:
+   _"He notado que has subido el nivel de exigencia para el rol de Director; acabo de recalcular el mapa de talento y te presento 3 candidatos internos que cumplen con este nuevo criterio"._
+
+---
+
 > [!IMPORTANT]
-> Esta arquitectura es el cimiento para los **Agentes Reactivos**. Sin eventos, la IA solo actúa cuando el usuario lo pide. Con eventos, la IA puede actuar proactivamente cuando "observa" un cambio en el grafo organizacional.
+> **Regla de Oro**: Ninguna acción estratégica destructiva o de alta importancia (Cambios en roles, competencias, evaluaciones, presupuestos) debe ocurrir sin disparar un `DomainEvent`. La inmutabilidad del `EventStore` es nuestra única fuente de verdad ante auditorías de cumplimiento y análisis de evolución histórica.
