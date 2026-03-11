@@ -39,10 +39,12 @@ Mientras el sistema procesa (30-60 seg), explica al tester:
 
 Una vez terminado, el tester debe validar en la pantalla de **Scenario Detail**:
 
-1.  **Mapa de Capacidades:** ¿Se crearon nodos de "Large Language Models", "Ciberseguridad IA", etc.?
-2.  **Métrica de Sintetización:** Ver el porcentaje de **IA vs Humano**.
+1.  **Fundamentos Inmutables**: Arriba de todo, revisar el **ScenarioAssumptionsCard**. Debería estar visible con la etiqueta `RO - Prototype Only` mostrando el contexto inicial (Industria, Tamaño, Retos, etc.) que se inyectó al LLM ahora de forma "bloqueada".
+2.  **Protocolo Read-Only**: Al hacer clic en el nombre de una Capacidad o Competencia en el mapa ("Target"), se abrirá el modal de edición (`NodeEditModal`) pero todos los campos y sliders estarán intencionalmente desactivados si el escenario ya está activo.
+3.  **Mapa de Capacidades**: ¿Se crearon nodos de "Large Language Models", "Ciberseguridad IA", etc.?
+4.  **Métrica de Sintetización**: Ver el porcentaje de **IA vs Humano**.
     - _Verificación:_ ¿Es mayor el % sintético en roles operativos? (Ej. Support Engineer IA: 70% sintético).
-3.  **Audit Trail:** Click en el icono de **Stratos Sentinel**. Debería aparecer un registro: _"Diseño verificado: Alineado con Manifiesto de Transparencia"_.
+5.  **Audit Trail**: Click en el icono de **Stratos Sentinel**. Debería aparecer un registro: _"Diseño verificado: Alineado con Manifiesto de Transparencia"_.
 
 ---
 

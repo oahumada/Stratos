@@ -23,6 +23,14 @@ Si el escenario aún no existe (es una generación nueva), se crea en la tabla `
 
 - **Source Link**: Se vincula mediante `source_generation_id` para trazabilidad hacia el prompt original.
 - **Identidad**: Se asigna un `owner_user_id` y `organization_id` para aislamiento multi-tenant.
+- **Trazabilidad de Supuestos (Assumptions)**: Se guarda el objeto original generado en el paso 1 (industria, objetivos, horizontes, presupuestos) en la relación `sourceGeneration.prompt_payload`. Esto alimenta el **ScenarioAssumptionsCard** en la UI de forma inmutable.
+
+### 1.5 Protocolo de Bloqueo (Read-Only Mode)
+
+Una vez que un escenario avanza a estado `approved`, `completed` o `active`, la arquitectura neural entra en modo estricto de solo lectura:
+
+- **Capa UI**: Todos los componentes interactivos (nodos, sliders, text fields) en `NodeEditModal` se bloquean mediante la directiva `isReadonly`.
+- **Feedback Visual**: Se despliega el banner de bloqueo (`mdi-lock-outline`) alertando al usuario sobre la integridad del diseño.
 
 ### 2. Capacidades (Capabilities)
 
