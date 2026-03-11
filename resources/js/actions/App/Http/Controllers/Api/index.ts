@@ -9,6 +9,8 @@ import AgentController from './AgentController'
 import JobOpeningController from './JobOpeningController'
 import ApplicationController from './ApplicationController'
 import DashboardController from './DashboardController'
+import StratosIqController from './StratosIqController'
+import TalentPassController from './TalentPassController'
 import MarketplaceController from './MarketplaceController'
 import MentorController from './MentorController'
 import AuthController from './AuthController'
@@ -64,6 +66,8 @@ const Api = {
     JobOpeningController: Object.assign(JobOpeningController, JobOpeningController),
     ApplicationController: Object.assign(ApplicationController, ApplicationController),
     DashboardController: Object.assign(DashboardController, DashboardController),
+    StratosIqController: Object.assign(StratosIqController, StratosIqController),
+    TalentPassController: Object.assign(TalentPassController, TalentPassController),
     MarketplaceController: Object.assign(MarketplaceController, MarketplaceController),
     MentorController: Object.assign(MentorController, MentorController),
     AuthController: Object.assign(AuthController, AuthController),

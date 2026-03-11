@@ -550,6 +550,4 @@ download.form = downloadForm
 
 const FilesController = { index, requestDownload, clearCache, deleteMethod, clearCacheAll, deleteMultipleFiles, download, delete: deleteMethod }
 
-export default FilesControllerex, requestDownload, clearCache, deleteMethod, clearCacheAll, deleteMultipleFiles, download, delete: deleteMethod }
-
 export default FilesController

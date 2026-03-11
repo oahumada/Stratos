@@ -1,6 +1,8 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
-nings'
+/**
+* @see \App\Http\Controllers\Api\JobOpeningController::index
+* @see app/Http/Controllers/Api/JobOpeningController.php:12
+* @route '/api/job-openings'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: index.url(options),

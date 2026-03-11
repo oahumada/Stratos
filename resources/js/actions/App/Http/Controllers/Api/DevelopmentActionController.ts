@@ -233,10 +233,4 @@ syncLms.form = syncLmsForm
 
 const DevelopmentActionController = { updateStatus, launchLms, syncLms }
 
-export default DevelopmentActionController)
-
-syncLms.form = syncLmsForm
-
-const DevelopmentActionController = { updateStatus, launchLms, syncLms }
-
 export default DevelopmentActionController

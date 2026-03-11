@@ -271,12 +271,4 @@ apply.form = applyForm
 
 const PublicJobController = { index, show, apply }
 
-export default PublicJobControllers, options),
-    method: 'post',
-})
-
-apply.form = applyForm
-
-const PublicJobController = { index, show, apply }
-
 export default PublicJobController

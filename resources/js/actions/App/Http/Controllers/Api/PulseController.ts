@@ -536,6 +536,4 @@ listTurnoverHeatmap.form = listTurnoverHeatmapForm
 
 const PulseController = { index, show, storeResponse, healthScan, storeEmployeePulse, listEmployeePulses, listTurnoverHeatmap }
 
-export default PulseControllerontroller = { index, show, storeResponse, healthScan, storeEmployeePulse, listEmployeePulses, listTurnoverHeatmap }
-
 export default PulseController
