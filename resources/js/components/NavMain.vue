@@ -11,13 +11,13 @@ import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 
 import {
-    Cog,
-    Database,
-    Magnet,
-    Radar,
-    Smile,
-    TrendingUp,
-} from 'lucide-vue-next';
+    PhBroadcast,
+    PhDatabase,
+    PhGear,
+    PhMagnet,
+    PhSmiley,
+    PhTrendUp,
+} from '@phosphor-icons/vue';
 
 defineProps<{
     items: NavItem[];
@@ -25,21 +25,48 @@ defineProps<{
 
 const page = usePage();
 
-const mainNavItems: NavItem[] = [
-    { title: 'Stratos Core', href: '/core', icon: Database },
-    { title: 'Stratos Radar', href: '/radar', icon: Radar },
-    { title: 'Stratos PX', href: '/px', icon: Smile },
-    { title: 'Stratos Growth', href: '/growth', icon: TrendingUp },
-    { title: 'Stratos Magnet', href: '/magnet', icon: Magnet },
-    { title: 'Control Center', href: '/controlcenter', icon: Cog },
+const platformApps: NavItem[] = [
+    { title: 'Stratos Core', href: '/core', icon: PhDatabase },
+    { title: 'Stratos Radar', href: '/radar', icon: PhBroadcast },
+    { title: 'Stratos PX', href: '/px', icon: PhSmiley },
+    { title: 'Stratos Growth', href: '/growth', icon: PhTrendUp },
+    { title: 'Stratos Magnet', href: '/magnet', icon: PhMagnet },
+    { title: 'Control Center', href: '/controlcenter', icon: PhGear },
 ];
 </script>
 
 <template>
-    <SidebarGroup class="px-2 py-0">
-        <SidebarGroupLabel>Plataforma</SidebarGroupLabel>
-        <SidebarMenu>
-            <SidebarMenuItem v-for="item in mainNavItems" :key="item.title">
+    <SidebarGroup class="px-3 py-2">
+        <SidebarGroupLabel
+            class="mb-2 text-[11px] font-black tracking-widest text-white/50 uppercase"
+        >
+            Plataforma
+        </SidebarGroupLabel>
+        <SidebarMenu class="gap-1.5">
+            <SidebarMenuItem v-for="item in platformApps" :key="item.title">
+                <SidebarMenuButton
+                    as-child
+                    :is-active="urlIsActive(item.href, page.url)"
+                    :tooltip="item.title"
+                >
+                    <Link :href="item.href">
+                        <component :is="item.icon" />
+                        <span>{{ item.title }}</span>
+                    </Link>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        </SidebarMenu>
+    </SidebarGroup>
+
+    <!-- Group 2: Modules (Passed from AppSidebar items prop) -->
+    <SidebarGroup v-if="items && items.length > 0" class="px-3 py-2">
+        <SidebarGroupLabel
+            class="mb-2 text-[11px] font-black tracking-widest text-white/50 uppercase"
+        >
+            Módulos de Sistema
+        </SidebarGroupLabel>
+        <SidebarMenu class="gap-1.5">
+            <SidebarMenuItem v-for="item in items" :key="item.title">
                 <SidebarMenuButton
                     as-child
                     :is-active="urlIsActive(item.href, page.url)"

@@ -16,49 +16,52 @@ import { useTenantStore } from '@/stores/tenantStore';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import {
-    BookOpen,
-    Folder,
-    LayoutGrid,
-    Lock,
-    Star,
-    User,
-} from 'lucide-vue-next';
+    PhBookOpen,
+    PhBrain,
+    PhChalkboardTeacher,
+    PhChartBar,
+    PhChartLineUp,
+    PhChartPieSlice,
+    PhGraph,
+    PhHouse,
+    PhLockKey,
+    PhMagnifyingGlass,
+    PhMapTrifold,
+    PhPuzzlePiece,
+    PhRobot,
+    PhRocketLaunch,
+    PhShieldCheck,
+    PhSquaresFour,
+    PhStar,
+    PhSword,
+    PhTreeStructure,
+    PhUser,
+    PhUsers,
+    PhUsersFour,
+} from '@phosphor-icons/vue';
 import { computed, defineComponent, h } from 'vue';
-import { VIcon } from 'vuetify/components';
-import AppLogo from './AppLogo.vue';
 
-const SkillsIcon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-star-circle', size: 20 }),
-);
+// Pre-define standard Phosphor wrappers for complex conditionals
+const SkillsIcon = defineComponent(() => () => h(PhStar, { size: 20 }));
 const GapAnalysisIcon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-chart-line', size: 20 }),
+    () => () => h(PhChartLineUp, { size: 20 }),
 );
 const MarketplaceIcon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-briefcase-search', size: 20 }),
+    () => () => h(PhMagnifyingGlass, { size: 20 }),
 );
 const ScenarioPlanningIcon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-chart-timeline-variant', size: 20 }),
+    () => () => h(PhChartPieSlice, { size: 20 }),
 );
 const PeopleExperienceIcon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-account-group', size: 20 }),
+    () => () => h(PhUsersFour, { size: 20 }),
 );
-const Talento360Icon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-account-convert', size: 20 }),
-);
-const TalentAgentsIcon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-robot-vacuum-variant', size: 20 }),
-);
-const CerberoMapIcon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-transit-connection-variant', size: 20 }),
-);
-const MiStratosIcon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-account-star', size: 20 }),
-);
-const InvestorRadarIcon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-radar', size: 20 }),
-);
+const Talento360Icon = defineComponent(() => () => h(PhUsers, { size: 20 }));
+const TalentAgentsIcon = defineComponent(() => () => h(PhRobot, { size: 20 }));
+const CerberoMapIcon = defineComponent(() => () => h(PhGraph, { size: 20 }));
+const MiStratosIcon = defineComponent(() => () => h(PhHouse, { size: 20 }));
+const InvestorRadarIcon = defineComponent(() => () => h(PhGraph, { size: 20 }));
 const MobilityWarRoomIcon = defineComponent(
-    () => () => h(VIcon, { icon: 'mdi-sword-cross', size: 20 }),
+    () => () => h(PhSword, { size: 20 }),
 );
 
 const { can, hasRole } = usePermissions();
@@ -75,7 +78,7 @@ const allNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: '/dashboard/analytics',
-        icon: LayoutGrid,
+        icon: PhSquaresFour,
     },
     {
         title: 'Investor Radar',
@@ -87,23 +90,21 @@ const allNavItems: NavItem[] = [
     {
         title: 'People',
         href: '/people',
-        icon: User,
+        icon: PhUser,
         requiredPermission: 'people.view',
     },
     // Roles — requires roles.view
     {
         title: 'Roles',
         href: '/roles',
-        icon: BookOpen,
+        icon: PhBookOpen,
         requiredPermission: 'roles.view',
     },
     // Organigrama — requires people.view
     {
         title: 'Organigrama',
         href: '/departments/org-chart',
-        icon: defineComponent(
-            () => () => h(VIcon, { icon: 'mdi-file-tree', size: 20 }),
-        ),
+        icon: defineComponent(() => () => h(PhTreeStructure, { size: 20 })),
         requiredPermission: 'people.view',
         requiredModule: 'core',
     },
@@ -111,9 +112,7 @@ const allNavItems: NavItem[] = [
     {
         title: 'Competencies',
         href: '/competencies',
-        icon: defineComponent(
-            () => () => h(VIcon, { icon: 'mdi-puzzle', size: 20 }),
-        ),
+        icon: defineComponent(() => () => h(PhPuzzlePiece, { size: 20 })),
         requiredPermission: 'competencies.view',
         requiredModule: 'core',
     },
@@ -143,7 +142,7 @@ const allNavItems: NavItem[] = [
     {
         title: 'Learning Paths',
         href: '/learning-paths',
-        icon: Star,
+        icon: PhStar,
         requiredPermission: 'people.view',
         requiredModule: 'st-grow',
     },
@@ -151,10 +150,7 @@ const allNavItems: NavItem[] = [
     {
         title: 'Mentoring Hub',
         href: '/mentoring',
-        icon: defineComponent(
-            () => () =>
-                h(VIcon, { icon: 'mdi-account-star-outline', size: 20 }),
-        ),
+        icon: defineComponent(() => () => h(PhStar, { size: 20 })),
         requiredPermission: 'people.view',
         requiredModule: 'st-grow',
     },
@@ -184,18 +180,14 @@ const allNavItems: NavItem[] = [
     {
         title: 'Stratos Map (Heatmap)',
         href: '/talento360/map',
-        icon: defineComponent(
-            () => () => h(VIcon, { icon: 'mdi-map', size: 20 }),
-        ),
+        icon: defineComponent(() => () => h(PhMapTrifold, { size: 20 })),
         requiredModule: 'core',
     },
     // Comando 360 — admin/hr_leader only
     {
         title: 'Comando 360',
         href: '/talento360/comando',
-        icon: defineComponent(
-            () => () => h(VIcon, { icon: 'mdi-rocket-launch', size: 20 }),
-        ),
+        icon: defineComponent(() => () => h(PhRocketLaunch, { size: 20 })),
         requiredRole: ['admin', 'hr_leader'],
     },
     // Mobility War-Room — leadership/observers
@@ -217,17 +209,13 @@ const allNavItems: NavItem[] = [
     {
         title: 'Comando PX',
         href: '/people-experience/comando',
-        icon: defineComponent(
-            () => () => h(VIcon, { icon: 'mdi-brain', size: 20 }),
-        ),
+        icon: defineComponent(() => () => h(PhBrain, { size: 20 })),
         requiredRole: ['admin', 'hr_leader'],
     },
     {
         title: 'Social Learning',
         href: '/people-experience/social-learning',
-        icon: defineComponent(
-            () => () => h(VIcon, { icon: 'mdi-teach', size: 20 }),
-        ),
+        icon: defineComponent(() => () => h(PhChalkboardTeacher, { size: 20 })),
         requiredRole: ['admin', 'hr_leader'],
     },
     // Talent Agents — requires agents.view
@@ -240,23 +228,19 @@ const allNavItems: NavItem[] = [
     {
         title: 'Roles & Permisos',
         href: '/settings/rbac',
-        icon: Lock,
+        icon: PhLockKey,
         requiredRole: ['admin'],
     },
     {
         title: 'Quality Hub',
         href: '/quality-hub',
-        icon: defineComponent(
-            () => () => h(VIcon, { icon: 'mdi-shield-check', size: 20 }),
-        ),
+        icon: defineComponent(() => () => h(PhShieldCheck, { size: 20 })),
         requiredRole: ['admin', 'hr_leader'],
     },
     {
         title: 'LLM Quality (RAGAS)',
         href: '/quality/ragas-metrics',
-        icon: defineComponent(
-            () => () => h(VIcon, { icon: 'mdi-chart-bar', size: 20 }),
-        ),
+        icon: defineComponent(() => () => h(PhChartBar, { size: 20 })),
         requiredRole: ['admin', 'hr_leader'],
     },
 ];
@@ -288,12 +272,12 @@ const footerNavItems: NavItem[] = [
     {
         title: 'Documentación',
         href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
+        icon: defineComponent(() => () => h(PhBookOpen, { size: 20 })),
     },
     {
         title: 'Mesa de ayuda',
         href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: Star,
+        icon: defineComponent(() => () => h(PhStar, { size: 20 })),
     },
 ];
 </script>
