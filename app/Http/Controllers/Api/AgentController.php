@@ -15,7 +15,13 @@ class AgentController extends Controller
      */
     public function index(): JsonResponse
     {
-        $agents = Agent::where('is_active', true)->get();
+        $agents = Agent::withoutGlobalScope('organization')
+            ->where(function ($query) {
+                $query->whereNull('organization_id')
+                      ->orWhere('organization_id', auth()->user()->organization_id);
+            })
+            ->where('is_active', true)
+            ->get();
 
         return response()->json(['data' => $agents]);
     }
@@ -62,8 +68,10 @@ class AgentController extends Controller
     /**
      * Actualiza la configuración de un agente.
      */
-    public function update(Request $request, Agent $agent): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
+        $agent = Agent::withoutGlobalScope('organization')->findOrFail($id);
+
         $data = $request->validate([
             'name' => ['required', 'string'],
             'role_description' => ['required', 'string'],
