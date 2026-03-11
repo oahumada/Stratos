@@ -37,11 +37,7 @@ const platformApps: NavItem[] = [
 
 <template>
     <SidebarGroup class="px-3 py-2">
-        <SidebarGroupLabel
-            class="mb-2 text-[11px] font-black tracking-widest text-white/50 uppercase"
-        >
-            Plataforma
-        </SidebarGroupLabel>
+        <SidebarGroupLabel> Plataforma </SidebarGroupLabel>
         <SidebarMenu class="gap-1.5">
             <SidebarMenuItem v-for="item in platformApps" :key="item.title">
                 <SidebarMenuButton
@@ -60,11 +56,7 @@ const platformApps: NavItem[] = [
 
     <!-- Group 2: Modules (Passed from AppSidebar items prop) -->
     <SidebarGroup v-if="items && items.length > 0" class="px-3 py-2">
-        <SidebarGroupLabel
-            class="mb-2 text-[11px] font-black tracking-widest text-white/50 uppercase"
-        >
-            Módulos de Sistema
-        </SidebarGroupLabel>
+        <SidebarGroupLabel> Módulos de Sistema </SidebarGroupLabel>
         <SidebarMenu class="gap-1.5">
             <SidebarMenuItem v-for="item in items" :key="item.title">
                 <SidebarMenuButton

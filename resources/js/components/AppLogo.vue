@@ -8,7 +8,7 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
     >
         <AppLogoIcon class="size-5 fill-current text-white dark:text-black" />
     </div>
-    <div class="ml-1 grid flex-1 text-left text-sm">
+    <div class="ml-1 grid flex-1 text-left text-sm text-white">
         <span class="mb-0.5 truncate leading-tight font-semibold">Strato</span>
     </div>
 </template>

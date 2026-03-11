@@ -11,6 +11,7 @@ const { currentTheme, setTheme, themeOptions } = useTheme();
                 v-bind="props"
                 icon="mdi-palette"
                 variant="text"
+                color="white"
                 title="Cambiar tema de colores"
             />
         </template>

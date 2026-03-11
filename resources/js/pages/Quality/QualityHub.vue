@@ -2,7 +2,7 @@
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
+//import AppLayout from '@/layouts/AppLayout.vue';
 import axios from 'axios';
 import {
     BarChart3,
@@ -18,8 +18,33 @@ import {
 } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
 
-const tickets = ref([]);
-const metrics = ref(null);
+interface Ticket {
+    id: number | string;
+    title: string;
+    type: string;
+    status: string;
+    priority?: string;
+    reporter?: {
+        name: string;
+    };
+    created_at: string;
+    context?: {
+        url?: string;
+    };
+    assignee?: {
+        name: string;
+    };
+}
+
+interface Metrics {
+    critical_bugs: number;
+    by_status: Record<string, number>;
+    by_type: Record<string, number>;
+    total: number;
+}
+
+const tickets = ref<Ticket[]>([]);
+const metrics = ref<Metrics | null>(null);
 const loading = ref(true);
 
 const fetchTickets = async () => {
@@ -69,11 +94,19 @@ const getTypeIcon = (type: string) => {
             return ShieldCheck;
     }
 };
+/* const layoutProps = {
+    title: 'Quality Hub',
+    breadcrumbs: [
+        {
+            title: 'Calidad',
+            href: '/quality-hub',
+        },
+    ],
+}; */
 </script>
 
 <template>
-    <AppLayout title="Quality & Improvement Hub">
-        <template #header>
+        <template>
             <div
                 class="flex flex-col justify-between gap-4 md:flex-row md:items-center"
             >
@@ -293,5 +326,4 @@ const getTypeIcon = (type: string) => {
                 </div>
             </StCardGlass>
         </div>
-    </AppLayout>
 </template>

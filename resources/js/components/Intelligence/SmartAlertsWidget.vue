@@ -89,7 +89,7 @@ onUnmounted(() => {
         <!-- Bell Toggle -->
         <button
             @click="showDropdown = !showDropdown"
-            class="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition-all hover:bg-white/10 hover:text-white"
+            class="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white transition-all hover:bg-white/10"
             :class="{
                 'border-indigo-500/30 bg-indigo-500/20 text-indigo-400':
                     showDropdown,
