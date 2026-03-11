@@ -4,7 +4,7 @@ Esta lista consolida todos los elementos que **no están al 100%** extraídos de
 
 ## 🌊 Wave 2: Bloque B & D (Expansión y Ecosistema)
 
-- [ ] **B1 - Infraestructura:** Neo4j Live (Esperando infraestructura).
+- [x] **B1 - Infraestructura:** Neo4j Live (Container dockerizado funcionando; sincronización `neo4j:sync` programada en Laravel Schedules).
 - [ ] **B5 - Mobile PX:** App Nativa pendiente (v1 UI en web implementada).
 - [x] **D1 - Gateway Híbrido:** SSO OAuth (Google/Microsoft) y rutas firmadas implementados.
 - [x] **D2 - LMS & Mentor Hub:** Orquestación de sesiones de mentoría e integración con LMS operativa.

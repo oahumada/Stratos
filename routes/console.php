@@ -116,3 +116,5 @@ Artisan::command('candidates:rank {job_opening_id}', function () {
 })->purpose('Lista candidatos internos rankeados para una vacante');
 
 \Illuminate\Support\Facades\Schedule::command('stratos:generate-impact-reports')->daily();
+\Illuminate\Support\Facades\Schedule::command('stratos:capture-snapshots')->monthly();
+\Illuminate\Support\Facades\Schedule::command('neo4j:sync --via=script')->everySixHours();
