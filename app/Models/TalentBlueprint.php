@@ -13,7 +13,7 @@ class TalentBlueprint extends Model
 
     // Support both legacy service attribute names and the actual DB columns.
     protected $fillable = [
-        'scenario_id', 'role_name', 'role_description', 'estimated_fte',
+        'scenario_id', 'role_name', 'role_description', 'purpose', 'expected_results', 'estimated_fte',
         'total_fte_required', 'human_percentage', 'synthetic_percentage',
         'human_leverage', 'synthetic_leverage', 'strategy_suggestion', 'recommended_strategy',
         'logic_justification', 'suggested_agent_type', 'agent_specs', 'key_competencies', 'status', 'embedding',

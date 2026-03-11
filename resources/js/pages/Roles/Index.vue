@@ -207,6 +207,41 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                     {{ item.description }}
                                 </v-list-item-title>
                             </v-list-item>
+                            <v-list-item v-if="item.purpose" class="px-0">
+                                <v-list-item-title class="text-body-2">
+                                    <strong class="text-indigo-accent-1"
+                                        >{{
+                                            t(
+                                                'roles_module.info_section.purpose',
+                                            )
+                                        }}:</strong
+                                    >
+                                    <div
+                                        class="pa-3 mt-1 rounded-lg border border-indigo-500/20 bg-indigo-900/10 text-slate-200 italic"
+                                    >
+                                        {{ item.purpose }}
+                                    </div>
+                                </v-list-item-title>
+                            </v-list-item>
+                            <v-list-item
+                                v-if="item.expected_results"
+                                class="px-0"
+                            >
+                                <v-list-item-title class="text-body-2">
+                                    <strong class="text-indigo-accent-1"
+                                        >{{
+                                            t(
+                                                'roles_module.info_section.expected_results',
+                                            )
+                                        }}:</strong
+                                    >
+                                    <div
+                                        class="pa-3 mt-1 rounded-lg border border-emerald-500/20 bg-emerald-900/10 text-slate-200"
+                                    >
+                                        {{ item.expected_results }}
+                                    </div>
+                                </v-list-item-title>
+                            </v-list-item>
                             <v-list-item v-if="item.agent" class="px-0">
                                 <v-list-item-title
                                     class="text-body-2 d-flex align-center"

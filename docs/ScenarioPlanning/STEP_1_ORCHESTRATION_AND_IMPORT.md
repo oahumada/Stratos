@@ -79,6 +79,7 @@ Al finalizar la inserción de cada nodo (Capability/Competency/Skill), el sistem
 
 **"Convertimos alucinaciones estructuradas en activos organizacionales reales."**
 _Actualizado: 11 de Marzo de 2026_
+
 # 🧠 Especificación Técnica: Motor Scenario IQ (Talent Blueprinting)
 
 ## 1. Visión
@@ -195,17 +196,6 @@ Utilizamos un crew de agentes especializados en CrewAI:
 ---
 
 **"En Stratos, el futuro no se adivina, se diseña."**
-_© 2026 Stratos Intelligence Architecture Group_
-_Actualizado: 27 de Febrero de 2026_
-# 🧠 Guía de Demostración: Orquestación del Cerebro Stratos
-
-Esta guía está diseñada para que un **Revisor Beta** o **Socio Potencial** pueda validar la inteligencia y capacidad de orquestación de Stratos de manera autónoma, replicable y transparente.
-
----
-
-## 🎭 Escenario Maestro: "IA-First Transformation"
-
-**Contexto:** La empresa "Global Fintech" necesita transformar su departamento de IT tradicional en una unidad impulsada por IA. No saben qué roles necesitan ni cómo equilibrar humanos frente a agentes autónomos.
 
 ### 📋 Ficha Técnica del Caso de Uso
 
@@ -308,5 +298,4 @@ Para asegurar que el "Cerebro" ha razonado correctamente, podemos verificar los 
 
 ### 📚 Recursos Adicionales
 
-- **Mapeo de Datos (LLM a DB):** [DATA_IMPORT_AND_MODEL_MAPPING.md](file:///home/omar/Stratos/docs/Architecture/DATA_IMPORT_AND_MODEL_MAPPING.md)
-- **Especificación Scenario IQ:** [SCENARIO_IQ_TECHNICAL_SPEC.md](file:///home/omar/Stratos/docs/Architecture/SCENARIO_IQ_TECHNICAL_SPEC.md)
+- **Especificación Scenario IQ:** `docs/Architecture/SCENARIO_IQ_TECHNICAL_SPEC.md`

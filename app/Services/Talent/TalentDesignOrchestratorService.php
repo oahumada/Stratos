@@ -18,10 +18,16 @@ class TalentDesignOrchestratorService
 
     protected RoleSkillDerivationService $derivation;
 
-    public function __construct(AiOrchestratorService $ai, RoleSkillDerivationService $derivation)
-    {
+    protected \App\Services\EmbeddingService $embeddings;
+
+    public function __construct(
+        AiOrchestratorService $ai,
+        RoleSkillDerivationService $derivation,
+        \App\Services\EmbeddingService $embeddings
+    ) {
         $this->ai = $ai;
         $this->derivation = $derivation;
+        $this->embeddings = $embeddings;
     }
 
     /**
@@ -93,9 +99,14 @@ class TalentDesignOrchestratorService
         try {
             $result = $this->ai->agentThink('Ingeniero de Talento', $taskPrompt, $systemInstructions);
 
+            $proposals = $result['response'] ?? $result;
+
+            // MOMENTO 2: Conciliación Semántica Automática
+            $proposals = $this->performSemanticReconciliation($proposals, $orgId);
+
             return [
                 'success' => true,
-                'proposals' => $result['response'] ?? $result,
+                'proposals' => $proposals,
                 'metadata' => [
                     'scenario_id' => $scenarioId,
                     'agent' => 'Ingeniero de Talento',
@@ -136,17 +147,69 @@ class TalentDesignOrchestratorService
                         [
                             'description' => $proposal['action_rationale'] ?? null,
                             'status' => 'in_incubation',
+                            'cube_dimensions' => [
+                                'talent_dna' => $proposal['talent_composition'] ?? null,
+                            ],
+                            'discovered_in_scenario_id' => $scenarioId,
                         ]
                     );
                     $competencyIdMap[$proposal['proposed_name']] = $comp->id;
                     $stats['competencies_created']++;
 
+                    // Proceso de Skills Atómicas (Unidad Mínima)
+                    if (! empty($proposal['talent_composition']['skills_breakdown'])) {
+                        foreach ($proposal['talent_composition']['skills_breakdown'] as $skillData) {
+                            $skill = \App\Models\Skill::firstOrCreate(
+                                ['organization_id' => $orgId, 'name' => $skillData['skill_name']],
+                                [
+                                    'description' => $skillData['description'] ?? null,
+                                    'status' => 'incubation',
+                                    'discovered_in_scenario_id' => $scenarioId,
+                                    'cube_dimensions' => [
+                                        'talent_dna' => [
+                                            'human_percentage' => $skillData['human_percentage'] ?? 100,
+                                            'synthetic_percentage' => $skillData['synthetic_percentage'] ?? 0,
+                                            'mastery_level' => $skillData['mastery_level'] ?? 3,
+                                        ],
+                                    ],
+                                ]
+                            );
+
+                            // Vincular Skill con Competencia
+                            $comp->skills()->syncWithoutDetaching([$skill->id => ['weight' => 100]]);
+                        }
+                    }
+
                 } elseif ($type === 'MODIFY' && ! empty($proposal['competency_id'])) {
-                    Competency::where('id', $proposal['competency_id'])->update([
+                    $comp = Competency::findOrFail($proposal['competency_id']);
+                    $comp->update([
                         'name' => $proposal['proposed_name'],
                         'description' => $proposal['action_rationale'] ?? null,
+                        'cube_dimensions' => [
+                            'talent_dna' => $proposal['talent_composition'] ?? null,
+                        ],
                     ]);
                     $competencyIdMap[$proposal['proposed_name']] = $proposal['competency_id'];
+
+                    // Actualizar/Sincronizar Skills Atómicas
+                    if (! empty($proposal['talent_composition']['skills_breakdown'])) {
+                        foreach ($proposal['talent_composition']['skills_breakdown'] as $skillData) {
+                            $skill = \App\Models\Skill::updateOrCreate(
+                                ['organization_id' => $orgId, 'name' => $skillData['skill_name']],
+                                [
+                                    'description' => $skillData['description'] ?? null,
+                                    'cube_dimensions' => [
+                                        'talent_dna' => [
+                                            'human_percentage' => $skillData['human_percentage'] ?? 100,
+                                            'synthetic_percentage' => $skillData['synthetic_percentage'] ?? 0,
+                                            'mastery_level' => $skillData['mastery_level'] ?? 3,
+                                        ],
+                                    ],
+                                ]
+                            );
+                            $comp->skills()->syncWithoutDetaching([$skill->id => ['weight' => 100]]);
+                        }
+                    }
                 }
             }
 
@@ -158,7 +221,12 @@ class TalentDesignOrchestratorService
                     // Crear el rol en el catálogo
                     $role = Roles::firstOrCreate(
                         ['organization_id' => $orgId, 'name' => $proposal['proposed_name']],
-                        ['description' => $proposal['proposed_description'] ?? null, 'status' => 'in_incubation']
+                        [
+                            'description' => $proposal['proposed_description'] ?? null,
+                            'purpose' => $proposal['proposed_purpose'] ?? null,
+                            'expected_results' => $proposal['expected_results'] ?? null,
+                            'status' => 'in_incubation'
+                        ]
                     );
 
                     // Crear entrada en scenario_roles
@@ -174,6 +242,12 @@ class TalentDesignOrchestratorService
                             'rationale' => $proposal['talent_composition']['logic_justification'] ?? null,
                         ]
                     );
+                    $scenarioRole->ai_suggestions = array_merge($scenarioRole->ai_suggestions ?? [], [
+                        'proposed_purpose' => $proposal['proposed_purpose'] ?? null,
+                        'expected_results' => $proposal['expected_results'] ?? null,
+                        'operational_blueprint' => $proposal['operational_blueprint'] ?? null,
+                    ]);
+                    $scenarioRole->save();
                     $stats['roles_created']++;
 
                 } elseif (in_array($type, ['EVOLVE', 'REPLACE']) && ! empty($proposal['target_role_id'])) {
@@ -382,6 +456,61 @@ class TalentDesignOrchestratorService
         $prompt .= 'Devuelve SOLO el JSON con las claves: role_proposals, catalog_proposals, alignment_score.';
 
         return $prompt;
+    }
+
+    /**
+     * MOMENTO 2: Realiza una búsqueda semántica para cada propuesta NEW o ADD
+     * contra el catálogo actual para identificar concordancias.
+     */
+    protected function performSemanticReconciliation(array $proposals, int $orgId): array
+    {
+        // 1. Reconciliar propuestas de Roles
+        if (! empty($proposals['role_proposals'])) {
+            foreach ($proposals['role_proposals'] as &$role) {
+                if (($role['type'] ?? '') === 'NEW' || empty($role['target_role_id'])) {
+                    $text = ($role['proposed_name'] ?? '').' '.($role['proposed_description'] ?? '');
+                    $embedding = $this->embeddings->generate($text);
+
+                    if ($embedding) {
+                        $matches = $this->embeddings->findSimilar('roles', $embedding, 1, $orgId);
+                        if (! empty($matches)) {
+                            $match = $matches[0];
+                            $role['semantic_concordance'] = [
+                                'target_role_id' => $match->id,
+                                'target_role_name' => $match->name,
+                                'similarity_score' => round($match->similarity, 4),
+                                'is_high_confidence_match' => $match->similarity > 0.85,
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Reconciliar propuestas de Competencias del catálogo
+        if (! empty($proposals['catalog_proposals'])) {
+            foreach ($proposals['catalog_proposals'] as &$comp) {
+                if (($comp['type'] ?? '') === 'ADD' || empty($comp['competency_id'])) {
+                    $text = ($comp['proposed_name'] ?? '').' '.($comp['action_rationale'] ?? '');
+                    $embedding = $this->embeddings->generate($text);
+
+                    if ($embedding) {
+                        $matches = $this->embeddings->findSimilar('competencies', $embedding, 1, $orgId);
+                        if (! empty($matches)) {
+                            $match = $matches[0];
+                            $comp['semantic_concordance'] = [
+                                'competency_id' => $match->id,
+                                'competency_name' => $match->name,
+                                'similarity_score' => round($match->similarity, 4),
+                                'is_high_confidence_match' => $match->similarity > 0.88,
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        return $proposals;
     }
 
     protected function formatBlueprint(Scenario $scenario): array

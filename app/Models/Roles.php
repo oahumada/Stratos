@@ -26,6 +26,8 @@ class Roles extends Model
         'name',
         'level',
         'description',
+        'purpose',
+        'expected_results',
         'status',
         'discovered_in_scenario_id',
         'embedding',

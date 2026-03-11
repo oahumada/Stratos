@@ -54,6 +54,8 @@ class RoleSeeder extends Seeder
                 'department' => 'Engineering',
                 'level' => 'lead',
                 'description' => 'Líder técnico responsable de arquitectura y equipo',
+                'purpose' => 'Asegurar la excelencia técnica y el crecimiento del equipo mediante la definición de arquitecturas escalables y la mentoría continua.',
+                'expected_results' => "1. Disponibilidad del sistema del 99.9%.\n2. Reducción de la deuda técnica en un 20% anual.\n3. Incremento en el nivel de maestría del equipo Engineering.",
             ],
             [
                 'name' => 'Business Analyst',

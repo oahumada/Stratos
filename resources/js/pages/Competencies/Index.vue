@@ -77,9 +77,14 @@ const curateCompetency = async (id: number, refresh: () => void) => {
                     <v-window-item value="info">
                         <v-card flat border class="pa-4 glass-card rounded-xl">
                             <div
-                                class="text-subtitle-1 font-weight-bold font-premium mb-2 text-white"
+                                class="text-subtitle-1 font-weight-bold font-premium mb-1 text-white"
                             >
                                 {{ item.name }}
+                            </div>
+                            <div
+                                class="text-overline text-indigo-accent-1 font-weight-black mb-3 tracking-widest"
+                            >
+                                [ PISO / COMPETENCY CLUSTER ]
                             </div>
                             <template v-if="item.description">
                                 <div class="text-body-2 mb-4 text-slate-300">

@@ -393,6 +393,128 @@
                                                         role.proposed_description
                                                     }}
                                                 </p>
+                                                <!-- Semantic Concordance (Moment 2) -->
+                                                <div
+                                                    v-if="
+                                                        role.semantic_concordance
+                                                    "
+                                                    class="mt-2 flex items-center gap-2 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-2 py-1"
+                                                >
+                                                    <v-icon
+                                                        size="12"
+                                                        :color="
+                                                            role
+                                                                .semantic_concordance
+                                                                .is_high_confidence_match
+                                                                ? 'warning'
+                                                                : 'indigo-300'
+                                                        "
+                                                        >{{
+                                                            role
+                                                                .semantic_concordance
+                                                                .is_high_confidence_match
+                                                                ? 'mdi-alert-circle'
+                                                                : 'mdi-vector-link'
+                                                        }}</v-icon
+                                                    >
+                                                    <span
+                                                        class="text-[10px] font-bold text-indigo-200"
+                                                    >
+                                                        {{
+                                                            role
+                                                                .semantic_concordance
+                                                                .is_high_confidence_match
+                                                                ? 'Posible duplicado'
+                                                                : 'Similitud semántica'
+                                                        }}:
+                                                        {{
+                                                            Math.round(
+                                                                role
+                                                                    .semantic_concordance
+                                                                    .similarity_score *
+                                                                    100,
+                                                            )
+                                                        }}% con
+                                                        <span
+                                                            class="text-white italic"
+                                                            >"{{
+                                                                role
+                                                                    .semantic_concordance
+                                                                    .target_role_name
+                                                            }}"</span
+                                                        >
+                                                    </span>
+                                                </div>
+
+                                                <!-- Operational Blueprint (Moment 4) -->
+                                                <div
+                                                    v-if="
+                                                        (role as any)
+                                                            .operational_blueprint
+                                                    "
+                                                    class="mt-3 flex flex-col gap-2 rounded-xl border border-white/5 bg-white/2 p-3 transition-all hover:border-white/10 hover:bg-white/5"
+                                                >
+                                                    <div
+                                                        class="flex items-center gap-2"
+                                                    >
+                                                        <v-icon
+                                                            size="14"
+                                                            color="indigo-400"
+                                                            >mdi-axis-z-arrow</v-icon
+                                                        >
+                                                        <span
+                                                            class="text-[10px] font-black tracking-widest text-indigo-300 uppercase"
+                                                            >Process:
+                                                            {{
+                                                                (role as any)
+                                                                    .operational_blueprint
+                                                                    .process_alignment
+                                                            }}</span
+                                                        >
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-3 border-t border-white/5 pt-1"
+                                                    >
+                                                        <div class="space-y-1">
+                                                            <div
+                                                                class="text-[8px] font-black tracking-tighter text-white/20 uppercase"
+                                                            >
+                                                                Behavior
+                                                            </div>
+                                                            <div
+                                                                class="line-clamp-2 text-[10px] leading-tight text-white/50 italic"
+                                                            >
+                                                                "{{
+                                                                    (
+                                                                        role as any
+                                                                    )
+                                                                        .operational_blueprint
+                                                                        .bars_preview
+                                                                        ?.behavior
+                                                                }}"
+                                                            </div>
+                                                        </div>
+                                                        <div class="space-y-1">
+                                                            <div
+                                                                class="text-[8px] font-black tracking-tighter text-white/20 uppercase"
+                                                            >
+                                                                Responsibility
+                                                            </div>
+                                                            <div
+                                                                class="line-clamp-2 text-[10px] leading-tight text-white/50 italic"
+                                                            >
+                                                                "{{
+                                                                    (
+                                                                        role as any
+                                                                    )
+                                                                        .operational_blueprint
+                                                                        .bars_preview
+                                                                        ?.responsibility
+                                                                }}"
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -458,6 +580,87 @@
 
                                     <!-- Role Content -->
                                     <div class="space-y-8 p-6">
+                                        <!-- Strategic Frame (Purpose & Results) -->
+                                        <div
+                                            class="grid grid-cols-1 gap-6 rounded-2xl border border-white/5 bg-white/2 p-4 md:grid-cols-2"
+                                        >
+                                            <div class="space-y-2">
+                                                <div
+                                                    class="flex items-center gap-2"
+                                                >
+                                                    <v-icon
+                                                        size="14"
+                                                        color="pink-400"
+                                                        >mdi-target</v-icon
+                                                    >
+                                                    <span
+                                                        class="text-[10px] font-black tracking-widest text-pink-300 uppercase"
+                                                        >Propósito del Rol</span
+                                                    >
+                                                </div>
+                                                <p
+                                                    class="text-sm leading-relaxed font-medium text-white/80"
+                                                >
+                                                    {{
+                                                        (role as any)
+                                                            .proposed_purpose
+                                                    }}
+                                                </p>
+                                                <div
+                                                    class="mt-2 text-[10px] text-white/40 italic"
+                                                >
+                                                    {{
+                                                        role.proposed_description
+                                                    }}
+                                                </div>
+                                            </div>
+                                            <div class="space-y-2">
+                                                <div
+                                                    class="flex items-center gap-2"
+                                                >
+                                                    <v-icon
+                                                        size="14"
+                                                        color="teal-400"
+                                                        >mdi-trophy-outline</v-icon
+                                                    >
+                                                    <span
+                                                        class="text-[10px] font-black tracking-widest text-teal-300 uppercase"
+                                                        >Resultados
+                                                        Esperados</span
+                                                    >
+                                                </div>
+                                                <p
+                                                    class="text-sm leading-relaxed font-medium text-white/80"
+                                                >
+                                                    {{
+                                                        (role as any)
+                                                            .expected_results
+                                                    }}
+                                                </p>
+                                                <div
+                                                    v-if="
+                                                        role.talent_composition
+                                                    "
+                                                    class="mt-4 rounded-xl border border-white/5 bg-black/20 p-3"
+                                                >
+                                                    <div
+                                                        class="mb-2 text-[8px] font-black text-white/20 uppercase"
+                                                    >
+                                                        Racional de Talento
+                                                    </div>
+                                                    <p
+                                                        class="text-[10px] leading-tight text-white/50 italic"
+                                                    >
+                                                        "{{
+                                                            role
+                                                                .talent_composition
+                                                                .logic_justification
+                                                        }}"
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <!-- Controls Row -->
                                         <div
                                             class="grid grid-cols-1 gap-6 md:grid-cols-4"
@@ -585,15 +788,6 @@
                                                             }}%</span
                                                         >
                                                     </div>
-                                                    <p
-                                                        class="text-[10px] leading-tight font-medium text-white/40 italic"
-                                                    >
-                                                        "{{
-                                                            role
-                                                                .talent_composition
-                                                                .logic_justification
-                                                        }}"
-                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -949,10 +1143,119 @@
                                         >
                                             {{ comp.proposed_name }}
                                         </div>
-                                        <div
-                                            class="max-w-[200px] truncate text-[10px] text-white/30"
+                                        <v-list-item-subtitle
+                                            class="text-caption mt-1 text-white/40"
                                         >
                                             {{ comp.action_rationale }}
+                                        </v-list-item-subtitle>
+
+                                        <!-- Competency DNA (Moment 2/4) -->
+                                        <div
+                                            v-if="comp.talent_composition"
+                                            class="mt-3 flex flex-col gap-2 rounded-xl border border-white/5 bg-white/2 p-3 transition-all hover:border-white/10 hover:bg-white/5"
+                                        >
+                                            <div
+                                                class="flex items-center justify-between"
+                                            >
+                                                <div
+                                                    class="flex items-center gap-2"
+                                                >
+                                                    <v-icon
+                                                        size="14"
+                                                        color="teal-300"
+                                                        >mdi-dna</v-icon
+                                                    >
+                                                    <span
+                                                        class="text-[9px] font-black tracking-widest text-teal-200 uppercase"
+                                                        >DNA de
+                                                        Competencia</span
+                                                    >
+                                                </div>
+                                                <div
+                                                    class="text-[9px] font-black tracking-tighter whitespace-nowrap text-white/30 uppercase"
+                                                >
+                                                    Mix:
+                                                    {{
+                                                        comp.talent_composition
+                                                            .human_percentage
+                                                    }}% H /
+                                                    {{
+                                                        comp.talent_composition
+                                                            .synthetic_percentage
+                                                    }}% S
+                                                </div>
+                                            </div>
+
+                                            <!-- Progress Bar -->
+                                            <div
+                                                class="flex h-1 w-full overflow-hidden rounded-full bg-white/5"
+                                            >
+                                                <div
+                                                    class="h-full bg-teal-400/80"
+                                                    :style="{
+                                                        width:
+                                                            comp
+                                                                .talent_composition
+                                                                .human_percentage +
+                                                            '%',
+                                                    }"
+                                                ></div>
+                                                <div
+                                                    class="h-full bg-indigo-400/80"
+                                                    :style="{
+                                                        width:
+                                                            comp
+                                                                .talent_composition
+                                                                .synthetic_percentage +
+                                                            '%',
+                                                    }"
+                                                ></div>
+                                            </div>
+
+                                            <div
+                                                class="border-b border-white/5 py-1 text-[10px] leading-relaxed text-white/50 italic"
+                                            >
+                                                "{{
+                                                    comp.talent_composition
+                                                        .logic_justification
+                                                }}"
+                                            </div>
+
+                                            <div
+                                                class="flex items-center gap-2 pt-1"
+                                            >
+                                                <v-icon
+                                                    size="12"
+                                                    color="amber-400"
+                                                    >mdi-rocket-launch</v-icon
+                                                >
+                                                <span
+                                                    class="text-[9px] font-bold text-amber-200/80"
+                                                    >{{
+                                                        comp.talent_composition
+                                                            .expected_leverage
+                                                    }}</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <!-- Semantic Concordance (Moment 2) -->
+                                        <div
+                                            v-if="comp.semantic_concordance"
+                                            class="mt-1 text-[9px] font-bold text-indigo-400"
+                                        >
+                                            Match:
+                                            {{
+                                                Math.round(
+                                                    comp.semantic_concordance
+                                                        .similarity_score * 100,
+                                                )
+                                            }}% →
+                                            <span class="text-white/50"
+                                                >"{{
+                                                    comp.semantic_concordance
+                                                        .target_competency_name
+                                                }}"</span
+                                            >
                                         </div>
                                     </div>
                                 </div>
@@ -1075,6 +1378,8 @@ interface RoleProposal {
     type: string;
     proposed_name: string;
     proposed_description?: string;
+    proposed_purpose?: string;
+    expected_results?: string;
     archetype?: string;
     fte_suggested?: number;
     target_role_id?: number | null;
@@ -1084,6 +1389,12 @@ interface RoleProposal {
         synthetic_percentage: number;
         logic_justification?: string;
     };
+    semantic_concordance?: {
+        target_role_id: number;
+        target_role_name: string;
+        similarity_score: number;
+        is_high_confidence_match: boolean;
+    };
     _status: ProposalStatus;
 }
 
@@ -1092,6 +1403,25 @@ interface CatalogProposal {
     proposed_name: string;
     competency_id?: number | null;
     action_rationale?: string;
+    semantic_concordance?: {
+        competency_id: number;
+        target_competency_name?: string;
+        similarity_score?: number;
+        is_high_confidence_match?: boolean;
+    };
+    talent_composition?: {
+        human_percentage: number;
+        synthetic_percentage: number;
+        logic_justification: string;
+        expected_leverage: string;
+        skills_breakdown?: Array<{
+            skill_name: string;
+            description: string;
+            human_percentage: number;
+            synthetic_percentage: number;
+            mastery_level: number;
+        }>;
+    };
     _status: ProposalStatus;
 }
 

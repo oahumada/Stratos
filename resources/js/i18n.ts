@@ -363,6 +363,8 @@ export const messages = {
                 description: 'Description',
                 ai_agent: 'AI Agent',
                 blueprint: 'Strategic Blueprint',
+                purpose: 'Purpose (Building)',
+                expected_results: 'Expected Results',
                 design_btn: 'Design with AI (Cube Model)',
             },
             skills_section: {
@@ -1094,6 +1096,8 @@ export const messages = {
                 description: 'Descripción',
                 ai_agent: 'Agente IA',
                 blueprint: 'Plantilla Estratégica',
+                purpose: 'Propósito (Edificio)',
+                expected_results: 'Resultados Esperados',
                 design_btn: 'Diseñar con IA (Modelo Cubo)',
             },
             skills_section: {
