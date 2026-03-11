@@ -285,44 +285,88 @@
                 <v-card-title>Respuesta del LLM</v-card-title>
                 <v-card-text>
                     <div
-                        v-if="responseLoading"
-                        class="d-flex align-center"
-                        style="min-height: 120px"
+                        v-if="responseLoading || isVerifyingIntegrity"
+                        class="wizard-processing-container py-10"
                     >
-                        <v-progress-circular
-                            indeterminate
-                            color="primary"
-                            class="mr-4"
-                        />
-                        <div>
-                            <div>
-                                <strong>Esperando respuesta del LLM…</strong>
-                            </div>
-                            <div class="caption">
-                                La generación está en progreso. Esto puede
-                                tardar unos segundos.
-                            </div>
-                            <div
-                                v-if="effectiveChunkCount !== null"
-                                class="caption"
+                        <div
+                            class="d-flex flex-column align-center justify-center text-center"
+                        >
+                            <v-progress-circular
+                                :size="100"
+                                :width="7"
+                                :color="
+                                    isVerifyingIntegrity ? 'success' : 'primary'
+                                "
+                                indeterminate
+                                class="mb-6"
                             >
-                                Chunks recibidos: {{ effectiveChunkCount }}
-                                <span
+                                <v-icon
+                                    v-if="isVerifyingIntegrity"
+                                    size="48"
+                                    color="success"
+                                    >mdi-shield-check</v-icon
+                                >
+                                <v-icon v-else size="48" color="primary"
+                                    >mdi-brain</v-icon
+                                >
+                            </v-progress-circular>
+
+                            <h3 class="text-h5 font-weight-bold mb-2">
+                                {{
+                                    isVerifyingIntegrity
+                                        ? 'Validando Integridad'
+                                        : 'Generando con Cerebro IA'
+                                }}
+                            </h3>
+
+                            <p class="text-subtitle-1 text--secondary mb-6">
+                                {{
+                                    isVerifyingIntegrity
+                                        ? 'Verificando estructura técnica y consistencia del escenario...'
+                                        : 'Diseñando capacidades y competencias para su organización...'
+                                }}
+                            </p>
+
+                            <div
+                                v-if="!isVerifyingIntegrity"
+                                class="status-details"
+                            >
+                                <v-chip outlined small class="mx-1">
+                                    <v-icon left small
+                                        >mdi-database-import</v-icon
+                                    >
+                                    Chunks: {{ effectiveChunkCount || 0 }}
+                                </v-chip>
+                                <v-chip
                                     v-if="
                                         store.generationProgress &&
                                         (store.generationProgress as any)
                                             .percent !== null
                                     "
+                                    outlined
+                                    small
+                                    class="mx-1"
                                 >
-                                    —
+                                    <v-icon left small>mdi-percent</v-icon>
                                     {{
                                         Math.round(
                                             (store.generationProgress as any)
                                                 .percent,
                                         )
-                                    }}%</span
-                                >
+                                    }}%
+                                </v-chip>
                             </div>
+
+                            <v-progress-linear
+                                v-if="isVerifyingIntegrity"
+                                v-model="verificationProgress"
+                                color="success"
+                                height="10"
+                                rounded
+                                striped
+                                class="mt-4"
+                                style="width: 80%; max-width: 400px"
+                            />
                         </div>
                     </div>
 
@@ -471,9 +515,10 @@
                         :loading="accepting"
                         :disabled="
                             responseLoading ||
+                            isVerifyingIntegrity ||
                             store.generationStatus !== 'complete'
                         "
-                        >Aceptar y crear escenario</v-btn
+                        >Guardar borrador</v-btn
                     >
                     <v-btn
                         color="success"
@@ -481,10 +526,13 @@
                         :loading="accepting"
                         :disabled="
                             responseLoading ||
+                            isVerifyingIntegrity ||
                             store.generationStatus !== 'complete'
                         "
-                        >Aceptar y crear + Importar</v-btn
                     >
+                        <v-icon left>mdi-check-all</v-icon>
+                        Finalizar e importar escenario
+                    </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -937,6 +985,9 @@ async function onConfirmGenerate(importAfter = false) {
             // ignore
         }
 
+        // Open modal and start polling immediately after generation started
+        openResponseModal();
+
         while (
             store.generationStatus !== 'complete' &&
             Date.now() - start < timeoutMs
@@ -944,8 +995,12 @@ async function onConfirmGenerate(importAfter = false) {
             // wait a bit then refresh progress/status
             await new Promise((r) => setTimeout(r, 2000));
             try {
-                await store.fetchProgress();
                 await store.fetchStatus();
+                await fetchChunkCount();
+
+                // Keep modal open and updated
+                if (!responseModalOpen.value) responseModalOpen.value = true;
+
                 const p = store.generationProgress as any;
                 const received =
                     p?.progress?.received_chunks ??
@@ -964,11 +1019,9 @@ async function onConfirmGenerate(importAfter = false) {
             }
         }
 
-        // If generation completed, open response modal so operator can accept/import
+        // If generation completed, modal is already open, just trigger validation
         if (store.generationStatus === 'complete') {
-            // ensure result is current
-            await store.fetchStatus();
-            responseModalOpen.value = true;
+            await triggerValidation();
         } else {
             // not completed within timeout: notify operator to monitor status
             showError(
@@ -1050,7 +1103,27 @@ async function acceptGeneration() {
 const responseModalOpen = ref(false);
 let responsePollTimer: any = null;
 const responseLoading = ref(false);
+const isVerifyingIntegrity = ref(false);
+const verificationProgress = ref(0);
 const chunkCount = ref<number | null>(null);
+
+async function triggerValidation() {
+    isVerifyingIntegrity.value = true;
+    verificationProgress.value = 0;
+
+    // Simulate validation progress over 2 seconds
+    const duration = 2000;
+    const interval = 50;
+    const steps = duration / interval;
+    const increment = 100 / steps;
+
+    for (let i = 0; i <= steps; i++) {
+        verificationProgress.value = Math.min(100, i * increment);
+        await new Promise((r) => setTimeout(r, interval));
+    }
+
+    isVerifyingIntegrity.value = false;
+}
 
 // Prefer an effective chunk count based on server-reported count or recentChunks length
 const effectiveChunkCount = computed(() => {
@@ -1246,6 +1319,7 @@ async function startResponsePolling() {
             await fetchAndAssembleChunks();
         }
         responseModalOpen.value = true;
+        await triggerValidation();
         return;
     }
 
@@ -1280,6 +1354,7 @@ async function startResponsePolling() {
                 // stop polling and show result
                 stopResponsePolling();
                 responseModalOpen.value = true;
+                await triggerValidation();
             }
         } catch {
             // ignore intermittent errors
@@ -1462,6 +1537,38 @@ function prefillDemo() {
     margin-top: 1rem;
     background: #f7f7f7;
     padding: 0.5rem;
+}
+
+.wizard-processing-container {
+    background: radial-gradient(
+        circle at center,
+        rgba(var(--v-theme-primary), 0.05) 0%,
+        transparent 70%
+    );
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.status-details {
+    display: flex;
+    gap: 8px;
+    opacity: 0.8;
+}
+
+@keyframes pulse-soft {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .instruction-error {

@@ -104,3 +104,8 @@ Para asegurar que el "Cerebro" ha razonado correctamente, podemos verificar los 
 - **Truncado de Output**: Se incrementó `max_tokens` en el servicio Python para manejar blueprints complejos con múltiples roles y habilidades.
 - **Parsing Errors**: Se implementó una lógica de limpieza de bloques ```json para asegurar compatibilidad con la base de datos.
 - **Timeouts**: Se extendió el timeout de la comunicación Laravel <-> Python a 300 segundos.
+
+### 📚 Recursos Adicionales
+
+- **Mapeo de Datos (LLM a DB):** [DATA_IMPORT_AND_MODEL_MAPPING.md](file:///home/omar/Stratos/docs/Architecture/DATA_IMPORT_AND_MODEL_MAPPING.md)
+- **Especificación Scenario IQ:** [SCENARIO_IQ_TECHNICAL_SPEC.md](file:///home/omar/Stratos/docs/Architecture/SCENARIO_IQ_TECHNICAL_SPEC.md)

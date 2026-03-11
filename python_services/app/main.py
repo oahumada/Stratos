@@ -376,8 +376,9 @@ def generate_scenario(request: ScenarioRequest):
         
         OUTPUT REQUIREMENTS:
         - Return ONLY a single valid JSON object.
-        - Must include scenario_metadata, capabilities (with competencies and skills), competencies (flat list), skills (flat list), suggested_roles, impact_analysis, confidence_score, and assumptions.
-        - Every suggested role MUST have a talent_composition (human_percentage, synthetic_percentage).
+        - Must include scenario_metadata, capabilities (with competencies and skills), competencies (flat list), skills (flat list), impact_analysis, confidence_score, and assumptions.
+        - Focus on the functional architecture (capabilities/competencies) required for the objective.
+        - DO NOT include suggested roles in this stage.
         """
 
         architect_task = Task(
@@ -397,22 +398,36 @@ def generate_scenario(request: ScenarioRequest):
 
         result = crew.kickoff()
         
-        # Result from kickoff might be a string if output_json wasn't used, 
-        # but let's assume we want to parse it as JSON.
+        # Result from kickoff might be a string if output_json wasn't used.
+        # We use a robust regex-based approach to extract the first valid JSON object.
         import json
+        import re
+        
+        raw_output = str(result).strip()
         try:
-            # CrewAI 0.28+ result is a CrewOutput object, raw is result.raw
-            raw_output = str(result).strip()
-            if raw_output.startswith("```json"):
-                raw_output = raw_output[7:]
-            if raw_output.startswith("```"):
-                raw_output = raw_output[3:]
-            if raw_output.endswith("```"):
-                raw_output = raw_output[:-3]
-            raw_output = raw_output.strip()
+            # Try parsing the whole thing first
             return json.loads(raw_output)
         except Exception:
-            return {"raw_output": str(result), "error": "Could not parse JSON output"}
+            try:
+                # Try to extract content between ```json and ```
+                json_match = re.search(r'```json\s*(.*?)\s*```', raw_output, re.DOTALL)
+                if json_match:
+                    return json.loads(json_match.group(1))
+                
+                # Try to extract content between any ``` and ```
+                json_match = re.search(r'```\s*(.*?)\s*```', raw_output, re.DOTALL)
+                if json_match:
+                    return json.loads(json_match.group(1))
+                
+                # Last resort: find the first { and last }
+                start_index = raw_output.find('{')
+                end_index = raw_output.rfind('}')
+                if start_index != -1 and end_index != -1 and end_index > start_index:
+                    return json.loads(raw_output[start_index:end_index+1])
+                
+                raise Exception("No valid JSON found in output")
+            except Exception as e:
+                return {"raw_output": str(result), "error": f"Could not parse JSON output: {str(e)}"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -11,6 +11,7 @@ class ScenarioRepository
         return Scenario::with([
             'capabilities.competencies.skills',
             'owner',
+            'sourceGeneration',
         ])->findOrFail($id);
     }
 
@@ -40,6 +41,7 @@ class ScenarioRepository
             'closureStrategies.skill',
             'statusEvents',
             'parent',
+            'sourceGeneration',
         ])->find($id);
     }
 

@@ -10,6 +10,7 @@ const props = defineProps<{
     modelValue: boolean;
     node: any; // The node data from D3
     scenarioId: number;
+    readonly?: boolean;
 }>();
 
 const emit = defineEmits(['update:modelValue', 'saved']);
@@ -277,6 +278,7 @@ const scopeTypes = ['domain', 'global', 'local'];
                                 variant="outlined"
                                 density="comfortable"
                                 color="indigo-400"
+                                :readonly="readonly"
                                 persistent-placeholder
                                 class="glass-input"
                                 hide-details
@@ -292,6 +294,7 @@ const scopeTypes = ['domain', 'global', 'local'];
                                 class="glass-input"
                                 hide-details
                                 v-if="nodeType !== 'competency'"
+                                :readonly="readonly"
                             />
 
                             <v-textarea
@@ -300,6 +303,7 @@ const scopeTypes = ['domain', 'global', 'local'];
                                 variant="outlined"
                                 density="comfortable"
                                 color="indigo-400"
+                                :readonly="readonly"
                                 rows="3"
                                 class="glass-input col-span-full"
                                 hide-details
@@ -345,6 +349,7 @@ const scopeTypes = ['domain', 'global', 'local'];
                                     color="indigo-400"
                                     hide-details
                                     thumb-label
+                                    :disabled="readonly"
                                 />
                             </div>
 
@@ -361,6 +366,7 @@ const scopeTypes = ['domain', 'global', 'local'];
                                     color="orange-400"
                                     hide-details
                                     thumb-label
+                                    :disabled="readonly"
                                 />
                             </div>
 
@@ -377,6 +383,7 @@ const scopeTypes = ['domain', 'global', 'local'];
                                     color="emerald-400"
                                     hide-details
                                     thumb-label
+                                    :disabled="readonly"
                                 />
                             </div>
 
@@ -389,6 +396,7 @@ const scopeTypes = ['domain', 'global', 'local'];
                                     color="rose-500"
                                     hide-details
                                     density="compact"
+                                    :disabled="readonly"
                                 />
                                 <p
                                     class="mt-1 ml-8 text-[11px] font-medium text-white/30"
@@ -409,6 +417,7 @@ const scopeTypes = ['domain', 'global', 'local'];
                                 class="glass-input col-span-full"
                                 placeholder="Why is this capability required for this specific scenario?"
                                 hide-details
+                                :readonly="readonly"
                             />
                         </div>
                     </section>
@@ -469,6 +478,7 @@ const scopeTypes = ['domain', 'global', 'local'];
                     >Cancel</StButtonGlass
                 >
                 <StButtonGlass
+                    v-if="!readonly"
                     variant="primary"
                     icon="mdi-shield-check"
                     @click="handleSave"

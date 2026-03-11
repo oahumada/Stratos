@@ -69,7 +69,7 @@ class ScenarioGenerationService
         // Purpose and concise definitions to guide the LLM (language-specific)
         if (strtolower($lang) === 'es') {
             $prompt .= "\nPROPÓSITO: Este escenario simula la gestión estratégica de talento para lograr el objetivo principal.\n";
-            $prompt .= "DEFINICIÓN (ES):\n- Capacidades: medios/funciones organizacionales que permiten cumplir el objetivo del escenario.\n- Competencias: conocimientos y habilidades necesarias para ejecutar una capability.\n- Habilidades: unidad mínima (habilidades/conocimientos) que compone una competencia; puede ser texto o {\"name\":string}.\n- Roles: puestos propuestos con las competencias asignadas (el analista debe homologar estos roles con la estructura interna).\n\n";
+            $prompt .= "DEFINICIÓN (ES):\n- Capacidades: medios/funciones organizacionales que permiten cumplir el objetivo del escenario.\n- Competencias: conocimientos y habilidades necesarias para ejecutar una capability.\n- Habilidades: unidad mínima (habilidades/conocimientos) que compone una competencia; puede ser texto o {\"name\":string}.\n\n";
             $prompt .= "NO incluyas ningún texto explicativo o comentario fuera del objeto JSON. Si no puedes producir la estructura anidada completa, devuelve un objeto con las claves y arreglos vacíos.\n\nEjemplo de salida mínima válida:\n";
         } else {
             $prompt .= "\nPURPOSE: This scenario simulates strategic talent management to achieve the main objective.\n";
@@ -157,26 +157,6 @@ class ScenarioGenerationService
                 'impact_analysis' => ['type' => 'array'],
                 'confidence_score' => ['type' => 'number'],
                 'assumptions' => ['type' => 'array'],
-                'roles' => [
-                    'type' => 'array',
-                    'items' => [
-                        'type' => 'object',
-                        'required' => ['name'],
-                        'properties' => [
-                            'name' => ['type' => 'string'],
-                            'description' => ['type' => 'string'],
-                            'competencies' => [
-                                'type' => 'array',
-                                'items' => [
-                                    'oneOf' => [
-                                        ['type' => 'string'],
-                                        ['type' => 'object', 'required' => ['name'], 'properties' => ['name' => ['type' => 'string']]],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
             ],
         ];
 

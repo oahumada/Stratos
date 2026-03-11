@@ -12,6 +12,7 @@ import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 
 // Step Components
+import ScenarioAssumptionsCard from '@/components/ScenarioPlanning/ScenarioAssumptionsCard.vue';
 import PrototypeMap from '@/components/ScenarioPlanning/Step1/PrototypeMap.vue';
 import IncubatedCubeReview from '@/components/ScenarioPlanning/Step2/IncubatedCubeReview.vue';
 import RoleCompetencyMatrix from '@/components/ScenarioPlanning/Step2/RoleCompetencyMatrix.vue';
@@ -52,6 +53,14 @@ const selectedNodeForEdit = ref<any>(null);
 
 // Computed
 const scenarioStatus = computed(() => scenario.value?.status || 'draft');
+
+const isReadonly = computed(() => {
+    return (
+        scenarioStatus.value === 'approved' ||
+        scenarioStatus.value === 'completed' ||
+        scenarioStatus.value === 'active'
+    );
+});
 
 const statusConfig = computed<{
     color: 'primary' | 'secondary' | 'error' | 'warning' | 'success' | 'glass';
@@ -358,6 +367,29 @@ watch(
                         <template v-if="scenario">
                             <!-- Step 1 -->
                             <div v-if="currentStep === 1" class="space-y-8">
+                                <StCardGlass
+                                    v-if="isReadonly"
+                                    variant="glass"
+                                    border-accent="warning"
+                                    class="border-amber-500/20! bg-amber-500/5! p-4"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <v-icon color="warning" size="20"
+                                            >mdi-lock-outline</v-icon
+                                        >
+                                        <span
+                                            class="text-xs font-bold text-amber-200/80"
+                                        >
+                                            neural architecture is locked. This
+                                            scenario has been archived or
+                                            approved and is now in read-only
+                                            evaluation mode.</span
+                                        >
+                                    </div>
+                                </StCardGlass>
+
+                                <ScenarioAssumptionsCard :scenario="scenario" />
+
                                 <PrototypeMap
                                     :scenario="scenario"
                                     @edit-node="handleEditNode"
@@ -590,7 +622,8 @@ watch(
             v-if="showNodeEditModal"
             v-model="showNodeEditModal"
             :node="selectedNodeForEdit"
-            :scenario-id="scenarioId"
+            :scenario-id="props.scenarioId"
+            :readonly="isReadonly"
             @saved="loadScenario"
         />
     </div>
