@@ -31,6 +31,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Strategy: Domain Event Store (Event Sourcing Lite)
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\DomainEvent::class,
+            \App\Listeners\StoreDomainEvent::class
+        );
+
         // Quality Hub Automatic Sentinel
         \Illuminate\Support\Facades\Event::listen(
             \Illuminate\Log\Events\MessageLogged::class,

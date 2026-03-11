@@ -11,10 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 
 use App\Traits\BelongsToOrganization;
+use App\Traits\HasDomainEvents;
 
 class Roles extends Model
 {
-    use HasFactory, BelongsToOrganization;
+    use HasFactory, BelongsToOrganization, HasDomainEvents;
 
     protected $table = 'roles';
 

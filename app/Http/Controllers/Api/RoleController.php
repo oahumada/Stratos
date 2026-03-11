@@ -58,6 +58,13 @@ class RoleController extends Controller
                     }
                 }
 
+                // Trigger Strategic Domain Event
+                \App\Events\RoleRequirementsUpdated::dispatch(
+                    $role->id,
+                    $role->organization_id,
+                    ['action' => 'created_from_cube_wizard', 'name' => $role->name]
+                );
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Rol creado exitosamente con el Modelo de Cubo.',

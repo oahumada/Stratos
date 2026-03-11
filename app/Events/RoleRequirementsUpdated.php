@@ -2,37 +2,23 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
-
-class RoleRequirementsUpdated
+class RoleRequirementsUpdated extends DomainEvent
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    public int $roleId;
-
-    public int $organizationId;
-
     /**
      * Create a new event instance.
      */
-    public function __construct(int $roleId, int $organizationId)
+    public function __construct(int $roleId, int $organizationId, array $payload = [])
     {
-        $this->roleId = $roleId;
-        $this->organizationId = $organizationId;
+        parent::__construct(
+            (string) $roleId,
+            \App\Models\Roles::class,
+            $organizationId,
+            $payload
+        );
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
-    public function broadcastOn(): array
+    public function eventName(): string
     {
-        return [
-            new PrivateChannel('channel-name'),
-        ];
+        return 'role.requirements_updated';
     }
 }

@@ -27,7 +27,7 @@ class RecalculateTalentGaps implements ShouldQueue
         // Aquí conectamos con Stratos Grow o Stratos Map en Background.
         \Illuminate\Support\Facades\Log::info('Calculando gaps en background', [
             'modulo' => 'Core + Grow',
-            'role_id' => $event->roleId,
+            'role_id' => $event->aggregateId,
             'organization_id' => $event->organizationId,
         ]);
     }

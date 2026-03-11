@@ -17,7 +17,7 @@ Esta lista consolida todos los elementos que **no están al 100%** extraídos de
 
 - [x] **Sistema de "Feature Toggles" (Tenant Modules):** `active_modules` en DB, middleware, y UI condicional.
 - [x] **Gateway Híbrido (SSO/Identity):** Integrado OAuth2 (`SsoController`).
-- [ ] **Arquitectura de Eventos Interna:** Faltan buses de eventos unificados avanzados o Event Sourcing formal en todo el backend (solo eventos básicos).
+- [x] **Arquitectura de Eventos Interna:** Implementado Event Bus con metadatos de dominio y sistema `Event Store` (Side-car Event Sourcing) para inmutabilidad y auditoría.
 
 ## 🪐 FASE 1: Consolidación "Stratos Core" y "Stratos Map"
 
