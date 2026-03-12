@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
 import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
@@ -39,184 +38,221 @@ const submitMagicLink = () => {
 
 <template>
     <AuthBase
-        title="Acceda a su cuenta"
-        description="Ingrese su correo y clave para acceder al sistema."
+        title="Ingreso"
+        description="Portal de orquestación de Ingeniería de Talento"
     >
-        <Head title="Ingresar" />
+        <template #default>
+            <div class="px-6 py-10 md:px-12 md:py-14">
+                <Head title="Ingresar" />
 
-        <!-- Notificaciones de éxito de Inertia o session('status') -->
-        <div
-            v-if="status || flashStatus"
-            class="mb-4 text-center text-sm font-medium text-green-600"
-        >
-            {{ status || flashStatus }}
-        </div>
-
-        <div
-            v-if="flashError"
-            class="mb-4 text-center text-sm font-medium text-red-600"
-        >
-            {{ flashError }}
-        </div>
-
-        <!-- Formulario por Contraseña -->
-        <Form
-            v-if="!isMagicLink"
-            v-bind="store.form()"
-            :reset-on-success="['password']"
-            v-slot="{ errors, processing }"
-            class="flex flex-col gap-6"
-        >
-            <div class="grid gap-6">
-                <div class="grid gap-2">
-                    <Label for="email">Dirección de correo</Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        name="email"
-                        required
-                        autofocus
-                        :tabindex="1"
-                        autocomplete="email"
-                        placeholder="email@example.com"
-                    />
-                    <InputError :message="errors.email" />
-                </div>
-
-                <div class="grid gap-2">
-                    <div class="flex items-center justify-between">
-                        <Label for="password">Clave</Label>
-                        <TextLink
-                            v-if="canResetPassword"
-                            :href="request()"
-                            class="text-sm"
-                            :tabindex="5"
-                        >
-                            Olvidó su clave?
-                        </TextLink>
-                    </div>
-                    <Input
-                        id="password"
-                        type="password"
-                        name="password"
-                        required
-                        :tabindex="2"
-                        autocomplete="current-password"
-                        placeholder="Clave de ingreso"
-                    />
-                    <InputError :message="errors.password" />
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <Label for="remember" class="flex items-center space-x-3">
-                        <Checkbox id="remember" name="remember" :tabindex="3" />
-                        <span>Recordar</span>
-                    </Label>
-                </div>
-
-                <Button
-                    type="submit"
-                    class="mt-4 w-full"
-                    :tabindex="4"
-                    :disabled="processing"
-                    data-test="login-button"
+                <!-- Notifications -->
+                <div
+                    v-if="status || flashStatus"
+                    class="mb-6 text-center text-sm font-medium text-emerald-400"
                 >
-                    <Spinner v-if="processing" />
-                    Ingresar
-                </Button>
-
-                <!-- Divisor -->
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <span class="w-full border-t" />
-                    </div>
-                    <div class="relative flex justify-center text-xs uppercase">
-                        <span class="bg-background px-2 text-muted-foreground"
-                            >O</span
-                        >
-                    </div>
+                    {{ status || flashStatus }}
                 </div>
 
-                <!-- Botón de Magic Link (Toggle) -->
-                <Button
-                    type="button"
-                    variant="outline"
-                    class="flex w-full items-center gap-2"
-                    @click="isMagicLink = true"
+                <div
+                    v-if="flashError"
+                    class="mb-6 text-center text-sm font-medium text-red-400"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="lucide lucide-sparkles"
+                    {{ flashError }}
+                </div>
+
+                <!-- Form -->
+                <Form
+                    v-if="!isMagicLink"
+                    v-bind="store.form()"
+                    :reset-on-success="['password']"
+                    v-slot="{ errors, processing }"
+                    class="flex flex-col gap-6"
+                >
+                    <div class="grid gap-6">
+                        <div class="grid gap-2">
+                            <Label
+                                for="email"
+                                class="ml-2 text-[10px] font-black tracking-[0.2em] text-white/40 uppercase"
+                                >Dirección de correo</Label
+                            >
+                            <Input
+                                id="email"
+                                type="email"
+                                name="email"
+                                class="h-12 border-white/10 bg-white/5 px-4 text-white placeholder:text-white/20 focus-visible:ring-indigo-500/30"
+                                required
+                                autofocus
+                                :tabindex="1"
+                                autocomplete="email"
+                                placeholder="nombre@empresa.com"
+                            />
+                            <InputError :message="errors.email" />
+                        </div>
+
+                        <div class="grid gap-2">
+                            <div class="flex items-center justify-between px-1">
+                                <Label
+                                    for="password"
+                                    class="ml-2 text-[10px] font-black tracking-[0.2em] text-white/40 uppercase"
+                                    >Clave</Label
+                                >
+                                <TextLink
+                                    v-if="canResetPassword"
+                                    :href="request()"
+                                    class="px-2 text-[10px] font-black tracking-widest text-indigo-400! uppercase no-underline! hover:text-indigo-300!"
+                                    :tabindex="5"
+                                >
+                                    Olvidó su clave?
+                                </TextLink>
+                            </div>
+                            <Input
+                                id="password"
+                                type="password"
+                                name="password"
+                                class="h-12 border-white/10 bg-white/5 px-4 text-white placeholder:text-white/20 focus-visible:ring-indigo-500/30"
+                                required
+                                :tabindex="2"
+                                autocomplete="current-password"
+                                placeholder="Su clave de acceso"
+                            />
+                            <InputError :message="errors.password" />
+                        </div>
+
+                        <div class="flex items-center justify-between px-1">
+                            <Label
+                                for="remember"
+                                class="group flex cursor-pointer items-center space-x-3"
+                            >
+                                <Checkbox
+                                    id="remember"
+                                    name="remember"
+                                    :tabindex="3"
+                                    class="border-white/50! bg-white/5! data-[state=checked]:border-indigo-400! data-[state=checked]:bg-indigo-500!"
+                                />
+                                <span
+                                    class="text-[11px] font-bold text-white/40 transition-colors group-hover:text-white/70"
+                                    >Recordar sesión</span
+                                >
+                            </Label>
+                        </div>
+
+                        <StButtonGlass
+                            type="submit"
+                            variant="primary"
+                            block
+                            size="lg"
+                            class="mt-2"
+                            :tabindex="4"
+                            :loading="processing"
+                            data-test="login-button"
+                        >
+                            Iniciar Sesión
+                        </StButtonGlass>
+
+                        <!-- Divisor -->
+                        <div class="relative py-4">
+                            <div class="absolute inset-0 flex items-center">
+                                <span class="w-full border-t border-white/5" />
+                            </div>
+                            <div
+                                class="relative flex justify-center text-[10px] font-black tracking-[0.3em] uppercase"
+                            >
+                                <span class="px-6 text-white/10"
+                                    >O continúe con</span
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Botón de Magic Link (Toggle) -->
+                        <StButtonGlass
+                            type="button"
+                            variant="glass"
+                            block
+                            class="group"
+                            @click="isMagicLink = true"
+                        >
+                            <v-icon
+                                size="18"
+                                class="mr-2 text-indigo-400 transition-transform group-hover:scale-110"
+                                >mdi-auto-fix</v-icon
+                            >
+                            Acceso con Magic Link
+                        </StButtonGlass>
+                    </div>
+
+                    <div
+                        class="mt-6 text-center text-xs font-medium text-white/30"
+                        v-if="canRegister"
                     >
-                        <path
-                            d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"
-                        />
-                    </svg>
-                    Ingresar con Magic Link
-                </Button>
-            </div>
-
-            <div
-                class="mt-2 text-center text-sm text-muted-foreground"
-                v-if="canRegister"
-            >
-                No tiene una cuenta?
-                <TextLink :href="register()" :tabindex="5">Registrar</TextLink>
-            </div>
-        </Form>
-
-        <!-- Formulario de Magic Link -->
-        <form
-            v-else
-            @submit.prevent="submitMagicLink"
-            class="flex flex-col gap-6"
-        >
-            <div class="grid gap-6">
-                <div>
-                    <p class="mb-4 text-sm text-muted-foreground">
-                        Ingresa tu correo y te enviaremos un enlace mágico para
-                        iniciar sesión sin contraseña.
-                    </p>
-                    <div class="grid gap-2">
-                        <Label for="magic-email">Dirección de correo</Label>
-                        <Input
-                            id="magic-email"
-                            type="email"
-                            v-model="magicForm.email"
-                            required
-                            autofocus
-                            placeholder="email@example.com"
-                        />
-                        <InputError :message="magicForm.errors.email" />
+                        No tiene una cuenta?
+                        <TextLink
+                            :href="register()"
+                            :tabindex="5"
+                            class="ml-2 text-[10px] font-black tracking-widest text-indigo-400! uppercase no-underline! hover:text-indigo-300!"
+                            >Solicitar Acceso</TextLink
+                        >
                     </div>
-                </div>
+                </Form>
 
-                <Button
-                    type="submit"
-                    class="w-full"
-                    :disabled="magicForm.processing"
+                <!-- Formulario de Magic Link -->
+                <form
+                    v-else
+                    @submit.prevent="submitMagicLink"
+                    class="flex flex-col gap-6"
                 >
-                    <Spinner v-if="magicForm.processing" />
-                    Enviar Enlace Mágico
-                </Button>
+                    <div class="grid gap-6">
+                        <div>
+                            <p
+                                class="mb-6 px-1 text-center text-xs leading-relaxed font-medium text-white/40"
+                            >
+                                Ingrese su correo institucional y le enviaremos
+                                un
+                                <span class="text-indigo-400"
+                                    >Enlace Mágico</span
+                                >
+                                para una autenticación instantánea.
+                            </p>
+                            <div class="grid gap-2">
+                                <Label
+                                    for="magic-email"
+                                    class="ml-1 text-[10px] font-black tracking-widest text-white/40 uppercase"
+                                    >Correo Institucional</Label
+                                >
+                                <Input
+                                    id="magic-email"
+                                    type="email"
+                                    class="h-12 border-white/10 bg-white/5 px-4 text-white placeholder:text-white/20 focus-visible:ring-indigo-500/30"
+                                    v-model="magicForm.email"
+                                    required
+                                    autofocus
+                                    placeholder="nombre@empresa.com"
+                                />
+                                <InputError :message="magicForm.errors.email" />
+                            </div>
+                        </div>
 
-                <Button
-                    type="button"
-                    variant="ghost"
-                    class="w-full"
-                    @click="isMagicLink = false"
-                >
-                    Volver a inicio tradicional
-                </Button>
+                        <StButtonGlass
+                            type="submit"
+                            variant="primary"
+                            block
+                            size="lg"
+                            :loading="magicForm.processing"
+                        >
+                            Enviar Protocolo de Acceso
+                        </StButtonGlass>
+
+                        <StButtonGlass
+                            type="button"
+                            variant="ghost"
+                            block
+                            size="sm"
+                            @click="isMagicLink = false"
+                        >
+                            Volver al método tradicional
+                        </StButtonGlass>
+                    </div>
+                </form>
             </div>
-        </form>
+        </template>
     </AuthBase>
 </template>

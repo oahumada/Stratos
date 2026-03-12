@@ -45,6 +45,8 @@ const form = ref({
         z_business_process: '',
         justification: '',
     },
+    purpose: '',
+    expected_results: '',
     competencies: [] as any[],
     suggestions: '',
 });
@@ -203,7 +205,7 @@ const saveRole = async () => {
             </header>
 
             <div
-                class="relative z-10 flex flex-grow flex-col overflow-hidden md:flex-row"
+                class="relative z-10 flex grow flex-col overflow-hidden md:flex-row"
             >
                 <!-- Navigation -->
                 <aside
@@ -310,22 +312,51 @@ const saveRole = async () => {
                                     />
                                 </div>
 
+                                <div
+                                    class="grid grid-cols-1 gap-8 md:grid-cols-2"
+                                >
+                                    <div class="space-y-2">
+                                        <label
+                                            class="ml-1 text-[10px] font-black tracking-[0.2em] text-pink-400 uppercase"
+                                            >[ CIMIENTOS ] Propósito del
+                                            Rol</label
+                                        >
+                                        <textarea
+                                            v-model="form.purpose"
+                                            rows="4"
+                                            placeholder="¿Para qué existe este edificio/rol en la organización?"
+                                            class="w-full resize-none rounded-2xl border border-pink-500/10 bg-pink-500/5 px-6 py-4 text-base text-white placeholder-white/10 transition-all focus:border-pink-500/50 focus:outline-none"
+                                        ></textarea>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label
+                                            class="ml-1 text-[10px] font-black tracking-[0.2em] text-emerald-400 uppercase"
+                                            >[ FUNCIÓN ] Resultados
+                                            Esperados</label
+                                        >
+                                        <textarea
+                                            v-model="form.expected_results"
+                                            rows="4"
+                                            placeholder="¿Qué impactos concretos genera este rol?"
+                                            class="w-full resize-none rounded-2xl border border-emerald-500/10 bg-emerald-500/5 px-6 py-4 text-base text-white placeholder-white/10 transition-all focus:border-emerald-500/50 focus:outline-none"
+                                        ></textarea>
+                                    </div>
+                                </div>
+
                                 <div class="space-y-2">
                                     <label
                                         class="ml-1 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                        >{{
-                                            $t('role_wizard.mission_synthesis')
-                                        }}</label
+                                        >Síntesis de Misión (Opcional)</label
                                     >
                                     <textarea
                                         v-model="form.description"
-                                        rows="6"
+                                        rows="3"
                                         :placeholder="
                                             $t(
                                                 'role_wizard.mission_placeholder',
                                             )
                                         "
-                                        class="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-base text-white placeholder-white/10 transition-all focus:border-indigo-500/50 focus:bg-white/[0.07] focus:outline-none"
+                                        class="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base text-white/60 placeholder-white/10 transition-all focus:border-indigo-500/50 focus:outline-none"
                                     ></textarea>
                                 </div>
                             </div>
@@ -334,7 +365,11 @@ const saveRole = async () => {
                                 <StButtonGlass
                                     variant="primary"
                                     size="lg"
-                                    :disabled="!form.name || !form.description"
+                                    :disabled="
+                                        !form.name ||
+                                        !form.purpose ||
+                                        !form.expected_results
+                                    "
                                     :loading="analyzing"
                                     @click="analyzeRole"
                                     :icon="PhMagicWand"
@@ -416,10 +451,10 @@ const saveRole = async () => {
                                                 <component
                                                     :is="
                                                         arc === 'Strategic'
-                                                            ? Crown
+                                                            ? PhCrown
                                                             : arc === 'Tactical'
-                                                              ? Crosshair
-                                                              : NavigationArrow
+                                                              ? PhCrosshair
+                                                              : PhNavigationArrow
                                                     "
                                                     :size="32"
                                                     :weight="

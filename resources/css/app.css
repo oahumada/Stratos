@@ -180,6 +180,8 @@
     --stratos-accent-cyan: #22d3ee;
 }
 
+@import "tailwindcss";
+
 @layer base {
     * {
         @apply border-border outline-ring/50;
@@ -188,9 +190,6 @@
         @apply bg-background text-foreground;
     }
 }
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @layer utilities {
     .glass-panel {
@@ -254,5 +253,15 @@
     .v-input.glass-input .v-label {
         color: rgba(255, 255, 255, 0.5) !important;
         font-weight: 500 !important;
+    }
+
+    /* Vanguard Autofill Fixes */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+        -webkit-text-fill-color: white !important;
+        -webkit-box-shadow: 0 0 0px 1000px rgba(30, 41, 59, 0.95) inset !important;
+        transition: background-color 5000s ease-in-out 0s;
+        border: 1px solid rgba(99, 102, 241, 0.3) !important;
     }
 }

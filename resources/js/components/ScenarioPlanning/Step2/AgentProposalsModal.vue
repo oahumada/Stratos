@@ -181,7 +181,7 @@
                         class="animate-in duration-700 fade-in slide-in-from-bottom-4"
                     >
                         <div
-                            class="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 p-8 shadow-2xl transition-all hover:border-indigo-500/30"
+                            class="group relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-indigo-500/5 to-purple-500/5 p-8 shadow-2xl transition-all hover:border-indigo-500/30"
                         >
                             <!-- Decorative background elements -->
                             <div
@@ -385,6 +385,10 @@
                                                     class="text-base font-black tracking-tight text-white"
                                                 >
                                                     {{ role.proposed_name }}
+                                                    <span
+                                                        class="ml-2 text-[8px] font-black tracking-widest text-indigo-400/40 uppercase"
+                                                        >[ EDIFICIO ]</span
+                                                    >
                                                 </h4>
                                                 <p
                                                     class="line-clamp-1 max-w-md truncate text-xs leading-tight font-medium text-white/40"
@@ -396,7 +400,11 @@
                                                 <!-- Semantic Concordance (Moment 2) -->
                                                 <div
                                                     v-if="
-                                                        role.semantic_concordance
+                                                        role.semantic_concordance &&
+                                                        role
+                                                            .semantic_concordance
+                                                            .similarity_score !=
+                                                            null
                                                     "
                                                     class="mt-2 flex items-center gap-2 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-2 py-1"
                                                 >
@@ -584,6 +592,7 @@
                                         <div
                                             class="grid grid-cols-1 gap-6 rounded-2xl border border-white/5 bg-white/2 p-4 md:grid-cols-2"
                                         >
+                                            <!-- Column 1: Purpose -->
                                             <div class="space-y-2">
                                                 <div
                                                     class="flex items-center gap-2"
@@ -591,15 +600,16 @@
                                                     <v-icon
                                                         size="14"
                                                         color="pink-400"
-                                                        >mdi-target</v-icon
+                                                        >mdi-pillar</v-icon
                                                     >
                                                     <span
                                                         class="text-[10px] font-black tracking-widest text-pink-300 uppercase"
-                                                        >Propósito del Rol</span
+                                                        >[ CIMIENTOS ] Propósito
+                                                        Estratégico</span
                                                     >
                                                 </div>
                                                 <p
-                                                    class="text-sm leading-relaxed font-medium text-white/80"
+                                                    class="text-sm leading-relaxed font-black text-white"
                                                 >
                                                     {{
                                                         (role as any)
@@ -614,51 +624,50 @@
                                                     }}
                                                 </div>
                                             </div>
+
+                                            <!-- Column 2: Results -->
                                             <div class="space-y-2">
                                                 <div
                                                     class="flex items-center gap-2"
                                                 >
                                                     <v-icon
                                                         size="14"
-                                                        color="teal-400"
-                                                        >mdi-trophy-outline</v-icon
+                                                        color="emerald-400"
+                                                        >mdi-castle</v-icon
                                                     >
                                                     <span
-                                                        class="text-[10px] font-black tracking-widest text-teal-300 uppercase"
-                                                        >Resultados
+                                                        class="text-[10px] font-black tracking-widest text-emerald-300 uppercase"
+                                                        >[ FUNCIÓN ] Resultados
                                                         Esperados</span
                                                     >
                                                 </div>
                                                 <p
-                                                    class="text-sm leading-relaxed font-medium text-white/80"
+                                                    class="text-sm leading-relaxed font-black text-white"
                                                 >
                                                     {{
                                                         (role as any)
                                                             .expected_results
                                                     }}
                                                 </p>
-                                                <div
-                                                    v-if="
-                                                        role.talent_composition
-                                                    "
-                                                    class="mt-4 rounded-xl border border-white/5 bg-black/20 p-3"
-                                                >
-                                                    <div
-                                                        class="mb-2 text-[8px] font-black text-white/20 uppercase"
-                                                    >
-                                                        Racional de Talento
-                                                    </div>
-                                                    <p
-                                                        class="text-[10px] leading-tight text-white/50 italic"
-                                                    >
-                                                        "{{
-                                                            role
-                                                                .talent_composition
-                                                                .logic_justification
-                                                        }}"
-                                                    </p>
-                                                </div>
                                             </div>
+                                        </div>
+                                        <div
+                                            v-if="role.talent_composition"
+                                            class="mt-4 rounded-xl border border-white/5 bg-black/20 p-3"
+                                        >
+                                            <div
+                                                class="mb-2 text-[8px] font-black text-white/20 uppercase"
+                                            >
+                                                Racional de Talento
+                                            </div>
+                                            <p
+                                                class="text-[10px] leading-tight text-white/50 italic"
+                                            >
+                                                "{{
+                                                    role.talent_composition
+                                                        .logic_justification
+                                                }}"
+                                            </p>
                                         </div>
 
                                         <!-- Controls Row -->
@@ -753,40 +762,73 @@
                                                     }}</span
                                                 >
                                                 <div
-                                                    class="flex items-center gap-4"
+                                                    class="group relative flex h-10 w-full flex-col justify-center overflow-hidden rounded-xl border border-white/10 bg-black/40 px-4"
                                                 >
+                                                    <!-- Hybrid DNA Bar -->
                                                     <div
-                                                        class="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-2 px-4"
+                                                        class="absolute inset-0 flex"
                                                     >
-                                                        <v-icon
-                                                            size="16"
-                                                            color="indigo-300"
-                                                            >mdi-account</v-icon
-                                                        >
-                                                        <span
-                                                            class="text-sm font-black text-white"
-                                                            >{{
-                                                                role
-                                                                    .talent_composition
-                                                                    .human_percentage
-                                                            }}%</span
-                                                        >
                                                         <div
-                                                            class="mx-1 h-3 w-px bg-white/10"
+                                                            class="h-full bg-linear-to-r from-indigo-500/40 to-indigo-400/20 transition-all duration-1000"
+                                                            :style="{
+                                                                width:
+                                                                    role
+                                                                        .talent_composition
+                                                                        .human_percentage +
+                                                                    '%',
+                                                            }"
                                                         ></div>
-                                                        <v-icon
-                                                            size="16"
-                                                            color="emerald-300"
-                                                            >mdi-robot</v-icon
+                                                        <div
+                                                            class="h-full bg-linear-to-r from-emerald-500/40 to-emerald-400/20 transition-all duration-1000"
+                                                            :style="{
+                                                                width:
+                                                                    role
+                                                                        .talent_composition
+                                                                        .synthetic_percentage +
+                                                                    '%',
+                                                            }"
+                                                        ></div>
+                                                    </div>
+
+                                                    <!-- Labels Overlay -->
+                                                    <div
+                                                        class="relative flex items-center justify-between"
+                                                    >
+                                                        <div
+                                                            class="flex items-center gap-2"
                                                         >
-                                                        <span
-                                                            class="text-sm font-black text-white"
-                                                            >{{
-                                                                role
-                                                                    .talent_composition
-                                                                    .synthetic_percentage
-                                                            }}%</span
+                                                            <v-icon
+                                                                size="12"
+                                                                color="indigo-300"
+                                                                >mdi-account-circle</v-icon
+                                                            >
+                                                            <span
+                                                                class="text-[10px] font-black text-white"
+                                                                >{{
+                                                                    role
+                                                                        .talent_composition
+                                                                        .human_percentage
+                                                                }}% Humano</span
+                                                            >
+                                                        </div>
+                                                        <div
+                                                            class="flex items-center gap-2"
                                                         >
+                                                            <span
+                                                                class="text-[10px] font-black text-white"
+                                                                >{{
+                                                                    role
+                                                                        .talent_composition
+                                                                        .synthetic_percentage
+                                                                }}%
+                                                                Sintético</span
+                                                            >
+                                                            <v-icon
+                                                                size="12"
+                                                                color="emerald-300"
+                                                                >mdi-robot-outline</v-icon
+                                                            >
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1033,23 +1075,28 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Restores button for rejected state -->
-                                <div
-                                    v-if="role._status === 'rejected'"
-                                    class="absolute inset-0 z-10 flex items-center justify-center"
-                                >
-                                    <StButtonGlass
-                                        variant="primary"
-                                        @click="role._status = 'pending'"
-                                        icon="mdi-undo"
+                                    <!-- Restores button for rejected state -->
+                                    <div
+                                        v-if="role._status === 'rejected'"
+                                        class="absolute inset-0 z-10 flex items-center justify-center"
                                     >
-                                        {{ $t('agent_proposals.restore_role') }}
-                                    </StButtonGlass>
+                                        <StButtonGlass
+                                            variant="primary"
+                                            @click="role._status = 'pending'"
+                                            icon="mdi-undo"
+                                        >
+                                            {{
+                                                $t(
+                                                    'agent_proposals.restore_role',
+                                                )
+                                            }}
+                                        </StButtonGlass>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <!-- grid end -->
                     </section>
 
                     <v-divider class="border-white/5" />
@@ -1074,6 +1121,10 @@
                                                 'agent_proposals.proposed_catalog',
                                             )
                                         }}
+                                        <span
+                                            class="ml-2 text-[10px] font-black tracking-widest text-white/20 uppercase"
+                                            >[ PISOS ]</span
+                                        >
                                     </h3>
                                     <div class="flex items-center gap-2">
                                         <StBadgeGlass
@@ -1240,7 +1291,11 @@
                                         </div>
                                         <!-- Semantic Concordance (Moment 2) -->
                                         <div
-                                            v-if="comp.semantic_concordance"
+                                            v-if="
+                                                comp.semantic_concordance &&
+                                                comp.semantic_concordance
+                                                    .similarity_score != null
+                                            "
                                             class="mt-1 text-[9px] font-bold text-indigo-400"
                                         >
                                             Match:
