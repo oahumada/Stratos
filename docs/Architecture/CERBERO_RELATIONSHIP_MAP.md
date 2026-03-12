@@ -75,5 +75,14 @@ foreach($carlos->subordinates as $sub) { ... }
 
 ---
 
+## 6. Integridad de los Datos (Stratos Sentinel)
+
+Para garantizar que el Mapa de Relaciones y sus ejecuciones (como evaluaciones 360) sean inviolables:
+
+- **Sello Digital:** Las solicitudes de evaluación (`AssessmentRequest`) y sesiones de análisis generadas vía Cerbero son selladas criptográficamente.
+- **Inmutabilidad de Hecho:** Cualquier cambio manual en las relaciones o resultados invalida el sello Sentinel, asegurando auditoría total sobre la red social corporativa.
+
+---
+
 **Estado del Módulo:** Activo y Vinculado al Motor 360.  
 **Responsable Técnico:** Stratos Intelligence Engine.

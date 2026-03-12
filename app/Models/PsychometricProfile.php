@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\HasDigitalSeal;
 
 class PsychometricProfile extends Model
 {
-    use HasFactory;
+    use HasFactory, HasDigitalSeal;
 
     protected $fillable = [
         'people_id',
@@ -18,11 +19,13 @@ class PsychometricProfile extends Model
         'rationale',
         'evidence',
         'metadata',
+        'digital_signature', 'signed_at', 'signature_version',
     ];
 
     protected $casts = [
         'score' => 'float',
         'metadata' => 'array',
+        'signed_at' => 'datetime',
     ];
 
     public function person(): BelongsTo

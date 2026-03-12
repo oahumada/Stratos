@@ -4,16 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasDigitalSeal;
 use Illuminate\Support\Facades\Crypt;
 
 class ScenarioGeneration extends Model
 {
-    use HasFactory;
+    use HasFactory, HasDigitalSeal;
 
     protected $table = 'scenario_generations';
 
     protected $fillable = [
         'organization_id',
+        'accepted_at',
+        'digital_signature',
+        'signed_at',
+        'signature_version',
         'created_by',
         'prompt',
         'llm_response',
@@ -36,6 +41,8 @@ class ScenarioGeneration extends Model
     protected $casts = [
         'llm_response' => 'array',
         'metadata' => 'array',
+        'accepted_at' => 'datetime',
+        'signed_at' => 'datetime',
         'generated_at' => 'datetime',
         'confidence_score' => 'float',
         'redacted' => 'boolean',

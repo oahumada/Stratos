@@ -92,6 +92,7 @@ El reporte final no es solo una tabla de puntajes; es un informe narrativo audit
 - **Evidence-Based Rationale:** Cada rasgo diagnosticado incluye una justificación basada en evidencia textual extraída de las fuentes.
 - **Detección de "Blind Spots":** Identificación automática de brechas entre la auto-percepción y la percepción del entorno.
 - **Gráfico de Arquitectura Cognitiva:** Visualización tipo radar para entender el balance de competencias del sujeto.
+- **Sello de Autenticidad (Sentinel SSS):** El reporte final es firmado criptográficamente para certificar que el análisis fue generado íntegramente por la IA de Stratos y no ha sido manipulado.
 
 ### 4.2 Cierre del Ciclo (Feedback Loop)
 
@@ -113,5 +114,5 @@ Para validar este proceso, se deben realizar las siguientes pruebas:
 ---
 
 **Documento de Referencia Técnica**  
-**Versión:** 1.0  
+**Versión:** 1.1 (Sentinel Verified)  
 **Proyecto:** Stratos Talent Intelligence

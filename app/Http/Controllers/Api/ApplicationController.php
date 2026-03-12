@@ -83,6 +83,8 @@ class ApplicationController extends Controller
             'applied_at' => now(),
         ]);
 
+        $application->seal();
+
         return response()->json([
             'id' => $application->id,
             'status' => $application->status,

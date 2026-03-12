@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Schema;
 
 use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
 
 class Scenario extends Model
 {
-    use HasFactory, BelongsToOrganization;
+    use HasFactory, BelongsToOrganization, HasDigitalSeal;
 
     // Canonical table: `scenarios`. Legacy compatibility view `workforce_planning_scenarios` is deprecated.
     protected $table = 'scenarios';
@@ -28,6 +29,7 @@ class Scenario extends Model
         'version_group_id', 'is_current_version', 'parent_id',
         'current_step', 'time_horizon_weeks', 'custom_config',
         'estimated_budget',
+        'digital_signature', 'signed_at', 'signature_version',
     ];
 
     protected $casts = [
@@ -38,6 +40,7 @@ class Scenario extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'embedding' => 'array', // Added 'embedding' as array cast
+        'signed_at' => 'datetime',
     ];
 
     public function capabilities()

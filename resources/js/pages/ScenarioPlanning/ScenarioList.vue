@@ -207,82 +207,105 @@ onMounted(() => {
 <template>
     <div class="scenario-list-page">
         <v-container fluid>
-            <v-row class="align-center mb-4">
-                <v-col cols="12" md="6">
-                    <h2 class="text-h4 font-weight-bold mb-2 text-white">
-                        Planificación Estratégica de Escenarios
-                    </h2>
-                    <p class="mb-0 text-white/70">
-                        Administra, filtra y navega escenarios con metodología 7
-                        pasos
+            <v-row class="align-center mb-8">
+                <v-col cols="12" md="7">
+                    <h1
+                        class="mb-3 text-4xl font-black tracking-tight text-white uppercase sm:text-5xl"
+                    >
+                        Orquestación de
+                        <span class="text-indigo-400">Escenarios</span>
+                    </h1>
+                    <p
+                        class="max-w-2xl text-sm font-medium tracking-wide text-white/40"
+                    >
+                        Panel estratégico para la modelación y simulación de
+                        Ingeniería de Talento. Administre la evolución
+                        organizacional mediante la metodología de 7 pasos.
                     </p>
+                </v-col>
+                <v-col cols="12" md="5" class="d-flex justify-end gap-3">
+                    <StButtonGlass
+                        variant="glass"
+                        icon="mdi-robot-excited-outline"
+                        @click="showGenerateWizard = true"
+                        class="px-6"
+                    >
+                        Generar con IA
+                    </StButtonGlass>
+                    <StButtonGlass
+                        variant="primary"
+                        icon="mdi-plus"
+                        @click="openCreateFromTemplate"
+                        class="px-6"
+                    >
+                        Nuevo Escenario
+                    </StButtonGlass>
                 </v-col>
             </v-row>
 
-            <StCardGlass class="mb-6">
-                <div class="pa-2">
-                    <v-row>
-                        <v-col cols="12" md="3">
-                            <v-select
-                                v-model="filters.status"
-                                :items="statusOptions"
-                                label="Estado (Legacy)"
-                                clearable
-                            />
-                        </v-col>
-                        <v-col cols="12" md="3">
-                            <v-select
-                                v-model="filters.type"
-                                :items="typeOptions"
-                                item-title="title"
-                                item-value="value"
-                                label="Tipo de escenario"
-                                clearable
-                            />
-                        </v-col>
-                        <v-col cols="12" md="2" class="text-right">
-                            <StButtonGlass
-                                variant="ghost"
-                                @click="loadScenarios"
-                                icon="mdi-refresh"
-                            >
-                                Refrescar
-                            </StButtonGlass>
-                        </v-col>
-                        <v-col
-                            cols="12"
-                            md="4"
-                            class="d-flex justify-end gap-2"
-                        >
-                            <StButtonGlass
-                                variant="glass"
-                                icon="mdi-robot-excited-outline"
-                                @click="showGenerateWizard = true"
-                            >
-                                Generar con IA
-                            </StButtonGlass>
-                            <StButtonGlass
-                                variant="primary"
-                                icon="mdi-plus"
-                                @click="openCreateFromTemplate"
-                            >
-                                Nuevo escenario
-                            </StButtonGlass>
-                        </v-col>
-                    </v-row>
-                    <v-alert
-                        type="info"
-                        variant="tonal"
-                        density="compact"
-                        class="mt-2"
+            <div class="mb-8 grid grid-cols-1 items-end gap-6 md:grid-cols-12">
+                <div class="md:col-span-3">
+                    <label
+                        class="mb-2 ml-2 block text-[10px] font-black tracking-[0.2em] text-white/40 uppercase"
+                        >Estado General</label
                     >
-                        <strong>Estados duales:</strong> Los escenarios ahora
-                        tienen estado de decisión
-                        (borrador/pendiente/aprobado/rechazado) y estado de
-                        ejecución (planificado/en progreso/pausado/completado).
-                    </v-alert>
+                    <v-select
+                        v-model="filters.status"
+                        :items="statusOptions"
+                        placeholder="Todos los estados"
+                        clearable
+                        variant="plain"
+                        class="glass-input-v2"
+                        hide-details
+                    />
                 </div>
+                <div class="md:col-span-3">
+                    <label
+                        class="mb-2 ml-2 block text-[10px] font-black tracking-[0.2em] text-white/40 uppercase"
+                        >Tipo de Escenario</label
+                    >
+                    <v-select
+                        v-model="filters.type"
+                        :items="typeOptions"
+                        item-title="title"
+                        item-value="value"
+                        placeholder="Todos los tipos"
+                        clearable
+                        variant="plain"
+                        class="glass-input-v2"
+                        hide-details
+                    />
+                </div>
+                <div class="md:col-span-2">
+                    <StButtonGlass
+                        variant="ghost"
+                        @click="loadScenarios"
+                        icon="mdi-refresh"
+                        block
+                    >
+                        Sincronizar
+                    </StButtonGlass>
+                </div>
+                <div class="md:col-span-4">
+                    <div
+                        class="flex items-center gap-3 rounded-2xl border border-white/5 bg-white/5 p-3 backdrop-blur-sm"
+                    >
+                        <v-icon
+                            icon="mdi-information-outline"
+                            size="small"
+                            class="text-indigo-400"
+                        />
+                        <p
+                            class="text-[10px] leading-tight font-medium tracking-wider text-white/50 uppercase"
+                        >
+                            <span class="text-white">Doble Validación:</span>
+                            Decisión (Aprobación) vs Ejecución (Operativa)
+                        </p>
+                    </div>
+                </div>
+            </div>
 
+            <StCardGlass class="overflow-hidden p-0!">
                 <v-data-table
                     :headers="tableHeaders"
                     :items="filteredScenarios"
@@ -290,8 +313,25 @@ onMounted(() => {
                     item-key="id"
                     show-select
                     v-model:selected="selectedScenarioIds"
-                    class="elevation-0 bg-transparent text-white"
+                    class="vanguard-table"
                 >
+                    <template #[`item.name`]="{ item }">
+                        <div class="flex flex-col py-3">
+                            <span
+                                class="text-sm font-black tracking-tight text-white uppercase transition-colors group-hover:text-indigo-400"
+                            >
+                                {{ item.name }}
+                            </span>
+                            <span
+                                class="max-w-[240px] truncate text-[10px] font-medium text-white/30"
+                            >
+                                {{
+                                    item.description ||
+                                    'Sin descripción adicional'
+                                }}
+                            </span>
+                        </div>
+                    </template>
                     <template #[`item.decision_status`]="{ item }">
                         <StBadgeGlass
                             :variant="decisionStatusColor(item.decision_status)"
@@ -476,3 +516,57 @@ onMounted(() => {
         </v-dialog>
     </div>
 </template>
+
+<style scoped>
+.glass-input-v2 :deep(.v-field) {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 0 12px !important;
+    height: 48px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.glass-input-v2 :deep(.v-field--focused) {
+    border-color: rgba(99, 102, 241, 0.4) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+
+.vanguard-table {
+    background: transparent !important;
+    color: white !important;
+}
+
+.vanguard-table :deep(thead) {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.vanguard-table :deep(th) {
+    text-transform: uppercase !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.15em !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    height: 50px !important;
+}
+
+.vanguard-table :deep(tr) {
+    transition: all 0.2s ease !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+.vanguard-table :deep(tr:hover) {
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.vanguard-table :deep(td) {
+    border-bottom: none !important;
+}
+
+.vanguard-table :deep(.v-data-table-footer) {
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.01) !important;
+}
+</style>

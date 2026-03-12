@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasDigitalSeal;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use App\Traits\BelongsToOrganization;
 
 class JobOpening extends Model
 {
-    use BelongsToOrganization;
+    use HasFactory, HasDigitalSeal, BelongsToOrganization;
     protected $fillable = [
         'organization_id',
         'title',
@@ -25,12 +27,18 @@ class JobOpening extends Model
         'is_external',
         'deadline',
         'created_by',
+        'meta_data',
+        'digital_signature',
+        'signed_at',
+        'signature_version',
     ];
 
     protected $casts = [
         'status' => 'string',
         'is_external' => 'boolean',
         'deadline' => 'date',
+        'meta_data' => 'array',
+        'signed_at' => 'datetime',
     ];
 
     protected static function booted()

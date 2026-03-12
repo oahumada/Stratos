@@ -4,21 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasDigitalSeal;
 
 class Evaluation extends Model
 {
-    use HasFactory;
+    use HasFactory, HasDigitalSeal;
 
     protected $table = 'evaluations';
 
     protected $fillable = ['user_id', 'skill_id', 'scenario_id', 'current_level',
-        'required_level', 'gap', 'confidence_score', 'evaluated_at', 'metadata'];
+        'required_level', 'gap', 'confidence_score', 'evaluated_at', 'metadata',
+        'digital_signature', 'signed_at', 'signature_version',];
 
     protected $casts = [
         'current_level' => 'decimal:2',
         'gap' => 'decimal:2',
         'evaluated_at' => 'datetime',
         'metadata' => 'array',
+        'signed_at' => 'datetime',
     ];
 
     // Relaciones

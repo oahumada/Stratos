@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\HasDigitalSeal;
 
 class Application extends Model
 {
+    use HasDigitalSeal;
     protected $fillable = [
         'job_opening_id',
         'people_id',
@@ -16,6 +18,7 @@ class Application extends Model
         'ai_analysis',
         'match_score',
         'applied_at',
+        'digital_signature', 'signed_at', 'signature_version',
     ];
 
     protected $casts = [
@@ -23,6 +26,7 @@ class Application extends Model
         'ai_analysis' => 'array',
         'match_score' => 'integer',
         'applied_at' => 'datetime',
+        'signed_at' => 'datetime',
     ];
 
     protected static function booted()

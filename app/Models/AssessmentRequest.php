@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
 
 class AssessmentRequest extends Model
 {
-    use HasFactory, BelongsToOrganization;
+    use HasFactory, BelongsToOrganization, HasDigitalSeal;
 
     protected $fillable = [
         'organization_id',
@@ -22,10 +23,12 @@ class AssessmentRequest extends Model
         'status',
         'token',
         'completed_at',
+        'digital_signature', 'signed_at', 'signature_version',
     ];
 
     protected $casts = [
         'completed_at' => 'datetime',
+        'signed_at' => 'datetime',
     ];
 
     public function organization(): BelongsTo

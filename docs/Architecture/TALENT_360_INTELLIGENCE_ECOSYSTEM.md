@@ -24,6 +24,14 @@ Centralización de la estrategia de medición:
 - **Reglas:** Determina la periodicidad (ej: trimestral), disparadores (ej: promoción) y el "target" (departamento o toda la empresa).
 - **Control:** Permite a la organización mantener un estándar de evaluación constante sin intervención humana recurrente.
 
+### 1.3 Integridad Criptográfica (Sentinel SSS)
+
+La última capa de defensa y confianza de Cerbero:
+
+- **Protocolo:** Stratos Sentinel Signature (SSS).
+- **Mecanismo:** Sellado HMAC-SHA256 de cada activo generado por la IA (Blueprints, Evaluaciones, PX).
+- **Propósito:** Garantizar que los insights de Stratos no puedan ser alterados manualmente en base de datos y certificar su origen oficial ("Sello de Fábrica").
+
 ---
 
 ## 2. Recolección Multimodal de Datos
@@ -76,7 +84,7 @@ Los resultados se presentan en la vista `AssessmentResults.vue`, diseñada bajo 
 
 ---
 
-**Última Actualización:** 24 de Febrero, 2026  
+**Última Actualización:** 12 de Marzo, 2026 (Sentinel Integration)
 **Status:** Implementación Completa (Phase 5 Roadmap)  
 **Proyecto:** Stratos Intelligence System  
 _Propiedad Intelectual de Stratos - Hacia la Conciencia Organizacional._

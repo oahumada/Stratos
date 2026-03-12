@@ -36,6 +36,9 @@ class TalentBlueprintService
                 ],
             ]);
 
+            // SEAL THE BLUEPRINT: Cryptographically sign the original AI design
+            $blueprint->seal();
+
             // Generate embedding for similarity check later
             if (config('features.generate_embeddings', false)) {
                 try {

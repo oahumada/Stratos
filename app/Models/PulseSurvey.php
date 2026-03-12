@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasDigitalSeal;
 
 class PulseSurvey extends Model
 {
-    use HasFactory;
+    use HasFactory, HasDigitalSeal;
 
     protected $fillable = [
         'title',
@@ -16,12 +17,14 @@ class PulseSurvey extends Model
         'is_active',
         'department_id',
         'ai_report',
+        'digital_signature', 'signed_at', 'signature_version',
     ];
 
     protected $casts = [
         'questions' => 'array',
         'is_active' => 'boolean',
         'ai_report' => 'array',
+        'signed_at' => 'datetime',
     ];
 
     public function responses()

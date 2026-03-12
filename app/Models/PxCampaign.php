@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\HasDigitalSeal;
 
 class PxCampaign extends Model
 {
-    use HasFactory;
+    use HasFactory, HasDigitalSeal;
 
     protected $fillable = [
         'organization_id',
@@ -22,6 +23,7 @@ class PxCampaign extends Model
         'starts_at',
         'ends_at',
         'created_by',
+        'digital_signature', 'signed_at', 'signature_version',
     ];
 
     /**
@@ -35,6 +37,7 @@ class PxCampaign extends Model
         'topics' => 'array',
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
+        'signed_at' => 'datetime',
     ];
 
     /**

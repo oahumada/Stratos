@@ -44,12 +44,12 @@ graph TD
 
 ## 2. Auditoría de "Cabos Sueltos" (Garantía de Integración)
 
-| Posible Cabo Suelto                         | Solución Stratos (Garantía)                                                                                                                            |
-| :------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **¿Cómo sabe Reclutamiento qué contratar?** | **Integración E-S:** Scenario IQ exporta el "Perfil de Resonancia" al Agente Matchmaker. El candidato ve su alineación en el **Portal de Candidatos**. |
-| **¿Incertidumbre del candidato?**           | **Integración Portal:** El candidato interactúa con el **Matchmaker de Resonancia** para resolver dudas tácticas sobre el blueprint del rol.           |
-| **¿Cómo se garantiza la ética de la IA?**   | **Integración Sentinel:** Cada decisión agéntica es auditada por **Stratos Sentinel**, creando una explicación humana del razonamiento de la IA.       |
-| **¿El Org Chart está desactualizado?**      | **Integración L-G:** Cada vez que un Learning Path se completa, el Grafo (Neo4j) se actualiza, informando instantáneamente al **Simulador Orgánico**.  |
+| Posible Cabo Suelto                          | Solución Stratos (Garantía)                                                                                                                               |
+| :------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **¿Cómo sabe Reclutamiento qué contratar?**  | **Integración E-S:** Scenario IQ exporta el "Perfil de Resonancia" al Agente Matchmaker. El candidato ve su alineación en el **Portal de Candidatos**.    |
+| **¿Incertidumbre del candidato?**            | **Integración Portal:** El candidato interactúa con el **Matchmaker de Resonancia** para resolver dudas tácticas sobre el blueprint del rol.              |
+| **¿Cómo se garantiza la ética y veracidad?** | **Integración Sentinel:** Cada decisión es auditada por **Stratos Sentinel**, y cada activo firmado por **Sentinel SSS** para garantizar su autenticidad. |
+| **¿El Org Chart está desactualizado?**       | **Integración L-G:** Cada vez que un Learning Path se completa, el Grafo (Neo4j) se actualiza, informando instantáneamente al **Simulador Orgánico**.     |
 
 ---
 
@@ -57,9 +57,9 @@ graph TD
 
 Para asegurar la transparencia y la "Ventaja Injusta", cada transición genera un trace auditado por el **Sentinel**:
 
-1.  **Trace-Selection:** "Candidato X seleccionado por Resonancia ADN de 0.95. Portal habilitado para feedback del aplicante."
-2.  **Trace-Ethics:** "Validación de Sentinel: No se detectan sesgos de género o edad en la recomendación de promoción del nodo de Ingeniería."
-3.  **Trace-Scenario:** "Simulador Orgánico proyecta ROI positivo en 6 meses tras el re-skilling del 20% de la fuerza laboral seleccionada."
+1.  **Trace-Selection:** "Candidato X seleccionado por Resonancia ADN. Certificado Sentinel SSS emitido para la postulación."
+2.  **Trace-Integrity:** "Sello Digital Verificado: El reporte de potencial no ha sido modificado manualmente desde su creación por Cerbero."
+3.  **Trace-Ethics:** "Validación de Sentinel: No se detectan sesgos. Firma criptográfica vinculada a la identidad del tenant."
 
 ---
 

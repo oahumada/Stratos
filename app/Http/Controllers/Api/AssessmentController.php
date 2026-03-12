@@ -200,7 +200,7 @@ class AssessmentController extends Controller
         }
 
         foreach ($analysis['traits'] as $trait) {
-            PsychometricProfile::create([
+            $profile = PsychometricProfile::create([
                 'people_id' => $session->people_id,
                 'assessment_session_id' => $session->id,
                 'trait_name' => $trait['name'] ?? 'Unknown',
@@ -208,6 +208,8 @@ class AssessmentController extends Controller
                 'rationale' => $trait['rationale'] ?? 'No rationale provided',
                 'evidence' => $trait['evidence'] ?? null,
             ]);
+
+            $profile->seal();
         }
     }
 
@@ -227,6 +229,8 @@ class AssessmentController extends Controller
                 'ai_reasoning_flow' => $analysis['ai_reasoning_flow'] ?? [],
             ]),
         ]);
+
+        $session->seal();
     }
 
     /**
@@ -356,6 +360,8 @@ class AssessmentController extends Controller
                 'completed_at' => now(),
             ]);
 
+            $assessmentRequest->seal();
+
             return $this->successResponse(null, 'Feedback enviado correctamente');
         });
     }
@@ -451,6 +457,8 @@ class AssessmentController extends Controller
             }
 
             $assessmentRequest->update(['status' => 'completed', 'completed_at' => now()]);
+
+            $assessmentRequest->seal();
 
             return $this->successResponse(null, 'Feedback enviado con éxito');
         });

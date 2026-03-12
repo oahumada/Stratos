@@ -133,6 +133,8 @@ class RAGASEvaluator
                 'tokens_used' => $result['tokens_used'] ?? null,
             ]);
 
+            $evaluation->seal();
+
             Log::info('RAGAS evaluation completed', [
                 'evaluation_id' => $evaluation->id,
                 'provider' => $evaluation->llm_provider,

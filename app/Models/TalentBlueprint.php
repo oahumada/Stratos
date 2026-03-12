@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasDigitalSeal;
 
 // app/Models/TalentBlueprint.php
 // Une el escenario con la estrategia de ingeniería
 class TalentBlueprint extends Model
 {
-    use HasFactory;
+    use HasFactory, HasDigitalSeal;
 
     // Support both legacy service attribute names and the actual DB columns.
     protected $fillable = [
@@ -17,6 +18,7 @@ class TalentBlueprint extends Model
         'total_fte_required', 'human_percentage', 'synthetic_percentage',
         'human_leverage', 'synthetic_leverage', 'strategy_suggestion', 'recommended_strategy',
         'logic_justification', 'suggested_agent_type', 'agent_specs', 'key_competencies', 'status', 'embedding',
+        'digital_signature', 'signed_at', 'signature_version',
     ];
 
     protected $casts = [
@@ -24,6 +26,7 @@ class TalentBlueprint extends Model
         'total_fte_required' => 'decimal:2',
         'key_competencies' => 'array',
         'agent_specs' => 'array',
+        'signed_at' => 'datetime',
     ];
 
     public function scenario()

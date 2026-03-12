@@ -434,6 +434,11 @@ EOT;
             }
 
             $generation->save();
+
+            // SEAL: Authenticate the raw output from the AI
+            if ($generation->status === 'complete') {
+                $generation->seal();
+            }
         } catch (\Throwable $e) {
             Log::error('Failed to persist LLM response for generation '.($generation->id ?? 'unknown').': '.$e->getMessage());
             throw $e;

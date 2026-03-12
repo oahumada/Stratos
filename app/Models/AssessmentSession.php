@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 
 use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
 
 class AssessmentSession extends Model
 {
-    use HasFactory, BelongsToOrganization;
+    use HasFactory, BelongsToOrganization, HasDigitalSeal;
 
 
     protected $fillable = [
@@ -26,12 +27,14 @@ class AssessmentSession extends Model
         'metadata',
         'started_at',
         'completed_at',
+        'digital_signature', 'signed_at', 'signature_version',
     ];
 
     protected $casts = [
         'metadata' => 'array',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
+        'signed_at' => 'datetime',
     ];
 
     public function organization(): BelongsTo

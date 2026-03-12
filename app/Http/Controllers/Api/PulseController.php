@@ -55,6 +55,8 @@ class PulseController extends Controller
             'sentiment_score' => $score,
         ]);
 
+        $response->seal();
+
         return response()->json([
             'message' => 'Respuesta guardada correctamente',
             'data' => $response,
@@ -79,6 +81,8 @@ class PulseController extends Controller
         // Desencadenar la IA predictiva de forma síncrona/asíncrona
         // Lo dejamos síncrono para demostración ràpida en Frontend
         $predictor->analyzeRiskForPulse($pulse);
+
+        $pulse->seal();
 
         return response()->json([
             'status' => 'success',

@@ -11,10 +11,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
 
 class LLMEvaluation extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToOrganization;
+    use HasFactory, SoftDeletes, BelongsToOrganization, HasDigitalSeal;
 
     protected $table = 'llm_evaluations';
 
@@ -61,6 +62,7 @@ class LLMEvaluation extends Model
         'tokens_used',
         'is_latest',
         'superseded_by_id',
+        'digital_signature', 'signed_at', 'signature_version',
     ];
 
     protected $casts = [
@@ -78,6 +80,7 @@ class LLMEvaluation extends Model
         'hallucination_rate' => 'decimal:2',
         'composite_score' => 'decimal:2',
         'normalized_score' => 'decimal:2',
+        'signed_at' => 'datetime',
     ];
 
     /**

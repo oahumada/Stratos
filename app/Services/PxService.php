@@ -85,6 +85,10 @@ class PxService
 
             Log::info("PX Service: Triggered campaign '{$campaign->name}' for event '{$eventType}'");
 
+            // SEAL: Authenticate the campaign and survey as original Stratos artifacts
+            $campaign->seal();
+            $survey->seal();
+
             return $campaign;
         });
     }
