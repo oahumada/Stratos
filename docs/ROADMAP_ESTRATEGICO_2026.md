@@ -18,12 +18,12 @@ Este documento define la visión y las fases de desarrollo pendientes para trans
 
 ### Bloque B: Expansión (Elementos Pendientes)
 
-| #   | Feature        |       Estado        |
-| :-- | :------------- | :-----------------: |
-| B1  | Neo4j Live     | ⏳ Esperando infra  |
-| B2  | Notificaciones | 🔄 Estructura lista |
-| B3  | Investor Demo  |    🔄 Prototipo     |
-| B5  | Mobile PX      |     ⏳ Próximo      |
+| #   | Feature        |                Estado                |
+| :-- | :------------- | :----------------------------------: |
+| B1  | Neo4j Live     |        ⏳ Esperando infra            |
+| B2  | Notificaciones |        🔄 Estructura lista           |
+| B3  | Investor Demo  |           🔄 Prototipo               |
+| B5  | Mobile PX      | ✅ v1 web (Mi Stratos) · App nativa ⏳ |
 
 ---
 

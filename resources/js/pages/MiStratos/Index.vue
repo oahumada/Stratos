@@ -92,6 +92,10 @@ const toggleMentorChat = () => {
     isMentorChatOpen.value = !isMentorChatOpen.value;
 };
 
+const goToLearning = () => {
+    activeSection.value = 'learning';
+};
+
 // Greeting based on time of day
 const updateGreeting = () => {
     const hour = new Date().getHours();
@@ -190,8 +194,8 @@ const formatDate = (dateStr: string) => {
 const sidebarSections = [
     { key: 'dashboard', icon: 'mdi-view-dashboard', label: 'Dashboard' },
     { key: 'role', icon: 'mdi-badge-account', label: 'Mi Rol' },
-    { key: 'gaps', icon: 'mdi-target', label: 'Mi Brecha' },
-    { key: 'learning', icon: 'mdi-school', label: 'Mi Ruta' },
+    { key: 'gaps', icon: 'mdi-target', label: 'Mis Brechas' },
+    { key: 'learning', icon: 'mdi-school', label: 'Mi Ruta de Aprendizaje' },
     { key: 'conversations', icon: 'mdi-forum', label: 'Conversaciones' },
     { key: 'evaluations', icon: 'mdi-chart-radar', label: 'Mis Evaluaciones' },
     { key: 'dna', icon: 'mdi-dna', label: 'Mi ADN' },
@@ -257,9 +261,13 @@ defineOptions({ layout: AppLayout });
                                 {{ greeting }}, {{ person.first_name }}!
                             </p>
                             <h1 class="hero-name">{{ person.full_name }}</h1>
+                            <p class="hero-subtitle">
+                                Tu punto de partida hoy: rol, brechas y próxima
+                                ruta de crecimiento.
+                            </p>
 
                             <div
-                                class="d-flex align-center mt-2 flex-wrap gap-3"
+                                class="d-flex align-center mt-3 flex-wrap gap-3"
                             >
                                 <v-chip
                                     v-if="person.role"
@@ -277,7 +285,7 @@ defineOptions({ layout: AppLayout });
                                     size="small"
                                     prepend-icon="mdi-cube"
                                 >
-                                    Cubo: {{ cubeLabel }}
+                                    Cubo {{ cubeLabel }}
                                 </v-chip>
                                 <v-chip
                                     v-if="archetypeLabel"
@@ -304,7 +312,7 @@ defineOptions({ layout: AppLayout });
                                     size="small"
                                     prepend-icon="mdi-star"
                                 >
-                                    High Potential
+                                    Talento Alto Potencial
                                 </v-chip>
                             </div>
                         </div>
@@ -327,7 +335,9 @@ defineOptions({ layout: AppLayout });
                                     {{ kpis.potential }}%
                                 </span>
                             </v-progress-circular>
-                            <span class="kpi-hero-label">Match</span>
+                            <span class="kpi-hero-label">
+                                Match con tu rol
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -361,7 +371,7 @@ defineOptions({ layout: AppLayout });
                                 <v-icon class="mr-2" color="primary"
                                     >mdi-view-dashboard</v-icon
                                 >
-                                Dashboard Personal
+                                Tu mapa de hoy
                             </h2>
 
                             <!-- KPI Cards -->
@@ -449,6 +459,49 @@ defineOptions({ layout: AppLayout });
                                             {{ kpis.gap_count }} brechas
                                         </div>
                                     </div>
+                                </v-col>
+                            </v-row>
+
+                            <!-- Next Step Panel -->
+                            <v-row v-if="kpis" class="mb-8">
+                                <v-col cols="12" md="8">
+                                    <v-card class="glass-card next-step-card" flat>
+                                        <div class="next-step-content">
+                                            <div class="next-step-text">
+                                                <div class="next-step-label">
+                                                    Tu siguiente paso recomendado
+                                                </div>
+                                                <div class="next-step-title">
+                                                    Avanza en tu Ruta de Aprendizaje
+                                                </div>
+                                                <div class="next-step-subtitle">
+                                                    En base a tu match actual y tus brechas,
+                                                    revisa tu ruta priorizada y completa al
+                                                    menos una acción esta semana.
+                                                </div>
+                                            </div>
+                                            <div class="next-step-actions">
+                                                <v-btn
+                                                    color="primary"
+                                                    class="next-step-btn"
+                                                    size="large"
+                                                    @click="goToLearning"
+                                                >
+                                                    Ver mi Ruta de Aprendizaje
+                                                </v-btn>
+                                                <div class="next-step-secondary" @click="toggleMentorChat">
+                                                    <v-icon
+                                                        size="18"
+                                                        color="cyan-lighten-3"
+                                                        class="mr-1"
+                                                    >
+                                                        mdi-robot
+                                                    </v-icon>
+                                                    Hablar con Mentor IA
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </v-card>
                                 </v-col>
                             </v-row>
 

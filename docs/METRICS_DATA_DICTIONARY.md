@@ -31,7 +31,7 @@ Estas métricas son críticas para el cálculo de **Riesgo de Continuidad** y **
 | **Tasa de Churn**         | `customer_churn`      | Porcentaje de clientes perdidos en el periodo.                  | CRM           |
 | **Costo de Contratación** | `recruitment_cost`    | Gastos totales de marketing, agencias y referidos de selección. | ATS           |
 
-## 3. Guía de Mapeo Técnico para el CSV
+## 4. Guía de Mapeo Técnico para el CSV
 
 Para que la ingesta sea exitosa, el sistema de origen debe mapear sus campos al formato de Stratos según este diccionario:
 
@@ -48,7 +48,7 @@ El campo `metadata` permite enviar claves que el ERP ya posea pero que Stratos n
 
 - _Ejemplo:_ `{"cost_center": "CC-102", "currency": "EUR", "region": "North_America"}`
 
-## 4. Estrategia de Desagregación (Granularidad)
+## 5. Estrategia de Desagregación (Granularidad)
 
 Encontrar el equilibrio entre la complejidad técnica y la visibilidad de patrones es clave. Stratos recomienda un enfoque de **Capas de Resolución**:
 
@@ -74,9 +74,9 @@ Para que el **Digital Twin** sea efectivo, el ERP debería entregar los datos (R
 > [!IMPORTANT]
 > **Regla de Oro:** "Agrega para Reportar, Desagrega para Actuar". El `ImpactEngine` funciona mejor con datos de **Nivel L2 (Unidad de Negocio/Departamento)**.
 
-## 5. El Concepto de "Departamento" y Normalización
+## 6. El Concepto de "Departamento" y Normalización
 
-Un desafío común es que el "Departamento de Ventas" en el ERP (Finanzas) puede no coincidir exactamente con "Sales & Growth" en el HRIS (RRHH). Stratos resuelve esto mediante la **Unificación por Nodo Gravitacional**.
+Un desafío común es que el "Departamento de Ventas" en el ERP (Finanzas) puede no coincidir exactamente con "Sales & Growth" en el HRIS (RRHH). Stratos resuelve esto mediante la **[Unificación por Nodo Gravitacional](file:///home/omar/Stratos/docs/GRAVITATIONAL_NODE_UNIFICATION.md)**.
 
 ### ¿Qué definimos como Departamento?
 

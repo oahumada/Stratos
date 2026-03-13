@@ -1,6 +1,6 @@
 # Master Stratos Memory – Single Source of Truth
 
-**Última actualización:** 25 Febrero 2026
+**Última actualización:** 13 Marzo 2026
 **Status Global:**
 
 - Core MVP (Backend/Frontend) ✅ COMPLETADO
@@ -235,6 +235,26 @@ El sistema cuantifica el impacto financiero basado en supuestos configurables:
 - **Hito**: Evolución de la tabla pivote de competencias.
 - **Detalle**: Soporte para estrategias 4B por competencia y pgvector habilitado.
 
+### [2026-03-13] Inicio fase UX/UI Mi Stratos ✅
+
+- **Hito**: Inicio de una fase estructurada de refinamiento UX/UI centrada en cautivar a usuarios y futuros clientes, comenzando por el módulo **Mi Stratos**.
+- **Documentación**:
+    - Creada `docs/UX_MI_STRATOS.md` con:
+        - Personas (colaborador y manager).
+        - Historias de uso (estado actual, cierre de brechas, logros).
+        - Flujos de actividad principales.
+        - Mapa visual y checklist de experiencia.
+- **Producto**:
+    - Ajustes iniciales en `MiStratos/Index.vue` para:
+        - Hero más narrativo (subtítulo orientado a “punto de partida”).
+        - Sidebar renombrado (`Mis Brechas`, `Mi Ruta de Aprendizaje`).
+        - Dashboard titulado como “Tu mapa de hoy” para reforzar el framing de estado actual.
+- **Próximos pasos**:
+    - Replicar la misma metodología UX (personas → historias → flujos → mapa visual → checklist) en:
+        - Scenario IQ (resumen ejecutivo).
+        - Marketplace & Gamificación.
+        - Talent 360 / Evaluaciones.
+
 ---
 
 **Nota Final**: Este documento es la verdad única del sistema. Para detalles de implementación técnica de componentes Vue o controladores específicos, consulte el código fuente siguiendo los patrones documentados en el VOL I.
@@ -303,8 +323,8 @@ _Fin de la Memoria Unificada._
 
 ## BL-001 — Arquitectura de Agentes v2: Vector Search + Agentes Colaborativos
 
-**Registrada:** 25 Febrero 2026
-**Estado:** 🔵 PENDIENTE — diferida hasta validar el flujo actual de Step 2
+**Registrada:** 25 Febrero 2026  
+**Estado:** 🟢 PARCIALMENTE IMPLEMENTADA — vector search activo en Step 2; pendiente iteración multi‑agente completa  
 **Prelación:** Alta (mejora directa de calidad de propuestas del agente)
 
 ### Contexto
@@ -347,10 +367,19 @@ FASE 2 (en tiempo real, Step 2):
 - pgvector — habilitado en la BD (`config/services.php`)
 - `AiOrchestratorService::agentThink()` — extensible para runs paralelos
 
-### Prerequisito para activar
+### Implementación actual (2026-03-13)
 
-- Validar que el flujo actual (contexto textual) satisface las necesidades operativas del usuario
-- Evaluar costo de embeddings vs. beneficio de precisión para el catálogo de la org
+- `EmbeddingService` operativo con pgvector (`findSimilar`) y usado en:
+  - `TalentDesignOrchestratorService::performSemanticReconciliation()` para:
+    - roles: `findSimilar('roles', embedding, 1, orgId)` + `similarity_score`.
+    - competencias: `findSimilar('competencies', embedding, 1, orgId)` + `similarity_score`.
+  - `ScenarioGenerationService` y `Step2RoleCompetencyController` para reconciliar capacidades/competencias/skills incubadas.
+- Esto cubre la **FASE 1 (pre‑cómputo)** y una parte relevante de la **FASE 2 (búsqueda top‑K y concordancia semántica)**.
+
+### Prerequisito para activar la versión “v2 completa”
+
+- Orquestar explícitamente dos agentes especializados (Diseñador de Roles y Curador de Competencias) usando estos embeddings como entrada estándar.
+- Exponer `similarity_score` y evidencias vectoriales en la UI (por ejemplo, panel de revisión del Paso 2) para transparencia.
 
 ### Gap identificado en pruebas (25 Feb 2026)
 

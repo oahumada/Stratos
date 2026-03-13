@@ -22,6 +22,7 @@ Antes de realizar cualquier simulación en **Vanguard** o análisis en el **Impa
 
 3.  **Peso Económico (Financial Weight):**
     - Costo de payroll, benchmark de reclutamiento y valor generado (HCVA) asociado a cada nodo.
+    - Sincronización mediante la **[Unificación por Nodo Gravitacional](../GRAVITATIONAL_NODE_UNIFICATION.md)** para reconciliar datos de sistemas financieros externos.
 
 ---
 

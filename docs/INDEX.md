@@ -172,6 +172,12 @@
 - **[GUIA_DESARROLLO_ESTRUCTURADO.md](GUIA_DESARROLLO_ESTRUCTURADO.md)** - Guía de desarrollo estructurado
 - **[PANORAMA_COMPLETO_ARQUITECTURA.md](PANORAMA_COMPLETO_ARQUITECTURA.md)** - Visión completa
 
+### UX / UI y Experiencia de Usuario
+
+- **[STRATOS_GLASS_DESIGN_SYSTEM.md](STRATOS_GLASS_DESIGN_SYSTEM.md)** - Sistema de diseño premium (Glass, Phosphor, i18n).
+- **[UX_MI_STRATOS.md](UX_MI_STRATOS.md)** - Guía UX específica para el portal Mi Stratos (personas, historias, flujos, jerarquía visual).
+- **[UX_MODULE_TEMPLATE.md](UX_MODULE_TEMPLATE.md)** - Plantilla genérica para documentar UX de cualquier módulo Stratos.
+
 ### Índices y Referencias
 
 - **[INDICE_DOCUMENTACION_ARQUITECTURA.md](INDICE_DOCUMENTACION_ARQUITECTURA.md)** - Índice de arquitectura
@@ -304,3 +310,64 @@ Estado:               ✅ Centralizada en /docs
 - **Referencias:** [docs/GUIA_STRATOS_CEREBRO.txt](docs/GUIA_STRATOS_CEREBRO.txt) (guía del subsistema Cerebro).
 
 - **Notas:** Si detectas discrepancias (payloads, rutas API, o comportamiento visual), crea un issue y añade en la descripción: pasos reproducibles, capturas de pantalla y salida de consola.
+
+---
+
+## 🧭 Documentación avanzada (IA, Motores y Arquitectura)
+
+### 🤖 IA & Motores de Inteligencia
+
+- **[AI_AGENTS_STRATEGY.md](AI_AGENTS_STRATEGY.md)** - Estrategia global de agentes IA en Stratos.
+- **[STRATOS_INTELLIGENCE_ECOSYSTEM_MAP.md](STRATOS_INTELLIGENCE_ECOSYSTEM_MAP.md)** - Mapa del ecosistema de inteligencia y sus componentes.
+- **[GRAVITATIONAL_NODE_UNIFICATION.md](GRAVITATIONAL_NODE_UNIFICATION.md)** - Modelo conceptual de nodos gravitacionales y conexiones.
+- **[psychometric_ai_architecture.md](psychometric_ai_architecture.md)** - Arquitectura psicométrica y uso de IA inferencial.
+
+### ⚙️ Motores específicos (Engines)
+
+- **[Engines/IMPACT_ENGINE.md](Engines/IMPACT_ENGINE.md)** - Motor de impacto y cálculo de retorno.
+- **[Engines/PULSE_ENGINE.md](Engines/PULSE_ENGINE.md)** - Motor de pulso organizacional y clima.
+- **[Engines/NAVIGATOR_ENGINE.md](Engines/NAVIGATOR_ENGINE.md)** - Motor de navegación estratégica.
+- **[Engines/VANGUARD_ENGINE.md](Engines/VANGUARD_ENGINE.md)** - Motor de vanguardia e innovación.
+- **[Engines/CERBERO_ENGINE.md](Engines/CERBERO_ENGINE.md)** - Motor de riesgo y monitoreo continuo.
+
+### 🏗️ Arquitectura avanzada
+
+- **[Architecture/SCENARIO_IQ_TECHNICAL_SPEC.md](Architecture/SCENARIO_IQ_TECHNICAL_SPEC.md)** - Especificación técnica de Scenario IQ.
+- **[Architecture/TALENT_360_INTELLIGENCE_ECOSYSTEM.md](Architecture/TALENT_360_INTELLIGENCE_ECOSYSTEM.md)** - Ecosistema de inteligencia Talento 360.
+- **[Architecture/DIGITAL_TWIN.md](Architecture/DIGITAL_TWIN.md)** - Diseño de Digital Twin de talento.
+- **[Architecture/MI_STRATOS_PERSONAL_PORTAL.md](Architecture/MI_STRATOS_PERSONAL_PORTAL.md)** - Arquitectura del portal Mi Stratos.
+- **[Architecture/NEO4J_KNOWLEDGE_GRAPH.md](Architecture/NEO4J_KNOWLEDGE_GRAPH.md)** - Uso de Neo4j como grafo de conocimiento.
+- **[Architecture/AI_KNOWLEDGE_TRANSFER.md](Architecture/AI_KNOWLEDGE_TRANSFER.md)** - Arquitectura de transferencia de conocimiento con IA.
+- **[Architecture/DATA_NOURISHMENT_AGENTS.md](Architecture/DATA_NOURISHMENT_AGENTS.md)** - Agentes de nutrición de datos para mantener el grafo vivo.
+
+### 🧩 Backend técnico, Datos y DevOps
+
+- **[Technical/Neo4j_Concepts_Guide.md](Technical/Neo4j_Concepts_Guide.md)** - Guía de conceptos básicos y avanzados de Neo4j.
+- **[Technical/Neo4j_Infrastructure_Deployment.md](Technical/Neo4j_Infrastructure_Deployment.md)** - Despliegue de infraestructura Neo4j en Stratos.
+- **[Technical/Automation_n8n_Integration.md](Technical/Automation_n8n_Integration.md)** y **[Technical/N8n_Integration.md](Technical/N8n_Integration.md)** - Integración con n8n y automatización de flujos.
+- **[Technical/Talent_Pass_Sovereign_Identity.md](Technical/Talent_Pass_Sovereign_Identity.md)** - Identidad soberana y Talent Pass.
+- **[Technical/Internal_Event_Architecture.md](Technical/Internal_Event_Architecture.md)** - Arquitectura de eventos internos.
+
+### 🛡️ Gobernanza, Seguridad y QA avanzado
+
+- **[Governance/STRATOS_GOVERNANCE_FRAMEWORK.md](Governance/STRATOS_GOVERNANCE_FRAMEWORK.md)** - Marco de gobernanza de Stratos.
+- **[Security/DIGITAL_SENTINEL_TECH_DOC.md](Security/DIGITAL_SENTINEL_TECH_DOC.md)** - Documento técnico de Digital Sentinel.
+- **[HYBRID_GATEWAY_ARCHITECTURE.md](HYBRID_GATEWAY_ARCHITECTURE.md)** - Arquitectura del gateway híbrido (SSO / magic links).
+- **[OPCION_C_RAGAS_AGNOSTICO.md](OPCION_C_RAGAS_AGNOSTICO.md)** - Estrategia de QA agnóstica con RAGAS.
+
+### 📈 Scenario Planning & Workforce Planning (docs de profundidad)
+
+- **[ScenarioPlanning/ArquitecturaSieteFases.md](ScenarioPlanning/ArquitecturaSieteFases.md)** - Arquitectura de las siete fases de planificación.
+- **[ScenarioPlanning/EstrategiaSieteFases.md](ScenarioPlanning/EstrategiaSieteFases.md)** - Estrategia conceptual de las siete fases.
+- **[ScenarioPlanning/MetodologiaPasoaPaso.md](ScenarioPlanning/MetodologiaPasoaPaso.md)** - Metodología paso a paso detallada.
+- **[ScenarioPlanning/MODELO_PLANIFICACION_INTEGRADO.md](ScenarioPlanning/MODELO_PLANIFICACION_INTEGRADO.md)** - Modelo integrado de planificación estratégica.
+- **[ScenarioPlanning/WORKFORCE_PLANNING_ESPECIFICACION.md](ScenarioPlanning/WORKFORCE_PLANNING_ESPECIFICACION.md)** - Especificación técnica de Workforce Planning.
+- **[ScenarioPlanning/WORKFORCE_PLANNING_COMPLETE_SUMMARY.md](ScenarioPlanning/WORKFORCE_PLANNING_COMPLETE_SUMMARY.md)** - Resumen completo de Workforce Planning.
+
+---
+
+## 📦 Candidatos a archivo / legacy
+
+Para reducir ruido en la documentación sin perder historial, algunos documentos de planificación antigua, borradores de PR y notas duplicadas se han marcado como **candidatos a archivo**:
+
+- Ver **[`_archive_candidates.md`](./_archive_candidates.md)** para la lista completa y el comando sugerido (`git mv`) para moverlos a `docs/_archive/` antes de decidir eliminarlos.
