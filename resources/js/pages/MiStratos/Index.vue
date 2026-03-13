@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import HeroSection from './parts/HeroSection.vue';
+import DashboardSection from './parts/DashboardSection.vue';
+import RoleSection from './parts/RoleSection.vue';
+import GapsSection from './parts/GapsSection.vue';
+import LearningSection from './parts/LearningSection.vue';
+import ConversationsSection from './parts/ConversationsSection.vue';
+import EvaluationsSection from './parts/EvaluationsSection.vue';
+import DnaSection from './parts/DnaSection.vue';
 import AssessmentChat from '@/components/Assessments/AssessmentChat.vue';
 import GamificationWidget from '@/components/Talent/GamificationWidget.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -30,6 +38,7 @@ interface PersonData {
             description: string;
             icon: string;
             color: string;
+            slug: string;
         }>;
     } | null;
     quests: Array<any>;
@@ -92,10 +101,6 @@ const toggleMentorChat = () => {
     isMentorChatOpen.value = !isMentorChatOpen.value;
 };
 
-const goToLearning = () => {
-    activeSection.value = 'learning';
-};
-
 // Greeting based on time of day
 const updateGreeting = () => {
     const hour = new Date().getHours();
@@ -152,35 +157,7 @@ const kpiColor = (value: number) => {
     return '#f44336';
 };
 
-const getConversationIcon = (type: string) => {
-    const icons: Record<string, string> = {
-        evaluation: 'mdi-clipboard-check',
-        interview: 'mdi-robot',
-        pulse: 'mdi-heart-pulse',
-        mentor: 'mdi-account-star',
-    };
-    return icons[type] || 'mdi-message';
-};
-
-const getConversationLabel = (type: string) => {
-    const labels: Record<string, string> = {
-        evaluation: 'Evaluación 360',
-        interview: 'Entrevista IA',
-        pulse: 'Pulse Check',
-        mentor: 'Mentor AI',
-    };
-    return labels[type] || type;
-};
-
-const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-        completed: 'success',
-        active: 'info',
-        pending: 'warning',
-        in_progress: 'info',
-    };
-    return colors[status] || 'grey';
-};
+// Eliminar funciones redundantes (ahora en componentes)
 
 const formatDate = (dateStr: string) => {
     if (!dateStr) return '-';
@@ -241,107 +218,15 @@ defineOptions({ layout: AppLayout });
 
         <!-- Main Content -->
         <template v-else>
-            <!-- Hero Header -->
-            <div class="hero-header">
-                <div class="hero-backdrop" />
-                <div class="hero-content">
-                    <div class="d-flex align-center flex-wrap gap-6">
-                        <v-avatar size="100" class="hero-avatar">
-                            <v-img
-                                :src="
-                                    person.photo_url ||
-                                    '/placeholder-avatar.png'
-                                "
-                                cover
-                            />
-                        </v-avatar>
-
-                        <div class="flex-grow-1">
-                            <p class="greeting-text">
-                                {{ greeting }}, {{ person.first_name }}!
-                            </p>
-                            <h1 class="hero-name">{{ person.full_name }}</h1>
-                            <p class="hero-subtitle">
-                                Tu punto de partida hoy: rol, brechas y próxima
-                                ruta de crecimiento.
-                            </p>
-
-                            <div
-                                class="d-flex align-center mt-3 flex-wrap gap-3"
-                            >
-                                <v-chip
-                                    v-if="person.role"
-                                    color="white"
-                                    variant="outlined"
-                                    size="small"
-                                    prepend-icon="mdi-badge-account"
-                                >
-                                    {{ person.role.name }}
-                                </v-chip>
-                                <v-chip
-                                    v-if="cubeLabel"
-                                    color="amber"
-                                    variant="flat"
-                                    size="small"
-                                    prepend-icon="mdi-cube"
-                                >
-                                    Cubo {{ cubeLabel }}
-                                </v-chip>
-                                <v-chip
-                                    v-if="archetypeLabel"
-                                    variant="tonal"
-                                    color="cyan"
-                                    size="small"
-                                    prepend-icon="mdi-shape"
-                                >
-                                    {{ archetypeLabel }}
-                                </v-chip>
-                                <v-chip
-                                    v-if="person.department"
-                                    variant="tonal"
-                                    color="white"
-                                    size="small"
-                                    prepend-icon="mdi-domain"
-                                >
-                                    {{ person.department.name }}
-                                </v-chip>
-                                <v-chip
-                                    v-if="person.is_high_potential"
-                                    color="purple"
-                                    variant="flat"
-                                    size="small"
-                                    prepend-icon="mdi-star"
-                                >
-                                    Talento Alto Potencial
-                                </v-chip>
-                            </div>
-                        </div>
-
-                        <!-- Quick KPI -->
-                        <div
-                            v-if="kpis"
-                            class="kpi-hero-badge d-none d-md-flex"
-                        >
-                            <v-progress-circular
-                                :model-value="kpis.potential"
-                                :color="kpiColor(kpis.potential)"
-                                :size="80"
-                                :width="8"
-                                class="kpi-circle"
-                            >
-                                <span
-                                    class="text-h5 font-weight-black text-white"
-                                >
-                                    {{ kpis.potential }}%
-                                </span>
-                            </v-progress-circular>
-                            <span class="kpi-hero-label">
-                                Match con tu rol
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- SECTION: Hero Header -->
+            <HeroSection 
+                v-if="person"
+                :person="person"
+                :greeting="greeting"
+                :archetype-label="archetypeLabel"
+                :cube-label="cubeLabel"
+                :kpis="kpis"
+            />
 
             <!-- Body: Sidebar + Content -->
             <div class="portal-body">
@@ -361,1103 +246,82 @@ defineOptions({ layout: AppLayout });
 
                 <!-- Content Area -->
                 <div class="portal-content">
-                    <!-- SECTION: Dashboard -->
+                    <!-- SECTION: Principal (Dashboard) -->
                     <transition name="fade" mode="out-in">
-                        <div
+                        <DashboardSection 
                             v-if="activeSection === 'dashboard'"
                             key="dashboard"
-                        >
-                            <h2 class="section-title">
-                                <v-icon class="mr-2" color="primary"
-                                    >mdi-view-dashboard</v-icon
-                                >
-                                Tu mapa de hoy
-                            </h2>
-
-                            <!-- KPI Cards -->
-                            <v-row v-if="kpis" class="mb-6">
-                                <v-col cols="12" sm="6" md="3">
-                                    <div class="kpi-card kpi-potential">
-                                        <div class="kpi-icon-wrapper">
-                                            <v-icon size="28"
-                                                >mdi-lightning-bolt</v-icon
-                                            >
-                                        </div>
-                                        <div class="kpi-value">
-                                            {{ kpis.potential }}%
-                                        </div>
-                                        <div class="kpi-label">Potencial</div>
-                                        <v-progress-linear
-                                            :model-value="kpis.potential"
-                                            :color="kpiColor(kpis.potential)"
-                                            height="4"
-                                            rounded
-                                            class="mt-2"
-                                        />
-                                    </div>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="3">
-                                    <div class="kpi-card kpi-readiness">
-                                        <div class="kpi-icon-wrapper">
-                                            <v-icon size="28"
-                                                >mdi-shield-check</v-icon
-                                            >
-                                        </div>
-                                        <div class="kpi-value">
-                                            {{ kpis.readiness }}%
-                                        </div>
-                                        <div class="kpi-label">Readiness</div>
-                                        <v-progress-linear
-                                            :model-value="kpis.readiness"
-                                            :color="kpiColor(kpis.readiness)"
-                                            height="4"
-                                            rounded
-                                            class="mt-2"
-                                        />
-                                    </div>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="3">
-                                    <div class="kpi-card kpi-learning">
-                                        <div class="kpi-icon-wrapper">
-                                            <v-icon size="28"
-                                                >mdi-school</v-icon
-                                            >
-                                        </div>
-                                        <div class="kpi-value">
-                                            {{ kpis.learning }}%
-                                        </div>
-                                        <div class="kpi-label">Aprendizaje</div>
-                                        <v-progress-linear
-                                            :model-value="kpis.learning"
-                                            :color="kpiColor(kpis.learning)"
-                                            height="4"
-                                            rounded
-                                            class="mt-2"
-                                        />
-                                    </div>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="3">
-                                    <div class="kpi-card kpi-skills">
-                                        <div class="kpi-icon-wrapper">
-                                            <v-icon size="28"
-                                                >mdi-star-circle</v-icon
-                                            >
-                                        </div>
-                                        <div class="kpi-value">
-                                            {{ kpis.skills_count }}
-                                        </div>
-                                        <div class="kpi-label">
-                                            Skills Activas
-                                        </div>
-                                        <div class="kpi-sub mt-2">
-                                            <v-icon
-                                                size="14"
-                                                color="warning"
-                                                class="mr-1"
-                                                >mdi-alert-circle</v-icon
-                                            >
-                                            {{ kpis.gap_count }} brechas
-                                        </div>
-                                    </div>
-                                </v-col>
-                            </v-row>
-
-                            <!-- Next Step Panel -->
-                            <v-row v-if="kpis" class="mb-8">
-                                <v-col cols="12" md="8">
-                                    <v-card class="glass-card next-step-card" flat>
-                                        <div class="next-step-content">
-                                            <div class="next-step-text">
-                                                <div class="next-step-label">
-                                                    Tu siguiente paso recomendado
-                                                </div>
-                                                <div class="next-step-title">
-                                                    Avanza en tu Ruta de Aprendizaje
-                                                </div>
-                                                <div class="next-step-subtitle">
-                                                    En base a tu match actual y tus brechas,
-                                                    revisa tu ruta priorizada y completa al
-                                                    menos una acción esta semana.
-                                                </div>
-                                            </div>
-                                            <div class="next-step-actions">
-                                                <v-btn
-                                                    color="primary"
-                                                    class="next-step-btn"
-                                                    size="large"
-                                                    @click="goToLearning"
-                                                >
-                                                    Ver mi Ruta de Aprendizaje
-                                                </v-btn>
-                                                <div class="next-step-secondary" @click="toggleMentorChat">
-                                                    <v-icon
-                                                        size="18"
-                                                        color="cyan-lighten-3"
-                                                        class="mr-1"
-                                                    >
-                                                        mdi-robot
-                                                    </v-icon>
-                                                    Hablar con Mentor IA
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </v-card>
-                                </v-col>
-                            </v-row>
-
-                            <!-- Quick Panels -->
-                            <v-row>
-                                <!-- Active Conversations -->
-                                <v-col cols="12" md="6">
-                                    <v-card class="glass-card" flat>
-                                        <v-card-title
-                                            class="d-flex align-center"
-                                        >
-                                            <v-icon
-                                                class="mr-2"
-                                                color="secondary"
-                                                >mdi-forum</v-icon
-                                            >
-                                            Conversaciones Activas
-                                        </v-card-title>
-                                        <v-card-text>
-                                            <div
-                                                v-if="
-                                                    conversations.length === 0
-                                                "
-                                                class="empty-panel"
-                                            >
-                                                <v-icon
-                                                    size="40"
-                                                    color="grey-lighten-1"
-                                                    >mdi-message-off</v-icon
-                                                >
-                                                <p class="text-grey mt-2">
-                                                    Sin conversaciones activas
-                                                </p>
-                                            </div>
-                                            <v-list
-                                                v-else
-                                                bg-color="transparent"
-                                                density="compact"
-                                            >
-                                                <v-list-item
-                                                    v-for="conv in conversations"
-                                                    :key="conv.id"
-                                                    :prepend-icon="
-                                                        getConversationIcon(
-                                                            conv.type,
-                                                        )
-                                                    "
-                                                    :title="
-                                                        getConversationLabel(
-                                                            conv.type,
-                                                        )
-                                                    "
-                                                    :subtitle="
-                                                        formatDate(
-                                                            conv.created_at,
-                                                        )
-                                                    "
-                                                    class="conversation-item"
-                                                >
-                                                    <template #append>
-                                                        <v-chip
-                                                            :color="
-                                                                getStatusColor(
-                                                                    conv.status,
-                                                                )
-                                                            "
-                                                            size="x-small"
-                                                            variant="tonal"
-                                                        >
-                                                            {{ conv.status }}
-                                                        </v-chip>
-                                                    </template>
-                                                </v-list-item>
-                                            </v-list>
-                                        </v-card-text>
-                                    </v-card>
-                                </v-col>
-
-                                <!-- Learning Preview -->
-                                <v-col cols="12" md="6">
-                                    <v-card class="glass-card" flat>
-                                        <v-card-title
-                                            class="d-flex align-center"
-                                        >
-                                            <v-icon
-                                                class="mr-2"
-                                                color="secondary"
-                                                >mdi-school</v-icon
-                                            >
-                                            Rutas de Aprendizaje
-                                        </v-card-title>
-                                        <v-card-text>
-                                            <div
-                                                v-if="
-                                                    learningPaths.length === 0
-                                                "
-                                                class="empty-panel"
-                                            >
-                                                <v-icon
-                                                    size="40"
-                                                    color="grey-lighten-1"
-                                                    >mdi-bookshelf</v-icon
-                                                >
-                                                <p class="text-grey mt-2">
-                                                    Sin rutas asignadas
-                                                </p>
-                                            </div>
-                                            <div v-else>
-                                                <div
-                                                    v-for="path in learningPaths"
-                                                    :key="path.id"
-                                                    class="learning-item"
-                                                >
-                                                    <div
-                                                        class="d-flex justify-space-between align-center mb-1"
-                                                    >
-                                                        <span
-                                                            class="learning-title"
-                                                            >{{
-                                                                path.title
-                                                            }}</span
-                                                        >
-                                                        <span
-                                                            class="learning-progress-text"
-                                                            >{{
-                                                                path.progress
-                                                            }}%</span
-                                                        >
-                                                    </div>
-                                                    <v-progress-linear
-                                                        :model-value="
-                                                            path.progress
-                                                        "
-                                                        :color="
-                                                            kpiColor(
-                                                                path.progress,
-                                                            )
-                                                        "
-                                                        height="6"
-                                                        rounded
-                                                    />
-                                                    <div
-                                                        class="text-caption text-grey mt-1"
-                                                    >
-                                                        {{
-                                                            path.completed_actions
-                                                        }}/{{
-                                                            path.total_actions
-                                                        }}
-                                                        acciones completadas
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </v-card-text>
-                                    </v-card>
-                                </v-col>
-                            </v-row>
-                        </div>
+                            :kpis="kpis"
+                            :conversations="conversations"
+                            :learning-paths="learningPaths"
+                            :greeting="greeting"
+                            @go-to-learning="activeSection = 'learning'"
+                            @toggle-mentor-chat="toggleMentorChat"
+                        />
                     </transition>
 
                     <!-- SECTION: Mi Rol -->
                     <transition name="fade" mode="out-in">
-                        <div v-if="activeSection === 'role'" key="role">
-                            <h2 class="section-title">
-                                <v-icon class="mr-2" color="primary"
-                                    >mdi-badge-account</v-icon
-                                >
-                                Mi Rol
-                            </h2>
-
-                            <v-card
-                                v-if="person.role"
-                                class="glass-card mb-4"
-                                flat
-                            >
-                                <v-card-text>
-                                    <div class="d-flex align-center mb-4 gap-4">
-                                        <v-avatar color="primary" size="56">
-                                            <v-icon size="28"
-                                                >mdi-badge-account</v-icon
-                                            >
-                                        </v-avatar>
-                                        <div>
-                                            <h3
-                                                class="text-h5 font-weight-bold"
-                                            >
-                                                {{ person.role.name }}
-                                            </h3>
-                                            <div class="d-flex mt-1 gap-2">
-                                                <v-chip
-                                                    v-if="archetypeLabel"
-                                                    color="cyan"
-                                                    size="small"
-                                                    variant="tonal"
-                                                >
-                                                    {{ archetypeLabel }}
-                                                </v-chip>
-                                                <v-chip
-                                                    v-if="cubeLabel"
-                                                    color="amber"
-                                                    size="small"
-                                                    variant="flat"
-                                                >
-                                                    Cubo {{ cubeLabel }}
-                                                </v-chip>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Competencies Grid -->
-                                    <h4
-                                        class="text-subtitle-1 font-weight-bold mb-3"
-                                    >
-                                        Competencias Asignadas
-                                    </h4>
-                                    <div
-                                        v-if="competencies.length === 0"
-                                        class="text-grey py-4 text-center"
-                                    >
-                                        Sin competencias asignadas
-                                    </div>
-                                    <v-expansion-panels
-                                        v-else
-                                        variant="accordion"
-                                        class="competencies-panels"
-                                    >
-                                        <v-expansion-panel
-                                            v-for="comp in competencies"
-                                            :key="comp.id"
-                                            class="competency-panel"
-                                        >
-                                            <v-expansion-panel-title>
-                                                <div
-                                                    class="d-flex align-center gap-2"
-                                                >
-                                                    <v-icon
-                                                        size="18"
-                                                        color="secondary"
-                                                        >mdi-puzzle</v-icon
-                                                    >
-                                                    <span
-                                                        class="font-weight-medium"
-                                                        >{{ comp.name }}</span
-                                                    >
-                                                    <v-chip
-                                                        size="x-small"
-                                                        variant="tonal"
-                                                        color="primary"
-                                                    >
-                                                        {{ comp.skills.length }}
-                                                        skills
-                                                    </v-chip>
-                                                </div>
-                                            </v-expansion-panel-title>
-                                            <v-expansion-panel-text>
-                                                <div
-                                                    v-for="skill in comp.skills"
-                                                    :key="skill.id"
-                                                    class="skill-row"
-                                                >
-                                                    <div
-                                                        class="d-flex justify-space-between align-center"
-                                                    >
-                                                        <div
-                                                            class="d-flex align-center gap-2"
-                                                        >
-                                                            <v-icon
-                                                                v-if="
-                                                                    skill.is_critical
-                                                                "
-                                                                size="14"
-                                                                color="error"
-                                                            >
-                                                                mdi-alert
-                                                            </v-icon>
-                                                            <span>{{
-                                                                skill.name
-                                                            }}</span>
-                                                        </div>
-                                                        <div
-                                                            class="d-flex align-center gap-2"
-                                                        >
-                                                            <span
-                                                                class="text-caption text-grey"
-                                                            >
-                                                                {{
-                                                                    skill.current_level
-                                                                }}/{{
-                                                                    skill.required_level
-                                                                }}
-                                                            </span>
-                                                            <v-progress-linear
-                                                                :model-value="
-                                                                    (skill.current_level /
-                                                                        Math.max(
-                                                                            1,
-                                                                            skill.required_level,
-                                                                        )) *
-                                                                    100
-                                                                "
-                                                                :color="
-                                                                    skill.current_level >=
-                                                                    skill.required_level
-                                                                        ? 'success'
-                                                                        : 'warning'
-                                                                "
-                                                                height="6"
-                                                                rounded
-                                                                style="
-                                                                    width: 80px;
-                                                                "
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </v-expansion-panel-text>
-                                        </v-expansion-panel>
-                                    </v-expansion-panels>
-                                </v-card-text>
-                            </v-card>
-
-                            <div v-else class="empty-panel py-8 text-center">
-                                <v-icon size="48" color="grey-lighten-1"
-                                    >mdi-briefcase-off</v-icon
-                                >
-                                <p class="text-grey mt-2">
-                                    No tienes un rol asignado
-                                </p>
-                            </div>
-                        </div>
+                        <RoleSection 
+                            v-if="activeSection === 'role' && person"
+                            key="role"
+                            :person="person"
+                            :competencies="competencies"
+                            :archetype-label="archetypeLabel"
+                            :cube-label="cubeLabel"
+                        />
                     </transition>
 
                     <!-- SECTION: Mi Brecha -->
                     <transition name="fade" mode="out-in">
-                        <div v-if="activeSection === 'gaps'" key="gaps">
-                            <h2 class="section-title">
-                                <v-icon class="mr-2" color="primary"
-                                    >mdi-target</v-icon
-                                >
-                                Mi Brecha
-                            </h2>
-
-                            <v-card
-                                v-if="data?.gap_analysis"
-                                class="glass-card"
-                                flat
-                            >
-                                <v-card-text>
-                                    <div class="d-flex align-center mb-6 gap-4">
-                                        <v-progress-circular
-                                            :model-value="
-                                                data.gap_analysis.summary
-                                                    ?.match_percentage || 0
-                                            "
-                                            :color="
-                                                kpiColor(
-                                                    data.gap_analysis.summary
-                                                        ?.match_percentage || 0,
-                                                )
-                                            "
-                                            :size="80"
-                                            :width="8"
-                                        >
-                                            <span
-                                                class="text-h6 font-weight-bold"
-                                            >
-                                                {{
-                                                    data.gap_analysis.summary
-                                                        ?.match_percentage || 0
-                                                }}%
-                                            </span>
-                                        </v-progress-circular>
-                                        <div>
-                                            <h3
-                                                class="text-h6 font-weight-bold"
-                                            >
-                                                Match con tu Rol
-                                            </h3>
-                                            <v-chip
-                                                :color="
-                                                    getStatusColor(
-                                                        data.gap_analysis
-                                                            .summary
-                                                            ?.category || '',
-                                                    )
-                                                "
-                                                variant="tonal"
-                                                size="small"
-                                            >
-                                                {{
-                                                    data.gap_analysis.summary
-                                                        ?.category ||
-                                                    'Sin calificar'
-                                                }}
-                                            </v-chip>
-                                        </div>
-                                    </div>
-
-                                    <div v-if="data.gap_analysis.gaps?.length">
-                                        <h4
-                                            class="text-subtitle-1 font-weight-bold mb-3"
-                                        >
-                                            Brechas Detectadas
-                                        </h4>
-                                        <div
-                                            v-for="(
-                                                gap, idx
-                                            ) in data.gap_analysis.gaps
-                                                .filter((g: any) => g.gap > 0)
-                                                .slice(0, 8)"
-                                            :key="idx"
-                                            class="gap-row"
-                                        >
-                                            <div
-                                                class="d-flex justify-space-between align-center mb-1"
-                                            >
-                                                <span
-                                                    class="font-weight-medium"
-                                                    >{{ gap.skill_name }}</span
-                                                >
-                                                <span class="text-caption">
-                                                    Actual: {{ gap.current }} →
-                                                    Requerido:
-                                                    {{ gap.required }}
-                                                </span>
-                                            </div>
-                                            <v-progress-linear
-                                                :model-value="
-                                                    (gap.current /
-                                                        Math.max(
-                                                            1,
-                                                            gap.required,
-                                                        )) *
-                                                    100
-                                                "
-                                                color="warning"
-                                                bg-color="error"
-                                                height="6"
-                                                rounded
-                                            />
-                                        </div>
-                                    </div>
-                                    <div
-                                        v-else
-                                        class="text-grey py-4 text-center"
-                                    >
-                                        ¡Excelente! No se detectaron brechas
-                                        críticas.
-                                    </div>
-                                </v-card-text>
-                            </v-card>
-
-                            <div v-else class="empty-panel py-8 text-center">
-                                <v-icon size="48" color="grey-lighten-1"
-                                    >mdi-chart-line</v-icon
-                                >
-                                <p class="text-grey mt-2">
-                                    No hay análisis de brecha disponible
-                                </p>
-                            </div>
-                        </div>
+                        <GapsSection 
+                            v-if="activeSection === 'gaps' && data"
+                            key="gaps"
+                            :gap-analysis="data.gap_analysis"
+                            @go-to-learning="activeSection = 'learning'"
+                        />
                     </transition>
 
                     <!-- SECTION: Mi Ruta (Learning) -->
                     <transition name="fade" mode="out-in">
-                        <div v-if="activeSection === 'learning'" key="learning">
-                            <h2 class="section-title">
-                                <v-icon class="mr-2" color="primary"
-                                    >mdi-school</v-icon
-                                >
-                                Mi Ruta de Aprendizaje
-                            </h2>
-
-                            <div
-                                v-if="learningPaths.length === 0"
-                                class="empty-panel py-8 text-center"
-                            >
-                                <v-icon size="48" color="grey-lighten-1"
-                                    >mdi-bookshelf</v-icon
-                                >
-                                <p class="text-grey mt-2">
-                                    No tienes rutas de aprendizaje asignadas
-                                </p>
-                            </div>
-
-                            <v-row v-else>
-                                <v-col
-                                    v-for="path in learningPaths"
-                                    :key="path.id"
-                                    cols="12"
-                                    md="6"
-                                >
-                                    <v-card
-                                        class="glass-card learning-card"
-                                        flat
-                                    >
-                                        <v-card-text>
-                                            <div
-                                                class="d-flex align-center mb-3 gap-3"
-                                            >
-                                                <v-avatar
-                                                    color="primary"
-                                                    variant="tonal"
-                                                    size="40"
-                                                >
-                                                    <v-icon
-                                                        >mdi-road-variant</v-icon
-                                                    >
-                                                </v-avatar>
-                                                <div class="flex-grow-1">
-                                                    <h4
-                                                        class="font-weight-bold"
-                                                    >
-                                                        {{ path.title }}
-                                                    </h4>
-                                                    <span
-                                                        class="text-caption text-grey"
-                                                    >
-                                                        Iniciada:
-                                                        {{
-                                                            formatDate(
-                                                                path.created_at,
-                                                            )
-                                                        }}
-                                                    </span>
-                                                </div>
-                                                <v-chip
-                                                    :color="
-                                                        getStatusColor(
-                                                            path.status,
-                                                        )
-                                                    "
-                                                    size="x-small"
-                                                    variant="tonal"
-                                                >
-                                                    {{ path.status }}
-                                                </v-chip>
-                                            </div>
-
-                                            <div
-                                                class="d-flex justify-space-between mb-1"
-                                            >
-                                                <span class="text-body-2"
-                                                    >Progreso</span
-                                                >
-                                                <span
-                                                    class="text-body-2 font-weight-bold"
-                                                >
-                                                    {{ path.progress }}%
-                                                </span>
-                                            </div>
-                                            <v-progress-linear
-                                                :model-value="path.progress"
-                                                :color="kpiColor(path.progress)"
-                                                height="8"
-                                                rounded
-                                            />
-                                            <div
-                                                class="text-caption text-grey mt-2"
-                                            >
-                                                {{ path.completed_actions }} de
-                                                {{ path.total_actions }}
-                                                acciones completadas
-                                            </div>
-                                        </v-card-text>
-                                    </v-card>
-                                </v-col>
-                            </v-row>
-                        </div>
+                        <LearningSection 
+                            v-if="activeSection === 'learning'"
+                            key="learning"
+                            :learning-paths="learningPaths"
+                            :format-date="formatDate"
+                        />
                     </transition>
 
                     <!-- SECTION: Conversations -->
                     <transition name="fade" mode="out-in">
-                        <div
+                        <ConversationsSection 
                             v-if="activeSection === 'conversations'"
                             key="conversations"
-                        >
-                            <h2 class="section-title">
-                                <v-icon class="mr-2" color="primary"
-                                    >mdi-forum</v-icon
-                                >
-                                Mis Conversaciones
-                            </h2>
-
-                            <div
-                                v-if="conversations.length === 0"
-                                class="empty-panel py-8 text-center"
-                            >
-                                <v-icon size="48" color="grey-lighten-1"
-                                    >mdi-message-off</v-icon
-                                >
-                                <p class="text-grey mt-2">
-                                    No tienes conversaciones activas
-                                </p>
-                            </div>
-
-                            <v-row v-else>
-                                <v-col
-                                    v-for="conv in conversations"
-                                    :key="conv.id"
-                                    cols="12"
-                                    md="6"
-                                >
-                                    <v-card class="glass-card" flat>
-                                        <v-card-text>
-                                            <div
-                                                class="d-flex align-center gap-3"
-                                            >
-                                                <v-avatar
-                                                    color="secondary"
-                                                    variant="tonal"
-                                                    size="48"
-                                                >
-                                                    <v-icon>{{
-                                                        getConversationIcon(
-                                                            conv.type,
-                                                        )
-                                                    }}</v-icon>
-                                                </v-avatar>
-                                                <div class="flex-grow-1">
-                                                    <h4
-                                                        class="font-weight-bold"
-                                                    >
-                                                        {{
-                                                            getConversationLabel(
-                                                                conv.type,
-                                                            )
-                                                        }}
-                                                    </h4>
-                                                    <span
-                                                        class="text-caption text-grey"
-                                                    >
-                                                        {{
-                                                            formatDate(
-                                                                conv.created_at,
-                                                            )
-                                                        }}
-                                                    </span>
-                                                </div>
-                                                <v-chip
-                                                    :color="
-                                                        getStatusColor(
-                                                            conv.status,
-                                                        )
-                                                    "
-                                                    size="small"
-                                                    variant="tonal"
-                                                >
-                                                    {{ conv.status }}
-                                                </v-chip>
-                                            </div>
-                                        </v-card-text>
-                                    </v-card>
-                                </v-col>
-                            </v-row>
-                        </div>
+                            :conversations="conversations"
+                            :format-date="formatDate"
+                        />
                     </transition>
 
                     <!-- SECTION: Mis Evaluaciones -->
                     <transition name="fade" mode="out-in">
-                        <div
+                        <EvaluationsSection 
                             v-if="activeSection === 'evaluations'"
                             key="evaluations"
-                        >
-                            <div class="mb-6 flex items-center justify-between">
-                                <div>
-                                    <h2
-                                        class="text-2xl font-black text-white drop-shadow-md"
-                                    >
-                                        <span class="mr-2 text-indigo-400"
-                                            >📋</span
-                                        >
-                                        Mis Evaluaciones Históricas
-                                    </h2>
-                                    <p class="mt-1 text-sm text-white/50">
-                                        Historial de desempeño, evaluaciones 360
-                                        y feedback de talento.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div
-                                v-if="evaluations.length > 0"
-                                class="grid grid-cols-1 gap-6 md:grid-cols-2"
-                            >
-                                <div
-                                    v-for="ev in evaluations"
-                                    :key="ev.id"
-                                    class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all duration-300 hover:border-indigo-500/40 hover:bg-white/10"
-                                >
-                                    <div
-                                        class="mb-4 flex items-start justify-between"
-                                    >
-                                        <div>
-                                            <h3
-                                                class="mb-1 text-lg font-bold text-white"
-                                            >
-                                                {{ ev.title }}
-                                            </h3>
-                                            <span
-                                                class="text-xs font-semibold tracking-wider text-white/40 uppercase"
-                                                >{{ ev.date }}</span
-                                            >
-                                        </div>
-                                        <div
-                                            class="flex flex-col items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 px-4 py-2"
-                                        >
-                                            <span
-                                                class="text-xl font-black text-indigo-300"
-                                                >{{ ev.score }}%</span
-                                            >
-                                            <span
-                                                class="text-[0.6rem] font-bold tracking-widest text-indigo-400/70 uppercase"
-                                                >Score</span
-                                            >
-                                        </div>
-                                    </div>
-
-                                    <div class="space-y-4">
-                                        <div>
-                                            <h4
-                                                class="mb-2 text-xs font-bold tracking-widest text-emerald-400 uppercase"
-                                            >
-                                                Fortalezas Destacadas
-                                            </h4>
-                                            <div class="flex flex-wrap gap-2">
-                                                <span
-                                                    v-for="s in ev.strengths"
-                                                    :key="'s-' + s"
-                                                    class="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-300"
-                                                >
-                                                    {{ s }}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <h4
-                                                class="mb-2 text-xs font-bold tracking-widest text-amber-400 uppercase"
-                                            >
-                                                Oportunidades de Mejora
-                                            </h4>
-                                            <div class="flex flex-wrap gap-2">
-                                                <span
-                                                    v-for="o in ev.opportunities"
-                                                    :key="'o-' + o"
-                                                    class="rounded-lg border border-amber-500/20 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-300"
-                                                >
-                                                    {{ o }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div
-                                v-else
-                                class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 p-12 text-center"
-                            >
-                                <span class="mb-4 text-5xl">📊</span>
-                                <h3 class="mb-1 text-lg font-bold text-white">
-                                    Sin Registros
-                                </h3>
-                                <p class="text-sm text-white/50">
-                                    No hay evaluaciones 360° o de desempeño
-                                    registradas en esta cuenta.
-                                </p>
-                            </div>
-                        </div>
+                            :evaluations="evaluations"
+                        />
                     </transition>
 
                     <!-- SECTION: Mi ADN (Psychometric Profile) -->
                     <transition name="fade" mode="out-in">
-                        <div v-if="activeSection === 'dna'" key="dna">
-                            <div class="mb-6 flex items-center justify-between">
-                                <div>
-                                    <h2
-                                        class="text-2xl font-black text-white drop-shadow-md"
-                                    >
-                                        <span class="mr-2 text-indigo-400"
-                                            >🧬</span
-                                        >
-                                        Mi ADN Profesional
-                                    </h2>
-                                    <p class="mt-1 text-sm text-white/50">
-                                        Análisis psicométrico de tu desempeño
-                                        derivado por Cerbero AI.
-                                    </p>
-                                </div>
-                                <v-btn
-                                    v-if="data?.psychometric && !isRetakingDna"
-                                    color="white"
-                                    variant="outlined"
-                                    size="small"
-                                    prepend-icon="mdi-refresh"
-                                    class="rounded-xl border-white/20 hover:bg-white/5"
-                                    @click="isRetakingDna = true"
-                                >
-                                    Reevaluar Potencial
-                                </v-btn>
-                                <v-btn
-                                    v-else-if="isRetakingDna"
-                                    color="white"
-                                    variant="text"
-                                    size="small"
-                                    prepend-icon="mdi-arrow-left"
-                                    class="rounded-xl"
-                                    @click="isRetakingDna = false"
-                                >
-                                    Cancelar
-                                </v-btn>
-                            </div>
-
-                            <div
-                                v-if="data?.psychometric && !isRetakingDna"
-                                class="space-y-6"
-                            >
-                                <!-- Perfil Psicométrico General -->
-                                <div
-                                    class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
-                                >
-                                    <div class="mb-6 flex items-center gap-4">
-                                        <div
-                                            class="flex h-12 w-12 items-center justify-center rounded-xl border border-purple-500/30 bg-purple-500/10 text-2xl"
-                                        >
-                                            🧠
-                                        </div>
-                                        <div>
-                                            <h3
-                                                class="text-lg font-bold text-white"
-                                            >
-                                                Perfil Psicométrico
-                                            </h3>
-                                            <p class="text-sm text-white/60">
-                                                Rasgos de personalidad
-                                                predominantes
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        v-if="data.psychometric.traits"
-                                        class="grid grid-cols-1 gap-6 md:grid-cols-2"
-                                    >
-                                        <div
-                                            v-for="trait in data.psychometric
-                                                .traits"
-                                            :key="trait.name"
-                                            class="rounded-xl border border-white/5 bg-white/2 p-4 transition-all hover:bg-white/4"
-                                        >
-                                            <div
-                                                class="mb-2 flex items-center justify-between"
-                                            >
-                                                <span
-                                                    class="font-bold text-white"
-                                                    >{{ trait.name }}</span
-                                                >
-                                                <span
-                                                    class="text-sm font-black"
-                                                    :style="{
-                                                        color: kpiColor(
-                                                            trait.score * 100,
-                                                        ),
-                                                    }"
-                                                >
-                                                    {{
-                                                        Math.round(
-                                                            trait.score * 100,
-                                                        )
-                                                    }}%
-                                                </span>
-                                            </div>
-                                            <div
-                                                class="mb-2 h-2 w-full overflow-hidden rounded-full bg-white/10"
-                                            >
-                                                <div
-                                                    class="h-full rounded-full transition-all duration-1000"
-                                                    :style="{
-                                                        width: `${trait.score * 100}%`,
-                                                        backgroundColor:
-                                                            kpiColor(
-                                                                trait.score *
-                                                                    100,
-                                                            ),
-                                                    }"
-                                                ></div>
-                                            </div>
-                                            <p
-                                                class="text-xs leading-relaxed text-white/50"
-                                            >
-                                                {{ trait.rationale }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Blind Spots (Puntos Ciegos) -->
-                                <div
-                                    v-if="
-                                        data?.psychometric?.blind_spots
-                                            ?.length > 0
-                                    "
-                                    class="rounded-2xl border border-rose-500/20 bg-linear-to-br from-rose-500/5 to-transparent p-6 backdrop-blur-md"
-                                >
-                                    <div class="mb-4 flex items-center gap-3">
-                                        <div
-                                            class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/10 text-xl"
-                                        >
-                                            👁️‍🗨️
-                                        </div>
-                                        <h4
-                                            class="text-lg font-bold text-rose-100"
-                                        >
-                                            Blind Spots (Puntos Ciegos)
-                                        </h4>
-                                    </div>
-
-                                    <div class="space-y-3">
-                                        <div
-                                            v-for="(spot, i) in data
-                                                ?.psychometric?.blind_spots"
-                                            :key="i"
-                                            class="flex items-start gap-3 rounded-xl border border-rose-500/10 bg-white/5 p-3"
-                                        >
-                                            <span
-                                                class="mt-0.5 text-sm text-rose-500"
-                                                >✦</span
-                                            >
-                                            <p
-                                                class="text-sm leading-relaxed text-white/70"
-                                            >
-                                                {{ spot }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div
-                                v-else
-                                class="overflow-hidden rounded-2xl border border-dashed border-white/10 bg-white/5"
-                            >
-                                <AssessmentChat
-                                    v-if="person"
-                                    :person-id="person.id"
-                                    type="psychometric"
-                                    @completed="
-                                        () => {
-                                            isRetakingDna = false;
-                                            fetchDashboard();
-                                        }
-                                    "
-                                />
-                            </div>
-                        </div>
+                        <DnaSection 
+                            v-if="activeSection === 'dna'"
+                            key="dna"
+                            v-model:is-retaking-dna="isRetakingDna"
+                            :person="person"
+                            :data="data"
+                            :kpi-color="kpiColor"
+                            @refresh="fetchDashboard"
+                        />
                     </transition>
 
                     <!-- SECTION: Mis Logros -->
