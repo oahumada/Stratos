@@ -90,13 +90,42 @@ class ImpactEngineService
     /**
      * Calcula indicadores financieros clave (HCVA, ROI).
      */
-    public function calculateFinancialKPIs(): array
+    public function calculateFinancialKPIs(int $organizationId): array
     {
-        // Mock de lógica de cálculo científico
+        // 1. Obtener las métricas más recientes
+        $metrics = BusinessMetric::where('organization_id', $organizationId)
+            ->whereIn('metric_name', ['revenue', 'opex', 'payroll_cost', 'headcount'])
+            ->orderBy('period_date', 'desc')
+            ->get()
+            ->groupBy('metric_name');
+
+        $revenue = $metrics->get('revenue')?->first()?->metric_value ?? 0;
+        $opex = $metrics->get('opex')?->first()?->metric_value ?? 0;
+        $payroll = $metrics->get('payroll_cost')?->first()?->metric_value ?? 0;
+        $headcount = $metrics->get('headcount')?->first()?->metric_value ?? 1; // Evitar división por cero
+
+        // 2. Aplicar fórmula HCVA: [Revenue - (Total Expenses - Payroll)] / Full-Time Equivalents
+        // NOTA: En este contexto OPEX suele incluir todo menos intereses/impuestos,
+        // pero la fórmula clásica de HCVA busca aislar el valor que el humano agrega después de gastos operativos no-humanos.
+        $nonPayrollExpenses = $opex - $payroll;
+        $hcva = ($revenue - $nonPayrollExpenses) / $headcount;
+
+        // 3. Calcular Riesgo de Reemplazo (Replacement Risk)
+        // Estimado: turnover_rate * headcount * avg_recruitment_cost
+        $turnover = BusinessMetric::where('organization_id', $organizationId)
+            ->where('metric_name', 'turnover_rate')
+            ->latest()
+            ->value('metric_value') ?? 15; // 15% default
+
+        $benchmarks = $this->getFinancialBenchmarks($organizationId);
+        $replacementRisk = ($turnover / 100) * $headcount * $benchmarks['avg_recruitment_cost'];
+
         return [
-            'hcva_average' => 125000.50,
-            'total_replacement_risk_usd' => 450000.00,
-            'training_roi_index' => 1.45
+            'hcva_average' => round($hcva, 2),
+            'total_replacement_risk_usd' => round($replacementRisk, 2),
+            'training_roi_index' => 1.45, // Valor estático a refinar con datos de Navigator
+            'headcount_fte' => $headcount,
+            'reporting_period' => BusinessMetric::where('organization_id', $organizationId)->max('period_date')
         ];
     }
 

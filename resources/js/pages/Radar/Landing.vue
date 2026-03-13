@@ -108,7 +108,8 @@ import {
     PhShieldCheck,
     PhTarget,
 } from '@phosphor-icons/vue';
-import { computed, ref } from 'vue';
+import axios from 'axios';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -121,7 +122,7 @@ const launchAgentSimulation = () => {
 
     isSimulating.value = true;
 
-    // Simulate thinking before redirecting to scenario planning with the prompt
+    // Simulate thinking before redirecting (logic remains for future Materialization)
     setTimeout(() => {
         router.visit('/scenario-planning', {
             data: {
@@ -132,6 +133,21 @@ const launchAgentSimulation = () => {
     }, 1500);
 };
 
+const impactSummary = ref<any>(null);
+
+const fetchImpactSummary = async () => {
+    try {
+        const response = await axios.get('/api/investor/impact-summary');
+        impactSummary.value = response.data;
+    } catch (e) {
+        console.error('Error fetching impact summary:', e);
+    }
+};
+
+onMounted(() => {
+    fetchImpactSummary();
+});
+
 const modules = computed(() => [
     {
         title: t('landings.radar.modules.strategic_scenario_list.title'),
@@ -141,6 +157,15 @@ const modules = computed(() => [
         icon: PhClipboardText,
         href: '/scenario-planning',
         iconColor: 'text-indigo-300',
+    },
+    {
+        title: 'Impact Analytics (HCVA)',
+        description: impactSummary.value 
+            ? `HCVA Actual: $${Math.round(impactSummary.value.hcva_average).toLocaleString()} USD`
+            : 'Calculando eficiencia del capital humano en tiempo real...',
+        icon: PhChartLineUp,
+        href: '/dashboard/investor',
+        iconColor: 'text-emerald-300',
     },
     {
         title: t('landings.radar.modules.executive_dashboard.title'),
@@ -161,11 +186,13 @@ const modules = computed(() => [
         iconColor: 'text-fuchsia-300',
     },
     {
-        title: t('landings.radar.modules.investor_dashboard.title'),
-        description: t('landings.radar.modules.investor_dashboard.description'),
-        icon: PhChartLineUp,
+        title: 'Riesgo de Reemplazo',
+        description: impactSummary.value 
+            ? `Costo potencial: $${Math.round(impactSummary.value.total_replacement_risk_usd).toLocaleString()} USD`
+            : 'Escaneando vulnerabilidades de rotación...',
+        icon: PhTarget,
         href: '/dashboard/investor',
-        iconColor: 'text-cyan-300',
+        iconColor: 'text-rose-300',
     },
 ]);
 </script>

@@ -21,10 +21,14 @@ class TalentRoiService
     const AVG_ANNUAL_SALARY = 45000; // USD
 
     protected ScenarioAnalyticsService $scenarioAnalytics;
+    protected \App\Services\Intelligence\ImpactEngineService $impactEngine;
 
-    public function __construct(ScenarioAnalyticsService $scenarioAnalytics)
-    {
+    public function __construct(
+        ScenarioAnalyticsService $scenarioAnalytics,
+        \App\Services\Intelligence\ImpactEngineService $impactEngine
+    ) {
         $this->scenarioAnalytics = $scenarioAnalytics;
+        $this->impactEngine = $impactEngine;
     }
 
     /**
@@ -39,6 +43,9 @@ class TalentRoiService
 
         $avgReadiness = $this->calculateGlobalReadiness($organizationId);
         $talentRoi = $this->calculateTotalTalentRoi($organizationId);
+        
+        // Impact Engine Metrics
+        $impactKpis = $this->impactEngine->calculateFinancialKPIs($organizationId);
 
         // High-level risks
         $criticalGapRate = $this->calculateCriticalGapRate($organizationId);
@@ -58,6 +65,8 @@ class TalentRoiService
             'active_scenarios' => $totalScenarios,
             'org_readiness' => round($avgReadiness * 100, 1),
             'talent_roi_usd' => $talentRoi,
+            'hcva_usd' => $impactKpis['hcva_average'],
+            'replacement_risk_usd' => $impactKpis['total_replacement_risk_usd'],
             'critical_gap_rate' => round($criticalGapRate * 100, 1),
             'ai_augmentation_index' => $aiAugmentationIndex,
             'culture_health_score' => $cultureHealthScore,
@@ -76,8 +85,18 @@ class TalentRoiService
         $criticalGapRate = (float) ($summary['critical_gap_rate'] ?? 0);
         $talentRoi = (float) ($summary['talent_roi_usd'] ?? 0);
         $avgTurnoverRisk = (float) ($summary['avg_turnover_risk'] ?? 0);
+        $hcva = (float) ($summary['hcva_usd'] ?? 0);
 
         return [
+            [
+                'key' => 'hcva_usd',
+                'label' => 'HCVA',
+                'value' => round($hcva, 2),
+                'unit' => 'usd',
+                'status' => $this->resolveStatus($hcva, 100000, true),
+                'driver' => 'Valor Agregado por Capital Humano (Human Capital Value Added)',
+                'action' => 'Analizar desviaciones por departamento para optimizar HCVA',
+            ],
             [
                 'key' => 'stratos_iq',
                 'label' => 'Stratos IQ',

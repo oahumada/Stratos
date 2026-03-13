@@ -174,6 +174,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Investor/Executive Dashboard
     Route::get('/investor/dashboard', [\App\Http\Controllers\Api\InvestorDashboardController::class, 'index'])
         ->middleware('role:admin,hr_leader,observer');
+    
+    Route::get('/investor/impact-summary', [\App\Http\Controllers\Intelligence\ImpactEngineController::class, 'getSummary'])
+        ->middleware('role:admin,hr_leader,observer');
 
     // Talento 360 Command Center
     Route::apiResource('assessment-cycles', \App\Http\Controllers\Api\AssessmentCycleController::class)

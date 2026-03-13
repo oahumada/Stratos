@@ -19,6 +19,11 @@ class Departments extends Model
         'manager_id',
         'name',
         'description',
+        'aliases',
+    ];
+
+    protected $casts = [
+        'aliases' => 'array',
     ];
 
     public function organization(): BelongsTo
