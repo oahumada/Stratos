@@ -50,21 +50,21 @@ class AgenticScenarioService
         // 2. Simular el cambio propuesto
         $changeType = $params['change_type'] ?? 'generic';
         $simulationResult = match ($changeType) {
-            'team_merge' => $this->simulateTeamMerge($scenarioId, $params, $currentState),
+            'team_merge' => $this->simulateTeamMerge($params, $currentState),
             'tech_disruption' => $this->simulateTechDisruption($scenarioId, $params),
-            'expansion' => $this->simulateExpansion($scenarioId, $params, $currentState),
+            'expansion' => $this->simulateExpansion($params, $currentState),
             'downsizing' => $this->simulateDownsizing($scenarioId, $params),
-            default => $this->simulateGenericChange($scenarioId, $params, $currentState),
+            default => $this->simulateGenericChange($params, $currentState),
         };
 
         // 3. Calcular impacto en KPIs organizacionales
-        $kpiImpact = $this->calculateKpiImpact($currentState, $simulationResult);
+        $kpiImpact = $this->calculateKpiImpact($simulationResult);
 
         // 4. Generar plan de acción agéntico (IA propone acciones)
-        $actionPlan = $this->generateAgenticActionPlan($scenario, $simulationResult, $kpiImpact);
+        $actionPlan = $this->generateAgenticActionPlan($simulationResult, $kpiImpact);
 
         // 5. Calcular viabilidad estratégica
-        $viability = $this->calculateViability($simulationResult, $kpiImpact);
+        $viability = $this->calculateViability($kpiImpact);
 
         $result = [
             'scenario_id' => $scenarioId,
@@ -214,7 +214,7 @@ class AgenticScenarioService
         ]);
     }
 
-    protected function simulateGenericChange(int $scenarioId, array $params, array $state): array
+    protected function simulateGenericChange(array $params, array $state): array
     {
         return [
             'type' => 'generic',
@@ -227,7 +227,7 @@ class AgenticScenarioService
 
     // ── Impact Calculation ───────────────────────────────────
 
-    protected function calculateKpiImpact(array $currentState, array $simulation): array
+    protected function calculateKpiImpact(array $simulationResult): array
     {
         $orgId = Organization::first()?->id ?? 1;
         $benchmarks = $this->impactEngine->getFinancialBenchmarks($orgId);
@@ -236,26 +236,26 @@ class AgenticScenarioService
         $costImpact = 0;
         $productivityImpact = 0;
 
-        $type = $simulation['type'] ?? 'generic';
+        $type = $simulationResult['type'] ?? 'generic';
 
         switch ($type) {
             case 'team_merge':
-                $headcountChange = -($simulation['potential_redundancies'] ?? 0);
+                $headcountChange = -($simulationResult['potential_redundancies'] ?? 0);
                 $costImpact = $headcountChange * -$benchmarks['avg_annual_salary']; // Savings
-                $productivityImpact = $simulation['skill_overlap_percentage'] > 50 ? 5 : -10;
+                $productivityImpact = $simulationResult['skill_overlap_percentage'] > 50 ? 5 : -10;
                 break;
 
             case 'expansion':
-                $headcountChange = $simulation['new_positions'] ?? 0;
-                $costImpact = -($simulation['estimated_recruitment_cost'] ?? 0);
+                $headcountChange = $simulationResult['new_positions'] ?? 0;
+                $costImpact = -($simulationResult['estimated_recruitment_cost'] ?? 0);
                 $productivityImpact = 15;
                 break;
 
             case 'skill_obsolescence':
             case 'restructuring':
-                $headcountChange = -($simulation['impact']['people_at_severance_risk'] ?? 0);
+                $headcountChange = -($simulationResult['impact']['people_at_severance_risk'] ?? 0);
                 // Severance cost basado en benchmark real
-                $costImpact = -($simulation['impact']['people_at_severance_risk'] ?? 0) * ($benchmarks['avg_monthly_salary'] * $benchmarks['avg_severance_multiplier']);
+                $costImpact = -($simulationResult['impact']['people_at_severance_risk'] ?? 0) * ($benchmarks['avg_monthly_salary'] * $benchmarks['avg_severance_multiplier']);
                 $productivityImpact = -20;
                 break;
         }
@@ -269,7 +269,7 @@ class AgenticScenarioService
         ];
     }
 
-    protected function generateAgenticActionPlan(Scenario $scenario, array $simulation, array $kpiImpact): array
+    protected function generateAgenticActionPlan(array $simulationResult, array $kpiImpact): array
     {
         $actions = [];
 
@@ -303,7 +303,7 @@ class AgenticScenarioService
         }
 
         // Intervenciones Organizacionales (Cultura y Clima)
-        if ($simulation['type'] === 'team_merge' || $simulation['type'] === 'downsizing') {
+        if ($simulationResult['type'] === 'team_merge' || $simulationResult['type'] === 'downsizing') {
             $actions[] = [
                 'phase' => 'Short-term',
                 'category' => 'policy',
@@ -340,7 +340,7 @@ class AgenticScenarioService
             ];
         }
 
-        if ($simulation['type'] === 'expansion') {
+        if ($simulationResult['type'] === 'expansion') {
             $actions[] = [
                 'phase' => 'Short-term',
                 'category' => 'synthetic',
@@ -361,7 +361,7 @@ class AgenticScenarioService
         return $actions;
     }
 
-    protected function calculateViability(array $simulation, array $kpiImpact): array
+    protected function calculateViability(array $kpiImpact): array
     {
         $riskIndex = $kpiImpact['risk_index'] ?? 50;
         $costImpact = $kpiImpact['cost_impact_usd'] ?? 0;
