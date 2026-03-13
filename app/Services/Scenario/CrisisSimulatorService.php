@@ -28,13 +28,10 @@ class CrisisSimulatorService
     /**
      * Simula una crisis de retiro masivo y su impacto cascada.
      */
-    public function simulateMassAttrition(int $scenarioId, array $params): array
+    public function simulateMassAttrition(int $scenarioId, array $params, array $state = []): array
     {
-        $scenario = Scenario::findOrFail($scenarioId);
-
         $attritionRate = $params['attrition_rate'] ?? 15; // % de la fuerza laboral
         $targetDepartments = $params['departments'] ?? [];
-        $timeframeMonths = $params['timeframe_months'] ?? 12;
 
         // Obtener personas en riesgo
         $query = People::with(['role', 'skills']);
@@ -55,11 +52,13 @@ class CrisisSimulatorService
             return $tenureMonths + ($hasDevelopment ? 100 : 0); // Priorizar sin desarrollo
         })->take($totalAtRisk);
 
-        // Calcular impacto en skills
+        // Calcular impacto en skills y sucesión
         $skillsImpact = $this->calculateSkillsImpact($attritionCandidates);
+        $successionImpact = $this->calculateSuccessionImpact($attritionCandidates, $state);
 
-        // Calcular impacto en sucesión
-        $successionImpact = $this->calculateSuccessionImpact($attritionCandidates);
+        // --- NEW: CASCADING IMPACT (Gaph Based) ---
+        // Si un manager se va, el riesgo de sus reportes aumenta
+        $cascadingRisk = $this->calculateCascadingImpact($attritionCandidates, $state);
 
         // Costo total estimado del attrition
         $replacementCost = $totalAtRisk * 45000 * 0.5; // 50% de salario promedio
@@ -76,10 +75,12 @@ class CrisisSimulatorService
                 'time_to_recover_months' => $this->estimateRecoveryTime($totalAtRisk, $skillsImpact),
                 'skills_impact' => $skillsImpact,
                 'succession_impact' => $successionImpact,
+                'cascading_risk_count' => count($cascadingRisk),
                 'critical_roles_exposed' => $successionImpact['exposed_roles'] ?? 0,
             ],
+            'cascading_details' => array_slice($cascadingRisk, 0, 10),
             'mitigation_strategies' => $this->generateAttritionMitigations($totalAtRisk, $skillsImpact, $replacementCost),
-            'risk_score' => $this->calculateCrisisRiskScore($totalAtRisk, $workforce->count(), $skillsImpact),
+            'risk_score' => $this->calculateCrisisRiskScore($totalAtRisk, $workforce->count(), $skillsImpact) + (count($cascadingRisk) > 0 ? 10 : 0),
         ];
 
         $this->audit->logDecision(
@@ -231,7 +232,7 @@ class CrisisSimulatorService
         }
 
         // Calcular promedio
-        foreach ($skillsLost as $name => &$data) {
+        foreach ($skillsLost as &$data) {
             $data['avg_level'] = round(array_sum($data['levels']) / count($data['levels']), 1);
             unset($data['levels']);
         }
@@ -242,7 +243,7 @@ class CrisisSimulatorService
         return array_slice($skillsLost, 0, 10, true);
     }
 
-    protected function calculateSuccessionImpact($attritionCandidates): array
+    protected function calculateSuccessionImpact($attritionCandidates, array $state = []): array
     {
         $exposedRoles = 0;
         $criticalNodes = [];
@@ -252,10 +253,20 @@ class CrisisSimulatorService
                 continue;
             }
 
-            // Verificar si hay alguien más que pueda cubrir el mismo rol
-            $alternativesCount = People::where('role_id', $person->role_id)
-                ->where('id', '!=', $person->id)
-                ->count();
+            // Si tenemos el estado del gemelo digital, usamos el skill_mesh para ver quién más tiene esos skills
+            $alternativesCount = 0;
+            if (! empty($state)) {
+                $roleSkills = collect($state['nodes']['roles'])->where('id', $person->role_id)->first()['required_skills'] ?? [];
+                $alternativesCount = collect($state['nodes']['people'])
+                    ->where('id', '!=', $person->id)
+                    ->filter(function ($p) use ($roleSkills) {
+                        return count(array_intersect($p['skills'], $roleSkills)) >= count($roleSkills) * 0.7;
+                    })->count();
+            } else {
+                $alternativesCount = People::where('role_id', $person->role_id)
+                    ->where('id', '!=', $person->id)
+                    ->count();
+            }
 
             if ($alternativesCount === 0) {
                 $exposedRoles++;
@@ -272,6 +283,36 @@ class CrisisSimulatorService
             'exposed_roles' => $exposedRoles,
             'critical_nodes' => array_slice($criticalNodes, 0, 5),
         ];
+    }
+
+    protected function calculateCascadingImpact($attritionCandidates, array $state): array
+    {
+        if (empty($state) || ! isset($state['edges']['hierarchies'])) {
+            return [];
+        }
+
+        $attritionIds = $attritionCandidates->pluck('id')->toArray();
+        $hierarchies = collect($state['edges']['hierarchies']);
+        $cascadingRisks = [];
+
+        foreach ($attritionIds as $managerId) {
+            // Buscar reportes directos en el grafo
+            $reports = $hierarchies->where('source', $managerId)->pluck('target');
+
+            foreach ($reports as $subordinateId) {
+                if (! in_array($subordinateId, $attritionIds)) {
+                    $subordinate = collect($state['nodes']['people'])->where('id', $subordinateId)->first();
+                    $cascadingRisks[] = [
+                        'person_id' => $subordinateId,
+                        'name' => $subordinate['name'] ?? "ID $subordinateId",
+                        'reason' => 'Perdida de manager directo',
+                        'risk_increase' => 25,
+                    ];
+                }
+            }
+        }
+
+        return $cascadingRisks;
     }
 
     protected function estimateRecoveryTime(int $attritionCount, array $skillsImpact): int

@@ -12,7 +12,8 @@ class MobilityAIAdvisorService
 {
     public function __construct(
         protected AiOrchestratorService $ai,
-        protected \App\Services\Talent\Lms\LmsService $lms
+        protected \App\Services\Talent\Lms\LmsService $lms,
+        protected \App\Services\Scenario\DigitalTwinService $digitalTwin
     ) {}
 
     /**
@@ -20,39 +21,18 @@ class MobilityAIAdvisorService
      */
     public function suggestStrategicMovements(string $objective, int $organizationId): array
     {
-        // 1. Recopilar Contexto (Limitado para no exceder tokens de prompt)
-        $people = People::where('organization_id', $organizationId)
-            ->with(['skills', 'role'])
-            ->limit(30) // Limitamos a los talentos más relevantes/recientes para la demo
-            ->get();
-
-        $roles = Roles::where('organization_id', $organizationId)
-            ->with('skills')
-            ->get();
-
-        $departments = Departments::where('organization_id', $organizationId)->get();
+        // 1. Recopilar Contexto via Digital Twin (Living Graph)
+        $organization = \App\Models\Organization::findOrFail($organizationId);
+        $digitalTwin = $this->digitalTwin->captureState($organization);
 
         // 2. Formatear datos para la IA
         $contextData = [
-            'people' => $people->map(fn($p) => [
-                'id' => $p->id,
-                'name' => $p->full_name,
-                'current_role' => $p->role->name ?? 'N/A',
-                'skills' => $p->skills->map(fn($s) => [
-                    'name' => $s->name,
-                    'level' => $s->pivot->current_level
-                ])
-            ]),
-            'roles' => $roles->map(fn($r) => [
-                'id' => $r->id,
-                'name' => $r->name,
-                'required_skills' => $r->skills->map(fn($s) => [
-                    'name' => $s->name,
-                    'level' => $s->pivot->required_level
-                ])
-            ]),
-            'departments' => $departments->pluck('name')->toArray(),
-            'learning_catalog' => $this->lms->searchCourses('') // Obtener catálogo completo para el contexto
+            'organization_metadata' => $digitalTwin['org_metadata'],
+            'people' => $digitalTwin['nodes']['people'],
+            'roles' => $digitalTwin['nodes']['roles'],
+            'hierarchies' => $digitalTwin['edges']['hierarchies'],
+            'skill_mesh' => $digitalTwin['edges']['skill_mesh'],
+            'learning_catalog' => $this->lms->searchCourses(''), // Obtener catálogo completo para el contexto
         ];
 
         // 3. Construir el Prompt
@@ -96,9 +76,11 @@ class MobilityAIAdvisorService
                json_encode($context) . "\n\n" .
                "DIRECTRICES:\n" .
                "1. Identifica a las personas cuyo perfil técnico (Skills) mejor resuene con los roles necesarios para el objetivo.\n" .
-               "2. Justifica cada movimiento basándote en la sinergia entre el talento y la meta.\n" .
-               "3. Estima un ROI global basado en el ahorro de contratación externa (aprox 20% del salario anual x posición).\n" .
-               "4. Para cada persona movida, selecciona cursos específicos del 'learning_catalog' para cerrar sus brechas de habilidades.\n" .
+               "2. Utiliza la jerarquía ('hierarchies') para detectar posibles redundancias o silos que puedan optimizarse.\n" .
+               "3. Considera el 'skill_mesh' para entender la fortaleza de las habilidades actuales versus el objetivo.\n" .
+               "4. Justifica cada movimiento basándote en la sinergia entre el talento y la meta.\n" .
+               "5. Estima un ROI global basado en el ahorro de contratación externa (aprox 20% del salario anual x posición).\n" .
+               "6. Para cada persona movida, selecciona cursos específicos del 'learning_catalog' para cerrar sus brechas de habilidades.\n" .
                "   Debes priorizar el contenido 'internal' para procesos críticos y 'linkedin'/'udemy'/'moodle' para habilidades técnicas/blandas.\n\n" .
                "RESPONDE UNICAMENTE EN FORMATO JSON con esta estructura exacta:\n" .
                "{\n" .

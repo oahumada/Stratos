@@ -718,12 +718,19 @@ export const messages = {
                     gap_analysis_engine: {
                         title: 'Gap Analysis Engine',
                         description:
-                            'Contrast between inventory and target state.',
+                            'Contraste entre inventario y estado objetivo.',
                     },
                     investor_dashboard: {
-                        title: 'Investor Dashboard',
+                        title: 'Executive Investor Tracker',
                         description:
                             'Financial-oriented ROI and value visibility.',
+                    },
+                    agent_question: {
+                        title: 'Ask the Strategic Agent',
+                        description:
+                            'Propose a strategic transformation and allow the engine to map the path.',
+                        placeholder: 'e.g., Digitalize the finance area...',
+                        action: 'Launch Simulation',
                     },
                 },
             },
@@ -1455,9 +1462,16 @@ export const messages = {
                         description: 'Contraste entre inventario y objetivo.',
                     },
                     investor_dashboard: {
-                        title: 'Dashboard Inversor',
+                        title: 'Tracking de Inversión Ejecutivo',
                         description:
                             'Vista financiera orientada a ROI y creación de valor.',
+                    },
+                    agent_question: {
+                        title: 'Pregunta al Agente Estratégico',
+                        description:
+                            'Propón una transformación estratégica y deja que el motor mapee el camino.',
+                        placeholder: 'Ej: Digitalizar el área de finanzas...',
+                        action: 'Poner en Marcha',
                     },
                 },
             },

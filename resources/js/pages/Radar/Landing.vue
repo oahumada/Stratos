@@ -4,8 +4,84 @@
             :title="t('landings.radar.title')"
             :slogan="t('landings.radar.slogan')"
             :icon="PhTarget"
+            gradient-variant="rose"
         />
-        <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+        <!-- Agent Strategic Inquiry Section -->
+        <div class="mb-10">
+            <div
+                class="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl"
+            >
+                <div
+                    class="relative z-10 grid grid-cols-1 gap-8 md:grid-cols-3"
+                >
+                    <div class="md:col-span-2">
+                        <div class="mb-2 flex items-center gap-2">
+                            <v-icon
+                                icon="mdi-robot-outline"
+                                color="indigo-400"
+                            />
+                            <span
+                                class="text-xs font-black tracking-widest text-indigo-400 uppercase"
+                            >
+                                Stratos Neural Strategy
+                            </span>
+                        </div>
+                        <h2 class="mb-3 text-2xl font-black text-white">
+                            {{ t('landings.radar.agent_question.title') }}
+                        </h2>
+                        <p class="mb-6 text-sm text-white/60">
+                            {{ t('landings.radar.agent_question.description') }}
+                        </p>
+
+                        <div class="flex flex-col gap-3 sm:flex-row">
+                            <input
+                                v-model="agentQuestion"
+                                type="text"
+                                :placeholder="
+                                    t(
+                                        'landings.radar.agent_question.placeholder',
+                                    )
+                                "
+                                class="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/20 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
+                                @keyup.enter="launchAgentSimulation"
+                            />
+                            <StButtonGlass
+                                variant="primary"
+                                class="px-8!"
+                                :loading="isSimulating"
+                                @click="launchAgentSimulation"
+                                :icon="PhRocketLaunch"
+                            >
+                                {{ t('landings.radar.agent_question.action') }}
+                            </StButtonGlass>
+                        </div>
+                    </div>
+
+                    <div class="hidden items-center justify-center md:flex">
+                        <div
+                            class="flex h-32 w-32 animate-pulse items-center justify-center rounded-full bg-indigo-500/10 ring-1 ring-white/10"
+                        >
+                            <PhBrain
+                                :size="64"
+                                weight="duotone"
+                                class="text-indigo-400"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Abstract Background Elements -->
+                <div
+                    class="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-indigo-500/10 blur-[80px]"
+                ></div>
+                <div
+                    class="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-purple-500/10 blur-[80px]"
+                ></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div v-for="mod in modules" :key="mod.title">
                 <ModuleCard
                     :title="mod.title"
@@ -22,16 +98,39 @@
 <script setup lang="ts">
 import GroupHeader from '@/components/Landing/GroupHeader.vue';
 import ModuleCard from '@/components/Landing/ModuleCard.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import { router } from '@inertiajs/vue3';
 import {
+    PhBrain,
     PhChartLineUp,
     PhClipboardText,
+    PhRocketLaunch,
     PhShieldCheck,
     PhTarget,
 } from '@phosphor-icons/vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
+
+const agentQuestion = ref('');
+const isSimulating = ref(false);
+
+const launchAgentSimulation = () => {
+    if (!agentQuestion.value.trim()) return;
+
+    isSimulating.value = true;
+
+    // Simulate thinking before redirecting to scenario planning with the prompt
+    setTimeout(() => {
+        router.visit('/scenario-planning', {
+            data: {
+                ai_prompt: agentQuestion.value,
+                mode: 'agentic_init',
+            },
+        });
+    }, 1500);
+};
 
 const modules = computed(() => [
     {

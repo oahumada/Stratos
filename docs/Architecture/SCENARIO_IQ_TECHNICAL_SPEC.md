@@ -10,10 +10,11 @@ Scenario IQ transforma la planificación de personal de una hoja de cálculo est
 
 El motor opera sobre tres capas de inteligencia:
 
-### A. La Capa de Datos (Digital Twin)
+### A. La Capa de Datos (Digital Twin / Semantic Graph)
 
-- **Knowledge Graph (Neo4j):** Mapea no solo quién reporta a quién, sino quién _influye_ en quién, las dependencias técnicas y el flujo real de conocimientos.
+- **Knowledge Graph (Neo4j):** Mapea no solo quién reporta a quién, sino quién _influye_ en quién. El `DigitalTwinService` captura este estado permitiendo simulaciones desacopladas con **Zero DB Overhead**.
 - **Vector State (Postgres + pgvector):** Almacena el perfil semántico de cada colaborador (DISC, skills, aspiraciones).
+- **Cascading Risk Logic:** Identifica dependencias críticas basadas en la topología del grafo (ej: impacto de la salida de un manager en la estabilidad del equipo).
 
 ### B. El Enjambre de Simulación (Scenario Crew)
 
@@ -58,6 +59,7 @@ Utilizamos un crew de agentes especializados en CrewAI:
 | `POST` | `/scenarios/{id}/crisis/obsolescence` | `ScenarioIQController@simulateObsolescence`      | Simulación de obsolescencia de habilidades      |
 | `GET`  | `/api/career-paths/{peopleId}`        | `ScenarioIQController@getCareerPaths`            | Cálculo de rutas óptimas sobre Neo4j            |
 | `POST` | `/scenarios/{id}/mitigate`            | `ScenarioSimulationController@getMitigationPlan` | Genera plan de mitigación agéntica vía Sentinel |
+| `POST` | `/scenarios/{id}/simulate-merge`      | `AgenticScenarioController@simulateTeamMerge`    | Fusión de departamentos vía Digital Twin        |
 
 ### Servicios de Inteligencia
 
@@ -115,4 +117,4 @@ Utilizamos un crew de agentes especializados en CrewAI:
 
 **"En Stratos, el futuro no se adivina, se diseña."**
 _© 2026 Stratos Intelligence Architecture Group_
-_Actualizado: 27 de Febrero de 2026_
+_Actualizado: 12 de Marzo de 2026_

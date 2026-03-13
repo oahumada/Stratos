@@ -7,6 +7,7 @@ use App\Models\People;
 use App\Models\Scenario;
 use App\Services\AiOrchestratorService;
 use App\Services\AuditTrailService;
+use App\Services\Intelligence\ImpactEngineService;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -26,7 +27,8 @@ class AgenticScenarioService
         protected CrisisSimulatorService $crisisSimulator,
         protected CareerPathService $careerPaths,
         protected AiOrchestratorService $orchestrator,
-        protected AuditTrailService $audit
+        protected AuditTrailService $audit,
+        protected ImpactEngineService $impactEngine
     ) {}
 
     /**
@@ -134,20 +136,22 @@ class AgenticScenarioService
 
     // ── Simulation Types ─────────────────────────────────────
 
-    protected function simulateTeamMerge(int $scenarioId, array $params, array $state): array
+    protected function simulateTeamMerge(array $params, array $state): array
     {
         $teamA = $params['team_a_department_id'] ?? null;
         $teamB = $params['team_b_department_id'] ?? null;
 
-        $teamAPeople = People::where('department_id', $teamA)->count();
-        $teamBPeople = People::where('department_id', $teamB)->count();
+        // Usar los nodos capturados en el Digital Twin para contar personas por departamento
+        $people = collect($state['nodes']['people'] ?? []);
+        $teamAPeople = $people->where('department_id', $teamA)->count();
+        $teamBPeople = $people->where('department_id', $teamB)->count();
 
         $mergedSize = $teamAPeople + $teamBPeople;
         $redundancyRate = $params['expected_redundancy_rate'] ?? 10;
         $potentialRedundancies = (int) ceil($mergedSize * ($redundancyRate / 100));
 
-        // Simular compatibilidad de skills
-        $skillOverlap = $this->calculateDepartmentSkillOverlap($teamA, $teamB);
+        // Simular compatibilidad de skills usando el Skill Mesh o nodos de personas
+        $skillOverlap = $this->calculateDepartmentSkillOverlapFromState($teamA, $teamB, $state);
 
         return [
             'type' => 'team_merge',
@@ -170,14 +174,16 @@ class AgenticScenarioService
         ]);
     }
 
-    protected function simulateExpansion(int $scenarioId, array $params, array $state): array
+    protected function simulateExpansion(array $params, array $state): array
     {
+        $orgId = Organization::first()?->id; // En prod usar ID del contexto
+        $benchmarks = $this->impactEngine->getFinancialBenchmarks($orgId ?? 1);
+
         $growthRate = $params['growth_percentage'] ?? 20;
         $currentHeadcount = $state['org_metadata']['total_headcount'] ?? People::count();
         $newPositions = (int) ceil($currentHeadcount * ($growthRate / 100));
 
         // Mobility map para identificar candidatos internos
-        $orgId = Organization::first()?->id;
         $mobilityData = $orgId
             ? $this->careerPaths->generateMobilityMap($orgId)
             : ['mobility_index' => 0, 'total_viable_transitions' => 0];
@@ -193,7 +199,7 @@ class AgenticScenarioService
             'internal_fill_rate' => round($internalFillRate),
             'internal_promotions' => $newPositions - $externalHiresNeeded,
             'external_hires_needed' => $externalHiresNeeded,
-            'estimated_recruitment_cost' => $externalHiresNeeded * 4500,
+            'estimated_recruitment_cost' => $externalHiresNeeded * $benchmarks['avg_recruitment_cost'],
             'estimated_ramp_up_months' => 4,
             'mobility_index' => $mobilityData['mobility_index'],
         ];
@@ -223,6 +229,9 @@ class AgenticScenarioService
 
     protected function calculateKpiImpact(array $currentState, array $simulation): array
     {
+        $orgId = Organization::first()?->id ?? 1;
+        $benchmarks = $this->impactEngine->getFinancialBenchmarks($orgId);
+
         $headcountChange = 0;
         $costImpact = 0;
         $productivityImpact = 0;
@@ -232,7 +241,7 @@ class AgenticScenarioService
         switch ($type) {
             case 'team_merge':
                 $headcountChange = -($simulation['potential_redundancies'] ?? 0);
-                $costImpact = $headcountChange * -45000; // Savings
+                $costImpact = $headcountChange * -$benchmarks['avg_annual_salary']; // Savings
                 $productivityImpact = $simulation['skill_overlap_percentage'] > 50 ? 5 : -10;
                 break;
 
@@ -245,7 +254,8 @@ class AgenticScenarioService
             case 'skill_obsolescence':
             case 'restructuring':
                 $headcountChange = -($simulation['impact']['people_at_severance_risk'] ?? 0);
-                $costImpact = -($simulation['impact']['estimated_severance_cost'] ?? 0);
+                // Severance cost basado en benchmark real
+                $costImpact = -($simulation['impact']['people_at_severance_risk'] ?? 0) * ($benchmarks['avg_monthly_salary'] * $benchmarks['avg_severance_multiplier']);
                 $productivityImpact = -20;
                 break;
         }
@@ -380,24 +390,24 @@ class AgenticScenarioService
 
     // ── Helpers ───────────────────────────────────────────────
 
-    protected function calculateDepartmentSkillOverlap(?int $deptA, ?int $deptB): float
+    protected function calculateDepartmentSkillOverlapFromState(?int $deptA, ?int $deptB, array $state): float
     {
-        if (! $deptA || ! $deptB) {
+        if (! $deptA || ! $deptB || ! isset($state['nodes']['people'])) {
             return 0;
         }
 
-        $skillsA = \DB::table('people_role_skills')
-            ->join('people', 'people.id', '=', 'people_role_skills.people_id')
-            ->where('people.department_id', $deptA)
-            ->distinct()
-            ->pluck('skill_id')
+        $people = collect($state['nodes']['people']);
+
+        $skillsA = $people->where('department_id', $deptA)
+            ->pluck('skill_ids')
+            ->flatten()
+            ->unique()
             ->toArray();
 
-        $skillsB = \DB::table('people_role_skills')
-            ->join('people', 'people.id', '=', 'people_role_skills.people_id')
-            ->where('people.department_id', $deptB)
-            ->distinct()
-            ->pluck('skill_id')
+        $skillsB = $people->where('department_id', $deptB)
+            ->pluck('skill_ids')
+            ->flatten()
+            ->unique()
             ->toArray();
 
         $overlap = count(array_intersect($skillsA, $skillsB));

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Organizations extends Model
 {
@@ -47,6 +48,16 @@ class Organizations extends Model
         return $this->hasMany(JobOpening::class);
     }
 
+    public function departments(): HasMany
+    {
+        return $this->hasMany(Departments::class, 'organization_id');
+    }
+
+    public function culturalBlueprint(): HasOne
+    {
+        return $this->hasOne(CulturalBlueprint::class, 'organization_id');
+    }
+
     /**
      * Alerts and Notifications (Phase 6)
      */
@@ -76,5 +87,23 @@ class Organizations extends Model
     public function snapshots(): HasMany
     {
         return $this->hasMany(OrganizationSnapshot::class, 'organizations_id');
+    }
+
+    /**
+     * Impact Engine (LAMP Framework) Relationships
+     */
+    public function businessMetrics(): HasMany
+    {
+        return $this->hasMany(BusinessMetric::class, 'organization_id');
+    }
+
+    public function impactAnalyses(): HasMany
+    {
+        return $this->hasMany(ImpactAnalysis::class, 'organization_id');
+    }
+
+    public function financialIndicators(): HasMany
+    {
+        return $this->hasMany(FinancialIndicator::class, 'organization_id');
     }
 }

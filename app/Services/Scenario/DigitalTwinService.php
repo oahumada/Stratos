@@ -40,10 +40,12 @@ class DigitalTwinService
             ->get()
             ->map(fn ($p) => [
                 'id' => $p->id,
+                'department_id' => $p->department_id,
                 'role' => $p->role?->name,
                 'performance_score' => $p->metadata['last_performance_score'] ?? 0.8,
                 'potential_level' => $p->metadata['overall_potential'] ?? 'B',
                 'skills' => $p->skills->pluck('name')->toArray(),
+                'skill_ids' => $p->skills->pluck('id')->toArray(),
             ])
             ->toArray();
     }
@@ -64,11 +66,12 @@ class DigitalTwinService
 
     private function captureHierarchies(Organization $org): array
     {
-        // Simplificado: Relación Jefe-Subordinado
-        return \DB::table('people')
-            ->where('organization_id', $org->id)
-            ->whereNotNull('manager_id')
-            ->select('id as source', 'manager_id as target', \DB::raw("'manages' as relation"))
+        // Relación Jefe-Subordinado vía tabla de relaciones
+        return \DB::table('people_relationships')
+            ->join('people', 'people.id', '=', 'people_relationships.person_id')
+            ->where('people.organization_id', $org->id)
+            ->where('people_relationships.relationship_type', 'manager')
+            ->select('person_id as source', 'related_person_id as target', \DB::raw("'manages' as relation"))
             ->get()
             ->toArray();
     }

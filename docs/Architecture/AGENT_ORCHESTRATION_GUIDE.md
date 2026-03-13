@@ -53,17 +53,17 @@ Stratos utiliza una **Arquitectura Multi-Agente (MAS)** donde cada agente tiene 
     - `performance_calibration`: Normalización de puntuaciones entre diferentes evaluadores.
 - **Uso en Stratos**: Orquestador principal del módulo **Talento 360**.
 
-### 5. Selector de Talento (The Matchmaker)
+### 5. Matchmaker de Resonancia (The Talent Match)
 
-- **Objetivo**: Identificar el mejor talento externo o interno para un rol, optimizando el tiempo de contratación.
-- **Persona**: Eficiente, perspicaz y gran sintetizador. Puede leer cientos de perfiles y quedarse solo con los "diamantes".
+- **Objetivo**: Identificar el mejor talento externo o interno para un rol, optimizando el tiempo de contratación mediante la **Resonancia ADN**.
+- **Persona**: Eficiente, perspicaz y gran sintetizador. No busca solo "encaje técnico", busca resonancia entre el perfil psicométrico y la cultura organizacional.
 - **IA (Brain)**: DeepSeek Chat (v3).
 - **Expertise**:
     - `candidate_screening`: Filtrado inteligente de CVs y perfiles.
-    - `job_matching`: Cálculo de compatibilidad técnico-cultural.
-    - `interview_synthesis`: Resumen de entrevistas grabadas o por chat.
-    - `shortlisting`: Generación de ternas finalistas con argumentos.
-- **Uso en Stratos**: Motor de **Marketplace** y módulos de **Reclutamiento**.
+    - `resonance_analysis`: Cálculo de compatibilidad técnico-cultural.
+    - `job_matching`: Match basado en ADN Cultural (Misión/Visión).
+    - `shortlisting`: Generación de ternas finalistas con argumentos de valor.
+- **Uso en Stratos**: Motor de **Marketplace**, Selección y planes de sucesión.
 
 ### 6. Arquitecto de Aprendizaje (The Creator)
 
@@ -91,7 +91,7 @@ Stratos utiliza una **Arquitectura Multi-Agente (MAS)** donde cada agente tiene 
 
 ### 8. Diseñador de Roles (The Blueprint)
 
-- **Objetivo**: Diseñar y estructurar la orgánica de cargos utilizando el **Modelo de Cubo de Roles**, asegurando que cada rol tenga las competencias correctas y mantenga la coherencia con el catálogo global.
+- **Objetivo**: Diseñar y estructurar la orgánica de cargos utilizando el **Modelo de Cubo de Roles**, asegurando que cada rol tenga las competencias correctas y mantenga la coherencia con el catálogo global y el ADN cultural.
 - **Persona**: Estratégico, metódico y experto en orgánica organizacional. Especialista en la arquitectura 3D del talento (X, Y, Z).
 - **IA (Brain)**: DeepSeek Chat (v3).
 - **Metodología (Cubo de Roles)**:
@@ -105,6 +105,18 @@ Stratos utiliza una **Arquitectura Multi-Agente (MAS)** donde cada agente tiene 
     - `role_archetypes`: Creación de plantillas estándar.
     - `catalog_alignment`: Análisis de duplicidad y match.
 - **Uso en Stratos**: Es el agente clave para el módulo de **Planificación de Escenarios** y la transición de roles "en incubación" al catálogo oficial.
+
+### 9. Stratos Sentinel (The Ethics Guardian)
+
+- **Objetivo**: Actuar como el custodio supremo de la **Gobernanza, la Ética y el ADN Cultural** de la organización.
+- **Persona**: Vigilante, ético, imparcial y sumamente riguroso. Es el "Centinela" que asegura que la IA actúe como un amplificador de la cultura, no como un sustituto frío.
+- **IA (Brain)**: DeepSeek Reasoner (R1) (Capacidad de razonamiento moral y jurídico profundo).
+- **Expertise**:
+    - `cultural_alignment`: Verificación de resonancia con Misión, Visión y Valores.
+    - `ai_ethics`: Auditoría de sesgos en algoritmos de selección y desarrollo.
+    - `digital_seal_trust`: Custodia del **Stratos Sentinel Signature (SSS)**.
+    - `audit_trail`: Supervisión del historial de integridad de activos.
+- **Uso en Stratos**: Es el pilar de la **Gobernanza Stratos** y el validador final de los **Cultural Blueprints**.
 
 ---
 
