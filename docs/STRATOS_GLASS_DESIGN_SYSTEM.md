@@ -81,3 +81,33 @@ Leverage `tailwindcss-animate` utility classes to inject smooth entries and exit
     - Add translations to `resources/js/i18n.ts` in both `en` and `es`.
 4. **Composition API**: Use `<script setup lang="ts">`.
 5. **Linting Check**: Before committing or concluding a feature, verify variables and exceptions, ensuring zero unused imports or unused `catch` placeholders (`e` -> `_e`).
+
+## 6. Fase de Refinamiento: "Sacar Brillo" 💎
+
+Una vez que el módulo es funcional, entramos en la fase de **Excelencia Refractiva**. El objetivo es eliminar cualquier rastro de "software tradicional" y convertir la interfaz en una experiencia de vanguardia.
+
+### 6.1 Ejes de Refinamiento Técnico
+
+- **Micro-interacciones Proactivas**: 
+    - Cada elemento interactivo debe tener un estado `:hover` y `:active` definido con transiciones suaves (`duration-300`).
+    - Los botones no solo cambian de color; ganan un sutil resplandor (`glow`) o cambian la opacidad del borde.
+- **Iconografía Impecable (100% Phosphor)**: 
+    - Prohibido el uso de MDI o iconos genéricos.
+    - Uso consistente de pesos (ej. `Regular` vs `Duotone` para estados activos).
+- **Feedback Visual Continuo**:
+    - **Skeletons Premium**: Usar `LoadingSkeleton.vue` que imite la estructura real de los datos.
+    - **Validaciones en Vivo**: El usuario debe recibir feedback antes de intentar enviar un formulario.
+- **Narrativa de IA (Human-AI Mix)**:
+    - Las acciones realizadas por Agentes deben distinguirse visualmente (uso del color Fuchsia/Pink y efectos de pulso).
+
+### 6.2 Checklist de "Brillo"
+
+- [ ] **Sin Call-to-Actions muertos**: ¿Cada vista guía proactivamente al siguiente paso?
+- [ ] **Empty States de Autoridad**: ¿Las listas vacías inspiran acción en lugar de mostrar vacío?
+- [ ] **Jerarquía de Capas (Z-Axis)**: ¿Se percibe claramente qué paneles están "encima" de otros mediante `backdrop-blur` y sombras suaves?
+- [ ] **Copywriting Estratégico**: ¿Los textos hablan de "Talento" y "Estrategia" o solo de campos técnicos?
+
+---
+
+> [!TIP]
+> **"Sacar brillo"** no es decorar; es remover la fricción visual y cognitiva para que el valor estratégico de Stratos brille sin obstáculos.

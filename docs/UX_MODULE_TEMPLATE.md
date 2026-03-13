@@ -136,6 +136,14 @@
 - [ ] Hay elementos que refuerzan progreso, logro o impacto (no solo tareas).
 - [ ] El tono de microcopys es cercano y alineado a la marca Stratos.
 
+### Fase de Refinamiento: "Sacar Brillo" 💎
+
+- [ ] **Micro-interacciones**: ¿Todos los botones y cards tienen estados de hover/active fluidos (duration-300)?
+- [ ] **Iconografía Phosphor**: ¿Se han eliminado todos los iconos MDI/genéricos en favor de Phosphor?
+- [ ] **Cero Call-to-Actions muertos**: ¿Cada vista guía proactivamente al usuario al siguiente paso logico?
+- [ ] **Estados de Carga**: ¿Se utilizan Skeletons que respetan la forma del contenido final?
+- [ ] **Jerarquía Z-Axis**: ¿Se usa correctamente el `backdrop-blur` y sombras para denotar profundidad?
+
 ---
 
 ## 6. Sistema de Puntuación UX/UI

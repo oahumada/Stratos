@@ -55,3 +55,13 @@ El diseño debe contar la historia de la construcción del talento.
 
 > [!IMPORTANT]
 > **Regla de Oro**: Si el componente parece algo que verías en un software de administración tradicional, NO es Stratos. Cada píxel debe respirar Ingeniería de Talento y Vanguardia.
+
+---
+
+## 💎 Evolución: Fase de Refracción de Excelencia ("Sacar Brillo")
+
+En esta etapa, el sistema ya es funcional y robusto. El foco se desplaza de *construir* a *perfeccionar*.
+
+1. **Eliminación de la "Opacidad Cognitiva"**: Si una sección de la interfaz requiere más de 2 segundos para entenderse, necesita brillo. Simplificar visualmente sin perder densidad de datos.
+2. **Consistencia Obsesiva**: Un solo icono fuera de estilo o un margen inconsistente rompe la ilusión de vanguardia.
+3. **El "Wow" en los Detalles**: Un sutil gradiente en un borde o una animación de entrada coordinada puede ser la diferencia entre una herramienta y una experiencia premium.
