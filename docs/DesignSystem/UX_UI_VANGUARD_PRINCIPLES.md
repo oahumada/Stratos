@@ -16,6 +16,7 @@ El diseño debe sentirse físico y estructurado, no plano. La jerarquía organiz
     - **La Competencia (Piso)**: Capas intermedias con bordes definidos.
     - **La Skill (Ladrillo)**: Integrada en la superficie del piso, con una elevación sutil.
 - **Bordes de Luz**: Los paneles deben tener un borde superior (`border-t`) ligeramente más claro para simular el reflejo de una fuente de luz cenital.
+- **Indicator Light (Sacar Brillo)**: Utilizar líneas de luz de 1px (`h-px`) con resplandor dinámico (`box-shadow`) en la parte superior del contenido o cabeceras para indicar foco y nivel premium. Esta es la firma visual de la fase de excelencia.
 
 ## ⚡ Pilar 2: Micro-interacciones de "Feedback Vivo"
 
@@ -30,6 +31,8 @@ La interfaz debe parecer "viva" y responder proactivamente a la intención del u
 El espacio no es vacío, es lujo. El diseño debe permitir que el "Propósito" del rol respire.
 
 - **El Vacío como Autoridad**: Evitar la saturación de datos. Agrupar información y usar márgenes amplios para guiar el ojo hacia los mensajes estratégicos.
+    - _Standard Padding_: `p-12` (48px) para tarjetas informativas. No temas al espacio; el espacio es poder.
+    - _Hero Spacing_: `p-16` (64px) para paneles de acción principal.
 - **Contraste Extremo de Pesos**:
     - Títulos de Roles: `font-black` (900) con espaciado estrecho (`tracking-tight`).
     - Metadatos/Labels: `font-light` (300) o `medium`, en mayúsculas, con espaciado amplio (`tracking-widest`).

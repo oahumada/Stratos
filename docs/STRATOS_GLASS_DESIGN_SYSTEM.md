@@ -35,6 +35,8 @@ Stratos focuses on a **premium, dark-mode-first, glassmorphism aesthetic** that 
 - Instead of traditional hard drop shadows, use colored glows for active or important items.
 - Example: `shadow-[0_0_15px_rgba(236,72,153,0.2)]` for a pink button glow.
 - Standard panel shadow: `shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]`
+- **Glow Line (Indicator)**: Use a 1px top or bottom line with a colored glow to indicate active modules or premium sections. 
+    - Pattern: `h-px w-full bg-linear-to-r from-transparent via-current to-transparent` + `boxShadow: 0 0 20px [color]`.
 
 ## 3. Stratos UI Components
 
@@ -45,6 +47,11 @@ Avoid standard Vuetify components (`v-card`, `v-btn`) wherever possible when bui
 Use for containers, modals, and panel wrappers.
 
 - _Behavior_: Handles the heavy frosted glass effect `backdrop-blur-xl`, borders, and base background tinting.
+- **New Padding Standards (Premium Standard)**:
+    - **KPIs / Small Info Cards**: Use `p-12!` or `!p-12` (48px) for maximum breathing room.
+    - **Hero / Main Action Panels**: Use `p-16!` or `!p-16` (64px) to create a spacious, luxury feel.
+    - **List Items / Sub-cards**: Use `p-8` (32px) to maintain density while remaining airy.
+    - **Grid Gaps**: Maintain a minimum of `gap-8` for secondary grids and `gap-12` for primary sections.
 
 ### `StButtonGlass.vue`
 

@@ -198,7 +198,7 @@ const extractDNA = async (personId: number, personName: string) => {
             <!-- Strategic Metrics Grid -->
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <StCardGlass
-                    class="group relative overflow-hidden border-white/5 p-6"
+                    class="group relative overflow-hidden border-white/5 p-8"
                 >
                     <div
                         class="absolute -right-4 -bottom-4 text-primary/5 transition-colors group-hover:text-primary/10"
@@ -222,7 +222,7 @@ const extractDNA = async (personId: number, personName: string) => {
                 </StCardGlass>
 
                 <StCardGlass
-                    class="group relative overflow-hidden border-emerald-500/10 p-6"
+                    class="group relative overflow-hidden border-emerald-500/10 p-8"
                 >
                     <div
                         class="absolute -right-4 -bottom-4 text-emerald-500/5 transition-colors group-hover:text-emerald-500/10"
@@ -254,7 +254,7 @@ const extractDNA = async (personId: number, personName: string) => {
                 </StCardGlass>
 
                 <StCardGlass
-                    class="group relative overflow-hidden border-indigo-500/10 p-6"
+                    class="group relative overflow-hidden border-indigo-500/10 p-8"
                 >
                     <div
                         class="absolute -right-4 -bottom-4 text-indigo-500/5 transition-colors group-hover:text-indigo-500/10"
@@ -278,7 +278,7 @@ const extractDNA = async (personId: number, personName: string) => {
                 </StCardGlass>
 
                 <StCardGlass
-                    class="group relative overflow-hidden border-amber-500/10 p-6"
+                    class="group relative overflow-hidden border-amber-500/10 p-8"
                 >
                     <div
                         class="absolute -right-4 -bottom-4 text-amber-500/5 transition-colors group-hover:text-amber-500/10"

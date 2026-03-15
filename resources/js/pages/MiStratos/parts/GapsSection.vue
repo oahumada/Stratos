@@ -17,12 +17,6 @@ interface Props {
 defineProps<Props>();
 const emit = defineEmits(['go-to-learning']);
 
-const kpiColorClass = (value: number) => {
-    if (value >= 80) return 'text-emerald-400';
-    if (value >= 60) return 'text-amber-400';
-    if (value >= 40) return 'text-orange-400';
-    return 'text-rose-400';
-};
 
 const getCategoryColor = (category: string) => {
     const cats: Record<string, string> = {
@@ -43,7 +37,7 @@ const getCategoryColor = (category: string) => {
 
         <div v-if="gapAnalysis" class="space-y-8">
             <!-- Summary Card -->
-            <StCardGlass class="p-8 border-rose-500/10">
+            <StCardGlass indicator="rose" class="p-12! border-rose-500/10">
                 <div class="flex flex-col md:flex-row items-center gap-10">
                     <!-- Circular Score -->
                     <div class="relative flex items-center justify-center shrink-0">
@@ -114,7 +108,7 @@ const getCategoryColor = (category: string) => {
                         <StCardGlass 
                             v-for="(gap, idx) in gapAnalysis.gaps.filter((g: any) => g.gap > 0).slice(0, 10)" 
                             :key="idx"
-                            class="p-4 hover:bg-white/5 transition-colors group"
+                            class="p-8 hover:bg-white/5 transition-colors group"
                         >
                             <div class="flex items-center gap-6">
                                 <div class="grow">
@@ -147,7 +141,7 @@ const getCategoryColor = (category: string) => {
 
                 <!-- Insights / Call to Action -->
                 <div class="space-y-6">
-                     <StCardGlass class="p-6 bg-indigo-500/5 border-indigo-500/20">
+                     <StCardGlass indicator="indigo" class="p-10! bg-indigo-500/5 border-indigo-500/20">
                         <PhChartPieSlice :size="32" weight="duotone" class="text-indigo-400 mb-4" />
                         <h4 class="text-lg font-bold text-white mb-2">Análisis IA</h4>
                         <p class="text-sm text-white/60 font-light leading-relaxed mb-6">

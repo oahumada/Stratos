@@ -1,5 +1,7 @@
 <template>
-    <div class="header-wrap mb-10">
+    <div class="header-wrap relative mb-16 pt-8">
+        <!-- Sacar Brillo: Indicator Light -->
+        <div class="absolute top-0 left-0 h-px w-full bg-linear-to-r from-transparent via-indigo-500 to-transparent shadow-[0_0_20px_rgba(99,102,241,0.5)]"></div>
         <div class="mb-2 flex items-center gap-3">
             <div class="h-2 w-12 rounded-full bg-indigo-500"></div>
             <span
@@ -30,13 +32,14 @@
                 </p>
             </div>
 
-            <div class="icon-glass-header hidden shrink-0 md:flex">
+            <div class="icon-glass-header hidden shrink-0 md:flex p-6 rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)] backdrop-blur-sm">
                 <v-icon
                     v-if="typeof icon === 'string'"
                     :icon="icon"
                     size="48"
+                    class="text-white/40"
                 />
-                <component v-else :is="icon" :size="48" weight="duotone" />
+                <component v-else :is="icon" :size="48" weight="duotone" class="text-white/40" />
             </div>
         </div>
     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PhIdentificationBadge, PhCube, PhShapes, PhBuildings, PhStar } from '@phosphor-icons/vue';
+import { PhIdentificationBadge, PhCube, PhShapes, PhBuildings, PhStar, PhUser, PhDna } from '@phosphor-icons/vue';
 
 interface Props {
     person: any;
@@ -20,7 +20,7 @@ const circleColor = (value: number) => {
 </script>
 
 <template>
-    <div class="hero-header relative overflow-hidden p-8 mb-8 rounded-3xl animate-in fade-in slide-in-from-top-4 duration-1000">
+    <div class="hero-header relative overflow-hidden p-12 mb-8 rounded-3xl animate-in fade-in slide-in-from-top-4 duration-1000">
         <div class="hero-backdrop absolute inset-0 bg-linear-to-br from-indigo-600/20 via-transparent to-fuchsia-600/10 backdrop-blur-3xl border border-white/10" />
         
         <!-- Decoration Glows -->
@@ -31,12 +31,14 @@ const circleColor = (value: number) => {
             <!-- Avatar with Glow -->
             <div class="relative">
                 <div class="absolute inset-0 bg-indigo-500/30 rounded-full blur-xl animate-pulse" />
-                <div class="relative w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-white/20 overflow-hidden shadow-2xl">
+                <div class="relative w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-white/20 overflow-hidden shadow-2xl bg-white/5 flex items-center justify-center">
                     <img 
-                        :src="person.photo_url || '/placeholder-avatar.png'" 
+                        v-if="person.photo_url"
+                        :src="person.photo_url" 
                         class="w-full h-full object-cover"
                         alt="Avatar"
                     />
+                    <PhUser v-else :size="48" weight="duotone" class="text-white/20" />
                 </div>
             </div>
 
@@ -82,7 +84,7 @@ const circleColor = (value: number) => {
             </div>
 
             <!-- Match Score Circle -->
-            <div v-if="kpis" class="hidden lg:flex flex-col items-center gap-3 p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl">
+            <div v-if="kpis" class="hidden lg:flex flex-col items-center gap-3 p-12! rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl">
                 <div class="relative flex items-center justify-center">
                     <svg class="w-24 h-24 transform -rotate-90">
                         <circle
@@ -106,8 +108,11 @@ const circleColor = (value: number) => {
                             class="transition-all duration-1000 ease-out"
                         />
                     </svg>
-                    <div class="absolute text-2xl font-black text-white">
-                        {{ kpis.potential }}%
+                    <div class="absolute flex flex-col items-center justify-center">
+                        <PhDna :size="32" weight="duotone" class="text-white/10 absolute -top-4" />
+                        <div class="text-2xl font-black text-white relative z-10">
+                            {{ kpis.potential }}%
+                        </div>
                     </div>
                 </div>
                 <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">

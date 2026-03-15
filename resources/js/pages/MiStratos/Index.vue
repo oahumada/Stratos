@@ -10,9 +10,24 @@ import DnaSection from './parts/DnaSection.vue';
 import AssessmentChat from '@/components/Assessments/AssessmentChat.vue';
 import GamificationWidget from '@/components/Talent/GamificationWidget.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
+import { 
+    PhChartPieSlice, 
+    PhUserCircle, 
+    PhTarget, 
+    PhGraduationCap, 
+    PhChatTeardropDots, 
+    PhStar, 
+    PhDna, 
+    PhTrophy, 
+    PhRobot,
+    PhX,
+    PhWarningCircle
+} from '@phosphor-icons/vue';
 
 interface PersonData {
     person: {
@@ -157,8 +172,6 @@ const kpiColor = (value: number) => {
     return '#f44336';
 };
 
-// Eliminar funciones redundantes (ahora en componentes)
-
 const formatDate = (dateStr: string) => {
     if (!dateStr) return '-';
     return new Date(dateStr).toLocaleDateString('es-CL', {
@@ -169,14 +182,14 @@ const formatDate = (dateStr: string) => {
 };
 
 const sidebarSections = [
-    { key: 'dashboard', icon: 'mdi-view-dashboard', label: 'Dashboard' },
-    { key: 'role', icon: 'mdi-badge-account', label: 'Mi Rol' },
-    { key: 'gaps', icon: 'mdi-target', label: 'Mis Brechas' },
-    { key: 'learning', icon: 'mdi-school', label: 'Mi Ruta de Aprendizaje' },
-    { key: 'conversations', icon: 'mdi-forum', label: 'Conversaciones' },
-    { key: 'evaluations', icon: 'mdi-chart-radar', label: 'Mis Evaluaciones' },
-    { key: 'dna', icon: 'mdi-dna', label: 'Mi ADN' },
-    { key: 'achievements', icon: 'mdi-trophy', label: 'Mis Logros' },
+    { key: 'dashboard', icon: PhChartPieSlice, label: 'Dashboard' },
+    { key: 'role', icon: PhUserCircle, label: 'Mi Rol' },
+    { key: 'gaps', icon: PhTarget, label: 'Mis Brechas' },
+    { key: 'learning', icon: PhGraduationCap, label: 'Mi Ruta' },
+    { key: 'conversations', icon: PhChatTeardropDots, label: 'Conversaciones' },
+    { key: 'evaluations', icon: PhStar, label: 'Mis Evaluaciones' },
+    { key: 'dna', icon: PhDna, label: 'Mi ADN' },
+    { key: 'achievements', icon: PhTrophy, label: 'Mis Logros' },
 ];
 
 onMounted(() => {
@@ -190,615 +203,237 @@ defineOptions({ layout: AppLayout });
 <template>
     <Head title="Mi Stratos — Portal Personal" />
 
-    <div class="mi-stratos-container">
+    <div class="mi-stratos-container relative min-h-screen bg-[#020617] p-8!">
+        <!-- Background Decoration (UX Pilar 1) -->
+        <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden text-indigo-500">
+            <div class="absolute -top-[5%] -left-[5%] h-[40%] w-[40%] rounded-full bg-current opacity-5 blur-[120px]"></div>
+            <div class="absolute -bottom-[10%] right-[10%] h-[35%] w-[35%] rounded-full bg-cyan-500/5 blur-[120px]"></div>
+        </div>
+
         <!-- Loading State -->
-        <div v-if="loading" class="loading-overlay">
-            <v-progress-circular
-                indeterminate
-                color="white"
-                size="64"
-                width="5"
-            />
-            <p class="loading-text">Preparando tu espacio personal...</p>
+        <div v-if="loading" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/60 backdrop-blur-xl transition-all duration-700">
+            <div class="relative mb-8">
+                <div class="absolute inset-0 animate-pulse rounded-full bg-indigo-500/20 blur-2xl"></div>
+                <div class="h-16 w-16 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent shadow-[0_0_20px_rgba(99,102,241,0.4)]"></div>
+            </div>
+            <p class="animate-pulse text-lg font-light tracking-widest text-white/50 uppercase">
+                Sincronizando con Cerbero IA...
+            </p>
         </div>
 
         <!-- Empty State: No person linked -->
-        <div v-else-if="!person" class="empty-state">
-            <v-icon size="80" color="grey-lighten-1">mdi-account-off</v-icon>
-            <h2 class="text-h4 text-grey-lighten-1 mt-4">
-                Sin perfil vinculado
-            </h2>
-            <p class="text-grey mt-2">
-                {{
-                    data?.message ||
-                    'No hay un perfil de colaborador asociado a tu cuenta.'
-                }}
-            </p>
+        <div v-else-if="!person" class="relative z-10 mx-auto max-w-2xl overflow-hidden py-24 text-center">
+            <StCardGlass indicator="rose" class="p-16!">
+                <PhWarningCircle :size="80" weight="thin" class="mx-auto mb-6 text-rose-500/40" />
+                <h2 class="mb-4 text-3xl font-black tracking-tight text-white">
+                    Sin perfil vinculado
+                </h2>
+                <p class="mb-8 font-light leading-relaxed text-white/40">
+                    {{ data?.message || 'No hay un perfil de colaborador asociado a tu cuenta de acceso.' }}
+                </p>
+                <StButtonGlass variant="ghost" class="mx-auto">
+                    Contactar a Soporte
+                </StButtonGlass>
+            </StCardGlass>
         </div>
 
         <!-- Main Content -->
         <template v-else>
-            <!-- SECTION: Hero Header -->
-            <HeroSection 
-                v-if="person"
-                :person="person"
-                :greeting="greeting"
-                :archetype-label="archetypeLabel"
-                :cube-label="cubeLabel"
-                :kpis="kpis"
-            />
+            <div class="relative z-10 mx-auto max-w-7xl">
+                <!-- SECTION: Hero Header (Vanguard Standard) -->
+                <HeroSection 
+                    v-if="person"
+                    :person="person"
+                    :greeting="greeting"
+                    :archetype-label="archetypeLabel"
+                    :cube-label="cubeLabel"
+                    :kpis="kpis"
+                    class="mb-10"
+                />
 
-            <!-- Body: Sidebar + Content -->
-            <div class="portal-body">
-                <!-- Mini Sidebar -->
-                <div class="portal-sidebar">
-                    <div
-                        v-for="section in sidebarSections"
-                        :key="section.key"
-                        class="sidebar-item"
-                        :class="{ active: activeSection === section.key }"
-                        @click="activeSection = section.key"
-                    >
-                        <v-icon :icon="section.icon" size="20" />
-                        <span class="sidebar-label">{{ section.label }}</span>
+                <!-- Body: Sidebar + Content -->
+                <div class="flex flex-col gap-8 lg:flex-row">
+                    <!-- Premium Portal Sidebar (UX Pilar 3) -->
+                    <div class="w-full shrink-0 lg:w-64">
+                         <div class="sticky top-24 space-y-2">
+                            <button
+                                v-for="section in sidebarSections"
+                                :key="section.key"
+                                @click="activeSection = section.key"
+                                :class="[
+                                    'group flex w-full items-center gap-3 rounded-2xl p-4 text-sm transition-all duration-300',
+                                    activeSection === section.key 
+                                        ? 'bg-indigo-500/10 text-indigo-300 shadow-[0_4px_15px_rgba(99,102,241,0.15)] ring-1 ring-indigo-500/30' 
+                                        : 'text-white/40 hover:bg-white/5 hover:text-white'
+                                ]"
+                            >
+                                <component :is="section.icon" :size="22" :weight="activeSection === section.key ? 'fill' : 'duotone'" />
+                                <span class="font-bold tracking-tight">{{ section.label }}</span>
+                                <div v-if="activeSection === section.key" class="ml-auto h-1 w-1 rounded-full bg-indigo-500 shadow-[0_0_8px_#6366f1]"></div>
+                            </button>
+                         </div>
                     </div>
-                </div>
 
-                <!-- Content Area -->
-                <div class="portal-content">
-                    <!-- SECTION: Principal (Dashboard) -->
-                    <transition name="fade" mode="out-in">
-                        <DashboardSection 
-                            v-if="activeSection === 'dashboard'"
-                            key="dashboard"
-                            :kpis="kpis"
-                            :conversations="conversations"
-                            :learning-paths="learningPaths"
-                            :greeting="greeting"
-                            @go-to-learning="activeSection = 'learning'"
-                            @toggle-mentor-chat="toggleMentorChat"
-                        />
-                    </transition>
-
-                    <!-- SECTION: Mi Rol -->
-                    <transition name="fade" mode="out-in">
-                        <RoleSection 
-                            v-if="activeSection === 'role' && person"
-                            key="role"
-                            :person="person"
-                            :competencies="competencies"
-                            :archetype-label="archetypeLabel"
-                            :cube-label="cubeLabel"
-                        />
-                    </transition>
-
-                    <!-- SECTION: Mi Brecha -->
-                    <transition name="fade" mode="out-in">
-                        <GapsSection 
-                            v-if="activeSection === 'gaps' && data"
-                            key="gaps"
-                            :gap-analysis="data.gap_analysis"
-                            @go-to-learning="activeSection = 'learning'"
-                        />
-                    </transition>
-
-                    <!-- SECTION: Mi Ruta (Learning) -->
-                    <transition name="fade" mode="out-in">
-                        <LearningSection 
-                            v-if="activeSection === 'learning'"
-                            key="learning"
-                            :learning-paths="learningPaths"
-                            :format-date="formatDate"
-                        />
-                    </transition>
-
-                    <!-- SECTION: Conversations -->
-                    <transition name="fade" mode="out-in">
-                        <ConversationsSection 
-                            v-if="activeSection === 'conversations'"
-                            key="conversations"
-                            :conversations="conversations"
-                            :format-date="formatDate"
-                        />
-                    </transition>
-
-                    <!-- SECTION: Mis Evaluaciones -->
-                    <transition name="fade" mode="out-in">
-                        <EvaluationsSection 
-                            v-if="activeSection === 'evaluations'"
-                            key="evaluations"
-                            :evaluations="evaluations"
-                        />
-                    </transition>
-
-                    <!-- SECTION: Mi ADN (Psychometric Profile) -->
-                    <transition name="fade" mode="out-in">
-                        <DnaSection 
-                            v-if="activeSection === 'dna'"
-                            key="dna"
-                            v-model:is-retaking-dna="isRetakingDna"
-                            :person="person"
-                            :data="data"
-                            :kpi-color="kpiColor"
-                            @refresh="fetchDashboard"
-                        />
-                    </transition>
-
-                    <!-- SECTION: Mis Logros -->
-                    <transition name="fade" mode="out-in">
-                        <div
-                            v-if="activeSection === 'achievements'"
-                            key="achievements"
-                        >
-                            <h2 class="section-title">
-                                <v-icon class="mr-2" color="primary"
-                                    >mdi-trophy</v-icon
-                                >
-                                Mis Logros
-                            </h2>
-
-                            <div class="mx-auto mt-6" style="max-width: 800px">
-                                <GamificationWidget
-                                    :points="person?.current_points || 0"
-                                    :badges="person?.badges || []"
-                                    :quests="quests"
+                    <!-- Content Area -->
+                    <div class="min-w-0 grow">
+                        <transition name="portal-fade" mode="out-in">
+                            <div :key="activeSection">
+                                <!-- SECTION: Principal (Dashboard) -->
+                                <DashboardSection 
+                                    v-if="activeSection === 'dashboard'"
+                                    :kpis="kpis"
+                                    :conversations="conversations"
+                                    :learning-paths="learningPaths"
+                                    :greeting="greeting"
+                                    @go-to-learning="activeSection = 'learning'"
+                                    @toggle-mentor-chat="toggleMentorChat"
                                 />
+
+                                <!-- SECTION: Mi Rol -->
+                                <RoleSection 
+                                    v-if="activeSection === 'role' && person"
+                                    :person="person"
+                                    :competencies="competencies"
+                                    :archetype-label="archetypeLabel"
+                                    :cube-label="cubeLabel"
+                                />
+
+                                <!-- SECTION: Mi Brecha -->
+                                <GapsSection 
+                                    v-if="activeSection === 'gaps' && data"
+                                    :gap-analysis="data.gap_analysis"
+                                    @go-to-learning="activeSection = 'learning'"
+                                />
+
+                                <!-- SECTION: Mi Ruta (Learning) -->
+                                <LearningSection 
+                                    v-if="activeSection === 'learning'"
+                                    :learning-paths="learningPaths"
+                                    :format-date="formatDate"
+                                />
+
+                                <!-- SECTION: Conversations -->
+                                <ConversationsSection 
+                                    v-if="activeSection === 'conversations'"
+                                    :conversations="conversations"
+                                    :format-date="formatDate"
+                                />
+
+                                <!-- SECTION: Mis Evaluaciones -->
+                                <EvaluationsSection 
+                                    v-if="activeSection === 'evaluations'"
+                                    :evaluations="evaluations"
+                                />
+
+                                <!-- SECTION: Mi ADN (Psychometric Profile) -->
+                                <DnaSection 
+                                    v-if="activeSection === 'dna'"
+                                    v-model:is-retaking-dna="isRetakingDna"
+                                    :person="person"
+                                    :data="data"
+                                    :kpi-color="kpiColor"
+                                    @refresh="fetchDashboard"
+                                />
+
+                                <!-- SECTION: Mis Logros -->
+                                <div v-if="activeSection === 'achievements'">
+                                    <h2 class="mb-8 flex items-center gap-3 text-2xl font-black text-white">
+                                        <PhTrophy :size="28" weight="duotone" class="text-amber-400" />
+                                        Galpón de Logros
+                                    </h2>
+                                    <div class="mx-auto max-w-3xl">
+                                        <GamificationWidget
+                                            :points="person?.current_points || 0"
+                                            :badges="person?.badges || []"
+                                            :quests="quests"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </transition>
+                        </transition>
+                    </div>
                 </div>
             </div>
 
-            <!-- Floating Mentor AI Button -->
-            <v-btn
-                icon="mdi-robot"
-                color="secondary"
-                size="large"
-                elevation="8"
-                class="mentor-fab"
+            <!-- Floating Mentor AI Button (UX Pilar 4) -->
+            <button 
                 @click="toggleMentorChat"
-            />
-
-            <!-- Mentor AI Chat Dialog -->
-            <v-dialog
-                v-model="isMentorChatOpen"
-                max-width="600px"
-                transition="dialog-bottom-transition"
+                class="fixed right-8 bottom-8 z-40 flex h-16 w-16 items-center justify-center rounded-3xl bg-indigo-600 text-white shadow-[0_8px_30px_rgba(79,70,229,0.5)] transition-all duration-300 hover:scale-110 hover:shadow-[0_12px_40px_rgba(79,70,229,0.7)] active:scale-95 group"
             >
-                <v-card
-                    class="glass-card"
-                    style="background: rgba(36, 36, 62, 0.95) !important"
+                <div class="absolute inset-0 animate-pulse rounded-3xl bg-white/20"></div>
+                <PhRobot :size="32" weight="fill" class="relative transition-transform group-hover:rotate-12" />
+            </button>
+
+            <!-- Mentor AI Chat Dialog (Clean Glass Style) -->
+            <div 
+                v-if="isMentorChatOpen" 
+                class="fixed inset-0 z-50 flex items-end justify-end p-4 md:p-8"
+            >
+                <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" @click="isMentorChatOpen = false"></div>
+                
+                <StCardGlass 
+                    class="relative h-[600px] w-full max-w-2xl overflow-hidden border-indigo-500/30 shadow-2xl animate-in slide-in-from-bottom-8 duration-500"
+                    indicator="indigo"
                 >
-                    <v-toolbar
-                        color="transparent"
-                        title="Mentor AI"
-                        class="text-white"
-                    >
-                        <template #prepend>
-                            <v-icon color="secondary" class="ml-4"
-                                >mdi-robot</v-icon
-                            >
-                        </template>
-                        <v-spacer></v-spacer>
-                        <v-btn
-                            icon="mdi-close"
-                            variant="text"
-                            @click="isMentorChatOpen = false"
-                            class="mr-2"
-                        ></v-btn>
-                    </v-toolbar>
-                    <v-card-text class="pa-0">
+                    <div class="mb-6 flex items-center justify-between border-b border-white/5 pb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-400">
+                                <PhRobot :size="24" weight="duotone" />
+                            </div>
+                            <div>
+                                <h3 class="font-black text-white">Mentor Estratégico AI</h3>
+                                <p class="text-[10px] font-black tracking-widest text-white/30 uppercase">Escuchando sesión activa</p>
+                            </div>
+                        </div>
+                        <StButtonGlass variant="ghost" size="sm" circle @click="isMentorChatOpen = false">
+                            <PhX :size="20" />
+                        </StButtonGlass>
+                    </div>
+                    
+                    <div class="min-h-0 grow overflow-y-auto">
                         <AssessmentChat
                             v-if="person"
                             :person-id="person.id"
                             type="mentor"
                             @completed="isMentorChatOpen = false"
                         />
-                    </v-card-text>
-                </v-card>
-            </v-dialog>
+                    </div>
+                </StCardGlass>
+            </div>
         </template>
     </div>
 </template>
 
 <style scoped>
-/* ═══════════════════════════════════════════════
-   MI STRATOS — Premium Personal Portal
-   ═══════════════════════════════════════════════ */
-
-.mi-stratos-container {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 40%, #24243e 100%);
-    color: #e0e0e0;
-    font-family: 'Inter', 'Roboto', sans-serif;
+.portal-fade-enter-active,
+.portal-fade-leave-active {
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Loading */
-.loading-overlay {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 60vh;
-    gap: 16px;
-}
-
-.loading-text {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1.1rem;
-    font-weight: 300;
-    animation: pulse-text 2s ease-in-out infinite;
-}
-
-@keyframes pulse-text {
-    0%,
-    100% {
-        opacity: 0.6;
-    }
-    50% {
-        opacity: 1;
-    }
-}
-
-/* Empty State */
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 50vh;
-    text-align: center;
-}
-
-/* Hero Header */
-.hero-header {
-    position: relative;
-    padding: 40px 32px 32px;
-    overflow: hidden;
-}
-
-.hero-backdrop {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        135deg,
-        rgba(103, 58, 183, 0.35) 0%,
-        rgba(33, 150, 243, 0.25) 50%,
-        rgba(0, 188, 212, 0.2) 100%
-    );
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.hero-content {
-    position: relative;
-    z-index: 1;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.hero-avatar {
-    border: 3px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 0 30px rgba(103, 58, 183, 0.4);
-    transition: transform 0.3s ease;
-}
-
-.hero-avatar:hover {
-    transform: scale(1.05);
-}
-
-.greeting-text {
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: 300;
-    letter-spacing: 0.5px;
-}
-
-.hero-name {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #ffffff;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-}
-
-.kpi-hero-badge {
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-}
-
-.kpi-hero-label {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.kpi-circle {
-    filter: drop-shadow(0 0 12px rgba(103, 58, 183, 0.4));
-}
-
-/* Portal Body */
-.portal-body {
-    display: flex;
-    gap: 0;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 16px 32px;
-}
-
-/* Portal Sidebar */
-.portal-sidebar {
-    width: 200px;
-    min-width: 200px;
-    padding: 20px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.sidebar-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.6);
-    transition: all 0.25s ease;
-    font-size: 0.9rem;
-}
-
-.sidebar-item:hover {
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.06);
-}
-
-.sidebar-item.active {
-    color: #ffffff;
-    background: linear-gradient(
-        135deg,
-        rgba(103, 58, 183, 0.3) 0%,
-        rgba(33, 150, 243, 0.2) 100%
-    );
-    border-left: 3px solid #7c4dff;
-    box-shadow: 0 2px 12px rgba(103, 58, 183, 0.2);
-}
-
-.sidebar-label {
-    font-weight: 500;
-}
-
-/* Content Area */
-.portal-content {
-    flex: 1;
-    padding: 20px 0 20px 24px;
-    min-width: 0;
-}
-
-.section-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-}
-
-/* Glass Cards */
-.glass-card {
-    background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 16px !important;
-    color: #e0e0e0 !important;
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-.glass-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-/* KPI Cards */
-.kpi-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 20px;
-    text-align: center;
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-.kpi-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-.kpi-icon-wrapper {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 12px;
-}
-
-.kpi-potential .kpi-icon-wrapper {
-    background: rgba(103, 58, 183, 0.2);
-    color: #b388ff;
-}
-.kpi-readiness .kpi-icon-wrapper {
-    background: rgba(33, 150, 243, 0.2);
-    color: #82b1ff;
-}
-.kpi-learning .kpi-icon-wrapper {
-    background: rgba(76, 175, 80, 0.2);
-    color: #69f0ae;
-}
-.kpi-skills .kpi-icon-wrapper {
-    background: rgba(255, 193, 7, 0.2);
-    color: #ffd740;
-}
-
-.kpi-value {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #ffffff;
-    line-height: 1;
-}
-
-.kpi-label {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.6);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: 4px;
-}
-
-.kpi-sub {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Empty Panel */
-.empty-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px;
-}
-
-/* Conversation Items */
-.conversation-item {
-    border-radius: 8px;
-    transition: background 0.2s ease;
-}
-
-.conversation-item:hover {
-    background: rgba(255, 255, 255, 0.04);
-}
-
-/* Learning Items */
-.learning-item {
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.learning-item:last-child {
-    border-bottom: none;
-}
-
-.learning-title {
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.learning-progress-text {
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: #82b1ff;
-}
-
-/* Competencies */
-.competencies-panels {
-    background: transparent !important;
-}
-
-.competency-panel {
-    background: rgba(255, 255, 255, 0.03) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 10px !important;
-    margin-bottom: 8px !important;
-    color: #e0e0e0 !important;
-}
-
-.skill-row {
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.skill-row:last-child {
-    border-bottom: none;
-}
-
-/* Gap Rows */
-.gap-row {
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.gap-row:last-child {
-    border-bottom: none;
-}
-
-/* Transitions */
-.fade-enter-active,
-.fade-leave-active {
-    transition:
-        opacity 0.3s ease,
-        transform 0.3s ease;
-}
-
-.fade-enter-from {
+.portal-fade-enter-from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
 }
 
-.fade-leave-to {
+.portal-fade-leave-to {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-8px);
 }
 
-/* Responsive */
-@media (max-width: 960px) {
-    .portal-body {
-        flex-direction: column;
-        padding: 0 12px 24px;
-    }
-
-    .portal-sidebar {
-        width: 100%;
-        min-width: 100%;
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 12px 0;
-        gap: 4px;
-    }
-
-    .sidebar-item {
-        flex-shrink: 0;
-        padding: 8px 14px;
-    }
-
-    .sidebar-item.active {
-        border-left: none;
-        border-bottom: 3px solid #7c4dff;
-    }
-
-    .portal-content {
-        padding: 12px 0;
-    }
-
-    .hero-header {
-        padding: 24px 16px;
-    }
-
-    .hero-name {
-        font-size: 1.5rem;
-    }
+/* Scrollbar styling for chat container */
+::-webkit-scrollbar {
+  width: 6px;
 }
-
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
 /* Psychometric & Achievements Styles */
 .trait-row {
     background: rgba(255, 255, 255, 0.02);

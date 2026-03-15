@@ -1,19 +1,22 @@
 <script setup lang="ts">
+import StCardGlass from '@/components/StCardGlass.vue';
 import CultureSentinelWidget from '@/components/Dashboard/CultureSentinelWidget.vue';
 import SentinelHealthWidget from '@/components/SentinelHealthWidget.vue';
-import { dashboard } from '@/routes';
-import { type BreadcrumbItem } from '@/types';
+import {
+    PhUsersThree,
+    PhBriefcase,
+    PhLightbulb,
+    PhWarningCircle,
+    PhStar,
+    PhWarning,
+    PhChartBar,
+    PhTrendUp,
+    PhShieldCheck
+} from '@phosphor-icons/vue';
 import { Head } from '@inertiajs/vue3';
 import { useNotification } from '@kyvg/vue3-notification';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-    },
-];
 
 const { notify } = useNotification();
 
@@ -47,12 +50,6 @@ const loadMetrics = async () => {
     }
 };
 
-const getMetricColor = (value: number, threshold: number = 70): string => {
-    if (value >= threshold) return 'success';
-    if (value >= 50) return 'warning';
-    return 'error';
-};
-
 onMounted(() => {
     loadMetrics();
 });
@@ -61,285 +58,174 @@ onMounted(() => {
 <template>
     <Head title="Dashboard" />
 
-    <v-container class="pa-4 dashboard-dark">
+    <div class="mx-auto max-w-7xl space-y-8 p-8">
+        <!-- Dashboard Header with Indicator Light -->
+        <div class="relative mb-12 pt-8 animate-in fade-in slide-in-from-top-4 duration-700">
+            <div class="absolute top-0 left-0 h-px w-full bg-linear-to-r from-transparent via-indigo-500 to-transparent shadow-[0_0_20px_rgba(99,102,241,0.5)]"></div>
+            
+            <div class="flex items-center gap-4 mb-2">
+                <div class="h-2 w-12 rounded-full bg-indigo-500"></div>
+                <span class="text-xs font-black tracking-[0.3em] text-indigo-400 uppercase">
+                    Organizational Insights
+                </span>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight mb-3">
+                        Stratos <span class="bg-linear-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Command</span>
+                    </h1>
+                    <p class="text-lg font-medium text-white/40 max-w-2xl">
+                        Monitor de signos vitales, brechas críticas y potencial estratégico de la organización en tiempo real.
+                    </p>
+                </div>
+                
+                <div class="hidden md:flex p-6 rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_20px_rgba(99,102,241,0.1)] backdrop-blur-sm">
+                    <PhShieldCheck :size="48" weight="duotone" class="text-indigo-400/60" />
+                </div>
+            </div>
+        </div>
+
         <!-- Loading State -->
-        <v-card v-if="loading" class="mb-4">
-            <v-card-text class="py-8 text-center text-slate-200">
-                <v-progress-circular indeterminate color="primary" />
-                <p class="mt-4">Loading metrics...</p>
-            </v-card-text>
-        </v-card>
+        <StCardGlass v-if="loading" class="animate-pulse p-16! text-center">
+            <div class="flex flex-col items-center justify-center gap-6">
+                <div class="h-16 w-16 animate-spin rounded-full border-4 border-indigo-500/20 border-t-indigo-500"></div>
+                <p class="text-xl font-bold text-indigo-300">Sincronizando pulso organizacional...</p>
+            </div>
+        </StCardGlass>
 
         <!-- Metrics Grid -->
-        <v-row v-if="metrics && !loading" no-gutters class="gap-4">
+        <div v-if="metrics && !loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in zoom-in-95 duration-1000">
             <!-- Total Peoples -->
-            <v-col cols="12" sm="6" md="4">
-                <v-card class="h-100" elevation="0" border>
-                    <v-card-text class="pa-4">
-                        <div class="d-flex justify-space-between align-center">
-                            <div>
-                                <p class="text-caption mb-2 text-slate-400">
-                                    Total Peoples
-                                </p>
-                                <p class="text-h4 font-weight-bold text-white">
-                                    {{ metrics.total_peoples }}
-                                </p>
-                            </div>
-                            <v-icon size="48" color="info"
-                                >mdi-account-multiple</v-icon
-                            >
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
+            <StCardGlass class="group relative overflow-hidden p-12! hover:bg-white/10 transition-all duration-500">
+                <div class="absolute -right-6 -bottom-6 text-indigo-500/5 group-hover:text-indigo-500/10 transition-colors">
+                    <PhUsersThree :size="140" weight="duotone" />
+                </div>
+                <p class="text-[10px] font-black tracking-[0.2em] text-white/50 uppercase mb-4">Total Talento</p>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-5xl font-black text-white tracking-tighter">{{ metrics.total_peoples }}</p>
+                        <p class="text-xs font-medium text-indigo-400/80 mt-1">Colaboradores activos</p>
+                    </div>
+                </div>
+            </StCardGlass>
 
             <!-- Total Roles -->
-            <v-col cols="12" sm="6" md="4">
-                <v-card class="h-100" elevation="0" border>
-                    <v-card-text class="pa-4">
-                        <div class="d-flex justify-space-between align-center">
-                            <div>
-                                <p class="text-caption mb-2 text-slate-400">
-                                    Total Roles
-                                </p>
-                                <p class="text-h4 font-weight-bold text-white">
-                                    {{ metrics.total_roles }}
-                                </p>
-                            </div>
-                            <v-icon size="48" color="primary"
-                                >mdi-briefcase</v-icon
-                            >
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
+            <StCardGlass class="group relative overflow-hidden p-12! hover:bg-white/10 transition-all duration-500">
+                <div class="absolute -right-6 -bottom-6 text-indigo-500/5 group-hover:text-indigo-500/10 transition-colors">
+                    <PhBriefcase :size="140" weight="duotone" />
+                </div>
+                <p class="text-[10px] font-black tracking-[0.2em] text-white/50 uppercase mb-4">Arquitectura</p>
+                <div>
+                    <p class="text-5xl font-black text-white tracking-tighter">{{ metrics.total_roles }}</p>
+                    <p class="text-xs font-medium text-indigo-400/80 mt-1">Nodos de ejecución</p>
+                </div>
+            </StCardGlass>
 
             <!-- Total Skills -->
-            <v-col cols="12" sm="6" md="4">
-                <v-card class="h-100" elevation="0" border>
-                    <v-card-text class="pa-4">
-                        <div class="d-flex justify-space-between align-center">
-                            <div>
-                                <p class="text-caption mb-2 text-slate-400">
-                                    Total Skills
-                                </p>
-                                <p class="text-h4 font-weight-bold text-white">
-                                    {{ metrics.total_skills }}
-                                </p>
-                            </div>
-                            <v-icon size="48" color="secondary"
-                                >mdi-lightbulb-multiple</v-icon
-                            >
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
+            <StCardGlass class="group relative overflow-hidden p-12! hover:bg-white/10 transition-all duration-500">
+                <div class="absolute -right-6 -bottom-6 text-indigo-500/5 group-hover:text-indigo-500/10 transition-colors">
+                    <PhLightbulb :size="140" weight="duotone" />
+                </div>
+                <p class="text-[10px] font-black tracking-[0.2em] text-white/50 uppercase mb-4">Capital Técnico</p>
+                <div>
+                    <p class="text-5xl font-black text-white tracking-tighter">{{ metrics.total_skills }}</p>
+                    <p class="text-xs font-medium text-indigo-400/80 mt-1">Habilidades mapeadas</p>
+                </div>
+            </StCardGlass>
 
             <!-- Average Match -->
-            <v-col cols="12" sm="6" md="4">
-                <v-card class="h-100" elevation="0" border>
-                    <v-card-text class="pa-4">
-                        <p class="text-caption mb-2 text-slate-400">
-                            Avg Match %
-                        </p>
-                        <div class="d-flex align-center gap-2">
-                            <p class="text-h4 font-weight-bold text-white">
-                                {{ metrics.avg_match_percentage }}%
-                            </p>
-                        </div>
-                        <v-progress-linear
-                            :value="metrics.avg_match_percentage"
-                            :color="
-                                getMetricColor(metrics.avg_match_percentage)
-                            "
-                            height="4"
-                            class="mt-2"
-                        />
-                    </v-card-text>
-                </v-card>
-            </v-col>
+            <StCardGlass class="group relative overflow-hidden p-12! hover:bg-white/10 transition-all duration-500">
+                <div class="absolute -right-6 -bottom-6 text-white/5 group-hover:text-white/10 transition-colors">
+                    <PhTrendUp :size="140" weight="duotone" />
+                </div>
+                <p class="text-[10px] font-black tracking-[0.2em] text-white/50 uppercase mb-4">Alineación Estratégica</p>
+                <div>
+                    <div class="flex items-baseline gap-1">
+                        <p class="text-5xl font-black text-white tracking-tighter">{{ metrics.avg_match_percentage }}</p>
+                        <p class="text-2xl font-black text-white/30">%</p>
+                    </div>
+                    <div class="mt-4 h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full transition-all duration-1000" 
+                             :class="metrics.avg_match_percentage >= 70 ? 'bg-emerald-500' : 'bg-amber-500'"
+                             :style="{ width: `${metrics.avg_match_percentage}%` }"></div>
+                    </div>
+                </div>
+            </StCardGlass>
 
             <!-- Roles at Risk -->
-            <v-col cols="12" sm="6" md="4">
-                <v-card class="h-100" elevation="0" border>
-                    <v-card-text class="pa-4">
-                        <div class="d-flex justify-space-between align-center">
-                            <div>
-                                <p class="text-caption mb-2 text-slate-400">
-                                    Roles at Risk
-                                </p>
-                                <p class="text-h4 font-weight-bold text-error">
-                                    {{ metrics.roles_at_risk }}
-                                </p>
-                            </div>
-                            <v-icon size="48" color="error"
-                                >mdi-alert-circle</v-icon
-                            >
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
+            <StCardGlass class="group relative overflow-hidden p-12! border-rose-500/10 hover:bg-rose-500/5 transition-all duration-500">
+                <div class="absolute -right-6 -bottom-6 text-rose-500/5 group-hover:text-rose-500/10 transition-colors">
+                    <PhWarningCircle :size="140" weight="duotone" />
+                </div>
+                <p class="text-[10px] font-black tracking-[0.2em] text-rose-400/70 uppercase mb-4">Puntos de Falla</p>
+                <div>
+                    <p class="text-5xl font-black text-rose-500 tracking-tighter">{{ metrics.roles_at_risk }}</p>
+                    <p class="text-xs font-medium text-rose-400 mt-1">Roles bajo umbral crítico</p>
+                </div>
+            </StCardGlass>
 
             <!-- High Performers -->
-            <v-col cols="12" sm="6" md="4">
-                <v-card class="h-100" elevation="0" border>
-                    <v-card-text class="pa-4">
-                        <div class="d-flex justify-space-between align-center">
-                            <div>
-                                <p class="text-caption mb-2 text-slate-400">
-                                    High Performers
-                                </p>
-                                <p
-                                    class="text-h4 font-weight-bold text-success"
-                                >
-                                    {{ metrics.high_performers }}
-                                </p>
-                            </div>
-                            <v-icon size="48" color="success">mdi-star</v-icon>
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
+            <StCardGlass class="group relative overflow-hidden p-12! border-emerald-500/10 hover:bg-emerald-500/5 transition-all duration-500">
+                <div class="absolute -right-6 -bottom-6 text-emerald-500/5 group-hover:text-emerald-500/10 transition-colors">
+                    <PhStar :size="140" weight="duotone" />
+                </div>
+                <p class="text-[10px] font-black tracking-[0.2em] text-emerald-400/70 uppercase mb-4">High Potentials</p>
+                <div>
+                    <p class="text-5xl font-black text-emerald-400 tracking-tighter">{{ metrics.high_performers }}</p>
+                    <p class="text-xs font-medium text-emerald-400 mt-1">Modelos de éxito detectados</p>
+                </div>
+            </StCardGlass>
 
             <!-- Skills Coverage -->
-            <v-col cols="12" sm="6" md="4">
-                <v-card class="h-100" elevation="0" border>
-                    <v-card-text class="pa-4">
-                        <p class="text-caption mb-2 text-slate-400">
-                            Skills Coverage
-                        </p>
-                        <div class="d-flex align-center gap-2">
-                            <p class="text-h4 font-weight-bold text-white">
-                                {{ metrics.skills_coverage }}%
-                            </p>
-                        </div>
-                        <v-progress-linear
-                            :value="metrics.skills_coverage"
-                            :color="getMetricColor(metrics.skills_coverage)"
-                            height="4"
-                            class="mt-2"
-                        />
-                    </v-card-text>
-                </v-card>
-            </v-col>
+            <StCardGlass class="group relative overflow-hidden p-12! hover:bg-white/10 transition-all duration-500">
+                <div class="absolute -right-6 -bottom-6 text-white/5 group-hover:text-white/10 transition-colors">
+                    <PhChartBar :size="140" weight="duotone" />
+                </div>
+                <p class="text-[10px] font-black tracking-[0.2em] text-white/50 uppercase mb-4">Cobertura de Skills</p>
+                <div>
+                    <div class="flex items-baseline gap-1">
+                        <p class="text-5xl font-black text-white tracking-tighter">{{ metrics.skills_coverage }}</p>
+                        <p class="text-2xl font-black text-white/30">%</p>
+                    </div>
+                    <div class="mt-4 h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-linear-to-r from-indigo-500 to-cyan-400 transition-all duration-1000" 
+                             :style="{ width: `${metrics.skills_coverage}%` }"></div>
+                    </div>
+                </div>
+            </StCardGlass>
 
             <!-- Critical Gaps -->
-            <v-col cols="12" sm="6" md="4">
-                <v-card class="h-100" elevation="0" border>
-                    <v-card-text class="pa-4">
-                        <div class="d-flex justify-space-between align-center">
-                            <div>
-                                <p class="text-caption mb-2 text-slate-400">
-                                    Critical Gaps
-                                </p>
-                                <p
-                                    class="text-h4 font-weight-bold text-warning"
-                                >
-                                    {{ metrics.critical_gaps }}
-                                </p>
-                            </div>
-                            <v-icon size="48" color="warning"
-                                >mdi-exclamation</v-icon
-                            >
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
-        </v-row>
+            <StCardGlass class="group relative overflow-hidden p-12! border-amber-500/10 hover:bg-amber-500/5 transition-all duration-500">
+                <div class="absolute -right-6 -bottom-6 text-amber-500/5 group-hover:text-amber-500/10 transition-colors">
+                    <PhWarning :size="140" weight="duotone" />
+                </div>
+                <p class="text-[10px] font-black tracking-[0.2em] text-amber-400/70 uppercase mb-4">Gaps Críticos</p>
+                <div>
+                    <p class="text-5xl font-black text-amber-500 tracking-tighter">{{ metrics.critical_gaps }}</p>
+                    <p class="text-xs font-medium text-amber-400 mt-1">Brechas que requieren IA</p>
+                </div>
+            </StCardGlass>
+        </div>
 
         <!-- System Monitors Row -->
-        <v-row v-if="metrics && !loading" class="mt-6">
-            <v-col cols="12" md="6">
-                <CultureSentinelWidget />
-            </v-col>
-            <v-col cols="12" md="6">
-                <SentinelHealthWidget />
-            </v-col>
-        </v-row>
+        <div v-if="metrics && !loading" class="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
+            <CultureSentinelWidget />
+            <SentinelHealthWidget />
+        </div>
 
         <!-- Empty State -->
-        <v-card v-if="!loading && !metrics" class="mb-4">
-            <v-card-text class="py-12 text-center text-slate-200">
-                <v-icon size="64" class="mb-4 text-slate-400"
-                    >mdi-chart-box-outline</v-icon
-                >
-                <p class="text-body1 text-slate-300">No data available</p>
-            </v-card-text>
-        </v-card>
-    </v-container>
+        <StCardGlass v-if="!loading && !metrics" class="text-center p-24! border-dashed border-white/10 border-2">
+            <div class="flex flex-col items-center justify-center gap-4">
+                <PhChartBar :size="64" weight="light" class="text-white/20" />
+                <p class="text-2xl font-medium text-white/40">No hay telemetría disponible</p>
+                <div class="mt-4 p-1 px-3 bg-white/5 rounded-full text-xs font-bold text-white/30 tracking-widest uppercase">
+                    Sistema a la espera de ingesta
+                </div>
+            </div>
+        </StCardGlass>
+    </div>
 </template>
 
 <style scoped>
-.gap-4 {
-    gap: 16px;
-}
-
-.dashboard-dark :deep(.v-card) {
-    background: rgba(15, 23, 42, 0.55) !important;
-}
-
-.h-100 {
-    height: 100%;
-}
-
-.d-flex {
-    display: flex;
-}
-
-.justify-space-between {
-    justify-content: space-between;
-}
-
-.align-center {
-    align-items: center;
-}
-
-.pa-4 {
-    padding: 16px;
-}
-
-.mb-2 {
-    margin-bottom: 8px;
-}
-
-.mb-4 {
-    margin-bottom: 16px;
-}
-
-.mt-2 {
-    margin-top: 8px;
-}
-
-.mt-4 {
-    margin-top: 16px;
-}
-
-.text-h4 {
-    font-size: 2rem;
-    font-weight: bold;
-}
-
-.text-caption {
-    font-size: 0.75rem;
-}
-
-.text-grey {
-    color: #757575;
-}
-
-.gap-2 {
-    gap: 8px;
-}
-
-.text-error {
-    color: #f44336;
-}
-
-.text-success {
-    color: #4caf50;
-}
-
-.text-warning {
-    color: #ff9800;
-}
 </style>

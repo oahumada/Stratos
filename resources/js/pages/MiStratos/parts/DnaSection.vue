@@ -8,7 +8,6 @@ import {
     PhWarningCircle
 } from '@phosphor-icons/vue';
 import StCardGlass from '@/components/StCardGlass.vue';
-import StButtonGlass from '@/components/StButtonGlass.vue';
 import AssessmentChat from '@/components/Assessments/AssessmentChat.vue';
 
 interface Props {
@@ -35,34 +34,32 @@ const emit = defineEmits(['update:isRetakingDna', 'refresh']);
             </div>
             
             <div v-if="data?.psychometric && !isRetakingDna" class="flex gap-3">
-                <v-btn
-                    color="white"
-                    variant="outlined"
-                    size="small"
+                <StButtonGlass
+                    variant="glass"
+                    size="sm"
                     class="rounded-xl border-white/20 hover:bg-white/5 font-black uppercase tracking-widest text-[10px]"
                     @click="emit('update:isRetakingDna', true)"
                 >
                     <PhSparkle :size="14" class="mr-2" />
                     Reevaluar Potencial
-                </v-btn>
+                </StButtonGlass>
             </div>
             <div v-else-if="isRetakingDna" class="flex gap-3">
-                <v-btn
-                    color="white"
-                    variant="text"
-                    size="small"
+                <StButtonGlass
+                    variant="ghost"
+                    size="sm"
                     class="rounded-xl font-black uppercase tracking-widest text-[10px]"
                     @click="emit('update:isRetakingDna', false)"
                 >
                     <PhArrowLeft :size="14" class="mr-2" />
                     Regresar al Perfil
-                </v-btn>
+                </StButtonGlass>
             </div>
         </div>
 
         <div v-if="data?.psychometric && !isRetakingDna" class="space-y-8">
             <!-- Traits Section -->
-            <StCardGlass class="p-8">
+            <StCardGlass indicator="purple" class="p-12!">
                 <div class="flex items-center gap-4 mb-8">
                     <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/20">
                         <PhBrain :size="24" weight="duotone" />
@@ -105,9 +102,10 @@ const emit = defineEmits(['update:isRetakingDna', 'refresh']);
             </StCardGlass>
 
             <!-- Blind Spots -->
-            <div 
+            <StCardGlass 
                 v-if="data?.psychometric?.blind_spots?.length > 0"
-                class="p-8 rounded-3xl border border-rose-500/20 bg-linear-to-br from-rose-500/5 to-transparent backdrop-blur-xl"
+                indicator="rose"
+                class="p-12! border-rose-500/20 bg-linear-to-br from-rose-500/5 to-transparent backdrop-blur-xl"
             >
                 <div class="flex items-center gap-4 mb-6">
                     <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400 border border-rose-500/20">
@@ -128,7 +126,7 @@ const emit = defineEmits(['update:isRetakingDna', 'refresh']);
                         </p>
                     </div>
                 </div>
-            </div>
+            </StCardGlass>
         </div>
 
         <div v-else class="rounded-3xl border border-dashed border-white/10 bg-white/5 overflow-hidden">

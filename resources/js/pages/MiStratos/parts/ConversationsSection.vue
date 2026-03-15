@@ -58,9 +58,9 @@ const getStatusColor = (status: string) => {
             <StCardGlass 
                 v-for="conv in conversations" 
                 :key="conv.id"
-                class="hover:border-white/20 group cursor-pointer transition-all active:scale-[0.98]"
+                class="hover:border-white/20 group cursor-pointer transition-all active:scale-[0.98] p-12!"
             >
-                <div class="p-6">
+                <div class="relative">
                     <div class="flex items-start justify-between mb-6">
                         <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500/10 transition-colors">
                             <component :is="getConversationIcon(conv.type)" :size="24" weight="duotone" />

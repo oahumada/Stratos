@@ -237,7 +237,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\ApplicationController::update
-* @see app/Http/Controllers/Api/ApplicationController.php:93
+* @see app/Http/Controllers/Api/ApplicationController.php:95
 * @route '/api/applications/{id}'
 */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -252,7 +252,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ApplicationController::update
-* @see app/Http/Controllers/Api/ApplicationController.php:93
+* @see app/Http/Controllers/Api/ApplicationController.php:95
 * @route '/api/applications/{id}'
 */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -279,7 +279,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\Api\ApplicationController::update
-* @see app/Http/Controllers/Api/ApplicationController.php:93
+* @see app/Http/Controllers/Api/ApplicationController.php:95
 * @route '/api/applications/{id}'
 */
 update.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -289,7 +289,7 @@ update.patch = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\ApplicationController::update
-* @see app/Http/Controllers/Api/ApplicationController.php:93
+* @see app/Http/Controllers/Api/ApplicationController.php:95
 * @route '/api/applications/{id}'
 */
 const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -304,7 +304,7 @@ const updateForm = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\ApplicationController::update
-* @see app/Http/Controllers/Api/ApplicationController.php:93
+* @see app/Http/Controllers/Api/ApplicationController.php:95
 * @route '/api/applications/{id}'
 */
 updateForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

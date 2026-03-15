@@ -50,12 +50,13 @@ const getProgressColor = (progress: number) => {
             <StCardGlass 
                 v-for="path in learningPaths" 
                 :key="path.id"
-                class="overflow-hidden group"
+                indicator="indigo"
+                class="relative overflow-hidden group p-12!"
             >
                 <!-- Decorative background gradient -->
-                <div class="absolute inset-0 bg-linear-to-br from-indigo-500/5 to-transparent pointer-events-none" />
+                <div class="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-indigo-500/5 to-transparent pointer-events-none" />
                 
-                <div class="p-8 relative">
+                <div class="relative">
                     <div class="flex items-start justify-between mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20">

@@ -3,10 +3,9 @@ import {
     PhIdentificationBadge, 
     PhPuzzlePiece, 
     PhQuotes, 
-    PhInfo,
-    PhCube,
     PhShapes,
-    PhWarning
+    PhWarning,
+    PhCube
 } from '@phosphor-icons/vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 
@@ -35,7 +34,7 @@ const getSkillColor = (current: number, required: number) => {
 
         <div v-if="person.role" class="space-y-6">
             <!-- Role Header Card -->
-            <StCardGlass class="p-8">
+            <StCardGlass indicator="indigo" class="p-12!">
                 <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
                     <div class="p-4 rounded-2xl bg-indigo-500/10 text-indigo-400">
                         <PhIdentificationBadge :size="48" weight="duotone" />
@@ -79,7 +78,8 @@ const getSkillColor = (current: number, required: number) => {
                     <StCardGlass 
                         v-for="comp in competencies" 
                         :key="comp.id"
-                        class="p-6 hover:border-white/10 transition-colors"
+                        indicator="fuchsia"
+                        class="p-12! hover:border-white/10 transition-colors"
                     >
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center gap-3">

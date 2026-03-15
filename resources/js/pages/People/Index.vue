@@ -99,11 +99,14 @@ const handleRefresh = () => {
         :enable-row-detail="true"
     >
         <template #detail="{ item, tab, setTab, sync, close }">
-            <div
-                class="relative mb-6 overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
-            >
+            <StCardGlass class="relative mb-8 overflow-hidden p-8!">
+                <!-- Indicator Light (Top) -->
                 <div
-                    class="flex flex-col items-start justify-between gap-4 md:flex-row"
+                    class="absolute top-0 left-0 h-px w-full bg-linear-to-r from-transparent via-indigo-500 to-transparent shadow-[0_0_20px_rgba(99,102,241,0.6)]"
+                ></div>
+
+                <div
+                    class="relative flex flex-col items-start justify-between gap-4 md:flex-row"
                 >
                     <div class="flex items-center gap-4">
                         <div
@@ -465,7 +468,7 @@ const handleRefresh = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </StCardGlass>
         </template>
     </FormSchema>
 </template>

@@ -52,9 +52,9 @@ const getScoreColorClass = (score: number) => {
             <StCardGlass 
                 v-for="ev in evaluations" 
                 :key="ev.id"
-                class="overflow-hidden group"
+                class="overflow-hidden group p-12!"
             >
-                <div class="p-8 relative">
+                <div class="relative">
                     <div class="flex items-start justify-between mb-8">
                         <div>
                             <h3 class="text-xl font-black text-white group-hover:text-indigo-300 transition-colors">

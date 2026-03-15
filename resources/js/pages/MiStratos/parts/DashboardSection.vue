@@ -61,7 +61,10 @@ const formatDate = (dateStr: string) => {
         <!-- KPI Cards Grid -->
         <div v-if="kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Potential -->
-            <StCardGlass class="group p-5 border-white/5 hover:border-indigo-500/30 transition-all duration-500">
+            <StCardGlass 
+                indicator="indigo"
+                class="group p-12! border-white/5 hover:border-indigo-500/30 transition-all duration-500"
+            >
                 <div class="flex items-start justify-between mb-4">
                     <div class="p-3 rounded-2xl bg-indigo-500/10 text-indigo-400 group-hover:scale-110 transition-transform">
                         <PhLightning :size="24" weight="duotone" />
@@ -80,7 +83,10 @@ const formatDate = (dateStr: string) => {
             </StCardGlass>
 
             <!-- Readiness -->
-            <StCardGlass class="group p-5 border-white/5 hover:border-emerald-500/30 transition-all duration-500">
+            <StCardGlass 
+                indicator="emerald"
+                class="group p-12! border-white/5 hover:border-emerald-500/30 transition-all duration-500"
+            >
                 <div class="flex items-start justify-between mb-4">
                     <div class="p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 group-hover:scale-110 transition-transform">
                         <PhShieldCheck :size="24" weight="duotone" />
@@ -99,7 +105,10 @@ const formatDate = (dateStr: string) => {
             </StCardGlass>
 
             <!-- Learning -->
-            <StCardGlass class="group p-5 border-white/5 hover:border-amber-500/30 transition-all duration-500">
+            <StCardGlass 
+                indicator="amber"
+                class="group p-12! border-white/5 hover:border-amber-500/30 transition-all duration-500"
+            >
                 <div class="flex items-start justify-between mb-4">
                     <div class="p-3 rounded-2xl bg-amber-500/10 text-amber-400 group-hover:scale-110 transition-transform">
                         <PhGraduationCap :size="24" weight="duotone" />
@@ -118,7 +127,10 @@ const formatDate = (dateStr: string) => {
             </StCardGlass>
 
             <!-- Skills/Gaps -->
-            <StCardGlass class="group p-5 border-white/5 hover:border-fuchsia-500/30 transition-all duration-500">
+            <StCardGlass 
+                indicator="fuchsia"
+                class="group p-12! border-white/5 hover:border-fuchsia-500/30 transition-all duration-500"
+            >
                 <div class="flex items-start justify-between mb-4">
                     <div class="p-3 rounded-2xl bg-fuchsia-500/10 text-fuchsia-400 group-hover:scale-110 transition-transform">
                         <PhStar :size="24" weight="duotone" />
@@ -136,9 +148,9 @@ const formatDate = (dateStr: string) => {
         </div>
 
         <!-- Next Step Premium Panel -->
-        <StCardGlass v-if="kpis" class="relative group overflow-hidden p-0 mb-8 border-indigo-500/30 shadow-[0_0_50px_-12px_rgba(79,70,229,0.3)]">
-            <div class="absolute inset-0 bg-linear-to-r from-indigo-600/10 to-transparent pointer-events-none" />
-            <div class="relative p-8 flex flex-col md:flex-row items-center gap-8">
+        <StCardGlass v-if="kpis" class="relative group overflow-visible p-0 mb-12 border-indigo-500/30 shadow-[0_0_50px_-12px_rgba(79,70,229,0.3)]">
+            <div class="absolute inset-0 bg-linear-to-r from-indigo-600/10 to-transparent pointer-events-none rounded-3xl" />
+            <div class="relative p-16! flex flex-col md:flex-row items-center gap-12">
                 <div class="grow flex flex-col gap-2">
                     <div class="flex items-center gap-2">
                         <span class="relative flex h-3 w-3">
@@ -173,10 +185,9 @@ const formatDate = (dateStr: string) => {
             </div>
         </StCardGlass>
 
-        <!-- Secondary Info Row -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Active Conversations -->
-            <StCardGlass class="p-6">
+            <StCardGlass class="p-12!">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-bold text-white flex items-center gap-3">
                         <PhChatTeardropDots :size="24" weight="duotone" class="text-fuchsia-400" />
@@ -211,7 +222,7 @@ const formatDate = (dateStr: string) => {
             </StCardGlass>
 
             <!-- Learning Quick Preview -->
-            <StCardGlass class="p-6">
+            <StCardGlass class="p-12!">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-bold text-white flex items-center gap-3">
                         <PhBooks :size="24" weight="duotone" class="text-emerald-400" />

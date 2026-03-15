@@ -237,7 +237,7 @@ storeResponse.form = storeResponseForm
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::healthScan
-* @see app/Http/Controllers/Api/PulseController.php:117
+* @see app/Http/Controllers/Api/PulseController.php:121
 * @route '/api/pulse/health-scan'
 */
 export const healthScan = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -252,7 +252,7 @@ healthScan.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::healthScan
-* @see app/Http/Controllers/Api/PulseController.php:117
+* @see app/Http/Controllers/Api/PulseController.php:121
 * @route '/api/pulse/health-scan'
 */
 healthScan.url = (options?: RouteQueryOptions) => {
@@ -261,7 +261,7 @@ healthScan.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::healthScan
-* @see app/Http/Controllers/Api/PulseController.php:117
+* @see app/Http/Controllers/Api/PulseController.php:121
 * @route '/api/pulse/health-scan'
 */
 healthScan.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -271,7 +271,7 @@ healthScan.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::healthScan
-* @see app/Http/Controllers/Api/PulseController.php:117
+* @see app/Http/Controllers/Api/PulseController.php:121
 * @route '/api/pulse/health-scan'
 */
 healthScan.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -281,7 +281,7 @@ healthScan.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::healthScan
-* @see app/Http/Controllers/Api/PulseController.php:117
+* @see app/Http/Controllers/Api/PulseController.php:121
 * @route '/api/pulse/health-scan'
 */
 const healthScanForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -291,7 +291,7 @@ const healthScanForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::healthScan
-* @see app/Http/Controllers/Api/PulseController.php:117
+* @see app/Http/Controllers/Api/PulseController.php:121
 * @route '/api/pulse/health-scan'
 */
 healthScanForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -301,7 +301,7 @@ healthScanForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::healthScan
-* @see app/Http/Controllers/Api/PulseController.php:117
+* @see app/Http/Controllers/Api/PulseController.php:121
 * @route '/api/pulse/health-scan'
 */
 healthScanForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -318,7 +318,7 @@ healthScan.form = healthScanForm
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::storeEmployeePulse
-* @see app/Http/Controllers/Api/PulseController.php:67
+* @see app/Http/Controllers/Api/PulseController.php:69
 * @route '/api/people-experience/employee-pulses'
 */
 export const storeEmployeePulse = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -333,7 +333,7 @@ storeEmployeePulse.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::storeEmployeePulse
-* @see app/Http/Controllers/Api/PulseController.php:67
+* @see app/Http/Controllers/Api/PulseController.php:69
 * @route '/api/people-experience/employee-pulses'
 */
 storeEmployeePulse.url = (options?: RouteQueryOptions) => {
@@ -342,7 +342,7 @@ storeEmployeePulse.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::storeEmployeePulse
-* @see app/Http/Controllers/Api/PulseController.php:67
+* @see app/Http/Controllers/Api/PulseController.php:69
 * @route '/api/people-experience/employee-pulses'
 */
 storeEmployeePulse.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -352,7 +352,7 @@ storeEmployeePulse.post = (options?: RouteQueryOptions): RouteDefinition<'post'>
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::storeEmployeePulse
-* @see app/Http/Controllers/Api/PulseController.php:67
+* @see app/Http/Controllers/Api/PulseController.php:69
 * @route '/api/people-experience/employee-pulses'
 */
 const storeEmployeePulseForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -362,7 +362,7 @@ const storeEmployeePulseForm = (options?: RouteQueryOptions): RouteFormDefinitio
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::storeEmployeePulse
-* @see app/Http/Controllers/Api/PulseController.php:67
+* @see app/Http/Controllers/Api/PulseController.php:69
 * @route '/api/people-experience/employee-pulses'
 */
 storeEmployeePulseForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -374,7 +374,7 @@ storeEmployeePulse.form = storeEmployeePulseForm
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
-* @see app/Http/Controllers/Api/PulseController.php:136
+* @see app/Http/Controllers/Api/PulseController.php:140
 * @route '/api/people-experience/employee-pulses'
 */
 export const listEmployeePulses = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -389,7 +389,7 @@ listEmployeePulses.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
-* @see app/Http/Controllers/Api/PulseController.php:136
+* @see app/Http/Controllers/Api/PulseController.php:140
 * @route '/api/people-experience/employee-pulses'
 */
 listEmployeePulses.url = (options?: RouteQueryOptions) => {
@@ -398,7 +398,7 @@ listEmployeePulses.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
-* @see app/Http/Controllers/Api/PulseController.php:136
+* @see app/Http/Controllers/Api/PulseController.php:140
 * @route '/api/people-experience/employee-pulses'
 */
 listEmployeePulses.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -408,7 +408,7 @@ listEmployeePulses.get = (options?: RouteQueryOptions): RouteDefinition<'get'> =
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
-* @see app/Http/Controllers/Api/PulseController.php:136
+* @see app/Http/Controllers/Api/PulseController.php:140
 * @route '/api/people-experience/employee-pulses'
 */
 listEmployeePulses.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -418,7 +418,7 @@ listEmployeePulses.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
-* @see app/Http/Controllers/Api/PulseController.php:136
+* @see app/Http/Controllers/Api/PulseController.php:140
 * @route '/api/people-experience/employee-pulses'
 */
 const listEmployeePulsesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -428,7 +428,7 @@ const listEmployeePulsesForm = (options?: RouteQueryOptions): RouteFormDefinitio
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
-* @see app/Http/Controllers/Api/PulseController.php:136
+* @see app/Http/Controllers/Api/PulseController.php:140
 * @route '/api/people-experience/employee-pulses'
 */
 listEmployeePulsesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -438,7 +438,7 @@ listEmployeePulsesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listEmployeePulses
-* @see app/Http/Controllers/Api/PulseController.php:136
+* @see app/Http/Controllers/Api/PulseController.php:140
 * @route '/api/people-experience/employee-pulses'
 */
 listEmployeePulsesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -455,7 +455,7 @@ listEmployeePulses.form = listEmployeePulsesForm
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
-* @see app/Http/Controllers/Api/PulseController.php:152
+* @see app/Http/Controllers/Api/PulseController.php:156
 * @route '/api/people-experience/turnover-heatmap'
 */
 export const listTurnoverHeatmap = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -470,7 +470,7 @@ listTurnoverHeatmap.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
-* @see app/Http/Controllers/Api/PulseController.php:152
+* @see app/Http/Controllers/Api/PulseController.php:156
 * @route '/api/people-experience/turnover-heatmap'
 */
 listTurnoverHeatmap.url = (options?: RouteQueryOptions) => {
@@ -479,7 +479,7 @@ listTurnoverHeatmap.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
-* @see app/Http/Controllers/Api/PulseController.php:152
+* @see app/Http/Controllers/Api/PulseController.php:156
 * @route '/api/people-experience/turnover-heatmap'
 */
 listTurnoverHeatmap.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -489,7 +489,7 @@ listTurnoverHeatmap.get = (options?: RouteQueryOptions): RouteDefinition<'get'> 
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
-* @see app/Http/Controllers/Api/PulseController.php:152
+* @see app/Http/Controllers/Api/PulseController.php:156
 * @route '/api/people-experience/turnover-heatmap'
 */
 listTurnoverHeatmap.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -499,7 +499,7 @@ listTurnoverHeatmap.head = (options?: RouteQueryOptions): RouteDefinition<'head'
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
-* @see app/Http/Controllers/Api/PulseController.php:152
+* @see app/Http/Controllers/Api/PulseController.php:156
 * @route '/api/people-experience/turnover-heatmap'
 */
 const listTurnoverHeatmapForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -509,7 +509,7 @@ const listTurnoverHeatmapForm = (options?: RouteQueryOptions): RouteFormDefiniti
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
-* @see app/Http/Controllers/Api/PulseController.php:152
+* @see app/Http/Controllers/Api/PulseController.php:156
 * @route '/api/people-experience/turnover-heatmap'
 */
 listTurnoverHeatmapForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -519,7 +519,7 @@ listTurnoverHeatmapForm.get = (options?: RouteQueryOptions): RouteFormDefinition
 
 /**
 * @see \App\Http\Controllers\Api\PulseController::listTurnoverHeatmap
-* @see app/Http/Controllers/Api/PulseController.php:152
+* @see app/Http/Controllers/Api/PulseController.php:156
 * @route '/api/people-experience/turnover-heatmap'
 */
 listTurnoverHeatmapForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
