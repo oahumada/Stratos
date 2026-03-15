@@ -152,7 +152,7 @@ const handleRefresh = () => {
                     class="mt-8 flex flex-col items-center justify-between border-t border-white/5 pt-6 md:flex-row"
                 >
                     <div
-                        class="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0"
+                        class="flex flex-1 items-center gap-2 overflow-x-hidden pb-4 md:pb-0"
                     >
                         <button
                             v-for="tValue in [

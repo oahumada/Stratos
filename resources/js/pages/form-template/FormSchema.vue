@@ -548,18 +548,18 @@ onMounted(() => {
         </header>
 
         <!-- Filters Section in Glass Card -->
-        <StCardGlass v-if="filters && filters.length > 0" class="mb-6">
+        <StCardGlass v-if="filters && filters.length > 0" class="mb-8 p-10!">
             <div class="d-flex align-center mb-4 gap-2">
                 <component
                     :is="PhFunnel"
                     class="text-indigo-accent-2"
                     :size="18"
                 />
-                <span class="text-overline font-weight-bold text-slate-300">
+                <span class="text-overline font-weight-black tracking-widest text-white/70">
                     {{ t('form_schema.filters_title') }}
                 </span>
             </div>
-            <v-row dense>
+            <v-row class="mt-2">
                 <v-col cols="12" sm="6" :md="12 / (filters.length + 1)">
                     <v-text-field
                         v-model="searchQuery"
@@ -610,6 +610,7 @@ onMounted(() => {
                         rounded="lg"
                         hide-details
                         class="glass-input"
+                        :menu-props="{ contentClass: 'glass-menu' }"
                     />
                     <v-text-field
                         v-else-if="filter.type === 'date'"
@@ -631,7 +632,7 @@ onMounted(() => {
                 >
                     <v-btn
                         variant="text"
-                        color="slate-400"
+                        color="indigo-accent-1"
                         @click="resetFilters"
                         class="text-none"
                     >
@@ -750,11 +751,20 @@ onMounted(() => {
     <!-- Form Dialog -->
     <v-dialog
         v-model="dialogOpen"
-        max-width="960px"
+        width="1200"
         persistent
         transition="dialog-transition"
     >
-        <StCardGlass class="pa-0 overflow-hidden" :no-hover="true">
+        <StCardGlass
+            class="pa-0"
+            :no-hover="true"
+            style="
+                max-height: 85vh;
+                margin: 2rem;
+                display: flex;
+                flex-direction: column;
+            "
+        >
             <!-- Header with gradient -->
             <div
                 class="dialog-header-gradient"
@@ -778,7 +788,7 @@ onMounted(() => {
             </div>
 
             <div
-                class="pa-8"
+                class="pa-5 grow overflow-y-auto"
                 :style="
                     {
                         '--form-primary':
@@ -826,8 +836,8 @@ onMounted(() => {
     </v-dialog>
 
     <!-- Delete Confirmation Dialog -->
-    <v-dialog v-model="deleteDialogOpen" max-width="400px">
-        <StCardGlass class="pa-0" :no-hover="true">
+    <v-dialog v-model="deleteDialogOpen" width="500">
+        <StCardGlass class="pa-0" :no-hover="true" style="margin: 2rem;">
             <div class="pa-6">
                 <div class="text-h6 font-premium mb-2 text-white">
                     {{ t('form_schema.dialog.delete_confirm') }}
@@ -866,27 +876,22 @@ onMounted(() => {
     <v-dialog
         v-if="detailEnabled"
         v-model="detailOpen"
-        width="720"
-        persistent
-        scrim="transparent"
-        transition="dialog-right-transition"
+        width="1350"
+        transition="dialog-transition"
     >
         <StCardGlass
-            class="pa-6"
-            height="100%"
+            class="pa-8"
             style="
-                min-height: 100vh;
-                border-left: 1px solid rgba(255, 255, 255, 0.1);
+                max-height: 85vh;
+                margin: 2rem;
+                overflow-y: auto;
             "
             :no-hover="true"
         >
             <div class="d-flex align-center justify-space-between mb-3">
                 <div>
-                    <div class="text-subtitle-1 font-weight-medium">
-                        {{ t('form_schema.active_badge') }}
-                    </div>
-                    <div class="text-body-2 text-secondary">
-                        {{ t('form_schema.no_records') }}
+                    <div class="text-h6 font-premium text-white">
+                        {{ detailItem?.name || detailItem?.first_name || t('form_schema.detail_title') }}
                     </div>
                 </div>
                 <v-btn
@@ -946,7 +951,7 @@ onMounted(() => {
 <style scoped>
 /* Form Dialog Styles */
 .dialog-header-gradient {
-    padding: 1.5rem 2rem;
+    padding: 1rem 2rem;
     display: flex;
     align-items: center;
     position: relative;
@@ -1021,11 +1026,23 @@ onMounted(() => {
     --v-field-border-opacity: 0.1;
 }
 
+.glass-input :deep(.v-label) {
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-weight: 600 !important;
+}
+
+.glass-input :deep(input),
+.glass-input :deep(.v-select__selection-text) {
+    color: white !important;
+}
+
 .glass-input :deep(.v-field--focused .v-field__outline) {
     --v-field-border-opacity: 0.4;
     color: var(--stratos-accent-indigo) !important;
 }
+</style>
 
+<style scoped>
 .glass-table {
     background: transparent !important;
     color: #cbd5e1 !important;

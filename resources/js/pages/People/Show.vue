@@ -23,7 +23,7 @@ import {
     PhPlus,
     PhArrowsClockwise,
     PhWarningCircle,
-    PhAtoms,
+    //PhAtom,
     PhShieldCheck,
     PhArrowLeft
 } from '@phosphor-icons/vue';
@@ -106,7 +106,11 @@ defineOptions({ layout: AppLayout });
                     <div class="relative shrink-0">
                         <div class="absolute inset-0 animate-pulse rounded-3xl bg-indigo-500/20 blur-xl"></div>
                         <div class="relative h-32 w-32 overflow-hidden rounded-3xl border-2 border-white/20 shadow-2xl">
-                            <img :src="personData.person.photo_url || '/placeholder-avatar.png'" class="h-full w-full object-cover" alt="Avatar" />
+                            <img 
+                                :src="personData.person.photo_url || '/placeholder-avatar.png'" 
+                                class="h-full w-full object-cover" 
+                                :alt="personData.person.first_name + ' ' + personData.person.last_name" 
+                            />
                         </div>
                     </div>
 
@@ -269,7 +273,11 @@ defineOptions({ layout: AppLayout });
                             <div class="space-y-4">
                                 <div v-for="rel in personData.person.relations" :key="rel.id" class="group flex items-center gap-4 rounded-2xl border border-white/5 bg-white/2 p-3 transition-all hover:bg-white/5">
                                     <div class="h-10 w-10 overflow-hidden rounded-xl border border-white/10">
-                                        <img :src="rel.related_person.photo_url || '/placeholder-avatar.png'" class="h-full w-full object-cover" />
+                                        <img 
+                                            :src="rel.related_person.photo_url || '/placeholder-avatar.png'" 
+                                            class="h-full w-full object-cover" 
+                                            :alt="rel.related_person.first_name + ' ' + rel.related_person.last_name" 
+                                        />
                                     </div>
                                     <div class="grow">
                                         <div class="text-sm font-bold text-white">{{ rel.related_person.first_name }} {{ rel.related_person.last_name }}</div>
@@ -409,8 +417,6 @@ defineOptions({ layout: AppLayout });
             </div>
         </div>
     </div>
-</template>
-</div>
 </template>
 
 <style scoped>

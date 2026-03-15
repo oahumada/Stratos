@@ -298,4 +298,89 @@
         transition: background-color 5000s ease-in-out 0s;
         border: 1px solid rgba(99, 102, 241, 0.3) !important;
     }
+
+    /* Global Glass Menu Styles (Vuetify Overrides) */
+    .glass-menu.v-overlay__content .v-list {
+        background: #0f172a !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+        padding: 8px !important;
+        margin-top: 4px !important;
+    }
+
+    .glass-menu .v-list-item {
+        border-radius: 8px !important;
+        margin-bottom: 2px !important;
+        color: #cbd5e1 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .glass-menu .v-list-item:hover {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: white !important;
+    }
+
+    .glass-menu .v-list-item--active,
+    .glass-menu .v-list-item--selected {
+        background: rgba(99, 102, 241, 0.2) !important;
+        color: #818cf8 !important;
+    }
+
+    .glass-menu .v-list-item__overlay {
+        display: none !important;
+    }
+
+    /* Stratos Floating Glass Modal System */
+    .st-modal-glass {
+        max-height: 85vh !important;
+        margin: 2rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        border-radius: 2rem !important;
+        overflow: hidden !important;
+    }
+
+    .st-modal-header-gradient {
+        background: linear-gradient(
+            to right,
+            rgba(99, 102, 241, 0.1),
+            rgba(168, 85, 247, 0.05)
+        );
+        padding: 1.25rem 2rem;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .st-modal-header-gradient::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: -10%;
+        width: 50%;
+        height: 100%;
+        background: radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 70%
+        );
+        pointer-events: none;
+    }
+
+    .st-modal-body {
+        padding: 1.5rem 2rem;
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    .st-modal-footer {
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
 }

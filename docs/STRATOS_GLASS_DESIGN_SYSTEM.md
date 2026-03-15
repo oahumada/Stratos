@@ -114,6 +114,12 @@ Una vez que el módulo es funcional, entramos en la fase de **Excelencia Refract
 - [ ] **Jerarquía de Capas (Z-Axis)**: ¿Se percibe claramente qué paneles están "encima" de otros mediante `backdrop-blur` y sombras suaves?
 - [ ] **Copywriting Estratégico**: ¿Los textos hablan de "Talento" y "Estrategia" o solo de campos técnicos?
 
+## 7. Modal System: Floating Glass 💎
+
+Para asegurar que todas las ventanas emergentes mantengan la estética premium, hemos estandarizado el patrón **Floating Glass**. Este diseño utiliza capas suspendidas con scroll interno y gradientes cinéticos.
+
+Consulte la **[Guía de Implementación de Modales Glass](./MODAL_GLASS_IMPLEMENTATION.md)** para especificaciones técnicas, clases CSS globales y ejemplos de estructura.
+
 ---
 
 > [!TIP]
