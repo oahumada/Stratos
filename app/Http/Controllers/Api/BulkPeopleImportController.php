@@ -59,10 +59,10 @@ class BulkPeopleImportController extends Controller
         $detected = [];
 
         foreach ($deptNames as $name) {
-            $match = $existingDepts->first(fn($d) => 
-                mb_strtolower($d->name) === mb_strtolower($name) || 
-                (is_array($d->aliases) && in_array(mb_strtolower($name), array_map('mb_strtolower', $d->aliases)))
-            );
+            $match = $existingDepts->first(function ($d) use ($name) {
+                return mb_strtolower($d->name) === mb_strtolower($name) ||
+                    (is_array($d->aliases) && in_array(mb_strtolower($name), array_map('mb_strtolower', $d->aliases)));
+            });
 
             $detected[] = [
                 'raw_name' => $name,
@@ -98,14 +98,23 @@ class BulkPeopleImportController extends Controller
         $uploadedEmails = [];
 
         foreach ($rows as $row) {
-            $email = mb_strtolower($row['email'] ?? ($row['id_nacional'] . '@stratos.ai'));
+            // Sanitización de Datos (Chilean Context)
+            $sanitizedName = \App\Services\Talent\TalentDataSanitizer::sanitizeNames($row);
+            $sanitizedRut = \App\Services\Talent\TalentDataSanitizer::sanitizeRut($row['rut'] ?? $row['id_nacional'] ?? null);
+            
+            $email = mb_strtolower($row['email'] ?? ($sanitizedRut ? $sanitizedRut . '@stratos.ai' : null));
+            if (!$email) {
+                continue;
+            }
+
             $uploadedEmails[] = $email;
             $person = $existingPeople->first(fn($p) => mb_strtolower($p->email) === $email);
 
             if (!$person) {
                 $movements['hires'][] = [
-                    'name' => ($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''),
+                    'name' => $sanitizedName['first_name'] . ' ' . $sanitizedName['last_name'],
                     'email' => $email,
+                    'rut' => $sanitizedRut,
                     'department' => $row['department'] ?? '?',
                     'role' => $row['role'] ?? '?'
                 ];
@@ -273,7 +282,14 @@ class BulkPeopleImportController extends Controller
     private function syncPeopleBatch($orgId, array $rows, array $deptMap, array $roleMap, ChangeSet $changeSet): void
     {
         foreach ($rows as $row) {
-            $email = $row['email'] ?? ($row['id_nacional'] . '@stratos.ai');
+            $sanitizedName = \App\Services\Talent\TalentDataSanitizer::sanitizeNames($row);
+            $sanitizedRut = \App\Services\Talent\TalentDataSanitizer::sanitizeRut($row['rut'] ?? $row['id_nacional'] ?? null);
+            
+            $email = $row['email'] ?? ($sanitizedRut ? $sanitizedRut . '@stratos.ai' : null);
+            if (!$email) {
+                continue;
+            }
+
             $person = People::where('organization_id', $orgId)->where('email', $email)->first();
             
             $oldDeptId = $person ? $person->department_id : null;
@@ -284,8 +300,9 @@ class BulkPeopleImportController extends Controller
             $person = People::updateOrCreate(
                 ['organization_id' => $orgId, 'email' => $email],
                 [
-                    'first_name' => $row['first_name'],
-                    'last_name' => $row['last_name'],
+                    'first_name' => $sanitizedName['first_name'],
+                    'last_name' => $sanitizedName['last_name'],
+                    'external_id' => $sanitizedRut,
                     'department_id' => $newDeptId,
                     'role_id' => $newRoleId,
                     'hire_date' => $row['hire_date'] ?? ($person->hire_date ?? now()),
