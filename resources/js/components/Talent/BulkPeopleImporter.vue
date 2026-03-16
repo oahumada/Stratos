@@ -38,12 +38,17 @@ const rawData = ref<any[]>([]);
 const analysis = ref<any>(null);
 const loading = ref(false);
 const changeSetId = ref<number | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null);
+
+const triggerFileInput = () => {
+    fileInput.value?.click();
+};
 
 const steps = [
-    { title: 'Carga', icon: PhUploadSimple },
-    { title: 'Alineación', icon: PhBuildings },
-    { title: 'Resolución', icon: PhWarningCircle },
-    { title: 'Aprobación', icon: PhSignature },
+    { title: 'bulk_import.steps.upload', icon: PhUploadSimple },
+    { title: 'bulk_import.steps.alignment', icon: PhBuildings },
+    { title: 'bulk_import.steps.resolution', icon: PhWarningCircle },
+    { title: 'bulk_import.steps.approval', icon: PhSignature },
 ];
 
 const handleFileUpload = (e: any) => {
@@ -51,25 +56,54 @@ const handleFileUpload = (e: any) => {
     if (f) {
         file.value = f;
         parseCSV(f);
+        if (fileInput.value) {
+            fileInput.value.value = '';
+        }
     }
 };
 
 const parseCSV = async (f: File) => {
     try {
         const text = await f.text();
-        const rows = text.split('\n').filter(r => r.trim());
-        const headers = rows[0].split(',').map(h => h.trim());
-        
-        rawData.value = rows.slice(1).map(row => {
-            const values = row.split(',');
+        // Dividir por líneas manejando diferentes tipos de saltos de línea
+        const lines = text.split(/\r?\n/).filter((r) => r.trim());
+
+        if (lines.length === 0) return;
+
+        // Función robusta para parsear una línea de CSV (maneja campos entre comillas)
+        const parseCSVLine = (line: string) => {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            // Limpia comillas residuales en los extremos de cada campo
+            return result.map((v) => v.replace(/^"|"$/g, '').trim());
+        };
+
+        const headers = parseCSVLine(lines[0]).map((h) =>
+            h.toLowerCase().replaceAll(' ', '_'),
+        );
+
+        rawData.value = lines.slice(1).map((line) => {
+            const values = parseCSVLine(line);
             const obj: any = {};
             headers.forEach((h, i) => {
-                obj[h.toLowerCase().replaceAll(' ', '_')] = values[i]?.trim();
+                obj[h] = values[i] || '';
             });
             return obj;
         });
-        
-        // Mapeo automático básico
+
         step.value = 2;
     } catch (error) {
         console.error('Error parsing CSV:', error);
@@ -79,7 +113,7 @@ const parseCSV = async (f: File) => {
 const runAnalysis = async () => {
     loading.value = true;
     try {
-        const res = await post('/talent/bulk-import/analyze', { rows: rawData.value });
+        const res = await post('/api/talent/bulk-import/analyze', { rows: rawData.value });
         analysis.value = res.analysis;
         step.value = 3;
     } catch (e) {
@@ -92,7 +126,7 @@ const runAnalysis = async () => {
 const stageImport = async () => {
     loading.value = true;
     try {
-        const res = await post('/talent/bulk-import/stage', { 
+        const res = await post('/api/talent/bulk-import/stage', { 
             rows: rawData.value,
             mapping: {
                 departments: analysis.value.detected_departments,
@@ -112,7 +146,7 @@ const stageImport = async () => {
 const commitImport = async () => {
     loading.value = true;
     try {
-        await post(`/talent/bulk-import/${changeSetId.value}/approve`, {
+        await post(`/api/talent/bulk-import/${changeSetId.value}/approve`, {
             signature: 'digital_sign_hash_' + Date.now()
         });
         emit('completed');
@@ -138,7 +172,7 @@ const close = () => {
     <v-dialog v-model="dialogModel" persistent max-width="1000px" scrollable>
         <StCardGlass class="st-modal-glass flex flex-col overflow-hidden!">
             <!-- Header -->
-            <div class="st-modal-header-gradient p-6 flex items-center justify-between">
+            <div class="st-modal-header-gradient px-10 py-8 flex items-center justify-between">
                 <div>
                     <h2 class="text-2xl font-black text-white flex items-center gap-3">
                         <PhUploadSimple :size="28" />
@@ -150,7 +184,7 @@ const close = () => {
             </div>
 
             <!-- Wizard Stepper -->
-            <div class="flex items-center justify-center gap-8 bg-white/5 p-4 border-b border-white/5">
+            <div class="flex items-center justify-center gap-12 bg-white/5 py-6 px-10 border-b border-white/5">
                 <div v-for="(s, i) in steps" :key="i" class="flex items-center gap-3">
                     <div 
                         :class="[
@@ -164,35 +198,50 @@ const close = () => {
                         <span v-else>{{ i + 1 }}</span>
                     </div>
                     <span :class="['text-xs font-black uppercase tracking-widest', step === i + 1 ? 'text-white' : 'text-white/20']">
-                        {{ t(s.title) || s.title }}
+                        {{ t(s.title) }}
                     </span>
                     <div v-if="i < steps.length - 1" class="h-px w-8 bg-white/10 ml-2" />
                 </div>
             </div>
 
             <!-- Body -->
-            <div class="st-modal-body p-8 min-h-[400px]">
+            <div class="st-modal-body p-12 min-h-[450px]">
                 
                 <!-- STEP 1: UPLOAD -->
-                <div v-if="step === 1" class="flex flex-col items-center justify-center py-12">
-                    <div class="w-full max-w-lg p-12 border-2 border-dashed border-white/10 rounded-3xl bg-white/5 flex flex-col items-center justify-center transition-all hover:border-indigo-500/30 hover:bg-white/10 group">
-                        <div class="h-24 w-24 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-6 group-hover:scale-110 transition-transform">
-                            <PhUploadSimple :size="48" />
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Sube tu nómina de personal</h3>
-                        <p class="text-white/40 text-center mb-8">Formatos soportados: CSV, XLS, XLSX. El sistema intentará alinear los cargos y departamentos automáticamente.</p>
-                        
-                        <input type="file" id="fileImport" class="hidden" accept=".csv" @change="handleFileUpload">
-                        <label for="fileImport">
-                            <StButtonGlass variant="primary" size="lg" :icon="PhUploadSimple">
+                <div v-if="step === 1" class="px-10 py-16">
+                    <div class="flex flex-col items-center justify-center">
+                        <div 
+                            class="w-full max-w-lg p-12 border-2 border-dashed border-white/10 bg-white/5 rounded-3xl transition-all flex flex-col items-center justify-center group cursor-pointer hover:border-indigo-500/30 hover:bg-white/10"
+                            @click="triggerFileInput"
+                        >
+                            <div class="h-24 w-24 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-6 group-hover:scale-110 transition-transform">
+                                <PhUploadSimple :size="48" />
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">Sube tu nómina de personal</h3>
+                            <p class="text-white/40 text-center mb-8">Formatos soportados: CSV, XLS, XLSX. El sistema intentará alinear los cargos y departamentos automáticamente.</p>
+                            
+                            <input 
+                                ref="fileInput"
+                                type="file" 
+                                id="fileImport" 
+                                class="hidden" 
+                                accept=".csv" 
+                                @change="handleFileUpload"
+                            >
+                            <StButtonGlass 
+                                variant="primary" 
+                                size="lg" 
+                                :icon="PhUploadSimple"
+                                @click.stop="triggerFileInput"
+                            >
                                 Seleccionar Archivo
                             </StButtonGlass>
-                        </label>
+                        </div>
                     </div>
                 </div>
 
                 <!-- STEP 2: ALIGNMENT PREVIEW -->
-                <div v-if="step === 2" class="space-y-6">
+                <div v-if="step === 2" class="space-y-6 px-10">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-bold text-white">Vista Previa y Mapeo</h3>
                         <StBadgeGlass variant="primary">{{ rawData.length }} registros detectados</StBadgeGlass>
@@ -219,13 +268,13 @@ const close = () => {
                     
                     <div class="flex justify-center pt-8">
                         <StButtonGlass variant="primary" size="lg" :icon="PhArrowRight" @click="runAnalysis" :loading="loading">
-                            Analizar Estructura Organizational
+                            Analizar Estructura Organizacional
                         </StButtonGlass>
                     </div>
                 </div>
 
                 <!-- STEP 3: RESOLUTION -->
-                <div v-if="step === 3 && analysis" class="space-y-8">
+                <div v-if="step === 3 && analysis" class="space-y-8 px-10">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- DEPARTMENTS -->
                         <div class="space-y-4">
@@ -337,35 +386,39 @@ const close = () => {
                 </div>
 
                 <!-- STEP 4: SIGNATURE -->
-                <div v-if="step === 4" class="flex flex-col items-center justify-center py-12 text-center">
-                    <div class="w-full max-w-lg p-12 rounded-3xl bg-indigo-500/5 border border-indigo-500/20 relative overflow-hidden">
+                <div v-if="step === 4" class="flex flex-col items-center justify-center py-10 text-center px-10">
+                    <div class="w-full max-w-2xl p-12 rounded-3xl bg-indigo-500/5 border border-indigo-500/20 relative overflow-hidden">
                         <!-- BG Decoration -->
                         <div class="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-indigo-500/10 blur-3xl" />
                         
-                        <div class="h-20 w-20 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 mx-auto mb-6">
-                            <PhSignature :size="40" />
+                        <div class="h-16 w-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 mx-auto mb-6">
+                            <PhSignature :size="32" />
                         </div>
                         
                         <h3 class="text-2xl font-black text-white mb-2">Aprobación de Versión 0</h3>
-                        <p class="text-white/60 mb-8">Esta acción establecerá el **Baseline Organizacional**. Todos los cambios futuros serán trackeados desde este punto.</p>
+                        <p class="text-white/60 mb-6 text-sm">Esta acción establecerá el **Baseline Organizacional**. Todos los cambios futuros serán trackeados desde este punto.</p>
                         
-                        <div class="bg-black/40 rounded-2xl p-6 border border-white/5 text-left mb-8">
-                            <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-4">
-                                <span class="text-xs font-black uppercase text-white/30">Documento de Carga</span>
+                        <div class="bg-black/40 rounded-2xl p-6 border border-white/5 text-left mb-6 space-y-4">
+                            <div class="flex items-center justify-between mb-1 border-b border-white/5 pb-3">
+                                <span class="text-[10px] font-black uppercase text-white/30">Documento de Carga</span>
                                 <span class="text-xs font-bold text-indigo-300">#CHANGE_{{ changeSetId }}</span>
                             </div>
-                            <div class="space-y-3">
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-white/40">Total Colaboradores:</span>
+                            <div class="grid grid-cols-2 gap-x-8 gap-y-3">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-white/40">Colaboradores:</span>
                                     <span class="text-white font-bold">{{ rawData.length }}</span>
                                 </div>
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-white/40">Nuevos Departamentos:</span>
-                                    <span class="text-emerald-400 font-bold">{{ analysis?.detected_departments.filter((d: { status: string; }) => d.status === 'new').length }}</span>
-                                </div>
-                                <div class="flex justify-between text-sm">
+                                <div class="flex justify-between text-xs">
                                     <span class="text-white/40">Responsable:</span>
                                     <span class="text-white font-bold">{{ $page.props.auth.user.name }}</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-white/40">Nuevos Deptos:</span>
+                                    <span class="text-emerald-400 font-bold">{{ analysis?.detected_departments.filter((d: any) => d.status === 'new').length }}</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-white/40">Nuevos Roles:</span>
+                                    <span class="text-amber-400 font-bold">{{ analysis?.detected_roles.filter((r: any) => r.status === 'new').length }}</span>
                                 </div>
                             </div>
                         </div>
@@ -374,14 +427,14 @@ const close = () => {
                             Firmar y Sincronizar Stratos
                         </StButtonGlass>
                         
-                        <p class="text-[10px] text-white/20 mt-4 uppercase tracking-[0.2em] font-bold">Registro de Auditoría Activado</p>
+                        <p class="text-[9px] text-white/20 mt-4 uppercase tracking-[0.2em] font-bold">Registro de Auditoría Activado</p>
                     </div>
                 </div>
 
             </div>
 
             <!-- Footer for generic navigation -->
-            <div class="st-modal-footer p-6 border-t border-white/5 flex justify-between items-center bg-black/20" v-if="step > 1 && step < 4">
+            <div class="st-modal-footer p-8 border-t border-white/5 flex justify-between items-center bg-black/20" v-if="step > 1 && step < 4">
                 <StButtonGlass variant="ghost" :icon="PhArrowLeft" @click="step--">Anterior</StButtonGlass>
                 <div class="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Stratos Talent OS v4.5</div>
                 <div />

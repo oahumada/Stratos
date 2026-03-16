@@ -328,7 +328,9 @@ const openCreateDialog = () => {
 };
 
 const openEditDialog = (item: TableItem) => {
-    editingItem.value = { ...item };
+    // Find original item to avoid display-formatted dates in the form
+    const originalItem = items.value.find((i) => i.id === item.id) || item;
+    editingItem.value = { ...originalItem };
     detailOpen.value = false;
     dialogOpen.value = true;
 };

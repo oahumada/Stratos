@@ -8,12 +8,14 @@ import PulseController from './PulseController'
 import AgentController from './AgentController'
 import JobOpeningController from './JobOpeningController'
 import ApplicationController from './ApplicationController'
-import DashboardController from './DashboardController'
 import StratosIqController from './StratosIqController'
 import TalentPassController from './TalentPassController'
 import MarketplaceController from './MarketplaceController'
 import MentorController from './MentorController'
 import AuthController from './AuthController'
+import DashboardController from './DashboardController'
+import BulkPeopleImportController from './BulkPeopleImportController'
+import SuccessionController from './SuccessionController'
 import MiStratosController from './MiStratosController'
 import SmartAlertController from './SmartAlertController'
 import GamificationController from './GamificationController'
@@ -42,6 +44,7 @@ import RoleDesignerController from './RoleDesignerController'
 import Talento360Controller from './Talento360Controller'
 import CompetencyCuratorController from './CompetencyCuratorController'
 import MobilitySimulationController from './MobilitySimulationController'
+import ExecutionTrackingController from './ExecutionTrackingController'
 import LmsController from './LmsController'
 import TelemetryController from './TelemetryController'
 import CapabilityCompetencyController from './CapabilityCompetencyController'
@@ -65,12 +68,14 @@ const Api = {
     AgentController: Object.assign(AgentController, AgentController),
     JobOpeningController: Object.assign(JobOpeningController, JobOpeningController),
     ApplicationController: Object.assign(ApplicationController, ApplicationController),
-    DashboardController: Object.assign(DashboardController, DashboardController),
     StratosIqController: Object.assign(StratosIqController, StratosIqController),
     TalentPassController: Object.assign(TalentPassController, TalentPassController),
     MarketplaceController: Object.assign(MarketplaceController, MarketplaceController),
     MentorController: Object.assign(MentorController, MentorController),
     AuthController: Object.assign(AuthController, AuthController),
+    DashboardController: Object.assign(DashboardController, DashboardController),
+    BulkPeopleImportController: Object.assign(BulkPeopleImportController, BulkPeopleImportController),
+    SuccessionController: Object.assign(SuccessionController, SuccessionController),
     MiStratosController: Object.assign(MiStratosController, MiStratosController),
     SmartAlertController: Object.assign(SmartAlertController, SmartAlertController),
     GamificationController: Object.assign(GamificationController, GamificationController),
@@ -99,6 +104,7 @@ const Api = {
     Talento360Controller: Object.assign(Talento360Controller, Talento360Controller),
     CompetencyCuratorController: Object.assign(CompetencyCuratorController, CompetencyCuratorController),
     MobilitySimulationController: Object.assign(MobilitySimulationController, MobilitySimulationController),
+    ExecutionTrackingController: Object.assign(ExecutionTrackingController, ExecutionTrackingController),
     LmsController: Object.assign(LmsController, LmsController),
     TelemetryController: Object.assign(TelemetryController, TelemetryController),
     CapabilityCompetencyController: Object.assign(CapabilityCompetencyController, CapabilityCompetencyController),

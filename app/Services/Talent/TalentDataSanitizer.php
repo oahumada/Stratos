@@ -59,8 +59,38 @@ class TalentDataSanitizer
         }
 
         return [
-            'first_name' => Str::title(trim($firstName)),
-            'last_name' => Str::title(trim($lastName)),
+            'first_name' => Str::title(trim($firstName, " \t\n\r\0\x0B\"'")),
+            'last_name' => Str::title(trim($lastName, " \t\n\r\0\x0B\"'")),
         ];
+    }
+
+    /**
+     * Normaliza una cadena que represente una fecha en formato d/m/Y a Y-m-d.
+     */
+    public static function normalizeDate(?string $value): ?string
+    {
+        if (is_string($value) && preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $value)) {
+            try {
+                return \Carbon\Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+            } catch (\Exception $e) {
+                return $value;
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Normaliza recursivamente un array de datos.
+     */
+    public static function normalizeArray(array $data): array
+    {
+        return array_map(function ($value) {
+            if (is_array($value)) {
+                return self::normalizeArray($value);
+            }
+
+            return self::normalizeDate($value);
+        }, $data);
     }
 }

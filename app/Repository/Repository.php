@@ -29,6 +29,8 @@ abstract class Repository implements RepositoryInterface
                 return is_array($value) ? implode(',', $value) : $value;
             }, $query);
 
+            $query = $this->normalizeIncomingData($query);
+
             // Asignar organization_id automáticamente si el usuario está autenticado
             if (auth()->check() && ! isset($query['organization_id'])) {
                 $query['organization_id'] = auth()->user()->organization_id;
@@ -66,8 +68,9 @@ abstract class Repository implements RepositoryInterface
         // Remove the 'id' key to prepare for updating the model
         unset($dataToUpdate['id']);
 
-        // Log the data that will be used for the update
-        // Log::info('Data prepared for update: '.[$dataToUpdate]);
+        $dataToUpdate = $this->normalizeIncomingData($dataToUpdate);
+
+        Log::info('Data prepared for update: ', $dataToUpdate);
 
         try {
             // Retrieve the model instance or fail if not found
@@ -101,8 +104,14 @@ abstract class Repository implements RepositoryInterface
 
             return response()->json(['error' => 'Model not found.'], 404);
         } catch (\Exception $e) {
-            // Log::error('Error updating model with ID: ' . $id . '. Error: ' . $e->getMessage());
-            return response()->json(['error' => 'An error occurred while updating the model.'], 500);
+            Log::error('Error updating model with ID: ' . $id . '. Error: ' . $e->getMessage(), [
+                'stack' => $e->getTraceAsString(),
+                'data' => $dataToUpdate
+            ]);
+            return response()->json([
+                'error' => 'An error occurred while updating the model.',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -265,5 +274,13 @@ abstract class Repository implements RepositoryInterface
                 'error' => $e->getMessage(),
             ], 404);
         }
+    }
+
+    /**
+     * Normaliza los datos de entrada para manejar formatos comunes (como fechas d/m/Y)
+     */
+    protected function normalizeIncomingData(array $data): array
+    {
+        return \App\Services\Talent\TalentDataSanitizer::normalizeArray($data);
     }
 }

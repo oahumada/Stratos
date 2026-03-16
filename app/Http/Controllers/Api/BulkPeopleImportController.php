@@ -305,7 +305,7 @@ class BulkPeopleImportController extends Controller
                     'external_id' => $sanitizedRut,
                     'department_id' => $newDeptId,
                     'role_id' => $newRoleId,
-                    'hire_date' => $row['hire_date'] ?? ($person->hire_date ?? now()),
+                    'hire_date' => \App\Services\Talent\TalentDataSanitizer::normalizeDate($row['hire_date'] ?? null) ?? ($person->hire_date ?? now()),
                 ]
             );
 

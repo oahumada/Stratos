@@ -267,87 +267,6 @@ materializeForm.post = (args: { id: string | number } | [id: string | number ] |
 materialize.form = materializeForm
 
 /**
-* @see \App\Http\Controllers\Api\MobilitySimulationController::getExecutionTracking
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:163
-* @route '/api/strategic-planning/mobility/execution-status'
-*/
-export const getExecutionTracking = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: getExecutionTracking.url(options),
-    method: 'get',
-})
-
-getExecutionTracking.definition = {
-    methods: ["get","head"],
-    url: '/api/strategic-planning/mobility/execution-status',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\Api\MobilitySimulationController::getExecutionTracking
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:163
-* @route '/api/strategic-planning/mobility/execution-status'
-*/
-getExecutionTracking.url = (options?: RouteQueryOptions) => {
-    return getExecutionTracking.definition.url + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\Api\MobilitySimulationController::getExecutionTracking
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:163
-* @route '/api/strategic-planning/mobility/execution-status'
-*/
-getExecutionTracking.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: getExecutionTracking.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobilitySimulationController::getExecutionTracking
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:163
-* @route '/api/strategic-planning/mobility/execution-status'
-*/
-getExecutionTracking.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: getExecutionTracking.url(options),
-    method: 'head',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobilitySimulationController::getExecutionTracking
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:163
-* @route '/api/strategic-planning/mobility/execution-status'
-*/
-const getExecutionTrackingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getExecutionTracking.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobilitySimulationController::getExecutionTracking
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:163
-* @route '/api/strategic-planning/mobility/execution-status'
-*/
-getExecutionTrackingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getExecutionTracking.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobilitySimulationController::getExecutionTracking
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:163
-* @route '/api/strategic-planning/mobility/execution-status'
-*/
-getExecutionTrackingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getExecutionTracking.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getExecutionTracking.form = getExecutionTrackingForm
-
-/**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::getAiSuggestions
 * @see app/Http/Controllers/Api/MobilitySimulationController.php:210
 * @route '/api/strategic-planning/mobility/ai-suggestions'
@@ -403,6 +322,6 @@ getAiSuggestionsForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'
 
 getAiSuggestions.form = getAiSuggestionsForm
 
-const MobilitySimulationController = { simulate, organizationImpact, saveScenario, materialize, getExecutionTracking, getAiSuggestions }
+const MobilitySimulationController = { simulate, organizationImpact, saveScenario, materialize, getAiSuggestions }
 
 export default MobilitySimulationController
