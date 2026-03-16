@@ -24,6 +24,7 @@ class DevelopmentPath extends Model
         'started_at',
         'completed_at',
         'steps',
+        'metadata',
     ];
 
     protected $casts = [
@@ -31,6 +32,7 @@ class DevelopmentPath extends Model
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
         'steps' => 'array',
+        'metadata' => 'array',
     ];
 
 

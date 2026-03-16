@@ -96,8 +96,7 @@ Route::patch('/applications/{id}', [\App\Http\Controllers\Api\ApplicationControl
 // CRUD genérico: People, Skills, Roles, Departments
 // Gestionado por form-schema-complete.php con FormSchemaController
 
-// Dashboard
-Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController::class, 'metrics']);
+
 
 // Stratos IQ (Event Sourcing & Organizational Learning Velocity)
 Route::get('/stratos-iq/{organizationId}', [\App\Http\Controllers\Api\StratosIqController::class, 'getTrends']);
@@ -153,6 +152,20 @@ Route::get('/talent/mentors/suggest', [\App\Http\Controllers\Api\MentorControlle
 Route::middleware('auth:sanctum')->group(function () {
     // Auth & Permissions
     Route::get('/auth/me', [\App\Http\Controllers\Api\AuthController::class, 'me']);
+
+    // Dashboard
+    Route::get('/dashboard/metrics', [\App\Http\Controllers\Api\DashboardController::class, 'metrics']);
+
+    // Talent Bulk Import
+    Route::post('/talent/bulk-import/analyze', [\App\Http\Controllers\Api\BulkPeopleImportController::class, 'analyze']);
+    Route::post('/talent/bulk-import/stage', [\App\Http\Controllers\Api\BulkPeopleImportController::class, 'stage']);
+    Route::post('/talent/bulk-import/{id}/approve', [\App\Http\Controllers\Api\BulkPeopleImportController::class, 'approveAndCommit']);
+
+    // Succession Planning (Predicciones basadas en trayectoria)
+    Route::get('/talent/succession/plans', [\App\Http\Controllers\Api\SuccessionController::class, 'index']);
+    Route::get('/talent/succession/role/{roleId}', [\App\Http\Controllers\Api\SuccessionController::class, 'getSuccessors']);
+    Route::post('/talent/succession/analyze-candidate', [\App\Http\Controllers\Api\SuccessionController::class, 'analyzeCandidate']);
+    Route::post('/talent/succession/store-plan', [\App\Http\Controllers\Api\SuccessionController::class, 'storePlan']);
 
     // Mi Stratos — Portal Personal
     Route::get('/mi-stratos/dashboard', [\App\Http\Controllers\Api\MiStratosController::class, 'dashboard']);
@@ -316,7 +329,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/mobility/organization-impact', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'organizationImpact']);
             Route::post('/mobility/save-scenario', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'saveScenario']);
             Route::post('/mobility/scenarios/{id}/materialize', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'materialize']);
-            Route::get('/mobility/execution-status', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'getExecutionTracking']);
+            Route::get('/mobility/execution-status', [\App\Http\Controllers\Api\ExecutionTrackingController::class, 'index']);
+            Route::get('/mobility/execution/{id}', [\App\Http\Controllers\Api\ExecutionTrackingController::class, 'show']);
+            Route::post('/mobility/execution/launch/{actionId}', [\App\Http\Controllers\Api\ExecutionTrackingController::class, 'launchLms']);
+            Route::post('/mobility/execution/sync/{actionId}', [\App\Http\Controllers\Api\ExecutionTrackingController::class, 'syncProgress']);
             Route::post('/mobility/ai-suggestions', [\App\Http\Controllers\Api\MobilitySimulationController::class, 'getAiSuggestions']);
 
             // LMS Integration (Dual Mode)

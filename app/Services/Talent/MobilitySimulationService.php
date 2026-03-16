@@ -5,10 +5,17 @@ namespace App\Services\Talent;
 use App\Models\People;
 use App\Models\Roles;
 use App\Models\PsychometricProfile;
+use App\Services\Talent\Lms\LmsService;
 use Illuminate\Support\Facades\Log;
 
 class MobilitySimulationService
 {
+    protected LmsService $lmsService;
+
+    public function __construct(LmsService $lmsService)
+    {
+        $this->lmsService = $lmsService;
+    }
     /**
      * Simulate the movement of multiple people to a single target role.
      */
@@ -99,8 +106,14 @@ class MobilitySimulationService
         $frictionScore = $this->calculateFriction($person, $targetRole, $fitScore);
         $legacyRisk = $this->calculateLegacyRisk($person);
 
+        // 📚 LMS Integration: Get real courses for the gaps
+        $recommendedCourses = $this->getRecommendedCoursesForGaps($skillGaps);
+        
+        // Merge suggested courses from AI with those found in LMS
+        $allSuggestedCourses = array_merge($suggestedCourses, $recommendedCourses);
+
         $overallSuccessProbability = ($fitScore * (1 - $frictionScore));
-        $financialImpact = $this->calculateROI($targetRole, $frictionScore, $person, $suggestedCourses);
+        $financialImpact = $this->calculateROI($targetRole, $frictionScore, $person, $allSuggestedCourses);
         
         // Domino Effect: Suggest potential successors for the role this person is leaving
         $dominoEffect = null;
@@ -126,6 +139,7 @@ class MobilitySimulationService
                 'success_probability' => round($overallSuccessProbability, 2),
             ],
             'skill_gaps' => $skillGaps,
+            'suggested_courses' => $allSuggestedCourses,
             'financial_impact' => $financialImpact,
             'domino_effect' => $dominoEffect,
             'succession_chain' => $person->role ? $this->simulateSuccessionChain($person->role) : null,
@@ -269,17 +283,26 @@ class MobilitySimulationService
     {
         $friction = 0.2; // Base friction
 
-        // If shifting departments, add friction
+        // 1. Context Change Friction
         if ($person->role && $person->role->parent_id !== $targetRole->parent_id) {
             $friction += 0.15;
         }
 
-        // Skill gap contribution to friction
+        // 2. Skill gap contribution to friction
         $fit = $fit ?? $this->calculateFit($person, $targetRole);
         $friction += (1 - $fit) * 0.4;
 
-        // Add history friction (if they moved recently)
-        // (Placeholder for historical movement check)
+        // 🧠 OPTIMIZATION: Historical Stability Adjustment
+        // If they moved recently (last 6 months), friction increases significantly
+        $recentMovementsCount = \App\Models\PersonMovement::where('person_id', $person->id)
+            ->where('movement_date', '>=', now()->subMonths(6))
+            ->count();
+
+        if ($recentMovementsCount > 0) {
+            // High turnover penalty: too many moves in short time increases cognitive load
+            $friction += ($recentMovementsCount * 0.2); 
+            Log::info("Friction increased for {$person->full_name} due to {$recentMovementsCount} recent movements.");
+        }
 
         return min($friction, 1.0);
     }
@@ -287,7 +310,7 @@ class MobilitySimulationService
     /**
      * Calculate the risk for the team left behind.
      */
-    private function calculateLegacyRisk(People $person): float
+    public function calculateLegacyRisk(People $person): float
     {
         $risk = 0.1;
 
@@ -297,7 +320,9 @@ class MobilitySimulationService
 
         // Check department context
         if ($person->department) {
-            $deptMembersCount = People::where('department_id', $person->department_id)->count();
+            $deptId = $person->department_id;
+            $deptMembersCount = People::where('department_id', $deptId)->count();
+            
             if ($deptMembersCount <= 3) {
                 $risk += 0.3;
             }
@@ -305,6 +330,19 @@ class MobilitySimulationService
             // If the person is a manager, risk increases
             if ($person->department->manager_id === $person->id) {
                 $risk += 0.25;
+            }
+
+            // 🧠 OPTIMIZATION: Stability Check
+            // If there were many EXITS in this department recently, the risk is compounding
+            $recentExits = \App\Models\PersonMovement::where('organization_id', $person->organization_id)
+                ->where('from_department_id', $deptId)
+                ->where('type', 'exit')
+                ->where('movement_date', '>=', now()->subMonths(3))
+                ->count();
+            
+            if ($recentExits > 1) {
+                $risk += ($recentExits * 0.15); // Compounding loss effect
+                Log::info("Legacy risk increased for department {$person->department->name} due to {$recentExits} recent exits.");
             }
         }
 
@@ -413,6 +451,34 @@ class MobilitySimulationService
                 ? "Se han detectado " . count($potentialSuccessors) . " candidatos internos óptimos para cubrir esta vacante."
                 : "No se detectaron candidatos internos con alto fit inmediato. Se requiere búsqueda externa o plan de desarrollo intensivo.",
         ];
+    }
+
+    /**
+     * Search LMS for courses that can close identified skill gaps.
+     */
+    protected function getRecommendedCoursesForGaps(array $gaps): array
+    {
+        $recommendations = [];
+        
+        // Take the top 3 gaps (ideally critical ones first)
+        $targetGaps = array_slice($gaps, 0, 3);
+        
+        foreach ($targetGaps as $gap) {
+            $courses = $this->lmsService->searchCourses($gap['name']);
+            if (!empty($courses)) {
+                // Return the course data in a format compatible with the financial calculator
+                $bestCourse = $courses[0];
+                $recommendations[] = [
+                    'id' => $bestCourse['id'] ?? null,
+                    'title' => $bestCourse['title'] ?? ($bestCourse['name'] ?? $gap['name']),
+                    'provider' => $bestCourse['provider'] ?? 'Internal',
+                    'cost' => $bestCourse['cost_per_seat'] ?? 0,
+                    'skill' => $gap['name']
+                ];
+            }
+        }
+
+        return $recommendations;
     }
 
     /**

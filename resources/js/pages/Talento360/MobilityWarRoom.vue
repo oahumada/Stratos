@@ -63,6 +63,29 @@ interface SimulationResult {
         total_recruitment_savings: number;
     };
     group_insights?: string[];
+    skill_gaps?: Array<{
+        skill_id: number;
+        name: string;
+        current_level: number;
+        required_level: number;
+        is_critical: boolean;
+    }>;
+    suggested_courses?: Array<{
+        course_id: string | number;
+        title: string;
+        provider: string;
+        cost: number;
+        skill?: string;
+    }>;
+    succession_chain?: {
+        nodes: Array<{
+            id: string;
+            label: string;
+            type: 'person' | 'vacancy';
+            level: number;
+            fit?: number;
+        }>;
+    };
 }
 
 interface DeptImpact {
@@ -160,6 +183,49 @@ const materializing = ref(false);
 const activeTab = ref(0);
 const executionTracking = ref<any[]>([]);
 const loadingTracking = ref(false);
+
+const selectedTrackingId = ref<number | null>(null);
+const trackingDetail = ref<any>(null);
+const loadingDetail = ref(false);
+const showTrackingDialog = ref(false);
+
+const loadExecutionDetail = async (id: number) => {
+    selectedTrackingId.value = id;
+    loadingDetail.value = true;
+    showTrackingDialog.value = true;
+    try {
+        const res = await axios.get(`/api/strategic-planning/mobility/execution/${id}`);
+        trackingDetail.value = res.data;
+    } catch (e) {
+        console.error('Error loading tracking detail', e);
+    } finally {
+        loadingDetail.value = false;
+    }
+};
+
+const launchLms = async (actionId: number) => {
+    try {
+        const res = await axios.post(`/api/strategic-planning/mobility/execution/launch/${actionId}`);
+        if (res.data.success && res.data.launch_url) {
+            window.open(res.data.launch_url, '_blank');
+            // Refresh detail to see status change
+            loadExecutionDetail(selectedTrackingId.value!);
+        }
+    } catch (e) {
+        console.error('Error launching LMS', e);
+    }
+};
+
+const syncLmsProgress = async (actionId: number) => {
+    try {
+        const res = await axios.post(`/api/strategic-planning/mobility/execution/sync/${actionId}`);
+        if (res.data.success) {
+            loadExecutionDetail(selectedTrackingId.value!);
+        }
+    } catch (e) {
+        console.error('Error syncing progress', e);
+    }
+};
 
 const loadExecutionTracking = async () => {
     loadingTracking.value = true;
@@ -895,6 +961,109 @@ onMounted(() => {
                                     </v-col>
                                 </v-row>
 
+                                <!-- Recommended Training (LMS Integration) -->
+                                <v-row
+                                    v-if="
+                                        result.suggested_courses &&
+                                        result.suggested_courses.length > 0
+                                    "
+                                    class="mb-6"
+                                >
+                                    <v-col cols="12">
+                                        <v-card
+                                            class="glass-card pa-6 border-emerald-glow"
+                                        >
+                                            <div
+                                                class="d-flex align-center mb-4"
+                                            >
+                                                <v-icon
+                                                    color="emerald-lighten-2"
+                                                    class="mr-3"
+                                                    >mdi-library-video</v-icon
+                                                >
+                                                <h3
+                                                    class="text-h6 font-weight-bold"
+                                                >
+                                                    Plan de Desarrollo
+                                                    Estratégico (LMS)
+                                                </h3>
+                                                <v-spacer></v-spacer>
+                                                <v-chip
+                                                    size="small"
+                                                    color="emerald"
+                                                    variant="tonal"
+                                                    >Ruta de Upskilling
+                                                    Optimizada</v-chip
+                                                >
+                                            </div>
+                                            <p
+                                                class="text-body-2 mb-4 text-slate-300"
+                                            >
+                                                Cursos recomendados para mitigar
+                                                los riesgos de adaptación y
+                                                acelerar el ROI de este
+                                                movimiento.
+                                            </p>
+                                            <v-row>
+                                                <v-col
+                                                    v-for="course in result.suggested_courses"
+                                                    :key="course.course_id"
+                                                    cols="12"
+                                                    md="4"
+                                                >
+                                                    <div
+                                                        class="pa-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover-scale"
+                                                    >
+                                                        <div
+                                                            class="text-subtitle-2 font-weight-black text-white truncate-2-lines mb-2"
+                                                            style="height: 48px"
+                                                        >
+                                                            {{ course.title }}
+                                                        </div>
+                                                        <div
+                                                            class="d-flex justify-space-between align-center"
+                                                        >
+                                                            <div>
+                                                                <div
+                                                                    class="text-tiny text-emerald-300 uppercase font-weight-bold"
+                                                                >
+                                                                    {{
+                                                                        course.provider
+                                                                    }}
+                                                                </div>
+                                                                <div
+                                                                    v-if="
+                                                                        course.skill
+                                                                    "
+                                                                    class="text-tiny text-slate-400"
+                                                                >
+                                                                    Skill:
+                                                                    {{
+                                                                        course.skill
+                                                                    }}
+                                                                </div>
+                                                            </div>
+                                                            <div
+                                                                class="text-right"
+                                                            >
+                                                                <div
+                                                                    class="text-caption font-weight-black text-white"
+                                                                >
+                                                                    {{
+                                                                        formatCurrency(
+                                                                            course.cost,
+                                                                        )
+                                                                    }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </v-col>
+                                            </v-row>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+
                                 <!-- Succession Chain Visual Flow -->
                                 <v-row
                                     v-if="
@@ -1495,6 +1664,7 @@ onMounted(() => {
                                             color="primary"
                                             prepend-icon="mdi-eye-outline"
                                             class="font-weight-bold rounded-lg"
+                                            @click="loadExecutionDetail(track.id)"
                                         >
                                             Ver Detalles
                                         </v-btn>
@@ -1635,6 +1805,96 @@ onMounted(() => {
                         Aplicar Toda la Estrategia a Simulación
                     </v-btn>
                 </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <!-- Execution Detail Dialog -->
+        <v-dialog v-model="showTrackingDialog" max-width="900px">
+            <v-card class="glass-card pa-6 overflow-hidden">
+                <div v-if="loadingDetail" class="pa-12 text-center">
+                    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+                </div>
+                <div v-else-if="trackingDetail" class="animate-fade-in">
+                    <div class="d-flex justify-space-between align-center mb-6">
+                        <div>
+                            <h2 class="text-h5 font-weight-black text-white">Detalle de Ejecución</h2>
+                            <p class="text-caption text-slate-400">{{ trackingDetail.changeset.title }}</p>
+                        </div>
+                        <v-btn icon="mdi-close" variant="text" @click="showTrackingDialog = false"></v-btn>
+                    </div>
+
+                    <v-row class="mb-6">
+                        <v-col cols="12" md="4" v-for="path in trackingDetail.development_paths" :key="path.id">
+                            <v-card class="bg-slate-900 border border-slate-700 pa-4 rounded-xl">
+                                <div class="d-flex align-center mb-4">
+                                    <v-avatar color="primary" size="40" class="mr-3">
+                                        <span class="text-subtitle-2 font-weight-black">{{ path.people?.first_name?.[0] }}{{ path.people?.last_name?.[0] }}</span>
+                                    </v-avatar>
+                                    <div>
+                                        <div class="text-body-1 font-weight-bold text-white">{{ path.people?.full_name }}</div>
+                                        <div class="text-caption text-slate-500">{{ path.action_title }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <div class="d-flex justify-space-between text-caption mb-1">
+                                        <span>Progreso Plan</span>
+                                        <span class="font-weight-bold">{{ 
+                                            path.actions.length > 0 
+                                            ? Math.round((path.actions.filter(a => a.status === 'completed').length / path.actions.length) * 100) 
+                                            : 0 
+                                        }}%</span>
+                                    </div>
+                                    <v-progress-linear 
+                                        :model-value="(path.actions.filter(a => a.status === 'completed').length / path.actions.length) * 100" 
+                                        color="primary" 
+                                        height="8" 
+                                        rounded
+                                    ></v-progress-linear>
+                                </div>
+
+                                <div class="text-overline mb-2 text-slate-500">Acciones / Cursos LMS</div>
+                                <div class="actions-list" style="max-height: 250px; overflow-y: auto;">
+                                    <div v-for="action in path.actions" :key="action.id" class="mb-2 pa-2 rounded-lg bg-slate-800 border border-slate-700">
+                                        <div class="d-flex justify-space-between align-center">
+                                            <div class="text-caption font-weight-bold text-white text-truncate mr-2" style="max-width: 150px;">
+                                                {{ action.title }}
+                                            </div>
+                                            <v-chip size="x-small" :color="action.status === 'completed' ? 'success' : (action.status === 'in_progress' ? 'amber' : 'slate-400')">
+                                                {{ action.status }}
+                                            </v-chip>
+                                        </div>
+                                        <div class="d-flex mt-2" v-if="action.type === 'lms_course'">
+                                            <v-btn 
+                                                v-if="action.status !== 'completed'"
+                                                size="x-small" 
+                                                color="primary" 
+                                                variant="flat" 
+                                                block 
+                                                prepend-icon="mdi-play"
+                                                @click="launchLms(action.id)"
+                                            >
+                                                Lanzar Curso
+                                            </v-btn>
+                                            <v-btn 
+                                                v-if="action.status === 'in_progress'"
+                                                size="x-small" 
+                                                color="success" 
+                                                variant="tonal" 
+                                                block 
+                                                class="mt-1"
+                                                prepend-icon="mdi-refresh"
+                                                @click="syncLmsProgress(action.id)"
+                                            >
+                                                Sincronizar
+                                            </v-btn>
+                                        </div>
+                                    </div>
+                                </div>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </div>
             </v-card>
         </v-dialog>
     </div>

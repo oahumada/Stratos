@@ -295,8 +295,12 @@
 - Documentación del Microservicio Python (CrewAI).
 - Hitos de integración de Escenarios y Gaps.
 - **PLAN_ATAQUE_INTELIGENCIA_KICKSTART.md**: Hoja de ruta inmediata.
+- **OP_MODELOS_PREDICTIVOS.md**: Optimización del Gemelo Digital y Stratos IQ 2.0.
+- **IMPORTACION_MASIVA_TECNICA.md**: Arquitectura del flujo Analyze-Stage-Commit.
+- **MANUAL_USUARIO_NODE_ALIGNER.md**: Guía operativa para HR y líderes.
+- **PLANIFICACION_SUCESION_PREDICTIVA.md**: Motor de trayectoria inversa para identificación de sucesores.
 
-**Cuándo leer**: Para trabajar en features predictivas o generativas.
+**Cuándo leer**: Para trabajar en features predictivas, generativas o sincronización de nómina.
 
 ---
 

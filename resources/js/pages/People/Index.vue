@@ -35,6 +35,7 @@ import {
     PhX,
 } from '@phosphor-icons/vue';
 import { useI18n } from 'vue-i18n';
+import BulkPeopleImporter from '@/components/Talent/BulkPeopleImporter.vue';
 import CareerPathExplorer from '../ScenarioPlanning/CareerPathExplorer.vue';
 import tableConfigJson from './people-form/tableConfig.json';
 
@@ -80,6 +81,7 @@ const formatDate = (value: any): string => {
     return value as string;
 };
 
+const showImporter = ref(false);
 const formRef = ref(null);
 
 const handleRefresh = () => {
@@ -98,6 +100,15 @@ const handleRefresh = () => {
         :filters="filters"
         :enable-row-detail="true"
     >
+        <template #extra-actions>
+            <StButtonGlass
+                variant="secondary"
+                :icon="PhArrowsClockwise"
+                @click="showImporter = true"
+            >
+                Importación Masiva
+            </StButtonGlass>
+        </template>
         <template #detail="{ item, tab, setTab, sync, close }">
             <StCardGlass class="relative mb-8 overflow-hidden p-8!">
                 <!-- Indicator Light (Top) -->
@@ -471,6 +482,11 @@ const handleRefresh = () => {
             </StCardGlass>
         </template>
     </FormSchema>
+
+    <BulkPeopleImporter
+        v-model:is-open="showImporter"
+        @completed="handleRefresh"
+    />
 </template>
 
 <style scoped>

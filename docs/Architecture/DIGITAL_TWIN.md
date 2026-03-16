@@ -4,6 +4,12 @@ El **Gemelo Digital** es la representación virtual, dinámica y en tiempo real 
 
 ---
 
+## 🛰️ La Génesis: Ingesta y Alineación de Nodos
+
+El Gemelo Digital nace de la unificación de datos crudos mediante el **[Stratos Node Aligner](../StratosNodeAligner.md)**. Este proceso de "Génesis" es el que permite que la IA reconozca la estructura organizacional real, mapeando abreviaturas y sub-departamentos inconsistentes a nodos maestros coherentes. Sin esta alineación inicial, el Gemelo Digital carecería de la fidelidad necesaria para simulaciones de impacto.
+
+---
+
 ## 📸 El Concepto: Captura de Estado (State Capture)
 
 Antes de realizar cualquier simulación en **Vanguard** o análisis en el **Impact Engine**, el sistema genera un "Snapshot Semántico". Este proceso extrae la configuración actual de la organización para crear una instancia paralela donde los Agentes IA pueden experimentar sin riesgo.

@@ -138,6 +138,13 @@ const allNavItems: NavItem[] = [
         icon: GapAnalysisIcon,
         requiredPermission: 'people.view',
     },
+    // Succession Planning — requires people.view
+    {
+        title: 'Plan de Sucesión',
+        href: '/succession',
+        icon: defineComponent(() => () => h(PhUsersFour, { size: 20 })),
+        requiredPermission: 'people.view',
+    },
     // Learning Paths — requires people.view
     {
         title: 'Learning Paths',

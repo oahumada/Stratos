@@ -5,7 +5,7 @@
             :slogan="t('landings.core.slogan')"
             :icon="PhShieldCheck"
         />
-        <div class="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div v-for="mod in modules" :key="mod.title">
                 <ModuleCard
                     :title="mod.title"
@@ -52,9 +52,7 @@ const modules = computed(() => [
     },
     {
         title: t('landings.core.modules.competency_dictionary.title'),
-        description: t(
-            'landings.core.modules.competency_dictionary.description',
-        ),
+        description: t('landings.core.modules.competency_dictionary.description'),
         icon: PhClipboardText,
         href: '/competencies',
         iconColor: 'text-pink-300',

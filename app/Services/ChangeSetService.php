@@ -240,9 +240,9 @@ class ChangeSetService
                             $path = \App\Models\DevelopmentPath::create([
                                 'organization_id' => $changeSet->organization_id,
                                 'people_id' => $personId,
-                                'title' => $op['title'] ?? 'Plan de Desarrollo',
+                                'action_title' => $op['title'] ?? 'Plan de Desarrollo',
                                 'status' => 'active',
-                                'metadata' => $op['metadata'] ?? null
+                                'metadata' => $op['metadata'] ?? ['source' => 'mobility_simulation']
                             ]);
 
                             // Create an action for each gap
@@ -255,6 +255,22 @@ class ChangeSetService
                                         'type' => 'skill',
                                         'order' => $idx + 1,
                                         'status' => 'pending'
+                                    ]);
+                                }
+                            }
+
+                            // 📚 NEW: Create an action for each suggested course (LMS)
+                            if (isset($op['suggested_courses']) && is_array($op['suggested_courses'])) {
+                                foreach ($op['suggested_courses'] as $idx => $course) {
+                                    \App\Models\DevelopmentAction::create([
+                                        'development_path_id' => $path->id,
+                                        'title' => 'Curso LMS: ' . ($course['title'] ?? 'Training'),
+                                        'description' => "Proveedor: " . ($course['provider'] ?? 'Internal'),
+                                        'type' => 'lms_course',
+                                        'lms_course_id' => $course['id'] ?? ($course['course_id'] ?? null),
+                                        'lms_provider' => $course['provider'] ?? 'internal',
+                                        'status' => 'pending',
+                                        'order' => ($op['gaps'] ? count($op['gaps']) : 0) + $idx + 1
                                     ]);
                                 }
                             }

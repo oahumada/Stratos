@@ -64,17 +64,49 @@ class StratosIqService
             $snapshot->learning_velocity = 0; // Baseline
         }
 
-        // Calculate Stratos IQ
-        // Formula concept: Baseline 100 + (Learning Velocity % * weight) - (Average Gap * weight)
-        // Adjust formula according to specific business rules, here's a logical baseline
-        $baseIq = 100;
-        $gapPenalty = $averageGap * 10; // e.g. a gap of 2 (on scale 0-5) drops IQ by 20 points
-        $velocityBonus = $snapshot->learning_velocity * 0.5; // e.g. 10% velocity adds 5 points
+        // 3. Status Check: Calculate Stability and Internal Growth
+        $last90DaysMovements = \App\Models\PersonMovement::where('organization_id', $org->id)
+            ->where('movement_date', '>=', now()->subDays(90))
+            ->get();
         
-        $iq = $baseIq - $gapPenalty + $velocityBonus;
-        // Normalizado entre 0 y 200
-        $snapshot->stratos_iq = max(0, min(200, $iq));
-        $snapshot->metadata = $metadata;
+        $exitsCount = $last90DaysMovements->where('type', 'exit')->count();
+        $promotionsCount = $last90DaysMovements->where('type', 'promotion')->count();
+        $hiresCount = $last90DaysMovements->where('type', 'hire')->count();
+
+        // Stability Index: 1 minus the exit rate (monthly avg in last quarter)
+        $monthlyExitRate = $totalPeople > 0 ? ($exitsCount / 3) / $totalPeople : 0;
+        $stabilityIndex = max(0, 1 - ($monthlyExitRate * 10)); // Scale 0-1
+
+        // Internal Mobility Efficiency: Promotions vs Hires
+        $mobilityEfficiency = ($hiresCount + $promotionsCount) > 0
+            ? $promotionsCount / ($hiresCount + $promotionsCount)
+            : 0;
+
+        // Calculate Stratos IQ
+        // Formula: Baseline 100
+        // - (Gap Penalty)
+        // + (Learning Velocity bonus)
+        // + (Stability Bonus)
+        // + (Mobility Efficiency Bonus)
+        $baseIq = 100;
+        $gapPenalty = $averageGap * 15; // Increased weight for gaps
+        $velocityBonus = $snapshot->learning_velocity * 0.8;
+        $stabilityImpact = ($stabilityIndex - 0.7) * 40; // 0.7 is average stability, deviation impacts IQ
+        $mobilityBonus = $mobilityEfficiency * 20;
+
+        $iq = $baseIq - $gapPenalty + $velocityBonus + $stabilityImpact + $mobilityBonus;
+        
+        // Final normalization and save
+        $snapshot->stratos_iq = max(0, min(200, round($iq, 2)));
+        $snapshot->metadata = array_merge($metadata, [
+            'stability_index' => round($stabilityIndex, 2),
+            'mobility_efficiency' => round($mobilityEfficiency, 2),
+            'captured_metrics' => [
+                'exits_90d' => $exitsCount,
+                'promotions_90d' => $promotionsCount,
+                'hires_90d' => $hiresCount
+            ]
+        ]);
         $snapshot->save();
 
         return $snapshot;

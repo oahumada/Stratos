@@ -112,6 +112,10 @@ Route::get('/gap-analysis', function () {
     return Inertia::render('GapAnalysis/Index');
 })->middleware(['auth', 'verified', 'module:core'])->name('gap-analysis.index');
 
+Route::get('/succession', function () {
+    return Inertia::render('Succession/Index');
+})->middleware(['auth', 'verified'])->name('succession.index');
+
 Route::get('/learning-paths', function () {
     return Inertia::render('LearningPaths/StratosNavigator');
 })->middleware(['auth', 'verified', 'module:st-grow'])->name('learning-paths.index');

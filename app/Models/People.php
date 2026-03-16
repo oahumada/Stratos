@@ -181,4 +181,9 @@ class People extends Model
     {
         return $this->hasMany(VerifiableCredential::class, 'people_id');
     }
+
+    public function movements(): HasMany
+    {
+        return $this->hasMany(PersonMovement::class, 'person_id');
+    }
 }
