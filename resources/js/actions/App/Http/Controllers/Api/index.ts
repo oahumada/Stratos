@@ -24,6 +24,7 @@ import InvestorDashboardController from './InvestorDashboardController'
 import AssessmentCycleController from './AssessmentCycleController'
 import PeopleProfileController from './PeopleProfileController'
 import DepartmentController from './DepartmentController'
+import StratosMapController from './StratosMapController'
 import RBACController from './RBACController'
 import PxCampaignController from './PxCampaignController'
 import GapAnalysisController from './GapAnalysisController'
@@ -84,6 +85,7 @@ const Api = {
     AssessmentCycleController: Object.assign(AssessmentCycleController, AssessmentCycleController),
     PeopleProfileController: Object.assign(PeopleProfileController, PeopleProfileController),
     DepartmentController: Object.assign(DepartmentController, DepartmentController),
+    StratosMapController: Object.assign(StratosMapController, StratosMapController),
     RBACController: Object.assign(RBACController, RBACController),
     PxCampaignController: Object.assign(PxCampaignController, PxCampaignController),
     GapAnalysisController: Object.assign(GapAnalysisController, GapAnalysisController),

@@ -23,7 +23,7 @@ class PeopleRepository extends Repository
     {
         Log::info('PeopleRepository::getSearchQuery called');
         $query = $this->model->query()
-            ->with('department', 'role', 'skills', 'psychometricProfiles');
+            ->with('department', 'role', 'skills', 'psychometricProfiles', 'supervisor');
         Log::info('PeopleRepository query: '.$query->toSql());
 
         return $query;

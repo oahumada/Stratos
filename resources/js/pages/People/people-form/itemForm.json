@@ -36,11 +36,18 @@
             "rules": []
         },
         {
+            "key": "supervised_by",
+            "label": "Supervised By",
+            "type": "select",
+            "placeholder": "Select supervisor",
+            "rules": []
+        },
+        {
             "key": "hire_date",
             "label": "Hire Date",
             "type": "date",
             "rules": []
         }
     ],
-    "catalogs": ["roles", "departments"]
+    "catalogs": ["roles", "departments", "people"]
 }

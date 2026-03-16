@@ -31,6 +31,7 @@ class People extends Model
         'is_high_potential',
         'salary',
         'current_points',
+        'supervised_by',
     ];
 
     protected $appends = ['skills_count', 'full_name'];
@@ -185,5 +186,15 @@ class People extends Model
     public function movements(): HasMany
     {
         return $this->hasMany(PersonMovement::class, 'person_id');
+    }
+
+    public function supervisor(): BelongsTo
+    {
+        return $this->belongsTo(People::class, 'supervised_by');
+    }
+
+    public function directReports(): HasMany
+    {
+        return $this->hasMany(People::class, 'supervised_by');
     }
 }

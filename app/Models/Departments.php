@@ -27,6 +27,8 @@ class Departments extends Model
         'aliases' => 'array',
     ];
 
+    protected $appends = ['headcount', 'payroll_total'];
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
@@ -50,5 +52,15 @@ class Departments extends Model
     public function manager(): BelongsTo
     {
         return $this->belongsTo(People::class, 'manager_id');
+    }
+
+    public function getHeadcountAttribute(): int
+    {
+        return $this->People()->count();
+    }
+
+    public function getPayrollTotalAttribute(): float
+    {
+        return (float) $this->People()->sum('salary');
     }
 }

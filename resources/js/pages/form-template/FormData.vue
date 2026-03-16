@@ -155,6 +155,7 @@ const getSelectItems = (fieldKey: string): any[] => {
         skill: 'skills',
         person: 'people',
         related_person: 'people',
+        supervised_by: 'people',
     };
 
     const catalogName = pluralMap[singularName] || singularName;

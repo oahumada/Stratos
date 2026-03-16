@@ -204,6 +204,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/departments/{id}/manager', [\App\Http\Controllers\Api\DepartmentController::class, 'setManager']);
     Route::get('/departments/heatmap', [\App\Http\Controllers\Api\DepartmentController::class, 'heatmapData']);
 
+    // Stratos Maps (Gravitational & Cerberos)
+    Route::get('/stratos-maps/gravitational', [\App\Http\Controllers\Api\StratosMapController::class, 'getGravitationalData']);
+    Route::get('/stratos-maps/cerberos', [\App\Http\Controllers\Api\StratosMapController::class, 'getCerberosData']);
+
     Route::get('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'index'])->middleware('role:admin');
     Route::post('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'update'])->middleware('role:admin');
 

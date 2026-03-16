@@ -28,6 +28,12 @@
             "key": "role_id"
         },
         {
+            "text": "Supervisor",
+            "value": "supervisor.full_name",
+            "sortable": false,
+            "key": "supervised_by"
+        },
+        {
             "text": "Skills",
             "value": "skills_count",
             "sortable": true
