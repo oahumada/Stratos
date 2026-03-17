@@ -38,6 +38,7 @@ import {
     PhUser,
     PhUsers,
     PhUsersFour,
+    PhScroll,
 } from '@phosphor-icons/vue';
 import { computed, defineComponent, h } from 'vue';
 
@@ -99,6 +100,12 @@ const allNavItems: NavItem[] = [
         href: '/roles',
         icon: PhBookOpen,
         requiredPermission: 'roles.view',
+    },
+    {
+        title: 'Cultura Organizacional',
+        href: '/controlcenter/culture',
+        icon: defineComponent(() => () => h(PhScroll, { size: 20 })),
+        requiredRole: ['admin'],
     },
     // Organigrama — requires people.view
     {

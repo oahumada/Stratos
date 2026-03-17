@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
-* @see routes/web.php:63
+* @see routes/web.php:71
 * @route '/career/{tenant}'
 */
 export const careers = (args: { tenant: string | number } | [tenant: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ careers.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:63
+* @see routes/web.php:71
 * @route '/career/{tenant}'
 */
 careers.url = (args: { tenant: string | number } | [tenant: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -40,7 +40,7 @@ careers.url = (args: { tenant: string | number } | [tenant: string | number ] | 
 }
 
 /**
-* @see routes/web.php:63
+* @see routes/web.php:71
 * @route '/career/{tenant}'
 */
 careers.get = (args: { tenant: string | number } | [tenant: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -49,7 +49,7 @@ careers.get = (args: { tenant: string | number } | [tenant: string | number ] | 
 })
 
 /**
-* @see routes/web.php:63
+* @see routes/web.php:71
 * @route '/career/{tenant}'
 */
 careers.head = (args: { tenant: string | number } | [tenant: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -58,7 +58,7 @@ careers.head = (args: { tenant: string | number } | [tenant: string | number ] |
 })
 
 /**
-* @see routes/web.php:63
+* @see routes/web.php:71
 * @route '/career/{tenant}'
 */
 const careersForm = (args: { tenant: string | number } | [tenant: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -67,7 +67,7 @@ const careersForm = (args: { tenant: string | number } | [tenant: string | numbe
 })
 
 /**
-* @see routes/web.php:63
+* @see routes/web.php:71
 * @route '/career/{tenant}'
 */
 careersForm.get = (args: { tenant: string | number } | [tenant: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -76,7 +76,7 @@ careersForm.get = (args: { tenant: string | number } | [tenant: string | number 
 })
 
 /**
-* @see routes/web.php:63
+* @see routes/web.php:71
 * @route '/career/{tenant}'
 */
 careersForm.head = (args: { tenant: string | number } | [tenant: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

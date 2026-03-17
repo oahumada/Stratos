@@ -33,6 +33,14 @@ Route::get('/controlcenter', function () {
     return Inertia::render('ControlCenter/Landing');
 })->middleware(['auth', 'verified', 'role:admin'])->name('controlcenter.landing');
 
+Route::get('/controlcenter/culture', function () {
+    return Inertia::render('ControlCenter/CulturalBlueprint');
+})->middleware(['auth', 'verified', 'role:admin'])->name('controlcenter.culture');
+
+Route::get('/controlcenter/culture-analytics', function () {
+    return Inertia::render('ControlCenter/CultureDashboard');
+})->middleware(['auth', 'verified', 'role:admin'])->name('controlcenter.culture-analytics');
+
 // Dev-only endpoint for E2E: logs in as admin (id from env or 2)
 Route::get('/__e2e_login', function () {
     if (! (AppFacade::environment('local') || config('stratos.qa.e2e_bypass', false))) {

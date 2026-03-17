@@ -3,7 +3,15 @@ import GamificationDashboard from '@/components/Lms/GamificationDashboard.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, nextTick } from 'vue';
+import { VueFlow, useVueFlow } from '@vue-flow/core';
+import { Background } from '@vue-flow/background';
+import dagre from 'dagre';
+import SuccessionNode from '@/components/Organization/OrgChart/SuccessionNode.vue';
+
+// Vue Flow Styles
+import '@vue-flow/core/dist/style.css';
+import '@vue-flow/core/dist/theme-default.css';
 
 defineOptions({ layout: AppLayout });
 
@@ -99,6 +107,12 @@ interface DeptImpact {
 }
 
 const loading = ref(false);
+const flowElements = ref<any[]>([]);
+const nodeTypes = {
+    succession: SuccessionNode
+};
+
+const { fitView } = useVueFlow();
 const catalogsLoading = ref(true);
 const impactLoading = ref(false);
 const people = ref<any[]>([]);
@@ -169,6 +183,9 @@ const runSimulation = async (movements = null) => {
             payload,
         );
         result.value = res.data.data;
+        if (result.value?.succession_chain) {
+            updateFlowDiagram(result.value.succession_chain);
+        }
         loadOrgImpact();
     } catch (e) {
         console.error('Simulation error', e);
@@ -178,6 +195,56 @@ const runSimulation = async (movements = null) => {
 };
 
 const saveStatus = ref('');
+
+const updateFlowDiagram = (chain: any) => {
+    const nodes: any[] = [];
+    const edges: any[] = [];
+
+    // Transformar a formato Vue Flow
+    chain.nodes.forEach((n: any, idx: number) => {
+        nodes.push({
+            id: n.id,
+            type: 'succession',
+            data: { 
+                label: n.label, 
+                type: n.type, 
+                fit: n.fit 
+            },
+            position: { x: 0, y: 0 }
+        });
+
+        if (idx > 0) {
+            edges.push({
+                id: `e-${chain.nodes[idx-1].id}-${n.id}`,
+                source: chain.nodes[idx-1].id,
+                target: n.id,
+                animated: true,
+                style: { stroke: '#6366f1', strokeWidth: 2 }
+            });
+        }
+    });
+
+    // Aplicar Dagre Layout
+    const dagreGraph = new dagre.graphlib.Graph();
+    dagreGraph.setDefaultEdgeLabel(() => ({}));
+    dagreGraph.setGraph({ rankdir: 'LR', nodesep: 50, ranksep: 100 });
+
+    nodes.forEach(n => dagreGraph.setNode(n.id, { width: 200, height: 80 }));
+    edges.forEach(e => dagreGraph.setEdge(e.source, e.target));
+    
+    dagre.layout(dagreGraph);
+
+    nodes.forEach(n => {
+        const dNode = dagreGraph.node(n.id);
+        n.position = { x: dNode.x, y: dNode.y };
+    });
+
+    flowElements.value = [...nodes, ...edges];
+    
+    nextTick(() => {
+        setTimeout(() => fitView(), 100);
+    });
+};
 const savingScenario = ref(false);
 const materializing = ref(false);
 const activeTab = ref(0);
@@ -1064,158 +1131,31 @@ onMounted(() => {
                                     </v-col>
                                 </v-row>
 
-                                <!-- Succession Chain Visual Flow -->
+                                <!-- Succession Chain Visual Flow (VUE FLOW UPDATED) -->
                                 <v-row
-                                    v-if="
-                                        result.succession_chain &&
-                                        result.succession_chain.nodes.length > 1
-                                    "
+                                    v-if="flowElements.length > 0"
                                     class="mb-6"
                                 >
                                     <v-col cols="12">
                                         <v-card
-                                            class="glass-card pa-6 border-blue-glow"
+                                            class="glass-card pa-0 border-blue-glow overflow-hidden"
+                                            style="height: 400px;"
                                         >
-                                            <div
-                                                class="d-flex align-center mb-6"
-                                            >
-                                                <v-icon
-                                                    color="blue-lighten-2"
-                                                    class="mr-3"
-                                                    >mdi-graph-outline</v-icon
-                                                >
-                                                <h3
-                                                    class="text-h6 font-weight-bold"
-                                                >
-                                                    Mapa de Sucesión en Cascada
-                                                </h3>
-                                                <v-spacer></v-spacer>
-                                                <v-chip
-                                                    size="small"
-                                                    color="blue"
-                                                    variant="tonal"
-                                                    class="text-caption"
-                                                >
-                                                    Profundidad de Impacto:
-                                                    {{
-                                                        Math.max(
-                                                            ...result.succession_chain.nodes.map(
-                                                                (n) => n.level,
-                                                            ),
-                                                        ) + 1
-                                                    }}
-                                                    niveles
-                                                </v-chip>
+                                            <div class="pa-4 border-b border-white/5 d-flex align-center">
+                                                <v-icon color="blue-lighten-2" class="mr-3">mdi-graph-outline</v-icon>
+                                                <h3 class="text-h6 font-weight-bold">Mapa de Sucesión en Cascada</h3>
                                             </div>
-
-                                            <div
-                                                class="succession-flow-container py-4"
-                                            >
-                                                <div
-                                                    class="d-flex align-center flex-nowrap gap-4 overflow-x-auto pb-4"
+                                            
+                                            <div class="relative h-[330px] w-full bg-slate-950/30">
+                                                <VueFlow
+                                                    v-model="flowElements"
+                                                    :node-types="nodeTypes"
+                                                    fit-view-on-init
+                                                    :default-viewport="{ zoom: 0.8 }"
                                                 >
-                                                    <template
-                                                        v-for="(
-                                                            node, idx
-                                                        ) in result
-                                                            .succession_chain
-                                                            .nodes"
-                                                        :key="node.id"
-                                                    >
-                                                        <!-- Link Arrow -->
-                                                        <v-icon
-                                                            v-if="idx > 0"
-                                                            color="grey-darken-1"
-                                                            class="mx-2"
-                                                            >mdi-chevron-right</v-icon
-                                                        >
-
-                                                        <!-- Node Card -->
-                                                        <div
-                                                            class="flow-node pa-4 d-flex flex-column align-center hover-scale justify-center rounded-xl border-2 text-center transition-all"
-                                                            :class="[
-                                                                node.type ===
-                                                                'vacancy'
-                                                                    ? 'border-amber-500/30 bg-amber-500/5'
-                                                                    : 'border-blue-500/30 bg-blue-500/5',
-                                                                'min-w-160',
-                                                            ]"
-                                                        >
-                                                            <v-avatar
-                                                                :color="
-                                                                    node.type ===
-                                                                    'vacancy'
-                                                                        ? 'amber-lighten-4'
-                                                                        : 'blue-lighten-4'
-                                                                "
-                                                                size="40"
-                                                                class="mb-2"
-                                                            >
-                                                                <v-icon
-                                                                    :color="
-                                                                        node.type ===
-                                                                        'vacancy'
-                                                                            ? 'amber-darken-2'
-                                                                            : 'blue-darken-2'
-                                                                    "
-                                                                >
-                                                                    {{
-                                                                        node.type ===
-                                                                        'vacancy'
-                                                                            ? 'mdi-briefcase-variant-outline'
-                                                                            : 'mdi-account-check'
-                                                                    }}
-                                                                </v-icon>
-                                                            </v-avatar>
-
-                                                            <div
-                                                                class="text-caption font-weight-black line-height-tight text-white"
-                                                            >
-                                                                {{ node.label }}
-                                                            </div>
-                                                            <div
-                                                                class="text-tiny mt-1 tracking-widest text-slate-400 uppercase"
-                                                            >
-                                                                {{
-                                                                    node.type ===
-                                                                    'vacancy'
-                                                                        ? 'Vacante'
-                                                                        : 'Cubre Posición'
-                                                                }}
-                                                            </div>
-
-                                                            <v-chip
-                                                                v-if="node.fit"
-                                                                size="x-small"
-                                                                :color="
-                                                                    getMetricColor(
-                                                                        node.fit,
-                                                                    )
-                                                                "
-                                                                class="mt-2"
-                                                                variant="flat"
-                                                            >
-                                                                {{
-                                                                    (
-                                                                        node.fit *
-                                                                        100
-                                                                    ).toFixed(
-                                                                        0,
-                                                                    )
-                                                                }}% Fit
-                                                            </v-chip>
-                                                        </div>
-                                                    </template>
-                                                </div>
+                                                    <Background pattern-color="rgba(255,255,255,0.05)" :gap="20" />
+                                                </VueFlow>
                                             </div>
-                                            <p
-                                                class="text-caption mt-2 text-slate-500 italic"
-                                            >
-                                                * Este mapa visualiza la
-                                                reacción en cadena optimizada
-                                                por Stratos para minimizar la
-                                                fricción operativa.
-                                            </p>
                                         </v-card>
                                     </v-col>
                                 </v-row>

@@ -57,14 +57,22 @@ class StratosMapController extends Controller
         $orgId = auth()->user()->organization_id;
         $centerId = $request->query('person_id');
 
-        $query = People::with(['department', 'role', 'supervisor'])
+        $query = People::with(['department', 'role', 'supervisor', 'relations.relatedPerson'])
             ->where('organization_id', $orgId);
 
         if ($centerId) {
-            $query->where(function($q) use ($centerId) {
-                $q->where('id', $centerId)
-                  ->orWhere('supervised_by', $centerId);
-            });
+            $focalPerson = People::find($centerId);
+            if ($focalPerson) {
+                $query->where(function($q) use ($centerId, $focalPerson) {
+                    $q->where('id', $centerId) // Ella misma
+                      ->orWhere('supervised_by', $centerId) // Sus subordinados
+                      ->orWhere('id', $focalPerson->supervised_by) // Su jefe
+                      ->orWhereHas('relations', function($sq) use ($centerId) {
+                          $sq->where('related_person_id', $centerId) // Gente que la evalúa a ella
+                            ->orWhere('person_id', $centerId); // Gente que ella evalúa
+                      });
+                });
+            }
         }
 
         $people = $query->get();
@@ -79,18 +87,42 @@ class StratosMapController extends Controller
                 'role' => $p->role->name ?? 'N/A',
                 'dept' => $p->department->name ?? 'N/A',
                 'parentId' => $p->supervised_by ? 'p_' . $p->supervised_by : null,
-                'color' => '#10b981'
+                'color' => $p->is_high_potential ? '#10b981' : '#3b82f6'
             ];
         });
 
         $links = [];
+        $addedLinks = []; // To avoid duplicates
+
         foreach ($people as $p) {
+            // Reporting line (Core Hierarchy)
             if ($p->supervised_by) {
+                $source = 'p_' . $p->supervised_by;
+                $target = 'p_' . $p->id;
                 $links[] = [
-                    'source' => 'p_' . $p->supervised_by,
-                    'target' => 'p_' . $p->id,
-                    'value' => 2
+                    'source' => $source,
+                    'target' => $target,
+                    'value' => 3, // Strong link for hierarchy
+                    'type' => 'supervisor'
                 ];
+                $addedLinks["$source-$target"] = true;
+            }
+
+            // 360 Evaluation Relationships
+            foreach ($p->relations as $rel) {
+                $source = 'p_' . $p->id;
+                $target = 'p_' . $rel->related_person_id;
+                
+                // Only add if target is also in our current result set
+                if ($people->contains('id', $rel->related_person_id) && !isset($addedLinks["$source-$target"])) {
+                    $links[] = [
+                        'source' => $source,
+                        'target' => $target,
+                        'value' => $rel->relationship_type === 'peer' ? 1 : 2,
+                        'type' => $rel->relationship_type
+                    ];
+                    $addedLinks["$source-$target"] = true;
+                }
             }
         }
 
@@ -98,5 +130,29 @@ class StratosMapController extends Controller
             'nodes' => $nodes,
             'links' => $links
         ]);
+    }
+
+    /**
+     * Busca personas para el buscador del mapa
+     */
+    public function searchPeople(Request $request)
+    {
+        $orgId = auth()->user()->organization_id;
+        $query = $request->query('query');
+
+        if (empty($query)) {
+            return response()->json([]);
+        }
+
+        $people = People::where('organization_id', $orgId)
+            ->where(function($q) use ($query) {
+                $q->where('first_name', 'like', "%$query%")
+                  ->orWhere('last_name', 'like', "%$query%")
+                  ->orWhere(\DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%$query%");
+            })
+            ->limit(10)
+            ->get(['id', 'first_name', 'last_name', 'department_id']);
+
+        return response()->json($people);
     }
 }

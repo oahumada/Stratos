@@ -27,6 +27,8 @@ class CultureSentinelService
         $signals = $this->gatherSignals($organizationId);
         $anomalies = $this->detectAnomalies($signals);
         $aiAnalysis = $this->analyzeWithSentinel($signals, $anomalies);
+        $cvfRadar = $this->calculateCVFRadar($signals);
+        $frictionScore = $this->calculateFrictionScore($signals, $cvfRadar);
 
         // Audit Trail
         $this->audit->logDecision(
@@ -44,6 +46,62 @@ class CultureSentinelService
             'anomalies' => $anomalies,
             'ai_analysis' => $aiAnalysis,
             'health_score' => $this->calculateHealthScore($signals),
+            'cvf_radar' => $cvfRadar,
+            'friction_score' => $frictionScore,
+            'department_silos' => $this->detectSilos($organizationId),
+        ];
+    }
+
+    /**
+     * Calcula los cuadrantes del Competing Values Framework (Radar).
+     */
+    protected function calculateCVFRadar(array $signals): array
+    {
+        $traits = $signals['trait_distribution'];
+        
+        // Mapeo lógico de rasgos a cuadrantes CVF
+        $clan = (($traits['Empatía'] ?? 50) + ($traits['Cooperación'] ?? 50)) / 2;
+        $adhocracy = (($traits['Creatividad'] ?? 50) + ($traits['Apertura'] ?? 50)) / 2;
+        $market = (($traits['Ambición'] ?? 50) + ($traits['Persistencia'] ?? 50)) / 2;
+        $hierarchy = (($traits['Orden'] ?? 50) + ($traits['Responsabilidad'] ?? 50)) / 2;
+
+        return [
+            'clan' => (int) round($clan),
+            'adhocracy' => (int) round($adhocracy),
+            'market' => (int) round($market),
+            'hierarchy' => (int) round($hierarchy),
+        ];
+    }
+
+    /**
+     * Calcula la fricción cultural (Diferencia entre Declarada y Vivida).
+     */
+    protected function calculateFrictionScore(array $signals, array $cvfRadar): int
+    {
+        // En una implementación real, compararíamos vs CulturalBlueprint.
+        // Simulamos una fricción basada en la varianza de los cuadrantes y el sentimiento bajo.
+        $avgCVF = array_sum($cvfRadar) / 4;
+        $variance = 0;
+        foreach($cvfRadar as $val) {
+            $variance += abs($val - $avgCVF);
+        }
+        
+        $friction = ($variance / 2) + (100 - $signals['avg_sentiment']) * 0.3;
+        
+        return (int) max(5, min(95, round($friction)));
+    }
+
+    /**
+     * Detecta silos culturales por departamento.
+     */
+    protected function detectSilos(int $organizationId): array
+    {
+        // Mock de datos por departamentos - En real cruzaría con Departments y People
+        return [
+            ['name' => 'IT & Desarrollo', 'dominant' => 'Adhocracia', 'friction' => 12],
+            ['name' => 'Operaciones', 'dominant' => 'Jerarquía', 'friction' => 45],
+            ['name' => 'Ventas', 'dominant' => 'Mercado', 'friction' => 28],
+            ['name' => 'Recursos Humanos', 'dominant' => 'Clan', 'friction' => 15],
         ];
     }
 
@@ -70,7 +128,7 @@ class CultureSentinelService
             ->get();
 
         $traitDistribution = $profiles->groupBy('trait_name')
-            ->map(fn ($group) => round($group->avg('score'), 2))
+            ->map(fn ($group) => round($group->avg('score') * 100, 2))
             ->toArray();
 
         return [

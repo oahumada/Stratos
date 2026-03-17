@@ -2,21 +2,15 @@
 import * as apiHelper from '@/apiHelper';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StratosMap from '@/components/Organization/StratosMap.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Head } from '@inertiajs/vue3';
-import { Download, Maximize2, RefreshCcw, Layers, Users, CircleDot } from 'lucide-vue-next';
+import StratosOrgChart from '@/components/Organization/OrgChart/StratosOrgChart.vue';
 import { onMounted, ref, watch } from 'vue';
-
-// Apache ECharts Imports
+import { Layers, CircleDot, Users, RefreshCcw, Maximize2, Search, X, UserCheck } from 'lucide-vue-next';
 import { HeatmapChart } from 'echarts/charts';
-import {
-    GridComponent,
-    TitleComponent,
-    TooltipComponent,
-    VisualMapComponent,
-} from 'echarts/components';
+import { GridComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
+
+// Apache ECharts Imports
 import VChart from 'vue-echarts';
 
 // Register echarts modules
@@ -31,16 +25,60 @@ use([
 
 const loading = ref(true);
 const error = ref<string | null>(null);
-const currentTab = ref('heatmap'); // 'heatmap' | 'gravitational' | 'cerberos'
+const currentTab = ref('org-chart'); // 'heatmap' | 'gravitational' | 'cerberos' | 'org-chart'
 
 // Data state
 const chartOptions = ref<any>({});
 const mapNodes = ref([]);
 const mapLinks = ref([]);
 
+// Search state for Cerberos
+const searchQuery = ref('');
+const searchResults = ref<any[]>([]);
+const searchLoading = ref(false);
+const selectedPerson = ref<any>(null);
+
+const handleSearch = async () => {
+    if (searchQuery.value.length < 2) {
+        searchResults.value = [];
+        return;
+    }
+    searchLoading.value = true;
+    try {
+        const response = await apiHelper.get<any[]>(`/api/stratos-maps/people/search?query=${searchQuery.value}`);
+        searchResults.value = response;
+    } catch (e) {
+        console.error('Error searching people:', e);
+    } finally {
+        searchLoading.value = false;
+    }
+};
+
+const selectPerson = (person: any) => {
+    selectedPerson.value = person;
+    searchQuery.value = person.full_name;
+    searchResults.value = [];
+    fetchData();
+};
+
+const clearSelection = () => {
+    selectedPerson.value = null;
+    searchQuery.value = '';
+    searchResults.value = [];
+    fetchData();
+};
+
 const fetchData = async () => {
     loading.value = true;
     error.value = null;
+    
+    // Clear previous data to avoid showing old nodes in new tab
+    if (currentTab.value === 'gravitational' || currentTab.value === 'cerberos') {
+        mapNodes.value = [];
+        mapLinks.value = [];
+    }
+
+    console.log(`[StratosMap] Fetching data for tab: ${currentTab.value}`);
     try {
         if (currentTab.value === 'heatmap') {
             await fetchHeatmapData();
@@ -50,6 +88,7 @@ const fetchData = async () => {
             await fetchCerberosData();
         }
     } catch (e: any) {
+        console.error(`[StratosMap] Error fetching ${currentTab.value}:`, e);
         error.value = 'Error al cargar los datos: ' + e.message;
     } finally {
         loading.value = false;
@@ -135,14 +174,20 @@ const fetchHeatmapData = async () => {
 
 const fetchGravitationalData = async () => {
     const response = await apiHelper.get('/api/stratos-maps/gravitational');
-    mapNodes.value = response.nodes;
-    mapLinks.value = response.links;
+    console.log('[StratosMap] Gravitational Data:', response);
+    mapNodes.value = response.nodes || [];
+    mapLinks.value = response.links || [];
 };
 
 const fetchCerberosData = async () => {
-    const response = await apiHelper.get('/api/stratos-maps/cerberos');
-    mapNodes.value = response.nodes;
-    mapLinks.value = response.links;
+    const url = selectedPerson.value 
+        ? `/api/stratos-maps/cerberos?person_id=${selectedPerson.value.id}`
+        : '/api/stratos-maps/cerberos';
+        
+    const response = await apiHelper.get(url);
+    console.log('[StratosMap] Cerberos Data:', response);
+    mapNodes.value = response.nodes || [];
+    mapLinks.value = response.links || [];
 };
 
 const handleNodeClick = (node: any) => {
@@ -159,60 +204,120 @@ watch(currentTab, () => {
 </script>
 
 <template>
-    <AppLayout>
         <title>Stratos Map - Inteligencia Organizacional</title>
         <Head title="Stratos Map - Inteligencia Organizacional" />
 
-        <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-            <header class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                <div>
-                    <h1 class="mb-2 text-3xl font-bold tracking-tight text-white">
-                        Stratos Map
-                    </h1>
-                    <p class="text-gray-400">
-                        Visualización multidimensional del talento, competencias y liderazgo.
-                    </p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="flex bg-white/5 p-1 rounded-lg border border-white/10">
-                        <button 
-                            @click="currentTab = 'heatmap'"
-                            class="px-4 py-2 rounded-md transition-all text-sm flex items-center gap-2"
-                            :class="currentTab === 'heatmap' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-white'"
-                        >
-                            <CircleDot class="h-4 w-4" />
-                            Matriz Térmica
-                        </button>
-                        <button 
-                            @click="currentTab = 'gravitational'"
-                            class="px-4 py-2 rounded-md transition-all text-sm flex items-center gap-2"
-                            :class="currentTab === 'gravitational' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-white'"
-                        >
-                            <Layers class="h-4 w-4" />
-                            Nodos Gravitacionales
-                        </button>
-                        <button 
-                            @click="currentTab = 'cerberos'"
-                            class="px-4 py-2 rounded-md transition-all text-sm flex items-center gap-2"
-                            :class="currentTab === 'cerberos' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-white'"
-                        >
-                            <Users class="h-4 w-4" />
-                            Mapa Cerberos
-                        </button>
-                    </div>
-                </div>
-            </header>
+        <div class="relative min-h-screen bg-[#020617] text-white selection:bg-indigo-500/30 overflow-hidden">
+            <!-- Background Elements -->
+            <div class="pointer-events-none fixed inset-0 overflow-hidden">
+                <div class="absolute -top-[10%] -left-[10%] h-[40%] w-[40%] rounded-full bg-indigo-500/10 blur-[120px]"></div>
+                <div class="absolute top-[20%] -right-[10%] h-[35%] w-[35%] rounded-full bg-purple-500/10 blur-[120px]"></div>
+                <div class="absolute -bottom-[10%] left-[20%] h-[30%] w-[30%] rounded-full bg-blue-500/10 blur-[120px]"></div>
+            </div>
 
-            <div class="bg-surface relative flex min-h-[700px] flex-col rounded-3xl border border-white/5 p-8 shadow-2xl overflow-hidden">
-                <div class="mb-6 flex items-center justify-between">
-                    <h2 class="flex items-center gap-2 text-xl font-medium text-white">
-                        <span class="h-2 w-2 rounded-full" :class="currentTab === 'heatmap' ? 'bg-rose-500' : 'bg-emerald-500'"></span>
-                        {{ 
-                            currentTab === 'heatmap' ? 'Radiografía de Competencias' : 
-                            currentTab === 'gravitational' ? 'Ecosistema de Unidades (Masa de Talento)' : 
-                            'Red Neuronal de Liderazgo (Cerberos)'
-                        }}
-                    </h2>
+            <div class="relative z-10 mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+                <header class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                    <div>
+                        <h1 class="mb-2 text-3xl font-black tracking-tight text-white">
+                            Stratos <span class="text-indigo-400">Map</span>
+                        </h1>
+                        <p class="text-sm font-medium text-white/40">
+                            Multidimensional intelligence: talent, competencies, and leadership architecture.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex bg-white/5 p-1 rounded-xl border border-white/10 backdrop-blur-md">
+                            <button 
+                                @click="currentTab = 'org-chart'"
+                                class="px-6 py-2.5 rounded-lg transition-all text-[11px] font-black tracking-widest uppercase flex items-center gap-2"
+                                :class="currentTab === 'org-chart' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25' : 'text-white/40 hover:text-white hover:bg-white/5'"
+                            >
+                                <Layers class="h-4 w-4" />
+                                Stratos Chart
+                            </button>
+                            <button 
+                                @click="currentTab = 'heatmap'"
+                                class="px-6 py-2.5 rounded-lg transition-all text-[11px] font-black tracking-widest uppercase flex items-center gap-2"
+                                :class="currentTab === 'heatmap' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25' : 'text-white/40 hover:text-white hover:bg-white/5'"
+                            >
+                                <CircleDot class="h-4 w-4" />
+                                Heatmap
+                            </button>
+                            <button 
+                                @click="currentTab = 'gravitational'"
+                                class="px-6 py-2.5 rounded-lg transition-all text-[11px] font-black tracking-widest uppercase flex items-center gap-2"
+                                :class="currentTab === 'gravitational' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25' : 'text-white/40 hover:text-white hover:bg-white/5'"
+                            >
+                                <Layers class="h-4 w-4" />
+                                Gravitational
+                            </button>
+                            <button 
+                                @click="currentTab = 'cerberos'"
+                                class="px-6 py-2.5 rounded-lg transition-all text-[11px] font-black tracking-widest uppercase flex items-center gap-2"
+                                :class="currentTab === 'cerberos' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25' : 'text-white/40 hover:text-white hover:bg-white/5'"
+                            >
+                                <Users class="h-4 w-4" />
+                                Cerberos
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+            <div class="bg-surface relative flex min-h-[750px] flex-col rounded-[32px] border border-white/10 p-8 shadow-2xl overflow-hidden backdrop-blur-xl">
+                <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex flex-col gap-1">
+                        <h2 class="flex items-center gap-3 text-lg font-black tracking-tight text-white uppercase">
+                            <span class="h-2 w-2 rounded-full animate-pulse" :class="currentTab === 'heatmap' ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.6)]' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]'"></span>
+                            {{ 
+                                currentTab === 'org-chart' ? 'Hierarchical Architecture (Stratos Chart)' : 
+                            currentTab === 'heatmap' ? 'Competency Radiography' : 
+                            currentTab === 'gravitational' ? 'Unit Ecosystem (Talent Mass)' : 
+                            'Leadership Neural Network (Cerberos)'
+                            }}
+                        </h2>
+                        <span class="text-[10px] font-bold text-white/30 tracking-[0.2em] uppercase ml-5">Neural Engine Active</span>
+                    </div>
+
+                    <!-- Cerberos Search Bar -->
+                    <div v-if="currentTab === 'cerberos'" class="relative w-full max-w-md">
+                        <div class="relative group">
+                            <input 
+                                v-model="searchQuery"
+                                @input="handleSearch"
+                                type="text" 
+                                placeholder="Search by name or RUT..."
+                                class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-10 text-sm text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all backdrop-blur-md"
+                            />
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center">
+                                <RefreshCcw v-if="searchLoading" class="h-4 w-4 text-indigo-400 animate-spin" />
+                                <Search v-else class="h-5 w-5 text-white/20 group-focus-within:text-indigo-400 transition-colors" />
+                            </div>
+                            <button 
+                                v-if="searchQuery"
+                                @click="clearSelection"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white"
+                            >
+                                <X class="h-4 w-4" />
+                            </button>
+                        </div>
+
+                        <!-- Dropdown Results -->
+                        <div v-if="searchResults.length > 0" class="absolute top-full left-0 right-0 mt-2 bg-[#0f172a]/95 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-xl z-50 shadow-2xl">
+                            <div 
+                                v-for="person in searchResults" 
+                                :key="person.id"
+                                @click="selectPerson(person)"
+                                class="px-5 py-3 hover:bg-white/5 cursor-pointer flex items-center justify-between border-b border-white/5 last:border-0"
+                            >
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-white">{{ person.full_name }}</span>
+                                    <span class="text-[10px] text-white/40 uppercase tracking-wider">Talent ID: #{{ person.id }}</span>
+                                </div>
+                                <UserCheck class="h-4 w-4 text-white/20" />
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex items-center gap-3">
                         <StButtonGlass variant="ghost" size="sm" @click="fetchData" :disabled="loading">
                             <RefreshCcw class="h-4 w-4" :class="{ 'animate-spin': loading }" />
@@ -233,14 +338,27 @@ watch(currentTab, () => {
                         {{ error }}
                     </div>
 
+                    <!-- Vue Flow Org Chart -->
+                    <div v-if="currentTab === 'org-chart'" class="h-[600px] w-full">
+                         <StratosOrgChart />
+                    </div>
+
                     <!-- ECharts Heatmap -->
-                    <div v-if="currentTab === 'heatmap'" class="h-full w-full">
-                        <v-chart class="chart h-full w-full min-h-[550px]" :option="chartOptions" autoresize />
+                    <div v-else-if="currentTab === 'heatmap'" class="h-[600px] w-full">
+                        <v-chart class="chart h-full w-full" :option="chartOptions" autoresize />
                     </div>
 
                     <!-- D3 Stratos Map -->
-                    <div v-else class="h-full w-full min-h-[550px]">
+                    <div v-else-if="currentTab === 'gravitational' || currentTab === 'cerberos'" class="h-[600px] w-full">
+                        <div v-if="currentTab === 'cerberos' && !selectedPerson && !loading" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+                            <div class="h-24 w-24 bg-indigo-500/10 rounded-full flex items-center justify-center mb-6 animate-pulse border border-indigo-500/20">
+                                <Search class="h-10 w-10 text-indigo-400" />
+                            </div>
+                            <h3 class="text-xl font-black mb-2 uppercase tracking-tight">Selecciona un Colaborador</h3>
+                            <p class="text-sm text-white/40 max-w-sm">Busca por nombre o RUT para activar la Red Neural y visualizar su ecosistema de evaluación 360°.</p>
+                        </div>
                         <StratosMap 
+                            v-else
                             :nodes="mapNodes" 
                             :links="mapLinks" 
                             :mode="currentTab === 'gravitational' ? 'gravitational' : 'cerberos'"
@@ -251,6 +369,12 @@ watch(currentTab, () => {
 
                 <!-- Legend / Summary Footer -->
                 <footer v-if="!loading && !error" class="mt-8 pt-6 border-t border-white/5 flex flex-wrap gap-8">
+                    <div v-if="currentTab === 'org-chart'" class="flex items-center gap-6 text-gray-400 text-xs">
+                         <div class="flex items-center gap-2">
+                            <div class="h-3 w-3 rounded-full bg-indigo-500 glow-indigo"></div>
+                            <span>Interactive Hierarchy</span>
+                        </div>
+                    </div>
                     <div v-if="currentTab === 'gravitational'" class="flex items-center gap-6">
                         <div class="flex items-center gap-2">
                             <div class="h-3 w-3 rounded-full bg-indigo-500 glow-indigo"></div>
@@ -274,7 +398,7 @@ watch(currentTab, () => {
                 </footer>
             </div>
         </div>
-    </AppLayout>
+    </div>
 </template>
 
 <style scoped>
@@ -291,5 +415,32 @@ watch(currentTab, () => {
 :deep(.bg-surface) {
     background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.95));
     backdrop-filter: blur(20px);
+}
+
+/* Vue Flow Overrides for Dark Mode */
+:deep(.vue-flow__edge-path) {
+    stroke-dasharray: 5;
+    animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+    from { stroke-dashoffset: 10; }
+    to { stroke-dashoffset: 0; }
+}
+
+:deep(.vue-flow__controls) {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 4px;
+}
+:deep(.vue-flow__controls-button) {
+    fill: #9ca3af;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+:deep(.vue-flow__controls-button:hover) {
+    background: rgba(255, 255, 255, 0.05);
+    fill: white;
 }
 </style>

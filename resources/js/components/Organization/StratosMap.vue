@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, onUnmounted } from 'vue';
 import * as d3 from 'd3';
 import { useElementSize } from '@vueuse/core';
+import * as dagre from 'dagre';
 
 interface Node extends d3.SimulationNodeDatum {
     id: string | number;
@@ -49,10 +50,17 @@ const config = {
 };
 
 const initGraph = () => {
+    console.log('[D3 Map] initGraph called. nodes length:', props.nodes.length, 'svgRef:', !!svgRef.value);
     if (!svgRef.value || props.nodes.length === 0) return;
 
     // Limpiar previo
     d3.select(svgRef.value).selectAll("*").remove();
+
+    if (width.value === 0 || height.value === 0) {
+        console.warn('[D3 Map] Container size is 0, waiting for next tick...');
+        setTimeout(initGraph, 100);
+        return;
+    }
 
     svg = d3.select(svgRef.value);
     g = svg.append("g");
@@ -66,72 +74,161 @@ const initGraph = () => {
 
     svg.call(zoom);
 
-    // Definir filtros Glass y Gradientes
+    // Definir Filtros y Gradientes
     const defs = svg.append("defs");
 
-    // Filtro de brillo/desenfoque
-    const filter = defs.append("filter")
+    // Sombras y Luces
+    const glow = defs.append("filter")
         .attr("id", "node-glow")
         .attr("x", "-50%")
         .attr("y", "-50%")
         .attr("width", "200%")
         .attr("height", "200%");
+    glow.append("feGaussianBlur")
+        .attr("stdDeviation", 8)
+        .attr("result", "coloredBlur");
+    const feMerge = glow.append("feMerge");
+    feMerge.append("feMergeNode").attr("in", "coloredBlur");
+    feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
-    filter.append("feGaussianBlur")
-        .attr("stdDeviation", "8")
-        .attr("result", "blur");
-
-    filter.append("feComposite")
-        .attr("in", "SourceGraphic")
-        .attr("in2", "blur")
-        .attr("operator", "over");
-
-    // Gradientes para nodos
+    // Gradiente dinámico
     const gradient = defs.append("linearGradient")
         .attr("id", "node-gradient")
         .attr("x1", "0%").attr("y1", "0%")
         .attr("x2", "100%").attr("y2", "100%");
-
+    
     gradient.append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", config.nodeColors.department[0]);
-
+        .attr("stop-color", props.mode === 'gravitational' ? config.nodeColors.department[0] : config.nodeColors.person[0]);
     gradient.append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", config.nodeColors.department[1]);
+        .attr("stop-color", props.mode === 'gravitational' ? config.nodeColors.department[1] : config.nodeColors.person[1]);
 
-    // Crear Escalas
-    const massExtent = d3.extent(props.nodes, d => d.mass) as [number, number];
+    // Crear Escalas con defensas
+    const validNodes = props.nodes.map(n => ({
+        ...n,
+        mass: (typeof n.mass === 'number' && !isNaN(n.mass)) ? Math.max(n.mass, 1) : 1
+    }));
+    
+    if (validNodes.length === 0) {
+        console.warn('[D3 Map] No valid nodes to render');
+        return;
+    }
+
+    const massExtent = d3.extent(validNodes, d => d.mass) as [number, number];
+    const minMass = massExtent[0] ?? 1;
+    const maxMass = massExtent[1] ?? 1;
+    
     const radiusScale = d3.scaleSqrt()
-        .domain(massExtent[0] === massExtent[1] ? [0, massExtent[0]] : massExtent)
+        .domain([0, Math.max(maxMass, 5)])
         .range([config.minRadius, config.maxRadius]);
 
     // Simulación de Fuerza
-    simulation = d3.forceSimulation<Node>(props.nodes)
-        .force("link", d3.forceLink<Node, Link>(props.links).id(d => d.id).distance(150))
-        .force("charge", d3.forceManyBody().strength(-300))
-        .force("center", d3.forceCenter(width.value / 2, height.value / 2))
-        .force("collision", d3.forceCollide().radius(d => radiusScale(d.mass) + 10));
+    // Clonamos los datos para evitar que D3 ensucie los props reactivos de Vue
+    const nodesData = JSON.parse(JSON.stringify(validNodes));
+    const linksData = JSON.parse(JSON.stringify(props.links || []));
+    
+    // Layout Inicial (Específico para Cerberos)
+    nodesData.forEach((node: any) => {
+        const centerX = width.value / 2 || 400;
+        const centerY = height.value / 2 || 300;
+        const dist = 220;
 
-    // Dibujar Enlaces (Líneas de fuerza)
+        // Si es Cerberos, aplicamos layout direccional
+        if (props.mode === 'cerberos') {
+            const rel = linksData.find((l: any) => l.source.id === node.id || l.target.id === node.id);
+            
+            // Lógica de "Orbita Evaluativa"
+            if (node.id === props.nodes[0]?.id) { // Asumimos el primero como foco si no hay ID (se puede mejorar)
+                node.fx = centerX;
+                node.fy = centerY;
+                node.isFocus = true;
+            } else {
+                // Posicionar según relación con el foco (Simplificado)
+                const linkToFocus = linksData.find((l: any) => 
+                    (l.source.id === node.id && l.target.id === props.nodes[0]?.id) ||
+                    (l.target.id === node.id && l.source.id === props.nodes[0]?.id)
+                );
+
+                if (linkToFocus) {
+                    if (linkToFocus.type === 'supervisor' && linkToFocus.target.id === props.nodes[0]?.id) {
+                        // Es el JEFE (Arriba)
+                        node.x = centerX;
+                        node.y = centerY - dist;
+                    } else if (linkToFocus.type === 'supervisor' && linkToFocus.source.id === props.nodes[0]?.id) {
+                        // Es un COLABORADOR (Abajo)
+                        node.x = centerX;
+                        node.y = centerY + dist;
+                    } else {
+                        // Es un PAR (Lados)
+                        const index = nodesData.filter((n: any) => n.id !== props.nodes[0]?.id).indexOf(node);
+                        node.x = centerX + (index % 2 === 0 ? dist : -dist);
+                        node.y = centerY + (Math.random() - 0.5) * 50;
+                    }
+                }
+            }
+        } else {
+            // Layout normal para Gravitational (Dagre)
+            node.x = (width.value / 2 || 300) + (Math.random() - 0.5) * 200;
+            node.y = (height.value / 2 || 300) + (Math.random() - 0.5) * 200;
+        }
+    });
+
+    const chargeStrength = props.mode === 'cerberos' ? -2500 : -1000;
+    const linkDistance = props.mode === 'cerberos' ? 250 : 180;
+
+    console.log(`[D3 Map] Initializing Engine. Nodes: ${nodesData.length}, Links: ${linksData.length}`);
+
+    simulation = d3.forceSimulation<Node>(nodesData)
+        .force("link", d3.forceLink<Node, Link>(linksData)
+            .id(d => d.id)
+            .distance((d: any) => d.type === 'supervisor' ? linkDistance : linkDistance * 0.8)
+            .strength(0.5)
+        )
+        .force("charge", d3.forceManyBody().strength(chargeStrength))
+        .force("center", d3.forceCenter(width.value / 2 || 400, height.value / 2 || 300))
+        .force("collision", d3.forceCollide().radius((d: any) => radiusScale(d.mass || 1) + 50))
+        .alphaDecay(0.05); 
+
+    simulation.alpha(1).restart();
+
+    // Marcadores para flechas
+    defs.append("marker")
+        .attr("id", "arrowhead")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 45) // Ajustado para alejarse más del centro (radio promedio)
+        .attr("refY", 0)
+        .attr("markerWidth", 7)
+        .attr("markerHeight", 7)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "rgba(16, 185, 129, 0.6)"); // Un poco más sólido
+
+    // Dibujar Enlaces
     const link = g.append("g")
         .attr("class", "links")
         .selectAll("line")
-        .data(props.links)
+        .data(linksData)
         .enter().append("line")
-        .attr("stroke", "rgba(255,255,255,0.05)")
-        .attr("stroke-width", 1.5)
-        .attr("stroke-dasharray", "4,4");
+        .attr("stroke", (d: any) => {
+            if (d.type === 'supervisor') return "rgba(16, 185, 129, 0.4)"; // Más opaco
+            if (d.type === 'peer') return "rgba(59, 130, 246, 0.3)";
+            return "rgba(255,255,255,0.2)";
+        })
+        .attr("stroke-width", (d: any) => d.type === 'supervisor' ? 2 : 1)
+        .attr("stroke-dasharray", (d: any) => d.type === 'supervisor' ? "none" : "5,5")
+        .attr("marker-end", (d: any) => d.type === 'supervisor' ? "url(#arrowhead)" : null);
 
     // Dibujar Nodos
     const node = g.append("g")
         .attr("class", "nodes")
         .selectAll("g")
-        .data(props.nodes)
+        .data(nodesData)
         .enter().append("g")
         .attr("cursor", "pointer")
         .on("click", (event, d) => emit('node-click', d))
-        .call(d3.drag<SVGGElement, Node>()
+        .call(d3.drag<SVGGElement, any>()
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended) as any);
@@ -148,18 +245,51 @@ const initGraph = () => {
     node.append("circle")
         .attr("r", d => radiusScale(d.mass) * 0.7)
         .attr("fill", "url(#node-gradient)")
-        .attr("opacity", 0.6)
+        .attr("opacity", d => (d as any).isFocus ? 1 : 0.8)
+        .attr("stroke", d => (d as any).isFocus ? "white" : "none")
+        .attr("stroke-width", 2)
         .style("filter", "url(#node-glow)");
 
-    // Label del nodo
+    // Icono central
     node.append("text")
-        .text(d => d.name)
+        .attr("text-anchor", "middle")
+        .attr("dy", "0.35em")
+        .attr("font-size", d => radiusScale(d.mass) * 0.8 + "px") // MUCHO MÁS GRANDE
+        .attr("fill", "white")
+        .attr("opacity", 0.9)
+        .style("pointer-events", "none")
+        .text(props.mode === 'gravitational' ? '🏢' : '👤');
+
+    // Label del nodo con multi-línea
+    const labels = node.append("text")
         .attr("dy", d => radiusScale(d.mass) + 20)
         .attr("text-anchor", "middle")
         .attr("fill", "white")
-        .attr("font-size", "12px")
+        .attr("font-size", "11px")
         .attr("font-weight", "500")
-        .attr("style", "text-shadow: 0 2px 4px rgba(0,0,0,0.5)");
+        .attr("style", "text-shadow: 0 2px 4px rgba(0,0,0,0.8); pointer-events: none;");
+
+    labels.each(function(d) {
+        const el = d3.select(this);
+        const name = d.name || 'N/A';
+        const words = name.split(/\s+/);
+        if (words.length > 2 && name.length > 20) {
+            const mid = Math.ceil(words.length / 2);
+            el.append("tspan")
+                .text(words.slice(0, mid).join(" "))
+                .attr("x", 0)
+                .attr("dy", "1.2em");
+            el.append("tspan")
+                .text(words.slice(mid).join(" "))
+                .attr("x", 0)
+                .attr("dy", "1.2em");
+        } else {
+            el.append("tspan")
+                .text(name)
+                .attr("x", 0)
+                .attr("dy", "1.2em");
+        }
+    });
 
     // Update positions
     simulation.on("tick", () => {
@@ -193,12 +323,13 @@ function dragended(event: any, d: any) {
 }
 
 // Watchers
-watch([width, height, props.nodes, props.links], () => {
+watch([width, height, props.nodes, props.links, () => props.mode], () => {
     initGraph();
 });
 
 onMounted(() => {
-    setTimeout(initGraph, 100);
+    console.log('[D3 Map] Component Mounted. Nodes:', props.nodes.length);
+    setTimeout(initGraph, 300);
 });
 
 onUnmounted(() => {

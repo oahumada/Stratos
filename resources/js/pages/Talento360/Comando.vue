@@ -274,7 +274,7 @@ onMounted(() => {
                     </h1>
                 </div>
                 <p class="mt-2 text-lg font-medium text-white/40">
-                    {{ t('assessment_command.subtitle') }}
+                    {{ t('assessment_command.subtitle') }}z
                 </p>
             </div>
 

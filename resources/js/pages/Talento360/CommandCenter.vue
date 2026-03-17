@@ -103,22 +103,22 @@ const getTargetIcon = (type: string) => {
                     <v-table>
                         <thead>
                             <tr class="bg-grey-lighten-4">
-                                <th class="font-weight-bold text-left">
+                                <th scope="col" class="font-weight-bold text-left">
                                     Nombre de la Política
                                 </th>
-                                <th class="font-weight-bold text-left">
+                                <th scope="col" class="font-weight-bold text-left">
                                     Objetivo (Target)
                                 </th>
-                                <th class="font-weight-bold text-left">
+                                <th scope="col" class="font-weight-bold text-left">
                                     Frecuencia
                                 </th>
-                                <th class="font-weight-bold text-left">
+                                <th scope="col" class="font-weight-bold text-left">
                                     Responsable
                                 </th>
-                                <th class="font-weight-bold text-left">
+                                <th scope="col" class="font-weight-bold text-left">
                                     Estado
                                 </th>
-                                <th class="font-weight-bold text-right">
+                                <th scope="col" class="font-weight-bold text-right">
                                     Acciones
                                 </th>
                             </tr>

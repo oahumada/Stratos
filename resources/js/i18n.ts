@@ -1,5 +1,29 @@
 export const messages = {
     en: {
+        culture: {
+            blueprint: {
+                title: 'Stratos Identity',
+                subtitle: 'The Organizational Constitution & AI Foundation',
+                mission: 'Mission',
+                vision: 'Vision',
+                values: 'Values',
+                principles: 'Ethical Principles',
+                seal: 'Digital Seal',
+                seal_desc: 'Cryptographic signature that ensures cultural integrity for AI agents.',
+                sign: 'Sign Blueprint',
+                save: 'Save Blueprint',
+                history: 'Signature History',
+                guardian_status: 'Culture Guardian Status',
+                guardian_active: 'Guardian Active',
+                guardian_desc: 'AI agents are calibrated with these definitions.',
+                dashboard: 'Identity Analytics',
+            },
+            dashboard: {
+                title: 'Identity Analytics',
+                subtitle: 'Deep diagnostic of cultural health and alignment.',
+                run_scan: 'Run Identity Scan',
+            }
+        },
         scenario_iq: 'Scenario IQ',
         active_simulation: 'Active Simulation',
         ai_analyzing: 'AI ANALYZING',
@@ -212,7 +236,7 @@ export const messages = {
             risk_low: 'Low',
         },
         assessment_command: {
-            title: 'Cerbero Command Unit',
+            title: 'Command Center',
             subtitle:
                 'Intelligent orchestration of assessment cycles and 360 talent.',
             config_cycle: 'Configure Cycle',
@@ -697,6 +721,18 @@ export const messages = {
                         title: 'RAGAS Neural Dash',
                         description: 'LLM output analytics.',
                     },
+                    comando_360: {
+                        title: '360 Command (Cerbero)',
+                        description: 'Assessment cycle and policy orchestration.',
+                    },
+                    comando_px: {
+                        title: 'PX Command (Sentinel)',
+                        description: 'Burnout and climate dashboard monitoring.',
+                    },
+                    cultural_blueprint: {
+                        title: 'Stratos Identity',
+                        description: 'Management of the Organizational Constitution: Mission, Vision, and Values.',
+                    },
                 },
             },
             radar: {
@@ -722,6 +758,7 @@ export const messages = {
                 },
             },
         },
+
         bulk_import: {
             steps: {
                 upload: 'Upload',
@@ -732,6 +769,30 @@ export const messages = {
         },
     },
     es: {
+        culture: {
+            blueprint: {
+                title: 'Stratos Identity',
+                subtitle: 'La Constitución Organizacional y Base para la IA',
+                mission: 'Misión',
+                vision: 'Visión',
+                values: 'Valores',
+                principles: 'Principios Éticos',
+                seal: 'Sello Digital',
+                seal_desc: 'Firma criptográfica que garantiza la integridad cultural para los agentes de IA.',
+                sign: 'Firmar Blueprint',
+                save: 'Guardar Blueprint',
+                history: 'Historial de Firmas',
+                guardian_status: 'Estado del Guardián de Cultura',
+                guardian_active: 'Guardián Activo',
+                guardian_desc: 'Los agentes de IA están calibrados con estas definiciones.',
+                dashboard: 'Identity Analytics',
+            },
+            dashboard: {
+                title: 'Identity Analytics',
+                subtitle: 'Diagnóstico profundo de la salud y alineación cultural.',
+                run_scan: 'Ejecutar Escaneo',
+            }
+        },
         scenario_iq: 'Scenario IQ',
         active_simulation: 'Simulación Activa',
         ai_analyzing: 'IA ANALIZANDO',
@@ -1433,6 +1494,18 @@ export const messages = {
                         title: 'Panel Neural RAGAS',
                         description: 'Analítica de salidas LLM.',
                     },
+                    comando_360: {
+                        title: 'Comando 360 (Cerbero)',
+                        description: 'Orquestación de ciclos de evaluación y políticas.',
+                    },
+                    comando_px: {
+                        title: 'Comando PX (Sentinela)',
+                        description: 'Monitoreo de clima y dashboard de burnout.',
+                    },
+                    cultural_blueprint: {
+                        title: 'Stratos Identity',
+                        description: 'Gestión de la Constitución Organizacional: Misión, Visión y Valores.',
+                    },
                 },
             },
             radar: {
@@ -1460,6 +1533,7 @@ export const messages = {
                 },
             },
         },
+
         bulk_import: {
             steps: {
                 upload: 'Carga',

@@ -26,6 +26,7 @@ import PeopleProfileController from './PeopleProfileController'
 import DepartmentController from './DepartmentController'
 import StratosMapController from './StratosMapController'
 import RBACController from './RBACController'
+import CulturalBlueprintController from './CulturalBlueprintController'
 import PxCampaignController from './PxCampaignController'
 import GapAnalysisController from './GapAnalysisController'
 import DevelopmentPathController from './DevelopmentPathController'
@@ -87,6 +88,7 @@ const Api = {
     DepartmentController: Object.assign(DepartmentController, DepartmentController),
     StratosMapController: Object.assign(StratosMapController, StratosMapController),
     RBACController: Object.assign(RBACController, RBACController),
+    CulturalBlueprintController: Object.assign(CulturalBlueprintController, CulturalBlueprintController),
     PxCampaignController: Object.assign(PxCampaignController, PxCampaignController),
     GapAnalysisController: Object.assign(GapAnalysisController, GapAnalysisController),
     DevelopmentPathController: Object.assign(DevelopmentPathController, DevelopmentPathController),

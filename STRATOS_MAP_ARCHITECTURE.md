@@ -64,9 +64,10 @@ Desde el módulo de **Personas**, el usuario puede:
 
 ---
 
-## 4. Visualización (Próxima Fase)
+## 4. Visualización
 
-El motor de renderizado utilizará **D3.js / VueFlow** bajo el sistema de diseño Stratos Glass para permitir:
-*   **Zoom Infinito** en los Nodos Gravitacionales.
-*   **Modo Enfoque** en el Mapa Cerberos al hacer clic en cualquier persona.
-*   **Drag & Drop** para reestructuración visual del organigrama.
+El motor de renderizado es híbrido y se adapta a la naturaleza del dato:
+
+*   **Vue Flow + Dagre**: Utilizado para el **Organigrama Activo**. Permite un lienzo infinito de alto rendimiento con auto-layout jerárquico y reestructuración interactiva mediante Drag & Drop.
+*   **D3.js**: Utilizado para los **Nodos Gravitacionales** y el **Mapa Cerberos**. Maneja simulaciones de física (fuerzas, colisiones) para representar la masa de talento y afinidad relacional.
+*   **Diseño Stratos Glass**: Todas las visualizaciones aplican efectos de transparencia, desenfoque de fondo y brillos dinámicos para una experiencia premium.

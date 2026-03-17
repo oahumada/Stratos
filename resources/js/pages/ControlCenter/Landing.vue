@@ -26,8 +26,11 @@ import {
     PhChartLineUp,
     PhGear,
     PhRobot,
+    PhRocketLaunch,
     PhShieldCheck,
     PhTarget,
+    PhBrain,
+    PhScroll,
 } from '@phosphor-icons/vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -70,6 +73,33 @@ const modules = computed(() => [
         icon: PhChartLineUp,
         href: '/quality/ragas-metrics',
         iconColor: 'text-cyan-300',
+    },
+    {
+        title: t('landings.control_center.modules.comando_360.title'),
+        description: t(
+            'landings.control_center.modules.comando_360.description',
+        ),
+        icon: PhRocketLaunch,
+        href: '/talento360/comando',
+        iconColor: 'text-purple-300',
+    },
+    {
+        title: t('landings.control_center.modules.comando_px.title'),
+        description: t(
+            'landings.control_center.modules.comando_px.description',
+        ),
+        icon: PhBrain,
+        href: '/people-experience/comando',
+        iconColor: 'text-rose-300',
+    },
+    {
+        title: t('landings.control_center.modules.cultural_blueprint.title'),
+        description: t(
+            'landings.control_center.modules.cultural_blueprint.description',
+        ),
+        icon: PhScroll,
+        href: '/controlcenter/culture',
+        iconColor: 'text-fuchsia-300',
     },
 ]);
 </script>

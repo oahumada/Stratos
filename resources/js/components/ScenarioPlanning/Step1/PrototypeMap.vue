@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as d3 from 'd3';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import dagre from 'dagre';
 
 const props = defineProps<{
     scenario: any;
@@ -144,6 +145,32 @@ const updateVisibleData = () => {
         return visibleNodeIds.has(sourceId) && visibleNodeIds.has(targetId);
     });
 
+    // --- Aplicar Dagre para Layout Inicial ---
+    const dagreGraph = new dagre.graphlib.Graph();
+    dagreGraph.setDefaultEdgeLabel(() => ({}));
+    dagreGraph.setGraph({ rankdir: 'LR', nodesep: 40, ranksep: 100 });
+
+    nodes.value.forEach(node => {
+        dagreGraph.setNode(node.id, { width: 40, height: 40 });
+    });
+
+    links.value.forEach(link => {
+        const s = typeof link.source === 'object' ? link.source.id : link.source;
+        const t = typeof link.target === 'object' ? link.target.id : link.target;
+        dagreGraph.setEdge(s, t);
+    });
+
+    dagre.layout(dagreGraph);
+
+    nodes.value.forEach(node => {
+        const dNode = dagreGraph.node(node.id);
+        if (dNode && node.x === undefined) {
+            node.x = dNode.x + width.value / 4;
+            node.y = dNode.y + height.value / 4;
+        }
+    });
+    // ------------------------------------------
+
     if (simulation) {
         simulation.nodes(nodes.value);
         const linkForce: any = simulation.force('link');
@@ -260,9 +287,8 @@ const render = () => {
                                 : 6,
                     );
 
-                nodeGroup
+                const textElement = nodeGroup
                     .append('text')
-                    .text((d: any) => d.name)
                     .attr('x', (d: any) =>
                         d.type === 'scenario'
                             ? 45
@@ -270,7 +296,7 @@ const render = () => {
                               ? 30
                               : 18,
                     )
-                    .attr('y', 5)
+                    .attr('y', 0)
                     .attr('fill', 'rgba(255,255,255,0.7)')
                     .attr('font-size', (d: any) =>
                         d.type === 'scenario'
@@ -279,7 +305,42 @@ const render = () => {
                               ? '11px'
                               : '9px',
                     )
-                    .style('opacity', 0)
+                    .style('opacity', 0);
+
+                textElement.each(function(d: any) {
+                    const el = d3.select(this);
+                    const name = d.name || "";
+                    const words = name.split(/\s+/);
+                    const limit = 25; // Umbral de caracteres
+                    
+                    if (name.length > limit && words.length > 1) {
+                        // Intentar dividir en dos líneas
+                        let line1 = "";
+                        let i = 0;
+                        while (i < words.length && (line1 + words[i]).length <= limit) {
+                            line1 += (line1 ? " " : "") + words[i];
+                            i++;
+                        }
+                        const line2 = words.slice(i).join(" ");
+                        
+                        el.append('tspan')
+                            .text(line1)
+                            .attr('x', el.attr('x'))
+                            .attr('dy', '-0.2em');
+                            
+                        el.append('tspan')
+                            .text(line2.length > 30 ? line2.substring(0, 27) + "..." : line2)
+                            .attr('x', el.attr('x'))
+                            .attr('dy', '1.2em');
+                    } else {
+                        el.append('tspan')
+                            .text(name)
+                            .attr('x', el.attr('x'))
+                            .attr('dy', '0.35em');
+                    }
+                });
+
+                textElement
                     .transition()
                     .duration(700)
                     .style('opacity', 1);

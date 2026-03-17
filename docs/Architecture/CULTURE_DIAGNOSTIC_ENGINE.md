@@ -75,9 +75,35 @@ La Fricción Cultural en Stratos deja de ser una "sensación" para convertirse e
 - Fricción de Liderazgo: Discrepancias entre la salud del equipo y la declaración de valores de los líderes.
 
 Ahora, el sistema puede decirte: "Tienes un riesgo de fuga del 85% en el equipo de IT, y el driver principal no es el salario, sino la fricción de liderazgo causada por una discrepancia cultural: declaraste autonomía (Adhocracia) pero el manager aplica micro-gestión (Jerarquía)."
+
 ---
 
-## 3. Salidas del Diagnóstico (Outputs)
+## 3. Metodología y Procedimiento de Análisis
+
+Stratos no se basa en impresiones subjetivas, sino en un motor de **triangulación de señales conductuales** que opera bajo un escaneo persistente en tres capas:
+
+### Capa A: La Realidad Vivida (Mapeo de Cuadrantes)
+El sistema extrae "señales de verdad" de los otros motores de Stratos para alimentar cada cuadrante CVF de forma dinámica y sin sesgos de autopercepción:
+1.  **Clan (Colaborar):** Analiza la densidad del grafo social en **Cerbero** y los niveles de pertenencia detectados por los **Pulsos de PX**.
+2.  **Adhocracia (Crear):** Mide la agilidad de aprendizaje en **Navigator** y rasgos de "Apertura a la Experiencia" en los **Perfiles Psicométricos**.
+3.  **Mercado (Competir):** Evalúa la velocidad de cierre de brechas técnicas y la orientación a resultados en las evaluaciones **360**.
+4.  **Jerarquía (Control):** Mide la profundidad estructural en **Vanguard** y el cumplimiento de protocolos del **Stratos Sentinel**.
+
+### Capa B: La Línea Base (Stratos Identity)
+El sistema ingesta la **Misión, Visión y Valores** definidos en el `Cultural Blueprint` como el "Estado Ideal":
+*   **Misión y Visión:** Actúan como el destino estratégico que la IA procesa para ponderar la dominancia esperada de los cuadrantes.
+*   **Valores Identitarios:** Funcionan como pesos específicos; si se declara "Innovación", la IA aumenta la sensibilidad hacia señales de Adhocracia.
+
+### Capa C: Ingesta y Procesamiento Técnica
+El flujo de diagnóstico sigue un proceso de ingeniería de precisión:
+1.  **Ingesta:** Recolección multiplataforma de señales suaves (pulsos) y duras (desempeño, grafo social).
+2.  **Procesamiento:** Los rasgos psicométricos y métricas de conducta se normalizan y mapean a los 4 cuadrantes.
+3.  **Contraste:** Algoritmo de comparación vectorial entre la cultura declarada (Blueprint) y el ADN detectado.
+4.  **Output:** Generación del **Culture Radar Chart** y el **Índice de Salud Cultural**.
+
+---
+
+## 4. Salidas del Diagnóstico (Outputs)
 
 - **Culture Radar Chart:** Visualización de los 4 cuadrantes comparando Ideal vs. Real.
 - **Cultural Health Index:** Puntuación global sellada por **Sentinel SSS**.

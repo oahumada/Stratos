@@ -207,9 +207,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // Stratos Maps (Gravitational & Cerberos)
     Route::get('/stratos-maps/gravitational', [\App\Http\Controllers\Api\StratosMapController::class, 'getGravitationalData']);
     Route::get('/stratos-maps/cerberos', [\App\Http\Controllers\Api\StratosMapController::class, 'getCerberosData']);
+    Route::get('/stratos-maps/people/search', [\App\Http\Controllers\Api\StratosMapController::class, 'searchPeople']);
 
     Route::get('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'index'])->middleware('role:admin');
     Route::post('/rbac', [\App\Http\Controllers\Api\RBACController::class, 'update'])->middleware('role:admin');
+
+    // Organizational Culture
+    Route::get('/organization/cultural-blueprint', [\App\Http\Controllers\Api\CulturalBlueprintController::class, 'show']);
+    Route::post('/organization/cultural-blueprint', [\App\Http\Controllers\Api\CulturalBlueprintController::class, 'store']);
+    Route::post('/organization/cultural-blueprint/sign', [\App\Http\Controllers\Api\CulturalBlueprintController::class, 'sign']);
 
     // People Experience Command Center
     Route::apiResource('px-campaigns', \App\Http\Controllers\Api\PxCampaignController::class)

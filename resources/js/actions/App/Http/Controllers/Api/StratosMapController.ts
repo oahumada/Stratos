@@ -161,6 +161,87 @@ getCerberosDataForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'g
 
 getCerberosData.form = getCerberosDataForm
 
-const StratosMapController = { getGravitationalData, getCerberosData }
+/**
+* @see \App\Http\Controllers\Api\StratosMapController::searchPeople
+* @see app/Http/Controllers/Api/StratosMapController.php:138
+* @route '/api/stratos-maps/people/search'
+*/
+export const searchPeople = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: searchPeople.url(options),
+    method: 'get',
+})
+
+searchPeople.definition = {
+    methods: ["get","head"],
+    url: '/api/stratos-maps/people/search',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\StratosMapController::searchPeople
+* @see app/Http/Controllers/Api/StratosMapController.php:138
+* @route '/api/stratos-maps/people/search'
+*/
+searchPeople.url = (options?: RouteQueryOptions) => {
+    return searchPeople.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\StratosMapController::searchPeople
+* @see app/Http/Controllers/Api/StratosMapController.php:138
+* @route '/api/stratos-maps/people/search'
+*/
+searchPeople.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: searchPeople.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\StratosMapController::searchPeople
+* @see app/Http/Controllers/Api/StratosMapController.php:138
+* @route '/api/stratos-maps/people/search'
+*/
+searchPeople.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: searchPeople.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Api\StratosMapController::searchPeople
+* @see app/Http/Controllers/Api/StratosMapController.php:138
+* @route '/api/stratos-maps/people/search'
+*/
+const searchPeopleForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: searchPeople.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\StratosMapController::searchPeople
+* @see app/Http/Controllers/Api/StratosMapController.php:138
+* @route '/api/stratos-maps/people/search'
+*/
+searchPeopleForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: searchPeople.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\StratosMapController::searchPeople
+* @see app/Http/Controllers/Api/StratosMapController.php:138
+* @route '/api/stratos-maps/people/search'
+*/
+searchPeopleForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: searchPeople.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+searchPeople.form = searchPeopleForm
+
+const StratosMapController = { getGravitationalData, getCerberosData, searchPeople }
 
 export default StratosMapController
