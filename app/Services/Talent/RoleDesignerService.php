@@ -102,9 +102,10 @@ class RoleDesignerService
         Descripción actual: {$description}
         
         Por favor, define:
-        1. Propósito del Rol (Misión estratégica).
-        2. Resultados Esperados (3-5 logros clave cuantificables).
-        3. Coordenadas del cubo:
+        1. Propósito del Rol (Misión estratégica breve).
+        2. Descripción Profesional (Un resumen más detallado de responsabilidades clave).
+        3. Resultados Esperados (3-5 logros clave cuantificables).
+        4. Coordenadas del cubo:
            - Eje X (Arquetipo): ¿Es Estratégico, Táctico u Operativo? Justifica.
            - Eje Y (Nivel de Maestría): Define el nivel de exigencia del 1 al 5.
            - Eje Z (Proceso de Negocio): Identifica el flujo de valor principal al que pertenece.
@@ -116,6 +117,7 @@ class RoleDesignerService
         Responde estrictamente en formato JSON con esta estructura:
         {
           \"purpose\": \"...\",
+          \"description\": \"...\",
           \"expected_results\": \"...\",
           \"cube_coordinates\": {
             \"x_archetype\": \"...\",
@@ -145,6 +147,7 @@ class RoleDesignerService
                     $roleModel->update([
                         'ai_archetype_config' => $analysis,
                         'purpose' => $analysis['purpose'] ?? $roleModel->purpose,
+                        'description' => $analysis['description'] ?? $roleModel->description,
                         'expected_results' => $analysis['expected_results'] ?? $roleModel->expected_results,
                     ]);
                 }
@@ -155,6 +158,7 @@ class RoleDesignerService
                 'role' => $name,
                 'cube' => $analysis['cube_coordinates'] ?? null,
                 'purpose' => $analysis['purpose'] ?? null,
+                'description' => $analysis['description'] ?? null,
                 'expected_results' => $analysis['expected_results'] ?? null,
                 'analysis' => $analysis,
             ];

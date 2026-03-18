@@ -233,15 +233,19 @@ defineExpose({
                 <v-col
                     v-for="field in enrichedFields"
                     :key="field.key"
-                    cols="12"
-                    sm="6"
+                    :cols="field.cols || 12"
+                    :sm="field.sm || (field.cols ? undefined : 6)"
                     class="form-col"
                 >
+                    <!-- Field Label (Persistent & Exterior) -->
+                    <div v-if="!['checkbox', 'switch'].includes(field.type)" class="st-field-label">
+                        {{ field.label }}
+                    </div>
+
                     <!-- Text Input -->
                     <v-text-field
                         v-if="field.type === 'text'"
                         v-model="formData[field.key]"
-                        :label="field.label"
                         :placeholder="field.placeholder"
                         :rules="field.rules"
                         :required="field.required"
@@ -259,7 +263,6 @@ defineExpose({
                     <v-text-field
                         v-else-if="field.type === 'email'"
                         v-model="formData[field.key]"
-                        :label="field.label"
                         :placeholder="field.placeholder"
                         type="email"
                         :rules="field.rules"
@@ -278,7 +281,6 @@ defineExpose({
                     <v-text-field
                         v-else-if="field.type === 'password'"
                         v-model="formData[field.key]"
-                        :label="field.label"
                         type="password"
                         :rules="field.rules"
                         :required="field.required"
@@ -296,7 +298,6 @@ defineExpose({
                     <v-text-field
                         v-else-if="field.type === 'number'"
                         v-model.number="formData[field.key]"
-                        :label="field.label"
                         type="number"
                         :rules="field.rules"
                         :required="field.required"
@@ -314,7 +315,6 @@ defineExpose({
                     <v-textarea
                         v-else-if="field.type === 'textarea'"
                         v-model="formData[field.key]"
-                        :label="field.label"
                         :placeholder="field.placeholder"
                         :rules="field.rules"
                         :required="field.required"
@@ -334,7 +334,6 @@ defineExpose({
                         v-else-if="field.type === 'select'"
                         v-model="formData[field.key]"
                         :items="field.items || getSelectItems(field)"
-                        :label="field.label"
                         :placeholder="field.placeholder"
                         item-title="name"
                         item-value="id"
@@ -355,7 +354,6 @@ defineExpose({
                     <v-text-field
                         v-else-if="field.type === 'date'"
                         v-model="formData[field.key]"
-                        :label="field.label"
                         type="date"
                         :rules="field.rules"
                         :required="field.required"
@@ -373,7 +371,6 @@ defineExpose({
                     <v-text-field
                         v-else-if="field.type === 'time'"
                         v-model="formData[field.key]"
-                        :label="field.label"
                         type="time"
                         :rules="field.rules"
                         :required="field.required"
@@ -448,18 +445,29 @@ defineExpose({
 }
 
 :deep(.form-field .v-field__outline) {
-    display: none !important; /* Hide standard outline to use our custom border */
+    opacity: 0 !important; /* Keep it in DOM so labels can float correctly, but make it invisible */
 }
 
-:deep(.v-label) {
-    color: #94a3b8 !important; /* slate-400 */
-    font-weight: 500;
-    font-size: 0.875rem;
-    opacity: 1 !important;
+/* Base Label Styling - Professional Exterior Labels */
+.st-field-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8; /* slate-400 */
+    margin-bottom: 0.5rem;
+    margin-left: 0.25rem;
 }
 
-:deep(.form-field:focus-within .v-label) {
+:deep(.form-field:focus-within) + .st-field-label, 
+:deep(.form-field:focus-within) .st-field-label {
     color: #818cf8 !important; /* indigo-400 */
+}
+
+/* Hide internal Vuetify labels to prevent confusion */
+:deep(.v-field-label) {
+    display: none !important;
 }
 
 :deep(.v-field__prepend-inner .v-icon) {

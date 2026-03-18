@@ -10,7 +10,6 @@ import {
     TableConfig,
 } from '@/types/form-schema';
 import {
-    PhArrowsClockwise,
     PhCube,
     PhFileText,
     PhInfo,
@@ -68,63 +67,37 @@ onMounted(async () => {
 });
 
 const designing = ref(false);
-const materializing = ref(false);
 
-const refresh = () => {
-    formSchemaRef.value?.loadItems();
-};
+// No refresh needed here as Wizard handles its own lifecycle
 
-const designRole = async (id: number, callback: any) => {
-    designing.value = true;
-    try {
-        await axios.post(`/api/strategic-planning/roles/${id}/design`);
-        notify({ type: 'success', text: 'Diseño y Propósito generado por IA' });
-        if (callback) callback();
-    } catch (err) {
-        notify({ type: 'error', text: 'Error al diseñar rol con IA' });
-        console.error('Error designing role:', err);
-    } finally {
-        designing.value = false;
-    }
-};
-
-const materializeCompetencies = async (id: number, callback: any) => {
-    materializing.value = true;
-    try {
-        await axios.post(
-            `/api/strategic-planning/roles/${id}/materialize-competencies`,
-        );
-        notify({
-            type: 'success',
-            text: 'Competencias materializadas y curadas (BARS/Learning) por el Agente',
-        });
-        if (callback) callback();
-    } catch (err) {
-        notify({ type: 'error', text: 'Error al materializar competencias' });
-        console.error('Error materializing competencies:', err);
-    } finally {
-        materializing.value = false;
-    }
+const designRole = async (id: number) => {
+    openWizardForRole(id);
 };
 
 const autoFillWithAI = async (id: number, currentFormData: any) => {
+    if (!id) return;
     designing.value = true;
     try {
-        // Enforce a refresh of the AI design and fetch details
+        console.log('[AutoFill] Starting AI design for role:', id);
         const res = await axios.post(`/api/strategic-planning/roles/${id}/design`);
+        const aiData = res.data;
         
-        // Fetch the updated role details to populate the form
-        const roleRes = await axios.get(`/api/roles/${id}`);
-        const roleData = roleRes.data;
+        console.log('[AutoFill] AI Data received:', aiData);
 
-        if (roleData) {
-            // Map the AI-generated fields to the current form state
+        if (aiData && currentFormData) {
+            // Update fields directly on the reactive object
+            currentFormData.purpose = aiData.purpose || currentFormData.purpose;
+            currentFormData.description = aiData.description || currentFormData.description;
+            currentFormData.expected_results = aiData.expected_results || currentFormData.expected_results;
+            
+            // Just in case, try Object.assign as well for deep safety if currentFormData is a Proxy
             Object.assign(currentFormData, {
-                purpose: roleData.purpose || currentFormData.purpose,
-                expected_results: roleData.expected_results || currentFormData.expected_results,
-                description: roleData.description || currentFormData.description,
-                status: roleData.status || currentFormData.status
+                purpose: aiData.purpose || currentFormData.purpose,
+                description: aiData.description || currentFormData.description,
+                expected_results: aiData.expected_results || currentFormData.expected_results
             });
+
+            console.log('[AutoFill] currentFormData updated:', currentFormData);
             
             notify({ 
                 type: 'success', 
@@ -219,7 +192,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
         </template>
 
         <!-- Extra AI Actions in Editing Modal -->
-        <template #form-footer-actions="{ isEditing, data, isSaving }">
+        <template #form-footer-actions="{ isEditing, data }">
             <StButtonGlass
                 v-if="isEditing"
                 variant="glow"
@@ -576,13 +549,12 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                             </div>
                             <StButtonGlass
                                 v-if="item.ai_archetype_config"
-                                variant="ghost"
+                                variant="glow"
                                 size="sm"
-                                :icon="PhArrowsClockwise"
-                                :loading="designing"
-                                @click="designRole(item.id, refresh)"
+                                :icon="PhCube"
+                                @click="openWizardForRole(item.id)"
                             >
-                                {{ t('roles_module.ai_section.reanalyze') }}
+                                Re-arquitectar con Wizard
                             </StButtonGlass>
                         </div>
 
@@ -595,34 +567,25 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                 :size="64"
                                 class="text-indigo-accent-2 mb-4 opacity-50"
                             />
-                            <div
-                                class="text-h6 font-weight-bold font-premium mb-2 text-white"
-                            >
-                                {{
-                                    t(
-                                        'roles_module.ai_section.not_analyzed_title',
-                                    )
-                                }}
-                            </div>
-                            <p
-                                class="text-body-2 mx-auto mb-8 max-w-md text-slate-400"
-                            >
-                                {{
-                                    t(
-                                        'roles_module.ai_section.not_analyzed_desc',
-                                    )
-                                }}
-                            </p>
-                            <StButtonGlass
-                                variant="primary"
-                                size="lg"
-                                :icon="PhMagicWand"
-                                :loading="designing"
-                                @click="designRole(item.id, refresh)"
-                            >
-                                {{ t('roles_module.ai_section.analyze_btn') }}
-                            </StButtonGlass>
-                        </div>
+                             <div
+                                 class="text-h6 font-weight-bold font-premium mb-2 text-white"
+                             >
+                                 {{ t('roles_module.ai_section.not_analyzed_title') }}
+                             </div>
+                             <p
+                                 class="text-body-2 mx-auto mb-8 max-w-md text-slate-400"
+                             >
+                                 {{ t('roles_module.ai_section.not_analyzed_desc') }}
+                             </p>
+                             <StButtonGlass
+                                 variant="glow"
+                                 size="lg"
+                                 :icon="PhCube"
+                                 @click="openWizardForRole(item.id)"
+                             >
+                                 Iniciar Diseño con Cube Wizard
+                             </StButtonGlass>
+                         </div>
 
                         <div v-else>
                             <v-row>
@@ -801,25 +764,10 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                                 >
                                             </v-list-item>
                                         </v-list>
-                                        <div class="mt-4 d-flex justify-end">
-                                            <StButtonGlass
-                                                variant="primary"
-                                                size="sm"
-                                                :icon="PhRobot"
-                                                :loading="materializing"
-                                                @click="
-                                                    materializeCompetencies(
-                                                        item.id,
-                                                        refresh,
-                                                    )
-                                                "
-                                            >
-                                                {{
-                                                    t(
-                                                        'roles_module.ai_section.materialize_btn',
-                                                    )
-                                                }}
-                                            </StButtonGlass>
+                                         <div class="mt-4 d-flex justify-end">
+                                            <div class="text-[10px] text-emerald-400 font-black tracking-widest uppercase border border-emerald-500/20 px-3 py-1 rounded-lg bg-emerald-500/5 d-flex align-center">
+                                                <PhSealCheck :size="12" class="mr-1" /> Arquitectura Materializada
+                                            </div>
                                         </div>
                                     </div>
 

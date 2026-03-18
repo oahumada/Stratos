@@ -19,34 +19,23 @@
             "label": "Descripción General",
             "type": "textarea",
             "placeholder": "Misión o responsabilidades del rol",
-            "rules": ["required"]
+            "rules": ["required"],
+            "cols": 12
         },
         {
             "key": "purpose",
             "label": "Propósito del Rol",
             "type": "textarea",
-            "placeholder": "¿Por qué existe este cargo?"
+            "placeholder": "¿Por qué existe este cargo?",
+            "cols": 12
         },
         {
             "key": "expected_results",
             "label": "Resultados Esperados",
             "type": "textarea",
-            "placeholder": "Logros clave para este cargo"
-        },
-        {
-            "key": "agent_id",
-            "label": "AI Agent Principal",
-            "type": "select",
-            "catalog": "agents",
-            "placeholder": "Seleccione el Agente Orquestador"
-        },
-        {
-            "key": "blueprint_id",
-            "label": "Plantilla Base",
-            "type": "select",
-            "catalog": "blueprints",
-            "placeholder": "Seleccione el Blueprint o Plantilla Arquitectónica"
+            "placeholder": "Logros clave para este cargo",
+            "cols": 12
         }
     ],
-    "catalogs": ["agents", "blueprints", "departments"]
+    "catalogs": ["departments"]
 }
