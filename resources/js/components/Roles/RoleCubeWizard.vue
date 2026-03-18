@@ -425,7 +425,7 @@ const saveRole = async () => {
                                     {{ $t('role_wizard.define_node') }}
                                 </h2>
                                 <p
-                                    class="max-w-2xl text-lg leading-relaxed font-medium text-white/50"
+                                    class="max-w-2xl text-lg leading-relaxed font-medium text-white/70"
                                 >
                                     {{ $t('role_wizard.define_node_desc') }}
                                 </p>
@@ -434,7 +434,7 @@ const saveRole = async () => {
                             <div class="space-y-8">
                                 <div class="space-y-2">
                                     <label
-                                        class="ml-1 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                                        class="ml-1 text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80"
                                         >{{
                                             $t(
                                                 'role_wizard.architectural_label',
@@ -449,20 +449,20 @@ const saveRole = async () => {
                                                 'role_wizard.architectural_placeholder',
                                             )
                                         "
-                                        class="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-lg text-white placeholder-white/10 transition-all focus:border-indigo-500/50 focus:bg-white/[0.07] focus:outline-none"
+                                        class="w-full rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md px-6 py-5 text-xl font-bold text-white placeholder-white/25 transition-all focus:border-indigo-400 focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-indigo-400/30"
                                     />
                                 </div>
 
                                 <div class="space-y-2">
                                     <label
-                                        class="ml-1 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
+                                        class="ml-1 text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80"
                                         >Misión de Negocio (El "Qué")</label
                                     >
                                     <textarea
                                         v-model="form.description"
                                         rows="4"
                                         placeholder="Escribe una breve idea de qué hará este rol..."
-                                        class="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base text-white/60 placeholder-white/10 transition-all focus:border-indigo-500/50 focus:outline-none"
+                                        class="w-full resize-none rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md px-6 py-4 text-lg text-white placeholder-white/25 transition-all focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400/30"
                                     ></textarea>
                                 </div>
                             </div>

@@ -116,6 +116,10 @@ Route::get('/skills', function () {
     return Inertia::render('Skills/Index');
 })->middleware(['auth', 'verified'])->name('skills.index');
 
+Route::get('/competencies', function () {
+    return Inertia::render('Competencies/Index');
+})->middleware(['auth', 'verified'])->name('competencies.index');
+
 Route::get('/gap-analysis', function () {
     return Inertia::render('GapAnalysis/Index');
 })->middleware(['auth', 'verified', 'module:core'])->name('gap-analysis.index');

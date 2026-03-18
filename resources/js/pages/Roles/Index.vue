@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import RoleCubeWizard from '@/components/Roles/RoleCubeWizard.vue';
-import SkillLevelChip from '@/components/SkillLevelChip.vue';
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     Config,
@@ -15,6 +16,7 @@ import {
     PhInfo,
     PhLightbulb,
     PhMagicWand,
+    PhPencil,
     PhRobot,
     PhSealCheck,
     PhStar,
@@ -70,7 +72,7 @@ const designing = ref(false);
 
 // No refresh needed here as Wizard handles its own lifecycle
 
-const designRole = async (id: number) => {
+const designRole = async (id: number, _refresh: () => Promise<void>) => {
     openWizardForRole(id);
 };
 
@@ -195,7 +197,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
         <template #form-footer-actions="{ isEditing, data }">
             <StButtonGlass
                 v-if="isEditing"
-                variant="glow"
+                variant="primary"
                 size="md"
                 :icon="PhMagicWand"
                 :loading="designing"
@@ -255,17 +257,17 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                         </div>
                         <v-list density="compact" class="pa-0 bg-transparent">
                             <v-list-item class="px-0">
-                                <v-list-item-title class="text-body-2">
+                                <v-list-item-title class="text-body-2 text-white">
                                     <strong class="text-indigo-accent-1"
                                         >{{
                                             t('roles_module.info_section.name')
                                         }}:</strong
                                     >
-                                    {{ item.name }}
+                                    <span class="ml-2 text-slate-100">{{ item.name }}</span>
                                 </v-list-item-title>
                             </v-list-item>
                             <v-list-item v-if="item.description" class="px-0">
-                                <v-list-item-title class="text-body-2">
+                                <v-list-item-title class="text-body-2 text-white">
                                     <strong class="text-indigo-accent-1"
                                         >{{
                                             t(
@@ -273,11 +275,13 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                             )
                                         }}:</strong
                                     >
-                                    {{ item.description }}
+                                    <div class="pa-3 mt-1 rounded-lg border border-white/5 bg-white/3 text-slate-200 text-body-2 leading-relaxed">
+                                        {{ item.description }}
+                                    </div>
                                 </v-list-item-title>
                             </v-list-item>
                             <v-list-item v-if="item.purpose" class="px-0">
-                                <v-list-item-title class="text-body-2">
+                                <v-list-item-title class="text-body-2 text-white">
                                     <strong class="text-indigo-accent-1"
                                         >{{
                                             t(
@@ -286,7 +290,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                         }}:</strong
                                     >
                                     <div
-                                        class="pa-3 mt-1 rounded-lg border border-indigo-500/20 bg-indigo-900/10 text-slate-200 italic"
+                                        class="pa-3 mt-1 rounded-lg border border-indigo-500/20 bg-indigo-900/10 text-slate-200 italic text-body-2 leading-relaxed"
                                     >
                                         {{ item.purpose }}
                                     </div>
@@ -296,7 +300,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                 v-if="item.expected_results"
                                 class="px-0"
                             >
-                                <v-list-item-title class="text-body-2">
+                                <v-list-item-title class="text-body-2 text-white">
                                     <strong class="text-indigo-accent-1"
                                         >{{
                                             t(
@@ -305,7 +309,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                         }}:</strong
                                     >
                                     <div
-                                        class="pa-3 mt-1 rounded-lg border border-emerald-500/20 bg-emerald-900/10 text-slate-200"
+                                        class="pa-3 mt-1 rounded-lg border border-emerald-500/20 bg-emerald-900/10 text-slate-200 text-body-2 leading-relaxed"
                                     >
                                         {{ item.expected_results }}
                                     </div>
@@ -313,7 +317,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                             </v-list-item>
                             <v-list-item v-if="item.agent" class="px-0">
                                 <v-list-item-title
-                                    class="text-body-2 d-flex align-center"
+                                    class="text-body-2 d-flex align-center text-white"
                                 >
                                     <strong class="text-indigo-accent-1"
                                         >{{
@@ -340,7 +344,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                             </v-list-item>
                             <v-list-item v-if="item.blueprint" class="px-0">
                                 <v-list-item-title
-                                    class="text-body-2 d-flex align-center"
+                                    class="text-body-2 d-flex align-center text-white"
                                 >
                                     <strong class="text-indigo-accent-1"
                                         >{{
@@ -385,7 +389,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
                             <StButtonGlass
                                 :icon="PhCube"
-                                variant="glow"
+                                variant="primary"
                                 size="sm"
                                 @click="openWizardForRole(item.id)"
                             >
@@ -549,7 +553,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                             </div>
                             <StButtonGlass
                                 v-if="item.ai_archetype_config"
-                                variant="glow"
+                                variant="primary"
                                 size="sm"
                                 :icon="PhCube"
                                 @click="openWizardForRole(item.id)"
@@ -578,7 +582,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                  {{ t('roles_module.ai_section.not_analyzed_desc') }}
                              </p>
                              <StButtonGlass
-                                 variant="glow"
+                                 variant="primary"
                                  size="lg"
                                  :icon="PhCube"
                                  @click="openWizardForRole(item.id)"
@@ -587,220 +591,103 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                              </StButtonGlass>
                          </div>
 
-                        <div v-else>
+                        <div v-else class="ai-report-container">
+                            <!-- Premium Summary Header -->
+                            <StCardGlass variant="glow" class="mb-6 pa-6 d-flex align-center flex-wrap gap-6">
+                                <div class="grow">
+                                    <div class="text-overline text-indigo-accent-1 font-weight-black mb-1 tracking-widest uppercase">
+                                        {{ t('roles_module.ai_section.axis_x') }}
+                                    </div>
+                                    <div class="text-h4 font-weight-bold font-premium text-white d-flex align-center">
+                                        {{ item.ai_archetype_config.cube_coordinates.x_archetype }}
+                                        <StBadgeGlass variant="primary" size="md" class="ml-4">
+                                            {{ item.ai_archetype_config.cube_coordinates.z_business_process }}
+                                        </StBadgeGlass>
+                                    </div>
+                                </div>
+                                <v-divider vertical class="mx-6 hidden-sm-and-down" />
+                                <div class="text-center">
+                                    <div class="text-overline text-amber-accent-1 font-weight-black mb-1 tracking-widest uppercase text-center">
+                                        {{ t('roles_module.ai_section.axis_y') }}
+                                    </div>
+                                    <div class="d-flex align-center justify-center">
+                                        <v-rating
+                                            :model-value="item.ai_archetype_config.cube_coordinates.y_mastery_level"
+                                            length="5"
+                                            readonly
+                                            density="compact"
+                                            color="amber-accent-1"
+                                            active-color="amber-accent-1"
+                                        />
+                                        <span class="text-h5 font-weight-black font-premium ml-3 text-white">
+                                            {{ item.ai_archetype_config.cube_coordinates.y_mastery_level }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </StCardGlass>
+
                             <v-row>
-                                <!-- Cube Visualization -->
+                                <!-- Left Column: Context & Justification -->
                                 <v-col cols="12" md="4">
-                                    <v-card
-                                        variant="outlined"
-                                        class="pa-5 rounded-xl border-indigo-500/30 bg-indigo-900/20"
-                                    >
-                                        <div
-                                            class="text-overline text-indigo-accent-1 font-weight-black mb-4 tracking-widest"
-                                        >
-                                            {{
-                                                t(
-                                                    'roles_module.ai_section.coordinates',
-                                                )
-                                            }}
+                                    <StCardGlass class="pa-5 fill-height">
+                                        <div class="d-flex align-center mb-4">
+                                            <PhInfo :size="20" class="text-indigo-accent-1 mr-2" />
+                                            <span class="text-subtitle-2 font-weight-bold text-white uppercase tracking-tighter">
+                                                {{ t('roles_module.ai_section.justification') }}
+                                            </span>
                                         </div>
-
-                                        <div class="mb-5">
-                                            <div
-                                                class="text-caption text-uppercase font-weight-bold mb-2 text-slate-400"
-                                            >
-                                                {{
-                                                    t(
-                                                        'roles_module.ai_section.axis_x',
-                                                    )
-                                                }}
-                                            </div>
-                                            <div class="d-flex align-center">
-                                                <v-chip
-                                                    color="indigo-accent-1"
-                                                    size="small"
-                                                    variant="flat"
-                                                    class="font-weight-black rounded-lg"
-                                                    >{{
-                                                        item.ai_archetype_config
-                                                            .cube_coordinates
-                                                            .x_archetype
-                                                    }}</v-chip
-                                                >
-                                            </div>
+                                        <div class="text-body-2 leading-relaxed text-slate-300 italic-quote">
+                                            "{{ item.ai_archetype_config.cube_coordinates.justification }}"
                                         </div>
-
-                                        <div class="mb-5">
-                                            <div
-                                                class="text-caption text-uppercase font-weight-bold mb-2 text-slate-400"
-                                            >
-                                                {{
-                                                    t(
-                                                        'roles_module.ai_section.axis_y',
-                                                    )
-                                                }}
-                                            </div>
-                                            <div class="d-flex align-center">
-                                                <v-rating
-                                                    :model-value="
-                                                        item.ai_archetype_config
-                                                            .cube_coordinates
-                                                            .y_mastery_level
-                                                    "
-                                                    length="5"
-                                                    readonly
-                                                    density="compact"
-                                                    color="amber-accent-1"
-                                                    active-color="amber-accent-1"
-                                                ></v-rating>
-                                                <span
-                                                    class="text-h6 font-weight-black font-premium ml-3 text-white"
-                                                    >{{
-                                                        item.ai_archetype_config
-                                                            .cube_coordinates
-                                                            .y_mastery_level
-                                                    }}{{
-                                                        t(
-                                                            'roles_module.ai_section.mastery_suffix',
-                                                        )
-                                                    }}</span
-                                                >
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <div
-                                                class="text-caption text-uppercase font-weight-bold mb-2 text-slate-400"
-                                            >
-                                                {{
-                                                    t(
-                                                        'roles_module.ai_section.axis_z',
-                                                    )
-                                                }}
-                                            </div>
-                                            <div
-                                                class="text-body-1 font-weight-black text-indigo-accent-1 font-premium"
-                                            >
-                                                {{
-                                                    item.ai_archetype_config
-                                                        .cube_coordinates
-                                                        .z_business_process
-                                                }}
-                                            </div>
-                                        </div>
-                                    </v-card>
-
-                                    <v-card
-                                        variant="flat"
-                                        class="pa-5 mt-5 rounded-xl border border-white/5 bg-white/5"
-                                    >
-                                        <div
-                                            class="text-caption font-weight-bold mb-2 tracking-tighter text-slate-400 uppercase"
-                                        >
-                                            {{
-                                                t(
-                                                    'roles_module.ai_section.justification',
-                                                )
-                                            }}
-                                        </div>
-                                        <div
-                                            class="text-body-2 leading-relaxed text-slate-300 italic"
-                                        >
-                                            "{{
-                                                item.ai_archetype_config
-                                                    .cube_coordinates
-                                                    .justification
-                                            }}"
-                                        </div>
-                                    </v-card>
+                                    </StCardGlass>
                                 </v-col>
 
-                                <!-- Competencies & Suggestions -->
+                                <!-- Right Column: Competencies -->
                                 <v-col cols="12" md="8">
-                                    <div class="mb-8">
-                                        <div
-                                            class="text-subtitle-1 font-weight-bold font-premium d-flex align-center mb-4 text-white"
-                                        >
-                                            <component
-                                                :is="PhSealCheck"
-                                                :size="24"
-                                                class="text-emerald-accent-2 mr-2"
-                                            />
-                                            {{
-                                                t(
-                                                    'roles_module.ai_section.core_competencies',
-                                                )
-                                            }}
+                                    <StCardGlass class="pa-6">
+                                        <div class="text-subtitle-1 font-weight-bold font-premium d-flex align-center mb-6 text-white">
+                                            <PhSealCheck :size="24" class="text-emerald-accent-2 mr-2" />
+                                            {{ t('roles_module.ai_section.core_competencies') }}
                                         </div>
-                                        <v-list
-                                            class="pa-0 bg-transparent"
-                                            density="compact"
-                                        >
-                                            <v-list-item
-                                                v-for="(comp, i) in item
-                                                    .ai_archetype_config
-                                                    .core_competencies"
+                                        
+                                        <div class="competency-grid">
+                                            <div 
+                                                v-for="(comp, i) in item.ai_archetype_config.core_competencies" 
                                                 :key="i"
-                                                class="glass-card pa-4 mb-3 rounded-xl border border-white/5"
+                                                class="competency-item glass-item pa-4 rounded-xl"
                                             >
-                                                <v-list-item-title
-                                                    class="font-weight-black text-body-1 d-flex align-center font-premium text-white"
-                                                >
-                                                    {{ comp.name }}
-                                                    <v-chip
-                                                        size="x-small"
-                                                        class="font-weight-bold ml-3 rounded-lg"
-                                                        color="emerald-accent-2"
-                                                        variant="flat"
-                                                        >LVL
-                                                        {{ comp.level }}</v-chip
-                                                    >
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle
-                                                    class="text-body-2 line-height-relaxed mt-2 text-slate-400"
-                                                    >{{
-                                                        comp.rationale
-                                                    }}</v-list-item-subtitle
-                                                >
-                                            </v-list-item>
-                                        </v-list>
-                                         <div class="mt-4 d-flex justify-end">
-                                            <div class="text-[10px] text-emerald-400 font-black tracking-widest uppercase border border-emerald-500/20 px-3 py-1 rounded-lg bg-emerald-500/5 d-flex align-center">
+                                                <div class="d-flex align-center justify-space-between mb-2">
+                                                    <span class="text-body-1 font-weight-bold text-white font-premium">
+                                                        {{ comp.name }}
+                                                    </span>
+                                                    <StBadgeGlass variant="success" size="md">
+                                                        LVL {{ comp.level }}
+                                                    </StBadgeGlass>
+                                                </div>
+                                                <div class="text-caption text-slate-400 line-clamp-2 hover-expand">
+                                                    {{ comp.rationale }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-6 d-flex justify-end">
+                                            <div class="materialized-indicator">
                                                 <PhSealCheck :size="12" class="mr-1" /> Arquitectura Materializada
                                             </div>
                                         </div>
-                                    </div>
+                                    </StCardGlass>
+                                </v-col>
 
-                                    <div>
-                                        <div
-                                            class="text-subtitle-1 font-weight-bold font-premium d-flex align-center mb-4 text-white"
-                                        >
-                                            <component
-                                                :is="PhLightbulb"
-                                                :size="24"
-                                                class="text-amber-accent-1 mr-2"
-                                            />
-                                            {{
-                                                t(
-                                                    'roles_module.ai_section.org_clarity',
-                                                )
-                                            }}
+                                <v-col cols="12">
+                                    <StCardGlass class="pa-6 border-amber-500/20 glow-amber-sm">
+                                        <div class="text-subtitle-1 font-weight-bold font-premium d-flex align-center mb-4 text-white">
+                                            <PhLightbulb :size="24" class="text-amber-accent-1 mr-2" />
+                                            {{ t('roles_module.ai_section.org_clarity') }}
                                         </div>
-                                        <v-alert
-                                            color="amber-accent-1"
-                                            variant="tonal"
-                                            class="rounded-xl border border-amber-500/20"
-                                        >
-                                            <div
-                                                class="text-body-1 text-amber-accent-1 leading-relaxed"
-                                            >
-                                                {{
-                                                    item.ai_archetype_config
-                                                        .organizational_suggestions
-                                                }}
-                                            </div>
-                                        </v-alert>
-                                    </div>
+                                        <div class="text-body-1 text-slate-200 leading-relaxed pl-8 border-l-2 border-amber-500/30">
+                                            {{ item.ai_archetype_config.organizational_suggestions }}
+                                        </div>
+                                    </StCardGlass>
                                 </v-col>
                             </v-row>
                         </div>
@@ -821,6 +708,63 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 <style scoped>
 .italic {
     font-style: italic;
+}
+
+.italic-quote {
+    font-style: italic;
+    line-height: 1.6;
+    position: relative;
+    padding-left: 1rem;
+    border-left: 3px solid rgba(99, 102, 241, 0.3);
+}
+
+.competency-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.glass-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+}
+
+.glass-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+}
+
+.materialized-indicator {
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: #34d399; /* emerald-400 */
+    background: rgba(52, 211, 153, 0.05);
+    border: 1px solid rgba(52, 211, 153, 0.2);
+    padding: 4px 12px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.glow-amber-sm {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.05) !important;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.hover-expand:hover {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
 }
 
 /* Fix "white sub-screens" — applying deep glassmorphism to internal cards */
