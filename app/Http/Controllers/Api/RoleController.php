@@ -82,6 +82,75 @@ class RoleController extends Controller
     }
 
     /**
+     * Update an existing role with wizard data.
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'cube_dimensions' => 'nullable|array',
+            'competencies' => 'nullable|array',
+            'ai_archetype_config' => 'nullable|array',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request, $id) {
+                $role = Roles::findOrFail($id);
+                
+                $role->update([
+                    'name' => $request->name,
+                    'description' => $request->description,
+                    'cube_dimensions' => $request->cube_dimensions,
+                    'ai_archetype_config' => $request->ai_archetype_config,
+                ]);
+
+                // Sync competencies/skills (simplification: detach all and re-attach)
+                if ($request->has('competencies') && is_array($request->competencies)) {
+                    $role->skills()->detach(); // Clean existing
+                    
+                    foreach ($request->competencies as $compData) {
+                        $skill = Skill::firstOrCreate(
+                            [
+                                'name' => $compData['name'],
+                                'organization_id' => auth()->user()->organization_id,
+                            ],
+                            [
+                                'category' => 'Competency',
+                                'description' => $compData['rationale'] ?? null,
+                            ]
+                        );
+
+                        $role->skills()->attach($skill->id, [
+                            'required_level' => $compData['level'] ?? 3,
+                            'is_critical' => true,
+                        ]);
+                    }
+                }
+
+                \App\Events\RoleRequirementsUpdated::dispatch(
+                    $role->id,
+                    $role->organization_id,
+                    ['action' => 'updated_from_cube_wizard', 'name' => $role->name]
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Rol actualizado exitosamente con el Refinamiento de Cubo.',
+                    'role' => $role,
+                ]);
+            });
+        } catch (\Exception $e) {
+            Log::error('Error updating role with Cube: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el rol: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Display the specific role.
      */
     public function show($id)

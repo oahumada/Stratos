@@ -4,16 +4,80 @@ namespace App\Services\Talent;
 
 use App\Models\Roles;
 use App\Models\ScenarioRole;
+use App\Models\Skill;
 use App\Services\AiOrchestratorService;
 use Illuminate\Support\Facades\Log;
 
 class RoleDesignerService
 {
     protected AiOrchestratorService $orchestrator;
+    protected \App\Services\Competency\CompetencyCuratorService $competencyCurator;
 
-    public function __construct(AiOrchestratorService $orchestrator)
-    {
+    public function __construct(
+        AiOrchestratorService $orchestrator,
+        \App\Services\Competency\CompetencyCuratorService $competencyCurator
+    ) {
         $this->orchestrator = $orchestrator;
+        $this->competencyCurator = $competencyCurator;
+    }
+
+    /**
+     * Transforma las competencias sugeridas por la IA en Skills reales asociadas al rol
+     * y las cura (genera BARS, Unidades de Aprendizaje, etc.) usando el Agente de Competencias.
+     */
+    public function materializeSuggestedSkills(int $roleId): array
+    {
+        $role = Roles::findOrFail($roleId);
+        $config = $role->ai_archetype_config;
+
+        if (! $config || ! isset($config['core_competencies'])) {
+            return [
+                'status' => 'error',
+                'message' => 'No hay sugerencias de competencias para este rol. Ejecute el diseño primero.',
+            ];
+        }
+
+        $suggested = $config['core_competencies'];
+        $materialized = [];
+
+        foreach ($suggested as $comp) {
+            $name = $comp['name'];
+            $level = $comp['level'] ?? 3;
+
+            // 1. Encontrar o crear la Skill
+            $skill = Skill::firstOrCreate(
+                ['name' => $name],
+                [
+                    'organization_id' => $role->organization_id,
+                    'category' => 'Transversal', // Por defecto
+                    'description' => $comp['rationale'] ?? "Generada automáticamente para el rol {$role->name}",
+                ]
+            );
+
+            // 2. Asociar al Rol con el nivel sugerido
+            if (! $role->skills()->where('skill_id', $skill->id)->exists()) {
+                $role->skills()->attach($skill->id, [
+                    'required_level' => $level,
+                    'is_critical' => false,
+                ]);
+            } else {
+                // Actualizar nivel si ya existe
+                $role->skills()->updateExistingPivot($skill->id, [
+                    'required_level' => $level,
+                ]);
+            }
+
+            // 3. Curar la Skill (Generar BARS, etc.)
+            $this->competencyCurator->curateSkill($skill->id);
+
+            $materialized[] = $name;
+        }
+
+        return [
+            'status' => 'success',
+            'message' => 'Competencias materializadas y curadas exitosamente.',
+            'materialized' => $materialized,
+        ];
     }
 
     /**
@@ -33,14 +97,17 @@ class RoleDesignerService
      */
     public function analyzePreview(string $name, ?string $description, $roleModel = null, bool $isScenario = false): array
     {
-        $prompt = "Actúa como Ingeniero de Talento de Stratos. Necesito que apliques la metodología de 'Cubo de Roles' (X, Y, Z) para el siguiente cargo: '{$name}'.
+        $prompt = "Actúa como Diseñador de Roles Senior de Stratos, experto en diseño organizacional y SFIA 8. Necesito que apliques la metodología de 'Cubo de Roles' (X, Y, Z) para el siguiente cargo: '{$name}'.
         
         Descripción actual: {$description}
         
-        Por favor, define las coordenadas del cubo:
-        1. Eje X (Arquetipo): ¿Es Estratégico, Táctico u Operativo? Justifica.
-        2. Eje Y (Nivel de Maestría): Define el nivel de exigencia del 1 al 5.
-        3. Eje Z (Proceso de Negocio): Identifica el flujo de valor principal al que pertenece.
+        Por favor, define:
+        1. Propósito del Rol (Misión estratégica).
+        2. Resultados Esperados (3-5 logros clave cuantificables).
+        3. Coordenadas del cubo:
+           - Eje X (Arquetipo): ¿Es Estratégico, Táctico u Operativo? Justifica.
+           - Eje Y (Nivel de Maestría): Define el nivel de exigencia del 1 al 5.
+           - Eje Z (Proceso de Negocio): Identifica el flujo de valor principal al que pertenece.
         
         Además, genera:
         - Una lista de 5 competencias clave justificadas.
@@ -48,6 +115,8 @@ class RoleDesignerService
         
         Responde estrictamente en formato JSON con esta estructura:
         {
+          \"purpose\": \"...\",
+          \"expected_results\": \"...\",
           \"cube_coordinates\": {
             \"x_archetype\": \"...\",
             \"y_mastery_level\": 0,
@@ -55,13 +124,17 @@ class RoleDesignerService
             \"justification\": \"...\"
           },
           \"core_competencies\": [
-            { \"name\": \"...\", \"level\": 0, \"rationale\": \"...\" }
+            {
+              \"name\": \"...\",
+              \"level\": 0,
+              \"rationale\": \"...\"
+            }
           ],
           \"organizational_suggestions\": \"...\"
         }";
 
         try {
-            $result = $this->orchestrator->agentThink('Ingeniero de Talento', $prompt);
+            $result = $this->orchestrator->agentThink('Diseñador de Roles', $prompt);
             $analysis = $result['response'];
 
             // Si hay un modelo, persistir
@@ -69,7 +142,11 @@ class RoleDesignerService
                 if ($isScenario) {
                     $roleModel->update(['ai_suggestions' => $analysis]);
                 } else {
-                    $roleModel->update(['ai_archetype_config' => $analysis]);
+                    $roleModel->update([
+                        'ai_archetype_config' => $analysis,
+                        'purpose' => $analysis['purpose'] ?? $roleModel->purpose,
+                        'expected_results' => $analysis['expected_results'] ?? $roleModel->expected_results,
+                    ]);
                 }
             }
 
@@ -77,6 +154,8 @@ class RoleDesignerService
                 'status' => 'success',
                 'role' => $name,
                 'cube' => $analysis['cube_coordinates'] ?? null,
+                'purpose' => $analysis['purpose'] ?? null,
+                'expected_results' => $analysis['expected_results'] ?? null,
                 'analysis' => $analysis,
             ];
 

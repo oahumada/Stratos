@@ -81,6 +81,34 @@ class TalentDataSanitizer
     }
 
     /**
+     * Obtiene el valor de una fila basándose en posibles variantes de nombres de columnas.
+     * Útil para manejar importaciones con diferentes cabeceras (español/inglés).
+     */
+    public static function getHRValue(array $row, string $type): mixed
+    {
+        $map = [
+            'department' => ['department', 'departamento', 'gerencia', 'area', 'unidad', 'centro_costo', 'division', 'centro', 'equipo', 'unidad_organizativa', 'organica', 'direccion'],
+            'role' => ['role', 'rol', 'cargo', 'puesto', 'ocupacion', 'posicion', 'funcion', 'puesto_trabajo', 'job_title', 'posicion_actual', 'perfil', 'grado', 'denominacion', 'cargo_funcional'],
+            'email' => ['email', 'correo', 'mail', 'e-mail'],
+            'rut' => ['rut', 'id_nacional', 'identificacion', 'dni', 'cedula', 'id'],
+            'hire_date' => ['hire_date', 'fecha_ingreso', 'ingreso', 'fecha_contratacion', 'start_date'],
+        ];
+
+        $keys = $map[$type] ?? [$type];
+        
+        foreach ($keys as $key) {
+            $variants = [$key, Str::slug($key, '_'), mb_strtolower($key)];
+            foreach (array_unique($variants) as $v) {
+                if (isset($row[$v])) {
+                    return is_string($row[$v]) ? trim($row[$v]) : $row[$v];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Normaliza recursivamente un array de datos.
      */
     public static function normalizeArray(array $data): array

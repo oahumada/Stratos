@@ -24,6 +24,14 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Ajuste de proporciones posterior: brazos acortados para una silueta más compacta y sobria.
 - Decisión final aplicada: esta variante humanoide de brazos cortos se adopta como isotipo activo en app y assets principales (`stratos-logo-icon.svg`, `stratos-logo-primary.svg`, `stratos-logo-mono.svg`, `AppLogoIcon.vue`).
 
+### Role Wizard Transformation (2026-03-18)
+
+- **BARS Inline**: Implementación de descriptores conductuales expandibles en el Paso 4 (DNA) para competencias críticas. El nivel requerido se resalta automáticamente basándose en la sugerencia de la IA.
+- **Skill Blueprint (Step 5)**: Nuevo paso de desglose técnico. Generación de 2-3 habilidades por competencia con sus 5 niveles, unidades de aprendizaje y criterios de desempeño.
+- **Optimización de Motor IA**: Incremento del límite de tokens (`max_tokens`) a **4096** en `DeepSeekProvider` y `OpenAIProvider` para soportar las extensas estructuras JSON de BARS y Skill Blueprints.
+- **Arquitectura de Prompts**: Se separó la síntesis inicial (ligera) del desglose técnico (pesado) en dos llamadas asíncronas para garantizar completitud y calidad en las respuestas del asistente "Ingeniero de Talento".
+- Documentación detallada en: `docs/ROLE_WIZARD_SKILL_BLUEPRINT.md`.
+
 ---
 
 ## 🎯 Fase 1 Completada: Importación LLM con Incubación (2026-02-15)

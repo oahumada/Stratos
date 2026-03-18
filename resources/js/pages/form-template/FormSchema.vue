@@ -17,6 +17,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useTheme as useVuetifyTheme } from 'vuetify';
 import FormData from './FormData.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
 
 import {
     Config,
@@ -808,31 +809,34 @@ onMounted(() => {
 
             <v-divider class="border-white/5" />
 
-            <div class="pa-4 d-flex justify-end gap-3">
-                <v-btn
-                    color="slate-400"
-                    variant="text"
+            <div class="pa-6 d-flex justify-end gap-3 border-t border-white/5 bg-white/2">
+                <StButtonGlass
+                    variant="ghost"
                     @click="closeDialog"
-                    size="large"
-                    class="text-none"
+                    size="md"
                 >
                     {{ t('form_schema.dialog.cancel') }}
-                </v-btn>
-                <v-btn
+                </StButtonGlass>
+                <slot
+                    name="form-footer-actions"
+                    :save="saveItem"
+                    :close="closeDialog"
+                    :is-editing="!!editingItem"
+                    :data="formDataRef?.formData"
+                ></slot>
+                <StButtonGlass
                     @click="saveItem"
                     :loading="saving"
-                    size="large"
-                    variant="elevated"
-                    color="indigo-accent-2"
-                    rounded="lg"
-                    class="px-8"
+                    size="md"
+                    variant="primary"
+                    :icon="PhPlusCircle"
                 >
                     {{
                         editingItem
                             ? t('form_schema.dialog.save')
                             : t('form_schema.dialog.create_record')
                     }}
-                </v-btn>
+                </StButtonGlass>
             </div>
         </StCardGlass>
     </v-dialog>
@@ -896,14 +900,22 @@ onMounted(() => {
                         {{ detailItem?.name || detailItem?.first_name || t('form_schema.detail_title') }}
                     </div>
                 </div>
-                <v-btn
-                    icon
-                    variant="text"
-                    @click="detailOpen = false"
-                    class="rounded-lg"
-                >
-                    <component :is="PhX" :size="20" />
-                </v-btn>
+                <div class="d-flex align-center gap-2">
+                    <slot
+                        name="detail-header-actions"
+                        :item="detailItem"
+                        :refresh="loadItems"
+                        :edit="() => openEditDialog(detailItem)"
+                    ></slot>
+                    <v-btn
+                        icon
+                        variant="text"
+                        @click="detailOpen = false"
+                        class="rounded-lg"
+                    >
+                        <component :is="PhX" :size="20" />
+                    </v-btn>
+                </div>
             </div>
 
             <div v-if="detailItem" class="d-flex flex-column gap-4">

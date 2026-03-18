@@ -30,7 +30,7 @@ class OpenAIProvider implements LLMProviderInterface
                 ['role' => 'user', 'content' => $prompt],
             ],
             'temperature' => $options['temperature'] ?? 0.2,
-            'max_tokens' => 1500,
+            'max_tokens' => $options['max_tokens'] ?? 4096,
         ]);
 
         $ch = curl_init($endpoint);

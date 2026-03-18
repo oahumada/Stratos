@@ -51,4 +51,18 @@ class RoleDesignerController extends Controller
 
         return response()->json($result, 500);
     }
+
+    /**
+     * Materializa las competencias sugeridas por la IA.
+     */
+    public function materializeCompetencies(Request $request, $id)
+    {
+        $result = $this->designerService->materializeSuggestedSkills((int) $id);
+
+        if ($result['status'] === 'success') {
+            return response()->json($result);
+        }
+
+        return response()->json($result, 500);
+    }
 }

@@ -46,7 +46,7 @@ class DeepSeekProvider implements LLMProviderInterface
             'model' => $model,
             'messages' => $messages,
             'temperature' => $options['temperature'] ?? 0.2,
-            'max_tokens' => $options['max_tokens'] ?? 2048,
+            'max_tokens' => $options['max_tokens'] ?? 4096,
 
         ]);
 

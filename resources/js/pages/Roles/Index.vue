@@ -22,12 +22,14 @@ import {
     PhUser,
     PhUsers,
 } from '@phosphor-icons/vue';
+import { useNotification } from '@kyvg/vue3-notification';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FormSchema from '../form-template/FormSchema.vue';
 
 const { t } = useI18n();
+const { notify } = useNotification();
 
 // Import JSON configs
 import configJson from './roles-form/config.json';
@@ -39,11 +41,13 @@ defineOptions({ layout: AppLayout });
 
 // Wizard state
 const showCubeWizard = ref(false);
+const selectedRoleId = ref<number | null>(null);
 const formSchemaRef = ref<any>(null);
 
 const onRoleCreated = () => {
     formSchemaRef.value?.loadItems();
     showCubeWizard.value = false;
+    selectedRoleId.value = null;
 };
 
 // Detail tab state
@@ -64,16 +68,80 @@ onMounted(async () => {
 });
 
 const designing = ref(false);
-const designRole = async (id: number, refresh: () => void) => {
+const materializing = ref(false);
+
+const refresh = () => {
+    formSchemaRef.value?.loadItems();
+};
+
+const designRole = async (id: number, callback: any) => {
     designing.value = true;
     try {
         await axios.post(`/api/strategic-planning/roles/${id}/design`);
-        refresh();
-    } catch (error) {
-        console.error('Error designing role:', error);
+        notify({ type: 'success', text: 'Diseño y Propósito generado por IA' });
+        if (callback) callback();
+    } catch (err) {
+        notify({ type: 'error', text: 'Error al diseñar rol con IA' });
+        console.error('Error designing role:', err);
     } finally {
         designing.value = false;
     }
+};
+
+const materializeCompetencies = async (id: number, callback: any) => {
+    materializing.value = true;
+    try {
+        await axios.post(
+            `/api/strategic-planning/roles/${id}/materialize-competencies`,
+        );
+        notify({
+            type: 'success',
+            text: 'Competencias materializadas y curadas (BARS/Learning) por el Agente',
+        });
+        if (callback) callback();
+    } catch (err) {
+        notify({ type: 'error', text: 'Error al materializar competencias' });
+        console.error('Error materializing competencies:', err);
+    } finally {
+        materializing.value = false;
+    }
+};
+
+const autoFillWithAI = async (id: number, currentFormData: any) => {
+    designing.value = true;
+    try {
+        // Enforce a refresh of the AI design and fetch details
+        const res = await axios.post(`/api/strategic-planning/roles/${id}/design`);
+        
+        // Fetch the updated role details to populate the form
+        const roleRes = await axios.get(`/api/roles/${id}`);
+        const roleData = roleRes.data;
+
+        if (roleData) {
+            // Map the AI-generated fields to the current form state
+            Object.assign(currentFormData, {
+                purpose: roleData.purpose || currentFormData.purpose,
+                expected_results: roleData.expected_results || currentFormData.expected_results,
+                description: roleData.description || currentFormData.description,
+                status: roleData.status || currentFormData.status
+            });
+            
+            notify({ 
+                type: 'success', 
+                text: 'Inteligencia de rol cargada: Propósito y Resultados sugeridos.' 
+            });
+        }
+    } catch (err) {
+        notify({ type: 'error', text: 'Error al generar sugerencia IA para este rol' });
+        console.error('Error auto-filling role:', err);
+    } finally {
+        designing.value = false;
+    }
+};
+
+const openWizardForRole = (id: number) => {
+    selectedRoleId.value = id;
+    showCubeWizard.value = true;
 };
 
 // Helpers to map relations safely
@@ -134,6 +202,34 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                 @click="showCubeWizard = true"
             >
                 {{ t('roles_module.ai_cube_design') }}
+            </StButtonGlass>
+        </template>
+
+        <!-- Header Actions in Detail Modal -->
+        <template #detail-header-actions="{ item, edit }">
+            <StButtonGlass
+                v-if="item"
+                variant="ghost"
+                size="sm"
+                :icon="PhPencil"
+                @click="edit()"
+            >
+                Editar
+            </StButtonGlass>
+        </template>
+
+        <!-- Extra AI Actions in Editing Modal -->
+        <template #form-footer-actions="{ isEditing, data, isSaving }">
+            <StButtonGlass
+                v-if="isEditing"
+                variant="glow"
+                size="md"
+                :icon="PhMagicWand"
+                :loading="designing"
+                class="mr-auto"
+                @click="autoFillWithAI(data.id, data)"
+            >
+                Optimizar con IA
             </StButtonGlass>
         </template>
 
@@ -303,15 +399,26 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                             style="opacity: 0.05"
                         ></v-divider>
 
-                        <StButtonGlass
-                            :icon="PhMagicWand"
-                            variant="primary"
-                            size="sm"
-                            :loading="designing"
-                            @click="designRole(item.id, refresh)"
-                        >
-                            {{ t('roles_module.info_section.design_btn') }}
-                        </StButtonGlass>
+                        <div class="d-flex gap-2">
+                            <StButtonGlass
+                                :icon="PhMagicWand"
+                                variant="primary"
+                                size="sm"
+                                :loading="designing"
+                                @click="designRole(item.id, refresh)"
+                            >
+                                {{ t('roles_module.info_section.design_btn') }}
+                            </StButtonGlass>
+
+                            <StButtonGlass
+                                :icon="PhCube"
+                                variant="glow"
+                                size="sm"
+                                @click="openWizardForRole(item.id)"
+                            >
+                                Refinar con Wizard
+                            </StButtonGlass>
+                        </div>
                     </v-card>
                 </v-window-item>
 
@@ -694,6 +801,26 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                                 >
                                             </v-list-item>
                                         </v-list>
+                                        <div class="mt-4 d-flex justify-end">
+                                            <StButtonGlass
+                                                variant="primary"
+                                                size="sm"
+                                                :icon="PhRobot"
+                                                :loading="materializing"
+                                                @click="
+                                                    materializeCompetencies(
+                                                        item.id,
+                                                        refresh,
+                                                    )
+                                                "
+                                            >
+                                                {{
+                                                    t(
+                                                        'roles_module.ai_section.materialize_btn',
+                                                    )
+                                                }}
+                                            </StButtonGlass>
+                                        </div>
                                     </div>
 
                                     <div>
@@ -735,11 +862,42 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
         </template>
     </FormSchema>
 
-    <RoleCubeWizard v-model="showCubeWizard" @created="onRoleCreated" />
+    <RoleCubeWizard 
+        v-model="showCubeWizard" 
+        :role-id="selectedRoleId"
+        @created="onRoleCreated" 
+        @close="selectedRoleId = null"
+    />
 </template>
 
 <style scoped>
 .italic {
     font-style: italic;
+}
+
+/* Fix "white sub-screens" — applying deep glassmorphism to internal cards */
+:deep(.v-window-item .v-card.glass-card) {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(12px) !important;
+    box-shadow: none !important;
+}
+
+:deep(.v-list) {
+    background: transparent !important;
+}
+
+:deep(.v-list-item) {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Ensure headings stand out in dark mode */
+.font-premium {
+    letter-spacing: -0.01em;
+}
+
+.text-slate-400 {
+    color: #94a3b8 !important;
 }
 </style>

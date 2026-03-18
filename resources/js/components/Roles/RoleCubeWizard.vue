@@ -4,36 +4,85 @@ import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import {
     PhArrowLeft,
+    PhBrain,
     PhCheck,
+    PhCrown,
+    PhCrosshair,
+    PhInfo,
     PhMagicWand,
+    PhNavigationArrow,
     PhPlus,
     PhRobot,
     PhSealCheck,
     PhTrash,
     PhX,
+    PhCaretDown,
+    PhArrowsClockwise,
 } from '@phosphor-icons/vue';
 import axios from 'axios';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
-    visible: boolean;
+    modelValue: boolean;
     scenarioId?: number | null;
+    roleId?: number | null;
 }>();
 
 const { t } = useI18n();
 
-const emit = defineEmits(['close', 'created']);
+const emit = defineEmits(['update:modelValue', 'close', 'created']);
 
-const internalVisible = ref(props.visible);
+const internalVisible = ref(props.modelValue);
 const currentStep = ref(1);
 const analyzing = ref(false);
 const saving = ref(false);
+const generatingBlueprint = ref(false);
+const expandedCompetency = ref<number | null>(null);
+const expandedSkillBlueprint = ref<string | null>(null);
+const loadingRole = ref(false);
+const roleLoaded = ref(false);
+
+const toggleCompetency = (idx: number) => {
+    expandedCompetency.value = expandedCompetency.value === idx ? null : idx;
+};
+
+const toggleBlueprintSkill = (skillName: string) => {
+    expandedSkillBlueprint.value = expandedSkillBlueprint.value === skillName ? null : skillName;
+};
+
+const generateBlueprint = async () => {
+    generatingBlueprint.value = true;
+    try {
+        const response = await axios.post('/api/strategic-planning/roles/generate-skill-blueprint', {
+            competencies: form.value.competencies,
+        });
+        form.value.blueprint = response.data.competency_blueprint;
+        currentStep.value = 5;
+    } catch (error) {
+        console.error('Blueprint generation failed:', error);
+    } finally {
+        generatingBlueprint.value = false;
+    }
+};
+
+/**
+ * Normalizes archetype values from AI responses.
+ * AI may return Spanish ('Estratégico') or English ('Strategic').
+ */
+const normalizeArchetype = (val: string): 'Strategic' | 'Tactical' | 'Operational' => {
+    const lower = (val || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (lower.includes('estrat')) return 'Strategic';
+    if (lower.includes('tact')) return 'Tactical';
+    return 'Operational';
+};
 
 const steps = computed(() => [
     { title: t('role_wizard.step1_title'), desc: t('role_wizard.step1_desc') },
     { title: t('role_wizard.step2_title'), desc: t('role_wizard.step2_desc') },
     { title: t('role_wizard.step3_title'), desc: t('role_wizard.step3_desc') },
+    { title: t('role_wizard.step4_title'), desc: t('role_wizard.step4_desc') },
+    { title: 'Skill Blueprint', desc: 'Habilidades técnicas' },
 ]);
 
 const form = ref({
@@ -49,18 +98,88 @@ const form = ref({
     expected_results: '',
     competencies: [] as any[],
     suggestions: '',
+    blueprint: [] as any[],
 });
 
 watch(
-    () => props.visible,
+    () => props.modelValue,
     (val) => {
         internalVisible.value = val;
-        if (val) currentStep.value = 1;
+        if (val) {
+            currentStep.value = 1;
+            if (props.roleId) {
+                fetchRoleData(props.roleId);
+            } else {
+                resetForm();
+            }
+        }
     },
 );
 
+const resetForm = () => {
+    form.value = {
+        name: '',
+        description: '',
+        cube: {
+            x_archetype: 'Tactical',
+            y_mastery_level: 3,
+            z_business_process: '',
+            justification: '',
+        },
+        purpose: '',
+        expected_results: '',
+        competencies: [],
+        suggestions: '',
+        blueprint: [],
+    };
+    roleLoaded.value = false;
+};
+
+const fetchRoleData = async (id: number) => {
+    loadingRole.value = true;
+    try {
+        const response = await axios.get(`/api/roles/${id}`);
+        const role = response.data;
+        
+        form.value.name = role.name;
+        form.value.description = role.description;
+        form.value.purpose = role.purpose || '';
+        form.value.expected_results = role.expected_results || '';
+        
+        if (role.cube_dimensions) {
+            form.value.cube = { ...role.cube_dimensions };
+        }
+        
+        if (role.ai_archetype_config) {
+            form.value.suggestions = role.ai_archetype_config.organizational_suggestions || '';
+            form.value.blueprint = role.ai_archetype_config.skill_blueprint || [];
+            if (role.ai_archetype_config.core_competencies) {
+                form.value.competencies = role.ai_archetype_config.core_competencies;
+            }
+        } else if (role.skills) {
+            // Fallback: translate legacy skills to competency format
+            form.value.competencies = role.skills.map((s: any) => ({
+                name: s.name,
+                level: s.pivot?.required_level || 3,
+                rationale: s.description || 'Competencia base del catálogo',
+            }));
+        }
+        
+        roleLoaded.value = true;
+    } catch (error) {
+        console.error('Error fetching role for wizard:', error);
+    } finally {
+        loadingRole.value = false;
+    }
+};
+
+watch(internalVisible, (val) => {
+    emit('update:modelValue', val);
+});
+
 const close = () => {
     internalVisible.value = false;
+    emit('update:modelValue', false);
     emit('close');
 };
 
@@ -76,13 +195,18 @@ const analyzeRole = async () => {
         );
 
         const data = response.data.analysis;
-        form.value.cube.x_archetype = data.cube_coordinates.x_archetype;
-        form.value.cube.y_mastery_level = data.cube_coordinates.y_mastery_level;
+        form.value.cube.x_archetype = normalizeArchetype(data.cube_coordinates.x_archetype);
+        form.value.cube.y_mastery_level = Number(data.cube_coordinates.y_mastery_level) || 3;
         form.value.cube.z_business_process =
             data.cube_coordinates.z_business_process;
         form.value.cube.justification = data.cube_coordinates.justification;
         form.value.competencies = data.core_competencies;
         form.value.suggestions = data.organizational_suggestions;
+
+        // If the AI returns suggested purpose/results, we map them here
+        if (data.purpose) form.value.purpose = data.purpose;
+        if (data.expected_results)
+            form.value.expected_results = data.expected_results;
 
         currentStep.value = 2;
     } catch (error) {
@@ -117,19 +241,24 @@ const saveRole = async () => {
             ai_archetype_config: {
                 cube_coordinates: form.value.cube,
                 core_competencies: form.value.competencies,
+                skill_blueprint: form.value.blueprint,
                 organizational_suggestions: form.value.suggestions,
             },
             fte: 1,
-            role_change: 'create',
-            evolution_type: 'new_role',
+            role_change: props.roleId ? 'update' : 'create',
+            evolution_type: props.roleId ? 'optimized' : 'new_role',
             impact_level: 'medium',
         };
 
         const url = props.scenarioId
             ? `/api/scenarios/${props.scenarioId}/step2/roles`
-            : '/api/roles';
+            : (props.roleId ? `/api/roles/${props.roleId}` : '/api/roles');
 
-        await axios.post(url, payload);
+        if (props.roleId && !props.scenarioId) {
+            await axios.put(url, payload);
+        } else {
+            await axios.post(url, payload);
+        }
 
         emit('created');
         close();
@@ -161,6 +290,18 @@ const saveRole = async () => {
                 ></div>
             </div>
 
+            <!-- Loading Overlay for Existing Roles -->
+            <div 
+                v-if="loadingRole" 
+                class="absolute inset-0 z-100 flex flex-col items-center justify-center bg-[#020617]/80 backdrop-blur-md"
+            >
+                <div class="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-indigo-500/10 ring-1 ring-indigo-500/20">
+                    <PhArrowsClockwise :size="40" class="animate-spin text-indigo-400" />
+                </div>
+                <h2 class="text-2xl font-black text-white">Cargando Inteligencia Actual...</h2>
+                <p class="mt-2 text-slate-400">Recuperando coordenadas y configuración del catálogo</p>
+            </div>
+
             <!-- Header -->
             <header
                 class="z-10 flex items-center border-b border-white/5 bg-white/2 px-8 py-4 backdrop-blur-xl"
@@ -175,7 +316,7 @@ const saveRole = async () => {
                     <h1
                         class="flex items-center gap-3 text-xl font-black tracking-tight text-white"
                     >
-                        {{ $t('role_wizard.title') }}
+                        {{ props.roleId ? 'Refinamiento Estratégico' : $t('role_wizard.title') }}
                         <StBadgeGlass
                             variant="glass"
                             size="sm"
@@ -312,50 +453,15 @@ const saveRole = async () => {
                                     />
                                 </div>
 
-                                <div
-                                    class="grid grid-cols-1 gap-8 md:grid-cols-2"
-                                >
-                                    <div class="space-y-2">
-                                        <label
-                                            class="ml-1 text-[10px] font-black tracking-[0.2em] text-pink-400 uppercase"
-                                            >[ CIMIENTOS ] Propósito del
-                                            Rol</label
-                                        >
-                                        <textarea
-                                            v-model="form.purpose"
-                                            rows="4"
-                                            placeholder="¿Para qué existe este edificio/rol en la organización?"
-                                            class="w-full resize-none rounded-2xl border border-pink-500/10 bg-pink-500/5 px-6 py-4 text-base text-white placeholder-white/10 transition-all focus:border-pink-500/50 focus:outline-none"
-                                        ></textarea>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label
-                                            class="ml-1 text-[10px] font-black tracking-[0.2em] text-emerald-400 uppercase"
-                                            >[ FUNCIÓN ] Resultados
-                                            Esperados</label
-                                        >
-                                        <textarea
-                                            v-model="form.expected_results"
-                                            rows="4"
-                                            placeholder="¿Qué impactos concretos genera este rol?"
-                                            class="w-full resize-none rounded-2xl border border-emerald-500/10 bg-emerald-500/5 px-6 py-4 text-base text-white placeholder-white/10 transition-all focus:border-emerald-500/50 focus:outline-none"
-                                        ></textarea>
-                                    </div>
-                                </div>
-
                                 <div class="space-y-2">
                                     <label
                                         class="ml-1 text-[10px] font-black tracking-[0.2em] text-white/30 uppercase"
-                                        >Síntesis de Misión (Opcional)</label
+                                        >Misión de Negocio (El "Qué")</label
                                     >
                                     <textarea
                                         v-model="form.description"
-                                        rows="3"
-                                        :placeholder="
-                                            $t(
-                                                'role_wizard.mission_placeholder',
-                                            )
-                                        "
+                                        rows="4"
+                                        placeholder="Escribe una breve idea de qué hará este rol..."
                                         class="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base text-white/60 placeholder-white/10 transition-all focus:border-indigo-500/50 focus:outline-none"
                                     ></textarea>
                                 </div>
@@ -367,8 +473,7 @@ const saveRole = async () => {
                                     size="lg"
                                     :disabled="
                                         !form.name ||
-                                        !form.purpose ||
-                                        !form.expected_results
+                                        !form.description
                                     "
                                     :loading="analyzing"
                                     @click="analyzeRole"
@@ -402,7 +507,7 @@ const saveRole = async () => {
                                 <div
                                     class="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2"
                                 >
-                                    <Robot
+                                    <PhRobot
                                         color="#34d399"
                                         :size="14"
                                         weight="duotone"
@@ -580,7 +685,7 @@ const saveRole = async () => {
                                         <div
                                             class="mb-6 flex items-center gap-3"
                                         >
-                                            <Brain
+                                            <PhBrain
                                                 color="#818cf8"
                                                 :size="18"
                                                 weight="duotone"
@@ -653,10 +758,82 @@ const saveRole = async () => {
                             </div>
                         </div>
 
-                        <!-- Step 3: Blueprint -->
+                        <!-- Step 3: Impact (Purpose & Results) -->
                         <div
                             v-else-if="currentStep === 3"
                             :key="3"
+                            class="mx-auto max-w-4xl space-y-12"
+                        >
+                            <div class="space-y-4">
+                                <h2
+                                    class="text-4xl leading-tight font-black tracking-tight text-white"
+                                >
+                                    Arquitectura de Impacto
+                                </h2>
+                                <p
+                                    class="max-w-2xl text-lg leading-relaxed font-medium text-white/50"
+                                >
+                                    Define la razón de ser y los éxitos tangibles del rol.
+                                </p>
+                            </div>
+
+                            <div class="space-y-8">
+                                <StCardGlass class="pa-8! bg-white/2! border-white/5">
+                                    <div class="flex items-center gap-3 mb-6">
+                                        <div class="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center text-pink-400 border border-pink-500/30">
+                                            <PhInfo :size="20" />
+                                        </div>
+                                        <div>
+                                            <div class="text-[10px] font-black tracking-widest text-pink-400 uppercase">Propósito Sugerido</div>
+                                            <div class="text-xs text-white/40">La razón última de la existencia de este rol.</div>
+                                        </div>
+                                    </div>
+                                    <textarea
+                                        v-model="form.purpose"
+                                        rows="4"
+                                        class="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base text-white transition-all focus:border-pink-500/50 focus:outline-none"
+                                    ></textarea>
+                                </StCardGlass>
+
+                                <StCardGlass class="pa-8! bg-white/2! border-white/5">
+                                    <div class="flex items-center gap-3 mb-6">
+                                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 border border-emerald-500/30">
+                                            <PhSealCheck :size="20" />
+                                        </div>
+                                        <div>
+                                            <div class="text-[10px] font-black tracking-widest text-emerald-400 uppercase">Resultados de Valor</div>
+                                            <div class="text-xs text-white/40">Qué se espera entregar y lograr en el tiempo.</div>
+                                        </div>
+                                    </div>
+                                    <textarea
+                                        v-model="form.expected_results"
+                                        rows="6"
+                                        class="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base text-white transition-all focus:border-emerald-500/50 focus:outline-none"
+                                    ></textarea>
+                                </StCardGlass>
+                            </div>
+
+                            <div class="flex justify-end gap-4 pt-8">
+                                <StButtonGlass
+                                    variant="ghost"
+                                    :icon="PhArrowLeft"
+                                    @click="currentStep--"
+                                    >Etapa Anterior</StButtonGlass
+                                >
+                                <StButtonGlass
+                                    variant="primary"
+                                    :icon="PhCheck"
+                                    @click="currentStep++"
+                                    class="px-12!"
+                                    >Confirmar Perfil</StButtonGlass
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Step 4: DNA (Competencies) -->
+                        <div
+                            v-else-if="currentStep === 4"
+                            :key="4"
                             class="mx-auto max-w-5xl space-y-12"
                         >
                             <div class="space-y-4">
@@ -670,15 +847,12 @@ const saveRole = async () => {
                                 </p>
                             </div>
 
-                            <StCardGlass
-                                variant="glass"
-                                class="overflow-hidden border-white/10 p-0!"
-                            >
-                                <v-table class="st-glass-table w-full">
+                            <div class="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
+                                <table class="w-full border-collapse">
                                     <thead>
-                                        <tr class="bg-white/5">
+                                        <tr class="border-b border-white/10 bg-white/[0.04]">
                                             <th
-                                                class="px-8 py-6 text-[10px]! font-black! tracking-widest! text-white/30! uppercase"
+                                                class="px-8 py-5 text-left text-[10px] font-black tracking-[0.25em] text-white/40 uppercase"
                                             >
                                                 {{
                                                     $t(
@@ -687,7 +861,7 @@ const saveRole = async () => {
                                                 }}
                                             </th>
                                             <th
-                                                class="px-4 py-6 text-center text-[10px]! font-black! tracking-widest! text-white/30! uppercase"
+                                                class="px-4 py-5 text-center text-[10px] font-black tracking-[0.25em] text-white/40 uppercase"
                                             >
                                                 {{
                                                     $t(
@@ -696,7 +870,7 @@ const saveRole = async () => {
                                                 }}
                                             </th>
                                             <th
-                                                class="px-4 py-6 text-[10px]! font-black! tracking-widest! text-white/30! uppercase"
+                                                class="px-4 py-5 text-left text-[10px] font-black tracking-[0.25em] text-white/40 uppercase"
                                             >
                                                 {{
                                                     $t(
@@ -705,59 +879,156 @@ const saveRole = async () => {
                                                 }}
                                             </th>
                                             <th
-                                                class="px-8 py-6 text-right text-[10px]! font-black! tracking-widest! text-white/30! uppercase"
+                                                class="px-8 py-5 text-right text-[10px] font-black tracking-[0.25em] text-white/40 uppercase"
                                             >
                                                 {{ $t('role_wizard.ops') }}
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-white/5">
-                                        <tr
+                                    <tbody>
+                                        <template
                                             v-for="(
                                                 skill, idx
                                             ) in form.competencies"
                                             :key="idx"
-                                            class="transition-colors hover:bg-white/5"
                                         >
-                                            <td class="px-8 py-6">
-                                                <input
-                                                    v-model="skill.name"
-                                                    class="w-full border-none bg-transparent font-bold text-white transition-colors focus:text-indigo-300 focus:outline-none"
-                                                />
-                                            </td>
-                                            <td class="px-4 py-6">
+                                            <tr
+                                                class="group border-b border-white/5 transition-colors duration-300 hover:bg-white/[0.04] cursor-pointer"
+                                                @click="toggleCompetency(idx)"
+                                            >
+                                                <td class="px-8 py-5">
+                                                    <div class="flex items-center gap-4">
+                                                        <div
+                                                            class="flex h-5 w-5 shrink-0 items-center justify-center rounded-lg text-indigo-400 transition-transform duration-300"
+                                                            :class="{ 'rotate-180': expandedCompetency === idx }"
+                                                        >
+                                                            <PhCaretDown :size="14" weight="bold" />
+                                                        </div>
+                                                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-[10px] font-black text-indigo-400">
+                                                            {{ idx + 1 }}
+                                                        </div>
+                                                        <input
+                                                            v-model="skill.name"
+                                                            class="w-full border-none bg-transparent text-sm font-bold text-white placeholder:text-white/20 transition-colors focus:text-indigo-300 focus:outline-none"
+                                                            :placeholder="$t('role_wizard.new_capacity')"
+                                                            @click.stop
+                                                        />
+                                                    </div>
+                                                </td>
+                                            <td class="px-4 py-5">
                                                 <div
-                                                    class="flex justify-center"
+                                                    class="flex items-center justify-center gap-1"
                                                 >
-                                                    <v-rating
-                                                        v-model="skill.level"
-                                                        density="compact"
-                                                        color="amber-lighten-2"
-                                                        active-color="amber-lighten-2"
-                                                        size="small"
-                                                    />
+                                                    <button
+                                                        v-for="star in 5"
+                                                        :key="star"
+                                                        @click.stop="skill.level = star"
+                                                        class="transition-all duration-200 hover:scale-125"
+                                                    >
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 0 24 24"
+                                                            :fill="star <= skill.level ? '#fbbf24' : 'none'"
+                                                            :stroke="star <= skill.level ? '#fbbf24' : 'rgba(255,255,255,0.15)'"
+                                                            stroke-width="1.5"
+                                                            class="h-5 w-5"
+                                                        >
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                                                        </svg>
+                                                    </button>
+                                                    <span class="ml-2 text-xs font-black text-white/30">{{ skill.level }}/5</span>
                                                 </div>
                                             </td>
                                             <td
-                                                class="max-w-xs truncate px-4 py-6 text-[11px] font-medium text-white/40 italic"
+                                                class="max-w-xs px-4 py-5"
                                             >
-                                                {{ skill.rationale }}
+                                                <p class="line-clamp-2 text-[11px] leading-relaxed font-medium text-white/40 italic">
+                                                    {{ skill.rationale }}
+                                                </p>
                                             </td>
-                                            <td class="px-8 py-6 text-right">
-                                                <StButtonGlass
-                                                    variant="ghost"
-                                                    circle
-                                                    size="sm"
-                                                    :icon="PhTrash"
-                                                    class="text-rose-500/40! hover:text-rose-500!"
-                                                    @click="removeSkill(idx)"
-                                                />
-                                            </td>
-                                        </tr>
+                                                <td class="px-8 py-5 text-right">
+                                                    <StButtonGlass
+                                                        variant="ghost"
+                                                        circle
+                                                        size="sm"
+                                                        :icon="PhTrash"
+                                                        class="text-rose-500/30! hover:text-rose-500! hover:bg-rose-500/10!"
+                                                        @click.stop="removeSkill(idx)"
+                                                    />
+                                                </td>
+                                            </tr>
+
+                                            <!-- BARS Panel -->
+                                            <tr v-if="expandedCompetency === idx">
+                                                <td colspan="4" class="px-8 py-0 border-b border-indigo-500/10 bg-indigo-500/2">
+                                                    <div class="pb-10 pt-4">
+                                                        <div class="mb-4 flex items-center justify-between">
+                                                            <div class="flex items-center gap-2">
+                                                                <PhMagicWand :size="14" class="text-indigo-400" weight="duotone" />
+                                                                <span class="text-[10px] font-black tracking-[0.2em] text-indigo-400 uppercase">Alineación de Niveles BARS</span>
+                                                            </div>
+                                                            <div class="text-[9px] font-medium text-white/20 italic">
+                                                                * Selecciona el nivel de estrellas para actualizar automáticamente el Nivel Requerido
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="grid grid-cols-5 gap-3">
+                                                            <div 
+                                                                v-for="bar in (skill.bars || [])" 
+                                                                :key="bar.level"
+                                                                class="relative flex flex-col rounded-xl border p-4 transition-all duration-500"
+                                                                :class="[
+                                                                    bar.level === skill.level 
+                                                                        ? 'shadow-glow border-indigo-500/40 bg-indigo-500/10' 
+                                                                        : 'border-white/5 bg-white/2'
+                                                                ]"
+                                                            >
+                                                                <div class="mb-3 flex items-center gap-2">
+                                                                    <div 
+                                                                        class="flex h-6 w-6 items-center justify-center rounded-lg text-[10px] font-black"
+                                                                        :class="bar.level === skill.level ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/30'"
+                                                                    >
+                                                                        {{ bar.level }}
+                                                                    </div>
+                                                                    <div class="text-[10px] font-black tracking-widest uppercase" :class="bar.level === skill.level ? 'text-indigo-400' : 'text-white/20'">
+                                                                        {{ bar.level_name }}
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <p class="mb-4 text-[11px] leading-relaxed font-medium" :class="bar.level === skill.level ? 'text-white/90' : 'text-white/40'">
+                                                                    {{ bar.behavioral_description }}
+                                                                </p>
+
+                                                                <v-spacer></v-spacer>
+
+                                                                <div 
+                                                                    v-if="bar.level === skill.level"
+                                                                    class="flex items-center gap-2 rounded-lg border border-indigo-500/20 bg-indigo-500/20 px-2 py-1.5"
+                                                                >
+                                                                    <PhSealCheck size="12" weight="duotone" class="text-indigo-300" />
+                                                                    <span class="text-[8px] font-black tracking-widest text-indigo-300 uppercase">Nivel Requerido</span>
+                                                                </div>
+                                                                <div 
+                                                                    v-else
+                                                                    class="px-2 py-1.5 opacity-0 group-hover:opacity-100"
+                                                                >
+                                                                    <span class="text-[8px] font-black tracking-widest text-white/10 uppercase italic">Descriptor de Nivel</span>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <!-- Fallback if no bars are present (e.g. manually added skill) -->
+                                                            <div v-if="!(skill.bars && skill.bars.length)" colspan="5" class="col-span-5 rounded-xl border border-dashed border-white/10 bg-white/2 p-6 text-center">
+                                                                <p class="text-xs text-white/30 font-medium italic">Esta capacidad fue agregada manualmente y no cuenta con descriptores conductuales AI.</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
                                     </tbody>
-                                </v-table>
+                                </table>
                                 <div
-                                    class="border-t border-white/10 bg-white/2 p-6"
+                                    class="border-t border-white/10 bg-white/[0.02] p-5"
                                 >
                                     <StButtonGlass
                                         variant="ghost"
@@ -769,7 +1040,7 @@ const saveRole = async () => {
                                         }}</StButtonGlass
                                     >
                                 </div>
-                            </StCardGlass>
+                            </div>
 
                             <div class="flex justify-end gap-4 pt-12">
                                 <StButtonGlass
@@ -779,6 +1050,127 @@ const saveRole = async () => {
                                     >{{
                                         $t('role_wizard.adjustment_phase')
                                     }}</StButtonGlass
+                                >
+                                <StButtonGlass
+                                    variant="secondary"
+                                    :loading="generatingBlueprint"
+                                    :icon="PhMagicWand"
+                                    @click="generateBlueprint"
+                                    class="px-12!"
+                                    >{{
+                                        'Generar Blueprint de Habilidades'
+                                    }}</StButtonGlass
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Skill Blueprint (Detailed) -->
+                        <div
+                            v-else-if="currentStep === 5"
+                            :key="5"
+                            class="mx-auto max-w-6xl space-y-12"
+                        >
+                            <div class="flex items-end justify-between">
+                                <div class="space-y-4">
+                                    <h2 class="text-4xl font-black tracking-tight text-white">
+                                        Blueprint de Habilidades
+                                    </h2>
+                                    <p class="text-base font-medium text-white/50">
+                                        Desglose técnico de skills, niveles BARS y unidades de aprendizaje.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-8">
+                                <div 
+                                    v-for="(comp, cIdx) in form.blueprint" 
+                                    :key="cIdx"
+                                    class="rounded-3xl border border-white/5 bg-white/2 overflow-hidden"
+                                >
+                                    <div class="bg-white/4 px-8 py-5 border-b border-white/5 flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                            <div class="h-10 w-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                                                <PhBrain :size="20" class="text-indigo-400" weight="duotone" />
+                                            </div>
+                                            <div>
+                                                <div class="text-[10px] font-black tracking-widest text-white/30 uppercase">Competencia Estratégica</div>
+                                                <div class="text-lg font-black text-white">{{ comp.competency_name }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-8">
+                                        <div class="grid grid-cols-1 gap-6">
+                                            <div 
+                                                v-for="(skill, sIdx) in comp.skills" 
+                                                :key="sIdx"
+                                                class="rounded-2xl border border-white/10 bg-white/3 overflow-hidden transition-all duration-300"
+                                                :class="{ 'border-indigo-500/30 ring-1 ring-indigo-500/20': expandedSkillBlueprint === skill.name }"
+                                            >
+                                                <div 
+                                                    class="px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-white/2"
+                                                    @click="toggleBlueprintSkill(skill.name)"
+                                                >
+                                                    <div class="flex items-center gap-4">
+                                                        <div class="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400">
+                                                            <PhSealCheck :size="16" weight="duotone" />
+                                                        </div>
+                                                        <span class="font-bold text-white">{{ skill.name }}</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-3">
+                                                        <PhCaretDown 
+                                                            :size="16" 
+                                                            class="text-white/20 transition-transform duration-300"
+                                                            :class="{ 'rotate-180': expandedSkillBlueprint === skill.name }"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div v-if="expandedSkillBlueprint === skill.name" class="px-6 pb-6 pt-2 border-t border-white/5 bg-white/1">
+                                                    <div class="grid grid-cols-1 gap-4 mt-4 lg:grid-cols-5">
+                                                        <div 
+                                                            v-for="level in skill.levels" 
+                                                            :key="level.level"
+                                                            class="flex flex-col rounded-xl border p-4 transition-all duration-500 bg-white/2 border-white/5 hover:bg-white/5"
+                                                        >
+                                                            <div class="mb-3 flex items-center gap-2">
+                                                                <div class="flex h-5 w-5 items-center justify-center rounded-md bg-white/5 text-[9px] font-black text-white/30">
+                                                                    {{ level.level }}
+                                                                </div>
+                                                                <div class="text-[9px] font-black tracking-widest text-indigo-400 uppercase">
+                                                                    {{ level.level_name }}
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="space-y-4">
+                                                                <div>
+                                                                    <div class="text-[8px] font-black tracking-widest text-white/20 uppercase mb-1">Conductas</div>
+                                                                    <p class="text-[10px] leading-relaxed text-white/60">{{ level.behavioral_description }}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <div class="text-[8px] font-black tracking-widest text-white/20 uppercase mb-1">Aprendizaje</div>
+                                                                    <p class="text-[10px] leading-relaxed text-white/40 italic">{{ level.learning_units }}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <div class="text-[8px] font-black tracking-widest text-white/20 uppercase mb-1">Criterio Éxito</div>
+                                                                    <p class="text-[10px] leading-relaxed text-emerald-400/50">{{ level.performance_criteria }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-4 pt-12">
+                                <StButtonGlass
+                                    variant="ghost"
+                                    :icon="PhArrowLeft"
+                                    @click="currentStep--"
+                                    >Ajustar Competencias</StButtonGlass
                                 >
                                 <StButtonGlass
                                     variant="secondary"

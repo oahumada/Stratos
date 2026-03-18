@@ -21,6 +21,8 @@ class Roles extends Model
 
     protected $fillable = [
         'organization_id',
+        'department_id',
+        'department',
         'parent_id',
         'llm_id',
         'name',
@@ -127,5 +129,10 @@ class Roles extends Model
     public function children(): HasMany
     {
         return $this->hasMany(Roles::class, 'parent_id');
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Departments::class, 'department_id');
     }
 }

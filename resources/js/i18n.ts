@@ -99,8 +99,10 @@ export const messages = {
             step1_desc: 'Purpose & Mission',
             step2_title: 'Cube Mapping',
             step2_desc: 'Structural Coords',
-            step3_title: 'Blueprint',
-            step3_desc: 'Skill Architecture',
+            step3_title: 'Impact',
+            step3_desc: 'Value Results',
+            step4_title: 'DNA / Profile',
+            step4_desc: 'Competency Mapping',
             define_node: 'Define the Execution Node',
             define_node_desc:
                 'Describe the primary mission and critical priorities. AI will synthesize the multi-dimensional coordinates.',
@@ -387,6 +389,8 @@ export const messages = {
                 description: 'Description',
                 ai_agent: 'AI Agent',
                 blueprint: 'Strategic Blueprint',
+                purpose: 'Role Purpose',
+                expected_results: 'Expected Results',
                 design_btn: 'Design with AI (Cube Model)',
             },
             skills_section: {
@@ -415,6 +419,7 @@ export const messages = {
                 justification: 'DESIGN RATIONALE',
                 core_competencies: 'Suggested Core Competencies',
                 org_clarity: 'Organizational Clarity & Recommendations',
+                materialize_btn: 'Materialize Skills with AI',
             },
         },
         competencies_module: {
@@ -865,12 +870,14 @@ export const messages = {
             protocol_note: 'Nota de Protocolo',
             protocol_desc:
                 'El diseño estructural asegura que la profundidad del rol se alinee con la velocidad estratégica organizacional.',
-            step1_title: 'Definición de Metas',
-            step1_desc: 'Propósito y Misión',
-            step2_title: 'Mapeo del Cubo',
-            step2_desc: 'Coord. Estructurales',
-            step3_title: 'Plano',
-            step3_desc: 'Arquitectura de Habil.',
+            step1_title: 'Cimientos',
+            step1_desc: 'Misión y Propósito',
+            step2_title: 'Estrategia',
+            step2_desc: 'Dimensiones Estructurales',
+            step3_title: 'Impacto',
+            step3_desc: 'Resultados de Valor',
+            step4_title: 'DNA / Perfil',
+            step4_desc: 'Malla de Competencias',
             define_node: 'Definir el Nodo de Ejecución',
             define_node_desc:
                 'Describe la misión principal y las prioridades críticas. La IA sintetizará las coordenadas multidimensionales.',
@@ -1159,6 +1166,8 @@ export const messages = {
                 description: 'Descripción',
                 ai_agent: 'Agente IA',
                 blueprint: 'Plantilla Estratégica',
+                purpose: 'Propósito del Rol',
+                expected_results: 'Resultados Esperados',
                 design_btn: 'Diseñar con IA (Modelo Cubo)',
             },
             skills_section: {
@@ -1187,6 +1196,7 @@ export const messages = {
                 justification: 'JUSTIFICACIÓN DEL DISEÑO',
                 core_competencies: 'Competencias clave sugeridas',
                 org_clarity: 'Nitidez Organizacional & Recomendaciones',
+                materialize_btn: 'Materializar Habilidades con IA',
             },
         },
         competencies_module: {

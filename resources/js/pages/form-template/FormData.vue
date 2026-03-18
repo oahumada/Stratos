@@ -1,5 +1,17 @@
 <script setup lang="ts">
 import moment from 'moment';
+import {
+    PhCalendar,
+    PhClock,
+    PhEnvelope,
+    PhListBullets,
+    PhLock,
+    PhNumberNine,
+    PhTextColumns,
+    PhTextAlignLeft,
+    PhToggleLeft,
+    PhCheckSquareOffset
+} from '@phosphor-icons/vue';
 import { computed, reactive, ref, watch } from 'vue';
 
 interface FormField {
@@ -20,6 +32,7 @@ interface FormField {
     required?: boolean;
     rules?: Array<(v: any) => boolean | string>;
     items?: any[];
+    catalog?: string;
 }
 
 interface CatalogItem {
@@ -140,10 +153,32 @@ const reset = (): void => {
     form.value?.reset();
 };
 
+// Icon Mapping for premium UX
+const getFieldIcon = (type: string) => {
+    switch (type) {
+        case 'text': return PhTextColumns;
+        case 'textarea': return PhTextAlignLeft;
+        case 'email': return PhEnvelope;
+        case 'password': return PhLock;
+        case 'number': return PhNumberNine;
+        case 'select': return PhListBullets;
+        case 'date': return PhCalendar;
+        case 'time': return PhClock;
+        case 'switch': return PhToggleLeft;
+        case 'checkbox': return PhCheckSquareOffset;
+        default: return PhTextColumns;
+    }
+};
+
 // Reactive function to get select items based on field key
-const getSelectItems = (fieldKey: string): any[] => {
-    // Extract catalog name from field key
-    // department_id -> department, role_id -> role
+const getSelectItems = (field: FormField): any[] => {
+    // Priority 1: explicitly defined catalog in the field
+    if (field.catalog && props.catalogs && props.catalogs[field.catalog]) {
+        return props.catalogs[field.catalog];
+    }
+
+    // Priority 2: Inferred catalog name based on field key
+    const fieldKey = field.key;
     const singularName = fieldKey.endsWith('_id')
         ? fieldKey.slice(0, -3)
         : fieldKey;
@@ -156,19 +191,18 @@ const getSelectItems = (fieldKey: string): any[] => {
         person: 'people',
         related_person: 'people',
         supervised_by: 'people',
+        agent: 'agents',
+        blueprint: 'blueprints',
     };
 
     const catalogName = pluralMap[singularName] || singularName;
-
     const items = (props.catalogs && props.catalogs[catalogName]) || [];
 
     console.log(`[getSelectItems] Field: '${fieldKey}'`, {
         singularName,
         catalogName,
         itemsCount: items.length,
-        items,
         availableCatalogs: Object.keys(props.catalogs || {}),
-        allCatalogs: props.catalogs,
     });
 
     return items;
@@ -214,9 +248,12 @@ defineExpose({
                         variant="outlined"
                         density="comfortable"
                         validate-on="blur"
-                        prepend-inner-icon="mdi-format-text"
                         class="form-field"
-                    />
+                    >
+                        <template #prepend-inner>
+                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                        </template>
+                    </v-text-field>
 
                     <!-- Email Input -->
                     <v-text-field
@@ -230,9 +267,12 @@ defineExpose({
                         variant="outlined"
                         density="comfortable"
                         validate-on="blur"
-                        prepend-inner-icon="mdi-email"
                         class="form-field"
-                    />
+                    >
+                         <template #prepend-inner>
+                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                        </template>
+                    </v-text-field>
 
                     <!-- Password Input -->
                     <v-text-field
@@ -245,9 +285,12 @@ defineExpose({
                         variant="outlined"
                         density="comfortable"
                         validate-on="blur"
-                        prepend-inner-icon="mdi-lock"
                         class="form-field"
-                    />
+                    >
+                        <template #prepend-inner>
+                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                        </template>
+                    </v-text-field>
 
                     <!-- Number Input -->
                     <v-text-field
@@ -260,9 +303,12 @@ defineExpose({
                         variant="outlined"
                         density="comfortable"
                         validate-on="blur"
-                        prepend-inner-icon="mdi-numeric"
                         class="form-field"
-                    />
+                    >
+                        <template #prepend-inner>
+                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                        </template>
+                    </v-text-field>
 
                     <!-- Textarea -->
                     <v-textarea
@@ -276,15 +322,18 @@ defineExpose({
                         density="comfortable"
                         rows="3"
                         validate-on="blur"
-                        prepend-inner-icon="mdi-text-box"
                         class="form-field"
-                    />
+                    >
+                        <template #prepend-inner>
+                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                        </template>
+                    </v-textarea>
 
                     <!-- Select -->
                     <v-select
                         v-else-if="field.type === 'select'"
                         v-model="formData[field.key]"
-                        :items="field.items || getSelectItems(field.key)"
+                        :items="field.items || getSelectItems(field)"
                         :label="field.label"
                         :placeholder="field.placeholder"
                         item-title="name"
@@ -295,9 +344,12 @@ defineExpose({
                         density="comfortable"
                         clearable
                         validate-on="blur"
-                        prepend-inner-icon="mdi-list-box"
                         class="form-field"
-                    />
+                    >
+                        <template #prepend-inner>
+                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                        </template>
+                    </v-select>
 
                     <!-- Date Picker -->
                     <v-text-field
@@ -310,9 +362,12 @@ defineExpose({
                         variant="outlined"
                         density="comfortable"
                         validate-on="blur"
-                        prepend-inner-icon="mdi-calendar"
                         class="form-field"
-                    />
+                    >
+                        <template #prepend-inner>
+                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                        </template>
+                    </v-text-field>
 
                     <!-- Time Picker -->
                     <v-text-field
@@ -325,9 +380,12 @@ defineExpose({
                         variant="outlined"
                         density="comfortable"
                         validate-on="blur"
-                        prepend-inner-icon="mdi-clock"
                         class="form-field"
-                    />
+                    >
+                        <template #prepend-inner>
+                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                        </template>
+                    </v-text-field>
 
                     <!-- Checkbox -->
                     <div

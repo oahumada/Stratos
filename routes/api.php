@@ -304,7 +304,9 @@ Route::middleware('auth:sanctum')->group(function () {
             // AI Role Designer
             Route::middleware('throttle:ai_analysis')->group(function () {
                 Route::post('/roles/analyze-preview', [\App\Http\Controllers\Api\RoleDesignerController::class, 'analyzePreview']);
+                Route::post('/roles/generate-skill-blueprint', [\App\Http\Controllers\Api\RoleDesignerController::class, 'generateSkillBlueprint']);
                 Route::post('/roles/{id}/design', [\App\Http\Controllers\Api\RoleDesignerController::class, 'design']);
+                Route::post('/roles/{id}/materialize-competencies', [\App\Http\Controllers\Api\RoleDesignerController::class, 'materializeCompetencies']);
             });
 
             // Assessments & Psychometrics (Fase 4: Talento 360)
@@ -1155,6 +1157,7 @@ Route::middleware('auth:sanctum')->prefix('scenarios/{id}/step2')->group(functio
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/roles', [\App\Http\Controllers\Api\RoleController::class, 'store']);
     Route::get('/roles/{id}', [\App\Http\Controllers\Api\RoleController::class, 'show']);
+    Route::put('/roles/{id}', [\App\Http\Controllers\Api\RoleController::class, 'update']);
 });
 
 // ── Phase 2: Automated Impact & ROI Reports ─────────────────────

@@ -6,6 +6,7 @@ export interface TableHeader {
     type?: 'date' | 'text' | 'number';
     sortable?: boolean;
     filterable?: boolean;
+    catalogKey?: string;
 }
 
 export interface FormField {
@@ -26,6 +27,7 @@ export interface FormField {
     placeholder?: string;
     items?: any[];
     required?: boolean;
+    catalog?: string;
 }
 
 export interface Config {

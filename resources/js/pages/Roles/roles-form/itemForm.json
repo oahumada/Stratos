@@ -8,11 +8,30 @@
             "rules": ["required", "min:3"]
         },
         {
+            "key": "department_id",
+            "label": "Departamento",
+            "type": "select",
+            "catalog": "departments",
+            "placeholder": "Seleccione el Departamento"
+        },
+        {
             "key": "description",
-            "label": "Descripción",
+            "label": "Descripción General",
             "type": "textarea",
             "placeholder": "Misión o responsabilidades del rol",
             "rules": ["required"]
+        },
+        {
+            "key": "purpose",
+            "label": "Propósito del Rol",
+            "type": "textarea",
+            "placeholder": "¿Por qué existe este cargo?"
+        },
+        {
+            "key": "expected_results",
+            "label": "Resultados Esperados",
+            "type": "textarea",
+            "placeholder": "Logros clave para este cargo"
         },
         {
             "key": "agent_id",
@@ -29,5 +48,5 @@
             "placeholder": "Seleccione el Blueprint o Plantilla Arquitectónica"
         }
     ],
-    "catalogs": ["agents", "blueprints"]
+    "catalogs": ["agents", "blueprints", "departments"]
 }

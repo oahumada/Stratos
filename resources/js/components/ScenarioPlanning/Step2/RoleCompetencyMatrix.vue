@@ -530,9 +530,8 @@
         />
 
         <RoleCubeWizard
-            :visible="showCubeWizard"
+            v-model="showCubeWizard"
             :scenario-id="props.scenarioId"
-            @close="showCubeWizard = false"
             @created="handleRoleCreated"
         />
 
