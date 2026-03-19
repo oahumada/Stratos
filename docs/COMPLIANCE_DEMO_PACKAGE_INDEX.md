@@ -1,30 +1,53 @@
 # 🗂️ ÍNDICE MAESTRO - COMPLIANCE AUDIT DASHBOARD DEMO PACKAGE
+
 **Tabla de Contenidos | Estructura Completa | Navegación Rápida**
+
+---
+## 📋 METADATA
+- ⏱️ Tiempo de lectura: 10 minutos
+- 🎯 Audiencia: Todos (índice central)
+- 📊 Complejidad: Baja
+- 🔄 Última actualización: 19 Mar 2026
+- ✅ Estado: Índice central navegable
+- 🗺️ Función: Punto de entrada único para todo el package
+
+---
+## 📌 USA ESTE DOCUMENTO CUANDO:
+- ✅ No sabes por dónde empezar
+- ✅ Buscas documentación específica
+- ✅ Necesitas navegar rápido entre archivos
+- ✅ Eres nuevo en el proyecto
+- ✅ Quieres overview completo en 10 min
 
 ---
 
 ## 📑 ÍNDICE DE CONTENIDOS
 
 ### 1️⃣ INICIO RÁPIDO
+
 - [Qué Se Ha Preparado](#-qué-se-ha-preparado)
 - [Workflow: De Aquí a Demo](#-workflow-de-aquí-a-demo)
 - [Checklist Ejecución](#-checklist-ejecución)
 
 ### 2️⃣ DOCUMENTACIÓN OPERATIVA
+
 - [QA Checklist](#-qa-checklist---validación-completa)
 - [Guía de Interpretación](#-guía-de-interpretación---cómo-explicar-los-datos)
 - [Cheat Sheet](#-cheat-sheet---referencia-rápida)
 - [Seeder Guide](#-seeder-guide---cómo-poblar-datos)
 
 ### 3️⃣ CÓDIGO Y SCRIPTS
+
 - [Backend - Seeder](#-backend---seeder)
 - [Scripts](#-scripts)
 
 ### 4️⃣ DATOS Y MÉTRICAS
+
 - [Datos que Verás](#-datos-que-verás-en-dashboard)
 - [Key Metrics](#-key-metrics-a-recordar)
 
 ### 5️⃣ REFERENCIAS
+
 - [Estructura de Archivos](#-estructura-de-archivos)
 - [Documentos por Perfil](#-documentos-recomendados)
 - [Troubleshooting](#-troubleshooting)
@@ -35,15 +58,15 @@
 
 ### Componentes Creados
 
-| Componente | Ubicación | Qué Hace |
-|------------|-----------|----------|
-| **Seeder** | `database/seeders/ComplianceDemoSeeder.php` | Popula BD con datos realistas |
-| **Script** | `scripts/populate-compliance-demo.sh` | Ejecuta seeder fácilmente |
-| **QA Checklist** | `docs/COMPLIANCE_AUDIT_DASHBOARD_QA_CHECKLIST.md` | 40+ casos de validación |
-| **Guía Interpret.** | `docs/COMPLIANCE_AUDIT_DASHBOARD_GUIA_INTERPRETACION.md` | Explica cada dato |
-| **Cheat Sheet** | `docs/COMPLIANCE_AUDIT_DASHBOARD_CHEAT_SHEET.md` | Referencia 1 página |
-| **Seeder Guide** | `docs/COMPLIANCE_DEMO_SEEDER_GUIDE.md` | Cómo ejecutar |
-| **Master README** | `COMPLIANCE_DEMO_PACKAGE_README.md` | Workflow completo |
+| Componente          | Ubicación                                                | Qué Hace                      |
+| ------------------- | -------------------------------------------------------- | ----------------------------- |
+| **Seeder**          | `database/seeders/ComplianceDemoSeeder.php`              | Popula BD con datos realistas |
+| **Script**          | `scripts/populate-compliance-demo.sh`                    | Ejecuta seeder fácilmente     |
+| **QA Checklist**    | `docs/COMPLIANCE_AUDIT_DASHBOARD_QA_CHECKLIST.md`        | 40+ casos de validación       |
+| **Guía Interpret.** | `docs/COMPLIANCE_AUDIT_DASHBOARD_GUIA_INTERPRETACION.md` | Explica cada dato             |
+| **Cheat Sheet**     | `docs/COMPLIANCE_AUDIT_DASHBOARD_CHEAT_SHEET.md`         | Referencia 1 página           |
+| **Seeder Guide**    | `docs/COMPLIANCE_DEMO_SEEDER_GUIDE.md`                   | Cómo ejecutar                 |
+| **Master README**   | `COMPLIANCE_DEMO_PACKAGE_README.md`                      | Workflow completo             |
 
 ---
 
@@ -156,20 +179,21 @@
 ## 📊 QA CHECKLIST - VALIDACIÓN COMPLETA
 
 ### Ubicación
+
 📍 `docs/COMPLIANCE_AUDIT_DASHBOARD_QA_CHECKLIST.md`
 
 ### Secciones
 
-| Sección | Casos | Propósito |
-|---------|-------|----------|
-| **A** | A1-A6 | Carga y rendering |
-| **B** | B1-B6 | Inputs y filtros |
-| **C** | C1-C6 | Tablas y presentación |
-| **D** | D1-D7 | Contraste y legibilidad |
-| **E** | E1-E7 | Credential export & verification |
-| **F** | F1-F5 | Rendering responsivo |
-| **G** | G1-G6 | Performance y errores |
-| **H** | H1-H5 | Seguridad y permisos |
+| Sección | Casos | Propósito                        |
+| ------- | ----- | -------------------------------- |
+| **A**   | A1-A6 | Carga y rendering                |
+| **B**   | B1-B6 | Inputs y filtros                 |
+| **C**   | C1-C6 | Tablas y presentación            |
+| **D**   | D1-D7 | Contraste y legibilidad          |
+| **E**   | E1-E7 | Credential export & verification |
+| **F**   | F1-F5 | Rendering responsivo             |
+| **G**   | G1-G6 | Performance y errores            |
+| **H**   | H1-H5 | Seguridad y permisos             |
 
 ### Scorecard Quick Check
 
@@ -189,22 +213,24 @@
 ## 📖 GUÍA DE INTERPRETACIÓN - CÓMO EXPLICAR LOS DATOS
 
 ### Ubicación
+
 📍 `docs/COMPLIANCE_AUDIT_DASHBOARD_GUIA_INTERPRETACION.md`
 
 ### 6 Bloques de la Pantalla
 
-| # | Bloque | Datos | Narrativa Clave |
-|---|--------|-------|-----------------|
-| 1️⃣ | **Audit Trail Summary** | 2,847 eventos totales | "Cada cambio está registrado. Evidencia auditable." |
-| 2️⃣ | **Tabla de Eventos** | Filtrable por evento/agregado | "Quién cambió qué, quién, cuándo. Trazabilidad 100%." |
-| 3️⃣ | **ISO 30414 KPIs** | $48M costo + 8 gaps skills | "Riesgo de talento cuantificado." |
-| 4️⃣ | **Audit Wizard** | 24 roles, 87.5% cumplimiento | "Gobernanza verificada. 6 roles en riesgo." |
-| 5️⃣ | **Credencial VC** | JSON-LD exportable | "Auditable externamente. Sin intermediarios." |
-| 6️⃣ | **Filtros/Recalc** | Parámetros configurables | "Visualiza múltiples escenarios." |
+| #   | Bloque                  | Datos                         | Narrativa Clave                                       |
+| --- | ----------------------- | ----------------------------- | ----------------------------------------------------- |
+| 1️⃣  | **Audit Trail Summary** | 2,847 eventos totales         | "Cada cambio está registrado. Evidencia auditable."   |
+| 2️⃣  | **Tabla de Eventos**    | Filtrable por evento/agregado | "Quién cambió qué, quién, cuándo. Trazabilidad 100%." |
+| 3️⃣  | **ISO 30414 KPIs**      | $48M costo + 8 gaps skills    | "Riesgo de talento cuantificado."                     |
+| 4️⃣  | **Audit Wizard**        | 24 roles, 87.5% cumplimiento  | "Gobernanza verificada. 6 roles en riesgo."           |
+| 5️⃣  | **Credencial VC**       | JSON-LD exportable            | "Auditable externamente. Sin intermediarios."         |
+| 6️⃣  | **Filtros/Recalc**      | Parámetros configurables      | "Visualiza múltiples escenarios."                     |
 
 ### Tablas Detalladas
 
 #### Madurez de Talento por Departamento
+
 ```
 ┌────────────────┬──────────┬──────────┬─────────────┬──────────────┬────────┐
 │ Departamento   │ Headcount│ Readiness│ Nivel Actual│ Nivel Requer.│ Brechas│
@@ -215,6 +241,7 @@
 ```
 
 #### Top Brechas de Skills Transversales
+
 ```
 ┌─────────────────────┬──────────┬───────────────┬──────────────┬──────────────┐
 │ Skill               │ Dominio  │ Personas Eval.│ Con Brecha   │ Brecha Prom. │
@@ -225,6 +252,7 @@
 ```
 
 #### Roles Críticos y Vigencia de Firma
+
 ```
 ┌──────────────────────┬────────┬───────────────┬──────────────┬──────────────┐
 │ Rol                  │ Depto  │ Skills críticas│ Estado firma │ Edad firma   │
@@ -238,23 +266,23 @@
 ### Demo Narrative (3 minutos)
 
 ```
-00-30s:  "Auditoría completa: cada cambio registrado. 
+00-30s:  "Auditoría completa: cada cambio registrado.
           Mira: 2,847 eventos."
          → Señala bloque Audit Trail
 
-30-90s:  "¿Quién cambió el rol VP Talento? 
+30-90s:  "¿Quién cambió el rol VP Talento?
           Filtro → role.updated → ves nombre, fecha, hora exacta."
          → Ejecuta filtro en tabla
 
-90-120s: "Riesgo de talento: $48.2M si pierdes gente. 
+90-120s: "Riesgo de talento: $48.2M si pierdes gente.
           8 gaps en skills críticas. Innovación 65% ready."
          → Señala KPIs ISO + Tabla madurez
 
-120-180s: "Gobernanza: 24 roles críticos, 21 tienen firma vigente. 
+120-180s: "Gobernanza: 24 roles críticos, 21 tienen firma vigente.
            CRO está expired."
          → Señala tabla Internal Audit
 
-180-240s: "¿Prueba independiente? Exporto VC del VP. 
+180-240s: "¿Prueba independiente? Exporto VC del VP.
            Verifico: firma válida? ✅ Auditable externamente."
          → Export + Verify VC
 
@@ -266,6 +294,7 @@
 ## ⚡ CHEAT SHEET - REFERENCIA RÁPIDA
 
 ### Ubicación
+
 📍 `docs/COMPLIANCE_AUDIT_DASHBOARD_CHEAT_SHEET.md`
 
 ### Vista Visual de Pantalla
@@ -283,14 +312,14 @@
 
 ### 6 Bloques → 6 Mensajes Clave
 
-| Bloque | Tarjetas | Mensaje en 10 seg |
-|--------|----------|-------------------|
-| 🔍 Audit Trail | 4 KPIs | "2,847 eventos registrados. Evidencia de quién cambió qué, cuándo." |
-| 📊 Tabla Eventos | Filtrable | "Filtro: role.updated → muestra cambios de roles. Trazabilidad 100%." |
-| 💰 ISO 30414 | 3 KPIs | "Riesgo financiero: $48M si pierdes talento. 8 skills tienen brechas." |
-| 📈 Madurez x Depto | Tabla | "Innovación: 65% lista, Ops: 72% lista. Visualiza riesgo por unidad." |
-| ✅ Audit Wizard | 3 KPIs | "87.5% cumplimiento firma. 21 de 24 roles críticos tienen gobernanza vigente." |
-| 🔐 Credencial VC | Export/Verify | "Rol VP Talento → exporta JSON-LD → verifica 4 checks → auditable externamente." |
+| Bloque             | Tarjetas      | Mensaje en 10 seg                                                                |
+| ------------------ | ------------- | -------------------------------------------------------------------------------- |
+| 🔍 Audit Trail     | 4 KPIs        | "2,847 eventos registrados. Evidencia de quién cambió qué, cuándo."              |
+| 📊 Tabla Eventos   | Filtrable     | "Filtro: role.updated → muestra cambios de roles. Trazabilidad 100%."            |
+| 💰 ISO 30414       | 3 KPIs        | "Riesgo financiero: $48M si pierdes talento. 8 skills tienen brechas."           |
+| 📈 Madurez x Depto | Tabla         | "Innovación: 65% lista, Ops: 72% lista. Visualiza riesgo por unidad."            |
+| ✅ Audit Wizard    | 3 KPIs        | "87.5% cumplimiento firma. 21 de 24 roles críticos tienen gobernanza vigente."   |
+| 🔐 Credencial VC   | Export/Verify | "Rol VP Talento → exporta JSON-LD → verifica 4 checks → auditable externamente." |
 
 ### Top 3 Puntos de Venta
 
@@ -327,12 +356,12 @@
 
 ### Frases Ganadoras
 
-| Situación | Frase |
-|-----------|-------|
-| Auditor pregunta cobertura | "2,847 eventos auditables. Cero ocultos. Quién, qué, cuándo, por qué." |
-| Cliente pregunta riesgo | "87.5% gobernanza vigente. 8 skills gaps. $48M en riesgo si pierdes talento." |
-| Partner pregunta verificabilidad | "JSON-LD. Firma criptográfica. Auditor externo verifica sin intermediarios." |
-| Regulador pregunta trazabilidad | "100% trazable. Evento → timestamp → actor → agregado → payload." |
+| Situación                        | Frase                                                                         |
+| -------------------------------- | ----------------------------------------------------------------------------- |
+| Auditor pregunta cobertura       | "2,847 eventos auditables. Cero ocultos. Quién, qué, cuándo, por qué."        |
+| Cliente pregunta riesgo          | "87.5% gobernanza vigente. 8 skills gaps. $48M en riesgo si pierdes talento." |
+| Partner pregunta verificabilidad | "JSON-LD. Firma criptográfica. Auditor externo verifica sin intermediarios."  |
+| Regulador pregunta trazabilidad  | "100% trazable. Evento → timestamp → actor → agregado → payload."             |
 
 ### Pre-Demo Checklist
 
@@ -349,47 +378,51 @@
 
 ### KPIs a Memorizar
 
-| Métrica | Rango ✅ | Rango ⚠️ | Rango ❌ |
-|---------|----------|----------|----------|
-| Eventos Totales | > 1,000 | 500-1,000 | < 500 |
-| Eventos 24h | > 50 | 10-50 | < 10 |
-| Cumplimiento Firma | > 85% | 70-85% | < 70% |
-| Costo Reemplazo | < $50M | $50-100M | > $100M |
-| Skills con Brecha | < 5 | 5-10 | > 10 |
+| Métrica            | Rango ✅ | Rango ⚠️  | Rango ❌ |
+| ------------------ | -------- | --------- | -------- |
+| Eventos Totales    | > 1,000  | 500-1,000 | < 500    |
+| Eventos 24h        | > 50     | 10-50     | < 10     |
+| Cumplimiento Firma | > 85%    | 70-85%    | < 70%    |
+| Costo Reemplazo    | < $50M   | $50-100M  | > $100M  |
+| Skills con Brecha  | < 5      | 5-10      | > 10     |
 
 ---
 
 ## 🌱 SEEDER GUIDE - CÓMO POBLAR DATOS
 
 ### Ubicación
+
 📍 `docs/COMPLIANCE_DEMO_SEEDER_GUIDE.md`
 
 ### Datos que Crea
 
-| Entidad | Cantidad | Propósito |
-|---------|----------|----------|
-| **Organization** | 1 | Tenant: "Stratos Demo Corporation" |
-| **Departments** | 6 | Engineering, Operations, RRHH, Ventas, Finance, Innovation |
-| **Skills** | 12 | Técnicas + Transversales + Gobernanza |
-| **Critical Roles** | 24 | 12 vigentes, 6 expiradas, 6 sin firma |
-| **People** | ~89 | 3-5 por role |
-| **Role-Skill Assignments** | ~350+ | 4-7 skills con brechas por persona |
-| **Event Store** | 200+ | 70% últimas 24h, 30% históricos |
-| **VC Credentials** | 5 | Exportables para roles firmados |
+| Entidad                    | Cantidad | Propósito                                                  |
+| -------------------------- | -------- | ---------------------------------------------------------- |
+| **Organization**           | 1        | Tenant: "Stratos Demo Corporation"                         |
+| **Departments**            | 6        | Engineering, Operations, RRHH, Ventas, Finance, Innovation |
+| **Skills**                 | 12       | Técnicas + Transversales + Gobernanza                      |
+| **Critical Roles**         | 24       | 12 vigentes, 6 expiradas, 6 sin firma                      |
+| **People**                 | ~89      | 3-5 por role                                               |
+| **Role-Skill Assignments** | ~350+    | 4-7 skills con brechas por persona                         |
+| **Event Store**            | 200+     | 70% últimas 24h, 30% históricos                            |
+| **VC Credentials**         | 5        | Exportables para roles firmados                            |
 
 ### Instalación (3 pasos)
 
 **Paso 1:** Ir a src/
+
 ```bash
 cd /home/omar/Stratos/src
 ```
 
 **Paso 2:** Ejecutar seeder
+
 ```bash
 php artisan db:seed --class=ComplianceDemoSeeder
 ```
 
 **Paso 3:** Verificar output
+
 ```
 ✅ ComplianceDemoSeeder completed successfully!
 📊 Organization: Stratos Demo Corporation
@@ -438,6 +471,7 @@ Deberías ver:
 ## 🔧 BACKEND - SEEDER
 
 ### Ubicación
+
 📍 `database/seeders/ComplianceDemoSeeder.php`
 
 ### Qué Crea
@@ -489,6 +523,7 @@ $roleConfigs = [
 ## 🚀 SCRIPTS
 
 ### Ubicación
+
 📍 `scripts/populate-compliance-demo.sh`
 
 ### Uso
@@ -559,16 +594,16 @@ chmod +x scripts/populate-compliance-demo.sh
 
 ## 🎯 KEY METRICS A RECORDAR
 
-| Métrica | Valor | Significado |
-|---------|-------|-------------|
-| **Total Eventos** | 200+ | Cobertura de auditoría |
-| **Eventos 24h** | 140 | Actividad reciente |
-| **Costo Reemplazo** | $48.2M | Riesgo de talento |
-| **% Cumplimiento** | 87.5% | Gobernanza verificada |
-| **Roles Críticos** | 24 | Alcance del control |
-| **Skills Gap** | 8 | Vulnerabilidades |
-| **Headcount** | 89 | Alcance de personas |
-| **Departamentos** | 6 | Cobertura de org |
+| Métrica             | Valor  | Significado            |
+| ------------------- | ------ | ---------------------- |
+| **Total Eventos**   | 200+   | Cobertura de auditoría |
+| **Eventos 24h**     | 140    | Actividad reciente     |
+| **Costo Reemplazo** | $48.2M | Riesgo de talento      |
+| **% Cumplimiento**  | 87.5%  | Gobernanza verificada  |
+| **Roles Críticos**  | 24     | Alcance del control    |
+| **Skills Gap**      | 8      | Vulnerabilidades       |
+| **Headcount**       | 89     | Alcance de personas    |
+| **Departamentos**   | 6      | Cobertura de org       |
 
 ---
 
@@ -607,24 +642,29 @@ Stratos/
 ### Por Perfil
 
 #### Para QA 🧪
+
 1. ⭐ **QA CHECKLIST** (validación completa)
 2. **CHEAT SHEET** (pre-demo sanity check)
 
 #### Para Cliente 👔
+
 1. ⭐ **CHEAT SHEET** (vende en 5 minutos)
 2. **GUÍA DE INTERPRETACIÓN** (explica números)
 
 #### Para Auditor 🔍
+
 1. ⭐ **CHEAT SHEET** (overview rápido)
 2. **QA CHECKLIST** (cobertura de controles)
 3. `GUIA_AUDITORIA_EXTERNA_COMPLIANCE.md`
 
 #### Para Desarrollador 👨‍💻
+
 1. ⭐ **Seeder code** (con comentarios)
 2. **SEEDER GUIDE** (cómo ejecutar)
 3. **QA CHECKLIST** (qué validar)
 
 #### Para Manager/PM 📊
+
 1. ⭐ **MASTER README** (workflow completo)
 2. **CHEAT SHEET** (metrics clave)
 3. **CHECKLIST EJECUCIÓN** (este índice)
@@ -634,21 +674,25 @@ Stratos/
 ## 🔗 ENLACES RÁPIDOS
 
 ### Documentación Principal
+
 - [QA Checklist](docs/COMPLIANCE_AUDIT_DASHBOARD_QA_CHECKLIST.md) - 40+ casos de prueba
 - [Guía Interpretación](docs/COMPLIANCE_AUDIT_DASHBOARD_GUIA_INTERPRETACION.md) - Explicar datos
 - [Cheat Sheet](docs/COMPLIANCE_AUDIT_DASHBOARD_CHEAT_SHEET.md) - Referencia 1 página
 - [Seeder Guide](docs/COMPLIANCE_DEMO_SEEDER_GUIDE.md) - Cómo ejecutar
 
 ### Código
+
 - [Seeder](database/seeders/ComplianceDemoSeeder.php) - Backend
 - [Script](scripts/populate-compliance-demo.sh) - Runner
 - [Dashboard](resources/js/pages/Quality/ComplianceAuditDashboard.vue) - Frontend
 
 ### Auditoría
+
 - [Guía Auditoría Externa](docs/GUIA_AUDITORIA_EXTERNA_COMPLIANCE.md)
 - [Guía Auditoría Interna](docs/GUIA_AUDITORIA_INTERNA_COMPLIANCE.md)
 
 ### Master
+
 - [Master README](COMPLIANCE_DEMO_PACKAGE_README.md) - Workflow completo
 
 ---
@@ -656,24 +700,29 @@ Stratos/
 ## 🎯 PRÓXIMOS PASOS
 
 ### 1️⃣ Ejecutar Seeder
+
 ```bash
 ./scripts/populate-compliance-demo.sh
 ```
 
 ### 2️⃣ Revisar Datos
+
 ```
 http://localhost:8000/quality/compliance-audit
 ```
 
 ### 3️⃣ QA Rápida
+
 - Abrir: `docs/COMPLIANCE_AUDIT_DASHBOARD_CHEAT_SHEET.md`
 - Validar: Pre-Demo Checklist
 
 ### 4️⃣ Practicar Demo
+
 - Leer: `docs/COMPLIANCE_AUDIT_DASHBOARD_GUIA_INTERPRETACION.md`
 - Practicar: Demo narrative 5 minutos
 
 ### 5️⃣ Documentar
+
 - Resultado post-demo
 - Preguntas del cliente
 - Issues encontrados
@@ -683,12 +732,14 @@ http://localhost:8000/quality/compliance-audit
 ## 🚨 NOTAS IMPORTANTES
 
 ### Scope del Seeder
+
 - ✅ Demo/Testing ONLY
 - ✅ Data realista pero simulada
 - ⚠️ NO usar en producción
 - ⚠️ Las firmas son modelos (no reales)
 
 ### Para Producción
+
 - Eventos se generan automáticamente
 - Firmas vienen de RoleDesignerService
 - ISO 30414 calcula desde datos reales
@@ -698,26 +749,26 @@ http://localhost:8000/quality/compliance-audit
 
 ## 📞 SOPORTE Y TROUBLESHOOTING
 
-| Problema | Causa | Solución |
-|----------|-------|----------|
-| "Seeder not found" | Archivo no existe | Verifica: database/seeders/ |
-| "Cero eventos" | Seeder no ejecutó | `php artisan db:seed --class=ComplianceDemoSeeder` |
-| "Texto invisible" | Tema | F5 (reload), revisar dark/light |
-| "Errores console" | Conexión lenta | DevTools F12 → Network tab |
-| "BD locked" | Proceso anterior | Esperar o reiniciar Laravel |
+| Problema           | Causa             | Solución                                           |
+| ------------------ | ----------------- | -------------------------------------------------- |
+| "Seeder not found" | Archivo no existe | Verifica: database/seeders/                        |
+| "Cero eventos"     | Seeder no ejecutó | `php artisan db:seed --class=ComplianceDemoSeeder` |
+| "Texto invisible"  | Tema              | F5 (reload), revisar dark/light                    |
+| "Errores console"  | Conexión lenta    | DevTools F12 → Network tab                         |
+| "BD locked"        | Proceso anterior  | Esperar o reiniciar Laravel                        |
 
 ---
 
 ## 📚 REFERENCIA RÁPIDA
 
-| Pregunta | Respuesta | Documento |
-|----------|----------|-----------|
-| ¿Cómo ejecuto el seeder? | Paso a paso detallado | SEEDER GUIDE |
-| ¿Cómo explico los datos? | Narrativas + ejemplos | GUÍA INTERPRETACIÓN |
-| ¿Qué valido antes de demo? | 40+ casos de test | QA CHECKLIST |
-| ¿Qué digo al cliente? | 5 minutos narrativas | CHEAT SHEET |
-| ¿Cuál es el workflow total? | Opciones A/B/C | MASTER README |
-| ¿Dónde está el código? | Seeder + script | BACKEND SEEDER |
+| Pregunta                    | Respuesta             | Documento           |
+| --------------------------- | --------------------- | ------------------- |
+| ¿Cómo ejecuto el seeder?    | Paso a paso detallado | SEEDER GUIDE        |
+| ¿Cómo explico los datos?    | Narrativas + ejemplos | GUÍA INTERPRETACIÓN |
+| ¿Qué valido antes de demo?  | 40+ casos de test     | QA CHECKLIST        |
+| ¿Qué digo al cliente?       | 5 minutos narrativas  | CHEAT SHEET         |
+| ¿Cuál es el workflow total? | Opciones A/B/C        | MASTER README       |
+| ¿Dónde está el código?      | Seeder + script       | BACKEND SEEDER      |
 
 ---
 

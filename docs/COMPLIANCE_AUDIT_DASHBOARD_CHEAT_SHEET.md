@@ -1,6 +1,23 @@
 # ⚡ CHEAT SHEET - Compliance Audit Dashboard
 
-**Referencia Rápida para Demo (1 página)**
+**Referencia Rápida - 1 Página para Demostración**
+
+---
+## 📋 METADATA
+- ⏱️ Tiempo de lectura: 3 minutos
+- ⏱️ Tiempo de demo: 5 minutos (con esta guía)
+- 🎯 Audiencia: Ejecutivos, Sales, Demo Teams
+- 📊 Complejidad: Muy Baja
+- 🔄 Última actualización: 19 Mar 2026
+- ✅ Estado: Listo para Producción
+
+---
+## 🎯 USAR CUANDO:
+- ✅ Demo rápida a ejecutivo (5 min)
+- ✅ Presentación a cliente nuevo
+- ✅ Necesitas recordar números clave
+- ✅ Prep antes de salida a cliente
+- ✅ Sales pitch urgente
 
 ---
 

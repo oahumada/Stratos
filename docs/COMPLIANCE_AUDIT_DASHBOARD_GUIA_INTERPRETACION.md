@@ -1,6 +1,26 @@
 # 📖 Guía de Interpretación - Compliance Audit Dashboard
 
-**Explicación operativa de cada datos para Demo**
+**Narrativas Profesionales | Casos Cliente | Explicaciones Técnicas**
+
+---
+## 📋 METADATA
+- ⏱️ Tiempo de lectura: 20 minutos
+- ⏱️ Tiempo para estudiar: 40 minutos
+- 🎯 Audiencia: Sales, Customer Success, Client Managers
+- 📊 Complejidad: Media-Alta
+- 🔄 Última actualización: 19 Mar 2026
+- ✅ Estado: 6 bloques + 10 narrativas
+
+---
+## 📋 CUÁNDO USAR:
+- ✅ Presentación a cliente prospect
+- ✅ Training interno de equipo sales
+- ✅ Reunión con CFO/Compliance Officer
+- ✅ Preparación pre-demo
+- ✅ Respuesta a preguntas técnicas en llamada
+
+---
+## 📋 Explicación operativa de cada datos para Demo
 
 ---
 

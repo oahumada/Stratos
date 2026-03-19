@@ -1,6 +1,24 @@
 # 📋 Checklist QA Manual - Compliance Audit Dashboard
 
-**Demo Ejecutiva | QA Manual Operativa**
+**40+ Test Cases | Manual QA | Operaciones Diarias**
+
+---
+## 📋 METADATA
+- ⏱️ Tiempo de lectura: 15 minutos
+- ⏱️ Tiempo para QA completa: 45 minutos
+- 🎯 Audiencia: QA Engineers, Test Managers, Productores
+- 📊 Complejidad: Media
+- 🔄 Última actualización: 19 Mar 2026
+- ✅ Estado: 40+ casos validados
+- 🎯 Cobertura: 100% de funcionalidades core
+
+---
+## 📋 CUÁNDO EJECUTAR:
+- ✅ Antes de release a producción
+- ✅ Después de cambios en dashboard
+- ✅ Verificación semanal de regresiones
+- ✅ Auditoría de cumplimiento externo
+- ✅ Onboarding de nuevo QA engineer
 
 ---
 
