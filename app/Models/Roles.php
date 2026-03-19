@@ -11,11 +11,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 
 use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
 use App\Traits\HasDomainEvents;
 
 class Roles extends Model
 {
-    use HasFactory, BelongsToOrganization, HasDomainEvents;
+    use HasFactory, BelongsToOrganization, HasDomainEvents, HasDigitalSeal;
 
     protected $table = 'roles';
 
@@ -38,6 +39,9 @@ class Roles extends Model
         'blueprint_id',
         'cube_dimensions',
         'base_salary',
+        'digital_signature',
+        'signed_at',
+        'signature_version',
     ];
 
     protected $casts = [

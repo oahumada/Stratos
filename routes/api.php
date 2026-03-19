@@ -46,6 +46,10 @@ Route::get('/catalogs', [\App\Http\Controllers\Api\CatalogsController::class, 'i
 Route::get('/assessments/feedback/{token}', [\App\Http\Controllers\Api\AssessmentController::class, 'showByToken']);
 Route::post('/assessments/feedback/submit-guest', [\App\Http\Controllers\Api\AssessmentController::class, 'submitFeedbackGuest']);
 
+// Role Approval Magic Links
+Route::get('/approvals/{token}', [\App\Http\Controllers\Api\RoleDesignerController::class, 'showApprovalRequest']);
+Route::post('/approvals/{token}/approve', [\App\Http\Controllers\Api\RoleDesignerController::class, 'approve']);
+
 // Career Portal (Stratos Magnet - Public)
 Route::get('/career/{tenantSlug}', [\App\Http\Controllers\Api\PublicJobController::class, 'index']);
 Route::get('/career/{tenantSlug}/jobs/{jobSlug}', [\App\Http\Controllers\Api\PublicJobController::class, 'show']);
@@ -307,6 +311,8 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('/roles/generate-skill-blueprint', [\App\Http\Controllers\Api\RoleDesignerController::class, 'generateSkillBlueprint']);
                 Route::post('/roles/{id}/design', [\App\Http\Controllers\Api\RoleDesignerController::class, 'design']);
                 Route::post('/roles/{id}/materialize-competencies', [\App\Http\Controllers\Api\RoleDesignerController::class, 'materializeCompetencies']);
+                Route::post('/roles/{id}/request-approval', [\App\Http\Controllers\Api\RoleDesignerController::class, 'requestApproval']);
+                Route::post('/competencies/{id}/request-approval', [\App\Http\Controllers\Api\RoleDesignerController::class, 'requestCompetencyApproval']);
             });
 
             // Assessments & Psychometrics (Fase 4: Talento 360)

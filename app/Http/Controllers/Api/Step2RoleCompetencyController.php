@@ -238,13 +238,13 @@ class Step2RoleCompetencyController extends Controller
             'ai_archetype_config' => 'nullable|array',
         ]);
 
-        // Si no existe role_id, crear uno nuevo en el catálogo (como in_incubation)
+        // Si no existe role_id, crear uno nuevo en el catálogo (como propuesta)
         if (empty($validated['role_id'])) {
             $role = \App\Models\Roles::create([
                 'organization_id' => auth()->user()->organization_id,
                 'name' => $validated['role_name'],
                 'description' => $validated['role_description'] ?? null,
-                'status' => 'in_incubation',
+                'status' => 'proposed',
                 'ai_archetype_config' => $validated['ai_archetype_config'] ?? null,
                 'cube_dimensions' => $validated['cube_dimensions'] ?? null,
             ]);
@@ -310,7 +310,7 @@ class Step2RoleCompetencyController extends Controller
                         ],
                         [
                             'description' => $compData['rationale'] ?? null,
-                            'status' => 'in_incubation',
+                            'status' => 'proposed',
                         ]
                     );
 
@@ -404,7 +404,7 @@ class Step2RoleCompetencyController extends Controller
                             $matchedComp = \App\Models\Competency::find($sim->id);
 
                             // Nos interesan las competencias que ya estén activas en el catálogo real de la empresa
-                            if ($matchedComp && $matchedComp->status !== 'in_incubation') {
+                            if ($matchedComp && $matchedComp->status === 'active') {
                                 $matched = true;
 
                                 // Esto indica que el escenario exige una competencia oficial.
@@ -437,7 +437,7 @@ class Step2RoleCompetencyController extends Controller
         if (! empty($newOrphanCompetencies)) {
             // Obtenemos una muestra de roles actuales de la organización para darle contexto al Agente
             $candidateRoles = \App\Models\Roles::where('organization_id', $orgId)
-                ->where('status', '!=', 'in_incubation')
+                ->where('status', 'active')
                 ->limit(20)
                 ->pluck('name')
                 ->toArray();
@@ -950,7 +950,7 @@ class Step2RoleCompetencyController extends Controller
                 Roles::whereIn('id', $realRoleIds)
                     ->update(['status' => 'active']);
 
-                // 2. Promover competencias vinculadas a esos roles si son nuevas ('in_incubation')
+                // 2. Promover competencias vinculadas a esos roles si son nuevas ('proposed')
                 // Nota: scenario_role_competencies.role_id apunta a scenario_roles.id
                 $newCompetencyIds = ScenarioRoleCompetency::where('scenario_id', $scenarioId)
                     ->whereIn('role_id', $roleIdsInScenarioRole)
@@ -958,7 +958,7 @@ class Step2RoleCompetencyController extends Controller
                     ->unique();
 
                 Competency::whereIn('id', $newCompetencyIds)
-                    ->where('status', 'in_incubation')
+                    ->where('status', 'proposed')
                     ->update(['status' => 'active']);
 
                 $promotedCount = $scenarioRoles->count();

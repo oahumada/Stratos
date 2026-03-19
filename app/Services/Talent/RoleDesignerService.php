@@ -2,6 +2,7 @@
 
 namespace App\Services\Talent;
 
+use App\Models\ApprovalRequest;
 use App\Models\Roles;
 use App\Models\ScenarioRole;
 use App\Models\Skill;
@@ -40,19 +41,33 @@ class RoleDesignerService
         $suggested = $config['core_competencies'];
         $materialized = [];
 
+        // Asegurar que existe una competencia para agrupar estas sugerencias
+        $groupComp = \App\Models\Competency::firstOrCreate(
+            ['name' => 'Sugerencias de Diseño IA', 'organization_id' => $role->organization_id],
+            [
+                'description' => 'Competencias sugeridas automáticamente por el Diseñador de Roles IA.',
+                'status' => 'proposed',
+            ]
+        );
+
         foreach ($suggested as $comp) {
             $name = $comp['name'];
             $level = $comp['level'] ?? 3;
 
             // 1. Encontrar o crear la Skill
             $skill = Skill::firstOrCreate(
-                ['name' => $name],
+                ['name' => $name, 'organization_id' => $role->organization_id],
                 [
-                    'organization_id' => $role->organization_id,
-                    'category' => 'Transversal', // Por defecto
+                    'category' => 'incubation',
+                    'status' => 'proposed',
                     'description' => $comp['rationale'] ?? "Generada automáticamente para el rol {$role->name}",
                 ]
             );
+
+            // Asegurar que la skill esté vinculada a la competencia de grupo para que aparezca en el catálogo
+            if (! $groupComp->skills()->where('skill_id', $skill->id)->exists()) {
+                $groupComp->skills()->attach($skill->id, ['weight' => 10]);
+            }
 
             // 2. Asociar al Rol con el nivel sugerido
             if (! $role->skills()->where('skill_id', $skill->id)->exists()) {
@@ -67,7 +82,7 @@ class RoleDesignerService
                 ]);
             }
 
-            // 3. Curar la Skill (Generar BARS, etc.)
+            // 3. Curar la Skill (Generar BARS, etc. si fuera necesario en el futuro)
             $this->competencyCurator->curateSkill($skill->id);
 
             $materialized[] = $name;
@@ -222,5 +237,220 @@ class RoleDesignerService
 
             return [];
         }
+    }
+
+    /**
+     * Crea un requerimiento de aprobación para un responsable.
+     */
+    public function requestApproval(int $roleId, int $approverId): array
+    {
+        Roles::findOrFail($roleId);
+
+        // Crear la solicitud de aprobación
+        $approval = ApprovalRequest::create([
+            'approvable_type' => Roles::class,
+            'approvable_id' => $roleId,
+            'approver_id' => $approverId,
+            'status' => 'pending',
+            'expires_at' => now()->addDays(7),
+        ]);
+
+        // En el futuro, enviar email con magic link aquí.
+        // URL format: /approve/role/{token}
+        
+        return [
+            'status' => 'success',
+            'message' => 'Solicitud de aprobación enviada exitosamente.',
+            'token' => $approval->token,
+        ];
+    }
+
+    /**
+     * Finalize the approval of a role or competency.
+     */
+    public function finalizeApproval($token, array $data)
+    {
+        $request = ApprovalRequest::where('token', $token)
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        $approvable = $request->approvable;
+
+        if ($approvable instanceof \App\Models\Roles) {
+            return $this->finalizeRoleApproval($request, $data);
+        } elseif ($approvable instanceof \App\Models\Competency) {
+            return $this->finalizeCompetencyApproval($request, $data);
+        }
+
+        throw new \Exception('Unknown approvable type');
+    }
+
+    protected function finalizeRoleApproval(ApprovalRequest $request, array $data): array
+    {
+        $role = $request->approvable;
+
+        // Update role with finalized data
+        if (isset($data['mission'])) {
+            $role->mission = $data['mission'];
+        }
+        if (isset($data['purpose'])) {
+            $role->purpose = $data['purpose'];
+        }
+        if (isset($data['expected_results'])) {
+            $role->expected_results = $data['expected_results'];
+        }
+
+        $role->status = 'active';
+        $role->save();
+
+        // Mark request as approved
+        $request->status = 'approved';
+        $request->signature_data = array_merge($request->signature_data ?? [], [
+            'approved_at' => now(),
+            'final_data' => $data
+        ]);
+        $request->seal();
+        $request->save();
+
+        // Materialize competencies and skills
+        $materializeResult = $this->materializeSuggestedSkills($role->id);
+
+        // Sign the role and its skills
+        $role->seal();
+        $role->save();
+        
+        foreach ($role->skills as $skill) {
+            $skill->status = 'active';
+            $skill->seal();
+            $skill->save();
+        }
+
+        // Crear versión inicial del rol
+        $roleVersion = \App\Models\RoleVersion::create([
+            'organization_id' => $role->organization_id,
+            'role_id' => $role->id,
+            'version_group_id' => (string) \Illuminate\Support\Str::uuid(),
+            'name' => 'Aprobación Oficial V1.0',
+            'description' => 'Versión inicial materializada tras aprobación digital.',
+            'effective_from' => now(),
+            'evolution_state' => 'baseline',
+            'metadata' => [
+                'digital_signature' => $role->digital_signature,
+                'signed_at' => $role->signed_at,
+                'approver_id' => $request->approver_id,
+                'role_snapshot' => $role->toArray()
+            ],
+            'created_by' => $request->approver_id
+        ]);
+
+        // Registrar Log de Auditoría (Evento de Dominio) para ISO
+        \App\Models\EventStore::create([
+            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'event_name' => 'role.approved',
+            'aggregate_type' => 'roles',
+            'aggregate_id' => $role->id,
+            'organization_id' => $role->organization_id,
+            'actor_id' => $request->approver_id,
+            'payload' => [
+                'digital_signature' => $role->digital_signature,
+                'signed_at' => $role->signed_at,
+                'version_id' => $roleVersion->id,
+                'audit_standard' => 'ISO/IEC-9001:2015-Traceability'
+            ],
+            'occurred_at' => now(),
+        ]);
+
+        return [
+            'status' => 'success',
+            'message' => 'Rol aprobado, firmado y materializado exitosamente.',
+            'role' => $role->name,
+            'materialized' => $materializeResult['materialized'] ?? []
+        ];
+    }
+
+    public function requestCompetencyApproval($competencyId, $approverId)
+    {
+        $competency = \App\Models\Competency::findOrFail($competencyId);
+
+        return ApprovalRequest::create([
+            'approvable_type' => \App\Models\Competency::class,
+            'approvable_id' => $competency->id,
+            'approver_id' => $approverId,
+            'status' => 'pending',
+            'expires_at' => now()->addDays(7),
+        ]);
+    }
+
+    protected function finalizeCompetencyApproval(ApprovalRequest $request, array $data): array
+    {
+        $competency = $request->approvable;
+
+        // Update competency with finalized data
+        if (isset($data['name'])) {
+            $competency->name = $data['name'];
+        }
+        if (isset($data['description'])) {
+            $competency->description = $data['description'];
+        }
+
+        $competency->status = 'active';
+        $competency->save();
+
+        // Mark request as approved
+        $request->status = 'approved';
+        $request->seal();
+        $request->save();
+
+        // Seal the competency
+        $competency->seal();
+        $competency->save();
+
+        // Also seal its skills
+        foreach ($competency->skills as $skill) {
+            $skill->status = 'active';
+            $skill->seal();
+            $skill->save();
+        }
+
+        // Crear versión inicial de la competencia
+        $compVersion = \App\Models\CompetencyVersion::create([
+            'organization_id' => $competency->organization_id,
+            'competency_id' => $competency->id,
+            'version_group_id' => (string) \Illuminate\Support\Str::uuid(),
+            'name' => 'Versión Oficial V1.0',
+            'description' => 'Versión inicial aprobada digitalmente por el responsable.',
+            'effective_from' => now(),
+            'evolution_state' => 'active',
+            'metadata' => [
+                'digital_signature' => $competency->digital_signature,
+                'signed_at' => $competency->signed_at,
+                'approver_id' => $request->approver_id,
+                'competency_snapshot' => $competency->toArray()
+            ],
+            'created_by' => $request->approver_id
+        ]);
+
+        // Registrar Log de Auditoría (Evento de Dominio) para ISO
+        \App\Models\EventStore::create([
+            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'event_name' => 'competency.approved',
+            'aggregate_type' => 'competencies',
+            'aggregate_id' => $competency->id,
+            'organization_id' => $competency->organization_id,
+            'actor_id' => $request->approver_id,
+            'payload' => [
+                'digital_signature' => $competency->digital_signature,
+                'signed_at' => $competency->signed_at,
+                'version_id' => $compVersion->id,
+                'audit_standard' => 'ISO/IEC-9001:2015-Traceability'
+            ],
+            'occurred_at' => now(),
+        ]);
+
+        return [
+            'status' => 'success',
+            'message' => 'Competencia aprobada, firmada y materializada exitosamente.',
+            'competency' => $competency->name,
+        ];
     }
 }

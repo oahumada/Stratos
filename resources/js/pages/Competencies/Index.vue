@@ -2,6 +2,7 @@
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
+import StDigitalSealAudit from '@/components/StDigitalSealAudit.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import axios from 'axios';
 import {
@@ -47,6 +48,13 @@ const detailTab = ref('info');
 const compDialogOpen = ref(false);
 const compEditing = ref<any>(null);
 const compForm = reactive({ name: '', description: '', status: 'active' });
+
+// Approval flow
+const requestingApproval = ref(false);
+const showApprovalDialog = ref(false);
+const compToApprove = ref<any>(null);
+const selectedApproverId = ref<number | null>(null);
+const approvers = ref<any[]>([]);
 
 // Skill form dialog
 const skillDialogOpen = ref(false);
@@ -253,6 +261,48 @@ const generateQuestions = async (skillId: number, _competencyId: number) => {
     }
 };
 
+const openApprovalSelector = async (comp: any) => {
+    compToApprove.value = comp;
+    showApprovalDialog.value = true;
+    
+    if (approvers.value.length === 0) {
+        try {
+            const res = await axios.get('/api/catalogs', {
+                params: { catalogs: ['people'] }
+            });
+            approvers.value = (res.data.people || []).map((p: any) => ({
+                id: p.id,
+                full_name: p.name,
+                job_title: p.job_title || 'Responsable'
+            }));
+        } catch (err) {
+            console.error('Error loading approvers:', err);
+        }
+    }
+};
+
+const submitApprovalRequest = async () => {
+    if (!selectedApproverId.value) return;
+    
+    requestingApproval.value = true;
+    try {
+        await axios.post(`/api/competencies/${compToApprove.value.id}/request-approval`, {
+            approver_id: selectedApproverId.value
+        });
+        
+        // Use standard alert if notify is not available, or just console log
+        alert('Se ha enviado un link de aprobación al responsable seleccionado.');
+        
+        showApprovalDialog.value = false;
+        selectedApproverId.value = null;
+    } catch (err) {
+        console.error('Error requesting approval:', err);
+        alert('Error al enviar solicitud de aprobación');
+    } finally {
+        requestingApproval.value = false;
+    }
+};
+
 // ─── Detail Panel ─────────────────────────────────────────────────────────────
 const openSkillDetail = async (skill: any) => {
     detailTab.value = 'info';
@@ -266,17 +316,21 @@ const openSkillDetail = async (skill: any) => {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const categoryConfig: Record<string, { label: string; variant: 'primary' | 'success' | 'warning' | 'error' | 'glass' }> = {
+const categoryConfig: Record<string, { label: string; variant: 'primary' | 'success' | 'warning' | 'error' | 'glass' | 'info' }> = {
     technical: { label: 'Técnica', variant: 'primary' },
     soft: { label: 'Blanda', variant: 'success' },
     business: { label: 'Negocio', variant: 'warning' },
-    language: { label: 'Idioma', variant: 'glass' },
+    language: { label: 'Idioma', variant: 'info' },
+    incubation: { label: 'En Incubación', variant: 'info' },
 };
 
-const statusConfig: Record<string, { label: string; color: string }> = {
-    active: { label: 'Activa', color: 'emerald' },
-    draft: { label: 'Borrador', color: 'amber' },
-    archived: { label: 'Archivada', color: 'slate' },
+const statusConfig: Record<string, { label: string; color: string; variant: 'primary' | 'success' | 'warning' | 'error' | 'glass' | 'info' }> = {
+    active: { label: 'Activa', color: 'emerald', variant: 'success' },
+    draft: { label: 'Borrador', color: 'amber', variant: 'warning' },
+    archived: { label: 'Archivada', color: 'slate', variant: 'glass' },
+    in_incubation: { label: 'En Incubación', color: 'indigo', variant: 'info' },
+    proposed: { label: 'Propuesta', color: 'cyan', variant: 'info' },
+    pending: { label: 'Pendiente', color: 'amber', variant: 'warning' },
 };
 
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
@@ -370,8 +424,18 @@ onMounted(loadCompetencies);
 
                         <!-- Name & Description -->
                         <div class="grow">
-                            <div class="text-subtitle-1 font-weight-bold text-white font-premium">
-                                {{ comp.name }}
+                            <div class="d-flex align-center gap-2">
+                                <div class="text-subtitle-1 font-weight-bold text-white font-premium">
+                                    {{ comp.name }}
+                                </div>
+                                <StBadgeGlass
+                                    v-if="comp.status === 'in_incubation'"
+                                    variant="info"
+                                    size="sm"
+                                    class="text-[8px] px-1.5!"
+                                >
+                                    {{ $t('common.incubation', 'En Incubación') }}
+                                </StBadgeGlass>
                             </div>
                             <div v-if="comp.description" class="text-caption text-slate-400 mt-0.5 line-clamp-1">
                                 {{ comp.description }}
@@ -397,10 +461,22 @@ onMounted(loadCompetencies);
                             >
                                 {{ statusConfig[comp.status]?.label || comp.status }}
                             </v-chip>
+                            
+                            <!-- Sello Digital ISO Compliance -->
+                            <StDigitalSealAudit :item="comp" type="competency" />
                         </div>
 
                         <!-- Actions -->
                         <div class="d-flex align-center gap-1 ml-4" @click.stop>
+                            <v-btn
+                                icon
+                                variant="text"
+                                size="small"
+                                class="mr-1"
+                                @click="openApprovalSelector(comp)"
+                            >
+                                <component :is="PhSealCheck" :size="16" class="text-indigo-400" />
+                            </v-btn>
                             <v-btn
                                 icon
                                 variant="text"
@@ -506,10 +582,10 @@ onMounted(loadCompetencies);
 
                                     <div class="d-flex flex-wrap gap-2 mb-2">
                                         <StBadgeGlass
-                                            :variant="categoryConfig[skill.category]?.variant || 'glass'"
+                                            :variant="categoryConfig[skill.category]?.variant || (skill.status === 'in_incubation' ? 'info' : 'glass')"
                                             size="sm"
                                         >
-                                            {{ categoryConfig[skill.category]?.label || skill.category }}
+                                            {{ categoryConfig[skill.category]?.label || (skill.status === 'in_incubation' ? 'Incubada' : skill.category) }}
                                         </StBadgeGlass>
                                         <StBadgeGlass
                                             v-if="skill.is_critical"
@@ -901,6 +977,64 @@ onMounted(loadCompetencies);
                         </div>
                     </v-window-item>
                 </v-window>
+            </div>
+        </StCardGlass>
+    </v-dialog>
+
+    <!-- Approval Dialog -->
+    <v-dialog v-model="showApprovalDialog" max-width="500">
+        <StCardGlass class="pa-6 border-indigo-500/30">
+            <div class="d-flex align-center mb-6">
+                <div class="pa-3 rounded-lg bg-indigo-500/10 mr-4">
+                    <PhSealCheck :size="24" class="text-indigo-400" />
+                </div>
+                <div>
+                    <h3 class="text-h5 font-weight-bold text-white">Solicitar Aprobación</h3>
+                    <p class="text-caption text-slate-400">Seleccione al responsable de validar la competencia</p>
+                </div>
+            </div>
+
+            <p class="text-body-2 text-slate-300 mb-6">
+                Se enviará un <span class="text-indigo-accent-1 font-weight-bold italic">Link Mágico</span> al responsable. 
+                Él podrá editar los datos técnicos, firmar digitalmente y oficializar la competencia.
+            </p>
+
+            <v-select
+                v-model="selectedApproverId"
+                :items="approvers"
+                item-title="full_name"
+                item-value="id"
+                label="Responsable"
+                variant="outlined"
+                color="indigo-accent-2"
+                density="comfortable"
+                class="mb-6"
+                placeholder="Seleccione una persona..."
+            >
+                <template #item="{ props, item }">
+                    <v-list-item v-bind="props" :title="item.raw.full_name" :subtitle="item.raw.job_title">
+                        <template #prepend>
+                            <v-avatar size="32" class="mr-2 border border-white/10">
+                                <v-img v-if="item.raw.avatar_url" :src="item.raw.avatar_url" />
+                                <span v-else class="text-caption">{{ item.raw.full_name?.[0] }}</span>
+                            </v-avatar>
+                        </template>
+                    </v-list-item>
+                </template>
+            </v-select>
+
+            <div class="d-flex justify-end gap-3">
+                <StButtonGlass variant="ghost" @click="showApprovalDialog = false">
+                    Cancelar
+                </StButtonGlass>
+                <StButtonGlass 
+                    variant="primary" 
+                    :loading="requestingApproval"
+                    :disabled="!selectedApproverId"
+                    @click="submitApprovalRequest"
+                >
+                    Enviar Solicitud
+                </StButtonGlass>
             </div>
         </StCardGlass>
     </v-dialog>

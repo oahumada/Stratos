@@ -6,6 +6,7 @@ interface Props {
     variant?:
         | 'primary'
         | 'secondary'
+        | 'info'
         | 'error'
         | 'warning'
         | 'success'
@@ -29,7 +30,8 @@ const variantClasses = {
     error: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
     warning: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
     success: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-    glass: 'bg-white/5 text-white/70 border-white/10',
+    info: 'bg-indigo-500/20 text-indigo-200 border-indigo-500/30',
+    glass: 'bg-white/10 text-white border-white/10',
 };
 
 const sizeClasses = {

@@ -1,5 +1,6 @@
 import CatalogsController from './CatalogsController'
 import AssessmentController from './AssessmentController'
+import RoleDesignerController from './RoleDesignerController'
 import PublicJobController from './PublicJobController'
 import DevelopmentActionController from './DevelopmentActionController'
 import MentorshipSessionController from './MentorshipSessionController'
@@ -42,7 +43,6 @@ import ScenarioSimulationController from './ScenarioSimulationController'
 import ScenarioRoiController from './ScenarioRoiController'
 import ScenarioStrategyController from './ScenarioStrategyController'
 import IncubationController from './IncubationController'
-import RoleDesignerController from './RoleDesignerController'
 import Talento360Controller from './Talento360Controller'
 import CompetencyCuratorController from './CompetencyCuratorController'
 import MobilitySimulationController from './MobilitySimulationController'
@@ -62,6 +62,7 @@ import Automation from './Automation'
 const Api = {
     CatalogsController: Object.assign(CatalogsController, CatalogsController),
     AssessmentController: Object.assign(AssessmentController, AssessmentController),
+    RoleDesignerController: Object.assign(RoleDesignerController, RoleDesignerController),
     PublicJobController: Object.assign(PublicJobController, PublicJobController),
     DevelopmentActionController: Object.assign(DevelopmentActionController, DevelopmentActionController),
     MentorshipSessionController: Object.assign(MentorshipSessionController, MentorshipSessionController),
@@ -104,7 +105,6 @@ const Api = {
     ScenarioRoiController: Object.assign(ScenarioRoiController, ScenarioRoiController),
     ScenarioStrategyController: Object.assign(ScenarioStrategyController, ScenarioStrategyController),
     IncubationController: Object.assign(IncubationController, IncubationController),
-    RoleDesignerController: Object.assign(RoleDesignerController, RoleDesignerController),
     Talento360Controller: Object.assign(Talento360Controller, Talento360Controller),
     CompetencyCuratorController: Object.assign(CompetencyCuratorController, CompetencyCuratorController),
     MobilitySimulationController: Object.assign(MobilitySimulationController, MobilitySimulationController),

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApprovalRequest;
 use App\Services\Talent\RoleDesignerService;
+use Inertia\Inertia;
 use Illuminate\Http\Request;
 
 class RoleDesignerController extends Controller
@@ -64,5 +66,79 @@ class RoleDesignerController extends Controller
         }
 
         return response()->json($result, 500);
+    }
+
+    /**
+     * Crea una solicitud de aprobación para un rol.
+     */
+    public function requestApproval(Request $request, $id)
+    {
+        $request->validate([
+            'approver_id' => 'required|exists:people,id',
+        ]);
+
+        $result = $this->designerService->requestApproval((int) $id, (int) $request->input('approver_id'));
+
+        return response()->json($result);
+    }
+
+    /**
+     * Muestra la solicitud de aprobación (público o vía token).
+     */
+    public function showApprovalRequest($token)
+    {
+        $request = ApprovalRequest::where('token', $token)
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        $approvable = $request->approvable;
+        $component = ($approvable instanceof \App\Models\Roles) ? 'Roles/Approval' : 'Competencies/Approval';
+            
+        return Inertia::render($component, [
+            'approvalRequest' => $request->load('approvable')
+        ]);
+    }
+
+    /**
+     * Crea una solicitud de aprobación para una competencia.
+     */
+    public function requestCompetencyApproval(Request $request, $id)
+    {
+        $request->validate([
+            'approver_id' => 'required|exists:people,id',
+        ]);
+
+        $result = $this->designerService->requestCompetencyApproval((int) $id, (int) $request->input('approver_id'));
+
+        return response()->json($result);
+    }
+
+    /**
+     * Ejecuta la aprobación final.
+     */
+    public function approve(Request $request, $token)
+    {
+        $approvalRequest = ApprovalRequest::where('token', $token)
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        $approvable = $approvalRequest->approvable;
+
+        if ($approvable instanceof \App\Models\Roles) {
+            $data = $request->validate([
+                'purpose' => 'required|string',
+                'description' => 'required|string',
+                'expected_results' => 'required|string',
+            ]);
+        } else {
+            $data = $request->validate([
+                'name' => 'required|string',
+                'description' => 'required|string',
+            ]);
+        }
+
+        $result = $this->designerService->finalizeApproval($token, $data);
+
+        return response()->json($result);
     }
 }

@@ -67,6 +67,10 @@ Route::get('/scenario-demo', function () {
 // External Assessment Feedback Form (Public)
 Route::get('/assessments/feedback/{token}', [\App\Http\Controllers\Api\AssessmentController::class, 'showExternalForm']);
 
+// Approval Magic Links (Public)
+Route::get('/approve/role/{token}', [\App\Http\Controllers\Api\RoleDesignerController::class, 'showApprovalRequest'])->name('role.approval');
+Route::get('/approve/competency/{token}', [\App\Http\Controllers\Api\RoleDesignerController::class, 'showApprovalRequest'])->name('competency.approval');
+
 // Stratos Magnet - Public Career Portal
 Route::get('/career/{tenant}', function ($tenant) {
     return Inertia::render('Careers/PublicPortal', [

@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
 
 class Skill extends Model
 {
-    use HasFactory, BelongsToOrganization;
+    use HasFactory, BelongsToOrganization, HasDigitalSeal;
 
     protected $fillable = [
         'organization_id',
@@ -29,6 +30,9 @@ class Skill extends Model
         'status',
         'discovered_in_scenario_id',
         'embedding',
+        'digital_signature',
+        'signed_at',
+        'signature_version',
     ];
 
     // Defaults applied when creating via Eloquent to match DB defaults

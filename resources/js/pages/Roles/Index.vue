@@ -3,6 +3,7 @@ import RoleCubeWizard from '@/components/Roles/RoleCubeWizard.vue';
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
+import StDigitalSealAudit from '@/components/StDigitalSealAudit.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     Config,
@@ -17,11 +18,15 @@ import {
     PhLightbulb,
     PhMagicWand,
     PhPencil,
+   // PhPlus,
     PhRobot,
     PhSealCheck,
     PhStar,
+   // PhTrash,
+    PhUpload,
     PhUser,
     PhUsers,
+    // PhX,
 } from '@phosphor-icons/vue';
 import { useNotification } from '@kyvg/vue3-notification';
 import axios from 'axios';
@@ -43,6 +48,72 @@ defineOptions({ layout: AppLayout });
 // Wizard state
 const showCubeWizard = ref(false);
 const selectedRoleId = ref<number | null>(null);
+const materializing = ref<number | null>(null);
+const requestingApproval = ref(false);
+const showApprovalDialog = ref(false);
+const roleToApprove = ref<any>(null);
+const selectedApproverId = ref<number | null>(null);
+const approvers = ref<any[]>([]);
+
+const materializeArchitecture = async (roleId: number) => {
+    materializing.value = roleId;
+    try {
+        await axios.post(`/api/roles/${roleId}/materialize-competencies`);
+        notify({ 
+            type: 'success', 
+            text: 'Arquitectura materializada. Las competencias ahora son visibles en el catálogo.' 
+        });
+    } catch (e) {
+        console.error('Error materializing architecture', e);
+        notify({ type: 'error', text: 'Error al materializar arquitectura' });
+    } finally {
+        materializing.value = null;
+    }
+};
+
+const openApprovalSelector = async (role: any) => {
+    roleToApprove.value = role;
+    showApprovalDialog.value = true;
+    
+    if (approvers.value.length === 0) {
+        try {
+            const res = await axios.get('/api/catalogs', {
+                params: { catalogs: ['people'] }
+            });
+            approvers.value = (res.data.people || []).map((p: any) => ({
+                id: p.id,
+                full_name: p.name,
+                job_title: p.job_title || 'Responsable'
+            }));
+        } catch (err) {
+            console.error('Error loading approvers:', err);
+        }
+    }
+};
+
+const submitApprovalRequest = async () => {
+    if (!selectedApproverId.value) return;
+    
+    requestingApproval.value = true;
+    try {
+        await axios.post(`/api/roles/${roleToApprove.value.id}/request-approval`, {
+            approver_id: selectedApproverId.value
+        });
+        
+        notify({
+            type: 'success',
+            title: 'Solicitud Enviada',
+            text: 'Se ha enviado un link de aprobación al responsable seleccionado.'
+        });
+        showApprovalDialog.value = false;
+        selectedApproverId.value = null;
+    } catch (err) {
+        console.error('Error requesting approval:', err);
+        notify({ type: 'error', text: 'Error al enviar solicitud de aprobación' });
+    } finally {
+        requestingApproval.value = false;
+    }
+};
 const formSchemaRef = ref<any>(null);
 
 const onRoleCreated = () => {
@@ -256,6 +327,13 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                             {{ t('roles_module.info_section.title') }}
                         </div>
                         <v-list density="compact" class="pa-0 bg-transparent">
+                             <div class="mb-4 d-flex align-center justify-space-between">
+                                 <h4 class="text-h6 font-weight-bold text-white uppercase tracking-tighter">
+                                     Resumen Técnico
+                                 </h4>
+                                 <!-- Sello Digital ISO Compliance -->
+                                 <StDigitalSealAudit :item="item" type="role" />
+                             </div>
                             <v-list-item class="px-0">
                                 <v-list-item-title class="text-body-2 text-white">
                                     <strong class="text-indigo-accent-1"
@@ -670,10 +748,28 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                             </div>
                                         </div>
 
-                                        <div class="mt-6 d-flex justify-end">
+                                        <div class="mt-6 d-flex justify-end gap-3 align-center">
                                             <div class="materialized-indicator">
-                                                <PhSealCheck :size="12" class="mr-1" /> Arquitectura Materializada
+                                                <PhSealCheck :size="12" class="mr-1" /> Arquitectura Diseñada
                                             </div>
+                                            <StButtonGlass
+                                                variant="secondary"
+                                                size="sm"
+                                                :icon="PhUpload"
+                                                :loading="materializing === item.id"
+                                                @click="materializeArchitecture(item.id)"
+                                            >
+                                                Materializar en Catálogo
+                                            </StButtonGlass>
+
+                                            <StButtonGlass
+                                                variant="primary"
+                                                size="sm"
+                                                :icon="PhSealCheck"
+                                                @click="openApprovalSelector(item)"
+                                            >
+                                                Solicitar Aprobación
+                                            </StButtonGlass>
                                         </div>
                                     </StCardGlass>
                                 </v-col>
@@ -703,6 +799,64 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
         @created="onRoleCreated" 
         @close="selectedRoleId = null"
     />
+
+    <!-- Approval Dialog -->
+    <v-dialog v-model="showApprovalDialog" max-width="500">
+        <StCardGlass class="pa-6 border-indigo-500/30">
+            <div class="d-flex align-center mb-6">
+                <div class="pa-3 rounded-lg bg-indigo-500/10 mr-4">
+                    <PhSealCheck :size="24" class="text-indigo-400" />
+                </div>
+                <div>
+                    <h3 class="text-h5 font-weight-bold text-white">Solicitar Aprobación</h3>
+                    <p class="text-caption text-slate-400">Seleccione al responsable de validar el rol</p>
+                </div>
+            </div>
+
+            <p class="text-body-2 text-slate-300 mb-6">
+                Se enviará un <span class="text-indigo-accent-1 font-weight-bold italic">Link Mágico</span> al responsable. 
+                Él podrá editar los datos finales, firmar digitalmente y materializar el rol.
+            </p>
+
+            <v-select
+                v-model="selectedApproverId"
+                :items="approvers"
+                item-title="full_name"
+                item-value="id"
+                label="Responsable"
+                variant="outlined"
+                color="indigo-accent-2"
+                density="comfortable"
+                class="mb-6"
+                placeholder="Seleccione una persona..."
+            >
+                <template #item="{ props, item }">
+                    <v-list-item v-bind="props" :title="item.raw.full_name" :subtitle="item.raw.job_title">
+                        <template #prepend>
+                            <v-avatar size="32" class="mr-2 border border-white/10">
+                                <v-img v-if="item.raw.avatar_url" :src="item.raw.avatar_url" />
+                                <span v-else class="text-caption">{{ item.raw.full_name?.[0] }}</span>
+                            </v-avatar>
+                        </template>
+                    </v-list-item>
+                </template>
+            </v-select>
+
+            <div class="d-flex justify-end gap-3">
+                <StButtonGlass variant="ghost" @click="showApprovalDialog = false">
+                    Cancelar
+                </StButtonGlass>
+                <StButtonGlass 
+                    variant="primary" 
+                    :loading="requestingApproval"
+                    :disabled="!selectedApproverId"
+                    @click="submitApprovalRequest"
+                >
+                    Enviar Solicitud
+                </StButtonGlass>
+            </div>
+        </StCardGlass>
+    </v-dialog>
 </template>
 
 <style scoped>

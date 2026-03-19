@@ -3105,3 +3105,47 @@ CookieJar serializado → compartido entre VUs via setup()
 
 ### Estado
 ✅ Suite completo listo para CI. k6 no está instalado localmente — tests corren en GitHub Actions.
+
+---
+
+## 🎯 Fase: Compliance, Versioning & Digital Audit (2026-03-18)
+
+### Resumen Ejecutivo
+
+✅ **COMPLIANCE CORE COMPLETADO** - Stratos ha evolucionado de un gestor de talento a una plataforma de **Gobernanza Corporativa**, integrando mecanismos de inmutabilidad y auditoría que satisfacen requerimientos de **ISO 9001** y sientan las bases para **ISO 30414** (Human Capital Reporting).
+
+### Logros e Implementaciones
+
+1.  **Refinamiento de Estados de Madurez**:
+    - Se definieron estados granulares para separar el origen del talento:
+        - `proposed`: Items sugeridos por IA, importados de plantillas o creados en el Wizard (pendientes de revisión inicial).
+        - `pending`: Items enviados formalmente a aprobación.
+        - `in_incubation`: Exclusivo para descubrimientos de talento durante simulaciones de escenarios.
+    - Actualización en `RoleDesignerService.php` y `Competencies/Index.vue`.
+
+2.  **Versionado Automático Inmutable**:
+    - Al aprobar un Rol o Competencia, el sistema genera automáticamente un registro en `role_versions` o `competency_versions`.
+    - Captura un snapshot completo del objeto (JSON) vinculado a la firma digital, creando un historial auditable V1.0, V2.0, etc.
+
+3.  **Gobernanza e ISO-Compliance (Audit Trail)**:
+    - Integración con el `EventStore` para registrar cada aprobación como un evento de dominio inmutable.
+    - Metadatos de auditoría incluyen: `digital_signature`, `signed_at`, `version_id` y el estándar asociado (e.g., `ISO/IEC-9001:2015-Traceability`).
+    - Lógica robusta en `RoleDesignerService::finalizeRoleApproval` y `finalizeCompetencyApproval`.
+
+4.  **Sello Digital de Autenticidad (Premium UI)**:
+    - Nuevo componente `StDigitalSealAudit.vue`: una interfaz glassmorphism que muestra el sello **"ISO 9001 VALIDATED"**.
+    - **Certificado de Validez Técnica:** Modal interactivo que permite a auditores verificar el hash SHA-256 y la integridad del diseño sin navegar por datos sensibles.
+    - Integrado en catálogos de Roles y Competencias para reforzar el factor de confianza (Trust).
+
+### Documentación Estratégica Generada
+
+- `docs/approval_flow_documentation.md`: Flujo detallado, estados y lógica interna.
+- `docs/quality_compliance_standards.md`: Plan de implementación para futuras normas (**ISO 30414**, **ISO 27001**, **GDPR**).
+- `docs/compliance_strategy.md`: Visión a largo plazo sobre alineación regulatoria y extensibilidad.
+
+### Impacto en el Modelo de Negocio
+
+- **Argumento de Venta:** Stratos se posiciona como "Audit-Ready by Design".
+- **Gobernanza de IA:** El sistema resuelve el problema de la "Caja Negra" de la IA al forzar el sello humano sobre las sugerencias algorítmicas, garantizando responsabilidad legal y técnica.
+
+---

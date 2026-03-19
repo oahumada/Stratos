@@ -7,14 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
 use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
 
 class Competency extends Model
 {
-    use HasFactory, BelongsToOrganization;
+    use HasFactory, BelongsToOrganization, HasDigitalSeal;
 
     protected $table = 'competencies';
 
-    protected $fillable = ['organization_id', 'llm_id', 'name', 'description', 'status', 'discovered_in_scenario_id', 'embedding', 'agent_id', 'cube_dimensions'];
+    protected $fillable = ['organization_id', 'llm_id', 'name', 'description', 'status', 'discovered_in_scenario_id', 'embedding', 'agent_id', 'cube_dimensions', 'digital_signature', 'signed_at', 'signature_version'];
 
     protected $casts = [
         'llm_id' => 'string',
