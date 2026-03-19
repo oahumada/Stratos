@@ -254,7 +254,7 @@ onMounted(loadDashboard);
         <div
             class="grid grid-cols-1 gap-x-10 gap-y-8 px-12 md:grid-cols-2 xl:grid-cols-4 xl:gap-x-12"
             data-testid="compliance-summary-grid"
-            style="padding-bottom:12px"
+            style="padding-bottom: 12px; padding-top:12px"
             v-if="summary"
         >
             <StCardGlass class="overflow-hidden p-0">
@@ -308,14 +308,16 @@ onMounted(loadDashboard);
             </StCardGlass>
         </div>
 
-        <StCardGlass class="overflow-hidden p-0" >
-            <div class="grid grid-cols-1 gap-4 p-6 md:grid-cols-3" >
+        <StCardGlass class="overflow-hidden p-0">
+            <div class="grid grid-cols-1 gap-4 p-6 md:grid-cols-3" style="padding:14px">
                 <v-text-field
                     v-model="eventNameFilter"
                     label="Filtrar por event_name"
                     density="compact"
                     variant="outlined"
                     hide-details
+                    color="white"
+                    class="text-white"
                 />
                 <v-text-field
                     v-model="aggregateTypeFilter"
@@ -323,6 +325,8 @@ onMounted(loadDashboard);
                     density="compact"
                     variant="outlined"
                     hide-details
+                    color="white"
+                    class="text-white"
                 />
                 <StButtonGlass variant="glass" @click="loadDashboard"
                     >Aplicar filtros</StButtonGlass
@@ -339,11 +343,11 @@ onMounted(loadDashboard);
                 No hay eventos para los filtros seleccionados.
             </div>
 
-            <div v-else class="overflow-x-auto px-2 pb-2 md:px-4 md:pb-4" >
+            <div v-else class="overflow-x-auto px-2 pb-2 md:px-4 md:pb-4">
                 <table class="min-w-full divide-y divide-white/10">
                     <thead>
                         <tr
-                            class="text-left text-xs tracking-wider text-white/50 uppercase"
+                            class="text-left text-xs tracking-wider text-white/70 uppercase"
                         >
                             <th class="px-4 py-3">Evento</th>
                             <th class="px-4 py-3">Agregado</th>
@@ -381,7 +385,8 @@ onMounted(loadDashboard);
 
         <div
             v-if="iso30414"
-            class="grid grid-cols-1 gap-x-10 gap-y-8 px-12 md:grid-cols-2 xl:grid-cols-3 xl:gap-x-12" style="padding-top:12px; padding-bottom:12px"
+            class="grid grid-cols-1 gap-x-10 gap-y-8 px-12 md:grid-cols-2 xl:grid-cols-3 xl:gap-x-12"
+            style="padding-top: 12px; padding-bottom: 12px"
         >
             <StCardGlass class="overflow-hidden p-0">
                 <div
@@ -447,7 +452,7 @@ onMounted(loadDashboard);
                 <table class="min-w-full divide-y divide-white/10">
                     <thead>
                         <tr
-                            class="text-left text-xs tracking-wider text-white/50 uppercase"
+                            class="text-left text-xs tracking-wider text-white/70 uppercase"
                         >
                             <th class="px-4 py-3">Departamento</th>
                             <th class="px-4 py-3">Headcount</th>
@@ -497,7 +502,7 @@ onMounted(loadDashboard);
                 <table class="min-w-full divide-y divide-white/10">
                     <thead>
                         <tr
-                            class="text-left text-xs tracking-wider text-white/50 uppercase"
+                            class="text-left text-xs tracking-wider text-white/70 uppercase"
                         >
                             <th class="px-4 py-3">Skill</th>
                             <th class="px-4 py-3">Dominio</th>
@@ -535,11 +540,13 @@ onMounted(loadDashboard);
 
         <div
             v-if="internalAudit"
-            class="grid grid-cols-1 gap-x-10 gap-y-8 px-12 md:grid-cols-3 xl:gap-x-12" style="padding-top:12px; padding-bottom:12px"
+            class="grid grid-cols-1 gap-x-10 gap-y-8 px-12 md:grid-cols-3 xl:gap-x-12"
+            style="padding-top: 12px; padding-bottom: 12px"
         >
             <StCardGlass class="overflow-hidden p-0">
                 <div
-                    class="flex min-h-[148px] flex-col justify-between px-8 py-7 md:px-10 md:py-8" style="padding-bottom:12px"
+                    class="flex min-h-[148px] flex-col justify-between px-8 py-7 md:px-10 md:py-8"
+                    style="padding-bottom: 12px"
                 >
                     <p class="text-xs tracking-wider text-white/50 uppercase">
                         Roles Críticos
@@ -590,6 +597,8 @@ onMounted(loadDashboard);
                         variant="outlined"
                         hide-details
                         label="Vigencia (días)"
+                        color="white"
+                        class="text-white"
                         style="max-width: 180px"
                     />
                     <StButtonGlass variant="glass" @click="loadDashboard"
@@ -601,7 +610,7 @@ onMounted(loadDashboard);
                 <table class="min-w-full divide-y divide-white/10">
                     <thead>
                         <tr
-                            class="text-left text-xs tracking-wider text-white/50 uppercase"
+                            class="text-left text-xs tracking-wider text-white/70 uppercase"
                         >
                             <th class="px-4 py-3">Role</th>
                             <th class="px-4 py-3">Depto</th>
@@ -652,6 +661,8 @@ onMounted(loadDashboard);
                         variant="outlined"
                         hide-details
                         label="Role ID"
+                        color="white"
+                        class="text-white"
                         style="max-width: 140px"
                     />
                     <StButtonGlass variant="glass" @click="exportRoleCredential"
@@ -714,7 +725,7 @@ onMounted(loadDashboard);
             </div>
             <div v-if="roleCredential" class="p-6">
                 <pre
-                    class="overflow-x-auto rounded bg-black/30 p-4 text-xs text-white/80"
+                    class="overflow-x-auto rounded bg-white/5 p-4 text-xs text-white/90"
                     >{{ JSON.stringify(roleCredential, null, 2) }}</pre
                 >
             </div>
