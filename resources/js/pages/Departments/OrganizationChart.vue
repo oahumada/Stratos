@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import * as apiHelper from '@/apiHelper';
 import DepartmentNodeComponent from '@/components/Organization/OrgChart/DepartmentNode.vue';
-import DepartmentHierarchyEditor from '@/components/Departments/DepartmentHierarchyEditor.vue';
 import { Head } from '@inertiajs/vue3';
 import { Layers, MousePointer2, RefreshCcw } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
-import { VueFlow, useVueFlow, type NodeTypesObject } from '@vue-flow/core';
+import { VueFlow, useVueFlow, type NodeTypesObject, useEdgesState, useNodesState } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
 import { Controls } from '@vue-flow/controls';
+import { useNotification } from '@/composables/useNotification';
+import { useApi } from '@/composables/useApi';
 
 import * as dagre from 'dagre';
 
@@ -31,13 +32,14 @@ interface DepartmentNode {
 }
 
 const { fitView } = useVueFlow();
+const { notify } = useNotification();
+const { put } = useApi();
 
 const loading = ref(true);
 const error = ref<string | null>(null);
 const elements = ref<any[]>([]);
 const allDepartments = ref<DepartmentNode[]>([]);
-const editingDepartment = ref<DepartmentNode | null>(null);
-const hierarchyEditorOpen = ref(false);
+const updatingConnection = ref<{ source: string; target: string } | null>(null);
 
 // Custom node type registration
 const nodeTypes: NodeTypesObject = {
@@ -136,18 +138,40 @@ const layoutNodes = (nodes: any[], edges: any[]) => {
     return [...nodes, ...edges];
 };
 
-const handleEditHierarchy = (departmentId: number) => {
-    const flatDepts = getFlattenedDepartments(allDepartments.value);
-    const dept = flatDepts.find(d => d.id === departmentId);
-    if (dept) {
-        editingDepartment.value = dept;
-        hierarchyEditorOpen.value = true;
-    }
-};
+// Drag-and-drop connection handler
+const handleConnect = async (connection: any) => {
+    // connection.source es el padre, connection.target es el hijo
+    const parentId = parseInt(connection.source);
+    const childId = parseInt(connection.target);
 
-const handleHierarchyUpdated = async () => {
-    // Recargar árbol después de actualizar
-    await fetchTree();
+    // No permitir que se conecte consigo mismo
+    if (parentId === childId) {
+        notify.error('Un departamento no puede ser padre de sí mismo');
+        return false;
+    }
+
+    updatingConnection.value = { source: connection.source, target: connection.target };
+
+    try {
+        // Guardar la relación en BD
+        await put(
+            `/api/departments/${childId}/hierarchy`,
+            { parent_id: parentId }
+        );
+
+        notify.success(`Relación creada: ${parentId} → ${childId}`);
+        
+        // Recargar el árbol
+        await fetchTree();
+
+    } catch (error: any) {
+        notify.error(error.response?.data?.message || 'Error al establecer la relación');
+        return false; // Evitar que vue-flow cree la conexión
+    } finally {
+        updatingConnection.value = null;
+    }
+
+    return true; // Confirmar la conexión en vue-flow
 };
 
 onMounted(() => {
@@ -210,17 +234,21 @@ const handlePaneReady = () => {
                     v-model="elements"
                     :node-types="nodeTypes"
                     @pane-ready="handlePaneReady"
+                    @connect="handleConnect"
                     :default-viewport="{ zoom: 0.8 }"
                     :min-zoom="0.2"
                     :max-zoom="4"
+                    :connection-line-options="{
+                        type: 'smoothstep',
+                        animated: true
+                    }"
                 >
                     <Background pattern-color="rgba(255,255,255,0.05)" :gap="20" />
                     <Controls />
                     
                     <template #node-department="props">
                         <DepartmentNodeComponent 
-                            v-bind="props" 
-                            @edit-hierarchy="handleEditHierarchy"
+                            v-bind="props"
                         />
                     </template>
                 </VueFlow>
@@ -234,21 +262,11 @@ const handlePaneReady = () => {
             <!-- Ayuda / Legend -->
             <footer class="flex items-center justify-between text-xs text-gray-500 px-2">
                 <div class="flex gap-6">
-                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-indigo-500"></span> Flujo de Reporte</span>
-                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-500"></span> Líder Asignado</span>
+                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-indigo-500"></span> Arrastra para Conectar</span>
+                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-500"></span> Relación Padre → Hijo</span>
                 </div>
-                <div>Usa el Scroll para Zoom · Arrastra para Navegar</div>
+                <div>Zoom: Scroll · Navegar: Arrastra · Conectar: Arrastra desde punto inferior</div>
             </footer>
-
-            <!-- Department Hierarchy Editor Modal -->
-            <DepartmentHierarchyEditor
-                v-if="editingDepartment"
-                :open="hierarchyEditorOpen"
-                :department="editingDepartment"
-                :all-departments="getFlattenedDepartments(allDepartments)"
-                @close="hierarchyEditorOpen = false"
-                @updated="handleHierarchyUpdated"
-            />
         </div>
 </template>
 
