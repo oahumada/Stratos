@@ -121,6 +121,7 @@ const transformData = (data: DepartmentNode[]) => {
                 id: `e${item.parent_id}-${item.id}`,
                 source: item.parent_id.toString(),
                 target: item.id.toString(),
+                type: 'bezier',
                 animated: true,
                 style: { stroke: 'rgba(99, 102, 241, 0.4)', strokeWidth: 2 },
             });
@@ -296,7 +297,7 @@ const handlePaneReady = () => {
                 :min-zoom="0.2"
                 :max-zoom="4"
                 :connection-line-options="{
-                    type: 'step',
+                    type: 'bezier',
                     animated: true,
                 }"
             >
