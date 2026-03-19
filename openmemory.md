@@ -32,6 +32,107 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Arquitectura de Prompts**: Se separó la síntesis inicial (ligera) del desglose técnico (pesado) en dos llamadas asíncronas para garantizar completitud y calidad en las respuestas del asistente "Ingeniero de Talento".
 - Documentación detallada en: `docs/ROLE_WIZARD_SKILL_BLUEPRINT.md`.
 
+### Compliance Audit Dashboard (2026-03-18)
+
+- Se implementó la **Fase 1 pendiente** de `docs/quality_compliance_standards.md`: Dashboard de Auditoría centralizado.
+- Nuevos endpoints API multi-tenant:
+    - `GET /api/compliance/audit-events`
+    - `GET /api/compliance/audit-events/summary`
+- Nueva vista Inertia para gobernanza:
+    - `GET /quality/compliance-audit` → `resources/js/pages/Quality/ComplianceAuditDashboard.vue`
+- Alcance técnico:
+    - Filtro por `event_name`, `aggregate_type`, rango `from/to`.
+    - Métricas agregadas (total, últimas 24h, tipos de evento, agregados únicos, top de eventos).
+    - Aislamiento estricto por `organization_id`.
+- Cobertura de pruebas:
+    - `tests/Feature/Api/ComplianceAuditEventsTest.php` (autenticación + aislamiento multi-tenant + summary).
+
+### Compliance ISO 30414 Metrics (2026-03-18)
+
+- Se implementó Fase 2 de `docs/quality_compliance_standards.md` con endpoint agregado:
+    - `GET /api/compliance/iso30414/summary`
+- Métricas entregadas:
+    - `replacement_cost`: costo de sustitución estimado por complejidad de arquitectura de rol (`role_skills`) y salario base.
+    - `talent_maturity_by_department`: readiness y niveles promedio por departamento.
+    - `transversal_capability_gaps`: top brechas en skills transversales auditables.
+- Integración UI:
+    - `resources/js/pages/Quality/ComplianceAuditDashboard.vue` muestra cards y tablas de Fase 2.
+- Cobertura de pruebas:
+    - `tests/Feature/Api/ComplianceIso30414Test.php` (autenticación + aislamiento multi-tenant + estructura de respuesta).
+
+### Compliance Privacy Phase 3 (2026-03-18) - COMPLETADA ✅
+
+- Implementación completa de Fase 3 (ISO 27001 / GDPR):
+    - **Consentimiento IA:** `POST /api/compliance/consents/ai-processing` con registro en `event_store` (`consent.ai_processing.accepted`).
+    - **Purga GDPR:** `POST /api/compliance/gdpr/purge` con protocolo `dry-run` y ejecución confirmada (`gdpr.purge.executed`).
+    - **Encriptación en Reposo (NEW):** Cifrado at-rest retrocompatible de campos sensibles:
+        - `Roles`: `description`, `purpose`, `expected_results` → cifrados con `Crypt::encryptString()`.
+        - `LLMEvaluation`: `input_content`, `output_content`, `context_content` → cifrados con `Crypt::encryptString()`.
+        - **Retrocompatibilidad:** Mutators detectan datos legacy en plaintext y los retornan sin error (fallback try/catch).
+- Persistencia de auditoría:
+    - Eventos en `event_store`:
+        - `consent.ai_processing.accepted` / `consent.ai_processing.revoked`
+        - `gdpr.purge.executed`
+- Protocolo técnico de purga:
+    - Anonimiza PII principal de `people`.
+    - Marca trazas de skills (`people_role_skills`) como `gdpr_purged`.
+    - Aplica soft delete para mantener trazabilidad de auditoría.
+- Cobertura de pruebas:
+    - `tests/Feature/Api/CompliancePrivacyPhase3Test.php` (consentimiento + purga GDPR).
+    - `tests/Feature/Api/ComplianceEncryptionAtRestTest.php` (cifrado Roles/LLMEvaluation + legacy plaintext backcompat).
+- **Estado:** Todos los tests verdes (14/14 compliance tests passing).
+
+### Compliance PX & Psychometric Encryption Phase 3.1 (2026-03-19) - COMPLETADA ✅
+
+- **Cifrado en reposo de datos psicométricos** (Art. 9 GDPR):
+    - `PsychometricProfile.rationale` y `evidence` cifrados con `Crypt::encryptString()`.
+    - Retrocompatibilidad: fallback automático para datos legacy en plaintext.
+- Cobertura de pruebas: `CompliancePXEncryptionPhase31Test.php` (2 casos).
+- **Estado:** Todos los tests verdes (16/16 compliance tests passing).
+
+### Compliance Certification Prep Phase 4 (2026-03-19) - COMPLETADA ✅
+
+- **Exportación VC/JSON-LD implementada** para evidencia externa de cumplimiento:
+    - Endpoint: `GET /api/compliance/credentials/roles/{roleId}`.
+    - Incluye `@context`, `type`, `issuer`, `credentialSubject` y `proof` con `jws` de sello digital.
+    - `issuer DID` configurable vía `COMPLIANCE_ISSUER_DID` (fallback `did:web:{app-host}`).
+    - Scope multi-tenant por `organization_id`.
+- **Verificación criptográfica de VC implementada**:
+    - Endpoint: `POST /api/compliance/credentials/roles/{roleId}/verify`.
+    - Validaciones: coincidencia de `proof.jws` con firma persistida del rol, issuer esperado y subject role id.
+    - Soporta verificación de credencial enviada por cliente (detección de tampering).
+- **Interoperabilidad externa implementada (public verification)**:
+    - Documento DID público: `GET /.well-known/did.json`.
+    - Endpoint público sin auth para terceros: `POST /api/compliance/public/credentials/verify`.
+    - Metadata pública del verificador: `GET /api/compliance/public/verifier-metadata`.
+    - Checks incluyen `credential_subject_organization_matches` para evitar falsos positivos cross-tenant.
+- **Internal Audit Wizard implementado** para firma vigente en roles críticos:
+    - Endpoint: `GET /api/compliance/internal-audit-wizard`.
+    - Clasificación por estado de firma: `current`, `expired`, `missing`.
+    - Parámetro configurable: `signature_valid_days`.
+    - Resumen y recomendaciones para remediación inmediata.
+- **Integración UI en Compliance Dashboard**:
+    - Sección de wizard (KPIs + tabla de roles críticos).
+    - Sección de exportación VC por `roleId` con payload JSON-LD.
+- Cobertura de pruebas:
+    - `tests/Feature/Api/CompliancePhase4Test.php` (auth + scope + VC + verify + wizard).
+    - `tests/Feature/Api/CompliancePublicVerificationTest.php` (did:web + metadata pública + verificación pública + tampering).
+- **Estado:** Todos los tests verdes (24/24 compliance/public tests passing).
+
+### Compliance Audit Playbooks (2026-03-19) - DOCUMENTACIÓN OPERATIVA ✅
+
+- Se crearon dos guías operativas para ejecutar auditorías de forma expedita y transparente:
+    - `docs/GUIA_AUDITORIA_INTERNA_COMPLIANCE.md`
+    - `docs/GUIA_AUDITORIA_EXTERNA_COMPLIANCE.md`
+- Cobertura documental:
+    - preparación previa
+    - evidencia mínima requerida
+    - pasos de ejecución
+    - criterios de salida
+    - checklist de cierre
+    - uso de VC, DID document, metadata pública y public verify endpoint para auditores externos
+- Ambas guías quedaron enlazadas desde `docs/INDEX.md` y `docs/quality_compliance_standards.md`.
+
 ---
 
 ## 🎯 Fase 1 Completada: Importación LLM con Incubación (2026-02-15)
@@ -3066,10 +3167,12 @@ NO de la transacción padre del job. La generación siempre se guarda correctame
 ## Memory: k6 Stress Testing Suite - Fase 2 COMPLETADA (2026-03-07)
 
 ### Resumen
+
 Suite completo de pruebas de rendimiento k6 implementado como Fase 2 del QA Master Plan.
 Cobertura: smoke, load, stress tests con CI/CD automático en GitHub Actions.
 
 ### Estructura de Archivos
+
 - `tests/k6/utils/auth.js` — Helper de autenticación Fortify/Sanctum (CSRF cookie → login → CookieJar)
 - `tests/k6/scenarios/smoke.js` — Sanity check: 1 VU, 1 iteración, 4 grupos de endpoints
 - `tests/k6/scenarios/load.js` — Carga realista: 3 escenarios concurrentes (readHeavy 20VUs, previewLoad 5VUs, ragasPolling 10VUs)
@@ -3079,14 +3182,16 @@ Cobertura: smoke, load, stress tests con CI/CD automático en GitHub Actions.
 - `tests/k6/README.md` — Documentación completa
 
 ### SLOs Definidos
-| Tipo | p(95) objetivo | Error máximo |
-|------|----------------|--------------|
-| Read endpoints | < 2s | < 1% |
-| Scenario preview | < 5s | < 1% |
-| RAGAS metrics | < 1.5s | < 1% |
-| Stress global | < 4s | < 5% |
+
+| Tipo             | p(95) objetivo | Error máximo |
+| ---------------- | -------------- | ------------ |
+| Read endpoints   | < 2s           | < 1%         |
+| Scenario preview | < 5s           | < 1%         |
+| RAGAS metrics    | < 1.5s         | < 1%         |
+| Stress global    | < 4s           | < 5%         |
 
 ### Auth Flow k6
+
 ```
 GET /sanctum/csrf-cookie → extract XSRF-TOKEN cookie
 POST /login { email, password } + X-XSRF-TOKEN header → session cookie
@@ -3094,16 +3199,19 @@ CookieJar serializado → compartido entre VUs via setup()
 ```
 
 ### Variables de Entorno CI
+
 - `K6_BASE_URL` — URL de la app (default: http://localhost:8000)
 - `K6_USER_EMAIL` — Secret GitHub para el usuario de prueba
 - `K6_USER_PASS` — Secret GitHub para la contraseña
 
 ### Triggers del workflow
+
 - `workflow_dispatch` — manual con choice de escenario (smoke/load/stress)
 - `pull_request` a main/develop — cuando toca controllers/api, services, routes/api.php, tests/k6
 - `schedule: cron '0 3 * * 1'` — load test automático lunes 3AM UTC
 
 ### Estado
+
 ✅ Suite completo listo para CI. k6 no está instalado localmente — tests corren en GitHub Actions.
 
 ---

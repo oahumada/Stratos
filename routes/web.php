@@ -71,6 +71,10 @@ Route::get('/assessments/feedback/{token}', [\App\Http\Controllers\Api\Assessmen
 Route::get('/approve/role/{token}', [\App\Http\Controllers\Api\RoleDesignerController::class, 'showApprovalRequest'])->name('role.approval');
 Route::get('/approve/competency/{token}', [\App\Http\Controllers\Api\RoleDesignerController::class, 'showApprovalRequest'])->name('competency.approval');
 
+// Public DID document for did:web issuer discovery
+Route::get('/.well-known/did.json', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'didDocument'])
+    ->name('compliance.did-document');
+
 // Stratos Magnet - Public Career Portal
 Route::get('/career/{tenant}', function ($tenant) {
     return Inertia::render('Careers/PublicPortal', [
@@ -233,6 +237,10 @@ Route::get('/quality-hub', function () {
 Route::get('/quality/ragas-metrics', function () {
     return Inertia::render('Quality/RAGASDashboard');
 })->middleware(['auth', 'verified'])->name('quality.ragas-metrics');
+
+Route::get('/quality/compliance-audit', function () {
+    return Inertia::render('Quality/ComplianceAuditDashboard');
+})->middleware(['auth', 'verified'])->name('quality.compliance-audit');
 
 Route::prefix('scenarios')->group(function () {
     Route::get('{id}/iq', [ScenarioController::class, 'getIQ']);

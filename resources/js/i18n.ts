@@ -1,29 +1,5 @@
 export const messages = {
     en: {
-        culture: {
-            blueprint: {
-                title: 'Stratos Identity',
-                subtitle: 'The Organizational Constitution & AI Foundation',
-                mission: 'Mission',
-                vision: 'Vision',
-                values: 'Values',
-                principles: 'Ethical Principles',
-                seal: 'Digital Seal',
-                seal_desc: 'Cryptographic signature that ensures cultural integrity for AI agents.',
-                sign: 'Sign Blueprint',
-                save: 'Save Blueprint',
-                history: 'Signature History',
-                guardian_status: 'Culture Guardian Status',
-                guardian_active: 'Guardian Active',
-                guardian_desc: 'AI agents are calibrated with these definitions.',
-                dashboard: 'Identity Analytics',
-            },
-            dashboard: {
-                title: 'Identity Analytics',
-                subtitle: 'Deep diagnostic of cultural health and alignment.',
-                run_scan: 'Run Identity Scan',
-            }
-        },
         scenario_iq: 'Scenario IQ',
         active_simulation: 'Active Simulation',
         ai_analyzing: 'AI ANALYZING',
@@ -99,10 +75,8 @@ export const messages = {
             step1_desc: 'Purpose & Mission',
             step2_title: 'Cube Mapping',
             step2_desc: 'Structural Coords',
-            step3_title: 'Impact',
-            step3_desc: 'Value Results',
-            step4_title: 'DNA / Profile',
-            step4_desc: 'Competency Mapping',
+            step3_title: 'Blueprint',
+            step3_desc: 'Skill Architecture',
             define_node: 'Define the Execution Node',
             define_node_desc:
                 'Describe the primary mission and critical priorities. AI will synthesize the multi-dimensional coordinates.',
@@ -238,7 +212,7 @@ export const messages = {
             risk_low: 'Low',
         },
         assessment_command: {
-            title: 'Command Center',
+            title: 'Cerbero Command Unit',
             subtitle:
                 'Intelligent orchestration of assessment cycles and 360 talent.',
             config_cycle: 'Configure Cycle',
@@ -389,8 +363,6 @@ export const messages = {
                 description: 'Description',
                 ai_agent: 'AI Agent',
                 blueprint: 'Strategic Blueprint',
-                purpose: 'Role Purpose',
-                expected_results: 'Expected Results',
                 design_btn: 'Design with AI (Cube Model)',
             },
             skills_section: {
@@ -419,7 +391,6 @@ export const messages = {
                 justification: 'DESIGN RATIONALE',
                 core_competencies: 'Suggested Core Competencies',
                 org_clarity: 'Organizational Clarity & Recommendations',
-                materialize_btn: 'Materialize Skills with AI',
             },
         },
         competencies_module: {
@@ -726,18 +697,6 @@ export const messages = {
                         title: 'RAGAS Neural Dash',
                         description: 'LLM output analytics.',
                     },
-                    comando_360: {
-                        title: '360 Command (Cerbero)',
-                        description: 'Assessment cycle and policy orchestration.',
-                    },
-                    comando_px: {
-                        title: 'PX Command (Sentinel)',
-                        description: 'Burnout and climate dashboard monitoring.',
-                    },
-                    cultural_blueprint: {
-                        title: 'Stratos Identity',
-                        description: 'Management of the Organizational Constitution: Mission, Vision, and Values.',
-                    },
                 },
             },
             radar: {
@@ -763,41 +722,8 @@ export const messages = {
                 },
             },
         },
-
-        bulk_import: {
-            steps: {
-                upload: 'Upload',
-                alignment: 'Alignment',
-                resolution: 'Resolution',
-                approval: 'Approval',
-            },
-        },
     },
     es: {
-        culture: {
-            blueprint: {
-                title: 'Stratos Identity',
-                subtitle: 'La Constitución Organizacional y Base para la IA',
-                mission: 'Misión',
-                vision: 'Visión',
-                values: 'Valores',
-                principles: 'Principios Éticos',
-                seal: 'Sello Digital',
-                seal_desc: 'Firma criptográfica que garantiza la integridad cultural para los agentes de IA.',
-                sign: 'Firmar Blueprint',
-                save: 'Guardar Blueprint',
-                history: 'Historial de Firmas',
-                guardian_status: 'Estado del Guardián de Cultura',
-                guardian_active: 'Guardián Activo',
-                guardian_desc: 'Los agentes de IA están calibrados con estas definiciones.',
-                dashboard: 'Identity Analytics',
-            },
-            dashboard: {
-                title: 'Identity Analytics',
-                subtitle: 'Diagnóstico profundo de la salud y alineación cultural.',
-                run_scan: 'Ejecutar Escaneo',
-            }
-        },
         scenario_iq: 'Scenario IQ',
         active_simulation: 'Simulación Activa',
         ai_analyzing: 'IA ANALIZANDO',
@@ -870,14 +796,12 @@ export const messages = {
             protocol_note: 'Nota de Protocolo',
             protocol_desc:
                 'El diseño estructural asegura que la profundidad del rol se alinee con la velocidad estratégica organizacional.',
-            step1_title: 'Cimientos',
-            step1_desc: 'Misión y Propósito',
-            step2_title: 'Estrategia',
-            step2_desc: 'Dimensiones Estructurales',
-            step3_title: 'Impacto',
-            step3_desc: 'Resultados de Valor',
-            step4_title: 'DNA / Perfil',
-            step4_desc: 'Malla de Competencias',
+            step1_title: 'Definición de Metas',
+            step1_desc: 'Propósito y Misión',
+            step2_title: 'Mapeo del Cubo',
+            step2_desc: 'Coord. Estructurales',
+            step3_title: 'Plano',
+            step3_desc: 'Arquitectura de Habil.',
             define_node: 'Definir el Nodo de Ejecución',
             define_node_desc:
                 'Describe la misión principal y las prioridades críticas. La IA sintetizará las coordenadas multidimensionales.',
@@ -1166,8 +1090,6 @@ export const messages = {
                 description: 'Descripción',
                 ai_agent: 'Agente IA',
                 blueprint: 'Plantilla Estratégica',
-                purpose: 'Propósito del Rol',
-                expected_results: 'Resultados Esperados',
                 design_btn: 'Diseñar con IA (Modelo Cubo)',
             },
             skills_section: {
@@ -1196,7 +1118,6 @@ export const messages = {
                 justification: 'JUSTIFICACIÓN DEL DISEÑO',
                 core_competencies: 'Competencias clave sugeridas',
                 org_clarity: 'Nitidez Organizacional & Recomendaciones',
-                materialize_btn: 'Materializar Habilidades con IA',
             },
         },
         competencies_module: {
@@ -1504,18 +1425,6 @@ export const messages = {
                         title: 'Panel Neural RAGAS',
                         description: 'Analítica de salidas LLM.',
                     },
-                    comando_360: {
-                        title: 'Comando 360 (Cerbero)',
-                        description: 'Orquestación de ciclos de evaluación y políticas.',
-                    },
-                    comando_px: {
-                        title: 'Comando PX (Sentinela)',
-                        description: 'Monitoreo de clima y dashboard de burnout.',
-                    },
-                    cultural_blueprint: {
-                        title: 'Stratos Identity',
-                        description: 'Gestión de la Constitución Organizacional: Misión, Visión y Valores.',
-                    },
                 },
             },
             radar: {
@@ -1541,15 +1450,6 @@ export const messages = {
                             'Vista financiera orientada a ROI y creación de valor.',
                     },
                 },
-            },
-        },
-
-        bulk_import: {
-            steps: {
-                upload: 'Carga',
-                alignment: 'Alineación',
-                resolution: 'Resolución',
-                approval: 'Aprobación',
             },
         },
     },

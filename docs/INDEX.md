@@ -155,6 +155,8 @@
 - **[Casos_Prueba_Coherencia_Arquitectonica.md](Testing/Casos_Prueba_Coherencia_Arquitectonica.md)** - Pruebas de lógica de negocio (Semáforo)
 - **[ESTRATEGIA_QA_MASTER_PLAN.md](ESTRATEGIA_QA_MASTER_PLAN.md)** - Plan maestro de QA técnico (CI/CD, RAGAS, Stress)
 - **[FormSchemaTestingSystem.md](FormSchemaTestingSystem.md)** - Sistema de pruebas para CRUDs automáticos
+- **[GUIA_AUDITORIA_INTERNA_COMPLIANCE.md](GUIA_AUDITORIA_INTERNA_COMPLIANCE.md)** - Guía paso a paso para ejecutar auditorías internas de compliance
+- **[GUIA_AUDITORIA_EXTERNA_COMPLIANCE.md](GUIA_AUDITORIA_EXTERNA_COMPLIANCE.md)** - Guía operativa para preparar y ejecutar auditorías externas con evidencia verificable
 
 ---
 

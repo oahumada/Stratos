@@ -18,4 +18,11 @@ return [
         'openai_model' => env('LLM_OPENAI_MODEL', 'gpt-4o'),
         'deepseek_api_key' => env('DEEPSEEK_API_KEY'),
     ],
+
+    'compliance' => [
+        'issuer_did' => env('COMPLIANCE_ISSUER_DID'),
+        'verification_method_fragment' => env('COMPLIANCE_VERIFICATION_METHOD', 'stratos-digital-seal'),
+        'verifier_version' => env('COMPLIANCE_VERIFIER_VERSION', '2026.03'),
+        'policy_version' => env('COMPLIANCE_POLICY_VERSION', 'v1'),
+    ],
 ];

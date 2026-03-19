@@ -55,6 +55,10 @@ Route::get('/career/{tenantSlug}', [\App\Http\Controllers\Api\PublicJobControlle
 Route::get('/career/{tenantSlug}/jobs/{jobSlug}', [\App\Http\Controllers\Api\PublicJobController::class, 'show']);
 Route::post('/career/{tenantSlug}/jobs/{jobSlug}/apply', [\App\Http\Controllers\Api\PublicJobController::class, 'apply']);
 
+// Public Compliance Verification (for external auditors/verifiers)
+Route::post('/compliance/public/credentials/verify', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'verifyRoleCredentialPublic']);
+Route::get('/compliance/public/verifier-metadata', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'verifierMetadata']);
+
 // Core services
 Route::patch('/development-actions/{id}/status', [\App\Http\Controllers\Api\DevelopmentActionController::class, 'updateStatus']);
 Route::get('/mentorship-sessions', [\App\Http\Controllers\Api\MentorshipSessionController::class, 'index']);
@@ -100,8 +104,6 @@ Route::patch('/applications/{id}', [\App\Http\Controllers\Api\ApplicationControl
 // CRUD genérico: People, Skills, Roles, Departments
 // Gestionado por form-schema-complete.php con FormSchemaController
 
-
-
 // Stratos IQ (Event Sourcing & Organizational Learning Velocity)
 Route::get('/stratos-iq/{organizationId}', [\App\Http\Controllers\Api\StratosIqController::class, 'getTrends']);
 Route::post('/stratos-iq/{organizationId}/snapshot', [\App\Http\Controllers\Api\StratosIqController::class, 'captureSnapshot']);
@@ -109,7 +111,6 @@ Route::post('/stratos-iq/{organizationId}/snapshot', [\App\Http\Controllers\Api\
 // Talent Pass (Sovereign Identity / CV 2.0)
 Route::get('/people/{people_id}/talent-pass', [\App\Http\Controllers\Api\TalentPassController::class, 'show']);
 Route::post('/people/{people_id}/talent-pass/issue', [\App\Http\Controllers\Api\TalentPassController::class, 'generateCredential']);
-
 
 // Marketplace (Día 5 - Internal opportunities)
 Route::get('/people/{people_id}/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'opportunities']); // Vista candidato
@@ -188,10 +189,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/support-tickets/metrics', [\App\Http\Controllers\Api\SupportTicketController::class, 'metrics']);
     Route::apiResource('support-tickets', \App\Http\Controllers\Api\SupportTicketController::class);
 
+    // Compliance Audit Dashboard (ISO 9001 / Governance)
+    Route::get('/compliance/audit-events', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'index']);
+    Route::get('/compliance/audit-events/summary', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'summary']);
+    Route::get('/compliance/iso30414/summary', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'iso30414Summary']);
+    Route::post('/compliance/consents/ai-processing', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'recordAiConsent']);
+    Route::post('/compliance/gdpr/purge', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'executeGdprPurge']);
+    Route::get('/compliance/credentials/roles/{roleId}', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'exportRoleCredential']);
+    Route::post('/compliance/credentials/roles/{roleId}/verify', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'verifyRoleCredential']);
+    Route::get('/compliance/internal-audit-wizard', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'internalAuditWizard']);
+
     // Investor/Executive Dashboard
     Route::get('/investor/dashboard', [\App\Http\Controllers\Api\InvestorDashboardController::class, 'index'])
         ->middleware('role:admin,hr_leader,observer');
-    
+
     Route::get('/investor/impact-summary', [\App\Http\Controllers\Intelligence\ImpactEngineController::class, 'getSummary'])
         ->middleware('role:admin,hr_leader,observer');
 

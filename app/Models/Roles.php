@@ -2,21 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
+use App\Traits\HasDomainEvents;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Auth;
-
-use App\Traits\BelongsToOrganization;
-use App\Traits\HasDigitalSeal;
-use App\Traits\HasDomainEvents;
+use Illuminate\Support\Facades\Crypt;
 
 class Roles extends Model
 {
-    use HasFactory, BelongsToOrganization, HasDomainEvents, HasDigitalSeal;
+    use BelongsToOrganization, HasDigitalSeal, HasDomainEvents, HasFactory;
 
     protected $table = 'roles';
 
@@ -50,7 +48,6 @@ class Roles extends Model
         'embedding' => 'array',
         'cube_dimensions' => 'array',
     ];
-
 
     public function organization(): BelongsTo
     {
@@ -138,5 +135,57 @@ class Roles extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(\App\Models\Departments::class, 'department_id');
+    }
+
+    public function setDescriptionAttribute(?string $value): void
+    {
+        $this->attributes['description'] = $this->encryptAtRest($value);
+    }
+
+    public function getDescriptionAttribute(?string $value): ?string
+    {
+        return $this->decryptAtRest($value);
+    }
+
+    public function setPurposeAttribute(?string $value): void
+    {
+        $this->attributes['purpose'] = $this->encryptAtRest($value);
+    }
+
+    public function getPurposeAttribute(?string $value): ?string
+    {
+        return $this->decryptAtRest($value);
+    }
+
+    public function setExpectedResultsAttribute(?string $value): void
+    {
+        $this->attributes['expected_results'] = $this->encryptAtRest($value);
+    }
+
+    public function getExpectedResultsAttribute(?string $value): ?string
+    {
+        return $this->decryptAtRest($value);
+    }
+
+    private function encryptAtRest(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return $value;
+        }
+
+        return Crypt::encryptString($value);
+    }
+
+    private function decryptAtRest(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return $value;
+        }
+
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Throwable) {
+            return $value;
+        }
     }
 }
