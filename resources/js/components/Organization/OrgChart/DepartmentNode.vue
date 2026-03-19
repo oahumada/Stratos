@@ -52,17 +52,34 @@ defineProps<NodeProps<DepartmentData>>();
     padding: 16px;
     border-radius: 16px;
     min-width: 220px;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.3),
+        inset 0 1px 2px 0 rgba(255, 255, 255, 0.1);
     color: white;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.dept-node::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 40%, transparent 60%, rgba(255, 255, 255, 0.02));
+    pointer-events: none;
+    border-radius: 16px;
 }
 
 .dept-node:hover {
-    border-color: rgba(99, 102, 241, 0.4);
-    box-shadow: 0 8px 32px 0 rgba(99, 102, 241, 0.15);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 
+        0 12px 40px 0 rgba(99, 102, 241, 0.2),
+        inset 0 1px 2px 0 rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
 }
 
@@ -74,19 +91,23 @@ defineProps<NodeProps<DepartmentData>>();
 }
 
 .node-icon {
-    background: rgba(99, 102, 241, 0.1);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0.1));
     padding: 6px;
     border-radius: 8px;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    backdrop-filter: blur(8px);
 }
 
 .node-title {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 14px;
+    color: #f1f5f9;
+    letter-spacing: -0.01em;
 }
 
 .node-desc {
     font-size: 11px;
-    color: #9ca3af;
+    color: #cbd5e1;
     margin-bottom: 12px;
     line-height: 1.4;
     display: -webkit-box;
@@ -94,13 +115,14 @@ defineProps<NodeProps<DepartmentData>>();
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .node-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
     padding-top: 8px;
     gap: 8px;
 }
@@ -110,7 +132,8 @@ defineProps<NodeProps<DepartmentData>>();
     align-items: center;
     gap: 4px;
     font-size: 10px;
-    color: #d1d5db;
+    color: #e2e8f0;
+    font-weight: 500;
 }
 
 .handle-top,
