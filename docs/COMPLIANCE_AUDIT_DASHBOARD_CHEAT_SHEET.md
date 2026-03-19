@@ -1,4 +1,5 @@
 # ⚡ CHEAT SHEET - Compliance Audit Dashboard
+
 **Referencia Rápida para Demo (1 página)**
 
 ---
@@ -42,32 +43,35 @@
 
 ## 🎯 6 BLOQUES → 6 MENSAJES CLAVE
 
-| Bloque | Tarjetas | Mensaje en 10 seg |
-|--------|----------|-------------------|
-| **🔍 Audit Trail** | 4 KPIs | "2,847 eventos registrados. **Evidencia de quién cambió qué, cuándo.** Cualquiera puede auditar." |
-| **📊 Tabla Eventos** | Filtrable | "Filtro: role.updated → muestra cambios de roles. **Trazabilidad 100%.** Timestamp exacto." |
-| **💰 ISO 30414** | 3 KPIs | "Riesgo financiero: $48M si pierdes talento. **8 skills tienen brechas** en todo el equipo." |
-| **📈 Madurez x Depto** | Tabla | "Innovación: 65% lista, Ops: 72% lista. **Visualiza riesgo por unidad organizacional.**" |
-| **✅ Audit Wizard** | 3 KPIs | "87.5% cumplimiento firma. **21 de 24 roles críticos tienen gobernanza vigente.** CRO: expired." |
-| **🔐 Credencial VC** | Export/Verify | "Rol VP Talento → exporta JSON-LD → verifica 4 checks → **auditable externamente. Sin intermediarios.**" |
+| Bloque                 | Tarjetas      | Mensaje en 10 seg                                                                                        |
+| ---------------------- | ------------- | -------------------------------------------------------------------------------------------------------- |
+| **🔍 Audit Trail**     | 4 KPIs        | "2,847 eventos registrados. **Evidencia de quién cambió qué, cuándo.** Cualquiera puede auditar."        |
+| **📊 Tabla Eventos**   | Filtrable     | "Filtro: role.updated → muestra cambios de roles. **Trazabilidad 100%.** Timestamp exacto."              |
+| **💰 ISO 30414**       | 3 KPIs        | "Riesgo financiero: $48M si pierdes talento. **8 skills tienen brechas** en todo el equipo."             |
+| **📈 Madurez x Depto** | Tabla         | "Innovación: 65% lista, Ops: 72% lista. **Visualiza riesgo por unidad organizacional.**"                 |
+| **✅ Audit Wizard**    | 3 KPIs        | "87.5% cumplimiento firma. **21 de 24 roles críticos tienen gobernanza vigente.** CRO: expired."         |
+| **🔐 Credencial VC**   | Export/Verify | "Rol VP Talento → exporta JSON-LD → verifica 4 checks → **auditable externamente. Sin intermediarios.**" |
 
 ---
 
 ## 🔥 TOP 3 PUNTOS DE VENTA
 
 ### 1. **Auditoría Completa (Bloque: Audit Trail + Tabla)**
+
 ✅ 2,847 eventos = cobertura total  
 ✅ Quién, Qué, Cuándo, Dónde  
 ✅ Reproducible: filtros activos  
 **Pitch**: "Stratos no oculta. Cada cambio está registrado. Si auditor pregunta, tenemos respuesta."
 
 ### 2. **Riesgo Cuantificado (Bloque: ISO 30414)**
+
 ✅ $48.2M=valor en riesgo  
 ✅ 8 gaps transversales = vulnerabilidad  
 ✅ Departamientos ranked por readiness  
 **Pitch**: "No es intuición. Ves exactamente dónde el talento es más frágil."
 
 ### 3. **Gobernanza Verificable (Bloque: Credential VC)**
+
 ✅ Firmas digitales en roles críticos  
 ✅ 87.5% cumplimiento  
 ✅ JSON-LD verificable externamente  
@@ -81,7 +85,7 @@
 00-30s: "Auditoría completa: cada cambio registrado. Mira: 2,847 eventos."
         → Señala bloque Audit Trail
 
-30-90s: "¿Quién cambió el rol VP Talento? Filtro → role.updated → ves nombre, 
+30-90s: "¿Quién cambió el rol VP Talento? Filtro → role.updated → ves nombre,
          fecha, hora exacta. Evidencia."
         → Ejecuta filtro en tabla
 
@@ -104,37 +108,37 @@
 
 ## 🎬 FRASES GANADORES
 
-| Situación | Frase |
-|-----------|-------|
-| Auditor pregunta por cobertura | "2,847 eventos auditables. Cero ocultos. Quién, qué, cuándo, por qué." |
-| Cliente pregunta por riesgo | "87.5% gobernanza vigente. 8 skills con brecha crítica. $48M en riesgo si pierdes talento." |
-| Partner pregunta por verificabilidad | "JSON-LD. Firma criptográfica. Auditor externo verifica sin intermediarios." |
-| Regulador pregunta por trazabilidad | "100% trazable. Evento → timestamp → actor → agregado → payload ¯\ (ツ) /¯" |
+| Situación                            | Frase                                                                                       |
+| ------------------------------------ | ------------------------------------------------------------------------------------------- |
+| Auditor pregunta por cobertura       | "2,847 eventos auditables. Cero ocultos. Quién, qué, cuándo, por qué."                      |
+| Cliente pregunta por riesgo          | "87.5% gobernanza vigente. 8 skills con brecha crítica. $48M en riesgo si pierdes talento." |
+| Partner pregunta por verificabilidad | "JSON-LD. Firma criptográfica. Auditor externo verifica sin intermediarios."                |
+| Regulador pregunta por trazabilidad  | "100% trazable. Evento → timestamp → actor → agregado → payload ¯\ (ツ) /¯"                 |
 
 ---
 
 ## 🔧 COSAS QUE PUEDES HACER EN DIRECTO (DEMO)
 
-| Acción | Botones | Tiempo | Efecto |
-|--------|---------|--------|--------|
-| **Recarga datos** | "Actualizar" (superior) | 2 seg | Actualiza todas las APIs live |
-| **Filtra eventos** | event_name: "user.created" → "Aplicar" | 1 seg | Tabla muestra solo nuevos usuarios |
-| **Busca rol específico** | aggregate_type: "Role" → "Aplicar" | 1 seg | Tabla muestra solo cambios de roles |
-| **Recalcula vigencia** | Vigencia: "180" → "Recalcular" | 2 seg | Muestra roles expiran en < 180 días |
-| **Exporta credencial** | Role ID: "5" → "Exportar VC" | 2 seg | Muestra JSON-LD |
-| **Valida firma** | Click "Verificar VC" | 1 seg | ✅ o ❌ según validez |
+| Acción                   | Botones                                | Tiempo | Efecto                              |
+| ------------------------ | -------------------------------------- | ------ | ----------------------------------- |
+| **Recarga datos**        | "Actualizar" (superior)                | 2 seg  | Actualiza todas las APIs live       |
+| **Filtra eventos**       | event_name: "user.created" → "Aplicar" | 1 seg  | Tabla muestra solo nuevos usuarios  |
+| **Busca rol específico** | aggregate_type: "Role" → "Aplicar"     | 1 seg  | Tabla muestra solo cambios de roles |
+| **Recalcula vigencia**   | Vigencia: "180" → "Recalcular"         | 2 seg  | Muestra roles expiran en < 180 días |
+| **Exporta credencial**   | Role ID: "5" → "Exportar VC"           | 2 seg  | Muestra JSON-LD                     |
+| **Valida firma**         | Click "Verificar VC"                   | 1 seg  | ✅ o ❌ según validez               |
 
 ---
 
 ## ⚠️ GOTCHAS (Si algo no funciona)
 
-| Problema | Causa | Solución |
-|----------|-------|----------|
-| "Sin datos en tabla" | Filtros muy restrictivos | Borrar filtros → "Aplicar" |
-| "Números no cambian" | API no actualiza | Click "Actualizar" (arriba) |
-| "VC no verifica" | Role ID no existe | Ingresar Role ID válido (ej: 1-10) |
-| "Texto invisible/negro" | Bug de tema | F5 (recargar página) |
-| "Consola tiene errores" | Conexión lenta | Revisar network tab |
+| Problema                | Causa                    | Solución                           |
+| ----------------------- | ------------------------ | ---------------------------------- |
+| "Sin datos en tabla"    | Filtros muy restrictivos | Borrar filtros → "Aplicar"         |
+| "Números no cambian"    | API no actualiza         | Click "Actualizar" (arriba)        |
+| "VC no verifica"        | Role ID no existe        | Ingresar Role ID válido (ej: 1-10) |
+| "Texto invisible/negro" | Bug de tema              | F5 (recargar página)               |
+| "Consola tiene errores" | Conexión lenta           | Revisar network tab                |
 
 ---
 
@@ -155,13 +159,13 @@
 
 ## 🎯 KPIs A MEMORIZAR
 
-| Métrica | Rango ✅ | Rango ⚠️ | Rango ❌ |
-|---------|----------|----------|----------|
-| Eventos Totales | > 1,000 | 500-1,000 | < 500 |
-| Eventos 24h | > 50 | 10-50 | < 10 |
-| Cumplimiento Firma | > 85% | 70-85% | < 70% |
-| Costo Reemplazo | < $50M | $50-100M | > $100M |
-| Skills con Brecha | < 5 | 5-10 | > 10 |
+| Métrica            | Rango ✅ | Rango ⚠️  | Rango ❌ |
+| ------------------ | -------- | --------- | -------- |
+| Eventos Totales    | > 1,000  | 500-1,000 | < 500    |
+| Eventos 24h        | > 50     | 10-50     | < 10     |
+| Cumplimiento Firma | > 85%    | 70-85%    | < 70%    |
+| Costo Reemplazo    | < $50M   | $50-100M  | > $100M  |
+| Skills con Brecha  | < 5      | 5-10      | > 10     |
 
 ---
 
