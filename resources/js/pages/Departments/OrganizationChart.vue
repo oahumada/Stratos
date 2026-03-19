@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import * as apiHelper from '@/apiHelper';
 import DepartmentNodeComponent from '@/components/Organization/OrgChart/DepartmentNode.vue';
+import { useApi } from '@/composables/useApi';
+import { useNotification } from '@/composables/useNotification';
 import { Head } from '@inertiajs/vue3';
-import { Layers, MousePointer2, RefreshCcw } from 'lucide-vue-next';
-import { onMounted, ref } from 'vue';
-import { VueFlow, useVueFlow, type NodeTypesObject, useEdgesState, useNodesState } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
 import { Controls } from '@vue-flow/controls';
-import { useNotification } from '@/composables/useNotification';
-import { useApi } from '@/composables/useApi';
+import { VueFlow, useVueFlow, type NodeTypesObject } from '@vue-flow/core';
+import { Layers, MousePointer2, RefreshCcw } from 'lucide-vue-next';
+import { onMounted, ref } from 'vue';
 
 import * as dagre from 'dagre';
 
@@ -50,7 +50,9 @@ const fetchTree = async () => {
     loading.value = true;
     error.value = null;
     try {
-        const response = await apiHelper.get<DepartmentNode[]>('/api/departments/tree');
+        const response = await apiHelper.get<DepartmentNode[]>(
+            '/api/departments/tree',
+        );
         allDepartments.value = response;
         const { nodes, edges } = transformData(response);
         elements.value = layoutNodes(nodes, edges);
@@ -61,10 +63,12 @@ const fetchTree = async () => {
     }
 };
 
-const getFlattenedDepartments = (departments: DepartmentNode[]): DepartmentNode[] => {
+const getFlattenedDepartments = (
+    departments: DepartmentNode[],
+): DepartmentNode[] => {
     const result: DepartmentNode[] = [];
     const traverse = (items: DepartmentNode[]) => {
-        items.forEach(item => {
+        items.forEach((item) => {
             result.push(item);
             if (item.children && item.children.length > 0) {
                 traverse(item.children);
@@ -86,9 +90,11 @@ const transformData = (data: DepartmentNode[]) => {
             data: {
                 label: item.name,
                 description: item.description,
-                managerName: item.manager ? `${item.manager.first_name} ${item.manager.last_name}` : null,
+                managerName: item.manager
+                    ? `${item.manager.first_name} ${item.manager.last_name}`
+                    : null,
                 headcount: item.headcount || 0,
-                departmentId: item.id
+                departmentId: item.id,
             },
             position: { x: 0, y: 0 },
         });
@@ -150,22 +156,40 @@ const handleConnect = async (connection: any) => {
         return false;
     }
 
-    updatingConnection.value = { source: connection.source, target: connection.target };
+    updatingConnection.value = {
+        source: connection.source,
+        target: connection.target,
+    };
 
     try {
         // Guardar la relación en BD
-        await put(
-            `/api/departments/${childId}/hierarchy`,
-            { parent_id: parentId }
-        );
+        await put(`/api/departments/${childId}/hierarchy`, {
+            parent_id: parentId,
+        });
 
         notify.success(`Relación creada: ${parentId} → ${childId}`);
-        
-        // Recargar el árbol
-        await fetchTree();
 
+        // Actualizar el estado local inmediatamente
+        const nodeIndex = elements.value.findIndex(
+            (el) => el.id === connection.target
+        );
+        if (nodeIndex !== -1) {
+            // Actualizar el nodo con la nueva información
+            allDepartments.value = allDepartments.value.map((dept) => {
+                if (dept.id === childId) {
+                    return { ...dept, parent_id: parentId };
+                }
+                return dept;
+            });
+        }
+
+        // Reconstruir elementos sin recargar desde la API
+        const { nodes, edges } = transformData(allDepartments.value);
+        elements.value = layoutNodes(nodes, edges);
     } catch (error: any) {
-        notify.error(error.response?.data?.message || 'Error al establecer la relación');
+        notify.error(
+            error.response?.data?.message || 'Error al establecer la relación',
+        );
         return false; // Evitar que vue-flow cree la conexión
     } finally {
         updatingConnection.value = null;
@@ -186,93 +210,139 @@ const handlePaneReady = () => {
 </script>
 
 <template>
-        <Head title="Stratos - Organigrama Interactivo" />
+    <Head title="Stratos - Organigrama Interactivo" />
 
-        <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-            <header class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                <div>
-                    <h1 class="mb-2 text-3xl font-bold tracking-tight text-white">
-                        Organigrama Interactivo
-                    </h1>
-                    <p class="text-gray-400">
-                        Visualiza y gestiona la estructura jerárquica de tu organización.
-                    </p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button 
-                        @click="fetchTree"
-                        class="flex items-center gap-2 px-4 py-2 border border-white/10 rounded-lg bg-white/5 hover:bg-white/10 transition-all text-white text-sm"
-                    >
-                        <RefreshCcw class="h-4 w-4" :class="{ 'animate-spin': loading }" />
-                        Sincronizar
-                    </button>
-                    <button class="flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-all text-white text-sm shadow-lg shadow-indigo-500/20">
-                        <Layers class="h-4 w-4" />
-                        Añadir Unidad
-                    </button>
-                </div>
-            </header>
-
-            <div class="bg-chart-container relative h-[700px] w-full rounded-3xl border border-white/5 overflow-hidden shadow-2xl">
-                <div v-if="loading" class="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/50 backdrop-blur-md">
-                    <div class="flex flex-col items-center gap-4">
-                        <div class="h-12 w-12 animate-spin rounded-full border-4 border-indigo-500/30 border-t-indigo-500"></div>
-                        <span class="text-indigo-400 font-medium animate-pulse">Calculando Jerarquía...</span>
-                    </div>
-                </div>
-
-                <div v-if="error" class="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/80 p-6 text-center">
-                    <div class="max-w-md space-y-4">
-                        <div class="text-rose-500 text-lg font-semibold">Error de Carga</div>
-                        <p class="text-gray-400">{{ error }}</p>
-                        <button @click="fetchTree" class="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all">Reintentar</button>
-                    </div>
-                </div>
-
-                <VueFlow
-                    v-if="!loading && elements.length > 0"
-                    v-model="elements"
-                    :node-types="nodeTypes"
-                    @pane-ready="handlePaneReady"
-                    @connect="handleConnect"
-                    :default-viewport="{ zoom: 0.8 }"
-                    :min-zoom="0.2"
-                    :max-zoom="4"
-                    :connection-line-options="{
-                        type: 'smoothstep',
-                        animated: true
-                    }"
+    <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+        <header
+            class="flex flex-col justify-between gap-4 md:flex-row md:items-center"
+        >
+            <div>
+                <h1 class="mb-2 text-3xl font-bold tracking-tight text-white">
+                    Organigrama Interactivo
+                </h1>
+                <p class="text-gray-400">
+                    Visualiza y gestiona la estructura jerárquica de tu
+                    organización.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button
+                    @click="fetchTree"
+                    class="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition-all hover:bg-white/10"
                 >
-                    <Background pattern-color="rgba(255,255,255,0.05)" :gap="20" />
-                    <Controls />
-                    
-                    <template #node-department="props">
-                        <DepartmentNodeComponent 
-                            v-bind="props"
-                        />
-                    </template>
-                </VueFlow>
+                    <RefreshCcw
+                        class="h-4 w-4"
+                        :class="{ 'animate-spin': loading }"
+                    />
+                    Sincronizar
+                </button>
+                <button
+                    class="flex items-center gap-2 rounded-lg bg-indigo-500 px-4 py-2 text-sm text-white shadow-lg shadow-indigo-500/20 transition-all hover:bg-indigo-600"
+                >
+                    <Layers class="h-4 w-4" />
+                    Añadir Unidad
+                </button>
+            </div>
+        </header>
 
-                <div v-else-if="!loading && elements.length === 0" class="flex h-full items-center justify-center flex-col gap-4">
-                    <MousePointer2 class="h-12 w-12 text-gray-600" />
-                    <p class="text-gray-500">No se encontraron unidades organizativas.</p>
+        <div
+            class="bg-chart-container relative h-[700px] w-full overflow-hidden rounded-3xl border border-white/5 shadow-2xl"
+        >
+            <div
+                v-if="loading"
+                class="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/50 backdrop-blur-md"
+            >
+                <div class="flex flex-col items-center gap-4">
+                    <div
+                        class="h-12 w-12 animate-spin rounded-full border-4 border-indigo-500/30 border-t-indigo-500"
+                    ></div>
+                    <span class="animate-pulse font-medium text-indigo-400"
+                        >Calculando Jerarquía...</span
+                    >
                 </div>
             </div>
 
-            <!-- Ayuda / Legend -->
-            <footer class="flex items-center justify-between text-xs text-gray-500 px-2">
-                <div class="flex gap-6">
-                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-indigo-500"></span> Arrastra para Conectar</span>
-                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-500"></span> Relación Padre → Hijo</span>
+            <div
+                v-if="error"
+                class="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/80 p-6 text-center"
+            >
+                <div class="max-w-md space-y-4">
+                    <div class="text-lg font-semibold text-rose-500">
+                        Error de Carga
+                    </div>
+                    <p class="text-gray-400">{{ error }}</p>
+                    <button
+                        @click="fetchTree"
+                        class="rounded-lg bg-white/10 px-6 py-2 text-white transition-all hover:bg-white/20"
+                    >
+                        Reintentar
+                    </button>
                 </div>
-                <div>Zoom: Scroll · Navegar: Arrastra · Conectar: Arrastra desde punto inferior</div>
-            </footer>
+            </div>
+
+            <VueFlow
+                v-if="!loading && elements.length > 0"
+                v-model="elements"
+                :node-types="nodeTypes"
+                @pane-ready="handlePaneReady"
+                @connect="handleConnect"
+                :default-viewport="{ zoom: 0.8 }"
+                :min-zoom="0.2"
+                :max-zoom="4"
+                :connection-line-options="{
+                    type: 'bezier',
+                    animated: true,
+                    curvature: 0.5,
+                }"
+            >
+                <Background pattern-color="rgba(255,255,255,0.05)" :gap="20" />
+                <Controls />
+
+                <template #node-department="props">
+                    <DepartmentNodeComponent v-bind="props" />
+                </template>
+            </VueFlow>
+
+            <div
+                v-else-if="!loading && elements.length === 0"
+                class="flex h-full flex-col items-center justify-center gap-4"
+            >
+                <MousePointer2 class="h-12 w-12 text-gray-600" />
+                <p class="text-gray-500">
+                    No se encontraron unidades organizativas.
+                </p>
+            </div>
         </div>
+
+        <!-- Ayuda / Legend -->
+        <footer
+            class="flex items-center justify-between px-2 text-xs text-gray-500"
+        >
+            <div class="flex gap-6">
+                <span class="flex items-center gap-1.5"
+                    ><span class="h-2 w-2 rounded-full bg-indigo-500"></span>
+                    Arrastra para Conectar</span
+                >
+                <span class="flex items-center gap-1.5"
+                    ><span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                    Relación Padre → Hijo</span
+                >
+            </div>
+            <div>
+                Zoom: Scroll · Navegar: Arrastra · Conectar: Arrastra desde
+                punto inferior
+            </div>
+        </footer>
+    </div>
 </template>
 
 <style scoped>
 .bg-chart-container {
-    background: radial-gradient(circle at top right, rgba(30, 41, 59, 0.7), rgba(2, 6, 23, 1));
+    background: radial-gradient(
+        circle at top right,
+        rgba(30, 41, 59, 0.7),
+        rgba(2, 6, 23, 1)
+    );
 }
 
 :deep(.vue-flow__edge-path) {
