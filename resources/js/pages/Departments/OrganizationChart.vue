@@ -83,7 +83,23 @@ const transformData = (data: DepartmentNode[]) => {
     const nodes: any[] = [];
     const edges: any[] = [];
 
-    const traverse = (item: DepartmentNode) => {
+    // Manejar datos como array flat o como árbol
+    const getFlatArray = (items: DepartmentNode[]): DepartmentNode[] => {
+        const result: DepartmentNode[] = [];
+        const traverse = (item: DepartmentNode) => {
+            result.push(item);
+            if (item.children && item.children.length > 0) {
+                item.children.forEach(traverse);
+            }
+        };
+        items.forEach(traverse);
+        return result;
+    };
+
+    const flatArray = getFlatArray(data);
+
+    // Crear nodos
+    flatArray.forEach((item) => {
         nodes.push({
             id: item.id.toString(),
             type: 'department',
@@ -99,6 +115,7 @@ const transformData = (data: DepartmentNode[]) => {
             position: { x: 0, y: 0 },
         });
 
+        // Crear edge si tiene parent_id
         if (item.parent_id) {
             edges.push({
                 id: `e${item.parent_id}-${item.id}`,
@@ -108,13 +125,8 @@ const transformData = (data: DepartmentNode[]) => {
                 style: { stroke: 'rgba(99, 102, 241, 0.4)', strokeWidth: 2 },
             });
         }
+    });
 
-        if (item.children && item.children.length > 0) {
-            item.children.forEach(traverse);
-        }
-    };
-
-    data.forEach(traverse);
     return { nodes, edges };
 };
 
@@ -170,18 +182,12 @@ const handleConnect = async (connection: any) => {
         notify.success(`Relación creada: ${parentId} → ${childId}`);
 
         // Actualizar el estado local inmediatamente
-        const nodeIndex = elements.value.findIndex(
-            (el) => el.id === connection.target
-        );
-        if (nodeIndex !== -1) {
-            // Actualizar el nodo con la nueva información
-            allDepartments.value = allDepartments.value.map((dept) => {
-                if (dept.id === childId) {
-                    return { ...dept, parent_id: parentId };
-                }
-                return dept;
-            });
-        }
+        allDepartments.value = allDepartments.value.map((dept) => {
+            if (dept.id === childId) {
+                return { ...dept, parent_id: parentId };
+            }
+            return dept;
+        });
 
         // Reconstruir elementos sin recargar desde la API
         const { nodes, edges } = transformData(allDepartments.value);
@@ -290,9 +296,8 @@ const handlePaneReady = () => {
                 :min-zoom="0.2"
                 :max-zoom="4"
                 :connection-line-options="{
-                    type: 'bezier',
+                    type: 'step',
                     animated: true,
-                    curvature: 0.5,
                 }"
             >
                 <Background pattern-color="rgba(255,255,255,0.05)" :gap="20" />
@@ -347,7 +352,14 @@ const handlePaneReady = () => {
 
 :deep(.vue-flow__edge-path) {
     stroke-dasharray: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
     animation: dash 1s linear infinite;
+}
+
+:deep(.vue-flow__connection-line) {
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 @keyframes dash {
